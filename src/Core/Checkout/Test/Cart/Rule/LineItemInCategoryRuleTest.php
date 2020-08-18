@@ -81,10 +81,10 @@ class LineItemInCategoryRuleTest extends TestCase
         $cart = new Cart('test', Uuid::randomHex());
 
         $cart->setLineItems(
-            (new LineItemCollection([
+            new LineItemCollection([
                 $this->createLineItem(['1']),
                 $this->createLineItem($lineItemCategoryIds),
-            ]))
+            ])
         );
 
         $match = $this->rule->match(new LineItemScope(

@@ -45,6 +45,12 @@ Component.register('sw-tree-item', {
             default: false
         },
 
+        contextMenuTooltipText: {
+            type: String,
+            required: false,
+            default: null
+        },
+
         activeParentIds: {
             type: Array,
             required: false
@@ -80,6 +86,18 @@ Component.register('sw-tree-item', {
         },
 
         displayCheckbox: {
+            type: Boolean,
+            required: false,
+            default: true
+        },
+
+        allowNewCategories: {
+            type: Boolean,
+            required: false,
+            default: true
+        },
+
+        allowDeleteCategories: {
             type: Boolean,
             required: false,
             default: true
@@ -161,7 +179,8 @@ Component.register('sw-tree-item', {
                 'is--opened': this.isOpened,
                 'is--no-children': this.item.childCount <= 0,
                 'is--marked-inactive': this.markInactive && !this.item.data.active,
-                'is--focus': this.shouldFocus && this.activeFocusId === this.item.id
+                'is--focus': this.shouldFocus && this.activeFocusId === this.item.id,
+                'is--no-checkbox': !this.displayCheckbox
             };
         },
 
@@ -189,6 +208,14 @@ Component.register('sw-tree-item', {
         },
 
         toolTip() {
+            if (this.contextMenuTooltipText !== null) {
+                return {
+                    showDelay: 300,
+                    message: this.contextMenuTooltipText,
+                    disabled: !this.disableContextMenu
+                };
+            }
+
             return {
                 showDelay: 300,
                 message: this.$tc(`${this.translationContext}.general.actions.actionsDisabledInLanguage`),

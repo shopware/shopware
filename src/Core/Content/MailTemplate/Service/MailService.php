@@ -137,15 +137,7 @@ class MailService implements MailServiceInterface
             $salesChannel = $templateData['salesChannel'];
         }
 
-        $senderEmail = $this->systemConfigService->get('core.basicInformation.email', $salesChannelId);
-
-        $senderEmail = $senderEmail ?? $this->systemConfigService->get('core.mailerSettings.senderAddress');
-
-        if ($senderEmail === null) {
-            $this->logger->error('senderMail not configured for salesChannel: ' . $salesChannelId . '. Please check system_config \'core.basicInformation.email\'');
-
-            return null;
-        }
+        $senderEmail = $this->getSender($data, $salesChannelId);
 
         $contents = $this->buildContents($data, $salesChannel);
         foreach ($contents as $index => $template) {
@@ -189,6 +181,19 @@ class MailService implements MailServiceInterface
             $binAttachments
         );
 
+        if ($message === null) {
+            $this->logger->error(
+                "message is null:\n"
+                . 'Data:'
+                . json_encode($data) . "\n"
+                . "Template data: \n"
+                . json_encode($templateData) . "\n"
+            );
+
+            return null;
+        }
+
+        $this->enrichMessage($message, $data);
         $mailBeforeSentEvent = new MailBeforeSentEvent($data, $message, $context);
         $this->eventDispatcher->dispatch($mailBeforeSentEvent);
 
@@ -202,6 +207,46 @@ class MailService implements MailServiceInterface
         $this->eventDispatcher->dispatch($mailSentEvent);
 
         return $message;
+    }
+
+    private function getSender($data, ?string $salesChannelId): ?string
+    {
+        $senderEmail = $data['senderEmail'] ?? null;
+
+        if ($senderEmail === null || trim($senderEmail) === '') {
+            $senderEmail = $this->systemConfigService->get('core.basicInformation.email', $salesChannelId);
+        }
+
+        if ($senderEmail === null || trim($senderEmail) === '') {
+            $senderEmail = $this->systemConfigService->get('core.mailerSettings.senderAddress', $salesChannelId);
+        }
+
+        if ($senderEmail === null || trim($senderEmail) === '') {
+            $this->logger->error('senderMail not configured for salesChannel: ' . $salesChannelId . '. Please check system_config \'core.basicInformation.email\'');
+
+            return null;
+        }
+
+        return $senderEmail;
+    }
+
+    private function enrichMessage(\Swift_Message $message, $data): void
+    {
+        if (isset($data['recipientsCc'])) {
+            $message->setCc($data['recipientsCc']);
+        }
+
+        if (isset($data['recipientsBcc'])) {
+            $message->setBcc($data['recipientsBcc']);
+        }
+
+        if (isset($data['replyTo'])) {
+            $message->setReplyTo($data['replyTo']);
+        }
+
+        if (isset($data['returnPath'])) {
+            $message->setReturnPath($data['returnPath']);
+        }
     }
 
     /**
@@ -257,7 +302,6 @@ class MailService implements MailServiceInterface
 
         $urls = [];
         foreach ($media as $mediaItem) {
-            $urls[] = $mediaItem->getUrl();
             $urls[] = $this->urlGenerator->getRelativeMediaUrl($mediaItem);
         }
 

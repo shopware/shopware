@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 describe('Currency: Test crud operations', () => {
     beforeEach(() => {

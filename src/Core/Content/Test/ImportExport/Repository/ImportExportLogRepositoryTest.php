@@ -387,16 +387,16 @@ class ImportExportLogRepositoryTest extends TestCase
         for ($i = 1; $i <= $num; ++$i) {
             $uuid = Uuid::randomHex();
 
-            $profile = $profiles[Uuid::fromHexToBytes($profileIds[($i % 2)])];
+            $profile = $profiles[Uuid::fromHexToBytes($profileIds[$i % 2])];
 
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
-                'activity' => $activities[($i % 2)] . $add,
+                'activity' => $activities[$i % 2] . $add,
                 'state' => sprintf('state %s', $i),
-                'userId' => $userIds[($i % 2)],
-                'profileId' => $profileIds[($i % 2)],
-                'fileId' => $fileIds[($i % 2)],
-                'username' => $users[Uuid::fromHexToBytes($userIds[($i % 2)])]['username'] . $add,
+                'userId' => $userIds[$i % 2],
+                'profileId' => $profileIds[$i % 2],
+                'fileId' => $fileIds[$i % 2],
+                'username' => $users[Uuid::fromHexToBytes($userIds[$i % 2])]['username'] . $add,
                 'profileName' => $profile['label'] . $add,
                 'records' => 10 * $i,
                 'config' => ['profile' => $profile],

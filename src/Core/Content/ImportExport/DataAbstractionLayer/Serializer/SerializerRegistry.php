@@ -6,9 +6,6 @@ use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\Ab
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field\AbstractFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 
-/**
- * @experimental We might break this with v6.2
- */
 class SerializerRegistry
 {
     /**

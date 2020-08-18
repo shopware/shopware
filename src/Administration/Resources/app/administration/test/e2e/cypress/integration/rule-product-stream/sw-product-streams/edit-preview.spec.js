@@ -1,4 +1,4 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
 
 import ProductStreamObject from '../../../support/pages/module/sw-product-stream.page-object';
 

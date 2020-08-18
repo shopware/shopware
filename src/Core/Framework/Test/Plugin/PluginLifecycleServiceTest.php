@@ -88,8 +88,6 @@ class PluginLifecycleServiceTest extends TestCase
 
     protected function setUp(): void
     {
-        static::markTestSkipped('NEXT-9627 - Improve plugin integration tests');
-
         // force kernel boot
         KernelLifecycleManager::bootKernel();
 
@@ -168,6 +166,11 @@ class PluginLifecycleServiceTest extends TestCase
     public function testUpdatePlugin(): void
     {
         $this->updatePlugin($this->context);
+    }
+
+    public function testUpdatePluginThrowsIfPluginIsNotInstalled(): void
+    {
+        $this->updatePluginThrowsIfPluginIsNotInstalled($this->context);
     }
 
     public function testActivatePlugin(): void
@@ -318,7 +321,8 @@ class PluginLifecycleServiceTest extends TestCase
 
     public function updateDeactivatedPluginWithException(Context $context): void
     {
-        $this->createPlugin($this->pluginRepo, $context, SwagTest::PLUGIN_OLD_VERSION);
+        $installedAt = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $this->createPlugin($this->pluginRepo, $context, SwagTest::PLUGIN_OLD_VERSION, $installedAt);
 
         $plugin = $this->getPlugin($context);
         $context->addExtension(SwagTest::THROW_ERROR_ON_UPDATE, new ArrayStruct());
@@ -460,7 +464,7 @@ class PluginLifecycleServiceTest extends TestCase
         $pluginInstalled = $this->installPlugin($context);
 
         static::assertNotNull($pluginInstalled->getInstalledAt());
-        static::assertNotNull($pluginInstalled->getUpgradedAt());
+        static::assertNull($pluginInstalled->getUpgradedAt());
         static::assertSame(SwagTest::PLUGIN_VERSION, $pluginInstalled->getVersion());
     }
 
@@ -488,7 +492,8 @@ class PluginLifecycleServiceTest extends TestCase
 
     private function updatePlugin(Context $context): void
     {
-        $this->createPlugin($this->pluginRepo, $context, SwagTest::PLUGIN_OLD_VERSION);
+        $installedAt = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        $this->createPlugin($this->pluginRepo, $context, SwagTest::PLUGIN_OLD_VERSION, $installedAt);
         static::assertSame(0, $this->getMigrationTestKeyCount());
 
         $plugin = $this->getPlugin($context);
@@ -501,6 +506,18 @@ class PluginLifecycleServiceTest extends TestCase
         static::assertSame(SwagTest::PLUGIN_VERSION, $pluginUpdated->getVersion());
 
         static::assertSame(1, $this->getMigrationTestKeyCount());
+    }
+
+    private function updatePluginThrowsIfPluginIsNotInstalled(Context $context): void
+    {
+        $this->createPlugin($this->pluginRepo, $context, SwagTest::PLUGIN_OLD_VERSION);
+        static::assertSame(0, $this->getMigrationTestKeyCount());
+
+        $plugin = $this->getPlugin($context);
+
+        static::expectException(PluginNotInstalledException::class);
+        $this->expectExceptionMessage(sprintf('Plugin "%s" is not installed.', self::PLUGIN_NAME));
+        $this->pluginLifecycleService->updatePlugin($plugin, $context);
     }
 
     private function activatePlugin(Context $context): void
@@ -618,7 +635,7 @@ class PluginLifecycleServiceTest extends TestCase
         return $id;
     }
 
-    private function setNewSystemLanguage($iso): void
+    private function setNewSystemLanguage(string $iso): void
     {
         $languageRepository = $this->getContainer()->get('language.repository');
 

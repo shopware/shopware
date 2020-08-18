@@ -9,7 +9,7 @@ Component.register('sw-settings-snippet-detail', {
     template,
 
     inject: [
-        'snippetService',
+        'snippetService', // @deprecated tag:v6.4.0.0
         'snippetSetService',
         'userService',
         'repositoryFactory'

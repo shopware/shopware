@@ -310,6 +310,11 @@
     }
   },
   "sw-privileges": {
+    "permissions": {
+      "order": {
+        "label": "Bestellungen"
+      }
+    },
     "additional_permissions": {
       "orders": {
         "create_discounts": "Rabatte erstellen"

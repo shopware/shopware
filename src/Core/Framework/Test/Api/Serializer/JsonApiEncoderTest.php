@@ -83,7 +83,7 @@ class JsonApiEncoderTest extends TestCase
         $actual = json_decode($actual, true);
 
         // remove extensions from test
-        $actual = $this->array_remove($actual, 'extensions');
+        $actual = $this->arrayRemove($actual, 'extensions');
         $actual['included'] = $this->removeIncludedExtensions($actual['included']);
 
         static::assertEquals($fixture->getAdminJsonApiFixtures(), $actual);
@@ -140,11 +140,11 @@ class JsonApiEncoderTest extends TestCase
         static::assertEquals($fixture->getAdminJsonApiFixtures(), json_decode($actual, true));
     }
 
-    private function array_remove($haystack, $keyToRemove): array
+    private function arrayRemove($haystack, string $keyToRemove): array
     {
         foreach ($haystack as $key => $value) {
             if (is_array($value)) {
-                $haystack[$key] = $this->array_remove($haystack[$key], $keyToRemove);
+                $haystack[$key] = $this->arrayRemove($haystack[$key], $keyToRemove);
             }
 
             if ($key === $keyToRemove) {

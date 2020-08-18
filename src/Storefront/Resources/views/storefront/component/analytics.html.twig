@@ -12,7 +12,7 @@
             function gtag() { dataLayer.push(arguments); }
 
             {% block component_head_analytics_tag_config %}
-                window.gtagCallback = () => {
+                window.gtagCallback = function gtagCallbackFunction() {
                     gtag('js', new Date());
 
                     gtag('config', '{{ trackingId }}', {

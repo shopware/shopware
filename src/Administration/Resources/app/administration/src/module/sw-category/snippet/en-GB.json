@@ -91,15 +91,31 @@
       "products": {
         "productAssignmentHeadline": "Product assignment",
         "productAssignmentPlaceholder": "Search and assign products...",
+        "productAssignmentLabel": "Products",
         "productAssignmentEmptyStateDescription": "No products assigned",
+        "productStreamAssignmentEmptyStateDescription": "No dynamic product group assigned",
         "columnNameLabel": "Name",
-        "columnManufacturerLabel": "Manufacturer"
+        "columnManufacturerLabel": "Manufacturer",
+        "productAssignmentTypeLabel": "Type",
+        "productAssignmentTypeManualLabel": "Manual selection",
+        "productAssignmentTypeStreamLabel": "Dynamic product group",
+        "productAssignmentTypeStreamPlaceholder": "Search and assign dynamic product groups...",
+        "alertManualAssignedProductsOnAssignmentTypeStream": "There are still manually assigned products in this category. Those products will not be visible in this category but may be visible in parent categories.",
+        "dynamicProductGroupDetailLinkText": "Dynamic product group details",
+        "dynamicProductGroupInvalidMessage": "The selected dynamic product group is not valid. Please verify your dynamic product group details."
       }
     },
     "modal": {
       "textDeleteConfirm": "Are you sure you really want to delete the category \"{name}\"?",
       "textDeleteChildrenConfirm": "All subcategories will be deleted too.",
       "textDeleteMultipleConfirm": "Are you sure you want to delete the {count} selected categories?"
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "category": {
+        "label": "Categories"
+      }
     }
   }
 }

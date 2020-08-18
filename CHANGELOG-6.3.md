@@ -10,10 +10,151 @@ To get the diff between two versions, go to https://github.com/shopware/platform
 Table of contents
 ----------------
 * [Table of contents](#table-of-contents)
+* [NEXT](#NEXT)
 * [6.3.0.0](#630)
   - [Administration](#administration)
   - [Core](#core)
   - [Storefront](#storefront)
+  
+NEXT
+----------------
+
+#### Administration
+* Added new method to `src/Administration/Resources/app/administration/src/app/service/privileges.service.js`
+    * `addPrivilegeMappingEntries`
+* Added new function to `src/Administration/Resources/app/administration/src/core/service/utils/debug.utils.js`
+    * `error`
+* Added new privileges service: 
+`src/Administration/Resources/app/administration/src/module/sw-property/acl/index.js`
+* Added prop `savePermission` to `sw-language-switch/index.js`
+* Added new computed props to `sw-property-option-list/index.js`
+    * `allowInlineEdit`
+    * `tooltipAdd`
+    * `disableAddButton`
+* Extended `sw-category-detail-base/index.js`
+    * Added lifecycle hook `created`
+    * Added methods `createdComponent` and `loadProductStreamPreview`
+    * Added computed props `productStreamRepository`, `productAssignmentTypes` and `productStreamInvalidError`
+    * Added data props `productStreamFilter` and `productStreamInvalid`
+    * Extend `mapPropertyErrors` with props `productStreamId` and `productAssignmentType`
+* Added prop `plainAppearance` to `sw-data-grid` which provides an alternative and more minimalistic design
+* Added prop `absolute` to `sw-empty-state` which is `true` by default
+* Added prop `showDescription` to `sw-empty-state` which is `true` by default
+* Added prop `selectLabel` to `sw-many-to-many-assignment-card` in order to show a label for the default select element
+* Added slot `prepend-select` to `sw-many-to-many-assignment-card` in order to show additional content before the select element
+* Added new event `paginate` to `paginateGrid` method in `sw-many-to-many-assignment-card`
+* Added slot `select` to `sw-many-to-many-assignment-card` in order to override the default select element
+* Added slot `data-grid` to `sw-many-to-many-assignment-card` in order to override the data grid component
+* Added new component `sw-product-stream-grid-preview` which displays a product stream preview inside a `sw-data-grid`
+* Added support for custom field set selection to `sw-custom-field-set-renderer`
+    * Added property `showCustomFieldSetSelection`
+* Added support for inheritance to `sw-custom-field-set-renderer`
+    * Added property `parentEntity`
+* Added ACL permissions to categories module
+* Added property `disabled` to `sw-many-to-many-assignment-card` component
+* Added property `disabled` to `sw-media-upload-v2` component
+* Added property `contextMenuTooltipText` to `sw-tree-item` component
+* Added property `allowNewCategories` to `sw-tree-item` component
+* Added property `allowDeleteCategories` to `sw-tree-item` component
+* Added property `allowDeleteCategories` to `sw-tree` component
+* Added property `allowEdit` to `sw-category-tree` component
+* Added property `allowCreate` to `sw-category-tree` component
+* Added property `allowDelete` to `sw-category-tree` component
+* Added computed `contextMenuTooltipText` to `sw-category-tree` component
+* Added property `disabled` to `sw-cms-list-item` component
+* Added method `onItemClick` to `sw-cms-list-item` component
+* Added property `disabled` to `sw-seo-url` component
+* Deprecated block `sw_product_detail_properties_empty_state_text_empty` in `sw-product-detail-properties` component.
+* Added prop `salesChannelId` to `sw-order-line-items-grid-sales-channel/index.js`
+* Added prop `salesChannelId` to `sw-order-product-select/index.js`
+* Changed tax id of newly generated variants to null in order to inherit from the parent product
+* Fixed template factory so it is possible again to override nested blocks in one `Component.override()`
+* Added ACL permissions to orders module
+* Added prop `disabled` to `sw-order-state-history-card-entry`
+* Added prop `disabled` to `sw-order-state-select`
+* Removed `autoHide` property from `sw_property_search_tree_option_grid_pagination` and `sw_property_search_option_search_grid_pagination`
+
+#### Core
+
+* Changed `keyword` fields in Elasticsearch to normalize to lower case
+* Changed temporary filename of sitemap to avoid conflicts with other installations
+* Removed required flag of customer_id
+* Added `Logger` to `Shopware\Elasticsearch\Framework\ClientFactory::createClient`
+* Added event `GenericPageLoadedEvent`, which is fired once a page is requested via the `GenericPageLoader`
+* Changed the way the `CheckoutConfirmPage` is loaded. It now uses the `GenericPageLoader` as well.
+* Deprecated the constructor of `Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPage`. Use `CheckoutConfirmPage::createFrom` instead.
+* Added fields in `src/Core/Content/Category/CategoryDefinition.php`
+    * `StringField` with `product_assignment_type`
+    * `FkField` with `product_stream_id`
+    * `ManyToOneAssociationField` with `product_stream_id`
+    * Extend defaults with `productAssignmentType` type `product`
+* Added new constants in `src/Core/Content/Category/CategoryDefinition.php`
+    * `PRODUCT_ASSIGNMENT_TYPE_PRODUCT` with value `product`
+    * `PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM` with value `product_stream`
+* Added new methods in `src/Core/Content/ProductStream/ProductStreamEntity.php`
+    * `getCategories`
+    * `setCategories`
+* Added new methods in `src/Core/Content/Category/CategoryEntity.php`
+    * `getProductStream`
+    * `setProductStream`
+    * `getProductStreamId`
+    * `setProductStreamId`
+    * `getProductAssignmentType`
+    * `setProductAssignmentType`
+* Added migration `src/Core/Migration/Migration1592837424AddProductTypeToCategory.php`
+* Added `OneToManyAssociationField` with `categories` and `product_stream_id` in `src/Core/Content/ProductStream/ProductStreamDefinition.php`
+* Added arguments `categoryRepository` and `productStreamBuilder` to `src/Core/Content/Product/SalesChannel/Listing/ProductListingRoute.php`
+    * Added arguments `category.repository` and `Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder` to service `Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute` in `src/Core/Content/DependencyInjection/product.xml`
+* Deprecated `.php_cs.dist` cs-fixer config file. Use Easy Coding Standard instead.
+* Plugins that are not installed can't be updated anymore. If you try to update an plugin that is not yet installed with `bin/console plugin:update` the plugin will be skipped.
+* Added bool `custom_field_set_selection_active` to ProductDefinition
+* Added many to many association `customFieldSets` to ProductDefinition
+* Added new entity `product_custom_field_set`
+* Added possibility to use a write operation without actual data, which then does nothing
+* Added generation of order delivery positions when editing an order in the administration
+* Changed the way `senderEmail` is resolved in `\Shopware\Core\Content\MailTemplate\Service\MailService`. It's now possible to override it with `$data['senderEmail']`. 
+* Thumbnails are no longer being upscaled when the original image is smaller than the desired thumbnail size
+* Added new constant `DISPLAY_TYPE_MEDIA` in `Shopware\Core\Content\Property\PropertyGroupDefinition`
+* Added `--fix` option to `snippet:validate` command, which will start a wizard to fix the translations step by step
+* Increased Elasticsearch config `mapping.nested_objects.limit` to 1000000
+* Fixed company name field on profile page and prefill it with billingAddress company
+* Fixed an issue with submitting the contact form when a contact form configuration was unavailable in another language
+
+#### Storefront
+
+* Added new plugin class `clear-input.plugin.js`
+* Added new event methods `onOpenButtonClick`, `onCloseButtonClick` and `onClearButtonClick` in `date-picker.plugin.js`
+* Added new method `registerEventListeners` in `date-picker.plugin.js`
+* Added new property `selectors` to `static options` in `date-picker.plugin.js` with the following values:
+   * `openButton: null`
+   * `closeButton: null`
+   * `clearButton: null`
+* We extended setup of the `storefront:hot-proxy`
+    * The proxy's assets port is now configurable.
+        * Using npm: run `APP_URL="<your url>" STOREFRONT_ASSETS_PORT=<some port> PROJECT_ROOT=<path to your root folder>/ npm run hot-proxy` from the storefronts js directory.
+    * The default port is still port 9999.
+* Fixed to show the listing loader for `cms-element-product-listing`
+    * Added `cmsProductListingWrapperSelector` property in `listing.plugin.js`
+    * Added `addLoadingElementLoaderClass` function in `listing.plugin.js`
+    * Added `removeLoadingElementLoaderClass` function in `listing.plugin.js`
+* Added block `page_checkout_item_quantity_number` in `page/checkout/checkout-item.html.twig` to other place can inherit
+    * Replace block `page_checkout_item_quantity` to `page_checkout_item_quantity_form` in `account/order/line-item.html.twig`
+* Fixed wrong meta tag value `twitter:card` in `storefront/layout/meta.html.twig`
+* Fixed `packUnit` and `packUnitPlural` not being properly accessed in `buy-widget-form.html.twig`
+* Deprecated template component/listing/breadcrumb.html.twig. Breadcrumb will be handled by generic layout/breadcrumb.html.twig.
+* Deprecated template component/product/breadcrumb.html.twig. Breadcrumb will be handled by generic layout/breadcrumb.html.twig.
+* Deprecated block page_product_detail_breadcrumb in page/product-detail/index.html.twig. Breadcrumb will be handled by block base_breadcrumb in storefront/base.html.twig.
+* Product box display mode inside the product listing won't behave the same way anymore
+* Fixed switching to domains with upper case paths like `https://example.com/de-DE`
+* Fixed to hiding the `sort by` within the review options in the storefront when there are no reviews
+* The `FormFieldTogglePlugin` in `form-field-toggle.plugin.js` now supports using a scope.
+    * Added `scopeAll` property, which contains the default scope being used
+    * Added `scopeDataAttribute` property, which can be used to set the scope to `parent` instead of `all`
+    * Added `parentSelectorDataAttribute` property, which must be defined if you've set the scope to `parent`. It contains the selector of the parent element.
+* Changed `\Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute` to provide loggedin context token
+* Changed `\Shopware\Core\System\SalesChannel\Api\StoreApiResponseListener` to pass the headers to the new response
+* Deprecated `\Shopware\Core\Checkout\Customer\SalesChannel\AccountRegistrationService` use `RegisterRoute` or `RegisterConfirmRoute`
+* Fixed to hiding the shipping cost dropdown if the customer is logged in block `page_checkout_cart_shipping_costs_form_group_country`
 
 6.3.0.0
 ----------------
@@ -127,7 +268,7 @@ Table of contents
 * Refactor `sw-settings-user-detail`
     * Added `newPasswordConfirm`
     * Fixed issue when saving new admin password
-    * Disabled `change` button if passwords does not match
+    * Disabled `change` button if passwords do not match
 * Added language switch to Scale Units list page to translate scale units
 * Added tooltips to the toolbar of text editor
 * Added isInlineEdit property to component `sw-text-editor-toolbar`
@@ -754,6 +895,9 @@ Refactored `src/module/sw-plugin/snippet/en-GB.json`:
 * Custom fields assigned to a category entity can now also be configured in categories of type "link"
 * Added block `sw_customer_list_sidebar_filter_items` to `sw-customer-list` allow easier adding filters to the sidebar
 * Added block `sw_corder_list_sidebar_filter_items` to `sw-order-list` allow easier adding filters to the sidebar
+* Fixed the sidebar with filters that wasn't displayed in the orderlist
+* Fix truncated text in `sw-property-search`. Changed prop `flex` of `sw-grid-column` to `minmax(0, 1fr)`
+* Fixed a bug where template resolving stopped the application from running if a `Component.override` or `Component.extend` was executed for a base component which was not registered. The application resolves this components to `false` and a `unknown custom element` exception will now be raised only if used in a template.
 
 #### Core
 * Deprecated `\Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator`, use `\Shopware\Core\Checkout\Cart\Tax\TaxCalculator` instead

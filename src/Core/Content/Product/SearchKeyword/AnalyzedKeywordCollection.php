@@ -13,16 +13,21 @@ use Shopware\Core\Framework\Struct\Collection;
  */
 class AnalyzedKeywordCollection extends Collection
 {
+    /**
+     * @param AnalyzedKeyword $element
+     */
     public function add($element): void
     {
         $this->validateType($element);
 
         $keyword = $element->getKeyword();
-        $best = $this->getBest($element, $keyword);
-
-        $this->elements[$keyword] = $best;
+        $this->elements[$keyword] = $this->getBest($element, $keyword);
     }
 
+    /**
+     * @param string|int      $key
+     * @param AnalyzedKeyword $element
+     */
     public function set($key, $element): void
     {
         $this->validateType($element);

@@ -250,13 +250,13 @@ class ProductRepositoryTest extends TestCase
         ];
         $this->repository->create([$data], $this->context);
 
+        /** @var ProductEntity|null $variant */
         $variant = $this->repository
             ->search(new Criteria([$variantId]), $this->context)
             ->get($variantId);
 
         static::assertInstanceOf(ProductEntity::class, $variant);
 
-        /** @var ProductEntity $variant */
         static::assertNull($variant->getName());
     }
 
@@ -279,13 +279,13 @@ class ProductRepositoryTest extends TestCase
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('searchKeywords');
 
+        /** @var ProductEntity|null $product */
         $product = $this->repository
             ->search($criteria, $this->context)
             ->get($id);
 
         static::assertInstanceOf(ProductEntity::class, $product);
 
-        /** @var ProductEntity $product */
         static::assertInstanceOf(ProductSearchKeywordCollection::class, $product->getSearchKeywords());
 
         $keywords = $product->getSearchKeywords()->map(static function (ProductSearchKeywordEntity $entity) {
@@ -302,13 +302,13 @@ class ProductRepositoryTest extends TestCase
 
         $this->repository->update([$update], $this->context);
 
+        /** @var ProductEntity|null $product */
         $product = $this->repository
             ->search($criteria, $this->context)
             ->get($id);
 
         static::assertInstanceOf(ProductEntity::class, $product);
 
-        /** @var ProductEntity $product */
         static::assertInstanceOf(ProductSearchKeywordCollection::class, $product->getSearchKeywords());
 
         $keywords = $product->getSearchKeywords()->map(static function (ProductSearchKeywordEntity $entity) {

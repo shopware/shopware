@@ -63,6 +63,7 @@ class DeliveryTransformer
                 'id' => self::getId($position),
                 'price' => $position->getPrice(),
                 'orderLineItemId' => $lineItems[$position->getIdentifier()]['id'],
+                'orderLineItemVersionId' => $context->getVersionId(),
             ];
         }
 

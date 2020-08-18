@@ -1,0 +1,44 @@
+@import "~scss/variables";
+
+.sw-settings-product-feature-sets-values-card {
+    &.is--empty {
+        .sw-card__content {
+            min-height: 390px;
+        }
+    }
+
+    .sw-settings-product-feature-set-card__empty-state {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 400px;
+    }
+
+    .sw-settings-product-feature-set-card__empty-state--label {
+        margin-top: 25px;
+        margin-bottom: 25px;
+        max-width: 270px;
+        text-align: center;
+        font-size: 14px;
+        color: rgb(148, 167, 183);
+    }
+
+    .sw-product-feature-set__toolbar {
+        padding: 25px 35px;
+        background-color: $color-light-gray;
+        border-bottom: 1px solid $color-steam-cloud;
+
+        .sw-product-feature-set__delete-button {
+            border-color: $color-crimson;
+
+            .sw-icon {
+                color: $color-crimson;
+            }
+
+            &.sw-button--disabled {
+                opacity: 0.2;
+            }
+        }
+    }
+}

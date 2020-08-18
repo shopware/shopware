@@ -104,6 +104,11 @@ class Criteria extends Struct
     protected $includes;
 
     /**
+     * @var string|null
+     */
+    protected $title;
+
+    /**
      * @throws InconsistentCriteriaIdsException
      */
     public function __construct(array $ids = [])
@@ -457,6 +462,7 @@ class Criteria extends Struct
     public function cloneForRead(array $ids = []): Criteria
     {
         $self = new self($ids);
+        $self->setTitle($this->getTitle());
 
         $associations = [];
 
@@ -533,6 +539,16 @@ class Criteria extends Struct
     public function removeAssociation(string $association): void
     {
         unset($this->associations[$association]);
+    }
+
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+    public function setTitle(?string $title): void
+    {
+        $this->title = $title;
     }
 
     private function collectFields(array $parts): array

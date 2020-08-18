@@ -1,4 +1,4 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
 
 import SalesChannelPageObject from '../../../support/pages/module/sw-sales-channel.page-object';
 
@@ -19,7 +19,7 @@ describe('Sales Channel: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/sales-channel',
+            url: `${Cypress.env('apiPath')}/sales-channel`,
             method: 'post'
         }).as('saveData');
 
@@ -59,7 +59,7 @@ describe('Sales Channel: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/sales-channel/*',
+            url: `${Cypress.env('apiPath')}/sales-channel/*`,
             method: 'patch'
         }).as('saveData');
 
@@ -80,7 +80,7 @@ describe('Sales Channel: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/sales-channel/*',
+            url: `${Cypress.env('apiPath')}/sales-channel/*`,
             method: 'delete'
         }).as('deleteData');
 

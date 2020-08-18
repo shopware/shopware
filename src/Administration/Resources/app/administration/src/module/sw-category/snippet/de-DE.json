@@ -90,15 +90,31 @@
       "products": {
         "productAssignmentHeadline": "Produkt-Zuweisung",
         "productAssignmentPlaceholder": "Produkte durchsuchen und zuweisen ...",
+        "productAssignmentLabel": "Produkte",
         "productAssignmentEmptyStateDescription": "Keine Produkte zugewiesen",
+        "productStreamAssignmentEmptyStateDescription": "Keine dynamische Produktgruppe zugewiesen",
         "columnNameLabel": "Name",
-        "columnManufacturerLabel": "Hersteller"
+        "columnManufacturerLabel": "Hersteller",
+        "productAssignmentTypeLabel": "Typ",
+        "productAssignmentTypeManualLabel": "Manuelle Auswahl",
+        "productAssignmentTypeStreamLabel": "Dynamische Produktgruppe",
+        "productAssignmentTypeStreamPlaceholder": "Durchsuche dynamische Produktgruppen ...",
+        "alertManualAssignedProductsOnAssignmentTypeStream": "Es sind noch manuell zugewiesene Produkte in dieser Kategorie. Diese Produkte sind in dieser Kategorie nicht sichtbar, können jedoch in übergeordneten Kategorien sichtbar sein.",
+        "dynamicProductGroupDetailLinkText": "Dynamische Produktgruppe Details",
+        "dynamicProductGroupInvalidMessage": "Die ausgewählte dynamische Produktgruppe ist nicht gültig. Bitte überprüfe die Details der dynamischen Produktgruppe."
       }
     },
     "modal": {
       "textDeleteConfirm": "Möchtest Du die Kategorie \"{name}\" wirklich löschen?",
       "textDeleteChildrenConfirm": "Alle unterliegenden Kategorien werden auch gelöscht.",
       "textDeleteMultipleConfirm": "Möchtest Du diese {count} ausgewählten Kategorien wirklich löschen?"
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "category": {
+        "label": "Kategorien"
+      }
     }
   }
 }

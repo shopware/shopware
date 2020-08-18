@@ -7,6 +7,13 @@ Component.register('sw-order-line-items-grid-sales-channel', {
     template,
 
     props: {
+        salesChannelId: {
+            type: String,
+            // @deprecated tag:v6.4.0 - salesChannelId will become required: true
+            required: false,
+            default: ''
+        },
+
         cart: {
             type: Object,
             required: true
@@ -110,7 +117,7 @@ Component.register('sw-order-line-items-grid-sales-channel', {
             if (item.label === '') {
                 return;
             }
-
+            item.priceDefinition.isCalculated = true;
             this.$emit('on-save-item', item);
         },
 

@@ -1300,7 +1300,7 @@ describe('core/factory/component.factory.js', () => {
             ComponentFactory.extend('child-component', 'root-component', {
                 template: '<div>This is a test template.</div>'
             });
-            shallowMount(ComponentFactory.build('child-component'));
+            ComponentFactory.build('child-component');
 
             const actual = cloneDeep(ComponentFactory.getOverrideRegistry().get('root-component'));
 
@@ -1346,5 +1346,96 @@ describe('core/factory/component.factory.js', () => {
 
         const component = ComponentFactory.build('password-field-component');
         expect(component.template).toBe('<input type="password">');
+    });
+
+    it('override should redeclare blocks if parent is used', () => {
+        ComponentFactory.register('base-component', {
+            // eslint-disable-next-line max-len
+            template: '{% block base_component %}<div>{% block content %}This is the base content.{% endblock %}</div>{% endblock %}'
+        });
+
+        ComponentFactory.override('base-component', {
+            template: '{% block content %}{% parent %} This is the inner override.{% endblock %}'
+        });
+
+        ComponentFactory.override('base-component', {
+            template: '{% block base_component %}<div>This is the outer override. {% parent %}</div>{% endblock %}'
+        });
+
+        const component = ComponentFactory.build('base-component');
+        // eslint-disable-next-line max-len
+        const expected = '<div>This is the outer override. <div>This is the base content. This is the inner override.</div></div>';
+
+        expect(component.template).toBe(expected);
+    });
+
+    it('allows to override nested blocks', () => {
+        ComponentFactory.register('root-component', {
+            // eslint-disable-next-line max-len
+            template: '<div class="root-component">{% block outer_block %}{% block nested_block %}<div>I\'m nested</div>{% endblock %}{% endblock %}</div>'
+        });
+
+        ComponentFactory.override('root-component', {
+            template:
+                '{% block outer_block %}Overriding outer block {% parent %} {% endblock %}' +
+                '{% block nested_block %}Overriding inner block {% parent %} {% endblock %}'
+        });
+
+        const component = ComponentFactory.build('root-component');
+        // eslint-disable-next-line max-len
+        const expected = '<div class="root-component">Overriding outer block Overriding inner block <div>I\'m nested</div>  </div>';
+
+        expect(component.template).toEqual(expected);
+    });
+
+    it('allows to override nested blocks with parent call', () => {
+        ComponentFactory.register('root-component', {
+            // eslint-disable-next-line max-len
+            template: '<div class="root-component">{% block outer_block %}Im the outer block {% block nested_block %}<div>I\'m nested</div>{% endblock %}{% endblock %}</div>'
+        });
+
+        ComponentFactory.override('root-component', {
+            template:
+                '{% block outer_block %}Overriding outer block {% parent %} {% endblock %}' +
+                '{% block nested_block %}Overriding inner block {% parent %} {% endblock %}'
+        });
+
+        const component = ComponentFactory.build('root-component');
+        // eslint-disable-next-line max-len
+        const expected = '<div class="root-component">Overriding outer block Im the outer block Overriding inner block <div>I\'m nested</div>  </div>';
+
+        expect(component.template).toEqual(expected);
+    });
+
+    it('ignores component overrides or extensions of components that are not registered', () => {
+        ComponentFactory.override('override-without-register', {
+            template: '{% block text_field %}<div>Not registered</div>{% endblock %}'
+        });
+
+        ComponentFactory.extend('extended-component', 'not-registered', {
+            template: '{% block text_field %}<div>Not registered</div>{% endblock %}'
+        });
+
+        const overriden = ComponentFactory.build('override-without-register');
+        const extended = ComponentFactory.build('extended-component');
+
+        expect(overriden).toBe(false);
+        expect(extended).toBe(false);
+    });
+
+    it('returns a component if it has no template but a render function', () => {
+        ComponentFactory.override('not-registered-with-render-function', {
+            render(h) { return h('div', {}, 'i was not registered'); }
+        });
+
+        ComponentFactory.register('with-render-function', {
+            render(h) { return h('div', {}, 'registered component'); }
+        });
+
+        const overriden = ComponentFactory.build('not-registered-with-render-function');
+        const registered = ComponentFactory.build('with-render-function');
+
+        expect(overriden).toBe(false);
+        expect(registered).not.toBe(false);
     });
 });

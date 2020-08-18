@@ -178,8 +178,8 @@
         <service id="Shopware\Storefront\Pagelet\Header\HeaderPageletLoader">
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\System\Currency\SalesChannel\CurrencyRoute"/>
-            <argument type="service" id="Shopware\Core\System\Language\SalesChannel\LanguageRoute"/><argument type="service" id="Shopware\Core\Content\Category\Service\NavigationLoader"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
+            <argument type="service" id="Shopware\Core\System\Language\SalesChannel\LanguageRoute"/>
+            <argument type="service" id="Shopware\Core\Content\Category\Service\NavigationLoader"/>
         </service>
 
         <service id="Shopware\Storefront\Pagelet\Footer\FooterPageletLoader">
@@ -254,6 +254,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
             <argument type="service" id="Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute"/>
+            <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoader">
@@ -281,7 +282,6 @@
         <service id="Shopware\Storefront\Page\Account\PaymentMethod\AccountPaymentMethodPageLoader">
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Account\Overview\AccountOverviewPageLoader">
@@ -307,9 +307,9 @@
 
         <service id="Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader">
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
-            <argument type="service" id="sales_channel.country.repository"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="sales_channel.salutation.repository"/>
+            <argument type="service" id="Shopware\Core\System\Country\SalesChannel\CountryRoute"/>
+            <argument type="service" id="Shopware\Core\System\Salutation\SalesChannel\SalutationRoute"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoader" public="true">
@@ -317,8 +317,8 @@
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AddressService"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
-            <argument type="service" id="sales_channel.salutation.repository"/>
-            <argument type="service" id="sales_channel.country.repository"/>
+            <argument type="service" id="Shopware\Core\System\Salutation\SalesChannel\SalutationRoute"/>
+            <argument type="service" id="Shopware\Core\System\Country\SalesChannel\CountryRoute"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Newsletter\Register\NewsletterRegisterPageLoader">

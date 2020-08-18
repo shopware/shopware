@@ -106,6 +106,7 @@ return [
     'configuration_sconfig_domain' => 'Shop-Domain :',
     'configuration_sconfig_language' => 'Langue système standard :',
     'configuration_sconfig_currency' => 'Devise par défaut :',
+    'configuration_sconfig_country' => 'Pays par défaut :',
     'configuration_sconfig_currency_info' => 'Cette devise est utilisée par défaut pour le prix des produits.',
     'configuration_admin_currency_eur' => 'Euro',
     'configuration_admin_currency_usd' => 'Dollar (US)',

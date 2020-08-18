@@ -32,9 +32,11 @@ class NewsletterUpdateEvent extends Event implements MailActionInterface
     private $mailRecipientStruct;
 
     /**
+     * @deprecated tag:v6.4.0 - Will be removed without replacement as the property is never written
+     *
      * @var string
      */
-    private $url;
+    private $url = '';
 
     /**
      * @var string
@@ -69,6 +71,9 @@ class NewsletterUpdateEvent extends Event implements MailActionInterface
         return $this->newsletterRecipient;
     }
 
+    /**
+     * @deprecated tag:v6.4.0 - Will be removed without replacement as the property is never written
+     */
     public function getUrl(): string
     {
         return $this->url;
@@ -76,15 +81,13 @@ class NewsletterUpdateEvent extends Event implements MailActionInterface
 
     public function getMailStruct(): MailRecipientStruct
     {
-        if ($this->mailRecipientStruct) {
-            return $this->mailRecipientStruct;
+        if (!$this->mailRecipientStruct instanceof MailRecipientStruct) {
+            $this->mailRecipientStruct = new MailRecipientStruct([
+                $this->newsletterRecipient->getEmail() => $this->newsletterRecipient->getFirstName() . ' ' . $this->newsletterRecipient->getLastName(),
+            ]);
         }
 
-        return new MailRecipientStruct(
-            [
-                $this->newsletterRecipient->getEmail() => $this->newsletterRecipient->getFirstName() . ' ' . $this->newsletterRecipient->getLastName(),
-            ]
-        );
+        return $this->mailRecipientStruct;
     }
 
     public function getSalesChannelId(): ?string

@@ -337,7 +337,9 @@ WHERE product.id IN (:ids) AND product.version_id = :version;
         $query->from('order_line_item');
         $query->andWhere('type = :type');
         $query->andWhere('order_id = :id');
+        $query->andWhere('version_id = :version');
         $query->setParameter('id', Uuid::fromHexToBytes($orderId));
+        $query->setParameter('version', Uuid::fromHexToBytes(Defaults::LIVE_VERSION));
         $query->setParameter('type', LineItem::PRODUCT_LINE_ITEM_TYPE);
 
         return $query->execute()->fetchAll(\PDO::FETCH_ASSOC);

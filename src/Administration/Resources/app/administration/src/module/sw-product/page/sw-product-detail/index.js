@@ -1,5 +1,3 @@
-import { ifNext6997, next6997 } from 'src/flag/feature_next6997';
-
 import template from './sw-product-detail.html.twig';
 import swProductDetailState from './state';
 import errorConfiguration from './error.cfg.json';
@@ -150,9 +148,8 @@ Component.register('sw-product-detail', {
                 .addAssociation('seoUrls')
                 .addAssociation('mainCategories')
                 .addAssociation('options.group')
-                .addAssociation('customFieldSets');
-
-            ifNext6997(() => criteria.addAssociation('featureSets'));
+                .addAssociation('customFieldSets')
+                .addAssociation('featureSet');
 
             return criteria;
         },
@@ -319,7 +316,7 @@ Component.register('sw-product-detail', {
                     gross: null
                 }];
 
-                this.product.featureSets = this.defaultFeatureSet;
+                this.product.featureSet = this.defaultFeatureSet;
 
                 Shopware.State.commit('swProductDetail/setLoading', ['product', false]);
             });
@@ -387,10 +384,6 @@ Component.register('sw-product-detail', {
         },
 
         loadDefaultFeatureSet() {
-            if (!next6997()) {
-                return Promise.resolve();
-            }
-
             Shopware.State.commit('swProductDetail/setLoading', ['defaultFeatureSet', true]);
 
             return this.featureSetRepository.search(this.defaultFeatureSetCriteria, Shopware.Context.api).then((res) => {

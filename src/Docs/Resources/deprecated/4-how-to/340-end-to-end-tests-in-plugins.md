@@ -113,7 +113,7 @@ Let's assume you want to test if you can edit your plugin's configuration and sa
 start with the basic structure of your test. According to the structure above, our `spec` file will look like this:
 
 ```javascript
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
 
 describe('PluginCypressTests: Test configuration', () => {
   it('edit plugin\'s configuration', () => {
@@ -234,7 +234,7 @@ the `beforeEach` hook as well.
 
 Finally, our test spec should be ready to run! Let's look at it in completion:
 ```javascript
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
 
 describe('PluginCypressTests: Test configuration', () => {
     beforeEach(() => {

@@ -81,7 +81,6 @@ Component.register('sw-custom-field-set-renderer', {
 
     data() {
         return {
-            customFieldSetSelectionActive: false
         };
     },
 
@@ -90,13 +89,38 @@ Component.register('sw-custom-field-set-renderer', {
             return this.parentEntity ? !!this.parentEntity.id : false;
         },
 
+        // Check if it is possible to use custom field set selection
         customFieldSetSelectionAvailable() {
-            return this.showCustomFieldSetSelection && this.entity.hasOwnProperty('customFieldSets');
+            return this.showCustomFieldSetSelection
+                && this.entity.hasOwnProperty('customFieldSets')
+                && this.entity.hasOwnProperty('customFieldSetSelectionActive');
+        },
+
+        filterCustomFields() {
+            if (!this.customFieldSetSelectionAvailable) {
+                return false;
+            }
+
+            if (this.entity.customFieldSetSelectionActive === false) {
+                return false;
+            }
+
+            // Main product with customFieldSetSelectionActive not set
+            if (this.entity.customFieldSetSelectionActive === null && !this.hasParent) {
+                return false;
+            }
+
+            // customFieldSetSelectionActive not set and parent product has no selection
+            if (this.entity.customFieldSetSelectionActive === null
+                && this.getInheritValue('customFieldSetSelectionActive') === null) {
+                return false;
+            }
+
+            return true;
         },
 
         visibleCustomFieldSets() {
-            if (!this.customFieldSetSelectionActive
-                || !this.customFieldSetSelectionAvailable) {
+            if (!this.filterCustomFields) {
                 return this.sets;
             }
 
@@ -128,21 +152,16 @@ Component.register('sw-custom-field-set-renderer', {
     },
 
     watch: {
-        'entity.customFields': {
-            handler() {
-                this.initializeCustomFields();
-            }
+        'entity.customFieldSetSelectionActive': {
+            handler(value) {
+                this.onChangeCustomFieldSetSelectionActive(value);
+            },
+            deep: true
         },
 
         'entity.customFieldsSets': {
             handler() {
-                this.initializeCustomFieldSets();
-            }
-        },
-
-        'entity.id': {
-            handler() {
-                this.initializeCustomFieldSets();
+                this.onChangeCustomFieldSets();
             }
         }
     },
@@ -154,7 +173,7 @@ Component.register('sw-custom-field-set-renderer', {
     methods: {
         createdComponent() {
             this.initializeCustomFields();
-            this.initializeCustomFieldSets();
+            this.onChangeCustomFieldSets();
         },
 
         initializeCustomFields() {
@@ -167,10 +186,22 @@ Component.register('sw-custom-field-set-renderer', {
             return utils.get(this.parentEntity, `translated.customFields.${customFieldName}`, null);
         },
 
+        getInheritValue(field) {
+            // Search field in translated
+            const value = utils.get(this.parentEntity, `translated.${field}`, null);
+
+            if (value) {
+                return value;
+            }
+
+            // Search field on top level of entity
+            return utils.get(this.parentEntity, `${field}`, null);
+        },
+
         getParentCustomFieldSetSelectionSwitchState() {
             const parentEntity = this.parentEntity;
 
-            if (parentEntity && hasOwnProperty('customFieldSets')) {
+            if (parentEntity && parentEntity.hasOwnProperty('customFieldSets')) {
                 return parentEntity.customFieldSets.length > 0;
             }
 
@@ -185,18 +216,13 @@ Component.register('sw-custom-field-set-renderer', {
             return customFieldClone;
         },
 
-        initializeCustomFieldSets() {
-            if (this.customFieldSetSelectionAvailable) {
-                this.customFieldSetSelectionActive = this.entity.customFieldSets.length > 0;
-            }
-
-            this.onChangeCustomFieldSets();
-        },
-
         onChangeCustomFieldSets(value, updateFn) {
             if (this.visibleCustomFieldSets.length > 0 && this.$refs.tabComponent) {
-                this.$refs.tabComponent.active = this.visibleCustomFieldSets[0].name;
-                this.$refs.tabComponent.updateActiveItem();
+                // Reset state of tab component if custom field selection changes
+                this.$nextTick(() => {
+                    this.$refs.tabComponent.mountedComponent();
+                    this.$refs.tabComponent.setActiveItem(this.visibleCustomFieldSets[0]);
+                });
             }
 
             if (typeof updateFn === 'function') {
@@ -204,13 +230,13 @@ Component.register('sw-custom-field-set-renderer', {
             }
         },
 
-        onChangeFieldSetSelectionSwitch(state) {
-            // Remove all associated custom field sets if custom field set selects is set inactive
-            if (!state) {
-                this.entity.customFieldSets = this.entity.customFieldSets.filter(() => false);
-            }
-
+        onChangeCustomFieldSetSelectionActive(newVal) {
             this.onChangeCustomFieldSets();
+            if (!newVal) {
+                this.entity.customFieldSets = this.entity.customFieldSets.filter(() => {
+                    return false;
+                });
+            }
         }
     }
 });

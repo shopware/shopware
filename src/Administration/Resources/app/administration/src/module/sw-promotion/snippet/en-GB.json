@@ -189,7 +189,7 @@
           "valueScopeSetGroup": "Set group",
           "valueTypePercentage": "Percentage",
           "valueTypeFixed": "Fixed price",
-          "valueTypeFixedUnit": "Fixed unit price",
+          "valueTypeFixedUnit": "Fixed item price",
           "buttonAddDiscount": "Add discount",
           "buttonDeleteDiscount": "Delete discount",
           "delete": {

@@ -1,0 +1,102 @@
+{% block sw_product_stream_grid_preview_content %}
+    <div class="sw-product-stream-grid-preview">
+        {% block sw_product_stream_grid_preview_search_field_label %}
+            <div class="sw-product-stream-grid-preview__toolbar">
+                {% block sw_product_stream_grid_preview_search_field %}
+                    <sw-simple-search-field
+                        size="small"
+                        variant="form"
+                        v-model="searchTerm"
+                        :delay="750"
+                        :disabled="!filters"
+                        class="sw-product-stream-grid-preview__search-field">
+                    </sw-simple-search-field>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block sw_product_stream_grid_preview_grid %}
+            <sw-data-grid
+                v-if="total"
+                class="sw-product-stream-grid-preview__grid"
+                :dataSource="products"
+                :columns="productColumns"
+                :showSelection="false"
+                :showActions="false"
+                :showPreviews="true"
+                :plainAppearance="true"
+                :isLoading="isLoading">
+
+                {% block sw_product_stream_grid_preview_grid_columns %}
+                    <template #column-name="{ item }">
+                        {% block sw_product_stream_grid_preview_grid_column_name %}
+                            <router-link :to="{ name: 'sw.product.detail', params: { id: item.id } }">
+                                <sw-product-variant-info :variations="item.variation">
+                                    {{ item.name || item.translated.name }}
+                                </sw-product-variant-info>
+                            </router-link>
+                        {% endblock %}
+                    </template>
+
+                    <template #column-manufacturer.name="{ item }">
+                        {% block sw_product_stream_grid_preview_grid_column_manufacturer %}
+                            <router-link
+                                v-if="item.manufacturerId"
+                                :to="{ name: 'sw.manufacturer.detail', params: { id: item.manufacturerId } }">
+                                {{ item.manufacturer.name || item.manufacturer.translated.name }}
+                            </router-link>
+                        {% endblock %}
+                    </template>
+
+                    <template #column-active="{ item }">
+                        {% block sw_product_stream_grid_preview_grid_column_active %}
+                            <sw-data-grid-column-boolean
+                                :value="item.active"
+                                :isInlineEdit="false">
+                            </sw-data-grid-column-boolean>
+                        {% endblock %}
+                    </template>
+
+                    <template #column-price="{ item }">
+                        {% block sw_product_stream_grid_preview_grid_column_price %}
+                            {{ getPriceForDefaultCurrency(item)|currency(systemCurrency.isoCode) }}
+                        {% endblock %}
+                    </template>
+
+                    <template #column-stock="{ item }">
+                        {% block sw_product_stream_grid_preview_grid_column_stock %}
+                            {{ item.stock }}
+                        {% endblock %}
+                    </template>
+                {% endblock %}
+
+                <slot name="additional-columns"></slot>
+
+                <template #pagination>
+                    {% block sw_product_stream_grid_preview_grid_pagination %}
+                        <sw-pagination
+                            v-bind="{ total, page, limit }"
+                            :totalVisible="7"
+                            :autoHide="false"
+                            @page-change="onPageChange">
+                        </sw-pagination>
+                    {% endblock %}
+                </template>
+            </sw-data-grid>
+        {% endblock %}
+
+        {% block sw_product_stream_grid_preview_empty_state %}
+            <slot name="empty-state">
+                <sw-empty-state
+                    v-if="!total && !isLoading"
+                    :title="emptyStateMessage"
+                    :absolute="false"
+                    :showDescription="false">
+                    <template #icon>
+                        <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
+                    </template>
+                </sw-empty-state>
+            </slot>
+        {% endblock %}
+    </div>
+{% endblock %}

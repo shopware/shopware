@@ -19,7 +19,6 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\EqualTo;
 use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @RouteScope(scopes={"store-api"})
@@ -36,19 +35,12 @@ class NewsletterUnsubscribeRoute extends AbstractNewsletterUnsubscribeRoute
      */
     private $validator;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
     public function __construct(
         EntityRepositoryInterface $newsletterRecipientRepository,
-        DataValidator $validator,
-        EventDispatcherInterface $eventDispatcher
+        DataValidator $validator
     ) {
         $this->newsletterRecipientRepository = $newsletterRecipientRepository;
         $this->validator = $validator;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function getDecorated(): AbstractNewsletterUnsubscribeRoute

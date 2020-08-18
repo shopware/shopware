@@ -21,6 +21,8 @@ class AssetRegistrationCompilerPass implements CompilerPassInterface
         $assetService->replaceArgument(1, $args);
         $assetService->addMethodCall('setDefaultPackage', [$assets['asset']]);
 
-        $container->getDefinition(ThemeCompiler::class)->replaceArgument(7, $assets);
+        if ($container->hasDefinition(ThemeCompiler::class)) {
+            $container->getDefinition(ThemeCompiler::class)->replaceArgument(7, $assets);
+        }
     }
 }

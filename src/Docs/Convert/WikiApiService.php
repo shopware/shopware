@@ -446,7 +446,7 @@ class WikiApiService
         ];
     }
 
-    private function createArticleLocale($seo, string $articleLocalizationUrl, array $locale): array
+    private function createArticleLocale(string $seo, string $articleLocalizationUrl, array $locale): array
     {
         $response = $this->client->post(
             $articleLocalizationUrl,
@@ -583,7 +583,7 @@ class WikiApiService
         }
     }
 
-    private function deleteCategory($categoryId): void
+    private function deleteCategory(string $categoryId): void
     {
         $this->client->delete(
             vsprintf('/wiki/categories/%s', [$categoryId]),

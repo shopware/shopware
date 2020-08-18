@@ -1,5 +1,7 @@
 <?php declare(strict_types=1);
 
+echo sprintf("\n\033[41m@deprecated tag:v6.4.0 - The file '%s' will be removed. Using cs-fixer is deprecated. Please use Easy Coding Standard instead.\033[0m\n\n", __FILE__);
+
 $dir = __DIR__;
 while (!file_exists($dir . '/composer.json') || !is_dir($dir . '/vendor')) {
     if ($dir === \dirname($dir)) {

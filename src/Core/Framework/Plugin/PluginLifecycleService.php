@@ -198,7 +198,6 @@ class PluginLifecycleService
         Context $shopwareContext,
         bool $keepUserData = false
     ): UninstallContext {
-        $pluginBaseClassString = $plugin->getBaseClass();
         if ($plugin->getInstalledAt() === null) {
             throw new PluginNotInstalledException($plugin->getName());
         }
@@ -207,6 +206,7 @@ class PluginLifecycleService
             $this->deactivatePlugin($plugin, $shopwareContext);
         }
 
+        $pluginBaseClassString = $plugin->getBaseClass();
         $pluginBaseClass = $this->getPluginBaseClass($pluginBaseClassString);
 
         $uninstallContext = new UninstallContext(
@@ -251,6 +251,10 @@ class PluginLifecycleService
      */
     public function updatePlugin(PluginEntity $plugin, Context $shopwareContext): UpdateContext
     {
+        if ($plugin->getInstalledAt() === null) {
+            throw new PluginNotInstalledException($plugin->getName());
+        }
+
         $pluginBaseClassString = $plugin->getBaseClass();
         $pluginBaseClass = $this->getPluginBaseClass($pluginBaseClassString);
 
@@ -294,7 +298,7 @@ class PluginLifecycleService
             throw $updateException;
         }
 
-        if ($plugin->getInstalledAt() && $plugin->getActive()) {
+        if ($plugin->getActive()) {
             $this->assetInstaller->copyAssetsFromBundle($pluginBaseClassString);
         }
 
@@ -327,11 +331,11 @@ class PluginLifecycleService
      */
     public function activatePlugin(PluginEntity $plugin, Context $shopwareContext): ActivateContext
     {
-        $pluginBaseClassString = $plugin->getBaseClass();
         if ($plugin->getInstalledAt() === null) {
             throw new PluginNotInstalledException($plugin->getName());
         }
 
+        $pluginBaseClassString = $plugin->getBaseClass();
         $pluginBaseClass = $this->getPluginBaseClass($pluginBaseClassString);
 
         $activateContext = new ActivateContext(
@@ -389,8 +393,6 @@ class PluginLifecycleService
      */
     public function deactivatePlugin(PluginEntity $plugin, Context $shopwareContext): DeactivateContext
     {
-        $pluginBaseClassString = $plugin->getBaseClass();
-
         if ($plugin->getInstalledAt() === null) {
             throw new PluginNotInstalledException($plugin->getName());
         }
@@ -408,6 +410,7 @@ class PluginLifecycleService
             throw new PluginHasActiveDependantsException($plugin->getName(), $dependants);
         }
 
+        $pluginBaseClassString = $plugin->getBaseClass();
         $pluginBaseClass = $this->getPluginInstance($pluginBaseClassString);
 
         $deactivateContext = new DeactivateContext(

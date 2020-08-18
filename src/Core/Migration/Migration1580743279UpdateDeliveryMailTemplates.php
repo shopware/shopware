@@ -39,7 +39,7 @@ class Migration1580743279UpdateDeliveryMailTemplates extends MigrationStep
             );
         }
 
-        $templateId = $this->fetchSystemMailTemplateidFromType($connection, MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_RETURNED);
+        $templateId = $this->fetchSystemMailTemplateIdFromType($connection, MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_RETURNED);
         if ($templateId !== null) {
             $this->updateMailTemplateTranslation(
                 $connection,
@@ -58,7 +58,7 @@ class Migration1580743279UpdateDeliveryMailTemplates extends MigrationStep
             );
         }
 
-        $templateId = $this->fetchSystemMailTemplateidFromType($connection, MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_SHIPPED_PARTIALLY);
+        $templateId = $this->fetchSystemMailTemplateIdFromType($connection, MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_SHIPPED_PARTIALLY);
         if ($templateId !== null) {
             $this->updateMailTemplateTranslation(
                 $connection,
@@ -77,7 +77,7 @@ class Migration1580743279UpdateDeliveryMailTemplates extends MigrationStep
             );
         }
 
-        $templateId = $this->fetchSystemMailTemplateidFromType($connection, MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_SHIPPED);
+        $templateId = $this->fetchSystemMailTemplateIdFromType($connection, MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_SHIPPED);
         if ($templateId !== null) {
             $this->updateMailTemplateTranslation(
                 $connection,
@@ -91,12 +91,12 @@ class Migration1580743279UpdateDeliveryMailTemplates extends MigrationStep
                 $connection,
                 $templateId,
                 $deLangId,
-                $this->getDeliveryShippedHtmlTemplateDe(),
+                $this->getDeliveryShippedHTMLTemplateDe(),
                 $this->getDeliveryShippedPlainTemplateDe()
             );
         }
 
-        $templateId = $this->fetchSystemMailTemplateidFromType($connection, MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_RETURNED_PARTIALLY);
+        $templateId = $this->fetchSystemMailTemplateIdFromType($connection, MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_RETURNED_PARTIALLY);
         if ($templateId !== null) {
             $this->updateMailTemplateTranslation(
                 $connection,
@@ -208,11 +208,11 @@ class Migration1580743279UpdateDeliveryMailTemplates extends MigrationStep
     {
         return '
             {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
-            
+
             the status of your delivery at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
             The new status is as follows: {{order.deliveries.first.stateMachineState.name}}.
-            
-            You can check the current status of your order on our website under "My account" - "My orders" anytime. 
+
+            You can check the current status of your order on our website under "My account" - "My orders" anytime.
             But in case you have purchased without a registration or a customer account, you do not have this option.';
     }
 
@@ -236,11 +236,11 @@ class Migration1580743279UpdateDeliveryMailTemplates extends MigrationStep
     {
         return '
         {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
-        
+
         der Lieferstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
         Die Bestellung hat jetzt den Zahlungsstatus: {{order.deliveries.first.stateMachineState.name}}.
-        
-        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen. 
+
+        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen.
         Sollten Sie allerdings den Kauf ohne Registrierung, also ohne Anlage eines Kundenkontos, gewählt haben, steht Ihnen diese Möglichkeit nicht zur Verfügung.';
     }
 
@@ -265,11 +265,11 @@ class Migration1580743279UpdateDeliveryMailTemplates extends MigrationStep
     {
         return '
             {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
-            
+
             the status of your delivery at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
             The new status is as follows: {{order.deliveries.first.stateMachineState.name}}.
-            
-            You can check the current status of your order on our website under "My account" - "My orders" anytime. 
+
+            You can check the current status of your order on our website under "My account" - "My orders" anytime.
             But in case you have purchased without a registration or a customer account, you do not have this option.';
     }
 
@@ -293,11 +293,11 @@ class Migration1580743279UpdateDeliveryMailTemplates extends MigrationStep
     {
         return '
         {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
-        
+
         der Lieferstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
         Die Bestellung hat jetzt den Bestellstatus: {{order.deliveries.first.stateMachineState.name}}.
-        
-        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen. 
+
+        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen.
         Sollten Sie allerdings den Kauf ohne Registrierung, also ohne Anlage eines Kundenkontos, gewählt haben, steht Ihnen diese Möglichkeit nicht zur Verfügung.';
     }
 
@@ -322,11 +322,11 @@ class Migration1580743279UpdateDeliveryMailTemplates extends MigrationStep
     {
         return '
         {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
-        
+
         the status of your delivery at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
         The new status is as follows: {{order.deliveries.first.stateMachineState.name}}.
-        
-        You can check the current status of your order on our website under "My account" - "My orders" anytime. 
+
+        You can check the current status of your order on our website under "My account" - "My orders" anytime.
         But in case you have purchased without a registration or a customer account, you do not have this option.';
     }
 
@@ -350,11 +350,11 @@ class Migration1580743279UpdateDeliveryMailTemplates extends MigrationStep
     {
         return '
             {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
-        
+
         der Lieferstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
         Die Bestellung hat jetzt den Bestellstatus: {{order.deliveries.first.stateMachineState.name}}.
-        
-        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen. 
+
+        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen.
         Sollten Sie allerdings den Kauf ohne Registrierung, also ohne Anlage eines Kundenkontos, gewählt haben, steht Ihnen diese Möglichkeit nicht zur Verfügung.';
     }
 
@@ -379,11 +379,11 @@ class Migration1580743279UpdateDeliveryMailTemplates extends MigrationStep
     {
         return '
         {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
-        
+
         the status of your delivery at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
         The new status is as follows: {{order.deliveries.first.stateMachineState.name}}.
-        
-        You can check the current status of your order on our website under "My account" - "My orders" anytime. 
+
+        You can check the current status of your order on our website under "My account" - "My orders" anytime.
         But in case you have purchased without a registration or a customer account, you do not have this option.';
     }
 
@@ -408,11 +408,11 @@ class Migration1580743279UpdateDeliveryMailTemplates extends MigrationStep
     {
         return '
         {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
-        
+
         der Lieferstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
         Die Bestellung hat jetzt den Bestellstatus: {{order.deliveries.first.stateMachineState.name}}.
-        
-        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen. 
+
+        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen.
         Sollten Sie allerdings den Kauf ohne Registrierung, also ohne Anlage eines Kundenkontos, gewählt haben, steht Ihnen diese Möglichkeit nicht zur Verfügung.';
     }
 
@@ -437,11 +437,11 @@ class Migration1580743279UpdateDeliveryMailTemplates extends MigrationStep
     {
         return '
         {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
-        
+
         the status of your delivery at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
         The new status is as follows: {{order.deliveries.first.stateMachineState.name}}.
-        
-        You can check the current status of your order on our website under "My account" - "My orders" anytime. 
+
+        You can check the current status of your order on our website under "My account" - "My orders" anytime.
         But in case you have purchased without a registration or a customer account, you do not have this option.';
     }
 
@@ -466,11 +466,11 @@ class Migration1580743279UpdateDeliveryMailTemplates extends MigrationStep
     {
         return '
         {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
-        
+
         der Lieferstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
         Die Bestellung hat jetzt den Bestellstatus: {{order.deliveries.first.stateMachineState.name}}.
-        
-        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen. 
+
+        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen.
         Sollten Sie allerdings den Kauf ohne Registrierung, also ohne Anlage eines Kundenkontos, gewählt haben, steht Ihnen diese Möglichkeit nicht zur Verfügung.';
     }
 }

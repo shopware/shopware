@@ -9,6 +9,7 @@
                             name="categoryName"
                             v-model="category.name"
                             validation="required"
+                            :disabled="!acl.can('category.editor')"
                             :label="$tc('sw-category.base.general.categoryNameLabel')"
                             :placeholder="placeholder(category, 'name')"
                             :error="categoryNameError">
@@ -17,6 +18,7 @@
 
                     {% block sw_category_detail_information_active %}
                         <sw-switch-field
+                            :disabled="!acl.can('category.editor')"
                             name="categoryActive"
                             class="sw-category-detail-base__active"
                             :label="$tc('sw-category.base.general.isCategoryActiveLabel')"
@@ -32,6 +34,7 @@
                                 :helpText="$tc('sw-category.base.general.types.help')"
                                 :label="$tc('sw-category.base.general.types.title')"
                                 v-model="category.type"
+                                :disabled="!acl.can('category.editor')"
                                 :options="categoryTypes">
                             </sw-single-select>
                         {% endblock %}
@@ -44,6 +47,7 @@
                         class="sw-category-detail-base__tags"
                         :label="$tc('sw-category.base.general.labelCategoryTags')"
                         :placeholder="$tc('sw-category.base.general.labelCategoryTagsPlaceholder')"
+                        :disabled="!acl.can('category.editor')"
                         v-model="category.tags">
                     </sw-entity-tag-select>
                 {% endblock %}
@@ -86,9 +90,78 @@
                     :entityCollection="category.products"
                     :columns="productColumns"
                     :isLoading="isLoading"
+                    :disabled="!acl.can('category.editor')"
                     :localMode="category.isNew()"
                     :criteria="productCriteria"
-                    :placeholder="$tc('sw-category.base.products.productAssignmentPlaceholder')">
+                    :selectLabel="$tc('sw-category.base.products.productAssignmentLabel')"
+                    :placeholder="$tc('sw-category.base.products.productAssignmentPlaceholder')"
+                    @paginate="onPaginateManualProductAssignment">
+
+                    {% block sw_category_detail_product_assignment_type_select %}
+                        <template v-if="next9278" #prepend-select>
+                            {% block sw_category_detail_product_assignment_type_select_field %}
+                                <sw-single-select
+                                    class="sw-category-detail__product-assignment-type-select"
+                                    v-model="category.productAssignmentType"
+                                    :label="$tc('sw-category.base.products.productAssignmentTypeLabel')"
+                                    :error="categoryProductAssignmentTypeError"
+                                    :options="productAssignmentTypes"
+                                    required>
+                                </sw-single-select>
+                            {% endblock %}
+
+                            {% block sw_category_detail_product_assignment_manual_alert %}
+                                <sw-alert
+                                    v-if="next9278 && category.productAssignmentType === 'product_stream' && manualAssignedProductsCount > 0"
+                                    variant="info">
+                                    {{ $tc('sw-category.base.products.alertManualAssignedProductsOnAssignmentTypeStream') }}
+                                </sw-alert>
+                            {% endblock %}
+                        </template>
+                    {% endblock %}
+
+                    {% block sw_category_detail_product_assignment_stream_select %}
+                        <template
+                            v-if="next9278 && category.productAssignmentType === 'product_stream'"
+                            #select>
+
+                            {% block sw_category_detail_product_assignment_stream_select_field %}
+                                <sw-entity-single-select
+                                    class="sw-category-detail__product-stream-select"
+                                    entity="product_stream"
+                                    :label="$tc('sw-category.base.products.productAssignmentTypeStreamLabel')"
+                                    :placeholder="$tc('sw-category.base.products.productAssignmentTypeStreamPlaceholder')"
+                                    :error="productStreamInvalidError || categoryProductStreamIdError"
+                                    v-model="category.productStreamId">
+                                </sw-entity-single-select>
+                            {% endblock %}
+
+                            {% block sw_category_detail_product_assignment_stream_preview_link %}
+                                <div class="sw-category-detail-base__product-stream-preview-link">
+                                    <router-link
+                                        v-if="category.productStreamId"
+                                        :to="{ name: 'sw.product.stream.detail', params: { id: category.productStreamId } }">
+                                        {{ $tc('sw-category.base.products.dynamicProductGroupDetailLinkText') }}
+                                        <sw-icon
+                                            name="default-arrow-simple-right"
+                                            small>
+                                        </sw-icon>
+                                    </router-link>
+                                </div>
+                            {% endblock %}
+                        </template>
+                    {% endblock %}
+
+                    {% block sw_category_detail_product_assignment_stream_preview_grid %}
+                        <template
+                            v-if="next9278 && category.productAssignmentType === 'product_stream'"
+                            #data-grid>
+                            <sw-product-stream-grid-preview
+                                :filters="productStreamFilter"
+                                :columns="productColumns">
+                            </sw-product-stream-grid-preview>
+                        </template>
+                    {% endblock %}
 
                     <template v-slot:[nameColumn]="{ item, column }">
                         <router-link
@@ -117,8 +190,8 @@
             {% endblock %}
 
             {% block sw_category_detail_seo %}
-                <sw-card  :title="$tc('sw-category.base.seo.title')"
-                          :isLoading="isLoading">
+                <sw-card :title="$tc('sw-category.base.seo.title')"
+                         :isLoading="isLoading">
                     <sw-category-seo-form :category="category"></sw-category-seo-form>
                 </sw-card>
             {% endblock %}
@@ -127,6 +200,7 @@
                 <sw-seo-url v-if="category.seoUrls"
                             :isLoading="isLoading"
                             :hasDefaultTemplate="false"
+                            :disabled="!acl.can('category.editor')"
                             :urls="category.seoUrls">
                 </sw-seo-url>
             {% endblock %}

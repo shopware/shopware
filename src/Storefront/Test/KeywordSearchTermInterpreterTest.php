@@ -66,6 +66,14 @@ class KeywordSearchTermInterpreterTest extends TestCase
                 'Büronetz',
                 ['büronetzwerk'],
             ],
+            [
+                '1000',
+                ['10000', '10001', '10002', '10007'],
+            ],
+            [
+                '1',
+                ['1', '10000', '10001', '10002', '10007'],
+            ],
         ];
     }
 
@@ -107,6 +115,13 @@ class KeywordSearchTermInterpreterTest extends TestCase
             'netzwerkspieler',
             'schwarzweiß',
             'netzwerkprotokolle',
+            '10000',
+            '10001',
+            '10002',
+            '10007',
+            '1',
+            '2',
+            '3',
         ];
 
         $languageId = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);

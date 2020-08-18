@@ -143,6 +143,9 @@ class SystemConfigService
         return $merged;
     }
 
+    /**
+     * @param array|bool|float|int|null|string $value
+     */
     public function set(string $key, $value, ?string $salesChannelId = null): void
     {
         // reset internal cache
@@ -211,6 +214,7 @@ class SystemConfigService
         }
 
         $criteria = new Criteria();
+        $criteria->setTitle('system-config::load');
 
         if ($salesChannelId === null) {
             $criteria->addFilter(new EqualsFilter('salesChannelId', null));

@@ -72,7 +72,9 @@ class ElasticsearchCleanIndicesCommand extends Command
             }
         }
 
-        $this->client->indices()->delete(['index' => implode(',', $indices)]);
+        foreach ($indices as $index) {
+            $this->client->indices()->delete(['index' => $index]);
+        }
 
         $this->io->writeln('Indices deleted.');
 

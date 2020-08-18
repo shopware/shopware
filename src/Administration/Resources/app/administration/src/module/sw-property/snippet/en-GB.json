@@ -63,5 +63,12 @@
       "optionEmptyStateSubline": "Fill in basic information, save the property - then add values.",
       "labelMediaUpload": "Default image"
     }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "property": {
+        "label": "Properties"
+      }
+    }
   }
 }

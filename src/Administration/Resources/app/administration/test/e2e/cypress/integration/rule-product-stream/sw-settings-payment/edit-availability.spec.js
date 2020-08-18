@@ -1,4 +1,4 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
 
 import PaymentPageObject from '../../../support/pages/module/sw-payment.page-object';
 import RulePageObject from '../../../support/pages/module/sw-rule.page-object';

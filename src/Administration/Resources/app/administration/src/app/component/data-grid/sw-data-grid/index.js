@@ -122,6 +122,12 @@ Component.register('sw-data-grid', {
             default: true
         },
 
+        plainAppearance: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+
         showPreviews: {
             type: Boolean,
             required: false,
@@ -181,7 +187,8 @@ Component.register('sw-data-grid', {
             return {
                 'is--compact': this.compact,
                 'sw-data-grid--full-page': this.fullPage,
-                'sw-data-grid--actions': this.showActions
+                'sw-data-grid--actions': this.showActions,
+                'sw-data-grid--plain-appearance': this.plainAppearance
             };
         },
 

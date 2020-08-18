@@ -3,12 +3,12 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaPartInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 
 class FilterAggregation extends BucketAggregation
 {
     /**
-     * @var CriteriaPartInterface[]
+     * @var Filter[]
      */
     protected $filter;
 
@@ -18,6 +18,9 @@ class FilterAggregation extends BucketAggregation
         $this->filter = $filter;
     }
 
+    /**
+     * @return Filter[]
+     */
     public function getFilter(): array
     {
         return $this->filter;

@@ -1,4 +1,4 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
 
 import RulePageObject from '../../../support/pages/module/sw-rule.page-object';
 

@@ -16,6 +16,7 @@
             <argument type="service" id="Shopware\Core\Framework\Store\Services\FirstRunWizardClient"/>
             <argument type="service" id="Shopware\Administration\Snippet\SnippetFinder"/>
             <argument>%kernel.supported_api_versions%</argument>
+            <argument type="service" id="Shopware\Administration\KnownIps\KnownIpsCollector"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -33,5 +34,7 @@
             <argument type="service" id="Shopware\Administration\Snippet\CachedSnippetFinder.inner" />
             <argument type="service" id="cache.object" />
         </service>
+
+        <service id="Shopware\Administration\KnownIps\KnownIpsCollector"/>
     </services>
 </container>

@@ -8,7 +8,7 @@ use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsCollection;
-use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
@@ -426,9 +426,19 @@ class ProductEntity extends Entity
     protected $crossSellingAssignedProducts;
 
     /**
-     * @var ProductFeatureSetCollection|null
+     * @var string|null
      */
-    protected $featureSets;
+    protected $featureSetId;
+
+    /**
+     * @var ProductFeatureSetEntity|null
+     */
+    protected $featureSet;
+
+    /**
+     * @var bool|null
+     */
+    protected $customFieldSetSelectionActive;
 
     public function __construct()
     {
@@ -1256,18 +1266,38 @@ class ProductEntity extends Entity
         $this->crossSellingAssignedProducts = $crossSellingAssignedProducts;
     }
 
-    public function getFeatureSets(): ?ProductFeatureSetCollection
+    public function getFeatureSetId(): ?string
     {
-        return $this->featureSets;
+        return $this->featureSetId;
     }
 
-    public function setFeatureSets(ProductFeatureSetCollection $featureSets): void
+    public function setFeatureSetId(?string $featureSetId): void
     {
-        $this->featureSets = $featureSets;
+        $this->featureSetId = $featureSetId;
+    }
+
+    public function getFeatureSet(): ?ProductFeatureSetEntity
+    {
+        return $this->featureSet;
+    }
+
+    public function setFeatureSet(ProductFeatureSetEntity $featureSet): void
+    {
+        $this->featureSet = $featureSet;
     }
 
     public function getApiAlias(): string
     {
         return 'product';
+    }
+
+    public function getCustomFieldSetSelectionActive(): ?bool
+    {
+        return $this->customFieldSetSelectionActive;
+    }
+
+    public function setCustomFieldSetSelectionActive(?bool $customFieldSetSelectionActive): void
+    {
+        $this->customFieldSetSelectionActive = $customFieldSetSelectionActive;
     }
 }

@@ -7,7 +7,6 @@ use Shopware\Core\Content\Category\Service\NavigationLoaderInterface;
 use Shopware\Core\Content\Category\Tree\TreeItem;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
 use Shopware\Core\System\Currency\SalesChannel\AbstractCurrencyRoute;
@@ -44,23 +43,16 @@ class HeaderPageletLoader implements HeaderPageletLoaderInterface
      */
     private $navigationLoader;
 
-    /**
-     * @var RequestCriteriaBuilder
-     */
-    private $requestCriteriaBuilder;
-
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
         AbstractCurrencyRoute $currencyRoute,
         AbstractLanguageRoute $languageRoute,
-        NavigationLoaderInterface $navigationLoader,
-        RequestCriteriaBuilder $requestCriteriaBuilder
+        NavigationLoaderInterface $navigationLoader
     ) {
         $this->eventDispatcher = $eventDispatcher;
         $this->currencyRoute = $currencyRoute;
         $this->languageRoute = $languageRoute;
         $this->navigationLoader = $navigationLoader;
-        $this->requestCriteriaBuilder = $requestCriteriaBuilder;
     }
 
     /**
@@ -87,8 +79,11 @@ class HeaderPageletLoader implements HeaderPageletLoaderInterface
             $salesChannel->getNavigationCategoryDepth()
         );
 
+        $criteria = new Criteria();
+        $criteria->setTitle('header::currencies');
+
         $currencies = $this->currencyRoute
-            ->load($event->getStoreApiRequest(), $context, new Criteria())
+            ->load($event->getStoreApiRequest(), $context, $criteria)
             ->getCurrencies();
 
         $page = new HeaderPagelet(
@@ -123,6 +118,7 @@ class HeaderPageletLoader implements HeaderPageletLoaderInterface
     private function getLanguages(SalesChannelContext $context, Request $request): LanguageCollection
     {
         $criteria = new Criteria();
+        $criteria->setTitle('header::languages');
 
         $criteria->addFilter(
             new EqualsFilter('language.salesChannelDomains.salesChannelId', $context->getSalesChannel()->getId())

@@ -51,7 +51,7 @@ class PromotionDiscountEntity extends Entity
     public const TYPE_ABSOLUTE = 'absolute';
 
     /**
-     * This type defines an fixed unit price
+     * This type defines an fixed item price
      * definition of the discount.
      */
     public const TYPE_FIXED_UNIT = 'fixed_unit';

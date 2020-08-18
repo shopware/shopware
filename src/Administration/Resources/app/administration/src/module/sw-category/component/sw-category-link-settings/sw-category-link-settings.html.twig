@@ -27,6 +27,7 @@
 
         {% block sw_category_detail_link_field %}
             <sw-text-field
+                :disabled="!acl.can('category.editor')"
                 v-model="category.externalLink"
                 :label="$tc('sw-category.base.link.linkLabel')"
                 :placeholder="$tc('sw-category.base.link.linkLabel')">

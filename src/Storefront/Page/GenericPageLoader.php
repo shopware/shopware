@@ -80,6 +80,10 @@ class GenericPageLoader implements GenericPageLoaderInterface
         $page = new Page();
 
         if ($request->isXmlHttpRequest()) {
+            $this->eventDispatcher->dispatch(
+                new GenericPageLoadedEvent($page, $context, $request)
+            );
+
             return $page;
         }
         $page->setHeader(
@@ -90,7 +94,10 @@ class GenericPageLoader implements GenericPageLoaderInterface
             $this->footerLoader->load($request, $context)
         );
 
-        $event = new ShippingMethodRouteRequestEvent($request, new Request(), $context, new Criteria());
+        $criteria = new Criteria();
+        $criteria->setTitle('generic-page::shipping-methods');
+
+        $event = new ShippingMethodRouteRequestEvent($request, new Request(), $context, $criteria);
         $this->eventDispatcher->dispatch($event);
 
         $shippingMethods = $this->shippingMethodRoute
@@ -99,7 +106,10 @@ class GenericPageLoader implements GenericPageLoaderInterface
 
         $page->setSalesChannelShippingMethods($shippingMethods);
 
-        $event = new PaymentMethodRouteRequestEvent($request, new Request(), $context, new Criteria());
+        $criteria = new Criteria();
+        $criteria->setTitle('generic-page::payment-methods');
+
+        $event = new PaymentMethodRouteRequestEvent($request, new Request(), $context, $criteria);
         $this->eventDispatcher->dispatch($event);
 
         $paymentMethods = $this->paymentMethodRoute
@@ -114,6 +124,10 @@ class GenericPageLoader implements GenericPageLoaderInterface
             'xmlLang' => $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_LOCALE) ?? '',
             'metaTitle' => $this->systemConfigService->get('core.basicInformation.shopName') ?? '',
         ]));
+
+        $this->eventDispatcher->dispatch(
+            new GenericPageLoadedEvent($page, $context, $request)
+        );
 
         return $page;
     }

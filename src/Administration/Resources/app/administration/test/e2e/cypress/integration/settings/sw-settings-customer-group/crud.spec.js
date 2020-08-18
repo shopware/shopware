@@ -1,4 +1,4 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
 
 import SettingsPageObject from '../../../support/pages/module/sw-settings.page-object';
 import SalesChannelPageObject from '../../../support/pages/module/sw-sales-channel.page-object';

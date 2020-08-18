@@ -88,7 +88,7 @@ class NewsletterController extends StorefrontController
     {
         $this->denyAccessUnlessLoggedIn();
 
-        $subscribed = ($request->get('option', false) === 'direct');
+        $subscribed = $request->get('option', false) === 'direct';
 
         if (!$subscribed) {
             $dataBag->set('option', 'unsubscribe');

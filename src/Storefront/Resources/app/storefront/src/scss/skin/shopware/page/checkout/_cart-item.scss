@@ -35,7 +35,7 @@
     color: $body-color;
     font-weight: $font-weight-bold;
 
-    &:hover {
+    a&:hover {
         color: $primary;
         text-decoration: none;
     }

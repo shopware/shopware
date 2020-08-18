@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ProductStream;
 
+use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingCollection;
 use Shopware\Core\Content\ProductExport\ProductExportCollection;
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterCollection;
@@ -57,6 +58,11 @@ class ProductStreamEntity extends Entity
      * @var ProductCrossSellingCollection|null
      */
     protected $productCrossSellings;
+
+    /**
+     * @var CategoryCollection|null
+     */
+    protected $categories;
 
     public function getName(): string
     {
@@ -151,5 +157,15 @@ class ProductStreamEntity extends Entity
     public function getApiAlias(): string
     {
         return 'product_stream';
+    }
+
+    public function getCategories(): ?CategoryCollection
+    {
+        return $this->categories;
+    }
+
+    public function setCategories(CategoryCollection $categories): void
+    {
+        $this->categories = $categories;
     }
 }

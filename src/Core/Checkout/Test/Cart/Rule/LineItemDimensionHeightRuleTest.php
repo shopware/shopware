@@ -164,7 +164,7 @@ class LineItemDimensionHeightRuleTest extends TestCase
      */
     private function createLineItem(float $height): LineItem
     {
-        $deliveryInformation = (new DeliveryInformation(1, 1, false, null, null, $height));
+        $deliveryInformation = new DeliveryInformation(1, 1, false, null, null, $height);
 
         return (new LineItem(Uuid::randomHex(), 'product', null, 3))
             ->setDeliveryInformation($deliveryInformation);

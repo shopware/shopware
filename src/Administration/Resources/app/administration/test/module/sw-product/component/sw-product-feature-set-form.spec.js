@@ -3,11 +3,10 @@ import VueRouter from 'vue-router';
 import 'src/module/sw-product/component/sw-product-feature-set-form';
 import 'src/app/component/base/sw-container';
 import 'src/app/component/utils/sw-inherit-wrapper';
-import 'src/app/component/form/select/entity/sw-entity-multi-select';
+import 'src/app/component/form/select/entity/sw-entity-single-select';
 import 'src/app/component/form/select/base/sw-select-base';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/form/select/base/sw-select-selection-list';
 
 // TODO: Remove skip from tests when FEATURE_NEXT_6997 flag is removed
 
@@ -24,9 +23,8 @@ describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
         quickLink: 'sw-card__quick-link',
         formContainer: 'sw-product-feature-set-form__form',
         formInheritWrapper: 'sw-inherit-wrapper',
-        templateMultiSelect: 'sw-entity-multi-select',
-        multiSelectList: 'sw-select-selection-list',
-        multiSelectItem: 'sw-select-selection-list__item'
+        templateSingleSelect: 'sw-entity-single-select',
+        singleSelectSelection: 'sw-entity-single-select__selection'
     };
 
     const text = {
@@ -40,18 +38,20 @@ describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
     };
 
     const featureSetMock = {
+        id: '783397afdd914495a4391666f1a4ab72',
         name: 'TestSet',
         description: 'Lorem ipsum dolor sit amet',
         features: [
             {
-                id: 'referencePrice',
-                type: 'product',
+                id: null,
+                name: null,
+                type: 'referencePrice',
                 position: 1
             }
         ]
     };
 
-    const productMock = (additionalProperties) => ({ featureSets: [featureSetMock], ...additionalProperties });
+    const productMock = (additionalProperties) => ({ featureSet: featureSetMock, ...additionalProperties });
 
     const featureSetFormComponent = () => {
         const localVue = createLocalVue();
@@ -67,11 +67,11 @@ describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
                 'sw-inheritance-switch': true,
                 'sw-icon': true,
                 'sw-icons-custom-inherited': true,
-                'sw-entity-multi-select': Shopware.Component.build('sw-entity-multi-select'),
+                'sw-entity-single-select': Shopware.Component.build('sw-entity-single-select'),
+                'sw-loader': true,
                 'sw-select-base': Shopware.Component.build('sw-select-base'),
                 'sw-block-field': Shopware.Component.build('sw-block-field'),
                 'sw-base-field': Shopware.Component.build('sw-base-field'),
-                'sw-select-selection-list': Shopware.Component.build('sw-select-selection-list'),
                 'sw-field-error': true,
                 'sw-label': true,
                 i18n: true
@@ -84,14 +84,24 @@ describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
             },
             provide: {
                 repositoryFactory: {
-                    create: () => {},
-                    search: () => {}
+                    create() {
+                        return {
+                            get() {
+                                return new Promise((resolve) => {
+                                    return resolve(featureSetMock);
+                                });
+                            }
+                        };
+                    },
+                    search() {
+                        return {};
+                    }
                 }
             },
             computed: {
-                product: productMock,
-                parentProduct: productMock,
-                loading: productMock
+                product: () => productMock({ featureSetId: featureSetMock.id }),
+                parentProduct: () => productMock({ featureSetId: featureSetMock.id }),
+                loading: () => {}
             }
         });
     };
@@ -160,23 +170,20 @@ describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
         expect(findSecure(wrapper, `.${classes.formContainer}`).exists()).toBeTruthy();
     });
 
-    it.skip('has a sw-entity-multi-select for selecting templates and supports inheritance', () => {
+    it.skip('has a sw-entity-single-select for selecting templates and supports inheritance', () => {
         const form = findSecure(wrapper, `.${classes.formContainer}`);
+
         const inheritWrapper = findSecure(form, `.${classes.formInheritWrapper}`);
-        const multiSelect = findSecure(inheritWrapper, `.${classes.templateMultiSelect}`);
+        const singleSelect = findSecure(inheritWrapper, `.${classes.templateSingleSelect}`);
 
         expect(inheritWrapper.props().label).toEqual(text.templateSelectLabel);
-        expect(multiSelect.props().placeholder).toEqual(text.templateSelectPlaceholder);
+        expect(singleSelect.props().placeholder).toEqual(text.templateSelectPlaceholder);
     });
 
-    it.skip('shows the current product\'s featureSets', () => {
-        const multiSelect = findSecure(wrapper, `.${classes.templateMultiSelect}`);
-        const selectionList = findSecure(multiSelect, `.${classes.multiSelectList}`);
+    it.skip('shows the current product\'s featureSet', () => {
+        const singleSelect = findSecure(wrapper, `.${classes.templateSingleSelect}`);
+        const selection = findSecure(singleSelect, `.${classes.singleSelectSelection}`);
 
-        expect(selectionList.contains(`.${classes.multiSelectItem}`)).toBeTruthy();
-
-        const item = findSecure(selectionList, `.${classes.multiSelectItem}`);
-
-        expect(item.text()).toEqual(featureSetMock.name);
+        expect(selection.text()).toEqual(featureSetMock.name);
     });
 });

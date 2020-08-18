@@ -21,6 +21,10 @@ class ErrorCollection extends Collection
         $this->set($error->getId(), $error);
     }
 
+    /**
+     * @param string $key
+     * @param Error  $error
+     */
     public function set($key, $error): void
     {
         parent::set($error->getId(), $error);

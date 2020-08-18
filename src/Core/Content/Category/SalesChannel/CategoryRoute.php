@@ -122,6 +122,8 @@ class CategoryRoute extends AbstractCategoryRoute
     private function loadCategory(string $categoryId, SalesChannelContext $context): CategoryEntity
     {
         $criteria = new Criteria([$categoryId]);
+        $criteria->setTitle('category::data');
+
         $criteria->addAssociation('media');
 
         $category = $this->categoryRepository
@@ -138,6 +140,7 @@ class CategoryRoute extends AbstractCategoryRoute
     private function createCriteria(string $pageId, Request $request): Criteria
     {
         $criteria = new Criteria([$pageId]);
+        $criteria->setTitle('category::cms-page');
 
         $slots = $request->get('slots');
 

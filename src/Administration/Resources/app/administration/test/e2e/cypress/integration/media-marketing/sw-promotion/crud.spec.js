@@ -1,4 +1,4 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
 
 import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
 
@@ -28,7 +28,7 @@ describe('Promotion: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/promotion',
+            url: `${Cypress.env('apiPath')}/promotion`,
             method: 'post'
         }).as('saveData');
         cy.route({
@@ -72,7 +72,7 @@ describe('Promotion: Test crud operations', () => {
             .clear()
             .type('54');
 
-        cy.get('#sw-field--discount-type').select('Fixed unit price');
+        cy.get('#sw-field--discount-type').select('Fixed item price');
 
         // Save final promotion
         cy.get('.sw-promotion-detail__save-action').click();

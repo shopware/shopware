@@ -47,7 +47,7 @@ class ManyToOneAssociationFieldSerializer implements FieldSerializerInterface
 
         $fkField = $parameters->getDefinition()->getFields()->getByStorageName($field->getStorageName());
 
-        $isPrimary = ($fkField && $fkField->is(PrimaryKey::class));
+        $isPrimary = $fkField && $fkField->is(PrimaryKey::class);
 
         if (isset($value[$referenceField->getPropertyName()])) {
             $id = $value[$referenceField->getPropertyName()];

@@ -18,7 +18,6 @@ use Shopware\Core\System\CustomField\CustomFieldEntity;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use function Flag\next6997;
 
 class ProductFeatureBuilder
 {
@@ -40,20 +39,12 @@ class ProductFeatureBuilder
 
     public function prepare(iterable $lineItems, CartDataCollection $data, SalesChannelContext $context): void
     {
-        if (!next6997()) {
-            return;
-        }
-
         $this->loadSystemLanguage($data, $context->getContext());
         $this->loadCustomFields($lineItems, $data, $context->getContext());
     }
 
     public function add(iterable $lineItems, CartDataCollection $data, SalesChannelContext $context): void
     {
-        if (!next6997()) {
-            return;
-        }
-
         foreach ($lineItems as $lineItem) {
             $product = $data->get('product-' . $lineItem->getReferencedId());
 
@@ -70,47 +61,45 @@ class ProductFeatureBuilder
     private function buildFeatures(CartDataCollection $data, LineItem $lineItem, SalesChannelProductEntity $product): array
     {
         $features = [];
-        $featureSets = $product->getFeatureSets();
+        $featureSet = $product->getFeatureSet();
 
-        if ($featureSets === null || $featureSets->count() < 1) {
+        if ($featureSet === null) {
             return $features;
         }
 
-        foreach ($featureSets as $set) {
-            $sorted = $set->getFeatures();
+        $sorted = $featureSet->getFeatures();
 
-            if (empty($sorted)) {
+        if (empty($sorted)) {
+            return $features;
+        }
+
+        usort($sorted, static function (array $a, array $b) {
+            return $a['position'] <=> $b['position'];
+        });
+
+        foreach ($sorted as $feature) {
+            if ($feature['type'] === ProductFeatureSetDefinition::TYPE_PRODUCT_ATTRIBUTE) {
+                $features[] = $this->getAttribute($feature['name'], $product);
+
                 continue;
             }
 
-            usort($sorted, static function (array $a, array $b) {
-                return $a['position'] <=> $b['position'];
-            });
+            if ($feature['type'] === ProductFeatureSetDefinition::TYPE_PRODUCT_PROPERTY) {
+                $features[] = $this->getProperty($feature['id'], $product);
 
-            foreach ($sorted as $feature) {
-                if ($feature['type'] === ProductFeatureSetDefinition::TYPE_PRODUCT_ATTRIBUTE) {
-                    $features[] = $this->getAttribute($feature['name'], $product);
+                continue;
+            }
 
-                    continue;
-                }
+            if ($feature['type'] === ProductFeatureSetDefinition::TYPE_PRODUCT_CUSTOM_FIELD) {
+                $features[] = $this->getCustomField($feature['name'], $data, $product);
 
-                if ($feature['type'] === ProductFeatureSetDefinition::TYPE_PRODUCT_PROPERTY) {
-                    $features[] = $this->getProperty($feature['id'], $product);
+                continue;
+            }
 
-                    continue;
-                }
+            if ($feature['type'] === ProductFeatureSetDefinition::TYPE_PRODUCT_REFERENCE_PRICE) {
+                $features[] = $this->getReferencePrice($lineItem, $product);
 
-                if ($feature['type'] === ProductFeatureSetDefinition::TYPE_PRODUCT_CUSTOM_FIELD) {
-                    $features[] = $this->getCustomField($feature['name'], $data, $product);
-
-                    continue;
-                }
-
-                if ($feature['type'] === ProductFeatureSetDefinition::TYPE_PRODUCT_REFERENCE_PRICE) {
-                    $features[] = $this->getReferencePrice($lineItem, $product);
-
-                    continue;
-                }
+                continue;
             }
         }
 
@@ -123,7 +112,7 @@ class ProductFeatureBuilder
      * loadSystemLanguage fetches the system language and is only needed for being able to read these labels
      * later on.
      *
-     * @see https://jira.shopware.com/browse/NEXT-9321
+     * @see https://issues.shopware.com/issues/NEXT-9321
      */
     private function loadSystemLanguage(CartDataCollection $data, Context $context): void
     {
@@ -197,15 +186,17 @@ class ProductFeatureBuilder
      */
     private function isRequiredCustomField(string $name, SalesChannelProductEntity $product): bool
     {
-        foreach ($product->getFeatureSets() as $set) {
-            foreach ($set->getFeatures() as $feature) {
-                if ($feature['type'] !== ProductFeatureSetDefinition::TYPE_PRODUCT_CUSTOM_FIELD) {
-                    continue;
-                }
+        if ($product->getFeatureSet() === null || $product->getFeatureSet()->getFeatures() === null) {
+            return false;
+        }
 
-                if ($feature['name'] === $name && array_key_exists($name, $product->getTranslation('customFields'))) {
-                    return true;
-                }
+        foreach ($product->getFeatureSet()->getFeatures() as $feature) {
+            if ($feature['type'] !== ProductFeatureSetDefinition::TYPE_PRODUCT_CUSTOM_FIELD) {
+                continue;
+            }
+
+            if ($feature['name'] === $name && array_key_exists($name, $product->getTranslation('customFields'))) {
+                return true;
             }
         }
 

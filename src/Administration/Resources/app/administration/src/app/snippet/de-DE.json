@@ -19,7 +19,8 @@
       "success": "Erfolg",
       "info": "Info",
       "yes": "Ja",
-      "no": "Nein"
+      "no": "Nein",
+      "confirm": "Bestätigen"
     },
     "notification": {
       "notificationSaveErrorMessage": "Beim Speichern der Entität \"{entityName}\" ist ein Fehler aufgetreten.",
@@ -115,7 +116,12 @@
       "deleteMessage": "Soll der Eintrag wirklich gelöscht werden? | Sollen diese {count} Einträge wirklich gelöscht werden?",
       "deleteTitle": "Eintrag löschen",
       "placeholderToManyAssociationCard": "Nach Assoziationen suchen ...",
-      "labelRemoveAssociation": "Zuweisung aufheben"
+      "labelRemoveAssociation": "Zuweisung aufheben",
+      "productStreamPreview": {
+        "emptyMessageNoStream": "Keine dynamische Produktgruppe ausgewählt",
+        "emptyMessageNoProducts": "Keine Produkte gefunden",
+        "emptyMessageNoSearchResults": "Keine Produkte gefunden für \"{term}\""
+      }
     },
     "sw-field": {
       "notification": {
@@ -440,7 +446,10 @@
     },
     "sw-multi-tag-ip-select": {
       "enterValidIp": "Bitte gib eine valide IPv4- oder IPv6-Adresse ein",
-      "addIpAdress": "IP-Adresse hinzufügen"
+      "addIpAdress": "IP-Adresse hinzufügen",
+      "knownIps": {
+        "you": "Du"
+      }
     },
     "sw-multi-ip-select": {
       "enterValidIp": "Bitte gib eine valide IPv4- oder IPv6-Adresse ein",
@@ -647,7 +656,8 @@
       "unit": "Maßeinheit | Maßeinheiten",
       "user": "Benutzer",
       "delivery_time": "Lieferzeit | Lieferzeiten",
-      "import_export_profile": "Import/Export Profil | Import/Export Profile"
+      "import_export_profile": "Import/Export Profil | Import/Export Profile",
+      "feature_set": "Template | Templates"
     },
     "day-of-week": {
       "monday": "Montag",

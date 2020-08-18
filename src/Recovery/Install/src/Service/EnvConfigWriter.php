@@ -84,5 +84,16 @@ SHOPWARE_CDN_STRATEGY_DEFAULT="id"
         );
 
         file_put_contents($this->configPath, $envFile);
+
+        $htaccessPath = SW_PATH . '/public/.htaccess';
+
+        if (file_exists($htaccessPath . '.dist') && !file_exists($htaccessPath)) {
+            $perms = fileperms($htaccessPath . '.dist');
+            copy($htaccessPath . '.dist', $htaccessPath);
+
+            if ($perms) {
+                chmod($htaccessPath, $perms | 0644);
+            }
+        }
     }
 }

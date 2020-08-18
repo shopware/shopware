@@ -9,7 +9,8 @@ Component.register('sw-order-list', {
 
     inject: [
         'repositoryFactory',
-        'stateStyleDataProviderService'
+        'stateStyleDataProviderService',
+        'acl'
     ],
 
     mixins: [
@@ -133,6 +134,10 @@ Component.register('sw-order-list', {
         },
 
         disableDeletion(order) {
+            if (!this.acl.can('order.deleter')) {
+                return true;
+            }
+
             return order.documents.length > 0;
         },
 

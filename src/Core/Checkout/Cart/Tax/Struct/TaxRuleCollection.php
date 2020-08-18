@@ -12,11 +12,18 @@ use Shopware\Core\Framework\Struct\Collection;
  */
 class TaxRuleCollection extends Collection
 {
+    /**
+     * @param TaxRule $taxRule
+     */
     public function add($taxRule): void
     {
         $this->set($this->getKey($taxRule), $taxRule);
     }
 
+    /**
+     * @param string|int $key
+     * @param TaxRule    $taxRule
+     */
     public function set($key, $taxRule): void
     {
         parent::set($this->getKey($taxRule), $taxRule);

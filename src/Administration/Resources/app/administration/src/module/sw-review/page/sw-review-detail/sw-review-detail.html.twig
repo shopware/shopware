@@ -118,7 +118,8 @@
                                                             {% endblock %}
 
                                                             {% block sw_customer_base_metadata_customer_content %}
-                                                                <dd>{{ salutation(review.customer) }}</dd>
+                                                                <dd v-if="review.customer">{{ salutation(review.customer) }}</dd>
+                                                                <dd v-else>{{ review.externalUser }}</dd>
                                                             {% endblock %}
                                                         </sw-description-list>
                                                     {% endblock %}
@@ -130,7 +131,8 @@
                                                             {% endblock %}
 
                                                             {% block sw_customer_base_metadata_email_content %}
-                                                                <dd>{{ review.customer.email }}</dd>
+                                                                <dd v-if="review.customer">{{ review.customer.email }}</dd>
+                                                                <dd v-else>{{ review.externalEmail }}</dd>
                                                             {% endblock %}
                                                         </sw-description-list>
                                                     {% endblock %}

@@ -1,4 +1,4 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
 
 describe('Administration: Check module navigation in settings', () => {
     beforeEach(() => {
@@ -61,7 +61,7 @@ describe('Administration: Check module navigation in settings', () => {
     it('@navigation: navigate to logging module', () => {
         cy.server();
         cy.route({
-            url: '/api/v*/search/log-entry',
+            url: `${Cypress.env('apiPath')}/search/log-entry`,
             method: 'post'
         }).as('getData');
 
@@ -86,7 +86,7 @@ describe('Administration: Check module navigation in settings', () => {
     it('@navigation: navigate to shopware update module', () => {
         cy.server();
         cy.route({
-            url: '/api/v*/_action/system-config/schema?domain=core.update',
+            url: `${Cypress.env('apiPath')}/_action/system-config/schema?domain=core.update`,
             method: 'get'
         }).as('getData');
 
@@ -110,7 +110,7 @@ describe('Administration: Check module navigation in settings', () => {
     it('@base @navigation: navigate to custom field module', () => {
         cy.server();
         cy.route({
-            url: '/api/v*/search/custom-field-set',
+            url: `${Cypress.env('apiPath')}/search/custom-field-set`,
             method: 'post'
         }).as('getData');
 
@@ -133,11 +133,11 @@ describe('Administration: Check module navigation in settings', () => {
     it('@base @navigation: navigate to plugin module', () => {
         cy.server();
         cy.route({
-            url: '/api/v*/_action/plugin/refresh',
+            url: `${Cypress.env('apiPath')}/_action/plugin/refresh`,
             method: 'post'
         }).as('refresh');
         cy.route({
-            url: '/api/v*/search/plugin',
+            url: `${Cypress.env('apiPath')}/search/plugin`,
             method: 'post'
         }).as('getData');
 
@@ -163,7 +163,7 @@ describe('Administration: Check module navigation in settings', () => {
     it('@navigation: navigate to integrations module', () => {
         cy.server();
         cy.route({
-            url: '/api/v*/search/integration',
+            url: `${Cypress.env('apiPath')}/search/integration`,
             method: 'post'
         }).as('getData');
 

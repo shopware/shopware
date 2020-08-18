@@ -277,7 +277,7 @@ class MediaUploadControllerTest extends TestCase
         return $media;
     }
 
-    private function assertMediaApiResponse($width = 499): void
+    private function assertMediaApiResponse(int $width = 499): void
     {
         $this->getBrowser()->request(
             'GET',

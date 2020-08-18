@@ -257,6 +257,8 @@ class LineItem extends Struct
     }
 
     /**
+     * @param array|bool|float|int|string|null $value
+     *
      * @throws InvalidPayloadException
      */
     public function setPayloadValue(string $key, $value): self

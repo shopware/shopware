@@ -2,7 +2,7 @@
 
 exports[`core/helper/sanitizer.helper.js should sanitize untrusted HTML in a component 1`] = `
 <div
-  class="sw-empty-state"
+  class="sw-empty-state sw-empty-state--absolute"
 >
   <div
     class="sw-empty-state__element"

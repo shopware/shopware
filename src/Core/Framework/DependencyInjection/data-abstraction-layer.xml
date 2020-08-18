@@ -553,7 +553,7 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry">
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry" public="true">
             <argument type="tagged" tag="shopware.entity_indexer"/>
             <argument type="service" id="messenger.bus.shopware"/>
             <tag name="messenger.message_handler" />

@@ -16,7 +16,7 @@ class LineItemGroupUnitPriceGrossPackager implements LineItemGroupPackagerInterf
     }
 
     /**
-     * This packager adds all items to a bundle, until the sum of their unit prices (gross)
+     * This packager adds all items to a bundle, until the sum of their item prices (gross)
      * reaches the provided minimum value for the package.
      *
      * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException

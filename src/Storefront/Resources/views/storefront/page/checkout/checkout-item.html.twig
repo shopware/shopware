@@ -117,14 +117,6 @@
                                                         {% sw_include '@Storefront/storefront/component/product/feature/list.html.twig' with {
                                                             'features': lineItem.payload.features
                                                         } %}
-                                                    {% elseif lineItem.type == 'product' and lineItem.price.referencePrice is not null %}
-                                                        {# TODO: This branch can be removed, once the FEATURE_NEXT_6997 flag is removed #}
-                                                        {% set price = lineItem.price %}
-                                                        {{ "checkout.priceUnitName"|trans|sw_sanitize }}
-                                                        <span class="price-unit-reference">
-                                                            {{ price.referencePrice.purchaseUnit }} {{ price.referencePrice.unitName }}
-                                                            ({{ price.referencePrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} / {{ price.referencePrice.referenceUnit }} {{ price.referencePrice.unitName }})
-                                                        </span>
                                                     {% endif %}
                                                 {% endblock %}
 
@@ -207,7 +199,11 @@
                                                 {% endblock %}
                                             </form>
                                         {% else %}
-                                            {{ lineItem.quantity }}
+                                            {% block page_checkout_item_quantity_number %}
+                                                <div class="d-flex justify-content-end cart-item-quantity">
+                                                    {{ lineItem.quantity }}
+                                                </div>
+                                            {% endblock %}
                                         {% endif %}
                                     {% endblock %}
                                 </div>

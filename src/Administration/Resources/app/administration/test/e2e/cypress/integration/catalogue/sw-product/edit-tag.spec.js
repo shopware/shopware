@@ -1,4 +1,4 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
 
 import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
 
@@ -25,7 +25,7 @@ describe('Product: Tagging product', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/product/*',
+            url: `${Cypress.env('apiPath')}/product/*`,
             method: 'patch'
         }).as('saveData');
 

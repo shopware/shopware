@@ -1,6 +1,7 @@
 import template from './sw-users-permissions-user-listing.html.twig';
 import './sw-users-permissions-user-listing.scss';
 
+// @deprecated tag:v6.4.0.0 for StateDeprecated
 const { Component, Data, Mixin, State, StateDeprecated } = Shopware;
 const { Criteria } = Data;
 const types = Shopware.Utils.types;

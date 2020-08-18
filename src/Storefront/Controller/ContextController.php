@@ -132,22 +132,20 @@ class ContextController extends StorefrontController
          * http://localhost/development/public/de
          * http://localhost/development/public/en
          * http://localhost/development/public/fr
+         * http://localhost/development/public/de-DE
          *
          * http://localhost:8080
          * http://localhost:8080/en
          * http://localhost:8080/fr
+         * http://localhost:8080/de-DE
          */
-        $url = str_replace(
-            ['http://', 'https://'],
-            '',
-            $domain->getUrl()
-        );
+        $parsedUrl = parse_url($domain->getUrl());
 
         $routerContext = $this->router->getContext();
-        $routerContext->setHttpPort(80);
+        $routerContext->setHttpPort($parsedUrl['port'] ?? 80);
         $routerContext->setMethod('GET');
-        $routerContext->setHost($url);
-        $routerContext->setBaseUrl('');
+        $routerContext->setHost($parsedUrl['host']);
+        $routerContext->setBaseUrl(rtrim($parsedUrl['path'] ?? '', '/'));
 
         $this->requestStack->getMasterRequest()
             ->attributes->set(RequestTransformer::SALES_CHANNEL_BASE_URL, '');

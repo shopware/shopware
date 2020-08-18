@@ -287,12 +287,25 @@ function build(componentName, skipTemplate = false) {
     }
 
     /**
+     * if config has a render function it will ignore template
+     */
+    if (typeof config.render === 'function') {
+        delete config.template;
+        return config;
+    }
+
+    if (skipTemplate) {
+        delete config.template;
+        return config;
+    }
+
+    /**
      * Get the final template result including all overrides or extensions.
      */
-    if (skipTemplate !== true) {
-        config.template = getComponentTemplate(componentName);
-    } else {
-        delete config.template;
+    config.template = getComponentTemplate(componentName);
+
+    if (typeof config.template !== 'string') {
+        return false;
     }
 
     return config;

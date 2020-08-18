@@ -35,6 +35,11 @@ Component.register('sw-language-switch', {
         saveChangesFunction: {
             type: Function,
             required: false
+        },
+        savePermission: {
+            type: Boolean,
+            required: false,
+            default: true
         }
     },
 
@@ -85,7 +90,7 @@ Component.register('sw-language-switch', {
 
         checkAbort() {
             // Check if abort function exists und reset the select field if the change should be aborted
-            if (typeof this.abortChangeFunction === 'function') {
+            if (typeof this.abortChangeFunction === 'function' && this.savePermission) {
                 if (this.abortChangeFunction({
                     oldLanguageId: this.lastLanguageId,
                     newLanguageId: this.languageId

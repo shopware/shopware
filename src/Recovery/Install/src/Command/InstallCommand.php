@@ -326,6 +326,7 @@ class InstallCommand extends Command
         $shop->basePath = $input->getOption('shop-path');
         $shop->locale = $input->getOption('shop-locale');
         $shop->currency = $input->getOption('shop-currency');
+        $shop->country = $input->getOption('shop-country');
 
         if ($shop->locale && !in_array($shop->locale, Locale::getValidLocales(), true)) {
             throw new \RuntimeException('Invalid shop-locale provided');
@@ -566,6 +567,12 @@ class InstallCommand extends Command
                 null,
                 InputOption::VALUE_REQUIRED,
                 'Shop currency'
+            )
+            ->addOption(
+                'shop-country',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'Expects an ISO-3166 three-letter country-code. This parameter sets the default country for the default sales-channel.'
             )
         ;
     }

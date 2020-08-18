@@ -1,6 +1,7 @@
 import template from './sw-property-search.html.twig';
 import './sw-property-search.scss';
 
+// @deprecated tag:v6.4.0.0 for StateDeprecated
 const { Component, StateDeprecated } = Shopware;
 const utils = Shopware.Utils;
 
@@ -53,10 +54,12 @@ Component.register('sw-property-search', {
             return { overlay: this.overlay };
         },
 
+        // @deprecated tag:v6.4.0.0
         groupStore() {
             return StateDeprecated.getStore('property_group');
         },
 
+        // @deprecated tag:v6.4.0.0
         optionStore() {
             return StateDeprecated.getStore('property_group_option');
         }

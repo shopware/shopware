@@ -65,8 +65,11 @@ class NavigationLoader implements NavigationLoaderInterface
         $request->query->set('buildTree', false);
         $request->query->set('depth', $depth);
 
+        $criteria = new Criteria();
+        $criteria->setTitle('header::navigation');
+
         $categories = $this->navigationRoute
-            ->load($activeId, $rootId, $request, $context, new Criteria())
+            ->load($activeId, $rootId, $request, $context, $criteria)
             ->getCategories();
 
         $navigation = $this->getTree($rootId, $categories, $categories->get($activeId));

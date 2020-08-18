@@ -47,7 +47,8 @@
                         required
                         :placeholder="placeholder(salesChannel, 'name', $tc('sw-sales-channel.detail.placeholderName'))"
                         :label="$tc('sw-sales-channel.detail.labelInputName')"
-                        v-model="salesChannel.name">
+                        v-model="salesChannel.name"
+                        :error="salesChannelNameError">
                     </sw-field>
                 {% endblock %}
 
@@ -106,6 +107,7 @@
                     <sw-entity-single-select
                         v-if="!isProductComparison"
                         class="sw-sales-channel-detail__select-customer-group"
+                        required
                         :label="$tc('sw-sales-channel.detail.customerGroup')"
                         entity="customer_group"
                         :error="salesChannelCustomerGroupIdError"
@@ -208,6 +210,7 @@
             <sw-card v-if="salesChannel && isProductComparison" :isLoading="isLoading" :title="$tc('sw-sales-channel.detail.productComparison.storefront')">
                 {% block sw_sales_channel_detail_base_general_input_product_comparison_storefront %}
                     <sw-entity-single-select
+                        class="sw-sales-channel-detail__product-comparison-storefront"
                         @change="onStorefrontSelectionChange"
                         :label="$tc('sw-sales-channel.detail.productComparison.storefront')"
                         :criteria="storefrontSalesChannelCriteria"
@@ -221,6 +224,7 @@
 
                 {% block sw_sales_channel_detail_base_general_input_product_comparison_storefront_domain %}
                     <sw-entity-single-select
+                        class="sw-sales-channel-detail__product-comparison-domain"
                         @change="onStorefrontDomainSelectionChange"
                         :label="$tc('sw-sales-channel.detail.productComparison.storefrontDomain')"
                         :criteria="storefrontSalesChannelDomainCriteria"
@@ -229,7 +233,8 @@
                         entity="sales_channel_domain"
                         required
                         :disabled="!productExport.salesChannelDomainId && !productExport.storefrontSalesChannelId"
-                        v-model="productExport.salesChannelDomainId">
+                        v-model="productExport.salesChannelDomainId"
+                        :error="productExportSalesChannelDomainIdError">
                     </sw-entity-single-select>
                 {% endblock %}
 
@@ -242,7 +247,8 @@
                             valueProperty="id"
                             required
                             entity="currency"
-                            v-model="productExport.currencyId">
+                            v-model="productExport.currencyId"
+                            :error="productExportCurrencyIdError">
                         </sw-entity-single-select>
                     </div>
                 {% endblock %}
@@ -294,7 +300,7 @@
                         required
                         :label="$tc('sw-sales-channel.detail.productComparison.fileName')"
                         :placeholder="$tc('sw-sales-channel.detail.productComparison.placeholderFileName')"
-                        :error="invalidFileNameError"
+                        :error="productExportFileNameError || invalidFileNameError"
                         v-model="productExport.fileName">
                     </sw-field>
                 {% endblock %}
@@ -305,7 +311,8 @@
                         :placeholder="$tc('sw-sales-channel.detail.productComparison.placeholderSelectEncoding')"
                         :options="getEncodingOptions"
                         required
-                        v-model="productExport.encoding">
+                        v-model="productExport.encoding"
+                        :error="productExportEncodingError">
                     </sw-select-field>
                 {% endblock %}
 
@@ -315,7 +322,8 @@
                         :placeholder="$tc('sw-sales-channel.detail.productComparison.placeholderSelectFileFormat')"
                         :options="getFileFormatOptions"
                         required
-                        v-model="productExport.fileFormat">
+                        v-model="productExport.fileFormat"
+                        :error="productExportFileFormatError">
                     </sw-select-field>
                 {% endblock %}
 
@@ -360,12 +368,14 @@
 
                 {% block sw_sales_channel_detail_base_general_input_product_comparison_product_stream %}
                     <sw-entity-single-select
+                        class="sw-sales-channel-detail__product-comparison-product-stream"
                         :label="$tc('sw-sales-channel.detail.productComparison.productStream')"
                         labelProperty="name"
                         valueProperty="id"
                         required
                         entity="product_stream"
-                        v-model="productExport.productStreamId">
+                        v-model="productExport.productStreamId"
+                        :error="productExportProductStreamIdError">
                     </sw-entity-single-select>
                 {% endblock %}
 
@@ -483,6 +493,7 @@
                         class="sw-order-user-card__tag-select"
                         :label="$tc('sw-sales-channel.detail.ipAddressWhitleList')"
                         :helpText="$tc('sw-sales-channel.detail.ipAddressWhitleListHelpText')"
+                        :knownIps="knownIps"
                         v-model="maintenanceIpWhitelist">
                     </sw-multi-tag-ip-select>
                 {% endblock %}

@@ -126,6 +126,10 @@ Component.register('sw-context-button', {
 
     methods: {
         onClickButton() {
+            if (this.disabled) {
+                return;
+            }
+
             if (this.showMenu) {
                 this.closeMenu();
             } else {

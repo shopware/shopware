@@ -18,11 +18,13 @@ use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Demodata\DemodataRequest;
 use Shopware\Core\Framework\Demodata\DemodataService;
+use Shopware\Core\Framework\Demodata\Event\DemodataRequestCreatedEvent;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class DemodataCommand extends Command
 {
@@ -38,11 +40,21 @@ class DemodataCommand extends Command
      */
     private $kernelEnv;
 
-    public function __construct(DemodataService $demodataService, string $kernelEnv)
-    {
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    public function __construct(
+        DemodataService $demodataService,
+        EventDispatcherInterface $eventDispatcher,
+        string $kernelEnv
+    ) {
         parent::__construct();
+
         $this->kernelEnv = $kernelEnv;
         $this->demodataService = $demodataService;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     protected function configure(): void
@@ -107,6 +119,8 @@ class DemodataCommand extends Command
 
         $request->add(MailTemplateDefinition::class, (int) $input->getOption('mail-template'));
         $request->add(MailHeaderFooterDefinition::class, (int) $input->getOption('mail-header-footer'));
+
+        $this->eventDispatcher->dispatch(new DemodataRequestCreatedEvent($request, $context));
 
         $demoContext = $this->demodataService->generate($request, $context, $io);
 

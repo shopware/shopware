@@ -2,6 +2,8 @@
 
 namespace Shopware\Storefront\Test\Theme;
 
+use PHPUnit\Framework\Constraint\Callback;
+use PHPUnit\Framework\Constraint\IsEqual;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -11,10 +13,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Test\Theme\fixtures\ThemeFixtures;
+use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
+use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
+use Shopware\Storefront\Theme\ThemeCompiler;
 use Shopware\Storefront\Theme\ThemeEntity;
 use Shopware\Storefront\Theme\ThemeLifecycleService;
 use Shopware\Storefront\Theme\ThemeService;
+use Symfony\Component\Config\Loader\LoaderInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 class ThemeTest extends TestCase
 {
@@ -251,6 +259,176 @@ class ThemeTest extends TestCase
         static::assertTrue($themeCompiled);
     }
 
+    public function testCompileNonStorefrontThemesWithSameTechnicalNameNotLeakingConfigurationFromPreviousCompilations(): void
+    {
+        $this->createParentlessSimpleTheme();
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('technicalName', 'SimpleTheme'));
+        /** @var ThemeEntity $baseTheme */
+        $baseTheme = $this->themeRepository->search($criteria, $this->context)->first();
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('name', $this->createTheme($baseTheme)));
+        /** @var ThemeEntity $childTheme */
+        $childTheme = $this->themeRepository->search($criteria, $this->context)->first();
+        $this->themeRepository->update([[
+            'id' => $childTheme->getId(),
+            'technicalName' => null,
+        ]], $this->context);
+
+        $expectedColor = '';
+        $expectedTheme = '';
+        $themeCompilerMock = $this->createMock(ThemeCompiler::class);
+        $themeCompilerMock->expects(static::exactly(2))
+            ->method('compileTheme')
+            ->with(
+                new IsEqual(Defaults::SALES_CHANNEL),
+                new Callback(static function (string $value) use (&$expectedTheme): bool {
+                    return $value === $expectedTheme;
+                }),
+                new Callback(static function (StorefrontPluginConfiguration $value) use (&$expectedColor): bool {
+                    return $value->getThemeConfig()['fields']['sw-color-brand-primary']['value'] === $expectedColor;
+                })
+            );
+
+        $themeService = new ThemeService(
+            new StorefrontPluginRegistry(
+                new class($this->getContainer()->get('kernel')) implements KernelInterface {
+                    /**
+                     * @var KernelInterface
+                     */
+                    private $kernel;
+
+                    /**
+                     * @var fixtures\SimpleTheme\SimpleTheme
+                     */
+                    private $simpleTheme;
+
+                    public function __construct(KernelInterface $kernel)
+                    {
+                        $this->kernel = $kernel;
+                        $this->simpleTheme = new fixtures\SimpleTheme\SimpleTheme();
+                    }
+
+                    public function getBundles()
+                    {
+                        $bundles = $this->kernel->getBundles();
+                        $bundles[$this->simpleTheme->getName()] = $this->simpleTheme;
+
+                        return $bundles;
+                    }
+
+                    public function getBundle($name)
+                    {
+                        return $name === $this->simpleTheme->getName() ? $this->simpleTheme : $this->kernel->getBundle($name);
+                    }
+
+                    public function handle(Request $request, $type = self::MASTER_REQUEST, $catch = true)
+                    {
+                        return $this->kernel->{__FUNCTION__}(...func_get_args());
+                    }
+
+                    public function registerBundles()
+                    {
+                        return $this->kernel->{__FUNCTION__}(...func_get_args());
+                    }
+
+                    public function registerContainerConfiguration(LoaderInterface $loader)
+                    {
+                        return $this->kernel->{__FUNCTION__}(...func_get_args());
+                    }
+
+                    public function boot()
+                    {
+                        return $this->kernel->{__FUNCTION__}(...func_get_args());
+                    }
+
+                    public function shutdown()
+                    {
+                        return $this->kernel->{__FUNCTION__}(...func_get_args());
+                    }
+
+                    public function locateResource($name)
+                    {
+                        return $this->kernel->{__FUNCTION__}(...func_get_args());
+                    }
+
+                    public function getName()
+                    {
+                        return $this->kernel->{__FUNCTION__}(...func_get_args());
+                    }
+
+                    public function getEnvironment()
+                    {
+                        return $this->kernel->{__FUNCTION__}(...func_get_args());
+                    }
+
+                    public function isDebug()
+                    {
+                        return $this->kernel->{__FUNCTION__}(...func_get_args());
+                    }
+
+                    public function getRootDir()
+                    {
+                        return $this->kernel->{__FUNCTION__}(...func_get_args());
+                    }
+
+                    public function getContainer()
+                    {
+                        return $this->kernel->{__FUNCTION__}(...func_get_args());
+                    }
+
+                    public function getStartTime()
+                    {
+                        return $this->kernel->{__FUNCTION__}(...func_get_args());
+                    }
+
+                    public function getCacheDir()
+                    {
+                        return $this->kernel->{__FUNCTION__}(...func_get_args());
+                    }
+
+                    public function getLogDir()
+                    {
+                        return $this->kernel->{__FUNCTION__}(...func_get_args());
+                    }
+
+                    public function getCharset()
+                    {
+                        return $this->kernel->{__FUNCTION__}(...func_get_args());
+                    }
+
+                    public function __call($name, $arguments)
+                    {
+                        return $this->kernel->{__FUNCTION__}(...func_get_args());
+                    }
+                },
+                $this->getContainer()->get(StorefrontPluginConfigurationFactory::class)
+            ),
+            $this->getContainer()->get('theme.repository'),
+            $this->getContainer()->get('theme_sales_channel.repository'),
+            $this->getContainer()->get('media.repository'),
+            $themeCompilerMock
+        );
+        $themeService->updateTheme(
+            $childTheme->getId(),
+            [
+                'sw-color-brand-primary' => [
+                    'value' => '#b1900f',
+                ],
+            ],
+            null,
+            $this->context
+        );
+
+        $expectedColor = '#b1900f';
+        $expectedTheme = $childTheme->getId();
+        $themeService->compileTheme(Defaults::SALES_CHANNEL, $childTheme->getId(), $this->context);
+        $expectedColor = '#008490';
+        $expectedTheme = $baseTheme->getId();
+        $themeService->compileTheme(Defaults::SALES_CHANNEL, $baseTheme->getId(), $this->context);
+    }
+
     public function testRefreshPlugin(): void
     {
         $themeLifecycleService = $this->getContainer()->get(ThemeLifecycleService::class);
@@ -317,6 +495,38 @@ class ThemeTest extends TestCase
                     'labels' => $parentTheme->getLabels(),
                     'customFields' => $parentTheme->getCustomFields(),
                     'previewMediaId' => $parentTheme->getPreviewMediaId(),
+                    'active' => true,
+                ],
+            ],
+            $this->context
+        );
+
+        return $name;
+    }
+
+    /**
+     * @throws \Exception
+     */
+    private function createParentlessSimpleTheme(): string
+    {
+        $name = 'test' . Uuid::randomHex();
+
+        $id = Uuid::randomHex();
+        $this->themeRepository->create(
+            [
+                [
+                    'id' => $id,
+                    'parentThemeId' => null,
+                    'name' => $name,
+                    'technicalName' => 'SimpleTheme',
+                    'createdAt' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    'configValues' => null,
+                    'baseConfig' => [],
+                    'description' => 'This is a theme',
+                    'author' => 'Shopware AG',
+                    'labels' => [],
+                    'customFields' => [],
+                    'previewMediaId' => null,
                     'active' => true,
                 ],
             ],

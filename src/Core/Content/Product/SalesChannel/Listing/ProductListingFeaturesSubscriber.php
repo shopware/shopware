@@ -246,7 +246,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
     private function handlePriceFilter(Request $request, Criteria $criteria): void
     {
         $criteria->addAggregation(
-            new StatsAggregation('price', 'product.listingPrices')
+            new StatsAggregation('price', 'product.listingPrices', true, true, false, false)
         );
 
         $min = $request->get('min-price');
@@ -371,11 +371,11 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         $groups = array_column($groups, 'id');
 
         // expanded group count matches option count? All variants are displayed
-        if (count($groups) === count($product->getOptionIds())) {
+        if ($product->getOptionIds() !== null && count($groups) === count($product->getOptionIds())) {
             return false;
         }
 
-        if (!$product->getOptions()) {
+        if ($product->getOptions() === null) {
             return true;
         }
 
@@ -415,6 +415,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         $criteria->addAssociation('group');
         $criteria->addAssociation('media');
         $criteria->addFilter(new EqualsFilter('group.filterable', true));
+        $criteria->setTitle('product-listing::property-filter');
 
         $result = $this->optionRepository->search($criteria, $event->getContext());
 

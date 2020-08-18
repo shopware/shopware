@@ -27,7 +27,8 @@
       "headline": "Statistik der letzten 30 Tage",
       "orderNumber": "Bestellungen",
       "turnover": "Umsatz",
-      "numberOfOrders": "Anzahl"
+      "numberOfOrders": "Anzahl",
+      "totalTurnover": "Gesamt"
     }
   }
 }

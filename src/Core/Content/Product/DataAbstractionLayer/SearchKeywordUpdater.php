@@ -77,7 +77,7 @@ class SearchKeywordUpdater
     {
         $products = $context->disableCache(function (Context $context) use ($ids) {
             return $context->enableInheritance(function (Context $context) use ($ids) {
-                return $this->productRepository->search(new Criteria($ids), $context);
+                return $this->productRepository->search((new Criteria($ids))->addAssociation('manufacturer'), $context);
             });
         });
 

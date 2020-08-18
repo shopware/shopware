@@ -12,8 +12,6 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCartAddedInformationError;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
-use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
-use Shopware\Core\Checkout\Promotion\Subscriber\Storefront\StorefrontCartSubscriber;
 use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
@@ -234,6 +232,7 @@ class CartLineItemController extends StorefrontController
         $count = 0;
 
         try {
+            $items = [];
             /** @var RequestDataBag $lineItemData */
             foreach ($lineItems as $lineItemData) {
                 $lineItem = new LineItem(
@@ -248,8 +247,10 @@ class CartLineItemController extends StorefrontController
 
                 $count += $lineItem->getQuantity();
 
-                $cart = $this->cartService->add($cart, $lineItem, $salesChannelContext);
+                $items[] = $lineItem;
             }
+
+            $cart = $this->cartService->add($cart, $items, $salesChannelContext);
 
             if (!$this->traceErrors($cart)) {
                 $this->addFlash('success', $this->trans('checkout.addToCartSuccess', ['%count%' => $count]));
@@ -259,37 +260,6 @@ class CartLineItemController extends StorefrontController
         }
 
         return $this->createActionResponse($request);
-    }
-
-    /**
-     * This function verifies if our cart has the provided promotion.
-     * This is necessary to see if adding the code did work in the end.
-     */
-    private function hasPromotion(Cart $cart, string $code): bool
-    {
-        foreach ($cart->getLineItems() as $lineItem) {
-            if ($lineItem->getType() !== PromotionProcessor::LINE_ITEM_TYPE) {
-                continue;
-            }
-
-            if ($code === $lineItem->getReferencedId()) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * function validates if a code has at least been added
-     * to our cart.
-     */
-    private function codeExistsInCart(string $code): bool
-    {
-        /** @var array $allCodes */
-        $allCodes = $this->container->get('session')->get(StorefrontCartSubscriber::SESSION_KEY_PROMOTION_CODES);
-
-        return in_array($code, $allCodes, true);
     }
 
     private function traceErrors(Cart $cart): bool

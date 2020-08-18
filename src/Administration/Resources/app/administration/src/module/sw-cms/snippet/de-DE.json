@@ -223,11 +223,7 @@
             "badgeTopseller": "Topseller",
             "badgeNew": "Neu",
             "priceUnitContent": "Inhalt:"
-          },
-          "actionBuy": "In den Warenkorb",
-          "badgeTopseller": "Topseller",
-          "priceUnitContent": "Inhalt:",
-          "badgeNew": "Neu"
+          }
         },
         "config": {
           "label": {

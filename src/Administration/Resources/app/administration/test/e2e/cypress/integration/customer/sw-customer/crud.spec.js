@@ -1,4 +1,4 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
 
 import CustomerPageObject from '../../../support/pages/module/sw-customer.page-object';
 
@@ -37,7 +37,7 @@ describe('Customer: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/customer',
+            url: `${Cypress.env('apiPath')}/customer`,
             method: 'post'
         }).as('saveData');
 
@@ -97,7 +97,7 @@ describe('Customer: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/customer/*',
+            url: `${Cypress.env('apiPath')}/customer/*`,
             method: 'patch'
         }).as('saveData');
 
@@ -128,7 +128,7 @@ describe('Customer: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/customer/*',
+            url: `${Cypress.env('apiPath')}/customer/*`,
             method: 'delete'
         }).as('deleteData');
 

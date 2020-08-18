@@ -1,3 +1,4 @@
+{# @deprecated tag:v6.4.0 -  Will be handled by generic "layout/breadcrumb.html.twig" template #}
 {% block component_listing_breadcrumb %}
     {% set breadcrumb = category.buildSeoBreadcrumb(context.salesChannel.navigationCategoryId) %}
 
@@ -21,4 +22,3 @@
         </div>
     {% endfor %}
 {% endblock %}
-

@@ -199,6 +199,11 @@ Administration
             {{ getCurrencyPriceByCurrencyId(currency.id, item.price).gross | currency(currency.isoCode) }}
         </template>
         ```
+* Added the following new components, to enable administration of essential characteristics
+    * `sw-settings-product-feature-sets-modal`
+    * `sw-settings-product-feature-sets-values-card`
+    * `sw-settings-product-feature-sets-detail`
+    * `sw-settings-product-feature-sets-list`
 * Removed the `inheritance` header being set to `true` in the method `loadProduct` of the component `sw-product-detail`
 * Removed unnecessary loading of `crossSelling` associations in the computed property `productCriteria` of the component `sw-product-detail`
 
@@ -243,11 +248,11 @@ Example in SCSS
 
 ```scss
 body {
-  background: url("#{$sw-asset-theme-url}/bundles/storefront/assets/font/Inter-Regular.woff2");
+  background: url("#{$sw-asset-theme-url}/bundles/storefront/assets/img/some-image.webp");
 }
 ```
 
-To access in scss the asset url, you can use the variable `$sw-asset-url`
+To access in scss the asset url, you can use the variable `$sw-asset-theme-url`
 
 ## Configuring `asset` and `theme` asset to other locations
 

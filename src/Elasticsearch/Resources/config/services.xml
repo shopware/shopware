@@ -12,9 +12,19 @@
                     <parameter key="number_of_replicas">3</parameter>
                     <parameter key="mapping.total_fields.limit">5000</parameter>
                     <parameter key="mapping.nested_fields.limit">500</parameter>
+                    <parameter key="mapping.nested_objects.limit">1000000</parameter>
                 </parameter>
 
                 <parameter key="analysis" type="collection">
+                    <parameter key="normalizer" type="collection">
+                        <parameter key="sw_lowercase_normalizer" type="collection">
+                            <parameter key="type">custom</parameter>
+                            <parameter key="filter" type="collection">
+                                <parameter>lowercase</parameter>
+                            </parameter>
+                        </parameter>
+                    </parameter>
+
                     <parameter key="analyzer" type="collection">
                         <parameter key="sw_ngram_analyzer" type="collection">
                             <parameter key="type">custom</parameter>
@@ -59,6 +69,7 @@
         <service id="Elasticsearch\Client" public="true">
             <factory class="Shopware\Elasticsearch\Framework\ClientFactory" method="createClient" />
             <argument>%elasticsearch.hosts%</argument>
+            <argument type="service" id="logger" />
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Indexing\IndexCreator">
@@ -138,6 +149,7 @@
             <argument type="service" id="Elasticsearch\Client"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
+            <argument>%elasticsearch.index.config%</argument>
 
             <tag name="messenger.message_handler"/>
         </service>

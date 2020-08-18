@@ -147,6 +147,8 @@ class CartRuleLoader
         $criteria = new Criteria();
         $criteria->addSorting(new FieldSorting('priority', FieldSorting::DESCENDING));
         $criteria->setLimit(500);
+        $criteria->setTitle('cart-rule-loader::load-rules');
+
         $repositoryIterator = new RepositoryIterator($this->repository, $context, $criteria);
         $rules = new RuleCollection();
         while (($result = $repositoryIterator->fetch()) !== null) {
@@ -154,6 +156,9 @@ class CartRuleLoader
                 if (!$rule->isInvalid() && $rule->getPayload()) {
                     $rules->add($rule);
                 }
+            }
+            if ($result->count() < 500) {
+                break;
             }
         }
 

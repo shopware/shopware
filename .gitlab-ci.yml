@@ -325,7 +325,6 @@ MariaDB 10.4 (Schedule):
             alias: elasticsearch
             command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
 
-
 Administration (Jest):
     only:
         refs:
@@ -368,6 +367,23 @@ Storefront (Jest):
         reports:
             junit: development/build/artifacts/storefront.junit.xml
 
+Validate snippets:
+    only:
+        refs:
+            - merge_requests
+            - master
+            - /^6\..*$/
+        changes:
+            - src/**/snippet/**/*.json
+    stage: unit
+    timeout: 1h 00m
+    services:
+        -   name: mariadb:10.3
+            alias: mysql
+    script:
+        - ./psh.phar init
+        - php bin/console snippets:validate
+
 # Stage: E2E
 
 .job_template: &e2e_definition
@@ -394,10 +410,10 @@ Storefront (Jest):
         - ./psh.phar storefront:init --APP_ENV="prod" --DB_NAME="shopware_e2e"
         - ./psh.phar e2e:dump-db --APP_ENV="prod"
         - E2E_BASE_PATH=vendor/shopware/platform/src/${SECTION}/Resources/app/$(echo ${SECTION} | tr '[:upper:]' '[:lower:]')/test/e2e
-        - npm i @shopware-ag/e2e-testsuite-platform@1.2.9 --prefix $E2E_BASE_PATH
+        - npm i @shopware-ag/e2e-testsuite-platform@1.3.0-beta.3 --prefix $E2E_BASE_PATH
         - forever start ${E2E_BASE_PATH}/node_modules/@shopware-ag/e2e-testsuite-platform/routes/cypress.js
         - chown -R 1000:1000 .
-        - docker run --name cypress --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/${E2E_BASE_PATH}:/e2e -v $(pwd):/app -w /e2e --entrypoint "sh" cypress/included:4.4.0 -c "npm install --production --prefix /e2e && cypress run --project /e2e --browser $BROWSER --headless --config baseUrl=http://docker.vm:8000 --config numTestsKeptInMemory=0 --env grep=@base --spec $TEST_DIRECTORY"
+        - docker run --shm-size=2g --name cypress --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/${E2E_BASE_PATH}:/e2e -v $(pwd):/app -w /e2e --entrypoint "sh" cypress/included:4.10.0 -c "npm install --production --prefix /e2e && cypress run --project /e2e --browser $BROWSER --headless --config baseUrl=http://docker.vm:8000 --config numTestsKeptInMemory=0 --env grep=@base --spec $TEST_DIRECTORY"
 
 .scheduled_script:
     script: &scheduled_definition
@@ -406,10 +422,10 @@ Storefront (Jest):
         - ./psh.phar storefront:init --APP_ENV="prod" --DB_NAME="shopware_e2e"
         - ./psh.phar e2e:dump-db --APP_ENV="prod"
         - E2E_BASE_PATH=vendor/shopware/platform/src/${SECTION}/Resources/app/$(echo ${SECTION} | tr '[:upper:]' '[:lower:]')/test/e2e
-        - npm i @shopware-ag/e2e-testsuite-platform@1.2.9 --prefix $E2E_BASE_PATH
+        - npm i @shopware-ag/e2e-testsuite-platform@1.3.0-beta.3 --prefix $E2E_BASE_PATH
         - forever start ${E2E_BASE_PATH}/node_modules/@shopware-ag/e2e-testsuite-platform/routes/cypress.js
         - chown -R 1000:1000 .
-        - docker run --name cypress --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/${E2E_BASE_PATH}:/e2e -v $(pwd):/app -w /e2e --entrypoint "sh" cypress/included:4.4.0 -c "npm install --production --prefix /e2e && cypress run --project /e2e --browser $BROWSER --headless --config baseUrl=http://docker.vm:8000"
+        - docker run --shm-size=2g --name cypress --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/${E2E_BASE_PATH}:/e2e -v $(pwd):/app -w /e2e --entrypoint "sh" cypress/included:4.10.0 -c "npm install --production --prefix /e2e && cypress run -q --project /e2e --browser $BROWSER --headless --config baseUrl=http://docker.vm:8000"
 
 .generate_mochawesome_reports:
     after_script: &mochawesome_report_definition
@@ -704,11 +720,11 @@ NPM security check:
         - cd src/Administration/Resources/app/administration
         - npm i
         - npm install --save-dev audit-ci
-        - node node_modules/.bin/audit-ci --moderate
+        - node node_modules/.bin/audit-ci --moderate --allowlist http-proxy elliptic
         - cd ../../../../../src/Storefront/Resources/app/storefront
         - npm i
         - npm install --save-dev audit-ci
-        - node node_modules/.bin/audit-ci --moderate
+        - node node_modules/.bin/audit-ci --moderate --allowlist dot-prop http-proxy acorn jquery elliptic
 
 # Stage: deploy
 

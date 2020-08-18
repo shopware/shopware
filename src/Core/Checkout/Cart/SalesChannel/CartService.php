@@ -128,13 +128,19 @@ class CartService
     }
 
     /**
+     * @param LineItem|LineItem[] $items
+     *
      * @throws InvalidQuantityException
      * @throws LineItemNotStackableException
      * @throws MixedLineItemTypeException
      */
-    public function add(Cart $cart, LineItem $item, SalesChannelContext $context): Cart
+    public function add(Cart $cart, $items, SalesChannelContext $context): Cart
     {
-        $cart = $this->itemAddRoute->add(new Request(), $cart, $context, [$item])->getCart();
+        if ($items instanceof LineItem) {
+            $items = [$items];
+        }
+
+        $cart = $this->itemAddRoute->add(new Request(), $cart, $context, $items)->getCart();
 
         return $this->cart[$cart->getToken()] = $cart;
     }

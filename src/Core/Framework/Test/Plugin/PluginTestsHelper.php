@@ -38,7 +38,7 @@ trait PluginTestsHelper
         string $version = SwagTest::PLUGIN_VERSION,
         ?string $installedAt = null
     ): void {
-        $pluginRepo->insert(
+        $pluginRepo->create(
             [
                 [
                     'baseClass' => SwagTest::class,

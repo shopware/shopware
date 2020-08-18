@@ -689,7 +689,6 @@ class DefinitionValidator
             );
         }
 
-        /** @var EntityDefinition $definition */
         if ($definition->isVersionAware() && $reference->isVersionAware()) {
             $versionField = $mapping->getFields()->filter(function (Field $field) use ($definition) {
                 return $field instanceof ReferenceVersionField && $field->getVersionReferenceDefinition() === $definition;

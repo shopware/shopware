@@ -15,48 +15,45 @@
                         <select name="{% if prefix %}{{ prefix }}[accountType]{% else %}accountType{% endif %}"
                                 id="{{ prefix }}accountType"
                                 required="required"
-                                class="custom-select contact-select{% if formViolations.getViolations('/typeId') %} is-invalid{% endif %}"
+                                class="custom-select contact-select"
                                 data-form-field-toggle="true"
                                 data-form-field-toggle-target=".js-field-toggle-contact-type-company"
-                                data-form-field-toggle-value="{{ constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') }}">
-                            {% if page.address.company %}
-                                <option value="{{ constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_PRIVATE') }}">
-                                    {{ "account.personalTypePrivate"|trans|sw_sanitize }}
-                                </option>
-                                <option value="{{ constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') }}"
-                                        selected="selected">
-                                    {{ "account.personalTypeBusiness"|trans|sw_sanitize }}
-                                </option>
-                            {% elseif prefix == "address" and not page.address.company %}
-                                <option value="{{ constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_PRIVATE') }}"
-                                        selected="selected">
-                                    {{ "account.personalTypePrivate"|trans|sw_sanitize }}
-                                </option>
-                                <option value="{{ constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') }}">
-                                    {{ "account.personalTypeBusiness"|trans|sw_sanitize }}
-                                </option>
-                            {% else %}
+                                data-form-field-toggle-value="{{ constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') }}"
+                                data-form-field-toggle-scope="{% if scope == 'parent' %}parent{% else %}all{% endif %}"
+                                {% if scope == 'parent' %}data-form-field-toggle-parent-selector={{ parentSelector }}{% endif %}>
+
+                            {% set isCompany = false %}
+
+                            {% if page.address.company or data.company is not empty %}
+                                {% set isCompany  = true %}
+                            {% endif %}
+
+                            {% set isLoginPage = false %}
+                            {% if activeRoute in ['frontend.account.login.page', 'frontend.checkout.register.page'] %}
+                                {% set isLoginPage = true %}
+                            {% endif %}
+
+                            {% if isLoginPage %}
                                 <option disabled="disabled"
                                         selected="selected"
                                         value="">
                                     {{ "account.personalTypeLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
                                 </option>
-                                <option value="{{ constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_PRIVATE') }}">
-                                    {{ "account.personalTypePrivate"|trans|sw_sanitize }}
-                                </option>
-                                <option value="{{ constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') }}">
-                                    {{ "account.personalTypeBusiness"|trans|sw_sanitize }}
-                                </option>
                             {% endif %}
+
+                            <option value="{{ constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_PRIVATE') }}"
+                                {% if isCompany == false and isLoginPage == false %} selected="selected"{% endif %}>
+                                {{ "account.personalTypePrivate"|trans|sw_sanitize }}
+                            </option>
+
+                            <option value="{{ constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') }}"
+                                {% if isCompany == true and isLoginPage == false %} selected="selected"{% endif %}>
+                                {{ "account.personalTypeBusiness"|trans|sw_sanitize }}
+                            </option>
                         </select>
                     {% endblock %}
 
                     {% block component_address_personal_account_type_error %}
-                        {% if formViolations.getViolations('/company') is not empty %}
-                            {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' with {
-                                violationPath: '/company'
-                            } %}
-                        {% endif %}
                     {% endblock %}
                 </div>
             </div>
@@ -196,6 +193,46 @@
                 </div>
             {% endblock %}
         </div>
+    {% endblock %}
+
+    {% block component_address_personal_company %}
+        {% if shopware.config.core.loginRegistration.showAccountTypeSelection and activeRoute == 'frontend.account.profile.page' %}
+            <div class="js-field-toggle-contact-type-company">
+                {% block component_address_personal_company_fields %}
+                    <div class="form-row">
+                        {% block component_address_personal_company_name %}
+                            <div class="form-group col-12">
+                                {% if formViolations.getViolations("/company") is not empty %}
+                                    {% set violationPath = "/company" %}
+                                {% endif %}
+
+                                {% block component_address_personal_company_name_label %}
+                                    <label class="form-label" for="company">
+                                        {{ "address.companyNameLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
+                                    </label>
+                                {% endblock %}
+
+                                {% block component_address_personal_company_name_input %}
+                                    <input type="text"
+                                           class="form-control{% if violationPath %} is-invalid{% endif %}"
+                                           id="company"
+                                           placeholder="{{ "address.companyNamePlaceholder"|trans|striptags }}"
+                                           name="company"
+                                           value="{{ data.get('company') }}"
+                                           required="required">
+                                {% endblock %}
+
+                                {% block component_address_personal_company_name_input_error %}
+                                    {% if violationPath %}
+                                        {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' %}
+                                    {% endif %}
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </div>
+        {% endif %}
     {% endblock %}
 
     {% block component_address_personal_fields_birthday %}

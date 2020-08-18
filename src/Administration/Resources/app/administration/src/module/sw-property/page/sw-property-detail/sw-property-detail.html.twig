@@ -14,21 +14,24 @@
         {% block sw_property_detail_smart_bar_actions %}
             <template slot="smart-bar-actions">
                 {% block sw_property_detail_smart_bar_actions_cancel %}
-                    <sw-button :disabled="isLoading" v-tooltip.bottom="tooltipCancel" @click="onCancel">
+                    <sw-button class="sw-property-detail__back-action"
+                        :disabled="isLoading"
+                        v-tooltip.bottom="tooltipCancel"
+                        @click="onCancel">
                         {{ $tc('sw-property.detail.buttonCancel') }}
                     </sw-button>
                 {% endblock %}
 
                 {% block sw_property_detail_smart_bar_actions_save %}
                     <sw-button-process
-                            class="sw-property-detail__save-action"
-                            :isLoading="isLoading"
-                            :processSuccess="isSaveSuccessful"
-                            :disabled="isLoading"
-                            variant="primary"
-                            @process-finish="saveFinish"
-                            v-tooltip.bottom="tooltipSave"
-                            @click.prevent="onSave">
+                        class="sw-property-detail__save-action"
+                        :isLoading="isLoading"
+                        :processSuccess="isSaveSuccessful"
+                        :disabled="isLoading || !acl.can('property.editor')"
+                        variant="primary"
+                        @process-finish="saveFinish"
+                        v-tooltip="tooltipSave"
+                        @click.prevent="onSave">
                         {{ $tc('sw-property.detail.buttonSave') }}
                     </sw-button-process>
                 {% endblock %}
@@ -38,8 +41,9 @@
         {% block sw_property_detail_language_switch %}
             <template slot="language-switch">
                 <sw-language-switch @on-change="onChangeLanguage"
-                                    :saveChangesFunction="saveOnLanguageChange"
-                                    :abortChangeFunction="abortOnLanguageChange">
+                    :saveChangesFunction="saveOnLanguageChange"
+                    :abortChangeFunction="abortOnLanguageChange"
+                    :savePermission="acl.can('property.editor')">
                 </sw-language-switch>
             </template>
         {% endblock %}

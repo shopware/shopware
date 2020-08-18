@@ -11,6 +11,9 @@ parameters:
         container_xml_path: '%rootDir%/../../../../../../..%ShopwareHashedCacheDir%/srcShopware_Development_KernelDevDebugContainer.xml'
     inferPrivatePropertyTypeFromConstructor: true
 
+    featureToggles:
+        unusedClassElements: true
+
     excludes_analyse:
         - src/Core/Flag/feature_*.php
         - src/Recovery/*
@@ -49,7 +52,7 @@ parameters:
         # To fix this error, the \Shopware\Core\Framework\Struct\Collection::createNew method has to be implemented
         # in every implementation of `Collection` and needs to return `new self` instead of `new static`. See https://github.com/phpstan/phpstan/issues/2773
         -
-             message: '#Unsafe usage of new static()#'
+             message: '#Unsafe usage of new static\(\)#'
              path: src/Core/Framework/Struct/Collection.php
         # Exception for CopyBatch file system plugin. It is called via magic method
         - '#Call to an undefined method League\\Flysystem\\FilesystemInterface::copyBatch\(\)\.#'

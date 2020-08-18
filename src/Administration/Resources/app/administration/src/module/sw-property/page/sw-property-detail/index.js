@@ -1,4 +1,5 @@
 import template from './sw-property-detail.html.twig';
+import './sw-property-detail.scss';
 
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -7,7 +8,8 @@ Component.register('sw-property-detail', {
     template,
 
     inject: [
-        'repositoryFactory'
+        'repositoryFactory',
+        'acl'
     ],
 
     mixins: [
@@ -16,7 +18,12 @@ Component.register('sw-property-detail', {
     ],
 
     shortcuts: {
-        'SYSTEMKEY+S': 'onSave',
+        'SYSTEMKEY+S': {
+            active() {
+                return this.acl.can('product.editor');
+            },
+            method: 'onSave'
+        },
         ESCAPE: 'onCancel'
     },
 
@@ -63,6 +70,14 @@ Component.register('sw-property-detail', {
         },
 
         tooltipSave() {
+            if (!this.acl.can('property.editor')) {
+                return {
+                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    disabled: this.acl.can('property.editor'),
+                    showOnDisabledElements: true
+                };
+            }
+
             const systemKey = this.$device.getSystemKey();
 
             return {

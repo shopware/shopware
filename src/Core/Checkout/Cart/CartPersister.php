@@ -26,7 +26,8 @@ class CartPersister implements CartPersisterInterface
     public function load(string $token, SalesChannelContext $context): Cart
     {
         $content = $this->connection->fetchColumn(
-            'SELECT `cart`.`cart` FROM cart WHERE `token` = :token',
+            '#cart-persister::load
+            SELECT `cart`.`cart` FROM cart WHERE `token` = :token',
             ['token' => $token]
         );
 

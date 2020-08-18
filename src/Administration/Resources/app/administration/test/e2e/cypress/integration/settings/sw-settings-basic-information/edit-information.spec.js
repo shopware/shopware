@@ -1,4 +1,4 @@
-// / <reference types="Cypress" />delete country
+/// <reference types="Cypress" />delete country
 
 import SalesChannelPageObject from '../../../support/pages/module/sw-sales-channel.page-object';
 

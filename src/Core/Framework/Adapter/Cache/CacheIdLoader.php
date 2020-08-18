@@ -29,7 +29,8 @@ class CacheIdLoader
     {
         try {
             $cacheId = $this->connection->fetchColumn(
-                'SELECT `value` FROM app_config WHERE `key` = :key',
+                '# cache-id-loader
+                SELECT `value` FROM app_config WHERE `key` = :key',
                 ['key' => 'cache-id']
             );
         } catch (\Exception $e) {

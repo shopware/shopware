@@ -22,6 +22,7 @@ class DbalKernelPluginLoader extends KernelPluginLoader
     protected function loadPluginInfos(): void
     {
         $sql = <<<SQL
+            # dbal-plugin-loader
             SELECT
                    `name`,
                    `base_class` AS baseClass,

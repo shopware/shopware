@@ -1,4 +1,4 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
 
 import MediaPageObject from '../../../support/pages/module/sw-media.page-object';
 
@@ -20,12 +20,12 @@ describe('CMS: Check usage and editing of text elements', () => {
     it('@base @content: use text block with headline', () => {
         cy.server();
         cy.route({
-            url: '/api/v*/cms-page/*',
+            url: `${Cypress.env('apiPath')}/cms-page/*`,
             method: 'patch'
         }).as('saveData');
 
         cy.route({
-            url: '/api/v*/category/*',
+            url: `${Cypress.env('apiPath')}/category/*`,
             method: 'patch'
         }).as('saveCategory');
 
@@ -53,7 +53,7 @@ describe('CMS: Check usage and editing of text elements', () => {
 
         // Assign layout to root category
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
-        cy.get('.sw-tree-item__element').contains('Catalogue #1').click();
+        cy.get('.sw-tree-item__element').contains('Home').click();
         cy.get('.sw-card.sw-category-layout-card').scrollIntoView();
         cy.get('.sw-category-detail-layout__change-layout-action').click();
         cy.get('.sw-modal__dialog').should('be.visible');
@@ -74,12 +74,12 @@ describe('CMS: Check usage and editing of text elements', () => {
     it('@content: use text block with three columns', () => {
         cy.server();
         cy.route({
-            url: '/api/v*/cms-page/*',
+            url: `${Cypress.env('apiPath')}/cms-page/*`,
             method: 'patch'
         }).as('saveData');
 
         cy.route({
-            url: '/api/v*/category/*',
+            url: `${Cypress.env('apiPath')}/category/*`,
             method: 'patch'
         }).as('saveCategory');
 
@@ -111,7 +111,7 @@ describe('CMS: Check usage and editing of text elements', () => {
 
         // Assign layout to root category
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
-        cy.get('.sw-tree-item__element').contains('Catalogue #1').click();
+        cy.get('.sw-tree-item__element').contains('Home').click();
         cy.get('.sw-card.sw-category-layout-card').scrollIntoView();
         cy.get('.sw-category-detail-layout__change-layout-action').click();
         cy.get('.sw-modal__dialog').should('be.visible');

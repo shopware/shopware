@@ -53,7 +53,6 @@ class EntityWriteGatewayTest extends TestCase
 
         $changeSet = $this->getChangeSet(ProductDefinition::ENTITY_NAME, $result);
 
-        /** @var ChangeSet $changeSet */
         static::assertTrue($changeSet->hasChanged('stock'));
         static::assertEquals(1, $changeSet->getBefore('stock'));
         static::assertEquals(100, $changeSet->getAfter('stock'));
@@ -79,7 +78,6 @@ class EntityWriteGatewayTest extends TestCase
 
         $changeSet = $this->getChangeSet(ProductDefinition::ENTITY_NAME, $result);
 
-        /** @var ChangeSet $changeSet */
         static::assertFalse($changeSet->hasChanged('stock'));
         static::assertEquals('1', $changeSet->getBefore('stock'));
         static::assertNull($changeSet->getAfter('stock'));
@@ -137,7 +135,6 @@ class EntityWriteGatewayTest extends TestCase
 
         $changeSet = $this->getChangeSet(ProductTranslationDefinition::ENTITY_NAME, $result);
 
-        /** @var ChangeSet $changeSet */
         static::assertTrue($changeSet->hasChanged('name'));
         static::assertEquals('test', $changeSet->getBefore('name'));
         static::assertEquals('updated', $changeSet->getAfter('name'));
@@ -168,7 +165,6 @@ class EntityWriteGatewayTest extends TestCase
 
         $changeSet = $this->getChangeSet(ProductVisibilityDefinition::ENTITY_NAME, $result);
 
-        /** @var ChangeSet $changeSet */
         static::assertTrue($changeSet->hasChanged('visibility'));
         static::assertEquals(ProductVisibilityDefinition::VISIBILITY_ALL, $changeSet->getBefore('visibility'));
         static::assertEquals(ProductVisibilityDefinition::VISIBILITY_LINK, $changeSet->getAfter('visibility'));
@@ -201,7 +197,6 @@ class EntityWriteGatewayTest extends TestCase
 
         $changeSet = $this->getChangeSet(ProductDefinition::ENTITY_NAME, $result);
 
-        /** @var ChangeSet $changeSet */
         static::assertTrue($changeSet->hasChanged('product_manufacturer_id'));
         static::assertEquals($id, Uuid::fromBytesToHex($changeSet->getBefore('product_manufacturer_id')));
         static::assertEquals($newId, Uuid::fromBytesToHex($changeSet->getAfter('product_manufacturer_id')));

@@ -881,5 +881,3 @@ The following payload can be used to generate a product with the variants: red-x
         { "optionId": "ea14a701771148d6b04045f99c502829" }      // size:  XL
     ]
 }
-``` 
-

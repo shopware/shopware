@@ -89,7 +89,7 @@ Component.register('sw-dashboard-index', {
                 return { x: this.parseDate(data.key), y: data.totalAmount.sum };
             });
 
-            return [{ name: 'Total', data: seriesData }];
+            return [{ name: this.$tc('sw-dashboard.monthStats.totalTurnover'), data: seriesData }];
         },
 
         orderSumToday() {

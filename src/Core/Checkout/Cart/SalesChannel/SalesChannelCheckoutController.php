@@ -5,7 +5,6 @@ namespace Shopware\Core\Checkout\Cart\SalesChannel;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountRegistrationService;
-use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
@@ -66,11 +65,6 @@ class SalesChannelCheckoutController extends AbstractController
     private $orderRepository;
 
     /**
-     * @var AccountService
-     */
-    private $accountService;
-
-    /**
      * @var ApiVersionConverter
      */
     private $apiVersionConverter;
@@ -82,7 +76,6 @@ class SalesChannelCheckoutController extends AbstractController
         Serializer $serializer,
         EntityRepositoryInterface $orderRepository,
         AccountRegistrationService $accountRegistrationService,
-        AccountService $accountService,
         ApiVersionConverter $apiVersionConverter
     ) {
         $this->paymentService = $paymentService;
@@ -91,7 +84,6 @@ class SalesChannelCheckoutController extends AbstractController
         $this->orderRepository = $orderRepository;
         $this->serializer = $serializer;
         $this->accountRegistrationService = $accountRegistrationService;
-        $this->accountService = $accountService;
         $this->apiVersionConverter = $apiVersionConverter;
     }
 
@@ -124,10 +116,9 @@ class SalesChannelCheckoutController extends AbstractController
     public function createGuestOrder(int $version, RequestDataBag $data, SalesChannelContext $salesChannelContext): JsonResponse
     {
         $customerId = $this->accountRegistrationService->register($data, true, $salesChannelContext);
-        $newContextToken = $this->accountService->login($data->get('email'), $salesChannelContext, true);
 
         $newSalesChannelContext = $this->createSalesChannelContext(
-            $newContextToken,
+            $salesChannelContext->getToken(),
             $customerId,
             $salesChannelContext
         );
@@ -140,7 +131,7 @@ class SalesChannelCheckoutController extends AbstractController
             $this->getOrderById($orderId, $newSalesChannelContext),
             $version
         ));
-        $responseData[PlatformRequest::HEADER_CONTEXT_TOKEN] = $newContextToken;
+        $responseData[PlatformRequest::HEADER_CONTEXT_TOKEN] = $salesChannelContext->getToken();
 
         return new JsonResponse($responseData);
     }

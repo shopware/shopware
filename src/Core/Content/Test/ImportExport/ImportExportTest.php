@@ -687,7 +687,7 @@ class ImportExportTest extends TestCase
         return $profileRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
     }
 
-    private function getTestProduct($id): array
+    private function getTestProduct(string $id): array
     {
         $manufacturerId = Uuid::randomHex();
         $catId1 = Uuid::randomHex();

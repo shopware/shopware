@@ -1688,8 +1688,8 @@ EOF;
 
         $data = $respData['data'];
         static::assertEquals('category', $data[0]['type']);
-        static::assertEquals('Catalogue #1', $data[0]['attributes']['name']);
-        static::assertEquals('Catalogue #1', $data[0]['attributes']['translated']['name']);
+        static::assertEquals('Home', $data[0]['attributes']['name']);
+        static::assertEquals('Home', $data[0]['attributes']['translated']['name']);
 
         static::assertEquals('category', $data[1]['type']);
         static::assertEquals($insertData[0]['name'], $data[1]['attributes']['name']);

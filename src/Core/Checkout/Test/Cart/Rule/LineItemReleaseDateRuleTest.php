@@ -156,9 +156,9 @@ class LineItemReleaseDateRuleTest extends TestCase
      */
     public function testInvalidScope(): void
     {
-        $scope = (new CheckoutRuleScope(
+        $scope = new CheckoutRuleScope(
             $this->createMock(SalesChannelContext::class)
-        ));
+        );
 
         $this->rule->assign(['lineItemReleaseDate' => '2020-02-06 00:00:00', 'operator' => LineItemCreationDateRule::OPERATOR_EQ]);
 
@@ -183,10 +183,10 @@ class LineItemReleaseDateRuleTest extends TestCase
 
         $cart->setLineItems($lineItemCollection);
 
-        $match = $this->rule->match((new CartRuleScope(
+        $match = $this->rule->match(new CartRuleScope(
             $cart,
             $this->createMock(SalesChannelContext::class)
-        )));
+        ));
 
         static::assertEquals($expected, $match);
     }

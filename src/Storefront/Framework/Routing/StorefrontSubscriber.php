@@ -6,6 +6,12 @@ use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Content\Seo\HreflangLoaderInterface;
 use Shopware\Core\Content\Seo\HreflangLoaderParameter;
+use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
+use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\Framework\Util\Random;
@@ -24,6 +30,7 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Routing\RouterInterface;
+use function Flag\next10286;
 
 class StorefrontSubscriber implements EventSubscriberInterface
 {
@@ -67,6 +74,16 @@ class StorefrontSubscriber implements EventSubscriberInterface
      */
     private $hreflangLoader;
 
+    /**
+     * @var ShopIdProvider|null
+     */
+    private $shopIdProvider;
+
+    /**
+     * @var EntityRepositoryInterface|null
+     */
+    private $appRepository;
+
     public function __construct(
         RequestStack $requestStack,
         RouterInterface $router,
@@ -75,7 +92,9 @@ class StorefrontSubscriber implements EventSubscriberInterface
         CsrfPlaceholderHandler $csrfPlaceholderHandler,
         HreflangLoaderInterface $hreflangLoader,
         bool $kernelDebug,
-        MaintenanceModeResolver $maintenanceModeResolver
+        MaintenanceModeResolver $maintenanceModeResolver,
+        ?ShopIdProvider $shopIdProvider,
+        ?EntityRepositoryInterface $appRepository
     ) {
         $this->requestStack = $requestStack;
         $this->router = $router;
@@ -85,6 +104,8 @@ class StorefrontSubscriber implements EventSubscriberInterface
         $this->csrfPlaceholderHandler = $csrfPlaceholderHandler;
         $this->maintenanceModeResolver = $maintenanceModeResolver;
         $this->hreflangLoader = $hreflangLoader;
+        $this->shopIdProvider = $shopIdProvider;
+        $this->appRepository = $appRepository;
     }
 
     public static function getSubscribedEvents(): array
@@ -111,6 +132,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
             ],
             StorefrontRenderEvent::class => [
                 ['addHreflang'],
+                ['addShopIdParameter'],
             ],
         ];
     }
@@ -284,6 +306,41 @@ class StorefrontSubscriber implements EventSubscriberInterface
         $salesChannelContext = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
         $parameter = new HreflangLoaderParameter($route, $routeParams, $salesChannelContext);
         $event->setParameter('hrefLang', $this->hreflangLoader->load($parameter));
+    }
+
+    public function addShopIdParameter(StorefrontRenderEvent $event): void
+    {
+        // remove nullable props and on-invalid=null behaviour in service declaration
+        // when removing the feature flag
+        if (!$this->appRepository || !$this->shopIdProvider || !next10286()) {
+            return;
+        }
+
+        if (!$this->hasActiveApps($event->getContext())) {
+            return;
+        }
+
+        try {
+            $shopId = $this->shopIdProvider->getShopId();
+        } catch (AppUrlChangeDetectedException $e) {
+            return;
+        }
+
+        $event->setParameter('appShopId', $shopId);
+        /*
+         * @deprecated tag:v6.4.0 use `appShopId` instead
+         */
+        $event->setParameter('swagShopId', $shopId);
+    }
+
+    private function hasActiveApps(Context $context): bool
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('active', true));
+
+        $result = $this->appRepository->searchIds($criteria, $context);
+
+        return $result->getTotal() > 0;
     }
 
     private function setSalesChannelContext(ExceptionEvent $event): void

@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-trait StorefrontAppRegistryTestBehaviour
+trait StorefrontPluginRegistryTestBehaviour
 {
     /**
      * @before

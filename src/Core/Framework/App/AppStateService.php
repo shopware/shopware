@@ -51,8 +51,10 @@ class AppStateService
 
         $this->appRepo->update([['id' => $appId, 'active' => true]], $context);
         $this->activeAppsLoader->resetActiveApps();
+        // manually set active flag to true, so we don't need to re-fetch the app from DB
+        $app->setActive(true);
 
-        $this->eventDispatcher->dispatch(new AppActivatedEvent($appId, $context));
+        $this->eventDispatcher->dispatch(new AppActivatedEvent($app, $context));
     }
 
     public function deactivateApp(string $appId, Context $context): void
@@ -67,9 +69,10 @@ class AppStateService
             return;
         }
 
-        $this->appRepo->update([['id' => $appId, 'active' => false]], $context);
         $this->activeAppsLoader->resetActiveApps();
+        // throw event before deactivating app in db as theme configs from the app need to be removed beforehand
+        $this->eventDispatcher->dispatch(new AppDeactivatedEvent($app, $context));
 
-        $this->eventDispatcher->dispatch(new AppDeactivatedEvent($appId, $context));
+        $this->appRepo->update([['id' => $appId, 'active' => false]], $context);
     }
 }

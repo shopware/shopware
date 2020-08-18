@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Test\App\StorefrontPluginRegistryTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Test\Theme\fixtures\ThemeFixtures;
@@ -21,12 +22,14 @@ use Shopware\Storefront\Theme\ThemeEntity;
 use Shopware\Storefront\Theme\ThemeLifecycleService;
 use Shopware\Storefront\Theme\ThemeService;
 use Symfony\Component\Config\Loader\LoaderInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 class ThemeTest extends TestCase
 {
     use IntegrationTestBehaviour;
+    use StorefrontPluginRegistryTestBehaviour;
 
     /**
      * @var ThemeService
@@ -403,7 +406,9 @@ class ThemeTest extends TestCase
                         return $this->kernel->{__FUNCTION__}(...func_get_args());
                     }
                 },
-                $this->getContainer()->get(StorefrontPluginConfigurationFactory::class)
+                $this->getContainer()->get(StorefrontPluginConfigurationFactory::class),
+                // ToDo: NEXT-10286: remove on invalid null behaviour when feature flag is removed
+                $this->getContainer()->get('app.repository', ContainerInterface::NULL_ON_INVALID_REFERENCE)
             ),
             $this->getContainer()->get('theme.repository'),
             $this->getContainer()->get('theme_sales_channel.repository'),

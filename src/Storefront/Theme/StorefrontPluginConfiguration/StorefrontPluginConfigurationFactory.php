@@ -2,14 +2,25 @@
 
 namespace Shopware\Storefront\Theme\StorefrontPluginConfiguration;
 
+use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Storefront\Framework\ThemeInterface;
 use Shopware\Storefront\Theme\Exception\InvalidThemeBundleException;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
 use Symfony\Component\Finder\Finder;
 
-class StorefrontPluginConfigurationFactory
+class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfigurationFactory
 {
+    /**
+     * @var string
+     */
+    private $projectDir;
+
+    public function __construct(string $projectDir)
+    {
+        $this->projectDir = $projectDir;
+    }
+
     public function createFromBundle(Bundle $bundle): StorefrontPluginConfiguration
     {
         if ($bundle instanceof ThemeInterface) {
@@ -19,6 +30,19 @@ class StorefrontPluginConfigurationFactory
         return $this->createPluginConfig($bundle->getName(), $bundle->getPath());
     }
 
+    public function createFromApp(AppEntity $app): StorefrontPluginConfiguration
+    {
+        $absolutePath = $this->projectDir . '/' . $app->getPath();
+        if (file_exists($absolutePath . '/Resources/theme.json')) {
+            return $this->createThemeConfig($app->getName(), $absolutePath);
+        }
+
+        return $this->createPluginConfig($app->getName(), $absolutePath);
+    }
+
+    /**
+     * @deprecated tag:v6.4.0 will be private in the future, use `createFromBundle()` or `createFromApp()`
+     */
     public function createPluginConfig(string $name, string $path): StorefrontPluginConfiguration
     {
         $config = new StorefrontPluginConfiguration();
@@ -36,6 +60,9 @@ class StorefrontPluginConfigurationFactory
         return $config;
     }
 
+    /**
+     * @deprecated tag:v6.4.0 will be private in the future, use `createFromBundle()` or `createFromApp()`
+     */
     public function createThemeConfig(string $name, string $path): StorefrontPluginConfiguration
     {
         $pathname = $path . DIRECTORY_SEPARATOR . 'Resources/theme.json';

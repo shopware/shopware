@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Event;
 
+use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 
@@ -10,18 +11,18 @@ abstract class ManifestChangedEvent extends AppChangedEvent
     /**
      * @var Manifest
      */
-    private $app;
+    private $manifest;
 
-    public function __construct(string $appId, Manifest $app, Context $context)
+    public function __construct(AppEntity $app, Manifest $manifest, Context $context)
     {
-        $this->app = $app;
-        parent::__construct($appId, $context);
+        $this->manifest = $manifest;
+        parent::__construct($app, $context);
     }
 
     abstract public function getName(): string;
 
-    public function getApp(): Manifest
+    public function getManifest(): Manifest
     {
-        return $this->app;
+        return $this->manifest;
     }
 }

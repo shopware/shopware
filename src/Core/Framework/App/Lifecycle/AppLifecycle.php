@@ -96,35 +96,40 @@ class AppLifecycle extends AbstractAppLifecycle
         $roleId = Uuid::randomHex();
         $metadata = $this->enrichInstallMetadata($manifest, $metadata, $roleId);
 
-        $this->updateApp($manifest, $metadata, $appId, $roleId, $context, true);
+        $app = $this->updateApp($manifest, $metadata, $appId, $roleId, $context, true);
+        $this->eventDispatcher->dispatch(
+            new AppInstalledEvent($app, $manifest, $context)
+        );
 
         if ($activate) {
             $this->appStateService->activateApp($appId, $context);
         }
-
-        $this->eventDispatcher->dispatch(
-            new AppInstalledEvent($appId, $manifest, $context)
-        );
     }
 
-    public function update(Manifest $manifest, array $app, Context $context): void
+    public function update(Manifest $manifest, array $appData, Context $context): void
     {
         $metadata = $manifest->getMetadata()->toArray();
-        $this->updateApp($manifest, $metadata, $app['id'], $app['roleId'], $context, false);
+        $app = $this->updateApp($manifest, $metadata, $appData['id'], $appData['roleId'], $context, false);
 
         $this->eventDispatcher->dispatch(
-            new AppUpdatedEvent($app['id'], $manifest, $context)
+            new AppUpdatedEvent($app, $manifest, $context)
         );
     }
 
-    public function delete(string $appName, array $app, Context $context): void
+    public function delete(string $appName, array $appData, Context $context): void
     {
+        $app = $this->loadApp($appData['id'], $context);
+
+        if ($app->isActive()) {
+            $this->appStateService->deactivateApp($appData['id'], $context);
+        }
+
         // throw event before deleting app from db as it may be delivered via webhook to the deleted app
         $this->eventDispatcher->dispatch(
-            new AppDeletedEvent($app['id'], $context)
+            new AppDeletedEvent($appData['id'], $context)
         );
 
-        $this->appRepository->delete([['id' => $app['id']]], $context);
+        $this->appRepository->delete([['id' => $appData['id']]], $context);
     }
 
     private function updateApp(
@@ -134,7 +139,7 @@ class AppLifecycle extends AbstractAppLifecycle
         string $roleId,
         Context $context,
         bool $install
-    ): void {
+    ): AppEntity {
         // accessToken is not set on update, but in that case we don't run registration, so we won't need it
         /** @var string $secretAccessKey */
         $secretAccessKey = $metadata['accessToken'] ?? '';
@@ -160,6 +165,8 @@ class AppLifecycle extends AbstractAppLifecycle
         }
 
         $this->customFieldPersister->updateCustomFields($manifest, $id, $context);
+
+        return $app;
     }
 
     private function updateMetadata(array $metadata, Context $context): void

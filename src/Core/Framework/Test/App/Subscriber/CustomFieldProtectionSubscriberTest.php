@@ -19,7 +19,6 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetEntity;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
-use function Flag\skipTestNext10286;
 
 class CustomFieldProtectionSubscriberTest extends TestCase
 {
@@ -39,7 +38,6 @@ class CustomFieldProtectionSubscriberTest extends TestCase
 
     public function setUp(): void
     {
-        skipTestNext10286($this);
         $this->customFieldSetRepo = $this->getContainer()->get('custom_field_set.repository');
         $this->appRepo = $this->getContainer()->get('app.repository');
     }

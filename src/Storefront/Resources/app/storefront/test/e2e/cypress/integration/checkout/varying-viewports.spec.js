@@ -60,9 +60,11 @@ describe('Checkout: Login as customer and run checkout in various viewports', ()
 
 
                 // Take snapshot for visual testing
-                cy.takeSnapshot(`Checkout ${device.model} - See product`,
-                    '.product-detail-buy'
-                );
+                if (device.model === 'macbook-15') {
+                    cy.takeSnapshot(`Checkout ${device.model} - See product`,
+                        '.product-detail-buy'
+                    );
+                }
 
                 cy.get('.product-detail-buy .btn-buy').click();
 

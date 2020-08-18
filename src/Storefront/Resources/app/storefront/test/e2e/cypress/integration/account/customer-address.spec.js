@@ -26,7 +26,7 @@ describe('Account: Handle addresses as customer', () => {
         cy.get('a[href="/account/address/create"]').click();
 
         // Take snapshot for visual testing
-        cy.takeSnapshot('Customer address overview', '.account-address-form');
+        cy.takeSnapshot('Customer address - Create address modal', '.account-address-form');
 
         // Fill in and submit address
         cy.get('#addresspersonalSalutation').typeAndSelect('Mr.');

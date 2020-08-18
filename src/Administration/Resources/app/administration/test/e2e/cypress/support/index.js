@@ -16,3 +16,12 @@ require('@shopware-ag/e2e-testsuite-platform/cypress/support');
 
 // Custom administration commands
 require('./commands/commands');
+
+beforeEach(() => {
+    if(Cypress.env('usePercy')) {
+
+        // freezes the system time to Jan 1, 2018
+        const now = new Date(2018, 1, 1);
+        cy.clock(now);
+    }
+});

@@ -25,6 +25,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createSitemapSection())
                 ->append($this->createDeploymentSection())
                 ->append($this->createMediaSection())
+                ->append($this->createLoggerSection())
             ->end();
 
         return $treeBuilder;
@@ -234,6 +235,20 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->booleanNode('enable_url_upload_feature')->end()
                 ->booleanNode('enable_url_validation')->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createLoggerSection(): ArrayNodeDefinition
+    {
+        /** @var ArrayNodeDefinition $rootNode */
+        $rootNode = (new TreeBuilder('logger'))->getRootNode();
+        $rootNode
+            ->children()
+                ->integerNode('file_rotation_count')
+                    ->defaultValue(14)
+                ->end()
             ->end();
 
         return $rootNode;

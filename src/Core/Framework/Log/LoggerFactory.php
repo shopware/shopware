@@ -11,9 +11,12 @@ class LoggerFactory
 {
     private $rotatingFilePathPattern = '';
 
-    public function __construct(string $rotatingFilePathPattern)
+    private $defaultFileRotationCount;
+
+    public function __construct(string $rotatingFilePathPattern, int $defaultFileRotationCount = 14)
     {
         $this->rotatingFilePathPattern = $rotatingFilePathPattern;
+        $this->defaultFileRotationCount = $defaultFileRotationCount;
     }
 
     public function createRotating(string $filePrefix, ?int $fileRotationCount = null): LoggerInterface
@@ -21,7 +24,7 @@ class LoggerFactory
         $filepath = sprintf($this->rotatingFilePathPattern, $filePrefix);
 
         $result = new Logger($filePrefix);
-        $result->pushHandler(new RotatingFileHandler($filepath, $fileRotationCount ?? 14));
+        $result->pushHandler(new RotatingFileHandler($filepath, $fileRotationCount ?? $this->defaultFileRotationCount));
         $result->pushProcessor(new PsrLogMessageProcessor());
 
         return $result;

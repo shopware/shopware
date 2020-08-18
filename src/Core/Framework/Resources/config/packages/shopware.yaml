@@ -51,3 +51,6 @@ shopware:
     media:
         enable_url_upload_feature: true
         enable_url_validation: true
+
+    logger:
+        file_rotation_count: 14

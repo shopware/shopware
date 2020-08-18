@@ -40,6 +40,14 @@
             <argument type="service" id="app_action_button.repository"/>
         </service>
 
+        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\TemplatePersister">
+            <argument type="service" id="Shopware\Core\Framework\App\Template\TemplateLoader"/>
+            <argument type="service" id="template.repository"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Template\TemplateLoader">
+        </service>
+
         <service id="Shopware\Core\Framework\App\AppService">
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle"/>
@@ -73,6 +81,7 @@
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\CustomFieldPersister"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\ActionButtonPersister"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\TemplatePersister"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService"/>
@@ -176,6 +185,10 @@
         </service>
 
         <service id="Shopware\Core\Framework\App\Aggregate\ActionButtonTranslation\ActionButtonTranslationDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Template\TemplateDefinition">
             <tag name="shopware.entity.definition"/>
         </service>
     </services>

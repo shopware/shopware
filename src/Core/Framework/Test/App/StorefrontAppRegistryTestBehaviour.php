@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Framework\Test\App;
 
+use Shopware\Core\Framework\Adapter\Twig\EntityTemplateLoader;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use function Flag\next10286;
 
 trait StorefrontAppRegistryTestBehaviour
 {
@@ -23,21 +25,24 @@ trait StorefrontAppRegistryTestBehaviour
         $prop->setValue($registry, null);
     }
 
-    // ToDo: reactivate when EntityTemplate loader get's migrated
-//    /**
-//     * @before
-//     */
-//    public function clearEntityTemplateLoaderDatabaseCache(): void
-//    {
-//        $templateLoader = $this->getContainer()
-//            ->get(EntityTemplateLoader::class);
-//
-//        $reflection = new \ReflectionClass($templateLoader);
-//        $prop = $reflection->getProperty('databaseTemplateCache');
-//
-//        $prop->setAccessible(true);
-//        $prop->setValue($templateLoader, []);
-//    }
+    /**
+     * @before
+     */
+    public function clearEntityTemplateLoaderDatabaseCache(): void
+    {
+        if (!next10286()) {
+            return;
+        }
+
+        $templateLoader = $this->getContainer()
+            ->get(EntityTemplateLoader::class);
+
+        $reflection = new \ReflectionClass($templateLoader);
+        $prop = $reflection->getProperty('databaseTemplateCache');
+
+        $prop->setAccessible(true);
+        $prop->setValue($templateLoader, []);
+    }
 
     /**
      * @before

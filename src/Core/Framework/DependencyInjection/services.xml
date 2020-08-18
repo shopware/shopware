@@ -341,6 +341,29 @@ base-uri 'self';
             <argument>%kernel.bundles%</argument>
         </service>
 
+        <service id="Shopware\Core\Framework\Adapter\Twig\EntityTemplateLoader">
+            <argument type="service" id="template.repository" />
+
+            <tag name="twig.loader"/>
+            <tag name="kernel.event_subscriber"/>
+            <tag name="shopware.feature" flag="next10286"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Twig\AppTemplateHierarchyBuilder">
+            <argument type="service" id="app.repository"/>
+
+            <!-- Make sure it runs after default `BundleHierarchyBuilder`, but before `ThemeNamespaceHierarchyBuilder` -->
+            <tag name="shopware.twig.hierarchy_builder" priority="900"/>
+            <tag name="shopware.feature" flag="next10286"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Twig\AppTemplateIterator" decorates="twig.template_iterator" public="true">
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\AppTemplateIterator.inner" />
+            <argument type="service" id="template.repository" />
+
+            <tag name="shopware.feature" flag="next10286"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Routing\ApiRequestContextResolver">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\Routing\RouteScopeRegistry"/>

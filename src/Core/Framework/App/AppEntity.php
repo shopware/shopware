@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\App;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonCollection;
 use Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationCollection;
+use Shopware\Core\Framework\App\Template\TemplateCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
@@ -114,6 +115,11 @@ class AppEntity extends Entity
      * @var AclRoleEntity|null
      */
     protected $aclRole;
+
+    /**
+     * @var TemplateCollection|null
+     */
+    protected $templates;
 
     /**
      * @var \DateTimeInterface
@@ -381,5 +387,15 @@ class AppEntity extends Entity
     public function setActionButtons(ActionButtonCollection $actionButtons): void
     {
         $this->actionButtons = $actionButtons;
+    }
+
+    public function getTemplates(): ?TemplateCollection
+    {
+        return $this->templates;
+    }
+
+    public function setTemplates(TemplateCollection $templates): void
+    {
+        $this->templates = $templates;
     }
 }

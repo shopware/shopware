@@ -144,6 +144,7 @@ NEXT
 * Deprecated template component/listing/breadcrumb.html.twig. Breadcrumb will be handled by generic layout/breadcrumb.html.twig.
 * Deprecated template component/product/breadcrumb.html.twig. Breadcrumb will be handled by generic layout/breadcrumb.html.twig.
 * Deprecated block page_product_detail_breadcrumb in page/product-detail/index.html.twig. Breadcrumb will be handled by block base_breadcrumb in storefront/base.html.twig.
+* Product box display mode inside the product listing won't behave the same way anymore
 * Fixed switching to domains with upper case paths like `https://example.com/de-DE`
 * Fixed to hide the review options in the storefront when there are no reviews
 * The `FormFieldTogglePlugin` in `form-field-toggle.plugin.js` now supports using a scope.

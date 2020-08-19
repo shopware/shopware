@@ -68,8 +68,7 @@
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
         </service>
 
-        <!-- ToDo: make service private when cli commands are migrated -->
-        <service id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle" public="true">
+        <service id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle">
             <argument type="service" id="app.repository"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\CustomFieldPersister"/>
@@ -116,6 +115,51 @@
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Command\AppPrinter">
+            <argument type="service" id="app.repository"/>
+        </service>
+
+        <!-- COMMANDS -->
+        <service id="Shopware\Core\Framework\App\Command\RefreshAppCommand">
+            <argument type="service" id="Shopware\Core\Framework\App\AppService"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Command\AppPrinter"/>
+
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Command\InstallAppCommand">
+            <argument>%shopware.app_dir%</argument>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Command\AppPrinter"/>
+
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Command\UninstallAppCommand">
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle"/>
+            <argument type="service" id="app.repository"/>
+
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Command\ActivateAppCommand">
+            <argument type="service" id="app.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\App\AppStateService" />
+
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Command\DeactivateAppCommand">
+            <argument type="service" id="app.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\App\AppStateService" />
+
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Command\VerifyManifestCommand">
+            <tag name="console.command"/>
         </service>
 
         <!-- ENTITY DEFINITIONS -->

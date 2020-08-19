@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CalculatedPriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CartPriceField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CashRoundingConfigField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
@@ -42,6 +43,7 @@ use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
 use Shopware\Core\System\Tag\TagDefinition;
+use function Flag\next6059;
 
 class OrderDefinition extends EntityDefinition
 {
@@ -64,7 +66,7 @@ class OrderDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([
+        $fields = new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             new VersionField(),
 
@@ -113,5 +115,16 @@ class OrderDefinition extends EntityDefinition
             new OneToManyAssociationField('documents', DocumentDefinition::class, 'order_id'),
             new ManyToManyAssociationField('tags', TagDefinition::class, OrderTagDefinition::class, 'order_id', 'tag_id'),
         ]);
+
+        if (next6059()) {
+            $fields->add(
+                new CashRoundingConfigField('item_rounding', 'itemRounding')
+            );
+            $fields->add(
+                new CashRoundingConfigField('total_rounding', 'totalRounding')
+            );
+        }
+
+        return $fields;
     }
 }

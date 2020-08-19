@@ -3,9 +3,11 @@
 namespace Shopware\Core\System\Test\Currency;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\Currency\CurrencyFormatter;
@@ -74,7 +76,9 @@ class CurrencyFormatterTest extends TestCase
             [Defaults::LANGUAGE_SYSTEM],
             Defaults::LIVE_VERSION,
             1,
-            $digits
+            true,
+            CartPrice::TAX_STATE_GROSS,
+            new CashRoundingConfig($digits, 0.01, true)
         );
 
         $languageId = $this->getDeDeLanguageId();

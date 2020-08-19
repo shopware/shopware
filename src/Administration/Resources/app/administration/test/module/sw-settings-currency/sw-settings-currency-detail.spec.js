@@ -11,7 +11,8 @@ function createWrapper(privileges = []) {
             $tc: () => {},
             $device: {
                 getSystemKey: () => {}
-            }
+            },
+            next6059: () => true
         },
         provide: {
             repositoryFactory: {
@@ -46,7 +47,9 @@ function createWrapper(privileges = []) {
             'sw-container': true,
             'sw-field': true,
             'sw-number-field': true,
-            'sw-language-info': true
+            'sw-language-info': true,
+            'sw-settings-price-rounding': true,
+            'sw-empty-state': true
         }
     });
 }

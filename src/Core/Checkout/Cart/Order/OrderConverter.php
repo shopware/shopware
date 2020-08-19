@@ -36,6 +36,7 @@ use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
@@ -44,6 +45,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use function Flag\next6059;
 
 class OrderConverter
 {
@@ -140,7 +142,7 @@ class OrderConverter
 
         $data['languageId'] = $context->getSalesChannel()->getLanguageId();
 
-        $convertedLineItems = LineItemTransformer::transformCollection($cart->getLineItems());
+        $convertedLineItems = LineItemTransformer::transformCollection($cart->getLineItems(), null, $context->getContext());
 
         $shippingAddresses = [];
 
@@ -277,7 +279,17 @@ class OrderConverter
             }
         }
 
-        return $this->salesChannelContextFactory->create(Uuid::randomHex(), $order->getSalesChannelId(), $options);
+        $salesChannelContext = $this->salesChannelContextFactory->create(Uuid::randomHex(), $order->getSalesChannelId(), $options);
+
+        if (next6059()) {
+            $salesChannelContext->setItemRounding($order->getItemRounding());
+            $salesChannelContext->setTotalRounding($order->getTotalRounding());
+        } else {
+            $salesChannelContext->setItemRounding(new CashRoundingConfig($salesChannelContext->getCurrency()->getDecimalPrecision(), 0.01, true));
+            $salesChannelContext->setTotalRounding(new CashRoundingConfig($salesChannelContext->getCurrency()->getDecimalPrecision(), 0.01, true));
+        }
+
+        return $salesChannelContext;
     }
 
     private function convertDeliveries(OrderDeliveryCollection $orderDeliveries, LineItemCollection $lineItems): DeliveryCollection

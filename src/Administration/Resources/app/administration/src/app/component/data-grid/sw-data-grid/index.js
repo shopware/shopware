@@ -20,8 +20,8 @@ const utils = Shopware.Utils;
  *         { id: 'uuid5', company: 'Photojam', name: 'Neddy Jensen' }
  *     ]"
  *     :columns="[
- *          { property: 'name', label: 'Name', rawData: true },
- *          { property: 'company', label: 'Company', rawData: true }
+ *          { property: 'name', label: 'Name' },
+ *          { property: 'company', label: 'Company' }
  *     ]">
  * </sw-data-grid>
  */

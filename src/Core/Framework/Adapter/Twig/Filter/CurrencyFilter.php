@@ -31,7 +31,7 @@ class CurrencyFilter extends AbstractExtension
     /**
      * @throws InconsistentCriteriaIdsException
      */
-    public function formatCurrency($twigContext, $price, $currencyIsoCode = null, $languageId = null)
+    public function formatCurrency($twigContext, $price, $currencyIsoCode = null, $languageId = null, ?int $decimals = null)
     {
         if (!array_key_exists('context', $twigContext)
             || (
@@ -73,6 +73,6 @@ class CurrencyFilter extends AbstractExtension
             $price = 0.0;
         }
 
-        return $this->currencyFormatter->formatCurrencyByLanguage($price, $currencyIsoCode, $languageId, $context);
+        return $this->currencyFormatter->formatCurrencyByLanguage($price, $currencyIsoCode, $languageId, $context, $decimals);
     }
 }

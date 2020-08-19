@@ -123,7 +123,6 @@ abstract class EntityDefinition
 
             $extension->extendFields($new);
 
-            /** @var Field $field */
             foreach ($new as $field) {
                 $field->addFlags(new Extension());
 

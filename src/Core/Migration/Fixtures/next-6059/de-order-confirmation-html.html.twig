@@ -1,0 +1,100 @@
+<div style="font-family:arial; font-size:12px;">
+
+    {% set currencyIsoCode = order.currency.isoCode %}
+    Hallo {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},<br>
+    <br>
+    vielen Dank für Ihre Bestellung im {{ salesChannel.name }} (Nummer: {{order.orderNumber}}) am {{ order.orderDateTime|date }}.<br>
+    <br>
+    <strong>Informationen zu Ihrer Bestellung:</strong><br>
+    <br>
+
+    <table width="80%" border="0" style="font-family:Arial, Helvetica, sans-serif; font-size:12px;">
+        <tr>
+            <td bgcolor="#F7F7F2" style="border-bottom:1px solid #cccccc;"><strong>Pos.</strong></td>
+            <td bgcolor="#F7F7F2" style="border-bottom:1px solid #cccccc;"><strong>Bezeichnung</strong></td>
+            <td bgcolor="#F7F7F2" style="border-bottom:1px solid #cccccc;"><strong>Menge</strong></td>
+            <td bgcolor="#F7F7F2" style="border-bottom:1px solid #cccccc;"><strong>Preis</strong></td>
+            <td bgcolor="#F7F7F2" style="border-bottom:1px solid #cccccc;"><strong>Summe</strong></td>
+        </tr>
+
+        {% for lineItem in order.lineItems %}
+            <tr>
+                <td style="border-bottom:1px solid #cccccc;">{{ loop.index }} </td>
+                <td style="border-bottom:1px solid #cccccc;">
+                    {{ lineItem.label|u.wordwrap(80) }}<br>
+                    {% if lineItem.payload.options|length >= 1 %}
+                        {% for option in lineItem.payload.options %}
+                            {{ option.group }}: {{ option.option }}
+                            {% if lineItem.payload.options|last != option %}
+                                {{ " | " }}
+                            {% endif %}
+                        {% endfor %}
+                        <br/>
+                    {% endif %}
+                    {% if lineItem.payload.productNumber is defined %}Artikel-Nr: {{ lineItem.payload.productNumber|u.wordwrap(80) }}{% endif %}
+                </td>
+                <td style="border-bottom:1px solid #cccccc;">{{ lineItem.quantity }}</td>
+                <td style="border-bottom:1px solid #cccccc;">{{ lineItem.unitPrice|currency(currencyIsoCode) }}</td>
+                <td style="border-bottom:1px solid #cccccc;">{{ lineItem.totalPrice|currency(currencyIsoCode) }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+
+    {% set delivery = order.deliveries.first %}
+    <p>
+        <br>
+        <br>
+        Versandkosten: {{order.deliveries.first.shippingCosts.totalPrice|currency(currencyIsoCode) }}<br>
+        Gesamtkosten Netto: {{ order.amountNet|currency(currencyIsoCode) }}<br>
+        {% for calculatedTax in order.price.calculatedTaxes %}
+            {% if order.taxStatus is same as('net') %}zzgl.{% else %}inkl.{% endif %} {{ calculatedTax.taxRate }}% MwSt. {{ calculatedTax.tax|currency(currencyIsoCode) }}<br>
+        {% endfor %}
+
+        {% set displayRounded = order.totalRounding.interval != 0.01 or order.totalRounding.decimals != order.itemRounding.decimals %}
+
+        {% if displayRounded %}
+            Gesamtkosten Brutto: {{ order.price.rawTotal|currency(currencyIsoCode) }}<br>
+            <strong>Gesamtkosten Brutto gerundet: {{ order.price.totalPrice|currency(currencyIsoCode=currencyIsoCode, decimals=order.totalRounding.decimals) }}</strong><br>
+        {% else %}
+            <strong>Gesamtkosten Brutto: {{ order.amountTotal|currency(currencyIsoCode) }}</strong><br>
+        {% endif %}
+
+        <br>
+
+        <strong>Gewählte Zahlungsart:</strong> {{ order.transactions.first.paymentMethod.name }}<br>
+        {{ order.transactions.first.paymentMethod.description }}<br>
+        <br>
+
+        <strong>Gewählte Versandart:</strong> {{ delivery.shippingMethod.name }}<br>
+        {{ delivery.shippingMethod.description }}<br>
+        <br>
+
+        {% set billingAddress = order.addresses.get(order.billingAddressId) %}
+        <strong>Rechnungsadresse:</strong><br>
+        {{ billingAddress.company }}<br>
+        {{ billingAddress.firstName }} {{ billingAddress.lastName }}<br>
+        {{ billingAddress.street }} <br>
+        {{ billingAddress.zipcode }} {{ billingAddress.city }}<br>
+        {{ billingAddress.country.name }}<br>
+        <br>
+
+        <strong>Lieferadresse:</strong><br>
+        {{ delivery.shippingOrderAddress.company }}<br>
+        {{ delivery.shippingOrderAddress.firstName }} {{ delivery.shippingOrderAddress.lastName }}<br>
+        {{ delivery.shippingOrderAddress.street }} <br>
+        {{ delivery.shippingOrderAddress.zipcode}} {{ delivery.shippingOrderAddress.city }}<br>
+        {{ delivery.shippingOrderAddress.country.name }}<br>
+        <br>
+        {% if billingAddress.vatId %}
+            Ihre Umsatzsteuer-ID: {{ billingAddress.vatId }}
+            Bei erfolgreicher Prüfung und sofern Sie aus dem EU-Ausland
+            bestellen, erhalten Sie Ihre Ware umsatzsteuerbefreit. <br>
+        {% endif %}
+        <br/>
+        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ rawUrl('frontend.account.order.single.page', { 'deepLinkCode': order.deepLinkCode}, salesChannel.domains|first.url) }}
+        </br>
+        Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
+
+    </p>
+    <br>
+</div>

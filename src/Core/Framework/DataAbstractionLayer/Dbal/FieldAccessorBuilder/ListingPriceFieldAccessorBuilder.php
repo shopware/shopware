@@ -7,20 +7,9 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListingPriceField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 
 class ListingPriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
 {
-    /**
-     * @var PriceFieldAccessorBuilder
-     */
-    private $priceFieldAccessor;
-
-    public function __construct(PriceFieldAccessorBuilder $priceFieldAccessor)
-    {
-        $this->priceFieldAccessor = $priceFieldAccessor;
-    }
-
     public function buildAccessor(string $root, Field $field, Context $context, string $accessor): ?string
     {
         if (!$field instanceof ListingPriceField) {
@@ -34,44 +23,74 @@ class ListingPriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
             $taxMode = 'gross';
         }
 
-        foreach ($keys as $ruleId) {
-            $parameters = [
-                '#root#' => $root,
-                '#field#' => $field->getStorageName(),
-                '#rule_key#' => 'r' . $ruleId,
-                '#currency_key#' => 'c' . $context->getCurrencyId(),
-                '#tax_mode#' => $taxMode,
-            ];
+        $template = '((ROUND(CAST((JSON_UNQUOTE(JSON_EXTRACT(`#root#`.`#field#`, "$.#rule_key#.#currency_key#.to.#tax_mode#"))) as DECIMAL(30, 20)), #decimals#)) * #factor#)';
 
-            $select[] = str_replace(
-                array_keys($parameters),
-                array_values($parameters),
-                '(JSON_UNQUOTE(JSON_EXTRACT(`#root#`.`#field#`, "$.#rule_key#.#currency_key#.to.#tax_mode#")) + 0.0)'
-            );
+        $multiplier = null;
+        if ($this->useCashRounding($context)) {
+            $multiplier = 100 / ($context->getRounding()->getInterval() * 100);
+            $template = '(ROUND(' . $template . ' * #multiplier#, 0) / #multiplier#)';
+        }
+
+        $parameters = [
+            '#root#' => $root,
+            '#field#' => $field->getStorageName(),
+            '#tax_mode#' => $taxMode,
+            '#decimals#' => $context->getRounding()->getDecimals(),
+        ];
+
+        if ($multiplier !== null) {
+            $parameters['#multiplier#'] = $multiplier;
+        }
+
+        $template = str_replace(
+            array_keys($parameters),
+            array_values($parameters),
+            $template
+        );
+
+        foreach ($keys as $ruleId) {
+            $select[] = $this->getSelect($template, 'r' . $ruleId, $context->getCurrencyId(), 1);
 
             if ($context->getCurrencyId() === Defaults::CURRENCY) {
                 continue;
             }
 
-            $parameters = [
-                '#root#' => $root,
-                '#field#' => $field->getStorageName(),
-                '#rule_key#' => 'r' . $ruleId,
-                '#currency_key#' => 'c' . Defaults::CURRENCY,
-                '#factor#' => $context->getCurrencyFactor(),
-                '#tax_mode#' => $taxMode,
-            ];
-
-            $select[] = str_replace(
-                array_keys($parameters),
-                array_values($parameters),
-                '(JSON_UNQUOTE(JSON_EXTRACT(`#root#`.`#field#`, "$.#rule_key#.#currency_key#.to.#tax_mode#")) * #factor#)'
-            );
+            $select[] = $this->getSelect($template, 'r' . $ruleId, Defaults::CURRENCY, $context->getCurrencyFactor());
         }
 
-        $select[] = $this->priceFieldAccessor
-            ->buildAccessor($root, new PriceField('price', 'price'), $context, '');
+        $select[] = $this->getSelect($template, 'default', $context->getCurrencyId(), 1);
+        if ($context->getCurrencyId() !== Defaults::CURRENCY) {
+            $select[] = $this->getSelect($template, 'default', Defaults::CURRENCY, $context->getCurrencyFactor());
+        }
 
         return sprintf('COALESCE(%s)', implode(',', $select));
+    }
+
+    private function getSelect(string $template, string $ruleKey, string $currencyId, float $factor)
+    {
+        $parameters = [
+            '#rule_key#' => $ruleKey,
+            '#currency_key#' => 'c' . $currencyId,
+            '#factor#' => $factor,
+        ];
+
+        return str_replace(
+            array_keys($parameters),
+            array_values($parameters),
+            $template
+        );
+    }
+
+    private function useCashRounding(Context $context): bool
+    {
+        if ($context->getRounding()->getDecimals() !== 2) {
+            return false;
+        }
+
+        if ($context->getTaxState() === CartPrice::TAX_STATE_GROSS) {
+            return true;
+        }
+
+        return $context->getRounding()->roundForNet();
     }
 }

@@ -327,7 +327,7 @@ class OrderRouteTest extends TestCase
                         'type' => 'test',
                         'label' => 'test',
                         'price' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                        'priceDefinition' => new QuantityPriceDefinition(10, new TaxRuleCollection(), 2),
+                        'priceDefinition' => QuantityPriceDefinition::create(10, new TaxRuleCollection()),
                         'good' => true,
                     ],
                 ],

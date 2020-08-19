@@ -318,6 +318,7 @@
     "summaryPositionPrice": "Zwischensumme",
     "summaryShipping": "Versandkosten",
     "summaryTotalPrice": "Gesamtsumme",
+    "summaryTotalPriceRounded": "Gesamtsumme gerundet",
     "summaryNetPrice": "Gesamtnettosumme",
     "summaryTax": "zzgl. %rate% % MwSt.",
     "proceedLink": "Weiter zur Kasse",

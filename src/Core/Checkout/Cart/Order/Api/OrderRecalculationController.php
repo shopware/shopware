@@ -111,9 +111,8 @@ class OrderRecalculationController extends AbstractController
         $lineItem->setPayload($payload);
 
         $lineItem->setPriceDefinition(
-            new AbsolutePriceDefinition(
+            AbsolutePriceDefinition::create(
                 $priceDefinition['price'],
-                $priceDefinition['precision'] ?? $context->getCurrencyPrecision(),
                 new LineItemOfTypeRule(Rule::OPERATOR_NEQ, $type)
             )
         );

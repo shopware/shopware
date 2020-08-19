@@ -129,11 +129,11 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
             case AbsolutePriceDefinition::TYPE:
                 $rules = (array_key_exists('filter', $value) && $value['filter'] !== null) ? $this->decodeRule($value['filter']) : null;
 
-                return new AbsolutePriceDefinition($value['price'], $value['precision'], $rules);
+                return AbsolutePriceDefinition::create($value['price'], $rules);
             case PercentagePriceDefinition::TYPE:
                 $rules = array_key_exists('filter', $value) && $value['filter'] !== null ? $this->decodeRule($value['filter']) : null;
 
-                return new PercentagePriceDefinition($value['percentage'], $value['precision'], $rules);
+                return PercentagePriceDefinition::create($value['percentage'], $rules);
         }
 
         throw new InvalidPriceFieldTypeException($value['type']);

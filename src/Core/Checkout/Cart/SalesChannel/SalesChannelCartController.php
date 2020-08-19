@@ -399,11 +399,11 @@ class SalesChannelCartController extends AbstractController
             case AbsolutePriceDefinition::TYPE:
                 $rules = new LineItemOfTypeRule(Rule::OPERATOR_NEQ, $lineItemType);
 
-                return new AbsolutePriceDefinition($priceDefinition['price'], $priceDefinition['precision'], $rules);
+                return AbsolutePriceDefinition::create($priceDefinition['price'], $rules);
             case PercentagePriceDefinition::TYPE:
                 $rules = new LineItemOfTypeRule(Rule::OPERATOR_NEQ, $lineItemType);
 
-                return new PercentagePriceDefinition($priceDefinition['percentage'], $priceDefinition['precision'], $rules);
+                return PercentagePriceDefinition::create($priceDefinition['percentage'], $rules);
         }
 
         throw new InvalidPriceFieldTypeException($priceDefinition['type']);

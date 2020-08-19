@@ -54,14 +54,40 @@ All blocks of this template are available in the template which renders this tem
                         {% endblock %}
 
                         {% block document_sum_total %}
-                            <tr class="bold">
-                                {% block document_sum_total_label %}
-                                    <td class="align-right">{{ 'document.lineItems.total'|trans|sw_sanitize }}</td>
-                                {% endblock %}
-                                {% block document_sum_total_price %}
-                                    <td class="align-right">{{ order.amountTotal|currency(currencyIsoCode) }}</td>
-                                {% endblock %}
-                            </tr>
+                            {% set displayRounded = order.totalRounding.interval != 0.01 or order.totalRounding.decimals != order.itemRounding.decimals %}
+
+                            {% if displayRounded %}
+                                <tr>
+                                    {% block document_sum_total_raw_label %}
+                                        <td class="align-right">{{ 'document.lineItems.total'|trans|sw_sanitize }}</td>
+                                    {% endblock %}
+                                    {% block document_sum_total_raw_price %}
+                                        <td class="align-right">{{ order.price.rawTotal|currency(currencyIsoCode) }}</td>
+                                    {% endblock %}
+                                </tr>
+
+                                <tr class="bold">
+                                    {% block document_sum_total_rounded_label %}
+                                        <td class="align-right">{{ 'document.lineItems.roundedTotal'|trans|sw_sanitize }}</td>
+                                    {% endblock %}
+                                    {% block document_sum_total_rounded_price %}
+                                        <td class="align-right">{{ order.price.totalPrice|currency(currencyIsoCode=currencyIsoCode, decimals=order.totalRounding.decimals) }}</td>
+                                    {% endblock %}
+                                </tr>
+
+                            {% else %}
+
+                                <tr class="bold">
+                                    {% block document_sum_total_label %}
+                                        <td class="align-right">{{ 'document.lineItems.total'|trans|sw_sanitize }}</td>
+                                    {% endblock %}
+
+                                    {% block document_sum_total_price %}
+                                        <td class="align-right">{{ order.price.totalPrice|currency(currencyIsoCode) }}</td>
+                                    {% endblock %}
+                                </tr>
+                            {% endif %}
+
                         {% endblock %}
                     {% endblock %}
                 </table>

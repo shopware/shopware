@@ -26,29 +26,22 @@ class QuantityPriceCalculator
      */
     private $taxDetector;
 
-    /**
-     * @var ReferencePriceCalculator
-     */
-    private $referencePriceCalculator;
-
     public function __construct(
         GrossPriceCalculator $grossPriceCalculator,
         NetPriceCalculator $netPriceCalculator,
-        TaxDetector $taxDetector,
-        ReferencePriceCalculator $referencePriceCalculator
+        TaxDetector $taxDetector
     ) {
         $this->grossPriceCalculator = $grossPriceCalculator;
         $this->netPriceCalculator = $netPriceCalculator;
         $this->taxDetector = $taxDetector;
-        $this->referencePriceCalculator = $referencePriceCalculator;
     }
 
     public function calculate(QuantityPriceDefinition $definition, SalesChannelContext $context): CalculatedPrice
     {
         if ($this->taxDetector->useGross($context)) {
-            $price = $this->grossPriceCalculator->calculate($definition);
+            $price = $this->grossPriceCalculator->calculate($definition, $context->getItemRounding());
         } else {
-            $price = $this->netPriceCalculator->calculate($definition);
+            $price = $this->netPriceCalculator->calculate($definition, $context->getItemRounding());
         }
 
         $taxRules = $price->getTaxRules();
@@ -65,7 +58,7 @@ class QuantityPriceCalculator
             $calculatedTaxes,
             $taxRules,
             $price->getQuantity(),
-            $this->referencePriceCalculator->calculate($price->getUnitPrice(), $definition),
+            $price->getReferencePrice(),
             $price->getListPrice()
         );
     }

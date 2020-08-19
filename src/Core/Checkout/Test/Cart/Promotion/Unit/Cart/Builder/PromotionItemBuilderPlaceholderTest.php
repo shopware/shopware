@@ -39,7 +39,7 @@ class PromotionItemBuilderPlaceholderTest extends TestCase
 
         $item = $builder->buildPlaceholderItem('CODE-123', 1);
 
-        $expectedPriceDefinition = new PercentagePriceDefinition(0, 1);
+        $expectedPriceDefinition = PercentagePriceDefinition::create(0);
 
         static::assertEquals($expectedPriceDefinition, $item->getPriceDefinition());
     }

@@ -3,12 +3,14 @@
 namespace Shopware\Core\Content\Product\DataAbstractionLayer\Indexing;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Checkout\Cart\Price\PriceRounding;
+use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Uuid\Uuid;
+use function Flag\next6059;
 
 class ListingPriceUpdater
 {
@@ -18,14 +20,14 @@ class ListingPriceUpdater
     private $connection;
 
     /**
-     * @var PriceRounding
+     * @var CashRounding
      */
-    private $priceRounding;
+    private $rounding;
 
-    public function __construct(Connection $connection, PriceRounding $priceRounding)
+    public function __construct(Connection $connection, CashRounding $rounding)
     {
         $this->connection = $connection;
-        $this->priceRounding = $priceRounding;
+        $this->rounding = $rounding;
     }
 
     public function update(array $ids, Context $context): void
@@ -260,11 +262,11 @@ class ListingPriceUpdater
             $default,
             [
                 'currencyId' => $currency['id'],
-                'gross' => $this->priceRounding->round(
+                'gross' => $this->round(
                     $default['gross'] * $currency['factor'],
                     (int) $currency['decimal_precision']
                 ),
-                'net' => $this->priceRounding->round(
+                'net' => $this->round(
                     $default['net'] * $currency['factor'],
                     (int) $currency['decimal_precision']
                 ),
@@ -315,5 +317,17 @@ class ListingPriceUpdater
         }
 
         throw new \RuntimeException(sprintf('Missing default price for variant %s', $id));
+    }
+
+    private function round(float $value, int $precision): float
+    {
+        if (next6059()) {
+            return $value;
+        }
+
+        return $this->rounding->mathRound(
+            $value,
+            new CashRoundingConfig($precision, 0.01, true)
+        );
     }
 }

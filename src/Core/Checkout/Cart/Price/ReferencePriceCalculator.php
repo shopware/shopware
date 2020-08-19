@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Cart\Price;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePrice;
 
+/**
+ * @deprecated tag:v6.4.0 - Will be removed. Reference price calculation was moved to NetPriceCalculator and GrossPriceCalculator
+ */
 class ReferencePriceCalculator
 {
     /**

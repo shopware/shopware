@@ -35,6 +35,7 @@
             },
             "tax": "zzgl. %taxRate%% MwSt.:",
             "total": "Gesamtsumme:",
+            "roundedTotal": "Gesamtsumme gerundet:",
             "totalNet": "Gesamtsumme (Netto):",
             "shippingCosts": "Versandkosten"
         },

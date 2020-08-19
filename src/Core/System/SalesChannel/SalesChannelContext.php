@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\Exception\ContextPermissionsLockedException;
@@ -96,6 +97,16 @@ class SalesChannelContext extends Struct
      */
     private $context;
 
+    /**
+     * @var CashRoundingConfig
+     */
+    private $itemRounding;
+
+    /**
+     * @var CashRoundingConfig
+     */
+    private $totalRounding;
+
     public function __construct(
         Context $baseContext,
         string $token,
@@ -108,6 +119,8 @@ class SalesChannelContext extends Struct
         ShippingMethodEntity $shippingMethod,
         ShippingLocation $shippingLocation,
         ?CustomerEntity $customer,
+        CashRoundingConfig $itemRounding,
+        CashRoundingConfig $totalRounding,
         array $rulesIds = []
     ) {
         $this->currentCustomerGroup = $currentCustomerGroup;
@@ -122,6 +135,8 @@ class SalesChannelContext extends Struct
         $this->rulesIds = $rulesIds;
         $this->token = $token;
         $this->context = $baseContext;
+        $this->itemRounding = $itemRounding;
+        $this->totalRounding = $totalRounding;
     }
 
     public function getCurrentCustomerGroup(): CustomerGroupEntity
@@ -264,5 +279,25 @@ class SalesChannelContext extends Struct
     public function hasPermission(string $permission): bool
     {
         return $this->permissions[$permission] ?? false;
+    }
+
+    public function getTotalRounding(): CashRoundingConfig
+    {
+        return $this->totalRounding;
+    }
+
+    public function setTotalRounding(CashRoundingConfig $totalRounding): void
+    {
+        $this->totalRounding = $totalRounding;
+    }
+
+    public function getItemRounding(): CashRoundingConfig
+    {
+        return $this->itemRounding;
+    }
+
+    public function setItemRounding(CashRoundingConfig $itemRounding): void
+    {
+        $this->itemRounding = $itemRounding;
     }
 }

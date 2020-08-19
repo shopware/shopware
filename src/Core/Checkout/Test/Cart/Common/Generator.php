@@ -23,6 +23,7 @@ use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
 use Shopware\Core\Content\Product\Cart\ProductGateway;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
 use Shopware\Core\System\Country\CountryEntity;
@@ -147,6 +148,8 @@ class Generator extends TestCase
             $shippingMethod,
             ShippingLocation::createFromAddress($shipping),
             $customer,
+            new CashRoundingConfig(2, 0.01, true),
+            new CashRoundingConfig(2, 0.01, true),
             []
         );
     }

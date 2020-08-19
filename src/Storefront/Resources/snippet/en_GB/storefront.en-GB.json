@@ -318,6 +318,7 @@
     "summaryPositionPrice": "Total",
     "summaryShipping": "Shipping costs",
     "summaryTotalPrice": "Grand total",
+    "summaryTotalPriceRounded": "Rounded total",
     "summaryNetPrice": "Net total",
     "summaryTax": "plus %rate%% VAT",
     "proceedLink": "Proceed to checkout",

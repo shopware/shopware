@@ -23,9 +23,9 @@ class PriceDefinitionFactory
             case QuantityPriceDefinition::TYPE:
                 return QuantityPriceDefinition::fromArray($priceDefinition);
             case AbsolutePriceDefinition::TYPE:
-                return new AbsolutePriceDefinition($priceDefinition['price'], $priceDefinition['precision']);
+                return AbsolutePriceDefinition::create($priceDefinition['price']);
             case PercentagePriceDefinition::TYPE:
-                return new PercentagePriceDefinition($priceDefinition['percentage'], $priceDefinition['precision']);
+                return PercentagePriceDefinition::create($priceDefinition['percentage']);
         }
 
         throw new InvalidPriceFieldTypeException($priceDefinition['type']);

@@ -17,6 +17,7 @@ use ONGR\ElasticsearchDSL\Query\TermLevel\TermQuery;
 use ONGR\ElasticsearchDSL\Query\TermLevel\TermsQuery;
 use ONGR\ElasticsearchDSL\Query\TermLevel\WildcardQuery;
 use ONGR\ElasticsearchDSL\Sort\FieldSort;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -78,7 +79,13 @@ class CriteriaParser
         }
 
         if ($field instanceof PriceField) {
-            $parts[] = 'gross';
+            $parts[] = 'c_' . $context->getCurrencyId();
+
+            if ($context->getTaxState() === CartPrice::TAX_STATE_GROSS) {
+                $parts[] = 'gross';
+            } else {
+                $parts[] = 'net';
+            }
         }
 
         return implode('.', $parts);

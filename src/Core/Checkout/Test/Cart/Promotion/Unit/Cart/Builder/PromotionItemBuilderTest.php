@@ -152,7 +152,7 @@ class PromotionItemBuilderTest extends TestCase
         $precision = $this->salesChannelContext->getContext()->getCurrencyPrecision();
         $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, $precision, 'C1');
 
-        $expectedPriceDefinition = new PercentagePriceDefinition(-10, $precision, null);
+        $expectedPriceDefinition = PercentagePriceDefinition::create(-10);
 
         static::assertEquals($expectedPriceDefinition, $item->getPriceDefinition());
     }
@@ -182,7 +182,7 @@ class PromotionItemBuilderTest extends TestCase
         $precision = $this->salesChannelContext->getContext()->getCurrencyPrecision();
         $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, $precision, 'C1');
 
-        $expectedPriceDefinition = new AbsolutePriceDefinition(-50, $precision, null);
+        $expectedPriceDefinition = AbsolutePriceDefinition::create(-50);
 
         static::assertEquals($expectedPriceDefinition, $item->getPriceDefinition());
     }
@@ -327,7 +327,7 @@ class PromotionItemBuilderTest extends TestCase
 
         $expectedPrice = -1 * $currencyDiscountValue;
 
-        $expectedPriceDefinition = new AbsolutePriceDefinition($expectedPrice, $precision, null);
+        $expectedPriceDefinition = AbsolutePriceDefinition::create($expectedPrice);
 
         static::assertEquals($expectedPriceDefinition, $item->getPriceDefinition());
     }

@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateCollection;
 use Shopware\Core\System\Country\Aggregate\CountryTranslation\CountryTranslationCollection;
+use Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCountryRoundingCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleCollection;
 
@@ -99,6 +100,11 @@ class CountryEntity extends Entity
      * @var TaxRuleCollection|null
      */
     protected $taxRules;
+
+    /**
+     * @var CurrencyCountryRoundingCollection|null
+     */
+    protected $currencyCountryRoundings;
 
     public function getName(): ?string
     {
@@ -273,5 +279,15 @@ class CountryEntity extends Entity
     public function getApiAlias(): string
     {
         return 'country';
+    }
+
+    public function getCurrencyCountryRoundings(): ?CurrencyCountryRoundingCollection
+    {
+        return $this->currencyCountryRoundings;
+    }
+
+    public function setCurrencyCountryRoundings(CurrencyCountryRoundingCollection $currencyCountryRoundings): void
+    {
+        $this->currencyCountryRoundings = $currencyCountryRoundings;
     }
 }

@@ -230,6 +230,18 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
     private function getAdminApiSource(?string $userId, ?string $integrationId = null): AdminApiSource
     {
         $source = new AdminApiSource($userId, $integrationId);
+
+        // Use the permissions associated to that app, if the request is made by an integration associated to an app
+        $appPermissions = $this->fetchPermissionsIntegrationByApp($integrationId);
+        if ($appPermissions !== null) {
+            $source->setIsAdmin(false);
+            $source->setPermissions(
+                $appPermissions
+            );
+
+            return $source;
+        }
+
         if (!next3722()) {
             $source->setIsAdmin(true);
 
@@ -275,5 +287,25 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         }
 
         return array_unique(array_filter($list));
+    }
+
+    private function fetchPermissionsIntegrationByApp(?string $integrationId): ?array
+    {
+        if (!$integrationId) {
+            return null;
+        }
+
+        $privileges = $this->connection->fetchColumn('
+            SELECT `acl_role`.`privileges`
+            FROM `acl_role`
+            INNER JOIN `app` ON `app`.`acl_role_id` = `acl_role`.`id`
+            WHERE `app`.`integration_id` = :integrationId
+        ', ['integrationId' => Uuid::fromHexToBytes($integrationId)]);
+
+        if ($privileges === false) {
+            return null;
+        }
+
+        return json_decode($privileges, true);
     }
 }

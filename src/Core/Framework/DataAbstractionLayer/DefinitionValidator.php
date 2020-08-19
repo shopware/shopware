@@ -553,6 +553,14 @@ class DefinitionValidator
             );
         }
 
+        if ($association->getAutoload() && $reverseSide->getAutoload()) {
+            $associationViolations[$definition->getClass()][] = sprintf(
+                'Remove autoload flag in definition %s association: %s. One to One association should only have one side defined as autoload, otherwise it leads to endless loops inside the DAL.',
+                $definition->getClass(),
+                $association->getPropertyName()
+            );
+        }
+
         return $associationViolations;
     }
 

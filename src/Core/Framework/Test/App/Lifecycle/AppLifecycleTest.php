@@ -21,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Webhook\WebhookEntity;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSetRelation\CustomFieldSetRelationEntity;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -100,7 +101,7 @@ class AppLifecycleTest extends TestCase
         $this->assertDefaultModules($apps->first());
         $this->assertDefaultPrivileges($apps->first()->getAclRoleId());
         $this->assertDefaultCustomFields($apps->first()->getId());
-//        $this->assertDefaultWebhooks($apps->first()->getId());
+        $this->assertDefaultWebhooks($apps->first()->getId());
         $this->assertDefaultTemplate($apps->first()->getId());
     }
 
@@ -131,7 +132,7 @@ class AppLifecycleTest extends TestCase
 
         static::assertCount(0, $apps->first()->getActionButtons());
         static::assertCount(0, $apps->first()->getModules());
-//        static::assertCount(0, $apps->first()->getWebhooks());
+        static::assertCount(0, $apps->first()->getWebhooks());
     }
 
     public function testUpdateInactiveApp(): void
@@ -256,7 +257,7 @@ class AppLifecycleTest extends TestCase
         $this->assertDefaultModules($apps->first());
         $this->assertDefaultPrivileges($apps->first()->getAclRoleId());
         $this->assertDefaultCustomFields($id);
-//        $this->assertDefaultWebhooks($apps->first()->getId());
+        $this->assertDefaultWebhooks($apps->first()->getId());
         $this->assertDefaultTemplate($apps->first()->getId());
     }
 
@@ -383,7 +384,7 @@ class AppLifecycleTest extends TestCase
         $this->assertDefaultModules($apps->first());
         $this->assertDefaultPrivileges($apps->first()->getAclRoleId());
         $this->assertDefaultCustomFields($id);
-//        $this->assertDefaultWebhooks($apps->first()->getId());
+        $this->assertDefaultWebhooks($apps->first()->getId());
         $this->assertDefaultTemplate($apps->first()->getId());
     }
 
@@ -455,7 +456,7 @@ class AppLifecycleTest extends TestCase
 
         static::assertCount(0, $apps->first()->getActionButtons());
         static::assertCount(0, $apps->first()->getModules());
-//        static::assertCount(0, $apps->first()->getWebhooks());
+        static::assertCount(0, $apps->first()->getWebhooks());
     }
 
     public function testDelete(): void
@@ -602,33 +603,32 @@ class AppLifecycleTest extends TestCase
         ], $customFieldSet->getConfig());
     }
 
-    // ToDo: Reactivate once webhooks are migrated
-//    private function assertDefaultWebhooks(string $appId): void
-//    {
-//        /** @var EntityRepositoryInterface $webhookRepository */
-//        $webhookRepository = $this->getContainer()->get('saas_webhook.repository');
-//
-//        $criteria = new Criteria();
-//        $criteria->addFilter(new EqualsFilter('appId', $appId));
-//
-//        $webhooks = $webhookRepository->search($criteria, $this->context)->getElements();
-//
-//        static::assertCount(2, $webhooks);
-//
-//        usort($webhooks, static function (WebhookEntity $a, WebhookEntity $b): int {
-//            return $a->getUrl() <=> $b->getUrl();
-//        });
-//
-//        /** @var WebhookEntity $firstWebhook */
-//        $firstWebhook = $webhooks[0];
-//        static::assertEquals('https://test.com/hook', $firstWebhook->getUrl());
-//        static::assertEquals('checkout.customer.before.login', $firstWebhook->getEventName());
-//
-//        /** @var WebhookEntity $secondWebhook */
-//        $secondWebhook = $webhooks[1];
-//        static::assertEquals('https://test.com/hook2', $secondWebhook->getUrl());
-//        static::assertEquals('checkout.order.placed', $secondWebhook->getEventName());
-//    }
+    private function assertDefaultWebhooks(string $appId): void
+    {
+        /** @var EntityRepositoryInterface $webhookRepository */
+        $webhookRepository = $this->getContainer()->get('webhook.repository');
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('appId', $appId));
+
+        $webhooks = $webhookRepository->search($criteria, $this->context)->getElements();
+
+        static::assertCount(2, $webhooks);
+
+        usort($webhooks, static function (WebhookEntity $a, WebhookEntity $b): int {
+            return $a->getUrl() <=> $b->getUrl();
+        });
+
+        /** @var WebhookEntity $firstWebhook */
+        $firstWebhook = $webhooks[0];
+        static::assertEquals('https://test.com/hook', $firstWebhook->getUrl());
+        static::assertEquals('checkout.customer.before.login', $firstWebhook->getEventName());
+
+        /** @var WebhookEntity $secondWebhook */
+        $secondWebhook = $webhooks[1];
+        static::assertEquals('https://test.com/hook2', $secondWebhook->getUrl());
+        static::assertEquals('checkout.order.placed', $secondWebhook->getEventName());
+    }
 
     private function assertDefaultTemplate(string $appId): void
     {

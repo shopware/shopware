@@ -8,6 +8,7 @@ use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 
 class AppUpdatedEventTest extends TestCase
 {
@@ -25,23 +26,22 @@ class AppUpdatedEventTest extends TestCase
         static::assertInstanceOf(Manifest::class, $event->getManifest());
         static::assertEquals($context, $event->getContext());
         static::assertEquals(AppUpdatedEvent::NAME, $event->getName());
-        // ToDo reactivate tests once webhooks are migrated
-//        static::assertEquals([
-//            'appVersion' => '1.0.0',
-//        ], $event->getWebhookPayload());
+        static::assertEquals([
+            'appVersion' => '1.0.0',
+        ], $event->getWebhookPayload());
     }
 
-//    public function testIsAllowed(): void
-//    {
-//        $appId = Uuid::randomHex();
-//        $context = Context::createDefaultContext();
-//        $event = new AppUpdatedEvent(
-//            $appId,
-//            Manifest::createFromXmlFile(__DIR__ . '/../../Manifest/_fixtures/test/manifest.xml'),
-//            $context
-//        );
-//
-//        static::assertTrue($event->isAllowed($appId, new AclPrivilegeCollection()));
-//        static::assertFalse($event->isAllowed(Uuid::randomHex(), new AclPrivilegeCollection()));
-//    }
+    public function testIsAllowed(): void
+    {
+        $appId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+        $event = new AppUpdatedEvent(
+            $appId,
+            Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml'),
+            $context
+        );
+
+        static::assertTrue($event->isAllowed($appId, new AclPrivilegeCollection([])));
+        static::assertFalse($event->isAllowed(Uuid::randomHex(), new AclPrivilegeCollection([])));
+    }
 }

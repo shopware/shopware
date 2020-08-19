@@ -5,9 +5,11 @@ namespace Shopware\Core\Framework\App\Event;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareEvent;
+use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
+use Shopware\Core\Framework\Webhook\Hookable;
 use Symfony\Contracts\EventDispatcher\Event;
 
-abstract class AppChangedEvent extends Event implements ShopwareEvent
+abstract class AppChangedEvent extends Event implements ShopwareEvent, Hookable
 {
     /**
      * @var AppEntity
@@ -35,5 +37,15 @@ abstract class AppChangedEvent extends Event implements ShopwareEvent
     public function getContext(): Context
     {
         return $this->context;
+    }
+
+    public function getWebhookPayload(): array
+    {
+        return [];
+    }
+
+    public function isAllowed(string $appId, AclPrivilegeCollection $permissions): bool
+    {
+        return $appId === $this->getAppId();
     }
 }

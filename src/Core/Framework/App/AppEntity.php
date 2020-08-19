@@ -8,6 +8,7 @@ use Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationCollectio
 use Shopware\Core\Framework\App\Template\TemplateCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Webhook\WebhookCollection;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
 use Shopware\Core\System\Integration\IntegrationEntity;
 
@@ -139,6 +140,11 @@ class AppEntity extends Entity
      * @var ActionButtonCollection|null
      */
     protected $actionButtons;
+
+    /**
+     * @var WebhookCollection|null
+     */
+    protected $webhooks;
 
     public function getId(): string
     {
@@ -381,6 +387,17 @@ class AppEntity extends Entity
     public function setActionButtons(ActionButtonCollection $actionButtons): void
     {
         $this->actionButtons = $actionButtons;
+
+    }
+
+    public function getWebhooks(): ?WebhookCollection
+    {
+        return $this->webhooks;
+    }
+
+    public function setWebhooks(?WebhookCollection $webhooks): void
+    {
+        $this->webhooks = $webhooks;
     }
 
     public function getTemplates(): ?TemplateCollection

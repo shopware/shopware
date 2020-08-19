@@ -12,6 +12,7 @@ use Shopware\Core\Framework\App\Lifecycle\Persister\ActionButtonPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\CustomFieldPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\TemplatePersister;
+use Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Module;
@@ -74,12 +75,18 @@ class AppLifecycle extends AbstractAppLifecycle
      */
     private $templatePersister;
 
+    /**
+     * @var WebhookPersister
+     */
+    private $webhookPersister;
+
     public function __construct(
         EntityRepositoryInterface $appRepository,
         PermissionPersister $permissionPersister,
         CustomFieldPersister $customFieldPersister,
         ActionButtonPersister $actionButtonPersister,
         TemplatePersister $templatePersister,
+        WebhookPersister $webhookPersister,
         AbstractAppLoader $appLoader,
         EventDispatcherInterface $eventDispatcher,
         AppRegistrationService $registrationService,
@@ -89,6 +96,7 @@ class AppLifecycle extends AbstractAppLifecycle
         $this->appRepository = $appRepository;
         $this->permissionPersister = $permissionPersister;
         $this->customFieldPersister = $customFieldPersister;
+        $this->webhookPersister = $webhookPersister;
         $this->appLoader = $appLoader;
         $this->eventDispatcher = $eventDispatcher;
         $this->registrationService = $registrationService;
@@ -175,6 +183,7 @@ class AppLifecycle extends AbstractAppLifecycle
         // therefore we only install action-buttons, webhooks and modules if we have a secret
         if ($app->getAppSecret()) {
             $this->actionButtonPersister->updateActions($manifest, $id, $context);
+            $this->webhookPersister->updateWebhooks($manifest, $id, $context);
             $this->updateModules($manifest, $id, $context);
         }
 

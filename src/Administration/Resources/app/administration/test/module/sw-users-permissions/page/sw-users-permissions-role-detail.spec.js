@@ -21,6 +21,7 @@ function createWrapper({
         },
         propsData: {},
         provide: {
+            loginService: {},
             repositoryFactory: {
                 create: () => ({
                     get: () => Promise.resolve({
@@ -134,7 +135,8 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
 
         expect(wrapper.vm.roleRepository.save).not.toHaveBeenCalled();
 
-        wrapper.vm.onSave();
+        const contextMock = { access: '1a2b3c' };
+        wrapper.vm.saveRole(contextMock);
 
         expect(wrapper.vm.roleRepository.save).toHaveBeenCalledWith(
             {
@@ -144,7 +146,7 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
                     ...wrapper.vm.requiredPrivileges
                 ]
             },
-            expect.anything()
+            contextMock
         );
     });
 
@@ -181,7 +183,8 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
 
         expect(wrapper.vm.roleRepository.save).not.toHaveBeenCalled();
 
-        wrapper.vm.onSave();
+        const contextMock = { access: '1a2b3c' };
+        wrapper.vm.saveRole(contextMock);
 
         expect(wrapper.vm.roleRepository.save).toHaveBeenCalledWith(
             { privileges: [
@@ -191,7 +194,7 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
                 'order:create:discount',
                 ...wrapper.vm.requiredPrivileges
             ] },
-            expect.anything()
+            contextMock
         );
     });
 });

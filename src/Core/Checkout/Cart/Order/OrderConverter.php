@@ -61,6 +61,7 @@ class OrderConverter
         DeliveryProcessor::SKIP_DELIVERY_PRICE_RECALCULATION => true,
         DeliveryProcessor::SKIP_DELIVERY_TAX_RECALCULATION => true,
         PromotionCollector::SKIP_PROMOTION => true,
+        ProductCartProcessor::SKIP_PRODUCT_STOCK_VALIDATION => true,
     ];
 
     /**

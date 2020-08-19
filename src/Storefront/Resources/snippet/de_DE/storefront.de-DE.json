@@ -361,6 +361,7 @@
     "shippingMethod": "Versandart",
     "product-stock-reached": "Das Produkt %name% ist nur noch %quantity% mal verfügbar",
     "product-out-of-stock": "Das Produkt %name% ist nicht mehr verfügbar",
+    "purchase-steps-quantity": "Your input quantity does not match with the setup of the %name%. The quantity was changed to %quantity%",
     "shipping-method-blocked": "Die Versandart %name% ist für Ihren aktuellen Warenkorb gesperrt.",
     "payment-method-blocked": "Die Zahlungsart %name% ist für Ihren aktuellen Warenkorb gesperrt.",
     "lineItemDeliveryDate": "Lieferzeitraum: %earliest% - %latest%",

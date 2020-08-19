@@ -1282,6 +1282,7 @@ Refactored `src/module/sw-plugin/snippet/en-GB.json`:
     * API version v1 is removed
     * API version v2 will be removed with next major version
 * Added `ProductCartProcessor::ALLOW_PRODUCT_LABEL_OVERWRITES`
+* Added `ProductCartProcessor::SKIP_PRODUCT_STOCK_VALIDATION`
 * Added `user:change-password` command to set the password of an administration user
 * Added `HttpCacheGenerateKeyEvent` to allow changing the hash
 * It is now possible to override the generic API routes with a `config/routes_overwrite.xml` in the bundle or plugin

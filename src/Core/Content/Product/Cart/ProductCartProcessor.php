@@ -29,6 +29,8 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
     public const SKIP_PRODUCT_RECALCULATION = 'skipProductRecalculation';
 
+    public const SKIP_PRODUCT_STOCK_VALIDATION = 'skipProductStockValidation';
+
     /**
      * @var ProductGatewayInterface
      */
@@ -114,7 +116,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                 throw new MissingLineItemPriceException($lineItem->getId());
             }
 
-            if ($behavior->hasPermission(self::ALLOW_PRODUCT_PRICE_OVERWRITES)) {
+            if ($behavior->hasPermission(self::SKIP_PRODUCT_STOCK_VALIDATION)) {
                 $definition->setQuantity($lineItem->getQuantity());
                 $lineItem->setPrice($this->calculator->calculate($definition, $context));
                 $toCalculate->add($lineItem);
@@ -156,6 +158,15 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
                 $toCalculate->addErrors(
                     new ProductStockReachedError($product->getId(), (string) $product->getTranslation('name'), $available)
+                );
+            }
+
+            $fixedQuantity = $this->fixQuantity($product->getMinPurchase() ?? 1, $lineItem->getQuantity(), $product->getPurchaseSteps() ?? 1);
+            if ($lineItem->getQuantity() !== $fixedQuantity) {
+                $lineItem->setQuantity($fixedQuantity);
+                $definition->setQuantity($fixedQuantity);
+                $toCalculate->addErrors(
+                    new PurchaseStepsError($product->getId(), (string) $product->getTranslation('name'), $fixedQuantity)
                 );
             }
 
@@ -354,5 +365,10 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         }
 
         return $options;
+    }
+
+    private function fixQuantity(int $min, int $current, int $steps): int
+    {
+        return (int) (floor(($current - $min) / $steps) * $steps + $min);
     }
 }

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="../../../../../../../../src/Core/Content/App/Manifest/Schema/manifest-1.0.xsd">
+    <meta>
+        <name>SwagApp</name>
+        <label>Swag App Test</label>
+        <label lang="de-DE">Swag App Test</label>
+        <description>Test for App System</description>
+        <description lang="de-DE">Test für das App System</description>
+        <author>shopware AG</author>
+        <copyright>(c) by shopware AG</copyright>
+        <version>1.0.0</version>
+        <icon>icon.png</icon>
+        <license>MIT</license>
+    </meta>
+    <setup>
+        <registrationUrl>https://my.app.com/SwagApp/registration</registrationUrl>
+        <secret>s3cr3t</secret>
+    </setup>
+    <custom-fields>
+        <custom-field-set>
+            <name>custom_field_test</name>
+            <label>Custom field test</label>
+            <label lang="de-DE">Zusatzfeld Test</label>
+            <related-entities>
+                <product/>
+                <customer/>
+            </related-entities>
+            <fields>
+                <float name="test_float_field">
+                    <label>Test float field</label>
+                    <label lang="de-DE">Test Kommazahlenfeld</label>
+                    <help-text>This is an float field.</help-text>
+                    <position>2</position>
+                    <steps>2.2</steps>
+                    <min>0.5</min>
+                    <max>1.6</max>
+                    <placeholder>Enter an float...</placeholder>
+                </float>
+            </fields>
+        </custom-field-set>
+    </custom-fields>
+</manifest>

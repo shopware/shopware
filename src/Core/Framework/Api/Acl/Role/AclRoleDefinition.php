@@ -3,8 +3,10 @@
 namespace Shopware\Core\Framework\Api\Acl\Role;
 
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
+use Shopware\Core\Framework\App\AppDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CreatedAtField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -12,10 +14,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\User\UserDefinition;
+use function Flag\next10286;
 
 class AclRoleDefinition extends EntityDefinition
 {
@@ -48,7 +52,7 @@ class AclRoleDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([
+        $collection = new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
 
             new CreatedAtField(),
@@ -62,5 +66,14 @@ class AclRoleDefinition extends EntityDefinition
             (new ManyToManyAssociationField('users', UserDefinition::class, AclUserRoleDefinition::class, 'acl_role_id', 'user_id'))
                 ->addFlags(new ReadProtected(SalesChannelApiSource::class)),
         ]);
+
+        if (next10286()) {
+            $collection->add(
+                (new OneToOneAssociationField('app', 'id', 'acl_role_id', AppDefinition::class, false))
+                    ->addFlags(new CascadeDelete())
+            );
+        }
+
+        return $collection;
     }
 }

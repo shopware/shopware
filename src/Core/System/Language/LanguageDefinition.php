@@ -30,6 +30,7 @@ use Shopware\Core\Content\Property\Aggregate\PropertyGroupOptionTranslation\Prop
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupTranslation\PropertyGroupTranslationDefinition;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlDefinition;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
+use Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
@@ -66,6 +67,7 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachine
 use Shopware\Core\System\StateMachine\StateMachineTranslationDefinition;
 use Shopware\Core\System\Tax\Aggregate\TaxRuleTypeTranslation\TaxRuleTypeTranslationDefinition;
 use Shopware\Core\System\Unit\Aggregate\UnitTranslation\UnitTranslationDefinition;
+use function Flag\next10286;
 
 class LanguageDefinition extends EntityDefinition
 {
@@ -149,12 +151,18 @@ class LanguageDefinition extends EntityDefinition
             (new OneToManyAssociationField('seoUrlTranslations', SeoUrlDefinition::class, 'language_id'))->addFlags(new CascadeDelete(), new ReadProtected(SalesChannelApiSource::class)),
             (new OneToManyAssociationField('taxRuleTypeTranslations', TaxRuleTypeTranslationDefinition::class, 'language_id'))->addFlags(new CascadeDelete(), new ReadProtected(SalesChannelApiSource::class)),
             (new OneToManyAssociationField('productCrossSellingTranslations', ProductCrossSellingTranslationDefinition::class, 'language_id'))->addFlags(new CascadeDelete(), new ReadProtected(SalesChannelApiSource::class)),
-            (new OneToManyAssociationField('importExportProfileTranslations', ImportExportProfileTranslationDefinition::class, 'import_export_profile_id'))->addFlags(new CascadeDelete(), new ReadProtected(SalesChannelApiSource::class)),
+            (new OneToManyAssociationField('importExportProfileTranslations', ImportExportProfileTranslationDefinition::class, 'language_id'))->addFlags(new CascadeDelete(), new ReadProtected(SalesChannelApiSource::class)),
         ]);
 
         $collection->add(
             (new OneToManyAssociationField('productFeatureSetTranslations', ProductFeatureSetTranslationDefinition::class, 'language_id'))->addFlags(new CascadeDelete(), new ReadProtected(SalesChannelApiSource::class))
         );
+
+        if (next10286()) {
+            $collection->add(
+                (new OneToManyAssociationField('appTranslations', AppTranslationDefinition::class, 'language_id'))->addFlags(new CascadeDelete(), new ReadProtected(SalesChannelApiSource::class))
+            );
+        }
 
         return $collection;
     }

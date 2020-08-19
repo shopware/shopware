@@ -7,11 +7,14 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 Component.extend('sw-condition-line-item-purchase-price', 'sw-condition-base', {
     template,
 
+    inject: ['feature'],
+
     computed: {
         operators() {
             return this.conditionDataProviderService.getOperatorSet('number');
         },
 
+        // @internal (flag:FEATURE_NEXT_9825)
         isNetOperators() {
             return this.conditionDataProviderService.getOperatorSet('isNet');
         },

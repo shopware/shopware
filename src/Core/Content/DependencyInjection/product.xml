@@ -127,6 +127,7 @@
 
         <service id="Shopware\Core\Content\Product\Api\ProductPurchasePriceApiConverter" public="true" >
             <tag name="shopware.api.converter"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_9825"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition">

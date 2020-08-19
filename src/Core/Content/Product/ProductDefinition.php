@@ -62,6 +62,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationFi
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\WhitelistRuleField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeDefinition;
 use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
@@ -149,7 +150,6 @@ class ProductDefinition extends EntityDefinition
             (new FloatField('reference_unit', 'referenceUnit'))->addFlags(new Inherited()),
             (new BoolField('shipping_free', 'shippingFree'))->addFlags(new Inherited()),
             (new FloatField('purchase_price', 'purchasePrice'))->addFlags(new Inherited(), new Deprecated('v3', 'v4')),
-            (new PriceField('purchase_prices', 'purchasePrices'))->addFlags(new Inherited()),
             (new BoolField('mark_as_topseller', 'markAsTopseller'))->addFlags(new Inherited()),
             (new FloatField('weight', 'weight'))->addFlags(new Inherited()),
             (new FloatField('width', 'width'))->addFlags(new Inherited()),
@@ -261,6 +261,12 @@ class ProductDefinition extends EntityDefinition
             (new ManyToOneAssociationField('featureSet', 'product_feature_set_id', ProductFeatureSetDefinition::class, 'id'))
                 ->addFlags(new Inherited())
         );
+
+        if (Feature::isActive('FEATURE_NEXT_9825')) {
+            $collection->add(
+                (new PriceField('purchase_prices', 'purchasePrices'))->addFlags(new Inherited())
+            );
+        }
 
         return $collection;
     }

@@ -10,8 +10,8 @@ use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemPurchasePriceRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -47,8 +47,28 @@ class LineItemPurchasePriceRuleTest extends TestCase
     /**
      * @dataProvider getMatchingRuleTestData
      */
+    public function testIfMatchesCorrectWithLineItem(string $operator, float $amount, float $lineItemAmount, bool $expected): void
+    {
+        Feature::skipTestIfActive('FEATURE_NEXT_9825', $this);
+        $this->rule->assign([
+            'amount' => $amount,
+            'operator' => $operator,
+        ]);
+
+        $match = $this->rule->match(new LineItemScope(
+            $this->createLineItem($lineItemAmount),
+            $this->createMock(SalesChannelContext::class)
+        ));
+
+        static::assertEquals($expected, $match);
+    }
+
+    /**
+     * @dataProvider getMatchingRuleTestData
+     */
     public function testIfMatchesCorrectWithLineItemPurchasePriceGross(string $operator, float $amount, float $lineItemPurchasePriceGross, bool $expected): void
     {
+        Feature::skipTestIfInActive('FEATURE_NEXT_9825', $this);
         $this->rule->assign([
             'isNet' => false,
             'amount' => $amount,
@@ -68,6 +88,7 @@ class LineItemPurchasePriceRuleTest extends TestCase
      */
     public function testIfMatchesCorrectWithLineItemPurchasePriceNet(string $operator, float $amount, float $lineItemPurchasePriceNet, bool $expected): void
     {
+        Feature::skipTestIfInActive('FEATURE_NEXT_9825', $this);
         $this->rule->assign([
             'isNet' => true,
             'amount' => $amount,
@@ -113,8 +134,36 @@ class LineItemPurchasePriceRuleTest extends TestCase
     /**
      * @dataProvider getCartRuleScopeTestData
      */
-    public function testIfMatchesCorrectWithCartRuleScope(string $operator, float $amount, float $lineItemPurchasePrice1, float $lineItemPurchasePrice2, bool $expected): void
+    public function testIfMatchesCorrectWithCartRuleScope(string $operator, float $amount, float $lineItemAmount1, float $lineItemAmount2, bool $expected): void
     {
+        Feature::skipTestIfActive('FEATURE_NEXT_9825', $this);
+        $this->rule->assign([
+            'amount' => $amount,
+            'operator' => $operator,
+        ]);
+
+        $cart = new Cart('test', Uuid::randomHex());
+
+        $lineItemCollection = new LineItemCollection();
+        $lineItemCollection->add($this->createLineItem($lineItemAmount1));
+        $lineItemCollection->add($this->createLineItem($lineItemAmount2));
+
+        $cart->setLineItems($lineItemCollection);
+
+        $match = $this->rule->match(new CartRuleScope(
+            $cart,
+            $this->createMock(SalesChannelContext::class)
+        ));
+
+        static::assertEquals($expected, $match);
+    }
+
+    /**
+     * @dataProvider getCartRuleScopeTestData
+     */
+    public function testIfMatchesCorrectWithCartRuleScopePurchasePrice(string $operator, float $amount, float $lineItemPurchasePrice1, float $lineItemPurchasePrice2, bool $expected): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_9825', $this);
         $this->rule->assign([
             'isNet' => true,
             'amount' => $amount,
@@ -178,12 +227,10 @@ class LineItemPurchasePriceRuleTest extends TestCase
         static::assertFalse($match);
     }
 
-    private function getContextMockWithDefaultCurrency(): Context
+    private function createLineItem(float $purchasePrice): LineItem
     {
-        $baseContext = $this->createMock(Context::class);
-        $baseContext->method('getCurrencyId')->willReturn(Defaults::CURRENCY);
-
-        return $baseContext;
+        return (new LineItem(Uuid::randomHex(), 'product', null, 3))
+            ->setPayloadValue('purchasePrice', $purchasePrice);
     }
 
     private function createLineItemWithPurchasePrice(

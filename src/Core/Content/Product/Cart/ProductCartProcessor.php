@@ -17,6 +17,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceDefinitionBuilderInterface;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorInterface
@@ -245,7 +246,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         $lineItem->setQuantityInformation($quantityInformation);
 
         $purchasePrices = null;
-        if ($product->getPurchasePrices()) {
+        if (Feature::isActive('FEATURE_NEXT_9825') && $product->getPurchasePrices()) {
             $purchasePrices = $product->getPurchasePrices()->getCurrencyPrice(Defaults::CURRENCY);
         }
 
@@ -256,8 +257,8 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             'releaseDate' => $product->getReleaseDate() ? $product->getReleaseDate()->format(Defaults::STORAGE_DATE_TIME_FORMAT) : null,
             'isNew' => $product->isNew(),
             'markAsTopseller' => $product->getMarkAsTopseller(),
+            // @deprecated tag:v6.4.0 - purchasePrice Will be removed in 6.4.0
             'purchasePrice' => $purchasePrices ? $purchasePrices->getGross() : null,
-            'purchasePrices' => $purchasePrices ? json_encode($purchasePrices) : null,
             'productNumber' => $product->getProductNumber(),
             'manufacturerId' => $product->getManufacturerId(),
             'taxId' => $product->getTaxId(),
@@ -267,6 +268,12 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             'optionIds' => $product->getOptionIds(),
             'options' => $this->getOptions($product),
         ];
+
+        if (Feature::isActive('FEATURE_NEXT_9825')) {
+            $payload = [
+                'purchasePrices' => $purchasePrices ? json_encode($purchasePrices) : null,
+            ];
+        }
 
         $payload['options'] = $product->getVariation();
 

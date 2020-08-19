@@ -40,6 +40,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendedProductDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ProductExtension;
@@ -1307,6 +1308,7 @@ class ElasticsearchProductTest extends TestCase
      */
     public function testFilterPurchasePricesPriceField(TestDataCollection $data): void
     {
+        Feature::skipTestIfInActive('FEATURE_NEXT_9825', $this);
         $searcher = $this->createEntitySearcher();
 
         // Filter by the PriceField purchasePrices
@@ -1542,9 +1544,6 @@ class ElasticsearchProductTest extends TestCase
             'name' => $name,
             'stock' => $stock,
             'purchasePrice' => $purchasePrice,
-            'purchasePrices' => [
-                ['currencyId' => Defaults::CURRENCY, 'gross' => $purchasePrice, 'net' => $purchasePrice / 115 * 100, 'linked' => false],
-            ],
             'price' => [
                 ['currencyId' => Defaults::CURRENCY, 'gross' => $price, 'net' => $price / 115 * 100, 'linked' => false],
             ],
@@ -1558,6 +1557,12 @@ class ElasticsearchProductTest extends TestCase
                 ['salesChannelId' => Defaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
             ],
         ];
+
+        if (Feature::isActive('FEATURE_NEXT_9825')) {
+            $data['purchasePrices'] = [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => $purchasePrice, 'net' => $purchasePrice / 115 * 100, 'linked' => false],
+            ];
+        }
 
         $categories[] = ['id' => $this->navigationId];
         $data['categories'] = $categories;

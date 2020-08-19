@@ -62,10 +62,13 @@ describe('Product: Test crud operations', () => {
         cy.wait('@calculatePrice').then(() => {
             cy.get('#sw-price-field-net').should('have.value', '8.4');
         });
-
-        cy.get('#sw-purchase-price-field-gross').type('1');
-        cy.wait('@calculatePrice').then(() => {
-            cy.get('#sw-purchase-price-field-net').should('have.value', '0.84');
+        cy.window().then((win) => {
+            if (win.Shopware.Feature.isActive('FEATURE_NEXT_9825')) {
+                cy.get('#sw-purchase-price-field-gross').type('1');
+                cy.wait('@calculatePrice').then(() => {
+                    cy.get('#sw-purchase-price-field-net').should('have.value', '0.84');
+                });
+            }
         });
 
         cy.get('input[name=sw-field--product-stock]').type('100');

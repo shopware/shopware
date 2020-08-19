@@ -7,6 +7,8 @@ const { mapPropertyErrors, mapState, mapGetters } = Shopware.Component.getCompon
 Component.register('sw-product-price-form', {
     template,
 
+    inject: ['feature'],
+
     mixins: [
         Mixin.getByName('placeholder')
     ],
@@ -32,7 +34,7 @@ Component.register('sw-product-price-form', {
             'currencies'
         ]),
 
-        ...mapPropertyErrors('product', ['taxId', 'price', 'purchasePrices'])
+        ...mapPropertyErrors('product', ['taxId', 'price', (Shopware.Feature.isActive('FEATURE_NEXT_9825') ? 'purchasePrices' : 'purchasePrice')])
     },
 
     methods: {

@@ -43,7 +43,7 @@ Table(ShopwareCoreContentSeoSeoUrlTemplateSeoUrlTemplateDefinition, "seo_url_tem
    salesChannelId foreignKey
    not_null(entityName) string
    not_null(routeName) string
-   not_null(template) string
+   template string
    isValid bool
    customFields customFields
    not_null(createdAt) createdAt

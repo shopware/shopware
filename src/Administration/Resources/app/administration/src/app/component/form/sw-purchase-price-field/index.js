@@ -4,7 +4,6 @@ const { Component } = Shopware;
 
 Component.register('sw-purchase-price-field', {
     template,
-
     props: {
         price: {
             type: Array,

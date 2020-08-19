@@ -45,10 +45,12 @@ export default function createConditionService() {
             identifier: '!=',
             label: 'global.sw-condition.operator.isNoneOf'
         },
+        // @internal (flag:FEATURE_NEXT_9825)
         gross: {
             identifier: false,
             label: 'global.sw-condition.operator.gross'
         },
+        // @internal (flag:FEATURE_NEXT_9825)
         net: {
             identifier: true,
             label: 'global.sw-condition.operator.net'
@@ -92,6 +94,7 @@ export default function createConditionService() {
             operators.lowerThanEquals,
             operators.notEquals
         ],
+        // @internal (flag:FEATURE_NEXT_9825)
         isNet: [
             operators.gross,
             operators.net

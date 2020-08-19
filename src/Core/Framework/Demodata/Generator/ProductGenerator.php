@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -125,7 +126,6 @@ class ProductGenerator implements DemodataGeneratorInterface
     private function createSimpleProduct(DemodataContext $context, EntitySearchResult $taxes): array
     {
         $price = $context->getFaker()->randomFloat(2, 1, 1000);
-        $purchasePrice = $context->getFaker()->randomFloat(2, 1, 100);
         $rules = $context->getIds('rule');
         $tax = $taxes->get(array_rand($taxes->getIds()));
         $reverseTaxrate = 1 + ($tax->getTaxRate() / 100);
@@ -135,7 +135,6 @@ class ProductGenerator implements DemodataGeneratorInterface
             'id' => Uuid::randomHex(),
             'productNumber' => Uuid::randomHex(),
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => $price, 'net' => $price / $reverseTaxrate, 'linked' => true]],
-            'purchasePrices' => [['currencyId' => Defaults::CURRENCY, 'gross' => $purchasePrice, 'net' => $purchasePrice / $reverseTaxrate, 'linked' => true]],
             'name' => $faker->productName,
             'description' => $faker->text(),
             'descriptionLong' => $this->generateRandomHTML(
@@ -154,6 +153,18 @@ class ProductGenerator implements DemodataGeneratorInterface
             'stock' => $context->getFaker()->numberBetween(1, 50),
             'prices' => $this->createPrices($rules, $reverseTaxrate),
         ];
+
+        if (Feature::isActive('FEATURE_NEXT_9825')) {
+            $purchasePrice = $context->getFaker()->randomFloat(2, 1, 100);
+            $product['purchasePrices'] = [
+                [
+                    'currencyId' => Defaults::CURRENCY,
+                    'gross' => $purchasePrice,
+                    'net' => $purchasePrice / $reverseTaxrate,
+                    'linked' => true,
+                ],
+            ];
+        }
 
         return $product;
     }

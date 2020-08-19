@@ -26,6 +26,7 @@ function createWrapperForComponent(componentName, props = {}) {
             'sw-number-field': '<div class="sw-number-field"></div>',
             'sw-condition-type-select': '<div class="sw-condition-type-select"></div>',
             'sw-condition-operator-select': '<div class="sw-condition-operator-select"></div>',
+            'sw-condition-is-net-select': '<div class="sw-condition-is-net-select"></div>',
             'sw-entity-multi-select': '<div class="sw-entity-multi-select"></div>',
             'sw-entity-single-select': '<div class="sw-entity-single-select"></div>',
             'sw-text-field': '<div class="sw-text-field"></div>',
@@ -47,6 +48,9 @@ function createWrapperForComponent(componentName, props = {}) {
             childAssociationField: {},
             repositoryFactory: {
                 create: () => ({})
+            },
+            feature: {
+                isActive: () => true
             }
         },
         mocks: {

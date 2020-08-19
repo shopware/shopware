@@ -17,7 +17,8 @@ class Migration1593698606AddNetAndGrossPurchasePrices extends MigrationStep
     {
         $this->migrateProductPurchasePriceField($connection);
         $this->migrateCartLineItemPurchasePriceRuleCondition($connection);
-        $this->addSynchDatabaseTrigger($connection);
+        $this->addUpdateDatabaseTrigger($connection);
+        $this->addInsertDatabaseTrigger($connection);
     }
 
     public function updateDestructive(Connection $connection): void
@@ -77,32 +78,81 @@ class Migration1593698606AddNetAndGrossPurchasePrices extends MigrationStep
      * Adds a database trigger that keeps the fields 'purchase_price' and 'purchase_prices' in sync. That means updating
      * either value will update the other.
      */
-    private function addSynchDatabaseTrigger(Connection $connection): void
+    private function addUpdateDatabaseTrigger(Connection $connection): void
     {
         $query = sprintf(
-            'CREATE TRIGGER product_purchase_prices_sync BEFORE UPDATE ON product
-                FOR EACH ROW
-                BEGIN
-                IF NEW.purchase_prices != OLD.purchase_prices THEN BEGIN
+            'CREATE TRIGGER product_purchase_prices_update BEFORE UPDATE ON product
+                FOR EACH ROW BEGIN
+                    IF @TRIGGER_DISABLED IS NULL OR @TRIGGER_DISABLED = 0 THEN BEGIN
+                        IF (NEW.purchase_prices != OLD.purchase_prices) OR (NEW.purchase_prices IS NOT NULL AND OLD.purchase_prices IS NULL) THEN BEGIN
 
-                    SET NEW.purchase_price = JSON_EXTRACT(NEW.purchase_prices, \'$.c%1$s.gross\');
+                            SET NEW.purchase_price = JSON_UNQUOTE(JSON_EXTRACT(
+                                    NEW.purchase_prices,
+                                    CONCAT("$.", JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(NEW.purchase_prices), "$[0]")), ".gross")
+                                )) + 0.0;
 
-                END; ELSE BEGIN
+                        END; ELSE BEGIN
 
-                    IF NEW.purchase_price != OLD.purchase_price THEN BEGIN
-                        DECLARE taxRate DECIMAL(10,2);
-                        SET taxRate = (SELECT tax_rate FROM tax WHERE id = NEW.tax);
+                            IF (NEW.purchase_price != OLD.purchase_price) OR (NEW.purchase_price IS NOT NULL AND NEW.purchase_prices IS NULL) THEN BEGIN
+                                DECLARE taxRate DECIMAL(10,2);
+                                IF NEW.tax_id IS NOT NULL THEN BEGIN
+                                    SET taxRate = (SELECT tax_rate FROM tax WHERE id = NEW.tax_id);
+                                END; ELSE BEGIN
+                                    SET taxRate = (SELECT tax_rate FROM tax WHERE id = OLD.tax_id);
+                                END; END IF;
 
-                        SET NEW.purchase_prices = CONCAT(
-                            \'{"c%1$s": {"net": \',
-                            CONVERT((NEW.purchase_price / (1 + (taxRate/100))), CHAR(50)),
-                            \', "gross": \',
-                            CONVERT(NEW.purchase_price, CHAR(50)),
-                            \', "linked": true, "currencyId": "%1$s"}}\'
-                        );
+                                SET NEW.purchase_prices = CONCAT(
+                                    \'{"c%1$s": {"net": \',
+                                    CONVERT((NEW.purchase_price / (1 + (taxRate/100))), CHAR(50)),
+                                    \', "gross": \',
+                                    CONVERT(NEW.purchase_price, CHAR(50)),
+                                    \', "linked": true, "currencyId": "%1$s"}}\'
+                                );
+                            END; END IF;
+
+                        END; END IF;
                     END; END IF;
+                END',
+            Defaults::CURRENCY
+        );
 
-                END; END IF;
+        $this->createTrigger($connection, $query);
+    }
+
+    /**
+     * Adds a database trigger that keeps the fields 'purchase_price' and 'purchase_prices' in sync. That means insert
+     * either value will update the other.
+     */
+    private function addInsertDatabaseTrigger(Connection $connection): void
+    {
+        $query = sprintf(
+            'CREATE TRIGGER product_purchase_prices_insert BEFORE INSERT ON product
+                FOR EACH ROW BEGIN
+                    IF @TRIGGER_DISABLED IS NULL OR @TRIGGER_DISABLED = 0 THEN BEGIN
+                        IF NEW.purchase_prices IS NOT NULL THEN BEGIN
+
+                            SET NEW.purchase_price = JSON_UNQUOTE(JSON_EXTRACT(
+                                    NEW.purchase_prices,
+                                    CONCAT("$.", JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(NEW.purchase_prices), "$[0]")), ".gross")
+                                )) + 0.0;
+
+                        END; ELSE BEGIN
+
+                            IF NEW.purchase_price IS NOT NULL THEN BEGIN
+                                DECLARE taxRate DECIMAL(10,2);
+                                SET taxRate = (SELECT tax_rate FROM tax WHERE id = NEW.tax_id);
+
+                                SET NEW.purchase_prices = CONCAT(
+                                    \'{"c%1$s": {"net": \',
+                                    CONVERT((NEW.purchase_price / (1 + (taxRate/100))), CHAR(50)),
+                                    \', "gross": \',
+                                    CONVERT(NEW.purchase_price, CHAR(50)),
+                                    \', "linked": true, "currencyId": "%1$s"}}\'
+                                );
+                            END; END IF;
+
+                        END; END IF;
+                    END; END IF;
                 END',
             Defaults::CURRENCY
         );

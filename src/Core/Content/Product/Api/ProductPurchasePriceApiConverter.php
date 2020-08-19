@@ -4,6 +4,11 @@ namespace Shopware\Core\Content\Product\Api;
 
 use Shopware\Core\Framework\Api\Converter\ApiConverter;
 
+/**
+ * @internal (flag:FEATURE_NEXT_9825)
+ *
+ * @deprecated tag:v6.4.0 - Will be removed in 6.4.0
+ */
 class ProductPurchasePriceApiConverter extends ApiConverter
 {
     /**
@@ -11,7 +16,7 @@ class ProductPurchasePriceApiConverter extends ApiConverter
      */
     public function getApiVersion(): int
     {
-        return 4;
+        return 3;
     }
 
     /**

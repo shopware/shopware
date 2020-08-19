@@ -168,6 +168,8 @@ class ProductEntity extends Entity
     protected $purchasePrice;
 
     /**
+     * @internal (flag:FEATURE_NEXT_9825)
+     *
      * @var PriceCollection|null
      */
     protected $purchasePrices;
@@ -652,11 +654,17 @@ class ProductEntity extends Entity
         $this->purchasePrice = $purchasePrice;
     }
 
+    /**
+     * @internal (flag:FEATURE_NEXT_9825)
+     */
     public function getPurchasePrices(): ?PriceCollection
     {
         return $this->purchasePrices;
     }
 
+    /**
+     * @internal (flag:FEATURE_NEXT_9825)
+     */
     public function setPurchasePrices(?PriceCollection $purchasePrices): void
     {
         $this->purchasePrices = $purchasePrices;

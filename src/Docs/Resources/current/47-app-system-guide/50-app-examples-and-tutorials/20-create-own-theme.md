@@ -242,3 +242,38 @@ Therefore place your snippet files under a snippet folder in your Resources fold
 ```
 
 For a detailed explanation on how the snippet files are loaded, take a look into the according section of the [Theme Guide](./../../30-theme-guide/40-snippets.md).
+
+
+### Preview image
+
+To add a preview image to your theme, that shows up in the users theme manager, 
+you can add it to your theme files under `app/storefront/src/assets`:
+
+```
+...
+└── DemoTheme
+    ├── Resources
+    │   ├── app
+    │   │   └── storefront
+    |   |       ├── src
+    │   │       └── assets
+    │   │           └── preview.jpg
+    │   ├── views
+    │   ├── snippet
+    │   └── theme.json
+    └── manifest.xml
+```
+
+And then you can set your image as a preview in the theme.json:
+
+```json
+{
+  ...,
+
+  "previewMedia": "app/storefront/assets/preview.jpg",
+  "style": [
+  ...
+}
+```
+
+**Note:** Setting a preview image is required for your theme, if you want to release it via the community store.

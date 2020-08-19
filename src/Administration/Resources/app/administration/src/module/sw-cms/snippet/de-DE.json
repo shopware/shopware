@@ -277,7 +277,7 @@
             "random": "Zufällig"
           },
           "textProductStreamPreviewLink": "Vorschau dynamische Produktgruppe",
-          "textProductStreamPerformanceHint": "Bitte beachte, dass dynamische Produktgruppen einen Einfluss auf die Performance Deiner Storefront haben."
+          "textProductStreamPerformanceHint": "Bitte beachten: Dynamische Produktgruppen können einen spürbaren Einfluss auf die Performance haben, abhängig von der Komplexität der Produktgruppen-Filter und der Anzahl der Slider-Elemente auf der Seite."
         }
       },
       "sidebarCategoryNavigation": {

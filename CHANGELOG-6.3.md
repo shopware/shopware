@@ -74,6 +74,23 @@ NEXT
 * Added prop `disabled` to `sw-order-state-select`
 * Removed `autoHide` property from `sw_property_search_tree_option_grid_pagination` and `sw_property_search_option_search_grid_pagination`
 * Removed exact property from `router-link` within `sw-tabs-item`
+* Extended `sw-cms-el-config-product-slider/index.js` to support selection of dynamic product groups
+    * Added data prop `productStream`
+    * Added data prop `showProductStreamPreview`
+    * Added data prop `tempProductIds`
+    * Added data prop `tempStreamId`
+    * Added computed `productStreamRepository`
+    * Added computed `productAssignmentTypes`
+    * Added computed `productStreamSortingOptions`
+    * Added method `onChangeAssignmentType`
+    * Added method `loadProductStream`
+    * Added method `onChangeProductStream`,
+    * Added method `onClickProductStreamPreview`,
+    * Added method `onCloseProductStreamModal`
+* Extended `src/Administration/Resources/app/administration/src/module/sw-cms/elements/product-slider/index.js` and add new properties to `defaultConfig`:
+    * Added property `productStreamSorting` with default value `name:ASC`
+    * Added property `productStreamLimit` with default value `10`
+* Added method `addGroupField` to `platform/src/Administration/Resources/app/administration/src/core/data-new/criteria.data.js`
 
 #### Core
 
@@ -122,6 +139,13 @@ NEXT
 * Fixed company name field on profile page and prefill it with billingAddress company
 * Fixed an issue with submitting the contact form when a contact form configuration was unavailable in another language
 * Added `rebuildContainer` function to `Shopware\Core\Framework\Plugin` which allows plugin developers to disable the container rebuild for their plugin to speed up the activation and deactivation of their plugin. Only works in the system context (CLI)
+* Added new supported field `FieldConfig::SOURCE_PRODUCT_STREAM` to `Shopware\Core\Content\Cms\DataAbstractionLayer\FieldSerializer\SlotConfigFieldSerializer::getConstraints`
+* `Shopware\Core\Content\Cms\DataResolver\Element\AbstractCmsElementResolver::resolveEntityValue` now returns `null` if parameter `Shopware\Core\Framework\DataAbstractionLayer\Entity` is `null`
+* Added new public const `SOURCE_PRODUCT_STREAM` to `Shopware\Core\Content\Cms\DataResolver\FieldConfig`
+* Added new public method `isProductStream` to `Shopware\Core\Content\Cms\DataResolver\FieldConfig`
+* Added new constructor parameter `Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder` to `Shopware\Core\Content\Product\Cms\ProductSliderCmsElementResolver`
+* Added new private property `$productStreamBuilder` to `Shopware\Core\Content\Product\Cms\ProductSliderCmsElementResolver`
+* Added new private method `collectByProductStream` to `Shopware\Core\Content\Product\Cms\ProductSliderCmsElementResolver`
 
 #### Storefront
 

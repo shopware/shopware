@@ -31,6 +31,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
+use function Flag\skipTestNext9279;
 
 class ProductSliderTypeDataResolverTest extends TestCase
 {
@@ -200,6 +201,7 @@ class ProductSliderTypeDataResolverTest extends TestCase
 
     public function testCollectWithMappedConfigProductStream(): void
     {
+        skipTestNext9279($this);
         $this->createTestProductStreamEntity();
 
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);

@@ -277,7 +277,7 @@
             "random": "Random"
           },
           "textProductStreamPreviewLink": "Preview dynamic product group",
-          "textProductStreamPerformanceHint": "Please note that dynamic products groups have an impact on the performance of your storefront."
+          "textProductStreamPerformanceHint": "Please keep in mind: Dynamic product groups might have a noticeable performance impact, depending on the complexity of the product group's filters and the amount of sliders shown on one page."
         }
       },
       "sidebarCategoryNavigation": {

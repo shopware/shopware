@@ -11,7 +11,8 @@ Table of contents
 ----------------
 * [Table of contents](#table-of-contents)
 * [NEXT](#NEXT)
-* [6.3.0.0](#630)
+* [6.3.0.2](#6302)
+* [6.3.0.0](#6300)
   - [Administration](#administration)
   - [Core](#core)
   - [Storefront](#storefront)
@@ -68,7 +69,6 @@ NEXT
 * Added prop `salesChannelId` to `sw-order-line-items-grid-sales-channel/index.js`
 * Added prop `salesChannelId` to `sw-order-product-select/index.js`
 * Changed tax id of newly generated variants to null in order to inherit from the parent product
-* Fixed template factory so it is possible again to override nested blocks in one `Component.override()`
 * Added ACL permissions to orders module
 * Added prop `disabled` to `sw-order-state-history-card-entry`
 * Added prop `disabled` to `sw-order-state-select`
@@ -156,6 +156,19 @@ NEXT
 * Changed `\Shopware\Core\System\SalesChannel\Api\StoreApiResponseListener` to pass the headers to the new response
 * Deprecated `\Shopware\Core\Checkout\Customer\SalesChannel\AccountRegistrationService` use `RegisterRoute` or `RegisterConfirmRoute`
 * Fixed to hiding the shipping cost dropdown if the customer is logged in block `page_checkout_cart_shipping_costs_form_group_country`
+
+
+6.3.0.2
+----------------
+
+#### Administration
+* Fixed template factory, so it is possible again to override nested blocks in one `Component.override()`
+
+#### Core
+* Fixed regression in `bin/console assets:install` that required the env var `APP_URL` to be defined. That broke the production template setup (https://github.com/shopware/production#setup-and-install).
+
+#### Storefront
+* Added `GenericPageLoaderInterface` to `CheckoutConfirmPageLoader`. This fixes the footer in the checkout confirm page.
 
 6.3.0.0
 ----------------

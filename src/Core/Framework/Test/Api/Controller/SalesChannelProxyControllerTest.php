@@ -4,9 +4,11 @@ namespace Shopware\Core\Framework\Test\Api\Controller;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
+use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
@@ -15,12 +17,14 @@ use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\AssertArraySubsetBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
+use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
@@ -76,6 +80,11 @@ class SalesChannelProxyControllerTest extends TestCase
      */
     private $contextPersister;
 
+    /**
+     * @var TestDataCollection
+     */
+    private $ids;
+
     protected function setUp(): void
     {
         $this->salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
@@ -87,6 +96,7 @@ class SalesChannelProxyControllerTest extends TestCase
         $this->customerRepository = $this->getContainer()->get('customer.repository');
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->contextPersister = new SalesChannelContextPersister($this->connection);
+        $this->ids = new TestDataCollection($this->context);
     }
 
     public function testProxyWithInvalidSalesChannelId(): void
@@ -476,6 +486,98 @@ class SalesChannelProxyControllerTest extends TestCase
         static::assertEquals(30, $cart['deliveries'][0]['shippingCosts']['totalPrice']);
     }
 
+    public function testCreditItemProcessorTakeCustomItemIntoAccount(): void
+    {
+        $salesChannelContext = $this->createDefaultSalesChannelContext();
+        $productId = $this->ids->get('p1');
+        $salesChannelContext->setPermissions([ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES]);
+
+        $payload = $this->contextPersister->load($salesChannelContext->getToken());
+        $payload[SalesChannelContextService::PERMISSIONS][ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES] = true;
+        $this->contextPersister->save($salesChannelContext->getToken(), $payload);
+
+        $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer(), $salesChannelContext);
+
+        $browser = $this->createCart(Defaults::SALES_CHANNEL);
+
+        $taxForCustomItem = 20;
+        $taxForProductItem = 10;
+
+        $this->addSingleLineItem($browser, Defaults::SALES_CHANNEL, [
+            'id' => $productId,
+            'label' => $productId,
+            'referencedId' => $productId,
+            'quantity' => 1,
+            'type' => LineItem::PRODUCT_LINE_ITEM_TYPE,
+            'priceDefinition' => [
+                'price' => 100,
+                'taxRules' => [[
+                    'taxRate' => $taxForProductItem,
+                    'percentage' => 100,
+                ]],
+                'type' => 'quantity',
+            ],
+        ], $salesChannelContext->getToken());
+
+        $this->addSingleLineItem($browser, Defaults::SALES_CHANNEL, [
+            'id' => $this->ids->get('p2'),
+            'label' => $this->ids->get('p2'),
+            'referencedId' => $this->ids->get('p2'),
+            'quantity' => 1,
+            'type' => LineItem::CUSTOM_LINE_ITEM_TYPE,
+            'priceDefinition' => [
+                'price' => 100,
+                'taxRules' => [[
+                    'taxRate' => $taxForCustomItem,
+                    'percentage' => 100,
+                ]],
+                'type' => 'quantity',
+            ],
+        ], $salesChannelContext->getToken());
+
+        $this->addSingleLineItem($browser, Defaults::SALES_CHANNEL, [
+            'id' => $this->ids->get('p3'),
+            'label' => $this->ids->get('p3'),
+            'referencedId' => $this->ids->get('p3'),
+            'quantity' => 1,
+            'type' => LineItem::CREDIT_LINE_ITEM_TYPE,
+            'priceDefinition' => [
+                'price' => -100,
+                'type' => 'absolute',
+            ],
+        ], $salesChannelContext->getToken());
+
+        $cart = $this->getStoreApiCart($browser, Defaults::SALES_CHANNEL, $salesChannelContext->getToken());
+
+        //assert there are 3 items in cart
+        static::assertArrayHasKey('lineItems', $cart);
+        static::assertCount(3, $cart['lineItems']);
+
+        $creditLineItems = array_filter($cart['lineItems'], function ($lineItem) {
+            return $lineItem['type'] === LineItem::CREDIT_LINE_ITEM_TYPE;
+        });
+
+        //assert there is credit item in cart
+        static::assertNotEmpty($creditLineItems);
+        $creditLineItem = array_values($creditLineItems)[0];
+
+        //assert there is calculated taxes for product and custom items in cart
+        static::assertCount(2, $calculatedTaxes = $creditLineItem['price']['calculatedTaxes']);
+        $calculatedTaxForCustomItem = array_filter($calculatedTaxes, function ($tax) use ($taxForCustomItem) {
+            return $tax['taxRate'] === $taxForCustomItem;
+        });
+
+        static::assertNotEmpty($calculatedTaxForCustomItem);
+        static::assertCount(1, $calculatedTaxForCustomItem);
+
+        $calculatedTaxForProductItem = array_filter($calculatedTaxes, function ($tax) use ($taxForProductItem) {
+            return $tax['taxRate'] === $taxForProductItem;
+        });
+
+        static::assertNotEmpty($calculatedTaxForProductItem);
+        static::assertCount(1, $calculatedTaxForProductItem);
+    }
+
     public function testDisableAutomaticPromotions(): void
     {
         $salesChannelContext = $this->createDefaultSalesChannelContext();
@@ -670,6 +772,16 @@ class SalesChannelProxyControllerTest extends TestCase
         );
     }
 
+    private function getStoreApiUrl(string $salesChannelId, string $url): string
+    {
+        return sprintf(
+            '/api/v%d/_proxy/store-api/%s/v%1$d/%s',
+            PlatformRequest::API_VERSION,
+            $salesChannelId,
+            ltrim($url, '/')
+        );
+    }
+
     private function getRootProxyUrl(string $url): string
     {
         return sprintf(
@@ -738,6 +850,19 @@ class SalesChannelProxyControllerTest extends TestCase
         );
     }
 
+    private function addSingleLineItem(KernelBrowser $browser, string $salesChannelId, array $payload = [], ?string $contextToken = null): void
+    {
+        $browser->request(
+            'POST',
+            $this->getStoreApiUrl($salesChannelId, 'checkout/cart/line-item'),
+            ['items' => [$payload]],
+            [],
+            [
+                'HTTP_SW_CONTEXT_TOKEN' => $contextToken,
+            ]
+        );
+    }
+
     private function updateLineItemQuantity(
         KernelBrowser $browser,
         string $salesChannelId,
@@ -754,6 +879,17 @@ class SalesChannelProxyControllerTest extends TestCase
     private function getCart(KernelBrowser $browser, string $salesChannelId): array
     {
         $browser->request('GET', $this->getUrl($salesChannelId, 'checkout/cart'));
+
+        $cart = json_decode($browser->getResponse()->getContent(), true);
+
+        return $cart['data'] ?? $cart;
+    }
+
+    private function getStoreApiCart(KernelBrowser $browser, string $salesChannelId, string $contextToken): array
+    {
+        $browser->request('GET', $this->getStoreApiUrl($salesChannelId, 'checkout/cart'), [], [], [
+            'HTTP_SW_CONTEXT_TOKEN' => $contextToken,
+        ]);
 
         $cart = json_decode($browser->getResponse()->getContent(), true);
 

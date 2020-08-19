@@ -15,6 +15,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
 
             <tag name="shopware.cart.processor" priority="4000"/>
+            <tag name="shopware.cart.collector"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\CartValueResolver">

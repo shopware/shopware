@@ -172,10 +172,14 @@ Component.register('sw-order-detail-base', {
                 .addAssociation('deliveries.shippingMethod')
                 .addAssociation('deliveries.shippingOrderAddress')
                 .addAssociation('transactions.paymentMethod')
+                .addAssociation('transactions.captures.stateMachineState')
+                .addAssociation('refunds.paymentMethod')
                 .addAssociation('documents.documentType')
                 .addAssociation('tags');
 
             criteria.getAssociation('transactions').addSorting(Criteria.sort('createdAt'));
+            criteria.getAssociation('refunds').addSorting(Criteria.sort('createdAt'));
+            criteria.getAssociation('transactions.captures').addSorting(Criteria.sort('createdAt'));
 
             return criteria;
         },

@@ -249,6 +249,36 @@
       "labelNoTransactionState": "Keine Transaktionen vorhanden",
       "labelNoDeliveryState": "Keine Lieferungen vorhanden"
     },
+    "refundCard": {
+      "cardTitle": "Erstattung",
+      "createRefundButton": "Erstattung erstellen",
+      "emptyRefunds": "Es wurden noch keine Erstattungen erstellt",
+      "refunds": {
+        "columns": {
+          "createdAt": "Erstellt am",
+          "paymentMethod": "Bezahlart",
+          "refundAmount": "Erstattungsbetrag",
+          "state": "Status"
+        }
+      },
+      "createRefundModal": {
+        "title": "Erstattung erstellen",
+        "submit": "Erstattung erstellen",
+        "close": "Schließen",
+        "captureSelectionLabel": "Erfassung auswählen",
+        "refundAmount": "Erstattungsbetrag",
+        "captureAmount": "Erfassungsbetrag",
+        "remainingAmount": "Verbleibender Betrag",
+        "refundedAmount": "Erstatteter Betrag",
+        "refundOptionRequired": "Dieses Feld ist erforderlich",
+        "columns": {
+          "product": "Produkt",
+          "quantity": "Anzahl",
+          "unitPrice": "Stückpreis",
+          "totalPrice": "Gesamtpreis"
+        }
+      }
+    },
     "assignMailTemplateCard": {
       "cardTitle": "E-Mail-Template zuweisen",
       "headline": "Diesem Bestellstatus ist noch kein E-Mail-Template zugewiesen!",

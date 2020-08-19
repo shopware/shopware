@@ -3,7 +3,9 @@
 namespace Shopware\Core\System\StateMachine\Aggregation\StateMachineState;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderRefund\OrderRefundCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCapture\OrderTransactionCaptureCollection;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -59,6 +61,16 @@ class StateMachineStateEntity extends Entity
      * @var OrderTransactionCollection|null
      */
     protected $orderTransactions;
+
+    /**
+     * @var OrderTransactionCaptureCollection|null
+     */
+    protected $orderTransactionCaptures;
+
+    /**
+     * @var OrderRefundCollection|null
+     */
+    protected $orderRefunds;
 
     /**
      * @var OrderDeliveryCollection|null
@@ -190,6 +202,16 @@ class StateMachineStateEntity extends Entity
         $this->orderTransactions = $orderTransactions;
     }
 
+    public function getOrderRefunds(): ?OrderRefundCollection
+    {
+        return $this->orderRefunds;
+    }
+
+    public function setOrderRefunds(OrderRefundCollection $orderRefunds): void
+    {
+        $this->orderRefunds = $orderRefunds;
+    }
+
     public function getOrderDeliveries(): ?OrderDeliveryCollection
     {
         return $this->orderDeliveries;
@@ -208,5 +230,15 @@ class StateMachineStateEntity extends Entity
     public function setCustomFields(?array $customFields): void
     {
         $this->customFields = $customFields;
+    }
+
+    public function getOrderTransactionCaptures(): ?OrderTransactionCaptureCollection
+    {
+        return $this->orderTransactionCaptures;
+    }
+
+    public function setOrderTransactionCaptures(OrderTransactionCaptureCollection $orderTransactionCaptures): void
+    {
+        $this->orderTransactionCaptures = $orderTransactionCaptures;
     }
 }

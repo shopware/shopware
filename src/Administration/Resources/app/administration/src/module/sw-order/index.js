@@ -29,6 +29,9 @@ import './component/sw-order-new-customer-modal';
 import './component/sw-order-promotion-tag-field';
 import './component/sw-order-create-invalid-promotion-modal';
 import './component/sw-order-create-promotion-modal';
+import './component/sw-order-refund-card';
+import './component/sw-order-refund-positions';
+import './component/sw-order-refund-configuration-field';
 import './acl';
 
 const { Module } = Shopware;

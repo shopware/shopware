@@ -249,6 +249,36 @@
       "labelNoTransactionState": "No transactions yet",
       "labelNoDeliveryState": "No deliveries yet"
     },
+    "refundCard": {
+      "cardTitle": "Refund",
+      "createRefundButton": "Create Refund",
+      "emptyRefunds": "No refunds created yet",
+      "refunds": {
+        "columns": {
+          "createdAt": "Created",
+          "paymentMethod": "Payment Method",
+          "refundAmount": "Refund Amount",
+          "state": "State"
+        }
+      },
+      "createRefundModal": {
+        "title": "Create Refund",
+        "submit": "Create Refund",
+        "close": "Close",
+        "captureSelectionLabel": "Select capture",
+        "refundAmount": "Refund amount",
+        "captureAmount": "Capture amount",
+        "remainingAmount": "Remaining amount",
+        "refundedAmount": "Refunded amount",
+        "refundOptionRequired": "This field is required",
+        "columns": {
+          "product": "Product",
+          "quantity": "Quantity",
+          "unitPrice": "Unit price",
+          "totalPrice": "Total Price"
+        }
+      }
+    },
     "assignMailTemplateCard": {
       "cardTitle": "Assign email template",
       "headline": "No email template assigned to this order status, please assign one.",

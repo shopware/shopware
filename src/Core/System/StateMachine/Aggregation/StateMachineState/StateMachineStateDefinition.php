@@ -3,7 +3,9 @@
 namespace Shopware\Core\System\StateMachine\Aggregation\StateMachineState;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
+use Shopware\Core\Checkout\Order\Aggregate\OrderRefund\OrderRefundDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCapture\OrderTransactionCaptureDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
@@ -63,6 +65,8 @@ class StateMachineStateDefinition extends EntityDefinition
             (new TranslationsAssociationField(StateMachineStateTranslationDefinition::class, 'state_machine_state_id'))->setFlags(new Required(), new CascadeDelete()),
 
             new OneToManyAssociationField('orderTransactions', OrderTransactionDefinition::class, 'state_id'),
+            new OneToManyAssociationField('orderTransactionCaptures', OrderTransactionCaptureDefinition::class, 'state_id'),
+            new OneToManyAssociationField('orderRefunds', OrderRefundDefinition::class, 'state_id'),
             new OneToManyAssociationField('orderDeliveries', OrderDeliveryDefinition::class, 'state_id'),
             new OneToManyAssociationField('orders', OrderDefinition::class, 'state_id'),
 

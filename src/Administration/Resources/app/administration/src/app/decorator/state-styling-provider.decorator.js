@@ -69,6 +69,37 @@ Application.addServiceProviderDecorator('stateStyleDataProviderService', (stateS
         variant: 'danger'
     });
 
+    // Order Refund Transaction State Styles
+    stateStyleService.addStyle('order_refund.state', 'open', {
+        icon: 'neutral',
+        color: 'neutral',
+        variant: 'neutral'
+    });
+
+    stateStyleService.addStyle('order_refund.state', 'in_progress', {
+        icon: 'progress',
+        color: 'progress',
+        variant: 'progress'
+    });
+
+    stateStyleService.addStyle('order_refund.state', 'completed', {
+        icon: 'done',
+        color: 'done',
+        variant: 'done'
+    });
+
+    stateStyleService.addStyle('order_refund.state', 'failed', {
+        icon: 'danger',
+        color: 'danger',
+        variant: 'danger'
+    });
+
+    stateStyleService.addStyle('order_refund.state', 'cancelled', {
+        icon: 'danger',
+        color: 'danger',
+        variant: 'danger'
+    });
+
     // Order Delivery State Styles
     stateStyleService.addStyle('order_delivery.state', 'open', {
         icon: 'neutral',

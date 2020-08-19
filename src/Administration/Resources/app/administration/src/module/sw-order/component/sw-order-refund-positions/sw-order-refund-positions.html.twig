@@ -1,0 +1,36 @@
+{% block sw_order_refund_positions %}
+    <div>
+        <sw-data-grid :dataSource="orderRefundPositions"
+                      :columns="orderRefundPositionColumns"
+                      :showActions="false"
+                      :showSelection="true"
+                      v-on:select-item="onSelectItem">
+                      identifier="sw-order-refund-positions-grid">
+
+            <template slot="column-product" slot-scope="{ item, isInlineEdit}">
+                {{ item.label }}
+            </template>
+
+            <template slot="column-refundQuantity" slot-scope="{ item, isInlineEdit}">
+                <sw-field
+                    :value="item.refundPrice.quantity"
+                    type="number"
+                    :min="0"
+                    :max="item.lineItemPrice.quantity"
+                    slot="inline-edit"
+                    size="small"
+                    placeholder=0
+                    v-on:change="onChangeQuantity($event, item.id)">
+                </sw-field>
+            </template>
+
+            <template slot="column-refundUnitPrice" slot-scope="{ item, isInlineEdit}">
+                {{ item.refundPrice.unitPrice | currency(order.currency.shortName) }}
+            </template>
+
+            <template slot="column-refundTotalPrice" slot-scope="{ item, isInlineEdit}">
+                {{ item.refundPrice.totalPrice | currency(order.currency.shortName)  }}
+            </template>
+        </sw-data-grid>
+    </div>
+{% endblock %}

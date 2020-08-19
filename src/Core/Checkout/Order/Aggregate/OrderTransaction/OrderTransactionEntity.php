@@ -3,6 +3,8 @@
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderTransaction;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Order\Aggregate\OrderRefund\OrderRefundCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransactionCapture\OrderTransactionCaptureCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -52,6 +54,16 @@ class OrderTransactionEntity extends Entity
      * @var array|null
      */
     protected $customFields;
+
+    /**
+     * @var OrderRefundCollection|null
+     */
+    protected $refunds;
+
+    /**
+     * @var OrderTransactionCaptureCollection|null
+     */
+    protected $captures;
 
     public function getOrderId(): string
     {
@@ -131,5 +143,25 @@ class OrderTransactionEntity extends Entity
     public function setCustomFields(?array $customFields): void
     {
         $this->customFields = $customFields;
+    }
+
+    public function getRefunds(): ?OrderRefundCollection
+    {
+        return $this->refunds;
+    }
+
+    public function setRefunds(OrderRefundCollection $refunds): void
+    {
+        $this->refunds = $refunds;
+    }
+
+    public function getCaptures(): ?OrderTransactionCaptureCollection
+    {
+        return $this->captures;
+    }
+
+    public function setCaptures(OrderTransactionCaptureCollection $captures): void
+    {
+        $this->captures = $captures;
     }
 }

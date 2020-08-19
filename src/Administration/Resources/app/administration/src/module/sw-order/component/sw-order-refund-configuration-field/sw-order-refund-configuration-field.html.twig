@@ -1,0 +1,31 @@
+{% block sw_order_refund_configuration_field %}
+    <div>
+        <sw-select-field
+            v-if="element.type === 'single-select'"
+            :required="!!element.required"
+            :error="error"
+            :label="fieldLabel"
+            :name="fieldId"
+            :value="value"
+            @change="onChange"
+        >
+            <option
+                v-for="option in element.options"
+                :key="option.value"
+                :value="option.value"
+            >
+                {{ getOptionLabel(option) }}
+            </option>
+        </sw-select-field>
+
+        <sw-text-field
+            v-if="element.type === 'text'"
+            :value="value"
+            :required="!!element.required"
+            :error="error"
+            :label="fieldLabel"
+            :name="fieldId"
+            @change="onChange"
+        />
+    </div>
+{% endblock %}

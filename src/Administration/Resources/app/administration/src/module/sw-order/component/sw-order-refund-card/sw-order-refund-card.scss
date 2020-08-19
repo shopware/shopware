@@ -1,0 +1,15 @@
+@import "~scss/variables";
+
+.sw-order-refund-card--refund-modal {
+    .sw-data-grid__bulk {
+        display: none;
+    }
+
+    .sw-modal__footer {
+        border-top: 1px solid $color-gray-300;
+    }
+
+    .sw-order-refund-card--refund-modal--content {
+        padding-top: 30px;
+    }
+}

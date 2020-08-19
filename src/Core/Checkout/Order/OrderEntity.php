@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderRefund\OrderRefundCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -142,6 +143,11 @@ class OrderEntity extends Entity
      * @var OrderTransactionCollection|null
      */
     protected $transactions;
+
+    /**
+     * @var OrderRefundCollection|null
+     */
+    protected $refunds;
 
     /**
      * @var string|null
@@ -391,6 +397,16 @@ class OrderEntity extends Entity
     public function setTransactions(OrderTransactionCollection $transactions): void
     {
         $this->transactions = $transactions;
+    }
+
+    public function getRefunds(): ?OrderRefundCollection
+    {
+        return $this->refunds;
+    }
+
+    public function setRefunds(OrderRefundCollection $refunds): void
+    {
+        $this->refunds = $refunds;
     }
 
     public function getDeepLinkCode(): ?string

@@ -1,0 +1,142 @@
+{% block sw_order_refund_card %}
+    <sw-card :title="title"
+            :isLoading="isLoading"
+            class="sw-order-refund-card">
+        {% block sw_order_refund_card_container %}
+            <sw-container columns="1fr" gap="30px 30px">
+                {% block sw_order_refund_card_refunds %}
+                    <sw-data-grid v-if="order.refunds.length > 0"
+                                  :dataSource="order.refunds"
+                                  :columns="orderRefundColumns"
+                                  :showActions="false"
+                                  :showSelection="false"
+                                  :isLoading="isLoading">
+                                  identifier="sw-order-refunds-grid">
+
+                        <template slot="column-createdAt" slot-scope="{ item, isInlineEdit}">
+                            {{ item.createdAt | date({hour: '2-digit', minute: '2-digit'})}}
+                        </template>
+
+                        <template slot="column-paymentMethod" slot-scope="{ item, isInlineEdit}">
+                            {{ item.paymentMethod.translated.name }}
+                        </template>
+
+                        <template slot="column-refundAmount" slot-scope="{ item, isInlineEdit}">
+                            {{ item.amount | currency(order.currency.shortName) }}
+                        </template>
+
+                        <template slot="column-state" slot-scope="{ item, isInlineEdit}">
+                            <sw-label :variant="getVariantFromOrderRefundState(item)" appearance="pill">
+                                {{ item.stateMachineState.translated.name }}
+                            </sw-label>
+                        </template>
+                    </sw-data-grid>
+
+                    <sw-empty-state
+                        v-else
+                        :title="$tc('sw-order.refundCard.emptyRefunds')"
+                        :icon="'default-money-card'"
+                        :absolute="false">
+                        {% block sw_order_refund_card_create_refund_empty_state_content %}
+                            <span></span>
+                        {% endblock %}
+                    </sw-empty-state>
+                {% endblock %}
+
+                {% block sw_order_refund_card_create_refund %}
+                    <sw-button
+                        variant="primary"
+                        :disabled="refundingUnsupportedByPaymentMethod || eligibleCapturesForRefund.length === 0"
+                        @click="onCreateRefund">
+                        {{ $tc('sw-order.refundCard.createRefundButton') }}
+                    </sw-button>
+                {% endblock %}
+            </sw-container>
+        {% endblock %}
+
+        {% block sw_order_refund_card_create_refund_modal %}
+        <sw-modal v-if="showModal"
+                  variant="large"
+                  @modal-close="closeModal"
+                  :title="$tc(`sw-order.refundCard.createRefundModal.title`)"
+                  class="sw-order-refund-card--refund-modal"
+        >
+            <sw-loader v-if="isLoading || isRefunding"></sw-loader>
+            <sw-select-field v-model="selectedCaptureId"
+                             :label="$tc('sw-order.refundCard.createRefundModal.captureSelectionLabel')">
+                <option v-for="capture in eligibleCapturesForRefund"
+                        :value="capture.id">
+                    {{ capture.label }}
+                </option>
+            </sw-select-field>
+            <sw-order-refund-positions
+                :order="order"
+                :orderRefundPositions="orderRefundPositions"
+                :isLoading="isLoading"
+                v-on:select-item="onSelectItem"
+                v-on:change-quantity="onChangeQuantity">
+            </sw-order-refund-positions>
+
+            <div class="sw-order-refund-card--refund-modal--content">
+                <sw-container columns="1fr 1fr" gap="0 32px">
+                    <sw-text-field :disabled="true"
+                                   :label="$tc('sw-order.refundCard.createRefundModal.captureAmount')"
+                                   :value="totalSelectedCaptureAmount | currency(order.currency.shortName)"
+                    />
+                    <sw-text-field :disabled="true"
+                                   :label="$tc('sw-order.refundCard.createRefundModal.refundedAmount')"
+                                   :value="refundedAmount | currency(order.currency.shortName)"
+                    />
+                    <sw-text-field :disabled="true"
+                                   :label="$tc('sw-order.refundCard.createRefundModal.remainingAmount')"
+                                   :value="remainingAmount | currency(order.currency.shortName)"
+                    />
+                    <sw-number-field required="required"
+                                     numberType="float"
+                                     :digits="order.decimal_precision"
+                                     :label="$tc('sw-order.refundCard.createRefundModal.refundAmount')"
+                                     :value="refundAmount"
+                                     v-on:change="onChangeRefundAmount($event)"
+                                     :min="0">
+                        <template #suffix>
+                            {{ order.currency.shortName }}
+                        </template>
+                    </sw-number-field>
+                </sw-container>
+            </div>
+
+            <div
+                v-for="(option, index) in paymentMethodRefundOptions"
+                :key="index"
+            >
+                <sw-order-refund-configuration-field
+                    :element="option"
+                    :value="refundOptions[option.name]"
+                    @change="onRefundConfigurationFieldChange(option.name, $event)">
+                </sw-order-refund-configuration-field>
+            </div>
+
+            <template slot="modal-footer">
+                <sw-button :disabled="isLoading" @click="closeModal">
+                    {{ $tc('sw-order.refundCard.createRefundModal.close') }}
+                </sw-button>
+
+                <sw-button-process :isLoading="isRefunding"
+                                   :processSuccess="isRefundSuccessful"
+                                   @process-finish="onRefundFinished()"
+                                   :disabled="isLoading || isRefunding || refundAmount <= 0 || invalidRefundOptions.length > 0"
+                                   variant="primary"
+                                   @click="refundOrderTransaction">
+                    {{ $tc('sw-order.refundCard.createRefundModal.submit') }}
+                </sw-button-process>
+            </template>
+        </sw-modal>
+        {% endblock %}
+    </sw-card>
+{% endblock %}
+<script>
+    import Select from '../../../../app/component/form/sw-field';
+    export default {
+        components: { Select },
+    };
+</script>

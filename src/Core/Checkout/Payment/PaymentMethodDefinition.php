@@ -3,8 +3,10 @@
 namespace Shopware\Core\Checkout\Payment;
 
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
+use Shopware\Core\Checkout\Order\Aggregate\OrderRefund\OrderRefundDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationDefinition;
+use Shopware\Core\Checkout\Refund\PaymentMethodRefundConfigDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -71,6 +73,7 @@ class PaymentMethodDefinition extends EntityDefinition
             new FkField('availability_rule_id', 'availabilityRuleId', RuleDefinition::class),
             new FkField('media_id', 'mediaId', MediaDefinition::class),
             (new StringField('formatted_handler_identifier', 'formattedHandlerIdentifier'))->addFlags(new WriteProtected(), new Runtime(), new ReadProtected(SalesChannelApiSource::class)),
+            (new StringField('refund_handler_identifier', 'refundHandlerIdentifier'))->addFlags(new ReadProtected(SalesChannelApiSource::class)),
 
             (new TranslationsAssociationField(PaymentMethodTranslationDefinition::class, 'payment_method_id'))->addFlags(new Required()),
 
@@ -84,6 +87,8 @@ class PaymentMethodDefinition extends EntityDefinition
             (new OneToManyAssociationField('customers', CustomerDefinition::class, 'last_payment_method_id', 'id'))->addFlags(new RestrictDelete(), new ReadProtected(SalesChannelApiSource::class)),
             (new OneToManyAssociationField('orderTransactions', OrderTransactionDefinition::class, 'payment_method_id', 'id'))->addFlags(new RestrictDelete(), new ReadProtected(SalesChannelApiSource::class)),
             (new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, SalesChannelPaymentMethodDefinition::class, 'payment_method_id', 'sales_channel_id'))->addFlags(new ReadProtected(SalesChannelApiSource::class)),
+            (new OneToManyAssociationField('orderRefunds', OrderRefundDefinition::class, 'payment_method_id', 'id'))->addFlags(new RestrictDelete(), new ReadProtected(SalesChannelApiSource::class)),
+            (new OneToManyAssociationField('refundConfigs', PaymentMethodRefundConfigDefinition::class, 'payment_method_id', 'id'))->addFlags(new RestrictDelete(), new ReadProtected(SalesChannelApiSource::class)),
         ]);
     }
 }

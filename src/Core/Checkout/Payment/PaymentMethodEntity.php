@@ -3,8 +3,10 @@
 namespace Shopware\Core\Checkout\Payment;
 
 use Shopware\Core\Checkout\Customer\CustomerCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderRefund\OrderRefundCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Payment\Aggregate\PaymentMethodTranslation\PaymentMethodTranslationCollection;
+use Shopware\Core\Checkout\Refund\PaymentMethodRefundConfigCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -25,6 +27,11 @@ class PaymentMethodEntity extends Entity
      * @var string
      */
     protected $handlerIdentifier;
+
+    /**
+     * @var string|null
+     */
+    protected $refundHandlerIdentifier;
 
     /**
      * @var string|null
@@ -65,6 +72,16 @@ class PaymentMethodEntity extends Entity
      * @var OrderTransactionCollection|null
      */
     protected $orderTransactions;
+
+    /**
+     * @var OrderRefundCollection|null
+     */
+    protected $orderRefunds;
+
+    /**
+     * @var PaymentMethodRefundConfigCollection|null
+     */
+    protected $refundConfigs;
 
     /**
      * @var CustomerCollection|null
@@ -146,6 +163,16 @@ class PaymentMethodEntity extends Entity
         return $this->formattedHandlerIdentifier;
     }
 
+    public function getRefundHandlerIdentifier(): ?string
+    {
+        return $this->refundHandlerIdentifier;
+    }
+
+    public function setRefundHandlerIdentifier(string $refundHandlerIdentifier): void
+    {
+        $this->refundHandlerIdentifier = $refundHandlerIdentifier;
+    }
+
     public function getName(): ?string
     {
         return $this->name;
@@ -214,6 +241,26 @@ class PaymentMethodEntity extends Entity
     public function setOrderTransactions(OrderTransactionCollection $orderTransactions): void
     {
         $this->orderTransactions = $orderTransactions;
+    }
+
+    public function getOrderRefunds(): ?OrderRefundCollection
+    {
+        return $this->orderRefunds;
+    }
+
+    public function setOrderRefunds(OrderRefundCollection $orderRefunds): void
+    {
+        $this->orderRefunds = $orderRefunds;
+    }
+
+    public function getRefundConfigs(): ?PaymentMethodRefundConfigCollection
+    {
+        return $this->refundConfigs;
+    }
+
+    public function setRefundConfigs(PaymentMethodRefundConfigCollection $refundConfigs): void
+    {
+        $this->refundConfigs = $refundConfigs;
     }
 
     public function getCustomers(): ?CustomerCollection

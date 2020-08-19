@@ -192,6 +192,17 @@
             </sw-order-state-history-card>
         {% endblock %}
 
+        {% block sw_order_detail_base_refund_card %}
+            <sw-order-refund-card v-if="!isEditing && transaction"
+                                         :title="$tc('sw-order.refundCard.cardTitle')"
+                                         :isLoading="isLoading"
+                                         :order="order"
+                                         :transaction="transaction"
+                                         @order-state-change="reloadEntityData"
+                                         ref="refund-card">
+            </sw-order-refund-card>
+        {% endblock %}
+
         {% block sw_order_detail_delivery_metadata %}
             <sw-order-delivery-metadata v-if="delivery"
                                         class="sw-order-delivery-metadata"

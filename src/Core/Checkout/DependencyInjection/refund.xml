@@ -1,0 +1,30 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service id="Shopware\Core\Checkout\Refund\PaymentMethodRefundConfigDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Refund\PaymentRefundProcessor">
+            <argument type="service" id="order_refund.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Refund\RefundHandler\PaymentRefundHandlerRegistry"/>
+            <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderRefund\OrderRefundStateHandler"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Refund\PaymentMethodRefundConfigService" public="true">
+            <argument type="service" id="payment_method_refund_config.repository" />
+        </service>
+
+        <service id="Shopware\Core\Checkout\Refund\Api\OrderRefundActionController" public="true">
+            <argument type="service" id="Shopware\Core\Checkout\Refund\PaymentRefundProcessor" />
+        </service>
+
+        <service id="Shopware\Core\Checkout\Refund\RefundHandler\PaymentRefundHandlerRegistry">
+            <argument type="tagged_locator" tag="shopware.refund.handler"/>
+        </service>
+    </services>
+</container>

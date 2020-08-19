@@ -1155,6 +1155,7 @@ Refactored `src/module/sw-plugin/snippet/en-GB.json`:
 * Added `user:change-password` command to set the password of an administration user
 * Added `HttpCacheGenerateKeyEvent` to allow changing the hash
 * It is now possible to override the generic API routes with a `config/routes_overwrite.xml` in the bundle or plugin
+* Fixed a bug cannot remove credit items after creating in Admin order
 
 #### Storefront
 * Added plugin injection in hot mode

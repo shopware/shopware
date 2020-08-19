@@ -148,6 +148,51 @@ class CartItemRemoveRouteTest extends TestCase
         static::assertSame(0, $response['price']['totalPrice']);
     }
 
+    public function testRemoveByTypeCredit(): void
+    {
+        $this->enableAdminAccess();
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/cart/line-item',
+                [
+                    'items' => [
+                        [
+                            'id' => $this->ids->get('p1'),
+                            'referencedId' => $this->ids->get('p1'),
+                            'label' => 'Test',
+                            'type' => 'credit',
+                            'priceDefinition' => [
+                                'price' => 100.0,
+                                'type' => 'absolute',
+                                'absolute' => 1.0,
+                            ],
+                            'removable' => true,
+                        ],
+                    ],
+                ]
+            );
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+
+        // Remove
+        $this->browser
+            ->request(
+                'DELETE',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/cart/line-item',
+                [
+                    'ids' => [
+                        $this->ids->get('p1'),
+                    ],
+                ]
+            );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertCount(0, $response['lineItems']);
+        static::assertSame(0, $response['price']['totalPrice']);
+    }
+
     private function createTestData(): void
     {
         $this->productRepository->create([

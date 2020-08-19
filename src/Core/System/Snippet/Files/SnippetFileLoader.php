@@ -3,12 +3,14 @@
 namespace Shopware\Core\System\Snippet\Files;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpKernel\KernelInterface;
+use function Flag\next10286;
 
 /**
  * @Decoratable
@@ -30,15 +32,33 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
      */
     private $pluginAuthors;
 
-    public function __construct(KernelInterface $kernel, Connection $connection)
+    /**
+     * @var AppSnippetFileLoader|null
+     */
+    private $appSnippetFileLoader;
+
+    public function __construct(KernelInterface $kernel, Connection $connection, ?AppSnippetFileLoader $appSnippetFileLoader)
     {
         $this->kernel = $kernel;
         // use Connection directly as this gets executed so early on kernel boot
         // using the DAL would result in CircularReferences
         $this->connection = $connection;
+        $this->appSnippetFileLoader = $appSnippetFileLoader;
     }
 
     public function loadSnippetFilesIntoCollection(SnippetFileCollection $snippetFileCollection): void
+    {
+        $this->loadPluginSnippets($snippetFileCollection);
+        // remove nullable prop and on-invalid=null behaviour in service declaration
+        // when removing the feature flag
+        if (!$this->appSnippetFileLoader || !next10286()) {
+            return;
+        }
+
+        $this->loadAppSnippets($snippetFileCollection);
+    }
+
+    private function loadPluginSnippets(SnippetFileCollection $snippetFileCollection): void
     {
         foreach ($this->kernel->getBundles() as $bundle) {
             if (!$bundle instanceof Bundle) {
@@ -56,6 +76,17 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
                     continue;
                 }
 
+                $snippetFileCollection->add($snippetFile);
+            }
+        }
+    }
+
+    private function loadAppSnippets(SnippetFileCollection $snippetFileCollection): void
+    {
+        $apps = $this->getApps();
+        foreach ($apps as $app) {
+            $snippetFiles = $this->appSnippetFileLoader->loadSnippetFilesFromApp($app['author'] ?? '', $app['path']);
+            foreach ($snippetFiles as $snippetFile) {
                 $snippetFileCollection->add($snippetFile);
             }
         }
@@ -106,6 +137,15 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
         }
 
         return $snippetFiles;
+    }
+
+    private function getApps(): array
+    {
+        return $this->connection->executeQuery('
+            SELECT `path`, `author`
+            FROM `app`
+            WHERE `active` = 1
+        ')->fetchAll(FetchMode::ASSOCIATIVE);
     }
 
     private function getAuthorFromBundle(Bundle $bundle): string

@@ -227,6 +227,13 @@ base-uri 'self';
         <service id="Shopware\Core\System\Snippet\Files\SnippetFileLoader">
             <argument type="service" id="kernel"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\System\Snippet\Files\AppSnippetFileLoader" on-invalid="null"/>
+        </service>
+
+        <service id="Shopware\Core\System\Snippet\Files\AppSnippetFileLoader">
+            <argument>%kernel.project_dir%</argument>
+
+            <tag name="shopware.feature" flag="next10286"/>
         </service>
 
         <service id="Shopware\Core\System\Snippet\Files\SnippetFileCollection" public="true">

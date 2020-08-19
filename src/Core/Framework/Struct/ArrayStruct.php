@@ -91,4 +91,9 @@ class ArrayStruct extends Struct implements \ArrayAccess
     {
         return $this->apiAlias ?? 'array_struct';
     }
+
+    public function getVars(): array
+    {
+        return $this->data;
+    }
 }

@@ -12,11 +12,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Shopware\Storefront\Page\Product\Configurator\ProductPageConfiguratorLoader;
@@ -31,11 +27,6 @@ class ProductPageLoader
      * @var GenericPageLoaderInterface
      */
     private $genericLoader;
-
-    /**
-     * @var SalesChannelRepositoryInterface
-     */
-    private $productRepository;
 
     /**
      * @var EventDispatcherInterface
@@ -79,7 +70,6 @@ class ProductPageLoader
 
     public function __construct(
         GenericPageLoaderInterface $genericLoader,
-        SalesChannelRepositoryInterface $productRepository,
         EventDispatcherInterface $eventDispatcher,
         SalesChannelCmsPageRepository $cmsPageRepository,
         CmsSlotsDataResolver $slotDataResolver,
@@ -90,7 +80,6 @@ class ProductPageLoader
         CrossSellingLoader $crossSellingLoader
     ) {
         $this->genericLoader = $genericLoader;
-        $this->productRepository = $productRepository;
         $this->eventDispatcher = $eventDispatcher;
         $this->cmsPageRepository = $cmsPageRepository;
         $this->slotDataResolver = $slotDataResolver;
@@ -117,9 +106,7 @@ class ProductPageLoader
             throw new MissingRequestParameterException('productId', '/productId');
         }
 
-        $productId = $this->findBestVariant($productId, $salesChannelContext);
-
-        $product = $this->productLoader->load($productId, $salesChannelContext);
+        $product = $this->productLoader->load($productId, $salesChannelContext, ProductPageCriteriaEvent::class);
         $page->setProduct($product);
 
         $request->request->set('parentId', $product->getParentId());
@@ -229,25 +216,5 @@ class ProductPageLoader
         $page = $pages->first();
 
         return $page;
-    }
-
-    /**
-     * @throws InconsistentCriteriaIdsException
-     */
-    private function findBestVariant(string $productId, SalesChannelContext $salesChannelContext)
-    {
-        $criteria = (new Criteria())
-            ->addFilter(new EqualsFilter('product.parentId', $productId))
-            ->addSorting(new FieldSorting('product.price'))
-            ->addSorting(new FieldSorting('product.available'))
-            ->setLimit(1);
-
-        $variantId = $this->productRepository->searchIds($criteria, $salesChannelContext);
-
-        if (\count($variantId->getIds()) > 0) {
-            return $variantId->getIds()[0];
-        }
-
-        return $productId;
     }
 }

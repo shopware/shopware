@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Page\Product\ProductPage;
+use Shopware\Storefront\Page\Product\ProductPageCriteriaEvent;
 use Shopware\Storefront\Page\Product\ProductPageLoadedEvent;
 use Shopware\Storefront\Page\Product\ProductPageLoader;
 use Symfony\Component\HttpFoundation\Request;
@@ -64,6 +65,23 @@ class ProductPageTest extends TestCase
         static::assertInstanceOf(ProductPage::class, $page);
         static::assertSame(StorefrontPageTestConstants::PRODUCT_NAME, $page->getProduct()->getName());
         self::assertPageEvent(ProductPageLoadedEvent::class, $event, $context, $request, $page);
+    }
+
+    public function testItDispatchPageCriteriaEvent(): void
+    {
+        $context = $this->createSalesChannelContextWithNavigation();
+        $product = $this->getRandomProduct($context);
+
+        $request = new Request([], [], ['productId' => $product->getId()]);
+
+        /** @var ProductPageLoadedEvent $event */
+        $event = null;
+        $this->catchEvent(ProductPageCriteriaEvent::class, $event);
+
+        $page = $this->getPageLoader()->load($request, $context);
+
+        static::assertInstanceOf(ProductPage::class, $page);
+        static::assertInstanceOf(ProductPageCriteriaEvent::class, $event);
     }
 
     public function testItDoesLoadACloseProductWithHideCloseEnabled(): void

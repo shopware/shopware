@@ -12,6 +12,7 @@ use Shopware\Storefront\Page\Account\CustomerGroupRegistration\CustomerGroupRegi
 use Shopware\Storefront\Page\Account\CustomerGroupRegistration\CustomerGroupRegistrationPageLoader;
 use Shopware\Storefront\Test\Page\StorefrontPageTestBehaviour;
 use Symfony\Component\HttpFoundation\Request;
+use function Flag\skipTestNext6010;
 
 class CustomerGroupRegistrationTest extends TestCase
 {
@@ -27,6 +28,7 @@ class CustomerGroupRegistrationTest extends TestCase
 
     protected function setUp(): void
     {
+        skipTestNext6010($this);
         $this->ids = new TestDataCollection(Context::createDefaultContext());
         $this->salesChannel = $this->createSalesChannelContext();
     }

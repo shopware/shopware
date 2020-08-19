@@ -132,8 +132,8 @@ Component.register('sw-settings-customer-group-detail', {
             criteria.addFilter(Criteria.equals('pathInfo', `/customer-group-registration/${this.customerGroupId}`));
             criteria.addFilter(Criteria.equals('isCanonical', true));
             criteria.addAssociation('salesChannel.domains');
-            criteria.addGrouping('seoPathInfo');
-            criteria.addGrouping('salesChannelId');
+            criteria.addGroupField('seoPathInfo');
+            criteria.addGroupField('salesChannelId');
 
             this.seoUrls = await this.seoUrlRepository.search(criteria, Shopware.Context.api);
         },

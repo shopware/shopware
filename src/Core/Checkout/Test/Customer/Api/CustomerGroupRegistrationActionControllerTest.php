@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use function Flag\skipTestNext6010;
 
 class CustomerGroupRegistrationActionControllerTest extends TestCase
 {
@@ -36,6 +37,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
 
     public function setUp(): void
     {
+        skipTestNext6010($this);
         $this->ids = new TestDataCollection(Context::createDefaultContext());
         $this->customerRepository = $this->getContainer()->get('customer.repository');
     }

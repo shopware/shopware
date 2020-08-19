@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\PlatformRequest;
+use function Flag\skipTestNext6010;
 
 class CustomerGroupRegistrationSettingsRouteTest extends TestCase
 {
@@ -27,6 +28,8 @@ class CustomerGroupRegistrationSettingsRouteTest extends TestCase
 
     protected function setUp(): void
     {
+        skipTestNext6010($this);
+
         $this->ids = new TestDataCollection(Context::createDefaultContext());
 
         $this->browser = $this->createCustomSalesChannelBrowser([

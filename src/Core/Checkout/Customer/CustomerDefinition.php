@@ -43,6 +43,7 @@ use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\Tag\TagDefinition;
+use function Flag\next6010;
 
 class CustomerDefinition extends EntityDefinition
 {
@@ -70,11 +71,10 @@ class CustomerDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([
+        $collection = new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
 
             (new FkField('customer_group_id', 'groupId', CustomerGroupDefinition::class))->addFlags(new Required()),
-            new FkField('requested_customer_group_id', 'requestedGroupId', CustomerGroupDefinition::class),
 
             (new FkField('default_payment_method_id', 'defaultPaymentMethodId', PaymentMethodDefinition::class))->addFlags(new Required()),
 
@@ -116,7 +116,6 @@ class CustomerDefinition extends EntityDefinition
             (new StringField('legacy_password', 'legacyPassword'))->addFlags(new ReadProtected(SalesChannelApiSource::class, AdminApiSource::class)),
             (new StringField('legacy_encoder', 'legacyEncoder'))->addFlags(new ReadProtected(SalesChannelApiSource::class, AdminApiSource::class)),
             new ManyToOneAssociationField('group', 'customer_group_id', CustomerGroupDefinition::class, 'id', false),
-            new ManyToOneAssociationField('requestedGroup', 'requested_customer_group_id', CustomerGroupDefinition::class, 'id', false),
             new ManyToOneAssociationField('defaultPaymentMethod', 'default_payment_method_id', PaymentMethodDefinition::class, 'id', false),
             new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false),
             new ManyToOneAssociationField('language', 'language_id', LanguageDefinition::class, 'id', false),
@@ -133,5 +132,12 @@ class CustomerDefinition extends EntityDefinition
             new RemoteAddressField('remote_address', 'remoteAddress'),
             new ManyToManyIdField('tag_ids', 'tagIds', 'tags'),
         ]);
+
+        if (next6010()) {
+            $collection->add(new FkField('requested_customer_group_id', 'requestedGroupId', CustomerGroupDefinition::class));
+            $collection->add(new ManyToOneAssociationField('requestedGroup', 'requested_customer_group_id', CustomerGroupDefinition::class, 'id', false));
+        }
+
+        return $collection;
     }
 }

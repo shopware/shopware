@@ -72,7 +72,6 @@ Component.register('sw-customer-detail', {
             criteria
                 .addAssociation('addresses')
                 .addAssociation('group')
-                .addAssociation('requestedGroup')
                 .addAssociation('salutation')
                 .addAssociation('salesChannel')
                 .addAssociation('defaultPaymentMethod')
@@ -84,6 +83,10 @@ Component.register('sw-customer-detail', {
                 .addAssociation('defaultShippingAddress.countryState')
                 .addAssociation('defaultShippingAddress.salutation')
                 .addAssociation('tags');
+
+            if (this.next6010) {
+                criteria.addAssociation('requestedGroup');
+            }
 
             return criteria;
         },

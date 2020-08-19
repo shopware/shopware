@@ -225,6 +225,7 @@
         <service id="Shopware\Core\Checkout\Customer\Api\CustomerGroupRegistrationActionController" public="true">
             <argument type="service" id="customer.repository"/>
             <argument type="service" id="event_dispatcher"/>
+            <tag name="shopware.feature" flag="next6010"/>
         </service>
     </services>
 </container>

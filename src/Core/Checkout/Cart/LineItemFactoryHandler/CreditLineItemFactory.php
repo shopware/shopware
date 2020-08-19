@@ -57,6 +57,10 @@ class CreditLineItemFactory implements LineItemFactoryInterface
             $lineItem->setRemovable($data['removable']);
         }
 
+        if (isset($data['stackable'])) {
+            $lineItem->setStackable($data['stackable']);
+        }
+
         if (isset($data['label'])) {
             $lineItem->setLabel($data['label']);
         }

@@ -1,4 +1,3 @@
-import './component/sw-customer-group-registration-seo-modal';
 import './page/sw-settings-customer-group-list';
 import './page/sw-settings-customer-group-detail';
 

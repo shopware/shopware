@@ -63,6 +63,7 @@ class CustomerGroupRegistrationSettingsRouteTest extends TestCase
                 'name' => 'foo',
                 'registrationActive' => true,
                 'registrationTitle' => 'test',
+                'registrationSalesChannels' => [['id' => $this->getSalesChannelApiSalesChannelId()]],
             ],
         ], $this->ids->getContext());
 

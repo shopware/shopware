@@ -150,6 +150,7 @@
     "overviewChangeBilling": "Change billing address",
     "overviewChangeShipping": "Change shipping address",
     "overviewNewestOrderHeader": "Last order",
+    "overviewCustomerGroupRequest": "Access to customer group \"%group%\" requested.",
     "paymentChangeSubmit": "Change",
     "profilePersonalTitle": "Personal data",
     "profileMailTitle": "Email address",

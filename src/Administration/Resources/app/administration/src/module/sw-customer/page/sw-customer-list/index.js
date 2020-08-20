@@ -27,7 +27,8 @@ Component.register('sw-customer-list', {
             availableAffiliateCodes: [],
             affiliateCodeFilter: [],
             availableCampaignCodes: [],
-            campaignCodeFilter: []
+            campaignCodeFilter: [],
+            showOnlyCustomerGroupRequests: false
         };
     },
 
@@ -57,6 +58,11 @@ Component.register('sw-customer-list', {
             if (this.campaignCodeFilter.length > 0) {
                 criteria.addFilter(Criteria.equalsAny('campaignCode', this.campaignCodeFilter));
             }
+
+            if (this.showOnlyCustomerGroupRequests) {
+                criteria.addFilter(Criteria.not('OR', [Criteria.equals('requestedGroupId', null)]));
+            }
+
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
             criteria
                 .addAssociation('defaultBillingAddress')
@@ -217,6 +223,11 @@ Component.register('sw-customer-list', {
 
         onChangeCampaignCodeFilter(value) {
             this.campaignCodeFilter = value;
+            this.getList();
+        },
+
+        onChangeRequestedGroupFilter(value) {
+            this.showOnlyCustomerGroupRequests = value;
             this.getList();
         }
     }

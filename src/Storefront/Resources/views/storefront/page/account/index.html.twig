@@ -9,6 +9,15 @@
                     {% block page_account_overview_welcome_intro %}
                         <p>{{ "account.overviewInfo"|trans|sw_sanitize }}</p>
                     {% endblock %}
+
+                    {% if page.customer.requestedGroup %}
+                        {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+                            type: 'info',
+                            content: 'account.overviewCustomerGroupRequest'|trans({
+                                '%group%': page.customer.requestedGroup.translated.name
+                            })
+                        } %}
+                    {% endif %}
                 </div>
             {% endblock %}
 

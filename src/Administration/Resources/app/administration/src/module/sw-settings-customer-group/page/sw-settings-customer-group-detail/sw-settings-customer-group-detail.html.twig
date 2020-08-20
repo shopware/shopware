@@ -110,7 +110,7 @@
                             {% endblock %}
 
                             {% block sw_settings_customer_group_detail_content_registration_card_only_companies_can_register %}
-                                <sw-checkbox-field :label="$tc('sw-settings-customer-group.registration.onlyCompaniesCanRegister')" v-model="customerGroup.registrationOnlyCompanyRegistration"></sw-checkbox-field>
+                                <sw-switch-field :label="$tc('sw-settings-customer-group.registration.onlyCompaniesCanRegister')" v-model="customerGroup.registrationOnlyCompanyRegistration"></sw-switch-field>
                             {% endblock %}
 
                             {% block sw_settings_customer_group_detail_content_registration_card_seo_meta_description %}
@@ -130,27 +130,37 @@
                                 :isLoading="isLoading"
                                 :title="$tc('sw-settings-customer-group.registration.linkUrlsTitle')">
 
-                            {% block sw_settings_customer_group_detail_content_registration_url_card_description %}
-                                <sw-container columns="1fr 0fr" class="sw-settings-customer-group-detail__urlGenerateContainer">
-                                    <div>{{ $tc('sw-settings-customer-group.registration.linkUrlDescription') }}</div>
-                                    <div><sw-button variant="ghost" @click="openSeoModal = true">{{ $tc('sw-settings-customer-group.registration.linkUrlButton') }}</sw-button></div>
-                                </sw-container>
+                            {% block sw_settings_customer_group_detail_content_registration_url_card_sales_channel %}
+                                <sw-entity-multi-select
+                                    :label="$tc('sw-settings-customer-group.registration.availabilitySalesChannel')"
+                                    v-model="customerGroup.registrationSalesChannels"
+                                ></sw-entity-multi-select>
                             {% endblock %}
 
-                            <div v-for="seoUrl in seoUrls">
-                                <sw-text-field :label="seoUrl.salesChannel.name" :copyable="true" :disabled="true" v-model="getSeoUrl(seoUrl)"></sw-text-field>
-                            </div>
+                            {% block sw_settings_customer_group_detail_content_registration_technical_urls %}
+                                <sw-text-field
+                                    v-if="customerGroupId"
+                                    :label="$tc('sw-settings-customer-group.registration.technicalUrl')"
+                                    :copyable="true"
+                                    :disabled="true"
+                                    v-model="technicalUrl"
+                                    :helpText="$tc('sw-settings-customer-group.registration.technicalUrlHelpText')"
+                                ></sw-text-field>
+                            {% endblock %}
+
+                            {% block sw_settings_customer_group_detail_content_registration_url_card_seo_url %}
+                                <div v-for="seoUrl in seoUrls">
+                                    {% block sw_settings_customer_group_detail_content_registration_url_card_seo_url_inner %}
+                                        <sw-text-field
+                                            :label="seoUrl.salesChannel.translated.name"
+                                            :copyable="true" :disabled="true" v-model="getSeoUrl(seoUrl)"
+                                        ></sw-text-field>
+                                    {% endblock %}
+                                </div>
+                            {% endblock %}
                         </sw-card>
                     {% endblock %}
                 </sw-card-view>
-
-                <sw-customer-group-registration-seo-modal
-                    v-if="openSeoModal"
-                    @close="openSeoModal = false"
-                    :seoUrls="seoUrls"
-                    @refreshSeoUrls="loadSeoUrls"
-                    :customerGroup="customerGroup"
-                ></sw-customer-group-registration-seo-modal>
             </template>
         {% endblock %}
 

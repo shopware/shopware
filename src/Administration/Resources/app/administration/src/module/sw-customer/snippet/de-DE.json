@@ -72,7 +72,8 @@
       "titleSidebarItemRefresh": "Aktualisieren",
       "titleSidebarItemFilter": "Filter",
       "titleSidebarItemFilterAffiliateCode": "Affiliate-Code",
-      "titleSidebarItemFilterCampaignCode": "Kampagnen-Code"
+      "titleSidebarItemFilterCampaignCode": "Kampagnen-Code",
+      "titleSidebarItemFilterRequestedGroup": "Nur Kunden anzeigen mit Kundengruppen Anfrage"
     },
     "baseForm": {
       "labelSalutation": "Anrede",

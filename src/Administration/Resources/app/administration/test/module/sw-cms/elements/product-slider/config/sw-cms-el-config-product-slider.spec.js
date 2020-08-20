@@ -58,6 +58,9 @@ function createWrapper(customCmsElementConfig) {
             $tc: (value) => value
         },
         provide: {
+            feature: {
+                isActive: () => true
+            },
             cmsService: {
                 getCmsBlockRegistry: () => {
                     return {};

@@ -22,6 +22,14 @@ NEXT
 ----------------
 
 #### Administration
+* Added ACL permissions to settings rule
+* Added property `disabled` to `sw-arrow-field` component
+* Added property `disabled` to `sw-condition-base` component
+* Added property `disabled` to `sw-condition-operator-select` component
+* Added property `disabled` to `sw-condition-tree-node` component
+* Added property `disabled` to `sw-condition-tree` component
+* Added property `disabled` to `sw-condition-type-select` component
+* Added property `disabled` to `rule-container` mixin
 
 #### Core
 

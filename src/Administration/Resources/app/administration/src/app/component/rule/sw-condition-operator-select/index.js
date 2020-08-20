@@ -15,6 +15,12 @@ Component.register('sw-condition-operator-select', {
         condition: {
             type: Object,
             required: true
+        },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 

@@ -248,7 +248,9 @@ function build(componentName, skipTemplate = false) {
     }
 
     if (!componentRegistry.has(componentName)) {
-        return false;
+        throw new Error(
+            `The component registry has not found a component with the name "${componentName}".`
+        );
     }
 
     let config = Object.create(componentRegistry.get(componentName));

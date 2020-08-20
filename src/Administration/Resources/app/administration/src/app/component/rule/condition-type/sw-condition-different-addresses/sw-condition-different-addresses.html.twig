@@ -3,6 +3,7 @@
         {% block sw_condition_different_addresses_field_is_different %}
             <sw-single-select
                 size="medium"
+                :disabled="disabled"
                 :options="selectValues"
                 v-model="isDifferent">
             </sw-single-select>

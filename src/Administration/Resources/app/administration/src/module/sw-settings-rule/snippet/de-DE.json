@@ -49,5 +49,12 @@
       "close": "Schließen",
       "messageSaveError": "Beim Speichern des Filters ist ein Fehler aufgetreten."
     }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "rule": {
+        "label": "Rule Builder"
+      }
+    }
   }
 }

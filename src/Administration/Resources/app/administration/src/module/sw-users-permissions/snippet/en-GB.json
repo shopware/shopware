@@ -35,7 +35,8 @@
         "permissions": "Permissions"
       },
       "grid": {
-        "title": "Permissions"
+        "title": "Permissions",
+        "disabledCheckboxMessage": "To disable this option, you must first disable other active options."
       },
       "additional-permissions": {
         "title": "Additional permissions"

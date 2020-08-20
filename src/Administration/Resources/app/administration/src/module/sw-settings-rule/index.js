@@ -1,5 +1,6 @@
 import './page/sw-settings-rule-list';
 import './page/sw-settings-rule-detail';
+import './acl';
 
 const { Module } = Shopware;
 
@@ -18,14 +19,16 @@ Module.register('sw-settings-rule', {
             component: 'sw-settings-rule-list',
             path: 'index',
             meta: {
-                parentPath: 'sw.settings.index'
+                parentPath: 'sw.settings.index',
+                privilege: 'rule.viewer'
             }
         },
         detail: {
             component: 'sw-settings-rule-detail',
             path: 'detail/:id',
             meta: {
-                parentPath: 'sw.settings.rule.index'
+                parentPath: 'sw.settings.rule.index',
+                privilege: 'rule.viewer'
             },
             props: {
                 default(route) {
@@ -39,7 +42,8 @@ Module.register('sw-settings-rule', {
             component: 'sw-settings-rule-detail',
             path: 'create',
             meta: {
-                parentPath: 'sw.settings.rule.index'
+                parentPath: 'sw.settings.rule.index',
+                privilege: 'rule.creator'
             }
         }
     },
@@ -47,6 +51,7 @@ Module.register('sw-settings-rule', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.rule.index',
-        icon: 'default-symbol-rule'
+        icon: 'default-symbol-rule',
+        privilege: 'rule.viewer'
     }
 });

@@ -2,7 +2,7 @@ import template from './sw-condition-line-item-custom-field.html.twig';
 import './sw-condition-line-item-custom-field.scss';
 
 const { Component, Mixin } = Shopware;
-const { mapApiErrors } = Component.getComponentHelper();
+const { mapPropertyErrors } = Component.getComponentHelper();
 const { Criteria } = Shopware.Data;
 
 Component.extend('sw-condition-line-item-custom-field', 'sw-condition-base', {
@@ -95,7 +95,7 @@ Component.extend('sw-condition-line-item-custom-field', 'sw-condition-base', {
             return this.conditionDataProviderService.getOperatorSetByComponent(this.renderedField);
         },
 
-        ...mapApiErrors('condition', [
+        ...mapPropertyErrors('condition', [
             'value.renderedField',
             'value.selectedField',
             'value.selectedFieldSet',

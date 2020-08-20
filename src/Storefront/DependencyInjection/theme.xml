@@ -68,7 +68,7 @@
             <argument type="service" id="Shopware\Storefront\Theme\ThemeLifecycleHandler"/>
 
             <tag name="kernel.event_subscriber"/>
-            <tag name="shopware.feature" flag="next10286"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_10286"/>
         </service>
 
         <!-- Entity definitions -->

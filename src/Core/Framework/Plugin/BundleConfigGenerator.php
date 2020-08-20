@@ -8,12 +8,12 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
-use function Flag\next10286;
 
 /**
  * @Decoratable
@@ -112,7 +112,7 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
     {
         // remove nullable prop and on-invalid=null behaviour in service declaration
         // when removing the feature flag
-        if (!$this->activeAppsLoader || !next10286()) {
+        if (!$this->activeAppsLoader || !Feature::isActive('FEATURE_NEXT_10286')) {
             return [];
         }
 

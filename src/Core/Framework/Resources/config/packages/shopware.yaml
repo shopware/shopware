@@ -54,11 +54,6 @@ shopware:
 
     feature:
         flags:
-            - NEXT-733
-            - NEXT-1797
-            - NEXT-3722
-            - NEXT-6009
-            - NEXT-6010
-            - FEATURE_NEXT_9278
-            - FEATURE_NEXT_9279
+            - FEATURE_NEXT_1797
+            - FEATURE_NEXT_3722
             - FEATURE_NEXT_10286

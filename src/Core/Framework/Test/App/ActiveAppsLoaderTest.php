@@ -4,8 +4,8 @@ namespace Shopware\Core\Framework\Test\App;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use function Flag\skipTestNext10286;
 
 class ActiveAppsLoaderTest extends TestCase
 {
@@ -19,7 +19,7 @@ class ActiveAppsLoaderTest extends TestCase
 
     public function setUp(): void
     {
-        skipTestNext10286($this);
+        Feature::skipTestIfInActive('FEATURE_NEXT_10286', $this);
         $this->activeAppsLoader = $this->getContainer()->get(ActiveAppsLoader::class);
     }
 

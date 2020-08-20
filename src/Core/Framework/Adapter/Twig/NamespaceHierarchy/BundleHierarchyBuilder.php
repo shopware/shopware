@@ -11,8 +11,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Feature;
 use Symfony\Component\HttpKernel\KernelInterface;
-use function Flag\next10286;
 
 class BundleHierarchyBuilder implements TemplateNamespaceHierarchyBuilderInterface
 {
@@ -54,7 +54,7 @@ class BundleHierarchyBuilder implements TemplateNamespaceHierarchyBuilderInterfa
 
         // remove nullable prop and on-invalid=null behaviour in service config
         // when we remove the feature flag
-        if (!$this->appRepository || !next10286()) {
+        if (!$this->appRepository || !Feature::isActive('FEATURE_NEXT_10286')) {
             return $namespaceHierarchy;
         }
 

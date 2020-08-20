@@ -234,7 +234,7 @@ base-uri 'self';
         <service id="Shopware\Core\System\Snippet\Files\AppSnippetFileLoader">
             <argument>%kernel.project_dir%</argument>
 
-            <tag name="shopware.feature" flag="next10286"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_10286"/>
         </service>
 
         <service id="Shopware\Core\System\Snippet\Files\SnippetFileCollection" public="true" lazy="true">
@@ -347,14 +347,14 @@ base-uri 'self';
 
             <tag name="twig.loader"/>
             <tag name="kernel.event_subscriber"/>
-            <tag name="shopware.feature" flag="next10286"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_10286"/>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Twig\AppTemplateIterator" decorates="twig.template_iterator" public="true">
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\AppTemplateIterator.inner" />
             <argument type="service" id="app_template.repository" />
 
-            <tag name="shopware.feature" flag="next10286"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_10286"/>
         </service>
 
         <service id="Shopware\Core\Framework\Routing\ApiRequestContextResolver">

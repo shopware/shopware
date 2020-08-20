@@ -152,13 +152,6 @@
             "Shopware\\Core\\": "src/Core/",
             "Shopware\\Elasticsearch\\": "src/Elasticsearch/"
         },
-        "files": [
-            "src/Core/Flag/feature_next733.php",
-            "src/Core/Flag/feature_next1797.php",
-            "src/Core/Flag/feature_next3722.php",
-            "src/Core/Flag/feature_next6009.php",
-            "src/Core/Flag/feature_next10286.php"
-        ],
         "exclude-from-classmap": [
             "src/**/Test/"
         ]

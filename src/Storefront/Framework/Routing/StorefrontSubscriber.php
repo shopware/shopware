@@ -11,6 +11,7 @@ use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\PlatformRequest;
@@ -28,7 +29,6 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Routing\RouterInterface;
-use function Flag\next10286;
 
 class StorefrontSubscriber implements EventSubscriberInterface
 {
@@ -310,7 +310,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
     {
         // remove nullable props and on-invalid=null behaviour in service declaration
         // when removing the feature flag
-        if (!$this->activeAppsLoader || !$this->shopIdProvider || !next10286()) {
+        if (!$this->activeAppsLoader || !$this->shopIdProvider || !Feature::isActive('FEATURE_NEXT_10286')) {
             return;
         }
 

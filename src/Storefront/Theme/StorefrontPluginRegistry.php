@@ -4,11 +4,11 @@ namespace Shopware\Storefront\Theme;
 
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Symfony\Component\HttpKernel\KernelInterface;
-use function Flag\next10286;
 
 /**
  * @Decoratable
@@ -58,7 +58,7 @@ class StorefrontPluginRegistry implements StorefrontPluginRegistryInterface
         $this->addPluginConfigs();
         // remove nullable prop and on-invalid=null behaviour in service declaration
         // when removing the feature flag
-        if ($this->activeAppsLoader && next10286()) {
+        if ($this->activeAppsLoader && Feature::isActive('FEATURE_NEXT_10286')) {
             $this->addAppConfigs();
         }
 

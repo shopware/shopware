@@ -90,18 +90,36 @@ describe('Product: Test variants', () => {
             cy.awaitAndCheckNotification('Product "Green" has been saved.');
         });
 
-        // Validate in Storefornt
+        // Validate in Storefront
         cy.visit('/');
         cy.get('.product-price').contains('€64.00 - €100.00*');
         cy.get('.product-action > .btn').contains('Details').click();
         cy.get('.product-detail-buy').should('be.visible');
-        cy.contains('Green').click();
-        cy.get('.product-detail-price').contains('100.00');
+
+        // Ensure that variant "Green" is checked at the moment the test runs
+        cy.get('.product-detail-configurator-option-label[title="Green"]').then(($btn) => {
+            const inputId = $btn.attr('for');
+
+            cy.get(`#${inputId}`).then(($input) => {
+                if (!$input.attr('checked')) {
+                    cy.contains('Green').click();
+
+                    cy.wait('@changeVariant').then((xhr) => {
+                        expect(xhr).to.have.property('status', 200);
+                        cy.get('.product-detail-price').contains('100.00');
+                    });
+                } else {
+                    cy.log('Variant "Green" is already open.');
+                    cy.get('.product-detail-price').contains('100.00');
+                }
+            })
+        })
 
         cy.contains('Red').click();
 
         cy.wait('@changeVariant').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
+
             cy.get('.product-detail-price').contains('64.00');
         });
     });

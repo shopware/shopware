@@ -1,6 +1,7 @@
 /// <reference types="Cypress" />
 
 import SalesChannelPageObject from '../../../support/pages/module/sw-sales-channel.page-object';
+import ProductPageObject from "../../../support/pages/module/sw-product.page-object";
 
 describe('Sales Channel: Test product comparison', () => {
     beforeEach(() => {
@@ -21,6 +22,7 @@ describe('Sales Channel: Test product comparison', () => {
 
     it('@general: create product comparison sales channel', () => {
         const page = new SalesChannelPageObject();
+        const productPage = new ProductPageObject();
 
         // Request we want to wait for later
         cy.server();
@@ -63,7 +65,8 @@ describe('Sales Channel: Test product comparison', () => {
                 .and('match', /sw-login-background/);
             cy.awaitAndCheckNotification('File has been saved.');
         }
-        cy.get('.sw-button-process').click();
+        cy.get('input[name=sw-field--product-name]').should('be.visible');
+        cy.get(productPage.elements.productSaveAction).click();
 
         // Verify updated product
         cy.wait('@saveProductsData').then((xhr) => {

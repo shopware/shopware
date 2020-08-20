@@ -4,15 +4,14 @@ namespace Shopware\Storefront\Page\Product\CrossSelling;
 
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingEntity;
-use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
+use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilter;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -83,6 +82,7 @@ class CrossSellingLoader
     {
         $criteria = new Criteria();
         $criteria
+            ->addAssociation('assignedProducts')
             ->addFilter(new EqualsFilter('product.id', $productId))
             ->addFilter(new EqualsFilter('active', 1))
             ->addSorting(new FieldSorting('position', FieldSorting::ASCENDING));
@@ -138,35 +138,25 @@ class CrossSellingLoader
 
     private function loadCrossSellingProductList(ProductCrossSellingEntity $crossSelling, SalesChannelContext $context): ?CrossSellingElement
     {
-        $criteria = new Criteria([$crossSelling->getId()]);
-        $criteria->addAssociation('assignedProducts');
+        if (!$crossSelling->getAssignedProducts()) {
+            return null;
+        }
 
-        /** @var ProductCrossSellingEntity $crossSelling */
-        $crossSelling = $this->crossSellingRepository->search($criteria, $context->getContext())->getEntities()->first();
+        $crossSelling->getAssignedProducts()->sortByPosition();
 
-        $crossSelling->getAssignedProducts()->sort(function (
-            ProductCrossSellingAssignedProductsEntity $a,
-            ProductCrossSellingAssignedProductsEntity $b
-        ) {
-            return $a->getPosition() <=> $b->getPosition();
-        });
-
-        $assignedProductsIds = array_values(array_map(function (ProductCrossSellingAssignedProductsEntity $entity) {
-            return $entity->getProductId();
-        }, $crossSelling->getAssignedProducts()->getElements()));
+        $ids = array_values($crossSelling->getAssignedProducts()->getProductIds());
 
         $filter = new ProductAvailableFilter(
             $context->getSalesChannel()->getId(),
             ProductVisibilityDefinition::VISIBILITY_LINK
         );
 
-        $criteria = new Criteria($assignedProductsIds);
-        $criteria->addAssociation('visibilities');
-        $criteria->addFilter($filter);
-
-        if (!count($assignedProductsIds)) {
+        if (!count($ids)) {
             return null;
         }
+
+        $criteria = new Criteria($ids);
+        $criteria->addFilter($filter);
 
         $criteria = $this->handleAvailableStock($criteria, $context);
 
@@ -176,12 +166,8 @@ class CrossSellingLoader
 
         $searchResult = $this->productRepository->search($criteria, $context);
 
-        $products = new ProductCollection();
-        foreach ($crossSelling->getAssignedProducts()->getElements() as $element) {
-            if ($searchResult->has($element->getProductId())) {
-                $products->add($searchResult->get($element->getProductId()));
-            }
-        }
+        $products = new ProductCollection($searchResult->getElements());
+        $products->sortByIdArray($ids);
 
         $element = new CrossSellingElement();
         $element->setCrossSelling($crossSelling);
@@ -201,15 +187,7 @@ class CrossSellingLoader
             return $criteria;
         }
 
-        $criteria->addFilter(
-            new NotFilter(
-                NotFilter::CONNECTION_AND,
-                [
-                    new EqualsFilter('product.isCloseout', true),
-                    new EqualsFilter('product.available', false),
-                ]
-            )
-        );
+        $criteria->addFilter(new ProductCloseoutFilter());
 
         return $criteria;
     }

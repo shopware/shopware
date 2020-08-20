@@ -4,6 +4,7 @@ namespace Shopware\Core\System\Test\Snippet\Files;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -35,7 +36,8 @@ class SnippetFileLoaderTest extends TestCase
             $kernel,
             $this->getContainer()->get(Connection::class),
             // ToDo: NEXT-10286: Remove on invalid behaviour in the whole file after feature flag got removed
-            $this->getContainer()->get(AppSnippetFileLoader::class, ContainerInterface::NULL_ON_INVALID_REFERENCE)
+            $this->getContainer()->get(AppSnippetFileLoader::class, ContainerInterface::NULL_ON_INVALID_REFERENCE),
+            $this->getContainer()->get(ActiveAppsLoader::class, ContainerInterface::NULL_ON_INVALID_REFERENCE)
         );
 
         $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
@@ -91,7 +93,8 @@ class SnippetFileLoaderTest extends TestCase
         $snippetFileLoader = new SnippetFileLoader(
             $kernel,
             $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get(AppSnippetFileLoader::class, ContainerInterface::NULL_ON_INVALID_REFERENCE)
+            $this->getContainer()->get(AppSnippetFileLoader::class, ContainerInterface::NULL_ON_INVALID_REFERENCE),
+            $this->getContainer()->get(ActiveAppsLoader::class, ContainerInterface::NULL_ON_INVALID_REFERENCE)
         );
 
         $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
@@ -147,7 +150,8 @@ class SnippetFileLoaderTest extends TestCase
         $snippetFileLoader = new SnippetFileLoader(
             $kernel,
             $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get(AppSnippetFileLoader::class, ContainerInterface::NULL_ON_INVALID_REFERENCE)
+            $this->getContainer()->get(AppSnippetFileLoader::class, ContainerInterface::NULL_ON_INVALID_REFERENCE),
+            $this->getContainer()->get(ActiveAppsLoader::class, ContainerInterface::NULL_ON_INVALID_REFERENCE)
         );
 
         $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
@@ -203,7 +207,8 @@ class SnippetFileLoaderTest extends TestCase
         $snippetFileLoader = new SnippetFileLoader(
             $kernel,
             $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get(AppSnippetFileLoader::class, ContainerInterface::NULL_ON_INVALID_REFERENCE)
+            $this->getContainer()->get(AppSnippetFileLoader::class, ContainerInterface::NULL_ON_INVALID_REFERENCE),
+            $this->getContainer()->get(ActiveAppsLoader::class, ContainerInterface::NULL_ON_INVALID_REFERENCE)
         );
 
         $snippetFileLoader->loadSnippetFilesIntoCollection($collection);

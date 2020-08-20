@@ -4,6 +4,7 @@ namespace Shopware\Core\System\Test\Snippet\Files;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Snippet\Files\AppSnippetFileLoader;
@@ -27,7 +28,8 @@ class AppSnippetFileLoaderTest extends TestCase
         $this->snippetFileLoader = new SnippetFileLoader(
             new MockedKernel([]),
             $this->getContainer()->get(Connection::class),
-            $this->getContainer()->get(AppSnippetFileLoader::class)
+            $this->getContainer()->get(AppSnippetFileLoader::class),
+            $this->getContainer()->get(ActiveAppsLoader::class)
         );
     }
 
@@ -73,7 +75,7 @@ class AppSnippetFileLoaderTest extends TestCase
         static::assertFalse($snippetFile->isBase());
     }
 
-    public function testLoadSnippetFilesDoesNotLoadSnipeptsFromInactiveApps(): void
+    public function testLoadSnippetFilesDoesNotLoadSnippetsFromInactiveApps(): void
     {
         $this->loadAppsFromDir(__DIR__ . '/_fixtures/Apps/AppWithSnippets', false);
 

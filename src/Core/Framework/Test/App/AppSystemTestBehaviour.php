@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\App;
 
+use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\AppService;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator;
@@ -11,6 +12,20 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 trait AppSystemTestBehaviour
 {
+    /**
+     * @after
+     */
+    public function resetActiveApps(): void
+    {
+        $activeAppLoader = $this->getContainer()->get(ActiveAppsLoader::class, ContainerInterface::NULL_ON_INVALID_REFERENCE);
+
+        if (!$activeAppLoader) {
+            return;
+        }
+
+        $activeAppLoader->resetActiveApps();
+    }
+
     abstract protected function getContainer(): ContainerInterface;
 
     protected function loadAppsFromDir(string $appDir, bool $activateApps = true): void

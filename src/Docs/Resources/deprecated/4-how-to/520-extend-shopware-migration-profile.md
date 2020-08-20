@@ -190,7 +190,9 @@ local reader to fetch all entity data from your source system:
 namespace SwagMigrationBundleExample\Profile\Shopware\Gateway\Local\Reader;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\ResultStatement;
 use SwagMigrationAssistant\Migration\MigrationContextInterface;
+use SwagMigrationAssistant\Migration\TotalStruct;
 use SwagMigrationAssistant\Profile\Shopware\Gateway\Local\Reader\AbstractReader;
 use SwagMigrationAssistant\Profile\Shopware\Gateway\Local\ShopwareLocalGateway;
 use SwagMigrationAssistant\Profile\Shopware\ShopwareProfileInterface;
@@ -198,6 +200,29 @@ use SwagMigrationBundleExample\Profile\Shopware\DataSelection\DataSet\BundleData
 
 class LocalBundleReader extends AbstractReader
 {
+    public function supportsTotal(MigrationContextInterface $migrationContext): bool
+    {
+        return $migrationContext->getProfile() instanceof ShopwareProfileInterface
+            && $migrationContext->getGateway()->getName() === ShopwareLocalGateway::GATEWAY_NAME;
+    }
+
+    public function readTotal(MigrationContextInterface $migrationContext): ?TotalStruct
+    {
+        $this->setConnection($migrationContext);
+
+        $query = $this->connection->createQueryBuilder()
+            ->select('COUNT(*)')
+            ->from('s_bundles')
+            ->execute();
+
+        $total = 0;
+        if ($query instanceof ResultStatement) {
+            $total = (int) $query->fetchColumn();
+        }
+
+        return new TotalStruct(BundleDataSet::getEntity(), $total);
+    }
+
     public function supports(MigrationContextInterface $migrationContext): bool
     {
         // Make sure that this reader is only called for the BundleDataSet entity

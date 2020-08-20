@@ -56,7 +56,7 @@ class ThemeAppLifecycleHandler implements EventSubscriberInterface
         $config = $configurationCollection->getByTechnicalName($app->getName());
 
         if (!$config) {
-            $config = $this->themeConfigFactory->createFromApp($app);
+            $config = $this->themeConfigFactory->createFromApp($app->getName(), $app->getPath());
             $configurationCollection = clone $configurationCollection;
             $configurationCollection->add($config);
         }

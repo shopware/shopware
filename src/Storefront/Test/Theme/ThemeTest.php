@@ -6,6 +6,7 @@ use PHPUnit\Framework\Constraint\Callback;
 use PHPUnit\Framework\Constraint\IsEqual;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -408,7 +409,7 @@ class ThemeTest extends TestCase
                 },
                 $this->getContainer()->get(StorefrontPluginConfigurationFactory::class),
                 // ToDo: NEXT-10286: remove on invalid null behaviour when feature flag is removed
-                $this->getContainer()->get('app.repository', ContainerInterface::NULL_ON_INVALID_REFERENCE)
+                $this->getContainer()->get(ActiveAppsLoader::class, ContainerInterface::NULL_ON_INVALID_REFERENCE)
             ),
             $this->getContainer()->get('theme.repository'),
             $this->getContainer()->get('theme_sales_channel.repository'),

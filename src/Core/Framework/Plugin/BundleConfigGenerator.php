@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Plugin;
 
-use Shopware\Core\Framework\App\AppCollection;
+use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 use function Flag\next10286;
 
 /**
@@ -30,9 +31,9 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
     private $pluginRepository;
 
     /**
-     * @var EntityRepositoryInterface|null
+     * @var ActiveAppsLoader|null
      */
-    private $appRepository;
+    private $activeAppsLoader;
 
     /**
      * @var string
@@ -42,11 +43,11 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
     public function __construct(
         Kernel $kernel,
         EntityRepositoryInterface $pluginRepository,
-        ?EntityRepositoryInterface $appRepository
+        ?ActiveAppsLoader $activeAppsLoader
     ) {
         $this->kernel = $kernel;
         $this->pluginRepository = $pluginRepository;
-        $this->appRepository = $appRepository;
+        $this->activeAppsLoader = $activeAppsLoader;
         $this->projectDir = $this->kernel->getContainer()->getParameter('kernel.project_dir');
     }
 
@@ -111,29 +112,23 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
     {
         // remove nullable prop and on-invalid=null behaviour in service declaration
         // when removing the feature flag
-        if (!$this->appRepository || !next10286()) {
+        if (!$this->activeAppsLoader || !next10286()) {
             return [];
         }
 
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('active', true));
-
-        /** @var AppCollection $apps */
-        $apps = $this->appRepository->search($criteria, Context::createDefaultContext());
-
         $configs = [];
-        foreach ($apps as $app) {
-            $absolutePath = $this->projectDir . '/' . $app->getPath();
+        foreach ($this->activeAppsLoader->getActiveApps() as $app) {
+            $absolutePath = $this->projectDir . '/' . $app['path'];
 
-            $configs[$app->getName()] = [
-                'basePath' => $app->getPath() . '/',
+            $configs[$app['name']] = [
+                'basePath' => $app['path'] . '/',
                 'views' => ['Resources/views'],
-                'technicalName' => str_replace('_', '-', $app->getNameAsSnakeCase()),
+                'technicalName' => str_replace('_', '-', $this->asSnakeCase($app['name'])),
                 'storefront' => [
                     'path' => 'Resources/app/storefront/src',
                     'entryFilePath' => $this->getEntryFile($absolutePath, 'Resources/app/storefront/src'),
                     'webpack' => $this->getWebpackConfig($absolutePath, 'Resources/app/storefront'),
-                    'styleFiles' => $this->getStyleFiles($absolutePath, $app->getName()),
+                    'styleFiles' => $this->getStyleFiles($absolutePath, $app['name']),
                 ],
             ];
         }
@@ -187,5 +182,10 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
         }
 
         return $files;
+    }
+
+    private function asSnakeCase(string $string): string
+    {
+        return (new CamelCaseToSnakeCaseNameConverter())->normalize($string);
     }
 }

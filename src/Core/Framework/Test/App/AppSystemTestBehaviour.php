@@ -15,6 +15,7 @@ trait AppSystemTestBehaviour
 {
     /**
      * @after
+     * @before
      */
     public function resetActiveApps(): void
     {

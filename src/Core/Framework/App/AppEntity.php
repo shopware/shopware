@@ -9,7 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
 use Shopware\Core\System\Integration\IntegrationEntity;
-use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 class AppEntity extends Entity
 {
@@ -346,11 +345,6 @@ class AppEntity extends Entity
     public function setCustomFieldSets(CustomFieldSetCollection $customFieldSets): void
     {
         $this->customFieldSets = $customFieldSets;
-    }
-
-    final public function getNameAsSnakeCase(): string
-    {
-        return (new CamelCaseToSnakeCaseNameConverter())->normalize($this->getName());
     }
 
     public function getAppSecret(): ?string

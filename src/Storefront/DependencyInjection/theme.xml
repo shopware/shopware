@@ -13,7 +13,7 @@
         <service id="Shopware\Storefront\Theme\StorefrontPluginRegistry" public="true">
             <argument type="service" id="kernel"/>
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory"/>
-            <argument type="service" id="app.repository" on-invalid="null"/>
+            <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader" on-invalid="null"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeCompiler">

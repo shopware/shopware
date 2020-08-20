@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Theme\StorefrontPluginConfiguration;
 
-use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Storefront\Framework\ThemeInterface;
 use Shopware\Storefront\Theme\Exception\InvalidThemeBundleException;
@@ -30,14 +29,14 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
         return $this->createPluginConfig($bundle->getName(), $bundle->getPath());
     }
 
-    public function createFromApp(AppEntity $app): StorefrontPluginConfiguration
+    public function createFromApp(string $appName, string $appPath): StorefrontPluginConfiguration
     {
-        $absolutePath = $this->projectDir . '/' . $app->getPath();
+        $absolutePath = $this->projectDir . '/' . $appPath;
         if (file_exists($absolutePath . '/Resources/theme.json')) {
-            return $this->createThemeConfig($app->getName(), $absolutePath);
+            return $this->createThemeConfig($appName, $absolutePath);
         }
 
-        return $this->createPluginConfig($app->getName(), $absolutePath);
+        return $this->createPluginConfig($appName, $absolutePath);
     }
 
     /**

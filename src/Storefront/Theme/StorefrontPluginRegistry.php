@@ -2,12 +2,8 @@
 
 namespace Shopware\Storefront\Theme;
 
-use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\Bundle;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
@@ -37,18 +33,18 @@ class StorefrontPluginRegistry implements StorefrontPluginRegistryInterface
     private $pluginConfigurationFactory;
 
     /**
-     * @var EntityRepositoryInterface|null
+     * @var ActiveAppsLoader|null
      */
-    private $appRepository;
+    private $activeAppsLoader;
 
     public function __construct(
         KernelInterface $kernel,
         AbstractStorefrontPluginConfigurationFactory $pluginConfigurationFactory,
-        ?EntityRepositoryInterface $appRepository
+        ?ActiveAppsLoader $activeAppsLoader
     ) {
         $this->kernel = $kernel;
         $this->pluginConfigurationFactory = $pluginConfigurationFactory;
-        $this->appRepository = $appRepository;
+        $this->activeAppsLoader = $activeAppsLoader;
     }
 
     public function getConfigurations(): StorefrontPluginConfigurationCollection
@@ -62,7 +58,7 @@ class StorefrontPluginRegistry implements StorefrontPluginRegistryInterface
         $this->addPluginConfigs();
         // remove nullable prop and on-invalid=null behaviour in service declaration
         // when removing the feature flag
-        if ($this->appRepository && next10286()) {
+        if ($this->activeAppsLoader && next10286()) {
             $this->addAppConfigs();
         }
 
@@ -88,13 +84,8 @@ class StorefrontPluginRegistry implements StorefrontPluginRegistryInterface
 
     private function addAppConfigs(): void
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('active', true));
-
-        $apps = $this->appRepository->search($criteria, Context::createDefaultContext())->getEntities();
-        /** @var AppEntity $app */
-        foreach ($apps as $app) {
-            $config = $this->pluginConfigurationFactory->createFromApp($app);
+        foreach ($this->activeAppsLoader->getActiveApps() as $app) {
+            $config = $this->pluginConfigurationFactory->createFromApp($app['name'], $app['path']);
 
             if (!$config->getIsTheme() && !$config->hasFilesToCompile()) {
                 continue;

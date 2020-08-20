@@ -34,6 +34,11 @@ class MultiFilter extends Filter
         }
     }
 
+    public function addQuery(Filter $query): void
+    {
+        $this->queries[] = $query;
+    }
+
     public function getQueries(): array
     {
         return $this->queries;

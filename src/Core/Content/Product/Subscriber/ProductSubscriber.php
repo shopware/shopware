@@ -48,11 +48,12 @@ class ProductSubscriber implements EventSubscriberInterface
 
         $sorted = [];
         foreach ($properties as $option) {
-            $group = $option->getGroup();
+            $origin = $option->getGroup();
 
-            if (!$group) {
+            if (!$origin) {
                 continue;
             }
+            $group = clone $origin;
 
             if (!$group->getOptions()) {
                 $group->setOptions(new PropertyGroupOptionCollection());

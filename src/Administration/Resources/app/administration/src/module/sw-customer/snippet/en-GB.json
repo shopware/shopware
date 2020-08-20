@@ -216,5 +216,12 @@
       "notificationPasswordErrorMessage": "The submitted passwords do not match.",
       "notificationPasswordLengthErrorMessage": "The submitted password does not meet the minimum length requirement of 8."
     }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "customer": {
+        "label": "Customers"
+      }
+    }
   }
 }

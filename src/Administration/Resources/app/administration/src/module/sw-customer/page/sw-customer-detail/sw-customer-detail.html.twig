@@ -8,15 +8,22 @@
 
         {% block sw_customer_detail_actions %}
             <template #smart-bar-actions>
+                <span v-if="!editMode">
                 {% block sw_customer_detail_actions_edit %}
-                    <sw-button v-if="!editMode"
-                               class="sw-customer-detail__open-edit-mode-action"
-                               variant="primary"
-                               :disabled="isLoading"
-                               @click.prevent="onActivateCustomerEditMode">
+                    <sw-button
+                        class="sw-customer-detail__open-edit-mode-action"
+                        variant="primary"
+                        :disabled="isLoading || !acl.can('customer.editor')"
+                        @click.prevent="onActivateCustomerEditMode"
+                        v-tooltip="{
+                            message: $tc('sw-privileges.tooltip.warning'),
+                            disabled: acl.can('customer.editor'),
+                            showOnDisabledElements: true
+                        }">
                         {{ $tc('sw-customer.detail.buttonEdit') }}
                     </sw-button>
                 {% endblock %}
+                </span>
 
                 <span v-else>
                     {% block sw_customer_detail_actions_cancel %}

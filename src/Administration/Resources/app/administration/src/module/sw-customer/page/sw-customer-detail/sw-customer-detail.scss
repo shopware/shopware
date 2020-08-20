@@ -20,3 +20,15 @@
         margin-right: 8px;
     }
 }
+
+.sw-customer-detail {
+    .smart-bar__actions {
+        span {
+            display: flex;
+        }
+
+        .sw-tooltip--wrapper {
+            margin-left: 8px;
+        }
+    }
+}

@@ -63,6 +63,10 @@ describe('Order: Visual tests', () => {
             '.sw-order-state-history-card__order-state .sw-order-state-card__date',
             'color: #fff'
         );
+        cy.changeElementStyling(
+            '.sw-card-section--secondary > .sw-container > :nth-child(2) > :nth-child(4)',
+            'color: rgb(240, 242, 245);'
+        );
         cy.takeSnapshot('Order detail', '.sw-order-detail');
     });
 });

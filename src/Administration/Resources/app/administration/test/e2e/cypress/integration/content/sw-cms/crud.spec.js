@@ -106,7 +106,6 @@ describe('CMS: Test crud operations of layouts', () => {
         // Verify layout in Storefront
         cy.visit('/');
         cy.get('.cms-block h2').contains('Lorem Ipsum dolor sit amet');
-        cy.takeSnapshot('CMS - Layout in Storefront', '.cms-block');
     });
 
     it('@base @content: delete layout', () => {

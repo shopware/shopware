@@ -12,6 +12,7 @@ describe('Index page on various viewports', () => {
         });
 
         it('displays full header', () => {
+            cy.get('.nav.main-navigation-menu').should('be.visible');
             cy.get('.nav-main-toggle').should('not.be.visible');
         });
     });

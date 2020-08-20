@@ -12,7 +12,7 @@
 // the project's config changing)
 
 require('@babel/register');
-let percyHealthCheck = require('@percy/cypress/task')
+const percyHealthCheck = require('@percy/cypress/task')
 const selectTestsWithGrep = require('cypress-select-tests/grep');
 
 module.exports = (on, config) => {

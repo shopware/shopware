@@ -69,7 +69,6 @@ describe('Customer: Test crud operations', () => {
         // Verify new customer in detail
         cy.wait('@saveData').then((xhr) => {
             expect(xhr).to.have.property('status', 204);
-            // cy.awaitAndCheckNotification('');
         });
 
         cy.get(`${page.elements.customerMetaData}-customer-name`)

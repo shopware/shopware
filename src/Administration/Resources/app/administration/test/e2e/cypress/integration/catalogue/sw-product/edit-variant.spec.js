@@ -53,6 +53,7 @@ describe('Product: Test variants', () => {
 
         // Create and verify one-dimensional variant
         page.generateVariants('Color', [0, 1, 2], 3);
+        cy.get('.sw-product-variants-overview').should('be.visible');
 
         cy.get('.sw-data-grid__body').contains('Red');
         cy.get('.sw-data-grid__body').contains('Yellow');

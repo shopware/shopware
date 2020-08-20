@@ -36,6 +36,8 @@ describe('Import/Export - Check import functionality', { browser: "!firefox" }, 
             method: 'post'
         }).as('importExportLog');
 
+        cy.get('.sw-import-export-view-import').should('be.visible');
+
         // Upload a fixture CSV file with a single product
         cy.fixture('csv/single-product.csv').then(fileContent => {
             cy.get('.sw-file-input__file-input').upload(

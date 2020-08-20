@@ -13,13 +13,9 @@
 
 require('@babel/register');
 const selectTestsWithGrep = require('cypress-select-tests/grep');
-let percyHealthCheck = require('@percy/cypress/task')
 
 module.exports = (on, config) => {
     // `on` is used to hook into various events Cypress emits
-
-    // Start percy
-    on("task", percyHealthCheck);
 
     // TODO: Workaround to cypress issue #6540, remove as soon as it's fixed
     on('before:browser:launch', (browser, launchOptions) => {

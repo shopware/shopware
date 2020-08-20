@@ -39,6 +39,8 @@ describe('Import/Export - Export:', () => {
             method: 'post'
         }).as('importExportLog');
 
+        cy.get('.sw-import-export-view-export').should('be.visible');
+
         // Select fixture profile for product entity
         cy.get('.sw-import-export-exporter__profile-select')
             .typeSingleSelectAndCheck('E2E', '.sw-import-export-exporter__profile-select');

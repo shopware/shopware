@@ -260,11 +260,11 @@ Cypress.Commands.add('takeSnapshot', (title, selectorToCheck = null, width = nul
         cy.get(selectorToCheck).should('be.visible');
     }
 
-    if (width) {
-        cy.percySnapshot(title, width);
-    } else {
+    if (!width) {
         cy.percySnapshot(title);
+        return;
     }
+    cy.percySnapshot(title, width);
 });
 
 /**

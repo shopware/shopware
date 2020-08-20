@@ -27,6 +27,7 @@ describe('Account: Edit order', () => {
         cy.get('.login-submit [type="submit"]').click();
 
         // Order detail is expandable
+        cy.get('.order-table').should('be.visible');
         cy.get('.order-table:nth-of-type(1) .order-table-header-order-number').contains('Order number: 10000');
         cy.get('.order-table:nth-of-type(1) .order-hide-btn').click();
         cy.get('.order-detail-content').should('be.visible');

@@ -27,6 +27,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         }).as('saveData');
 
         // Perform create new profile action
+        cy.get('.sw-import-export-view-profiles__listing').should('be.visible');
         cy.get('.sw-import-export-view-profiles__create-action').click();
 
         // Expect modal to be displayed and add mapping button to be disabled first

@@ -9,7 +9,7 @@ describe('Account: Login as customer', () => {
         const page = new AccountPageObject();
         cy.visit('/account/login');
 
-
+        cy.get(page.elements.loginCard).should('be.visible');
         cy.get('#loginMail').typeAndCheckStorefront('test@example.com');
         cy.get('#loginPassword').typeAndCheckStorefront('Anything');
         cy.get(`${page.elements.loginSubmit} [type="submit"]`).click();

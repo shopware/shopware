@@ -62,6 +62,7 @@ describe('Category: Visual tests', () => {
         cy.contains('Categorian').click();
 
         // Take snapshot for visual testing
+        cy.get('.sw-loader').should('not.exist');
         cy.takeSnapshot('Category - detail', '.sw-category-detail-base');
     });
 });

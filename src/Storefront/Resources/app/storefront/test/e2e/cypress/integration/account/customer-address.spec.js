@@ -21,6 +21,7 @@ describe('Account: Handle addresses as customer', () => {
             .click();
 
         cy.get('a[href="/account/address/create"]').click();
+        cy.get('.account-address-form').should('be.visible');
 
         // Fill in and submit address
         cy.get('#addresspersonalSalutation').typeAndSelect('Mr.');

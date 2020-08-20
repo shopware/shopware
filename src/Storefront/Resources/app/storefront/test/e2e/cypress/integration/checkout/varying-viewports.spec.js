@@ -54,7 +54,7 @@ describe('Checkout: Login as customer and run checkout in various viewports', ()
                 cy.get('.product-detail-buy .btn-buy').click();
 
                 // Off canvas
-
+                cy.get(`${page.elements.offCanvasCart}.is-open`).should('be.visible');
                 cy.get(`${page.elements.cartItem}-label`).contains(product.name);
 
                 // Checkout

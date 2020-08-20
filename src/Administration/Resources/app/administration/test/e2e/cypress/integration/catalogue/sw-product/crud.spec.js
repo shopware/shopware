@@ -16,7 +16,7 @@ describe('Product: Test crud operations', () => {
             });
     });
 
-    it('@base @catalogue @percy: create and read product', () => {
+    it('@base @catalogue: create and read product', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later

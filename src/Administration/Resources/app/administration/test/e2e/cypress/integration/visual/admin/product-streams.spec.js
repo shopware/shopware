@@ -23,6 +23,12 @@ describe('Dynamic product groups: Visual tests', () => {
         const page = new ProductStreamObject();
 
         // Take snapshot for visual testing
+        cy.get('.sw-data-grid__row--0').should('be.visible');
+
+        cy.changeElementStyling(
+            '.sw-data-grid__cell--updatedAt',
+            'color: #fff'
+        );
         cy.takeSnapshot('Product groups -  Listing', '.sw-product-stream-list');
 
         cy.get(page.elements.smartBarHeader).contains('Dynamic product groups');

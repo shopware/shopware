@@ -24,6 +24,7 @@ NEXT
 #### Administration
 
 #### Core
+* Changed order address from customer to billing address in documents
 
 #### Storefront
   

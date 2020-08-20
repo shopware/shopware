@@ -100,7 +100,6 @@ describe('module/sw-review/page/sw-review-detail', () => {
 
         const saveButton = wrapper.find('.sw-review-detail__save-action');
 
-        expect(saveButton.attributes().isLoading).toBeFalsy();
         expect(saveButton.attributes().disabled).toBeTruthy();
     });
 
@@ -114,8 +113,33 @@ describe('module/sw-review/page/sw-review-detail', () => {
         await wrapper.vm.$nextTick();
 
         const saveButton = wrapper.find('.sw-review-detail__save-action');
-        console.log(saveButton.html());
 
         expect(saveButton.attributes().disabled).toBeFalsy();
+    });
+
+    it('should not be able to edit review fields', () => {
+        const wrapper = createWrapper();
+
+        const languageField = wrapper.find('.sw-review__language-select');
+        const activeField = wrapper.find('.status-switch');
+        const commentField = wrapper.find('.sw-review__comment-field');
+
+        expect(languageField.attributes().disabled).toBeTruthy();
+        expect(activeField.attributes().disabled).toBeTruthy();
+        expect(commentField.attributes().disabled).toBeTruthy();
+    });
+
+    it('should be able to edit review fields', () => {
+        const wrapper = createWrapper([
+            'review.editor'
+        ]);
+
+        const languageField = wrapper.find('.sw-review__language-select');
+        const activeField = wrapper.find('.status-switch');
+        const commentField = wrapper.find('.sw-review__comment-field');
+
+        expect(languageField.attributes().disabled).toBeFalsy();
+        expect(activeField.attributes().disabled).toBeFalsy();
+        expect(commentField.attributes().disabled).toBeFalsy();
     });
 });

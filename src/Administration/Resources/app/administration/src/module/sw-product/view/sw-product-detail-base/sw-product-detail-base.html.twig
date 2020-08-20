@@ -195,7 +195,7 @@
                             {% block sw_product_detail_base_ratings_actions_edit %}
                             <sw-context-menu-item
                                 class="sw-product-detail-base__review-edit"
-                                :disabled="!acl.can('review.editor')"
+                                :disabled="!acl.can('product.editor')"
                                 :routerLink="{ name: 'sw.review.detail', params: { id: item.id } }">
                                 {{ $tc('sw-product.reviewForm.contextMenuEdit') }}
                             </sw-context-menu-item>
@@ -206,7 +206,7 @@
                                 class="sw-product-detail-base__review-delete"
                                 variant="danger"
                                 @click="onStartReviewDelete(item)"
-                                :disabled="!acl.can('review.deleter')">
+                                :disabled="!acl.can('product.editor')">
                                 {{ $tc('sw-product.reviewForm.contextMenuDelete') }}
                             </sw-context-menu-item>
                             {% endblock %}

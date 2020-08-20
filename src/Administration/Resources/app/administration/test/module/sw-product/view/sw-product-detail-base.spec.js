@@ -124,7 +124,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
 
     it('should be able to delete', async () => {
         wrapper = createWrapper([
-            'review.deleter'
+            'product.editor'
         ]);
         wrapper.setData({
             reviewItemData: mockReviews,
@@ -151,7 +151,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
 
     it('should be able to edit', async () => {
         wrapper = createWrapper([
-            'review.editor'
+            'product.editor'
         ]);
         wrapper.setData({
             reviewItemData: mockReviews,

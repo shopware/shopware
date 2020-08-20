@@ -77,9 +77,9 @@
                     </sw-upload-listener>
 
                     {% block sw_cms_section_config_background_image_position_field %}
-                        <sw-select-field :label="$tc('sw-cms.detail.label.backgroundMediaMode')"
-                                         v-model="section.backgroundMediaMode"
-                                         :disabled="!section.backgroundMediaId">
+                        <sw-select-field v-if="section.backgroundMediaId"
+                                         :label="$tc('sw-cms.detail.label.backgroundMediaMode')"
+                                         v-model="section.backgroundMediaMode">
                             <option value="auto">{{ $tc('sw-cms.detail.label.backgroundMediaModeAuto') }}</option>
                             <option value="contain">{{ $tc('sw-cms.detail.label.backgroundMediaModeContain') }}</option>
                             <option value="cover">{{ $tc('sw-cms.detail.label.backgroundMediaModeCover') }}</option>

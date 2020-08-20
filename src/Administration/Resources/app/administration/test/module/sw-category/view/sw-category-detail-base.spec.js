@@ -57,8 +57,7 @@ describe('module/sw-category/view/sw-category-detail-base.spec', () => {
             },
             mocks: {
                 $tc: key => key,
-                $store: Shopware.State._store,
-                next9278: true
+                $store: Shopware.State._store
             },
             propsData: {
                 isLoading: false,

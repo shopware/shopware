@@ -22,12 +22,19 @@ class AppStateService
      */
     private $eventDispatcher;
 
+    /**
+     * @var ActiveAppsLoader
+     */
+    private $activeAppsLoader;
+
     public function __construct(
         EntityRepositoryInterface $appRepo,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        ActiveAppsLoader $activeAppsLoader
     ) {
         $this->appRepo = $appRepo;
         $this->eventDispatcher = $eventDispatcher;
+        $this->activeAppsLoader = $activeAppsLoader;
     }
 
     public function activateApp(string $appId, Context $context): void
@@ -43,6 +50,7 @@ class AppStateService
         }
 
         $this->appRepo->update([['id' => $appId, 'active' => true]], $context);
+        $this->activeAppsLoader->resetActiveApps();
 
         $this->eventDispatcher->dispatch(new AppActivatedEvent($appId, $context));
     }
@@ -60,6 +68,7 @@ class AppStateService
         }
 
         $this->appRepo->update([['id' => $appId, 'active' => false]], $context);
+        $this->activeAppsLoader->resetActiveApps();
 
         $this->eventDispatcher->dispatch(new AppDeactivatedEvent($appId, $context));
     }

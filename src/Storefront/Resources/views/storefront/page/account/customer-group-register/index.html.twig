@@ -1,0 +1,19 @@
+{% sw_extends '@Storefront/storefront/base.html.twig' %}
+
+{% block base_content %}
+    {% block page_account_customer_group_register %}
+        <div class="account-register">
+            {% block page_account_customer_group_register_inner %}
+                <div class="row">
+                    <div class="col-12">
+                        {% block page_account_customer_group_register_inner_container %}
+                            {% sw_include '@Storefront/storefront/component/account/customer-group-register.html.twig' with {
+                                'cardTitle': "account.registerPersonalHeader"|trans|sw_sanitize
+                            } %}
+                        {% endblock %}
+                    </div>
+                </div>
+            {% endblock %}
+        </div>
+    {% endblock %}
+{% endblock %}

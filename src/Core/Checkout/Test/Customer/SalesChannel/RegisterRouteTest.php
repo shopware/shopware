@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use function Flag\skipTestNext6010;
 
 class RegisterRouteTest extends TestCase
 {
@@ -254,6 +255,37 @@ class RegisterRouteTest extends TestCase
         $customer = json_decode($this->browser->getResponse()->getContent(), true);
         static::assertArrayNotHasKey('errors', $customer);
         static::assertSame('customer', $response['apiAlias']);
+    }
+
+    public function testRegistrationWithRequestedGroup(): void
+    {
+        skipTestNext6010($this);
+        $customerGroupRepository = $this->getContainer()->get('customer_group.repository');
+        $customerGroupRepository->create([
+            [
+                'id' => $this->ids->create('group'),
+                'name' => 'foo',
+                'registration' => [
+                    'title' => 'test',
+                ],
+            ],
+        ], $this->ids->getContext());
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/account/register',
+                array_merge($this->getRegistrationData(), ['requestedGroupId' => $this->ids->get('group')])
+            );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertSame('customer', $response['apiAlias']);
+
+        /** @var CustomerEntity $customer */
+        $customer = $this->customerRepository->search(new Criteria([$response['id']]), $this->ids->getContext())->first();
+
+        static::assertSame($this->ids->get('group'), $customer->getRequestedGroupId());
     }
 
     private function getRegistrationData(): array

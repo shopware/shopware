@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
+use function Flag\next6010;
 
 class CustomerGroupDefinition extends EntityDefinition
 {
@@ -40,14 +41,26 @@ class CustomerGroupDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([
+        $collection = new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new TranslatedField('name'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new BoolField('display_gross', 'displayGross'),
             new TranslatedField('customFields'),
+
             (new OneToManyAssociationField('customers', CustomerDefinition::class, 'customer_group_id', 'id'))->addFlags(new RestrictDelete(), new ReadProtected(SalesChannelApiSource::class)),
             (new OneToManyAssociationField('salesChannels', SalesChannelDefinition::class, 'customer_group_id', 'id'))->addFlags(new RestrictDelete(), new ReadProtected(SalesChannelApiSource::class)),
             (new TranslationsAssociationField(CustomerGroupTranslationDefinition::class, 'customer_group_id'))->addFlags(new Required()),
         ]);
+
+        if (next6010()) {
+            // Merchant Registration
+            $collection->add(new BoolField('registration_active', 'registrationActive'));
+            $collection->add(new TranslatedField('registrationTitle'));
+            $collection->add(new TranslatedField('registrationIntroduction'));
+            $collection->add(new TranslatedField('registrationOnlyCompanyRegistration'));
+            $collection->add(new TranslatedField('registrationSeoMetaDescription'));
+        }
+
+        return $collection;
     }
 }

@@ -27,6 +27,21 @@ class SeoUrlApiService extends ApiService {
             return ApiService.handleResponse(response);
         });
     }
+
+    createCustomUrl(routeName, urls, additionalParams = {}, additionalHeaders = {}) {
+        const apiRoute = `/_action/${this.getApiBasePath()}/create-custom-url`;
+
+        return this.httpClient.post(
+            apiRoute,
+            { routeName, urls },
+            {
+                params: additionalParams,
+                headers: this.getBasicHeaders(additionalHeaders)
+            }
+        ).then((response) => {
+            return ApiService.handleResponse(response);
+        });
+    }
 }
 
 export default SeoUrlApiService;

@@ -58,7 +58,13 @@ Component.register('sw-customer-list', {
                 criteria.addFilter(Criteria.equalsAny('campaignCode', this.campaignCodeFilter));
             }
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
-            criteria.addAssociation('defaultBillingAddress');
+            criteria
+                .addAssociation('defaultBillingAddress')
+                .addAssociation('group');
+
+            if (this.next6010) {
+                criteria.addAssociation('requestedGroup');
+            }
 
             return criteria;
         },
@@ -158,6 +164,14 @@ Component.register('sw-customer-list', {
                 dataIndex: 'customerNumber',
                 naturalSorting: true,
                 label: 'sw-customer.list.columnCustomerNumber',
+                allowResize: true,
+                inlineEdit: 'string',
+                align: 'right'
+            }, {
+                property: 'group',
+                dataIndex: 'group',
+                naturalSorting: true,
+                label: 'sw-customer.list.columnGroup',
                 allowResize: true,
                 inlineEdit: 'string',
                 align: 'right'

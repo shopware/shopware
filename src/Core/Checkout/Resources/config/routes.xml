@@ -14,6 +14,7 @@
     <import resource="../../Customer/SalesChannel/**/*Route.php" type="annotation" />
     <import resource="../../Payment/SalesChannel/**/*Route.php" type="annotation" />
     <import resource="../../Shipping/SalesChannel/**/*Route.php" type="annotation" />
+    <import resource="../../Customer/Api/**/*Controller.php" type="annotation" />
     <import resource="../../Customer/SalesChannel/**/*Route.php" type="annotation" />
     <import resource="../../Order/SalesChannel/**/*Route.php" type="annotation" />
     <import resource="../../Cart/SalesChannel/**/*Route.php" type="annotation" />

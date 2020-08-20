@@ -10,6 +10,7 @@ use Shopware\Core\Content\Seo\SeoUrlPersister;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
 use Shopware\Core\Content\Seo\Validation\SeoUrlDataValidationFactoryInterface;
+use Shopware\Core\Content\Seo\Validation\SeoUrlValidationFactory;
 use Shopware\Core\Framework\Api\Exception\InvalidSalesChannelIdException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -28,6 +29,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use function Flag\next6010;
 
 /**
  * @RouteScope(scopes={"api"})
@@ -194,6 +196,33 @@ class SeoActionController extends AbstractController
         $seoUrlData['isModified'] = $seoUrlData['isModified'] ?? true;
 
         $this->seoUrlPersister->updateSeoUrls($context, $seoUrlData['routeName'], [$seoUrlData['foreignKey']], [$seoUrlData]);
+
+        return new Response('', Response::HTTP_NO_CONTENT);
+    }
+
+    /**
+     * @Route("/api/v{version}/_action/seo-url/create-custom-url", name="api.seo-url.create", methods={"POST"}, requirements={"version"="\d+"})
+     */
+    public function createCustomSeoUrls(RequestDataBag $dataBag, Context $context): Response
+    {
+        if (!next6010()) {
+            return new Response(Response::HTTP_NO_CONTENT, 404);
+        }
+
+        $urls = $dataBag->get('urls')->all();
+
+        /** @var SeoUrlValidationFactory $validatorBuilder */
+        $validatorBuilder = $this->seoUrlValidator;
+
+        $validation = $validatorBuilder->buildValidation($context, null);
+
+        foreach ($urls as &$seoUrlData) {
+            $this->validator->validate($seoUrlData, $validation);
+            $seoUrlData['isModified'] = $seoUrlData['isModified'] ?? true;
+        }
+        unset($seoUrlData);
+
+        $this->seoUrlPersister->updateSeoUrls($context, $urls[0]['routeName'], array_column($urls, 'foreignKey'), $urls);
 
         return new Response('', Response::HTTP_NO_CONTENT);
     }

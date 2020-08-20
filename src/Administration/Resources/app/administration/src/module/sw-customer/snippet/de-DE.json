@@ -12,6 +12,19 @@
       "newCustomer": "Neuer Kunde",
       "tooltipLanguageSwitch": "Die Sprachauswahl ist deaktiviert, da keine übersetzbaren Felder existieren."
     },
+    "customerGroupRegistration": {
+      "alert": "Zugang zur Kundengruppe \"{name}\" angefragt.",
+      "accept": "Akzeptieren",
+      "acceptMessage": "Kundengruppe wurde geändert",
+      "decline": "Ablehnen",
+      "declineMessage": "Antrag wurde abgelehnt",
+      "errorMessage": "Anfrage kann nicht verarbeitet werden",
+      "notification": {
+        "title": "Händlerstatus Anfrage",
+        "message": "Kunde \"{name}\" möchte in Kundengruppe \"{groupName}\" aufgenommen werden.",
+        "openCustomer": "Kunden öffnen"
+      }
+    },
     "card": {
       "placeholderTitle": "Titel",
       "placeholderFirstName": "Vorname",
@@ -35,6 +48,8 @@
       "buttonAddCustomer": "Kunden anlegen",
       "columnCustomerNumber": "Kundennummer",
       "columnName": "Name",
+      "columnGroup": "Kundengruppe",
+      "columnGroupRequested": "Angefragt:",
       "columnNameGuestLabel": "Gastbesteller",
       "columnFirstName": "Vorname",
       "columnLastName": "Nachname",

@@ -110,6 +110,7 @@
         "symfony/inflector": "4.4.4",
         "symfony/twig-bridge": "4.4.4",
         "symfony/process": "4.4.4",
+        "symfony/proxy-manager-bridge": "4.4.4",
         "symfony/debug": "4.4.4",
         "symfony/mime": "4.4.4",
         "symfony/var-exporter": "4.4.4",

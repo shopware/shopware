@@ -142,10 +142,20 @@ Component.register('sw-product-stream-grid-preview', {
 
         loadProducts() {
             this.criteria.term = this.searchTerm || null;
-            this.criteria.filters = this.filters;
+            this.criteria.filters = [...this.filters];
             this.criteria.limit = this.limit;
+            this.criteria.setPage(this.page);
             this.criteria.addAssociation('manufacturer');
             this.criteria.addAssociation('options.group');
+            this.criteria.addGroupField('displayGroup');
+            this.criteria.addFilter(
+                Criteria.not(
+                    'AND',
+                    [
+                        Criteria.equals('displayGroup', null)
+                    ]
+                )
+            );
 
             return this.productRepository.search(this.criteria, {
                 ...Context.api,

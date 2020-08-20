@@ -9,11 +9,34 @@ use Symfony\Component\Validator\Constraints\All;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\Collection;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use function Flag\next9279;
 
 class SlotConfigFieldSerializer extends JsonFieldSerializer
 {
     protected function getConstraints(Field $field): array
     {
+        if (next9279()) {
+            return [
+                new All([
+                    'constraints' => new Collection([
+                        'allowExtraFields' => false,
+                        'allowMissingFields' => false,
+                        'fields' => [
+                            'source' => [
+                                new Choice(['choices' => [
+                                    FieldConfig::SOURCE_STATIC,
+                                    FieldConfig::SOURCE_MAPPED,
+                                    FieldConfig::SOURCE_PRODUCT_STREAM,
+                                ]]),
+                                new NotBlank(),
+                            ],
+                            'value' => [],
+                        ],
+                    ]),
+                ]),
+            ];
+        }
+
         return [
             new All([
                 'constraints' => new Collection([
@@ -21,7 +44,10 @@ class SlotConfigFieldSerializer extends JsonFieldSerializer
                     'allowMissingFields' => false,
                     'fields' => [
                         'source' => [
-                            new Choice(['choices' => [FieldConfig::SOURCE_STATIC, FieldConfig::SOURCE_MAPPED]]),
+                            new Choice(['choices' => [
+                                FieldConfig::SOURCE_STATIC,
+                                FieldConfig::SOURCE_MAPPED,
+                            ]]),
                             new NotBlank(),
                         ],
                         'value' => [],

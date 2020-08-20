@@ -83,6 +83,16 @@ describe('components/entity/sw-product-stream-grid-preview.spec', () => {
         });
 
         const spyLoadProducts = jest.spyOn(wrapper.vm, 'loadProducts');
+        const displayGroupFilter = {
+            operator: 'AND',
+            queries: [{
+                field: 'displayGroup',
+                type: 'equals',
+                value: null
+            }],
+            type: 'not'
+        };
+
         await wrapper.vm.$nextTick();
 
         expect(spyLoadProducts).toHaveBeenCalledTimes(1);
@@ -90,7 +100,7 @@ describe('components/entity/sw-product-stream-grid-preview.spec', () => {
         expect(wrapper.vm.total).toBe(mockProducts.total);
         expect(wrapper.vm.systemCurrency).toBe(mockCurrency);
         expect(wrapper.vm.filters).toBe(mockFilter);
-        expect(wrapper.vm.criteria.filters).toBe(wrapper.vm.filters);
+        expect(wrapper.vm.criteria.filters).toEqual([...wrapper.vm.filters, displayGroupFilter]);
         expect(wrapper.vm.criteria.associations[0].association).toBe('manufacturer');
     });
 

@@ -28,23 +28,33 @@
                 :isLoading="isLoading">
 
                 {% block sw_product_stream_grid_preview_grid_columns %}
-                    <template #column-name="{ item }">
+                    <template #column-name="{ item, column }">
                         {% block sw_product_stream_grid_preview_grid_column_name %}
-                            <router-link :to="{ name: 'sw.product.detail', params: { id: item.id } }">
+                            <router-link
+                                v-if="column.routerLink"
+                                :to="{ name: column.routerLink, params: { id: item.id } }">
                                 <sw-product-variant-info :variations="item.variation">
                                     {{ item.name || item.translated.name }}
                                 </sw-product-variant-info>
                             </router-link>
+                            <sw-product-variant-info
+                                v-else
+                                :variations="item.variation">
+                                {{ item.name || item.translated.name }}
+                            </sw-product-variant-info>
                         {% endblock %}
                     </template>
 
-                    <template #column-manufacturer.name="{ item }">
+                    <template #column-manufacturer.name="{ item, column }">
                         {% block sw_product_stream_grid_preview_grid_column_manufacturer %}
                             <router-link
-                                v-if="item.manufacturerId"
-                                :to="{ name: 'sw.manufacturer.detail', params: { id: item.manufacturerId } }">
+                                v-if="column.routerLink && item.manufacturerId"
+                                :to="{ name: column.routerLink, params: { id: item.manufacturerId } }">
                                 {{ item.manufacturer.name || item.manufacturer.translated.name }}
                             </router-link>
+                            <template v-else-if="item.manufacturerId">
+                                {{ item.manufacturer.name || item.manufacturer.translated.name }}
+                            </template>
                         {% endblock %}
                     </template>
 

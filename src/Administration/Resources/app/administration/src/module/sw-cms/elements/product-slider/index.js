@@ -53,6 +53,14 @@ Shopware.Service('cmsService').registerCmsElement({
         verticalAlign: {
             source: 'static',
             value: null
+        },
+        productStreamSorting: {
+            source: 'static',
+            value: 'name:ASC'
+        },
+        productStreamLimit: {
+            source: 'static',
+            value: 10
         }
     },
     collect: function collect(elem) {
@@ -66,6 +74,10 @@ Shopware.Service('cmsService').registerCmsElement({
 
         Object.keys(elem.config).forEach((configKey) => {
             if (elem.config[configKey].source === 'mapped') {
+                return;
+            }
+
+            if (elem.config[configKey].source === 'product_stream') {
                 return;
             }
 

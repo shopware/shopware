@@ -633,7 +633,7 @@ class AppLifecycleTest extends TestCase
     private function assertDefaultTemplate(string $appId): void
     {
         /** @var EntityRepositoryInterface $templateRepository */
-        $templateRepository = $this->getContainer()->get('template.repository');
+        $templateRepository = $this->getContainer()->get('app_template.repository');
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('appId', $appId));

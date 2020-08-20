@@ -52,7 +52,7 @@ class EntityTemplateLoaderTest extends TestCase
     public function setUp(): void
     {
         skipTestNext10286($this);
-        $this->templateRepository = $this->getContainer()->get('template.repository');
+        $this->templateRepository = $this->getContainer()->get('app_template.repository');
         $this->templateLoader = $this->getContainer()->get(EntityTemplateLoader::class);
         $this->template1Id = Uuid::randomHex();
         $this->template2Id = Uuid::randomHex();

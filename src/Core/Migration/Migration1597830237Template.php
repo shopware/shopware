@@ -15,7 +15,7 @@ class Migration1597830237Template extends MigrationStep
     public function update(Connection $connection): void
     {
         $connection->executeUpdate('
-            CREATE TABLE IF NOT EXISTS `template` (
+            CREATE TABLE IF NOT EXISTS `app_template` (
               `id` BINARY(16) NOT NULL,
               `template` LONGTEXT NOT NULL,
               `path` VARCHAR(1024) NOT NULL,

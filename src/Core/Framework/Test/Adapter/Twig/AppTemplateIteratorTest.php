@@ -23,7 +23,7 @@ class AppTemplateIteratorTest extends TestCase
         // somehow the constructor is not marked as covered if we get the service from DI
         $iterator = new AppTemplateIterator(
             $this->getContainer()->get('twig.template_iterator'),
-            $this->getContainer()->get('template.repository')
+            $this->getContainer()->get('app_template.repository')
         );
 
         static::assertInstanceOf(AppTemplateIterator::class, $iterator);

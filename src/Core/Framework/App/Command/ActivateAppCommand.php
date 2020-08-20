@@ -2,23 +2,13 @@
 
 namespace Shopware\Core\Framework\App\Command;
 
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\App\AppStateService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 
-class ActivateAppCommand extends Command
+class ActivateAppCommand extends AbstractAppActivationCommand
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $appRepo;
+    private const ACTION = 'activate';
 
     /**
      * @var AppStateService
@@ -27,45 +17,13 @@ class ActivateAppCommand extends Command
 
     public function __construct(EntityRepositoryInterface $appRepo, AppStateService $appStateService)
     {
-        parent::__construct();
-        $this->appRepo = $appRepo;
         $this->appStateService = $appStateService;
+
+        parent::__construct($appRepo, self::ACTION);
     }
 
-    public function execute(InputInterface $input, OutputInterface $output): int
+    public function runAction(string $appId, Context $context): void
     {
-        $io = new ShopwareStyle($input, $output);
-        $context = Context::createDefaultContext();
-
-        /** @var string $appName */
-        $appName = $input->getArgument('name');
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('name', $appName));
-
-        $id = $this->appRepo->searchIds($criteria, $context)->firstId();
-
-        if (!$id) {
-            $io->error("No app found for \"${appName}\".");
-
-            return 1;
-        }
-
-        $this->appStateService->activateApp($id, $context);
-        $io->success('App activated successfully.');
-
-        return 0;
-    }
-
-    protected function configure(): void
-    {
-        $this->setName('app:activate')
-            ->setDescription('activate the app in the folder with the given name')
-            ->addArgument(
-                'name',
-                InputArgument::REQUIRED,
-                'The name of the app, has also to be the name of the folder under
-                which the app can be found under custom/apps'
-            );
+        $this->appStateService->activateApp($appId, $context);
     }
 }

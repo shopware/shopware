@@ -6,6 +6,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSell
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\SalesChannel\CrossSelling\AbstractProductCrossSellingRoute;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilter;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
@@ -16,179 +17,40 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class CrossSellingLoader
 {
     /**
+     * @var AbstractProductCrossSellingRoute
+     */
+    private $route;
+
+    /**
      * @var EventDispatcherInterface
      */
     private $eventDispatcher;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $crossSellingRepository;
-
-    /**
-     * @var ProductStreamBuilderInterface
-     */
-    private $productStreamBuilder;
-
-    /**
-     * @var SalesChannelRepositoryInterface
-     */
-    private $productRepository;
-
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
-
-    public function __construct(
-        EntityRepositoryInterface $crossSellingRepository,
-        EventDispatcherInterface $eventDispatcher,
-        ProductStreamBuilderInterface $productStreamBuilder,
-        SalesChannelRepositoryInterface $productRepository,
-        SystemConfigService $systemConfigService
-    ) {
+    public function __construct(AbstractProductCrossSellingRoute $route, EventDispatcherInterface $eventDispatcher)
+    {
+        $this->route = $route;
         $this->eventDispatcher = $eventDispatcher;
-        $this->crossSellingRepository = $crossSellingRepository;
-        $this->productStreamBuilder = $productStreamBuilder;
-        $this->productRepository = $productRepository;
-        $this->systemConfigService = $systemConfigService;
     }
 
     public function load(string $productId, SalesChannelContext $context): CrossSellingLoaderResult
     {
-        $crossSellings = $this->loadCrossSellingsForProduct($productId, $context);
+        $result = $this->route
+            ->load($productId, new Request(), $context, new Criteria())
+            ->getResult();
 
-        $result = new CrossSellingLoaderResult();
-
-        foreach ($crossSellings as $crossSelling) {
-            $element = $this->loadCrossSellingElement($crossSelling, $context);
-
-            if ($element && $element->getTotal() > 0) {
-                $result->add($element);
-            }
+        $mapped = new CrossSellingLoaderResult();
+        foreach ($result as $element) {
+            $mapped->add(CrossSellingElement::createFrom($element));
         }
 
-        $this->eventDispatcher->dispatch(new CrossSellingLoadedEvent($result, $context));
+        $this->eventDispatcher->dispatch(new CrossSellingLoadedEvent($mapped, $context));
 
-        return $result;
-    }
-
-    private function loadCrossSellingsForProduct(string $productId, SalesChannelContext $context): ProductCrossSellingCollection
-    {
-        $criteria = new Criteria();
-        $criteria
-            ->addAssociation('assignedProducts')
-            ->addFilter(new EqualsFilter('product.id', $productId))
-            ->addFilter(new EqualsFilter('active', 1))
-            ->addSorting(new FieldSorting('position', FieldSorting::ASCENDING));
-
-        /** @var ProductCrossSellingCollection $crossSellings */
-        $crossSellings = $this->crossSellingRepository
-            ->search($criteria, $context->getContext())
-            ->getEntities();
-
-        return $crossSellings;
-    }
-
-    private function loadCrossSellingElement(ProductCrossSellingEntity $crossSelling, SalesChannelContext $context): ?CrossSellingElement
-    {
-        if ($crossSelling->getType() === 'productStream' && $crossSelling->getProductStreamId() !== null) {
-            return $this->loadCrossSellingProductStream($crossSelling, $context);
-        }
-
-        return $this->loadCrossSellingProductList($crossSelling, $context);
-    }
-
-    private function loadCrossSellingProductStream(ProductCrossSellingEntity $crossSelling, SalesChannelContext $context): CrossSellingElement
-    {
-        $filters = $this->productStreamBuilder->buildFilters(
-            $crossSelling->getProductStreamId(),
-            $context->getContext()
-        );
-
-        $criteria = new Criteria();
-        $criteria->addFilter(...$filters)
-            ->setLimit($crossSelling->getLimit())
-            ->addSorting($crossSelling->getSorting());
-
-        $criteria = $this->handleAvailableStock($criteria, $context);
-
-        $this->eventDispatcher->dispatch(
-            new CrossSellingProductStreamCriteriaEvent($crossSelling, $criteria, $context)
-        );
-
-        $searchResult = $this->productRepository->search($criteria, $context);
-
-        /** @var ProductCollection $products */
-        $products = $searchResult->getEntities();
-
-        $element = new CrossSellingElement();
-        $element->setCrossSelling($crossSelling);
-        $element->setProducts($products);
-
-        $element->setTotal($searchResult->getTotal());
-
-        return $element;
-    }
-
-    private function loadCrossSellingProductList(ProductCrossSellingEntity $crossSelling, SalesChannelContext $context): ?CrossSellingElement
-    {
-        if (!$crossSelling->getAssignedProducts()) {
-            return null;
-        }
-
-        $crossSelling->getAssignedProducts()->sortByPosition();
-
-        $ids = array_values($crossSelling->getAssignedProducts()->getProductIds());
-
-        $filter = new ProductAvailableFilter(
-            $context->getSalesChannel()->getId(),
-            ProductVisibilityDefinition::VISIBILITY_LINK
-        );
-
-        if (!count($ids)) {
-            return null;
-        }
-
-        $criteria = new Criteria($ids);
-        $criteria->addFilter($filter);
-
-        $criteria = $this->handleAvailableStock($criteria, $context);
-
-        $this->eventDispatcher->dispatch(
-            new CrossSellingProductListCriteriaEvent($crossSelling, $criteria, $context)
-        );
-
-        $searchResult = $this->productRepository->search($criteria, $context);
-
-        $products = new ProductCollection($searchResult->getElements());
-        $products->sortByIdArray($ids);
-
-        $element = new CrossSellingElement();
-        $element->setCrossSelling($crossSelling);
-        $element->setProducts($products);
-
-        $element->setTotal($crossSelling->getAssignedProducts()->count());
-
-        return $element;
-    }
-
-    private function handleAvailableStock(Criteria $criteria, SalesChannelContext $context): Criteria
-    {
-        $salesChannelId = $context->getSalesChannel()->getId();
-        $hide = $this->systemConfigService->get('core.listing.hideCloseoutProductsWhenOutOfStock', $salesChannelId);
-
-        if (!$hide) {
-            return $criteria;
-        }
-
-        $criteria->addFilter(new ProductCloseoutFilter());
-
-        return $criteria;
+        return $mapped;
     }
 }

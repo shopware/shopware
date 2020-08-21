@@ -462,5 +462,10 @@
         <service id="Shopware\Storefront\Framework\Routing\ResponseHeaderListener">
             <tag name="kernel.event_listener" priority="-10"/>
         </service>
+
+        <service id="Shopware\Storefront\Event\BackwardSubscriber">
+            <argument type="service" id="event_dispatcher"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
     </services>
 </container>

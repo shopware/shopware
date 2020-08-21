@@ -96,7 +96,7 @@
                                             <sw-data-grid-column-position
                                                 v-model="payment"
                                                 :item="item"
-                                                :disabled="disablePositioning"
+                                                :disabled="disablePositioning || !acl.can('payment.editor')"
                                                 :showValue="true"
                                                 @position-changed="onPositionChanged">
                                             </sw-data-grid-column-position>

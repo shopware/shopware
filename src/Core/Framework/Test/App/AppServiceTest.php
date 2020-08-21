@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\App;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonEntity;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppService;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
@@ -46,8 +47,7 @@ class AppServiceTest extends TestCase
     {
         skipTestNext10286($this);
         $this->appRepository = $this->getContainer()->get('app.repository');
-        // ToDo: reactivate action button tests in the whole file once action buttons are migrated
-//        $this->actionButtonRepository = $this->getContainer()->get('app_action_button.repository');
+        $this->actionButtonRepository = $this->getContainer()->get('app_action_button.repository');
 
         $this->appService = new AppService(
             new AppLifecycleIterator(
@@ -70,7 +70,7 @@ class AppServiceTest extends TestCase
         static::assertCount(1, $apps);
         static::assertEquals('SwagApp', $apps->first()->getName());
 
-//        $this->assertDefaultActionButtons();
+        $this->assertDefaultActionButtons();
     }
 
     public function testRefreshUpdatesApp(): void
@@ -112,7 +112,7 @@ class AppServiceTest extends TestCase
         static::assertEquals('1.0.0', $apps->first()->getVersion());
         static::assertNotEquals('test', $apps->first()->getTranslation('label'));
 
-//        $this->assertDefaultActionButtons();
+        $this->assertDefaultActionButtons();
     }
 
     public function testRefreshAppIsUntouched(): void
@@ -180,10 +180,10 @@ class AppServiceTest extends TestCase
         $apps = $this->appRepository->searchIds(new Criteria([$appId]), $this->context)->getIds();
         static::assertCount(0, $apps);
 
-//        $criteria = new Criteria();
-//        $criteria->addFilter(new EqualsFilter('appId', $appId));
-//        $apps = $this->actionButtonRepository->searchIds($criteria, $this->context)->getIds();
-//        static::assertCount(0, $apps);
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('appId', $appId));
+        $apps = $this->actionButtonRepository->searchIds($criteria, $this->context)->getIds();
+        static::assertCount(0, $apps);
     }
 
     public function testGetRefreshableApps(): void
@@ -277,15 +277,15 @@ class AppServiceTest extends TestCase
         static::assertCount(1, $fails);
     }
 
-//    private function assertDefaultActionButtons(): void
-//    {
-//        $actionButtons = $this->actionButtonRepository->search(new Criteria(), $this->context)->getEntities();
-//        static::assertCount(2, $actionButtons);
-//        $actionNames = array_map(function (ActionButtonEntity $actionButton) {
-//            return $actionButton->getAction();
-//        }, $actionButtons->getElements());
-//
-//        static::assertContains('viewOrder', $actionNames);
-//        static::assertContains('doStuffWithProducts', $actionNames);
-//    }
+    private function assertDefaultActionButtons(): void
+    {
+        $actionButtons = $this->actionButtonRepository->search(new Criteria(), $this->context)->getEntities();
+        static::assertCount(2, $actionButtons);
+        $actionNames = array_map(function (ActionButtonEntity $actionButton) {
+            return $actionButton->getAction();
+        }, $actionButtons->getElements());
+
+        static::assertContains('viewOrder', $actionNames);
+        static::assertContains('doStuffWithProducts', $actionNames);
+    }
 }

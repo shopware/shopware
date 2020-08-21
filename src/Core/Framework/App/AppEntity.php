@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\App;
 
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
+use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonCollection;
 use Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -85,11 +86,6 @@ class AppEntity extends Entity
     protected $description;
 
     /**
-     * @var string
-     */
-    protected $accessToken;
-
-    /**
      * @var string|null
      */
     protected $appSecret;
@@ -133,6 +129,11 @@ class AppEntity extends Entity
      * @var CustomFieldSetCollection|null
      */
     protected $customFieldSets;
+
+    /**
+     * @var ActionButtonCollection|null
+     */
+    protected $actionButtons;
 
     public function getId(): string
     {
@@ -370,5 +371,15 @@ class AppEntity extends Entity
     public function setActive(bool $active): void
     {
         $this->active = $active;
+    }
+
+    public function getActionButtons(): ?ActionButtonCollection
+    {
+        return $this->actionButtons;
+    }
+
+    public function setActionButtons(ActionButtonCollection $actionButtons): void
+    {
+        $this->actionButtons = $actionButtons;
     }
 }

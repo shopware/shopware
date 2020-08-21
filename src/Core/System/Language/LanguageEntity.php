@@ -27,6 +27,7 @@ use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamTranslation\Produ
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOptionTranslation\PropertyGroupOptionTranslationCollection;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupTranslation\PropertyGroupTranslationCollection;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
+use Shopware\Core\Framework\App\Aggregate\ActionButtonTranslation\ActionButtonTranslationCollection;
 use Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -326,6 +327,11 @@ class LanguageEntity extends Entity
      * @var AppTranslationCollection|null
      */
     protected $appTranslations;
+
+    /**
+     * @var ActionButtonTranslationCollection|null
+     */
+    protected $actionButtonTranslations;
 
     public function getMailHeaderFooterTranslations(): ?MailHeaderFooterCollection
     {
@@ -875,6 +881,16 @@ class LanguageEntity extends Entity
     public function setAppTranslations(AppTranslationCollection $appTranslations): void
     {
         $this->appTranslations = $appTranslations;
+    }
+
+    public function getActionButtonTranslations(): ?ActionButtonTranslationCollection
+    {
+        return $this->actionButtonTranslations;
+    }
+
+    public function setActionButtonTranslations(ActionButtonTranslationCollection $actionButtonTranslations): void
+    {
+        $this->actionButtonTranslations = $actionButtonTranslations;
     }
 
     public function getApiAlias(): string

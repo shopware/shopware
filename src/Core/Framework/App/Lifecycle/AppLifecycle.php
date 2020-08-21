@@ -8,6 +8,7 @@ use Shopware\Core\Framework\App\AppStateService;
 use Shopware\Core\Framework\App\Event\AppDeletedEvent;
 use Shopware\Core\Framework\App\Event\AppInstalledEvent;
 use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
+use Shopware\Core\Framework\App\Lifecycle\Persister\ActionButtonPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\CustomFieldPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
@@ -61,10 +62,16 @@ class AppLifecycle extends AbstractAppLifecycle
      */
     private $appStateService;
 
+    /**
+     * @var ActionButtonPersister
+     */
+    private $actionButtonPersister;
+
     public function __construct(
         EntityRepositoryInterface $appRepository,
         PermissionPersister $permissionPersister,
         CustomFieldPersister $customFieldPersister,
+        ActionButtonPersister $actionButtonPersister,
         AbstractAppLoader $appLoader,
         EventDispatcherInterface $eventDispatcher,
         AppRegistrationService $registrationService,
@@ -79,6 +86,7 @@ class AppLifecycle extends AbstractAppLifecycle
         $this->registrationService = $registrationService;
         $this->projectDir = $projectDir;
         $this->appStateService = $appStateService;
+        $this->actionButtonPersister = $actionButtonPersister;
     }
 
     public function install(Manifest $manifest, bool $activate, Context $context): void
@@ -147,6 +155,7 @@ class AppLifecycle extends AbstractAppLifecycle
         // we need a app secret to securely communicate with apps
         // therefore we only install action-buttons, webhooks and modules if we have a secret
         if ($app->getAppSecret()) {
+            $this->actionButtonPersister->updateActions($manifest, $id, $context);
             $this->updateModules($manifest, $id, $context);
         }
 

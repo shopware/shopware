@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\App;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
+use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -89,6 +90,8 @@ class AppDefinition extends EntityDefinition
             new OneToOneAssociationField('aclRole', 'acl_role_id', 'id', AclRoleDefinition::class),
 
             (new OneToManyAssociationField('customFieldSets', CustomFieldSetDefinition::class, 'app_id'))->addFlags(new CascadeDelete()),
+
+            (new OneToManyAssociationField('actionButtons', ActionButtonDefinition::class, 'app_id'))->addFlags(new CascadeDelete()),
         ]);
     }
 }

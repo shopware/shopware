@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Adapter\Twig;
+namespace Shopware\Core\Framework\Test\Adapter\Twig\NamespaceHierarchy;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use function Flag\skipTestNext10286;
 
-class AppTemplateHierarchyBuilderTest extends TestCase
+class NamespaceHierarchyBuilderTest extends TestCase
 {
     use IntegrationTestBehaviour;
 

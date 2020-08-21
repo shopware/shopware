@@ -68,7 +68,7 @@ class EntityTemplateLoaderTest extends TestCase
     public function testGetSubscribedEvents(): void
     {
         static::assertEquals(
-            ['template.written' => 'clearInternalCache'],
+            ['app_template.written' => 'clearInternalCache'],
             EntityTemplateLoader::getSubscribedEvents()
         );
     }

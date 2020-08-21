@@ -31,7 +31,7 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface
 
     public static function getSubscribedEvents(): array
     {
-        return ['template.written' => 'clearInternalCache'];
+        return ['app_template.written' => 'clearInternalCache'];
     }
 
     public function clearInternalCache(): void

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Administration\KnownIps;
+namespace Shopware\Administration\Framework\Routing\KnownIps;
 
 use Symfony\Component\HttpFoundation\Request;
 

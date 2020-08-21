@@ -8,7 +8,6 @@ class FieldConfig extends Struct
 {
     public const SOURCE_STATIC = 'static';
     public const SOURCE_MAPPED = 'mapped';
-    //@internal (flag:FEATURE_NEXT_9279)
     public const SOURCE_PRODUCT_STREAM = 'product_stream';
 
     /**
@@ -55,9 +54,6 @@ class FieldConfig extends Struct
         return $this->source === self::SOURCE_MAPPED;
     }
 
-    /*
-     * @internal (flag:FEATURE_NEXT_9279)
-     */
     public function isProductStream(): bool
     {
         return $this->source === self::SOURCE_PRODUCT_STREAM;

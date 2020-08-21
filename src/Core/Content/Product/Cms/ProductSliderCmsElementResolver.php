@@ -20,7 +20,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use function Flag\next9279;
 
 class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
 {
@@ -65,7 +64,7 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
             }
         }
 
-        if (next9279() && $products->isProductStream() && $products->getValue()) {
+        if ($products->isProductStream() && $products->getValue()) {
             $criteria = $this->collectByProductStream($resolverContext, $products, $config);
             $collection->add(self::PRODUCT_SLIDER_ENTITY_FALLBACK . '_' . $slot->getUniqueIdentifier(), ProductDefinition::class, $criteria);
         }
@@ -96,7 +95,7 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
             }
         }
 
-        if (next9279() && $productConfig->isProductStream() && $productConfig->getValue()) {
+        if ($productConfig->isProductStream() && $productConfig->getValue()) {
             /** @var ProductCollection $streamResult */
             $streamResult = $result->get(self::PRODUCT_SLIDER_ENTITY_FALLBACK . '_' . $slot->getUniqueIdentifier())->getEntities();
             foreach ($streamResult as $product) {

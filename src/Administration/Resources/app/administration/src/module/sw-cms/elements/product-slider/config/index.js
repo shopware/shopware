@@ -138,7 +138,7 @@ Component.register('sw-cms-el-config-product-slider', {
                 return;
             }
 
-            if (this.next9279 && this.element.config.products.source === 'product_stream') {
+            if (this.element.config.products.source === 'product_stream') {
                 this.loadProductStream();
             } else {
                 // We have to fetch the assigned entities again

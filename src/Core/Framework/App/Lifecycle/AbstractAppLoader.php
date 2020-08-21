@@ -6,6 +6,8 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 
 abstract class AbstractAppLoader
 {
+    abstract public function getDecorated(): AbstractAppLoader;
+
     /**
      * @return Manifest[]
      */

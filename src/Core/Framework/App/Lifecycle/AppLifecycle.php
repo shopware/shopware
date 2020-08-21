@@ -17,6 +17,7 @@ use Shopware\Core\Framework\App\Manifest\Xml\Module;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -87,6 +88,11 @@ class AppLifecycle extends AbstractAppLifecycle
         $this->projectDir = $projectDir;
         $this->appStateService = $appStateService;
         $this->actionButtonPersister = $actionButtonPersister;
+    }
+
+    public function getDecorated(): AbstractAppLifecycle
+    {
+        throw new DecorationPatternException(self::class);
     }
 
     public function install(Manifest $manifest, bool $activate, Context $context): void

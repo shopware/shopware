@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\App\Lifecycle;
 
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
 class RefreshableAppDryRun extends AbstractAppLifecycle
 {
@@ -21,6 +22,11 @@ class RefreshableAppDryRun extends AbstractAppLifecycle
      * @var string[]
      */
     private $toBeDeleted = [];
+
+    public function getDecorated(): AbstractAppLifecycle
+    {
+        throw new DecorationPatternException(self::class);
+    }
 
     public function install(Manifest $manifest, bool $activated, Context $context): void
     {

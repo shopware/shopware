@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Theme\StorefrontPluginConfiguration;
 
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Storefront\Framework\ThemeInterface;
 use Shopware\Storefront\Theme\Exception\InvalidThemeBundleException;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
@@ -18,6 +19,11 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
     public function __construct(string $projectDir)
     {
         $this->projectDir = $projectDir;
+    }
+
+    public function getDecorated(): AbstractStorefrontPluginConfigurationFactory
+    {
+        throw new DecorationPatternException(self::class);
     }
 
     public function createFromBundle(Bundle $bundle): StorefrontPluginConfiguration

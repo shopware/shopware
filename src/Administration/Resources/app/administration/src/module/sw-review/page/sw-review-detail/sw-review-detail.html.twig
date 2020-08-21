@@ -15,8 +15,16 @@
                 {% endblock %}
 
                 {% block sw_review_detail_actions_save %}
-                    <sw-button class="sw-review-detail__save-action" variant="primary" :disabled="isLoading"
-                               @click="onSave">
+                    <sw-button
+                        class="sw-review-detail__save-action"
+                        variant="primary"
+                        :disabled="isLoading || !acl.can('review.editor')"
+                        @click="onSave"
+                        v-tooltip="{
+                            message: $tc('sw-privileges.tooltip.warning'),
+                            disabled: acl.can('review.editor'),
+                            showOnDisabledElements: true
+                        }">
                         {{ $tc('sw-review.detail.buttonSave') }}
                     </sw-button>
                 {% endblock %}
@@ -27,9 +35,9 @@
             <sw-card-view slot="content">
                 {% block sw_review_detail_basic_info_card %}
                     <sw-card
-                            v-if="review"
-                            :title="$tc('sw-review.detail.cardTitleReviewInfo')"
-                            :isLoading="isLoading">
+                        v-if="review"
+                        :title="$tc('sw-review.detail.cardTitleReviewInfo')"
+                        :isLoading="isLoading">
 
                         {% block sw_customer_card_rows %}
                             <sw-container slot="grid" rows="auto auto">
@@ -147,41 +155,48 @@
                 {% endblock %}
 
                 <sw-card
-                        v-if="review"
-                        :title="$tc('sw-review.detail.cardTitleReviewProperties')"
-                        :isLoading="isLoading"
-                        class="sw-review-properties">
+                    v-if="review"
+                    :title="$tc('sw-review.detail.cardTitleReviewProperties')"
+                    :isLoading="isLoading"
+                    class="sw-review-properties">
                     {% block sw_review_detail_basic_info_card_description_list %}
                         {% block sw_review_detail_description_list_language %}
-                            <sw-entity-single-select v-model="review.languageId"
-                                                     entity="language"
-                                                     :label="$tc('sw-review.detail.labelLanguage')"
-                                                     required
-                                                     :criteria="languageCriteria"
-                                                     id="language">
+                            <sw-entity-single-select
+                                class="sw-review__language-select"
+                                :disabled="!acl.can('review.editor')"
+                                v-model="review.languageId"
+                                entity="language"
+                                :label="$tc('sw-review.detail.labelLanguage')"
+                                required
+                                :criteria="languageCriteria"
+                                id="language">
                             </sw-entity-single-select>
                         {% endblock %}
 
                         {% block sw_review_detail_description_list_status %}
                             <sw-switch-field
-                                    :label="$tc('sw-review.detail.labelStatus')"
-                                    class="status-switch"
-                                    :bordered="true"
-                                    v-model="review.status">
+                                :disabled="!acl.can('review.editor')"
+                                :label="$tc('sw-review.detail.labelStatus')"
+                                class="status-switch"
+                                :bordered="true"
+                                v-model="review.status">
                             </sw-switch-field>
                         {% endblock %}
                     {% endblock %}
                 </sw-card>
 
                 <sw-card
-                        v-if="review"
-                        :title="$tc('sw-review.detail.labelComment')"
-                        :isLoading="isLoading">
+                    v-if="review"
+                    :title="$tc('sw-review.detail.labelComment')"
+                    :isLoading="isLoading">
                     {% block sw_review_detail_basic_info_card_comment %}
-                        <sw-textarea-field type="textarea"
-                                           :label="$tc('sw-review.detail.titleCardComment')"
-                                           :placeholder="$tc('sw-review.detail.placeholderComment')"
-                                           v-model="review.comment">
+                        <sw-textarea-field
+                            type="textarea"
+                            class="sw-review__comment-field"
+                            :disabled="!acl.can('review.editor')"
+                            :label="$tc('sw-review.detail.titleCardComment')"
+                            :placeholder="$tc('sw-review.detail.placeholderComment')"
+                            v-model="review.comment">
                         </sw-textarea-field>
                     {% endblock %}
                 </sw-card>

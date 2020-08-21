@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-review-list', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     data() {
         return {
@@ -95,10 +95,22 @@ Component.register('sw-review-list', {
                     this.isLoading = false;
                 });
         },
+
         onSearch(term) {
             this.criteria.setTerm(term);
             this.$route.query.term = term;
             this.$refs.listing.doSearch();
+        },
+
+        onDelete(option) {
+            this.$refs.listing.deleteItem(option);
+
+            this.repository
+                .search(this.criteria, { ...Shopware.Context.api, inheritance: true })
+                .then((result) => {
+                    this.total = result.total;
+                    this.items = result;
+                });
         }
     }
 });

@@ -80,7 +80,9 @@ Shopware.Service('privileges')
                     'product_tag:create',
                     'product_tag:delete',
                     'tag:create',
-                    'main_category:create'
+                    'main_category:create',
+                    'review:read',
+                    'review:delete'
                 ],
                 dependencies: [
                     'product.viewer'

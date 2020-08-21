@@ -1,5 +1,6 @@
 import './page/sw-review-list';
 import './page/sw-review-detail';
+import './acl';
 
 const { Module } = Shopware;
 
@@ -19,13 +20,17 @@ Module.register('sw-review', {
             components: {
                 default: 'sw-review-list'
             },
-            path: 'index'
+            path: 'index',
+            meta: {
+                privilege: 'review.viewer'
+            }
         },
         detail: {
             component: 'sw-review-detail',
             path: 'detail/:id',
             meta: {
-                parentPath: 'sw.review.index'
+                parentPath: 'sw.review.index',
+                privilege: 'review.viewer'
             }
         }
     },
@@ -39,5 +44,4 @@ Module.register('sw-review', {
         parent: 'sw-catalogue',
         position: 20
     }]
-
 });

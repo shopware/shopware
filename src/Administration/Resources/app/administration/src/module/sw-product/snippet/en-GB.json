@@ -204,7 +204,6 @@
       "coverSubline": "Cover"
     },
     "advancedPrices": {
-      "deletionNotPossibleTitle": "Error",
       "deletionNotPossibleMessage": "At least one price tier needed. Try deleting the entire pricing rule instead.",
       "newRuleWarning": "In order to create a new pricing rule, select a conditional rule first.",
       "advancedPricesNotExisting": "No advanced prices available for this product yet.",

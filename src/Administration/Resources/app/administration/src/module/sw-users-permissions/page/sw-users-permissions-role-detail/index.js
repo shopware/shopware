@@ -145,7 +145,6 @@ Component.register('sw-users-permissions-role-detail', {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        title: this.$tc('global.default.error'),
                         message: this.$tc(
                             'global.notification.notificationSaveErrorMessage',
                             0,

@@ -54,7 +54,6 @@ Component.register('sw-settings-delivery-time-detail', {
                 })
                 .catch((exception) => {
                     this.createNotificationError({
-                        title: this.$tc('global.default.error'),
                         message: this.$tc('sw-settings-delivery-time.detail.errorLoad')
                     });
 
@@ -75,7 +74,6 @@ Component.register('sw-settings-delivery-time-detail', {
                 })
                 .catch((exception) => {
                     this.createNotificationError({
-                        title: this.$tc('global.default.error'),
                         message: this.$tc('sw-settings-delivery-time.detail.errorSave')
                     });
 

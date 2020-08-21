@@ -20,7 +20,6 @@
       "placeholderNewPassword": "Neues Passwort eingeben ...",
       "labelNewPasswordConfirm": "Passwort bestätigen",
       "placeholderNewPasswordConfirm": "Neues Passwort erneut eingeben ...",
-      "notificationPasswordErrorTitle": "Fehler",
       "notificationPasswordErrorMessage": "Die eingegebenen Passwörter stimmen nicht überein.",
       "notificationOldPasswordErrorMessage": "Bitte gib Dein aktuelles Passwort korrekt ein.",
       "notificationNewPasswordIsSameAsOldErrorMessage": "Dein neues Passwort stimmt mit dem alten überein. Bitte überlege dir ein neues Passwort.",

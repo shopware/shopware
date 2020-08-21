@@ -60,13 +60,11 @@ Component.register('sw-settings-country-list', {
         onInlineEditSave(promise, country) {
             promise.then(() => {
                 this.createNotificationSuccess({
-                    title: this.$tc('global.default.success'),
                     message: this.$tc('sw-settings-country.detail.messageSaveSuccess', 0, { name: country.name })
                 });
             }).catch(() => {
                 this.getList();
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-settings-country.detail.messageSaveError')
                 });
             });

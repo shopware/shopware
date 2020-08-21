@@ -320,7 +320,6 @@ Component.register('sw-sales-channel-detail-base', {
                 this.salesChannel.accessKey = response.accessKey;
             }).catch(() => {
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-sales-channel.detail.messageAPIError')
                 });
             });
@@ -333,13 +332,11 @@ Component.register('sw-sales-channel-detail-base', {
 
                 if (displaySaveNotification) {
                     this.createNotificationInfo({
-                        title: this.$tc('global.default.info'),
                         message: this.$tc('sw-sales-channel.detail.productComparison.messageAccessKeyChanged')
                     });
                 }
             }).catch(() => {
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-sales-channel.detail.messageAPIError')
                 });
             });
@@ -362,7 +359,6 @@ Component.register('sw-sales-channel-detail-base', {
 
                     this.salesChannel.active = false;
                     this.createNotificationError({
-                        title: this.$tc('global.default.error'),
                         message: this.$tc('sw-sales-channel.detail.messageActivateWithoutThemeError', 0, {
                             name: this.salesChannel.name || this.placeholder(this.salesChannel, 'name')
                         })

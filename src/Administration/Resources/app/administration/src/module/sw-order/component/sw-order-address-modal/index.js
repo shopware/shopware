@@ -108,7 +108,6 @@ Component.register('sw-order-address-modal', {
             const isShippingAvailable = this.order.addresses[0].country.shippingAvailable;
             if (!isShippingAvailable && typeof isShippingAvailable === 'boolean') {
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-order.detail.messageShippingNotAvailable')
                 });
 
@@ -131,7 +130,6 @@ Component.register('sw-order-address-modal', {
                         this.$emit('save');
                     }).catch(() => {
                         this.createNotificationError({
-                            title: this.$tc('global.default.error'),
                             message: this.$tc('sw-order.detail.messageSaveError')
                         });
                     }).finally(() => {

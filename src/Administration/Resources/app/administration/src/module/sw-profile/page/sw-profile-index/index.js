@@ -256,7 +256,6 @@ Component.register('sw-profile-index', {
 
         createErrorMessage(errorMessage) {
             this.createNotificationError({
-                title: this.$tc('sw-profile.index.notificationPasswordErrorTitle'),
                 message: errorMessage
             });
         },
@@ -337,7 +336,6 @@ Component.register('sw-profile-index', {
 
         handleUserSaveError() {
             this.createNotificationError({
-                title: this.$tc('sw-profile.index.notificationPasswordErrorTitle'),
                 message: this.$tc('sw-profile.index.notificationSaveErrorMessage')
             });
             this.isLoading = false;

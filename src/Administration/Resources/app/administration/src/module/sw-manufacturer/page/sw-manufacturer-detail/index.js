@@ -208,7 +208,6 @@ Component.register('sw-manufacturer-detail', {
             }).catch((exception) => {
                 this.isLoading = false;
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
                     message: this.$tc(
                         'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'
                     )

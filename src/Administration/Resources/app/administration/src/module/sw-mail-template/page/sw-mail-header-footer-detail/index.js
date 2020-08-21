@@ -134,7 +134,6 @@ Component.register('sw-mail-header-footer-detail', {
                 })
                 .catch((error) => {
                     const notificationError = {
-                        title: this.$tc('global.default.error'),
                         message: this.$tc(
                             'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'
                         )

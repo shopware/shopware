@@ -1,15 +1,15 @@
 import template from './sw-settings-listing.html.twig';
 import './sw-settings-listing.scss';
 
-const { Component, Mixin } = Shopware;
+const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 Component.register('sw-settings-listing', {
     template,
 
     mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('sw-inline-snippet')
+        'notification',
+        'sw-inline-snippet'
     ],
 
     inject: ['repositoryFactory', 'systemConfigApiService', 'feature'],

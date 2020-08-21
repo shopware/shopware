@@ -154,7 +154,6 @@ Component.register('sw-settings-custom-field-set-detail', {
                 const errorMessage = Shopware.Utils.get(error, 'response.data.errors[0].detail', 'Error');
 
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
                     message: errorMessage
                 });
             }).finally(() => {

@@ -224,7 +224,6 @@ Component.register('sw-sales-channel-detail', {
             this.onTemplateModalClose();
 
             this.createNotificationInfo({
-                title: this.$tc('global.default.info'),
                 message: this.$tc('sw-sales-channel.detail.productComparison.templates.message.template-applied-message')
             });
         },
@@ -289,7 +288,6 @@ Component.register('sw-sales-channel-detail', {
                     this.isLoading = false;
 
                     this.createNotificationError({
-                        title: this.$tc('global.default.error'),
                         message: this.$tc('sw-sales-channel.detail.messageSaveError', 0, {
                             name: this.salesChannel.name || this.placeholder(this.salesChannel, 'name')
                         })

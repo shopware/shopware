@@ -146,14 +146,12 @@ Component.register('sw-integration-list', {
 
         createSavedSuccessNotification() {
             this.createNotificationSuccess({
-                title: this.$tc('global.default.success'),
                 message: this.$tc('sw-integration.detail.messageSaveSuccess')
             });
         },
 
         createSavedErrorNotification() {
             this.createNotificationError({
-                title: this.$tc('global.default.error'),
                 message: this.$tc('sw-integration.detail.messageSaveError')
             });
         },
@@ -172,7 +170,6 @@ Component.register('sw-integration-list', {
                 this.isModalLoading = false;
             }).catch(() => {
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-integration.detail.messageCreateNewError')
                 });
             });

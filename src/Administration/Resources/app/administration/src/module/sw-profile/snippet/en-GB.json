@@ -20,7 +20,6 @@
       "placeholderNewPassword": "Enter new password...",
       "labelNewPasswordConfirm": "Confirm password",
       "placeholderNewPasswordConfirm": "Re-enter new password...",
-      "notificationPasswordErrorTitle": "Error",
       "notificationPasswordErrorMessage": "The submitted passwords do not match.",
       "notificationOldPasswordErrorMessage": "Please submit your current password correctly.",
       "notificationNewPasswordIsSameAsOldErrorMessage": "The new password is identical with your old one. Please choose a new password.",

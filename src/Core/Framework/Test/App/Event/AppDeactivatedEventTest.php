@@ -29,9 +29,11 @@ class AppDeactivatedEventTest extends TestCase
     public function testIsAllowed(): void
     {
         $appId = Uuid::randomHex();
+        $app = (new AppEntity())
+            ->assign(['id' => $appId]);
         $context = Context::createDefaultContext();
         $event = new AppDeactivatedEvent(
-            $appId,
+            $app,
             $context
         );
 

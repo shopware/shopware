@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Webhook\EventWrapper;
+namespace Shopware\Core\Framework\Test\Webhook\Hookable;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -21,7 +21,7 @@ use Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents\UnstructuredOb
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\BusinessEventEncoder;
-use Shopware\Core\Framework\Webhook\EventWrapper\HookableBusinessEvent;
+use Shopware\Core\Framework\Webhook\Hookable\HookableBusinessEvent;
 use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\System\Tax\TaxEntity;

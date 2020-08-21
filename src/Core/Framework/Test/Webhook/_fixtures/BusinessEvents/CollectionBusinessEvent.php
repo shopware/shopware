@@ -32,19 +32,6 @@ class CollectionBusinessEvent implements BusinessEventInterface, BusinessEventEn
         $taxes = [];
 
         foreach ($this->taxes->getElements() as $tax) {
-            if (version_compare($shopwareVersion, '6.3.0.0', '<')) {
-                $createdAt = $tax->getCreatedAt()->format(DATE_ATOM);
-                $foreignKeys = [
-                    'extensions' => [],
-                ];
-            } else {
-                $createdAt = $tax->getCreatedAt()->format(DATE_RFC3339_EXTENDED);
-                $foreignKeys = [
-                    'extensions' => [],
-                    'apiAlias' => null,
-                ];
-            }
-
             $taxes[] = [
                 'id' => $tax->getId(),
                 '_uniqueIdentifier' => $tax->getId(),
@@ -54,10 +41,13 @@ class CollectionBusinessEvent implements BusinessEventInterface, BusinessEventEn
                 'products' => null,
                 'customFields' => null,
                 'translated' => [],
-                'createdAt' => $createdAt,
+                'createdAt' => $tax->getCreatedAt()->format(DATE_RFC3339_EXTENDED),
                 'updatedAt' => null,
                 'extensions' => [
-                    'foreignKeys' => $foreignKeys,
+                    'foreignKeys' => [
+                        'extensions' => [],
+                        'apiAlias' => null,
+                    ],
                 ],
                 'apiAlias' => 'tax',
             ];

@@ -8,6 +8,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\BusinessEventInterface;
+use Shopware\Core\Framework\Event\EventData\ArrayType;
+use Shopware\Core\Framework\Event\EventData\EntityCollectionType;
+use Shopware\Core\Framework\Event\EventData\EntityType;
+use Shopware\Core\Framework\Event\EventData\ObjectType;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\PlatformRequest;
 
@@ -55,16 +59,16 @@ class BusinessEventEncoder
             case ScalarValueType::TYPE_INT:
             case ScalarValueType::TYPE_STRING:
                 return $property;
-            case 'entity':
-            case 'collection':
+            case EntityType::TYPE:
+            case EntityCollectionType::TYPE:
                 return $this->encodeEntity($dataType, $property);
-            case 'object':
+            case ObjectType::TYPE:
                 if (is_array($dataType['data']) && !empty($dataType['data'])) {
                     return $this->encodeType($dataType['data'], $property);
                 }
 
                 return $property;
-            case 'array':
+            case ArrayType::TYPE:
                 return $this->encodeArray($dataType, $property);
             default:
                 throw new \RuntimeException('Unknown EventDataType: ' . $dataType['type']);

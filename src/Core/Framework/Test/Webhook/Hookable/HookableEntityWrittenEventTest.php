@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Webhook\EventWrapper;
+namespace Shopware\Core\Framework\Test\Webhook\Hookable;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
@@ -11,14 +11,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
-use Shopware\Core\Framework\Webhook\EventWrapper\HookableEntityWrittenEvent;
+use Shopware\Core\Framework\Webhook\Hookable\HookableEntityWrittenEvent;
 
 class HookableEntityWrittenEventTest extends TestCase
 {
     public function testGetter(): void
     {
         $entityId = Uuid::randomHex();
-        $event = new HookableEntityWrittenEvent($this->getEntityWrittenEvent($entityId));
+        $event = HookableEntityWrittenEvent::fromWrittenEvent($this->getEntityWrittenEvent($entityId));
 
         static::assertEquals('product.written', $event->getName());
         static::assertEquals([
@@ -34,7 +34,7 @@ class HookableEntityWrittenEventTest extends TestCase
     public function testIsAllowed(): void
     {
         $entityId = Uuid::randomHex();
-        $event = new HookableEntityWrittenEvent($this->getEntityWrittenEvent($entityId));
+        $event = HookableEntityWrittenEvent::fromWrittenEvent($this->getEntityWrittenEvent($entityId));
 
         $allowedPermissions = new AclPrivilegeCollection([
             ProductDefinition::ENTITY_NAME . ':' . AclRoleDefinition::PRIVILEGE_READ,

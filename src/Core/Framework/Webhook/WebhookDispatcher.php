@@ -8,11 +8,13 @@ use GuzzleHttp\Pool;
 use GuzzleHttp\Psr7\Request;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
-use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
-use Shopware\Core\Framework\Event\BusinessEvent;
-use Shopware\Core\Framework\Event\BusinessEventInterface;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Framework\Webhook\EventWrapper\HookableBusinessEvent;
+use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -30,7 +32,7 @@ class WebhookDispatcher implements EventDispatcherInterface
     private $connection;
 
     /**
-     * @var array|null
+     * @var WebhookCollection|null
      */
     private $webhooks;
 
@@ -38,11 +40,6 @@ class WebhookDispatcher implements EventDispatcherInterface
      * @var Client
      */
     private $guzzle;
-
-    /**
-     * @var BusinessEventEncoder
-     */
-    private $eventEncoder;
 
     /**
      * @var string
@@ -54,22 +51,32 @@ class WebhookDispatcher implements EventDispatcherInterface
      */
     private $container;
 
+    /**
+     * @var array
+     */
+    private $privileges = [];
+
+    /**
+     * @var HookableEventFactory
+     */
+    private $eventFactory;
+
     public function __construct(
         EventDispatcherInterface $dispatcher,
         Connection $connection,
         Client $guzzle,
-        BusinessEventEncoder $eventEncoder,
         string $shopUrl,
-        ContainerInterface $container
+        ContainerInterface $container,
+        HookableEventFactory $eventFactory
     ) {
         $this->dispatcher = $dispatcher;
         $this->connection = $connection;
         $this->guzzle = $guzzle;
-        $this->eventEncoder = $eventEncoder;
         $this->shopUrl = $shopUrl;
         // inject container, so we can later get the ShopIdProvider
         // ShopIdProvider can not be injected directly as it would lead to a circular reference
         $this->container = $container;
+        $this->eventFactory = $eventFactory;
     }
 
     /**
@@ -79,22 +86,9 @@ class WebhookDispatcher implements EventDispatcherInterface
     {
         $event = $this->dispatcher->dispatch($event, $eventName);
 
-        if (!$event instanceof BusinessEventInterface && !$event instanceof Hookable) {
-            return $event;
+        foreach ($this->eventFactory->createHookablesFor($event) as $hookable) {
+            $this->callWebhooks($hookable->getName(), $hookable);
         }
-
-        // BusinessEvent are the generic Events that get wrapped around the specific events
-        // we don't want to dispatch those to the webhooks
-        if ($event instanceof BusinessEvent) {
-            return $event;
-        }
-
-        $hookableEvent = $event;
-        if ($hookableEvent instanceof BusinessEventInterface) {
-            $hookableEvent = HookableBusinessEvent::fromBusinessEvent($hookableEvent, $this->eventEncoder);
-        }
-
-        $this->callWebhooks($hookableEvent->getName(), $hookableEvent);
 
         // always return the original event and never our wrapped events
         // this would lead to problems in the `BusinessEventDispatcher` from core
@@ -155,22 +149,32 @@ class WebhookDispatcher implements EventDispatcherInterface
         return $this->dispatcher->hasListeners($eventName);
     }
 
-    public function clearInternalCache(): void
+    public function clearInternalWebhookCache(): void
     {
         $this->webhooks = null;
     }
 
+    public function clearInternalPrivilegesCache(): void
+    {
+        $this->privileges = [];
+    }
+
     private function callWebhooks(string $eventName, Hookable $event): void
     {
-        if (!array_key_exists($eventName, $this->getWebhooks())) {
+        /** @var WebhookCollection $webhooksForEvent */
+        $webhooksForEvent = $this->getWebhooks()->filterForEvent($eventName);
+
+        if ($webhooksForEvent->count() === 0) {
             return;
         }
 
         $payload = $event->getWebhookPayload();
+        $affectedRoleIds = $webhooksForEvent->getAclRoleIdsAsBinary();
         $requests = [];
-        foreach ($this->getWebhooks()[$eventName] as $webhookConfig) {
-            if ($webhookConfig['acl_role_id'] && $webhookConfig['app_id']) {
-                if (!$this->isEventDispatchingAllowed($webhookConfig, $event)) {
+
+        foreach ($webhooksForEvent as $webhook) {
+            if ($webhook->getApp()) {
+                if (!$this->isEventDispatchingAllowed($webhook, $event, $affectedRoleIds)) {
                     continue;
                 }
             }
@@ -179,11 +183,8 @@ class WebhookDispatcher implements EventDispatcherInterface
             $payload['source']['url'] = $this->shopUrl;
             $payload['data']['event'] = $eventName;
 
-            if ($webhookConfig['version']) {
-                $payload['source']['appVersion'] = $webhookConfig['version'];
-            }
-
-            if ($webhookConfig['app_id']) {
+            if ($webhook->getApp()) {
+                $payload['source']['appVersion'] = $webhook->getApp()->getVersion();
                 $shopIdProvider = $this->getShopIdProvider();
 
                 try {
@@ -199,17 +200,17 @@ class WebhookDispatcher implements EventDispatcherInterface
 
             $request = new Request(
                 'POST',
-                $webhookConfig['url'],
+                $webhook->getUrl(),
                 [
                     'Content-Type' => 'application/json',
                 ],
                 $jsonPayload
             );
 
-            if ($webhookConfig['app_secret']) {
+            if ($webhook->getApp() && $webhook->getApp()->getAppSecret()) {
                 $request = $request->withHeader(
                     'shopware-shop-signature',
-                    hash_hmac('sha256', $jsonPayload, $webhookConfig['app_secret'])
+                    hash_hmac('sha256', $jsonPayload, $webhook->getApp()->getAppSecret())
                 );
             }
 
@@ -220,41 +221,65 @@ class WebhookDispatcher implements EventDispatcherInterface
         $pool->promise()->wait();
     }
 
-    private function getWebhooks(): array
+    private function getWebhooks(): WebhookCollection
     {
         if ($this->webhooks) {
             return $this->webhooks;
         }
 
-        $result = $this->connection->fetchAll('
-            SELECT `webhook`.`event_name`,
-                   `webhook`.`url`,
-                   `app`.`version`,
-                   `app`.`app_secret`,
-                   `app`.`id` AS `app_id`,
-                   `app`.`acl_role_id`
-            FROM `webhook` AS `webhook`
-            LEFT JOIN `app` AS `app` ON `webhook`.`app_id` = `app`.`id`
-            WHERE `webhook`.`app_id` IS NULL OR `app`.`active` = 1
-        ');
+        $criteria = new Criteria();
+        $criteria->addAssociation('app')
+            ->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
+                new EqualsFilter('app.active', true),
+                new EqualsFilter('appId', null),
+            ]));
 
-        return $this->webhooks = FetchModeHelper::group($result);
+        /**
+         * @todo remove ignore-line once the next-10286 feature flag is removed
+         * @phpstan-ignore-next-line
+         *
+         * @var EntityRepositoryInterface $webhookRepository
+         */
+        $webhookRepository = $this->container->get('webhook.repository');
+
+        /** @var WebhookCollection $webhooks */
+        $webhooks = $webhookRepository->search($criteria, Context::createDefaultContext())->getEntities();
+
+        return $this->webhooks = $webhooks;
     }
 
-    private function isEventDispatchingAllowed(array $webhookConfig, Hookable $event): bool
+    private function isEventDispatchingAllowed(WebhookEntity $webhook, Hookable $event, array $affectedRoles): bool
     {
-        $privileges = $this->connection->fetchColumn('
-            SELECT `privileges`
-            FROM `acl_role`
-            WHERE `id` = :aclRoleId
-        ', ['aclRoleId' => $webhookConfig['acl_role_id']]);
-        $privileges = new AclPrivilegeCollection(json_decode($privileges ? $privileges : '[]', true));
+        if (!($this->privileges[$event->getName()] ?? null)) {
+            $this->loadPrivileges($event->getName(), $affectedRoles);
+        }
 
-        if (!$event->isAllowed(Uuid::fromBytesToHex($webhookConfig['app_id']), $privileges)) {
+        $privileges = $this->privileges[$event->getName()][$webhook->getApp()->getAclRoleId()]
+            ?? new AclPrivilegeCollection([]);
+
+        if (!$event->isAllowed($webhook->getAppId(), $privileges)) {
             return false;
         }
 
         return true;
+    }
+
+    private function loadPrivileges(string $eventName, array $affectedRoleIds): void
+    {
+        $roles = $this->connection->fetchAll('
+            SELECT `id`, `privileges`
+            FROM `acl_role`
+            WHERE `id` IN (:aclRoleIds)
+        ', ['aclRoleIds' => $affectedRoleIds], ['aclRoleIds' => Connection::PARAM_STR_ARRAY]);
+
+        if (!$roles) {
+            $this->privileges[$eventName] = [];
+        }
+
+        foreach ($roles as $privilege) {
+            $this->privileges[$eventName][Uuid::fromBytesToHex($privilege['id'])]
+                = new AclPrivilegeCollection(json_decode($privilege['privileges'], true));
+        }
     }
 
     private function getShopIdProvider(): ShopIdProvider

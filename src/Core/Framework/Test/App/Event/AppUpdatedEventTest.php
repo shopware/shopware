@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\App\Event;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\Event\AppInstalledEvent;
 use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
@@ -34,9 +35,11 @@ class AppUpdatedEventTest extends TestCase
     public function testIsAllowed(): void
     {
         $appId = Uuid::randomHex();
+        $app = (new AppEntity())
+            ->assign(['id' => $appId]);
         $context = Context::createDefaultContext();
-        $event = new AppUpdatedEvent(
-            $appId,
+        $event = new AppInstalledEvent(
+            $app,
             Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml'),
             $context
         );

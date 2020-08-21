@@ -16,18 +16,21 @@ class WebhookCacheClearer implements EventSubscriberInterface
         $this->dispatcher = $dispatcher;
     }
 
-    /**
-     * @return array<string, string>
-     */
     public static function getSubscribedEvents(): array
     {
         return [
             'webhook.written' => 'clearWebhookCache',
+            'acl_role.written' => 'clearPrivilegesCache',
         ];
     }
 
     public function clearWebhookCache(): void
     {
-        $this->dispatcher->clearInternalCache();
+        $this->dispatcher->clearInternalWebhookCache();
+    }
+
+    public function clearPrivilegesCache(): void
+    {
+        $this->dispatcher->clearInternalPrivilegesCache();
     }
 }

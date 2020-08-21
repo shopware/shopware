@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Webhook\EventWrapper;
+namespace Shopware\Core\Framework\Webhook\Hookable;
 
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
@@ -22,18 +22,30 @@ class WriteResultMerger
     public function mergeWriteResults(
         EntityWrittenEvent $writtenEvent,
         ?EntityWrittenEvent $translationEvent
-    ): EntityWrittenEvent {
-        if (!$translationEvent) {
-            return $writtenEvent;
-        }
-
+    ): ?EntityWrittenEvent {
         if ($writtenEvent instanceof EntityDeletedEvent) {
             return $writtenEvent;
         }
 
         $mergedWriteResults = [];
         foreach ($writtenEvent->getWriteResults() as $writeResult) {
-            $mergedWriteResults[] = $this->getMergedWriteResult($translationEvent, $writeResult);
+            if ($translationEvent) {
+                $mergedWriteResults[] = $this->getMergedWriteResult($translationEvent, $writeResult);
+
+                continue;
+            }
+
+            if (empty($writeResult->getPayload())) {
+                continue;
+            }
+
+            $mergedWriteResults[] = $writeResult;
+        }
+
+        $mergedWriteResults = array_filter($mergedWriteResults);
+
+        if (empty($mergedWriteResults)) {
+            return null;
         }
 
         return new EntityWrittenEvent(
@@ -45,9 +57,9 @@ class WriteResultMerger
     }
 
     private function getMergedWriteResult(
-        ?EntityWrittenEvent $translationEvent,
+        EntityWrittenEvent $translationEvent,
         EntityWriteResult $writeResult
-    ): EntityWriteResult {
+    ): ?EntityWriteResult {
         $translationResults = $this->findWriteResultByPrimaryKey(
             $translationEvent->getWriteResults(),
             $writeResult->getPrimaryKey()
@@ -56,6 +68,10 @@ class WriteResultMerger
         $payload = $writeResult->getPayload();
         foreach ($translationResults as $translationResult) {
             $payload = array_merge($payload, $this->getMergeableTranslationPayload($translationResult));
+        }
+
+        if (empty($payload)) {
+            return null;
         }
 
         return new EntityWriteResult(
@@ -69,10 +85,10 @@ class WriteResultMerger
     }
 
     /**
-     * @param array<EntityWriteResult>     $writeResults
-     * @param string|array<string, string> $entityKey
+     * @param EntityWriteResult[] $writeResults
+     * @param array|string        $entityKey
      *
-     * @return array<EntityWriteResult>
+     * @return EntityWriteResult[]
      */
     private function findWriteResultByPrimaryKey(array $writeResults, $entityKey): array
     {
@@ -91,9 +107,6 @@ class WriteResultMerger
         });
     }
 
-    /**
-     * @return array<string, string>
-     */
     private function getMergeableTranslationPayload(EntityWriteResult $translationResult): array
     {
         // use PKs from definition because versionIds are removed from the writeResult

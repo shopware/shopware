@@ -28,7 +28,7 @@ use Shopware\Core\Framework\Event\BusinessEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Framework\Webhook\BusinessEventEncoder;
+use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Shopware\Core\Framework\Webhook\WebhookDispatcher;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -220,10 +220,9 @@ class WebhookDispatcherTest extends TestCase
             $this->getContainer()->get('event_dispatcher'),
             $this->getContainer()->get(Connection::class),
             $clientMock,
-            $this->getContainer()->get(BusinessEventEncoder::class),
             $this->shopUrl,
             $this->getContainer(),
-            $this->getContainer()->get(PermissionPersister::class)
+            $this->getContainer()->get(HookableEventFactory::class)
         );
 
         $webhookDispatcher->dispatch($event);
@@ -255,10 +254,9 @@ class WebhookDispatcherTest extends TestCase
             $this->getContainer()->get('event_dispatcher'),
             $this->getContainer()->get(Connection::class),
             $clientMock,
-            $this->getContainer()->get(BusinessEventEncoder::class),
             $this->shopUrl,
             $this->getContainer(),
-            $this->getContainer()->get(PermissionPersister::class)
+            $this->getContainer()->get(HookableEventFactory::class)
         );
 
         $webhookDispatcher->dispatch($event);
@@ -274,10 +272,9 @@ class WebhookDispatcherTest extends TestCase
             $eventDispatcherMock,
             $this->getContainer()->get(Connection::class),
             $this->getContainer()->get('shopware.app_system.guzzle'),
-            $this->getContainer()->get(BusinessEventEncoder::class),
             $this->shopUrl,
             $this->getContainer(),
-            $this->getContainer()->get(PermissionPersister::class)
+            $this->getContainer()->get(HookableEventFactory::class)
         );
 
         $webhookDispatcher->addSubscriber(new MockSubscriber());
@@ -293,10 +290,9 @@ class WebhookDispatcherTest extends TestCase
             $eventDispatcherMock,
             $this->getContainer()->get(Connection::class),
             $this->getContainer()->get('shopware.app_system.guzzle'),
-            $this->getContainer()->get(BusinessEventEncoder::class),
             $this->shopUrl,
             $this->getContainer(),
-            $this->getContainer()->get(PermissionPersister::class)
+            $this->getContainer()->get(HookableEventFactory::class)
         );
 
         $webhookDispatcher->removeSubscriber(new MockSubscriber());
@@ -427,10 +423,9 @@ class WebhookDispatcherTest extends TestCase
             $this->getContainer()->get('event_dispatcher'),
             $this->getContainer()->get(Connection::class),
             $clientMock,
-            $this->getContainer()->get(BusinessEventEncoder::class),
             $this->shopUrl,
             $this->getContainer(),
-            $permissionPersister
+            $this->getContainer()->get(HookableEventFactory::class)
         );
 
         $webhookDispatcher->dispatch($event);
@@ -481,10 +476,9 @@ class WebhookDispatcherTest extends TestCase
             $this->getContainer()->get('event_dispatcher'),
             $this->getContainer()->get(Connection::class),
             $clientMock,
-            $this->getContainer()->get(BusinessEventEncoder::class),
             $this->shopUrl,
             $this->getContainer(),
-            $this->getContainer()->get(PermissionPersister::class)
+            $this->getContainer()->get(HookableEventFactory::class)
         );
 
         $webhookDispatcher->dispatch($event);
@@ -635,10 +629,9 @@ class WebhookDispatcherTest extends TestCase
             $this->getContainer()->get('event_dispatcher'),
             $this->getContainer()->get(Connection::class),
             $clientMock,
-            $this->getContainer()->get(BusinessEventEncoder::class),
             $this->shopUrl,
             $this->getContainer(),
-            $this->getContainer()->get(PermissionPersister::class)
+            $this->getContainer()->get(HookableEventFactory::class)
         );
 
         $webhookDispatcher->dispatch($event);
@@ -687,10 +680,9 @@ class WebhookDispatcherTest extends TestCase
             $this->getContainer()->get('event_dispatcher'),
             $this->getContainer()->get(Connection::class),
             $clientMock,
-            $this->getContainer()->get(BusinessEventEncoder::class),
             $this->shopUrl,
             $this->getContainer(),
-            $this->getContainer()->get(PermissionPersister::class)
+            $this->getContainer()->get(HookableEventFactory::class)
         );
 
         $webhookDispatcher->dispatch($event);
@@ -823,10 +815,9 @@ class WebhookDispatcherTest extends TestCase
             $this->getContainer()->get('event_dispatcher'),
             $this->getContainer()->get(Connection::class),
             $clientMock,
-            $this->getContainer()->get(BusinessEventEncoder::class),
             $this->shopUrl,
             $this->getContainer(),
-            $this->getContainer()->get(PermissionPersister::class)
+            $this->getContainer()->get(HookableEventFactory::class)
         );
 
         $webhookDispatcher->dispatch($event);

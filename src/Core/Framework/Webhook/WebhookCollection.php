@@ -3,10 +3,9 @@
 namespace Shopware\Core\Framework\Webhook;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @psalm-suppress MoreSpecificImplementedParamType
- *
  * @method void                      add(WebhookEntity $entity)
  * @method void                      set(string $key, WebhookEntity $entity)
  * @method \Generator<WebhookEntity> getIterator()
@@ -17,6 +16,25 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
  */
 class WebhookCollection extends EntityCollection
 {
+    public function filterForEvent(string $name)
+    {
+        return $this->filterByProperty('eventName', $name);
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getAclRoleIdsAsBinary(): array
+    {
+        return array_values($this->fmap(static function (WebhookEntity $webhook): ?string {
+            if ($webhook->getApp()) {
+                return Uuid::fromHexToBytes($webhook->getApp()->getAclRoleId());
+            }
+
+            return null;
+        }));
+    }
+
     protected function getExpectedClass(): string
     {
         return WebhookEntity::class;

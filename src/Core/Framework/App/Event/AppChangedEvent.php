@@ -46,6 +46,6 @@ abstract class AppChangedEvent extends Event implements ShopwareEvent, Hookable
 
     public function isAllowed(string $appId, AclPrivilegeCollection $permissions): bool
     {
-        return $appId === $this->getAppId();
+        return $appId === $this->app->getId();
     }
 }

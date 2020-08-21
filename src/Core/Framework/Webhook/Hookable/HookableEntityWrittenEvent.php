@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Webhook\EventWrapper;
+namespace Shopware\Core\Framework\Webhook\Hookable;
 
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
@@ -15,9 +15,15 @@ class HookableEntityWrittenEvent implements Hookable
      */
     private $event;
 
-    public function __construct(EntityWrittenEvent $event)
+    private function __construct(EntityWrittenEvent $event)
     {
         $this->event = $event;
+    }
+
+    public static function fromWrittenEvent(
+        EntityWrittenEvent $event
+    ): self {
+        return new self($event);
     }
 
     public function getName(): string
@@ -25,9 +31,6 @@ class HookableEntityWrittenEvent implements Hookable
         return $this->event->getName();
     }
 
-    /**
-     * @return array<array<string, string|array<string, string>|array<string>>>
-     */
     public function getWebhookPayload(): array
     {
         return $this->getPayloadFromEvent($this->event);
@@ -38,9 +41,6 @@ class HookableEntityWrittenEvent implements Hookable
         return $permissions->isAllowed($this->event->getEntityName(), AclRoleDefinition::PRIVILEGE_READ);
     }
 
-    /**
-     * @return array<array<string, string|array<string, string>|array<string>>>
-     */
     private function getPayloadFromEvent(EntityWrittenEvent $event): array
     {
         $payload = [];

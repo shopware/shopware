@@ -34,9 +34,11 @@ class AppInstalledEventTest extends TestCase
     public function testIsAllowed(): void
     {
         $appId = Uuid::randomHex();
+        $app = (new AppEntity())
+            ->assign(['id' => $appId]);
         $context = Context::createDefaultContext();
         $event = new AppInstalledEvent(
-            $appId,
+            $app,
             Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml'),
             $context
         );

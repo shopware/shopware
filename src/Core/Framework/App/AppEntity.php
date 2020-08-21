@@ -387,7 +387,6 @@ class AppEntity extends Entity
     public function setActionButtons(ActionButtonCollection $actionButtons): void
     {
         $this->actionButtons = $actionButtons;
-
     }
 
     public function getWebhooks(): ?WebhookCollection

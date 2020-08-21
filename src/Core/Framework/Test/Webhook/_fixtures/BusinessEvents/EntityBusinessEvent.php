@@ -29,19 +29,6 @@ class EntityBusinessEvent implements BusinessEventInterface, BusinessEventEncode
 
     public function getEncodeValues(string $shopwareVersion): array
     {
-        if (version_compare($shopwareVersion, '6.3.0.0', '<')) {
-            $createdAt = $this->tax->getCreatedAt()->format(DATE_ATOM);
-            $foreignKeys = [
-                'extensions' => [],
-            ];
-        } else {
-            $createdAt = $this->tax->getCreatedAt()->format(DATE_RFC3339_EXTENDED);
-            $foreignKeys = [
-                'extensions' => [],
-                'apiAlias' => null,
-            ];
-        }
-
         return [
             'tax' => [
                 'id' => $this->tax->getId(),
@@ -52,10 +39,13 @@ class EntityBusinessEvent implements BusinessEventInterface, BusinessEventEncode
                 'products' => null,
                 'customFields' => null,
                 'translated' => [],
-                'createdAt' => $createdAt,
+                'createdAt' => $this->tax->getCreatedAt()->format(DATE_RFC3339_EXTENDED),
                 'updatedAt' => null,
                 'extensions' => [
-                    'foreignKeys' => $foreignKeys,
+                    'foreignKeys' => [
+                        'extensions' => [],
+                        'apiAlias' => null,
+                    ],
                 ],
                 'apiAlias' => 'tax',
             ],

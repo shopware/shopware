@@ -11,6 +11,7 @@ use Symfony\Component\Cache\DependencyInjection\CacheCollectorPass;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\DelegatingLoader;
 use Symfony\Component\Config\Loader\LoaderResolver;
+use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
@@ -33,6 +34,7 @@ abstract class Bundle extends SymfonyBundle
         $this->registerFilesystem($container, 'private');
         $this->registerFilesystem($container, 'public');
         $this->registerEvents($container);
+        $this->registerBundleDirectory($container);
 
         // Can be removed when 4.4.14 is released and required in composer.json
         $removingPasses = $container->getCompilerPassConfig()->getBeforeRemovingPasses();
@@ -165,5 +167,10 @@ abstract class Bundle extends SymfonyBundle
         foreach (glob($this->getPath() . '/Resources/config/services.*') as $path) {
             $delegatingLoader->load($path);
         }
+    }
+
+    private function registerBundleDirectory(ContainerBuilder $container): void
+    {
+        $container->setParameter(Container::underscore($this->getName()) . '.bundle_dir', $this->getPath());
     }
 }

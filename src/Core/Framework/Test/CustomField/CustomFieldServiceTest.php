@@ -47,6 +47,7 @@ class CustomFieldServiceTest extends TestCase
                 CustomFieldTypes::INT, IntField::class,
                 CustomFieldTypes::JSON, JsonField::class,
                 CustomFieldTypes::TEXT, LongTextField::class,
+                CustomFieldTypes::SELECT, LongTextField::class,
             ],
         ];
     }

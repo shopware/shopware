@@ -170,6 +170,7 @@ NEXT
 * Added method `createCustomSeoUrls` to `Shopware/Core/Content/Seo/Api/SeoActionController` to allow creating custom seo urls in the Administration
 * Added new property `primaryProperty` to `Shopware/Core/Framework/DataAbstractionLayer/Validation/EntityExists` to allow checking existence of entities with another key
 * Changed `\Shopware\Core\System\SalesChannel\SalesChannel\StoreApiInfoController` to set correct `Content-Security-Policy` header
+* Fix mapping for custom field of type select on Elasticsearch indexing
 
 #### Storefront
 

@@ -2,7 +2,7 @@
 
 namespace Shopware\Administration\Controller;
 
-use Shopware\Administration\KnownIps\KnownIpsCollectorInterface;
+use Shopware\Administration\Framework\Routing\KnownIps\KnownIpsCollectorInterface;
 use Shopware\Administration\Snippet\SnippetFinderInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;

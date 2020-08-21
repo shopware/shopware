@@ -52,6 +52,7 @@ class CustomFieldService implements EventSubscriberInterface
                 return new DateTimeField($attributeName, $attributeName);
 
             case CustomFieldTypes::TEXT:
+            case CustomFieldTypes::SELECT:
                 return new LongTextField($attributeName, $attributeName);
 
             case CustomFieldTypes::HTML:

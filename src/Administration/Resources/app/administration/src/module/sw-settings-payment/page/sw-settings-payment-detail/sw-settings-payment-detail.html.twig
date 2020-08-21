@@ -65,6 +65,7 @@
                                 {% block sw_settings_payment_detail_content_field_name %}
                                 <sw-field
                                     type="text"
+                                    class="sw-settings-payment-detail__field-name"
                                     required
                                     :disabled="!acl.can('payment.editor')"
                                     :label="$tc('sw-settings-payment.detail.labelName')"
@@ -76,6 +77,7 @@
                                 {% block sw_settings_payment_detail_content_field_position %}
                                 <sw-field
                                     type="number"
+                                    class="sw-settings-payment-detail__field-position"
                                     :disabled="!acl.can('payment.editor')"
                                     :label="$tc('sw-settings-payment.detail.labelPosition')"
                                     :placeholder="$tc('sw-settings-payment.detail.placeholderPosition')"
@@ -121,6 +123,7 @@
                             <sw-container columns="repeat(auto-fit, minmax(250px, 2fr))" gap="0px 30px">
                                 {% block sw_settings_payment_detail_content_field_active %}
                                 <sw-field
+                                    class="sw-settings-payment-detail__field-active"
                                     type="switch"
                                     :disabled="!acl.can('payment.editor')"
                                     :label="$tc('sw-settings-payment.detail.labelActive')"
@@ -130,6 +133,7 @@
 
                                 {% block sw_settings_payment_detail_content_field_after_order_enabled %}
                                 <sw-field
+                                    class="sw-settings-payment-detail__field-after-order"
                                     type="switch"
                                     :disabled="!acl.can('payment.editor')"
                                     :label="$tc('sw-settings-payment.detail.labelAfterOrderEnabled')"
@@ -148,6 +152,7 @@
                         {% block sw_settings_payment_detail_top_rule_select %}
                             <sw-select-rule-create
                                 v-if="!isLoading"
+                                class="sw-settings-payment-detail__field-availability-rule"
                                 :disabled="!acl.can('payment.editor')"
                                 :ruleId="paymentMethod.availabilityRuleId"
                                 :ruleFilter="ruleFilter"

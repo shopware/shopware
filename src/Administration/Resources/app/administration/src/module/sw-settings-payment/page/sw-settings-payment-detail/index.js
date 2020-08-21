@@ -13,10 +13,15 @@ Component.register('sw-settings-payment-detail', {
         Mixin.getByName('placeholder')
     ],
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     shortcuts: {
-        'SYSTEMKEY+S': 'onSave',
+        'SYSTEMKEY+S': {
+            active() {
+                return this.acl.can('payment.editor');
+            },
+            method: 'onSave'
+        },
         ESCAPE: 'onCancel'
     },
 
@@ -62,6 +67,13 @@ Component.register('sw-settings-payment-detail', {
         },
 
         tooltipSave() {
+            if (!this.acl.can('payment.editor')) {
+                return {
+                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    disabled: this.acl.can('payment.editor'),
+                    showOnDisabledElements: true
+                };
+            }
             const systemKey = this.$device.getSystemKey();
 
             return {

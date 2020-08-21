@@ -8,7 +8,7 @@ const utils = Shopware.Utils;
 Component.register('sw-settings-payment-list', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('listing'),

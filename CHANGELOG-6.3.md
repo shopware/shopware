@@ -110,6 +110,8 @@ NEXT
 * Added property `disabled` to `sw-sales-channel-defaults-select` component
 * Added property `disabled` to `sw-sales-channel-detail-domains` component
 * Added property `disabled` to `sw-sales-channel-detail-hreflang` component
+* Added new privileges for `sw-review` module to privilege service
+* Added new privileges for `sw-setting-payment` module to privilege service
 
 #### Core
 

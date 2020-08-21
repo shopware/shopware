@@ -18,10 +18,19 @@ export default class CrossSellingPlugin extends Plugin {
     }
 
     _rebuildCrossSellingSlider(event) {
+        if (!event.target.hasAttribute('id')) {
+            return;
+        }
+
         const id = event.target.id;
         const correspondingContent = DomAccess.querySelector(document, `#${id}-pane`);
 
-        const slider = DomAccess.querySelector(correspondingContent, this.options.productSliderSelector);
+        const slider = DomAccess.querySelector(correspondingContent, this.options.productSliderSelector, false);
+
+        if (slider === false) {
+            return;
+        }
+
         const sliderInstance = window.PluginManager.getPluginInstanceFromElement(slider, 'ProductSlider');
 
         sliderInstance.rebuild(ViewportDetection.getCurrentViewport(), true);

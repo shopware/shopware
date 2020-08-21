@@ -207,6 +207,7 @@ NEXT
 * Changed `\Shopware\Core\System\SalesChannel\Api\StoreApiResponseListener` to pass the headers to the new response
 * Deprecated `\Shopware\Core\Checkout\Customer\SalesChannel\AccountRegistrationService` use `RegisterRoute` or `RegisterConfirmRoute`
 * Fixed to hiding the shipping cost dropdown if the customer is logged in block `page_checkout_cart_shipping_costs_form_group_country`
+* Fixed JS error occurred on tab switch on product detail page 
 
 
 6.3.0.2

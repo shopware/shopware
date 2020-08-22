@@ -485,6 +485,9 @@
         "sw-tagged-field": {
             "text-default-placeholder": "Press the enter key to add values."
         },
+        "sw-text-area-field": {
+            "maxLengthTooltip": "Max {maxLength} characters"
+        },
         "sw-condition": {
             "operator": {
                 "lowerThanEquals": "Is lower than / equal to",

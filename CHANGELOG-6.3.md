@@ -104,6 +104,9 @@ NEXT
         * `loadSeoUrls`
         * `getSeoUrl`
 * Added new priviliges for `sw-review` module to privilege service
+* Added `sw-field-helpers` slot to `sw-base-field` and `sw-block-field`
+* Added property `maxLength` to `sw-textarea-field` component to add maximum length validation
+* Added `maxLength` to Category SEO Description field to reflect max length in database
 
 #### Core
 

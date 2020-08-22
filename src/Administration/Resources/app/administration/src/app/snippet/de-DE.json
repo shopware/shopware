@@ -485,6 +485,9 @@
     "sw-tagged-field": {
       "text-default-placeholder": "Enter-Taste benutzen, um die Werte einzufügen."
     },
+    "sw-text-area-field": {
+      "maxLengthTooltip": "Max {maxLength} Zeichen"
+    },
     "sw-condition": {
       "operator": {
         "lowerThanEquals": "Kleiner/gleich",

@@ -29,6 +29,12 @@ Component.register('sw-textarea-field', {
             type: String,
             required: false,
             default: null
+        },
+
+        maxLength: {
+            type: Number,
+            required: false,
+            default: null
         }
     },
 
@@ -40,6 +46,12 @@ Component.register('sw-textarea-field', {
 
     watch: {
         value() { this.currentValue = this.value; }
+    },
+
+    computed: {
+        maxLengthDescription() {
+            return this.$tc('global.sw-text-area-field.maxLengthTooltip', 0, { maxLength: this.maxLength });
+        }
     },
 
     methods: {

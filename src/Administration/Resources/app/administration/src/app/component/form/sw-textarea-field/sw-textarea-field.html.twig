@@ -2,15 +2,23 @@
     <sw-block-field class="sw-field--textarea" v-bind="$attrs" :name="formFieldName">
         <template #sw-field-input="{identification, helpText, error, disabled, setFocusClass, removeFocusClass }">
             <textarea :id="identification"
-                    :name="identification"
-                    :placeholder="placeholder"
-                    :disabled="disabled"
-                    :value="currentValue"
-                    @change="onChange"
-                    @input="onInput"
-                    @focus="setFocusClass"
-                    @blur="removeFocusClass">
+                      :name="identification"
+                      :placeholder="placeholder"
+                      :disabled="disabled"
+                      :value="currentValue"
+                      :maxlength="maxLength"
+                      @change="onChange"
+                      @input="onInput"
+                      @focus="setFocusClass"
+                      @blur="removeFocusClass">
             </textarea>
+        </template>
+
+        <template #sw-field-helpers>
+            <sw-progress-bar v-if="maxLength > 0"
+                             :value="currentValue.length"
+                             :maxValue="maxLength"
+                             v-tooltip="maxLengthDescription"></sw-progress-bar>
         </template>
     </sw-block-field>
 {% endblock %}

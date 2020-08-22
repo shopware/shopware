@@ -14,6 +14,7 @@
                       :disabled="!acl.can('category.editor')"
                       :label="$tc('sw-category.base.seo.labelMetaDescription')"
                       :placeholder="$tc('sw-category.base.seo.placeholderMetaDescription')"
+                      :max-length="255"
                       v-model="category.metaDescription">
             </sw-field>
         {% endblock %}

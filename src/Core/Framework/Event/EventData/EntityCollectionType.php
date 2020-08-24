@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\Event\EventData;
 
 class EntityCollectionType implements EventDataType
 {
+    public const TYPE = 'collection';
+
     /**
      * @var string
      */
@@ -17,7 +19,7 @@ class EntityCollectionType implements EventDataType
     public function toArray(): array
     {
         return [
-            'type' => 'collection',
+            'type' => self::TYPE,
             'entityClass' => $this->definitionClass,
         ];
     }

@@ -68,6 +68,7 @@ class Framework extends Bundle
 
         if (next10286()) {
             $loader->load('app.xml');
+            $loader->load('webhook.xml');
         }
 
         if ($container->getParameter('kernel.environment') === 'test') {

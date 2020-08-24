@@ -1,0 +1,41 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <service id="Shopware\Core\Framework\Webhook\WebhookDispatcher" decorates="event_dispatcher"
+                 decoration-priority="100">
+            <argument type="service" id="Shopware\Core\Framework\Webhook\WebhookDispatcher.inner"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="shopware.app_system.guzzle"/>
+            <argument type="string">%env(APP_URL)%</argument>
+            <argument type="service" id="service_container"/>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Webhook\WebhookCacheClearer">
+            <argument type="service" id="Shopware\Core\Framework\Webhook\WebhookDispatcher"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory">
+            <argument type="service" id="Shopware\Core\Framework\Webhook\BusinessEventEncoder"/>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Hookable\WriteResultMerger"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Webhook\Hookable\WriteResultMerger">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Webhook\BusinessEventEncoder">
+            <argument type="service" id="Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Webhook\WebhookDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+    </services>
+</container>

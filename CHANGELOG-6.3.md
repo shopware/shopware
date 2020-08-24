@@ -150,6 +150,7 @@ NEXT
 * Added app system basics (entities, manifest parsing, app lifecycle)
 * Added snippet loading of apps
 * Added action buttons to apps
+* Added webhook dispatching
 * Increased Elasticsearch config `mapping.nested_objects.limit` to 1000000
 * Fixed company name field on profile page and prefill it with billingAddress company
 * Fixed an issue with submitting the contact form when a contact form configuration was unavailable in another language

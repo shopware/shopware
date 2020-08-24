@@ -18,7 +18,7 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Shopware\Core\Framework\App\ShopId\ShopIdProvider">
+        <service id="Shopware\Core\Framework\App\ShopId\ShopIdProvider" public="true">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
 
@@ -46,6 +46,10 @@
         </service>
 
         <service id="Shopware\Core\Framework\App\Template\TemplateLoader">
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister">
+            <argument type="service" id="webhook.repository"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\AppService">
@@ -82,6 +86,7 @@
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\CustomFieldPersister"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\ActionButtonPersister"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\TemplatePersister"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService"/>

@@ -55,6 +55,9 @@ NEXT
 * Custom field sets can now be sorted using a new `position` field
 
 #### Storefront
+* Added ellipsis to the truncated long product name
+    * Added in the shopping cart line item 
+    * Added in the off-canvas cart menu item
   
 6.3.1.0
 ----------------

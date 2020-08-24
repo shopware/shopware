@@ -17,7 +17,7 @@
                 :id="identification"
                 :disabled="disabled"
                 :placeholder="placeholder">
-                <sw-icon v-if="!required && value"
+                <sw-icon v-if="!required && value && !disabled"
                         class="sw-field--datepicker__button-reset-value"
                         name="small-default-x-line-small"
                         @click="unsetValue"

@@ -35,17 +35,33 @@
 
 {% block sw_data_grid_slot_actions %}
     <slot name="detail-action" v-bind="{ item }">
-        <sw-context-menu-item class="sw-entity-listing__context-menu-edit-action"
-                              v-if="detailRoute"
-                              :disabled="!allowEdit"
-                              v-tooltip="{
+        <template v-if="allowEdit">
+            <sw-context-menu-item class="sw-entity-listing__context-menu-edit-action"
+                                  v-if="detailRoute"
+                                  :routerLink="{ name: detailRoute, params: { id: item.id } }">
+                {{ $tc('global.default.edit') }}
+            </sw-context-menu-item>
+        </template>
+        <template v-else-if="allowView">
+            <sw-context-menu-item class="sw-entity-listing__context-menu-view-action"
+                                  v-if="detailRoute"
+                                  :routerLink="{ name: detailRoute, params: { id: item.id } }">
+                {{ $tc('global.default.view') }}
+            </sw-context-menu-item>
+        </template>
+        <template v-else>
+            <sw-context-menu-item class="sw-entity-listing__context-menu-edit-action"
+                                  v-if="detailRoute"
+                                  :disabled="!allowEdit"
+                                  v-tooltip="{
                                     message: $tc('sw-privileges.tooltip.warning'),
                                     disabled: allowEdit,
                                     showOnDisabledElements: true
                                }"
-                              :routerLink="{ name: detailRoute, params: { id: item.id } }">
-            {{ $tc('global.default.edit') }}
-        </sw-context-menu-item>
+                                  :routerLink="{ name: detailRoute, params: { id: item.id } }">
+                {{ $tc('global.default.edit') }}
+            </sw-context-menu-item>
+        </template>
     </slot>
 
     <slot name="more-actions" v-bind="{ item }"></slot>

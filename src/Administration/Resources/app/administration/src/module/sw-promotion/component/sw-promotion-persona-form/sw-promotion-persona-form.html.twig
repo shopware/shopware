@@ -58,7 +58,7 @@
                         <sw-data-grid ref="gridCustomers"
                                       :dataSource="gridCustomersPageDataSource"
                                       :columns="gridCustomersColumns"
-                                      :showSelection="true"
+                                      :showSelection="!isEditingDisabled"
                                       @select-all-items="onGridSelectionChanged"
                                       @selection-change="onGridSelectionChanged">
                             <template slot="column-fullName" slot-scope="{ item, index }">
@@ -67,6 +67,7 @@
                             <template slot="actions" slot-scope="{ item }">
                                 {% block sw_promotion_persona_form_customer_grid_action_remove %}
                                     <sw-context-menu-item variant="danger"
+                                                          :disabled="isEditingDisabled"
                                                           @click="onRemoveCustomer(item)">
                                         {{ $tc('sw-promotion.detail.main.preconditions.persona.customers.grid.delete') }}
                                     </sw-context-menu-item>

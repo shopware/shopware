@@ -8,8 +8,9 @@ const { Criteria } = Shopware.Data;
 const discountHandler = new DiscountHandler();
 
 Component.register('sw-promotion-discount-component', {
-    inject: ['repositoryFactory'],
     template,
+
+    inject: ['repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('placeholder')
@@ -172,6 +173,10 @@ Component.register('sw-promotion-discount-component', {
         },
 
         isEditingDisabled() {
+            if (!this.acl.can('promotion.editor')) {
+                return true;
+            }
+
             return !PromotionPermissions.isEditingAllowed(this.promotion);
         },
 

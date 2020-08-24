@@ -16,7 +16,7 @@
                                                   @item-remove="remove"
                                                   @last-item-delete="removeLastItem"
                                                   @search-term-change="onSearchTermChange"
-                                                  v-bind="{ size, valueProperty, labelProperty, placeholder, searchTerm }">
+                                                  v-bind="{ size, valueProperty, labelProperty, placeholder, searchTerm, disabled }">
                             {% block sw_multi_select_base_selection_list %}
                                 {% block sw_multi_select_base_selection_list_label %}
                                     <template #label-property="{ item, index, labelProperty, valueProperty }">

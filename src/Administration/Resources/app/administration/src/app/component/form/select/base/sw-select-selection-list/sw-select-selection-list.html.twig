@@ -8,8 +8,11 @@
                 :data-id="selection[valueProperty]">
 
                 {% block sw_select_selection_list_item_inner %}
-                    <slot name="selected-option" v-bind="{ selection, defaultLabel: selection[labelProperty] }">
-                        <sw-label @dismiss="onClickDismiss(selection)" :size="size">
+                    <slot name="selected-option" v-bind="{ selection, defaultLabel: selection[labelProperty], disabled }">
+                        <sw-label
+                            @dismiss="onClickDismiss(selection)"
+                            :dismissable="!disabled"
+                            :size="size">
                             {% block sw_select_selection_list_item_text %}
                                 <span class="sw-select-selection-list__item">
                                     <slot name="label-property" v-bind="{ item: selection, index, labelProperty, valueProperty }">

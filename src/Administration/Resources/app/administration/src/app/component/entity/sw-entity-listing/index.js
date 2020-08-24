@@ -64,6 +64,12 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
             default: true
         },
 
+        allowView: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+
         allowDelete: {
             type: Boolean,
             required: false,

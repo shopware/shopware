@@ -17,7 +17,7 @@
                                                   @total-count-click="paginateDisplayList"
                                                   @item-remove="remove"
                                                   @search-term-change="onSearchTermChange"
-                                                  v-bind="{ size, labelProperty, placeholder, searchTerm }">
+                                                  v-bind="{ size, labelProperty, placeholder, searchTerm, disabled }">
                             {% block sw_entity_many_to_many_select_base_selection_list %}
                                 {% block sw_entity_many_to_many_select_base_selection_list_label %}
                                     <template #label-property="{ item, index, labelProperty, valueProperty }">

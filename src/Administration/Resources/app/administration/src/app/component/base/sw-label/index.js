@@ -55,6 +55,11 @@ Component.register('sw-label', {
             type: Boolean,
             required: false,
             default: false
+        },
+        dismissable: {
+            type: Boolean,
+            required: false,
+            default: true
         }
     },
 
@@ -73,7 +78,7 @@ Component.register('sw-label', {
             ];
         },
         showDismissable() {
-            return !!this.$listeners.dismiss;
+            return !!this.$listeners.dismiss && this.dismissable;
         }
     }
 });

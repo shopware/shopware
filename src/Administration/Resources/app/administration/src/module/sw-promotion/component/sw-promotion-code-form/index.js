@@ -9,6 +9,8 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 Component.register('sw-promotion-code-form', {
     template,
 
+    inject: ['acl'],
+
     mixins: [
         Mixin.getByName('placeholder')
     ],
@@ -29,6 +31,10 @@ Component.register('sw-promotion-code-form', {
     computed: {
 
         isEditingDisabled() {
+            if (!this.acl.can('promotion.editor')) {
+                return true;
+            }
+
             return !PromotionPermissions.isEditingAllowed(this.promotion);
         },
 

@@ -91,6 +91,7 @@ NEXT
     * Added property `productStreamSorting` with default value `name:ASC`
     * Added property `productStreamLimit` with default value `10`
 * Added method `addGroupField` to `platform/src/Administration/Resources/app/administration/src/core/data-new/criteria.data.js`
+* Added method `addGrouping` to `platform/src/Administration/Resources/app/administration/src/core/data-new/criteria.data.js`
 * Added new component `sw-customer-group-registration-seo-modal` to generate urls for customer group registration
 * Changed `sw-settings-customer-group-detail` to add
     * as data

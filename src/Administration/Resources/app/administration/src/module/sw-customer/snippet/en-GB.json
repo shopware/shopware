@@ -49,7 +49,7 @@
       "columnCustomerNumber": "Customer number",
       "columnName": "Name",
       "columnGroup": "Customer group",
-      "columnGroupRequested": "Requested:",
+      "columnGroupRequested": "Request",
       "columnNameGuestLabel": "Guest account",
       "columnFirstName": "First name",
       "columnLastName": "Last name",
@@ -72,7 +72,8 @@
       "titleSidebarItemRefresh": "Refresh",
       "titleSidebarItemFilter": "Filter",
       "titleSidebarItemFilterAffiliateCode": "Affiliate code",
-      "titleSidebarItemFilterCampaignCode": "Campaign code"
+      "titleSidebarItemFilterCampaignCode": "Campaign code",
+      "titleSidebarItemFilterRequestedGroup": "Show only customer group requests"
     },
     "baseForm": {
       "labelSalutation": "Salutation",

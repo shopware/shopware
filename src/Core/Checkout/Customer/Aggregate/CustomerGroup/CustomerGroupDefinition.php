@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup;
 
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupRegistrationSalesChannel\CustomerGroupRegistrationSalesChannelDefinition;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupTranslation\CustomerGroupTranslationDefinition;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
@@ -13,12 +14,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
-use function Flag\next6010;
 
 class CustomerGroupDefinition extends EntityDefinition
 {
@@ -41,26 +42,23 @@ class CustomerGroupDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        $collection = new FieldCollection([
+        return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new TranslatedField('name'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new BoolField('display_gross', 'displayGross'),
             new TranslatedField('customFields'),
 
+            // Merchant Registration
+            new BoolField('registration_active', 'registrationActive'),
+            new TranslatedField('registrationTitle'),
+            new TranslatedField('registrationIntroduction'),
+            new TranslatedField('registrationOnlyCompanyRegistration'),
+            new TranslatedField('registrationSeoMetaDescription'),
+
             (new OneToManyAssociationField('customers', CustomerDefinition::class, 'customer_group_id', 'id'))->addFlags(new RestrictDelete(), new ReadProtected(SalesChannelApiSource::class)),
             (new OneToManyAssociationField('salesChannels', SalesChannelDefinition::class, 'customer_group_id', 'id'))->addFlags(new RestrictDelete(), new ReadProtected(SalesChannelApiSource::class)),
             (new TranslationsAssociationField(CustomerGroupTranslationDefinition::class, 'customer_group_id'))->addFlags(new Required()),
+            new ManyToManyAssociationField('registrationSalesChannels', SalesChannelDefinition::class, CustomerGroupRegistrationSalesChannelDefinition::class, 'customer_group_id', 'sales_channel_id', 'id', 'id'),
         ]);
-
-        if (next6010()) {
-            // Merchant Registration
-            $collection->add(new BoolField('registration_active', 'registrationActive'));
-            $collection->add(new TranslatedField('registrationTitle'));
-            $collection->add(new TranslatedField('registrationIntroduction'));
-            $collection->add(new TranslatedField('registrationOnlyCompanyRegistration'));
-            $collection->add(new TranslatedField('registrationSeoMetaDescription'));
-        }
-
-        return $collection;
     }
 }

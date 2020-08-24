@@ -32,7 +32,10 @@
       "seoMetaDescription": "SEO Meta Beschreibung",
       "linkUrlsTitle": "URLs",
       "linkUrlDescription": "Klicken Sie auf die Schaltfläche auf der rechten Seite, um URLs zu generieren, die die Anfrageformulare mit jedem Vertriebskanal verbinden..",
-      "linkUrlButton": "URLs generieren"
+      "linkUrlButton": "URLs generieren",
+      "technicalUrl": "Technische URL",
+      "technicalUrlHelpText": "Techische URLs können im Kategorie-Modul als \"Benutzerdefinierter Link\" gesetzt werden und erlauben eine automatische Sprachzuweisung.",
+      "availabilitySalesChannel": "Verfügbare Verkaufskanäle"
     },
     "modal": {
       "seoUrl": {

@@ -29,7 +29,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use function Flag\next6010;
 
 /**
  * @RouteScope(scopes={"api"})
@@ -205,10 +204,6 @@ class SeoActionController extends AbstractController
      */
     public function createCustomSeoUrls(RequestDataBag $dataBag, Context $context): Response
     {
-        if (!next6010()) {
-            return new Response(Response::HTTP_NO_CONTENT, 404);
-        }
-
         $urls = $dataBag->get('urls')->all();
 
         /** @var SeoUrlValidationFactory $validatorBuilder */

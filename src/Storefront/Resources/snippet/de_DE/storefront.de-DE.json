@@ -150,6 +150,7 @@
     "overviewChangeBilling": "Rechnungsadresse ändern",
     "overviewChangeShipping": "Lieferadresse ändern",
     "overviewNewestOrderHeader": "Letzte Bestellung",
+    "overviewCustomerGroupRequest": "Anfrage zur Aufnahme in die Kundengruppe \"%group%\" gestellt.",
     "paymentChangeSubmit": "Ändern",
     "profilePersonalTitle": "Persönliche Daten",
     "profileMailTitle": "E-Mail-Adresse",

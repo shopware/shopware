@@ -4,6 +4,7 @@ import template from './sw-settings-customer-group-detail.html.twig';
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
+const domainPlaceholderId = '124c71d524604ccbad6042edce3ac799';
 
 Component.register('sw-settings-customer-group-detail', {
     template,
@@ -95,6 +96,10 @@ Component.register('sw-settings-customer-group-detail', {
             }
         },
 
+        technicalUrl() {
+            return `${domainPlaceholderId}/customer-group-registration/${this.customerGroupId}#`;
+        },
+
         ...mapPropertyErrors('customerGroup', ['name'])
     },
 
@@ -115,7 +120,10 @@ Component.register('sw-settings-customer-group-detail', {
             this.isLoading = true;
             if (this.customerGroupId) {
                 this.loadSeoUrls();
-                this.customerGroupRepository.get(this.customerGroupId, Shopware.Context.api).then((customerGroup) => {
+                const criteria = new Criteria();
+                criteria.addAssociation('registrationSalesChannels');
+
+                this.customerGroupRepository.get(this.customerGroupId, Shopware.Context.api, criteria).then((customerGroup) => {
                     this.customerGroup = customerGroup;
                     this.isLoading = false;
                 });
@@ -130,6 +138,7 @@ Component.register('sw-settings-customer-group-detail', {
         async loadSeoUrls() {
             const criteria = new Criteria();
             criteria.addFilter(Criteria.equals('pathInfo', `/customer-group-registration/${this.customerGroupId}`));
+            criteria.addFilter(Criteria.equals('languageId', Shopware.Context.api.languageId));
             criteria.addFilter(Criteria.equals('isCanonical', true));
             criteria.addAssociation('salesChannel.domains');
             criteria.addGroupField('seoPathInfo');
@@ -168,7 +177,7 @@ Component.register('sw-settings-customer-group-detail', {
                     this.$router.push({ name: 'sw.settings.customer.group.detail', params: { id: this.customerGroup.id } });
                 }
 
-                this.customerGroup = await this.customerGroupRepository.get(this.customerGroup.id, Shopware.Context.api);
+                this.customerGroup = await this.createdComponent();
             } catch (err) {
                 this.createNotificationError({
                     title: this.$tc('global.default.error'),

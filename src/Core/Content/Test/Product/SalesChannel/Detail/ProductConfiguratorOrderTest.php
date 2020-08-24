@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Test\Page\Product\Configurator;
+namespace Shopware\Core\Content\Test\Product\SalesChannel\Detail;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
-use Shopware\Core\Content\Property\PropertyGroupCollection;
+use Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader;
 use Shopware\Core\Content\Property\PropertyGroupEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -17,8 +17,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Page\Product\Configurator\ProductCombinationFinder;
-use Shopware\Storefront\Page\Product\Configurator\ProductPageConfiguratorLoader;
 
 class ProductConfiguratorOrderTest extends TestCase
 {
@@ -46,14 +44,9 @@ class ProductConfiguratorOrderTest extends TestCase
     private $context;
 
     /**
-     * @var ProductCombinationFinder
+     * @var ProductConfiguratorLoader
      */
-    private $combinationFinder;
-
-    /**
-     * @var ProductPageConfiguratorLoader
-     */
-    private $productPageConfiguratorLoader;
+    private $loader;
 
     protected function setUp(): void
     {
@@ -64,9 +57,7 @@ class ProductConfiguratorOrderTest extends TestCase
         $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create('test', Defaults::SALES_CHANNEL);
 
-        $this->combinationFinder = $this->getContainer()->get(ProductCombinationFinder::class);
-
-        $this->productPageConfiguratorLoader = $this->getContainer()->get(ProductPageConfiguratorLoader::class);
+        $this->loader = $this->getContainer()->get(ProductConfiguratorLoader::class);
 
         parent::setUp();
     }
@@ -204,7 +195,7 @@ class ProductConfiguratorOrderTest extends TestCase
         $salesChannelProduct = $this->salesChannelProductRepository->search($criteria, $this->context)->first();
 
         // get ordered PropertyGroupCollection
-        $groups = $this->productPageConfiguratorLoader->load($salesChannelProduct, $this->context);
+        $groups = $this->loader->load($salesChannelProduct, $this->context);
 
         // return array of group names
         return array_values(array_map(function (PropertyGroupEntity $propertyGroupEntity) {

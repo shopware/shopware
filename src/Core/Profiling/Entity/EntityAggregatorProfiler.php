@@ -29,11 +29,13 @@ class EntityAggregatorProfiler implements EntityAggregatorInterface
 
     public function aggregate(EntityDefinition $definition, Criteria $criteria, Context $context): AggregationResultCollection
     {
-        $this->stopwatch->start('aggregate.' . $definition->getEntityName());
+        $title = $criteria->getTitle() ?? $definition->getEntityName();
+
+        $this->stopwatch->start('aggregate:' . $title);
 
         $data = $this->decorated->aggregate($definition, $criteria, $context);
 
-        $this->stopwatch->stop('aggregate.' . $definition->getEntityName());
+        $this->stopwatch->stop('aggregate:' . $title);
 
         return $data;
     }

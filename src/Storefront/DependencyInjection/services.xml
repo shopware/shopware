@@ -217,11 +217,8 @@
         </service>
 
         <service id="Shopware\Storefront\Page\Product\CrossSelling\CrossSellingLoader">
-            <argument type="service" id="product_cross_selling.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\CrossSelling\ProductCrossSellingRoute"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder"/>
-            <argument type="service" id="sales_channel.product.repository"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageLoader">
@@ -234,13 +231,16 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
-        <service id="Shopware\Storefront\Page\Product\Configurator\AvailableCombinationLoader">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        <service id="Shopware\Storefront\Page\Product\Configurator\AvailableCombinationLoader"
+                 decorates="Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader">
+
+            <argument type="service" id="Shopware\Storefront\Page\Product\Configurator\AvailableCombinationLoader.inner"/>
         </service>
 
-        <service id="Shopware\Storefront\Page\Product\Configurator\ProductPageConfiguratorLoader">
-            <argument type="service" id="product_configurator_setting.repository"/>
-            <argument type="service" id="Shopware\Storefront\Page\Product\Configurator\AvailableCombinationLoader"/>
+        <service id="Shopware\Storefront\Page\Product\Configurator\ProductPageConfiguratorLoader"
+                 decorates="Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader">
+
+            <argument type="service" id="Shopware\Storefront\Page\Product\Configurator\ProductPageConfiguratorLoader.inner" />
         </service>
 
         <service id="Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoader">

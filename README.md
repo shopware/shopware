@@ -112,9 +112,10 @@ You now have the application template for the Shopware Platform in the directory
 > cd development
 ```
 
-and clone the platform repository into its default directory `platform`. *Note This is important for autoloading purposes.*
+Only if you want to work with the Shopware platform code itself, e.g. in order to create a pull request for it, you should clone the platform code manually. Before doing so, remove the existing platform directory.
 
 ```bash
+> rm -rf platform
 > git clone git@github.com:shopware/platform.git
 ```
 

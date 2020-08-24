@@ -13,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use function Flag\skipTestNext6010;
 
 class CustomerGroupSubscriberTest extends TestCase
 {
@@ -34,7 +33,6 @@ class CustomerGroupSubscriberTest extends TestCase
     {
         $this->customerGroupRepository = $this->getContainer()->get('customer_group.repository');
         $this->seoRepository = $this->getContainer()->get('seo_url.repository');
-        skipTestNext6010($this);
     }
 
     public function testUrlsAreNotWritten(): void

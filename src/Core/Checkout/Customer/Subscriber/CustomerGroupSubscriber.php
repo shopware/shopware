@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\System\Language\LanguageEntity;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class CustomerGroupSubscriber implements EventSubscriberInterface
@@ -40,9 +41,15 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
      */
     private $seoUrlRepository;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $languageRepository;
+
     public function __construct(
         EntityRepositoryInterface $customerGroupRepository,
         EntityRepositoryInterface $seoUrlRepository,
+        EntityRepositoryInterface $languageRepository,
         SeoUrlPersister $persister,
         SlugifyInterface $slugify
     ) {
@@ -50,6 +57,7 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
         $this->seoUrlRepository = $seoUrlRepository;
         $this->persister = $persister;
         $this->slugify = $slugify;
+        $this->languageRepository = $languageRepository;
     }
 
     public static function getSubscribedEvents(): array
@@ -86,9 +94,11 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
         foreach ($groups as $group) {
             foreach ($group->getRegistrationSalesChannels() as $registrationSalesChannel) {
                 $languageIds = $registrationSalesChannel->getLanguages()->getIds();
+                $criteria = new Criteria($languageIds);
+                $languageCollection = $this->languageRepository->search($criteria, $event->getContext())->getEntities();
 
                 foreach ($languageIds as $languageId) {
-                    $title = $this->getTranslatedTitle($group->getTranslations(), $languageId);
+                    $title = $this->getTranslatedTitle($group->getTranslations(), $languageCollection->get($languageId));
 
                     $buildUrls[$languageId][] = [
                         'salesChannelId' => $registrationSalesChannel->getId(),
@@ -141,16 +151,23 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
         }, $ids), $event->getContext());
     }
 
-    private function getTranslatedTitle(CustomerGroupTranslationCollection $translations, string $languageId): string
+    private function getTranslatedTitle(CustomerGroupTranslationCollection $translations, LanguageEntity $language): string
     {
         // Requested translation
         foreach ($translations as $translation) {
-            if ($translation->getLanguageId() === $languageId && $translation->getRegistrationTitle()) {
+            if ($translation->getLanguageId() === $language->getId() && $translation->getRegistrationTitle()) {
                 return $translation->getRegistrationTitle();
             }
         }
 
-        // Fallback
+        // Inherited translation
+        foreach ($translations as $translation) {
+            if ($translation->getLanguageId() === $language->getParentId() && $translation->getRegistrationTitle()) {
+                return $translation->getRegistrationTitle();
+            }
+        }
+
+        // System Language
         foreach ($translations as $translation) {
             if ($translation->getLanguageId() === Defaults::LANGUAGE_SYSTEM) {
                 return $translation->getRegistrationTitle();

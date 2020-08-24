@@ -66,11 +66,8 @@ Component.register('sw-customer-list', {
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
             criteria
                 .addAssociation('defaultBillingAddress')
-                .addAssociation('group');
-
-            if (this.next6010) {
-                criteria.addAssociation('requestedGroup');
-            }
+                .addAssociation('group')
+                .addAssociation('requestedGroup');
 
             return criteria;
         },

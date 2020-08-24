@@ -82,11 +82,8 @@ Component.register('sw-customer-detail', {
                 .addAssociation('defaultShippingAddress.country')
                 .addAssociation('defaultShippingAddress.countryState')
                 .addAssociation('defaultShippingAddress.salutation')
-                .addAssociation('tags');
-
-            if (this.next6010) {
-                criteria.addAssociation('requestedGroup');
-            }
+                .addAssociation('tags')
+                .addAssociation('requestedGroup');
 
             return criteria;
         },

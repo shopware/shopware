@@ -192,7 +192,7 @@ class CustomerGroupEntity extends Entity
         return $this->registrationSalesChannels;
     }
 
-    public function setRegistrationSalesChannels(?SalesChannelCollection $registrationSalesChannels): void
+    public function setRegistrationSalesChannels(SalesChannelCollection $registrationSalesChannels): void
     {
         $this->registrationSalesChannels = $registrationSalesChannels;
     }

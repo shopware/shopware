@@ -41,7 +41,6 @@ use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Contracts\EventDispatcher\Event;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
-use function Flag\next6010;
 
 /**
  * @RouteScope(scopes={"store-api"})
@@ -345,7 +344,7 @@ class RegisterRoute extends AbstractRegisterRoute
             'salesChannelId' => $context->getSalesChannel()->getId(),
             'languageId' => $context->getContext()->getLanguageId(),
             'groupId' => $context->getCurrentCustomerGroup()->getId(),
-            'requestedGroupId' => next6010() ? $data->get('requestedGroupId', null) : null,
+            'requestedGroupId' => $data->get('requestedGroupId', null),
             'defaultPaymentMethodId' => $context->getPaymentMethod()->getId(),
             'salutationId' => $data->get('salutationId'),
             'firstName' => $data->get('firstName'),

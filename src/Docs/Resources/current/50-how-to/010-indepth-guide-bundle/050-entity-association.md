@@ -280,6 +280,13 @@ class Migration1554708925Bundle extends MigrationStep
 
 The newly added column will be automatically managed by te DAL through an Indexer. But as there may already be some products in the Database that don't have that column set we have to run corresponding entity indexer for the entity during the activation process of the plugin.
 Because running the Indexer may take a longer time it's a bad idea to run the Indexer directly, therefore you can use the  `EntityIndexerRegistry` to run the Indexer asynchronously in your plugin base class `activate()`-method.
+Unfortunately is the service `Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry` not public. Therefore we need to alias it beforehand to access it, we prefix it with bundle to show, that it is only intended to use in our plugin.
+
+```xml
+    <service id="bundle.entity.indexer.registry" alias="Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry" public="true"/>
+```
+
+Then we can implement the `activate()`-method.
 
 ```php
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
@@ -290,7 +297,7 @@ class BundleExample extends Plugin
 {
     public function activate(ActivateContext $activateContext): void
     {
-        $registry = $this->container->get(EntityIndexerRegistry::class);
+        $registry = $this->container->get('bundle.entity.indexer.registry');
         $registry->sendIndexingMessage(['product.indexer']);
     }
 }
@@ -327,6 +334,7 @@ Here's your new `services.xml`:
         <service id="Swag\BundleExample\Core\Content\Bundle\Aggregate\BundleProduct\BundleProductDefinition">
             <tag name="shopware.entity.definition" entity="swag_bundle_product"/>
         </service>
+        <service id="bundle.entity.indexer.registry" alias="Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry" public="true"/>
     </services>
 </container>
 ```

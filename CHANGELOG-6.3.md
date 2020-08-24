@@ -30,6 +30,10 @@ NEXT
 * Added property `disabled` to `sw-condition-tree` component
 * Added property `disabled` to `sw-condition-type-select` component
 * Added property `disabled` to `rule-container` mixin
+* Added acl privileges to the `promotion` module
+* Added prop `dismissable` to `sw-label`
+* Added prop `allowView` to `sw-entity-listing`
+* Added prop `disabled` to `sw-select-selection-list`
 
 #### Core
 * Changed order address from customer to billing address in documents

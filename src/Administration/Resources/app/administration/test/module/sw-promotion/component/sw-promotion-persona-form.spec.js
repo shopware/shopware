@@ -9,32 +9,13 @@ function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-promotion-persona-form'), {
         localVue,
         stubs: {
-            // 'sw-container': '<div class="sw-container"><slot></slot></div>',
-            // 'sw-select-field': '<div class="sw-select-field"></div>',
             'sw-entity-single-select': '<div class="sw-entity-single-select"></div>',
-            // 'sw-switch-field': '<div class="sw-switch-field"></div>',
             'sw-field': '<div class="sw-field"><slot></slot></div>',
-            // 'sw-number-field': '<div class="sw-number-field"><slot></slot></div>',
-            // 'sw-button': '<div class="sw-button"><slot></slot></div>',
-            // 'sw-progress-bar': '<div class="sw-progress-bar"><slot></slot></div>',
-            // 'sw-label': '<div class="sw-label"><slot></slot></div>',
-            // 'sw-empty-state': '<div class="sw-empty-state"><slot></slot></div>',
             'sw-data-grid': '<div class="sw-data-grid"><slot></slot><slot name="actions"></slot></div>',
             'sw-pagination': '<div class="sw-pagination"><slot></slot></div>',
-            // 'sw-icon': '<div class="sw-icon"></div>'
-            // 'sw-promotion-sales-channel-select': '<div class="sw-promotion-sales-channel-select"><slot></slot></div>',
-            // 'sw-datepicker': '<div class="sw-field-datepicker"><slot></slot></div>',
-            // 'sw-entity-multi-select': '<div class="sw-entity-multi-select"><slot></slot></div>'
             'sw-card': '<div class="sw-card"><slot></slot></div>',
-            // 'sw-context-button': '<div class="sw-context-button"><slot></slot></div>',
             'sw-context-menu-item': '<div class="sw-context-menu-item"><slot></slot></div>',
-            // 'sw-modal': '<div class="sw-modal"><slot></slot><slot name="footer"></slot></div>',
-            // 'sw-one-to-many-grid': '<div class="sw-one-to-many-grid"></div>'
             'sw-promotion-rule-select': '<div class="sw-promotion-rule-select"><slot></slot></div>'
-            // 'sw-empty-state': true,
-            // 'sw-card-section': true,
-            // 'sw-card-filter': '<div><slot name="filter"></slot></div>',
-            // 'sw-context-button': true,
         },
         provide: {
             acl: {

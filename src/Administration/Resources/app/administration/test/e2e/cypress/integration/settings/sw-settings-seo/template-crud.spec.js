@@ -121,7 +121,7 @@ describe('Seo: Test crud operations on templates', () => {
         cy.get('.sw-card__content').contains('SEO URLs cannot be assigned to a headless Sales Channel.');
     });
 
-    it('@base @settings: cannot save when the first template is empty', () => {
+    it('@base @settings: can save when the first template is empty', () => {
         cy.route({
             url: '/api/v*/_action/sync',
             method: 'post'
@@ -133,16 +133,20 @@ describe('Seo: Test crud operations on templates', () => {
             .clear()
             .should('be.empty');
 
-        // check that the server throws an error
+        // check that no error is thrown
         cy.get('.smart-bar__actions').contains('Save').click();
         cy.wait('@templateSaveCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 400);
-            cy.awaitAndCheckNotification('Not all templates are valid.');
-            cy.get('.sw-field__error').contains('This value should not be blank');
+            expect(xhr).to.have.property('status', 200);
+            cy.get('.sw-field__error').should('not.contain', 'This value should not be blank');
         });
+
+        // ensure the template is still visible
+        cy.get('.sw-block-field__block #sw-field--seo-url-template-undefined')
+            .eq(0)
+            .should('be.visible');
     });
 
-    it('@base @settings: cannot save when the second template is empty', () => {
+    it('@base @settings: can save when the second template is empty', () => {
         cy.route({
             url: '/api/v*/_action/sync',
             method: 'post'
@@ -154,12 +158,16 @@ describe('Seo: Test crud operations on templates', () => {
             .clear()
             .should('be.empty');
 
-        // check that the server throws an error
+        // check that no error is thrown
         cy.get('.smart-bar__actions').contains('Save').click();
         cy.wait('@templateSaveCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 400);
-            cy.awaitAndCheckNotification('Not all templates are valid.');
-            cy.get('.sw-field__error').contains('This value should not be blank');
+            expect(xhr).to.have.property('status', 200);
+            cy.get('.sw-field__error').should('not.contain', 'This value should not be blank');
         });
+
+        // ensure the template is still visible
+        cy.get('.sw-block-field__block #sw-field--seo-url-template-undefined')
+            .eq(1)
+            .should('be.visible');
     });
 });

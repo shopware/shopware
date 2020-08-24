@@ -90,6 +90,8 @@ NEXT
 * Deprecated `\Shopware\Storefront\Page\Product\CrossSelling\CrossSellingProductStreamCriteriaEvent` use `\Shopware\Core\Content\Product\Events\ProductCrossSellingStreamCriteriaEvent` instead
 * Deprecated `\Shopware\Storefront\Page\Product\ProductLoaderCriteriaEvent` use `ProductPageCriteriaEvent` or `MinimalQuickViewPageCriteriaEvent` event instead
 * Deprecated `\Shopware\Storefront\Page\Product\ProductLoader` use `Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute` instead
+* Changed `\Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateDefinition`, the `template`-property is not required anymore
+* Added `\Shopware\Core\Migration\Migration1598280548NullableSeoUrlTemplate` to mark `seo_url_template.template` nullable
 
 #### Storefront
 * Added ellipsis to the truncated long product name

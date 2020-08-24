@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Command\UninstallAppCommand;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Test\App\StorefrontAppRegistryTestBehaviour;
+use Shopware\Core\Framework\Test\App\StorefrontPluginRegistryTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Console\Tester\CommandTester;
 use function Flag\skipTestNext10286;
@@ -14,7 +14,7 @@ use function Flag\skipTestNext10286;
 class UninstallAppCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    use StorefrontAppRegistryTestBehaviour;
+    use StorefrontPluginRegistryTestBehaviour;
 
     /**
      * @var EntityRepositoryInterface

@@ -21,7 +21,7 @@ use function Flag\skipTestNext10286;
 class AppServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    use StorefrontAppRegistryTestBehaviour;
+    use StorefrontPluginRegistryTestBehaviour;
 
     /**
      * @var AppService

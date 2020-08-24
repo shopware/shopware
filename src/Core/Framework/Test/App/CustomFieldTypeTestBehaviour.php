@@ -14,7 +14,7 @@ use function Flag\skipTestNext10286;
 
 trait CustomFieldTypeTestBehaviour
 {
-    use StorefrontAppRegistryTestBehaviour;
+    use StorefrontPluginRegistryTestBehaviour;
 
     /**
      * @before

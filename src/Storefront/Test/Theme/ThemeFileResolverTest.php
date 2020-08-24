@@ -21,7 +21,7 @@ class ThemeFileResolverTest extends TestCase
         $themePluginBundle = new ThemeWithStorefrontSkinScss();
         $storefrontBundle = new MockStorefront();
 
-        $factory = new StorefrontPluginConfigurationFactory();
+        $factory = new StorefrontPluginConfigurationFactory(__DIR__);
         $config = $factory->createFromBundle($themePluginBundle);
         $storefront = $factory->createFromBundle($storefrontBundle);
 
@@ -47,7 +47,7 @@ class ThemeFileResolverTest extends TestCase
         $themePluginBundle = new ThemeWithStorefrontBootstrapScss();
         $storefrontBundle = new MockStorefront();
 
-        $factory = new StorefrontPluginConfigurationFactory();
+        $factory = new StorefrontPluginConfigurationFactory(__DIR__);
         $config = $factory->createFromBundle($themePluginBundle);
         $storefront = $factory->createFromBundle($storefrontBundle);
 
@@ -74,7 +74,7 @@ class ThemeFileResolverTest extends TestCase
         $storefrontBundle = new MockStorefront();
         $pluginBundle = new SimplePlugin();
 
-        $factory = new StorefrontPluginConfigurationFactory();
+        $factory = new StorefrontPluginConfigurationFactory(__DIR__);
         $config = $factory->createFromBundle($themePluginBundle);
         $storefront = $factory->createFromBundle($storefrontBundle);
         $plugin = $factory->createFromBundle($pluginBundle);
@@ -104,7 +104,7 @@ class ThemeFileResolverTest extends TestCase
         $storefrontBundle = new MockStorefront();
         $pluginBundle = new SimplePlugin();
 
-        $factory = new StorefrontPluginConfigurationFactory();
+        $factory = new StorefrontPluginConfigurationFactory(__DIR__);
         $config = $factory->createFromBundle($themePluginBundle);
         $storefront = $factory->createFromBundle($storefrontBundle);
         $plugin = $factory->createFromBundle($pluginBundle);

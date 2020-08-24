@@ -14,7 +14,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
-use function Flag\skipTestNext10286;
 
 class ClientRepositoryTest extends TestCase
 {
@@ -24,7 +23,6 @@ class ClientRepositoryTest extends TestCase
 
     public function testLoginFailsForInactiveApp(): void
     {
-        skipTestNext10286($this);
         $this->loadAppsFromDir(__DIR__ . '/../../App/Manifest/_fixtures/test', false);
 
         $browser = $this->createClient();

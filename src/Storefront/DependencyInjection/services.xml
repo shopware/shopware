@@ -116,6 +116,8 @@
             <argument type="service" id="Shopware\Core\Content\Seo\HreflangLoaderInterface" />
             <argument>%kernel.debug%</argument>
             <argument type="service" id="Shopware\Storefront\Framework\Routing\MaintenanceModeResolver"/>
+            <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider" on-invalid="null"/>
+            <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader" on-invalid="null"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>

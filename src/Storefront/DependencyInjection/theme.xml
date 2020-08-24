@@ -6,11 +6,14 @@
 
     <services>
         <!-- Theme -->
-        <service id="Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory"/>
+        <service id="Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory">
+            <argument>%kernel.project_dir%</argument>
+        </service>
 
         <service id="Shopware\Storefront\Theme\StorefrontPluginRegistry" public="true">
             <argument type="service" id="kernel"/>
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory"/>
+            <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader" on-invalid="null"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeCompiler">
@@ -56,6 +59,16 @@
             <argument type="service" id="Shopware\Storefront\Theme\ThemeService"/>
             <argument type="service" id="sales_channel.repository"/>
             <argument type="service" id="theme.repository"/>
+        </service>
+
+
+        <service id="Shopware\Storefront\Theme\ThemeAppLifecycleHandler">
+            <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>
+            <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory"/>
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeLifecycleHandler"/>
+
+            <tag name="kernel.event_subscriber"/>
+            <tag name="shopware.feature" flag="next10286"/>
         </service>
 
         <!-- Entity definitions -->

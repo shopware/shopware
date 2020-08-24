@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\App\Event;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
@@ -12,16 +13,16 @@ class AppUpdatedEventTest extends TestCase
 {
     public function testGetter(): void
     {
-        $appId = Uuid::randomHex();
+        $app = new AppEntity();
         $context = Context::createDefaultContext();
         $event = new AppUpdatedEvent(
-            $appId,
+            $app,
             Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml'),
             $context
         );
 
-        static::assertEquals($appId, $event->getAppId());
-        static::assertInstanceOf(Manifest::class, $event->getApp());
+        static::assertEquals($app, $event->getApp());
+        static::assertInstanceOf(Manifest::class, $event->getManifest());
         static::assertEquals($context, $event->getContext());
         static::assertEquals(AppUpdatedEvent::NAME, $event->getName());
         // ToDo reactivate tests once webhooks are migrated

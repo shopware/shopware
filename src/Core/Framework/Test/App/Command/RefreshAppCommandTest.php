@@ -12,7 +12,7 @@ use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Test\App\StorefrontAppRegistryTestBehaviour;
+use Shopware\Core\Framework\Test\App\StorefrontPluginRegistryTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Console\Tester\CommandTester;
 use function Flag\skipTestNext10286;
@@ -20,7 +20,7 @@ use function Flag\skipTestNext10286;
 class RefreshAppCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    use StorefrontAppRegistryTestBehaviour;
+    use StorefrontPluginRegistryTestBehaviour;
 
     /**
      * @var EntityRepositoryInterface

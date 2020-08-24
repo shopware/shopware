@@ -29,6 +29,7 @@
         <service id="Shopware\Core\Framework\Plugin\BundleConfigGenerator">
             <argument type="service" id="kernel" />
             <argument type="service" id="plugin.repository" />
+            <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader" on-invalid="null"/>
         </service>
 
         <service id="Shopware\Core\Framework\Plugin\PluginDefinition">

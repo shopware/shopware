@@ -74,9 +74,9 @@ class AppLifecycleTest extends TestCase
         $appId = null;
         $onAppInstalled = function (AppInstalledEvent $event) use (&$eventWasReceived, &$appId, $manifest): void {
             $eventWasReceived = true;
-            $appId = $event->getAppId();
+            $appId = $event->getApp()->getId();
             static::assertEquals($this->context, $event->getContext());
-            static::assertEquals($manifest, $event->getApp());
+            static::assertEquals($manifest, $event->getManifest());
         };
         $this->eventDispatcher->addListener(AppInstalledEvent::class, $onAppInstalled);
 
@@ -229,9 +229,9 @@ class AppLifecycleTest extends TestCase
         $eventWasReceived = false;
         $onAppUpdated = function (AppUpdatedEvent $event) use (&$eventWasReceived, $id, $manifest): void {
             $eventWasReceived = true;
-            static::assertEquals($id, $event->getAppId());
+            static::assertEquals($id, $event->getApp()->getId());
             static::assertEquals($this->context, $event->getContext());
-            static::assertEquals($manifest, $event->getApp());
+            static::assertEquals($manifest, $event->getManifest());
         };
         $this->eventDispatcher->addListener(AppUpdatedEvent::class, $onAppUpdated);
 
@@ -356,9 +356,9 @@ class AppLifecycleTest extends TestCase
         $eventWasReceived = false;
         $onAppUpdated = function (AppUpdatedEvent $event) use (&$eventWasReceived, $id, $manifest): void {
             $eventWasReceived = true;
-            static::assertEquals($id, $event->getAppId());
+            static::assertEquals($id, $event->getApp()->getId());
             static::assertEquals($this->context, $event->getContext());
-            static::assertEquals($manifest, $event->getApp());
+            static::assertEquals($manifest, $event->getManifest());
         };
         $this->eventDispatcher->addListener(AppUpdatedEvent::class, $onAppUpdated);
 

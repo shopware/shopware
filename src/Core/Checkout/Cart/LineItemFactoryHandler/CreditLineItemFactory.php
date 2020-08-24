@@ -53,6 +53,10 @@ class CreditLineItemFactory implements LineItemFactoryInterface
             throw new InsufficientPermissionException();
         }
 
+        if (isset($data['removable'])) {
+            $lineItem->setRemovable($data['removable']);
+        }
+
         if (isset($data['label'])) {
             $lineItem->setLabel($data['label']);
         }

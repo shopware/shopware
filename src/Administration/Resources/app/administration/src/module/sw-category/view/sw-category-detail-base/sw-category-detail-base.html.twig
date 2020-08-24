@@ -98,7 +98,7 @@
                     @paginate="onPaginateManualProductAssignment">
 
                     {% block sw_category_detail_product_assignment_type_select %}
-                        <template v-if="next9278" #prepend-select>
+                        <template #prepend-select>
                             {% block sw_category_detail_product_assignment_type_select_field %}
                                 <sw-single-select
                                     class="sw-category-detail__product-assignment-type-select"
@@ -112,7 +112,7 @@
 
                             {% block sw_category_detail_product_assignment_manual_alert %}
                                 <sw-alert
-                                    v-if="next9278 && category.productAssignmentType === 'product_stream' && manualAssignedProductsCount > 0"
+                                    v-if="category.productAssignmentType === 'product_stream' && manualAssignedProductsCount > 0"
                                     variant="info">
                                     {{ $tc('sw-category.base.products.alertManualAssignedProductsOnAssignmentTypeStream') }}
                                 </sw-alert>
@@ -122,7 +122,7 @@
 
                     {% block sw_category_detail_product_assignment_stream_select %}
                         <template
-                            v-if="next9278 && category.productAssignmentType === 'product_stream'"
+                            v-if="category.productAssignmentType === 'product_stream'"
                             #select>
 
                             {% block sw_category_detail_product_assignment_stream_select_field %}
@@ -154,7 +154,7 @@
 
                     {% block sw_category_detail_product_assignment_stream_preview_grid %}
                         <template
-                            v-if="next9278 && category.productAssignmentType === 'product_stream'"
+                            v-if="category.productAssignmentType === 'product_stream'"
                             #data-grid>
                             <sw-product-stream-grid-preview
                                 :filters="productStreamFilter"

@@ -32,10 +32,6 @@ Component.register('sw-category-detail-base', {
 
     watch: {
         'category.productStreamId'(id) {
-            if (!this.next9278) {
-                return;
-            }
-
             if (!id) {
                 this.productStreamFilter = null;
                 return;
@@ -151,10 +147,6 @@ Component.register('sw-category-detail-base', {
 
     methods: {
         createdComponent() {
-            if (!this.next9278) {
-                return;
-            }
-
             if (!this.category.productStreamId) {
                 return;
             }

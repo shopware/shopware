@@ -20,7 +20,6 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Symfony\Component\HttpFoundation\Request;
-use function Flag\skipTestNext9278;
 
 class ProductListingTest extends TestCase
 {
@@ -168,7 +167,6 @@ class ProductListingTest extends TestCase
 
     public function testListingWithProductStream(): void
     {
-        skipTestNext9278($this);
         $this->createTestProductStreamEntity($this->categoryStreamId);
         $request = new Request();
 
@@ -187,7 +185,6 @@ class ProductListingTest extends TestCase
 
     public function testListingWithProductStreamAndAdditionalCriteria(): void
     {
-        skipTestNext9278($this);
         $this->createTestProductStreamEntity($this->categoryStreamId);
         $request = new Request();
 

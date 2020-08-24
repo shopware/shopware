@@ -174,8 +174,7 @@
         <service id="Shopware\Core\Content\Product\Cart\ProductLineItemFactory"/>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\ProductReviewService">
-            <argument type="service" id="product_review.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewSaveRoute"/>
         </service>
 
         <service id="product_listing.sorting.name_ascending" class="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingSorting">
@@ -347,5 +346,10 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
 
+        <service id="Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewSaveRoute">
+            <argument type="service" id="product_review.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+        </service>
     </services>
 </container>

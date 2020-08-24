@@ -33,7 +33,7 @@ class BackwardSubscriber implements EventSubscriberInterface
     /**
      * @deprecated tag:v6.4.0 - CrossSellingProductListCriteriaEvent event will be removed
      */
-    public function crossSellingIdEvent(ProductCrossSellingIdsCriteriaEvent $event)
+    public function crossSellingIdEvent(ProductCrossSellingIdsCriteriaEvent $event): void
     {
         $this->eventDispatcher->dispatch(
             new CrossSellingProductListCriteriaEvent($event->getCrossSelling(), $event->getCriteria(), $event->getSalesChannelContext())
@@ -43,7 +43,7 @@ class BackwardSubscriber implements EventSubscriberInterface
     /**
      * @deprecated tag:v6.4.0 - CrossSellingProductStreamCriteriaEvent event will be removed
      */
-    public function crossSellingStreamEvent(ProductCrossSellingStreamCriteriaEvent $event)
+    public function crossSellingStreamEvent(ProductCrossSellingStreamCriteriaEvent $event): void
     {
         $this->eventDispatcher->dispatch(
             new CrossSellingProductStreamCriteriaEvent($event->getCrossSelling(), $event->getCriteria(), $event->getSalesChannelContext())

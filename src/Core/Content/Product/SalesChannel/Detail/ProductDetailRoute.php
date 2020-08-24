@@ -101,8 +101,11 @@ class ProductDetailRoute extends AbstractProductDetailRoute
         $salesChannelId = $context->getSalesChannel()->getId();
 
         $hideCloseoutProductsWhenOutOfStock = $this->config->get('core.listing.hideCloseoutProductsWhenOutOfStock', $salesChannelId);
+
         if ($hideCloseoutProductsWhenOutOfStock) {
-            $criteria->addFilter(new ProductCloseoutFilter());
+            $filter = new ProductCloseoutFilter();
+            $filter->addQuery(new EqualsFilter('product.parentId', null));
+            $criteria->addFilter($filter);
         }
     }
 

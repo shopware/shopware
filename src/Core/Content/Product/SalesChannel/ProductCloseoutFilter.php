@@ -9,13 +9,9 @@ class ProductCloseoutFilter extends NotFilter
 {
     public function __construct()
     {
-        parent::__construct(
-            self::CONNECTION_AND,
-            [
-                new EqualsFilter('product.isCloseout', true),
-                new EqualsFilter('product.available', false),
-                new EqualsFilter('product.parentId', null),
-            ]
-        );
+        parent::__construct(self::CONNECTION_AND, [
+            new EqualsFilter('product.isCloseout', true),
+            new EqualsFilter('product.available', false)
+        ]);
     }
 }

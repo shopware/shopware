@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -26,6 +27,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @RouteScope(scopes={"store-api"})
+ */
 class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
 {
     /**
@@ -187,16 +191,17 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
         );
 
         /** @var ProductCollection $products */
-        $products = $this->productRepository
-            ->search($criteria, $context)
-            ->getEntities();
+        $result = $this->productRepository
+            ->search($criteria, $context);
+
+        $products = $result->getEntities();
 
         $products->sortByIdArray($ids);
 
         $element = new CrossSellingElement();
         $element->setCrossSelling($crossSelling);
         $element->setProducts($products);
-        $element->setTotal($products->count());
+        $element->setTotal($crossSelling->getAssignedProducts()->count());
 
         return $element;
     }

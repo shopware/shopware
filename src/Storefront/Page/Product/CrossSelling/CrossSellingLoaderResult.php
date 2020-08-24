@@ -6,6 +6,7 @@ use Shopware\Core\Content\Product\SalesChannel\CrossSelling\CrossSellingElementC
 
 /**
  * @deprecated tag:v6.4.0 - Use `Shopware\Core\Content\Product\SalesChannel\CrossSelling\CrossSellingElementCollection` instead
+ *
  * @method void                     add(CrossSellingElement $entity)
  * @method void                     set(string $key, CrossSellingElement $entity)
  * @method CrossSellingElement[]    getIterator()

@@ -14,6 +14,7 @@ use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Permissions;
+use Shopware\Core\Framework\App\Template\TemplateEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -100,7 +101,7 @@ class AppLifecycleTest extends TestCase
         $this->assertDefaultPrivileges($apps->first()->getAclRoleId());
         $this->assertDefaultCustomFields($apps->first()->getId());
 //        $this->assertDefaultWebhooks($apps->first()->getId());
-//        $this->assertDefaultTemplate($apps->first()->getId());
+        $this->assertDefaultTemplate($apps->first()->getId());
     }
 
     public function testInstallMinimalManifest(): void
@@ -256,7 +257,7 @@ class AppLifecycleTest extends TestCase
         $this->assertDefaultPrivileges($apps->first()->getAclRoleId());
         $this->assertDefaultCustomFields($id);
 //        $this->assertDefaultWebhooks($apps->first()->getId());
-//        $this->assertDefaultTemplate($apps->first()->getId());
+        $this->assertDefaultTemplate($apps->first()->getId());
     }
 
     public function testUpdateActiveApp(): void
@@ -383,7 +384,7 @@ class AppLifecycleTest extends TestCase
         $this->assertDefaultPrivileges($apps->first()->getAclRoleId());
         $this->assertDefaultCustomFields($id);
 //        $this->assertDefaultWebhooks($apps->first()->getId());
-//        $this->assertDefaultTemplate($apps->first()->getId());
+        $this->assertDefaultTemplate($apps->first()->getId());
     }
 
     public function testUpdateDoesNotInstallElementsNeedingAppSecretIfItIsMissing(): void
@@ -629,26 +630,25 @@ class AppLifecycleTest extends TestCase
 //        static::assertEquals('checkout.order.placed', $secondWebhook->getEventName());
 //    }
 
-// ToDo: Reactivate once templates are migrated
-//    private function assertDefaultTemplate(string $appId): void
-//    {
-//        /** @var EntityRepositoryInterface $templateRepository */
-//        $templateRepository = $this->getContainer()->get('saas_template.repository');
-//
-//        $criteria = new Criteria();
-//        $criteria->addFilter(new EqualsFilter('appId', $appId));
-//
-//        $templates = $templateRepository->search($criteria, $this->context)->getEntities();
-//
-//        static::assertCount(1, $templates);
-//
-//        /** @var TemplateEntity $template */
-//        $template = $templates->first();
-//        static::assertEquals('storefront/layout/header/logo.html.twig', $template->getPath());
-//        static::assertStringEqualsFile(
-//            __DIR__ . '/../Manifest/_fixtures/test/Resources/views/storefront/layout/header/logo.html.twig',
-//            $template->getTemplate()
-//        );
-//        static::assertTrue($template->isActive());
-//    }
+    private function assertDefaultTemplate(string $appId): void
+    {
+        /** @var EntityRepositoryInterface $templateRepository */
+        $templateRepository = $this->getContainer()->get('app_template.repository');
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('appId', $appId));
+
+        $templates = $templateRepository->search($criteria, $this->context)->getEntities();
+
+        static::assertCount(1, $templates);
+
+        /** @var TemplateEntity $template */
+        $template = $templates->first();
+        static::assertEquals('storefront/layout/header/logo.html.twig', $template->getPath());
+        static::assertStringEqualsFile(
+            __DIR__ . '/../Manifest/_fixtures/test/Resources/views/storefront/layout/header/logo.html.twig',
+            $template->getTemplate()
+        );
+        static::assertTrue($template->isActive());
+    }
 }

@@ -11,6 +11,7 @@ use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ActionButtonPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\CustomFieldPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
+use Shopware\Core\Framework\App\Lifecycle\Persister\TemplatePersister;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Module;
@@ -68,11 +69,17 @@ class AppLifecycle extends AbstractAppLifecycle
      */
     private $actionButtonPersister;
 
+    /**
+     * @var TemplatePersister
+     */
+    private $templatePersister;
+
     public function __construct(
         EntityRepositoryInterface $appRepository,
         PermissionPersister $permissionPersister,
         CustomFieldPersister $customFieldPersister,
         ActionButtonPersister $actionButtonPersister,
+        TemplatePersister $templatePersister,
         AbstractAppLoader $appLoader,
         EventDispatcherInterface $eventDispatcher,
         AppRegistrationService $registrationService,
@@ -88,6 +95,7 @@ class AppLifecycle extends AbstractAppLifecycle
         $this->projectDir = $projectDir;
         $this->appStateService = $appStateService;
         $this->actionButtonPersister = $actionButtonPersister;
+        $this->templatePersister = $templatePersister;
     }
 
     public function getDecorated(): AbstractAppLifecycle
@@ -170,6 +178,7 @@ class AppLifecycle extends AbstractAppLifecycle
             $this->updateModules($manifest, $id, $context);
         }
 
+        $this->templatePersister->updateTemplates($manifest, $id, $context);
         $this->customFieldPersister->updateCustomFields($manifest, $id, $context);
 
         return $app;

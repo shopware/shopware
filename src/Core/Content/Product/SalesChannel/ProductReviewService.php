@@ -23,6 +23,6 @@ class ProductReviewService
 
     public function save(string $productId, DataBag $data, SalesChannelContext $context): void
     {
-        $this->route->save($productId, $data, $context);
+        $this->route->save($productId, $data->toRequestDataBag(), $context);
     }
 }

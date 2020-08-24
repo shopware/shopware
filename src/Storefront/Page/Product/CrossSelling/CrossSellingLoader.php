@@ -4,7 +4,6 @@ namespace Shopware\Storefront\Page\Product\CrossSelling;
 
 use Shopware\Core\Content\Product\SalesChannel\CrossSelling\AbstractProductCrossSellingRoute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -31,7 +30,7 @@ class CrossSellingLoader
     public function load(string $productId, SalesChannelContext $context): CrossSellingLoaderResult
     {
         $result = $this->route
-            ->load($productId, new Request(), $context)
+            ->load($productId, $context)
             ->getResult();
 
         $mapped = new CrossSellingLoaderResult();

@@ -19,4 +19,9 @@ class CrossSellingElementCollection extends Collection
     {
         return CrossSellingElement::class;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'cross_selling_elements';
+    }
 }

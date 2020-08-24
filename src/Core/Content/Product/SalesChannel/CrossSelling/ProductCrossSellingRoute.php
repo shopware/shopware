@@ -23,7 +23,6 @@ use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -85,12 +84,12 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
      *      @OA\Response(
      *          response="200",
      *          description="Found cross sellings",
-     *          @OA\JsonContent(ref="#/components/schemas/product_flat")
+     *          @OA\JsonContent(ref="#/definitions/CrossSellingElementCollection")
      *     )
      * )
      * @Route("/store-api/v{version}/product/{productId}/cross-selling", name="store-api.product.cross-selling", methods={"POST"})
      */
-    public function load(string $productId, Request $request, SalesChannelContext $context): ProductCrossSellingRouteResponse
+    public function load(string $productId, SalesChannelContext $context): ProductCrossSellingRouteResponse
     {
         $crossSellings = $this->loadCrossSellings($productId, $context);
 
@@ -190,10 +189,10 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
             new ProductCrossSellingIdsCriteriaEvent($crossSelling, $criteria, $context)
         );
 
-        /** @var ProductCollection $products */
         $result = $this->productRepository
             ->search($criteria, $context);
 
+        /** @var ProductCollection $products */
         $products = $result->getEntities();
 
         $products->sortByIdArray($ids);

@@ -11,7 +11,7 @@ class ProductCloseoutFilter extends NotFilter
     {
         parent::__construct(self::CONNECTION_AND, [
             new EqualsFilter('product.isCloseout', true),
-            new EqualsFilter('product.available', false)
+            new EqualsFilter('product.available', false),
         ]);
     }
 }

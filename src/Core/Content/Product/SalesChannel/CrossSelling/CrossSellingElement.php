@@ -52,4 +52,9 @@ class CrossSellingElement extends Struct
     {
         $this->total = $total;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'cross_selling_element';
+    }
 }

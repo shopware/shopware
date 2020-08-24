@@ -53,6 +53,41 @@ NEXT
     * `/api/v{version}/_action/order_transaction/{orderTransactionId}/state/{transition}`
     * `/api/v{version}/_action/order_delivery/{orderDeliveryId}/state/{transition}`
 * Custom field sets can now be sorted using a new `position` field
+* Added new event classes:
+	* `\Shopware\Core\Content\Product\Events\ProductCrossSellingIdsCriteriaEvent`
+	* `\Shopware\Core\Content\Product\Events\ProductCrossSellingsLoadedEvent`
+	* `\Shopware\Core\Content\Product\Events\ProductCrossSellingStreamCriteriaEvent`
+	* `\Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageCriteriaEvent`
+	* `\Shopware\Storefront\Page\Product\ProductPageCriteriaEvent`
+* Added new store api routes:
+	* `ProductDetailRoute` 			(/store-api/v{version}/product/{productId})
+	* `ProductCrossSellingRoute`	(/store-api/v{version}/product/{productId}/cross-selling)
+	* `ProductReviewRoute` 			(/store-api/v{version}/product/{productId}/reviews)
+	* `ProductReviewSaveRoute` 		(/store-api/v{version}/product/{productId}/review)
+* Added new structs:
+	* `\Shopware\Core\Content\Product\SalesChannel\CrossSelling\CrossSellingElementCollection`
+	* `\Shopware\Core\Content\Product\SalesChannel\CrossSelling\CrossSellingElement`
+	* `\Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationResult`
+	* `\Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilter`
+* Added new `Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader` service
+* Added new `MultiFilter::addQuery` function:
+* Added and deprecated `\Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity::$configurator`, only used for backward compatibility
+* Fixed `ArrayStruct::getVars() `to return internal data collection
+* Deprecated `\Shopware\Core\Content\Product\SalesChannel\ProductReviewService` use `\Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewSaveRoute` instead
+* Deprecated `\Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity::VISIBILITY_FILTERED`
+* Deprecated `\Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory::getTaxRules`
+* Deprecated `\Shopware\Storefront\Page\Product\Configurator\AvailableCombinationLoader` use `Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader` instead
+* Deprecated `\Shopware\Storefront\Page\Product\Configurator\AvailableCombinationResult` use `Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationResult` instead
+* Deprecated `\Shopware\Storefront\Page\Product\Configurator\ProductPageConfiguratorLoader` use `Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader` instead
+* Deprecated `\Shopware\Storefront\Page\Product\CrossSelling\CrossSellingElement` use `Shopware\Core\Content\Product\SalesChannel\CrossSelling\CrossSellingElement` instead
+* Deprecated `\Shopware\Storefront\Page\Product\CrossSelling\CrossSellingLoadedEvent` use `\Shopware\Core\Content\Product\Events\ProductCrossSellingsLoadedEvent` instead
+* Deprecated `\Shopware\Storefront\Page\Product\CrossSelling\CrossSellingLoader` use `\Shopware\Core\Content\Product\SalesChannel\CrossSelling\AbstractProductCrossSellingRoute` instead
+* Deprecated `\Shopware\Storefront\Page\Product\CrossSelling\CrossSellingLoaderResult` use `\Shopware\Core\Content\Product\SalesChannel\CrossSelling\CrossSellingElementCollection` instead
+* Deprecated `\Shopware\Storefront\Page\Product\CrossSelling\CrossSellingProductCriteriaEvent` use `\Shopware\Core\Content\Product\Events\ProductCrossSellingCriteriaEvent` instead
+* Deprecated `\Shopware\Storefront\Page\Product\CrossSelling\CrossSellingProductListCriteriaEvent` use `\Shopware\Core\Content\Product\Events\ProductCrossSellingIdsCriteriaEvent` instead
+* Deprecated `\Shopware\Storefront\Page\Product\CrossSelling\CrossSellingProductStreamCriteriaEvent` use `\Shopware\Core\Content\Product\Events\ProductCrossSellingStreamCriteriaEvent` instead
+* Deprecated `\Shopware\Storefront\Page\Product\ProductLoaderCriteriaEvent` use `ProductPageCriteriaEvent` or `MinimalQuickViewPageCriteriaEvent` event instead
+* Deprecated `\Shopware\Storefront\Page\Product\ProductLoader` use `Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute` instead
 
 #### Storefront
   

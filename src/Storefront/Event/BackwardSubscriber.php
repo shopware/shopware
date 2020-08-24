@@ -1,9 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Storefront\Event;
 
 use Shopware\Core\Content\Product\Events\ProductCrossSellingIdsCriteriaEvent;
-use Shopware\Core\Content\Product\Events\ProductCrossSellingsLoadedEvent;
 use Shopware\Core\Content\Product\Events\ProductCrossSellingStreamCriteriaEvent;
 use Shopware\Storefront\Page\Product\CrossSelling\CrossSellingProductListCriteriaEvent;
 use Shopware\Storefront\Page\Product\CrossSelling\CrossSellingProductStreamCriteriaEvent;

@@ -9,4 +9,8 @@ use Shopware\Core\Content\Product\SalesChannel\CrossSelling\CrossSellingElement 
  */
 class CrossSellingElement extends CoreCrossSellingElement
 {
+    public function getApiAlias(): string
+    {
+        return 'storefront_cross_selling_element';
+    }
 }

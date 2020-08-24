@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityNotExists;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
@@ -63,19 +64,18 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
 
     /**
      * @OA\Post(
-     *      path="/product/{productId}/reviews",
+     *      path="/product/{productId}/review",
      *      description="",
-     *      operationId="readProductReviews",
+     *      operationId="saveProductReview",
      *      tags={"Store API","Language"},
      *      @OA\Response(
      *          response="200",
-     *          description="Found reviews",
-     *          @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/product_review_flat"))
+     *          description="Success",
      *     )
      * )
      * @Route("/store-api/v{version}/product/{productId}/review", name="store-api.product-review.save", methods={"POST"})
      */
-    public function save(string $productId, DataBag $data, SalesChannelContext $context): NoContentResponse
+    public function save(string $productId, RequestDataBag $data, SalesChannelContext $context): NoContentResponse
     {
         $this->checkReviewsActive($context);
 
@@ -114,12 +114,11 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
             'status' => false,
         ];
 
-        if ($data->get('id')) { // customer updates the review
+        if ($data->get('id')) {
             $review['id'] = $data->get('id');
-            $this->repository->update([$review], $context->getContext());
-        } else {
-            $this->repository->create([$review], $context->getContext());
         }
+
+        $this->repository->upsert([$review], $context->getContext());
 
         return new NoContentResponse();
     }

@@ -28,6 +28,8 @@ class OpenApi3Test extends TestCase
 
         $response = $this->getBrowser()->getResponse();
 
-        static::assertSame(200, $response->getStatusCode());
+        $content = json_decode($response->getContent(), true);
+
+        static::assertSame(200, $response->getStatusCode(), print_r($content, true));
     }
 }

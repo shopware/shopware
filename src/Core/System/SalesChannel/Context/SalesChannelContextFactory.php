@@ -246,6 +246,9 @@ class SalesChannelContextFactory
         return $salesChannelContext;
     }
 
+    /**
+     * @deprecated tag:v6.4.0 - Will be private
+     */
     public function getTaxRules(Context $context, ?CustomerEntity $customer, ShippingLocation $shippingLocation): TaxCollection
     {
         $criteria = new Criteria();

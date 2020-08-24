@@ -21,4 +21,9 @@ class CrossSellingLoaderResult extends CrossSellingElementCollection
     {
         return CrossSellingElement::class;
     }
+
+    public function getApiAlias(): string
+    {
+        return 'storefront_' . parent::getApiAlias();
+    }
 }

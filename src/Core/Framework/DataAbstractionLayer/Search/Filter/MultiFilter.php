@@ -37,6 +37,7 @@ class MultiFilter extends Filter
     public function addQuery(Filter $query): self
     {
         $this->queries[] = $query;
+
         return $this;
     }
 

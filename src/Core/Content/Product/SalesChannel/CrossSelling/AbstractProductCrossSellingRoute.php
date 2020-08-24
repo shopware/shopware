@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\Product\SalesChannel\CrossSelling;
 
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Symfony\Component\HttpFoundation\Request;
 
 /**
  * This route will be used to load all cross selling lists of the provided product id
@@ -12,5 +11,5 @@ abstract class AbstractProductCrossSellingRoute
 {
     abstract public function getDecorated(): AbstractProductCrossSellingRoute;
 
-    abstract public function load(string $productId, Request $request, SalesChannelContext $context): ProductCrossSellingRouteResponse;
+    abstract public function load(string $productId, SalesChannelContext $context): ProductCrossSellingRouteResponse;
 }

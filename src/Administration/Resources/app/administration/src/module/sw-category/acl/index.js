@@ -34,7 +34,10 @@ Shopware.Service('privileges')
                     'media:create',
                     'media:delete',
                     'media_thumbnail:delete',
-                    'product_category:create'
+                    'product_category:create',
+                    'tag:create',
+                    'category_tag:create',
+                    'category_tag:delete'
                 ],
                 dependencies: [
                     'category.viewer'

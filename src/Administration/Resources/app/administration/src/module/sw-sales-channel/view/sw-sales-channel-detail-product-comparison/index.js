@@ -17,7 +17,8 @@ Component.register('sw-sales-channel-detail-product-comparison', {
         'salesChannelService',
         'repositoryFactory',
         'productExportService',
-        'entityMappingService'
+        'entityMappingService',
+        'acl'
     ],
 
     props: {

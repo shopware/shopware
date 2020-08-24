@@ -6,6 +6,7 @@
                 {% block sw_sales_channel_detail_base_general_input_product_comparison_template %}
                     <sw-select-field
                         v-if="isProductComparison"
+                        :disabled="!acl.can('sales_channel.editor')"
                         :label="$tc('sw-sales-channel.detail.productComparison.templates.label')"
                         :placeholder="$tc('sw-sales-channel.detail.productComparison.templates.placeholderSelectTemplate')"
                         :options="templateOptions"
@@ -45,6 +46,7 @@
                         type="text"
                         validation="required"
                         required
+                        :disabled="!acl.can('sales_channel.editor')"
                         :placeholder="placeholder(salesChannel, 'name', $tc('sw-sales-channel.detail.placeholderName'))"
                         :label="$tc('sw-sales-channel.detail.labelInputName')"
                         v-model="salesChannel.name"
@@ -65,6 +67,7 @@
                                 :criteria="mainNavigationCriteria"
                                 :helpText="$tc('sw-sales-channel.detail.navigationCategoryHelpText')"
                                 v-model="salesChannel.navigationCategoryId"
+                                :disabled="!acl.can('sales_channel.editor')"
                                 :error="salesChannelNavigationCategoryIdError"
                                 entity="category">
                             </sw-entity-single-select>
@@ -74,6 +77,7 @@
                             <sw-field type="number"
                                       numberType="int"
                                       :min="1"
+                                      :disabled="!acl.can('sales_channel.editor')"
                                       :label="$tc('sw-sales-channel.detail.navigationCategoryDepth')"
                                       v-model="salesChannel.navigationCategoryDepth">
                             </sw-field>
@@ -88,6 +92,7 @@
                         id="footerCategoryId"
                         :label="$tc('sw-sales-channel.detail.footerCategory')"
                         v-model="salesChannel.footerCategoryId"
+                        :disabled="!acl.can('sales_channel.editor')"
                         entity="category">
                     </sw-entity-single-select>
                 {% endblock %}
@@ -98,6 +103,7 @@
                         class="sw-sales-channel-detail__select-service-category-id"
                         id="serviceCategoryId"
                         :label="$tc('sw-sales-channel.detail.serviceCategory')"
+                        :disabled="!acl.can('sales_channel.editor')"
                         v-model="salesChannel.serviceCategoryId"
                         entity="category">
                     </sw-entity-single-select>
@@ -111,6 +117,7 @@
                         :label="$tc('sw-sales-channel.detail.customerGroup')"
                         entity="customer_group"
                         :error="salesChannelCustomerGroupIdError"
+                        :disabled="!acl.can('sales_channel.editor')"
                         v-model="salesChannel.customerGroupId">
                     </sw-entity-single-select>
                 {% endblock %}
@@ -123,6 +130,7 @@
                         :propertyLabel="$tc('sw-sales-channel.detail.labelInputCountries')"
                         :helpText="$tc('sw-sales-channel.detail.countryMultiSelectHelpText')"
                         defaultPropertyName="countryId"
+                        :disabled="!acl.can('sales_channel.editor')"
                         :defaultPropertyLabel="$tc('sw-sales-channel.detail.labelInputDefaultCountry')">
                     </sw-sales-channel-defaults-select>
                 {% endblock %}
@@ -136,6 +144,7 @@
                         :propertyLabel="$tc('sw-sales-channel.detail.labelInputLanguages')"
                         defaultPropertyName="languageId"
                         :defaultPropertyLabel="$tc('sw-sales-channel.detail.labelInputDefaultLanguage')"
+                        :disabled="!acl.can('sales_channel.editor')"
                         propertyNameInDomain="languageId">
                     </sw-sales-channel-defaults-select>
                 {% endblock %}
@@ -151,6 +160,7 @@
                         propertyName="paymentMethods"
                         :propertyLabel="$tc('sw-sales-channel.detail.labelInputPaymentMethods')"
                         defaultPropertyName="paymentMethodId"
+                        :disabled="!acl.can('sales_channel.editor')"
                         :defaultPropertyLabel="$tc('sw-sales-channel.detail.labelInputDefaultPaymentMethod')">
                     </sw-sales-channel-defaults-select>
                 {% endblock %}
@@ -162,6 +172,7 @@
                         propertyName="shippingMethods"
                         :propertyLabel="$tc('sw-sales-channel.detail.labelInputShippingMethods')"
                         defaultPropertyName="shippingMethodId"
+                        :disabled="!acl.can('sales_channel.editor')"
                         :defaultPropertyLabel="$tc('sw-sales-channel.detail.labelInputDefaultShippingMethod')">
                     </sw-sales-channel-defaults-select>
                 {% endblock %}
@@ -173,6 +184,7 @@
                         propertyName="currencies"
                         :propertyLabel="$tc('sw-sales-channel.detail.labelInputCurrencies')"
                         defaultPropertyName="currencyId"
+                        :disabled="!acl.can('sales_channel.editor')"
                         :defaultPropertyLabel="$tc('sw-sales-channel.detail.labelInputDefaultCurrency')"
                         propertyNameInDomain="currencyId">
                     </sw-sales-channel-defaults-select>
@@ -183,6 +195,7 @@
                     block
                     class="sw-sales-channel-detail__tax-calculation"
                     identification="taxCalculation"
+                    :disabled="!acl.can('sales_channel.editor')"
                     :description="$tc('sw-sales-channel.detail.descriptionTaxCalculation')"
                     v-model="salesChannel.taxCalculationType"
                     :options="taxCalculationTypeOptions"
@@ -194,6 +207,7 @@
             <sw-sales-channel-detail-hreflang
                 v-if="salesChannel && isStoreFront"
                 :salesChannel="salesChannel"
+                :disabled="!acl.can('sales_channel.editor')"
                 :isLoading="isLoading">
             </sw-sales-channel-detail-hreflang>
         {% endblock %}
@@ -202,6 +216,7 @@
             <sw-sales-channel-detail-domains
                 v-if="salesChannel && isDomainAware"
                 :salesChannel="salesChannel"
+                :disableEdit="!acl.can('sales_channel.editor')"
                 :isLoading="isLoading">
             </sw-sales-channel-detail-domains>
         {% endblock %}
@@ -215,6 +230,7 @@
                         :label="$tc('sw-sales-channel.detail.productComparison.storefront')"
                         :criteria="storefrontSalesChannelCriteria"
                         labelProperty="name"
+                        :disabled="!acl.can('sales_channel.editor')"
                         valueProperty="id"
                         entity="sales_channel"
                         required
@@ -232,7 +248,7 @@
                         valueProperty="id"
                         entity="sales_channel_domain"
                         required
-                        :disabled="!productExport.salesChannelDomainId && !productExport.storefrontSalesChannelId"
+                        :disabled="(!productExport.salesChannelDomainId && !productExport.storefrontSalesChannelId) || !acl.can('sales_channel.editor')"
                         v-model="productExport.salesChannelDomainId"
                         :error="productExportSalesChannelDomainIdError">
                     </sw-entity-single-select>
@@ -247,6 +263,7 @@
                             valueProperty="id"
                             required
                             entity="currency"
+                            :disabled="!acl.can('sales_channel.editor')"
                             v-model="productExport.currencyId"
                             :error="productExportCurrencyIdError">
                         </sw-entity-single-select>
@@ -266,6 +283,7 @@
                         <sw-help-text
                             class="sw-sales-channel-detail-base__product-comparison-helptext"
                             :text="$tc('sw-sales-channel.detail.productComparison.storefrontDomainLanguage.help')"
+                            :disabled="!acl.can('sales_channel.editor')"
                             tooltipPosition="top">
                         </sw-help-text>
                     </div>
@@ -298,6 +316,7 @@
                         type="text"
                         validation="required"
                         required
+                        :disabled="!acl.can('sales_channel.editor')"
                         :label="$tc('sw-sales-channel.detail.productComparison.fileName')"
                         :placeholder="$tc('sw-sales-channel.detail.productComparison.placeholderFileName')"
                         :error="productExportFileNameError || invalidFileNameError"
@@ -310,6 +329,7 @@
                         :label="$tc('sw-sales-channel.detail.productComparison.encoding')"
                         :placeholder="$tc('sw-sales-channel.detail.productComparison.placeholderSelectEncoding')"
                         :options="getEncodingOptions"
+                        :disabled="!acl.can('sales_channel.editor')"
                         required
                         v-model="productExport.encoding"
                         :error="productExportEncodingError">
@@ -322,6 +342,7 @@
                         :placeholder="$tc('sw-sales-channel.detail.productComparison.placeholderSelectFileFormat')"
                         :options="getFileFormatOptions"
                         required
+                        :disabled="!acl.can('sales_channel.editor')"
                         v-model="productExport.fileFormat"
                         :error="productExportFileFormatError">
                     </sw-select-field>
@@ -331,6 +352,7 @@
                     <sw-field
                         type="switch"
                         bordered
+                        :disabled="!acl.can('sales_channel.editor')"
                         :label="$tc('sw-sales-channel.detail.productComparison.includeVariants')"
                         v-model="productExport.includeVariants">
                     </sw-field>
@@ -340,6 +362,7 @@
                     <sw-select-number-field
                         :label="$tc('sw-sales-channel.detail.productComparison.interval')"
                         :options="getIntervalOptions"
+                        :disabled="!acl.can('sales_channel.editor')"
                         v-model="productExport.interval"
                         @change="changeInterval">
                     </sw-select-number-field>
@@ -350,7 +373,7 @@
                         type="switch"
                         bordered
                         :label="$tc('sw-sales-channel.detail.productComparison.generateByCronjob')"
-                        :disabled="disableGenerateByCronjob"
+                        :disabled="disableGenerateByCronjob || !acl.can('sales_channel.editor')"
                         v-model="productExport.generateByCronjob">
                     </sw-field>
                 {% endblock %}
@@ -373,6 +396,7 @@
                         labelProperty="name"
                         valueProperty="id"
                         required
+                        :disabled="!acl.can('sales_channel.editor')"
                         entity="product_stream"
                         v-model="productExport.productStreamId"
                         :error="productExportProductStreamIdError">
@@ -402,6 +426,7 @@
                         <sw-button
                             @click="onGenerateKeys"
                             size="small"
+                            :disabled="!acl.can('sales_channel.editor')"
                             class="sw-sales-channel-detail-base__button-generate-keys">
                             {{ $tc('sw-sales-channel.detail.buttonCreateNewApiKeys') }}
                         </sw-button>
@@ -420,8 +445,8 @@
                         <sw-field
                             v-if="isProductComparison"
                             :label="$tc('sw-sales-channel.detail.productComparison.accessKey')"
-                            :disabled="true"
                             v-model="productExport.accessKey"
+                            :disabled="true"
                             :copyable="true">
                         </sw-field>
                     {% endblock %}
@@ -442,6 +467,7 @@
                                 v-if="isProductComparison"
                                 @click="onGenerateProductExportKey"
                                 variant="ghost"
+                                :disabled="!acl.can('sales_channel.editor')"
                                 size="small"
                                 class="sw-sales-channel-detail-base__button-generate-keys">
                                 {{ $tc('sw-sales-channel.detail.productComparison.buttonCreateNewAccessKey') }}
@@ -465,6 +491,7 @@
                         type="switch"
                         :label="$tc('sw-sales-channel.detail.labelInputActive')"
                         @change="onToggleActive"
+                        :disabled="!acl.can('sales_channel.editor')"
                         v-model="salesChannel.active">
                     </sw-field>
                 {% endblock %}
@@ -482,6 +509,7 @@
                 {% block sw_sales_channel_detail_base_maintenance_input_active %}
                     <sw-field
                         type="switch"
+                        :disabled="!acl.can('sales_channel.editor')"
                         :label="$tc('sw-sales-channel.detail.labelMaintenanceActive')"
                         v-model="salesChannel.maintenance">
                     </sw-field>
@@ -490,6 +518,7 @@
                 {% block sw_sales_channel_detail_base_maintenance_ipwhitelist %}
                     <sw-multi-tag-ip-select
                         :isLoading="isLoading"
+                        :disabled="!acl.can('sales_channel.editor')"
                         class="sw-order-user-card__tag-select"
                         :label="$tc('sw-sales-channel.detail.ipAddressWhitleList')"
                         :helpText="$tc('sw-sales-channel.detail.ipAddressWhitleListHelpText')"
@@ -501,6 +530,7 @@
                 {% block sw_sales_channel_detail_base_settings_link %}
                     <div class="sw-sales-channel-detail-base__settings-link">
                         <router-link :to="{ name: 'sw.settings.basic.information.index'}"
+                                     v-if="acl.can('sales_channel.editor')"
                                      class="sw-card__quick-link">
                             {{ $tc('sw-sales-channel.detail.basicinformationLink') }}
                             <sw-icon name="default-arrow-simple-right" small></sw-icon>
@@ -511,7 +541,9 @@
         {% endblock %}
 
         {% block sw_sales_channel_detail_base_options_delete %}
-            <sw-card :title="$tc('sw-sales-channel.detail.deleteModalTitle')" v-if="salesChannel" :isLoading="isLoading">
+            <sw-card :title="$tc('sw-sales-channel.detail.deleteModalTitle')"
+                     v-if="salesChannel && acl.can('sales_channel.deleter')"
+                     :isLoading="isLoading">
                 <sw-container columns="1fr 175px" gap="0px 30px" class="sw-sales-channel-detail-base__delete-sales-channel">
                     <div class="sw-sales-channel-detail-base__description-text">
                         <strong>{{ $tc('global.default.warning') }}</strong>

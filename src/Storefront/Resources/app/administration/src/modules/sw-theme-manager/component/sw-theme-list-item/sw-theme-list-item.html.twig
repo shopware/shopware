@@ -1,5 +1,5 @@
 {% block sw_theme_list_item %}
-    <div class="sw-theme-list-item">
+    <div class="sw-theme-list-item" :class="componentClasses">
 
         {% block sw_theme_list_item_options %}
             <slot name="contextMenu"></slot>
@@ -9,7 +9,7 @@
             <div class="sw-theme-list-item__image"
                  v-if="theme"
                  :style="previewMedia"
-                 @click="$emit('item-click', theme)">
+                 @click="emitItemClick(theme)">
             </div>
 
             <div class="sw-theme-list-item__image is--empty" v-else>

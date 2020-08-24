@@ -7,6 +7,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilter;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -35,10 +36,19 @@ class ProductDetailRoute extends AbstractProductDetailRoute
      */
     private $config;
 
-    public function __construct(SalesChannelRepositoryInterface $repository, SystemConfigService $config)
-    {
+    /**
+     * @var ProductConfiguratorLoader
+     */
+    private $configuratorLoader;
+
+    public function __construct(
+        SalesChannelRepositoryInterface $repository,
+        SystemConfigService $config,
+        ProductConfiguratorLoader $configuratorLoader
+    ) {
         $this->repository = $repository;
         $this->config = $config;
+        $this->configuratorLoader = $configuratorLoader;
     }
 
     public function getDecorated(): AbstractProductDetailRoute
@@ -73,11 +83,13 @@ class ProductDetailRoute extends AbstractProductDetailRoute
             ->search($criteria, $context)
             ->first();
 
-        if (!$product) {
+        if (!$product instanceof SalesChannelProductEntity) {
             throw new ProductNotFoundException($productId);
         }
 
-        return new ProductDetailRouteResponse($product);
+        $configurator = $this->configuratorLoader->load($product, $context);
+
+        return new ProductDetailRouteResponse($product, $configurator);
     }
 
     private function addFilters(SalesChannelContext $context, Criteria $criteria): void

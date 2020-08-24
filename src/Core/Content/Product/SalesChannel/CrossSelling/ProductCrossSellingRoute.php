@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\CrossSelling;
 
+use OpenApi\Annotations as OA;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingEntity;
@@ -22,6 +23,7 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
@@ -70,7 +72,21 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
         throw new DecorationPatternException(self::class);
     }
 
-    public function load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductCrossSellingRouteResponse
+    /**
+     * @OA\Post(
+     *      path="/product/{productId}/cross-selling",
+     *      description="This route is used to load the cross sellings for a product. A product has several cross selling definitions in which several products are linked. The route returns the cross sellings together with the linked products",
+     *      operationId="readProductCrossSellings",
+     *      tags={"Store API","Language"},
+     *      @OA\Response(
+     *          response="200",
+     *          description="Found cross sellings",
+     *          @OA\JsonContent(ref="#/components/schemas/product_flat")
+     *     )
+     * )
+     * @Route("/store-api/v{version}/product/{productId}/cross-selling", name="store-api.product.cross-selling", methods={"POST"})
+     */
+    public function load(string $productId, Request $request, SalesChannelContext $context): ProductCrossSellingRouteResponse
     {
         $crossSellings = $this->loadCrossSellings($productId, $context);
 
@@ -92,7 +108,6 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
 
         return new ProductCrossSellingRouteResponse($elements);
     }
-
 
     private function loadCrossSellings(string $productId, SalesChannelContext $context): ProductCrossSellingCollection
     {

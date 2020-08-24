@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\CrossSelling;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -13,5 +12,5 @@ abstract class AbstractProductCrossSellingRoute
 {
     abstract public function getDecorated(): AbstractProductCrossSellingRoute;
 
-    abstract public function load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductCrossSellingRouteResponse;
+    abstract public function load(string $productId, Request $request, SalesChannelContext $context): ProductCrossSellingRouteResponse;
 }

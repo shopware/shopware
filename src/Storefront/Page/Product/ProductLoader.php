@@ -10,6 +10,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @deprecated tag:v6.4.0 - Use \Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute instead
+ */
 class ProductLoader
 {
     /**
@@ -30,9 +33,6 @@ class ProductLoader
         $this->productRoute = $productRoute;
     }
 
-    /**
-     * @deprecated tag:v6.4.0 - Use \Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute instead
-     */
     public function load(string $productId, SalesChannelContext $salesChannelContext, ?string $event = null): SalesChannelProductEntity
     {
         $criteria = (new Criteria())
@@ -55,8 +55,12 @@ class ProductLoader
             $this->eventDispatcher->dispatch($instance);
         }
 
-        return $this->productRoute
-            ->load($productId, new Request(), $salesChannelContext, $criteria)
-            ->getProduct();
+        $result = $this->productRoute->load($productId, new Request(), $salesChannelContext, $criteria);
+
+        $result->getProduct()->setConfigurator(
+            $result->getConfigurator()
+        );
+
+        return $result->getProduct();
     }
 }

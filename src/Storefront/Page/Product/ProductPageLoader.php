@@ -15,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
-use Shopware\Storefront\Page\Product\Configurator\ProductPageConfiguratorLoader;
 use Shopware\Storefront\Page\Product\CrossSelling\CrossSellingLoader;
 use Shopware\Storefront\Page\Product\Review\ProductReviewLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -44,11 +43,6 @@ class ProductPageLoader
     private $slotDataResolver;
 
     /**
-     * @var ProductPageConfiguratorLoader
-     */
-    private $configuratorLoader;
-
-    /**
      * @var ProductDefinition
      */
     private $productDefinition;
@@ -73,7 +67,6 @@ class ProductPageLoader
         EventDispatcherInterface $eventDispatcher,
         SalesChannelCmsPageRepository $cmsPageRepository,
         CmsSlotsDataResolver $slotDataResolver,
-        ProductPageConfiguratorLoader $configuratorLoader,
         ProductDefinition $productDefinition,
         ProductLoader $productLoader,
         ProductReviewLoader $productReviewLoader,
@@ -83,7 +76,6 @@ class ProductPageLoader
         $this->eventDispatcher = $eventDispatcher;
         $this->cmsPageRepository = $cmsPageRepository;
         $this->slotDataResolver = $slotDataResolver;
-        $this->configuratorLoader = $configuratorLoader;
         $this->productDefinition = $productDefinition;
         $this->productLoader = $productLoader;
         $this->productReviewLoader = $productReviewLoader;
@@ -108,16 +100,13 @@ class ProductPageLoader
 
         $product = $this->productLoader->load($productId, $salesChannelContext, ProductPageCriteriaEvent::class);
         $page->setProduct($product);
+        $page->setConfiguratorSettings($product->getConfigurator());
 
         $request->request->set('parentId', $product->getParentId());
         $reviews = $this->productReviewLoader->load($request, $salesChannelContext);
         $reviews->setParentId($product->getParentId() ?? $product->getId());
 
         $page->setReviews($reviews);
-
-        $page->setConfiguratorSettings(
-            $this->configuratorLoader->load($product, $salesChannelContext)
-        );
 
         $page->setCrossSellings(
             $this->crossSellingLoader->load($product->getId(), $salesChannelContext)

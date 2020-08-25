@@ -25,6 +25,7 @@ use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
+use Shopware\Core\System\StateMachine\Exception\StateMachineStateNotFoundException;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\Transition;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -167,30 +168,25 @@ class OrderService
         $toPlace = $stateMachineStates->get('toPlace');
         $fromPlace = $stateMachineStates->get('fromPlace');
 
-        if ($toPlace) {
-            $orderCriteria = new Criteria([$orderId]);
-            if ($customerId !== null) {
-                $orderCriteria->addFilter(
-                    new EqualsFilter('order.orderCustomer.customerId', $customerId)
-                );
-            }
-            $order = $this->getOrder($orderCriteria, $context);
+        if (!$toPlace) {
+            throw new StateMachineStateNotFoundException('order_transaction', $transition);
+        }
 
-            $technicalName = 'order.state.' . $toPlace->getTechnicalName();
+        $orderCriteria = new Criteria([$orderId]);
+        if ($customerId !== null) {
+            $orderCriteria->addFilter(
+                new EqualsFilter('order.orderCustomer.customerId', $customerId)
+            );
+        }
+        $order = $this->getOrder($orderCriteria, $context);
 
-            $mailTemplate = $this->getMailTemplate($context, $technicalName, $order);
+        $technicalName = 'order.state.' . $toPlace->getTechnicalName();
 
-            if ($mailTemplate !== null) {
-                $this->sendMail(
-                    $context,
-                    $mailTemplate,
-                    $order,
-                    $mediaIds,
-                    $documentIds,
-                    $toPlace,
-                    $fromPlace
-                );
-            }
+        $mailTemplate = $this->getMailTemplate($context, $technicalName, $order);
+
+        $sendMail = $data->get('sendMail', true);
+        if ($mailTemplate !== null && $sendMail) {
+            $this->sendMail($context, $mailTemplate, $order, $mediaIds, $documentIds, $toPlace, $fromPlace);
         }
 
         return $toPlace;
@@ -222,27 +218,22 @@ class OrderService
         $toPlace = $stateMachineStates->get('toPlace');
         $fromPlace = $stateMachineStates->get('fromPlace');
 
-        if ($toPlace) {
-            //We need to get the order twice to get it in the correct context
-            $orderCriteria = new Criteria();
-            $orderCriteria->addFilter(new EqualsFilter('transactions.id', $orderTransactionId));
-            $order = $this->getOrder($orderCriteria, $context);
+        if (!$toPlace) {
+            throw new StateMachineStateNotFoundException('order_transaction', $transition);
+        }
 
-            $technicalName = 'order_transaction.state.' . $toPlace->getTechnicalName();
+        //We need to get the order twice to get it in the correct context
+        $orderCriteria = new Criteria();
+        $orderCriteria->addFilter(new EqualsFilter('transactions.id', $orderTransactionId));
+        $order = $this->getOrder($orderCriteria, $context);
 
-            $mailTemplate = $this->getMailTemplate($context, $technicalName, $order);
+        $technicalName = 'order_transaction.state.' . $toPlace->getTechnicalName();
 
-            if ($mailTemplate !== null) {
-                $this->sendMail(
-                    $context,
-                    $mailTemplate,
-                    $order,
-                    $mediaIds,
-                    $documentIds,
-                    $toPlace,
-                    $fromPlace
-                );
-            }
+        $mailTemplate = $this->getMailTemplate($context, $technicalName, $order);
+
+        $sendMail = $data->get('sendMail', true);
+        if ($mailTemplate !== null && $sendMail) {
+            $this->sendMail($context, $mailTemplate, $order, $mediaIds, $documentIds, $toPlace, $fromPlace);
         }
 
         return $toPlace;
@@ -274,27 +265,22 @@ class OrderService
         $toPlace = $stateMachineStates->get('toPlace');
         $fromPlace = $stateMachineStates->get('fromPlace');
 
-        if ($toPlace) {
-            //We need to get the order twice to get it in the correct context
-            $orderCriteria = new Criteria();
-            $orderCriteria->addFilter(new EqualsFilter('deliveries.id', $orderDeliveryId));
-            $order = $this->getOrder($orderCriteria, $context);
+        if (!$toPlace) {
+            throw new StateMachineStateNotFoundException('order_transaction', $transition);
+        }
 
-            $technicalName = 'order_delivery.state.' . $toPlace->getTechnicalName();
+        //We need to get the order twice to get it in the correct context
+        $orderCriteria = new Criteria();
+        $orderCriteria->addFilter(new EqualsFilter('deliveries.id', $orderDeliveryId));
+        $order = $this->getOrder($orderCriteria, $context);
 
-            $mailTemplate = $this->getMailTemplate($context, $technicalName, $order);
+        $technicalName = 'order_delivery.state.' . $toPlace->getTechnicalName();
 
-            if ($mailTemplate !== null) {
-                $this->sendMail(
-                    $context,
-                    $mailTemplate,
-                    $order,
-                    $mediaIds,
-                    $documentIds,
-                    $toPlace,
-                    $fromPlace
-                );
-            }
+        $mailTemplate = $this->getMailTemplate($context, $technicalName, $order);
+
+        $sendMail = $data->get('sendMail', true);
+        if ($mailTemplate !== null && $sendMail) {
+            $this->sendMail($context, $mailTemplate, $order, $mediaIds, $documentIds, $toPlace, $fromPlace);
         }
 
         return $toPlace;

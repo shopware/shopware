@@ -238,7 +238,8 @@
       "labelLastEditedBy": "Last edited by",
       "labelSystemUser": "System",
       "labelSelectStatePlaceholder": "Select a status...",
-      "labelSelectStateButton": "Update status and send email",
+      "labelSelectStateButton": "Update status",
+      "labelSendMailSwitch": "Send email to customer",
       "labelErrorStateChange": "An error occured while updating the status:",
       "labelErrorNoAction": "Status unchanged.",
       "labelNoTransactionState": "No transactions yet",
@@ -259,6 +260,7 @@
     "documentCard": {
       "searchBarPlaceholder": "Search all documents...",
       "cardTitle": "Documents",
+      "modalTitle": "Status update",
       "labelDate": "Date",
       "labelNumber": "Number",
       "labelType": "Type",

@@ -90,7 +90,7 @@ export default class SearchWidgetPlugin extends Plugin {
         const value = this._inputField.value;
 
         // stop search if minimum input value length has not been reached
-        if (value.length < this.options.searchWidgetMinChars) {
+        if (value.trim().length < this.options.searchWidgetMinChars) {
             // further clear possibly existing search results
             this._clearSuggestResults();
             return;

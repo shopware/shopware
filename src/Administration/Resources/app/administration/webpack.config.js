@@ -496,7 +496,7 @@ const webpackConfig = {
                                     const flagsPath = path.join(sourceFolder, '/config_js_features.json');
 
                                     if (!fs.existsSync(flagsPath)) {
-                                        return [];
+                                        return '{}';
                                     }
 
                                     return fs.readFileSync(flagsPath);

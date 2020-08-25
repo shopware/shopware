@@ -1,6 +1,8 @@
 import './page/sw-settings-language-list';
 import './page/sw-settings-language-detail';
 
+import './acl';
+
 const { Module } = Shopware;
 
 Module.register('sw-settings-language', {
@@ -18,14 +20,16 @@ Module.register('sw-settings-language', {
             component: 'sw-settings-language-list',
             path: 'index',
             meta: {
-                parentPath: 'sw.settings.index'
+                parentPath: 'sw.settings.index',
+                privilege: 'language.viewer'
             }
         },
         detail: {
             component: 'sw-settings-language-detail',
             path: 'detail/:id?',
             meta: {
-                parentPath: 'sw.settings.language.index'
+                parentPath: 'sw.settings.language.index',
+                privilege: 'language.viewer'
             },
             props: {
                 default: (route) => ({ languageId: route.params.id })
@@ -35,7 +39,8 @@ Module.register('sw-settings-language', {
             component: 'sw-settings-language-detail',
             path: 'create',
             meta: {
-                parentPath: 'sw.settings.language.index'
+                parentPath: 'sw.settings.language.index',
+                privilege: 'language.creator'
             }
         }
     },
@@ -43,6 +48,7 @@ Module.register('sw-settings-language', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.language.index',
-        icon: 'default-location-flag'
+        icon: 'default-location-flag',
+        privilege: 'language.viewer'
     }
 });

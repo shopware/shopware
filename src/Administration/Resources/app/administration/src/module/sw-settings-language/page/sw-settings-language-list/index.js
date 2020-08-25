@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-settings-language-list', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -18,6 +18,7 @@ Component.register('sw-settings-language-list', {
         return {
             languages: null,
             parentLanguages: null,
+            total: 0,
             filterRootLanguages: false,
             filterInheritedLanguages: false,
             isLoading: true,
@@ -89,6 +90,8 @@ Component.register('sw-settings-language-list', {
         getList() {
             this.isLoading = true;
             return this.languageRepository.search(this.listingCriteria, Shopware.Context.api).then((languageResult) => {
+                this.total = languageResult.total || this.total;
+
                 const parentCriteria = (new Criteria(1, this.limit));
                 const parentIds = {};
 
@@ -120,7 +123,24 @@ Component.register('sw-settings-language-list', {
         },
 
         isDefault(languageId) {
-            return Shopware.Context.api.systemLanguageId.includes(languageId);
+            return Shopware.Context.api.systemLanguageId
+                ? Shopware.Context.api.systemLanguageId.includes(languageId)
+                : false;
+        },
+
+        tooltipDelete(languageId) {
+            if (!this.acl.can('language.deleter') && !this.isDefault(languageId)) {
+                return {
+                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    disabled: this.acl.can('language.deleter'),
+                    showOnDisabledElements: true
+                };
+            }
+
+            return {
+                message: '',
+                disabled: true
+            };
         }
     }
 });

@@ -41,5 +41,12 @@
       "textIsoCodeIsInUse": "This ISO code is already in use.",
       "textLanguageHasParent": "This language is already inheriting from another language."
     }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "language": {
+        "label": "Languages"
+      }
+    }
   }
 }

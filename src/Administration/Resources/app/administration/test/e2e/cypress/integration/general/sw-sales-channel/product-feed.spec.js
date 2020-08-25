@@ -20,7 +20,7 @@ describe('Sales Channel: Test product comparison', () => {
             });
     });
 
-    it('@general: create product comparison sales channel', () => {
+    it('@general: create product comparison sales channel', { browser: '!firefox' }, () => {
         const page = new SalesChannelPageObject();
         const productPage = new ProductPageObject();
 
@@ -47,6 +47,7 @@ describe('Sales Channel: Test product comparison', () => {
         );
 
         // Upload product image
+        cy.get('input[name=sw-field--product-name]').should('be.visible');
         if (Cypress.isBrowser({ family: 'chromium' })) {
             // Add image to product
             cy.fixture('img/sw-login-background.png').then(fileContent => {

@@ -41,6 +41,18 @@ Component.register('sw-text-field', {
             type: Boolean,
             required: false,
             default: false
+        },
+
+        maxLength: {
+            type: Number,
+            required: false,
+            default: null
+        },
+
+        maxLengthShowFrom: {
+            type: Number,
+            required: false,
+            default: 0
         }
     },
 

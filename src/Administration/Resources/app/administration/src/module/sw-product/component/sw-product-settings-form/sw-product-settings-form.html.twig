@@ -35,8 +35,9 @@
                                       :label="$tc('sw-product.settingsForm.labelEan')"
                                       :placeholder="$tc('sw-product.settingsForm.placeholderEan')"
                                       :disabled="props.isInherited"
+                                      :max-length="255"
                                       :value="props.currentValue"
-                                      @change="props.updateCurrentValue">
+                                      @input="props.updateCurrentValue">
                             </sw-field>
 
                         </template>
@@ -55,6 +56,7 @@
                                       :label="$tc('sw-product.settingsForm.labelManufacturerNumber')"
                                       :placeholder="$tc('sw-product.settingsForm.placeholderManufacturerNumber')"
                                       :disabled="props.isInherited"
+                                      :max-length="255"
                                       :value="props.currentValue"
                                       @input="props.updateCurrentValue">
                             </sw-field>

@@ -10,8 +10,9 @@
                               :placeholder="$tc('sw-product.seoForm.placeholderMetaTitle')"
                               :error="productMetaTitleError"
                               :disabled="props.isInherited"
+                              :max-length="255"
                               :value="props.currentValue"
-                              @change="props.updateCurrentValue">
+                              @input="props.updateCurrentValue">
                     </sw-field>
                 </template>
             </sw-inherit-wrapper>
@@ -27,8 +28,9 @@
                               :placeholder="$tc('sw-product.seoForm.placeholderMetaDescription')"
                               :error="productMetaDescriptionError"
                               :disabled="props.isInherited"
+                              :max-length="255"
                               :value="props.currentValue"
-                              @change="props.updateCurrentValue">
+                              @input="props.updateCurrentValue">
                     </sw-field>
                 </template>
             </sw-inherit-wrapper>

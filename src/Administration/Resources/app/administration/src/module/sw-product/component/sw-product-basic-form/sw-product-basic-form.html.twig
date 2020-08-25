@@ -13,6 +13,8 @@
                               :label="$tc('sw-product.basicForm.labelTitle')"
                               :required="isTitleRequired"
                               name="sw-field--product-name"
+                              :max-length="255"
+                              :max-length-show-from="200"
                               :error="productNameError"
                               :placeholder="placeholder(product, 'name', $tc('sw-product.basicForm.placeholderName'))">
                     </sw-field>
@@ -43,6 +45,7 @@
             {% block sw_product_basic_form_id_field %}
                 <sw-field type="text"
                           :label="$tc('sw-product.basicForm.labelProductNumber')"
+                          :max-length="64"
                           v-model="product.productNumber">
                 </sw-field>
             {% endblock %}

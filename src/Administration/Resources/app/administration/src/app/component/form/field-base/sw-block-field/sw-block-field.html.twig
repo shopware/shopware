@@ -1,9 +1,7 @@
 {% block sw_block_field %}
     <sw-base-field class="sw-block-field" :class="swBlockFieldClasses" v-bind="$attrs" v-on="$listeners">
         <template #sw-field-helpers="{ identification, error, disabled }">
-            <div class="sw-block-field__helpers">
-                <slot name="sw-field-helpers" v-bind="{ identification, error, disabled, size, setFocusClass, removeFocusClass }"></slot>
-            </div>
+            <slot name="sw-field-helpers" v-bind="{ identification, error, disabled, size, setFocusClass, removeFocusClass }"></slot>
         </template>
         <template #sw-field-input="{ identification, error, disabled }">
             <div class="sw-block-field__block">

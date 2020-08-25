@@ -1,0 +1,29 @@
+@import "~scss/variables";
+
+.sw-maxlength-progress {
+    opacity: 0;
+    width: 50px;
+    transition: 0.3s ease opacity;
+
+    &.is--visible {
+        opacity: 1;
+    }
+
+    &.is--warning {
+        .sw-progress-bar .sw-progress-bar__value {
+            background-color: $color-module-yellow-900;
+        }
+    }
+
+    &.is--full {
+        .sw-progress-bar .sw-progress-bar__value {
+            background-color: $color-crimson-900;
+        }
+    }
+
+    .sw-progress-bar {
+        .sw-progress-bar__total {
+            background: $color-gray-200;
+        }
+    }
+}

@@ -15,10 +15,10 @@
         </template>
 
         <template #sw-field-helpers>
-            <sw-progress-bar v-if="maxLength > 0"
-                             :value="currentValue.length"
-                             :maxValue="maxLength"
-                             v-tooltip="maxLengthDescription"></sw-progress-bar>
+            <sw-maxlength-progress :maxLength="maxLength"
+                                   :showFrom="maxLengthShowFrom"
+                                   :length="currentValue ? currentValue.length : 0">
+            </sw-maxlength-progress>
         </template>
     </sw-block-field>
 {% endblock %}

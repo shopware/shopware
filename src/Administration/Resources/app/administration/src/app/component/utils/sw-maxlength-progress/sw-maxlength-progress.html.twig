@@ -1,0 +1,10 @@
+{% block sw_maxlength_progress %}
+    <div class="sw-maxlength-progress" :class="progressClasses">
+        {% block sw_maxlength_progress_bar %}
+            <sw-progress-bar v-if="maxLength > 0"
+                             :value="length"
+                             :maxValue="maxLength"
+                             v-tooltip="maxLengthTooltip"></sw-progress-bar>
+        {% endblock %}
+    </div>
+{% endblock %}

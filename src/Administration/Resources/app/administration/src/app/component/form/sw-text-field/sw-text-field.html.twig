@@ -16,6 +16,7 @@
                 :disabled="disabled"
                 :value="currentValue"
                 :placeHolder="placeholder"
+                :maxlength="maxLength"
                 @input="onInput"
                 @change="onChange"
                 @focus="setFocusClass"
@@ -31,6 +32,13 @@
                 :copyableText="currentValue"
                 :tooltip="copyableTooltip">
             </sw-field-copyable>
+        </template>
+
+        <template #sw-field-helpers>
+            <sw-maxlength-progress :maxLength="maxLength"
+                                   :showFrom="maxLengthShowFrom"
+                                   :length="currentValue ? currentValue.length : 0">
+            </sw-maxlength-progress>
         </template>
     </sw-contextual-field>
 {% endblock %}

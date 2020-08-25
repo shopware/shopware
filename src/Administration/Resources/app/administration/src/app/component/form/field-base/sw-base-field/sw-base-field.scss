@@ -46,6 +46,20 @@
         }
     }
 
+    .sw-field__input-wrapper {
+        position: relative;
+    }
+
+    .sw-block-field__helpers {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+
+        .sw-progress-bar__value {
+            transition: 0.3s width linear;
+        }
+    }
+
     &.has--error {
         margin-bottom: 12px;
     }

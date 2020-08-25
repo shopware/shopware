@@ -12,5 +12,9 @@
                 <slot name="sw-contextual-field-suffix" v-bind="{ disabled, identification }"></slot>
             </div>
         </template>
+
+        <template #sw-field-helpers="{ identification, error, disabled, size, setFocusClass, removeFocusClass }">
+            <slot name="sw-field-helpers" v-bind="{ identification, error, disabled, size, setFocusClass, removeFocusClass }"></slot>
+        </template>
     </sw-block-field>
 {% endblock %}

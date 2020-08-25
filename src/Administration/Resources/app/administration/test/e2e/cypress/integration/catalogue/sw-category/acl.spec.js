@@ -29,7 +29,7 @@ describe('Category: Test ACL privileges', () => {
 
     it('@base @catalogue: can view category', () => {
         cy.window().then((win) => {
-            if (!win.Shopware.FeatureConfig.isActive('next3722')) {
+            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
                 return;
             }
 
@@ -58,7 +58,7 @@ describe('Category: Test ACL privileges', () => {
 
     it('@catalogue: can edit category', () => {
         cy.window().then((win) => {
-            if (!win.Shopware.FeatureConfig.isActive('next3722')) {
+            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
                 return;
             }
 
@@ -108,7 +108,7 @@ describe('Category: Test ACL privileges', () => {
 
     it('@catalogue: can create category', () => {
         cy.window().then((win) => {
-            if (!win.Shopware.FeatureConfig.isActive('next3722')) {
+            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
                 return;
             }
 
@@ -165,7 +165,7 @@ describe('Category: Test ACL privileges', () => {
 
     it('@catalogue: can delete category', () => {
         cy.window().then((win) => {
-            if (!win.Shopware.FeatureConfig.isActive('next3722')) {
+            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
                 return;
             }
 

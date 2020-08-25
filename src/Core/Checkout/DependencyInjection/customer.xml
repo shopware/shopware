@@ -26,6 +26,10 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupRegistrationSalesChannel\CustomerGroupRegistrationSalesChannelDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Customer\Aggregate\CustomerTag\CustomerTagDefinition">
             <tag name="shopware.entity.definition"/>
         </service>
@@ -129,6 +133,15 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Customer\Subscriber\CustomerGroupSubscriber">
+            <argument type="service" id="customer_group.repository"/>
+            <argument type="service" id="seo_url.repository"/>
+            <argument type="service" id="language.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPersister"/>
+            <argument type="service" id="slugify"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute" public="true">
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
@@ -225,7 +238,6 @@
         <service id="Shopware\Core\Checkout\Customer\Api\CustomerGroupRegistrationActionController" public="true">
             <argument type="service" id="customer.repository"/>
             <argument type="service" id="event_dispatcher"/>
-            <tag name="shopware.feature" flag="next6010"/>
         </service>
     </services>
 </container>

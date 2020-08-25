@@ -14,7 +14,8 @@ Component.register('sw-sales-channel-detail-theme', {
 
     inject: [
         'repositoryFactory',
-        'themeService'
+        'themeService',
+        'acl'
     ],
 
     props: {
@@ -84,6 +85,10 @@ Component.register('sw-sales-channel-detail-theme', {
         },
 
         openThemeModal() {
+            if (!this.acl.can('sales_channel.editor')) {
+                return;
+            }
+
             this.showThemeSelectionModal = true;
         },
 

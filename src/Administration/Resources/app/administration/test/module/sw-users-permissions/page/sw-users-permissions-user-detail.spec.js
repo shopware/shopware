@@ -42,6 +42,9 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
 
                         return {};
                     }
+                },
+                feature: {
+                    isActive: () => true
                 }
             },
             mocks: {

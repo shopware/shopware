@@ -20,7 +20,7 @@ describe('Property: Test ACL privileges', () => {
 
     it('@catalogue: has no access to property module', () => {
         cy.window().then((win) => {
-            if (!win.Shopware.FeatureConfig.isActive('next3722')) {
+            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
                 return;
             }
 
@@ -46,7 +46,7 @@ describe('Property: Test ACL privileges', () => {
 
     it('@catalogue: can view property', () => {
         cy.window().then((win) => {
-            if (!win.Shopware.FeatureConfig.isActive('next3722')) {
+            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
                 return;
             }
 
@@ -77,7 +77,7 @@ describe('Property: Test ACL privileges', () => {
 
     it('@catalogue: can edit property', () => {
         cy.window().then((win) => {
-            if (!win.Shopware.FeatureConfig.isActive('next3722')) {
+            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
                 return;
             }
 
@@ -129,7 +129,7 @@ describe('Property: Test ACL privileges', () => {
 
     it('@catalogue: can create property', () => {
         cy.window().then((win) => {
-            if (!win.Shopware.FeatureConfig.isActive('next3722')) {
+            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
                 return;
             }
 
@@ -173,7 +173,7 @@ describe('Property: Test ACL privileges', () => {
 
     it('@catalogue: can delete property', () => {
         cy.window().then((win) => {
-            if (!win.Shopware.FeatureConfig.isActive('next3722')) {
+            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
                 return;
             }
 

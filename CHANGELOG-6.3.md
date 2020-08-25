@@ -91,6 +91,7 @@ NEXT
     * Added property `productStreamSorting` with default value `name:ASC`
     * Added property `productStreamLimit` with default value `10`
 * Added method `addGroupField` to `platform/src/Administration/Resources/app/administration/src/core/data-new/criteria.data.js`
+* Added method `addGrouping` to `platform/src/Administration/Resources/app/administration/src/core/data-new/criteria.data.js`
 * Added new component `sw-customer-group-registration-seo-modal` to generate urls for customer group registration
 * Changed `sw-settings-customer-group-detail` to add
     * as data
@@ -107,6 +108,11 @@ NEXT
 * Added `sw-field-helpers` slot to `sw-base-field` and `sw-block-field`
 * Added property `maxLength` to `sw-textarea-field` component to add maximum length validation
 * Added `maxLength` to Category SEO Description field to reflect max length in database
+* Added ACL permissions to salesChannel
+* Added property `disabled` to `sw-code-editor` component
+* Added property `disabled` to `sw-sales-channel-defaults-select` component
+* Added property `disabled` to `sw-sales-channel-detail-domains` component
+* Added property `disabled` to `sw-sales-channel-detail-hreflang` component
 
 #### Core
 
@@ -153,6 +159,7 @@ NEXT
 * Added app system basics (entities, manifest parsing, app lifecycle)
 * Added snippet loading of apps
 * Added action buttons to apps
+* Added webhook dispatching
 * Increased Elasticsearch config `mapping.nested_objects.limit` to 1000000
 * Fixed company name field on profile page and prefill it with billingAddress company
 * Fixed an issue with submitting the contact form when a contact form configuration was unavailable in another language
@@ -173,6 +180,8 @@ NEXT
 * Added method `createCustomSeoUrls` to `Shopware/Core/Content/Seo/Api/SeoActionController` to allow creating custom seo urls in the Administration
 * Added new property `primaryProperty` to `Shopware/Core/Framework/DataAbstractionLayer/Validation/EntityExists` to allow checking existence of entities with another key
 * Changed `\Shopware\Core\System\SalesChannel\SalesChannel\StoreApiInfoController` to set correct `Content-Security-Policy` header
+* Swapped the priorities of `CreditCartProcessor` and `CustomCartProcessor`. Now `CustomCartProcessor` will run before `CreditCartProcessor`.
+* Fixed a bug cannot update credit items after creating in Admin order
 
 #### Storefront
 
@@ -206,6 +215,7 @@ NEXT
     * Added `scopeAll` property, which contains the default scope being used
     * Added `scopeDataAttribute` property, which can be used to set the scope to `parent` instead of `all`
     * Added `parentSelectorDataAttribute` property, which must be defined if you've set the scope to `parent`. It contains the selector of the parent element.
+* Added theme handling for apps    
 * Changed `\Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute` to provide loggedin context token
 * Changed `\Shopware\Core\System\SalesChannel\Api\StoreApiResponseListener` to pass the headers to the new response
 * Deprecated `\Shopware\Core\Checkout\Customer\SalesChannel\AccountRegistrationService` use `RegisterRoute` or `RegisterConfirmRoute`
@@ -1163,6 +1173,7 @@ Refactored `src/module/sw-plugin/snippet/en-GB.json`:
 * Added `user:change-password` command to set the password of an administration user
 * Added `HttpCacheGenerateKeyEvent` to allow changing the hash
 * It is now possible to override the generic API routes with a `config/routes_overwrite.xml` in the bundle or plugin
+* Fixed a bug cannot remove credit items after creating in Admin order
 
 #### Storefront
 * Added plugin injection in hot mode

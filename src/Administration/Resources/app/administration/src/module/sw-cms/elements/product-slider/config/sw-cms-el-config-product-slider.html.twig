@@ -32,7 +32,6 @@
 
                             {% block sw_cms_element_product_slider_config_content_product_assignment_type %}
                                 <sw-single-select
-                                    v-if="next9279"
                                     class="sw-cms-el-config-product-slider__product-assignment-type-select"
                                     :label="$tc('sw-cms.elements.productSlider.config.label.productAssignmentType')"
                                     v-model="element.config.products.source"
@@ -41,7 +40,7 @@
                                 </sw-single-select>
                             {% endblock %}
 
-                            <template v-if="next9279 && element.config.products.source === 'product_stream'">
+                            <template v-if="element.config.products.source === 'product_stream'">
                                 {% block sw_cms_element_product_slider_config_content_product_stream_select %}
                                     <sw-entity-single-select
                                         entity="product_stream"

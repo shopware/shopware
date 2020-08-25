@@ -15,6 +15,12 @@ Component.register('sw-sales-channel-detail-domains', {
     props: {
         salesChannel: {
             required: true
+        },
+
+        disableEdit: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -64,10 +70,12 @@ Component.register('sw-sales-channel-detail-domains', {
         },
 
         disabled() {
-            return !this.currentDomain.currencyId ||
+            return !this.currentDomain ||
+                !this.currentDomain.currencyId ||
                 !this.currentDomain.snippetSetId ||
                 !this.currentDomain.url ||
-                !this.currentDomain.languageId;
+                !this.currentDomain.languageId ||
+                this.disableEdit;
         }
     },
 

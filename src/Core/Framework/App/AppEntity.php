@@ -5,11 +5,12 @@ namespace Shopware\Core\Framework\App;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonCollection;
 use Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationCollection;
+use Shopware\Core\Framework\App\Template\TemplateCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Webhook\WebhookCollection;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
 use Shopware\Core\System\Integration\IntegrationEntity;
-use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 class AppEntity extends Entity
 {
@@ -116,6 +117,11 @@ class AppEntity extends Entity
     protected $aclRole;
 
     /**
+     * @var TemplateCollection|null
+     */
+    protected $templates;
+
+    /**
      * @var \DateTimeInterface
      */
     protected $createdAt;
@@ -134,6 +140,11 @@ class AppEntity extends Entity
      * @var ActionButtonCollection|null
      */
     protected $actionButtons;
+
+    /**
+     * @var WebhookCollection|null
+     */
+    protected $webhooks;
 
     public function getId(): string
     {
@@ -348,11 +359,6 @@ class AppEntity extends Entity
         $this->customFieldSets = $customFieldSets;
     }
 
-    final public function getNameAsSnakeCase(): string
-    {
-        return (new CamelCaseToSnakeCaseNameConverter())->normalize($this->getName());
-    }
-
     public function getAppSecret(): ?string
     {
         return $this->appSecret;
@@ -381,5 +387,25 @@ class AppEntity extends Entity
     public function setActionButtons(ActionButtonCollection $actionButtons): void
     {
         $this->actionButtons = $actionButtons;
+    }
+
+    public function getWebhooks(): ?WebhookCollection
+    {
+        return $this->webhooks;
+    }
+
+    public function setWebhooks(?WebhookCollection $webhooks): void
+    {
+        $this->webhooks = $webhooks;
+    }
+
+    public function getTemplates(): ?TemplateCollection
+    {
+        return $this->templates;
+    }
+
+    public function setTemplates(TemplateCollection $templates): void
+    {
+        $this->templates = $templates;
     }
 }

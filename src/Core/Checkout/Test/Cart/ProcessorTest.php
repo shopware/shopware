@@ -9,7 +9,13 @@ use Shopware\Core\Checkout\Cart\CartProcessorInterface;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Processor;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -123,5 +129,73 @@ class ProcessorTest extends TestCase
         } finally {
             $processorProperty->setValue($this->processor, $originalProcessors);
         }
+    }
+
+    public function testCalculatedCreditTaxesIncludeCustomItemTax(): void
+    {
+        $cart = new Cart('test', 'test');
+
+        $productId = Uuid::randomHex();
+        $customItemId = Uuid::randomHex();
+        $creditId = Uuid::randomHex();
+
+        $taxForProductItem = 10;
+
+        $tax = ['id' => Uuid::randomHex(), 'taxRate' => $taxForProductItem, 'name' => 'test'];
+        $product = [
+            'id' => $productId,
+            'name' => 'test',
+            'price' => [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => 220, 'net' => 200, 'linked' => false],
+            ],
+            'productNumber' => Uuid::randomHex(),
+            'manufacturer' => ['name' => 'test'],
+            'tax' => $tax,
+            'stock' => 10,
+            'active' => true,
+            'visibilities' => [
+                ['salesChannelId' => Defaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+            ],
+        ];
+
+        $this->getContainer()->get('product.repository')
+            ->create([$product], Context::createDefaultContext());
+
+        $this->addTaxDataToSalesChannel($this->context, $tax);
+
+        $taxForCustomItem = 20;
+
+        $productLineItem = new LineItem($productId, LineItem::PRODUCT_LINE_ITEM_TYPE, $productId, 1);
+        $taxRulesCustomItem = new TaxRuleCollection([new TaxRule($taxForCustomItem)]);
+        $customLineItem = (new LineItem($customItemId, LineItem::CUSTOM_LINE_ITEM_TYPE, $customItemId, 1))
+            ->setLabel('custom')
+            ->setPriceDefinition(new QuantityPriceDefinition(200, $taxRulesCustomItem, 2));
+
+        $creditLineItem = (new LineItem($creditId, LineItem::CREDIT_LINE_ITEM_TYPE, $creditId, 1))
+            ->setLabel('credit')
+            ->setPriceDefinition(new AbsolutePriceDefinition(-100, 2));
+
+        $cart->addLineItems(new LineItemCollection([$productLineItem, $customLineItem, $creditLineItem]));
+
+        $calculated = $this->processor->process($cart, $this->context, new CartBehavior());
+
+        static::assertCount(3, $calculated->getLineItems());
+        static::assertNotEmpty($creditLineItem = $calculated->getLineItems()->filterType(LineItem::CREDIT_LINE_ITEM_TYPE)->first());
+
+        static::assertCount(2, $creditCalculatedTaxes = $creditLineItem->getPrice()->getCalculatedTaxes()->getElements());
+
+        $calculatedTaxForCustomItem = array_filter($creditCalculatedTaxes, function (CalculatedTax $tax) use ($taxForCustomItem) {
+            return (int) $tax->getTaxRate() === $taxForCustomItem;
+        });
+
+        static::assertNotEmpty($calculatedTaxForCustomItem);
+        static::assertCount(1, $calculatedTaxForCustomItem);
+
+        $calculatedTaxForProductItem = array_filter($creditCalculatedTaxes, function (CalculatedTax $tax) use ($taxForProductItem) {
+            return (int) $tax->getTaxRate() === $taxForProductItem;
+        });
+
+        static::assertNotEmpty($calculatedTaxForProductItem);
+        static::assertCount(1, $calculatedTaxForProductItem);
     }
 }

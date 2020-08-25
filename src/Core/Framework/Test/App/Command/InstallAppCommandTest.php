@@ -7,15 +7,15 @@ use Shopware\Core\Framework\App\Command\AppPrinter;
 use Shopware\Core\Framework\App\Command\InstallAppCommand;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Test\App\StorefrontAppRegistryTestBehaviour;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Test\App\StorefrontPluginRegistryTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Console\Tester\CommandTester;
-use function Flag\skipTestNext10286;
 
 class InstallAppCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    use StorefrontAppRegistryTestBehaviour;
+    use StorefrontPluginRegistryTestBehaviour;
 
     /**
      * @var EntityRepositoryInterface
@@ -24,7 +24,7 @@ class InstallAppCommandTest extends TestCase
 
     public function setUp(): void
     {
-        skipTestNext10286($this);
+        Feature::skipTestIfInActive('FEATURE_NEXT_10286', $this);
         $this->appRepository = $this->getContainer()->get('app.repository');
     }
 

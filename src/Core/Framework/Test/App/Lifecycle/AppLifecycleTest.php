@@ -14,16 +14,18 @@ use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Permissions;
+use Shopware\Core\Framework\App\Template\TemplateEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Webhook\WebhookEntity;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSetRelation\CustomFieldSetRelationEntity;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use function Flag\skipTestNext10286;
 
 class AppLifecycleTest extends TestCase
 {
@@ -56,7 +58,7 @@ class AppLifecycleTest extends TestCase
 
     public function setUp(): void
     {
-        skipTestNext10286($this);
+        Feature::skipTestIfInActive('FEATURE_NEXT_10286', $this);
         $this->appRepository = $this->getContainer()->get('app.repository');
         $this->actionButtonRepository = $this->getContainer()->get('app_action_button.repository');
 
@@ -74,9 +76,9 @@ class AppLifecycleTest extends TestCase
         $appId = null;
         $onAppInstalled = function (AppInstalledEvent $event) use (&$eventWasReceived, &$appId, $manifest): void {
             $eventWasReceived = true;
-            $appId = $event->getAppId();
+            $appId = $event->getApp()->getId();
             static::assertEquals($this->context, $event->getContext());
-            static::assertEquals($manifest, $event->getApp());
+            static::assertEquals($manifest, $event->getManifest());
         };
         $this->eventDispatcher->addListener(AppInstalledEvent::class, $onAppInstalled);
 
@@ -99,8 +101,8 @@ class AppLifecycleTest extends TestCase
         $this->assertDefaultModules($apps->first());
         $this->assertDefaultPrivileges($apps->first()->getAclRoleId());
         $this->assertDefaultCustomFields($apps->first()->getId());
-//        $this->assertDefaultWebhooks($apps->first()->getId());
-//        $this->assertDefaultTemplate($apps->first()->getId());
+        $this->assertDefaultWebhooks($apps->first()->getId());
+        $this->assertDefaultTemplate($apps->first()->getId());
     }
 
     public function testInstallMinimalManifest(): void
@@ -130,7 +132,7 @@ class AppLifecycleTest extends TestCase
 
         static::assertCount(0, $apps->first()->getActionButtons());
         static::assertCount(0, $apps->first()->getModules());
-//        static::assertCount(0, $apps->first()->getWebhooks());
+        static::assertCount(0, $apps->first()->getWebhooks());
     }
 
     public function testUpdateInactiveApp(): void
@@ -229,9 +231,9 @@ class AppLifecycleTest extends TestCase
         $eventWasReceived = false;
         $onAppUpdated = function (AppUpdatedEvent $event) use (&$eventWasReceived, $id, $manifest): void {
             $eventWasReceived = true;
-            static::assertEquals($id, $event->getAppId());
+            static::assertEquals($id, $event->getApp()->getId());
             static::assertEquals($this->context, $event->getContext());
-            static::assertEquals($manifest, $event->getApp());
+            static::assertEquals($manifest, $event->getManifest());
         };
         $this->eventDispatcher->addListener(AppUpdatedEvent::class, $onAppUpdated);
 
@@ -255,8 +257,8 @@ class AppLifecycleTest extends TestCase
         $this->assertDefaultModules($apps->first());
         $this->assertDefaultPrivileges($apps->first()->getAclRoleId());
         $this->assertDefaultCustomFields($id);
-//        $this->assertDefaultWebhooks($apps->first()->getId());
-//        $this->assertDefaultTemplate($apps->first()->getId());
+        $this->assertDefaultWebhooks($apps->first()->getId());
+        $this->assertDefaultTemplate($apps->first()->getId());
     }
 
     public function testUpdateActiveApp(): void
@@ -356,9 +358,9 @@ class AppLifecycleTest extends TestCase
         $eventWasReceived = false;
         $onAppUpdated = function (AppUpdatedEvent $event) use (&$eventWasReceived, $id, $manifest): void {
             $eventWasReceived = true;
-            static::assertEquals($id, $event->getAppId());
+            static::assertEquals($id, $event->getApp()->getId());
             static::assertEquals($this->context, $event->getContext());
-            static::assertEquals($manifest, $event->getApp());
+            static::assertEquals($manifest, $event->getManifest());
         };
         $this->eventDispatcher->addListener(AppUpdatedEvent::class, $onAppUpdated);
 
@@ -382,8 +384,8 @@ class AppLifecycleTest extends TestCase
         $this->assertDefaultModules($apps->first());
         $this->assertDefaultPrivileges($apps->first()->getAclRoleId());
         $this->assertDefaultCustomFields($id);
-//        $this->assertDefaultWebhooks($apps->first()->getId());
-//        $this->assertDefaultTemplate($apps->first()->getId());
+        $this->assertDefaultWebhooks($apps->first()->getId());
+        $this->assertDefaultTemplate($apps->first()->getId());
     }
 
     public function testUpdateDoesNotInstallElementsNeedingAppSecretIfItIsMissing(): void
@@ -454,7 +456,7 @@ class AppLifecycleTest extends TestCase
 
         static::assertCount(0, $apps->first()->getActionButtons());
         static::assertCount(0, $apps->first()->getModules());
-//        static::assertCount(0, $apps->first()->getWebhooks());
+        static::assertCount(0, $apps->first()->getWebhooks());
     }
 
     public function testDelete(): void
@@ -601,54 +603,52 @@ class AppLifecycleTest extends TestCase
         ], $customFieldSet->getConfig());
     }
 
-    // ToDo: Reactivate once webhooks are migrated
-//    private function assertDefaultWebhooks(string $appId): void
-//    {
-//        /** @var EntityRepositoryInterface $webhookRepository */
-//        $webhookRepository = $this->getContainer()->get('saas_webhook.repository');
-//
-//        $criteria = new Criteria();
-//        $criteria->addFilter(new EqualsFilter('appId', $appId));
-//
-//        $webhooks = $webhookRepository->search($criteria, $this->context)->getElements();
-//
-//        static::assertCount(2, $webhooks);
-//
-//        usort($webhooks, static function (WebhookEntity $a, WebhookEntity $b): int {
-//            return $a->getUrl() <=> $b->getUrl();
-//        });
-//
-//        /** @var WebhookEntity $firstWebhook */
-//        $firstWebhook = $webhooks[0];
-//        static::assertEquals('https://test.com/hook', $firstWebhook->getUrl());
-//        static::assertEquals('checkout.customer.before.login', $firstWebhook->getEventName());
-//
-//        /** @var WebhookEntity $secondWebhook */
-//        $secondWebhook = $webhooks[1];
-//        static::assertEquals('https://test.com/hook2', $secondWebhook->getUrl());
-//        static::assertEquals('checkout.order.placed', $secondWebhook->getEventName());
-//    }
+    private function assertDefaultWebhooks(string $appId): void
+    {
+        /** @var EntityRepositoryInterface $webhookRepository */
+        $webhookRepository = $this->getContainer()->get('webhook.repository');
 
-// ToDo: Reactivate once templates are migrated
-//    private function assertDefaultTemplate(string $appId): void
-//    {
-//        /** @var EntityRepositoryInterface $templateRepository */
-//        $templateRepository = $this->getContainer()->get('saas_template.repository');
-//
-//        $criteria = new Criteria();
-//        $criteria->addFilter(new EqualsFilter('appId', $appId));
-//
-//        $templates = $templateRepository->search($criteria, $this->context)->getEntities();
-//
-//        static::assertCount(1, $templates);
-//
-//        /** @var TemplateEntity $template */
-//        $template = $templates->first();
-//        static::assertEquals('storefront/layout/header/logo.html.twig', $template->getPath());
-//        static::assertStringEqualsFile(
-//            __DIR__ . '/../Manifest/_fixtures/test/Resources/views/storefront/layout/header/logo.html.twig',
-//            $template->getTemplate()
-//        );
-//        static::assertTrue($template->isActive());
-//    }
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('appId', $appId));
+
+        $webhooks = $webhookRepository->search($criteria, $this->context)->getElements();
+
+        static::assertCount(2, $webhooks);
+
+        usort($webhooks, static function (WebhookEntity $a, WebhookEntity $b): int {
+            return $a->getUrl() <=> $b->getUrl();
+        });
+
+        /** @var WebhookEntity $firstWebhook */
+        $firstWebhook = $webhooks[0];
+        static::assertEquals('https://test.com/hook', $firstWebhook->getUrl());
+        static::assertEquals('checkout.customer.before.login', $firstWebhook->getEventName());
+
+        /** @var WebhookEntity $secondWebhook */
+        $secondWebhook = $webhooks[1];
+        static::assertEquals('https://test.com/hook2', $secondWebhook->getUrl());
+        static::assertEquals('checkout.order.placed', $secondWebhook->getEventName());
+    }
+
+    private function assertDefaultTemplate(string $appId): void
+    {
+        /** @var EntityRepositoryInterface $templateRepository */
+        $templateRepository = $this->getContainer()->get('app_template.repository');
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('appId', $appId));
+
+        $templates = $templateRepository->search($criteria, $this->context)->getEntities();
+
+        static::assertCount(1, $templates);
+
+        /** @var TemplateEntity $template */
+        $template = $templates->first();
+        static::assertEquals('storefront/layout/header/logo.html.twig', $template->getPath());
+        static::assertStringEqualsFile(
+            __DIR__ . '/../Manifest/_fixtures/test/Resources/views/storefront/layout/header/logo.html.twig',
+            $template->getTemplate()
+        );
+        static::assertTrue($template->isActive());
+    }
 }

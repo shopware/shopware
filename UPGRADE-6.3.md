@@ -4,10 +4,16 @@ UPGRADE FROM 6.2.x to 6.3
 Table of contents
 ----------------
 
+* [API](#api)
 * [Core](#core)
 * [Administration](#administration)
 * [Storefront](#storefront)
 * [Refactorings](#refactorings)
+
+API
+----
+## Drop support of API version V1
+With Shopware 6.3.0.0 we increased the API version to `v3` and therefore dropped the API version `v1` and removed all corresponding deprecations which where marked for the 6.3 version tag. This mainly affects deprecations which where made during the development of the 6.1 version. As we try to keep the downwards compatibility always one API version backwards, there are now two available API versions: `v3` and `v2`.
 
 Core
 ----

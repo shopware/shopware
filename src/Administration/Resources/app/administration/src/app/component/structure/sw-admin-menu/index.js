@@ -1,4 +1,3 @@
-import { next3722 } from 'src/flag/feature_next3722';
 import template from './sw-admin-menu.html.twig';
 import './sw-admin-menu.scss';
 
@@ -17,7 +16,7 @@ Component.register('sw-admin-menu', {
         Mixin.getByName('salutation')
     ],
 
-    inject: ['menuService', 'loginService', 'userService'],
+    inject: ['menuService', 'loginService', 'userService', 'feature'],
 
     data() {
         return {
@@ -49,7 +48,7 @@ Component.register('sw-admin-menu', {
         },
 
         userTitle() {
-            if (!next3722()) {
+            if (!this.feature.isActive('FEATURE_NEXT_3722')) {
                 return 'Administrator';
             }
 

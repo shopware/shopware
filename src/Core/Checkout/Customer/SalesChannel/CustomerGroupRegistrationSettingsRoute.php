@@ -55,6 +55,7 @@ class CustomerGroupRegistrationSettingsRoute extends AbstractCustomerGroupRegist
     {
         $criteria = new Criteria([$customerGroupId]);
         $criteria->addFilter(new EqualsFilter('registrationActive', 1));
+        $criteria->addFilter(new EqualsFilter('registrationSalesChannels.id', $context->getSalesChannel()->getId()));
 
         $result = $this->customerGroupRepository->search($criteria, $context->getContext());
 

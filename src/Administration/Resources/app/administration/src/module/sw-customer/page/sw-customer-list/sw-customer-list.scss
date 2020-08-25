@@ -22,6 +22,12 @@ $sw-customer-list-color-success: $color-emerald;
         margin: 0 0 0 12px;
         text-align: center;
     }
+
+    .sw-label.sw-customer-list__requested-group-label {
+        background: $color-module-orange-500;
+        color: $color-white;
+        font-weight: 600;
+    }
 }
 
 .sw-customer-list__sidebar {

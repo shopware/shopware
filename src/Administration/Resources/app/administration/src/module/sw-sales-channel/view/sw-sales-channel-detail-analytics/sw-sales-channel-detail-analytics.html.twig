@@ -18,6 +18,7 @@
                           :label="$tc('sw-sales-channel.detail.analytics.fields.trackingId.label')"
                           :placeholder="$tc('sw-sales-channel.detail.analytics.fields.trackingId.placeHolder')"
                           name="trackingId"
+                          :disabled="!acl.can('sales_channel.editor')"
                           :helpText="$tc('sw-sales-channel.detail.analytics.fields.trackingId.helpText')"
                           v-model="salesChannel.analytics.trackingId"
                 >
@@ -31,6 +32,7 @@
                             type="switch"
                             :label="$tc('sw-sales-channel.detail.analytics.fields.active.label')"
                             name="analyticsActive"
+                            :disabled="!acl.can('sales_channel.editor')"
                             v-model="salesChannel.analytics.active"
                         >
                         </sw-field>
@@ -41,6 +43,7 @@
                             type="switch"
                             :label="$tc('sw-sales-channel.detail.analytics.fields.trackOrders.label')"
                             name="trackOrders"
+                            :disabled="!acl.can('sales_channel.editor')"
                             v-model="salesChannel.analytics.trackOrders"
                         >
                         </sw-field>
@@ -51,6 +54,7 @@
                             type="switch"
                             :label="$tc('sw-sales-channel.detail.analytics.fields.anonymizeIp.label')"
                             name="anonymizeIp"
+                            :disabled="!acl.can('sales_channel.editor')"
                             v-model="salesChannel.analytics.anonymizeIp"
                         >
                         </sw-field>

@@ -1,5 +1,3 @@
-import { next6010 } from 'src/flag/feature_next6010';
-
 const { Application, Service } = Shopware;
 const { Criteria } = Shopware.Data;
 
@@ -15,10 +13,6 @@ const { Criteria } = Shopware.Data;
  * @param loginService
  */
 export default function addCustomerGroupRegistrationListener(loginService) {
-    if (!next6010()) {
-        return;
-    }
-
     let applicationRoot = null;
 
     loginService.addOnLoginListener(checkForUpdates);

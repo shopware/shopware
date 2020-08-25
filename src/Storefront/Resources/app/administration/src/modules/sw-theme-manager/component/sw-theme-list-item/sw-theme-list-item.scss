@@ -9,6 +9,14 @@
     border-radius: 4px;
     position: relative;
 
+    &.is--disabled {
+        &:hover {
+            border: 1px solid $color-steam-cloud;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+    }
+
     &:hover {
         border-color: $color-shopware-brand-500;
         box-shadow: 0 0 4px 0 rgba($color-shopware-brand-500, 0.4);

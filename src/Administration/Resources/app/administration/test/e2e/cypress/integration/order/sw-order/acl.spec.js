@@ -30,7 +30,7 @@ describe('Order: Test ACL privileges', () => {
 
     it('@acl: can read order', () => {
         cy.window().then((win) => {
-            if (!win.Shopware.FeatureConfig.isActive('next3722')) {
+            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
                 return;
             }
 
@@ -69,7 +69,7 @@ describe('Order: Test ACL privileges', () => {
 
     it('@acl: can edit order', () => {
         cy.window().then((win) => {
-            if (!win.Shopware.FeatureConfig.isActive('next3722')) {
+            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
                 return;
             }
 
@@ -137,7 +137,7 @@ describe('Order: Test ACL privileges', () => {
 
     it('@acl: can delete order', () => {
         cy.window().then((win) => {
-            if (!win.Shopware.FeatureConfig.isActive('next3722')) {
+            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
                 return;
             }
 

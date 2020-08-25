@@ -6,11 +6,11 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpKernel\KernelInterface;
-use function Flag\next10286;
 
 /**
  * @Decoratable
@@ -61,7 +61,7 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
         $this->loadPluginSnippets($snippetFileCollection);
         // remove nullable prop and on-invalid=null behaviour in service declaration
         // when removing the feature flag
-        if (!$this->appSnippetFileLoader || !$this->activeAppsLoader || !next10286()) {
+        if (!$this->appSnippetFileLoader || !$this->activeAppsLoader || !Feature::isActive('FEATURE_NEXT_10286')) {
             return;
         }
 

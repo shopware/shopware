@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\Event\EventData;
 
 class ArrayType implements EventDataType
 {
+    public const TYPE = 'array';
+
     /**
      * @var EventDataType
      */
@@ -17,7 +19,7 @@ class ArrayType implements EventDataType
     public function toArray(): array
     {
         return [
-            'type' => 'array',
+            'type' => self::TYPE,
             'of' => $this->type->toArray(),
         ];
     }

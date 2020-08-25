@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Page\Account\Overview;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\SalesChannel\AbstractCustomerRoute;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\SalesChannel\AbstractOrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderRouteResponseStruct;
@@ -35,14 +36,21 @@ class AccountOverviewPageLoader
      */
     private $orderRoute;
 
+    /**
+     * @var AbstractCustomerRoute
+     */
+    private $customerRoute;
+
     public function __construct(
         GenericPageLoaderInterface $genericLoader,
         EventDispatcherInterface $eventDispatcher,
-        AbstractOrderRoute $orderRoute
+        AbstractOrderRoute $orderRoute,
+        AbstractCustomerRoute $customerRoute
     ) {
         $this->genericLoader = $genericLoader;
         $this->eventDispatcher = $eventDispatcher;
         $this->orderRoute = $orderRoute;
+        $this->customerRoute = $customerRoute;
     }
 
     /**
@@ -60,6 +68,7 @@ class AccountOverviewPageLoader
         $page = $this->genericLoader->load($request, $salesChannelContext);
 
         $page = AccountOverviewPage::createFrom($page);
+        $page->setCustomer($this->loadCustomer($salesChannelContext));
 
         $order = $this->loadNewestOrder($salesChannelContext, $request);
 
@@ -97,5 +106,13 @@ class AccountOverviewPageLoader
             ->getObject();
 
         return $responseStruct->getOrders()->first();
+    }
+
+    private function loadCustomer(SalesChannelContext $context): CustomerEntity
+    {
+        $criteria = new Criteria();
+        $criteria->addAssociation('requestedGroup');
+
+        return $this->customerRoute->load(new Request(), $context, $criteria)->getCustomer();
     }
 }

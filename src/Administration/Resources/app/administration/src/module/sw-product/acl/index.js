@@ -81,6 +81,7 @@ Shopware.Service('privileges')
                     'product_tag:delete',
                     'tag:create',
                     'main_category:create',
+                    'product_option:create',
                     'review:read',
                     'review:delete'
                 ],
@@ -90,13 +91,7 @@ Shopware.Service('privileges')
             },
             creator: {
                 privileges: [
-                    'delivery_time:read',
-                    'product:create',
-                    'product_option:create',
-                    'product_configurator_setting:create',
-                    'media:create',
-                    'product_media:create',
-                    'product_visibility:create'
+                    'product:create'
                 ],
                 dependencies: [
                     'product.viewer',

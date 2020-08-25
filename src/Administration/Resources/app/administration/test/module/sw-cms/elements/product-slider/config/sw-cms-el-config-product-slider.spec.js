@@ -53,10 +53,12 @@ function createWrapper(customCmsElementConfig) {
             'sw-icon': true
         },
         mocks: {
-            $tc: (value) => value,
-            next9279: true
+            $tc: (value) => value
         },
         provide: {
+            feature: {
+                isActive: () => true
+            },
             cmsService: {
                 getCmsBlockRegistry: () => {
                     return {};

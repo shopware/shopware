@@ -16,7 +16,8 @@ Component.register('sw-users-permissions-user-detail', {
         'loginService',
         'userValidationService',
         'integrationService',
-        'repositoryFactory'
+        'repositoryFactory',
+        'feature'
     ],
 
     mixins: [

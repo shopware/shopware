@@ -22,7 +22,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
-use function Flag\next9278;
 
 /**
  * @RouteScope(scopes={"store-api"})
@@ -105,27 +104,22 @@ class ProductListingRoute extends AbstractProductListingRoute
             new ProductAvailableFilter($salesChannelContext->getSalesChannel()->getId(), ProductVisibilityDefinition::VISIBILITY_ALL)
         );
 
-        if (next9278()) {
-            $categoryCriteria = new Criteria([$categoryId]);
-            /** @var CategoryEntity $category */
-            $category = $this->categoryRepository->search($categoryCriteria, $salesChannelContext->getContext())->first();
-            if ($category->getProductAssignmentType() === CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM) {
-                $filters = $this->productStreamBuilder->buildFilters(
-                    $category->getProductStreamId(),
-                    $salesChannelContext->getContext()
-                );
+        $categoryCriteria = new Criteria([$categoryId]);
+        /** @var CategoryEntity $category */
+        $category = $this->categoryRepository->search($categoryCriteria, $salesChannelContext->getContext())->first();
+        if ($category->getProductAssignmentType() === CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM) {
+            $filters = $this->productStreamBuilder->buildFilters(
+                $category->getProductStreamId(),
+                $salesChannelContext->getContext()
+            );
 
-                $criteria->addFilter(...$filters);
-            } else {
-                $criteria->addFilter(
-                    new EqualsFilter('product.categoriesRo.id', $categoryId)
-                );
-            }
+            $criteria->addFilter(...$filters);
         } else {
             $criteria->addFilter(
                 new EqualsFilter('product.categoriesRo.id', $categoryId)
             );
         }
+
         $criteria->addAssociation('options.group');
 
         $this->eventDispatcher->dispatch(

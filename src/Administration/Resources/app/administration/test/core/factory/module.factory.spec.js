@@ -355,7 +355,7 @@ describe('core/factory/module.factory.js', () => {
     });
 
     test('should add settings item if feature flag is active', () => {
-        Shopware.FeatureConfig.init({ testFlag: true });
+        Shopware.Feature.init({ testFlag: true });
         Shopware.State.get('settingsItems').settingsGroups = {};
 
         register('sw-foo', {
@@ -392,7 +392,7 @@ describe('core/factory/module.factory.js', () => {
     });
 
     test('should not add settings item if feature flag is deactivated', () => {
-        Shopware.FeatureConfig.init({ testFlag: false });
+        Shopware.Feature.init({ testFlag: false });
         Shopware.State.get('settingsItems').settingsGroups = {};
 
         register('sw-foo', {

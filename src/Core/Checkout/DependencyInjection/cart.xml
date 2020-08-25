@@ -8,13 +8,13 @@
         <service id="Shopware\Core\Checkout\Cart\CreditCartProcessor">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator"/>
 
-            <tag name="shopware.cart.processor" priority="4000"/>
+            <tag name="shopware.cart.processor"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\CustomCartProcessor">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
 
-            <tag name="shopware.cart.processor"/>
+            <tag name="shopware.cart.processor" priority="4000"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\CartValueResolver">

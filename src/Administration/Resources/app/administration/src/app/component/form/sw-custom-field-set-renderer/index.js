@@ -16,6 +16,8 @@ const utils = Shopware.Utils;
 Component.register('sw-custom-field-set-renderer', {
     template,
 
+    inject: ['feature'],
+
     mixins: [
         Mixin.getByName('sw-inline-snippet'),
         Mixin.getByName('placeholder')
@@ -77,11 +79,6 @@ Component.register('sw-custom-field-set-renderer', {
             default: false,
             require: false
         }
-    },
-
-    data() {
-        return {
-        };
     },
 
     computed: {

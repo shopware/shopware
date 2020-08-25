@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\App\Lifecycle;
 
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Symfony\Component\Finder\Finder;
 
@@ -16,6 +17,11 @@ class AppLoader extends AbstractAppLoader
     public function __construct(string $appDir)
     {
         $this->appDir = $appDir;
+    }
+
+    public function getDecorated(): AbstractAppLoader
+    {
+        throw new DecorationPatternException(self::class);
     }
 
     /**

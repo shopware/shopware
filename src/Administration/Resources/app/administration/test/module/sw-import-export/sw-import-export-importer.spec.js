@@ -187,12 +187,18 @@ describe('components/sw-import-export-importer', () => {
             }
         });
 
-        const variantsWarningLinks = wrapper.findAll('.sw-import-export-importer__variants-warning .sw-import-export-importer__link');
+        const variantsWarningLinks = wrapper.findAll(
+            '.sw-import-export-importer__variants-warning .sw-import-export-importer__link'
+        );
         expect(variantsWarningLinks.at(0).exists()).toBeTruthy();
-        expect(variantsWarningLinks.at(0).text()).toContain('sw-import-export.importer.directImportVariantsLabel');
+        expect(variantsWarningLinks.at(0).text()).toContain(
+            'sw-import-export.importer.directImportVariantsLabel'
+        );
 
         expect(variantsWarningLinks.at(1).exists()).toBeTruthy();
-        expect(variantsWarningLinks.at(1).text()).toContain('sw-import-export.importer.directImportPropertiesLabel');
+        expect(variantsWarningLinks.at(1).text()).toContain(
+            'sw-import-export.importer.directImportPropertiesLabel'
+        );
     });
 
     it('should show a modal with an importer', async () => {
@@ -207,7 +213,9 @@ describe('components/sw-import-export-importer', () => {
             }
         });
 
-        const variantsWarningLink = wrapper.find('.sw-import-export-importer__variants-warning .sw-import-export-importer__link');
+        const variantsWarningLink = wrapper.find(
+            '.sw-import-export-importer__variants-warning .sw-import-export-importer__link'
+        );
         variantsWarningLink.trigger('click');
 
         const modalExporter = wrapper.findAll({ name: 'sw-import-export-importer' }).at(1);
@@ -227,7 +235,9 @@ describe('components/sw-import-export-importer', () => {
             }
         });
 
-        const variantsWarningLink = wrapper.find('.sw-import-export-importer__variants-warning .sw-import-export-importer__link');
+        const variantsWarningLink = wrapper.find(
+            '.sw-import-export-importer__variants-warning .sw-import-export-importer__link'
+        );
         variantsWarningLink.trigger('click');
 
         const modalExporter = wrapper.findAll({ name: 'sw-import-export-importer' }).at(1);

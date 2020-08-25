@@ -2,15 +2,18 @@
 
 namespace Shopware\Core\Framework\Plugin;
 
+use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 /**
  * @Decoratable
@@ -27,15 +30,33 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
      */
     private $pluginRepository;
 
+    /**
+     * @var ActiveAppsLoader|null
+     */
+    private $activeAppsLoader;
+
+    /**
+     * @var string
+     */
+    private $projectDir;
+
     public function __construct(
         Kernel $kernel,
-        EntityRepositoryInterface $pluginRepository
+        EntityRepositoryInterface $pluginRepository,
+        ?ActiveAppsLoader $activeAppsLoader
     ) {
         $this->kernel = $kernel;
         $this->pluginRepository = $pluginRepository;
+        $this->activeAppsLoader = $activeAppsLoader;
+        $this->projectDir = $this->kernel->getContainer()->getParameter('kernel.project_dir');
     }
 
     public function getConfig(): array
+    {
+        return array_merge($this->generatePluginConfigs(), $this->generateAppConfigs());
+    }
+
+    private function generatePluginConfigs(): array
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('active', true));
@@ -47,8 +68,6 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
         });
 
         $kernelBundles = $this->kernel->getBundles();
-
-        $projectDir = $this->kernel->getContainer()->getParameter('kernel.project_dir');
 
         $bundles = [];
         foreach ($kernelBundles as $bundle) {
@@ -63,9 +82,9 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
             }
 
             $path = $bundle->getPath();
-            if (mb_strpos($bundle->getPath(), $projectDir) === 0) {
+            if (mb_strpos($bundle->getPath(), $this->projectDir) === 0) {
                 // make relative
-                $path = ltrim(mb_substr($path, mb_strlen($projectDir)), '/');
+                $path = ltrim(mb_substr($path, mb_strlen($this->projectDir)), '/');
             }
 
             $bundles[$bundle->getName()] = [
@@ -74,14 +93,14 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
                 'technicalName' => str_replace('_', '-', $bundle->getContainerPrefix()),
                 'administration' => [
                     'path' => 'Resources/app/administration/src',
-                    'entryFilePath' => $this->getEntryFile($bundle, 'Resources/app/administration/src'),
-                    'webpack' => $this->getWebpackConfig($bundle, 'Resources/app/administration'),
+                    'entryFilePath' => $this->getEntryFile($bundle->getPath(), 'Resources/app/administration/src'),
+                    'webpack' => $this->getWebpackConfig($bundle->getPath(), 'Resources/app/administration'),
                 ],
                 'storefront' => [
                     'path' => 'Resources/app/storefront/src',
-                    'entryFilePath' => $this->getEntryFile($bundle, 'Resources/app/storefront/src'),
-                    'webpack' => $this->getWebpackConfig($bundle, 'Resources/app/storefront'),
-                    'styleFiles' => $this->getStyleFiles($bundle),
+                    'entryFilePath' => $this->getEntryFile($bundle->getPath(), 'Resources/app/storefront/src'),
+                    'webpack' => $this->getWebpackConfig($bundle->getPath(), 'Resources/app/storefront'),
+                    'styleFiles' => $this->getStyleFiles($bundle->getPath(), $bundle->getName()),
                 ],
             ];
         }
@@ -89,20 +108,48 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
         return $bundles;
     }
 
-    private function getEntryFile(Bundle $bundle, string $componentPath): ?string
+    private function generateAppConfigs(): array
+    {
+        // remove nullable prop and on-invalid=null behaviour in service declaration
+        // when removing the feature flag
+        if (!$this->activeAppsLoader || !Feature::isActive('FEATURE_NEXT_10286')) {
+            return [];
+        }
+
+        $configs = [];
+        foreach ($this->activeAppsLoader->getActiveApps() as $app) {
+            $absolutePath = $this->projectDir . '/' . $app['path'];
+
+            $configs[$app['name']] = [
+                'basePath' => $app['path'] . '/',
+                'views' => ['Resources/views'],
+                'technicalName' => str_replace('_', '-', $this->asSnakeCase($app['name'])),
+                'storefront' => [
+                    'path' => 'Resources/app/storefront/src',
+                    'entryFilePath' => $this->getEntryFile($absolutePath, 'Resources/app/storefront/src'),
+                    'webpack' => $this->getWebpackConfig($absolutePath, 'Resources/app/storefront'),
+                    'styleFiles' => $this->getStyleFiles($absolutePath, $app['name']),
+                ],
+            ];
+        }
+
+        return $configs;
+    }
+
+    private function getEntryFile(string $rootPath, string $componentPath): ?string
     {
         $path = trim($componentPath, '/');
-        $absolutePath = $bundle->getPath() . '/' . $path;
+        $absolutePath = $rootPath . '/' . $path;
 
         return file_exists($absolutePath . '/main.ts') ? $path . '/main.ts'
             : (file_exists($absolutePath . '/main.js') ? $path . '/main.js'
             : null);
     }
 
-    private function getWebpackConfig(Bundle $bundle, string $componentPath): ?string
+    private function getWebpackConfig(string $rootPath, string $componentPath): ?string
     {
         $path = trim($componentPath, '/');
-        $absolutePath = $bundle->getPath() . '/' . $path;
+        $absolutePath = $rootPath . '/' . $path;
 
         if (!file_exists($absolutePath . '/build/webpack.config.js')) {
             return null;
@@ -111,20 +158,20 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
         return $path . '/build/webpack.config.js';
     }
 
-    private function getStyleFiles(Bundle $bundle): array
+    private function getStyleFiles(string $rootPath, string $technicalName): array
     {
         $files = [];
         if ($this->kernel->getContainer()->has('Shopware\Storefront\Theme\StorefrontPluginRegistry')) {
             $registry = $this->kernel->getContainer()->get('Shopware\Storefront\Theme\StorefrontPluginRegistry');
 
-            $config = $registry->getConfigurations()->getByTechnicalName($bundle->getName());
+            $config = $registry->getConfigurations()->getByTechnicalName($technicalName);
 
             if ($config) {
                 return $config->getStyleFiles()->getFilepaths();
             }
         }
 
-        $path = $bundle->getPath() . DIRECTORY_SEPARATOR . 'Resources/app/storefront/src/scss';
+        $path = $rootPath . DIRECTORY_SEPARATOR . 'Resources/app/storefront/src/scss';
         if (is_dir($path)) {
             $finder = new Finder();
             $finder->in($path)->files()->depth(0);
@@ -135,5 +182,10 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
         }
 
         return $files;
+    }
+
+    private function asSnakeCase(string $string): string
+    {
+        return (new CamelCaseToSnakeCaseNameConverter())->normalize($string);
     }
 }

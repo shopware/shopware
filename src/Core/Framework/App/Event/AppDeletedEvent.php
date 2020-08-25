@@ -4,9 +4,11 @@ namespace Shopware\Core\Framework\App\Event;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\ShopwareEvent;
+use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
+use Shopware\Core\Framework\Webhook\Hookable;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class AppDeletedEvent extends Event implements ShopwareEvent
+class AppDeletedEvent extends Event implements ShopwareEvent, Hookable
 {
     public const NAME = 'app.deleted';
 
@@ -39,5 +41,15 @@ class AppDeletedEvent extends Event implements ShopwareEvent
     public function getName(): string
     {
         return self::NAME;
+    }
+
+    public function getWebhookPayload(): array
+    {
+        return [];
+    }
+
+    public function isAllowed(string $appId, AclPrivilegeCollection $permissions): bool
+    {
+        return $appId === $this->getAppId();
     }
 }

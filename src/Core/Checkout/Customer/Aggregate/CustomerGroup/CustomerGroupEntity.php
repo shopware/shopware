@@ -67,6 +67,11 @@ class CustomerGroupEntity extends Entity
      */
     protected $registrationSeoMetaDescription;
 
+    /**
+     * @var SalesChannelCollection|null
+     */
+    protected $registrationSalesChannels;
+
     public function getName(): ?string
     {
         return $this->name;
@@ -180,5 +185,15 @@ class CustomerGroupEntity extends Entity
     public function setRegistrationSeoMetaDescription(string $registrationSeoMetaDescription): void
     {
         $this->registrationSeoMetaDescription = $registrationSeoMetaDescription;
+    }
+
+    public function getRegistrationSalesChannels(): ?SalesChannelCollection
+    {
+        return $this->registrationSalesChannels;
+    }
+
+    public function setRegistrationSalesChannels(SalesChannelCollection $registrationSalesChannels): void
+    {
+        $this->registrationSalesChannels = $registrationSalesChannels;
     }
 }

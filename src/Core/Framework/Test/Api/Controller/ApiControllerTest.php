@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\FilesystemBehaviour;
@@ -27,8 +28,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Symfony\Component\HttpFoundation\Response;
-use function Flag\next3722;
-use function Flag\skipTestNext3722;
 
 class ApiControllerTest extends TestCase
 {
@@ -117,7 +116,7 @@ EOF;
 
     public function testInsertAuthenticatedWithIntegration(): void
     {
-        if (next3722()) {
+        if (Feature::isActive('FEATURE_NEXT_3722')) {
             static::markTestSkipped('Reactivate if Integrations can have their own acls or delete if integrations are finally removed');
         }
         $id = Uuid::randomHex();
@@ -190,7 +189,7 @@ EOF;
 
     public function testOneToManyInsertWithoutPermission(): void
     {
-        skipTestNext3722($this);
+        Feature::skipTestIfInActive('FEATURE_NEXT_3722', $this);
 
         $id = Uuid::randomHex();
 
@@ -227,7 +226,7 @@ EOF;
 
     public function testTranslatedPropertiesWritableWithParentDefinitionPermissions(): void
     {
-        skipTestNext3722($this);
+        Feature::skipTestIfInActive('FEATURE_NEXT_3722', $this);
 
         $id = Uuid::randomHex();
 
@@ -293,7 +292,7 @@ EOF;
 
     public function testTranslatedPropertiesNotWritableWithoutParentDefinitionPermissions(): void
     {
-        skipTestNext3722($this);
+        Feature::skipTestIfInActive('FEATURE_NEXT_3722', $this);
 
         $id = Uuid::randomHex();
 
@@ -371,7 +370,7 @@ EOF;
 
     public function testManyToOneInsertWithoutPermission(): void
     {
-        skipTestNext3722($this);
+        Feature::skipTestIfInActive('FEATURE_NEXT_3722', $this);
 
         $id = Uuid::randomHex();
         $manufacturer = Uuid::randomHex();
@@ -467,7 +466,7 @@ EOF;
 
     public function testManyToManyInsertWithoutPermission(): void
     {
-        skipTestNext3722($this);
+        Feature::skipTestIfInActive('FEATURE_NEXT_3722', $this);
 
         $id = Uuid::randomHex();
 
@@ -633,7 +632,7 @@ EOF;
 
     public function testDeleteWithoutPermission(): void
     {
-        skipTestNext3722($this);
+        Feature::skipTestIfInActive('FEATURE_NEXT_3722', $this);
 
         $id = Uuid::randomHex();
         $data = [
@@ -691,7 +690,7 @@ EOF;
 
     public function testDeleteOneToManyWithoutPermission(): void
     {
-        skipTestNext3722($this);
+        Feature::skipTestIfInActive('FEATURE_NEXT_3722', $this);
 
         $id = Uuid::randomHex();
         $stateId = Uuid::randomHex();
@@ -800,7 +799,7 @@ EOF;
 
     public function testDeleteManyToManyWithoutPermission(): void
     {
-        skipTestNext3722($this);
+        Feature::skipTestIfInActive('FEATURE_NEXT_3722', $this);
 
         $id = Uuid::randomHex();
         $category = Uuid::randomHex();
@@ -992,7 +991,7 @@ EOF;
 
     public function testSearchWithoutPermission(): void
     {
-        skipTestNext3722($this);
+        Feature::skipTestIfInActive('FEATURE_NEXT_3722', $this);
 
         $id = Uuid::randomHex();
 
@@ -1175,7 +1174,7 @@ EOF;
 
     public function testNestedSearchOnOneToManyWithoutPermissionOnParent(): void
     {
-        skipTestNext3722($this);
+        Feature::skipTestIfInActive('FEATURE_NEXT_3722', $this);
 
         $id = Uuid::randomHex();
 
@@ -1224,7 +1223,7 @@ EOF;
 
     public function testNestedSearchOnOneToManyWithoutPermissionOnChild(): void
     {
-        skipTestNext3722($this);
+        Feature::skipTestIfInActive('FEATURE_NEXT_3722', $this);
 
         $id = Uuid::randomHex();
 
@@ -1395,7 +1394,7 @@ EOF;
 
     public function testNestedSearchOnManyToManyWithoutPermissionOnParent(): void
     {
-        skipTestNext3722($this);
+        Feature::skipTestIfInActive('FEATURE_NEXT_3722', $this);
 
         $id = Uuid::randomHex();
 
@@ -1440,7 +1439,7 @@ EOF;
 
     public function testNestedSearchOnManyToManyWithoutPermissionOnChild(): void
     {
-        skipTestNext3722($this);
+        Feature::skipTestIfInActive('FEATURE_NEXT_3722', $this);
 
         $id = Uuid::randomHex();
 
@@ -1920,7 +1919,7 @@ EOF;
 
     public function testCloneEntityWithoutPermission(): void
     {
-        skipTestNext3722($this);
+        Feature::skipTestIfInActive('FEATURE_NEXT_3722', $this);
 
         $id = Uuid::randomHex();
         $data = [
@@ -1955,7 +1954,7 @@ EOF;
 
     public function testUpdateWithoutPermission(): void
     {
-        skipTestNext3722($this);
+        Feature::skipTestIfInActive('FEATURE_NEXT_3722', $this);
 
         $id = Uuid::randomHex();
         $data = [

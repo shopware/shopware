@@ -127,6 +127,8 @@ class EntityRepository implements EntityRepositoryInterface
 
     public function aggregate(Criteria $criteria, Context $context): AggregationResultCollection
     {
+        $criteria = clone $criteria;
+
         $result = $this->aggregator->aggregate($this->definition, clone $criteria, $context);
 
         $event = new EntityAggregationResultLoadedEvent($this->definition, $result, $context);

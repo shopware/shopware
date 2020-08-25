@@ -12,10 +12,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\ActionButton\AppAction;
 use Shopware\Core\Framework\App\ActionButton\Executor;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
-use function Flag\skipTestNext10286;
 
 class ExecutorTest extends TestCase
 {
@@ -35,7 +35,7 @@ class ExecutorTest extends TestCase
 
     public function setUp(): void
     {
-        skipTestNext10286($this);
+        Feature::skipTestIfInActive('FEATURE_NEXT_10286', $this);
         $this->appServerMock = $this->getContainer()->get(MockHandler::class);
         $this->executor = $this->getContainer()->get(Executor::class);
     }

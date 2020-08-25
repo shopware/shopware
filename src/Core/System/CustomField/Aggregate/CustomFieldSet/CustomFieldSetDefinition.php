@@ -19,9 +19,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSetRelation\CustomFieldSetRelationDefinition;
 use Shopware\Core\System\CustomField\CustomFieldDefinition;
-use function Flag\next10286;
 
 class CustomFieldSetDefinition extends EntityDefinition
 {
@@ -58,7 +58,7 @@ class CustomFieldSetDefinition extends EntityDefinition
                 ->addFlags(new CascadeDelete(), new ReverseInherited('customFieldSets')),
         ]);
 
-        if (next10286()) {
+        if (Feature::isActive('FEATURE_NEXT_10286')) {
             $collection->add(new FkField('app_id', 'appId', AppDefinition::class));
             $collection->add(new ManyToOneAssociationField('app', 'app_id', AppDefinition::class));
         }

@@ -15,7 +15,7 @@ describe('Sales Channel: Test acl', () => {
 
     it('@base @general: read sales channel', () => {
         cy.window().then((win) => {
-            if (!win.Shopware.FeatureConfig.isActive('next3722')) {
+            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
                 return;
             }
 
@@ -39,7 +39,7 @@ describe('Sales Channel: Test acl', () => {
 
     it('@base @general: edit sales channel', () => {
         cy.window().then((win) => {
-            if (!win.Shopware.FeatureConfig.isActive('next3722')) {
+            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
                 return;
             }
 
@@ -65,7 +65,7 @@ describe('Sales Channel: Test acl', () => {
 
     it('@base @general: create sales channel', () => {
         cy.window().then((win) => {
-            if (!win.Shopware.FeatureConfig.isActive('next3722')) {
+            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
                 return;
             }
 
@@ -117,7 +117,7 @@ describe('Sales Channel: Test acl', () => {
 
     it('@base @general: delete sales channel', () => {
         cy.window().then((win) => {
-            if (!win.Shopware.FeatureConfig.isActive('next3722')) {
+            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
                 return;
             }
 

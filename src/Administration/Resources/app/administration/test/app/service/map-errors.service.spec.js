@@ -126,7 +126,8 @@ describe('app/service/map-errors.service.js', () => {
         expect(spyGetEntityNameTwo).toHaveBeenCalled();
     });
 
-    it('mapCollectionPropertyErrors: the getterCollectionError should return null when entityCollection is not in the vue instance', () => {
+    it('mapCollectionPropertyErrors: the getterCollectionError should return null ' +
+        'when entityCollection is not in the vue instance', () => {
         const computedValues = mapErrors.mapCollectionPropertyErrors('testEntityCollection', ['name', 'id']);
         const computedValueTestEntityNameError = computedValues.testEntityCollectionNameError.bind({});
 

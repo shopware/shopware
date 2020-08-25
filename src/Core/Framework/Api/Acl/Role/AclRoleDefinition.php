@@ -18,8 +18,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\User\UserDefinition;
-use function Flag\next10286;
 
 class AclRoleDefinition extends EntityDefinition
 {
@@ -67,7 +67,7 @@ class AclRoleDefinition extends EntityDefinition
                 ->addFlags(new ReadProtected(SalesChannelApiSource::class)),
         ]);
 
-        if (next10286()) {
+        if (Feature::isActive('FEATURE_NEXT_10286')) {
             $collection->add(
                 (new OneToOneAssociationField('app', 'id', 'acl_role_id', AppDefinition::class, false))
                     ->addFlags(new CascadeDelete())

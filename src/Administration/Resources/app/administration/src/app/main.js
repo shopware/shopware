@@ -7,6 +7,7 @@ import postInitializer from 'src/app/init-post/';
 import VueAdapter from 'src/app/adapter/view/vue.adapter';
 
 /** Services */
+import FeatureService from 'src/app/service/feature.service';
 import MenuService from 'src/app/service/menu.service';
 import PrivilegesService from 'src/app/service/privileges.service';
 import AclService from 'src/app/service/acl.service';
@@ -27,6 +28,9 @@ import addPluginUpdatesListener from 'src/core/service/plugin-updates-listener.s
 import addShopwareUpdatesListener from 'src/core/service/shopware-updates-listener.service';
 import addCustomerGroupRegistrationListener from 'src/core/service/customer-group-registration-listener.service';
 import LocaleHelperService from 'src/app/service/locale-helper.service';
+
+/** Import Feature */
+import Feature from 'src/core/feature';
 
 /** Import decorators */
 import 'src/app/decorator';
@@ -55,6 +59,9 @@ Object.keys(allInitializers).forEach((key) => {
 
 // Add service providers
 Application
+    .addServiceProvider('feature', () => {
+        return new FeatureService(Feature);
+    })
     .addServiceProvider('menuService', () => {
         return MenuService(factoryContainer.module);
     })

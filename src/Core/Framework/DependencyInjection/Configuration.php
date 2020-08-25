@@ -25,6 +25,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createSitemapSection())
                 ->append($this->createDeploymentSection())
                 ->append($this->createMediaSection())
+                ->append($this->createFeatureSection())
             ->end();
 
         return $treeBuilder;
@@ -234,6 +235,20 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->booleanNode('enable_url_upload_feature')->end()
                 ->booleanNode('enable_url_validation')->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createFeatureSection(): ArrayNodeDefinition
+    {
+        /** @var ArrayNodeDefinition $rootNode */
+        $rootNode = (new TreeBuilder('feature'))->getRootNode();
+        $rootNode
+            ->children()
+            ->arrayNode('flags')
+                ->prototype('scalar')->end()
+                ->end()
             ->end();
 
         return $rootNode;

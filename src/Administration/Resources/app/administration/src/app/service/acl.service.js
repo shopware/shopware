@@ -1,5 +1,3 @@
-import { next3722 } from 'src/flag/feature_next3722';
-
 const utils = Shopware.Utils;
 
 export default class AclService {
@@ -23,7 +21,7 @@ export default class AclService {
      * @returns {boolean}
      */
     can(privilegeKey) {
-        if (!next3722()) {
+        if (!Shopware.Service('feature').isActive('FEATURE_NEXT_3722')) {
             return true;
         }
 

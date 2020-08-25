@@ -9,7 +9,7 @@ const domainPlaceholderId = '124c71d524604ccbad6042edce3ac799';
 Component.register('sw-settings-customer-group-detail', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'feature'],
 
     mixins: [
         Mixin.getByName('notification'),

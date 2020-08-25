@@ -9,12 +9,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\BusinessEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\Event\TestBusinessEvent;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Hookable\HookableBusinessEvent;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
-use function Flag\skipTestNext10286;
 
 class HookableEventFactoryTest extends TestCase
 {
@@ -27,7 +27,7 @@ class HookableEventFactoryTest extends TestCase
 
     public function setUp(): void
     {
-        skipTestNext10286($this);
+        Feature::skipTestIfInActive('FEATURE_NEXT_10286', $this);
         $this->hookableEventFactory = $this->getContainer()->get(HookableEventFactory::class);
     }
 

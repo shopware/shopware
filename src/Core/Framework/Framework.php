@@ -29,7 +29,6 @@ use Symfony\Component\DependencyInjection\Loader\IniFileLoader;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
-use function Flag\next10286;
 
 class Framework extends Bundle
 {
@@ -66,7 +65,7 @@ class Framework extends Bundle
         $loader->load('update.xml');
         $loader->load('seo.xml');
 
-        if (next10286()) {
+        if (Feature::isActive('FEATURE_NEXT_10286')) {
             $loader->load('app.xml');
             $loader->load('webhook.xml');
         }
@@ -94,6 +93,11 @@ class Framework extends Bundle
     public function boot(): void
     {
         parent::boot();
+
+        Feature::setRegisteredFeatures(
+            $this->container->getParameter('shopware.feature.flags'),
+            $this->container->getParameter('kernel.cache_dir') . '/shopware_features.php'
+        );
 
         $this->registerEntityExtensions(
             $this->container->get(DefinitionInstanceRegistry::class),
@@ -129,6 +133,10 @@ class Framework extends Bundle
 
         $configLoader->load($confDir . '/{packages}/*' . Kernel::CONFIG_EXTS, 'glob');
         $configLoader->load($confDir . '/{packages}/' . $environment . '/*' . Kernel::CONFIG_EXTS, 'glob');
+        $shopwareFeaturesPath = $container->getParameter('kernel.cache_dir') . '/shopware_features.php';
+        if (is_readable($shopwareFeaturesPath)) {
+            $configLoader->load($shopwareFeaturesPath, 'php');
+        }
     }
 
     private function registerEntityExtensions(

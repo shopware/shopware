@@ -44,13 +44,6 @@ export default class VueAdapter extends ViewAdapter {
         // Enable performance measurements in development mode
         Vue.config.performance = process.env.NODE_ENV !== 'production';
 
-        // make all features globally available to templates
-        Vue.mixin({
-            data() {
-                return Shopware.FeatureConfig.getAll();
-            }
-        });
-
         this.root = new Vue({
             el: renderElement,
             template: '<sw-admin />',

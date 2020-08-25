@@ -5,7 +5,7 @@
 /**
  * A static registry containing a list of all registered flags and the associated activation state
  */
-export default class FeatureConfig {
+export default class Feature {
     static flags = {};
 
     static init(flagConfig) {
@@ -20,7 +20,8 @@ export default class FeatureConfig {
 
     static isActive(flagName) {
         if (!this.flags.hasOwnProperty(flagName)) {
-            throw new Error(`Unable to retrieve flag ${flagName}, not registered`);
+            // if not set, its false
+            return false;
         }
 
         return this.flags[flagName];

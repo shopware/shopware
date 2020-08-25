@@ -18,6 +18,9 @@ function createWrapper() {
         },
 
         provide: {
+            feature: {
+                isActive: () => true
+            },
             repositoryFactory: {
                 create: () => {
                     return {
@@ -64,7 +67,7 @@ function createWrapper() {
     });
 }
 
-describe('module/sw-customer/view/sw-customer-detail-base.spec.js', () => {
+describe('module/sw-customer/page/sw-customer-detail.spec.js', () => {
     let wrapper;
 
     beforeEach(() => {

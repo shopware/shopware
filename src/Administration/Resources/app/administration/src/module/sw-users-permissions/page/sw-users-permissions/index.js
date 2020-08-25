@@ -5,9 +5,7 @@ const { Component } = Shopware;
 Component.register('sw-users-permissions', {
     template,
 
-    data() {
-        return {};
-    },
+    inject: ['feature'],
 
     metaInfo() {
         return {

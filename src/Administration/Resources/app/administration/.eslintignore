@@ -1,4 +1,3 @@
 build/*.js
 config/*.js
-src/flag/*.js
 test/e2e/**/*

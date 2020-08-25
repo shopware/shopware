@@ -49,6 +49,7 @@ const customFields = [
 
 
 function createWrapper() {
+    Shopware.Feature.flags.FEATURE_NEXT_9225 = true;
     return shallowMount(Shopware.Component.build('sw-customer-detail-base'), {
         mocks: {
             $tc: () => {}

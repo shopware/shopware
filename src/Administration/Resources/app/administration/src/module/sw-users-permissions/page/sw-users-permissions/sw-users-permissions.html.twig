@@ -18,7 +18,7 @@
                     {% block sw_users_permissions_content_user_list %}
                         {# @deprecated tag:v6.4.0 - use 'sw-users-permissions-user-listing' instead#}
                         <sw-settings-user-list />
-                        <sw-users-permissions-role-listing v-if="next3722"/>
+                        <sw-users-permissions-role-listing v-if="feature.isActive('FEATURE_NEXT_3722')"/>
                     {% endblock %}
                 </sw-card-view>
             </template>

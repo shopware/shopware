@@ -18,7 +18,7 @@ describe('Review: Test ACL privileges', () => {
 
     it('@catalogue: has no access to review module', () => {
         cy.window().then((win) => {
-            if (!win.Shopware.FeatureConfig.isActive('next3722')) {
+            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
                 return;
             }
 
@@ -44,7 +44,7 @@ describe('Review: Test ACL privileges', () => {
 
     it('@catalogue: can view review', () => {
         cy.window().then((win) => {
-            if (!win.Shopware.FeatureConfig.isActive('next3722')) {
+            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
                 return;
             }
 
@@ -72,7 +72,7 @@ describe('Review: Test ACL privileges', () => {
 
     it('@catalogue: can edit review', () => {
         cy.window().then((win) => {
-            if (!win.Shopware.FeatureConfig.isActive('next3722')) {
+            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
                 return;
             }
 
@@ -116,7 +116,7 @@ describe('Review: Test ACL privileges', () => {
 
     it('@catalogue: can delete review', () => {
         cy.window().then((win) => {
-            if (!win.Shopware.FeatureConfig.isActive('next3722')) {
+            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
                 return;
             }
 

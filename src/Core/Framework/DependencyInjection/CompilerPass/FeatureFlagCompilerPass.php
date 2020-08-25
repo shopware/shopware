@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
-use Shopware\Core\Framework\FeatureFlag\FeatureConfig;
+use Shopware\Core\Framework\Feature;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
@@ -18,7 +18,7 @@ class FeatureFlagCompilerPass implements CompilerPassInterface
                     throw new \RuntimeException('"flag" is a required field for "shopware.feature" tags');
                 }
 
-                if (FeatureConfig::isActive($tag['flag'])) {
+                if (Feature::isActive($tag['flag'])) {
                     continue;
                 }
 

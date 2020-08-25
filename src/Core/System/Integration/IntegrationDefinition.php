@@ -15,7 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PasswordField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use function Flag\next10286;
+use Shopware\Core\Framework\Feature;
 
 class IntegrationDefinition extends EntityDefinition
 {
@@ -48,7 +48,7 @@ class IntegrationDefinition extends EntityDefinition
             new CustomFields(),
         ]);
 
-        if (next10286()) {
+        if (Feature::isActive('FEATURE_NEXT_10286')) {
             $collection->add(
                 (new OneToOneAssociationField('app', 'id', 'integration_id', AppDefinition::class, false))
                     ->addFlags(new CascadeDelete())

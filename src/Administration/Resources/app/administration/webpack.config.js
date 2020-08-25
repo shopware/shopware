@@ -493,62 +493,16 @@ const webpackConfig = {
                         templateParameters: {
                             featureFlags: (() => {
                                 const getFeatureFlagNames = (sourceFolder) => {
-                                    const flagsPath = path.join(sourceFolder, '/flag');
+                                    const flagsPath = path.join(sourceFolder, '/config_js_features.json');
 
                                     if (!fs.existsSync(flagsPath)) {
                                         return [];
                                     }
 
-                                    return fs.readdirSync(flagsPath)
-                                        .filter((file) => {
-                                            return file.indexOf('feature_') === 0;
-                                        })
-                                        .map(file => {
-                                            return path.basename(
-                                                file.substring(8),
-                                                '.js'
-                                            );
-                                        });
+                                    return fs.readFileSync(flagsPath);
                                 }
 
-                                const envResult = dotenv.config({ path: process.env.ENV_FILE });
-
-                                if (envResult.hasOwnProperty('error')) {
-                                    console.error('utils-load-feature-flags', 'Unable to load .env file, no features registered.', envResult.error);
-                                    return {};
-                                }
-
-                                const coreFlags = getFeatureFlagNames(path.join(__dirname, './src'));
-
-                                const allNames = pluginEntries.reduce((acc, plugin) => {
-                                    return  [...acc, ...getFeatureFlagNames(plugin.path)];
-                                }, coreFlags);
-
-                                const allActive = Object.keys(envResult.parsed)
-                                    .filter((key) => {
-                                        return key.indexOf('FEATURE_') === 0;
-                                    }).reduce((obj, key) => {
-                                        const clearedKey = key
-                                            .substring(8)
-                                            .split('_')
-                                            .map((part) => {
-                                                return part[0].toUpperCase() + part.substr(1).toLowerCase();
-                                            })
-                                            .join('')
-                                            .replace(/^./, (part) => { return part.toLowerCase(); });
-
-                                        if (envResult.parsed[key] === '1') {
-                                            obj[clearedKey] = true;
-                                        }
-                                        return obj;
-                                    }, {});
-
-                                const flagConfig = {};
-                                allNames.forEach((flagName) => {
-                                    flagConfig[flagName] = allActive.hasOwnProperty(flagName);
-                                });
-
-                                return JSON.stringify(flagConfig);
+                                return getFeatureFlagNames(path.join(__dirname, '../../../../../../var'));
                             })(),
                             // TODO: NEXT-7581 - Implement a version dump in the backend and read here the version file
                             apiVersion: 3

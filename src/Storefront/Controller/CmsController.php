@@ -58,7 +58,7 @@ class CmsController extends StorefrontController
      * @throws MissingRequestParameterException
      * @throws PageNotFoundException
      */
-    public function page(string $id, Request $request, SalesChannelContext $salesChannelContext): Response
+    public function page(?string $id, Request $request, SalesChannelContext $salesChannelContext): Response
     {
         if (!$id) {
             throw new MissingRequestParameterException('Parameter id missing');
@@ -80,7 +80,7 @@ class CmsController extends StorefrontController
      * @throws PageNotFoundException
      * @throws InconsistentCriteriaIdsException
      */
-    public function category(string $navigationId, Request $request, SalesChannelContext $salesChannelContext): Response
+    public function category(?string $navigationId, Request $request, SalesChannelContext $salesChannelContext): Response
     {
         if (!$navigationId) {
             throw new MissingRequestParameterException('Parameter navigationId missing');

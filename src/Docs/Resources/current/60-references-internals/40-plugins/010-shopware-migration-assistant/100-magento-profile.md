@@ -17,6 +17,7 @@ This profile is currently migrates following data:
 * Products + variants
 * Product reviews
 * Seo urls
+* Cross- and up-selling relations
 
 Currently the profile downloads all media files, but does not download order documents.
 Important: In order to download the WYSIWYG-media-files, Shopware 6 has to be located on the same server as the Magento system.

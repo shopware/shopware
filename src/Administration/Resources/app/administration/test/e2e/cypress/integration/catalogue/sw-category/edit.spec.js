@@ -72,7 +72,7 @@ describe('Category: Edit categories', () => {
 
         // Select a category
         cy.get('.sw-tree-item__label')
-            .contains('Catalogue #1')
+            .contains('Home')
             .click();
 
         // Scroll to product assignment

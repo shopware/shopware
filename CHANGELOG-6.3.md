@@ -179,6 +179,8 @@ NEXT
 * Changed `\Shopware\Core\System\SalesChannel\SalesChannel\StoreApiInfoController` to set correct `Content-Security-Policy` header
 * Swapped the priorities of `CreditCartProcessor` and `CustomCartProcessor`. Now `CustomCartProcessor` will run before `CreditCartProcessor`.
 * Fixed a bug cannot update credit items after creating in Admin order
+* Deprecated providing an until timestamp as the last argument to the `database:migrate` and `database:migrate-destructive` commands, use the `--until` option instead
+* Allow running migrations for multiple identifiers in `database:migrate` and `database:migrate-destructive` commands
 
 #### Storefront
 

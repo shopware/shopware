@@ -576,6 +576,8 @@ class PluginLifecycleService
 
     /**
      * Takes plugin base classes and returns the corresponding entities.
+     *
+     * @param Plugin[] $plugins
      */
     private function getEntities(array $plugins, Context $context): EntitySearchResult
     {

@@ -1,5 +1,9 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-customer/page/sw-customer-detail';
+import 'src/app/component/base/sw-button';
+import 'src/app/component/form/sw-custom-field-set-renderer';
+import 'src/app/component/form/sw-form-field-renderer';
+import 'src/app/component/utils/sw-inherit-wrapper';
 
 function createWrapper(privileges = []) {
     const localVue = createLocalVue();
@@ -8,34 +12,33 @@ function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-customer-detail'), {
         localVue,
         mocks: {
-            $tc: () => {},
-            $device: {
-                getSystemKey: () => {}
+            $tc: () => {
             },
             $route: {
                 query: {
+                    edit: false,
                     page: 1,
                     limit: 25
                 }
             }
         },
         provide: {
+            feature: {
+                isActive: () => true
+            },
             repositoryFactory: {
-                create: () => ({
-                    create: () => {
-                        return {
-                            id: '1a2b3c',
-                            name: 'Test customer',
-                            entity: 'customer'
-                        };
-                    },
-                    get: () => Promise.resolve({
-                        id: '1a2b3c',
-                        name: 'Test customer',
-                        entity: 'customer'
-                    }),
-                    search: () => Promise.resolve({})
-                })
+                create: () => {
+                    return {
+                        get: () => Promise.resolve({
+                            id: 'test',
+                            requestedGroup: {
+                                translated: {
+                                    name: 'Test'
+                                }
+                            }
+                        })
+                    };
+                }
             },
             acl: {
                 can: (identifier) => {
@@ -54,8 +57,8 @@ function createWrapper(privileges = []) {
         },
         propsData: {
             customerEditMode: false,
-            customer: {},
-            customerId: '1234321'
+            customerId: 'test',
+            customer: {}
         },
         stubs: {
             'sw-page': `
@@ -64,53 +67,82 @@ function createWrapper(privileges = []) {
                     <slot name="content">CONTENT</slot>
                     <slot></slot>
                 </div>`,
-            'sw-button': true,
+            'sw-button': Shopware.Component.build('sw-button'),
             'sw-button-process': true,
             'sw-language-switch': true,
-            'sw-card-view': true,
-            'sw-card': true,
+            'sw-card-view': '<div><slot></slot></div>',
+            'sw-card': '<div><slot></slot></div>',
             'sw-container': true,
             'sw-field': true,
             'sw-language-info': true,
-            'sw-tabs': true,
+            'sw-tabs': '<div><slot name="content"></slot></div>',
             'sw-tabs-item': true,
-            'router-view': true
+            'router-view': true,
+            'sw-alert': '<div><slot></slot></div>',
+            'sw-customer-card': '<div></div>',
+            'sw-custom-field-set-renderer': Shopware.Component.build('sw-custom-field-set-renderer'),
+            'sw-form-field-renderer': Shopware.Component.build('sw-form-field-renderer'),
+            'sw-inherit-wrapper': Shopware.Component.build('sw-inherit-wrapper')
         }
     });
 }
 
 describe('module/sw-customer/page/sw-customer-detail', () => {
-    it('should be a Vue.JS component', () => {
-        const wrapper = createWrapper();
+    let wrapper;
 
+    beforeEach(() => {
+        wrapper = createWrapper();
+    });
+
+    it('should be a Vue.JS component', () => {
         expect(wrapper.isVueInstance()).toBe(true);
     });
 
     it('should not be able to edit the customer', async () => {
-        const wrapper = createWrapper();
-        wrapper.setData({
+        const wrapperWithPrivileges = createWrapper();
+        wrapperWithPrivileges.setData({
             isLoading: false
         });
 
-        await wrapper.vm.$nextTick();
+        await wrapperWithPrivileges.vm.$nextTick();
 
-        const saveButton = wrapper.find('.sw-customer-detail__open-edit-mode-action');
+        const saveButton = wrapperWithPrivileges.find('.sw-customer-detail__open-edit-mode-action');
 
         expect(saveButton.attributes().isLoading).toBeFalsy();
         expect(saveButton.attributes().disabled).toBeTruthy();
     });
 
     it('should be able to edit the customer', async () => {
-        const wrapper = createWrapper([
+        const wrapperWithPrivileges = createWrapper([
             'customer.editor'
         ]);
-        wrapper.setData({
+        wrapperWithPrivileges.setData({
             isLoading: false
         });
-        await wrapper.vm.$nextTick();
+        await wrapperWithPrivileges.vm.$nextTick();
 
-        const saveButton = wrapper.find('.sw-customer-detail__open-edit-mode-action');
+        const saveButton = wrapperWithPrivileges.find('.sw-customer-detail__open-edit-mode-action');
 
         expect(saveButton.attributes().disabled).toBeFalsy();
+    });
+
+    it('should accept customer registration button called', async () => {
+        expect(wrapper.vm.customerGroupRegistrationService.decline).not.toHaveBeenCalled();
+        expect(wrapper.vm.customerGroupRegistrationService.accept).not.toHaveBeenCalled();
+
+        const button = wrapper.find('.sw-customer-detail__customer-registration-alert button:last-child');
+        await button.trigger('click');
+
+        expect(wrapper.vm.customerGroupRegistrationService.accept).toHaveBeenCalled();
+    });
+
+    it('should decline customer registration button called', async () => {
+        expect(wrapper.vm.customerGroupRegistrationService.decline).not.toHaveBeenCalled();
+        expect(wrapper.vm.customerGroupRegistrationService.accept).not.toHaveBeenCalled();
+
+        const button = wrapper.find('.sw-customer-detail__customer-registration-alert button:first-child');
+        await button.trigger('click');
+
+        expect(wrapper.vm.customerGroupRegistrationService.decline).toHaveBeenCalled();
     });
 });

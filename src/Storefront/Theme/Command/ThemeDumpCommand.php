@@ -11,6 +11,7 @@ use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
 use Shopware\Storefront\Theme\ThemeEntity;
 use Shopware\Storefront\Theme\ThemeFileResolver;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -64,12 +65,22 @@ class ThemeDumpCommand extends Command
         $this->context = Context::createDefaultContext();
     }
 
+    protected function configure(): void
+    {
+        $this->addArgument('theme-id', InputArgument::OPTIONAL, 'Theme ID');
+    }
+
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->io = new SymfonyStyle($input, $output);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('theme.salesChannels.typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT));
+
+        if ($id = $input->getArgument('theme-id')) {
+            $criteria->setIds([$id]);
+        }
+
         $themes = $this->themeRepository->search($criteria, $this->context);
 
         if ($themes->count() === 0) {

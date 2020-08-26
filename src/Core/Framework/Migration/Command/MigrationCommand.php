@@ -54,7 +54,7 @@ class MigrationCommand extends Command
     protected function configure(): void
     {
         $this
-            ->addArgument('identifiers', InputArgument::OPTIONAL | InputArgument::IS_ARRAY, 'identifier to determine which migrations to run', ['core'])
+            ->addArgument('identifier', InputArgument::OPTIONAL | InputArgument::IS_ARRAY, 'identifier to determine which migrations to run', ['core'])
             ->addOption('all', 'all', InputOption::VALUE_NONE, 'no migration timestamp cap')
             ->addOption('until', 'u', InputOption::VALUE_OPTIONAL, 'timestamp cap for migrations')
             ->addOption('limit', 'l', InputOption::VALUE_OPTIONAL, '', '0');
@@ -62,7 +62,10 @@ class MigrationCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $identifiers = $input->getArgument('identifiers');
+        $identifiers = $input->getArgument('identifier');
+        if (!is_array($identifiers)) {
+            $identifiers = [$identifiers];
+        }
 
         $until = (int) $input->getOption('until');
 

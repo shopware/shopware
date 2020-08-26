@@ -1,8 +1,9 @@
 import template from './sw-order-list.html.twig';
 import './sw-order-list.scss';
+import filterFactory from "../../../../app/filter.factory";
 
-const { Component, Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
+const {Component, Mixin} = Shopware;
+const {Criteria} = Shopware.Data;
 
 Component.register('sw-order-list', {
     template,
@@ -27,7 +28,9 @@ Component.register('sw-order-list', {
             availableAffiliateCodes: [],
             affiliateCodeFilter: [],
             availableCampaignCodes: [],
-            campaignCodeFilter: []
+            campaignCodeFilter: [],
+            filterCriteria: false,
+            filterOptions: null
         };
     },
 
@@ -44,31 +47,6 @@ Component.register('sw-order-list', {
 
         orderColumns() {
             return this.getOrderColumns();
-        },
-
-        orderCriteria() {
-            const criteria = new Criteria(this.page, this.limit);
-
-            criteria.setTerm(this.term);
-            if (this.affiliateCodeFilter.length > 0) {
-                criteria.addFilter(Criteria.equalsAny('affiliateCode', this.affiliateCodeFilter));
-            }
-            if (this.campaignCodeFilter.length > 0) {
-                criteria.addFilter(Criteria.equalsAny('campaignCode', this.campaignCodeFilter));
-            }
-
-            criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
-
-            criteria.addAssociation('addresses');
-            criteria.addAssociation('salesChannel');
-            criteria.addAssociation('orderCustomer');
-            criteria.addAssociation('currency');
-            criteria.addAssociation('documents');
-            criteria.addAssociation('transactions');
-            criteria.addAssociation('deliveries');
-            criteria.getAssociation('transactions').addSorting(Criteria.sort('createdAt'));
-
-            return criteria;
         },
 
         filterSelectCriteria() {
@@ -89,8 +67,28 @@ Component.register('sw-order-list', {
     },
 
     methods: {
+        createFilterOptions() {
+            this.filterOptions = filterFactory.create('order',
+                {
+                    'stateMachineState': {label: 'Order status', placeholder: 'Order status'},
+                    'autoIncrement': {hide: true},
+                    'deepLinkCode': {hide: true},
+                    'taxStatus': {hide: true},
+                }
+            );
+        },
+
+        updateFilterCriteria(filterCriteria) {
+            this.filterCriteria = filterCriteria;
+
+            //TODO: go to page 1
+
+            this.getList();
+        },
+
         createdComponent() {
             this.loadFilterValues();
+            this.createFilterOptions()
         },
 
         onEdit(order) {
@@ -115,15 +113,33 @@ Component.register('sw-order-list', {
         getList() {
             this.isLoading = true;
 
-            return this.orderRepository.search(this.orderCriteria, Shopware.Context.api).then((response) => {
-                this.total = response.total;
-                this.orders = response;
-                this.isLoading = false;
+            const criteria = new Criteria(this.page, this.limit);
 
-                return response;
-            }).catch(() => {
-                this.isLoading = false;
-            });
+            criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
+
+            criteria.addAssociation('addresses');
+            criteria.addAssociation('salesChannel');
+            criteria.addAssociation('orderCustomer');
+            criteria.addAssociation('currency');
+            criteria.addAssociation('documents');
+            criteria.addAssociation('transactions');
+            criteria.addAssociation('deliveries');
+            criteria.getAssociation('transactions').addSorting(Criteria.sort('createdAt'));
+
+            if (this.filterCriteria) {
+                criteria.addFilter(this.filterCriteria);
+            }
+
+            return this.orderRepository.search(criteria, Shopware.Context.api)
+                .then((response) => {
+                    this.total = response.total;
+                    this.orders = response;
+                    this.isLoading = false;
+
+                    return response;
+                }).catch(() => {
+                    this.isLoading = false;
+                });
         },
 
         getBillingAddress(order) {
@@ -220,7 +236,7 @@ Component.register('sw-order-list', {
         loadFilterValues() {
             this.filterLoading = true;
 
-            return this.orderRepository.search(this.filterSelectCriteria, Shopware.Context.api).then(({ aggregations }) => {
+            return this.orderRepository.search(this.filterSelectCriteria, Shopware.Context.api).then(({aggregations}) => {
                 this.availableAffiliateCodes = aggregations.affiliateCodes.buckets;
                 this.availableCampaignCodes = aggregations.campaignCodes.buckets;
                 this.filterLoading = false;

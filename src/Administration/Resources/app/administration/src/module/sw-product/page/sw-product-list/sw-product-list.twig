@@ -171,6 +171,13 @@
                             @click="onRefresh">
                         </sw-sidebar-item>
                     {% endblock %}
+
+                    {% block sw_product_list_sidebar_filter %}
+                        <sw-sidebar-item-filter
+                                @update-criteria-array="updateFilterCriteria"
+                                :filterOptions="filterOptions">
+                        </sw-sidebar-item-filter>
+                    {% endblock %}
                 </sw-sidebar>
             </template>
         {% endblock %}

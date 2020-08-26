@@ -1,8 +1,9 @@
 import template from './sw-product-list.twig';
 import './sw-product-list.scss';
+import filterFactory from "../../../../app/filter.factory";
 
-const { Component, Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
+const {Component, Mixin} = Shopware;
+const {Criteria} = Shopware.Data;
 
 Component.register('sw-product-list', {
     template,
@@ -26,8 +27,85 @@ Component.register('sw-product-list', {
             isBulkLoading: false,
             total: 0,
             product: null,
-            cloning: false
+            cloning: false,
+            filterCriteria: false,
+            filterOptions: null,
+            // filterOptions: [
+            //     {
+            //         name: 'onClearance',
+            //         label: this.$tc('sw-product.list.filter.clearanceSale.label'),
+            //         field: 'product.isCloseout',
+            //         inputType: 'switch',
+            //         criteriaType: 'equals'
+            //     },
+            //     {
+            //         name: 'activeInactive',
+            //         label: this.$tc('sw-product.list.filter.activeInactive.label'),
+            //         placeholder: this.$tc('sw-product.list.filter.activeInactive.placeholder'),
+            //         field: 'product.active',
+            //         inputType: 'singleSelect',
+            //         criteriaType: 'equals',
+            //         options: [
+            //             {
+            //                 name: 'All',
+            //                 value: null
+            //             },
+            //             {
+            //                 name: 'Active',
+            //                 value: true
+            //             },
+            //             {
+            //                 name: 'Inactive',
+            //                 value: false
+            //             }
+            //         ]
+            //     },
+            //     {
+            //         name: 'manufacturer',
+            //         label: this.$tc('sw-product.list.filter.manufacturer.label'),
+            //         placeholder: this.$tc('sw-product.list.filter.manufacturer.placeholder'),
+            //         field: 'product.manufacturerId',
+            //         inputType: 'multiSelect',
+            //         criteriaType: 'equalsAny',
+            //         repository: 'product_manufacturer'
+            //     },
+            //     {
+            //         name: 'salesChannel',
+            //         label: this.$tc('sw-product.list.filter.salesChannel.label'),
+            //         placeholder: this.$tc('sw-product.list.filter.salesChannel.placeholder'),
+            //         field: 'product.visibilities.salesChannelId',
+            //         inputType: 'multiSelect',
+            //         criteriaType: 'equalsAny',
+            //         repository: 'sales_channel'
+            //     },
+            //     {
+            //         name: 'productNumber',
+            //         label: this.$tc('sw-product.list.filter.productNumber.label'),
+            //         placeholder: this.$tc('sw-product.list.filter.productNumber.placeholder'),
+            //         field: 'product.productNumber',
+            //         inputType: 'input',
+            //         criteriaType: 'contains'
+            //     },
+            //     {
+            //         name: 'price',
+            //         label: this.$tc('sw-product.list.filter.price.label'),
+            //         field: 'product.price',
+            //         inputType: 'range',
+            //         criteriaType: 'range'
+            //     },
+            //     {
+            //         name: 'stock',
+            //         label: this.$tc('sw-product.list.filter.stock.label'),
+            //         field: 'product.stock',
+            //         inputType: 'range',
+            //         criteriaType: 'range'
+            //     }
+            // ]
         };
+    },
+
+    created() {
+        this.createFilterOptions();
     },
 
     metaInfo() {
@@ -83,6 +161,31 @@ Component.register('sw-product-list', {
     },
 
     methods: {
+        createFilterOptions() {
+            this.filterOptions = filterFactory.create('product',
+                {
+                    'active': {label: 'Active state', placeholder: 'All products'}, // adds a custom label to this field
+                    'productNumber': {label: 'Product number', placeholder: 'Product number'}, // adds a custom label to this field
+                    'displayGroup': {hide: true},
+                    'categoriesRo': {hide: true},
+                    'autoIncrement': {hide: true},
+                    'purchaseSteps': {hide: true},
+                    'metaDescription': {hide: true},
+                    'metaTitle': {hide: true},
+                    'parent': {hide: true},
+                    'cover': {hide: true}
+                }
+            );
+        },
+
+        updateFilterCriteria(filterCriteria) {
+            this.filterCriteria = filterCriteria;
+
+            //TODO: go to page 1
+
+            this.getList();
+        },
+
         getList() {
             this.isLoading = true;
 
@@ -94,6 +197,10 @@ Component.register('sw-product-list', {
             productCriteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
             productCriteria.addAssociation('cover');
             productCriteria.addAssociation('manufacturer');
+
+            if (this.filterCriteria) {
+                productCriteria.addFilter(this.filterCriteria);
+            }
 
             const currencyCriteria = new Criteria(1, 500);
 
@@ -121,7 +228,7 @@ Component.register('sw-product-list', {
             return promise.then(() => {
                 this.createNotificationSuccess({
                     title: this.$tc('global.default.success'),
-                    message: this.$tc('sw-product.list.messageSaveSuccess', 0, { name: productName })
+                    message: this.$tc('sw-product.list.messageSaveSuccess', 0, {name: productName})
                 });
             }).catch(() => {
                 this.getList();
@@ -136,7 +243,7 @@ Component.register('sw-product-list', {
             product.discardChanges();
         },
 
-        updateTotal({ total }) {
+        updateTotal({total}) {
             this.total = total;
         },
 
@@ -185,19 +292,19 @@ Component.register('sw-product-list', {
                 allowResize: true,
                 align: 'center'
             },
-            ...this.currenciesColumns,
-            {
-                property: 'stock',
-                label: this.$tc('sw-product.list.columnInStock'),
-                inlineEdit: 'number',
-                allowResize: true,
-                align: 'right'
-            }, {
-                property: 'availableStock',
-                label: this.$tc('sw-product.list.columnAvailableStock'),
-                allowResize: true,
-                align: 'right'
-            }];
+                ...this.currenciesColumns,
+                {
+                    property: 'stock',
+                    label: this.$tc('sw-product.list.columnInStock'),
+                    inlineEdit: 'number',
+                    allowResize: true,
+                    align: 'right'
+                }, {
+                    property: 'availableStock',
+                    label: this.$tc('sw-product.list.columnAvailableStock'),
+                    allowResize: true,
+                    align: 'right'
+                }];
         },
 
         onDuplicate(referenceProduct) {
@@ -210,7 +317,7 @@ Component.register('sw-product-list', {
             this.product = null;
 
             this.$nextTick(() => {
-                this.$router.push({ name: 'sw.product.detail', params: { id: duplicate.id } });
+                this.$router.push({name: 'sw.product.detail', params: {id: duplicate.id}});
             });
         },
 

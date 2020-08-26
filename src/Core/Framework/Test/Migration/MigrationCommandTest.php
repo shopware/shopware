@@ -59,7 +59,7 @@ class MigrationCommandTest extends TestCase
 
         $command = $this->getCommand();
 
-        $command->run(new ArrayInput(['-all' => true, 'identifiers' => [self::INTEGRATION_IDENTIFIER()]]), new BufferedOutput());
+        $command->run(new ArrayInput(['-all' => true, 'identifier' => self::INTEGRATION_IDENTIFIER()]), new BufferedOutput());
 
         static::assertSame(2, $this->getMigrationCount());
     }
@@ -73,7 +73,7 @@ class MigrationCommandTest extends TestCase
 
         $tester = new CommandTester($this->getCommand());
 
-        $tester->execute(['identifiers' => [self::INTEGRATION_IDENTIFIER(), PHP_INT_MAX]]);
+        $tester->execute(['identifier' => [self::INTEGRATION_IDENTIFIER(), PHP_INT_MAX]]);
 
         // assert deprecation notice is shown
         static::assertStringContainsString('v6.4.0', $tester->getDisplay());
@@ -86,7 +86,7 @@ class MigrationCommandTest extends TestCase
 
         $command = $this->getCommand();
 
-        $command->run(new ArrayInput(['identifiers' => [self::INTEGRATION_IDENTIFIER(), '_test_migrations_valid_run_time'], '--all' => true]), new BufferedOutput());
+        $command->run(new ArrayInput(['identifier' => [self::INTEGRATION_IDENTIFIER(), '_test_migrations_valid_run_time'], '--all' => true]), new BufferedOutput());
         static::assertSame(4, $this->getMigrationCount(true));
     }
 
@@ -97,7 +97,7 @@ class MigrationCommandTest extends TestCase
         $command = $this->getCommand();
 
         $this->expectException(\InvalidArgumentException::class);
-        $command->run(new ArrayInput(['identifiers' => [self::INTEGRATION_IDENTIFIER(), '_test_migrations_valid_run_time'], '--until' => PHP_INT_MAX]), new BufferedOutput());
+        $command->run(new ArrayInput(['identifier' => [self::INTEGRATION_IDENTIFIER(), '_test_migrations_valid_run_time'], '--until' => PHP_INT_MAX]), new BufferedOutput());
     }
 
     public function testCommandMigrateMultipleIdentifiersWithLimitOptionThrowsException(): void
@@ -107,7 +107,7 @@ class MigrationCommandTest extends TestCase
         $command = $this->getCommand();
 
         $this->expectException(\InvalidArgumentException::class);
-        $command->run(new ArrayInput(['identifiers' => [self::INTEGRATION_IDENTIFIER(), '_test_migrations_valid_run_time'], '--all' => true, '--limit' => 10]), new BufferedOutput());
+        $command->run(new ArrayInput(['identifier' => [self::INTEGRATION_IDENTIFIER(), '_test_migrations_valid_run_time'], '--all' => true, '--limit' => 10]), new BufferedOutput());
     }
 
     public function testCommandAddMigrations(): void
@@ -116,7 +116,7 @@ class MigrationCommandTest extends TestCase
 
         $tester = new CommandTester($this->getCommand());
 
-        $tester->execute(['identifiers' => [self::INTEGRATION_IDENTIFIER()], '--until' => PHP_INT_MAX]);
+        $tester->execute(['identifier' => [self::INTEGRATION_IDENTIFIER()], '--until' => PHP_INT_MAX]);
 
         // assert no deprecation notice is shown
         static::assertStringNotContainsString('v6.4.0', $tester->getDisplay());
@@ -130,7 +130,7 @@ class MigrationCommandTest extends TestCase
         $command = $this->getCommand();
 
         try {
-            $command->run(new ArrayInput(['--all' => true, 'identifiers' => [self::INTEGRATION_WITH_EXCEPTION_IDENTIFIER()]]), new BufferedOutput());
+            $command->run(new ArrayInput(['--all' => true, 'identifier' => [self::INTEGRATION_WITH_EXCEPTION_IDENTIFIER()]]), new BufferedOutput());
         } catch (MigrateException $e) {
             //nth
         }
@@ -154,7 +154,7 @@ class MigrationCommandTest extends TestCase
 
         $command = $this->getDestructiveCommand();
 
-        $command->run(new ArrayInput(['--all' => true, 'identifiers' => [self::INTEGRATION_IDENTIFIER()]]), new BufferedOutput());
+        $command->run(new ArrayInput(['--all' => true, 'identifier' => [self::INTEGRATION_IDENTIFIER()]]), new BufferedOutput());
 
         static::assertSame(2, $this->getMigrationCount());
     }
@@ -168,7 +168,7 @@ class MigrationCommandTest extends TestCase
 
         $tester = new CommandTester($this->getDestructiveCommand());
 
-        $tester->execute(['identifiers' => [self::INTEGRATION_IDENTIFIER(), PHP_INT_MAX]]);
+        $tester->execute(['identifier' => [self::INTEGRATION_IDENTIFIER(), PHP_INT_MAX]]);
 
         // assert deprecation notice is shown
         static::assertStringContainsString('v6.4.0', $tester->getDisplay());
@@ -181,7 +181,7 @@ class MigrationCommandTest extends TestCase
 
         $tester = new CommandTester($this->getDestructiveCommand());
 
-        $tester->execute(['identifiers' => [self::INTEGRATION_IDENTIFIER()], '--until' => PHP_INT_MAX]);
+        $tester->execute(['identifier' => [self::INTEGRATION_IDENTIFIER()], '--until' => PHP_INT_MAX]);
 
         // assert no deprecation notice is shown
         static::assertStringNotContainsString('v6.4.0', $tester->getDisplay());
@@ -195,7 +195,7 @@ class MigrationCommandTest extends TestCase
         $command = $this->getCommand();
 
         try {
-            $command->run(new ArrayInput(['--all' => true, 'identifiers' => [self::INTEGRATION_WITH_EXCEPTION_IDENTIFIER()]]), new BufferedOutput());
+            $command->run(new ArrayInput(['--all' => true, 'identifier' => [self::INTEGRATION_WITH_EXCEPTION_IDENTIFIER()]]), new BufferedOutput());
         } catch (MigrateException $e) {
             //nth
         }
@@ -203,7 +203,7 @@ class MigrationCommandTest extends TestCase
         $command = $this->getDestructiveCommand();
 
         try {
-            $command->run(new ArrayInput(['--all' => true, 'identifiers' => [self::INTEGRATION_WITH_EXCEPTION_IDENTIFIER()]]), new BufferedOutput());
+            $command->run(new ArrayInput(['--all' => true, 'identifier' => [self::INTEGRATION_WITH_EXCEPTION_IDENTIFIER()]]), new BufferedOutput());
         } catch (MigrateException $e) {
             //nth
         }
@@ -217,7 +217,7 @@ class MigrationCommandTest extends TestCase
 
         $command = $this->getCommand();
 
-        $command->run(new ArrayInput(['--all' => true, 'identifiers' => [self::INTEGRATION_IDENTIFIER()]]), new BufferedOutput());
+        $command->run(new ArrayInput(['--all' => true, 'identifier' => [self::INTEGRATION_IDENTIFIER()]]), new BufferedOutput());
 
         static::assertSame(2, $this->getMigrationCount(true));
     }
@@ -242,7 +242,7 @@ class MigrationCommandTest extends TestCase
 
         $command = new MigrationCommand($loader, $cache);
 
-        $command->run(new ArrayInput(['--all' => true, 'identifiers' => [self::INTEGRATION_IDENTIFIER()]]), new BufferedOutput());
+        $command->run(new ArrayInput(['--all' => true, 'identifier' => [self::INTEGRATION_IDENTIFIER()]]), new BufferedOutput());
 
         static::assertSame(0, $this->getMigrationCount(true));
     }
@@ -256,7 +256,7 @@ class MigrationCommandTest extends TestCase
 
         $command = new MigrationCommand($this->getContainer()->get(MigrationCollectionLoader::class), $cache);
 
-        $command->run(new ArrayInput(['--all' => true, '--limit' => 1, 'identifiers' => [self::INTEGRATION_IDENTIFIER()]]), new BufferedOutput());
+        $command->run(new ArrayInput(['--all' => true, '--limit' => 1, 'identifier' => [self::INTEGRATION_IDENTIFIER()]]), new BufferedOutput());
 
         static::assertSame(1, $this->getMigrationCount(true));
     }
@@ -270,7 +270,7 @@ class MigrationCommandTest extends TestCase
 
         $command = new MigrationCommand($this->getContainer()->get(MigrationCollectionLoader::class), $cache);
 
-        $command->run(new ArrayInput(['--all' => true, 'identifiers' => [self::INTEGRATION_IDENTIFIER()]]), new BufferedOutput());
+        $command->run(new ArrayInput(['--all' => true, 'identifier' => [self::INTEGRATION_IDENTIFIER()]]), new BufferedOutput());
 
         static::assertSame(2, $this->getMigrationCount(true));
     }

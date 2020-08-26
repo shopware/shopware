@@ -15,7 +15,6 @@ parameters:
         unusedClassElements: true
 
     excludes_analyse:
-        - src/Core/Flag/feature_*.php
         - src/Recovery/*
         - src/Docs/Resources/*
         - src/Storefront/Framework/Cache/CacheDecorator.php
@@ -24,8 +23,6 @@ parameters:
         # Tests
         - src/**/*Test.php
         - src/Core/Framework/Test/**/*.php
-
-        - src/**/Test/**/_fixture/feature_*.php
 
         - src/Core/TestBootstrap.php
 

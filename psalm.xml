@@ -43,16 +43,6 @@
                 <file name="platform/src/Core/Framework/Test/Plugin/KernelPluginIntegrationTest.php"/>
             </errorLevel>
         </UndefinedConstant>
-        <InvalidScope>
-            <errorLevel type="info">
-                <directory name="platform/src/Core/Framework/Test/FeatureFlag"/>
-            </errorLevel>
-        </InvalidScope>
-        <MissingFile>
-            <errorLevel type="info">
-                <file name="platform/src/Core/Framework/Test/FeatureFlag/FeatureTest.php"/>
-            </errorLevel>
-        </MissingFile>
         <UnusedParam>
             <errorLevel type="info">
                 <file name="platform/src/Core/Framework/DataAbstractionLayer/Doctrine/RetryableQuery.php"/>

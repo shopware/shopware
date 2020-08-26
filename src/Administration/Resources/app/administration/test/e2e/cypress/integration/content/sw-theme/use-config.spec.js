@@ -1,6 +1,6 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
-import ProductPageObject from "../../../support/pages/module/sw-product.page-object";
+import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
 
 describe('Theme: Test loading and saving of theme', () => {
     beforeEach(() => {
@@ -42,7 +42,7 @@ describe('Theme: Test loading and saving of theme', () => {
 
         cy.clickContextMenuItem(
             '.sw-context-menu-item:nth-of-type(1)',
-            page.elements.contextMenuButton
+            `.sw-theme-manager-detail__info-card ${page.elements.contextMenuButton}`
         );
 
         cy.get('.sw-modal').should('be.visible');

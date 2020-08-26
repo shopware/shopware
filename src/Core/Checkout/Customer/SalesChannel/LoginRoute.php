@@ -121,7 +121,7 @@ class LoginRoute extends AbstractLoginRoute
             throw new InactiveCustomerException($customer->getId());
         }
 
-        $newToken = $this->contextPersister->replace($context->getToken());
+        $newToken = $this->contextPersister->replace($context->getToken(), $context);
         $this->contextPersister->save(
             $newToken,
             [

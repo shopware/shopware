@@ -4,13 +4,16 @@ namespace Shopware\Core\Checkout\Test\Customer\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class RegisterRouteTest extends TestCase
@@ -285,6 +288,17 @@ class RegisterRouteTest extends TestCase
         $customer = $this->customerRepository->search(new Criteria([$response['id']]), $this->ids->getContext())->first();
 
         static::assertSame($this->ids->get('group'), $customer->getRequestedGroupId());
+    }
+
+    public function testContextChangedBetweenRegistration(): void
+    {
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+            ->create('test', $this->getSalesChannelApiSalesChannelId());
+
+        $bag = new RequestDataBag($this->getRegistrationData());
+        $this->getContainer()->get(RegisterRoute::class)->register($bag, $context);
+
+        static::assertNotSame('test', $context->getToken());
     }
 
     private function getRegistrationData(): array

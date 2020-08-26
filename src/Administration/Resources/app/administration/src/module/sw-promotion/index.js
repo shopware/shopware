@@ -114,7 +114,8 @@ Module.register('sw-promotion', {
         label: 'global.sw-admin-menu.navigation.mainMenuItemMarketing',
         color: '#FFD700',
         icon: 'default-object-marketing',
-        position: 70
+        position: 70,
+        privilege: 'promotion.viewer'
     }, {
         id: 'sw-promotion',
         path: 'sw.promotion.index',

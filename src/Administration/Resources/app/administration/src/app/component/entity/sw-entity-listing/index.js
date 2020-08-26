@@ -88,6 +88,15 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
             lastSortedColumn: null
         };
     },
+    computed: {
+        detailPageLinkText() {
+            if (!this.allowEdit && this.allowView) {
+                return this.$tc('global.default.view');
+            }
+
+            return this.$tc('global.default.edit');
+        }
+    },
 
     watch: {
         items() {

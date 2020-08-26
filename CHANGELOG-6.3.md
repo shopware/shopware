@@ -11,6 +11,7 @@ Table of contents
 ----------------
 * [Table of contents](#table-of-contents)
 * [NEXT](#NEXT)
+* [6.3.1.0](#6310)
 * [6.3.0.2](#6302)
 * [6.3.0.0](#6300)
   - [Administration](#administration)
@@ -18,6 +19,15 @@ Table of contents
   - [Storefront](#storefront)
   
 NEXT
+----------------
+
+#### Administration
+
+#### Core
+
+#### Storefront
+  
+6.3.1.0
 ----------------
 
 #### Administration

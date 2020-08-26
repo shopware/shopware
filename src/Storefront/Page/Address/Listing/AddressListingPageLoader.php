@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
@@ -145,6 +146,7 @@ class AddressListingPageLoader
 
         $criteria = (new Criteria())
             ->addAssociation('country')
+            ->addSorting(new FieldSorting('firstName', FieldSorting::ASCENDING))
             ->addFilter(new EqualsFilter('customer_address.customerId', $context->getCustomer()->getId()));
 
         $this->eventDispatcher->dispatch(

@@ -6,6 +6,10 @@ variables:
     WEB_DOCUMENT_ROOT: $CI_PROJECT_DIR/development/public
     GIT_STRATEGY: clone
     LOG_STDOUT: $CI_PROJECT_DIR/stdout.log
+    CYPRESS_PERCY_USAGE: $CYPRESS_PERCY_USAGE
+    PERCY_TOKEN: $PERCY_TOKEN
+    PERCY_BRANCH: $CI_DEV_BRANCH
+    PERCY_TARGET_BRANCH: $CI_TARGET_BRANCH_NAME
 
 stages:
     - unit
@@ -284,6 +288,7 @@ MySQL 8.0 (Schedule):
     only:
         - schedules
     extends: .phpunit_base
+    allow_failure: true
     stage: unit
     services:
         -   name: mysql:8.0.19
@@ -425,13 +430,26 @@ Validate snippets:
         - npm i @shopware-ag/e2e-testsuite-platform@1.3.0-beta.3 --prefix $E2E_BASE_PATH
         - forever start ${E2E_BASE_PATH}/node_modules/@shopware-ag/e2e-testsuite-platform/routes/cypress.js
         - chown -R 1000:1000 .
-        - docker run --shm-size=2g --name cypress --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/${E2E_BASE_PATH}:/e2e -v $(pwd):/app -w /e2e --entrypoint "sh" cypress/included:4.10.0 -c "npm install --production --prefix /e2e && cypress run -q --project /e2e --browser $BROWSER --headless --config baseUrl=http://docker.vm:8000"
+        - docker run --shm-size=2g --name cypress --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/${E2E_BASE_PATH}:/e2e -v $(pwd):/app -w /e2e --entrypoint "sh" cypress/included:4.10.0 -c "npm install --production --prefix /e2e && cypress run --project /e2e --browser $BROWSER --headless --config baseUrl=http://docker.vm:8000 --spec $TEST_DIRECTORY"
 
 .generate_mochawesome_reports:
     after_script: &mochawesome_report_definition
         - npx mochawesome-merge development/build/artifacts/e2e/mochawesome/single-reports/mochawesome*.json > development/build/artifacts/e2e/mochawesome/report-final.json
         - npx mochawesome-report-generator development/build/artifacts/e2e/mochawesome/report-final.json --cdn true --reportDir development/build/artifacts/e2e/mochawesome
         - docker rm -f cypress
+
+.percy_script:
+    script: &percy_definition
+        - ./psh.phar init --APP_ENV="prod"
+        - ./psh.phar administration:init --APP_ENV="prod"
+        - ./psh.phar storefront:init --APP_ENV="prod" --DB_NAME="shopware_e2e"
+        - ./psh.phar e2e:dump-db --APP_ENV="prod"
+        - E2E_BASE_PATH=vendor/shopware/platform/src/${SECTION}/Resources/app/$(echo ${SECTION} | tr '[:upper:]' '[:lower:]')/test/e2e
+        - npm i @shopware-ag/e2e-testsuite-platform@1.3.0-beta.3 --prefix $E2E_BASE_PATH
+        - npm install --save-dev @percy/cypress
+        - forever start ${E2E_BASE_PATH}/node_modules/@shopware-ag/e2e-testsuite-platform/routes/cypress.js
+        - chown -R 1000:1000 .
+        - docker run --shm-size=2g --name cypress --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/${E2E_BASE_PATH}:/e2e -v $(pwd):/app -w /e2e --entrypoint "sh" cypress/included:4.10.0 -c "npm install --production --prefix /e2e && export PERCY_TOKEN=$PERCY_TOKEN && npx percy exec -- cypress run --browser chrome --headless --project /e2e --env usePercy=$CYPRESS_PERCY_USAGE --config baseUrl=http://docker.vm:8000 --spec $TEST_DIRECTORY"
 
 General (Storefront):
     only:
@@ -596,6 +614,7 @@ Admin on FF (Total):
     variables:
         BROWSER: 'firefox'
         SECTION: 'Administration'
+        TEST_DIRECTORY: "cypress/integration/!\\(visual\\)/**/*"
 
 Storefront on FF (Total):
     only:
@@ -607,6 +626,7 @@ Storefront on FF (Total):
     variables:
         BROWSER: 'firefox'
         SECTION: 'Storefront'
+        TEST_DIRECTORY: "cypress/integration/**/**/*"
 
 Admin on Chrome (Total):
     only:
@@ -618,6 +638,7 @@ Admin on Chrome (Total):
     variables:
         BROWSER: 'chrome'
         SECTION: 'Administration'
+        TEST_DIRECTORY: "cypress/integration/!\\(visual\\)/**/*"
 
 Storefront on Chrome (Total):
     only:
@@ -629,6 +650,19 @@ Storefront on Chrome (Total):
     variables:
         BROWSER: 'chrome'
         SECTION: 'Storefront'
+        TEST_DIRECTORY: "cypress/integration/**/**/*"
+
+Visual Tests:
+    only:
+        - schedules
+    <<: *e2e_definition
+    timeout: 2h 00m
+    script: *percy_definition
+    after_script: *mochawesome_report_definition
+    variables:
+        SECTION: 'Administration'
+        TEST_DIRECTORY: "cypress/integration/visual/**/*"
+
 
 # Stage: build
 

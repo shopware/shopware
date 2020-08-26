@@ -1,6 +1,6 @@
 let product = {};
 
-describe('Searches for products', () => {
+describe('Search - Storefront: Visual tests', () => {
     beforeEach(() => {
         cy.setToInitialState()
             .then(() => {
@@ -18,7 +18,7 @@ describe('Searches for products', () => {
         });
     });
 
-    it('@search does some simple testing of the search', () => {
+    it('@visual: check appearance of basic storefront search workflow', () => {
         cy.visit('/');
         cy.get('input[name=search]').type(product.name).type('{enter}');
 
@@ -31,12 +31,7 @@ describe('Searches for products', () => {
 
         cy.get('.search-headline').contains('0 products found for "Non existent stuff"');
 
-        cy.get('.cms-element-product-listing').contains('No products found');
-
-
-        cy.visit('/');
-        cy.get('input[name=search]').type(product.name.slice(4)).get('.search-suggest-container').contains(product.name).type('{downarrow}');
-
-        cy.get('.product-detail-name').contains(product.name);
+        // Take snapshot for visual testing
+        cy.takeSnapshot('Search - No result', '.cms-element-product-listing', { widths: [375, 1920] });
     });
 });

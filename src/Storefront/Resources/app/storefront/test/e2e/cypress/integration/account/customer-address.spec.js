@@ -19,6 +19,7 @@ describe('Account: Handle addresses as customer', () => {
         cy.get('.account-content .account-aside-item[title="Addresses"]')
             .should('be.visible')
             .click();
+
         cy.get('a[href="/account/address/create"]').click();
         cy.get('.account-address-form').should('be.visible');
 

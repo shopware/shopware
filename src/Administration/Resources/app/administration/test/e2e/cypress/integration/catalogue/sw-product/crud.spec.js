@@ -88,6 +88,7 @@ describe('Product: Test crud operations', () => {
         cy.get('.search-suggest-product-name')
             .contains('Product with file upload image')
             .click();
+
         cy.get('.product-detail-name').contains('Product with file upload image');
         cy.get('.product-detail-price').contains('10.00');
     });

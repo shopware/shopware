@@ -1,4 +1,4 @@
-describe('Index page on various viewports', () => {
+describe('Header menu:Visual tests', () => {
 
     beforeEach(() => {
         cy.visit('/');
@@ -11,9 +11,11 @@ describe('Index page on various viewports', () => {
             cy.viewport(1280, 720)
         });
 
-        it('displays full header', () => {
-            cy.get('.nav.main-navigation-menu').should('be.visible');
+        it('@visual: check appearance of basic header workflow', () => {
             cy.get('.nav-main-toggle').should('not.be.visible');
+
+            // Take snapshot for visual testing
+            cy.takeSnapshot('Header on deskop', '.nav.main-navigation-menu', { widths: [375, 1920] });
         });
     });
 
@@ -24,9 +26,12 @@ describe('Index page on various viewports', () => {
             cy.viewport('iphone-6');
         });
 
-        it('@navigation: Displays mobile menu on click', () => {
+        it('@visual: check appearance of mobile menu workflow', () => {
             cy.get('.nav.main-navigation-menu').should('not.be.visible');
             cy.get('.header-main .menu-button .nav-main-toggle-btn').should('be.visible').click();
+
+            // Take snapshot for visual testing
+            cy.takeSnapshot('Mobile menu', '.offcanvas.is-left.is-open', { widths: [375, 1920] });
         });
     });
 });

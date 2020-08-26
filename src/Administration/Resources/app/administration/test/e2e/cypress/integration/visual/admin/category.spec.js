@@ -2,7 +2,7 @@
 
 import CategoryPageObject from '../../../support/pages/module/sw-category.page-object';
 
-describe('Category: Create several categories', () => {
+describe('Category: Visual tests', () => {
     beforeEach(() => {
         // Clean previous state and prepare Administration
         cy.setToInitialState()
@@ -14,7 +14,7 @@ describe('Category: Create several categories', () => {
             });
     });
 
-    it('@base @catalogue: create a subcategory', () => {
+    it('@visual: check appearance of basic category workflow', () => {
         const page = new CategoryPageObject();
 
         // Request we want to wait for later
@@ -61,21 +61,8 @@ describe('Category: Create several categories', () => {
         cy.get(`${page.elements.categoryTreeItem}:nth-child(1)`).contains('Categorian');
         cy.contains('Categorian').click();
 
-        // Assign category and set it active
-        cy.wait('@loadCategory').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
-        cy.get('.sw-category-detail-base').should('be.visible');
-        cy.get('input[name="categoryActive"]').click();
-
-        cy.get('.sw-category-detail__save-action').click();
-        cy.wait('@editCategory').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
-
-        // Verify category in Storefront
-        cy.visit('/');
-        cy.contains('Categorian').click();
-        cy.get('.main-navigation-link.active').should('be.visible');
+        // Take snapshot for visual testing
+        cy.get('.sw-loader').should('not.exist');
+        cy.takeSnapshot('Category - detail', '.sw-category-detail-base');
     });
 });

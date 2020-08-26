@@ -34,6 +34,9 @@ NEXT
 * Added prop `dismissable` to `sw-label`
 * Added prop `allowView` to `sw-entity-listing`
 * Added prop `disabled` to `sw-select-selection-list`
+* Added ACL permissions to shipping module
+* Added property `disabled` to `sw-settings-shipping-price-matrices` component
+* Added property `disabled` to `sw-settings-shipping-price-matrix` component
 
 #### Core
 * Changed order address from customer to billing address in documents

@@ -15,6 +15,14 @@ Component.register('sw-settings-shipping-price-matrices', {
         Mixin.getByName('placeholder')
     ],
 
+    props: {
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
+        }
+    },
+
     computed: {
         ...mapState('swShippingDetail', [
             'shippingMethod'

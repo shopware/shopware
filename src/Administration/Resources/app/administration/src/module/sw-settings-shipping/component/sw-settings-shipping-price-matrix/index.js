@@ -19,6 +19,12 @@ Component.register('sw-settings-shipping-price-matrix', {
         priceGroup: {
             type: Object,
             required: true
+        },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 

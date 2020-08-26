@@ -29,5 +29,12 @@
       "placeholderNewSalutation": "Neue Anrede anlegen ...",
       "notificationErrorMessage": "Fehler beim Speichern der Anrede."
     }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "salutation": {
+        "label": "Anreden"
+      }
+    }
   }
 }

@@ -26,7 +26,9 @@ export default class SettingsPageObject {
                 taxSaveAction: '.sw-settings-tax-detail__save-action',
                 taxColumnName: '.sw-data-grid__cell--name',
 
-                customerGroupSaveAction: '.sw-settings-customer-group-detail__save'
+                customerGroupSaveAction: '.sw-settings-customer-group-detail__save',
+
+                salutationListContent: '.sw-settings-salutation-list-grid'
             }
         };
     }

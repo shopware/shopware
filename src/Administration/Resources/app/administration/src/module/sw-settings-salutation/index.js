@@ -1,6 +1,8 @@
 import './page/sw-settings-salutation-list';
 import './page/sw-settings-salutation-detail';
 
+import './acl';
+
 const { Module } = Shopware;
 
 Module.register('sw-settings-salutation', {
@@ -20,14 +22,16 @@ Module.register('sw-settings-salutation', {
             component: 'sw-settings-salutation-list',
             path: 'index',
             meta: {
-                parentPath: 'sw.settings.index'
+                parentPath: 'sw.settings.index',
+                privilege: 'salutation.viewer'
             }
         },
         detail: {
             component: 'sw-settings-salutation-detail',
             path: 'detail/:id',
             meta: {
-                parentPath: 'sw.settings.salutation.index'
+                parentPath: 'sw.settings.salutation.index',
+                privilege: 'salutation.viewer'
             },
             props: {
                 default(route) {
@@ -41,7 +45,8 @@ Module.register('sw-settings-salutation', {
             component: 'sw-settings-salutation-detail',
             path: 'create',
             meta: {
-                parentPath: 'sw.settings.salutation.index'
+                parentPath: 'sw.settings.salutation.index',
+                privilege: 'salutation.creator'
             }
         }
     },
@@ -49,6 +54,7 @@ Module.register('sw-settings-salutation', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.salutation.index',
-        icon: 'default-communication-speech-bubbles'
+        icon: 'default-communication-speech-bubbles',
+        privilege: 'salutation.viewer'
     }
 });

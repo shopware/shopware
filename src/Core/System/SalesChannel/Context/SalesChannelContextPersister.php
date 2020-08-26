@@ -4,6 +4,7 @@ namespace Shopware\Core\System\SalesChannel\Context;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Util\Random;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class SalesChannelContextPersister
 {
@@ -42,7 +43,7 @@ class SalesChannelContextPersister
         );
     }
 
-    public function replace(string $oldToken): string
+    public function replace(string $oldToken/*, ?SalesChannelContext $context = null*/): string
     {
         $newToken = Random::getAlphanumericString(32);
 
@@ -72,6 +73,12 @@ class SalesChannelContextPersister
                 'oldToken' => $oldToken,
             ]
         );
+
+        // @deprecated tag:v6.4.0.0 - $context will be required
+        if (func_num_args() === 2) {
+            $context = func_get_arg(1);
+            $context->assign(['token' => $newToken]);
+        }
 
         return $newToken;
     }

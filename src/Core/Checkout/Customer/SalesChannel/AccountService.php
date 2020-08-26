@@ -102,7 +102,7 @@ class AccountService
             throw new UnauthorizedHttpException('json', $exception->getMessage());
         }
 
-        $newToken = $this->contextPersister->replace($context->getToken());
+        $newToken = $this->contextPersister->replace($context->getToken(), $context);
         $this->contextPersister->save(
             $newToken,
             [

@@ -129,7 +129,7 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
 
         $response = new CustomerResponse($customer);
 
-        $newToken = $this->contextPersister->replace($context->getToken());
+        $newToken = $this->contextPersister->replace($context->getToken(), $context);
         $this->contextPersister->save(
             $newToken,
             [

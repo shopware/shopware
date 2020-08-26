@@ -153,6 +153,17 @@ After that you are able to delete your implementation of the `SnippetFileInterfa
     * The `enableKeepMigrations()` function is no longer to be used and will be removed along with `keepMigrations()` in v6.4.0.
     * Please note: In case of a complete uninstall all tables should be removed as well. Please verify the uninstall method of your plugin complies with this.
 
+* Deprecated providing an until timestamp as the last argument when running the `database:migrate` or `database:migrate-destructive` commands, use the --until option instead.
+    * Before:
+    ```
+    bin/console database:migrate MyPlugin 1598339065
+    ```
+    
+    * After
+    ```
+    bin/console database:migrate --until=1598339065 MyPlugin
+    ```
+ 
 Administration
 --------------
 

@@ -22,7 +22,7 @@
                         class="sw-payment-detail__save-action"
                         :isLoading="isLoading"
                         :processSuccess="isSaveSuccessful"
-                        :disabled="isLoading"
+                        :disabled="isLoading || !acl.can('payment.editor')"
                         variant="primary"
                         @process-finish="saveFinish"
                         v-tooltip.bottom="tooltipSave"
@@ -34,10 +34,11 @@
         {% endblock %}
 
         {% block sw_settings_payment_detail_language_switch %}
-            <sw-language-switch slot="language-switch"
-                                @on-change="onChangeLanguage"
-                                :saveChangesFunction="saveOnLanguageChange"
-                                :abortChangeFunction="abortOnLanguageChange">
+            <sw-language-switch
+                slot="language-switch"
+                @on-change="onChangeLanguage"
+                :saveChangesFunction="saveOnLanguageChange"
+                :abortChangeFunction="abortOnLanguageChange">
             </sw-language-switch>
         {% endblock %}
 
@@ -54,26 +55,33 @@
                     <sw-card :title="$tc('sw-settings-payment.detail.titleCard')" :isLoading="isLoading">
                         <template v-if="!isLoading">
                             {% block sw_settings_payment_detail_content_field_plugin %}
-                            <sw-plugin-box v-if="!!paymentMethod.pluginId"
-                                           :pluginId="paymentMethod.pluginId">
+                            <sw-plugin-box
+                                v-if="!!paymentMethod.pluginId"
+                                :pluginId="paymentMethod.pluginId">
                             </sw-plugin-box>
                             {% endblock %}
 
                             <sw-container columns="3fr 1fr" gap="0px 30px">
                                 {% block sw_settings_payment_detail_content_field_name %}
-                                <sw-field type="text"
-                                          required
-                                          :label="$tc('sw-settings-payment.detail.labelName')"
-                                          :placeholder="placeholder(paymentMethod, 'name', $tc('sw-settings-payment.detail.placeholderName'))"
-                                          v-model="paymentMethod.name">
+                                <sw-field
+                                    type="text"
+                                    class="sw-settings-payment-detail__field-name"
+                                    required
+                                    :disabled="!acl.can('payment.editor')"
+                                    :label="$tc('sw-settings-payment.detail.labelName')"
+                                    :placeholder="placeholder(paymentMethod, 'name', $tc('sw-settings-payment.detail.placeholderName'))"
+                                    v-model="paymentMethod.name">
                                 </sw-field>
                                 {% endblock %}
 
                                 {% block sw_settings_payment_detail_content_field_position %}
-                                <sw-field type="number"
-                                          :label="$tc('sw-settings-payment.detail.labelPosition')"
-                                          :placeholder="$tc('sw-settings-payment.detail.placeholderPosition')"
-                                          v-model="paymentMethod.position">
+                                <sw-field
+                                    type="number"
+                                    class="sw-settings-payment-detail__field-position"
+                                    :disabled="!acl.can('payment.editor')"
+                                    :label="$tc('sw-settings-payment.detail.labelPosition')"
+                                    :placeholder="$tc('sw-settings-payment.detail.placeholderPosition')"
+                                    v-model="paymentMethod.position">
                                 </sw-field>
                                 {% endblock %}
                             </sw-container>
@@ -81,6 +89,7 @@
                             <sw-container columns="repeat(auto-fit, minmax(250px, 1fr))" gap="0px 30px">
                                 {% block sw_settings_payment_detail_base_content_field_description %}
                                 <sw-textarea-field
+                                    :disabled="!acl.can('payment.editor')"
                                     :value="paymentMethod.description"
                                     class="sw-settings-payment-detail__description"
                                     :label="$tc('sw-settings-payment.detail.labelDescription')"
@@ -96,6 +105,7 @@
                                     @media-upload-finish="setMediaItem">
                                 </sw-upload-listener>
                                 <sw-media-upload-v2
+                                    :disabled="!acl.can('payment.editor')"
                                     :uploadTag="uploadTag"
                                     :source="mediaItem"
                                     class="sw-settings-payment-detail__logo-image-upload"
@@ -112,16 +122,22 @@
 
                             <sw-container columns="repeat(auto-fit, minmax(250px, 2fr))" gap="0px 30px">
                                 {% block sw_settings_payment_detail_content_field_active %}
-                                <sw-field type="switch"
-                                          :label="$tc('sw-settings-payment.detail.labelActive')"
-                                          v-model="paymentMethod.active">
+                                <sw-field
+                                    class="sw-settings-payment-detail__field-active"
+                                    type="switch"
+                                    :disabled="!acl.can('payment.editor')"
+                                    :label="$tc('sw-settings-payment.detail.labelActive')"
+                                    v-model="paymentMethod.active">
                                 </sw-field>
                                 {% endblock %}
 
                                 {% block sw_settings_payment_detail_content_field_after_order_enabled %}
-                                <sw-field type="switch"
-                                          :label="$tc('sw-settings-payment.detail.labelAfterOrderEnabled')"
-                                          v-model="paymentMethod.afterOrderEnabled">
+                                <sw-field
+                                    class="sw-settings-payment-detail__field-after-order"
+                                    type="switch"
+                                    :disabled="!acl.can('payment.editor')"
+                                    :label="$tc('sw-settings-payment.detail.labelAfterOrderEnabled')"
+                                    v-model="paymentMethod.afterOrderEnabled">
                                 </sw-field>
                                 {% endblock %}
                             </sw-container>
@@ -134,11 +150,14 @@
                              :title="$tc('sw-settings-payment.detail.topRule')"
                              :isLoading="isLoading">
                         {% block sw_settings_payment_detail_top_rule_select %}
-                            <sw-select-rule-create v-if="!isLoading"
-                                                   :ruleId="paymentMethod.availabilityRuleId"
-                                                   :ruleFilter="ruleFilter"
-                                                   @save-rule="onSaveRule"
-                                                   @dismiss-rule="onDismissRule">
+                            <sw-select-rule-create
+                                v-if="!isLoading"
+                                class="sw-settings-payment-detail__field-availability-rule"
+                                :disabled="!acl.can('payment.editor')"
+                                :ruleId="paymentMethod.availabilityRuleId"
+                                :ruleFilter="ruleFilter"
+                                @save-rule="onSaveRule"
+                                @dismiss-rule="onDismissRule">
                             </sw-select-rule-create>
                         {% endblock %}
                     </sw-card>

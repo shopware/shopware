@@ -451,10 +451,45 @@ class ImportExportTest extends TestCase
         static::assertSame(Progress::STATE_SUCCEEDED, $progress->getState());
     }
 
+    public function importPropertyCsvWithoutIds(): void
+    {
+        $factory = $this->getContainer()->get(ImportExportFactory::class);
+
+        /** @var ImportExportService $importExportService */
+        $importExportService = $this->getContainer()->get(ImportExportService::class);
+
+        $profileId = $this->getDefaultProfileId(PropertyGroupOptionDefinition::ENTITY_NAME);
+
+        $expireDate = new \DateTimeImmutable('2099-01-01');
+        $file = new UploadedFile(__DIR__ . '/fixtures/propertieswithoutid.csv', 'properties.csv', 'text/csv');
+        $logEntity = $importExportService->prepareImport(
+            Context::createDefaultContext(),
+            $profileId,
+            $expireDate,
+            $file
+        );
+        $progress = new Progress($logEntity->getId(), Progress::STATE_PROGRESS, 0, null);
+        do {
+            $importExport = $factory->create($logEntity->getId(), 5, 5);
+            $progress = $importExport->import(Context::createDefaultContext(), $progress->getOffset());
+        } while (!$progress->isFinished());
+
+        static::assertSame(Progress::STATE_SUCCEEDED, $progress->getState());
+
+        /** @var EntityRepositoryInterface $propertyRepository */
+        $propertyRepository = $this->getContainer()->get($logEntity->getProfile()->getSourceEntity() . '.repository');
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('name', 'alicebluenew'));
+        $property = $propertyRepository->search($criteria, Context::createDefaultContext());
+        static::assertCount(1, $property);
+    }
+
     public function testProductsCsv(): void
     {
         $this->importCategoryCsv();
         $this->importPropertyCsv();
+        $this->importPropertyCsvWithoutIds();
 
         $factory = $this->getContainer()->get(ImportExportFactory::class);
 

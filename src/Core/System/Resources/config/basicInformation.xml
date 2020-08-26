@@ -125,6 +125,12 @@
             <placeholder lang="de-DE">Layout zuweisen ...</placeholder>
         </component>
 
+    </card>
+
+    <card>
+        <title>Security and Privacy</title>
+        <title lang="de-DE">Sicherheit und Datenschutz</title>
+
         <component name="sw-settings-captcha-select">
             <name>activeCaptchas</name>
             <label>Active captchas</label>
@@ -132,5 +138,15 @@
             <placeholder>None</placeholder>
             <placeholder lang="de-DE">Keine</placeholder>
         </component>
+
+        <component name="sw-switch-field">
+            <name>acceptAllCookies</name>
+            <bordered>bordered</bordered>
+            <label>Show "Accept all cookies" button</label>
+            <label lang="de-DE">"Alle Cookies akzeptieren"-Button anzeigen</label>
+            <helpText>Shows a button which allows users to accept all cookies in the storefront</helpText>
+            <helpText lang="de-DE">Zeigt einen Button an, der es Nutzern erlaubt alle Cookies in der Storefront zu akzeptieren</helpText>
+        </component>
     </card>
+
 </config>

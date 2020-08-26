@@ -345,7 +345,9 @@
             "showTitle": "Titel des Videos anzeigen",
             "advancedPrivacy": "Erweiterter Datenschutzmodus",
             "start": "Video starten ab",
-            "end": "Video abspielen bis"
+            "end": "Video abspielen bis",
+            "needsConfirmation": "Video erst nach Bestätigung durch den User laden",
+            "previewImage": "Vorschau-Bild"
           },
           "placeholder": {
             "videoId": "Video-Link eingeben ..."

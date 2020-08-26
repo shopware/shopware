@@ -547,6 +547,12 @@
           "false": "Nein"
         }
       }
+    },
+    "cms": {
+      "vimeo": {
+        "privacyNotice": "Mit dem Aufruf des Videos erklärst Du Dich einverstanden, dass Deine Daten an %platform% übermittelt werden und das Du die <a data-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"Datenschutzbestimmungen\">Datenschutzbestimmungen</a> gelesen hast.",
+        "acceptButtonLabel": "Akzeptieren"
+      }
     }
   }
 }

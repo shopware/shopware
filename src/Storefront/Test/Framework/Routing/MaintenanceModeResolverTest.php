@@ -103,6 +103,10 @@ class MaintenanceModeResolverTest extends TestCase
                 $this->getRequest(true, false, false, false, true, true, ['127.0.0.1', '::1']),
                 true,
             ],
+            'maintenance mode is active, sales channel requested, proxy, whitelisted client ip - mixed case' => [
+                $this->getRequest(true, false, false, false, true, true, ['2003:F0:3f08:Db00:6D4:c4Ff:Fe48:74F4'], '2003:f0:3F08:dB00:6d4:C4fF:fE48:74f4'),
+                false,
+            ],
         ];
     }
 

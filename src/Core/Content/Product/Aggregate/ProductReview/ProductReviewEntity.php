@@ -19,7 +19,7 @@ class ProductReviewEntity extends Entity
     protected $productId;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $customerId;
 
@@ -98,12 +98,12 @@ class ProductReviewEntity extends Entity
         $this->productId = $productId;
     }
 
-    public function getCustomerId(): string
+    public function getCustomerId(): ?string
     {
         return $this->customerId;
     }
 
-    public function setCustomerId(string $customerId): void
+    public function setCustomerId(?string $customerId): void
     {
         $this->customerId = $customerId;
     }

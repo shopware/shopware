@@ -39,53 +39,58 @@ Cypress.Commands.add('loginAsUserWithPermissions', {
     cy.window().then(($w) => {
         const roleID = 'ef68f039468d4788a9ee87db9b3b94de';
         const localeId = $w.Shopware.State.get('session').currentUser.localeId;
-        const headers = {
+        let headers = {
             Accept: 'application/vnd.api+json',
             Authorization: `Bearer ${$w.Shopware.Context.api.authToken.access}`,
             'Content-Type': 'application/json'
         };
 
-        // save role
         cy.request({
-            url: `/api/${Cypress.env('apiVersion')}/acl-role`,
+            url: '/api/oauth/token',
             method: 'POST',
             headers: headers,
             body: {
-                id: roleID,
-                name: 'e2eRole',
-                privileges: (() => {
-                    const privilegesService = $w.Shopware.Service('privileges');
-
-                    const requiredPermissions = privilegesService.getRequiredPrivileges();
-                    const selectedPrivileges = permissions.reduce((selectedPrivileges, { key, role }) => {
-                        const identifier = `${key}.${role}`;
-
-                        selectedPrivileges.push(
-                            identifier,
-                            ...privilegesService.getPrivilegeRole(identifier).privileges
-                        );
-
-                        return selectedPrivileges;
-                    }, []);
-
-                    return [
-                        ...selectedPrivileges,
-                        ...requiredPermissions
-                    ];
-                })()
+                grant_type: 'password',
+                client_id: 'administration',
+                scope: 'user-verified',
+                username: 'admin',
+                password: 'shopware'
             }
         }).then(response => {
-            // get user verification
-            cy.request({
-                url: '/api/oauth/token',
+            // overwrite headers with new scope
+            headers = {
+                Accept: 'application/vnd.api+json',
+                Authorization: `Bearer ${response.body.access_token}`,
+                'Content-Type': 'application/json'
+            };
+
+            return cy.request({
+                url: `/api/${Cypress.env('apiVersion')}/acl-role`,
                 method: 'POST',
                 headers: headers,
                 body: {
-                    client_id: 'administration',
-                    grant_type: 'password',
-                    password: 'shopware',
-                    scope: 'user-verified',
-                    username: 'admin'
+                    id: roleID,
+                    name: 'e2eRole',
+                    privileges: (() => {
+                        const privilegesService = $w.Shopware.Service('privileges');
+
+                        const requiredPermissions = privilegesService.getRequiredPrivileges();
+                        const selectedPrivileges = permissions.reduce((selectedPrivileges, { key, role }) => {
+                            const identifier = `${key}.${role}`;
+
+                            selectedPrivileges.push(
+                                identifier,
+                                ...privilegesService.getPrivilegeRole(identifier).privileges
+                            );
+
+                            return selectedPrivileges;
+                        }, []);
+
+                        return [
+                            ...selectedPrivileges,
+                            ...requiredPermissions
+                        ];
+                    })()
                 }
             });
         }).then(response => {
@@ -93,11 +98,7 @@ Cypress.Commands.add('loginAsUserWithPermissions', {
             cy.request({
                 url: `/api/${Cypress.env('apiVersion')}/user`,
                 method: 'POST',
-                headers: {
-                    Accept: 'application/vnd.api+json',
-                    Authorization: `Bearer ${response.body.access_token}`,
-                    'Content-Type': 'application/json'
-                },
+                headers: headers,
                 body: {
                     aclRoles: [{ id: roleID }],
                     admin: false,
@@ -125,8 +126,7 @@ Cypress.Commands.add('loginAsUserWithPermissions', {
             cy.get('#sw-field--password').type('Passw0rd!');
             cy.get('.sw-login__login-action').click();
             cy.contains('Max Muster');
-        })
-
+        });
     });
 });
 
@@ -141,7 +141,7 @@ Cypress.Commands.add('openInitialPage', (url) => {
     cy.server();
     cy.route(`${Cypress.env('apiPath')}/_info/me`).as('meCall');
 
-    cy.log('All preparation done!')
+    cy.log('All preparation done!');
     cy.visit(url);
     cy.wait('@meCall').then((xhr) => {
         expect(xhr).to.have.property('status', 200);
@@ -187,7 +187,6 @@ Cypress.Commands.add('createReviewFixture', () => {
 
         return cy.getCookie('bearerAuth');
     }).then((result) => {
-
         const headers = {
             Accept: 'application/vnd.api+json',
             Authorization: `Bearer ${JSON.parse(result.value).access}`,
@@ -205,7 +204,7 @@ Cypress.Commands.add('createReviewFixture', () => {
                     field: 'name',
                     value: 'Product name'
                 }
-            })
+            });
         }).then((data) => {
             productId = data.id;
 
@@ -215,31 +214,33 @@ Cypress.Commands.add('createReviewFixture', () => {
                     field: 'name',
                     value: 'Storefront'
                 }
-            })
-        }).then((data) => {
-            salesChannelId = data.id;
+            });
+        })
+            .then((data) => {
+                salesChannelId = data.id;
 
-            return cy.searchViaAdminApi({
-                endpoint: 'language',
-                data: {
-                    field: 'name',
-                    value: 'English'
-                }
+                return cy.searchViaAdminApi({
+                    endpoint: 'language',
+                    data: {
+                        field: 'name',
+                        value: 'English'
+                    }
+                });
             })
-        }).then((data) => {
-            cy.request({
-                url: `/api/${Cypress.env('apiVersion')}/product-review`,
-                method: 'POST',
-                headers: headers,
-                body: Cypress._.merge(reviewJson, {
-                    customerId: customerId,
-                    languageId: data.id,
-                    productId: productId,
-                    salesChannelId: salesChannelId,
-                })
-            })
-        });
-    })
+            .then((data) => {
+                cy.request({
+                    url: `/api/${Cypress.env('apiVersion')}/product-review`,
+                    method: 'POST',
+                    headers: headers,
+                    body: Cypress._.merge(reviewJson, {
+                        customerId: customerId,
+                        languageId: data.id,
+                        productId: productId,
+                        salesChannelId: salesChannelId
+                    })
+                });
+            });
+    });
 });
 
 /**
@@ -294,13 +295,13 @@ Cypress.Commands.add('setShippingMethodInSalesChannel', (name, salesChannel = 'S
                 field: 'name',
                 value: name
             }
-        })
+        });
     }).then((data) => {
         return cy.updateViaAdminApi('sales-channel', salesChannelId, {
             data: {
                 shippingMethodId: data.id
             }
-        })
+        });
     });
 });
 
@@ -348,7 +349,6 @@ Cypress.Commands.add('sortListingViaColumn', (
     firstEntry,
     rowZeroSelector = '.sw-data-grid__row--0'
 ) => {
-
     cy.contains('.sw-data-grid__cell-content', columnTitle).should('be.visible');
     cy.contains('.sw-data-grid__cell-content', columnTitle).click();
 

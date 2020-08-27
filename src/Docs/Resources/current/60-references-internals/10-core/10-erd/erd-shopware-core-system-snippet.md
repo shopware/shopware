@@ -1,11 +1,11 @@
 [titleEn]: <>(Custom placeholder translations)
-[hash]: <>(article:internals_core_erd_framework_snippet)
+[hash]: <>(article:internals_core_erd_system_snippet)
 
 [Back to modules](./../10-modules.md)
 
 Snippets are translatable placeholders.
 
-![Custom placeholder translations](./dist/erd-shopware-core-framework-snippet.png)
+![Custom placeholder translations](./dist/erd-shopware-core-system-snippet.png)
 
 
 ### Table `snippet_set`

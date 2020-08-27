@@ -3,7 +3,7 @@
 
 [Back to modules](./../10-modules.md)
 
-Printable and downloadable document generator. 
+Printable and downloadable document generator.
 
 ![Printed works](./dist/erd-shopware-core-checkout-document.png)
 

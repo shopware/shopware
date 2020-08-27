@@ -1,4 +1,3 @@
-
 [titleEn]: <>(Admin Accounts)
 [hash]: <>(article:internals_core_erd_system_user)
 

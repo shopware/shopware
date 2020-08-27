@@ -22,7 +22,7 @@ skinparam backgroundColor #FFFFFF
 
 ' entities
 
-Table(ShopwareCoreFrameworkSeoSeoUrlSeoUrlDefinition, "seo_url\n(__EMPTY__)") {
+Table(ShopwareCoreContentSeoSeoUrlSeoUrlDefinition, "seo_url\n(Seo urls)") {
    primary_key(id) id
    salesChannelId foreignKey
    not_null(languageId) foreignKey
@@ -36,9 +36,9 @@ Table(ShopwareCoreFrameworkSeoSeoUrlSeoUrlDefinition, "seo_url\n(__EMPTY__)") {
    url string
    customFields customFields
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
 }
-Table(ShopwareCoreFrameworkSeoSeoUrlTemplateSeoUrlTemplateDefinition, "seo_url_template\n(__EMPTY__)") {
+Table(ShopwareCoreContentSeoSeoUrlTemplateSeoUrlTemplateDefinition, "seo_url_template\n(Template)") {
    primary_key(id) id
    salesChannelId foreignKey
    not_null(entityName) string
@@ -47,9 +47,9 @@ Table(ShopwareCoreFrameworkSeoSeoUrlTemplateSeoUrlTemplateDefinition, "seo_url_t
    isValid bool
    customFields customFields
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
 }
-Table(ShopwareCoreFrameworkSeoMainCategoryMainCategoryDefinition, "main_category\n(__EMPTY__)") {
+Table(ShopwareCoreContentSeoMainCategoryMainCategoryDefinition, "main_category\n(Seo main category)") {
    primary_key(id) id
    not_null(productId) foreignKey
    not_null(productVersionId) referenceVersion
@@ -57,9 +57,9 @@ Table(ShopwareCoreFrameworkSeoMainCategoryMainCategoryDefinition, "main_category
    not_null(categoryVersionId) referenceVersion
    not_null(salesChannelId) foreignKey
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
 }
-ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
+ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
 }
 ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
 }
@@ -70,10 +70,10 @@ ForeignTable(ShopwareCoreContentCategoryCategoryDefinition, "category") {
 
 ' relationshipd
 
-ShopwareCoreFrameworkSeoSeoUrlSeoUrlDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
-ShopwareCoreFrameworkSeoSeoUrlSeoUrlDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
-ShopwareCoreFrameworkSeoSeoUrlTemplateSeoUrlTemplateDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
-ShopwareCoreFrameworkSeoMainCategoryMainCategoryDefinition --> ShopwareCoreContentProductProductDefinition
-ShopwareCoreFrameworkSeoMainCategoryMainCategoryDefinition --> ShopwareCoreContentCategoryCategoryDefinition
-ShopwareCoreFrameworkSeoMainCategoryMainCategoryDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
+ShopwareCoreContentSeoSeoUrlSeoUrlDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
+ShopwareCoreContentSeoSeoUrlSeoUrlDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
+ShopwareCoreContentSeoSeoUrlTemplateSeoUrlTemplateDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
+ShopwareCoreContentSeoMainCategoryMainCategoryDefinition --> ShopwareCoreContentProductProductDefinition
+ShopwareCoreContentSeoMainCategoryMainCategoryDefinition --> ShopwareCoreContentCategoryCategoryDefinition
+ShopwareCoreContentSeoMainCategoryMainCategoryDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 @enduml

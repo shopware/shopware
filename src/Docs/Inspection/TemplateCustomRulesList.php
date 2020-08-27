@@ -2,10 +2,13 @@
 
 namespace Shopware\Docs\Inspection;
 
+use Symfony\Component\Finder\SplFileInfo;
+
 class TemplateCustomRulesList
 {
     private const TEMPLATE_PAGE = <<<EOD
 [titleEn]: <>(Rule classes)
+[hash]: <>(article:rule)
 
 List of all rule classes across Shopware 6.
 
@@ -29,7 +32,7 @@ EOD;
      */
     private $ruleDescriptionPath = __DIR__ . '/../Resources/characteristics-rule-descriptions.php';
 
-    private $ruleListPath = __DIR__ . '/../Resources/current/2-internals/1-core/60-rule-system/10-rule-list.md';
+    private $ruleListPath = __DIR__ . '/../Resources/current/60-references-internals/10-core/60-rule-system/10-rule-list.md';
 
     /**
      * @var ModuleInspector
@@ -53,7 +56,11 @@ EOD;
             $markdown[$bundleName] = sprintf(self::TEMPLATE_BUNDLE_HEADLINE, $bundleName);
 
             foreach ($tags as $tag) {
-                foreach ($tag->marker('rules') as $ruleFile) {
+                $rules = $tag->marker('rules');
+                usort($rules, function (SplFileInfo $ruleA, SplFileInfo $ruleB) {
+                    return strcmp($ruleA->getRelativePathname(), $ruleB->getRelativePathname());
+                });
+                foreach ($rules as $ruleFile) {
                     $className = $this->moduleInspector->getClassName($ruleFile);
 
                     $ruleDescriptions->ensure($className);

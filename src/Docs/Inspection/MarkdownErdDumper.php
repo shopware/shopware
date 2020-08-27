@@ -8,6 +8,7 @@ class MarkdownErdDumper implements ErdDumper
 {
     private const TEMPLATE_HEAD = <<<EOD
 [titleEn]: <>(%s)
+[hash]: <>(article:%s)
 
 [Back to modules](./../10-modules.md)
 
@@ -46,12 +47,19 @@ EOD;
      */
     private $overviewImage;
 
+    /**
+     * @var string
+     */
+    private $hash;
+
     public function __construct(
         string $title,
+        string $hash,
         string $description,
         string $overviewImage
     ) {
         $this->title = $title;
+        $this->hash = $hash;
         $this->description = $description;
         $this->overviewImage = $overviewImage;
     }
@@ -75,6 +83,7 @@ EOD;
         return sprintf(
             self::TEMPLATE_HEAD,
             $this->title,
+            $this->hash,
             $this->description,
             $this->title,
             $this->overviewImage,

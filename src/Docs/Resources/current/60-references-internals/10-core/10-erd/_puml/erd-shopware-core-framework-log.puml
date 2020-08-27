@@ -22,7 +22,7 @@ skinparam backgroundColor #FFFFFF
 
 ' entities
 
-Table(ShopwareCoreFrameworkLoggingLogEntryDefinition, "log_entry\n(__EMPTY__)") {
+Table(ShopwareCoreFrameworkLogLogEntryDefinition, "log_entry\n(Logs)") {
    primary_key(id) id
    message string
    level int
@@ -30,7 +30,7 @@ Table(ShopwareCoreFrameworkLoggingLogEntryDefinition, "log_entry\n(__EMPTY__)") 
    context json
    extra json
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
 }
 
 ' relationshipd

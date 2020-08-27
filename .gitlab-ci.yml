@@ -108,6 +108,39 @@ PHP analysis:
         reports:
             codequality: development/phpstan-report.json
 
+Check generated Docs:
+    only:
+        refs:
+            - merge_requests
+            - master
+            - /^6\..*$/
+    stage: unit
+    services:
+        -   name: mysql:5.7
+            alias: mysql
+    retry:
+        max: 2
+        when: runner_system_failure
+    timeout: 1h 00m
+    script:
+        - ./psh.phar init
+        - if [[ ! -h vendor/shopware/platform ]]; then echo 'vendor/shopware/platform should be a symlink'; exit 1; fi
+        - cd ..
+        - cd development
+        - echo "Checking the generated doc files"
+        - bin/console docs:dump-erd
+        - bin/console docs:dump-core-characteristics
+        - cd platform
+        - >
+            if ! git diff --exit-code --ignore-submodules HEAD --; then
+                echo "Docs have changed, please run 'bin/console docs:dump-core-characteristics' and 'bin/console docs:dump-erd'";
+                git diff --exit-code;
+                exit 1;
+            else
+                echo "Everything ok"
+                exit 0;
+            fi
+
 # stage: unit
 
 .phpunit_base:

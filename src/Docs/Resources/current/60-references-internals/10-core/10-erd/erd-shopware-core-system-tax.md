@@ -13,4 +13,14 @@ Taxes used in price calculations.
 Global tax settings utilized in price calculation and used denormalized in order management
 
 
+### Table `tax_rule`
+
+__EMPTY__
+
+
+### Table `tax_rule_type`
+
+__EMPTY__
+
+
 [Back to modules](./../10-modules.md)

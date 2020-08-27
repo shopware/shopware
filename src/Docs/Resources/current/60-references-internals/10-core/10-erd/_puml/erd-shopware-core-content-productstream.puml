@@ -30,7 +30,7 @@ Table(ShopwareCoreContentProductStreamProductStreamDefinition, "product_stream\n
    description translated
    customFields translated
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
    translated json
 }
 TranslationTable(ShopwareCoreContentProductStreamAggregateProductStreamTranslationProductStreamTranslationDefinition, "product_stream_translation\n((Translations))") {
@@ -38,7 +38,7 @@ TranslationTable(ShopwareCoreContentProductStreamAggregateProductStreamTranslati
    description longText
    customFields customFields
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
    primary_key(productStreamId) foreignKey
    primary_key(languageId) foreignKey
 }
@@ -54,15 +54,24 @@ Table(ShopwareCoreContentProductStreamAggregateProductStreamFilterProductStreamF
    position int
    customFields customFields
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
 }
-ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
+ForeignTable(ShopwareCoreContentProductAggregateProductCrossSellingProductCrossSellingDefinition, "product_cross_selling") {
+}
+ForeignTable(ShopwareCoreContentProductExportProductExportDefinition, "product_export") {
+}
+ForeignTable(ShopwareCoreContentCategoryCategoryDefinition, "category") {
+}
+ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
 }
 
 ' relationshipd
 
 ShopwareCoreContentProductStreamAggregateProductStreamTranslationProductStreamTranslationDefinition --> ShopwareCoreContentProductStreamProductStreamDefinition
 ShopwareCoreContentProductStreamAggregateProductStreamFilterProductStreamFilterDefinition --> ShopwareCoreContentProductStreamProductStreamDefinition
-ShopwareCoreContentProductStreamAggregateProductStreamTranslationProductStreamTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
+ShopwareCoreContentProductStreamProductStreamDefinition --> ShopwareCoreContentProductAggregateProductCrossSellingProductCrossSellingDefinition
+ShopwareCoreContentProductStreamProductStreamDefinition --> ShopwareCoreContentProductExportProductExportDefinition
+ShopwareCoreContentProductStreamProductStreamDefinition --> ShopwareCoreContentCategoryCategoryDefinition
+ShopwareCoreContentProductStreamAggregateProductStreamTranslationProductStreamTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
 ShopwareCoreContentProductStreamAggregateProductStreamFilterProductStreamFilterDefinition --> ShopwareCoreContentProductStreamAggregateProductStreamFilterProductStreamFilterDefinition
 @enduml

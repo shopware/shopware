@@ -8,8 +8,10 @@ class TemplateModuleFile
 {
     private const TEMPLATE_MODULE_PAGE = <<<EOD
 [titleEn]: <>(Core Module List)
+[hash]: <>(article:core_modules)
 
-All core modules encapsulate domain concepts and provide a varying number of external interfaces to support this. The following list provides a rough overview what domain concepts offer what kinds of interfaces.  
+All core modules encapsulate domain concepts and provide a varying number of external interfaces to support this.
+The following list provides a rough overview what domain concepts offer what kinds of interfaces.
 
 ## Possible characteristics
 
@@ -31,7 +33,7 @@ EOD;
     private const TEMPLATE_MODULE_MODULE = <<<EOD
 #### %s %s
 
-* [Sources](https://github.com/shopware/platform/tree/master/src/Core/%s) 
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/%s)
 
 %s
 
@@ -51,7 +53,7 @@ EOD;
     /**
      * @var string
      */
-    private $targetFile = __DIR__ . '/../Resources/current/2-internals/1-core/10-modules.md';
+    private $targetFile = __DIR__ . '/../Resources/current/60-references-internals/10-core/10-modules.md';
 
     /**
      * @var ModuleInspector

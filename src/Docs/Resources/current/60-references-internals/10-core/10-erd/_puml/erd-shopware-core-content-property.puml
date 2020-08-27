@@ -28,9 +28,11 @@ Table(ShopwareCoreContentPropertyPropertyGroupDefinition, "property_group\n(Prop
    description translated
    not_null(displayType) string
    not_null(sortingType) string
+   filterable bool
+   position translated
    customFields translated
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
    translated json
 }
 Table(ShopwareCoreContentPropertyAggregatePropertyGroupOptionPropertyGroupOptionDefinition, "property_group_option\n(Property option)") {
@@ -42,7 +44,7 @@ Table(ShopwareCoreContentPropertyAggregatePropertyGroupOptionPropertyGroupOption
    mediaId foreignKey
    customFields translated
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
    translated json
 }
 TranslationTable(ShopwareCoreContentPropertyAggregatePropertyGroupOptionTranslationPropertyGroupOptionTranslationDefinition, "property_group_option_translation\n((Translations))") {
@@ -50,16 +52,17 @@ TranslationTable(ShopwareCoreContentPropertyAggregatePropertyGroupOptionTranslat
    position int
    customFields customFields
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
    primary_key(propertyGroupOptionId) foreignKey
    primary_key(languageId) foreignKey
 }
 TranslationTable(ShopwareCoreContentPropertyAggregatePropertyGroupTranslationPropertyGroupTranslationDefinition, "property_group_translation\n((Translations))") {
    not_null(name) string
    description longText
+   position int
    customFields customFields
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
    primary_key(propertyGroupId) foreignKey
    primary_key(languageId) foreignKey
 }
@@ -71,7 +74,7 @@ ForeignTable(ShopwareCoreContentProductAggregateProductPropertyProductPropertyDe
 }
 ForeignTable(ShopwareCoreContentProductAggregateProductOptionProductOptionDefinition, "product_option") {
 }
-ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
+ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
 }
 
 ' relationshipd
@@ -83,6 +86,6 @@ ShopwareCoreContentPropertyAggregatePropertyGroupOptionTranslationPropertyGroupO
 ShopwareCoreContentPropertyAggregatePropertyGroupOptionPropertyGroupOptionDefinition --> ShopwareCoreContentProductAggregateProductConfiguratorSettingProductConfiguratorSettingDefinition
 ShopwareCoreContentPropertyAggregatePropertyGroupOptionPropertyGroupOptionDefinition --> ShopwareCoreContentProductAggregateProductPropertyProductPropertyDefinition
 ShopwareCoreContentPropertyAggregatePropertyGroupOptionPropertyGroupOptionDefinition --> ShopwareCoreContentProductAggregateProductOptionProductOptionDefinition
-ShopwareCoreContentPropertyAggregatePropertyGroupOptionTranslationPropertyGroupOptionTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
-ShopwareCoreContentPropertyAggregatePropertyGroupTranslationPropertyGroupTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
+ShopwareCoreContentPropertyAggregatePropertyGroupOptionTranslationPropertyGroupOptionTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
+ShopwareCoreContentPropertyAggregatePropertyGroupTranslationPropertyGroupTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
 @enduml

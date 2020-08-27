@@ -65,36 +65,27 @@ class DocsModuleCharacteristics extends Command
                     'Content/DependencyInjection',
 
                     'Checkout/Resources',
-                    'System/Resources',
                     'Content/Resources',
+                    'Framework/Resources',
+                    'Profiling/Resources',
+                    'System/Resources',
 
                     'Migration/Test',
                     'Framework/Test',
                     'Checkout/Test',
                     'System/Test',
                     'Content/Test',
+                    'Profiling/Test',
 
-                    'Profiling/Entity',
                     'Profiling/Checkout',
-                    'Checkout/Util',
-                    'Checkout/Document',
-                    'Checkout/Exception',
-
-                    'System/Listing',
-                    'System/Exception',
-
-                    'Framework/Command',
-                    'Framework/Resources',
-                    'Framework/Faker',
-                    'Framework/Util',
-                    'Framework/Provisioning',
-                    'Framework/Exception',
-                    'Framework/Demodata',
-                    'Framework/Version',
-
                     'Profiling/Doctrine',
-                    'Profiling/Resources',
+                    'Profiling/Entity',
                     'Profiling/Twig',
+
+                    'Framework/Util',
+                    'Framework/Demodata',
+
+                    'Migration/Fixtures',
                 ], true);
             })
             ->depth('1');

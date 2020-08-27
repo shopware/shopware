@@ -221,11 +221,11 @@ class SalesChannelProxyControllerTest extends TestCase
 
         $this->addProduct($browser, Defaults::SALES_CHANNEL, $productId);
 
-        // Add promotion code to our cart (not existing in DB)
-        $this->addPromotionCodeByAPI($browser, Defaults::SALES_CHANNEL, $promotionCode);
-
         // Save promotion to database
         $this->createTestFixturePercentagePromotion(Uuid::randomHex(), $promotionCode, 100, null, $this->getContainer());
+
+        // Add promotion code to our cart (not existing in DB)
+        $this->addPromotionCodeByAPI($browser, Defaults::SALES_CHANNEL, $promotionCode);
 
         $cart = $this->getCart($browser, Defaults::SALES_CHANNEL);
 

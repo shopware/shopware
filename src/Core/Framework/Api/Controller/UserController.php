@@ -6,6 +6,7 @@ use League\OAuth2\Server\Exception\OAuthServerException;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
+use Shopware\Core\Framework\Api\Controller\Exception\ExpectedUserHttpException;
 use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
@@ -67,7 +68,9 @@ class UserController extends AbstractController
         }
 
         $userId = $context->getSource()->getUserId();
-
+        if (!$userId) {
+            throw new ExpectedUserHttpException();
+        }
         $criteria = new Criteria([$userId]);
         $criteria->addAssociation('aclRoles');
 
@@ -89,6 +92,9 @@ class UserController extends AbstractController
         }
 
         $userId = $context->getSource()->getUserId();
+        if (!$userId) {
+            throw new ExpectedUserHttpException();
+        }
         $result = $this->userRepository->searchIds(new Criteria([$userId]), $context);
 
         if ($result->getTotal() === 0) {

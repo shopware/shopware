@@ -1,4 +1,5 @@
 import template from './sw-settings-delivery-time-list.html.twig';
+import './sw-settings-delivery-time-list.scss';
 
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -11,7 +12,7 @@ Component.register('sw-settings-delivery-time-list', {
         Mixin.getByName('placeholder')
     ],
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     data() {
         return {

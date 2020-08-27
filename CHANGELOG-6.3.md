@@ -42,6 +42,7 @@ NEXT
 * Added ACL permissions to shipping module
 * Added property `disabled` to `sw-settings-shipping-price-matrices` component
 * Added property `disabled` to `sw-settings-shipping-price-matrix` component
+* Added ACL permissions to delivery times module
 
 #### Core
 * Changed order address from customer to billing address in documents

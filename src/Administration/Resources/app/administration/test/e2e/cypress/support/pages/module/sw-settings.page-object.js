@@ -17,6 +17,9 @@ export default class SettingsPageObject {
                 currencySaveAction: '.sw-settings-currency-detail__save-action',
                 currencyColumnName: '.sw-data-grid__cell--name',
 
+                deliveryTimeSaveAction: '.sw-settings-delivery-time-detail__save',
+                deliveryTimeColumnName: '.sw-data-grid__cell--name',
+
                 languageSaveAction: '.sw-settings-language-detail__save-action',
                 languageColumnName: '.sw-language-list__column-name',
 

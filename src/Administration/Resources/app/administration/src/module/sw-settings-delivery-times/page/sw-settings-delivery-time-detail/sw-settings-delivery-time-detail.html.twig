@@ -20,17 +20,18 @@
             <template #smart-bar-actions>
 
                 {% block sw_settings_delivery_time_detail_smart_bar_actions_cancel %}
-                    <sw-button @click="onCancel">
+                    <sw-button v-tooltip.bottom="tooltipCancel" @click="onCancel">
                         {{ $tc('sw-settings-delivery-time.general.buttonCancel') }}
                     </sw-button>
                 {% endblock %}
 
                 {% block sw_settings_delivery_time_detail_smart_bar_actions_save %}
                     <sw-button-process
+                        v-tooltip.bottom="tooltipSave"
                         class="sw-settings-delivery-time-detail__save"
                         :isLoading="isLoading"
                         :processSuccess="isSaveSuccessful"
-                        :disabled="isLoading"
+                        :disabled="!allowSave"
                         variant="primary"
                         @process-finish="saveFinish"
                         @click.prevent="onSave">
@@ -60,6 +61,7 @@
                                         v-model="deliveryTime.name"
                                         :label="$tc('sw-settings-delivery-time.detail.labelName')"
                                         :error="deliveryTimeNameError"
+                                        :disabled="!acl.can('delivery_times.editor')"
                                         required>
                                     </sw-field>
                                 {% endblock %}
@@ -71,6 +73,7 @@
                                         v-model="deliveryTime.unit"
                                         :error="deliveryTimeUnitError"
                                         :label="$tc('sw-settings-delivery-time.detail.labelUnit')"
+                                        :disabled="!acl.can('delivery_times.editor')"
                                         required>
                                     </sw-single-select>
                                 {% endblock %}
@@ -85,6 +88,7 @@
                                                 :error="deliveryTimeMinError || invalidMinError"
                                                 :min="0"
                                                 :max="deliveryTime.max"
+                                                :disabled="!acl.can('delivery_times.editor')"
                                                 required>
                                             </sw-number-field>
                                         {% endblock %}
@@ -95,6 +99,7 @@
                                                 :label="$tc('sw-settings-delivery-time.detail.labelMax')"
                                                 :error="deliveryTimeMaxError"
                                                 :min="deliveryTime.min"
+                                                :disabled="!acl.can('delivery_times.editor')"
                                                 required>
                                             </sw-number-field>
                                         {% endblock %}

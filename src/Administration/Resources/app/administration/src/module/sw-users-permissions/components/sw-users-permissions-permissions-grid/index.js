@@ -28,6 +28,10 @@ Component.register('sw-users-permissions-permissions-grid', {
             this.role.privileges.forEach(privilegeKey => {
                 const privilegeRole = this.privileges.getPrivilegeRole(privilegeKey);
 
+                if (!privilegeRole) {
+                    return;
+                }
+
                 privilegeRole.dependencies.forEach(dependency => {
                     dependencies.add(dependency);
                 });

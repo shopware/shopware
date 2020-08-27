@@ -2,8 +2,10 @@ import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/app/component/data-grid/sw-data-grid-settings';
 import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/entity/sw-entity-listing';
+import EntityCollection from 'src/core/data-new/entity-collection.data';
+import Criteria from 'src/core/data-new/criteria.data';
 
-function createWrapper() {
+function createWrapper(propsData = {}) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
@@ -42,12 +44,18 @@ function createWrapper() {
             }
         },
         propsData: {
-            repository: {},
-            columns: [{
-                property: 'name'
-            }],
+            columns: [
+                { property: 'name', label: 'Name' }
+            ],
+            items: new EntityCollection(null, null, null, new Criteria(), [
+                { id: 'id1', name: 'item1' },
+                { id: 'id2', name: 'item2' }
+            ]),
+            repository: {
+                search: () => {}
+            },
             detailRoute: 'sw.manufacturer.detail',
-            items: items
+            ...propsData
         }
     });
 }
@@ -108,5 +116,59 @@ describe('src/app/component/entity/sw-entity-listing', () => {
 
         expect(firstRowActionDelete.exists()).toBeTruthy();
         expect(firstRowActionDelete.attributes().disabled).toBeTruthy();
+    });
+
+    it('should have context menu with edit entry', () => {
+        const wrapper = createWrapper({
+            allowEdit: true,
+            items: new EntityCollection(null, null, null, new Criteria(), [
+                { id: 'id1', name: 'item1' },
+                { id: 'id2', name: 'item2' },
+                { id: 'id3', name: 'item3' }
+            ])
+        });
+
+        const elements = wrapper.findAll('.sw-entity-listing__context-menu-edit-action');
+
+        expect(elements.exists()).toBeTruthy();
+        elements.wrappers.forEach(el => expect(el.text()).toBe('global.default.edit'));
+        expect(elements.wrappers.length).toBe(3);
+    });
+
+    it('should have context menu with view entry', () => {
+        const wrapper = createWrapper({
+            allowEdit: false,
+            allowView: true,
+            items: new EntityCollection(null, null, null, new Criteria(), [
+                { id: 'id1', name: 'item1' },
+                { id: 'id2', name: 'item2' },
+                { id: 'id3', name: 'item3' }
+            ])
+        });
+
+        const elements = wrapper.findAll('.sw-entity-listing__context-menu-edit-action');
+
+        expect(elements.exists()).toBeTruthy();
+        elements.wrappers.forEach(el => expect(el.text()).toBe('global.default.view'));
+        expect(elements.wrappers.length).toBe(3);
+    });
+
+    it('should have context menu with disabled edit entry', () => {
+        const wrapper = createWrapper({
+            allowEdit: false,
+            allowView: false,
+            items: new EntityCollection(null, null, null, new Criteria(), [
+                { id: 'id1', name: 'item1' },
+                { id: 'id2', name: 'item2' },
+                { id: 'id3', name: 'item3' }
+            ])
+        });
+
+        const elements = wrapper.findAll('.sw-entity-listing__context-menu-edit-action');
+
+        expect(elements.exists()).toBeTruthy();
+        expect(elements.wrappers.length).toBe(3);
+        elements.wrappers.forEach(el => expect(el.text()).toBe('global.default.edit'));
+        elements.wrappers.forEach(el => expect(el.attributes().disabled).toBe('true'));
     });
 });

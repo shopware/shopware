@@ -132,11 +132,6 @@ class CustomerGroupEntity extends Entity
         $this->salesChannels = $salesChannels;
     }
 
-    public function getApiAlias(): string
-    {
-        return 'customer_group';
-    }
-
     public function getRegistrationActive(): bool
     {
         return $this->registrationActive;

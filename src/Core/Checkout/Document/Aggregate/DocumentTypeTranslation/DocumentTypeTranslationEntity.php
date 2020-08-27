@@ -66,9 +66,4 @@ class DocumentTypeTranslationEntity extends TranslationEntity
     {
         $this->customFields = $customFields;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'document_type_translation';
-    }
 }

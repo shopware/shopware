@@ -114,9 +114,4 @@ class IntegrationEntity extends Entity
     {
         $this->app = $app;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'integration';
-    }
 }

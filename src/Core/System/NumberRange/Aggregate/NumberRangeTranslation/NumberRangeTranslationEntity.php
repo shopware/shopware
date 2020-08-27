@@ -81,9 +81,4 @@ class NumberRangeTranslationEntity extends TranslationEntity
     {
         $this->description = $description;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'number_range_translation';
-    }
 }

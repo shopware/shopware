@@ -156,9 +156,4 @@ class ProductTranslationEntity extends TranslationEntity
     {
         $this->metaDescription = $metaDescription;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'product_translation';
-    }
 }

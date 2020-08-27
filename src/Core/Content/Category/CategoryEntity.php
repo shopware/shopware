@@ -603,11 +603,6 @@ class CategoryEntity extends Entity
         $this->seoUrls = $seoUrls;
     }
 
-    public function getApiAlias(): string
-    {
-        return 'category';
-    }
-
     public function getProductAssignmentType(): string
     {
         return $this->productAssignmentType;

@@ -134,7 +134,7 @@ class PropertyGroupOptionEntity extends Entity
         return $this->group;
     }
 
-    public function setGroup(PropertyGroupEntity $group): void
+    public function setGroup(?PropertyGroupEntity $group): void
     {
         $this->group = $group;
     }

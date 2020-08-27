@@ -54,9 +54,4 @@ class CustomFieldSetRelationEntity extends Entity
     {
         $this->customFieldSet = $customFieldSet;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'custom_field_set_relation';
-    }
 }

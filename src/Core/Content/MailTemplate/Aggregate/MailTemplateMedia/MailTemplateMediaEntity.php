@@ -85,9 +85,4 @@ class MailTemplateMediaEntity extends Entity
     {
         $this->mailTemplate = $mailTemplate;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'mail_template_media';
-    }
 }

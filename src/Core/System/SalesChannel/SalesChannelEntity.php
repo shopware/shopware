@@ -928,11 +928,6 @@ class SalesChannelEntity extends Entity
         $this->analytics = $analytics;
     }
 
-    public function getApiAlias(): string
-    {
-        return 'sales_channel';
-    }
-
     public function getTaxCalculationType(): string
     {
         return $this->taxCalculationType;

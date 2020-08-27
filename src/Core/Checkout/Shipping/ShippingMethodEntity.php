@@ -276,9 +276,4 @@ class ShippingMethodEntity extends Entity
     {
         $this->tags = $tags;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'shipping_method';
-    }
 }

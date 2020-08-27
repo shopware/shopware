@@ -125,9 +125,4 @@ class VersionCommitEntity extends Entity
     {
         $this->integrationId = $integrationId;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'dal_version_commit';
-    }
 }

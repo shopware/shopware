@@ -76,9 +76,4 @@ class DeliveryTimeTranslationEntity extends TranslationEntity
     {
         $this->customFields = $customFields;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'delivery_time_translation';
-    }
 }

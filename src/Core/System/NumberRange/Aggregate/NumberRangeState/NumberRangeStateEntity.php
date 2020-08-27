@@ -54,9 +54,4 @@ class NumberRangeStateEntity extends Entity
     {
         $this->numberRange = $numberRange;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'number_range_state';
-    }
 }

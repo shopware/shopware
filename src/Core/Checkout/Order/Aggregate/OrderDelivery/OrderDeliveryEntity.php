@@ -230,9 +230,4 @@ class OrderDeliveryEntity extends Entity
     {
         $this->customFields = $customFields;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'order_delivery';
-    }
 }

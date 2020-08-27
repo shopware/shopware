@@ -70,6 +70,7 @@ class ProductConfiguratorLoader
 
                     continue;
                 }
+                $option->setGroup(null);
 
                 $option->setCombinable($combinable);
             }

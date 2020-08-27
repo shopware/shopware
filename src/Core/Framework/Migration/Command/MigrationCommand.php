@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Migration\Command;
 
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Migration\Exception\MigrateException;
+use Shopware\Core\Framework\Migration\Exception\UnknownMigrationSourceException;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
@@ -124,7 +125,14 @@ class MigrationCommand extends Command
     {
         $this->io->writeln(sprintf('Get collection for identifier: "%s"', $identifier));
 
-        $collection = $this->loader->collect($identifier);
+        try {
+            $collection = $this->loader->collect($identifier);
+        } catch (UnknownMigrationSourceException $e) {
+            $this->io->note(sprintf('No collection found for identifier: "%s", continuing', $identifier));
+
+            return 0;
+        }
+
         $collection->sync();
 
         $this->io->writeln('migrate Migrations');

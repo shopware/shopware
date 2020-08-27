@@ -90,6 +90,16 @@ class MigrationCommandTest extends TestCase
         static::assertSame(4, $this->getMigrationCount(true));
     }
 
+    public function testCommandMigrateMultipleIdentifiersSkipsNotFoundMigrationSources(): void
+    {
+        static::assertSame(0, $this->getMigrationCount(true));
+
+        $command = $this->getCommand();
+
+        $command->run(new ArrayInput(['identifier' => ['noMigratioNSource', self::INTEGRATION_IDENTIFIER()], '--all' => true]), new BufferedOutput());
+        static::assertSame(2, $this->getMigrationCount(true));
+    }
+
     public function testCommandMigrateMultipleIdentifiersWithoutAllOptionThrowsException(): void
     {
         static::assertSame(0, $this->getMigrationCount(true));

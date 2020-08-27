@@ -1,5 +1,7 @@
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-users-permissions/page/sw-users-permissions-role-detail';
+import 'src/app/component/base/sw-button-process';
+import 'src/app/component/base/sw-button';
 import PrivilegesService from 'src/app/service/privileges.service';
 
 function createWrapper({
@@ -10,17 +12,39 @@ function createWrapper({
 
     privilegeMappingEntries.forEach(mappingEntry => privilegesService.addPrivilegeMappingEntry(mappingEntry));
 
+    const localVue = createLocalVue();
+    localVue.directive('tooltip', {});
+
     return shallowMount(Shopware.Component.build('sw-users-permissions-role-detail'), {
+        localVue,
         sync: false,
         stubs: {
-            'sw-page': true
+            'sw-page': `
+<div>
+    <slot name="smart-bar-actions"></slot>
+    <slot name="content"></slot>
+</div>
+`,
+            'sw-button': Shopware.Component.build('sw-button'),
+            'sw-button-process': Shopware.Component.build('sw-button-process'),
+            'sw-icon': true,
+            'sw-card-view': true,
+            'sw-card': true,
+            'sw-field': true,
+            'sw-users-permissions-permissions-grid': true,
+            'sw-users-permissions-additional-permissions': true,
+            'sw-verify-user-modal': true
         },
         mocks: {
             $tc: t => t,
-            $route: { params: { id: '12345789' } }
+            $route: { params: { id: '12345789' } },
+            $device: {
+                getSystemKey: () => {}
+            }
         },
         propsData: {},
         provide: {
+            loginService: {},
             repositoryFactory: {
                 create: () => ({
                     get: () => Promise.resolve({
@@ -134,7 +158,8 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
 
         expect(wrapper.vm.roleRepository.save).not.toHaveBeenCalled();
 
-        wrapper.vm.onSave();
+        const contextMock = { access: '1a2b3c' };
+        wrapper.vm.saveRole(contextMock);
 
         expect(wrapper.vm.roleRepository.save).toHaveBeenCalledWith(
             {
@@ -144,7 +169,7 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
                     ...wrapper.vm.requiredPrivileges
                 ]
             },
-            expect.anything()
+            contextMock
         );
     });
 
@@ -181,7 +206,8 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
 
         expect(wrapper.vm.roleRepository.save).not.toHaveBeenCalled();
 
-        wrapper.vm.onSave();
+        const contextMock = { access: '1a2b3c' };
+        wrapper.vm.saveRole(contextMock);
 
         expect(wrapper.vm.roleRepository.save).toHaveBeenCalledWith(
             { privileges: [
@@ -191,7 +217,23 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
                 'order:create:discount',
                 ...wrapper.vm.requiredPrivileges
             ] },
-            expect.anything()
+            contextMock
         );
+    });
+
+    it('should open the confirm password modal on save', async () => {
+        const wrapper = createWrapper();
+        await wrapper.setData({
+            isLoading: false
+        });
+
+        let verifyUserModal = wrapper.find('sw-verify-user-modal-stub');
+        expect(verifyUserModal.exists()).toBeFalsy();
+
+        const saveButton = wrapper.find('.sw-users-permissions-role-detail__button-save');
+        await saveButton.trigger('click.prevent');
+
+        verifyUserModal = wrapper.find('sw-verify-user-modal-stub');
+        expect(verifyUserModal.exists()).toBeTruthy();
     });
 });

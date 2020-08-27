@@ -71,6 +71,11 @@
                         {% endblock %}
                     </sw-card-view>
                 {% endblock %}
+
+                {% block sw_users_permissions_role_detail_content_verify_modal %}
+                    <sw-verify-user-modal v-if="confirmPasswordModal" @verified="saveRole" @close="onCloseConfirmPasswordModal">
+                    </sw-verify-user-modal>
+                {% endblock %}
             </template>
         {% endblock %}
     </sw-page>

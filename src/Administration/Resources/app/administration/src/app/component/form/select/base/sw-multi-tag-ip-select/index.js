@@ -27,7 +27,9 @@ Component.extend('sw-multi-tag-ip-select', 'sw-multi-tag-select', {
         knownIps: {
             type: Array,
             required: false,
-            default: []
+            default() {
+                return [];
+            }
         }
     },
 

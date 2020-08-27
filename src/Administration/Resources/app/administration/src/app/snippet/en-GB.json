@@ -20,7 +20,8 @@
             "info": "Info",
             "yes": "Yes",
             "no": "No",
-            "confirm": "Confirm"
+            "confirm": "Confirm",
+            "view": "View"
         },
         "notification": {
             "notificationSaveErrorMessage": "An error occurred while saving the entity \"{entityName}\".",

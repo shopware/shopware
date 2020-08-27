@@ -8,7 +8,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-promotion-cart-condition-form', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     props: {
         promotion: {
@@ -73,7 +73,7 @@ Component.register('sw-promotion-cart-condition-form', {
         },
 
         isEditingDisabled() {
-            if (this.promotion === null) {
+            if (this.promotion === null || !this.acl.can('promotion.editor')) {
                 return true;
             }
 

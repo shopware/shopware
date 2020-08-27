@@ -20,7 +20,8 @@
       "info": "Info",
       "yes": "Ja",
       "no": "Nein",
-      "confirm": "Bestätigen"
+      "confirm": "Bestätigen",
+      "view": "Anzeigen"
     },
     "notification": {
       "notificationSaveErrorMessage": "Beim Speichern der Entität \"{entityName}\" ist ein Fehler aufgetreten.",

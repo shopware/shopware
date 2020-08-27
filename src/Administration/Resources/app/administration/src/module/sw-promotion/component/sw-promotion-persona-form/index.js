@@ -8,7 +8,7 @@ const { Criteria } = Shopware.Data;
 
 Component.register('sw-promotion-persona-form', {
     template,
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     props: {
         promotion: {
@@ -92,6 +92,10 @@ Component.register('sw-promotion-persona-form', {
         },
 
         isEditingDisabled() {
+            if (!this.acl.can('promotion.editor')) {
+                return true;
+            }
+
             return !PromotionPermissions.isEditingAllowed(this.promotion);
         }
     },

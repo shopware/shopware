@@ -8,7 +8,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-promotion-detail-discounts', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     data() {
         return {

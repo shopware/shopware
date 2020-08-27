@@ -11,7 +11,7 @@ const { mapPageErrors } = Shopware.Component.getComponentHelper();
 Component.register('sw-promotion-detail', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -20,7 +20,12 @@ Component.register('sw-promotion-detail', {
     ],
 
     shortcuts: {
-        'SYSTEMKEY+S': 'onSave',
+        'SYSTEMKEY+S': {
+            active() {
+                return this.acl.can('promotion.editor');
+            },
+            method: 'onSave'
+        },
         ESCAPE: 'onCancel'
     },
 
@@ -63,6 +68,14 @@ Component.register('sw-promotion-detail', {
         },
 
         tooltipSave() {
+            if (!this.acl.can('promotion.editor')) {
+                return {
+                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    disabled: this.acl.can('category.editor'),
+                    showOnDisabledElements: true
+                };
+            }
+
             const systemKey = this.$device.getSystemKey();
 
             return {

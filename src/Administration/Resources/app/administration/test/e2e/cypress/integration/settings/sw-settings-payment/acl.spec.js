@@ -24,7 +24,7 @@ describe('Property: Test ACL privileges', () => {
 
             cy.loginAsUserWithPermissions([
                 {
-                    key: 'product',
+                    key: 'property',
                     role: 'viewer'
                 }
             ]).then(() => {
@@ -44,7 +44,7 @@ describe('Property: Test ACL privileges', () => {
 
     it('@settings: can view payment', () => {
         cy.window().then((win) => {
-            if (!win.Shopware.FeatureConfig.isActive('next3722')) {
+            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
                 return;
             }
 

@@ -99,5 +99,12 @@
       "modalTitle": "Theme auswählen",
       "headline": "Vorhandene Themes"
     }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "theme": {
+        "label": "Themes"
+      }
+    }
   }
 }

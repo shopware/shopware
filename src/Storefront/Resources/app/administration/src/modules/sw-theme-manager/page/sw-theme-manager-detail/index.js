@@ -11,6 +11,8 @@ const { getObjectDiff, cloneDeep } = Shopware.Utils.object;
 Component.register('sw-theme-manager-detail', {
     template,
 
+    inject: ['acl'],
+
     mixins: [
         Mixin.getByName('theme'),
         Mixin.getByName('notification')
@@ -202,6 +204,10 @@ Component.register('sw-theme-manager-detail', {
         },
 
         onReset() {
+            if (!this.acl.can('theme.editor')) {
+                return;
+            }
+
             if (this.theme.configValues === null) {
                 return;
             }
@@ -218,6 +224,10 @@ Component.register('sw-theme-manager-detail', {
         },
 
         onConfirmThemeReset() {
+            if (!this.acl.can('theme.editor')) {
+                return;
+            }
+
             this.themeService.resetTheme(this.themeId).then(() => {
                 this.getTheme();
             });
@@ -244,6 +254,10 @@ Component.register('sw-theme-manager-detail', {
         },
 
         onSaveTheme() {
+            if (!this.acl.can('theme.editor')) {
+                return;
+            }
+
             this.isSaveSuccessful = false;
             this.isLoading = true;
 

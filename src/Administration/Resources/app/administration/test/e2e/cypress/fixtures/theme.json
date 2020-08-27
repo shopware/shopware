@@ -1,0 +1,355 @@
+{
+  "technicalName": "EndToEndTheme",
+  "name": "E2E Theme",
+  "author": "shopware AG",
+  "description": null,
+  "labels": {
+    "blocks.media": "Media",
+    "blocks.eCommerce": "E-Commerce",
+    "blocks.unordered": "Misc",
+    "blocks.typography": "Typography",
+    "blocks.themeColors": "Theme colours",
+    "blocks.statusColors": "Status messages",
+    "fields.sw-color-info": "Information",
+    "fields.sw-logo-share": "App & share icon",
+    "fields.sw-text-color": "Text colour",
+    "fields.sw-color-price": "Price",
+    "fields.sw-logo-mobile": "Mobile",
+    "fields.sw-logo-tablet": "Tablet",
+    "fields.sw-border-color": "Border",
+    "fields.sw-color-danger": "Error",
+    "fields.sw-logo-desktop": "Desktop",
+    "fields.sw-logo-favicon": "Favicon",
+    "fields.sw-color-success": "Success",
+    "fields.sw-color-warning": "Notice",
+    "fields.sw-headline-color": "Headline colour",
+    "fields.sw-background-color": "Background",
+    "fields.sw-color-buy-button": "Buy button",
+    "fields.sw-font-family-base": "Fonttype text",
+    "fields.sw-color-brand-primary": "Primary colour",
+    "fields.sw-font-family-headline": "Fonttype headline",
+    "fields.sw-color-brand-secondary": "Secondary colour",
+    "fields.sw-color-buy-button-text": "Buy button text"
+  },
+  "helpTexts": {
+    "fields.sw-logo-mobile": "Displayed up to a viewport of 767px",
+    "fields.sw-logo-tablet": "Displayed between a viewport of 767px to 991px",
+    "fields.sw-logo-desktop": "Displayed for viewports of above 991px"
+  },
+  "customFields": null,
+  "previewMediaId": "9b27f856f5fa40bf88be409f4ee27800",
+  "parentThemeId": "df9761ce76b047cebabc625d5dc9a2e2",
+  "baseConfig": {
+    "blocks": {
+      "media": {
+        "label": {
+          "de-DE": "Medien",
+          "en-GB": "Media"
+        }
+      },
+      "eCommerce": {
+        "label": {
+          "de-DE": "E-Commerce",
+          "en-GB": "E-Commerce"
+        }
+      },
+      "unordered": {
+        "label": {
+          "de-DE": "Sonstige",
+          "en-GB": "Misc"
+        }
+      },
+      "typography": {
+        "label": {
+          "de-DE": "Typografie",
+          "en-GB": "Typography"
+        }
+      },
+      "themeColors": {
+        "label": {
+          "de-DE": "Theme-Farben",
+          "en-GB": "Theme colours"
+        }
+      },
+      "statusColors": {
+        "label": {
+          "de-DE": "Status-Ausgaben",
+          "en-GB": "Status messages"
+        }
+      }
+    },
+    "fields": {
+      "sw-color-info": {
+        "type": "color",
+        "block": "statusColors",
+        "label": {
+          "de-DE": "Information",
+          "en-GB": "Information"
+        },
+        "order": 200,
+        "value": "#26b6cf",
+        "editable": true
+      },
+      "sw-logo-share": {
+        "type": "media",
+        "block": "media",
+        "label": {
+          "de-DE": "App- & Share-Icon",
+          "en-GB": "App & share icon"
+        },
+        "order": 400,
+        "value": "",
+        "editable": true
+      },
+      "sw-text-color": {
+        "type": "color",
+        "block": "typography",
+        "label": {
+          "de-DE": "Textfarbe",
+          "en-GB": "Text colour"
+        },
+        "order": 200,
+        "value": "#4a545b",
+        "editable": true
+      },
+      "sw-color-price": {
+        "type": "color",
+        "block": "eCommerce",
+        "label": {
+          "de-DE": "Preis",
+          "en-GB": "Price"
+        },
+        "order": 100,
+        "value": "#4a545b",
+        "editable": true
+      },
+      "sw-logo-mobile": {
+        "type": "media",
+        "block": "media",
+        "label": {
+          "de-DE": "Mobil",
+          "en-GB": "Mobile"
+        },
+        "order": 300,
+        "value": "f3949604a2a742b482ecdb79f2080396",
+        "editable": true,
+        "helpText": {
+          "de-DE": "Wird bis zu einem Viewport von 767px angezeigt",
+          "en-GB": "Displayed up to a viewport of 767px"
+        }
+      },
+      "sw-logo-tablet": {
+        "type": "media",
+        "block": "media",
+        "label": {
+          "de-DE": "Tablet",
+          "en-GB": "Tablet"
+        },
+        "order": 200,
+        "value": "f3949604a2a742b482ecdb79f2080396",
+        "editable": true,
+        "helpText": {
+          "de-DE": "Wird zwischen einem viewport von 767px bis 991px angezeigt",
+          "en-GB": "Displayed between a viewport of 767px to 991px"
+        }
+      },
+      "sw-border-color": {
+        "type": "color",
+        "block": "themeColors",
+        "label": {
+          "de-DE": "Rahmen",
+          "en-GB": "Border"
+        },
+        "order": 300,
+        "value": "#bcc1c7",
+        "editable": true
+      },
+      "sw-color-danger": {
+        "type": "color",
+        "block": "statusColors",
+        "label": {
+          "de-DE": "Fehler",
+          "en-GB": "Error"
+        },
+        "order": 400,
+        "value": "#e52427",
+        "editable": true
+      },
+      "sw-logo-desktop": {
+        "type": "media",
+        "block": "media",
+        "label": {
+          "de-DE": "Desktop",
+          "en-GB": "Desktop"
+        },
+        "order": 100,
+        "value": "f3949604a2a742b482ecdb79f2080396",
+        "editable": true,
+        "helpText": {
+          "de-DE": "Wird über einem Viewport von 991px angezeigt",
+          "en-GB": "Displayed for viewports of above 991px"
+        }
+      },
+      "sw-logo-favicon": {
+        "type": "media",
+        "block": "media",
+        "label": {
+          "de-DE": "Favicon",
+          "en-GB": "Favicon"
+        },
+        "order": 500,
+        "value": "e7d04353dd4046af9818bda308a79bf6",
+        "editable": true
+      },
+      "sw-color-success": {
+        "type": "color",
+        "block": "statusColors",
+        "label": {
+          "de-DE": "Erfolg",
+          "en-GB": "Success"
+        },
+        "order": 100,
+        "value": "#3cc261",
+        "editable": true
+      },
+      "sw-color-warning": {
+        "type": "color",
+        "block": "statusColors",
+        "label": {
+          "de-DE": "Hinweis",
+          "en-GB": "Notice"
+        },
+        "order": 300,
+        "value": "#ffbd5d",
+        "editable": true
+      },
+      "sw-headline-color": {
+        "type": "color",
+        "block": "typography",
+        "label": {
+          "de-DE": "Überschriftfarbe",
+          "en-GB": "Headline colour"
+        },
+        "order": 400,
+        "value": "#4a545b",
+        "editable": true
+      },
+      "sw-background-color": {
+        "type": "color",
+        "block": "themeColors",
+        "label": {
+          "de-DE": "Hintergrund",
+          "en-GB": "Background"
+        },
+        "order": 400,
+        "value": "#fff",
+        "editable": true
+      },
+      "sw-color-buy-button": {
+        "type": "color",
+        "block": "eCommerce",
+        "label": {
+          "de-DE": "Kaufen-Button",
+          "en-GB": "Buy button"
+        },
+        "order": 200,
+        "value": "#008490",
+        "editable": true
+      },
+      "sw-font-family-base": {
+        "type": "fontFamily",
+        "block": "typography",
+        "label": {
+          "de-DE": "Schriftart Text",
+          "en-GB": "Fonttype text"
+        },
+        "order": 100,
+        "value": "'Inter', sans-serif",
+        "editable": true
+      },
+      "sw-color-brand-primary": {
+        "type": "color",
+        "block": "themeColors",
+        "label": {
+          "de-DE": "Primärfarbe",
+          "en-GB": "Primary colour"
+        },
+        "order": 100,
+        "value": "#008490",
+        "editable": true
+      },
+      "sw-font-family-headline": {
+        "type": "fontFamily",
+        "block": "typography",
+        "label": {
+          "de-DE": "Schriftart Überschrift",
+          "en-GB": "Fonttype headline"
+        },
+        "order": 300,
+        "value": "'Inter', sans-serif",
+        "editable": true
+      },
+      "sw-color-brand-secondary": {
+        "type": "color",
+        "block": "themeColors",
+        "label": {
+          "de-DE": "Sekundärfarbe",
+          "en-GB": "Secondary colour"
+        },
+        "order": 200,
+        "value": "#526e7f",
+        "editable": true
+      },
+      "sw-color-buy-button-text": {
+        "type": "color",
+        "block": "eCommerce",
+        "label": {
+          "de-DE": "Kaufen-Button Text",
+          "en-GB": "Buy button text"
+        },
+        "order": 300,
+        "value": "#fff",
+        "editable": true
+      }
+    }
+  },
+  "configValues": null,
+  "active": true,
+  "translated": {
+    "description": null,
+    "labels": {
+      "blocks.media": "Media",
+      "blocks.eCommerce": "E-Commerce",
+      "blocks.unordered": "Misc",
+      "blocks.typography": "Typography",
+      "blocks.themeColors": "Theme colours",
+      "blocks.statusColors": "Status messages",
+      "fields.sw-color-info": "Information",
+      "fields.sw-logo-share": "App & share icon",
+      "fields.sw-text-color": "Text colour",
+      "fields.sw-color-price": "Price",
+      "fields.sw-logo-mobile": "Mobile",
+      "fields.sw-logo-tablet": "Tablet",
+      "fields.sw-border-color": "Border",
+      "fields.sw-color-danger": "Error",
+      "fields.sw-logo-desktop": "Desktop",
+      "fields.sw-logo-favicon": "Favicon",
+      "fields.sw-color-success": "Success",
+      "fields.sw-color-warning": "Notice",
+      "fields.sw-headline-color": "Headline colour",
+      "fields.sw-background-color": "Background",
+      "fields.sw-color-buy-button": "Buy button",
+      "fields.sw-font-family-base": "Fonttype text",
+      "fields.sw-color-brand-primary": "Primary colour",
+      "fields.sw-font-family-headline": "Fonttype headline",
+      "fields.sw-color-brand-secondary": "Secondary colour",
+      "fields.sw-color-buy-button-text": "Buy button text"
+    },
+    "helpTexts": {
+      "fields.sw-logo-mobile": "Displayed up to a viewport of 767px",
+      "fields.sw-logo-tablet": "Displayed between a viewport of 767px to 991px",
+      "fields.sw-logo-desktop": "Displayed for viewports of above 991px"
+    },
+    "customFields": []
+  }
+}

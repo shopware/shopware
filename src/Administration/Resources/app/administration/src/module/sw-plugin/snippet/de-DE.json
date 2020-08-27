@@ -101,7 +101,7 @@
             "activated": "Aktiviert",
             "config": "Konfiguration",
             "description": "Beschreibung",
-            "tooltipActivationDisabled": "Du kannst nur installierte Plugins aktivieren."
+            "notInstalled": "Nicht installiert"
         },
         "license-list": {
             "textMyPurchases": "Eingekaufte Lizenzen",

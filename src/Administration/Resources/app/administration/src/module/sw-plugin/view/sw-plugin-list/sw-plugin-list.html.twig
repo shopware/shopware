@@ -59,14 +59,16 @@
                             <template #column-active="{ item, compact }">
                                 {% block sw_plugin_list_grid_columns_activated_label %}
                                     <sw-switch-field
+                                        v-if="item.installedAt"
                                         class="sw-plugin-list__switch-active"
                                         v-model="item.active"
                                         :value="item.active"
                                         :label="item.active ? $tc('sw-plugin.list.activated') : $tc('sw-plugin.list.deactivated')"
-                                        :disabled="!item.installedAt"
-                                        @change="changeActiveState(item, $event)"
-                                        v-tooltip="{ disabled: item.installedAt, message: $tc('sw-plugin.list.tooltipActivationDisabled') }">
+                                        @change="changeActiveState(item, $event)">
                                     </sw-switch-field>
+                                    <sw-label v-else variant="info">
+                                        {{ $tc('sw-plugin.list.notInstalled') }}
+                                    </sw-label>
                                 {% endblock %}
                             </template>
 

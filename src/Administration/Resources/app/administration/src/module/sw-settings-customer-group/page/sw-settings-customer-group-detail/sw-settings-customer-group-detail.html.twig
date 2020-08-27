@@ -98,7 +98,10 @@
                             {% block sw_settings_customer_group_detail_content_registration_card_title %}
                                 <sw-field v-model="customerGroup.registrationTitle"
                                         :label="$tc('sw-settings-customer-group.registration.title')"
-                                        :placeholder="placeholder(customerGroup, 'registrationTitle', $tc('sw-settings-customer-group.registration.placeholderTitle'))">
+                                        :placeholder="placeholder(customerGroup, 'registrationTitle', $tc('sw-settings-customer-group.registration.placeholderTitle'))"
+                                        :error="registrationTitleError"
+                                        required
+                                        validation="required">
                                 </sw-field>
                             {% endblock %}
 
@@ -126,7 +129,7 @@
                     {% endblock %}
 
                     {% block sw_settings_customer_group_detail_content_registration_url_card %}
-                        <sw-card v-if="customerGroupId && customerGroup && customerGroup.registrationActive"
+                        <sw-card v-if="customerGroup && customerGroup.registrationActive"
                                 :isLoading="isLoading"
                                 :title="$tc('sw-settings-customer-group.registration.linkUrlsTitle')">
 

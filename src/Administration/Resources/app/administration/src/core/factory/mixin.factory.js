@@ -63,5 +63,9 @@ function register(mixinName, mixin = {}) {
  * @returns {any | undefined}
  */
 function getByName(mixinName) {
+    if (!mixinRegistry.has(mixinName)) {
+        throw new Error(`The mixin "${mixinName}" is not registered.`);
+    }
+
     return mixinRegistry.get(mixinName);
 }

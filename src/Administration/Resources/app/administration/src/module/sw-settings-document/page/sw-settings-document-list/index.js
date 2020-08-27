@@ -6,6 +6,8 @@ const { Component, Mixin, Data: { Criteria } } = Shopware;
 Component.register('sw-settings-document-list', {
     template,
 
+    inject: ['acl'],
+
     mixins: [
         Mixin.getByName('sw-settings-list')
     ],

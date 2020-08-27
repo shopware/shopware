@@ -34,7 +34,16 @@
             {% block sw_settings_document_list_smart_bar_actions %}
                 <template slot="smart-bar-actions">
                     {% block sw_settings_document_list_smart_bar_actions_add %}
-                        <sw-button :routerLink="{ name: 'sw.settings.document.create' }" variant="primary">
+                        <sw-button
+                            :routerLink="{ name: 'sw.settings.document.create' }"
+                            :disabled="!acl.can('document.creator')"
+                            class="sw-settings-document-list__add-document"
+                            v-tooltip.bottom="{
+                                message: $tc('sw-privileges.tooltip.warning'),
+                                disabled: acl.can('document.creator'),
+                                showOnDisabledElements: true
+                            }"
+                            variant="primary">
                             {{ $tc('sw-settings-document.list.buttonAddDocument') }}
                         </sw-button>
                     {% endblock %}
@@ -55,12 +64,14 @@
                                         {% block sw_product_list_grid_columns %}
 
                                             {% block sw_settings_document_list_columns_name %}
-                                                <sw-grid-column class="sw-document-list__column-name" flex="minmax(100px, 1fr)"
+                                                <sw-grid-column class="sw-document-list__column-name"
+                                                                flex="minmax(100px, 1fr)"
                                                                 :label="$tc('sw-settings-document.list.columnName')">
 
                                                     {% block sw_settings_document_list_columns_name_link %}
-                                                        <router-link :title="$tc('sw-settings-document.list.contextMenuEdit')"
-                                                                     :to="{ name: 'sw.settings.document.detail', params: { id: item.id } }">
+                                                        <router-link
+                                                            :title="$tc('sw-settings-document.list.contextMenuEdit')"
+                                                            :to="{ name: 'sw.settings.document.detail', params: { id: item.id } }">
                                                             {% block sw_settings_document_list_columns_name_link %}
                                                                 {{ item.name }}
                                                             {% endblock %}
@@ -70,7 +81,8 @@
                                             {% endblock %}
 
                                             {% block sw_settings_document_list_columns_type %}
-                                                <sw-grid-column class="sw-document-list__column-type" flex="minmax(100px, 1fr)"
+                                                <sw-grid-column class="sw-document-list__column-type"
+                                                                flex="minmax(100px, 1fr)"
                                                                 :label="$tc('sw-settings-document.list.columnType')"
                                                                 v-if="item.documentType.translated">
                                                     {{ item.documentType.translated.name }}
@@ -87,9 +99,11 @@
                                                                 {{ $tc('sw-settings-document.list.global') }}
                                                             </sw-label>
                                                         </div>
-                                                        <ul class="sw-list sw-document-list__label-wrapper" v-if="!item.global">
+                                                        <ul class="sw-list sw-document-list__label-wrapper"
+                                                            v-if="!item.global">
                                                             <li v-for="salesChannel in item.salesChannels">
-                                                                <sw-label v-if="salesChannel.salesChannel && salesChannel.salesChannel.translated"
+                                                                <sw-label
+                                                                    v-if="salesChannel.salesChannel && salesChannel.salesChannel.translated"
                                                                     size="medium">
                                                                     {{ salesChannel.salesChannel.translated.name }}
                                                                 </sw-label>
@@ -108,14 +122,27 @@
 
                                                         {% block sw_settings_document_list_columns_actions_edit %}
                                                             <sw-context-menu-item class="sw-document-list__edit-action"
-                                                                                  :routerLink="{ name: 'sw.settings.document.detail', params: { id: item.id } }">
+                                                                                  :disabled="!acl.can('document.editor')"
+                                                                                  :routerLink="{ name: 'sw.settings.document.detail', params: { id: item.id } }"
+                                                                                  v-tooltip.bottom="{
+                                                                                      message: $tc('sw-privileges.tooltip.warning'),
+                                                                                      disabled: acl.can('document.editor'),
+                                                                                      showOnDisabledElements: true
+                                                                                  }">
                                                                 {{ $tc('sw-settings-document.list.contextMenuEdit') }}
                                                             </sw-context-menu-item>
                                                         {% endblock %}
 
                                                         {% block sw_settings_document_list_columns_actions_delete %}
                                                             <sw-context-menu-item variant="danger"
-                                                                                  @click="onDelete(item.id)">
+                                                                                  class="sw-document-list__delete-action"
+                                                                                  :disabled="!acl.can('document.deleter')"
+                                                                                  @click="onDelete(item.id)"
+                                                                                  v-tooltip.bottom="{
+                                                                                      message: $tc('sw-privileges.tooltip.warning'),
+                                                                                      disabled: acl.can('document.deleter'),
+                                                                                      showOnDisabledElements: true
+                                                                                  }">
                                                                 {{ $tc('sw-settings-document.list.buttonDelete') }}
                                                             </sw-context-menu-item>
                                                         {% endblock %}

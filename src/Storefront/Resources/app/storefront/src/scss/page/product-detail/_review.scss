@@ -44,9 +44,7 @@
 
 // review form
 .product-detail-review-form-radio {
-    position: absolute;
-    clip: rect(0 0 0 0);
-    pointer-events: none;
+    display: none;
 }
 
 .product-detail-review-form-rating-input {
@@ -56,6 +54,22 @@
 
 .product-review-point svg {
     top: 0;
+}
+
+.product-review-point,
+.point-container {
+    display: inline-block;
+    position: relative;
+}
+
+.point-rating {
+    display: block;
+    top: 0;
+    left: 0;
+}
+
+.point-partial {
+    position: absolute;
 }
 
 .product-detail-review-form-rating-text {

@@ -924,5 +924,8 @@
         "placeholderCustomFieldSetSelect": "Select custom field sets...",
         "labelCustomFieldSetSelect": "Custom field sets",
         "messagePluginSets": "Plugin custom field sets (Can't be removed)"
+    },
+    "sw-rating-stars": {
+        "ratingTooltipText": "{actual} of {max} stars"
     }
 }

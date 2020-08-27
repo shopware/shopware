@@ -1,5 +1,7 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-review/page/sw-review-detail';
+import 'src/app/mixin/placeholder.mixin';
+import 'src/app/mixin/salutation.mixin';
 
 function createWrapper(privileges = []) {
     const localVue = createLocalVue();
@@ -22,7 +24,9 @@ function createWrapper(privileges = []) {
                 replace: () => {
                 }
             },
-            date: () => {}
+            date: () => {},
+            placeholder: () => {},
+            salutation: () => {}
         },
         provide: {
             repositoryFactory: {
@@ -71,6 +75,7 @@ function createWrapper(privileges = []) {
                     <slot></slot>
                 </div>`,
             'sw-button': true,
+            'sw-button-process': true,
             'sw-icon': true,
             'sw-search-bar': true,
             'sw-description-list': true,

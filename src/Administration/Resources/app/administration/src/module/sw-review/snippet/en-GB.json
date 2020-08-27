@@ -17,12 +17,11 @@
       "columnTitle": "Review title",
       "placeholderSearchBar": "Search reviews...",
       "messageEmpty": "No reviews yet",
-      "messageEmptySubline": "Manage reviews here"
+      "messageEmptySubline": "Manage reviews here",
+      "titleSidebarItemRefresh": "Refresh"
     },
     "detail": {
       "textHeadline": "Review",
-      "buttonCancel": "Cancel",
-      "buttonSave": "Save",
       "cardTitleReviewInfo": "Review",
       "cardTitleReviewProperties": "Properties",
       "labelTitle": "Title",
@@ -40,7 +39,6 @@
       "labelComment": "Comment",
       "labelCustomer": "Customer",
       "titleCardComment": "Comment",
-      "messageSaveSuccess": "The review \"{name}\" has been saved.",
       "placeholderComment": "Enter comment...",
       "review1PointRatingText": "Unsatisfactory",
       "review2PointRatingText": "Acceptable",

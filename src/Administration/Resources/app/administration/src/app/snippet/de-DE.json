@@ -924,5 +924,8 @@
     "placeholderCustomFieldSetSelect": "Wähle Zusatzfeld-Sets aus...",
     "labelCustomFieldSetSelect": "Zusatzfeld-Sets",
     "messagePluginSets": "Plugin Zusatzfeld-Sets (Können nicht entfernt werden)"
+  },
+  "sw-rating-stars": {
+    "ratingTooltipText": "{actual} von {max} Sternen"
   }
 }

@@ -129,10 +129,11 @@ Component.register('sw-settings-customer-group-detail', {
                 const criteria = new Criteria();
                 criteria.addAssociation('registrationSalesChannels');
 
-                this.customerGroupRepository.get(this.customerGroupId, Shopware.Context.api, criteria).then((customerGroup) => {
-                    this.customerGroup = customerGroup;
-                    this.isLoading = false;
-                });
+                this.customerGroupRepository.get(this.customerGroupId, Shopware.Context.api, criteria)
+                    .then((customerGroup) => {
+                        this.customerGroup = customerGroup;
+                        this.isLoading = false;
+                    });
                 return;
             }
 

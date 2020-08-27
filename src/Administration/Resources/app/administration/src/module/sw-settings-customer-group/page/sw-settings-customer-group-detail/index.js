@@ -4,6 +4,7 @@ import template from './sw-settings-customer-group-detail.html.twig';
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
+const { ShopwareError } = Shopware.Classes;
 const domainPlaceholderId = '124c71d524604ccbad6042edce3ac799';
 
 Component.register('sw-settings-customer-group-detail', {
@@ -36,6 +37,7 @@ Component.register('sw-settings-customer-group-detail', {
             customerGroup: null,
             isSaveSuccessful: false,
             openSeoModal: false,
+            registrationTitleError: null,
             seoUrls: []
         };
     },
@@ -108,6 +110,9 @@ Component.register('sw-settings-customer-group-detail', {
             if (!this.customerGroupId) {
                 this.createdComponent();
             }
+        },
+        'customerGroup.registrationTitle'() {
+            this.registrationTitleError = null;
         }
     },
 
@@ -156,10 +161,12 @@ Component.register('sw-settings-customer-group-detail', {
         },
 
         getSeoUrl(seoUrl) {
-            let shopUrl = 'https://headless.shop';
+            let shopUrl = '';
 
             seoUrl.salesChannel.domains.forEach(domain => {
-                shopUrl = domain.url;
+                if (domain.languageId === seoUrl.languageId) {
+                    shopUrl = domain.url;
+                }
             });
 
             return `${shopUrl}/${seoUrl.seoPathInfo}`;
@@ -169,11 +176,30 @@ Component.register('sw-settings-customer-group-detail', {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
+            if (
+                Shopware.Context.api.languageId === Shopware.Context.api.systemLanguageId &&
+                this.customerGroup.registrationActive &&
+                (this.customerGroup.registrationTitle === null || this.customerGroup.registrationTitle.length === 0)) {
+                this.createNotificationError({
+                    message: this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid')
+                });
+
+                this.registrationTitleError = new ShopwareError({
+                    code: 'CUSTOMER_GROUP_REGISTERATION_MISSING_TITLE',
+                    detail: this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid')
+                });
+
+                this.isLoading = false;
+                this.isSaveSuccessful = false;
+                return;
+            }
+
             try {
                 await this.customerGroupRepository.save(this.customerGroup, Shopware.Context.api);
 
                 this.isSaveSuccessful = true;
                 if (!this.customerGroupId) {
+                    this.customerGroupId = this.customerGroup.id;
                     this.$router.push({ name: 'sw.settings.customer.group.detail', params: { id: this.customerGroup.id } });
                 }
 

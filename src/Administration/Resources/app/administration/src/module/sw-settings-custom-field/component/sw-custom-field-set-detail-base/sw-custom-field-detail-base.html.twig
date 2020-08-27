@@ -12,6 +12,14 @@
             </sw-field>
         {% endblock %}
 
+        {% block sw_settings_custom_field_set_detail_base_position %}
+            <sw-field
+                type="number"
+                :label="$tc(`sw-settings-custom-field.set.detail.labelPosition`)"
+                v-model="set.position">
+            </sw-field>
+        {% endblock %}
+
         {% block sw_settings_custom_field_set_detail_base_translated %}
             <sw-field
                     type="switch"

@@ -34,6 +34,11 @@ class CustomFieldSetEntity extends Entity
     protected $global;
 
     /**
+     * @var int
+     */
+    protected $position;
+
+    /**
      * @var CustomFieldCollection|null
      */
     protected $customFields;
@@ -86,6 +91,16 @@ class CustomFieldSetEntity extends Entity
     public function setActive(bool $active): void
     {
         $this->active = $active;
+    }
+
+    public function getPosition(): int
+    {
+        return $this->position;
+    }
+
+    public function setPosition(int $position): void
+    {
+        $this->position = $position;
     }
 
     public function getCustomFields(): ?CustomFieldCollection

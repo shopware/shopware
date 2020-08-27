@@ -437,4 +437,25 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         const tabs = wrapper.findAll('.sw-tabs__content .sw-tabs-item');
         expect(tabs).toHaveLength(1);
     });
+
+    it('should sort sets by position', () => {
+        const props = {
+            entity: {
+                customFieldSetSelectionActive: false
+            },
+            sets: createEntityCollection([{
+                name: 'set1',
+                position: 2
+            }, {
+                name: 'set2',
+                position: 1
+            }]),
+            showCustomFieldSetSelection: true
+        };
+
+        const wrapper = createWrapper(props);
+
+        expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(2);
+        expect(wrapper.vm.visibleCustomFieldSets.first().name).toBe('set2');
+    });
 });

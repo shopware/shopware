@@ -39,7 +39,7 @@ Component.register('sw-order-state-change-modal', {
     computed: {
         modalTitle() {
             return this.mailTemplatesExist || this.userHasAssignedMailTemplate ?
-                this.$tc('sw-order.documentCard.cardTitle') :
+                this.$tc('sw-order.documentCard.modalTitle') :
                 this.$tc('sw-order.assignMailTemplateCard.cardTitle');
         },
 
@@ -53,8 +53,8 @@ Component.register('sw-order-state-change-modal', {
             this.$emit('page-leave');
         },
 
-        onDocsConfirm(docIds) {
-            this.$emit('page-leave-confirm', docIds);
+        onDocsConfirm(docIds, sendMail = true) {
+            this.$emit('page-leave-confirm', docIds, sendMail);
         },
 
         onNoMailConfirm() {

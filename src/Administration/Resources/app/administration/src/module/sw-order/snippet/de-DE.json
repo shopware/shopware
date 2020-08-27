@@ -238,7 +238,8 @@
       "labelLastEditedBy": "Zuletzt geändert von",
       "labelSystemUser": "System",
       "labelSelectStatePlaceholder": "Bitte wählen ...",
-      "labelSelectStateButton": "Status ändern und E-Mail versenden",
+      "labelSelectStateButton": "Status aktualisieren",
+      "labelSendMailSwitch": "E-Mail an Kunden senden",
       "labelErrorStateChange": "Beim Setzen des Status ist ein Fehler aufgetreten:",
       "labelErrorNoAction": "Kein neuer Zustand gewählt.",
       "labelNoTransactionState": "Keine Transaktionen vorhanden",
@@ -259,6 +260,7 @@
     "documentCard": {
       "searchBarPlaceholder": "Belege durchsuchen ...",
       "cardTitle": "Belege",
+      "modalTitle": "Status aktualisieren",
       "labelDate": "Datum",
       "labelNumber": "Nummer",
       "labelType": "Typ",

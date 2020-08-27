@@ -37,6 +37,10 @@ NEXT
 
 #### Core
 * Changed order address from customer to billing address in documents
+* Added `sendMail` parameter to change state routes, which allows to skip the mail delivery. Affected routes:
+    * `/api/v{version}/_action/order/{orderId}/state/{transition}`
+    * `/api/v{version}/_action/order_transaction/{orderTransactionId}/state/{transition}`
+    * `/api/v{version}/_action/order_delivery/{orderDeliveryId}/state/{transition}`
 
 #### Storefront
   

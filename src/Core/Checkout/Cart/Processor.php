@@ -57,14 +57,12 @@ class Processor
         // move data from previous calculation into new cart
         $cart->setData($original->getData());
 
-        $cart->setErrors($original->getErrors());
-
         // enrich cart with all required data
         foreach ($this->collectors as $collector) {
             $collector->collect($cart->getData(), $original, $context, $behavior);
         }
 
-        $cart->addErrors(...array_values($original->getErrors()->getElements()));
+        $cart->addErrors(...array_values($original->getErrors()->getPersistent()->getElements()));
 
         $cart->setExtensions($original->getExtensions());
 

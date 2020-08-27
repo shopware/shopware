@@ -190,6 +190,7 @@ NEXT
 * Swapped the priorities of `CreditCartProcessor` and `CustomCartProcessor`. Now `CustomCartProcessor` will run before `CreditCartProcessor`.
 * Fixed a bug cannot update credit items after creating in Admin order
 * Added new $context parameter to `\Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister::replace`. This parameter will be required with 6.4.0.0.
+* Added new flag `\Shopware\Core\Checkout\Cart\Error\Error::isPersistent` which defines if an errors should be persistent when processing the cart multiple times.
 
 #### Storefront
 

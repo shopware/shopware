@@ -4,9 +4,216 @@
 ## Products
 In this article we will show how you load product listings, searches and suggest searches via the API.
 
+### Get a single product
+To get a single product use the following route: `store-api.product.detail`.
+This route only needs the `productId` parameter.
+
+In addition to the product, the configurator is also read for a variant product. This route should be used to display a product detail page.
+Additionally you can use the api basic parameters (`filter`,  `aggregations`, etc.) for more information look [here](./../40-admin-api-guide/20-reading-entities.md).
+
+```
+POST /store-api/v3/product/62fbaaceefdb4dcbb5c05a2f683a59f4
+
+{
+    "includes": {
+        "product": ["id", "translated.name"],
+        "property_group": ["id", "name", "options"],
+        "property_group_option": ["id", "name"]
+    }
+}
+
+{
+    "apiAlias": "product_detail",
+    "product": {
+        "translated": {
+            "name": "Example product"
+        },
+        "id": "62fbaaceefdb4dcbb5c05a2f683a59f4",
+        "apiAlias": "product"
+    },
+    "configurator": [
+        {
+            "name": "textile",
+            "options": [
+                {
+                    "name": "cotton",
+                    "id": "8ea9919c8f824cca92ff49512be47135",
+                    "apiAlias": "property_group_option"
+                },
+                {
+                    "name": "leather",
+                    "id": "e8a8c2c2282c41a69a6eb7e3da1e850c",
+                    "apiAlias": "property_group_option"
+                }
+            ],
+            "id": "0fd63b8555054eb588a45e8353e151b2",
+            "apiAlias": "property_group"
+        }
+    ]
+}
+```
+
+### Get reviews of a product
+To get a list of all reviews of a product you use the following route: `store-api.product-review.list`
+This route only needs the `productId` parameter.
+Additionally you can use the api basic parameters (`filter`,  `aggregations`, etc.) for more information look [here](./../40-admin-api-guide/20-reading-entities.md).
+
+
+```
+POST /store-api/v1/product/62fbaaceefdb4dcbb5c05a2f683a59f4/reviews
+
+{   
+    "page": 1,
+    "limit": 3,
+    "aggregations": [
+        { "type": "avg", "field": "points", "name": "rating-average"}
+    ],
+    "includes": {
+        "product_review": ["id", "content", "title", "createdAt", "points"]
+    }
+}
+
+{
+    "total": 3,
+    "aggregations": {
+        "rating-average": {
+            "avg": 5,
+            "apiAlias": "rating-average_aggregation"
+        }
+    },
+    "elements": [
+        {
+            "points": 5,
+            "content": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.",
+            "title": "Really cool product",
+            "createdAt": "2020-08-27T09:49:48.776+00:00",
+            "id": "0fa91ce3e96a4bc2be4bd9ce752c3425",
+            "apiAlias": "product_review"
+        },
+        {
+            "points": 5,
+            "content": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.",
+            "title": "Really cool product",
+            "createdAt": "2020-08-27T09:49:48.776+00:00",
+            "id": "211c5785d293434c9ef3c624c675f545",
+            "apiAlias": "product_review"
+        },
+        {
+            "points": 5,
+            "content": "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.",
+            "title": "Really cool product",
+            "createdAt": "2020-08-27T09:49:48.776+00:00",
+            "id": "2fbb5fe2e29a4d70aa5854ce7ce3e20b",
+            "apiAlias": "product_review"
+        }
+    ],
+    "apiAlias": "dal_entity_search_result"
+}
+```
+
+### Get cross sellings of a product
+To get a product listing of a category you use the following route: `store-api.product.cross-selling`
+This route only needs the `productId` parameter. 
+
+```
+/store-api/v1/product/62fbaaceefdb4dcbb5c05a2f683a59f4/cross-selling
+
+{   
+    "includes": {
+        "product_cross_selling": ["id", "translated.name"],
+        "product": ["id", "translated.name"]
+    }
+}
+
+[
+    {
+        "crossSelling": {
+            "translated": {
+                "name": "Accessories"
+            },
+            "id": "a8fe2e1795634e7185672129c2892255",
+            "apiAlias": "product_cross_selling"
+        },
+        "products": [
+            {
+                "translated": {
+                    "name": "Aerodynamic Marble Balkan Beef"
+                },
+                "id": "29a3204f852e4d7db35c262f58964513",
+                "apiAlias": "product"
+            },
+            {
+                "translated": {
+                    "name": "Awesome Copper MillennYum"
+                },
+                "id": "669114f5b22441d982950cb132666135",
+                "apiAlias": "product"
+            },
+            {
+                "translated": {
+                    "name": "Awesome Iron Twelve Steps Exercise Program"
+                },
+                "id": "16ac020913174eacaebab4dab1bd8120",
+                "apiAlias": "product"
+            }
+        ],
+        "total": 3,
+        "apiAlias": "cross_selling_element"
+    },
+    {
+        "crossSelling": {
+            "translated": {
+                "name": "Related products"
+            },
+            "id": "4b33c0d10c3349cb9d7b9ddd638736ed",
+            "apiAlias": "product_cross_selling"
+        },
+        "products": [
+            {
+                "translated": {
+                    "name": "Aerodynamic Marble Balkan Beef"
+                },
+                "id": "29a3204f852e4d7db35c262f58964513",
+                "apiAlias": "product"
+            },
+            {
+                "translated": {
+                    "name": "Awesome Copper MillennYum"
+                },
+                "id": "669114f5b22441d982950cb132666135",
+                "apiAlias": "product"
+            },
+            {
+                "translated": {
+                    "name": "Awesome Iron Twelve Steps Exercise Program"
+                },
+                "id": "16ac020913174eacaebab4dab1bd8120",
+                "apiAlias": "product"
+            },
+            {
+                "translated": {
+                    "name": "Awesome Steel Grassmasher"
+                },
+                "id": "d333aaa4f9e445508c20f73acb19df08",
+                "apiAlias": "product"
+            },
+            {
+                "translated": {
+                    "name": "Durable Aluminum eButter"
+                },
+                "id": "d80f24e0467e4fcbb983e2156da937ff",
+                "apiAlias": "product"
+            }
+        ],
+        "total": 5,
+        "apiAlias": "cross_selling_element"
+    }
+]
+```
+
 ### Get a product listing
 To get a product listing of a category you use the following route: `store-api.product.listing`
-This route only needs the 'categoryId' parameter. 
+This route only needs the `categoryId` parameter. 
 
 If such a product listing is determined via the API, the settings of the corresponding sales channel take effect, which means that 
 the standard aggregations are loaded automatically.
@@ -23,15 +230,15 @@ POST /store-api/v3/product-listing/256b32bb62c84ecd86ddcb16df87ef28
 
 {
     "includes": {
-		"product_listing_sorting": ["key"],
-		"product_manufacturer": ["id", "name"],
-		"price_aggregation": ["min", "max"],
-		"product_group": ["id", "name", "options"],
-		"product_group_option": ["id", "name"],
-		"product": ["id", "name", "calculatedPrice", "cover"],
-		"media": ["id", "url"],
-		"product_media": ["media"],
-		"calculated_price": ["unitPrice", "totalPrice"]
+        "product_listing_sorting": ["key"],
+        "product_manufacturer": ["id", "name"],
+        "price_aggregation": ["min", "max"],
+        "product_group": ["id", "name", "options"],
+        "product_group_option": ["id", "name"],
+        "product": ["id", "name", "calculatedPrice", "cover"],
+        "media": ["id", "url"],
+        "product_media": ["media"],
+        "calculated_price": ["unitPrice", "totalPrice"]
     }
 }
 
@@ -188,17 +395,17 @@ This parameter is a search term to be searched for.
 POST /store-api/v3/search
 
 {
-	"search": "Awesome Iron",
+    "search": "Awesome Iron",
     "includes": {
-		"product_listing_sorting": ["key"],
-		"product_manufacturer": ["id", "name"],
-		"price_aggregation": ["min", "max"],
-		"product_group": ["id", "name", "options"],
-		"product_group_option": ["id", "name"],
-		"product": ["id", "name", "calculatedPrice", "cover"],
-		"media": ["id", "url"],
-		"product_media": ["media"],
-		"calculated_price": ["unitPrice", "totalPrice"]
+        "product_listing_sorting": ["key"],
+        "product_manufacturer": ["id", "name"],
+        "price_aggregation": ["min", "max"],
+        "product_group": ["id", "name", "options"],
+        "product_group_option": ["id", "name"],
+        "product": ["id", "name", "calculatedPrice", "cover"],
+        "media": ["id", "url"],
+        "product_media": ["media"],
+        "calculated_price": ["unitPrice", "totalPrice"]
     }
 }
 
@@ -382,13 +589,13 @@ This works in the same way as the `store-api.search` but no aggregations are loa
 ```
 POST /store-api/v3/search-suggest
 {
-	"search": "Awesome Iron",
+    "search": "Awesome Iron",
     "includes": {
-		"product_manufacturer": ["id", "name"],
-		"product": ["id", "name", "calculatedPrice", "cover"],
-		"media": ["id", "url"],
-		"product_media": ["media"],
-		"calculated_price": ["unitPrice", "totalPrice"]
+        "product_manufacturer": ["id", "name"],
+        "product": ["id", "name", "calculatedPrice", "cover"],
+        "media": ["id", "url"],
+        "product_media": ["media"],
+        "calculated_price": ["unitPrice", "totalPrice"]
     }
 }
 

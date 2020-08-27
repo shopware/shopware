@@ -101,7 +101,7 @@ class StructEncoder
                 continue;
             }
 
-            if (!$this->isAllowed($alias, $property, $apiVersion, $fields)) {
+            if (!$this->isAllowed($alias, $property, $apiVersion, $fields) && !$fields->hasNested($alias, $property)) {
                 unset($data[$property]);
 
                 continue;

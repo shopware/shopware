@@ -241,6 +241,38 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
 The key is here `system` to group the permission together with other system specific
 permissions. But here you can feel free to add your own names.
 
+## Get permissions from other privilege mappings
+
+In the case that you have many dependencies which are the same as in other 
+modules then you can import these. This can be useful if you have components
+in your module which have complex privileges. Some examples are the rule builder
+or the media module. You can get these privileges with the method `getPrivileges` 
+from the service.
+
+Here is an example:
+```js
+Shopware.Service('privileges').addPrivilegeMappingEntry({
+    category: 'permissions',
+    parent: null,
+    key: 'product',
+    roles: {
+        viewer: {
+            privileges: [
+                'product.read',
+                Shopware.Service('privileges').getPrivileges('rule.viewer')
+            ],
+            dependencies: []
+        }
+    }
+})
+```
+
+Now all user with the privilege `product.viewer` automatically have access
+to all privileges from the `rule.viewer`.
+
+Important: This only adds the API privileges. The user has no access to the
+module itself in the administration.
+
 ## Protect your plugin routes
 
 It is easy to protect your routes for users without the right privileges. Just add

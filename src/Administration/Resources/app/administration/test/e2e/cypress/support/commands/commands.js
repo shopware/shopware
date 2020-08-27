@@ -74,22 +74,8 @@ Cypress.Commands.add('loginAsUserWithPermissions', {
                     privileges: (() => {
                         const privilegesService = $w.Shopware.Service('privileges');
 
-                        const requiredPermissions = privilegesService.getRequiredPrivileges();
-                        const selectedPrivileges = permissions.reduce((selectedPrivileges, { key, role }) => {
-                            const identifier = `${key}.${role}`;
-
-                            selectedPrivileges.push(
-                                identifier,
-                                ...privilegesService.getPrivilegeRole(identifier).privileges
-                            );
-
-                            return selectedPrivileges;
-                        }, []);
-
-                        return [
-                            ...selectedPrivileges,
-                            ...requiredPermissions
-                        ];
+                        const adminPrivileges = permissions.map(({ key, role }) => `${key}.${role}`);
+                        return privilegesService.getPrivilegesForAdminPrivilegeKeys(adminPrivileges);
                     })()
                 }
             });

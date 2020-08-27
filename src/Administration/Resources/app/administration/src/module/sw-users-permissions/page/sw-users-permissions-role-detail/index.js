@@ -70,10 +70,6 @@ Component.register('sw-users-permissions-role-detail', {
 
         roleId() {
             return this.$route.params.id;
-        },
-
-        requiredPrivileges() {
-            return this.privileges.getRequiredPrivileges();
         }
     },
 
@@ -130,10 +126,7 @@ Component.register('sw-users-permissions-role-detail', {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            this.role.privileges = [
-                ...this.getPrivilegesForSelections(),
-                ...this.requiredPrivileges
-            ];
+            this.role.privileges = this.privileges.getPrivilegesForAdminPrivilegeKeys(this.role.privileges);
 
             this.confirmPasswordModal = false;
 
@@ -176,18 +169,6 @@ Component.register('sw-users-permissions-role-detail', {
 
         onCloseConfirmPasswordModal() {
             this.confirmPasswordModal = false;
-        },
-
-        getPrivilegesForSelections() {
-            const privileges = [];
-
-            this.role.privileges.forEach(privilegeKey => {
-                const privilegeRole = this.privileges.getPrivilegeRole(privilegeKey);
-
-                privileges.push(privilegeKey, ...privilegeRole.privileges);
-            });
-
-            return privileges;
         },
 
         saveFinish() {

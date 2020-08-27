@@ -43,7 +43,11 @@ $sw-condition-color-border-default: $color-gray-300;
         position: relative;
         border-left: 1px solid $sw-condition-color-border-default;
         border-radius: 0 $border-radius-default $border-radius-default 0;
-        background-color:$color-white;
+        background-color: $color-white;
+
+        &.is--disabled {
+            background-color: transparent;
+        }
 
         .sw-context-button__button {
             position: absolute;

@@ -1,7 +1,7 @@
 import template from './sw-condition-always-valid.html.twig';
 
 const { Component } = Shopware;
-const { mapApiErrors } = Component.getComponentHelper();
+const { mapPropertyErrors } = Component.getComponentHelper();
 
 Component.extend('sw-condition-is-always-valid', 'sw-condition-base', {
     template,
@@ -23,7 +23,7 @@ Component.extend('sw-condition-is-always-valid', 'sw-condition-base', {
                 }
             ];
         },
-        ...mapApiErrors('condition', ['value.isNew']),
+        ...mapPropertyErrors('condition', ['value.isNew']),
 
         currentError() {
             return this.conditionValueIsNewError;

@@ -2,7 +2,9 @@
     <div class="sw-condition-line-item-creation-date sw-condition__condition-value">
 
         {% block sw_condition_line_item_creation_date_operator %}
-            <sw-condition-operator-select v-bind="{ operators, condition }"></sw-condition-operator-select>
+            <sw-condition-operator-select v-bind="{ operators, condition }"
+                                          :disabled="disabled">
+            </sw-condition-operator-select>
         {% endblock %}
 
         {% block sw_condition_line_item_creation_date %}
@@ -10,6 +12,7 @@
                 size="medium"
                 dateType="date"
                 required
+                :disabled="disabled"
                 :config="datepickerConfig"
                 v-model="lineItemCreationDate">
             </sw-datepicker>

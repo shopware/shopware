@@ -49,5 +49,12 @@
       "close": "Close",
       "messageSaveError": "An error occurred while saving the filter."
     }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "rule": {
+        "label": "Rule builder"
+      }
+    }
   }
 }

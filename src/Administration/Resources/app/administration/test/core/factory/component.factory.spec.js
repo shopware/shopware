@@ -1416,11 +1416,11 @@ describe('core/factory/component.factory.js', () => {
             template: '{% block text_field %}<div>Not registered</div>{% endblock %}'
         });
 
-        const overriden = ComponentFactory.build('override-without-register');
-        const extended = ComponentFactory.build('extended-component');
+        const overriden = () => ComponentFactory.build('override-without-register');
+        const extended = () => ComponentFactory.build('extended-component');
 
-        expect(overriden).toBe(false);
-        expect(extended).toBe(false);
+        expect(overriden).toThrowError();
+        expect(extended).toThrowError();
     });
 
     it('returns a component if it has no template but a render function', () => {
@@ -1432,10 +1432,10 @@ describe('core/factory/component.factory.js', () => {
             render(h) { return h('div', {}, 'registered component'); }
         });
 
-        const overriden = ComponentFactory.build('not-registered-with-render-function');
-        const registered = ComponentFactory.build('with-render-function');
+        const overriden = () => ComponentFactory.build('not-registered-with-render-function');
+        const registered = () => ComponentFactory.build('with-render-function');
 
-        expect(overriden).toBe(false);
-        expect(registered).not.toBe(false);
+        expect(overriden).toThrowError();
+        expect(registered).not.toThrowError();
     });
 });

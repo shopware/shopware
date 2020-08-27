@@ -34,6 +34,12 @@
                 <template slot="smart-bar-actions">
                     {% block sw_settings_rule_list_smart_bar_actions_add %}
                         <sw-button :routerLink="{ name: 'sw.settings.rule.create' }"
+                                   :disabled="!acl.can('rule.creator')"
+                                   v-tooltip="{
+                                        message: $tc('sw-privileges.tooltip.warning'),
+                                        disabled: acl.can('rule.creator'),
+                                        showOnDisabledElements: true
+                                    }"
                                    variant="primary">
                             {{ $tc('sw-settings-rule.list.buttonAddRule') }}
                         </sw-button>
@@ -52,9 +58,11 @@
                                     :items="rules"
                                     :columns="getRuleColumns()"
                                     :repository="ruleRepository"
-                                    :showSelection="true"
                                     :isLoading="isLoading"
                                     :fullPage="true"
+                                    :showSelection="acl.can('rule.deleter')"
+                                    :allowEdit="acl.can('rule.editor')"
+                                    :allowDelete="acl.can('rule.deleter')"
                                     detailRoute="sw.settings.rule.detail"
                                     @inline-edit-save="onInlineEditSave"
                                     @items-delete-finish="getList">
@@ -80,7 +88,14 @@
                                     {% block sw_settings_rule_list_grid_columns_actions %}
                                         <template #more-actions="{ item }">
                                             {% block sw_settings_rule_list_grid_columns_actions_duplicate %}
-                                                <sw-context-menu-item @click="onDuplicate(item)">
+                                                <sw-context-menu-item
+                                                    @click="onDuplicate(item)"
+                                                    :disabled="!acl.can('rule.creator')"
+                                                    v-tooltip="{
+                                                        message: $tc('sw-privileges.tooltip.warning'),
+                                                        disabled: acl.can('rule.creator'),
+                                                        showOnDisabledElements: true
+                                                    }">
                                                     {{ $tc('sw-settings-rule.list.contextMenuDuplicate') }}
                                                 </sw-context-menu-item>
                                             {% endblock %}

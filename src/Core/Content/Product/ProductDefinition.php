@@ -139,7 +139,7 @@ class ProductDefinition extends EntityDefinition
             (new JsonField('configurator_group_config', 'configuratorGroupConfig'))->addFlags(new ReadProtected(SalesChannelApiSource::class), new Inherited()),
             (new FkField('main_variant_id', 'mainVariantId', ProductDefinition::class)),
             (new JsonField('variant_restrictions', 'variantRestrictions'))->addFlags(new ReadProtected(SalesChannelApiSource::class)),
-            (new StringField('manufacturer_number', 'manufacturerNumber'))->addFlags(new Inherited()),
+            (new StringField('manufacturer_number', 'manufacturerNumber'))->addFlags(new Inherited(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             (new StringField('ean', 'ean'))->addFlags(new Inherited(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             (new IntField('purchase_steps', 'purchaseSteps', 1))->addFlags(new Inherited()),
             (new IntField('max_purchase', 'maxPurchase'))->addFlags(new Inherited()),
@@ -232,13 +232,13 @@ class ProductDefinition extends EntityDefinition
                 ->addFlags(new CascadeDelete(), new Inherited()),
 
             (new ManyToManyAssociationField('categories', CategoryDefinition::class, ProductCategoryDefinition::class, 'product_id', 'category_id'))
-                ->addFlags(new CascadeDelete(), new Inherited()),
+                ->addFlags(new CascadeDelete(), new Inherited(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
 
             (new ManyToManyAssociationField('categoriesRo', CategoryDefinition::class, ProductCategoryTreeDefinition::class, 'product_id', 'category_id'))
                 ->addFlags(new CascadeDelete(false), new WriteProtected()),
 
             (new ManyToManyAssociationField('tags', TagDefinition::class, ProductTagDefinition::class, 'product_id', 'tag_id'))
-                ->addFlags(new CascadeDelete(), new Inherited()),
+                ->addFlags(new CascadeDelete(), new Inherited(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
 
             (new TranslationsAssociationField(ProductTranslationDefinition::class, 'product_id'))
                 ->addFlags(new Inherited(), new Required()),

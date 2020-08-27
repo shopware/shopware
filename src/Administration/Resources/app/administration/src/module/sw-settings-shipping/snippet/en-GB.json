@@ -100,5 +100,12 @@
         "shippingPriceModal": {
             "modalTitle": "Add shipping price rule"
         }
+    },
+    "sw-privileges": {
+      "permissions": {
+        "shipping": {
+          "label": "Shipping"
+        }
+      }
     }
 }

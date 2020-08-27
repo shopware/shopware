@@ -20,7 +20,7 @@
                         class="sw-settings-shipping-method-detail__save-action"
                         :isLoading="isProcessLoading"
                         v-model="isSaveSuccessful"
-                        :disabled="isProcessLoading"
+                        :disabled="isProcessLoading || !acl.can('shipping.editor')"
                         variant="primary"
                         v-tooltip.bottom="tooltipSave"
                         @click.prevent="onSave">
@@ -59,6 +59,7 @@
                                 {% block sw_settings_shipping_detail_base_content_field_name %}
                                     <sw-field type="text"
                                               required
+                                              :disabled="!acl.can('shipping.editor')"
                                               :label="$tc('sw-settings-shipping.detail.labelName')"
                                               :placeholder="placeholder(shippingMethod, 'name', $tc('sw-settings-shipping.detail.placeholderName'))"
                                               v-model="shippingMethod.name">
@@ -67,6 +68,7 @@
                                 {% block sw_settings_shipping_detail_base_content_field_active %}
                                     <sw-field type="switch"
                                               bordered
+                                              :disabled="!acl.can('shipping.editor')"
                                               v-model="shippingMethod.active"
                                               :label="$tc('sw-settings-shipping.detail.labelActive')">
                                     </sw-field>
@@ -76,6 +78,7 @@
                                 {% block sw_settings_shipping_detail_base_content_field_description %}
                                     <sw-textarea-field :value="shippingMethod.description"
                                                        class="sw-settings-shipping-detail__description"
+                                                       :disabled="!acl.can('shipping.editor')"
                                                        :label="$tc('sw-settings-shipping.detail.labelDescription')"
                                                        :placeholder="placeholder(shippingMethod, 'description', $tc('sw-settings-shipping.detail.placeholderDescription'))"
                                                        v-model="shippingMethod.description">
@@ -93,6 +96,7 @@
                                                         class="sw-settings-shipping-detail__logo-image-upload"
                                                         :allowMultiSelect="false"
                                                         variant="regular"
+                                                        :disabled="!acl.can('shipping.editor')"
                                                         :label="$tc('sw-settings-shipping.detail.labelLogoUpload')"
                                                         :defaultFolder="shippingMethod.getEntityName()"
                                                         @media-drop="onDropMedia"
@@ -107,6 +111,7 @@
                                     v-model="shippingMethod.deliveryTimeId"
                                     class="sw-settings-shipping-detail__delivery-time"
                                     entity="delivery_time"
+                                    :disabled="!acl.can('shipping.editor')"
                                     :criteria="deliveryTimeCriteria"
                                     :label="$tc('sw-settings-shipping.detail.labelDeliveryTime')"
                                     :placeholder="$tc('sw-settings-shipping.detail.placeholderDeliveryTime')"
@@ -116,6 +121,7 @@
 
                             {% block sw_settings_shipping_detail_base_content_tracking_url_field %}
                                 <sw-field type="text"
+                                          :disabled="!acl.can('shipping.editor')"
                                           :label="$tc('sw-settings-shipping.detail.labelTrackingUrl')"
                                           :placeholder="placeholder(shippingMethod, 'trackingUrl', $tc('sw-settings-shipping.detail.placeholderTrackingUrl'))"
                                           :helpText="$tc('sw-settings-shipping.detail.helpTextTrackingUrl')"
@@ -126,6 +132,7 @@
                             {% block sw_settings_shipping_detail_base_content_tags_field %}
                                 <sw-entity-tag-select
                                     v-if="!isLoading"
+                                    :disabled="!acl.can('shipping.editor')"
                                     :placeholder="$tc('sw-product.categoryForm.placeholderTags')"
                                     v-model="shippingMethod.tags">
                                 </sw-entity-tag-select>
@@ -139,6 +146,7 @@
                             {% block sw_settings_shipping_detail_top_rule_select %}
                                 <sw-select-rule-create :ruleId="shippingMethod.availabilityRuleId"
                                                        :ruleFilter="ruleFilter"
+                                                       :disabled="!acl.can('shipping.editor')"
                                                        required
                                                        class="sw-settings-shipping-detail__top-rule"
                                                        @save-rule="onSaveRule">
@@ -150,6 +158,7 @@
                     {% block sw_settings_shipping_detail_price_matrices %}
                         <sw-settings-shipping-price-matrices
                             v-if="!isLoading"
+                            :disabled="!acl.can('shipping.editor')"
                             ref="priceMatrices">
                         </sw-settings-shipping-price-matrices>
                     {% endblock %}

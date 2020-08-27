@@ -23,6 +23,7 @@
                         :ruleId="priceGroup.ruleId"
                         :ruleFilter="ruleFilterCriteria"
                         size="small"
+                        :disabled="disabled"
                         :placeholder="mainRulePlaceholder"
                         @save-rule="onSaveMainRule">
                         <template #result-item="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }">
@@ -51,8 +52,9 @@
                 {% block sw_settings_shipping_price_matrix_topbar_new_price %}
                     <sw-button
                         size="x-small"
+                        class="sw-settings-shipping-price-matrix__top-container-add-new-rule"
                        :variant="!showDataGrid ? '': 'ghost'"
-                       :disabled="!showDataGrid"
+                       :disabled="!showDataGrid || disabled"
                        @click="onAddNewShippingPrice">
                         <template v-if="isRuleMatrix">
                             {{ $tc('sw-settings-shipping.priceMatrix.addNewRule') }}
@@ -64,7 +66,7 @@
                 {% endblock %}
 
                 {% block sw_settings_shipping_price_matrix_topbar_context_button %}
-                    <sw-context-button :disabled="!showDataGrid"
+                    <sw-context-button :disabled="!showDataGrid || disabled"
                                        class="sw-settings-shipping-price-matrix__price-group-context">
                         {% block sw_settings_shipping_price_matrix_topbar_context_button_duplicate %}
                             <sw-context-menu-item
@@ -104,6 +106,7 @@
                         <sw-select-rule-create
                             class="sw-settings-shipping-price-matrix__column-calculation-rule-select"
                             size="small"
+                            :disabled="disabled"
                             :ruleId="item.calculationRuleId"
                             :ruleFilter="shippingRuleFilterCriteria"
                             :placeholder="$tc('sw-settings-shipping.priceMatrix.chooseCustomRule')"
@@ -142,6 +145,7 @@
                 {% block sw_settings_shipping_price_matrix_price_grid_column_quantity_start %}
                     <template slot="column-quantityStart" slot-scope="{ item, itemIndex, compact }">
                         <sw-number-field
+                            :disabled="disabled"
                             :name="`sw-field--${item.id}-quantity-start`"
                             :numberType="numberFieldType"
                             :size="compact ? 'small' : 'default'"
@@ -155,6 +159,7 @@
                 {% block sw_settings_shipping_price_matrix_price_grid_column_quantity_end %}
                     <template slot="column-quantityEnd" slot-scope="{ item, itemIndex, compact }">
                         <sw-number-field
+                            :disabled="disabled"
                             :name="`sw-field--${item.id}-quantity-end`"
                             :numberType="numberFieldType"
                             :size="compact ? 'small' : 'default'"
@@ -184,23 +189,23 @@
                                         v-if="!currency.isSystemDefault"
                                         class="sw-settings-shipping-price-matrix__price-inherit-icon"
                                         :isInherited="props.isInherited"
+                                        :disabled="disabled"
                                         @inheritance-restore="props.restoreInheritance"
-                                        @inheritance-remove="props.removeInheritance"
-                                    >
+                                        @inheritance-remove="props.removeInheritance">
                                     </sw-inheritance-switch>
                                     <sw-number-field
                                         :name="`sw-field--${item.id}-${currency.id}-gross`"
                                         :size="compact ? 'small' : 'default'"
                                         class="sw-settings-shipping-price-matrix__price-input"
                                         v-model="props.currentValue.gross"
-                                        :disabled="props.isInherited">
+                                        :disabled="props.isInherited || disabled">
                                     </sw-number-field>
                                     <sw-number-field
                                         :name="`sw-field--${item.id}-${currency.id}-net`"
                                         :size="compact ? 'small' : 'default'"
                                         class="sw-settings-shipping-price-matrix__price-input"
                                         v-model="props.currentValue.net"
-                                        :disabled="props.isInherited">
+                                        :disabled="props.isInherited || disabled">
                                     </sw-number-field>
                                 </template>
                             </sw-inherit-wrapper>
@@ -210,7 +215,7 @@
                 {% block sw_settings_shipping_price_matrix_price_grid_actions %}
                     <template #actions="{ item }">
                         {% block sw_settings_shipping_price_matrix_price_grid_actions_delete %}
-                            <sw-context-menu-item :disabled="disableDeleteButton"
+                            <sw-context-menu-item :disabled="disableDeleteButton || disabled"
                                                   @click="onDeleteShippingPrice(item)"
                                                   variant="danger">
                                 {{ $tc('sw-settings-shipping.priceMatrix.contextMenuDeletePrice') }}
@@ -235,6 +240,7 @@
                             :options="calculationTypes"
                             :value="priceGroup.calculation"
                             @change="onCalculationChange"
+                            :disabled="disabled"
                             size="small"
                             :placeholder="$tc('sw-settings-shipping.priceMatrix.selectProperty')">
                         </sw-single-select>
@@ -247,6 +253,7 @@
                     {% block sw_settings_shipping_price_matrix_empty_rule_select %}
                         <sw-select-rule-create
                             size="small"
+                            :disabled="disabled"
                             :placeholder="$tc('sw-settings-shipping.priceMatrix.chooseCustomRule')"
                             @save-rule="onSaveCustomShippingRule">
                             <template #rule-modal="{ showRuleModal, onSaveRule, onCloseRuleModal }">

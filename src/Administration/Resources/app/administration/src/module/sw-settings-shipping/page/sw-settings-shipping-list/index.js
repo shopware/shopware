@@ -6,7 +6,7 @@ const { Component, Mixin, Data: { Criteria } } = Shopware;
 Component.register('sw-settings-shipping-list', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('listing'),

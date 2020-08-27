@@ -100,5 +100,12 @@
     "shippingPriceModal": {
       "modalTitle": "Abstufung hinzufügen"
     }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "shipping": {
+        "label": "Versand"
+      }
+    }
   }
 }

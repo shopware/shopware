@@ -22,6 +22,11 @@ NEXT
 ----------------
 
 #### Administration
+* Added ACL permissions to countries module in settings
+* Added property `disabled` to `sw-settings-country-list` component
+* Added property `disabled` to `sw-settings-country-detail` component
+* Added property `disabled` to `sw-country-state-detail` component
+* Added property `disabled` to `sw-one-to-many-grid` component
 * Added ACL permissions to settings rule
 * Added property `disabled` to `sw-arrow-field` component
 * Added property `disabled` to `sw-condition-base` component

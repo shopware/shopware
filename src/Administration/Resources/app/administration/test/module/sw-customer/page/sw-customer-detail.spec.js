@@ -1,22 +1,27 @@
-import { shallowMount } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-customer/page/sw-customer-detail';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/form/sw-custom-field-set-renderer';
 import 'src/app/component/form/sw-form-field-renderer';
 import 'src/app/component/utils/sw-inherit-wrapper';
 
-function createWrapper() {
+function createWrapper(privileges = []) {
+    const localVue = createLocalVue();
+    localVue.directive('tooltip', {});
+
     return shallowMount(Shopware.Component.build('sw-customer-detail'), {
+        localVue,
         mocks: {
             $tc: () => {
             },
             $route: {
                 query: {
-                    edit: false
+                    edit: false,
+                    page: 1,
+                    limit: 25
                 }
             }
         },
-
         provide: {
             feature: {
                 isActive: () => true
@@ -35,6 +40,13 @@ function createWrapper() {
                     };
                 }
             },
+            acl: {
+                can: (identifier) => {
+                    if (!identifier) { return true; }
+
+                    return privileges.includes(identifier);
+                }
+            },
             customerGroupRegistrationService: {
                 accept: jest.fn().mockResolvedValue(true),
                 decline: jest.fn().mockResolvedValue(true)
@@ -43,39 +55,75 @@ function createWrapper() {
                 getValues: () => Promise.resolve([])
             }
         },
-
         propsData: {
             customerEditMode: false,
             customerId: 'test',
             customer: {}
         },
-
         stubs: {
-            'sw-card-view': '<div><slot></slot></div>',
-            'sw-alert': '<div><slot></slot></div>',
+            'sw-page': `
+                <div class="sw-page">
+                    <slot name="smart-bar-actions"></slot>
+                    <slot name="content">CONTENT</slot>
+                    <slot></slot>
+                </div>`,
             'sw-button': Shopware.Component.build('sw-button'),
-            'router-view': true,
-            'sw-page': '<div><slot name="content"></slot></div>',
+            'sw-button-process': true,
+            'sw-language-switch': true,
+            'sw-card-view': '<div><slot></slot></div>',
             'sw-card': '<div><slot></slot></div>',
+            'sw-container': true,
+            'sw-field': true,
+            'sw-language-info': true,
+            'sw-tabs': '<div><slot name="content"></slot></div>',
+            'sw-tabs-item': true,
+            'router-view': true,
+            'sw-alert': '<div><slot></slot></div>',
             'sw-customer-card': '<div></div>',
             'sw-custom-field-set-renderer': Shopware.Component.build('sw-custom-field-set-renderer'),
-            'sw-tabs': '<div><slot name="content"></slot></div>',
             'sw-form-field-renderer': Shopware.Component.build('sw-form-field-renderer'),
-            'sw-field': '<div></div>',
             'sw-inherit-wrapper': Shopware.Component.build('sw-inherit-wrapper')
         }
     });
 }
 
-describe('module/sw-customer/page/sw-customer-detail.spec.js', () => {
+describe('module/sw-customer/page/sw-customer-detail', () => {
     let wrapper;
 
     beforeEach(() => {
         wrapper = createWrapper();
     });
 
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.JS component', () => {
         expect(wrapper.isVueInstance()).toBe(true);
+    });
+
+    it('should not be able to edit the customer', async () => {
+        const wrapperWithPrivileges = createWrapper();
+        wrapperWithPrivileges.setData({
+            isLoading: false
+        });
+
+        await wrapperWithPrivileges.vm.$nextTick();
+
+        const saveButton = wrapperWithPrivileges.find('.sw-customer-detail__open-edit-mode-action');
+
+        expect(saveButton.attributes().isLoading).toBeFalsy();
+        expect(saveButton.attributes().disabled).toBeTruthy();
+    });
+
+    it('should be able to edit the customer', async () => {
+        const wrapperWithPrivileges = createWrapper([
+            'customer.editor'
+        ]);
+        wrapperWithPrivileges.setData({
+            isLoading: false
+        });
+        await wrapperWithPrivileges.vm.$nextTick();
+
+        const saveButton = wrapperWithPrivileges.find('.sw-customer-detail__open-edit-mode-action');
+
+        expect(saveButton.attributes().disabled).toBeFalsy();
     });
 
     it('should accept customer registration button called', async () => {

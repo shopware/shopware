@@ -55,7 +55,7 @@ describe('Property: Test ACL privileges', () => {
             cy.loginAsUserWithPermissions([
                 {
                     key: 'property',
-                    role: 'viewer'.skip
+                    role: 'viewer'
                 }
             ]).then(() => {
                 cy.visit(`${Cypress.env('admin')}#/sw/property/index`);

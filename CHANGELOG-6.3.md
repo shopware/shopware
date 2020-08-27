@@ -43,6 +43,8 @@ NEXT
 * Added property `disabled` to `sw-settings-shipping-price-matrices` component
 * Added property `disabled` to `sw-settings-shipping-price-matrix` component
 * Added ACL permissions to delivery times module
+* Added new privileges for `sw-setting-payment` module to privilege service
+* Added new privileges for `sw-customer` module to privilege service
 
 #### Core
 * Changed order address from customer to billing address in documents
@@ -147,7 +149,6 @@ NEXT
 * Added property `disabled` to `sw-sales-channel-detail-domains` component
 * Added property `disabled` to `sw-sales-channel-detail-hreflang` component
 * Added new privileges for `sw-review` module to privilege service
-* Added new privileges for `sw-setting-payment` module to privilege service
 
 #### Core
 

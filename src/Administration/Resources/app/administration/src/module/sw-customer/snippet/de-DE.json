@@ -215,7 +215,13 @@
       "messageSaveSuccess": "Der Kunde \"{name}\" wurde erfolgreich gespeichert.",
       "notificationPasswordErrorMessage": "Die eingegebenen Passwörter stimmen nicht überein.",
       "notificationPasswordLengthErrorMessage": "Das Losungswort erfüllt nicht die Mindestlänge von 8."
-
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "customer": {
+        "label": "Kunden"
+      }
     }
   }
 }

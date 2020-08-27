@@ -9,7 +9,12 @@ const { mapPageErrors } = Shopware.Component.getComponentHelper();
 Component.register('sw-customer-detail', {
     template,
 
-    inject: ['systemConfigApiService', 'repositoryFactory', 'customerGroupRegistrationService'],
+    inject: [
+        'systemConfigApiService',
+        'repositoryFactory',
+        'customerGroupRegistrationService',
+        'acl'
+    ],
 
     mixins: [
         Mixin.getByName('notification'),

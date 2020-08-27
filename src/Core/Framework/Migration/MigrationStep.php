@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Migration;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DBALException;
 
 abstract class MigrationStep
 {
@@ -25,12 +26,10 @@ abstract class MigrationStep
 
     public function removeTrigger(Connection $connection, string $name): void
     {
-        $blueGreenDeployment = (int) getenv('BLUE_GREEN_DEPLOYMENT');
-        if ($blueGreenDeployment === 0) {
-            return;
+        try {
+            $connection->executeUpdate(sprintf('DROP TRIGGER IF EXISTS %s', $name));
+        } catch (DBALException $e) {
         }
-
-        $connection->executeUpdate(sprintf('DROP TRIGGER %s', $name));
     }
 
     /**

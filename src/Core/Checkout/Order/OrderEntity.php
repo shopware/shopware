@@ -533,11 +533,6 @@ class OrderEntity extends Entity
         $this->customerComment = $customerComment;
     }
 
-    public function getApiAlias(): string
-    {
-        return 'order';
-    }
-
     private function addChildren(OrderLineItemCollection $lineItems, OrderLineItemCollection $parents): void
     {
         foreach ($parents as $parent) {

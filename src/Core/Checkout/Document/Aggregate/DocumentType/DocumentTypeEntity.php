@@ -117,9 +117,4 @@ class DocumentTypeEntity extends Entity
     {
         $this->customFields = $customFields;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'document_type';
-    }
 }

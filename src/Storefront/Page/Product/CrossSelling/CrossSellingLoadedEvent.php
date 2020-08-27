@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Event\ShopwareEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @deprecated tag:v6.4.0 - Use `\Shopware\Core\Content\Product\Events\ProductCrossSellingsLoadedEvent` instead
+ */
 class CrossSellingLoadedEvent extends Event implements ShopwareEvent
 {
     /**

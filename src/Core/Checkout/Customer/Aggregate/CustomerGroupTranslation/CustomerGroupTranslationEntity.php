@@ -129,9 +129,4 @@ class CustomerGroupTranslationEntity extends TranslationEntity
     {
         $this->registrationSeoMetaDescription = $registrationSeoMetaDescription;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'customer_group_translation';
-    }
 }

@@ -182,9 +182,4 @@ class ShippingMethodPriceEntity extends Entity
     {
         $this->currencyPrice = $price;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'shipping_method_price';
-    }
 }

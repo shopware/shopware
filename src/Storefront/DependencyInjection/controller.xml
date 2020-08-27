@@ -199,7 +199,7 @@
         </service>
 
         <service id="Shopware\Storefront\Page\Product\Review\ProductReviewLoader">
-            <argument type="service" id="product_review.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRoute"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
 

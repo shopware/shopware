@@ -97,9 +97,4 @@ class ProductPriceEntity extends PriceRuleEntity
     {
         $this->customFields = $customFields;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'product_price';
-    }
 }

@@ -892,9 +892,4 @@ class LanguageEntity extends Entity
     {
         $this->actionButtonTranslations = $actionButtonTranslations;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'language';
-    }
 }

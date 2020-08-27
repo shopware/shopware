@@ -85,9 +85,4 @@ class ProductCrossSellingAssignedProductsEntity extends Entity
     {
         $this->position = $position;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'product_cross_selling_assigned_products';
-    }
 }

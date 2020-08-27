@@ -3,7 +3,7 @@
 namespace Shopware\Storefront\Page\Product\Review;
 
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
@@ -21,25 +21,24 @@ class ProductReviewLoader
 {
     private const LIMIT = 10;
     private const DEFAULT_PAGE = 1;
-    private const ACTIVE_STATUS = 1;
     private const FILTER_LANGUAGE = 'filter-language';
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $reviewRepository;
 
     /**
      * @var EventDispatcherInterface
      */
     private $eventDispatcher;
 
+    /**
+     * @var AbstractProductReviewRoute
+     */
+    private $route;
+
     public function __construct(
-        EntityRepositoryInterface $reviewRepository,
+        AbstractProductReviewRoute $route,
         EventDispatcherInterface $eventDispatcher
     ) {
-        $this->reviewRepository = $reviewRepository;
         $this->eventDispatcher = $eventDispatcher;
+        $this->route = $route;
     }
 
     /**
@@ -56,9 +55,12 @@ class ProductReviewLoader
             throw new MissingRequestParameterException('productId');
         }
 
-        $criteria = $this->createCriteria($productId, $request, $context);
+        $criteria = $this->createCriteria($request, $context);
 
-        $reviews = $this->reviewRepository->search($criteria, $context->getContext());
+        $reviews = $this->route
+            ->load($productId, $request, $context, $criteria)
+            ->getResult();
+
         $reviews = StorefrontSearchResult::createFrom($reviews);
 
         $this->eventDispatcher->dispatch(new ProductReviewsLoadedEvent($reviews, $context, $request));
@@ -80,7 +82,7 @@ class ProductReviewLoader
         return $reviewResult;
     }
 
-    private function createCriteria(string $productId, Request $request, SalesChannelContext $context): Criteria
+    private function createCriteria(Request $request, SalesChannelContext $context): Criteria
     {
         $limit = (int) $request->get('limit', self::LIMIT);
         $page = (int) $request->get('p', self::DEFAULT_PAGE);
@@ -89,13 +91,6 @@ class ProductReviewLoader
         $criteria = new Criteria();
         $criteria->setLimit($limit);
         $criteria->setOffset($offset);
-        $criteria->addFilter(new EqualsFilter('status', self::ACTIVE_STATUS));
-        $criteria->addFilter(
-            new MultiFilter(MultiFilter::CONNECTION_OR, [
-                new EqualsFilter('product.id', $productId),
-                new EqualsFilter('product.parentId', $productId),
-            ])
-        );
 
         $sorting = new FieldSorting('createdAt', 'DESC');
         if ($request->get('sort', 'points') === 'points') {
@@ -132,15 +127,11 @@ class ProductReviewLoader
         $criteria = new Criteria();
         $criteria->setLimit(1);
         $criteria->setOffset(0);
-        $criteria->addFilter(
-            new MultiFilter(MultiFilter::CONNECTION_OR, [
-                new EqualsFilter('product.id', $productId),
-                new EqualsFilter('product.parentId', $productId),
-            ])
-        );
         $criteria->addFilter(new EqualsFilter('customerId', $customer->getId()));
 
-        $customerReviews = $this->reviewRepository->search($criteria, $context->getContext());
+        $customerReviews = $this->route
+            ->load($productId, new Request(), $context, $criteria)
+            ->getResult();
 
         return $customerReviews->first();
     }

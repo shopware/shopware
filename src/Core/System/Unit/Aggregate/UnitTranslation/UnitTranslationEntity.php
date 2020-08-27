@@ -81,9 +81,4 @@ class UnitTranslationEntity extends TranslationEntity
     {
         $this->customFields = $customFields;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'unit_translation';
-    }
 }

@@ -112,9 +112,4 @@ class PromotionIndividualCodeEntity extends Entity
             'customerName' => $customerName,
         ];
     }
-
-    public function getApiAlias(): string
-    {
-        return 'promotion_individual_code';
-    }
 }

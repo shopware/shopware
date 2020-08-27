@@ -854,9 +854,4 @@ class CustomerEntity extends Entity
     {
         $this->requestedGroup = $requestedGroup;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'customer';
-    }
 }

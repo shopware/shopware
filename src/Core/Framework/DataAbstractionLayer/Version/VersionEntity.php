@@ -44,9 +44,4 @@ class VersionEntity extends Entity
     {
         $this->name = $name;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'dal_version';
-    }
 }

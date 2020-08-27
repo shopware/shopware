@@ -6,7 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Storefront\Page\Product\ProductPageLoadedEvent;
 use Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPage;
+use Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageCriteriaEvent;
 use Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageLoadedEvent;
 use Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageLoader;
 use Shopware\Storefront\Test\Page\StorefrontPageTestBehaviour;
@@ -63,6 +65,23 @@ class MinimalQuickViewPageTest extends TestCase
         static::assertInstanceOf(MinimalQuickViewPage::class, $page);
         static::assertSame(StorefrontPageTestConstants::PRODUCT_NAME, $page->getProduct()->getName());
         self::assertPageEvent(MinimalQuickViewPageLoadedEvent::class, $event, $context, $request, $page);
+    }
+
+    public function testItDispatchPageCriteriaEvent(): void
+    {
+        $context = $this->createSalesChannelContextWithNavigation();
+        $product = $this->getRandomProduct($context);
+
+        $request = new Request([], [], ['productId' => $product->getId()]);
+
+        /** @var ProductPageLoadedEvent $event */
+        $event = null;
+        $this->catchEvent(MinimalQuickViewPageCriteriaEvent::class, $event);
+
+        $page = $this->getPageLoader()->load($request, $context);
+
+        static::assertInstanceOf(MinimalQuickViewPage::class, $page);
+        static::assertInstanceOf(MinimalQuickViewPageCriteriaEvent::class, $event);
     }
 
     protected function getPageLoader(): MinimalQuickViewPageLoader

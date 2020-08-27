@@ -1286,11 +1286,6 @@ class ProductEntity extends Entity
         $this->featureSet = $featureSet;
     }
 
-    public function getApiAlias(): string
-    {
-        return 'product';
-    }
-
     public function getCustomFieldSetSelectionActive(): ?bool
     {
         return $this->customFieldSetSelectionActive;

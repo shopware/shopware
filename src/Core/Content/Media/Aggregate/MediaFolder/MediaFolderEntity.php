@@ -191,9 +191,4 @@ class MediaFolderEntity extends Entity
     {
         $this->customFields = $customFields;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'media_folder';
-    }
 }

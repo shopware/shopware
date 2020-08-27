@@ -154,11 +154,6 @@ class ProductStreamEntity extends Entity
         $this->productCrossSellings = $productCrossSellings;
     }
 
-    public function getApiAlias(): string
-    {
-        return 'product_stream';
-    }
-
     public function getCategories(): ?CategoryCollection
     {
         return $this->categories;

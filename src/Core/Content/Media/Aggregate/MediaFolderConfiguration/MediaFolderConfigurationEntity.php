@@ -145,9 +145,4 @@ class MediaFolderConfigurationEntity extends Entity
     {
         $this->noAssociation = $noAssociation;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'media_folder_configuration';
-    }
 }

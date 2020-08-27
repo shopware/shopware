@@ -143,9 +143,4 @@ class StateMachineEntity extends Entity
     {
         $this->customFields = $customFields;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'state_machine';
-    }
 }

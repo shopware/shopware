@@ -126,9 +126,4 @@ class MailHeaderFooterTranslationEntity extends TranslationEntity
     {
         $this->mailHeaderFooter = $mailHeaderFooter;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'mail_template_header_footer_translation';
-    }
 }

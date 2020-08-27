@@ -85,9 +85,4 @@ class TaxEntity extends Entity
     {
         $this->rules = $rules;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'tax';
-    }
 }

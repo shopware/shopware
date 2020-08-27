@@ -189,6 +189,7 @@ NEXT
 * Changed `\Shopware\Core\System\SalesChannel\SalesChannel\StoreApiInfoController` to set correct `Content-Security-Policy` header
 * Swapped the priorities of `CreditCartProcessor` and `CustomCartProcessor`. Now `CustomCartProcessor` will run before `CreditCartProcessor`.
 * Fixed a bug cannot update credit items after creating in Admin order
+* Added new $context parameter to `\Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister::replace`. This parameter will be required with 6.4.0.0.
 
 #### Storefront
 

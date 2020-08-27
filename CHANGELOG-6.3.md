@@ -221,6 +221,15 @@ NEXT
 * Fixed a bug cannot update credit items after creating in Admin order
 * Deprecated providing an until timestamp as the last argument to the `database:migrate` and `database:migrate-destructive` commands, use the `--until` option instead
 * Allow running migrations for multiple identifiers in `database:migrate` and `database:migrate-destructive` commands
+* Added `\Shopware\Core\Checkout\Customer\SalesChannel\ListAddressRoute` route to provide an endpoint to list all addresses of a logged-in customer.
+* Added `\Shopware\Core\Checkout\Customer\SalesChannel\UpsertAddressRoute` route to provide an endpoint to create or update addresses.
+* Added `\Shopware\Core\Checkout\Customer\SalesChannel\DeleteAddressRoute` route to provide an endpoint to delete addresses.
+* Added `\Shopware\Core\Checkout\Customer\SalesChannel\SwitchDefaultAddressRoute` route to provide an endpoint to switch the default shipping or billing address.
+* Deprecated `\Shopware\Core\Checkout\Customer\SalesChannel\AddressService` use one of following new routes
+    * `\Shopware\Core\Checkout\Customer\SalesChannel\ListAddressRoute`
+    * `\Shopware\Core\Checkout\Customer\SalesChannel\UpsertAddressRoute`
+    * `\Shopware\Core\Checkout\Customer\SalesChannel\DeleteAddressRoute`
+    * `\Shopware\Core\Checkout\Customer\SalesChannel\SwitchDefaultAddressRoute`
 
 #### Storefront
 

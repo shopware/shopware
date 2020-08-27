@@ -133,7 +133,7 @@
                     {% if billingAddress.company %}
                         {{ billingAddress.company }}<br>
                     {% endif %}
-                    {{ customer.salutation.letterName }} {{ customer.firstName }} {{ customer.lastName }}<br>
+                    {{ billingAddress.salutation.letterName }} {{ billingAddress.firstName }} {{ billingAddress.lastName }}<br>
                     {{ billingAddress.street }}<br>
                     {{ billingAddress.zipcode }} {{ billingAddress.city }}<br>
                     {{ billingAddress.country.name }}<br>

@@ -35,7 +35,7 @@ class MailSendSubscriberTest extends TestCase
     /**
      * @dataProvider sendMailProvider
      */
-    public function testSendMail(bool $skip, ?array $recipients, array $expectedRecipients): void
+    public function testSendMail(bool $skip, ?array $recipients, array $expectedRecipients, ?array $expectedCcRecipients, ?array $expectedBccRecipients): void
     {
         $documentRepository = $this->getContainer()->get('document.repository');
 
@@ -62,7 +62,7 @@ class MailSendSubscriberTest extends TestCase
             'recipients' => $recipients,
         ]);
 
-        $event = new ContactFormEvent($context, Defaults::SALES_CHANNEL, new MailRecipientStruct(['test@example.com' => 'Shopware ag']), new DataBag());
+        $event = new ContactFormEvent($context, Defaults::SALES_CHANNEL, new MailRecipientStruct(['test@example.com' => 'Shopware ag'], $expectedCcRecipients, $expectedBccRecipients), new DataBag());
 
         $mailService = new TestMailService();
         $subscriber = new MailSendSubscriber(
@@ -83,6 +83,8 @@ class MailSendSubscriberTest extends TestCase
         } else {
             static::assertEquals(1, $mailService->calls);
             static::assertEquals($mailService->data['recipients'], $expectedRecipients);
+            static::assertEquals($mailService->data['recipientsCc'], $expectedCcRecipients);
+            static::assertEquals($mailService->data['recipientsBcc'], $expectedBccRecipients);
 
             $criteria = new Criteria();
             $criteria->addFilter(new EqualsFilter('id', $documentId))->addFilter(new EqualsFilter('sent', true));
@@ -93,9 +95,10 @@ class MailSendSubscriberTest extends TestCase
 
     public function sendMailProvider(): iterable
     {
-        yield 'Test skip mail' => [true, null, ['test@example.com' => 'Shopware ag']];
-        yield 'Test send mail' => [false, null, ['test@example.com' => 'Shopware ag']];
-        yield 'Test overwrite recipients' => [false, ['test2@example.com' => 'Overwrite'], ['test2@example.com' => 'Overwrite']];
+        yield 'Test skip mail' => [true, null, ['test@example.com' => 'Shopware ag'], null, null];
+        yield 'Test send mail' => [false, null, ['test@example.com' => 'Shopware ag'], null, null];
+        yield 'Test overwrite recipients' => [false, ['test2@example.com' => 'Overwrite'], ['test2@example.com' => 'Overwrite'], null, null];
+        yield 'Test send mail cc and bcc' => [false, null, ['test@example.com' => 'Shopware ag'], ['party@smarty.com' => 'Smarty is called Twig now'], ['john@doe.com' => 'John Doe']];
     }
 
     private function createCustomer(Context $context): string

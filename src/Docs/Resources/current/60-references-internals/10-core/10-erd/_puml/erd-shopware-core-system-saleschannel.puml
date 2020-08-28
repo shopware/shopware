@@ -31,28 +31,36 @@ Table(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel\n(Sal
    not_null(paymentMethodId) foreignKey
    not_null(shippingMethodId) foreignKey
    not_null(countryId) foreignKey
+   analyticsId foreignKey
    not_null(navigationCategoryId) foreignKey
    not_null(navigationCategoryVersionId) referenceVersion
+   navigationCategoryDepth int
    footerCategoryId foreignKey
    footerCategoryVersionId referenceVersion
    serviceCategoryId foreignKey
    serviceCategoryVersionId referenceVersion
    mailHeaderFooterId foreignKey
+   hreflangDefaultDomainId foreignKey
    name translated
    shortName string
+   taxCalculationType string
    not_null(accessKey) string
    configuration json
    active bool
+   hreflangActive bool
+   maintenance bool
+   maintenanceIpWhitelist list
    customFields translated
+   paymentMethodIds manyToManyId
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
    translated json
 }
 TranslationTable(ShopwareCoreSystemSalesChannelAggregateSalesChannelTranslationSalesChannelTranslationDefinition, "sales_channel_translation\n((Translations))") {
    not_null(name) string
    customFields customFields
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
    primary_key(salesChannelId) foreignKey
    primary_key(languageId) foreignKey
 }
@@ -64,16 +72,17 @@ Table(ShopwareCoreSystemSalesChannelAggregateSalesChannelCurrencySalesChannelCur
    primary_key(salesChannelId) foreignKey
    primary_key(currencyId) foreignKey
 }
-Table(ShopwareCoreSystemSalesChannelAggregateSalesChannelDomainSalesChannelDomainDefinition, "sales_channel_domain\n(Domain names of a sales channels)") {
+Table(ShopwareCoreSystemSalesChannelAggregateSalesChannelDomainSalesChannelDomainDefinition, "sales_channel_domain\n(Domain names of a sales)") {
    primary_key(id) id
    not_null(url) string
    not_null(salesChannelId) foreignKey
    not_null(languageId) foreignKey
    not_null(currencyId) foreignKey
    not_null(snippetSetId) foreignKey
+   hreflangUseOnlyLocale bool
    customFields customFields
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
 }
 Table(ShopwareCoreSystemSalesChannelAggregateSalesChannelLanguageSalesChannelLanguageDefinition, "sales_channel_language\n(M:N Mapping)") {
    primary_key(salesChannelId) foreignKey
@@ -98,21 +107,30 @@ Table(ShopwareCoreSystemSalesChannelAggregateSalesChannelTypeSalesChannelTypeDef
    descriptionLong translated
    customFields translated
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
    translated json
 }
 TranslationTable(ShopwareCoreSystemSalesChannelAggregateSalesChannelTypeTranslationSalesChannelTypeTranslationDefinition, "sales_channel_type_translation\n((Translations))") {
    not_null(name) string
    manufacturer string
    description string
-   descriptionLong longTextWithHtml
+   descriptionLong longText
    customFields customFields
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
    primary_key(salesChannelTypeId) foreignKey
    primary_key(languageId) foreignKey
 }
-ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
+Table(ShopwareCoreSystemSalesChannelAggregateSalesChannelAnalyticsSalesChannelAnalyticsDefinition, "sales_channel_analytics\n(Sales channel analytics)") {
+   primary_key(id) id
+   trackingId string
+   active bool
+   trackOrders bool
+   anonymizeIp bool
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+}
+ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
 }
 ForeignTable(ShopwareCoreCheckoutCustomerAggregateCustomerGroupCustomerGroupDefinition, "customer_group") {
 }
@@ -148,15 +166,19 @@ ForeignTable(ShopwareCoreCheckoutDocumentAggregateDocumentBaseConfigSalesChannel
 }
 ForeignTable(ShopwareCoreContentProductAggregateProductReviewProductReviewDefinition, "product_review") {
 }
-ForeignTable(ShopwareCoreFrameworkSeoSeoUrlSeoUrlDefinition, "seo_url") {
+ForeignTable(ShopwareCoreContentSeoSeoUrlSeoUrlDefinition, "seo_url") {
 }
-ForeignTable(ShopwareCoreFrameworkSeoSeoUrlTemplateSeoUrlTemplateDefinition, "seo_url_template") {
+ForeignTable(ShopwareCoreContentSeoSeoUrlTemplateSeoUrlTemplateDefinition, "seo_url_template") {
 }
-ForeignTable(ShopwareCoreFrameworkSeoMainCategoryMainCategoryDefinition, "main_category") {
+ForeignTable(ShopwareCoreContentSeoMainCategoryMainCategoryDefinition, "main_category") {
+}
+ForeignTable(ShopwareCoreContentProductExportProductExportDefinition, "product_export") {
+}
+ForeignTable(ShopwareCoreCheckoutCustomerAggregateCustomerGroupRegistrationSalesChannelCustomerGroupRegistrationSalesChannelDefinition, "customer_group_registration_sales_channels") {
 }
 ForeignTable(ShopwareStorefrontThemeAggregateThemeSalesChannelDefinition, "theme_sales_channel") {
 }
-ForeignTable(ShopwareCoreFrameworkSnippetAggregateSnippetSetSnippetSetDefinition, "snippet_set") {
+ForeignTable(ShopwareCoreSystemSnippetAggregateSnippetSetSnippetSetDefinition, "snippet_set") {
 }
 
 ' relationshipd
@@ -168,7 +190,7 @@ ShopwareCoreSystemSalesChannelAggregateSalesChannelCountrySalesChannelCountryDef
 ShopwareCoreSystemSalesChannelAggregateSalesChannelPaymentMethodSalesChannelPaymentMethodDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareCoreSystemSalesChannelAggregateSalesChannelShippingMethodSalesChannelShippingMethodDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareCoreSystemSalesChannelAggregateSalesChannelTypeSalesChannelTypeDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
-ShopwareCoreSystemSalesChannelSalesChannelDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
+ShopwareCoreSystemSalesChannelSalesChannelDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
 ShopwareCoreSystemSalesChannelSalesChannelDefinition --> ShopwareCoreCheckoutCustomerAggregateCustomerGroupCustomerGroupDefinition
 ShopwareCoreSystemSalesChannelSalesChannelDefinition --> ShopwareCoreSystemCurrencyCurrencyDefinition
 ShopwareCoreSystemSalesChannelSalesChannelDefinition --> ShopwareCoreCheckoutPaymentPaymentMethodDefinition
@@ -187,19 +209,23 @@ ShopwareCoreSystemSalesChannelSalesChannelDefinition --> ShopwareCoreSystemNumbe
 ShopwareCoreSystemSalesChannelSalesChannelDefinition --> ShopwareCoreCheckoutPromotionAggregatePromotionSalesChannelPromotionSalesChannelDefinition
 ShopwareCoreSystemSalesChannelSalesChannelDefinition --> ShopwareCoreCheckoutDocumentAggregateDocumentBaseConfigSalesChannelDocumentBaseConfigSalesChannelDefinition
 ShopwareCoreSystemSalesChannelSalesChannelDefinition --> ShopwareCoreContentProductAggregateProductReviewProductReviewDefinition
-ShopwareCoreSystemSalesChannelSalesChannelDefinition --> ShopwareCoreFrameworkSeoSeoUrlSeoUrlDefinition
-ShopwareCoreSystemSalesChannelSalesChannelDefinition --> ShopwareCoreFrameworkSeoSeoUrlTemplateSeoUrlTemplateDefinition
-ShopwareCoreSystemSalesChannelSalesChannelDefinition --> ShopwareCoreFrameworkSeoMainCategoryMainCategoryDefinition
+ShopwareCoreSystemSalesChannelSalesChannelDefinition --> ShopwareCoreContentSeoSeoUrlSeoUrlDefinition
+ShopwareCoreSystemSalesChannelSalesChannelDefinition --> ShopwareCoreContentSeoSeoUrlTemplateSeoUrlTemplateDefinition
+ShopwareCoreSystemSalesChannelSalesChannelDefinition --> ShopwareCoreContentSeoMainCategoryMainCategoryDefinition
+ShopwareCoreSystemSalesChannelSalesChannelDefinition --> ShopwareCoreContentProductExportProductExportDefinition
+ShopwareCoreSystemSalesChannelAggregateSalesChannelAnalyticsSalesChannelAnalyticsDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
+ShopwareCoreSystemSalesChannelSalesChannelDefinition --> ShopwareCoreCheckoutCustomerAggregateCustomerGroupRegistrationSalesChannelCustomerGroupRegistrationSalesChannelDefinition
 ShopwareCoreSystemSalesChannelSalesChannelDefinition --> ShopwareStorefrontThemeAggregateThemeSalesChannelDefinition
-ShopwareCoreSystemSalesChannelAggregateSalesChannelTranslationSalesChannelTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
+ShopwareCoreSystemSalesChannelAggregateSalesChannelTranslationSalesChannelTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
 ShopwareCoreSystemSalesChannelAggregateSalesChannelCountrySalesChannelCountryDefinition --> ShopwareCoreSystemCountryCountryDefinition
 ShopwareCoreSystemSalesChannelAggregateSalesChannelCurrencySalesChannelCurrencyDefinition --> ShopwareCoreSystemCurrencyCurrencyDefinition
-ShopwareCoreSystemSalesChannelAggregateSalesChannelDomainSalesChannelDomainDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
+ShopwareCoreSystemSalesChannelAggregateSalesChannelDomainSalesChannelDomainDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
 ShopwareCoreSystemSalesChannelAggregateSalesChannelDomainSalesChannelDomainDefinition --> ShopwareCoreSystemCurrencyCurrencyDefinition
-ShopwareCoreSystemSalesChannelAggregateSalesChannelDomainSalesChannelDomainDefinition --> ShopwareCoreFrameworkSnippetAggregateSnippetSetSnippetSetDefinition
-ShopwareCoreSystemSalesChannelAggregateSalesChannelLanguageSalesChannelLanguageDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
+ShopwareCoreSystemSalesChannelAggregateSalesChannelDomainSalesChannelDomainDefinition --> ShopwareCoreSystemSnippetAggregateSnippetSetSnippetSetDefinition
+ShopwareCoreSystemSalesChannelAggregateSalesChannelDomainSalesChannelDomainDefinition --> ShopwareCoreContentProductExportProductExportDefinition
+ShopwareCoreSystemSalesChannelAggregateSalesChannelLanguageSalesChannelLanguageDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
 ShopwareCoreSystemSalesChannelAggregateSalesChannelPaymentMethodSalesChannelPaymentMethodDefinition --> ShopwareCoreCheckoutPaymentPaymentMethodDefinition
 ShopwareCoreSystemSalesChannelAggregateSalesChannelShippingMethodSalesChannelShippingMethodDefinition --> ShopwareCoreCheckoutShippingShippingMethodDefinition
 ShopwareCoreSystemSalesChannelAggregateSalesChannelTypeTranslationSalesChannelTypeTranslationDefinition --> ShopwareCoreSystemSalesChannelAggregateSalesChannelTypeSalesChannelTypeDefinition
-ShopwareCoreSystemSalesChannelAggregateSalesChannelTypeTranslationSalesChannelTypeTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
+ShopwareCoreSystemSalesChannelAggregateSalesChannelTypeTranslationSalesChannelTypeTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
 @enduml

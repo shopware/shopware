@@ -10,7 +10,8 @@ Central product representation. Contains products and variations based on config
 
 ### Table `product`
 
-A rich domain model representing single products or its variants. This is done through relations, so a root product is related to its variants through a foreign key.
+A rich domain model representing single products or its variants.
+This is done through relations, so a root product is related to its variants through a foreign key.
 
 
 ### Table `product_configurator_setting`
@@ -46,6 +47,21 @@ The product manufacturer list.
 ### Table `product_media`
 
 Relates products to media items, usually images.
+
+
+### Table `product_cross_selling`
+
+__EMPTY__
+
+
+### Table `product_cross_selling_assigned_products`
+
+__EMPTY__
+
+
+### Table `product_feature_set`
+
+__EMPTY__
 
 
 ### Table `product_visibility`

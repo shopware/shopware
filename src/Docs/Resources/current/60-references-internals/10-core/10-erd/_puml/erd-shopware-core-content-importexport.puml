@@ -24,15 +24,18 @@ skinparam backgroundColor #FFFFFF
 
 Table(ShopwareCoreContentImportExportImportExportProfileDefinition, "import_export_profile\n(File profile definition)") {
    primary_key(id) id
-   not_null(name) string
+   name string
+   not_null(label) translated
    systemDefault bool
    not_null(sourceEntity) string
    not_null(fileType) string
-   delimiter string
-   enclosure string
+   not_null(delimiter) string
+   not_null(enclosure) string
    mapping json
+   config json
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
+   translated json
 }
 Table(ShopwareCoreContentImportExportAggregateImportExportLogImportExportLogDefinition, "import_export_log\n(Change log)") {
    primary_key(id) id
@@ -42,10 +45,12 @@ Table(ShopwareCoreContentImportExportAggregateImportExportLogImportExportLogDefi
    userId foreignKey
    profileId foreignKey
    fileId foreignKey
+   invalidRecordsLogId foreignKey
    username string
    profileName string
+   not_null(config) json
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
 }
 Table(ShopwareCoreContentImportExportAggregateImportExportFileImportExportFileDefinition, "import_export_file\n(Import/Export file)") {
    primary_key(id) id
@@ -55,14 +60,26 @@ Table(ShopwareCoreContentImportExportAggregateImportExportFileImportExportFileDe
    size int
    not_null(createdAt) createdAt
    not_null(accessToken) string
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
+}
+TranslationTable(ShopwareCoreContentImportExportImportExportProfileTranslationDefinition, "import_export_profile_translation\n((Translations))") {
+   label string
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   primary_key(importExportProfileId) foreignKey
+   primary_key(languageId) foreignKey
 }
 ForeignTable(ShopwareCoreSystemUserUserDefinition, "user") {
+}
+ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
 }
 
 ' relationshipd
 
 ShopwareCoreContentImportExportAggregateImportExportLogImportExportLogDefinition --> ShopwareCoreContentImportExportImportExportProfileDefinition
+ShopwareCoreContentImportExportImportExportProfileTranslationDefinition --> ShopwareCoreContentImportExportImportExportProfileDefinition
 ShopwareCoreContentImportExportAggregateImportExportLogImportExportLogDefinition --> ShopwareCoreSystemUserUserDefinition
 ShopwareCoreContentImportExportAggregateImportExportFileImportExportFileDefinition --> ShopwareCoreContentImportExportAggregateImportExportLogImportExportLogDefinition
+ShopwareCoreContentImportExportAggregateImportExportLogImportExportLogDefinition --> ShopwareCoreContentImportExportAggregateImportExportLogImportExportLogDefinition
+ShopwareCoreContentImportExportImportExportProfileTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
 @enduml

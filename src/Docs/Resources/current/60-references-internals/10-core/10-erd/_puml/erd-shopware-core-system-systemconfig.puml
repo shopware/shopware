@@ -28,7 +28,7 @@ Table(ShopwareCoreSystemSystemConfigSystemConfigDefinition, "system_config\n(Sys
    not_null(configurationValue) configurationValue
    salesChannelId foreignKey
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
 }
 ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
 }

@@ -28,12 +28,47 @@ Table(ShopwareCoreSystemTaxTaxDefinition, "tax\n(Available tax settings)") {
    not_null(name) string
    customFields customFields
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
+}
+Table(ShopwareCoreSystemTaxAggregateTaxRuleTaxRuleDefinition, "tax_rule\n(Tax rules)") {
+   primary_key(id) id
+   not_null(taxRuleTypeId) foreignKey
+   not_null(countryId) foreignKey
+   not_null(taxRate) float
+   data json
+   not_null(taxId) foreignKey
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+}
+Table(ShopwareCoreSystemTaxAggregateTaxRuleTypeTaxRuleTypeDefinition, "tax_rule_type\n(Tax rule types)") {
+   primary_key(id) id
+   not_null(technicalName) string
+   not_null(position) int
+   typeName translated
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   translated json
+}
+TranslationTable(ShopwareCoreSystemTaxAggregateTaxRuleTypeTranslationTaxRuleTypeTranslationDefinition, "tax_rule_type_translation\n((Translations))") {
+   not_null(typeName) string
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   primary_key(taxRuleTypeId) foreignKey
+   primary_key(languageId) foreignKey
 }
 ForeignTable(ShopwareCoreContentProductProductDefinition, "product") {
+}
+ForeignTable(ShopwareCoreSystemCountryCountryDefinition, "country") {
+}
+ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
 }
 
 ' relationshipd
 
 ShopwareCoreSystemTaxTaxDefinition --> ShopwareCoreContentProductProductDefinition
+ShopwareCoreSystemTaxAggregateTaxRuleTaxRuleDefinition --> ShopwareCoreSystemTaxTaxDefinition
+ShopwareCoreSystemTaxAggregateTaxRuleTypeTaxRuleTypeDefinition --> ShopwareCoreSystemTaxAggregateTaxRuleTaxRuleDefinition
+ShopwareCoreSystemTaxAggregateTaxRuleTaxRuleDefinition --> ShopwareCoreSystemCountryCountryDefinition
+ShopwareCoreSystemTaxAggregateTaxRuleTypeTranslationTaxRuleTypeTranslationDefinition --> ShopwareCoreSystemTaxAggregateTaxRuleTypeTaxRuleTypeDefinition
+ShopwareCoreSystemTaxAggregateTaxRuleTypeTranslationTaxRuleTypeTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
 @enduml

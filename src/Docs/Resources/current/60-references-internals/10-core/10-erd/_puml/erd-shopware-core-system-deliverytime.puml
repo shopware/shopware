@@ -22,7 +22,7 @@ skinparam backgroundColor #FFFFFF
 
 ' entities
 
-Table(ShopwareCoreContentDeliveryTimeDeliveryTimeDefinition, "delivery_time\n(Delivery time)") {
+Table(ShopwareCoreSystemDeliveryTimeDeliveryTimeDefinition, "delivery_time\n(Delivery time)") {
    primary_key(id) id
    not_null(name) translated
    not_null(min) int
@@ -30,14 +30,14 @@ Table(ShopwareCoreContentDeliveryTimeDeliveryTimeDefinition, "delivery_time\n(De
    not_null(unit) string
    customFields translated
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
    translated json
 }
-TranslationTable(ShopwareCoreContentDeliveryTimeAggregateDeliveryTimeTranslationDeliveryTimeTranslationDefinition, "delivery_time_translation\n((Translations))") {
+TranslationTable(ShopwareCoreSystemDeliveryTimeAggregateDeliveryTimeTranslationDeliveryTimeTranslationDefinition, "delivery_time_translation\n((Translations))") {
    not_null(name) string
    customFields customFields
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
    primary_key(deliveryTimeId) foreignKey
    primary_key(languageId) foreignKey
 }
@@ -45,13 +45,13 @@ ForeignTable(ShopwareCoreCheckoutShippingShippingMethodDefinition, "shipping_met
 }
 ForeignTable(ShopwareCoreContentProductProductDefinition, "product") {
 }
-ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
+ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
 }
 
 ' relationshipd
 
-ShopwareCoreContentDeliveryTimeDeliveryTimeDefinition --> ShopwareCoreCheckoutShippingShippingMethodDefinition
-ShopwareCoreContentDeliveryTimeDeliveryTimeDefinition --> ShopwareCoreContentProductProductDefinition
-ShopwareCoreContentDeliveryTimeAggregateDeliveryTimeTranslationDeliveryTimeTranslationDefinition --> ShopwareCoreContentDeliveryTimeDeliveryTimeDefinition
-ShopwareCoreContentDeliveryTimeAggregateDeliveryTimeTranslationDeliveryTimeTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
+ShopwareCoreSystemDeliveryTimeDeliveryTimeDefinition --> ShopwareCoreCheckoutShippingShippingMethodDefinition
+ShopwareCoreSystemDeliveryTimeDeliveryTimeDefinition --> ShopwareCoreContentProductProductDefinition
+ShopwareCoreSystemDeliveryTimeAggregateDeliveryTimeTranslationDeliveryTimeTranslationDefinition --> ShopwareCoreSystemDeliveryTimeDeliveryTimeDefinition
+ShopwareCoreSystemDeliveryTimeAggregateDeliveryTimeTranslationDeliveryTimeTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
 @enduml

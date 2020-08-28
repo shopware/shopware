@@ -22,30 +22,30 @@ skinparam backgroundColor #FFFFFF
 
 ' entities
 
-Table(ShopwareCoreFrameworkSnippetAggregateSnippetSetSnippetSetDefinition, "snippet_set\n(Sets of snippets)") {
+Table(ShopwareCoreSystemSnippetAggregateSnippetSetSnippetSetDefinition, "snippet_set\n(Sets of snippets)") {
    primary_key(id) id
    not_null(name) string
    not_null(baseFile) string
    not_null(iso) string
    customFields customFields
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
 }
-Table(ShopwareCoreFrameworkSnippetSnippetDefinition, "snippet\n(Translation Strings)") {
+Table(ShopwareCoreSystemSnippetSnippetDefinition, "snippet\n(Translation Strings)") {
    primary_key(id) id
    not_null(setId) foreignKey
    not_null(translationKey) string
-   not_null(value) longTextWithHtml
+   not_null(value) longText
    not_null(author) string
    customFields customFields
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
 }
 ForeignTable(ShopwareCoreSystemSalesChannelAggregateSalesChannelDomainSalesChannelDomainDefinition, "sales_channel_domain") {
 }
 
 ' relationshipd
 
-ShopwareCoreFrameworkSnippetSnippetDefinition --> ShopwareCoreFrameworkSnippetAggregateSnippetSetSnippetSetDefinition
-ShopwareCoreFrameworkSnippetAggregateSnippetSetSnippetSetDefinition --> ShopwareCoreSystemSalesChannelAggregateSalesChannelDomainSalesChannelDomainDefinition
+ShopwareCoreSystemSnippetSnippetDefinition --> ShopwareCoreSystemSnippetAggregateSnippetSetSnippetSetDefinition
+ShopwareCoreSystemSnippetAggregateSnippetSetSnippetSetDefinition --> ShopwareCoreSystemSalesChannelAggregateSalesChannelDomainSalesChannelDomainDefinition
 @enduml

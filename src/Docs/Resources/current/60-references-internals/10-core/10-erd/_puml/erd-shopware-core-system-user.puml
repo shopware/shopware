@@ -30,13 +30,14 @@ Table(ShopwareCoreSystemUserUserDefinition, "user\n(Administration/ Management A
    not_null(password) password
    not_null(firstName) string
    not_null(lastName) string
+   title string
    not_null(email) string
    active bool
    admin bool
    customFields customFields
    storeToken string
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
 }
 Table(ShopwareCoreSystemUserAggregateUserAccessKeyUserAccessKeyDefinition, "user_access_key\n(oAuth access key)") {
    primary_key(id) id
@@ -47,14 +48,14 @@ Table(ShopwareCoreSystemUserAggregateUserAccessKeyUserAccessKeyDefinition, "user
    lastUsageAt dateTime
    customFields customFields
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
 }
 Table(ShopwareCoreSystemUserAggregateUserRecoveryUserRecoveryDefinition, "user_recovery\n(User / Account recovery process)") {
    primary_key(id) id
    not_null(hash) string
    not_null(userId) foreignKey
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
 }
 ForeignTable(ShopwareCoreSystemLocaleLocaleDefinition, "locale") {
 }
@@ -64,7 +65,7 @@ ForeignTable(ShopwareCoreSystemStateMachineAggregationStateMachineHistoryStateMa
 }
 ForeignTable(ShopwareCoreContentImportExportAggregateImportExportLogImportExportLogDefinition, "import_export_log") {
 }
-ForeignTable(ShopwareCoreFrameworkAclRoleAclUserRoleDefinition, "acl_user_role") {
+ForeignTable(ShopwareCoreFrameworkApiAclRoleAclUserRoleDefinition, "acl_user_role") {
 }
 
 ' relationshipd
@@ -74,6 +75,6 @@ ShopwareCoreSystemUserUserDefinition --> ShopwareCoreContentMediaMediaDefinition
 ShopwareCoreSystemUserAggregateUserAccessKeyUserAccessKeyDefinition --> ShopwareCoreSystemUserUserDefinition
 ShopwareCoreSystemUserUserDefinition --> ShopwareCoreSystemStateMachineAggregationStateMachineHistoryStateMachineHistoryDefinition
 ShopwareCoreSystemUserUserDefinition --> ShopwareCoreContentImportExportAggregateImportExportLogImportExportLogDefinition
-ShopwareCoreSystemUserUserDefinition --> ShopwareCoreFrameworkAclRoleAclUserRoleDefinition
+ShopwareCoreSystemUserUserDefinition --> ShopwareCoreFrameworkApiAclRoleAclUserRoleDefinition
 ShopwareCoreSystemUserAggregateUserRecoveryUserRecoveryDefinition --> ShopwareCoreSystemUserUserDefinition
 @enduml

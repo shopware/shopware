@@ -22,31 +22,25 @@ skinparam backgroundColor #FFFFFF
 
 ' entities
 
-Table(ShopwareCoreFrameworkAclResourceAclResourceDefinition, "acl_resource\n(__EMPTY__)") {
-   primary_key(resource) string
-   primary_key(privilege) string
-   primary_key(aclRoleId) foreignKey
-   not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
-}
-Table(ShopwareCoreFrameworkAclRoleAclRoleDefinition, "acl_role\n(__EMPTY__)") {
+Table(ShopwareCoreFrameworkApiAclRoleAclRoleDefinition, "acl_role\n(Acl role)") {
    primary_key(id) id
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
    not_null(name) string
+   description longText
+   not_null(privileges) list
 }
-Table(ShopwareCoreFrameworkAclRoleAclUserRoleDefinition, "acl_user_role\n(M:N Mapping)") {
+Table(ShopwareCoreFrameworkApiAclRoleAclUserRoleDefinition, "acl_user_role\n(M:N Mapping)") {
    primary_key(userId) foreignKey
    primary_key(aclRoleId) foreignKey
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
 }
 ForeignTable(ShopwareCoreSystemUserUserDefinition, "user") {
 }
 
 ' relationshipd
 
-ShopwareCoreFrameworkAclRoleAclRoleDefinition --> ShopwareCoreFrameworkAclResourceAclResourceDefinition
-ShopwareCoreFrameworkAclRoleAclUserRoleDefinition --> ShopwareCoreFrameworkAclRoleAclRoleDefinition
-ShopwareCoreFrameworkAclRoleAclUserRoleDefinition --> ShopwareCoreSystemUserUserDefinition
+ShopwareCoreFrameworkApiAclRoleAclUserRoleDefinition --> ShopwareCoreFrameworkApiAclRoleAclRoleDefinition
+ShopwareCoreFrameworkApiAclRoleAclUserRoleDefinition --> ShopwareCoreSystemUserUserDefinition
 @enduml

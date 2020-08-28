@@ -115,6 +115,13 @@
         }
     }
 
+    .sw-data-grid__cell--align-right.sw-data-grid__cell--header {
+        .sw-data-grid__cell-content {
+            flex-flow: row-reverse;
+            justify-content: flex-start;
+        }
+    }
+
     .sw-data-grid__cell--align-left {
         .sw-data-grid__cell-content {
             justify-content: flex-start;

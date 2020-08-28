@@ -92,6 +92,9 @@ NEXT
 * Deprecated `\Shopware\Storefront\Page\Product\ProductLoader` use `Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute` instead
 
 #### Storefront
+* Added ellipsis to the truncated long product name
+    * Added in the shopping cart line item 
+    * Added in the off-canvas cart menu item
   
 6.3.1.0
 ----------------

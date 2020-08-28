@@ -169,6 +169,40 @@ class CustomerGroupSubscriberTest extends TestCase
         static::assertSame(0, $this->getSeoUrlsById($id)->count());
     }
 
+    public function testSaveGroupAndEnableLaterSalesChannels(): void
+    {
+        $s1 = $this->createSalesChannel()['id'];
+
+        $id = Uuid::randomHex();
+
+        $this->customerGroupRepository->create([
+            [
+                'id' => $id,
+                'name' => 'Test',
+                'registrationActive' => true,
+                'registrationTitle' => 'test',
+            ],
+        ], Context::createDefaultContext());
+
+        $this->customerGroupRepository->upsert([
+            [
+                'id' => $id,
+                'registrationSalesChannels' => [['id' => $s1]],
+            ],
+        ], Context::createDefaultContext());
+
+        $urls = $this->getSeoUrlsById($id);
+
+        static::assertSame(1, $urls->count());
+
+        $url = $urls->first();
+
+        static::assertSame($s1, $url->getSalesChannelId());
+        static::assertSame($id, $url->getForeignKey());
+        static::assertSame('frontend.account.customer-group-registration.page', $url->getRouteName());
+        static::assertSame('test', $url->getSeoPathInfo());
+    }
+
     private function getSeoUrlsById(string $id): SeoUrlCollection
     {
         $criteria = new Criteria();

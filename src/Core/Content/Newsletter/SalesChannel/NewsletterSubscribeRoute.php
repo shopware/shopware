@@ -108,6 +108,16 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
             'storefrontUrl'
         );
 
+        $recipientId = $this->getNewsletterRecipientId($data['email'], $context);
+
+        if (isset($recipientId)) {
+            /** @var NewsletterRecipientEntity $recipient */
+            $recipient = $this->newsletterRecipientRepository->search(new Criteria([$recipientId]), $context->getContext())->first();
+            if ($recipient->getConfirmedAt()) {
+                return new NoContentResponse();
+            }
+        }
+
         $data = $this->completeData($data, $context);
 
         $this->newsletterRecipientRepository->upsert([$data], $context->getContext());

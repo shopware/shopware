@@ -4,10 +4,13 @@ namespace Shopware\Core\Content\Test\Newsletter\SalesChannel;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Test\TestDataCollection;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 
 class NewsletterSubscribeRouteTest extends TestCase
@@ -25,12 +28,19 @@ class NewsletterSubscribeRouteTest extends TestCase
      */
     private $ids;
 
+    /**
+     * @var string
+     */
+    private $salesChannelId;
+
     protected function setUp(): void
     {
         $this->ids = new TestDataCollection(Context::createDefaultContext());
 
+        $this->salesChannelId = $this->ids->create('sales-channel');
+
         $this->browser = $this->createCustomSalesChannelBrowser([
-            'id' => $this->ids->create('sales-channel'),
+            'id' => $this->salesChannelId,
         ]);
     }
 
@@ -93,5 +103,43 @@ class NewsletterSubscribeRouteTest extends TestCase
 
         $count = (int) $this->getContainer()->get(Connection::class)->fetchColumn('SELECT COUNT(*) FROM newsletter_recipient WHERE email = "test@test.de" AND status = "direct"');
         static::assertSame(1, $count);
+    }
+
+    public function testSubscribeIfAlreadyRegistered(): void
+    {
+        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener->expects(static::never())->method('__invoke');
+
+        $dispatcher = $this->getContainer()->get('event_dispatcher');
+        $dispatcher->addListener(NewsletterRegisterEvent::class, $listener);
+
+        $context = Context::createDefaultContext();
+        $newsletterRecipientRepository = $this->getContainer()->get('newsletter_recipient.repository');
+
+        $data = [
+            'id' => '22bbd935e68e4d64a4ab829bb91b30f1',
+            'status' => 'optIn',
+            'salesChannelId' => $this->salesChannelId,
+            'hash' => Uuid::randomHex(),
+            'option' => 'subscribe',
+            'email' => 'test@example.com',
+            'firstName' => 'John',
+            'lastName' => 'Doe',
+            'confirmedAt' => '2020-07-16 08:14:39.603',
+        ];
+
+        $newsletterRecipientRepository->upsert([$data], $context);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/newsletter/subscribe',
+                [
+                    'status' => 'optIn',
+                    'email' => 'test@example.com',
+                    'option' => 'subscribe',
+                    'storefrontUrl' => 'http://localhost',
+                ]
+            );
     }
 }

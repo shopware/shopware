@@ -1,12 +1,6 @@
 @import "~scss/variables";
 
 .sw-settings-country-detail {
-    &.sw-page {
-        .smart-bar__actions .sw-tooltip--wrapper .sw-button {
-            margin-left: 8px;
-        }
-    }
-
     .sw-tooltip--wrapper {
         .sw-settings-country-detail__add-country-state-button {
             width: 100%;

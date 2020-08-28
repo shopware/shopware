@@ -271,7 +271,7 @@ describe('src/app/service/acl.service.js', () => {
         privilegesService.addPrivilegeMappingEntry(privilegeMappingOne);
         privilegesService.addPrivilegeMappingEntry(privilegeMappingTwo);
 
-        expect(privilegesService.getPrivilege('system.core_update')).toMatchObject({
+        expect(privilegesService._getPrivilege('system.core_update')).toMatchObject({
             category: 'additional_permissions',
             parent: null,
             key: 'system',
@@ -366,8 +366,8 @@ describe('src/app/service/acl.service.js', () => {
         privilegesService.addPrivilegeMappingEntry(privilegeMappingOne);
         privilegesService.addPrivilegeMappingEntry(privilegeMappingTwo);
 
-        expect(privilegesService.existsPrivilege('system.core_update')).toBeTruthy();
-        expect(privilegesService.existsPrivilege('system.not_exists')).toBeFalsy();
+        expect(privilegesService._existsPrivilege('system.core_update')).toBeTruthy();
+        expect(privilegesService._existsPrivilege('system.not_exists')).toBeFalsy();
     });
 
     it('should filter only matching privileges', () => {
@@ -449,5 +449,290 @@ describe('src/app/service/acl.service.js', () => {
         expect(privilegesService.filterPrivilegesRoles(testPrivileges)).toStrictEqual([
             'system.clear_cache'
         ]);
+    });
+
+    it('should return the function getPrivilegesWithDependencies without adding admin identifier', () => {
+        const privilegesService = new PrivilegesService();
+        privilegesService._getPrivilegesWithDependencies = jest.fn();
+
+        const returnFunction = privilegesService.getPrivileges('product.editor');
+        expect(privilegesService._getPrivilegesWithDependencies).not.toHaveBeenCalled();
+
+        expect(typeof returnFunction).toBe('function');
+        returnFunction();
+
+        expect(privilegesService._getPrivilegesWithDependencies).toHaveBeenCalledWith(
+            'product.editor', false
+        );
+    });
+
+    it('should return all privileges with dependencies and defaults', () => {
+        const privilegesService = new PrivilegesService();
+
+        const privilegeMappingRule = {
+            category: 'permissions',
+            parent: null,
+            key: 'rule',
+            roles: {
+                viewer: {
+                    privileges: ['rule:read'],
+                    dependencies: []
+                },
+                editor: {
+                    privileges: ['rule:update'],
+                    dependencies: [
+                        'rule.viewer'
+                    ]
+                },
+                creator: {
+                    privileges: ['rule:create'],
+                    dependencies: [
+                        'rule.viewer',
+                        'rule.editor'
+                    ]
+                }
+            }
+        };
+
+        const privilegeMappingPromotion = {
+            category: 'permissions',
+            parent: null,
+            key: 'promotion',
+            roles: {
+                viewer: {
+                    privileges: ['promotion:read'],
+                    dependencies: []
+                },
+                editor: {
+                    privileges: [
+                        'promotion:update'
+                    ],
+                    dependencies: [
+                        'promotion.viewer'
+                    ]
+                },
+                creator: {
+                    privileges: [
+                        'promotion:create',
+                        privilegesService.getPrivileges('rule.creator')
+                    ],
+                    dependencies: [
+                        'promotion.viewer',
+                        'promotion.editor'
+                    ]
+                }
+            }
+        };
+
+        privilegesService.addPrivilegeMappingEntry(privilegeMappingRule);
+        privilegesService.addPrivilegeMappingEntry(privilegeMappingPromotion);
+
+        const allPrivilegesWithDependencies = privilegesService.getPrivilegesForAdminPrivilegeKeys([
+            'rule.editor'
+        ]);
+        expect(allPrivilegesWithDependencies).toStrictEqual([
+            'language:read',
+            'locale:read',
+            'message_queue_stats:read',
+            'rule.editor',
+            'rule.viewer',
+            'rule:read',
+            'rule:update'
+        ]);
+    });
+
+    it('should return all privileges with dependencies', () => {
+        const privilegesService = new PrivilegesService();
+
+        const privilegeMappingRule = {
+            category: 'permissions',
+            parent: null,
+            key: 'rule',
+            roles: {
+                viewer: {
+                    privileges: ['rule:read'],
+                    dependencies: []
+                },
+                editor: {
+                    privileges: ['rule:update'],
+                    dependencies: [
+                        'rule.viewer'
+                    ]
+                },
+                creator: {
+                    privileges: ['rule:create'],
+                    dependencies: [
+                        'rule.viewer',
+                        'rule.editor'
+                    ]
+                }
+            }
+        };
+
+        const privilegeMappingPromotion = {
+            category: 'permissions',
+            parent: null,
+            key: 'promotion',
+            roles: {
+                viewer: {
+                    privileges: ['promotion:read'],
+                    dependencies: []
+                },
+                editor: {
+                    privileges: [
+                        'promotion:update'
+                    ],
+                    dependencies: [
+                        'promotion.viewer'
+                    ]
+                },
+                creator: {
+                    privileges: [
+                        'promotion:create',
+                        privilegesService.getPrivileges('rule.creator')
+                    ],
+                    dependencies: [
+                        'promotion.viewer',
+                        'promotion.editor'
+                    ]
+                }
+            }
+        };
+
+        privilegesService.addPrivilegeMappingEntry(privilegeMappingRule);
+        privilegesService.addPrivilegeMappingEntry(privilegeMappingPromotion);
+
+        const allPrivilegesWithDependencies = privilegesService.getPrivilegesForAdminPrivilegeKeys([
+            'promotion.creator'
+        ]);
+        expect(allPrivilegesWithDependencies).toStrictEqual([
+            'promotion.viewer',
+            'promotion:read',
+            'promotion.editor',
+            'promotion:update',
+            'promotion.creator',
+            'promotion:create',
+            'rule:create',
+            'rule:read',
+            'rule:update',
+            'language:read',
+            'locale:read',
+            'message_queue_stats:read'
+        ].sort());
+    });
+
+    it('should not call duplicated getPrivileges again', () => {
+        const privilegesService = new PrivilegesService();
+
+        const privilegeMappingProduct = {
+            category: 'permissions',
+            parent: null,
+            key: 'product',
+            roles: {
+                viewer: {
+                    privileges: ['product:read'],
+                    dependencies: []
+                },
+                editor: {
+                    privileges: ['product:update'],
+                    dependencies: [
+                        'product.viewer'
+                    ]
+                },
+                creator: {
+                    privileges: [
+                        'product:create',
+                        privilegesService.getPrivileges('promotion.creator')
+                    ],
+                    dependencies: [
+                        'product.viewer',
+                        'product.editor'
+                    ]
+                }
+            }
+        };
+
+        const privilegeMappingRule = {
+            category: 'permissions',
+            parent: null,
+            key: 'rule',
+            roles: {
+                viewer: {
+                    privileges: ['rule:read'],
+                    dependencies: []
+                },
+                editor: {
+                    privileges: [
+                        'rule:update',
+                        privilegesService.getPrivileges('product.creator')
+                    ],
+                    dependencies: [
+                        'rule.viewer'
+                    ]
+                },
+                creator: {
+                    privileges: ['rule:create'],
+                    dependencies: [
+                        'rule.viewer',
+                        'rule.editor'
+                    ]
+                }
+            }
+        };
+
+        const privilegeMappingPromotion = {
+            category: 'permissions',
+            parent: null,
+            key: 'promotion',
+            roles: {
+                viewer: {
+                    privileges: ['promotion:read'],
+                    dependencies: []
+                },
+                editor: {
+                    privileges: [
+                        'promotion:update'
+                    ],
+                    dependencies: [
+                        'promotion.viewer'
+                    ]
+                },
+                creator: {
+                    privileges: [
+                        'promotion:create',
+                        privilegesService.getPrivileges('rule.creator')
+                    ],
+                    dependencies: [
+                        'promotion.viewer',
+                        'promotion.editor'
+                    ]
+                }
+            }
+        };
+
+        privilegesService.addPrivilegeMappingEntry(privilegeMappingProduct);
+        privilegesService.addPrivilegeMappingEntry(privilegeMappingRule);
+        privilegesService.addPrivilegeMappingEntry(privilegeMappingPromotion);
+
+        const allPrivilegesWithDependencies = privilegesService.getPrivilegesForAdminPrivilegeKeys([
+            'promotion.creator'
+        ]);
+        expect(allPrivilegesWithDependencies).toStrictEqual([
+            'promotion.viewer',
+            'promotion:read',
+            'promotion.editor',
+            'promotion:update',
+            'promotion.creator',
+            'promotion:create',
+            'product:read',
+            'product:update',
+            'product:create',
+            'rule:create',
+            'rule:read',
+            'rule:update',
+            'language:read',
+            'locale:read',
+            'message_queue_stats:read'
+        ].sort());
     });
 });

@@ -42,10 +42,7 @@ Shopware.Service('privileges')
                     'promotion_discount_prices:create',
                     'promotion_individual_code:create',
                     'promotion_individual_code:delete',
-                    // Priviliges for creating rules, refactor with NEXT-10364
-                    'customer_group:read',
-                    'rule:create',
-                    'rule_condition:create'
+                    Shopware.Service('privileges').getPrivileges('rule.creator')
                 ],
                 dependencies: [
                     'promotion.viewer'

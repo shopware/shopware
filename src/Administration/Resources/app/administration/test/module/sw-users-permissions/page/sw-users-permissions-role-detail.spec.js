@@ -4,12 +4,12 @@ import 'src/app/component/base/sw-button-process';
 import 'src/app/component/base/sw-button';
 import PrivilegesService from 'src/app/service/privileges.service';
 
+let privilegesService = new PrivilegesService();
+
 function createWrapper({
     privileges = [],
     privilegeMappingEntries = []
 } = {}) {
-    const privilegesService = new PrivilegesService();
-
     privilegeMappingEntries.forEach(mappingEntry => privilegesService.addPrivilegeMappingEntry(mappingEntry));
 
     const localVue = createLocalVue();
@@ -60,6 +60,10 @@ function createWrapper({
 }
 
 describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', () => {
+    beforeEach(() => {
+        privilegesService = new PrivilegesService();
+    });
+
     it('should be a Vue.js component', () => {
         const wrapper = createWrapper();
         expect(wrapper.isVueInstance()).toBeTruthy();
@@ -166,8 +170,8 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
                 privileges: [
                     'system.clear_cache',
                     'system:clear:cache',
-                    ...wrapper.vm.requiredPrivileges
-                ]
+                    ...wrapper.vm.privileges.getRequiredPrivileges()
+                ].sort()
             },
             contextMock
         );
@@ -215,8 +219,92 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
                 'system:clear:cache',
                 'orders.create_discounts',
                 'order:create:discount',
-                ...wrapper.vm.requiredPrivileges
-            ] },
+                ...wrapper.vm.privileges.getRequiredPrivileges()
+            ].sort() },
+            contextMock
+        );
+    });
+
+    it('should save privileges with all privileges from getPrivileges() method', async () => {
+        const wrapper = createWrapper({
+            privileges: ['promotion.viewer', 'promotion.editor', 'promotion.creator'],
+            privilegeMappingEntries: [
+                {
+                    category: 'permissions',
+                    parent: null,
+                    key: 'rule',
+                    roles: {
+                        viewer: {
+                            privileges: ['rule:read'],
+                            dependencies: []
+                        },
+                        editor: {
+                            privileges: ['rule:update'],
+                            dependencies: [
+                                'rule.viewer'
+                            ]
+                        },
+                        creator: {
+                            privileges: ['rule:create'],
+                            dependencies: [
+                                'rule.viewer',
+                                'rule.editor'
+                            ]
+                        }
+                    }
+                },
+                {
+                    category: 'permissions',
+                    parent: null,
+                    key: 'promotion',
+                    roles: {
+                        viewer: {
+                            privileges: ['promotion:read'],
+                            dependencies: []
+                        },
+                        editor: {
+                            privileges: [
+                                'promotion:update'
+                            ],
+                            dependencies: [
+                                'promotion.viewer'
+                            ]
+                        },
+                        creator: {
+                            privileges: [
+                                'promotion:create',
+                                privilegesService.getPrivileges('rule.creator')
+                            ],
+                            dependencies: [
+                                'promotion.viewer',
+                                'promotion.editor'
+                            ]
+                        }
+                    }
+                }
+            ]
+        });
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.roleRepository.save).not.toHaveBeenCalled();
+
+        const contextMock = { access: '1a2b3c' };
+        wrapper.vm.saveRole(contextMock);
+
+        expect(wrapper.vm.roleRepository.save).toHaveBeenCalledWith(
+            { privileges: [
+                'promotion.viewer',
+                'promotion:read',
+                'promotion.editor',
+                'promotion:update',
+                'promotion.creator',
+                'promotion:create',
+                'rule:create',
+                'rule:read',
+                'rule:update',
+                ...wrapper.vm.privileges.getRequiredPrivileges()
+            ].sort() },
             contextMock
         );
     });

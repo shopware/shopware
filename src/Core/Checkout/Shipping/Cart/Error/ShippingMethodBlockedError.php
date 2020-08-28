@@ -24,6 +24,11 @@ class ShippingMethodBlockedError extends Error
         parent::__construct($this->message);
     }
 
+    public function isPersistent(): bool
+    {
+        return false;
+    }
+
     public function getParameters(): array
     {
         return ['name' => $this->name];

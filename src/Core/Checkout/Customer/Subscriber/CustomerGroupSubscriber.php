@@ -64,8 +64,24 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
     {
         return [
             'customer_group_translation.written' => 'updatedCustomerGroup',
+            'customer_group_registration_sales_channels.written' => 'newSalesChannelAddedToCustomerGroup',
             'customer_group_translation.deleted' => 'deleteCustomerGroup',
         ];
+    }
+
+    public function newSalesChannelAddedToCustomerGroup(EntityWrittenEvent $event): void
+    {
+        $ids = [];
+
+        foreach ($event->getWriteResults() as $writeResult) {
+            $ids[] = $writeResult->getPrimaryKey()['customerGroupId'];
+        }
+
+        if (count($ids) === 0) {
+            return;
+        }
+
+        $this->createUrls($ids, $event->getContext());
     }
 
     public function updatedCustomerGroup(EntityWrittenEvent $event): void
@@ -82,46 +98,7 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $criteria = new Criteria($ids);
-        $criteria->addFilter(new EqualsFilter('registrationActive', true));
-        $criteria->addAssociation('registrationSalesChannels.languages');
-        $criteria->addAssociation('translations');
-
-        /** @var CustomerGroupCollection $groups */
-        $groups = $this->customerGroupRepository->search($criteria, $event->getContext())->getEntities();
-        $buildUrls = [];
-
-        foreach ($groups as $group) {
-            foreach ($group->getRegistrationSalesChannels() as $registrationSalesChannel) {
-                $languageIds = $registrationSalesChannel->getLanguages()->getIds();
-                $criteria = new Criteria($languageIds);
-                $languageCollection = $this->languageRepository->search($criteria, $event->getContext())->getEntities();
-
-                foreach ($languageIds as $languageId) {
-                    $title = $this->getTranslatedTitle($group->getTranslations(), $languageCollection->get($languageId));
-
-                    $buildUrls[$languageId][] = [
-                        'salesChannelId' => $registrationSalesChannel->getId(),
-                        'foreignKey' => $group->getId(),
-                        'routeName' => self::ROUTE_NAME,
-                        'pathInfo' => '/customer-group-registration/' . $group->getId(),
-                        'isCanonical' => true,
-                        'seoPathInfo' => '/' . $this->slugify->slugify($title),
-                    ];
-                }
-            }
-        }
-
-        foreach ($buildUrls as $languageId => $urls) {
-            $context = new Context(
-                $event->getContext()->getSource(),
-                $event->getContext()->getRuleIds(),
-                $event->getContext()->getCurrencyId(),
-                [$languageId]
-            );
-
-            $this->persister->updateSeoUrls($context, self::ROUTE_NAME, array_column($urls, 'foreignKey'), $urls);
-        }
+        $this->createUrls($ids, $event->getContext());
     }
 
     public function deleteCustomerGroup(EntityDeletedEvent $event): void
@@ -149,6 +126,50 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
         $this->seoUrlRepository->delete(array_map(function (string $id) {
             return ['id' => $id];
         }, $ids), $event->getContext());
+    }
+
+    private function createUrls(array $ids, Context $context): void
+    {
+        $criteria = new Criteria($ids);
+        $criteria->addFilter(new EqualsFilter('registrationActive', true));
+        $criteria->addAssociation('registrationSalesChannels.languages');
+        $criteria->addAssociation('translations');
+
+        /** @var CustomerGroupCollection $groups */
+        $groups = $this->customerGroupRepository->search($criteria, $context)->getEntities();
+        $buildUrls = [];
+
+        foreach ($groups as $group) {
+            foreach ($group->getRegistrationSalesChannels() as $registrationSalesChannel) {
+                $languageIds = $registrationSalesChannel->getLanguages()->getIds();
+                $criteria = new Criteria($languageIds);
+                $languageCollection = $this->languageRepository->search($criteria, $context)->getEntities();
+
+                foreach ($languageIds as $languageId) {
+                    $title = $this->getTranslatedTitle($group->getTranslations(), $languageCollection->get($languageId));
+
+                    $buildUrls[$languageId][] = [
+                        'salesChannelId' => $registrationSalesChannel->getId(),
+                        'foreignKey' => $group->getId(),
+                        'routeName' => self::ROUTE_NAME,
+                        'pathInfo' => '/customer-group-registration/' . $group->getId(),
+                        'isCanonical' => true,
+                        'seoPathInfo' => '/' . $this->slugify->slugify($title),
+                    ];
+                }
+            }
+        }
+
+        foreach ($buildUrls as $languageId => $urls) {
+            $context = new Context(
+                $context->getSource(),
+                $context->getRuleIds(),
+                $context->getCurrencyId(),
+                [$languageId]
+            );
+
+            $this->persister->updateSeoUrls($context, self::ROUTE_NAME, array_column($urls, 'foreignKey'), $urls);
+        }
     }
 
     private function getTranslatedTitle(CustomerGroupTranslationCollection $translations, LanguageEntity $language): string

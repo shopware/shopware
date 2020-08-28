@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartProcessorInterface;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
+use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -197,5 +198,73 @@ class ProcessorTest extends TestCase
 
         static::assertNotEmpty($calculatedTaxForProductItem);
         static::assertCount(1, $calculatedTaxForProductItem);
+    }
+
+    public function testPersistentErrors(): void
+    {
+        $cart = new Cart(Uuid::randomHex(), Uuid::randomHex());
+
+        $cart->addErrors(new NonePersistentError(), new PersistentError());
+
+        $cart = $this->getContainer()->get(Processor::class)
+            ->process($cart, $this->context, new CartBehavior());
+
+        static::assertCount(1, $cart->getErrors());
+        static::assertInstanceOf(PersistentError::class, $cart->getErrors()->first());
+
+        $error = $cart->getErrors()->first();
+        static::assertEquals('persistent', $error->getId());
+        static::assertEquals('persistent', $error->getMessageKey());
+    }
+}
+
+class PersistentError extends Error
+{
+    public function getId(): string
+    {
+        return 'persistent';
+    }
+
+    public function getMessageKey(): string
+    {
+        return 'persistent';
+    }
+
+    public function getLevel(): int
+    {
+        return 1;
+    }
+
+    public function blockOrder(): bool
+    {
+        return false;
+    }
+
+    public function getParameters(): array
+    {
+        return [];
+    }
+
+    public function isPersistent(): bool
+    {
+        return true;
+    }
+}
+
+class NonePersistentError extends PersistentError
+{
+    public function getId(): string
+    {
+        return 'none-' . parent::getId();
+    }
+
+    public function getMessageKey(): string
+    {
+        return 'none-' . parent::getMessageKey();
+    }
+
+    public function isPersistent(): bool
+    {
+        return false;
     }
 }

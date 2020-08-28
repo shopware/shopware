@@ -139,6 +139,7 @@ class PromotionCollector implements CartDataCollectorInterface
         // and add errors, if a promotion for that code couldn't be found
         foreach ($allCodes as $code) {
             if (!in_array($code, $foundCodes, true)) {
+                $cartExtension->removeCode($code);
                 $this->addPromotionNotFoundError($code, $cart);
             }
         }

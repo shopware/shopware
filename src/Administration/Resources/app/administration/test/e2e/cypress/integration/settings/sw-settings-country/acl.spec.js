@@ -18,7 +18,7 @@ describe('Country: Test acl privileges', () => {
 
     it('@settings: can view a list of countries', () => {
         cy.window().then((win) => {
-            if (!win.Shopware.FeatureConfig.isActive('next3722')) {
+            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
                 return;
             }
 
@@ -42,7 +42,7 @@ describe('Country: Test acl privileges', () => {
 
     it('@settings: can edit a country', () => {
         cy.window().then((win) => {
-            if (!win.Shopware.FeatureConfig.isActive('next3722')) {
+            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
                 return;
             }
 
@@ -110,7 +110,7 @@ describe('Country: Test acl privileges', () => {
 
     it('@settings: can create a country', () => {
         cy.window().then((win) => {
-            if (!win.Shopware.FeatureConfig.isActive('next3722')) {
+            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
                 return;
             }
 
@@ -179,7 +179,7 @@ describe('Country: Test acl privileges', () => {
 
     it('@settings: can delete a country', () => {
         cy.window().then((win) => {
-            if (!win.Shopware.FeatureConfig.isActive('next3722')) {
+            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
                 return;
             }
 
@@ -237,7 +237,7 @@ describe('Country: Test acl privileges', () => {
 
     it('@settings: can view a list of states', () => {
         cy.window().then((win) => {
-            if (!win.Shopware.FeatureConfig.isActive('next3722')) {
+            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
                 return;
             }
 
@@ -267,7 +267,7 @@ describe('Country: Test acl privileges', () => {
 
     it('@settings: can edit a state', () => {
         cy.window().then((win) => {
-            if (!win.Shopware.FeatureConfig.isActive('next3722')) {
+            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
                 return;
             }
 
@@ -343,7 +343,7 @@ describe('Country: Test acl privileges', () => {
 
     it('@settings: can create a state', () => {
         cy.window().then((win) => {
-            if (!win.Shopware.FeatureConfig.isActive('next3722')) {
+            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
                 return;
             }
 

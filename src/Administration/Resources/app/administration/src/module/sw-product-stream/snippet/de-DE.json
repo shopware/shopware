@@ -75,6 +75,7 @@
         "price": "Preis",
         "product": "Produkt",
         "productNumber": "Produktnummer",
+        "properties": "Eigenschaft",
         "purchasePrice": "Verkaufspreis",
         "purchaseUnit": "Verkaufseinheit",
         "referenceUnit": "Grundeinheit",

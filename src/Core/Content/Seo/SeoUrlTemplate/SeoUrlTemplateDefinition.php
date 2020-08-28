@@ -41,7 +41,7 @@ class SeoUrlTemplateDefinition extends EntityDefinition
 
             (new StringField('entity_name', 'entityName', 64))->addFlags(new Required()),
             (new StringField('route_name', 'routeName'))->addFlags(new Required()),
-            (new StringField('template', 'template'))->addFlags(new Required()),
+            (new StringField('template', 'template')),
 
             new BoolField('is_valid', 'isValid'),
 

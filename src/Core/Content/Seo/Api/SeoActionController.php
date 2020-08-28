@@ -277,7 +277,7 @@ class SeoActionController extends AbstractController
             }
         }
 
-        $result = $this->seoUrlGenerator->generate($ids, $seoUrlTemplate['template'], $seoUrlRoute, $context, $salesChannel);
+        $result = $this->seoUrlGenerator->generate($ids, $seoUrlTemplate['template'] ?? '', $seoUrlRoute, $context, $salesChannel);
 
         return iterator_to_array($result);
     }

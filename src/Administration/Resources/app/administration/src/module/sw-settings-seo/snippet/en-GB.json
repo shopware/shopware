@@ -23,7 +23,8 @@
       "placeholderSelectVariables": "Search and select...",
       "labelSalesChannelSelect": "Sales Channel",
       "textUrlPreviewNotPossible": "A preview for this template could not be generated.",
-      "textUrlNoEntitiesForPreview": "There are is no {entity} to generate a preview for. Please create one."
+      "textUrlNoEntitiesForPreview": "There are/is no {entity} to generate a preview for. Please create one.",
+      "textUrlPreviewEmptyTemplate": "The template is empty, SEO-URLs won't be generated for routes of the {entity} entity."
     },
     "routeNames": {
       "frontend-detail-page": "Product detail page",

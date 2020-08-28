@@ -18,7 +18,7 @@ describe('Delivery time: Test acl privileges', () => {
 
     it('@settings: can view delivery time', () => {
         cy.window().then((win) => {
-            if (!win.Shopware.FeatureConfig.isActive('next3722')) {
+            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
                 return;
             }
 
@@ -52,7 +52,7 @@ describe('Delivery time: Test acl privileges', () => {
 
     it('@settings: can edit delivery time', () => {
         cy.window().then((win) => {
-            if (!win.Shopware.FeatureConfig.isActive('next3722')) {
+            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
                 return;
             }
 
@@ -110,7 +110,7 @@ describe('Delivery time: Test acl privileges', () => {
 
     it('@settings: can create delivery time', () => {
         cy.window().then((win) => {
-            if (!win.Shopware.FeatureConfig.isActive('next3722')) {
+            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
                 return;
             }
 
@@ -162,7 +162,7 @@ describe('Delivery time: Test acl privileges', () => {
 
     it('@settings: can delete delivery time', () => {
         cy.window().then((win) => {
-            if (!win.Shopware.FeatureConfig.isActive('next3722')) {
+            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
                 return;
             }
 

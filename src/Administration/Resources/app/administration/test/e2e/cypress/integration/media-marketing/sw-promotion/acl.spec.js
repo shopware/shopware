@@ -24,7 +24,7 @@ describe('Promotion: Test ACL privileges', () => {
 
     it('@acl: can read promotion', () => {
         cy.window().then((win) => {
-            if (!win.Shopware.FeatureConfig.isActive('next3722')) {
+            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
                 return;
             }
 
@@ -54,7 +54,8 @@ describe('Promotion: Test ACL privileges', () => {
             cy.get(page.elements.primaryButton).should('be.disabled');
 
             cy.get('.sw-tabs-item').eq(1).click();
-            cy.get('.sw-promotion-persona-form__persona-rules .sw-promotion-rule-select').should('have.class', 'is--disabled');
+            cy.get('.sw-promotion-persona-form__persona-rules .sw-promotion-rule-select')
+                .should('have.class', 'is--disabled');
 
             cy.get('.sw-tabs-item').eq(2).click();
             cy.get('.sw-promotion-detail-discounts .sw-button').should('be.disabled');
@@ -63,7 +64,7 @@ describe('Promotion: Test ACL privileges', () => {
 
     it('@acl: can edit promotion', () => {
         cy.window().then((win) => {
-            if (!win.Shopware.FeatureConfig.isActive('next3722')) {
+            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
                 return;
             }
 
@@ -132,7 +133,7 @@ describe('Promotion: Test ACL privileges', () => {
 
     it('@acl: can delete promotion', () => {
         cy.window().then((win) => {
-            if (!win.Shopware.FeatureConfig.isActive('next3722')) {
+            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
                 return;
             }
 

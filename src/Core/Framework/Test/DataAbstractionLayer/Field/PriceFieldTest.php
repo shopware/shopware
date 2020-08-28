@@ -17,10 +17,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\PriceFieldDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
-use function Flag\skipTestNext6059;
 
 class PriceFieldTest extends TestCase
 {
@@ -241,7 +241,7 @@ EOF;
         CashRoundingConfig $rounding,
         string $currencyId = Defaults::CURRENCY
     ): void {
-        skipTestNext6059($this);
+        Feature::skipTestIfInActive('FEATURE_NEXT_6059', $this);
 
         $definition = $this->registerDefinition(PriceFieldDefinition::class);
 
@@ -471,7 +471,7 @@ EOF;
         CashRoundingConfig $rounding,
         string $currencyId = Defaults::CURRENCY
     ): void {
-        skipTestNext6059($this);
+        Feature::skipTestIfInActive('FEATURE_NEXT_6059', $this);
         $definition = $this->registerDefinition(PriceFieldDefinition::class);
 
         $currency = [

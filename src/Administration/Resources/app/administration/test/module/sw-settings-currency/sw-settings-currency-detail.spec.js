@@ -12,7 +12,11 @@ function createWrapper(privileges = []) {
             $device: {
                 getSystemKey: () => {}
             },
-            next6059: () => true
+            feature: {
+                isActive() {
+                    return true;
+                }
+            }
         },
         provide: {
             repositoryFactory: {

@@ -9,8 +9,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
-use function Flag\next6059;
 
 class ListingPriceUpdater
 {
@@ -321,7 +321,7 @@ class ListingPriceUpdater
 
     private function round(float $value, int $precision): float
     {
-        if (next6059()) {
+        if (Feature::isActive('FEATURE_NEXT_6059')) {
             return $value;
         }
 

@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
@@ -31,7 +32,6 @@ use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\Transition;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\ParameterBag;
-use function Flag\next6059;
 
 class OrderService
 {
@@ -503,7 +503,7 @@ class OrderService
     {
         $rounding = new CashRoundingConfig($order->getCurrency()->getDecimalPrecision(), 0.01, true);
 
-        if (next6059()) {
+        if (Feature::isActive('FEATURE_NEXT_6059')) {
             $rounding = $order->getItemRounding();
         }
 

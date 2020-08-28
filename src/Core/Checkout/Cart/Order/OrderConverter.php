@@ -38,6 +38,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -45,7 +46,6 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use function Flag\next6059;
 
 class OrderConverter
 {
@@ -281,7 +281,7 @@ class OrderConverter
 
         $salesChannelContext = $this->salesChannelContextFactory->create(Uuid::randomHex(), $order->getSalesChannelId(), $options);
 
-        if (next6059()) {
+        if (Feature::isActive('FEATURE_NEXT_6059')) {
             $salesChannelContext->setItemRounding($order->getItemRounding());
             $salesChannelContext->setTotalRounding($order->getTotalRounding());
         } else {

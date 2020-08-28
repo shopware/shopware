@@ -19,7 +19,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Symfony\Component\HttpFoundation\Request;
-use function Flag\next6059;
 
 class ApiRequestContextResolver implements RequestContextResolverInterface
 {
@@ -295,6 +294,26 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         return array_unique(array_filter($list));
     }
 
+    private function getCashRounding($currencyId): CashRoundingConfig
+    {
+        $rounding = $this->connection->fetchAssoc(
+            'SELECT item_rounding, decimal_precision FROM currency WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($currencyId)]
+        );
+
+        if (!Feature::isActive('FEATURE_NEXT_6059')) {
+            return new CashRoundingConfig((int) $rounding['decimal_precision'], 0.01, true);
+        }
+
+        $rounding = json_decode($rounding['item_rounding'], true);
+
+        return new CashRoundingConfig(
+            (int) $rounding['decimals'],
+            (float) $rounding['interval'],
+            (bool) $rounding['roundForNet']
+        );
+    }
+
     private function fetchPermissionsIntegrationByApp(?string $integrationId): ?array
     {
         if (!$integrationId) {
@@ -313,25 +332,5 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         }
 
         return json_decode($privileges, true);
-    }
-
-    private function getCashRounding($currencyId): CashRoundingConfig
-    {
-        $rounding = $this->connection->fetchAssoc(
-            'SELECT item_rounding, decimal_precision FROM currency WHERE id = :id',
-            ['id' => Uuid::fromHexToBytes($currencyId)]
-        );
-
-        if (!next6059()) {
-            return new CashRoundingConfig((int) $rounding['decimal_precision'], 0.01, true);
-        }
-
-        $rounding = json_decode($rounding['item_rounding'], true);
-
-        return new CashRoundingConfig(
-            (int) $rounding['decimals'],
-            (float) $rounding['interval'],
-            (bool) $rounding['roundForNet']
-        );
     }
 }

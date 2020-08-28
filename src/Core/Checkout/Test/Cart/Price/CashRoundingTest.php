@@ -5,7 +5,7 @@ namespace Shopware\Core\Checkout\Test\Cart\Price;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
-use function Flag\skipTestNext6059;
+use Shopware\Core\Framework\Feature;
 
 class CashRoundingTest extends TestCase
 {
@@ -14,7 +14,8 @@ class CashRoundingTest extends TestCase
      */
     public function testCashRounding(float $price, float $expected, CashRoundingConfig $config): void
     {
-        skipTestNext6059($this);
+        Feature::skipTestIfInActive('FEATURE_NEXT_6059', $this);
+
         $service = new CashRounding();
 
         $actual = $service->cashRound($price, $config);

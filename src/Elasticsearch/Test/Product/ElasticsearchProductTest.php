@@ -65,7 +65,6 @@ use Shopware\Elasticsearch\Framework\Indexing\EntityMapper;
 use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
-use function Flag\skipTestNext6059;
 
 class ElasticsearchProductTest extends TestCase
 {
@@ -1574,7 +1573,7 @@ class ElasticsearchProductTest extends TestCase
      */
     public function testPriceFilterWithCashRounding(TestDataCollection $data): void
     {
-        skipTestNext6059($this);
+        Feature::skipTestIfInActive('FEATURE_NEXT_6059', $this);
 
         $searcher = $this->createEntitySearcher();
 
@@ -1601,7 +1600,7 @@ class ElasticsearchProductTest extends TestCase
      */
     public function testPriceAggregationWithCashRounding(TestDataCollection $data): void
     {
-        skipTestNext6059($this);
+        Feature::skipTestIfInActive('FEATURE_NEXT_6059', $this);
 
         $context = new Context(new SystemSource(), [], $this->currencyId);
 
@@ -1615,7 +1614,6 @@ class ElasticsearchProductTest extends TestCase
         $result = $aggregations->get('price');
         static::assertInstanceOf(StatsResult::class, $result);
 
-        /** @var StatsResult $result */
         static::assertEquals(19.90, $result->getMin());
         static::assertEquals(20.00, $result->getMax());
     }

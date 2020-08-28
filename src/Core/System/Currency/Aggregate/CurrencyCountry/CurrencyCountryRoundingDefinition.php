@@ -11,9 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Currency\CurrencyDefinition;
-use function Flag\next6059;
 
 class CurrencyCountryRoundingDefinition extends EntityDefinition
 {
@@ -58,7 +58,7 @@ class CurrencyCountryRoundingDefinition extends EntityDefinition
         ]);
 
         // disable dal validation command
-        if (next6059()) {
+        if (Feature::isActive('FEATURE_NEXT_6059')) {
             $fields->add(new ManyToOneAssociationField('currency', 'currency_id', CurrencyDefinition::class));
             $fields->add(
                 (new ManyToOneAssociationField('country', 'country_id', CountryDefinition::class))

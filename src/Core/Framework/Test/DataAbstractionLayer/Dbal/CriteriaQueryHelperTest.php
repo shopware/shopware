@@ -39,7 +39,7 @@ class CriteriaQueryHelperTest extends TestCase
         $taxRepository->search($criteria, $context);
     }
 
-    public function testDoNotSortByScoreIfNoScoreQueryOrSearchTermIsSet(): void
+    public function testDoNotSortByScoreAutomaticallyIfNoScoreQueryOrSearchTermIsSet(): void
     {
         $productDefinition = $this->getContainer()->get(ProductDefinition::class);
         $queryMock = $this->createMock(QueryBuilder::class);
@@ -48,6 +48,19 @@ class CriteriaQueryHelperTest extends TestCase
             ->method('addOrderBy');
 
         $this->buildQueryByCriteria($queryMock, $productDefinition, new Criteria(), Context::createDefaultContext());
+    }
+
+    public function testDoNotSortByScoreManuallyIfNoScoreQueryOrSearchTermIsSet(): void
+    {
+        $criteria = new Criteria();
+        $criteria->addSorting(new FieldSorting('_score'));
+        $productDefinition = $this->getContainer()->get(ProductDefinition::class);
+        $queryMock = $this->createMock(QueryBuilder::class);
+        $queryMock
+            ->expects(static::never())
+            ->method('addOrderBy');
+
+        $this->buildQueryByCriteria($queryMock, $productDefinition, $criteria, Context::createDefaultContext());
     }
 
     public function testSortByScoreIfScoreQueryIsSet(): void

@@ -445,6 +445,12 @@ class RequestCriteriaBuilder
 
     private function buildFieldName(EntityDefinition $definition, string $fieldName): string
     {
+        if ($fieldName === '_score') {
+            // Do not prefix _score fields because they are not actual entity properties but a calculated field in the
+            // SQL selection.
+            return $fieldName;
+        }
+
         $prefix = $definition->getEntityName() . '.';
 
         if (mb_strpos($fieldName, $prefix) === false) {

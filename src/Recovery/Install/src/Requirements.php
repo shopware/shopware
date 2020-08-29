@@ -389,23 +389,6 @@ class Requirements
     }
 
     /**
-     * Compare max execution time config
-     *
-     * @param string $version
-     * @param string $required
-     *
-     * @return bool
-     */
-    private function compareMaxExecutionTime($version, $required)
-    {
-        if (!$version) {
-            return true;
-        }
-
-        return version_compare($required, $version, '<=');
-    }
-
-    /**
      * Decode php size format
      *
      * @param string $val

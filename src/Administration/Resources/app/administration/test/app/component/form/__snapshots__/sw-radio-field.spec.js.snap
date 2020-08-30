@@ -6,117 +6,125 @@ exports[`components/form/sw-radio-field should renders correctly with children s
 >
   <!---->
    
-  <!---->
-   
   <div
-    class="sw-field__radio-group"
+    class="sw-field__input-wrapper"
   >
     <div
-      class="sw-field__radio-option group-bordered"
-    >
-      <div
-        class="sw-field__radio-input"
-      >
-        <input
-          id="sw-field--currentValue-0"
-          name="sw-field--currentValue"
-          type="radio"
-          value="0"
-        />
-         
-        <div
-          class="sw-field__radio-state"
-        />
-      </div>
-       
-      <label
-        for="sw-field--currentValue-0"
-      >
-        <span>
-          option 1
-        </span>
-         
-        <!---->
-         
-        <!---->
-      </label>
-       
-      <input
-        disabled="disabled"
-        id="custom-slot"
-        type="text"
-      />
-       
-      <p>
-        Custom slot
-      </p>
-    </div>
+      class="sw-block-field__helpers"
+    />
+     
+    <!---->
+     
     <div
-      class="sw-field__radio-option group-bordered"
+      class="sw-field__radio-group"
     >
       <div
-        class="sw-field__radio-input"
+        class="sw-field__radio-option group-bordered"
       >
-        <input
-          id="sw-field--currentValue-1"
-          name="sw-field--currentValue"
-          type="radio"
-          value="1"
-        />
-         
         <div
-          class="sw-field__radio-state"
+          class="sw-field__radio-input"
+        >
+          <input
+            id="sw-field--currentValue-0"
+            name="sw-field--currentValue"
+            type="radio"
+            value="0"
+          />
+           
+          <div
+            class="sw-field__radio-state"
+          />
+        </div>
+         
+        <label
+          for="sw-field--currentValue-0"
+        >
+          <span>
+            option 1
+          </span>
+           
+          <!---->
+           
+          <!---->
+        </label>
+         
+        <input
+          disabled="disabled"
+          id="custom-slot"
+          type="text"
         />
+         
+        <p>
+          Custom slot
+        </p>
       </div>
-       
-      <label
-        for="sw-field--currentValue-1"
-      >
-        <span>
-          option 2
-        </span>
-         
-        <!---->
-         
-        <!---->
-      </label>
-       
-    </div>
-    <div
-      class="sw-field__radio-option group-bordered"
-    >
       <div
-        class="sw-field__radio-input"
+        class="sw-field__radio-option group-bordered"
       >
-        <input
-          id="sw-field--currentValue-2"
-          name="sw-field--currentValue"
-          type="radio"
-          value="2"
-        />
-         
         <div
-          class="sw-field__radio-state"
-        />
+          class="sw-field__radio-input"
+        >
+          <input
+            id="sw-field--currentValue-1"
+            name="sw-field--currentValue"
+            type="radio"
+            value="1"
+          />
+           
+          <div
+            class="sw-field__radio-state"
+          />
+        </div>
+         
+        <label
+          for="sw-field--currentValue-1"
+        >
+          <span>
+            option 2
+          </span>
+           
+          <!---->
+           
+          <!---->
+        </label>
+         
       </div>
-       
-      <label
-        for="sw-field--currentValue-2"
+      <div
+        class="sw-field__radio-option group-bordered"
       >
-        <span>
-          option 3
-        </span>
+        <div
+          class="sw-field__radio-input"
+        >
+          <input
+            id="sw-field--currentValue-2"
+            name="sw-field--currentValue"
+            type="radio"
+            value="2"
+          />
+           
+          <div
+            class="sw-field__radio-state"
+          />
+        </div>
          
-        <!---->
+        <label
+          for="sw-field--currentValue-2"
+        >
+          <span>
+            option 3
+          </span>
+           
+          <!---->
+           
+          <!---->
+        </label>
          
-        <!---->
-      </label>
-       
+      </div>
     </div>
+     
+    <!---->
+     
+    <div />
   </div>
-   
-  <!---->
-   
-  <div />
 </div>
 `;

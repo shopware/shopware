@@ -1267,6 +1267,7 @@ Refactored `src/module/sw-plugin/snippet/en-GB.json`:
 * Added `HttpCacheGenerateKeyEvent` to allow changing the hash
 * It is now possible to override the generic API routes with a `config/routes_overwrite.xml` in the bundle or plugin
 * Fixed a bug cannot remove credit items after creating in Admin order
+* Added custom item's tax into shipping cost's calculated taxes in Admin order
 
 #### Storefront
 * Added plugin injection in hot mode

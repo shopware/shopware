@@ -200,6 +200,98 @@ class ProcessorTest extends TestCase
         static::assertCount(1, $calculatedTaxForProductItem);
     }
 
+    public function testShippingCostIsCalculatedWithCustomItemOnly(): void
+    {
+        $cart = new Cart('test', 'test');
+
+        $customItemId = Uuid::randomHex();
+
+        $tax = ['id' => Uuid::randomHex(), 'taxRate' => 10, 'name' => 'test'];
+
+        $this->addTaxDataToSalesChannel($this->context, $tax);
+
+        $taxForCustomItem = 20;
+        $taxRulesCustomItem = new TaxRuleCollection([new TaxRule($taxForCustomItem)]);
+
+        $customLineItem = (new LineItem($customItemId, LineItem::CUSTOM_LINE_ITEM_TYPE, $customItemId, 1))
+            ->setLabel('custom')
+            ->setPriceDefinition(new QuantityPriceDefinition(200, $taxRulesCustomItem, 2));
+
+        $cart->add($customLineItem);
+
+        $calculated = $this->processor->process($cart, $this->context, new CartBehavior());
+
+        static::assertNotEmpty($delivery = $calculated->getDeliveries()->first());
+        static::assertNotEmpty($shippingCalculatedTaxes = $delivery->getShippingCosts()->getCalculatedTaxes()->first());
+        static::assertEquals($taxForCustomItem, $shippingCalculatedTaxes->getTaxRate());
+    }
+
+    public function testShippingCostCalculatedTaxesIncludeCustomItemTax(): void
+    {
+        $cart = new Cart('test', 'test');
+
+        $productId = Uuid::randomHex();
+        $customItemId = Uuid::randomHex();
+
+        $taxForCustomItem = 20;
+        $taxForProductItem = 10;
+
+        $tax = ['id' => Uuid::randomHex(), 'taxRate' => $taxForProductItem, 'name' => 'test'];
+
+        $product = [
+            'id' => $productId,
+            'name' => 'test',
+            'price' => [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => 220, 'net' => 200, 'linked' => false],
+            ],
+            'productNumber' => Uuid::randomHex(),
+            'manufacturer' => ['name' => 'test'],
+            'tax' => $tax,
+            'stock' => 10,
+            'active' => true,
+            'visibilities' => [
+                ['salesChannelId' => Defaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+            ],
+        ];
+
+        $this->getContainer()->get('product.repository')
+            ->create([$product], Context::createDefaultContext());
+
+        $this->addTaxDataToSalesChannel($this->context, $tax);
+
+        $taxRulesCustomItem = new TaxRuleCollection([new TaxRule($taxForCustomItem)]);
+
+        $productLineItem = new LineItem($productId, LineItem::PRODUCT_LINE_ITEM_TYPE, $productId, 1);
+        $customLineItem = (new LineItem($customItemId, LineItem::CUSTOM_LINE_ITEM_TYPE, $customItemId, 1))
+            ->setLabel('custom')
+            ->setPriceDefinition(new QuantityPriceDefinition(200, $taxRulesCustomItem, 2));
+
+        $cart->add($productLineItem);
+        $cart->add($customLineItem);
+
+        $calculated = $this->processor->process($cart, $this->context, new CartBehavior());
+
+        static::assertCount(1, $calculated->getDeliveries());
+
+        $delivery = $calculated->getDeliveries()->first();
+
+        static::assertCount(2, $shippingCalculatedTaxes = $delivery->getShippingCosts()->getCalculatedTaxes()->getElements());
+
+        $calculatedTaxForCustomItem = array_filter($shippingCalculatedTaxes, function (CalculatedTax $tax) use ($taxForCustomItem) {
+            return (int) $tax->getTaxRate() === $taxForCustomItem;
+        });
+
+        static::assertNotEmpty($calculatedTaxForCustomItem);
+        static::assertCount(1, $calculatedTaxForCustomItem);
+
+        $calculatedTaxForProductItem = array_filter($shippingCalculatedTaxes, function (CalculatedTax $tax) use ($taxForProductItem) {
+            return (int) $tax->getTaxRate() === $taxForProductItem;
+        });
+
+        static::assertNotEmpty($calculatedTaxForProductItem);
+        static::assertCount(1, $calculatedTaxForProductItem);
+    }
+
     public function testPersistentErrors(): void
     {
         $cart = new Cart(Uuid::randomHex(), Uuid::randomHex());

@@ -109,8 +109,8 @@
 
                             {% block sw_customer_list_grid_columns_group %}
                                 <template #column-group="{ item, compact, isInlineEdit }">
-                                    <sw-label v-if="item.requestedGroup" class="sw-customer-list__requested-group-label" variant="warning" appearance="pill" >{{ $tc('sw-customer.list.columnGroupRequested') }} {{ item.requestedGroup.name }}</sw-label>
-                                    <sw-label v-else size="default" appearance="pill">{{ item.group.name }}</sw-label>
+                                    <sw-label v-if="item.requestedGroup" class="sw-customer-list__requested-group-label" variant="warning" appearance="pill" >{{ $tc('sw-customer.list.columnGroupRequested') }} {{ item.requestedGroup.translated.name }}</sw-label>
+                                    <sw-label v-else size="default" appearance="pill">{{ item.group.translated.name }}</sw-label>
                                 </template>
                             {% endblock %}
 

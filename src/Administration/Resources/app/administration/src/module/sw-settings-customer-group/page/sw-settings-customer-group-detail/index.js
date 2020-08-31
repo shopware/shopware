@@ -5,6 +5,7 @@ const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const { ShopwareError } = Shopware.Classes;
+const types = Shopware.Utils.types;
 const domainPlaceholderId = '124c71d524604ccbad6042edce3ac799';
 
 Component.register('sw-settings-customer-group-detail', {
@@ -179,7 +180,7 @@ Component.register('sw-settings-customer-group-detail', {
             if (
                 Shopware.Context.api.languageId === Shopware.Context.api.systemLanguageId &&
                 this.customerGroup.registrationActive &&
-                (this.customerGroup.registrationTitle === null || this.customerGroup.registrationTitle.length === 0)) {
+                types.isEmpty(this.customerGroup.registrationTitle)) {
                 this.createNotificationError({
                     message: this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid')
                 });

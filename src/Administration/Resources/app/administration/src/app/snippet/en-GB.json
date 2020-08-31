@@ -496,8 +496,8 @@
                 "notEquals": "Is not equal to",
                 "isOneOf": "Is one of",
                 "isNoneOf": "Is none of",
-                "gross": "Brutto",
-                "net": "Netto"
+                "gross": "Gross",
+                "net": "Net"
             },
             "placeholderErrorMessage": "Placeholder cannot be saved.",
             "dataErrorMessage": "Required fields not filled.",

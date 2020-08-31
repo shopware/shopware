@@ -12,6 +12,16 @@
     </h1>
 {% endblock %}
 
+{% block page_checkout_confirm_tos_control %}
+    {% if feature('FEATURE_NEXT_9351') %}
+        {{ "checkout.confirmTermsReminder"|trans({
+            '%url%': path('frontend.cms.page', { id: shopware.config.core.basicInformation.tosPage })
+        })|raw }}
+    {% else %}
+        {{ parent() }}
+    {% endif %}
+{% endblock %}
+
 {% block page_checkout_confirm_address %}
     <div class="confirm-address">
         {% sw_include '@Storefront/storefront/page/account/order/address.html.twig' %}

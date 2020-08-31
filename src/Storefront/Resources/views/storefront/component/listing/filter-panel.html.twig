@@ -64,7 +64,7 @@
                     {% block component_filter_panel_item_rating %}
                         {% set rating = listing.aggregations.get('rating') %}
 
-                        {% if not rating is empty %}
+                        {% if rating.max > 0 %}
                             {% sw_include '@Storefront/storefront/component/listing/filter/filter-rating.html.twig' with {
                                 name: 'rating',
                                 displayName: 'listing.filterRatingDisplayName'|trans|sw_sanitize

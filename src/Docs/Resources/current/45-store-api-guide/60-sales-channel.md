@@ -239,3 +239,18 @@ POST /store-api/v3/shipping-method
     }
 ]
 ```
+
+### List Sitemap entries
+
+The api `/store-api/v3/sitemap` can be used to list all sitemap entries of the sales channel.
+
+```
+GET /store-api/v3/sitemap
+[
+  {
+    "filename": "https:\/\/localhost\/sitemap\/salesChannel-3ee1a31d07ab4b4599f058a40f972caa-2fbb5fe2e29a4d70aa5854ce7ce3e20b\/3ee1a31d07ab4b4599f058a40f972caa-sitemap-1.xml.gz",
+    "created": "2020-08-31T07:23:15.000+00:00",
+    "apiAlias": "sitemap"
+  }
+]
+```

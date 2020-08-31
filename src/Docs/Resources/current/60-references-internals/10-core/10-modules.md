@@ -197,7 +197,7 @@ Search engine optimization
 
 * [Entity relationship diagram](./10-erd/erd-shopware-core-content-seo.md)
 
-#### Sitemap <span class="tip is--primary">Maintenance</span> <span class="tip is--primary">Extension</span>
+#### Sitemap <span class="tip is--primary">Maintenance</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Extension</span>
 
 * [Sources](https://github.com/shopware/platform/tree/master/src/Core/Content/Sitemap)
 

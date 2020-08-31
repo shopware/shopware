@@ -19,4 +19,5 @@
     <import resource="../../Newsletter/SalesChannel/**/*Route.php" type="annotation" />
     <import resource="../../Seo/SalesChannel/**/*Route.php" type="annotation" />
     <import resource="../../ProductExport/SalesChannel/**/*Route.php" type="annotation" />
+    <import resource="../../Sitemap/SalesChannel/**/*Route.php" type="annotation" />
 </routes>

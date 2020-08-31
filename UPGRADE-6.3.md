@@ -392,3 +392,7 @@ Make sure you are using the correct asset package in the twig function `asset`.
 
 * Themes: `{{ asset('folder/image.png', 'theme') }`
 * Plugins: `{{ asset('folder/image.png', 'asset') }` or `{{ asset('folder/image.png', '@MyPluginName') }`
+
+Others
+------------
+* All current administration users will be set to admin users due to the release of the acl system. Please check your user rights after update.

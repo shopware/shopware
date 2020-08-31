@@ -15,7 +15,7 @@ class Migration1597657689ActionButton extends MigrationStep
     public function update(Connection $connection): void
     {
         $connection->executeUpdate('
-            CREATE TABLE `app_action_button` (
+            CREATE TABLE IF NOT EXISTS `app_action_button` (
                 `id` BINARY(16) NOT NULL,
                 `entity` VARCHAR(255) NOT NULL,
                 `view` VARCHAR(255) NOT NULL,
@@ -33,7 +33,7 @@ class Migration1597657689ActionButton extends MigrationStep
         ');
 
         $connection->executeUpdate('
-            CREATE TABLE `app_action_button_translation` (
+            CREATE TABLE IF NOT EXISTS `app_action_button_translation` (
                 `label` VARCHAR(255) NOT NULL,
                 `created_at` DATETIME(3) NOT NULL,
                 `updated_at` DATETIME(3) NULL,

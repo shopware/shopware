@@ -112,7 +112,11 @@ class FeatureTest extends TestCase
         $twig->addExtension(new FeatureFlagExtension());
         $template = $twig->loadTemplate('featuretest_unregistered.html.twig');
 
-        $this->expectNoticeMessageMatches('/.*FEATURE_RANDOMFLAGTHATISNOTREGISTERDE_471112.*/');
+        if ($_SERVER['APP_ENV'] !== 'prod') {
+            $this->expectNoticeMessageMatches('/.*FEATURE_RANDOMFLAGTHATISNOTREGISTERDE_471112.*/');
+        } else {
+            static::assertTrue(true, 'No Notice in prod mode');
+        }
         $template->render([]);
     }
 

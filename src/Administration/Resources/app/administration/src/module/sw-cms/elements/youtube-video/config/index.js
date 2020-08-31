@@ -37,6 +37,7 @@ Component.register('sw-cms-el-config-youtube-video', {
                 this.element.config.videoID.value = this.shortenLink(link);
             }
         },
+
         mediaRepository() {
             return this.repositoryFactory.create('media');
         },

@@ -1,18 +1,20 @@
-{% block element_vimeo_video %}    
+{% block element_vimeo_video %}
     {% set config = element.config %}
+    {% set elementData = element.data %}
+
     {% set videoUrl = 'https://player.vimeo.com/video/' %}
     {% set videoUrl = videoUrl ~ config.videoID.value ~ '?' %}
 
     {% if config.autoplay.value == true %}
         {% set videoUrl = videoUrl ~ 'autoplay=true' ~ '&' %}
-    {% endif %}   
+    {% endif %}
 
     {% if config.byLine.value == false %}
         {% set videoUrl = videoUrl ~ 'byline=false' ~ '&' %}
     {% endif %}
 
     {% set videoUrl = videoUrl ~ 'color=' ~ config.color.value|replace({'#': ''}) ~ '&' %}
-    {% set videoUrl = videoUrl ~ 'dnt=' ~ config.doNotTrack.value ~ '&' %}    
+    {% set videoUrl = videoUrl ~ 'dnt=' ~ config.doNotTrack.value ~ '&' %}
     {% set videoUrl = videoUrl ~ 'loop=' ~ config.loop.value ~ '&' %}
 
     {% if config.title.value == false %}
@@ -30,9 +32,38 @@
     <div class="cms-element-vimeo-video">
 
         {% block element_vimeo_video_inner %}
-            <iframe class="cms-element-vimeo-video__video"
-                    src="{{ videoUrl }}">
-            </iframe>
+
+            {% set iframeClass = 'cms-element-vimeo-video__video' %}
+
+            {% if config.needsConfirmation.value == false %}
+                <iframe class="{{ iframeClass }}"
+                        src="{{ videoUrl }}">
+                </iframe>
+            {% else %}
+                {% set pluginConfiguration = {
+                    videoUrl: videoUrl,
+                    iframeClasses: [ iframeClass ],
+                    btnClasses: [ 'btn', 'btn-outline-secondary' ],
+                    backdropClasses: [ 'cms-element-vimeo-video__backdrop' ],
+                    confirmButtonText: 'component.cms.vimeo.acceptButtonLabel'|trans,
+                    overlayText: 'component.cms.vimeo.privacyNotice'|trans({
+                        '%url%': path('frontend.cms.page',{ id: shopware.config.core.basicInformation.privacyPage }),
+                        '%platform%': 'Vimeo'
+                    })|raw
+                } %}
+
+                {% block element_vimeo_video_placeholder %}
+                    <div class="cms-element-vimeo-video__placeholder"
+                         data-cms-gdpr-video-element="true"
+                         data-cms-gdpr-video-element-options="{{ pluginConfiguration|json_encode }}">
+                        {% sw_thumbnails 'cms-element-vimeo-video__placeholder' with {
+                            media: elementData.media
+                        } %}
+                    </div>
+                {% endblock %}
+            {% endif %}
+
+
         {% endblock %}
 
     </div>

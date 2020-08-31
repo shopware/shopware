@@ -111,6 +111,7 @@ Component.register('sw-cms-el-vimeo-video', {
     methods: {
         createdComponent() {
             this.initElementConfig('vimeo-video');
+            this.initElementData('vimeo-video');
         }
     }
 });

@@ -44,7 +44,7 @@ Shopware.Service('cmsService').registerCmsElement({
         },
         needsConfirmation: {
             source: 'static',
-            value: true
+            value: false
         },
         previewMedia: {
             source: 'static',

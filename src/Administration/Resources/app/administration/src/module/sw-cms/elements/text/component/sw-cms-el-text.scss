@@ -48,4 +48,8 @@
             border: 1px solid $color-steam-cloud;
         }
     }
+
+    .sw-text-editor.is--disabled .sw-text-editor__content {
+        background-color: $color-white;
+    }
 }

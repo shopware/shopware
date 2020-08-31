@@ -6,6 +6,7 @@
         </div>
 
         <sw-text-editor v-else
+                        :disabled="disabled"
                         v-model="element.config.content.value"
                         @blur="onBlur"
                         @input="onInput"

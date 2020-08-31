@@ -16,7 +16,8 @@ Component.register('sw-cms-detail', {
         'loginService',
         'cmsPageService',
         'cmsService',
-        'cmsDataResolverService'
+        'cmsDataResolverService',
+        'acl'
     ],
 
     mixins: [
@@ -138,6 +139,14 @@ Component.register('sw-cms-detail', {
         },
 
         tooltipSave() {
+            if (!this.acl.can('cms.editor')) {
+                return {
+                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    disabled: this.acl.can('cms.editor'),
+                    showOnDisabledElements: true
+                };
+            }
+
             const systemKey = this.$device.getSystemKey();
 
             return {
@@ -326,6 +335,10 @@ Component.register('sw-cms-detail', {
         },
 
         onDeviceViewChange(view) {
+            if (view === 'form' && !this.acl.can('cms.editor')) {
+                return;
+            }
+
             Shopware.State.commit('cmsPageState/setCurrentCmsDeviceView', view);
 
             if (view === 'form') {

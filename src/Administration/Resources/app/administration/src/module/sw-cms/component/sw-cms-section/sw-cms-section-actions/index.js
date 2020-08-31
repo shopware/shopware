@@ -10,6 +10,12 @@ Component.register('sw-cms-section-actions', {
         section: {
             type: Object,
             required: true
+        },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -19,8 +25,20 @@ Component.register('sw-cms-section-actions', {
         };
     },
 
+    computed: {
+        componentClasses() {
+            return {
+                'is--disabled': this.disabled
+            };
+        }
+    },
+
     methods: {
         selectSection() {
+            if (this.disabled) {
+                return;
+            }
+
             this.$store.dispatch('cmsPageState/setSection', this.section);
             this.$parent.$emit('page-config-open', 'itemConfig');
         }

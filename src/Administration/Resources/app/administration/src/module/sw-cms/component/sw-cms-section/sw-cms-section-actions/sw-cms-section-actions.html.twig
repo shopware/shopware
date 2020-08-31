@@ -1,5 +1,5 @@
 {% block sw_cms_section_actions %}
-    <div class="sw-cms-section__actions">
+    <div class="sw-cms-section__actions" :class="componentClasses">
 
         {% block sw_cms_section_action_select %}
             <div class="sw-cms-section__action sw-cms-section-select" @click="selectSection">

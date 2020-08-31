@@ -6,6 +6,10 @@
     width: 100%;
     display: flex;
 
+    &.is--disabled {
+        cursor: not-allowed;
+    }
+
     &:hover {
         .sw-cms-slot__overlay {
             display: block;

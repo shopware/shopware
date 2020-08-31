@@ -16,7 +16,7 @@
                       :error="grossError"
                       @input-change="onPriceGrossChange"
                       :disabled="isDisabled"
-                      name="sw-price-field-gross"
+                      :name="grossFieldName"
                       v-bind="$attrs"
                       v-model="priceForCurrency.gross"
                       @keyup="keymonitor">
@@ -49,7 +49,7 @@
                       :digits="currency.decimalPrecision"
                       :error="netError"
                       :disabled="isInherited || disabled"
-                      name="sw-price-field-net"
+                      :name="netFieldName"
                       v-bind="$attrs"
                       v-model="priceForCurrency.net"
                       @keyup="keymonitor">

@@ -1199,8 +1199,8 @@ export default {
                     inherited: true
                 }
             },
-            purchasePrice: {
-                type: 'float',
+            purchasePrices: {
+                type: 'json',
                 flags: {
                     inherited: true
                 }

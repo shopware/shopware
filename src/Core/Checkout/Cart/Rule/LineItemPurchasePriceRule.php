@@ -4,12 +4,14 @@ namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Util\FloatComparator;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Type;
 
 class LineItemPurchasePriceRule extends Rule
@@ -24,10 +26,18 @@ class LineItemPurchasePriceRule extends Rule
      */
     protected $operator;
 
-    public function __construct(string $operator = self::OPERATOR_EQ, ?float $amount = null)
+    /**
+     * @internal (flag:FEATURE_NEXT_9825)
+     *
+     * @var bool
+     */
+    protected $isNet;
+
+    public function __construct(string $operator = self::OPERATOR_EQ, ?float $amount = null, bool $isNet = true)
     {
         parent::__construct();
 
+        $this->isNet = $isNet;
         $this->operator = $operator;
         $this->amount = $amount;
     }
@@ -58,6 +68,26 @@ class LineItemPurchasePriceRule extends Rule
 
     public function getConstraints(): array
     {
+        if (Feature::isActive('FEATURE_NEXT_9825')) {
+            return [
+                'isNet' => [new NotNull(), new Type('bool')],
+                'amount' => [new NotBlank(), new Type('numeric')],
+                'operator' => [
+                    new NotBlank(),
+                    new Choice(
+                        [
+                            self::OPERATOR_NEQ,
+                            self::OPERATOR_GTE,
+                            self::OPERATOR_LTE,
+                            self::OPERATOR_EQ,
+                            self::OPERATOR_GT,
+                            self::OPERATOR_LT,
+                        ]
+                    ),
+                ],
+            ];
+        }
+
         return [
             'amount' => [new NotBlank(), new Type('numeric')],
             'operator' => [
@@ -82,36 +112,63 @@ class LineItemPurchasePriceRule extends Rule
      */
     private function matchPurchasePriceCondition(LineItem $lineItem): bool
     {
-        $purchasePrice = $lineItem->getPayloadValue('purchasePrice');
-
-        if ($purchasePrice === null) {
+        $purchasePriceAmount = $this->getPurchasePriceAmount($lineItem);
+        if (!$purchasePriceAmount) {
             return false;
         }
 
         $this->amount = (float) $this->amount;
 
-        /* @var float $purchasePrice */
+        /* @var float $purchasePriceAmount */
         switch ($this->operator) {
             case self::OPERATOR_GTE:
-                return FloatComparator::greaterThanOrEquals($purchasePrice, $this->amount);
+                return FloatComparator::greaterThanOrEquals($purchasePriceAmount, $this->amount);
 
             case self::OPERATOR_LTE:
-                return FloatComparator::lessThanOrEquals($purchasePrice, $this->amount);
+                return FloatComparator::lessThanOrEquals($purchasePriceAmount, $this->amount);
 
             case self::OPERATOR_GT:
-                return FloatComparator::greaterThan($purchasePrice, $this->amount);
+                return FloatComparator::greaterThan($purchasePriceAmount, $this->amount);
 
             case self::OPERATOR_LT:
-                return FloatComparator::lessThan($purchasePrice, $this->amount);
+                return FloatComparator::lessThan($purchasePriceAmount, $this->amount);
 
             case self::OPERATOR_EQ:
-                return FloatComparator::equals($purchasePrice, $this->amount);
+                return FloatComparator::equals($purchasePriceAmount, $this->amount);
 
             case self::OPERATOR_NEQ:
-                return FloatComparator::notEquals($purchasePrice, $this->amount);
+                return FloatComparator::notEquals($purchasePriceAmount, $this->amount);
 
             default:
                 throw new UnsupportedOperatorException($this->operator, self::class);
         }
+    }
+
+    private function getPurchasePriceAmount(LineItem $lineItem): ?float
+    {
+        if (Feature::isActive('FEATURE_NEXT_9825')) {
+            $purchasePricePayload = $lineItem->getPayloadValue('purchasePrices');
+            if (!$purchasePricePayload) {
+                return null;
+            }
+            $purchasePrice = json_decode($purchasePricePayload);
+            if (!$purchasePrice) {
+                return null;
+            }
+
+            if ($this->isNet && property_exists($purchasePrice, 'net')) {
+                return $purchasePrice->net;
+            }
+
+            if (property_exists($purchasePrice, 'gross')) {
+                return $purchasePrice->gross;
+            }
+
+            return null;
+        }
+
+        $purchasePricePayload = $lineItem->getPayloadValue('purchasePrice');
+
+        return $purchasePricePayload;
     }
 }

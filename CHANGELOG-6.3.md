@@ -275,6 +275,8 @@ NEXT
     * `\Shopware\Core\Checkout\Customer\SalesChannel\SwitchDefaultAddressRoute`
 * Added new $context parameter to `\Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister::replace`. This parameter will be required with 6.4.0.0.
 * Added new flag `\Shopware\Core\Checkout\Cart\Error\Error::isPersistent` which defines if an errors should be persistent when processing the cart multiple times.
+* Deprecated `purchasePrice` in `Shopware\Core\Content\Product` use `purchasePrices` instead
+* Deprecated `payload.purchasePrice` in `Shopware\Core\Checkout\Cart\LineItem\LineItem` use `payload.purchasePrices` instead
 
 #### Storefront
 

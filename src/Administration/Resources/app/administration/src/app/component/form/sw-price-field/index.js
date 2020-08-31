@@ -95,18 +95,25 @@ Component.register('sw-price-field', {
             type: String,
             required: false,
             default: null
+        },
+
+        // @internal (flag:FEATURE_NEXT_9825)
+        name: {
+            type: String,
+            required: false,
+            default: null
         }
     },
 
     watch: {
         'priceForCurrency.linked': function priceLinkedWatcher(value) {
-            if (value === true) {
+            if (value === true && this.priceForCurrency.gross !== null) {
                 this.convertGrossToNet(this.priceForCurrency.gross);
             }
         },
 
         'taxRate.id': function taxRateWatcher() {
-            if (this.priceForCurrency.linked === true) {
+            if (this.priceForCurrency.linked === true && this.priceForCurrency.gross !== null) {
                 this.convertGrossToNet(this.priceForCurrency.gross);
             }
         }
@@ -170,6 +177,16 @@ Component.register('sw-price-field', {
 
         netError() {
             return this.error ? this.error.net : null;
+        },
+
+        // @internal (flag:FEATURE_NEXT_9825)
+        grossFieldName() {
+            return this.name ? `${this.name}-gross` : 'sw-price-field-gross';
+        },
+
+        // @internal (flag:FEATURE_NEXT_9825)
+        netFieldName() {
+            return this.name ? `${this.name}-net` : 'sw-price-field-net';
         }
     },
 

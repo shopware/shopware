@@ -52,6 +52,7 @@ NEXT
 * Fixed the searchbar so the searchterm and results no longer get lost, when the searchbar losses focus
 * Added property `disabled` to `sw-sidebar-media-item`
 * Added ACL privileges to the `manufacturer` module
+* Added ACL privileges to the shopping experiences module for listing
 
 #### Core
 * Changed order address from customer to billing address in documents

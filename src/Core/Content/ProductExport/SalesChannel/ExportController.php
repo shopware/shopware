@@ -1,9 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Controller;
+namespace Shopware\Core\Content\ProductExport\SalesChannel;
 
 use League\Flysystem\FilesystemInterface;
 use Monolog\Logger;
+use OpenApi\Annotations as OA;
 use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
 use Shopware\Core\Content\ProductExport\Exception\ExportNotFoundException;
 use Shopware\Core\Content\ProductExport\Exception\ExportNotGeneratedException;
@@ -15,9 +16,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Storefront\Event\ProductExportContentTypeEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,10 +25,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @deprecated tag:v6.4.0.0 - Use Shopware\Core\Content\ProductExport\SalesChannel\ExportController instead
- * @RouteScope(scopes={"storefront"})
+ * @RouteScope(scopes={"store-api"})
  */
-class ProductExportController extends StorefrontController
+class ExportController
 {
     /** @var ProductExporterInterface */
     private $productExportService;
@@ -45,49 +44,60 @@ class ProductExportController extends StorefrontController
     /** @var ProductExportFileHandlerInterface */
     private $productExportFileHandler;
 
+    /**
+     * @var SalesChannelContextFactory
+     */
+    private $contextFactory;
+
     public function __construct(
         ProductExporterInterface $productExportService,
         ProductExportFileHandlerInterface $productExportFileHandler,
         FilesystemInterface $fileSystem,
         EventDispatcherInterface $eventDispatcher,
-        EntityRepositoryInterface $productExportRepository
+        EntityRepositoryInterface $productExportRepository,
+        SalesChannelContextFactory $contextFactory
     ) {
         $this->productExportService = $productExportService;
         $this->productExportFileHandler = $productExportFileHandler;
         $this->fileSystem = $fileSystem;
         $this->eventDispatcher = $eventDispatcher;
         $this->productExportRepository = $productExportRepository;
+        $this->contextFactory = $contextFactory;
     }
 
     /**
-     * @Route("/export/{accessKey}/{fileName}", name="frontend.export", methods={"GET"})
+     * @OA\Get(
+     *      path="/product-export/{accessKey}/{fileName}",
+     *      description="Export product export",
+     *      operationId="readProductExport",
+     *      tags={"Store API", "Product"},
+     *      @OA\Response(
+     *          response="200",
+     *          description=""
+     *     )
+     * )
+     * @Route("/store-api/product-export/{accessKey}/{fileName}", name="store-api.product.export", methods={"GET"}, defaults={"auth_required"=false})
      */
-    public function index(SalesChannelContext $context, Request $request): Response
+    public function index(Request $request): Response
     {
         $criteria = new Criteria();
         $criteria
             ->addFilter(new EqualsFilter('fileName', $request->get('fileName')))
             ->addFilter(new EqualsFilter('accessKey', $request->get('accessKey')))
             ->addFilter(new EqualsFilter('salesChannel.active', true))
-            ->addFilter(
-                new MultiFilter(
-                    'OR',
-                    [
-                        new EqualsFilter('salesChannelId', $context->getSalesChannel()->getId()),
-                        new EqualsFilter('salesChannelDomain.salesChannel.id', $context->getSalesChannel()->getId()),
-                    ]
-                )
-            );
+            ->addAssociation('salesChannelDomain');
 
         /** @var ProductExportEntity|null $productExport */
-        $productExport = $this->productExportRepository->search($criteria, $context->getContext())->first();
+        $productExport = $this->productExportRepository->search($criteria, Context::createDefaultContext())->first();
 
         if ($productExport === null) {
             $exportNotFoundException = new ExportNotFoundException(null, $request->get('fileName'));
-            $this->logException($context->getContext(), $exportNotFoundException);
+            $this->logException(Context::createDefaultContext(), $exportNotFoundException);
 
             throw $exportNotFoundException;
         }
+
+        $context = $this->contextFactory->create('', $productExport->getSalesChannelDomain()->getSalesChannelId());
 
         $this->productExportService->export($context, new ExportBehavior(), $productExport->getId());
         $filePath = $this->productExportFileHandler->getFilePath($productExport);

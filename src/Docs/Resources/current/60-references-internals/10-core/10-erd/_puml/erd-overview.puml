@@ -167,6 +167,8 @@ Table(ShopwareCoreContentProduct, "Shopware\Core\Content\Product\n(Products)") {
    product_cross_selling_assigned_products Table
    product_feature_set Table
    product_feature_set_translation Table
+   product_sorting Table
+   product_sorting_translation Table
    product_visibility Table
 }
 Table(ShopwareCoreSystemDeliveryTime, "Shopware\Core\System\DeliveryTime\n(Delivery time)") {

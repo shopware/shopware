@@ -6,13 +6,14 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Content\Product\Events\ProductListingCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductSearchCriteriaEvent;
+use Shopware\Core\Content\Product\SalesChannel\Exception\ProductSortingNotFoundException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -37,7 +38,8 @@ class ProductListingFeaturesSubscriberTest extends TestCase
         parent::setUp();
         $this->eventDispatcher = $this->getContainer()->get('event_dispatcher');
 
-        $repo = $this->getContainer()->get('property_group.repository');
+        $productSortingRepository = $this->getContainer()->get('product_sorting.repository');
+        $productGroupRepository = $this->getContainer()->get('property_group.repository');
 
         $this->optionIds = [
             'red' => Uuid::randomHex(),
@@ -48,8 +50,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
             'large' => Uuid::randomHex(),
         ];
 
-        /* @var EntityRepositoryInterface $repo */
-        $repo->create([
+        $productGroupRepository->create([
             [
                 'name' => 'color',
                 'options' => [
@@ -65,6 +66,29 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                     ['id' => $this->optionIds['medium'], 'name' => 'medium'],
                     ['id' => $this->optionIds['large'], 'name' => 'large'],
                 ],
+            ],
+        ], Context::createDefaultContext());
+
+        // provide some advanced product sorting cases
+        $productSortingRepository->create([
+            [
+                'key' => 'test-multiple-sortings',
+                'priority' => 0,
+                'active' => true,
+                'fields' => [
+                    ['field' => 'product.name', 'order' => 'asc', 'naturalSorting' => 0, 'priority' => 0],
+                    ['field' => 'product.listingPrices', 'order' => 'desc', 'naturalSorting' => 0, 'priority' => 0],
+                ],
+                'label' => 'test',
+            ],
+            [
+                'key' => 'test-inactive',
+                'priority' => 0,
+                'active' => false,
+                'fields' => [
+                    ['field' => 'product.listingPrices', 'order' => 'desc', 'naturalSorting' => 0, 'priority' => 0],
+                ],
+                'label' => 'test',
             ],
         ], Context::createDefaultContext());
     }
@@ -146,6 +170,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
         $this->eventDispatcher->dispatch($event);
 
         $sortings = $criteria->getSorting();
+
         static::assertCount(count($expectedFields), $sortings);
 
         foreach ($sortings as $sorting) {
@@ -164,7 +189,8 @@ class ProductListingFeaturesSubscriberTest extends TestCase
         $this->eventDispatcher->dispatch($event);
 
         $sortings = $criteria->getSorting();
-        static::assertCount(count($expectedFields), $sortings, print_r($sortings, true));
+
+        static::assertCount(count($expectedFields), $sortings);
 
         foreach ($sortings as $sorting) {
             static::assertArrayHasKey($sorting->getField(), $expectedFields);
@@ -172,9 +198,35 @@ class ProductListingFeaturesSubscriberTest extends TestCase
         }
     }
 
+    /**
+     * @dataProvider unavailableListSortingProvider
+     */
+    public function testListSortingNotFound(Request $request): void
+    {
+        $criteria = new Criteria();
+        $event = new ProductListingCriteriaEvent($request, $criteria, Generator::createSalesChannelContext());
+
+        static::expectException(ProductSortingNotFoundException::class);
+
+        $this->eventDispatcher->dispatch($event);
+    }
+
+    /**
+     * @dataProvider unavailableSearchSortingProvider
+     */
+    public function testSearchSortingNotFound(Request $request): void
+    {
+        $criteria = new Criteria();
+        $event = new ProductSearchCriteriaEvent($request, $criteria, Generator::createSalesChannelContext());
+
+        static::expectException(ProductSortingNotFoundException::class);
+
+        $this->eventDispatcher->dispatch($event);
+    }
+
     public function searchSortingProvider(): array
     {
-        return [
+        $searchSortings = [
             [
                 ['_score' => FieldSorting::DESCENDING],
                 new Request(),
@@ -182,10 +234,6 @@ class ProductListingFeaturesSubscriberTest extends TestCase
             [
                 ['product.name' => FieldSorting::ASCENDING],
                 new Request(['order' => 'name-asc']),
-            ],
-            [
-                ['_score' => FieldSorting::DESCENDING],
-                new Request(['order' => 'unknown']),
             ],
             [
                 ['product.name' => FieldSorting::DESCENDING],
@@ -200,11 +248,29 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                 new Request(['order' => 'price-desc']),
             ],
         ];
+
+        if (Feature::isActive('FEATURE_NEXT_5983')) {
+            $searchSortings = \array_merge($searchSortings, [
+                [
+                    [
+                        'product.name' => FieldSorting::ASCENDING,
+                        'product.listingPrices' => FieldSorting::DESCENDING,
+                    ],
+                    new Request(['order' => 'test-multiple-sortings']),
+                ],
+                [
+                    ['product.listingPrices' => FieldSorting::DESCENDING],
+                    new Request(['order' => 'price-desc'], ['availableSortings' => ['price-desc' => 1, 'price-asc' => 0]]),
+                ],
+            ]);
+        }
+
+        return $searchSortings;
     }
 
     public function listSortingProvider(): array
     {
-        return [
+        $listSortings = [
             [
                 ['product.name' => FieldSorting::ASCENDING],
                 new Request(),
@@ -212,10 +278,6 @@ class ProductListingFeaturesSubscriberTest extends TestCase
             [
                 ['product.name' => FieldSorting::ASCENDING],
                 new Request(['order' => 'name-asc']),
-            ],
-            [
-                ['product.name' => FieldSorting::ASCENDING],
-                new Request(['order' => 'unknown']),
             ],
             [
                 ['product.name' => FieldSorting::DESCENDING],
@@ -228,6 +290,48 @@ class ProductListingFeaturesSubscriberTest extends TestCase
             [
                 ['product.listingPrices' => FieldSorting::DESCENDING],
                 new Request(['order' => 'price-desc']),
+            ],
+        ];
+
+        if (Feature::isActive('FEATURE_NEXT_5983')) {
+            $listSortings = \array_merge($listSortings, [
+                [
+                    [
+                        'product.name' => FieldSorting::ASCENDING,
+                        'product.listingPrices' => FieldSorting::DESCENDING,
+                    ],
+                    new Request(['order' => 'test-multiple-sortings']),
+                ],
+                [
+                    ['product.listingPrices' => FieldSorting::DESCENDING],
+                    new Request(['order' => 'price-desc'], ['availableSortings' => ['price-desc' => 1, 'price-asc' => 0]]),
+                ],
+            ]);
+        }
+
+        return $listSortings;
+    }
+
+    public function unavailableSearchSortingProvider(): array
+    {
+        return [
+            [
+                new Request(['order' => 'unknown']),
+                new Request(['order' => 'test-inactive']),
+                new Request(['order' => 'score', 'availableSortings' => ['price-desc' => 1, 'price-asc' => 0]]),
+                new Request(['order' => 'test-inactive', 'availableSortings' => ['price-desc' => 2, 'price-asc' => 1, 'test-inactive' => 0]]),
+            ],
+        ];
+    }
+
+    public function unavailableListSortingProvider(): array
+    {
+        return [
+            [
+                new Request(['order' => 'unknown']),
+                new Request(['order' => 'test-inactive']),
+                new Request(['order' => 'name-asc', 'availableSortings' => ['price-desc' => 1, 'price-asc' => 0]]),
+                new Request(['order' => 'test-inactive', 'availableSortings' => ['price-desc' => 2, 'price-asc' => 1, 'test-inactive' => 0]]),
             ],
         ];
     }

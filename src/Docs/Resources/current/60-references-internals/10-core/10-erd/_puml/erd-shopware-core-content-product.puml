@@ -275,6 +275,25 @@ TranslationTable(ShopwareCoreContentProductAggregateProductFeatureSetTranslation
    primary_key(productFeatureSetId) foreignKey
    primary_key(languageId) foreignKey
 }
+Table(ShopwareCoreContentProductSalesChannelSortingProductSortingDefinition, "product_sorting\n(Product sorting)") {
+   primary_key(id) id
+   locked writeLockIndicator
+   not_null(key) string
+   not_null(priority) int
+   not_null(active) bool
+   not_null(fields) json
+   label translated
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   translated json
+}
+TranslationTable(ShopwareCoreContentProductSalesChannelSortingProductSortingTranslationDefinition, "product_sorting_translation\n((Translations))") {
+   not_null(label) string
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   primary_key(productSortingId) foreignKey
+   primary_key(languageId) foreignKey
+}
 Table(ShopwareCoreContentProductAggregateProductVisibilityProductVisibilityDefinition, "product_visibility\n(Visibility in sales channels)") {
    primary_key(id) id
    not_null(productId) foreignKey
@@ -368,5 +387,7 @@ ShopwareCoreContentProductAggregateProductCrossSellingTranslationProductCrossSel
 ShopwareCoreContentProductAggregateProductCrossSellingTranslationProductCrossSellingTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
 ShopwareCoreContentProductAggregateProductFeatureSetTranslationProductFeatureSetTranslationDefinition --> ShopwareCoreContentProductAggregateProductFeatureSetProductFeatureSetDefinition
 ShopwareCoreContentProductAggregateProductFeatureSetTranslationProductFeatureSetTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
+ShopwareCoreContentProductSalesChannelSortingProductSortingTranslationDefinition --> ShopwareCoreContentProductSalesChannelSortingProductSortingDefinition
+ShopwareCoreContentProductSalesChannelSortingProductSortingTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
 ShopwareCoreContentProductAggregateProductVisibilityProductVisibilityDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 @enduml

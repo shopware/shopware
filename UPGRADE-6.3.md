@@ -152,6 +152,40 @@ After that you are able to delete your implementation of the `SnippetFileInterfa
     * From now on migrations will be removed if the user data should be removed, and kept if the user data should be kept.
     * The `enableKeepMigrations()` function is no longer to be used and will be removed along with `keepMigrations()` in v6.4.0.
     * Please note: In case of a complete uninstall all tables should be removed as well. Please verify the uninstall method of your plugin complies with this.
+* Adding custom sortings to the storefront is now supported in the administration
+    * Before, custom sortings were handled by defining them as services and tagging them as `shopware.sales_channel.product_listing.sorting`:
+    ```xml
+    <service id="product_listing.sorting.name_ascending" class="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingSorting">
+        <argument>name-asc</argument>
+        <argument>filter.sortByNameAscending</argument>
+        <argument type="collection">
+            <argument key="product.name">asc</argument>
+        </argument>
+        <tag name="shopware.sales_channel.product_listing.sorting" />
+    </service>
+    ```
+    * Now it is possible to store custom sortings in the database `product_sorting` and its translatable label in `product_sorting_translation`
+    * Or you can subscribe to `ProductListingCriteriaEvent` for listing results and `ProductSearchCriteriaEvent` for search results to add available sortings to the storefront on the fly:
+    ```php
+      public function addMyCustomSortingToStorefront(\Shopware\Core\Content\Product\Events\ProductListingCriteriaEvent $event): void {
+          /** @var \Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingCollection $availableSortings */
+          $availableSortings = $event->getCriteria()->getExtension('sortings');
+  
+          $mySuperShinyCustomSorting = new \Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingEntity();
+          $mySuperShinyCustomSorting->setActive(true);
+          $mySuperShinyCustomSorting->setLabel('Super Shiny Custom Sorting');     // label shown in storefront
+          $mySuperShinyCustomSorting->setKey('my-custom-sort');                   // unique key, shown in url
+          $mySuperShinyCustomSorting->setPriority(100);                           // higher priority comes first
+          $mySuperShinyCustomSorting->setFields([
+              ['field' => 'product.listingPrices', 'order' => 'asc', 'priority' => 100, 'naturalSorting' => 0],
+              ['field' => 'product.name', 'order' => 'desc', 'priority' => 0, 'naturalSorting' => 1],
+              ...
+          );
+  
+          $availableSortings->add($mySuperShinyCustomSorting);
+          $event->getCriteria()->addExtension('sortings', $availableSortings);
+      }
+    ```
 
 * Deprecated providing an until timestamp as the last argument when running the `database:migrate` or `database:migrate-destructive` commands, use the --until option instead.
     * Before:

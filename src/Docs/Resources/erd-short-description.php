@@ -214,4 +214,6 @@ return [
     'Shopware\\Core\\Checkout\\Promotion' => 'Promotions',
     'Shopware\\Core\\Checkout\\Shipping' => 'Shipping',
     'Shopware\\Storefront' => 'Storefront',
+    Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingDefinition::class => 'Product sorting',
+    Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingTranslationDefinition::class => 'Translations',
 ];

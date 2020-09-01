@@ -11,6 +11,7 @@ use Shopware\Core\Content\Product\Events\ProductCrossSellingIdsCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductCrossSellingsLoadedEvent;
 use Shopware\Core\Content\Product\Events\ProductCrossSellingStreamCriteriaEvent;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilter;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
@@ -56,18 +57,25 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
      */
     private $systemConfigService;
 
+    /**
+     * @var ProductListingLoader
+     */
+    private $listingLoader;
+
     public function __construct(
         EntityRepositoryInterface $crossSellingRepository,
         EventDispatcherInterface $eventDispatcher,
         ProductStreamBuilderInterface $productStreamBuilder,
         SalesChannelRepositoryInterface $productRepository,
-        SystemConfigService $systemConfigService
+        SystemConfigService $systemConfigService,
+        ProductListingLoader $listingLoader
     ) {
         $this->eventDispatcher = $eventDispatcher;
         $this->crossSellingRepository = $crossSellingRepository;
         $this->productStreamBuilder = $productStreamBuilder;
         $this->productRepository = $productRepository;
         $this->systemConfigService = $systemConfigService;
+        $this->listingLoader = $listingLoader;
     }
 
     public function getDecorated(): AbstractProductCrossSellingRoute
@@ -147,7 +155,7 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
             new ProductCrossSellingStreamCriteriaEvent($crossSelling, $criteria, $context)
         );
 
-        $searchResult = $this->productRepository->search($criteria, $context);
+        $searchResult = $this->listingLoader->load($criteria, $context);
 
         /** @var ProductCollection $products */
         $products = $searchResult->getEntities();

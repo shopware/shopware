@@ -120,8 +120,6 @@ class ProductListingRoute extends AbstractProductListingRoute
             );
         }
 
-        $criteria->addAssociation('options.group');
-
         $this->eventDispatcher->dispatch(
             new ProductListingCriteriaEvent($request, $criteria, $salesChannelContext)
         );

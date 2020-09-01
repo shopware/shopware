@@ -15,7 +15,7 @@ class Migration1597391970App extends MigrationStep
     public function update(Connection $connection): void
     {
         $connection->executeUpdate('
-            CREATE TABLE `app` (
+            CREATE TABLE IF NOT EXISTS `app` (
                 `id` BINARY(16) NOT NULL,
                 `name` VARCHAR(255) NOT NULL,
                 `path` VARCHAR(255) NOT NULL,
@@ -41,7 +41,7 @@ class Migration1597391970App extends MigrationStep
         ');
 
         $connection->executeUpdate('
-            CREATE TABLE `app_translation` (
+            CREATE TABLE IF NOT EXISTS `app_translation` (
                 `app_id` BINARY(16) NOT NULL,
                 `language_id` BINARY(16) NOT NULL,
                 `label` VARCHAR(255) NOT NULL,

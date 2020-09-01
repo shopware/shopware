@@ -53,6 +53,7 @@ NEXT
 * Added property `disabled` to `sw-sidebar-media-item`
 * Added ACL privileges to the `manufacturer` module
 * Added ACL privileges to the shopping experiences module for listing
+* Added a tooltip which shows the taxes detail for credit items and promotion items in create order and edit order page
 
 #### Core
 * Changed order address from customer to billing address in documents

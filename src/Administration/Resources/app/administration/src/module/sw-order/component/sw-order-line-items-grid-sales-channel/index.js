@@ -1,7 +1,8 @@
 import template from './sw-order-line-items-grid-sales-channel.html.twig';
 import './sw-order-line-items-grid-sales-channel.scss';
 
-const { Component, Utils: { get }, State, Service } = Shopware;
+const { Component, Utils, State, Service } = Shopware;
+const { get, format } = Utils;
 
 Component.register('sw-order-line-items-grid-sales-channel', {
     template,
@@ -245,6 +246,28 @@ Component.register('sw-order-line-items-grid-sales-channel', {
             }
 
             item.priceDefinition.price = price;
+        },
+
+        tooltipTaxDetail(item) {
+            const sortTaxes = [...item.price.calculatedTaxes].sort((prev, current) => {
+                return prev.taxRate - current.taxRate;
+            });
+
+            const decorateTaxes = sortTaxes.map((taxItem) => {
+                return this.$tc('sw-order.createBase.taxDetail', 0, {
+                    taxRate: taxItem.taxRate,
+                    tax: format.currency(taxItem.tax, this.currency.shortName)
+                });
+            });
+
+            return {
+                showDelay: 300,
+                message: `${this.$tc('sw-order.createBase.tax')}<br>${decorateTaxes.join('<br>')}`
+            };
+        },
+
+        hasMultipleTaxes(item) {
+            return get(item, 'price.calculatedTaxes') && item.price.calculatedTaxes.length > 1;
         }
     }
 });

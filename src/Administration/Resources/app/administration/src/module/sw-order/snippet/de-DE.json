@@ -93,9 +93,10 @@
       "columnTotalPrice": "Gesamt",
       "columnTotalPriceGross": "Gesamt",
       "columnTax": "Steuersatz",
-      "textCreditTax": "auto",
       "columnPriceNet": "Nettopreis",
       "columnTotalPriceNet": "Gesamt",
+      "textCreditTax": "auto",
+      "taxDetail": "{taxRate}%: {tax}",
       "contextMenuShowProduct": "Produkt anzeigen",
       "messageEmptyItem": "Noch keine Positionen vorhanden",
       "buttonAddProduct": "Produkt hinzufügen",
@@ -196,7 +197,8 @@
       "placeholderTrackingCodeSelect": "Tracking-Code hinzufügen ...",
       "addTrackingCode": "Zum Hinzufügen hier klicken",
       "enterValidTrackingCode": "Tracking-Code eingeben",
-      "textCreditTax": "auto"
+      "textCreditTax": "auto",
+      "taxDetail": "{taxRate}%: {tax}"
     },
     "addressSelection": {
       "modalTitleEditAddress": "Adressen",

@@ -189,26 +189,35 @@
                                     </sw-number-field>
                                 {% endblock %}
 
+                                {% block sw_order_line_items_grid_sales_channel_grid_columns_tax_content_tooltip %}
+                                    <span v-else-if="hasMultipleTaxes(item)"
+                                          v-tooltip="tooltipTaxDetail(item)"
+                                          class="sw-order-line-items-grid-sales-channel__item-tax-tooltip">
+                                        {{ showTaxValue(item) }}
+                                    </span>
+                                {% endblock %}
+
                                 {% block sw_order_line_items_grid_sales_channel_grid_columns_tax_content %}
                                     <template v-else-if="item.price && item.price.taxRules.length">
                                         {{ showTaxValue(item) }}
                                     </template>
                                 {% endblock %}
-
+                                
                             </template>
                         {% endblock %}
 
                         {% block sw_order_line_items_grid_sales_channel_grid_actions %}
                             <template #actions="{ item }">
                                 {% block sw_order_line_items_grid_sales_channel_grid_actions_show %}
-                                <sw-context-menu-item :disabled="!isProductItem(item)"
-                                                      icon="default-eye-open"
-                                                      :routerLink="{ name: 'sw.product.detail', params: { id: item.id } }"
-                                                      target="_blank" rel="noopener">
-                                    {% block sw_order_line_items_grid_sales_channel_grid_actions_show_label %}
-                                        {{ $tc('sw-order.createBase.contextMenuShowProduct') }}
-                                    {% endblock %}
-                                </sw-context-menu-item>
+                                    <sw-context-menu-item :disabled="!isProductItem(item)"
+                                                          icon="default-eye-open"
+                                                          :routerLink="{ name: 'sw.product.detail', params: { id: item.id } }"
+                                                          target="_blank"
+                                                          rel="noopener">
+                                        {% block sw_order_line_items_grid_sales_channel_grid_actions_show_label %}
+                                            {{ $tc('sw-order.createBase.contextMenuShowProduct') }}
+                                        {% endblock %}
+                                    </sw-context-menu-item>
                                 {% endblock %}
                             </template>
                         {% endblock %}

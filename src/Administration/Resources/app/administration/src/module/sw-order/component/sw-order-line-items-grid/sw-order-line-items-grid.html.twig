@@ -178,6 +178,14 @@
                                 </sw-number-field>
                             {% endblock %}
 
+                            {% block sw_order_line_items_grid_grid_columns_tax_content_tooltip %}
+                                <span v-else-if="hasMultipleTaxes(item)"
+                                      v-tooltip="tooltipTaxDetail(item)"
+                                      class="sw-order-line-items-grid__item-tax-tooltip">
+                                    {{ showTaxValue(item) }}
+                                </span>
+                            {% endblock %}
+
                             {% block sw_order_line_items_grid_grid_columns_tax_content %}
                                 <template v-else-if="item.price && item.price.taxRules.length">
                                     {{ showTaxValue(item) }}

@@ -151,9 +151,6 @@ if (window.gtagActive) {
     PluginManager.register('GoogleAnalytics', GoogleAnalyticsPlugin);
 }
 
-/**
- * @deprecated tag:v6.4.0 use storefront controller instead
- */
 window.storeApiClient = StoreApiClient;
 
 window.Feature = Feature;

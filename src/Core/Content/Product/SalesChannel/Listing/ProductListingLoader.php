@@ -76,6 +76,7 @@ class ProductListingLoader
         }
 
         $read = $criteria->cloneForRead($variantIds);
+        $read->addAssociation('options.group');
 
         $entities = $this->repository->search($read, $context);
 

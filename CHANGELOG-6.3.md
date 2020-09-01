@@ -78,6 +78,7 @@ NEXT
 * Added new `MultiFilter::addQuery` function:
 * Added and deprecated `\Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity::$configurator`, only used for backward compatibility
 * Fixed `ArrayStruct::getVars() `to return internal data collection
+* Deprecated `\Shopware\Core\Content\Category\Service\NavigationLoader::loadLevel` use `\Shopware\Core\Content\Category\Service\NavigationLoader::load` with $depth 1 instead instead
 * Deprecated `\Shopware\Core\Content\Product\SalesChannel\ProductReviewService` use `\Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewSaveRoute` instead
 * Deprecated `\Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity::VISIBILITY_FILTERED`
 * Deprecated `\Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory::getTaxRules`

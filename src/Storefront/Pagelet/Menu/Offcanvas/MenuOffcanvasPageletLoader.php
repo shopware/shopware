@@ -37,19 +37,19 @@ class MenuOffcanvasPageletLoader implements MenuOffcanvasPageletLoaderInterface
      * @throws InconsistentCriteriaIdsException
      * @throws MissingRequestParameterException
      */
-    public function load(Request $request, SalesChannelContext $salesChannelContext): MenuOffcanvasPagelet
+    public function load(Request $request, SalesChannelContext $context): MenuOffcanvasPagelet
     {
-        $navigationId = $request->query->get('navigationId', $salesChannelContext->getSalesChannel()->getNavigationCategoryId());
+        $navigationId = $request->query->get('navigationId', $context->getSalesChannel()->getNavigationCategoryId());
         if (!$navigationId) {
             throw new MissingRequestParameterException('navigationId');
         }
 
-        $navigation = $this->navigationLoader->loadLevel($navigationId, $salesChannelContext);
+        $navigation = $this->navigationLoader->load($navigationId, $context, $navigationId, 1);
 
         $pagelet = new MenuOffcanvasPagelet($navigation);
 
         $this->eventDispatcher->dispatch(
-            new MenuOffcanvasPageletLoadedEvent($pagelet, $salesChannelContext, $request)
+            new MenuOffcanvasPageletLoadedEvent($pagelet, $context, $request)
         );
 
         return $pagelet;

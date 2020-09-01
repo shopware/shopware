@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Framework\Routing;
 
 use Shopware\Core\SalesChannelRequest;
+use Symfony\Component\HttpFoundation\IpUtils;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -75,10 +76,9 @@ class MaintenanceModeResolver
 
     private function isClientAllowed(Request $request): bool
     {
-        return in_array(
+        return IpUtils::checkIp(
             $request->getClientIp(),
-            $this->getMaintenanceWhitelist($this->requestStack->getMasterRequest()),
-            true
+            $this->getMaintenanceWhitelist($this->requestStack->getMasterRequest())
         );
     }
 

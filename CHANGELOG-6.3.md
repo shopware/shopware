@@ -280,6 +280,7 @@ NEXT
 * Added new flag `\Shopware\Core\Checkout\Cart\Error\Error::isPersistent` which defines if an errors should be persistent when processing the cart multiple times.
 * Deprecated `purchasePrice` in `Shopware\Core\Content\Product` use `purchasePrices` instead
 * Deprecated `payload.purchasePrice` in `Shopware\Core\Checkout\Cart\LineItem\LineItem` use `payload.purchasePrices` instead
+* Fixed a bug concering case insensetive IP comparsion in maintanence mode
 
 #### Storefront
 

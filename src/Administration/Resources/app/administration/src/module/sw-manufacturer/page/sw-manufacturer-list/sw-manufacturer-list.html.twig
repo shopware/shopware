@@ -30,7 +30,16 @@
         {% block sw_manufacturer_list_actions %}
             <template #smart-bar-actions>
                 {% block sw_manufacturer_list_smart_bar_actions %}
-                    <sw-button :routerLink="{ name: 'sw.manufacturer.create' }" variant="primary">
+                    <sw-button
+                        :routerLink="{ name: 'sw.manufacturer.create' }"
+                        :disabled="!acl.can('product_manufacturer.creator')"
+                        v-tooltip.bottom="{
+                            message: $tc('sw-privileges.tooltip.warning'),
+                            disabled: acl.can('product_manufacturer.creator'),
+                            showOnDisabledElements: true
+                        }"
+                        class="sw-manufacturer-list__add-manufacturer"
+                        variant="primary">
                         {{ $tc('sw-manufacturer.list.buttonAddManufacturer') }}
                     </sw-button>
                 {% endblock %}
@@ -48,15 +57,19 @@
                 <div class="sw-manufacturer-list__content">
                     {% block sw_manufacturer_list_grid %}
                         <sw-entity-listing
+                            class="sw-manufacturer-list__grid"
+                            detailRoute="sw.manufacturer.detail"
                             :isLoading="!manufacturers"
                             :columns="manufacturerColumns"
                             :repository="manufacturerRepository"
-                            detailRoute="sw.manufacturer.detail"
                             :items="manufacturers"
-                             @update-records="updateTotal">
-
-                            {%  block sw_manufacturer_list_grid_columns_name_preview   %}
-                                <template #preview-name="{ item }" >
+                            @update-records="updateTotal"
+                            :allowEdit="acl.can('product_manufacturer.editor')"
+                            :allowDelete="acl.can('product_manufacturer.deleter')"
+                            :showSelections="acl.can('product_manufacturer.deleter')"
+                        >
+                            {% block sw_manufacturer_list_grid_columns_name_preview %}
+                                <template #preview-name="{ item }">
                                     <sw-media-preview-v2 :source="item.mediaId"></sw-media-preview-v2>
                                 </template>
                             {% endblock %}

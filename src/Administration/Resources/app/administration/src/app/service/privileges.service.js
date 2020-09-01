@@ -165,6 +165,7 @@ export default class PrivilegesService {
      * Shopware.Service('privileges').addPrivilegeMappingEntry({
      *     category: 'permissions',
      *     parent: null,
+     *
      *     key: 'product',
      *     roles: {
      *         viewer: {

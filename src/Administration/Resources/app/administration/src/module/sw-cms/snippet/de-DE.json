@@ -529,5 +529,12 @@
         }
       }
     }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "cms": {
+        "label": "Erlebniswelten"
+      }
+    }
   }
 }

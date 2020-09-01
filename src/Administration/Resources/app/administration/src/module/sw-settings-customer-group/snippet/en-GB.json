@@ -52,6 +52,12 @@
       "errorUnableToCreateSeoUrls": "The URLs could not be generated",
       "successfulGeneratedSeoUrls": "The URLs were generated"
     }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "customer_groups": {
+        "label": "Customer groups"
+      }
+    }
   }
 }
-

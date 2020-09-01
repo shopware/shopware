@@ -1,6 +1,6 @@
 Shopware.Service('privileges').addPrivilegeMappingEntry({
     category: 'permissions',
-    parent: null,
+    parent: 'settings',
     key: 'number_ranges',
     roles: {
         viewer: {

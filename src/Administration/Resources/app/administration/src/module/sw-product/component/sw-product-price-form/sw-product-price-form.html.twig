@@ -32,7 +32,7 @@
                 {% endblock %}
 
                 {% block sw_product_price_form_purchase_price_field %}
-                    <sw-inherit-wrapper v-if="!isLoading && feature.isActive('FEATURE_NEXT_9825')"
+                    <sw-inherit-wrapper v-if="!isLoading"
                                         v-model="product.purchasePrices"
                                         label=" "
                                         class="sw-product-price-form__purchase-prices"
@@ -45,29 +45,6 @@
                                             :error="productPurchasePricesError ? productPurchasePricesError[0] : null"
                                             :currency="defaultCurrency">
                             </sw-purchase-price-field>
-                        </template>
-                    </sw-inherit-wrapper>
-
-                    <sw-inherit-wrapper v-else-if="!isLoading && !feature.isActive('FEATURE_NEXT_9825')"
-                                        v-model="product.purchasePrice"
-                                        :hasParent="!!parentProduct.id"
-                                        :inheritedValue="parentProduct.purchasePrice"
-                                        :label="$tc('sw-product.priceForm.labelPurchasePriceGross')">
-                        <template #content="{ currentValue, updateCurrentValue, isInherited }">
-
-                            <sw-field type="number"
-                                      :error="productPurchasePriceError"
-                                      :min="0"
-                                      :disabled="isInherited"
-                                      :placeholder="$tc('sw-product.priceForm.placeholderPurchasePriceGross')"
-                                      :value="currentValue"
-                                      @change="updateCurrentValue"
-                                      @keyup="keymonitor">
-                                <template #suffix>
-                                    <span class="sw-product-price-form__currency" v-if="defaultCurrency">{{ defaultCurrency.symbol }}</span>
-                                </template>
-                            </sw-field>
-
                         </template>
                     </sw-inherit-wrapper>
                 {% endblock %}

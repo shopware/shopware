@@ -8,10 +8,11 @@
     <h1>{% trans with {'%deliveryNoteNumber%': config.custom.deliveryNoteNumber, '%orderNumber%': order.orderNumber} %}document.deliveryNoteHeadline{% endtrans %}</h1>
 {% endblock %}
 
-{% block document_recipient %}
     {% set firstDelivery = order.deliveries|first %}
     {% set deliveryAddressId = firstDelivery.shippingOrderAddressId %}
     {% set deliveryAddress = order.addresses.get(deliveryAddressId) %}
+
+{% block document_recipient %}
     <span class="sender-address-small">
         {% block document_recipient_sender %}
             {{ config.companyAddress }}<br><br>
@@ -22,6 +23,12 @@
     {% endif %}
     {{ deliveryAddress.firstName }} {{ deliveryAddress.lastName }}<br>
     {{ deliveryAddress.street }}<br>
+    {% if deliveryAddress.additionalAddressLine1 %}
+        {{ deliveryAddress.additionalAddressLine1 }}<br>
+    {% endif %}
+    {% if deliveryAddress.additionalAddressLine2 %}
+        {{ deliveryAddress.additionalAddressLine2 }}<br>
+    {% endif %}
     {{ deliveryAddress.zipcode }} {{ deliveryAddress.city }}<br>
     {{ deliveryAddress.country.name }}<br>
 {% endblock %}
@@ -32,6 +39,8 @@
 {% endblock %}
 
 {% block document_line_item_table_shipping %}
+    {% if deliveryAddress.additionalAddressLine1 %}<br>{% endif %}
+    {% if deliveryAddress.additionalAddressLine2 %}<br>{% endif %}
 {% endblock %}
 
 {% block document_sum %}

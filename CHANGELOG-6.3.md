@@ -106,6 +106,7 @@ NEXT
     Sortings are now stored in database, rather than declaring them as services
   * Deprecated `Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingSorting` for v6.4.0.
     Use `\Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingEntity` instead
+* Changed `\Shopware\Core\Content\Sitemap\Provider\CategoryUrlProvider` to list only categories associated to the current sales channels
 
 #### Storefront
 * Added ellipsis to the truncated long product name

@@ -301,6 +301,7 @@ NEXT
     * Replace block `page_checkout_item_quantity` to `page_checkout_item_quantity_form` in `account/order/line-item.html.twig`
 * Fixed wrong meta tag value `twitter:card` in `storefront/layout/meta.html.twig`
 * Fixed `packUnit` and `packUnitPlural` not being properly accessed in `buy-widget-form.html.twig`
+* Fixed the search if input is only whitespaces
 * Deprecated template component/listing/breadcrumb.html.twig. Breadcrumb will be handled by generic layout/breadcrumb.html.twig.
 * Deprecated template component/product/breadcrumb.html.twig. Breadcrumb will be handled by generic layout/breadcrumb.html.twig.
 * Deprecated block page_product_detail_breadcrumb in page/product-detail/index.html.twig. Breadcrumb will be handled by block base_breadcrumb in storefront/base.html.twig.

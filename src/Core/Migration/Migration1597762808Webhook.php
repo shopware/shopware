@@ -15,7 +15,7 @@ class Migration1597762808Webhook extends MigrationStep
     public function update(Connection $connection): void
     {
         $connection->executeUpdate('
-            CREATE TABLE `webhook` (
+            CREATE TABLE IF NOT EXISTS `webhook` (
                 `id` BINARY(16) NOT NULL,
                 `name` VARCHAR(255) NOT NULL,
                 `event_name` VARCHAR(500) NOT NULL,

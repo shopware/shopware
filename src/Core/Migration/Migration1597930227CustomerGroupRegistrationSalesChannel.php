@@ -14,7 +14,7 @@ class Migration1597930227CustomerGroupRegistrationSalesChannel extends Migration
 
     public function update(Connection $connection): void
     {
-        $connection->exec('CREATE TABLE `customer_group_registration_sales_channels` (
+        $connection->exec('CREATE TABLE IF NOT EXISTS `customer_group_registration_sales_channels` (
     `customer_group_id` BINARY(16) NOT NULL,
     `sales_channel_id` BINARY(16) NOT NULL,
     `created_at` DATETIME(3) NOT NULL,

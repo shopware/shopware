@@ -446,6 +446,10 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
 
     private function isGrouped(Request $request, ProductEntity $product): bool
     {
+        if ($product->getMainVariantId() !== null) {
+            return false;
+        }
+
         // get all configured expanded groups
         $groups = array_filter(
             (array) $product->getConfiguratorGroupConfig(),

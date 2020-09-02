@@ -1,5 +1,5 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import EntityCollection from 'src/core/data-new/entity-collection.data';
+import EntityCollection from 'src/core/data/entity-collection.data';
 import 'src/module/sw-promotion/component/sw-promotion-individualcodes';
 
 function createWrapper(privileges = []) {

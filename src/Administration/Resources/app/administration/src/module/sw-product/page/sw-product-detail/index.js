@@ -315,9 +315,8 @@ Component.register('sw-product-detail', {
                     linked: true,
                     gross: null
                 }];
-                if (this.feature.isActive('FEATURE_NEXT_9825')) {
-                    this.product.purchasePrices = [];
-                }
+
+                this.product.purchasePrices = [];
 
                 this.product.featureSet = this.defaultFeatureSet;
 
@@ -334,10 +333,10 @@ Component.register('sw-product-detail', {
                 this.productCriteria
             ).then((res) => {
                 Shopware.State.commit('swProductDetail/setProduct', res);
-                if (this.feature.isActive('FEATURE_NEXT_9825')) {
-                    // Initialize an empty price collection if the product has no purchase prices
-                    this.product.purchasePrices = this.product.purchasePrices || [];
-                }
+
+                // Initialize an empty price collection if the product has no purchase prices
+                this.product.purchasePrices = this.product.purchasePrices || [];
+
 
                 if (this.product.parentId) {
                     this.loadParentProduct();

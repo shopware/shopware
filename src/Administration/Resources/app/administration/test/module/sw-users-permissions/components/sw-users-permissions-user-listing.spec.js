@@ -12,7 +12,8 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
                     create: () => ({
                         search: () => Promise.resolve([])
                     })
-                }
+                },
+                loginService: {}
             },
             mocks: {
                 $tc: v => v,
@@ -92,5 +93,10 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
             lastName: 'admin',
             email: 'info@shopware.com'
         }]);
+    });
+
+    it('the card should contain the right title', () => {
+        const title = wrapper.attributes().title;
+        expect(title).toBe('sw-users-permissions.users.general.cardLabel');
     });
 });

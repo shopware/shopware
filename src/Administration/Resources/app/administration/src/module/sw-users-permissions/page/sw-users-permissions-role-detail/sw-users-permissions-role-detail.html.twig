@@ -4,7 +4,10 @@
         {% block sw_users_permissions_role_detail_smart_bar_header %}
             <template #smart-bar-header>
                 {% block sw_users_permissions_role_detail_smart_bar_header_title %}
-                    <h2 v-if="role">{{ role.name }}</h2>
+                    <h2 v-if="role && role.isNew() && role.name.length <= 0">
+                        {{ $tc('sw-users-permissions.roles.general.labelCreateNewRole') }}
+                    </h2>
+                    <h2 v-else-if="role">{{ role.name }}</h2>
                     <h2 v-else>{{ $tc('sw-users-permissions.roles.detail.role') }}</h2>
                 {% endblock %}
             </template>

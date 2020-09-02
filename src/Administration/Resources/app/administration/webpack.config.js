@@ -85,7 +85,7 @@ console.log();
 
 const webpackConfig = {
     mode: isDev ? 'development' : 'production',
-
+    bail: isDev ? false : true,
     stats: {
         all: false,
         colors: true,

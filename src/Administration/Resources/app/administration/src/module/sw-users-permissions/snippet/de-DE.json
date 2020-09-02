@@ -106,6 +106,7 @@
         "addAccessKey": "Neuer Zugangsschlüssel",
         "labelAccessKey": "Zugangsschlüssel",
         "labelPermissions": "Berechtigungen",
+        "disabledRoleSelectWarning": "Rollen sind nur für Benutzer verfügbar, die kein \"Administrator\" sind.",
         "modal": {
           "detailModalTitle": "Integration anlegen",
           "detailModalTitleEdit": "Bearbeiten",

@@ -1,4 +1,4 @@
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-users-permissions/page/sw-users-permissions-user-detail';
 
 describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', () => {
@@ -6,9 +6,26 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
 
     beforeEach(() => {
         Shopware.State.get('session').languageId = '123456789';
+        const localVue = createLocalVue();
+        localVue.directive('tooltip', {
+            bind(el, binding) {
+                el.setAttribute('data-tooltip-message', binding.value.message);
+                el.setAttribute('data-tooltip-disabled', binding.value.disabled);
+            },
+            inserted(el, binding) {
+                el.setAttribute('data-tooltip-message', binding.value.message);
+                el.setAttribute('data-tooltip-disabled', binding.value.disabled);
+            },
+            update(el, binding) {
+                el.setAttribute('data-tooltip-message', binding.value.message);
+                el.setAttribute('data-tooltip-disabled', binding.value.disabled);
+            }
+        });
 
         wrapper = shallowMount(Shopware.Component.build('sw-users-permissions-user-detail'), {
+            localVue,
             provide: {
+                loginService: {},
                 userService: {
                     getUser: () => Promise.resolve()
                 },
@@ -63,7 +80,9 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
                 'sw-upload-listener': true,
                 'sw-media-upload-v2': true,
                 'sw-password-field': true,
-                'sw-select-field': true
+                'sw-select-field': true,
+                'sw-switch-field': true,
+                'sw-entity-multi-select': true
             }
         });
     });
@@ -135,5 +154,38 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         expect(fieldProfilePicture.attributes('value')).toBe(undefined);
         expect(fieldPassword.attributes('value')).toBe(undefined);
         expect(fieldLanguage.attributes('value')).toBe('12345');
+    });
+
+    it('should enable the tooltip warning when user is admin', async () => {
+        wrapper.vm.user = {
+            admin: true,
+            localeId: '12345',
+            username: 'maxmuster',
+            firstName: 'Max',
+            lastName: 'Mustermann',
+            email: 'max@mustermann.com'
+        };
+
+        const aclRolesSelect = wrapper.find('.sw-settings-user-detail__grid-aclRoles');
+
+        expect(aclRolesSelect.attributes()['data-tooltip-message'])
+            .toBe('sw-users-permissions.users.user-detail.disabledRoleSelectWarning');
+
+        expect(aclRolesSelect.attributes()['data-tooltip-disabled']).toBe('false');
+    });
+
+    it('should disable the tooltip warning when user is not admin', async () => {
+        wrapper.vm.user = {
+            admin: false,
+            localeId: '12345',
+            username: 'maxmuster',
+            firstName: 'Max',
+            lastName: 'Mustermann',
+            email: 'max@mustermann.com'
+        };
+
+        const aclRolesSelect = wrapper.find('.sw-settings-user-detail__grid-aclRoles');
+
+        expect(aclRolesSelect.attributes()['data-tooltip-disabled']).toBe('true');
     });
 });

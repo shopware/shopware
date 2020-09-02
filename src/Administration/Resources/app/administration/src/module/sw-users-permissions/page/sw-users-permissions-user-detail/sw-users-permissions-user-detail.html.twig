@@ -156,6 +156,11 @@
                                                 v-model="user.aclRoles"
                                                 entity="aclRole"
                                                 label="Roles"
+                                                v-tooltip="{
+                                                    showDelay: 300,
+                                                    message: $tc('sw-users-permissions.users.user-detail.disabledRoleSelectWarning'),
+                                                    disabled: !user.admin
+                                                }"
                                                 :disabled="user.admin"
                                                 labelProperty="name">
                                             </sw-entity-multi-select>

@@ -171,7 +171,7 @@ class Migration1595422169AddProductSorting extends MigrationStep
         ];
     }
 
-    private function getLanguageId(string $locale, Connection $connection)
+    private function getLanguageId(string $locale, Connection $connection): string
     {
         return $connection->fetchColumn('
             SELECT LOWER(HEX(`language`.id))

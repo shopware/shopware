@@ -77,7 +77,7 @@ class MaintenanceModeResolver
     private function isClientAllowed(Request $request): bool
     {
         return IpUtils::checkIp(
-            $request->getClientIp(),
+            (string) $request->getClientIp(),
             $this->getMaintenanceWhitelist($this->requestStack->getMasterRequest())
         );
     }

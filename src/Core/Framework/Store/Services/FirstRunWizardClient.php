@@ -162,13 +162,13 @@ final class FirstRunWizardClient
 
     public function getFrwState(): FrwState
     {
-        $completedAt = $this->configService->get('core.frw.completedAt');
-        if ($completedAt) {
+        $completedAt = $this->configService->getString('core.frw.completedAt');
+        if ($completedAt !== '') {
             return FrwState::completedState(new \DateTimeImmutable($completedAt));
         }
-        $failedAt = $this->configService->get('core.frw.failedAt');
-        if ($failedAt) {
-            $failureCount = $this->configService->get('core.frw.failureCount') ?? 1;
+        $failedAt = $this->configService->getString('core.frw.failedAt');
+        if ($failedAt !== '') {
+            $failureCount = $this->configService->getInt('core.frw.failureCount') ?? 1;
 
             return FrwState::failedState(new \DateTimeImmutable($failedAt), $failureCount);
         }
@@ -283,7 +283,7 @@ final class FirstRunWizardClient
 
         $data = json_decode($response->getBody()->getContents(), true);
 
-        $currentLicenseDomain = $this->configService->get(StoreService::CONFIG_KEY_STORE_LICENSE_DOMAIN);
+        $currentLicenseDomain = $this->configService->getString(StoreService::CONFIG_KEY_STORE_LICENSE_DOMAIN);
         $currentLicenseDomain = $currentLicenseDomain ? idn_to_utf8($currentLicenseDomain) : null;
 
         $domains = array_map(static function ($data) use ($currentLicenseDomain) {

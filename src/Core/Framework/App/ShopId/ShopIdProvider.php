@@ -21,11 +21,14 @@ class ShopIdProvider
         $this->systemConfigService = $systemConfigService;
     }
 
+    /**
+     * @throws AppUrlChangeDetectedException
+     */
     public function getShopId(): string
     {
         $shopId = $this->systemConfigService->get(self::SHOP_ID_SYSTEM_CONFIG_KEY);
 
-        if (!$shopId) {
+        if (!\is_array($shopId)) {
             $newShopId = $this->generateShopId();
             $this->systemConfigService->set(self::SHOP_ID_SYSTEM_CONFIG_KEY, [
                 'app_url' => $_SERVER['APP_URL'],

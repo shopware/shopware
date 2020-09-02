@@ -49,15 +49,15 @@ class MaintenanceController extends StorefrontController
         }
 
         $salesChannelId = $salesChannel->getId();
-        $maintenanceLayoutId = $this->systemConfigService->get('core.basicInformation.maintenancePage', $salesChannelId);
+        $maintenanceLayoutId = $this->systemConfigService->getString('core.basicInformation.maintenancePage', $salesChannelId);
 
-        if (!$maintenanceLayoutId) {
+        if ($maintenanceLayoutId === '') {
             return $this->renderStorefront(
                 '@Storefront/storefront/page/error/error-maintenance.html.twig'
             );
         }
 
-        $maintenancePage = $this->maintenancePageLoader->load((string) $maintenanceLayoutId, $request, $context);
+        $maintenancePage = $this->maintenancePageLoader->load($maintenanceLayoutId, $request, $context);
 
         $response = $this->renderStorefront(
             '@Storefront/storefront/page/error/error-maintenance.html.twig',

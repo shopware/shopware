@@ -87,12 +87,12 @@ class SalesChannelProductSubscriber implements EventSubscriberInterface
 
     private function calculateMaxPurchase(SalesChannelProductEntity $product, string $salesChannelId): int
     {
-        $fallback = (int) $this->systemConfigService->get('core.cart.maxQuantity', $salesChannelId);
+        $fallback = $this->systemConfigService->getInt('core.cart.maxQuantity', $salesChannelId);
 
         $max = $product->getMaxPurchase() ?? $fallback;
 
         if ($product->getIsCloseout() && $product->getAvailableStock() < $max) {
-            $max = $product->getAvailableStock();
+            $max = (int) $product->getAvailableStock();
         }
 
         return max($max, 0);

@@ -25,6 +25,11 @@ Component.register('sw-order-state-card-entry', {
             type: String,
             required: false,
             default: ''
+        },
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
     methods: {

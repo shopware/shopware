@@ -366,4 +366,59 @@ class ThumbnailServiceTest extends TestCase
             );
         }
     }
+
+    public function testGenerateThumbnailsWithSmallerImageSizeThanThumbnailSize(): void
+    {
+        $this->setFixtureContext($this->context);
+        $media = $this->getPngWithFolderHugeThumbnails();
+
+        $this->thumbnailRepository->create([
+            [
+                'mediaId' => $media->getId(),
+                'width' => 150,
+                'height' => 150,
+            ],
+            [
+                'mediaId' => $media->getId(),
+                'width' => 300,
+                'height' => 300,
+            ],
+        ], $this->context);
+
+        $criteria = new Criteria([$media->getId()]);
+        $criteria->addAssociation('thumbnails');
+        $criteria->addAssociation('mediaFolder.configuration.mediaThumbnailSizes');
+
+        $media = $this->mediaRepository->search($criteria, $this->context)->get($media->getId());
+
+        $this->getPublicFilesystem()->putStream(
+            $this->urlGenerator->getRelativeMediaUrl($media),
+            fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb')
+        );
+
+        $this->thumbnailService->generateThumbnails($media, $this->context);
+
+        $criteria = new Criteria([$media->getId()]);
+        $criteria->addAssociation('thumbnails');
+
+        $media = $this->mediaRepository
+            ->search($criteria, $this->context)
+            ->get($media->getId());
+
+        static::assertEquals(2, $media->getThumbnails()->count());
+
+        /** @var MediaThumbnailEntity $thumbnail */
+        foreach ($media->getThumbnails() as $thumbnail) {
+            $path = $this->urlGenerator->getRelativeThumbnailUrl($media, $thumbnail);
+            static::assertTrue(
+                $this->getPublicFilesystem()->has($path),
+                'Thumbnail: ' . $path . ' does not exist'
+            );
+
+            $fileContents = $this->getPublicFilesystem()->read($path);
+            [ $width, $height ] = getimagesizefromstring($fileContents);
+            static::assertSame(499, $width);
+            static::assertSame(266, $height);
+        }
+    }
 }

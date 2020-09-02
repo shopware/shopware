@@ -5,7 +5,7 @@ const { Component } = Shopware;
 Component.register('sw-category-detail-menu', {
     template,
 
-    inject: ['openMediaSidebar', 'repositoryFactory'],
+    inject: ['acl', 'openMediaSidebar', 'repositoryFactory'],
 
     props: {
         category: {

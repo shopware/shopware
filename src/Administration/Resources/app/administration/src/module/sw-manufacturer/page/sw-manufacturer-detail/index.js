@@ -8,7 +8,7 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 Component.register('sw-manufacturer-detail', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('placeholder'),
@@ -86,11 +86,18 @@ Component.register('sw-manufacturer-detail', {
         },
 
         tooltipSave() {
-            const systemKey = this.$device.getSystemKey();
+            if (this.acl.can('product_manufacturer.editor')) {
+                const systemKey = this.$device.getSystemKey();
 
+                return {
+                    message: `${systemKey} + S`,
+                    appearance: 'light'
+                };
+            }
             return {
-                message: `${systemKey} + S`,
-                appearance: 'light'
+                message: this.$tc('sw-privileges.tooltip.warning'),
+                disabled: this.acl.can('order.editor'),
+                showOnDisabledElements: true
             };
         },
 

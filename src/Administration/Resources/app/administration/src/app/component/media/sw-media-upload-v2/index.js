@@ -95,6 +95,12 @@ Component.register('sw-media-upload-v2', {
             type: String,
             required: false,
             default: 'image/*'
+        },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -247,6 +253,10 @@ Component.register('sw-media-upload-v2', {
          * Drop Handler
          */
         onDrop(event) {
+            if (this.disabled) {
+                return;
+            }
+
             const newMediaFiles = Array.from(event.dataTransfer.files);
             this.isDragActive = false;
 
@@ -258,6 +268,10 @@ Component.register('sw-media-upload-v2', {
         },
 
         onDropMedia(dragData) {
+            if (this.disabled) {
+                return;
+            }
+
             this.$emit('media-drop', dragData.mediaItem);
         },
 
@@ -330,6 +344,10 @@ Component.register('sw-media-upload-v2', {
         },
 
         onRemoveMediaItem() {
+            if (this.disabled) {
+                return;
+            }
+
             this.preview = null;
             this.$emit('media-upload-remove-image');
         },

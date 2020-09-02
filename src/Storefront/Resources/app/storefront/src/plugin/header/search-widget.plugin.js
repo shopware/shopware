@@ -71,15 +71,13 @@ export default class SearchWidgetPlugin extends Plugin {
     }
 
     _handleSearchEvent(event) {
-        const value = this._inputField.value;
+        const value = this._inputField.value.trim();
 
         // stop search if minimum input value length has not been reached
-        if (value.length !== 0) {
-            return;
+        if (value.length < this.options.searchWidgetMinChars) {
+            event.preventDefault();
+            event.stopPropagation();
         }
-
-        event.preventDefault();
-        event.stopPropagation();
     }
 
     /**
@@ -87,7 +85,7 @@ export default class SearchWidgetPlugin extends Plugin {
      * @private
      */
     _handleInputEvent() {
-        const value = this._inputField.value;
+        const value = this._inputField.value.trim();
 
         // stop search if minimum input value length has not been reached
         if (value.length < this.options.searchWidgetMinChars) {

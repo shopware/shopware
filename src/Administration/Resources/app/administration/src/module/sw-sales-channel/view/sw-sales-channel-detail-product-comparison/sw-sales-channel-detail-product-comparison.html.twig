@@ -18,6 +18,7 @@
                                 v-model="productExport.headerTemplate"
                                 @input="resetValid"
                                 @blur="resetValid"
+                                :disabled="!acl.can('sales_channel.editor')"
                             >
                             </sw-code-editor>
                         {% endblock %}
@@ -38,6 +39,7 @@
                                 v-model="productExport.bodyTemplate"
                                 @input="resetValid"
                                 @blur="resetValid"
+                                :disabled="!acl.can('sales_channel.editor')"
                             >
                             </sw-code-editor>
                         {% endblock %}
@@ -58,6 +60,7 @@
                                 v-model="productExport.footerTemplate"
                                 @input="resetValid"
                                 @blur="resetValid"
+                                :disabled="!acl.can('sales_channel.editor')"
                             >
                             </sw-code-editor>
                         {% endblock %}
@@ -71,7 +74,7 @@
                                 @click="validateTemplate"
                                 size="small"
                                 variant="ghost"
-                                class="sw-sales-channel-detail-product-comparison__button"
+                                class="sw-sales-channel-detail-product-comparison__button sw-sales-channel-detail-product-comparison__test-action"
                                 :isLoading="isLoadingValidate"
                                 :disabled="isLoadingValidate || (!productExport.headerTemplate && !productExport.bodyTemplate && !productExport.footerTemplate)"
                                 :processSuccess="isValidateSuccessful">
@@ -84,7 +87,7 @@
                                 @click="preview"
                                 size="small"
                                 variant="ghost"
-                                class="sw-sales-channel-detail-product-comparison__button"
+                                class="sw-sales-channel-detail-product-comparison__button sw-sales-channel-detail-product-comparison__preview-action"
                                 :isLoading="isLoadingPreview"
                                 :disabled="isLoadingPreview || (!productExport.headerTemplate && !productExport.bodyTemplate && !productExport.footerTemplate)"
                                 :processSuccess="isPreviewSuccessful">

@@ -38,9 +38,4 @@ class MessageQueueStatsEntity extends Entity
     {
         $this->size = $size;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'dal_message_queue_stats';
-    }
 }

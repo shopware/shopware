@@ -19,7 +19,9 @@ const Criteria = Shopware.Data.Criteria;
  *      - promotion: Promotion Entity
  */
 Component.register('sw-promotion-individualcodes', {
-    inject: ['repositoryFactory'],
+
+    inject: ['repositoryFactory', 'acl'],
+
     template,
 
     mixins: [
@@ -96,6 +98,10 @@ Component.register('sw-promotion-individualcodes', {
             return this.repositoryFactory.create('promotion_individual_code');
         },
         isEditingDisabled() {
+            if (!this.acl.can('promotion.editor')) {
+                return true;
+            }
+
             if (this.promotion === null) {
                 return false;
             }

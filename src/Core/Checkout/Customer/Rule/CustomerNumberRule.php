@@ -35,7 +35,6 @@ class CustomerNumberRule extends Rule
             return false;
         }
 
-        /** @var CheckoutRuleScope $scope */
         if (!$customer = $scope->getSalesChannelContext()->getCustomer()) {
             return false;
         }

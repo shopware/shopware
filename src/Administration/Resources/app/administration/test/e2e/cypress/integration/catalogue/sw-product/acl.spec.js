@@ -18,7 +18,7 @@ describe('Product: Test ACL privileges', () => {
 
     it('@base @catalogue: can view product', () => {
         cy.window().then((win) => {
-            if (!win.Shopware.FeatureConfig.isActive('next3722')) {
+            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
                 return;
             }
 
@@ -57,8 +57,9 @@ describe('Product: Test ACL privileges', () => {
             cy.get('.sw-product-detail__tab-properties')
                 .scrollIntoView()
                 .click();
-            cy.get('.sw-card__title')
-                .contains('Available properties');
+
+            cy.get('.sw-empty-state__description-content')
+                .contains('Create properties and property values first, then return here to assign them.');
 
             cy.get('.sw-product-detail__tab-variants')
                 .scrollIntoView()
@@ -76,7 +77,7 @@ describe('Product: Test ACL privileges', () => {
 
     it('@base @catalogue: can edit product', () => {
         cy.window().then((win) => {
-            if (!win.Shopware.FeatureConfig.isActive('next3722')) {
+            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
                 return;
             }
 
@@ -130,7 +131,7 @@ describe('Product: Test ACL privileges', () => {
 
     it('@base @catalogue: can create product', () => {
         cy.window().then((win) => {
-            if (!win.Shopware.FeatureConfig.isActive('next3722')) {
+            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
                 return;
             }
 
@@ -174,25 +175,6 @@ describe('Product: Test ACL privileges', () => {
             cy.get('#sw-field--product-taxId').select('Standard rate');
             cy.get('#sw-price-field-gross').type('10');
 
-            runOn('chrome', () => {
-                // Add image to product
-                cy.fixture('img/sw-login-background.png').then(fileContent => {
-                    cy.get('#files').upload(
-                        {
-                            fileContent,
-                            fileName: 'sw-login-background.png',
-                            mimeType: 'image/png'
-                        }, {
-                            subjectType: 'input'
-                        }
-                    );
-                });
-                cy.get('.sw-product-image__image img')
-                    .should('have.attr', 'src')
-                    .and('match', /sw-login-background/);
-                cy.awaitAndCheckNotification('File has been saved.');
-            });
-
             // Check net price calculation
             cy.wait('@calculatePrice').then(() => {
                 cy.get('#sw-price-field-net').should('have.value', '8.4');
@@ -230,7 +212,7 @@ describe('Product: Test ACL privileges', () => {
 
     it('@base @catalogue: can delete product', () => {
         cy.window().then((win) => {
-            if (!win.Shopware.FeatureConfig.isActive('next3722')) {
+            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
                 return;
             }
 
@@ -266,7 +248,7 @@ describe('Product: Test ACL privileges', () => {
             cy.get(`${page.elements.modal} .sw-listing__confirm-delete-text`).contains(
                 'Are you sure you want to delete this item?'
             );
-            cy.get(`${page.elements.modal}__footer ${page.elements.primaryButton}`).click();
+            cy.get(`${page.elements.modal}__footer .sw-button--danger`).click();
 
             // Verify updated product
             cy.wait('@deleteData').then((xhr) => {

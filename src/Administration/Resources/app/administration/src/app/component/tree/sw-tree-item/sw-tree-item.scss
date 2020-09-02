@@ -30,7 +30,7 @@ $sw-tree-item-color-text: $color-gutenberg;
                 border-left: 1px dashed $sw-tree-item-color-border;
                 border-top: 0 none;
 
-                &:before {
+                &::before {
                     display: none;
                 }
             }
@@ -62,6 +62,12 @@ $sw-tree-item-color-text: $color-gutenberg;
         .sw-tree-item__content {
             cursor: move;
             user-select: none;
+        }
+    }
+
+    &.is--no-checkbox {
+        .sw-tree-item__element {
+            grid-template-columns: 30px 0 20px auto 30px;
         }
     }
 
@@ -120,7 +126,6 @@ $sw-tree-item-color-text: $color-gutenberg;
         user-select: none;
         justify-self: center;
 
-
         .sw-loader {
             background: none;
         }
@@ -163,13 +168,13 @@ $sw-tree-item-color-text: $color-gutenberg;
 
         .sw-tree-item {
             &.is--no-children > .sw-tree-item__element {
-                &:before {
+                &::before {
                     width: 35px;
                 }
             }
 
             &.is--dragging > .sw-tree-item__element {
-                &:before {
+                &::before {
                     display: none;
                 }
             }

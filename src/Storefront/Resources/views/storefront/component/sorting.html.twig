@@ -1,10 +1,12 @@
 {% set config = { sorting: current } %}
 
-<div class="sorting" data-listing-sorting="true" data-listing-sorting-options='{{ config|json_encode }}'>
-    <select class="sorting custom-select" aria-label="{{ 'general.sortingLabel'|trans|striptags }}">
-        {% for sorting in sortings %}
-            {% set key = sorting.key %}
-            <option value="{{ key }}"{% if key == current %} selected{% endif %}>{{ sorting.snippet|trans|sw_sanitize }}</option>
-        {% endfor %}
-    </select>
-</div>
+{% if sortings|length > 1 %}
+    <div class="sorting" data-listing-sorting="true" data-listing-sorting-options='{{ config|json_encode }}'>
+        <select class="sorting custom-select" aria-label="{{ 'general.sortingLabel'|trans|striptags }}">
+            {% for sorting in sortings %}
+                {% set key = sorting.key %}
+                <option value="{{ key }}"{% if key == current %} selected{% endif %}>{{ sorting.translated.label|sw_sanitize }}</option>
+            {% endfor %}
+        </select>
+    </div>
+{% endif %}

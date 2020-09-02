@@ -76,14 +76,6 @@ class WriterTest extends TestCase
         static::assertNotEmpty($deleteResult->getDeleted());
     }
 
-    public function testDeleteWithoutIds(): void
-    {
-        $this->expectException('InvalidArgumentException');
-        $taxRepository = $this->getTaxRepository();
-
-        $taxRepository->delete([], Context::createDefaultContext());
-    }
-
     public function testMultiDelete(): void
     {
         $id = Uuid::randomHex();
@@ -724,6 +716,25 @@ class WriterTest extends TestCase
             1,
             $mediaRepo->search(new Criteria([$mediaId]), $context)->getEntities()->count()
         );
+    }
+
+    public function testWriteWithEmptyDataIsValid(): void
+    {
+        $productRepository = $this->getContainer()->get('product.repository');
+
+        $context = Context::createDefaultContext();
+
+        $exceptionThrown = false;
+
+        try {
+            $productRepository->create([], $context);
+            $productRepository->upsert([], $context);
+            $productRepository->update([], $context);
+        } catch (\InvalidArgumentException $e) {
+            $exceptionThrown = true;
+        }
+
+        static::assertFalse($exceptionThrown);
     }
 
     protected function createWriteContext(): WriteContext

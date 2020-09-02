@@ -192,51 +192,43 @@ class Shopware_Controllers_Api_SwagMigrationBundles extends Shopware_Controllers
 }
 ```
 
-Because of the `BundleDataSet` of the [SwagMigrationBundleExample](./520-extend-shopware-migration-profile.md) plugin, 
-you don't have to extend any Shopware 6 code. The return value of the `getApiRoute` method defines, which Shopware 5 API
-route will be called:
+Now you have to create the `BundleReader` in the [SwagMigrationBundleExample](./520-extend-shopware-migration-profile.md) plugin,
+which only contains the Shopware 5 API route:
 
 ```php
 <?php declare(strict_types=1);
 
-namespace SwagMigrationBundleExample\Profile\Shopware\DataSelection\DataSet;
+namespace SwagMigrationBundleExample\Profile\Shopware\Gateway\Api\Reader;
 
-use SwagMigrationAssistant\Migration\DataSelection\DataSet\CountingInformationStruct;
-use SwagMigrationAssistant\Migration\DataSelection\DataSet\CountingQueryStruct;
 use SwagMigrationAssistant\Migration\MigrationContextInterface;
-use SwagMigrationAssistant\Profile\Shopware\DataSelection\DataSet\ShopwareDataSet;
+use SwagMigrationAssistant\Profile\Shopware\Gateway\Api\Reader\ApiReader;
+use SwagMigrationAssistant\Profile\Shopware\Gateway\Api\ShopwareApiGateway;
 use SwagMigrationAssistant\Profile\Shopware\ShopwareProfileInterface;
+use SwagMigrationBundleExample\Profile\Shopware\DataSelection\DataSet\BundleDataSet;
 
-class BundleDataSet extends ShopwareDataSet
+class BundleReader extends ApiReader
 {
-    public static function getEntity(): string
-    {
-        return 'swag_bundle';
-    }
-
     public function supports(MigrationContextInterface $migrationContext): bool
     {
-        return $migrationContext->getProfile() instanceof ShopwareProfileInterface;
+        return $migrationContext->getProfile() instanceof ShopwareProfileInterface
+            && $migrationContext->getGateway()->getName() === ShopwareApiGateway::GATEWAY_NAME
+            && $migrationContext->getDataSet()::getEntity() === BundleDataSet::getEntity();
     }
 
-    public function getCountingInformation(): ?CountingInformationStruct
-    {
-        $information = new CountingInformationStruct(self::getEntity());
-        $information->addQueryStruct(new CountingQueryStruct('s_bundles'));
-
-        return $information;
-    }
-
-    public function getApiRoute(): string
+    protected function getApiRoute(): string
     {
         return 'SwagMigrationBundles'; // This defines which API route should called
     }
-
-    public function getExtraQueryParameters(): array
-    {
-        return [];
-    }
 }
+```
+
+After this, you have to register the reader in the Symfony container:
+
+```xml
+<service id="SwagMigrationBundleExample\Profile\Shopware\Gateway\Api\BundleReader"
+         parent="SwagMigrationAssistant\Profile\Shopware\Gateway\Api\Reader\ApiReader">
+    <tag name="shopware.migration.reader"/>
+</service>
 ```
 
 And that's it, you're done and have already implemented your first plugin migration via API.

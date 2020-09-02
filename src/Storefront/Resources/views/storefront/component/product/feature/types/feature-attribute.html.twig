@@ -6,7 +6,11 @@
 
 {% block component_product_feature_list_item_base_content_value %}
     {% if label == 'releaseDate' %}
-        {{ value|sw_sanitize|date }}
+        {{ value|sw_sanitize|date('Y-m-d') }}
+    {% elseif label in ['height', 'width', 'length'] %}
+        {{ value|sw_sanitize }} mm
+    {% elseif label == 'weight' %}
+        {{ value|sw_sanitize }} kg
     {% else %}
         {{ value|sw_sanitize }}
     {% endif %}

@@ -38,6 +38,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\PasswordField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceDefinitionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\RemoteAddressField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StateMachineStateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
@@ -99,6 +100,7 @@ class ErdTypeMap
         LockedField::class => 'writeLockIndicator',
         SlotConfigField::class => 'configurationValue',
         StateMachineStateField::class => 'stateMachineState',
+        RemoteAddressField::class => 'remoteAddress',
     ];
 
     public function map(Field $field): string

@@ -26,16 +26,20 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupRegistrationSalesChannel\CustomerGroupRegistrationSalesChannelDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Customer\Aggregate\CustomerTag\CustomerTagDefinition">
             <tag name="shopware.entity.definition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService">
-            <argument type="service" id="customer_address.repository"/>
             <argument type="service" id="customer.repository"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Password\LegacyPasswordVerifier"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\SwitchDefaultAddressRoute"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\SalesChannelCustomerController" public="true">
@@ -65,11 +69,9 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\AddressService">
-            <argument type="service" id="customer_address.repository"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\AddressValidationFactory"/>
-            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
-            <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\ListAddressRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\UpsertAddressRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\DeleteAddressRoute"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Validation\AddressValidationFactory">
@@ -126,6 +128,15 @@
         <service id="Shopware\Core\Checkout\Customer\Subscriber\CustomerTokenSubscriber">
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
             <argument type="service" id="request_stack"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Subscriber\CustomerGroupSubscriber">
+            <argument type="service" id="customer_group.repository"/>
+            <argument type="service" id="seo_url.repository"/>
+            <argument type="service" id="language.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPersister"/>
+            <argument type="service" id="slugify"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
@@ -199,22 +210,54 @@
             <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\AddressValidationFactory"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="customer.repository"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\RegisterConfirmRoute" public="true">
             <argument type="service" id="customer.repository"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\SalesChannel\ListAddressRoute" public="true">
+            <argument type="service" id="customer_address.repository"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\SalesChannel\UpsertAddressRoute" public="true">
+            <argument type="service" id="customer_address.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\Validation\AddressValidationFactory"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\SalesChannel\DeleteAddressRoute" public="true">
+            <argument type="service" id="customer_address.repository"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\SalesChannel\SwitchDefaultAddressRoute" public="true">
+            <argument type="service" id="customer_address.repository"/>
+            <argument type="service" id="customer.repository"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\SalesChannel\CustomerGroupRegistrationSettingsRoute" public="true">
+            <argument type="service" id="customer_group.repository"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\DataAbstractionLayer\CustomerIndexer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
             <argument type="service" id="product.repository"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater"/>
             <argument type="service" id="event_dispatcher"/>
             <tag name="shopware.entity_indexer" priority="100"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Api\CustomerGroupRegistrationActionController" public="true">
+            <argument type="service" id="customer.repository"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
     </services>
 </container>

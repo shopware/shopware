@@ -81,9 +81,4 @@ class ProductManufacturerTranslationEntity extends TranslationEntity
     {
         $this->customFields = $customFields;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'product_manufacturer_translation';
-    }
 }

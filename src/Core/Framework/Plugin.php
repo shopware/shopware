@@ -85,6 +85,17 @@ abstract class Plugin extends Bundle
         return [];
     }
 
+    /**
+     * By default the container is rebuild during plugin activation and deactivation to allow the plugin to access
+     * its own services. If you are absolutely sure you do not require this feature for you plugin you might want
+     * to overwrite this method and return false to improve the activation/deactivation of your plugin. This change will
+     * only have an affect in the system context (CLI)
+     */
+    public function rebuildContainer(): bool
+    {
+        return true;
+    }
+
     final public function removeMigrations(): void
     {
         // namespace should not start with `shopware`

@@ -4,78 +4,52 @@ namespace Shopware\Core\Framework\Test\FeatureFlag;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\FeatureFlagExtension;
-use Shopware\Core\Framework\FeatureFlag\FeatureConfig;
-use Shopware\Core\Framework\FeatureFlag\FeatureFlagGenerator;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Twig\Environment;
-use Twig\Error\RuntimeError;
 use Twig\Loader\FilesystemLoader;
-use function Shopware\Core\Framework\Test\FeatureFlag\_fixture\ifNextFix101;
-use function Shopware\Core\Framework\Test\FeatureFlag\_fixture\ifNextFix101Call;
-use function Shopware\Core\Framework\Test\FeatureFlag\_fixture\nextFix102;
 
 class FeatureTest extends TestCase
 {
+    use KernelTestBehaviour;
+
     private $indicator;
 
-    /**
-     * @before
-     * @after
-     */
-    public function cleanup(): void
+    private $fixtureFlags = [
+        'FEATURE_NEXT_101',
+        'FEATURE_NEXT_102',
+    ];
+
+    protected function setUp(): void
     {
-        @unlink(__DIR__ . '/_gen/feature_nextTest101.php');
-        @unlink(__DIR__ . '/_gen/feature_nextTest123.php');
-        @unlink(__DIR__ . '/_gen/feature_nextTest456.php');
-        @unlink(__DIR__ . '/_gen/feature_nextTest789.php');
-        @unlink(__DIR__ . '/_gen/feature_nextTest123.js');
-    }
-
-    /**
-     * @before
-     */
-    public function loadFixture(): void
-    {
-        require_once __DIR__ . '/_fixture/feature_nextfix101.php';
-        require_once __DIR__ . '/_fixture/feature_nextfix102.php';
-    }
-
-    public function testTheGenerator(): void
-    {
-        $gen = new FeatureFlagGenerator();
-
-        $gen->exportPhp('Shopware\Core\Framework\Test\FeatureFlag\_gen', 'NEXT-TEST-123', __DIR__ . '/_gen/');
-        $gen->exportJs('NEXT-TEST-123', __DIR__ . '/_gen/');
-        static::assertFileExists(__DIR__ . '/_gen/feature_nextTest123.php');
-        static::assertFileExists(__DIR__ . '/_gen/feature_nextTest123.js');
-
-        $gen->exportPhp('Shopware\Core\Framework\Test\FeatureFlag\_gen', 'NEXT-TEST-456', __DIR__ . '/_gen/');
-        $gen->exportPhp('Shopware\Core\Framework\Test\FeatureFlag\_gen', 'NEXT-TEST-789', __DIR__ . '/_gen/');
-        $gen->exportPhp('Shopware\Core\Framework\Test\FeatureFlag\_gen', 'NEXT-TEST-101', __DIR__ . '/_gen/');
-
-        static::assertFalse(function_exists('Shopware\Core\Framework\Test\FeatureFlag\_gen\ifNextTest789Call'));
-        include_once __DIR__ . '/_gen/feature_nextTest789.php';
-        static::assertTrue(function_exists('Shopware\Core\Framework\Test\FeatureFlag\_gen\ifNextTest789Call'));
+        $_SERVER['APP_ENV'] = 'test';
+        Feature::setRegisteredFeatures(
+            $this->getContainer()->getParameter('shopware.feature.flags'),
+            $this->getContainer()->getParameter('kernel.cache_dir') . '/shopware_features.php'
+        );
     }
 
     public function testABoolGetsReturned(): void
     {
-        static::assertFalse(nextFix102());
-        $_SERVER['FEATURE_NEXT_FIX_102'] = '1';
-        static::assertTrue(nextFix102());
+        $this->setUpFixtures();
+        static::assertFalse(Feature::isActive('FEATURE_NEXT_102'));
+        $_SERVER['FEATURE_NEXT_102'] = '1';
+        static::assertTrue(Feature::isActive('FEATURE_NEXT_102'));
     }
 
     public function testTheCallableGetsExecutes(): void
     {
-        FeatureConfig::registerFlag('nextFix101', __METHOD__);
+        $this->setUpFixtures();
+        $_SERVER['FEATURE_NEXT_101'] = '0';
         $indicator = false;
-        ifNextFix101(function () use (&$indicator): void {
+        Feature::ifActive('FEATURE_NEXT_101', function () use (&$indicator): void {
             $indicator = true;
         });
         static::assertFalse($indicator);
 
-        $_SERVER[__METHOD__] = '1';
+        $_SERVER['FEATURE_NEXT_101'] = '1';
 
-        ifNextFix101(function () use (&$indicator): void {
+        Feature::ifActive('FEATURE_NEXT_101', function () use (&$indicator): void {
             $indicator = true;
         });
         static::assertTrue($indicator);
@@ -83,46 +57,49 @@ class FeatureTest extends TestCase
 
     public function testTheMethodGetsExecutes(): void
     {
-        FeatureConfig::registerFlag('nextFix101', __METHOD__);
+        $this->setUpFixtures();
         $this->indicator = null;
 
-        ifNextFix101Call($this, 'indicate');
+        Feature::ifActiveCall('FEATURE_NEXT_101', $this, 'indicate');
         static::assertNull($this->indicator);
 
-        $_SERVER[__METHOD__] = '1';
+        $_SERVER['FEATURE_NEXT_101'] = '1';
 
-        ifNextFix101Call($this, 'indicate', new \stdClass());
+        Feature::ifActiveCall('FEATURE_NEXT_101', $this, 'indicate', new \stdClass());
         static::assertInstanceOf(\stdClass::class, $this->indicator);
     }
 
     public function testConfigGetAllReturnsAllAndTracksState(): void
     {
-        $currentConfig = FeatureConfig::getAll();
+        $this->setUp();
+        $currentConfig = array_keys(Feature::getAll());
+        $featureFlags = $this->getContainer()->getParameter('shopware.feature.flags');
 
-        static::assertArrayNotHasKey(__METHOD__, $currentConfig);
-        FeatureConfig::registerFlag(__METHOD__, __METHOD__);
+        foreach ($featureFlags as &$flag) {
+            $flag = Feature::normalizeName($flag);
+        }
 
-        $configAfterRegistration = FeatureConfig::getAll();
-        static::assertFalse($configAfterRegistration[__METHOD__]);
+        static::assertEquals($featureFlags, $currentConfig);
 
-        $_SERVER[__METHOD__] = '1';
-        $activatedFlagConfig = FeatureConfig::getAll();
-        static::assertTrue($activatedFlagConfig[__METHOD__]);
+        self::setUpFixtures();
+        $featureFlags = array_merge($featureFlags, $this->fixtureFlags);
+
+        $configAfterRegistration = array_keys(Feature::getAll());
+        static::assertEquals($featureFlags, $configAfterRegistration);
     }
 
     public function testTwigFeatureFlag(): void
     {
-        FeatureConfig::registerFlag('nextFix101', __METHOD__);
-
+        self::setUpFixtures();
         $loader = new FilesystemLoader(__DIR__ . '/_fixture/');
         $twig = new Environment($loader, [
             'cache' => false,
         ]);
         $twig->addExtension(new FeatureFlagExtension());
         $template = $twig->loadTemplate('featuretest.html.twig');
-        $_SERVER[__METHOD__] = '1';
+        $_SERVER['FEATURE_NEXT_101'] = '1';
         static::assertSame('FeatureIsActive', $template->render([]));
-        $_SERVER[__METHOD__] = '0';
+        $_SERVER['FEATURE_NEXT_101'] = '0';
         static::assertSame('FeatureIsInactive', $template->render([]));
     }
 
@@ -135,12 +112,27 @@ class FeatureTest extends TestCase
         $twig->addExtension(new FeatureFlagExtension());
         $template = $twig->loadTemplate('featuretest_unregistered.html.twig');
 
-        $this->expectException(RuntimeError::class);
-        $this->expectExceptionMessageRegExp('/.*randomFlagThatIsNotRegisterde471112.*/');
+        if ($_SERVER['APP_ENV'] !== 'prod') {
+            $this->expectNoticeMessageMatches('/.*FEATURE_RANDOMFLAGTHATISNOTREGISTERDE_471112.*/');
+        } else {
+            static::assertTrue(true, 'No Notice in prod mode');
+        }
         $template->render([]);
     }
 
-    private function indicate(\stdClass $arg): void
+    private function setUpFixtures(): void
+    {
+        //init FeatureConfig
+        $registeredFlags = array_keys(Feature::getAll());
+        $registeredFlags = array_merge($registeredFlags, $this->fixtureFlags);
+
+        Feature::setRegisteredFeatures(
+            $registeredFlags,
+            $this->getContainer()->getParameter('kernel.cache_dir') . '/shopware_features.php'
+        );
+    }
+
+    private function indicate(?\stdClass $arg = null): void
     {
         $this->indicator = $arg;
     }

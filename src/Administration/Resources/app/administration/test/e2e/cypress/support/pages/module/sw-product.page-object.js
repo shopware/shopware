@@ -34,7 +34,7 @@ export default class ProductPageObject {
 
     generateVariants(propertyName, optionPosition, totalCount) {
         const optionsIndicator = '.sw-property-search__tree-selection__column-items-selected.sw-grid-column--right span';
-        const optionString = optionPosition.length < 1 ? 'option' : 'options';
+        const optionString = totalCount === 1 ? 'option' : 'options';
 
         // Request we want to wait for later
         cy.server();
@@ -61,8 +61,12 @@ export default class ProductPageObject {
             .contains(`${optionPosition.length} ${optionString} selected`);
         cy.get('.sw-product-variant-generation__generate-action').click();
         cy.get('.sw-product-modal-variant-generation__notification-modal').should('be.visible');
-        cy.get('.sw-product-modal-variant-generation__notification-modal .sw-modal__body')
-            .contains(`${totalCount} variants will be added`);
+
+        if (totalCount !== 1) {
+            cy.get('.sw-product-modal-variant-generation__notification-modal .sw-modal__body')
+                .contains(`${totalCount} variants will be added`);
+        }
+
         cy.get('.sw-product-modal-variant-generation__notification-modal .sw-button--primary')
             .click();
 

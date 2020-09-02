@@ -264,6 +264,9 @@ class SalesChannelContextFactory
         return $salesChannelContext;
     }
 
+    /**
+     * @deprecated tag:v6.4.0 - Will be private
+     */
     public function getTaxRules(Context $context, ?CustomerEntity $customer, ShippingLocation $shippingLocation): TaxCollection
     {
         $criteria = new Criteria();
@@ -366,12 +369,17 @@ class SalesChannelContextFactory
 
         $languageChain = $this->buildLanguageChain($session, $defaultLanguageId, $languageIds);
 
+        $versionId = Defaults::LIVE_VERSION;
+        if (isset($session[SalesChannelContextService::VERSION_ID])) {
+            $versionId = $session[SalesChannelContextService::VERSION_ID];
+        }
+
         return new Context(
             $origin,
             [],
             Uuid::fromBytesToHex($data['sales_channel_currency_id']),
             $languageChain,
-            Defaults::LIVE_VERSION,
+            $versionId,
             (float) $data['sales_channel_currency_factor'],
             true
         );

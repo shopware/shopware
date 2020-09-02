@@ -25,6 +25,8 @@ class PropertyGroupDefinition extends EntityDefinition
 
     public const DISPLAY_TYPE_IMAGE = 'image';
 
+    public const DISPLAY_TYPE_MEDIA = 'media';
+
     public const DISPLAY_TYPE_COLOR = 'color';
 
     public const SORTING_TYPE_NUMERIC = 'numeric';

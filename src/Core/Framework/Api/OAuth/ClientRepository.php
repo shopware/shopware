@@ -90,14 +90,21 @@ class ClientRepository implements ClientRepositoryInterface
     private function getIntegrationByAccessKey(string $clientIdentifier, string $clientSecret): ClientEntityInterface
     {
         $key = $this->connection->createQueryBuilder()
-            ->select(['id', 'label', 'secret_access_key', 'write_access'])
+            ->select(['integration.id AS id', 'label', 'secret_access_key', 'write_access', 'app.active as active'])
             ->from('integration')
+            ->leftJoin('integration', 'app', 'app', 'app.integration_id = integration.id')
             ->where('access_key = :accessKey')
             ->setParameter('accessKey', $clientIdentifier)
             ->execute()
             ->fetch();
 
         if (!$key) {
+            throw OAuthServerException::invalidCredentials();
+        }
+
+        // inactive apps cannot access the api
+        // if the integration is not associated to an app `active` will be null
+        if ($key['active'] === '0') {
             throw OAuthServerException::invalidCredentials();
         }
 

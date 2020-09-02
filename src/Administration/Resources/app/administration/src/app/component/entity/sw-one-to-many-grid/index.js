@@ -20,6 +20,21 @@ Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
         dataSource: {
             type: [Array, Object],
             required: false
+        },
+        allowDelete: {
+            type: Boolean,
+            required: false,
+            default: true
+        },
+        tooltipDelete: {
+            type: Object,
+            required: false,
+            default() {
+                return {
+                    message: '',
+                    disabled: true
+                };
+            }
         }
     },
 
@@ -71,8 +86,10 @@ Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
                 this.total = result.length;
             }
 
-            this.page = result.criteria.page || this.page;
-            this.limit = result.criteria.limit || this.limit;
+            if (result.criteria) {
+                this.page = result.criteria.page || this.page;
+                this.limit = result.criteria.limit || this.limit;
+            }
         },
 
         save(record) {

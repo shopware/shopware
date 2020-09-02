@@ -82,6 +82,7 @@ class NavigationLoader implements NavigationLoaderInterface
     }
 
     /**
+     * @deprecated tag:v6.4.0 - use load with $depth 1 instead
      * {@inheritdoc}
      *
      * @throws CategoryNotFoundException

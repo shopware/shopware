@@ -118,6 +118,12 @@ Component.register('sw-tree', {
         checkItemsInitial: {
             type: Boolean,
             default: false
+        },
+
+        allowDeleteCategories: {
+            type: Boolean,
+            default: true,
+            required: false
         }
     },
 

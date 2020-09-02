@@ -43,17 +43,6 @@
                 <file name="platform/src/Core/Framework/Test/Plugin/KernelPluginIntegrationTest.php"/>
             </errorLevel>
         </UndefinedConstant>
-        <InvalidScope>
-            <errorLevel type="info">
-                <directory name="platform/src/Core/Flag"/>
-                <directory name="platform/src/Core/Framework/Test/FeatureFlag"/>
-            </errorLevel>
-        </InvalidScope>
-        <MissingFile>
-            <errorLevel type="info">
-                <file name="platform/src/Core/Framework/Test/FeatureFlag/FeatureTest.php"/>
-            </errorLevel>
-        </MissingFile>
         <UnusedParam>
             <errorLevel type="info">
                 <file name="platform/src/Core/Framework/DataAbstractionLayer/Doctrine/RetryableQuery.php"/>
@@ -76,6 +65,13 @@
         </UnusedVariable>
 
         <LessSpecificImplementedReturnType errorLevel="info"/>
+
+        <UnusedMethodCall>
+            <errorLevel type="info">
+                <referencedMethod name="Symfony\Component\Config\Definition\Builder\NodeDefinition::end"/>
+                <referencedMethod name="Symfony\Component\Config\Definition\Builder\NodeBuilder::end"/>
+            </errorLevel>
+        </UnusedMethodCall>
 
         <!-- Issue in Psalm https://github.com/vimeo/psalm/issues/2706 -->
         <InaccessibleProperty>

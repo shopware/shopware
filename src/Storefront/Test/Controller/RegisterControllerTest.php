@@ -18,6 +18,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Controller\RegisterController;
+use Shopware\Storefront\Page\Account\CustomerGroupRegistration\CustomerGroupRegistrationPageLoader;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
 use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoader;
 use Symfony\Component\HttpFoundation\Request;
@@ -68,12 +69,12 @@ class RegisterControllerTest extends TestCase
 
         $registerController = new RegisterController(
             $container->get(AccountLoginPageLoader::class),
-            $this->accountService,
             $container->get(AccountRegistrationService::class),
             $container->get(CartService::class),
             $container->get(CheckoutRegisterPageLoader::class),
             $mock,
-            $customerRepository
+            $customerRepository,
+            $this->createMock(CustomerGroupRegistrationPageLoader::class)
         );
 
         $data = $this->getRegistrationData();

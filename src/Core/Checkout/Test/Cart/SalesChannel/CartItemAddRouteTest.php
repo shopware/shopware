@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Test\Cart\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -169,6 +170,79 @@ class CartItemAddRouteTest extends TestCase
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame(100, $response['price']['totalPrice']);
+    }
+
+    public function testCustomTaxIncludedInShippingCostTaxes(): void
+    {
+        $this->enableAdminAccess();
+
+        $taxForProductItem = 10;
+        $taxForCustomItem = 15;
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/cart/line-item',
+                [
+                    'items' => [
+                        [
+                            'id' => $this->ids->get('p1'),
+                            'label' => 'product item',
+                            'type' => LineItem::PRODUCT_LINE_ITEM_TYPE,
+                            'priceDefinition' => [
+                                'price' => 100,
+                                'taxRules' => [[
+                                    'taxRate' => $taxForProductItem,
+                                    'percentage' => 100,
+                                ]],
+                                'type' => 'quantity',
+                            ],
+                            'referencedId' => $this->ids->get('p1'),
+                        ],
+                        [
+                            'label' => 'custom item',
+                            'type' => LineItem::CUSTOM_LINE_ITEM_TYPE,
+                            'tax' => [
+                                'id' => Uuid::randomHex(),
+                                'taxRate' => $taxForCustomItem,
+                                'name' => 'taxCustomItem',
+                            ],
+                            'priceDefinition' => [
+                                'price' => 150,
+                                'taxRules' => [[
+                                    'taxRate' => $taxForCustomItem,
+                                    'percentage' => 100,
+                                ]],
+                                'type' => 'quantity',
+                            ],
+                        ],
+                    ],
+                ]
+            );
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode(), $this->browser->getResponse()->getContent());
+
+        $cart = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertArrayHasKey('deliveries', $cart);
+        static::assertCount(1, $deliveries = $cart['deliveries']);
+        static::assertNotEmpty($shippingCost = $deliveries[0]['shippingCosts']);
+        static::assertCount(2, $shippingCostCalculatedTaxes = $shippingCost['calculatedTaxes']);
+
+        //assert there is shipping cost calculated taxes for product and custom items in cart
+        $calculatedTaxForCustomItem = array_filter($shippingCostCalculatedTaxes, function ($tax) use ($taxForCustomItem) {
+            return $tax['taxRate'] === $taxForCustomItem;
+        });
+
+        static::assertNotEmpty($calculatedTaxForCustomItem);
+        static::assertCount(1, $calculatedTaxForCustomItem);
+
+        $calculatedTaxForProductItem = array_filter($shippingCostCalculatedTaxes, function ($tax) use ($taxForProductItem) {
+            return $tax['taxRate'] === $taxForProductItem;
+        });
+
+        static::assertNotEmpty($calculatedTaxForProductItem);
+        static::assertCount(1, $calculatedTaxForProductItem);
     }
 
     public function testAddPromotion(): void

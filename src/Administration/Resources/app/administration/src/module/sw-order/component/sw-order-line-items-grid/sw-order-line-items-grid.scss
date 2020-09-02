@@ -9,6 +9,10 @@ $sw-order-line-item-border: $color-steam-cloud;
         height: 16px;
     }
 
+    .sw-product-variant-info {
+        max-width: 200px;
+    }
+
     .sw-data-grid .sw-data-grid__cell--selection {
         width: 65px;
         min-width: 65px;

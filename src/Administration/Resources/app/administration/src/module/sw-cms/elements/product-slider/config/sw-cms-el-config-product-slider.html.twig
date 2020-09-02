@@ -30,8 +30,98 @@
                                 </sw-field>
                             {% endblock %}
 
+                            {% block sw_cms_element_product_slider_config_content_product_assignment_type %}
+                                <sw-single-select
+                                    class="sw-cms-el-config-product-slider__product-assignment-type-select"
+                                    :label="$tc('sw-cms.elements.productSlider.config.label.productAssignmentType')"
+                                    v-model="element.config.products.source"
+                                    @change="onChangeAssignmentType"
+                                    :options="productAssignmentTypes">
+                                </sw-single-select>
+                            {% endblock %}
+
+                            <template v-if="element.config.products.source === 'product_stream'">
+                                {% block sw_cms_element_product_slider_config_content_product_stream_select %}
+                                    <sw-entity-single-select
+                                        entity="product_stream"
+                                        class="sw-cms-el-config-product-slider__product-stream-select"
+                                        :label="$tc('sw-cms.elements.productSlider.config.label.productStreamChoice')"
+                                        :placeholder="$tc('sw-cms.elements.productSlider.config.placeholder.productStreamChoice')"
+                                        @change="onChangeProductStream"
+                                        v-model="element.config.products.value">
+                                    </sw-entity-single-select>
+                                {% endblock %}
+
+                                {% block sw_cms_element_product_slider_config_content_product_stream_performance_hint %}
+                                    <sw-alert
+                                        class="sw-cms-el-config-product-slider__product-stream-performance-hint"
+                                        variant="info">
+                                        {{ $tc('sw-cms.elements.productSlider.config.textProductStreamPerformanceHint') }}
+                                    </sw-alert>
+                                {% endblock %}
+
+                                {% block sw_cms_element_product_slider_config_content_product_stream_preview %}
+                                    <sw-modal
+                                        v-if="showProductStreamPreview"
+                                        :title="productStream.name"
+                                        class="sw-cms-el-config-product-slider__product-stream-preview-modal"
+                                        @modal-close="onCloseProductStreamModal">
+                                        {% block sw_cms_element_product_slider_config_content_product_stream_preview_grid %}
+                                            <sw-product-stream-grid-preview
+                                                :filters="productStream.apiFilter"
+                                                :columns="productStreamPreviewColumns"
+                                                :criteria="productStreamCriteria">
+                                            </sw-product-stream-grid-preview>
+                                        {% endblock %}
+                                        <template #modal-footer>
+                                            {% block sw_cms_element_product_slider_config_content_product_stream_preview_action_close %}
+                                                <sw-button @click="onCloseProductStreamModal" size="small">
+                                                    {{ $tc('global.sw-modal.labelClose') }}
+                                                </sw-button>
+                                            {% endblock %}
+                                        </template>
+                                    </sw-modal>
+                                {% endblock %}
+
+                                <sw-container columns="1fr 1fr" gap="30px">
+                                    {% block sw_cms_element_product_slider_config_content_product_stream_sorting %}
+                                        <sw-single-select
+                                            :label="$tc('sw-cms.elements.productSlider.config.label.productStreamSorting')"
+                                            class="sw-cms-el-config-product-slider__product-stream-sorting"
+                                            v-model="element.config.productStreamSorting.value"
+                                            :disabled="!productStream"
+                                            :placeholder="$tc('sw-cms.elements.productSlider.config.placeholder.productStreamSorting')"
+                                            :options="productStreamSortingOptions">
+                                        </sw-single-select>
+                                    {% endblock %}
+
+                                    {% block sw_cms_element_product_slider_config_content_product_stream_limit %}
+                                        <sw-number-field
+                                            :label="$tc('sw-cms.elements.productSlider.config.label.productStreamLimit')"
+                                            class="sw-cms-el-config-product-slider__product-stream-limit"
+                                            :disabled="!productStream"
+                                            :min="1"
+                                            v-model="element.config.productStreamLimit.value">
+                                        </sw-number-field>
+                                    {% endblock %}
+                                </sw-container>
+
+                                {% block sw_cms_element_product_slider_config_content_product_stream_preview_link %}
+                                    <div class="sw-cms-el-config-product-slider__product-stream-preview-link-container">
+                                        <a @click.prevent="onClickProductStreamPreview"
+                                           class="sw-cms-el-config-product-slider__product-stream-preview-link link"
+                                           :class="{ 'is--disabled': !productStream }"
+                                           href="#">
+                                            {{ $tc('sw-cms.elements.productSlider.config.textProductStreamPreviewLink') }}
+                                            <sw-icon name="default-arrow-simple-right" small></sw-icon>
+                                        </a>
+                                    </div>
+                                {% endblock %}
+                            </template>
+
                             {% block sw_cms_element_product_slider_config_content_products %}
                                 <sw-entity-multi-select
+                                        v-else
                                         class="sw-cms-el-config-product-slider__products"
                                         :label="$tc('sw-cms.elements.productSlider.config.label.selection')"
                                         :placeholder="$tc('sw-cms.elements.productSlider.config.placeholder.selection')"

@@ -10,4 +10,5 @@
     <import resource="../../Update/**/*Controller.php" type="annotation" />
     <import resource="../../MessageQueue/**/*Controller.php" type="annotation" />
     <import resource="../../Migration/**/*Controller.php" type="annotation" />
+    <import resource="../../App/**/*Controller.php" type="annotation" />
 </routes>

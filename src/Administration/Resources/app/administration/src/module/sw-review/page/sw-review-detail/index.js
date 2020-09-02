@@ -8,7 +8,7 @@ const { warn } = Shopware.Utils.debug;
 Component.register('sw-review-detail', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('placeholder'),
@@ -69,6 +69,7 @@ Component.register('sw-review-detail', {
                 this.loadEntityData();
             }
         },
+
         loadEntityData() {
             this.isLoading = true;
             const criteria = new Criteria();

@@ -111,13 +111,18 @@
                                                     {% block sw_theme_list_listing_list_data_grid_actions %}
                                                         <template #actions="{ item }">
                                                             {% block sw_theme_list_listing_list_data_grid_actions_edit %}
-                                                                <sw-context-menu-item :routerLink="{ name: 'sw.theme.manager.detail', params: { id: item.id } }">
+                                                                <sw-context-menu-item
+                                                                    class="sw-theme-list-item__option-edit"
+                                                                    :routerLink="{ name: 'sw.theme.manager.detail', params: { id: item.id } }">
                                                                     {{ $tc('sw-theme-manager.themeListItem.edit') }}
                                                                 </sw-context-menu-item>
                                                             {% endblock %}
 
                                                             {% block sw_theme_list_listing_list_data_grid_actions_rename %}
-                                                                <sw-context-menu-item @click="onRenameTheme(item)">
+                                                                <sw-context-menu-item
+                                                                    @click="onRenameTheme(item)"
+                                                                    class="sw-theme-list-item__option-rename"
+                                                                    :disabled="!acl.can('theme.editor')">
                                                                     {{ $tc('sw-theme-manager.themeListItem.rename') }}
                                                                 </sw-context-menu-item>
                                                             {% endblock %}
@@ -125,7 +130,8 @@
                                                             {% block sw_theme_list_listing_list_data_grid_actions_delete %}
                                                                 <sw-context-menu-item
                                                                     variant="danger"
-                                                                    :disabled="item.salesChannels.length > 0"
+                                                                    class="sw-theme-list-item__option-delete"
+                                                                    :disabled="item.salesChannels.length > 0 || !acl.can('theme.deleter')"
                                                                     v-tooltip="deleteDisabledToolTip(item)"
                                                                     @click="onDeleteTheme(item)"
                                                                     v-if="item.parentThemeId">
@@ -135,7 +141,11 @@
                                                             {% endblock %}
 
                                                             {% block sw_theme_list_listing_list_data_grid_actions_create %}
-                                                                <sw-context-menu-item @click="onDuplicateTheme(item)" v-if="!item.parentThemeId">
+                                                                <sw-context-menu-item
+                                                                    v-if="!item.parentThemeId"
+                                                                    class="sw-theme-list-item__option-duplicate"
+                                                                    @click="onDuplicateTheme(item)"
+                                                                    :disabled="!acl.can('theme.creator')">
                                                                     {{ $tc('sw-theme-manager.actions.duplicate') }}
                                                                 </sw-context-menu-item>
                                                             {% endblock %}
@@ -179,31 +189,38 @@
                                                             {% block sw_theme_list_listing_list_item_option_add_preview %}
                                                                 <sw-context-menu-item
                                                                     class="sw-theme-list-item__option-preview"
-                                                                    @click="onPreviewChange(theme)">
-
+                                                                    @click="onPreviewChange(theme)"
+                                                                    :disabled="!acl.can('theme.editor')">
                                                                     {{ $tc('sw-theme-manager.themeListItem.addPreviewImage') }}
                                                                 </sw-context-menu-item>
                                                             {% endblock %}
 
                                                             {% block sw_theme_list_listing_list_item_option_remove_preview %}
                                                                 <sw-context-menu-item
-                                                                    class="sw-theme-list-item__option-preview"
+                                                                    class="sw-theme-list-item__option-preview sw-theme-list-item__option-preview-remove"
                                                                     v-if="theme.previewMediaId"
                                                                     variant="danger"
-                                                                    @click="onPreviewImageRemove(theme)">
-
+                                                                    @click="onPreviewImageRemove(theme)"
+                                                                    :disabled="!acl.can('theme.editor')">
                                                                     {{ $tc('sw-theme-manager.themeListItem.removePreviewImage') }}
                                                                 </sw-context-menu-item>
                                                             {% endblock %}
 
                                                             {% block sw_theme_list_listing_list_item_option_rename %}
-                                                                <sw-context-menu-item @click="onRenameTheme(theme)">
+                                                                <sw-context-menu-item
+                                                                    @click="onRenameTheme(theme)"
+                                                                    class="sw-theme-list-item__option-rename"
+                                                                    :disabled="!acl.can('theme.editor')">
                                                                     {{ $tc('sw-theme-manager.themeListItem.rename') }}
                                                                 </sw-context-menu-item>
                                                             {% endblock %}
 
                                                             {% block sw_theme_list_listing_list_item_option_create %}
-                                                                <sw-context-menu-item @click="onDuplicateTheme(theme)" v-if="!theme.parentThemeId">
+                                                                <sw-context-menu-item
+                                                                    v-if="!theme.parentThemeId"
+                                                                    class="sw-theme-list-item__option-duplicate"
+                                                                    @click="onDuplicateTheme(theme)"
+                                                                    :disabled="!acl.can('theme.creator')">
                                                                     {{ $tc('sw-theme-manager.actions.duplicate') }}
                                                                 </sw-context-menu-item>
                                                             {% endblock %}
@@ -213,10 +230,9 @@
                                                                     v-if="theme.parentThemeId"
                                                                     class="sw-theme-list-item__option-delete"
                                                                     variant="danger"
-                                                                    :disabled="theme.salesChannels.length > 0"
+                                                                    :disabled="theme.salesChannels.length > 0 || !acl.can('theme.deleter')"
                                                                     v-tooltip="deleteDisabledToolTip(theme)"
                                                                     @click="onDeleteTheme(theme)">
-
                                                                     {{ $tc('sw-theme-manager.themeListItem.delete') }}
                                                                 </sw-context-menu-item>
                                                             {% endblock %}

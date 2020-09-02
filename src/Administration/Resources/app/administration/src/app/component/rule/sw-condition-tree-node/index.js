@@ -27,6 +27,12 @@ Component.register('sw-condition-tree-node', {
             type: Object,
             required: false,
             default: null
+        },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 

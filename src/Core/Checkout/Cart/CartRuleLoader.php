@@ -92,6 +92,8 @@ class CartRuleLoader
 
         $iteration = 1;
 
+        $cart = $this->processor->process($cart, $context, $behaviorContext);
+
         do {
             if ($iteration > self::MAX_ITERATION) {
                 break;

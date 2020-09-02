@@ -14,7 +14,7 @@ class UninstallContext extends InstallContext
     private $keepUserData;
 
     /**
-     * @deprecated tag:v6.4.0
+     * @deprecated tag:v6.4.0 - Will be removed. Use $keepUserData instead
      *
      * @var bool
      */
@@ -27,29 +27,25 @@ class UninstallContext extends InstallContext
         string $currentPluginVersion,
         MigrationCollection $migrationCollection,
         bool $keepUserData,
-        /* @deprecated tag:v6.4.0 */
+        /* @deprecated tag:v6.4.0 - Will be removed. Set $keepUserData instead*/
         bool $keepMigrations = true
     ) {
         parent::__construct($plugin, $context, $currentShopwareVersion, $currentPluginVersion, $migrationCollection);
         $this->keepUserData = $keepUserData;
         $this->keepMigrations = $keepMigrations;
-        if (func_num_args() === 7) {
-            trigger_error('Do not supply $keepMigrations anymore, it will be removed in v6.4.0. See UPGRADE-6.3.md for further information.', E_USER_DEPRECATED);
-        }
     }
 
+    /**
+     * If true is returned, migrations of the plugin will also be removed
+     */
     public function keepUserData(): bool
     {
         return $this->keepUserData;
     }
 
     /**
-     * By default the executed migrations for plugins are deleted during uninstall.
-     *
-     * Call `enableKeepMigrations` to opt-out from the deletion
-     *
-     * @deprecated tag:v6.4.0 use keepUserData() instead. Starting with v6.4.0 migrations will always be removed if
-     * keepUserData() returns false.
+     * @deprecated tag:v6.4.0 - Will be removed, use keepUserData() instead.
+     * Starting with v6.4.0, migrations will be removed if keepUserData() returns false.
      */
     public function keepMigrations(): bool
     {
@@ -57,7 +53,7 @@ class UninstallContext extends InstallContext
     }
 
     /**
-     * @deprecated tag:v6.4.0
+     * @deprecated tag:v6.4.0  - Will be removed. If migrations should be removed or not, is handled by the keepUserData parameter
      */
     public function enableKeepMigrations(): void
     {

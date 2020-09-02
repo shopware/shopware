@@ -100,9 +100,4 @@ class MailTemplateSalesChannelEntity extends Entity
     {
         $this->salesChannel = $salesChannel;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'mail_template_sales_channel';
-    }
 }

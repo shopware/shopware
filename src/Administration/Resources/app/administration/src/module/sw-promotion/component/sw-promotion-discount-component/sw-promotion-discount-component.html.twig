@@ -5,7 +5,12 @@
                 <sw-context-menu-item variant="danger"
                                       class="sw-promotion-context-item__delete-action"
                                       @click="onShowDeleteModal"
-                                      :disabled="isEditingDisabled">
+                                      :disabled="isEditingDisabled"
+                                      v-tooltip="{
+                                        message: $tc('sw-privileges.tooltip.warning'),
+                                        disabled: acl.can('promotion.editor'),
+                                        showOnDisabledElements: true
+                                      }">
                     {{ $tc('sw-promotion.detail.main.discounts.buttonDeleteDiscount') }}
                 </sw-context-menu-item>
             {% endblock %}

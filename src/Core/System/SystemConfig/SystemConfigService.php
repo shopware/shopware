@@ -143,6 +143,9 @@ class SystemConfigService
         return $merged;
     }
 
+    /**
+     * @param array|bool|float|int|null|string $value
+     */
     public function set(string $key, $value, ?string $salesChannelId = null): void
     {
         // reset internal cache

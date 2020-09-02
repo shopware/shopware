@@ -44,6 +44,8 @@ class LunarEclipseRule extends Rule
 
     public function __construct()
     {
+        parent::__construct();
+
         // Will be overwritten at runtime. Reflects the expected value.
         $this->isLunarEclipse = false;
     }
@@ -155,50 +157,41 @@ Each component has to come with a file called `index.js`, defining your new comp
 Here's an example of what this component could look like, with an explanation coming afterwards:
 
 ```js
-import LocalStore from 'src/core/data/LocalStore';
 import template from './swag-lunar-eclipse.html.twig';
 
 Shopware.Component.extend('swag-lunar-eclipse', 'sw-condition-base', {
     template,
 
     computed: {
-        fieldNames() {
-            return ['isLunarEclipse'];
-        },
-        defaultValues() {
-           return {
-               isLunarEclipse: true
-           };
-        },
         selectValues() {
-            const values = [
+            return [
                 {
                     label: this.$tc('global.sw-condition.condition.yes'),
-                    value: 'true'
+                    value: true
                 },
                 {
                     label: this.$tc('global.sw-condition.condition.no'),
-                    value: 'false'
+                    value: false
                 }
             ];
-
-            return new LocalStore(values, 'value');
         },
-    },
 
-    data() {
-        return {
-            isLunarEclipse: this.condition.value.isLunarEclipse !== undefined ? String(this.condition.value.isLunarEclipse) : String(true)
-        };
-    },
-    
-    watch: {
         isLunarEclipse: {
-            handler(newValue) {
-                this.condition.value.isLunarEclipse = newValue === String(true);
+            get() {
+                this.ensureValueExist();
+
+                if (this.condition.value.isLunarEclipse == null) {
+                    this.condition.value.isLunarEclipse = false;
+                }
+
+                return this.condition.value.isLunarEclipse;
+            },
+            set(isLunarEclipse) {
+                this.ensureValueExist();
+                this.condition.value = { ...this.condition.value, isLunarEclipse };
             }
         }
-    },
+    }
 });
 ```
 
@@ -207,21 +200,12 @@ It has to extend from the `sw-condition-base` component and has to bring a custo
 
 Let's have a look at each property and method.
 
-The only required computed property is `fieldNames`, which defines the available fields in your custom rule.
-Next is the method `defaultValues`, which is pretty much self-explaining - it simply defines the default values for the available fields.
-
-The last computed property is `selectValues`, which returns a Store containing the values "true" and "false".
+The first computed property is `selectValues`, which returns an array containing the values "true" and "false".
 Those will be used in the template later on, as they will be the selectable options for the shop administrator.
 Do not get confused by the call `this.$tc('global.sw-condition.condition.yes')`, it's just loading a translation by its name, in this case "Yes" and "No".
 *Note: When dealing with boolean values, make sure to always return strings here!*
 
-The `data` method is supposed to return an object containing the available variables and its actual current value.
-If the value was defined already, use it, otherwise return the default value again.
-Also remember: If you're dealing with boolean values, make sure to return a string here.
-
-The last method is the `watch` method, which, as the name suggests, watches the `isLunarEclipse` value and triggers once the value is changed.
-Its main purpose is to convert the string back to an actual boolean then and setting it into the condition's value, which then
-gets submitted.
+The second and last computed property is `isLunarEclipse`, which uses a getter and setter to define the value of the condition.
 
 ### Custom rule administration template
 
@@ -229,25 +213,23 @@ Now let's have a look at the template.
 Once again it was already defined and named in the previous code: `./swag-lunar-eclipse.html.twig`
 
 Just create a new file with this name in the same directory.
-All it has to do then, is to extend the twig block `sw_condition_base_fields`, which contains the actual field representation for the current rule.
+All it has to do then, is to extend the twig block `sw_condition_value_content`, which contains the actual field representation for the current rule.
 In there you'll need a select box containing the previously configured "Yes" and "No" values.
 
 Here's a working example of your template could look like:
 ```twig
-{% block sw_condition_base_fields %}
-    <sw-select name="lunar-eclipse"
-        id="lunar-eclipse"
-        itemValueKey="value"
-        displayName="label"
-        :store="selectValues"
-        :required="true"
-        v-model="isLunarEclipse"
-        class="field--main">
-    </sw-select>
+{% block sw_condition_value_content %}
+    <sw-single-select name="lunar-eclipse"
+                      id="lunar-eclipse"
+                      size="medium"
+                      :options="selectValues"
+                      v-model="isLunarEclipse"
+                      class="field--main">
+    </sw-single-select>
 {% endblock %}
 ```
 
-It uses the previously created computed property `selectValues` as a store and the value is saved into the variable `isLunarEclipse`.
+It uses the previously created computed property `selectValues` as the `options` props and the value is saved into the variable `isLunarEclipse`.
 
 And that's it, your rule is now fully integrated.
 

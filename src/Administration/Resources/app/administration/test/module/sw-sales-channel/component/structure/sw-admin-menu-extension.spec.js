@@ -31,6 +31,9 @@ function createWrapper(privileges = []) {
 
                     return privileges.includes(privilegeKey);
                 }
+            },
+            feature: {
+                isActive: () => true
             }
         },
         mocks: {
@@ -45,6 +48,7 @@ function createWrapper(privileges = []) {
 
 describe('module/sw-sales-channel/component/structure/sw-admin-menu-extension', () => {
     beforeAll(() => {
+        Shopware.Feature.isActive = () => true;
         Shopware.State.get('session').currentUser = {};
         Shopware.Service().register('loginService', () => {
             return {

@@ -8,16 +8,10 @@ use Shopware\Core\Content\Product\Aggregate\ProductFeatureSetTranslation\Product
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSetTranslation\ProductFeatureSetTranslationEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use function Flag\skipTestNext6997;
 
 class ProductFeatureSetTranslationEntityTest extends TestCase
 {
     use KernelTestBehaviour;
-
-    protected function setUp(): void
-    {
-        skipTestNext6997($this);
-    }
 
     public function testEntityDefinitionExists(): void
     {

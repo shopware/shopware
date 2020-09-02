@@ -289,6 +289,16 @@ class CustomerEntity extends Entity
      */
     protected $remoteAddress;
 
+    /**
+     * @var string|null
+     */
+    protected $requestedGroupId;
+
+    /**
+     * @var CustomerGroupEntity|null
+     */
+    protected $requestedGroup;
+
     public function __toString()
     {
         return $this->getFirstName() . ' ' . $this->getLastName();
@@ -825,8 +835,23 @@ class CustomerEntity extends Entity
         $this->remoteAddress = $remoteAddress;
     }
 
-    public function getApiAlias(): string
+    public function getRequestedGroupId(): ?string
     {
-        return 'customer';
+        return $this->requestedGroupId;
+    }
+
+    public function setRequestedGroupId(?string $requestedGroupId): void
+    {
+        $this->requestedGroupId = $requestedGroupId;
+    }
+
+    public function getRequestedGroup(): ?CustomerGroupEntity
+    {
+        return $this->requestedGroup;
+    }
+
+    public function setRequestedGroup(?CustomerGroupEntity $requestedGroup): void
+    {
+        $this->requestedGroup = $requestedGroup;
     }
 }

@@ -3,6 +3,9 @@
 namespace Shopware\Storefront\Page\Account\Order;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Checkout\Cart\Exception\OrderPaidException;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\SalesChannel\AbstractOrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderRouteResponseStruct;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
@@ -80,7 +83,13 @@ class AccountEditOrderPageLoader
 
         $orderRouteResponse = $this->getOrder($request, $salesChannelContext);
 
-        $page->setOrder($orderRouteResponse->getOrders()->first());
+        $order = $orderRouteResponse->getOrders()->first();
+
+        if ($this->isOrderPaid($order)) {
+            throw new OrderPaidException($order->getId());
+        }
+
+        $page->setOrder($order);
 
         $page->setPaymentChangeable($orderRouteResponse->getPaymentChangeable($page->getOrder()->getId()));
 
@@ -152,5 +161,21 @@ class AccountEditOrderPageLoader
             $event->getStoreApiRequest(),
             $context
         )->getPaymentMethods();
+    }
+
+    private function isOrderPaid(OrderEntity $order): bool
+    {
+        $transactions = $order->getTransactions();
+
+        if (!$transactions || $transactions->count() === 0) {
+            return false;
+        }
+
+        $transaction = $transactions->last();
+        if (!$stateMachineState = $transaction->getStateMachineState()) {
+            return false;
+        }
+
+        return $stateMachineState->getTechnicalName() === OrderTransactionStates::STATE_PAID;
     }
 }

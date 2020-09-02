@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Migration\Command;
 
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
-use Shopware\Core\Framework\Plugin\PluginService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -21,20 +20,14 @@ class CreateMigrationCommand extends Command
     private $projectDir;
 
     /**
-     * @var PluginService
-     */
-    private $pluginService;
-
-    /**
      * @var KernelPluginCollection
      */
     private $kernelPluginCollection;
 
-    public function __construct(KernelPluginCollection $kernelPluginCollection, PluginService $pluginService, string $projectDir)
+    public function __construct(KernelPluginCollection $kernelPluginCollection, string $projectDir)
     {
         parent::__construct();
         $this->projectDir = $projectDir;
-        $this->pluginService = $pluginService;
         $this->kernelPluginCollection = $kernelPluginCollection;
     }
 

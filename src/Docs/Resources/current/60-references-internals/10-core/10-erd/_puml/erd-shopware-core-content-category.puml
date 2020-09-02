@@ -37,6 +37,7 @@ Table(ShopwareCoreContentCategoryCategoryDefinition, "category\n(Category tree)"
    path treePath
    childCount childCount
    not_null(type) string
+   not_null(productAssignmentType) string
    visible bool
    active bool
    name translated
@@ -44,9 +45,13 @@ Table(ShopwareCoreContentCategoryCategoryDefinition, "category\n(Category tree)"
    slotConfig translated
    externalLink translated
    description translated
+   metaTitle translated
+   metaDescription translated
+   keywords translated
    cmsPageId foreignKey
+   productStreamId foreignKey
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
    translated json
 }
 TranslationTable(ShopwareCoreContentCategoryAggregateCategoryTranslationCategoryTranslationDefinition, "category_translation\n((Translations))") {
@@ -54,10 +59,13 @@ TranslationTable(ShopwareCoreContentCategoryAggregateCategoryTranslationCategory
    breadcrumb list
    slotConfig json
    externalLink string
-   description longTextWithHtml
+   description longText
+   metaTitle longText
+   metaDescription longText
+   keywords longText
    customFields customFields
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
    primary_key(categoryId) foreignKey
    primary_key(languageId) foreignKey
    primary_key(categoryVersionId) referenceVersion
@@ -75,13 +83,15 @@ ForeignTable(ShopwareCoreContentProductAggregateProductCategoryTreeProductCatego
 }
 ForeignTable(ShopwareCoreContentCmsCmsPageDefinition, "cms_page") {
 }
+ForeignTable(ShopwareCoreContentProductStreamProductStreamDefinition, "product_stream") {
+}
 ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
 }
-ForeignTable(ShopwareCoreFrameworkSeoMainCategoryMainCategoryDefinition, "main_category") {
+ForeignTable(ShopwareCoreContentSeoMainCategoryMainCategoryDefinition, "main_category") {
 }
-ForeignTable(ShopwareCoreFrameworkSeoSeoUrlSeoUrlDefinition, "seo_url") {
+ForeignTable(ShopwareCoreContentSeoSeoUrlSeoUrlDefinition, "seo_url") {
 }
-ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
+ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
 }
 ForeignTable(ShopwareCoreSystemTagTagDefinition, "tag") {
 }
@@ -95,9 +105,10 @@ ShopwareCoreContentCategoryCategoryDefinition --> ShopwareCoreContentProductAggr
 ShopwareCoreContentCategoryCategoryDefinition --> ShopwareCoreContentProductAggregateProductCategoryTreeProductCategoryTreeDefinition
 ShopwareCoreContentCategoryAggregateCategoryTagCategoryTagDefinition --> ShopwareCoreContentCategoryCategoryDefinition
 ShopwareCoreContentCategoryCategoryDefinition --> ShopwareCoreContentCmsCmsPageDefinition
+ShopwareCoreContentCategoryCategoryDefinition --> ShopwareCoreContentProductStreamProductStreamDefinition
 ShopwareCoreContentCategoryCategoryDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
-ShopwareCoreContentCategoryCategoryDefinition --> ShopwareCoreFrameworkSeoMainCategoryMainCategoryDefinition
-ShopwareCoreContentCategoryCategoryDefinition --> ShopwareCoreFrameworkSeoSeoUrlSeoUrlDefinition
-ShopwareCoreContentCategoryAggregateCategoryTranslationCategoryTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
+ShopwareCoreContentCategoryCategoryDefinition --> ShopwareCoreContentSeoMainCategoryMainCategoryDefinition
+ShopwareCoreContentCategoryCategoryDefinition --> ShopwareCoreContentSeoSeoUrlSeoUrlDefinition
+ShopwareCoreContentCategoryAggregateCategoryTranslationCategoryTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
 ShopwareCoreContentCategoryAggregateCategoryTagCategoryTagDefinition --> ShopwareCoreSystemTagTagDefinition
 @enduml

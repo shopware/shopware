@@ -1,0 +1,36 @@
+{% sw_extends 'storefront/component/account/register.html.twig' %}
+
+{% block component_account_register_header %}
+    {% if page.group.translated.registrationTitle is not empty %}
+        <div class="card-title">
+            {{ page.group.translated.registrationTitle }}
+        </div>
+    {% endif %}
+
+    {% if page.group.translated.registrationIntroduction is not empty %}
+        <div class="card-body mb-3">
+            {{ page.group.translated.registrationIntroduction|sw_sanitize }}
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block component_account_register_redirect %}
+    {{ parent() }}
+
+    <input type="hidden" name="requestedGroupId" value="{{ page.group.id }}">
+{% endblock %}
+
+{% block component_account_register_form_action %}
+    <input type="hidden"
+           name="errorRoute"
+           value="frontend.account.customer-group-registration.page"/>
+    <input type="hidden"
+           name="errorParameters"
+           value="{{ errorParameters }}">
+{% endblock %}
+
+{% block component_account_register_personal_address_fields %}
+    {% sw_include '@Storefront/storefront/component/account/customer-group-register-address-form.twig' with {
+        'showBirthdayField': shopware.config.core.loginRegistration.showBirthdayField
+    } %}
+{% endblock %}

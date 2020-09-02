@@ -1,8 +1,10 @@
 import Vue from 'vue';
 
-const { warn } = Shopware.Utils.debug;
+const { warn, error } = Shopware.Utils.debug;
 
 export default class PrivilegesService {
+    alreadyImportedAdminPrivileges = [];
+
     state = Vue.observable({
         privilegesMappings: []
     });
@@ -14,35 +16,27 @@ export default class PrivilegesService {
     ];
 
     /**
+     * Removes all keys from the given array which are not a admin role.
+     *
+     * Example:
+     * product.viewer => Valid
+     * product:read => Invalid
      *
      * @param privileges {Array}
      * @returns {Array}
      */
     filterPrivilegesRoles(privileges) {
-        const filteredPrivileges = [];
+        const onlyRoles = privileges.filter(privilegeKey => this._existsPrivilege(privilegeKey));
 
-        privileges.forEach(privilegeKey => {
-            if (!this.existsPrivilege(privilegeKey)) {
-                return;
-            }
-
-            // avoid duplicates
-            if (filteredPrivileges.includes(privilegeKey)) {
-                return;
-            }
-
-            filteredPrivileges.push(privilegeKey);
-        });
-
-        return filteredPrivileges;
+        return onlyRoles.filter((role, index) => onlyRoles.indexOf(role) === index);
     }
 
     /**
-     *
+     * @private
      * @param privilegeKey {String}
      * @returns {boolean}
      */
-    existsPrivilege(privilegeKey) {
+    _existsPrivilege(privilegeKey) {
         const [key, role] = privilegeKey.split('.');
 
         return this.state.privilegesMappings.some(privilegeMapping => {
@@ -52,10 +46,11 @@ export default class PrivilegesService {
 
     /**
      *
+     * @private
      * @param privilegeKey {String}
      * @returns {Object}
      */
-    getPrivilege(privilegeKey) {
+    _getPrivilege(privilegeKey) {
         const [key, role] = privilegeKey.split('.');
 
         return this.state.privilegesMappings.find(privilegeMapping => {
@@ -71,13 +66,163 @@ export default class PrivilegesService {
     getPrivilegeRole(privilegeKey) {
         const role = privilegeKey.split('.')[1];
 
-        const privilege = this.getPrivilege(privilegeKey);
+        const privilege = this._getPrivilege(privilegeKey);
 
-        if (!privilege) {
-            return undefined;
+        return privilege ? privilege.roles[role] : undefined;
+    }
+
+    /**
+     *
+     * @example
+     * // returns [
+     *      'promotion:read',
+     *      'promotion:update',
+     *      'promotion:create',
+     *      'rule:read',
+     *      'rule:update',
+     *      'rule:create'
+     *    ]
+     * _getPrivilegesWithDependencies('promotion.creator', false);
+     *
+     * @example
+     * // returns [
+     *      'promotion:read',
+     *      'promotion:update',
+     *      'promotion:create',
+     *      'rule:read',
+     *      'rule:update',
+     *      'rule:create',
+     *      'promotion.viewer',
+     *      'promotion.editor',
+     *      'promotion.creator'
+     *    ]
+     * _getPrivilegesWithDependencies('promotion.creator', true);
+     *
+     * @private
+     * @param {string} adminPrivilegeKey
+     * @param {boolean} shouldAddAdminPrivilege
+     * @returns {string[]}
+     */
+    _getPrivilegesWithDependencies(adminPrivilegeKey, shouldAddAdminPrivilege = true) {
+        // check for duplicated calls to prevent infinite loop
+        if (this.alreadyImportedAdminPrivileges.includes(adminPrivilegeKey)) {
+            return [];
+        }
+        this.alreadyImportedAdminPrivileges.push(adminPrivilegeKey);
+
+        /**
+         * Get all privileges (['product:read', fn(), 'product:update', ...])
+         * and dependencies (['product.viewer', ...])
+         */
+        const { privileges, dependencies } = this.getPrivilegeRole(adminPrivilegeKey);
+
+        /**
+         * Resolve all privileges for dependencies
+         */
+        const dependenciesPrivileges = dependencies.reduce((acc, dependencyKey) => {
+            return [
+                ...acc,
+                ...this._getPrivilegesWithDependencies(dependencyKey, shouldAddAdminPrivilege)
+            ];
+        }, []);
+
+        /**
+         * Look in privileges for the getPrivileges() method. If found then it
+         * will be recursively resolved and the returned privileges are added
+         */
+        const resolvedPrivileges = privileges.reduce((acc, privilege) => {
+            if (typeof privilege === 'function') {
+                return [...acc, ...privilege()];
+            }
+
+            return [...acc, privilege];
+        }, []);
+
+        /**
+         * Combine privileges and privileges of dependencies
+         */
+        const collectedPrivileges = [
+            ...resolvedPrivileges,
+            ...dependenciesPrivileges
+        ];
+
+        /**
+         * Only add adminPrivilege if wanted
+         */
+        if (shouldAddAdminPrivilege) {
+            collectedPrivileges.push(adminPrivilegeKey);
         }
 
-        return privilege.roles[role];
+        return collectedPrivileges;
+    }
+
+    /**
+     *
+     * Use this method directly in privilegeMappingEntries. Then it will
+     * automatically get all privileges dynamically from the other adminRole.
+     *
+     * @usage
+     * Shopware.Service('privileges').addPrivilegeMappingEntry({
+     *     category: 'permissions',
+     *     parent: null,
+     *
+     *     key: 'product',
+     *     roles: {
+     *         viewer: {
+     *             privileges: [
+     *                 'product.read',
+     *                 Shopware.Service('privileges').getPrivileges('rule.viewer')
+     *             ],
+     *             dependencies: []
+     *         }
+     *     }
+     * })
+     *
+     * @example
+     * // returns "() => this._getPrivilegesWithDependencies('rule.creator', false)"
+     * getPrivileges('rule.editor')
+     *
+     * @param privilegeKey {string}
+     * @returns {function(): string[]}
+     */
+    getPrivileges(privilegeKey) {
+        return () => this._getPrivilegesWithDependencies(privilegeKey, false);
+    }
+
+    /**
+     * This method gets all privileges for the given admin identifier
+     *
+     * @example
+     * // return [
+     *      'product.viewer',
+     *      'product.editor',
+     *      'product.creator',
+     *      'product:read',
+     *      'product:update',
+     *      'promotion.viewer',
+     *      'promotion:read',
+     *      'rule:read'
+     *      ...
+     *    ]
+     * getPrivilegesForAdminPrivilegeKeys(['promotion.viewer', 'product.creator'])
+     *
+     * @param adminPrivileges {string[]}
+     * @returns {string[]}
+     */
+    getPrivilegesForAdminPrivilegeKeys(adminPrivileges) {
+        // reset the global state
+        this.alreadyImportedAdminPrivileges = [];
+
+        const allPrivileges = adminPrivileges.reduce((acc, adminPrivilegeKey) => {
+            const privileges = this._getPrivilegesWithDependencies(adminPrivilegeKey);
+
+            return [...acc, adminPrivilegeKey, ...privileges];
+        }, []);
+
+        return [
+            // convert to Set and back to Array to remove duplicates
+            ...new Set([...allPrivileges, ...this.getRequiredPrivileges()])
+        ].sort();
     }
 
     /**
@@ -120,6 +265,24 @@ export default class PrivilegesService {
         }
 
         this.state.privilegesMappings.push(privilegeMapping);
+
+        return this;
+    }
+
+    /**
+     *
+     * @returns {PrivilegesService}
+     * @param privilegeMappings {Object[]}
+     */
+    addPrivilegeMappingEntries(privilegeMappings) {
+        if (!Array.isArray(privilegeMappings)) {
+            error('addPrivilegeMappingEntries', 'The privilegeMappings must be an array.');
+            return this;
+        }
+
+        privilegeMappings.forEach((privilegeMapping) => {
+            this.addPrivilegeMappingEntry(privilegeMapping);
+        });
 
         return this;
     }

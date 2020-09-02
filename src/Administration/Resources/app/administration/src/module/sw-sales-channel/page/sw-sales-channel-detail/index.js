@@ -156,7 +156,6 @@ Component.register('sw-sales-channel-detail', {
             this.loadCustomFieldSets();
         },
 
-
         loadSalesChannel() {
             this.isLoading = true;
             this.salesChannelRepository

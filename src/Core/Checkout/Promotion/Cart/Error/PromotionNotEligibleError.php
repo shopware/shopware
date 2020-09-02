@@ -22,6 +22,11 @@ class PromotionNotEligibleError extends Error
         parent::__construct($this->message);
     }
 
+    public function isPersistent(): bool
+    {
+        return false;
+    }
+
     public function getId(): string
     {
         return self::KEY;

@@ -33,6 +33,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deprecated;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
@@ -61,13 +62,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationFi
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\WhitelistRuleField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeDefinition;
 use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
 use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\System\Unit\UnitDefinition;
-use function Flag\next6997;
 
 class ProductDefinition extends EntityDefinition
 {
@@ -138,9 +139,9 @@ class ProductDefinition extends EntityDefinition
 
             (new StringField('display_group', 'displayGroup'))->addFlags(new WriteProtected()),
             (new JsonField('configurator_group_config', 'configuratorGroupConfig'))->addFlags(new ReadProtected(SalesChannelApiSource::class), new Inherited()),
-            (new FkField('main_variant_id', 'mainVariantId', ProductDefinition::class)),
+            (new FkField('main_variant_id', 'mainVariantId', ProductDefinition::class))->addFlags(new Inherited()),
             (new JsonField('variant_restrictions', 'variantRestrictions'))->addFlags(new ReadProtected(SalesChannelApiSource::class)),
-            (new StringField('manufacturer_number', 'manufacturerNumber'))->addFlags(new Inherited()),
+            (new StringField('manufacturer_number', 'manufacturerNumber'))->addFlags(new Inherited(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             (new StringField('ean', 'ean'))->addFlags(new Inherited(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             (new IntField('purchase_steps', 'purchaseSteps', 1))->addFlags(new Inherited()),
             (new IntField('max_purchase', 'maxPurchase'))->addFlags(new Inherited()),
@@ -148,7 +149,7 @@ class ProductDefinition extends EntityDefinition
             (new FloatField('purchase_unit', 'purchaseUnit'))->addFlags(new Inherited()),
             (new FloatField('reference_unit', 'referenceUnit'))->addFlags(new Inherited()),
             (new BoolField('shipping_free', 'shippingFree'))->addFlags(new Inherited()),
-            (new FloatField('purchase_price', 'purchasePrice'))->addFlags(new Inherited()),
+            (new FloatField('purchase_price', 'purchasePrice'))->addFlags(new Inherited(), new Deprecated('v3', 'v4')),
             (new BoolField('mark_as_topseller', 'markAsTopseller'))->addFlags(new Inherited()),
             (new FloatField('weight', 'weight'))->addFlags(new Inherited()),
             (new FloatField('width', 'width'))->addFlags(new Inherited()),
@@ -164,6 +165,7 @@ class ProductDefinition extends EntityDefinition
             new ChildCountField(),
             (new BlacklistRuleField())->addFlags(new ReadProtected(SalesChannelApiSource::class)),
             (new WhitelistRuleField())->addFlags(new ReadProtected(SalesChannelApiSource::class)),
+            (new BoolField('custom_field_set_selection_active', 'customFieldSetSelectionActive'))->addFlags(new Inherited()),
 
             (new TranslatedField('metaDescription'))->addFlags(new Inherited()),
             (new TranslatedField('name'))->addFlags(new Inherited(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
@@ -232,13 +234,13 @@ class ProductDefinition extends EntityDefinition
                 ->addFlags(new CascadeDelete(), new Inherited()),
 
             (new ManyToManyAssociationField('categories', CategoryDefinition::class, ProductCategoryDefinition::class, 'product_id', 'category_id'))
-                ->addFlags(new CascadeDelete(), new Inherited()),
+                ->addFlags(new CascadeDelete(), new Inherited(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
 
             (new ManyToManyAssociationField('categoriesRo', CategoryDefinition::class, ProductCategoryTreeDefinition::class, 'product_id', 'category_id'))
                 ->addFlags(new CascadeDelete(false), new WriteProtected()),
 
             (new ManyToManyAssociationField('tags', TagDefinition::class, ProductTagDefinition::class, 'product_id', 'tag_id'))
-                ->addFlags(new CascadeDelete(), new Inherited()),
+                ->addFlags(new CascadeDelete(), new Inherited(), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
 
             (new TranslationsAssociationField(ProductTranslationDefinition::class, 'product_id'))
                 ->addFlags(new Inherited(), new Required()),
@@ -251,14 +253,18 @@ class ProductDefinition extends EntityDefinition
             (new ListField('variation', 'variation', StringField::class))->addFlags(new Runtime())
         );
 
-        if (next6997()) {
+        $collection->add(
+            (new FkField('product_feature_set_id', 'featureSetId', ProductFeatureSetDefinition::class))
+                ->addFlags(new Inherited())
+        );
+        $collection->add(
+            (new ManyToOneAssociationField('featureSet', 'product_feature_set_id', ProductFeatureSetDefinition::class, 'id'))
+                ->addFlags(new Inherited())
+        );
+
+        if (Feature::isActive('FEATURE_NEXT_9825')) {
             $collection->add(
-                (new FkField('product_feature_set_id', 'featureSetId', ProductFeatureSetDefinition::class))
-                    ->addFlags(new Inherited())
-            );
-            $collection->add(
-                (new ManyToOneAssociationField('featureSet', 'product_feature_set_id', ProductFeatureSetDefinition::class, 'id'))
-                    ->addFlags(new Inherited())
+                (new PriceField('purchase_prices', 'purchasePrices'))->addFlags(new Inherited())
             );
         }
 

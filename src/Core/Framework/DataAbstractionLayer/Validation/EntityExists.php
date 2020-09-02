@@ -16,7 +16,7 @@ class EntityExists extends Constraint
 {
     public const ENTITY_DOES_NOT_EXISTS = 'f1e5c873-5baf-4d5b-8ab7-e422bfce91f1';
 
-    public $message = 'The {{ entity }} entity with id {{ id }} does not exists.';
+    public $message = 'The {{ entity }} entity with {{ primaryProperty }} {{ id }} does not exists.';
 
     /**
      * @var string
@@ -32,6 +32,11 @@ class EntityExists extends Constraint
      * @var Criteria
      */
     public $criteria;
+
+    /**
+     * @var string
+     */
+    public $primaryProperty = 'id';
 
     protected static $errorNames = [
         self::ENTITY_DOES_NOT_EXISTS => 'ENTITY_DOES_NOT_EXISTS',
@@ -72,5 +77,10 @@ class EntityExists extends Constraint
     public function getCriteria(): Criteria
     {
         return $this->criteria;
+    }
+
+    public function getPrimaryProperty(): string
+    {
+        return $this->primaryProperty;
     }
 }

@@ -32,7 +32,9 @@
         {% block sw_settings_shipping_list_smart_bar_actions %}
             <template slot="smart-bar-actions">
                 {% block sw_settings_shipping_list_smart_bar_actions_add %}
-                    <sw-button :routerLink="{ name: 'sw.settings.shipping.create' }" variant="primary">
+                    <sw-button :routerLink="{ name: 'sw.settings.shipping.create' }"
+                               :disabled="!acl.can('shipping.creator')"
+                               variant="primary">
                         {{ $tc('sw-settings-shipping.list.buttonAddShippingMethod') }}
                     </sw-button>
                 {% endblock %}
@@ -59,6 +61,8 @@
                                                :showSelection="false"
                                                :showSettings="true"
                                                :allowInlineEdit="false"
+                                               :allowEdit="acl.can('shipping.editor')"
+                                               :allowDelete="acl.can('shipping.deleter')"
                                                :isLoading="isLoading">
                             {% block sw_setting_shipping_list_grid_columns %}
                                 {% block sw_settings_shipping_list_grid_columns_active %}
@@ -83,13 +87,16 @@
                                         {% block sw_settings_shipping_list_grid_columns_actions_edit %}
                                             <sw-context-menu-item
                                                 :routerLink="{ name: 'sw.settings.shipping.detail', params: { id: item.id, edit: 'edit' }}"
+                                                :disabled="!acl.can('shipping.editor')"
                                                 class="sw-settings-shipping-list__edit-action">
                                                 {{ $tc('sw-settings-shipping.list.contextMenuEdit') }}
                                             </sw-context-menu-item>
                                         {% endblock %}
 
                                         {% block sw_settings_shipping_list_grid_columns_actions_delete %}
-                                            <sw-context-menu-item variant="danger" @click="onDelete(item.id)">
+                                            <sw-context-menu-item variant="danger"
+                                                                  @click="onDelete(item.id)"
+                                                                  :disabled="!acl.can('shipping.deleter')">
                                                 {{ $tc('sw-settings-shipping.list.contextMenuDelete') }}
                                             </sw-context-menu-item>
                                         {% endblock %}

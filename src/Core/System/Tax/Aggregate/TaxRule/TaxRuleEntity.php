@@ -131,9 +131,4 @@ class TaxRuleEntity extends Entity
     {
         $this->data = $data;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'tax_rule';
-    }
 }

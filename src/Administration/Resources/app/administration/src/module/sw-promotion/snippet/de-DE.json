@@ -211,5 +211,12 @@
         }
       }
     }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "promotion": {
+        "label": "Rabatte & Aktionen"
+      }
+    }
   }
 }

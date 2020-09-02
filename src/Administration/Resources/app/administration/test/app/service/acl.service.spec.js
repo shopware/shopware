@@ -2,7 +2,11 @@ import AclService from 'src/app/service/acl.service';
 
 describe('src/app/service/acl.service.js', () => {
     beforeAll(() => {
-        Shopware.FeatureConfig.isActive = () => true;
+        Shopware.Service().register('feature', () => {
+            return {
+                isActive: () => true
+            };
+        });
     });
 
     beforeEach(() => {

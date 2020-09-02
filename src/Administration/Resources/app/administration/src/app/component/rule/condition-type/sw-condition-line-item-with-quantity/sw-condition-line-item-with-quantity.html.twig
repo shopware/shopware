@@ -1,9 +1,10 @@
 {% block sw_condition_value_content %}
     <div class="sw-condition-line-item-with-quantity">
         {% block sw_condition_line_item_with_quantity_field_product %}
-            <sw-arrow-field>
+            <sw-arrow-field :disabled="disabled">
                 <sw-entity-single-select
                         entity="product"
+                        :disabled="disabled"
                         :value="initialProduct"
                         size="medium"
                         v-model="id">
@@ -12,11 +13,14 @@
         {% endblock %}
 
         {% block sw_condition_line_item_with_quantity_field_operator %}
-            <sw-condition-operator-select v-bind="{ operators, condition }"></sw-condition-operator-select>
+            <sw-condition-operator-select v-bind="{ operators, condition }"
+                                          :disabled="disabled">
+            </sw-condition-operator-select>
         {% endblock %}
 
         {% block sw_condition_line_item_with_quantity_field_quantity %}
             <sw-number-field
+                :disabled="disabled"
                 size="medium"
                 :step="1"
                 v-model="quantity">

@@ -161,9 +161,18 @@ class ProductEntity extends Entity
     protected $shippingFree;
 
     /**
+     * @deprecated tag:v6.4.0 use $purchasePrices instead
+     *
      * @var float|null
      */
     protected $purchasePrice;
+
+    /**
+     * @internal (flag:FEATURE_NEXT_9825)
+     *
+     * @var PriceCollection|null
+     */
+    protected $purchasePrices;
 
     /**
      * @var bool|null
@@ -435,6 +444,11 @@ class ProductEntity extends Entity
      */
     protected $featureSet;
 
+    /**
+     * @var bool|null
+     */
+    protected $customFieldSetSelectionActive;
+
     public function __construct()
     {
         $this->prices = new ProductPriceCollection();
@@ -624,14 +638,36 @@ class ProductEntity extends Entity
         $this->shippingFree = $shippingFree;
     }
 
+    /**
+     * @deprecated tag:v6.4.0 use getPurchasePrices() instead
+     */
     public function getPurchasePrice(): ?float
     {
         return $this->purchasePrice;
     }
 
+    /**
+     * @deprecated tag:v6.4.0 use setPurchasePrices() instead
+     */
     public function setPurchasePrice(?float $purchasePrice): void
     {
         $this->purchasePrice = $purchasePrice;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_9825)
+     */
+    public function getPurchasePrices(): ?PriceCollection
+    {
+        return $this->purchasePrices;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_9825)
+     */
+    public function setPurchasePrices(?PriceCollection $purchasePrices): void
+    {
+        $this->purchasePrices = $purchasePrices;
     }
 
     public function getMarkAsTopseller(): ?bool
@@ -1281,8 +1317,13 @@ class ProductEntity extends Entity
         $this->featureSet = $featureSet;
     }
 
-    public function getApiAlias(): string
+    public function getCustomFieldSetSelectionActive(): ?bool
     {
-        return 'product';
+        return $this->customFieldSetSelectionActive;
+    }
+
+    public function setCustomFieldSetSelectionActive(?bool $customFieldSetSelectionActive): void
+    {
+        $this->customFieldSetSelectionActive = $customFieldSetSelectionActive;
     }
 }

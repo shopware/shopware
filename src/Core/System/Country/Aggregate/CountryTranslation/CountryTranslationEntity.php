@@ -66,9 +66,4 @@ class CountryTranslationEntity extends TranslationEntity
     {
         $this->customFields = $customFields;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'country_translation';
-    }
 }

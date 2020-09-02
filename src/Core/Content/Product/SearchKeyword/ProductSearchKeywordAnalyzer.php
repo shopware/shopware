@@ -32,7 +32,7 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
             }
         }
 
-        if ($product->getManufacturer()) {
+        if ($product->getManufacturer() && $product->getManufacturer()->getTranslation('name') !== null) {
             $keywords->add(new AnalyzedKeyword((string) $product->getManufacturer()->getTranslation('name'), 500));
         }
         if ($product->getManufacturerNumber()) {

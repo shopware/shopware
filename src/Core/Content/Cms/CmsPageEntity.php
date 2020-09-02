@@ -207,9 +207,4 @@ class CmsPageEntity extends Entity
 
         return $elements;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'cms_page';
-    }
 }

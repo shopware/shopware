@@ -10,6 +10,7 @@ use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductListingStruct;
 use Shopware\Core\Content\Product\SalesChannel\Listing\AbstractProductListingRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -43,6 +44,11 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
         $request = $resolverContext->getRequest();
         $context = $resolverContext->getSalesChannelContext();
 
+        if (Feature::isActive('FEATURE_NEXT_5983')) {
+            $this->addDefaultSorting($request, $slot);
+            $this->restrictSortings($request, $slot);
+        }
+
         $navigationId = $this->getNavigationId($request, $context);
 
         $criteria = new Criteria();
@@ -68,5 +74,29 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
         }
 
         return $salesChannelContext->getSalesChannel()->getNavigationCategoryId();
+    }
+
+    private function addDefaultSorting(Request $request, CmsSlotEntity $slot): void
+    {
+        if ($request->get('order')) {
+            return;
+        }
+
+        $config = $slot->getTranslation('config');
+
+        if ($config && isset($config['defaultSorting'])) {
+            $request->request->set('order', $config['defaultSorting']);
+        }
+    }
+
+    private function restrictSortings(Request $request, CmsSlotEntity $slot): void
+    {
+        $config = $slot->getTranslation('config');
+
+        if (!$config || !isset($config['availableSortings']) || !isset($config['availableSortings']['value'])) {
+            return;
+        }
+
+        $request->request->set('availableSortings', $config['availableSortings']['value']);
     }
 }

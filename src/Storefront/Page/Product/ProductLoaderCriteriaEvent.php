@@ -7,6 +7,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @deprecated tag:v6.4.0 - Use `ProductPageCriteriaEvent` or `MinimalQuickViewPageCriteriaEvent` event instead
+ */
 class ProductLoaderCriteriaEvent extends NestedEvent
 {
     /**

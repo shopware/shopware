@@ -28,6 +28,8 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
 
     public const COUNTRY_STATE_ID = 'countryStateId';
 
+    public const VERSION_ID = 'version-id';
+
     public const PERMISSIONS = 'permissions';
 
     /**

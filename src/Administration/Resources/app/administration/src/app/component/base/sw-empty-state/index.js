@@ -20,6 +20,11 @@ Component.register('sw-empty-state', {
             default: '',
             required: false
         },
+        showDescription: {
+            type: Boolean,
+            default: true,
+            required: false
+        },
         color: {
             type: String,
             default: '',
@@ -28,6 +33,11 @@ Component.register('sw-empty-state', {
         icon: {
             type: String,
             default: '',
+            required: false
+        },
+        absolute: {
+            type: Boolean,
+            default: true,
             required: false
         }
     },
@@ -47,6 +57,12 @@ Component.register('sw-empty-state', {
 
         hasActionSlot() {
             return !!this.$slots.actions;
+        },
+
+        classes() {
+            return {
+                'sw-empty-state--absolute': this.absolute
+            };
         }
     }
 });

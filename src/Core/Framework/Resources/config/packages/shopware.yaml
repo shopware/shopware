@@ -51,3 +51,11 @@ shopware:
     media:
         enable_url_upload_feature: true
         enable_url_validation: true
+
+    feature:
+        flags:
+            - FEATURE_NEXT_1797
+            - FEATURE_NEXT_3722
+            - FEATURE_NEXT_5983
+            - FEATURE_NEXT_10286
+            - FEATURE_NEXT_9825

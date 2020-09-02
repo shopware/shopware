@@ -42,7 +42,7 @@
                       content="{{ shopware.theme['sw-logo-desktop'] }}"/>
 
                 <meta name="twitter:card"
-                      content="website"/>
+                      content="summary"/>
                 <meta name="twitter:site"
                       content="{{ basicConfig.shopName }}"/>
                 <meta name="twitter:title"
@@ -109,6 +109,10 @@
                       href="{{ asset(file, 'theme') }}">
                 {% endfor %}
             {% endif %}
+        {% endblock %}
+
+        {% block layout_head_javascript_feature %}
+            {% sw_include "@Storefront/storefront/component/feature.html.twig" %}
         {% endblock %}
 
         {# Block for tracking scripts which are required to include in the `head` section of the document #}

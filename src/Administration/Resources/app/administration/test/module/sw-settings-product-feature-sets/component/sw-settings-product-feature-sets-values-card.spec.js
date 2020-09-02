@@ -4,8 +4,6 @@ import 'src/module/sw-settings-product-feature-sets/component/sw-settings-produc
 import 'src/app/component/base/sw-card';
 import 'src/app/component/data-grid/sw-data-grid';
 
-// TODO: Remove skip from tests, once the FEATURE_NEXT_6997 flag is removed
-
 describe('src/module/sw-settings-product-feature-sets/component/sw-settings-product-feature-sets-values-card', () => {
     let wrapper;
 
@@ -104,15 +102,15 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
         wrapper.destroy();
     });
 
-    it.skip('should be able to instantiate', () => {
+    it('should be able to instantiate', () => {
         expect(wrapper.isVueInstance()).toBeTruthy();
     });
 
-    it.skip('has the correct class', () => {
+    it('has the correct class', () => {
         expect(wrapper.classes()).toContain(classes.componentRoot);
     });
 
-    it.skip('shows a list of features', () => {
+    it('shows a list of features', () => {
         const root = findSecure(wrapper, `.${classes.componentRoot}`);
         const list = findSecure(root, `.${classes.valueList}`);
         const header = findSecure(list, `.${classes.valueListHeader}`);

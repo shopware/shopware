@@ -1,7 +1,7 @@
 {% sw_extends '@Storefront/storefront/page/checkout/checkout-item.html.twig' %}
 
 {% block page_checkout_item_unit_price %}
-    {# display tax instead of unit price in confirm item #}
+    {# display tax instead of item price in confirm item #}
     {% block page_checkout_item_tax_price %}
         {% if context.salesChannel.taxCalculationType == 'horizontal' %}
             <div class="col-12 col-sm-4 col-md-2 cart-item-tax-price">

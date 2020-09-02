@@ -81,7 +81,7 @@
                         {% endblock %}
 
                         <template v-else-if="!isResultEmpty()"
-                                  v-for="entity,column in results">
+                                  v-for="(entity, column) in results">
                             {% block sw_search_bar_results_list %}
                                 <div class="sw-search-bar__results-column">
                                     {% block sw_search_bar_results_list_column %}
@@ -105,7 +105,7 @@
                                         {% endblock %}
                                         <ul class="sw-search-bar__results-list">
                                             <sw-search-bar-item
-                                                    v-for="item,index in entity.entities"
+                                                    v-for="(item, index) in Object.values(entity.entities)"
                                                     :item="item"
                                                     :type="entity.entity"
                                                     :searchTerm="searchTerm"
@@ -137,7 +137,7 @@
                 {% block sw_search_bar_types_container %}
                     <div v-if="showTypeSelectContainer"
                          class="sw-search-bar__types_container">
-                            <div v-for="type,index in typeSelectResults"
+                            <div v-for="(type, index) in typeSelectResults"
                                  class="sw-search-bar__type-item"
                                  :class="{ 'is--active': activeTypeListIndex === index }"
                                  :style="{ 'border-color': getEntityIconColor(type.entityName) }"

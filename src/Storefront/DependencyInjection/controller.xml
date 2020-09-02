@@ -81,7 +81,6 @@
             <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderService"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\PaymentService"/>
             <argument type="service" id="Shopware\Storefront\Page\Checkout\Offcanvas\OffcanvasCartPageLoader"/>
-            <argument type="service" id="order.repository"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -173,12 +172,12 @@
 
         <service id="Shopware\Storefront\Controller\RegisterController">
             <argument type="service" id="Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountRegistrationService"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
             <argument type="service" id="Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoader"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="customer.repository"/>
+            <argument type="service" id="Shopware\Storefront\Page\Account\CustomerGroupRegistration\CustomerGroupRegistrationPageLoader"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -200,7 +199,7 @@
         </service>
 
         <service id="Shopware\Storefront\Page\Product\Review\ProductReviewLoader">
-            <argument type="service" id="product_review.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRoute"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
 

@@ -18,6 +18,26 @@ $sw-seo-url-template-card-font-size-preview: $font-size-small;
         .sw-field {
             margin-bottom: 0;
         }
+
+        .sw-field__addition .sw-icon {
+            width: $font-size-default;
+            height: $font-size-default;
+            line-height: $font-size-default;
+
+            &.icon--default {
+                &-basic-checkmark-line {
+                    color: $color-emerald;
+                }
+
+                &-badge-warning {
+                    color: $color-pumpkin-spice;
+                }
+
+                &-basic-x-line {
+                    color: $color-crimson;
+                }
+            }
+        }
     }
 
     .sw-seo-url-template-card__preview {

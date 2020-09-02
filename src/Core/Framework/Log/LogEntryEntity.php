@@ -83,9 +83,4 @@ class LogEntryEntity extends Entity
     {
         $this->extra = $extra;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'dal_log_entry';
-    }
 }

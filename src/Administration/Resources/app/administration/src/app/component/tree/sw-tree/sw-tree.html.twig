@@ -16,7 +16,9 @@
             <slot name="headline">
                 <div v-if="checkedElementsCount > 0" class="sw-tree-actions__headline">
                     <span> {{ $tc(`${translationContext}.general.treeHeadSelected`, 0, { count: checkedElementsCount }) }}:</span>
-                    <sw-button @click="onDeleteElements(null)"
+                    <sw-button class="sw-tree-actions__delete_categories"
+                               @click="onDeleteElements(null)"
+                               :disabled="!allowDeleteCategories"
                                variant="danger"
                                size="small">
                         {{ $tc('global.default.delete') }}
@@ -43,6 +45,7 @@
                             :checkItem="checkItem"
                             :translationContext="translationContext"
                             :onChangeRoute="onChangeRoute"
+                            :sortable="sortable"
                             :disableContextMenu="disableContextMenu">
                             {% block sw_tree_slot_items %}
                                 <sw-tree-item

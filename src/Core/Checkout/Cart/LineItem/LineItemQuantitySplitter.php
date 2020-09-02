@@ -30,7 +30,7 @@ class LineItemQuantitySplitter
         // clone the original line item
         $tmpItem = LineItem::createFromLineItem($item);
 
-        // use calculated unit price
+        // use calculated item price
         $unitPrice = $tmpItem->getPrice()->getUnitPrice();
 
         $taxRules = $tmpItem->getPrice()->getTaxRules();

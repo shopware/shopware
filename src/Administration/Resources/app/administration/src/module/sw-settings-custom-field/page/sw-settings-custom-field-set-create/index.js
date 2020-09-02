@@ -1,5 +1,4 @@
 import template from './sw-settings-custom-field-set-create.html.twig';
-import './sw-settings-custom-field-set-create.scss';
 
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;

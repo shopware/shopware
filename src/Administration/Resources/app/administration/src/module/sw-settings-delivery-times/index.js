@@ -2,6 +2,8 @@ import './page/sw-settings-delivery-time-list';
 import './page/sw-settings-delivery-time-detail';
 import './page/sw-settings-delivery-time-create';
 
+import './acl';
+
 const { Module } = Shopware;
 
 Module.register('sw-settings-delivery-time', {
@@ -19,21 +21,24 @@ Module.register('sw-settings-delivery-time', {
             component: 'sw-settings-delivery-time-list',
             path: 'index',
             meta: {
-                parentPath: 'sw.settings.index'
+                parentPath: 'sw.settings.index',
+                privilege: 'delivery_times.viewer'
             }
         },
         detail: {
             component: 'sw-settings-delivery-time-detail',
             path: 'detail/:id',
             meta: {
-                parentPath: 'sw.settings.delivery.time.index'
+                parentPath: 'sw.settings.delivery.time.index',
+                privilege: 'delivery_times.viewer'
             }
         },
         create: {
             component: 'sw-settings-delivery-time-create',
             path: 'create',
             meta: {
-                parentPath: 'sw.settings.delivery.time.index'
+                parentPath: 'sw.settings.delivery.time.index',
+                privilege: 'delivery_times.creator'
             }
         }
     },
@@ -41,6 +46,7 @@ Module.register('sw-settings-delivery-time', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.delivery.time.index',
-        icon: 'default-time-clock'
+        icon: 'default-time-clock',
+        privilege: 'delivery_times.viewer'
     }
 });

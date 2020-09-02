@@ -32,9 +32,11 @@ class NewsletterUpdateEvent extends Event implements MailActionInterface
     private $mailRecipientStruct;
 
     /**
+     * @deprecated tag:v6.4.0 - Will be removed without replacement as the property is never written
+     *
      * @var string
      */
-    private $url;
+    private $url = '';
 
     /**
      * @var string
@@ -69,6 +71,9 @@ class NewsletterUpdateEvent extends Event implements MailActionInterface
         return $this->newsletterRecipient;
     }
 
+    /**
+     * @deprecated tag:v6.4.0 - Will be removed without replacement as the property is never written
+     */
     public function getUrl(): string
     {
         return $this->url;

@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerEvents;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -20,6 +21,7 @@ use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -104,11 +106,17 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
 
         $validation = $this->customerProfileValidationFactory->update($context);
 
+        if ($data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
+            $validation->add('company', new NotBlank());
+        } else {
+            $data->set('company', '');
+        }
+
         $this->dispatchValidationEvent($validation, $context->getContext());
 
         $this->validator->validate($data->all(), $validation);
 
-        $customer = $data->only('firstName', 'lastName', 'salutationId', 'title');
+        $customer = $data->only('firstName', 'lastName', 'salutationId', 'title', 'company');
 
         if ($birthday = $this->getBirthday($data)) {
             $customer['birthday'] = $birthday;

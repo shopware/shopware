@@ -15,7 +15,7 @@
         <parameter key="shopware.routing.registered_api_prefixes" type="collection"/>
 
         <!-- Migration config -->
-        <parameter key="core.migration.directories" type="collection" />
+        <parameter key="core.migration.directories" type="collection"/>
         <parameter key="migration.active" type="collection"/>
 
         <parameter key="shopware.security.csp_templates" type="collection">
@@ -29,7 +29,7 @@ object-src 'none';
 script-src 'strict-dynamic' 'nonce-%%nonce%%' 'unsafe-inline' 'unsafe-eval' https: http:;
 base-uri 'self';
             </parameter>
-            <parameter key="storefront" />
+            <parameter key="storefront"/>
         </parameter>
     </parameters>
 
@@ -37,9 +37,9 @@ base-uri 'self';
         <monolog:channel>business_events</monolog:channel>
 
         <monolog:handler
-                name="business_event_handler_buffer"
-                type="buffer"
-                handler="business_event_handler">
+            name="business_event_handler_buffer"
+            type="buffer"
+            handler="business_event_handler">
             <monolog:channels>
                 <monolog:channel>business_events</monolog:channel>
             </monolog:channels>
@@ -86,17 +86,17 @@ base-uri 'self';
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
-
-
         <!-- Migration -->
-        <service id="Shopware\Core\Framework\Migration\MigrationSource.core" class="Shopware\Core\Framework\Migration\MigrationSource">
+        <service id="Shopware\Core\Framework\Migration\MigrationSource.core"
+                 class="Shopware\Core\Framework\Migration\MigrationSource">
             <argument type="string">core</argument>
             <tag name="shopware.migration_source"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Migration\MigrationSource.null" class="Shopware\Core\Framework\Migration\MigrationSource">
+        <service id="Shopware\Core\Framework\Migration\MigrationSource.null"
+                 class="Shopware\Core\Framework\Migration\MigrationSource">
             <argument type="string">null</argument>
-            <argument type="collection" />
+            <argument type="collection"/>
 
             <tag name="shopware.migration_source"/>
         </service>
@@ -114,7 +114,6 @@ base-uri 'self';
 
         <service id="Shopware\Core\Framework\Migration\Command\CreateMigrationCommand">
             <argument type="service" id="Shopware\Core\Framework\Plugin\KernelPluginCollection"/>
-            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginService"/>
             <argument>%kernel.project_dir%</argument>
 
             <tag name="console.command"/>
@@ -228,10 +227,19 @@ base-uri 'self';
         <service id="Shopware\Core\System\Snippet\Files\SnippetFileLoader">
             <argument type="service" id="kernel"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\System\Snippet\Files\AppSnippetFileLoader" on-invalid="null"/>
+            <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader" on-invalid="null"/>
         </service>
 
-        <service id="Shopware\Core\System\Snippet\Files\SnippetFileCollection" public="true">
-            <factory service="Shopware\Core\System\Snippet\Files\SnippetFileCollectionFactory" method="createSnippetFileCollection"/>
+        <service id="Shopware\Core\System\Snippet\Files\AppSnippetFileLoader">
+            <argument>%kernel.project_dir%</argument>
+
+            <tag name="shopware.feature" flag="FEATURE_NEXT_10286"/>
+        </service>
+
+        <service id="Shopware\Core\System\Snippet\Files\SnippetFileCollection" public="true" lazy="true">
+            <factory service="Shopware\Core\System\Snippet\Files\SnippetFileCollectionFactory"
+                     method="createSnippetFileCollection"/>
         </service>
 
         <service id="Shopware\Core\System\Snippet\Files\SnippetFileCollectionFactory">
@@ -277,7 +285,8 @@ base-uri 'self';
             <argument type="service" id="twig"/>
             <argument type="service" id="twig.loader"/>
             <argument>%kernel.cache_dir%</argument>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder"/>
+            <argument type="service"
+                      id="Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder"/>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder">
@@ -286,6 +295,7 @@ base-uri 'self';
 
         <service id="Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\BundleHierarchyBuilder">
             <argument type="service" id="kernel"/>
+            <argument type="service" id="app.repository" on-invalid="null"/>
 
             <tag name="shopware.twig.hierarchy_builder" priority="1000"/>
         </service>
@@ -329,9 +339,28 @@ base-uri 'self';
             <argument type="service" id="twig"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Adapter\Twig\TemplateIterator" decorates="twig.template_iterator" public="true">
+        <service id="Shopware\Core\Framework\Adapter\Twig\TemplateIterator"
+                 decorates="twig.template_iterator"
+                 public="true">
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\TemplateIterator.inner"/>
             <argument>%kernel.bundles%</argument>
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Twig\EntityTemplateLoader">
+            <argument type="service" id="app_template.repository"/>
+
+            <tag name="twig.loader"/>
+            <tag name="kernel.event_subscriber"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_10286"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Twig\AppTemplateIterator"
+                 decorates="twig.template_iterator"
+                 public="true">
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\AppTemplateIterator.inner"/>
+            <argument type="service" id="app_template.repository"/>
+
+            <tag name="shopware.feature" flag="FEATURE_NEXT_10286"/>
         </service>
 
         <service id="Shopware\Core\Framework\Routing\ApiRequestContextResolver">
@@ -358,7 +387,6 @@ base-uri 'self';
             <argument type="service" id="sales_channel.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
-            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
             <argument type="service" id="Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
             <argument type="service" id="event_dispatcher"/>
@@ -403,31 +431,22 @@ base-uri 'self';
             <tag name="shopware.entity.definition"/>
         </service>
 
-        <!-- Feature Flags -->
-        <service id="Shopware\Core\Framework\FeatureFlag\FeatureFlagGenerator"/>
-
-        <service id="Shopware\Core\Framework\FeatureFlag\Command\FeatureFlagCreateCommand">
-            <argument type="service" id="Shopware\Core\Framework\FeatureFlag\FeatureFlagGenerator"/>
-
-            <tag name="console.command"/>
-        </service>
-
         <service id="Shopware\Core\Framework\Adapter\Cache\CacheIdLoader" public="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="cache.messenger.restart_workers_signal" />
+            <argument type="service" id="cache.messenger.restart_workers_signal"/>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Cache\CacheClearer">
             <argument type="collection">
-                <argument type="service" id="cache.object" />
-                <argument type="service" id="cache.http" />
+                <argument type="service" id="cache.object"/>
+                <argument type="service" id="cache.http"/>
             </argument>
             <argument type="service" id="cache_clearer"/>
             <argument type="service" id="filesystem"/>
             <argument>%kernel.cache_dir%</argument>
             <argument>%kernel.environment%</argument>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
-            <argument type="service" id="messenger.bus.shopware" />
+            <argument type="service" id="messenger.bus.shopware"/>
 
             <tag name="messenger.message_handler"/>
         </service>
@@ -450,5 +469,11 @@ base-uri 'self';
             <tag name="controller.argument_value_resolver"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Feature\Command\FeatureDumpCommand">
+            <argument type="service" id="kernel"/>
+
+            <tag name="console.command"/>
+            <tag name="console.command" command="administration:dump:features"/>
+        </service>
     </services>
 </container>

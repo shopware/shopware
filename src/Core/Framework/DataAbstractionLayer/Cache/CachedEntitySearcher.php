@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Cache;
 
+use Shopware\Core\Framework\App\AppDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -27,6 +28,7 @@ class CachedEntitySearcher implements EntitySearcherInterface
         PluginDefinition::class,
         LogEntryDefinition::class,
         MessageQueueStatsDefinition::class,
+        AppDefinition::class,
     ];
 
     /**

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\ListingPrice;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\ListingPriceCollection;
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class ListingPriceFieldSerializer extends AbstractFieldSerializer
 {
@@ -22,8 +24,10 @@ class ListingPriceFieldSerializer extends AbstractFieldSerializer
      */
     private $price;
 
-    public function __construct()
+    public function __construct(ValidatorInterface $validator, DefinitionInstanceRegistry $definitionRegistry)
     {
+        parent::__construct($validator, $definitionRegistry);
+
         $this->listPrice = new ListingPrice();
         $this->price = new Price('', 0, 0, false);
     }

@@ -16,13 +16,12 @@ use Shopware\Core\Content\ImportExport\Struct\Progress;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @experimental We might break this in v6.2
- */
 class ImportExport
 {
     private const PART_FILE_SUFFIX = '.offset_';
@@ -138,6 +137,7 @@ class ImportExport
             }
 
             try {
+                $record = $this->ensurePrimaryKeys($record);
                 // TODO: event before import record
                 $this->repository->upsert([$record], $context);
                 $progress->addProcessedRecords(1);
@@ -294,7 +294,9 @@ class ImportExport
         // copy final file into filesystem
         $this->filesystem->putStream($target, $tmp);
 
-        fclose($tmp);
+        if (is_resource($tmp)) {
+            fclose($tmp);
+        }
         unlink($tmpFile);
 
         foreach ($partFiles as $p) {
@@ -400,5 +402,20 @@ class ImportExport
         );
 
         return $progress;
+    }
+
+    private function ensurePrimaryKeys(array $data): array
+    {
+        foreach ($this->repository->getDefinition()->getPrimaryKeys() as $primaryKey) {
+            if (!($primaryKey instanceof IdField)) {
+                continue;
+            }
+
+            if (!isset($data[$primaryKey->getPropertyName()])) {
+                $data[$primaryKey->getPropertyName()] = Uuid::randomHex();
+            }
+        }
+
+        return $data;
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel;
 
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition;
@@ -335,6 +336,11 @@ class SalesChannelEntity extends Entity
      * @var SalesChannelAnalyticsEntity
      */
     protected $analytics;
+
+    /**
+     * @var CustomerGroupCollection|null
+     */
+    protected $customerGroupsRegistrations;
 
     public function getMailHeaderFooter(): ?MailHeaderFooterEntity
     {
@@ -922,11 +928,6 @@ class SalesChannelEntity extends Entity
         $this->analytics = $analytics;
     }
 
-    public function getApiAlias(): string
-    {
-        return 'sales_channel';
-    }
-
     public function getTaxCalculationType(): string
     {
         return $this->taxCalculationType;
@@ -935,5 +936,15 @@ class SalesChannelEntity extends Entity
     public function setTaxCalculationType(string $taxCalculationType): void
     {
         $this->taxCalculationType = $taxCalculationType;
+    }
+
+    public function getCustomerGroupsRegistrations(): ?CustomerGroupCollection
+    {
+        return $this->customerGroupsRegistrations;
+    }
+
+    public function setCustomerGroupsRegistrations(CustomerGroupCollection $customerGroupsRegistrations): void
+    {
+        $this->customerGroupsRegistrations = $customerGroupsRegistrations;
     }
 }

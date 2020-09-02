@@ -22,6 +22,24 @@ Component.register('sw-users-permissions-permissions-grid', {
             return privileges.filter(privilege => privilege.category === 'permissions');
         },
 
+        usedDependencies() {
+            const dependencies = new Set();
+
+            this.role.privileges.forEach(privilegeKey => {
+                const privilegeRole = this.privileges.getPrivilegeRole(privilegeKey);
+
+                if (!privilegeRole) {
+                    return;
+                }
+
+                privilegeRole.dependencies.forEach(dependency => {
+                    dependencies.add(dependency);
+                });
+            });
+
+            return [...dependencies];
+        },
+
         roles() {
             return [
                 'viewer',
@@ -71,6 +89,10 @@ Component.register('sw-users-permissions-permissions-grid', {
             return this.role.privileges.some(privilege => {
                 return privilege === `${permissionKey}.${permissionRole}`;
             });
+        },
+
+        isPermissionDisabled(permissionKey, permissionRole) {
+            return this.usedDependencies.includes(`${permissionKey}.${permissionRole}`);
         },
 
         changeAllPermissionsForKey(permissionKey) {

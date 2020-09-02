@@ -71,6 +71,12 @@ Component.register('sw-condition-tree', {
             type: String,
             required: false,
             default: 'children'
+        },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 

@@ -21,7 +21,11 @@ class SlotConfigFieldSerializer extends JsonFieldSerializer
                     'allowMissingFields' => false,
                     'fields' => [
                         'source' => [
-                            new Choice(['choices' => [FieldConfig::SOURCE_STATIC, FieldConfig::SOURCE_MAPPED]]),
+                            new Choice(['choices' => [
+                                FieldConfig::SOURCE_STATIC,
+                                FieldConfig::SOURCE_MAPPED,
+                                FieldConfig::SOURCE_PRODUCT_STREAM,
+                            ]]),
                             new NotBlank(),
                         ],
                         'value' => [],

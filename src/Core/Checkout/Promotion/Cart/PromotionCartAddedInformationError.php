@@ -30,6 +30,11 @@ class PromotionCartAddedInformationError extends Error
         parent::__construct($this->message);
     }
 
+    public function isPersistent(): bool
+    {
+        return false;
+    }
+
     public function getMessageKey(): string
     {
         return self::KEY;

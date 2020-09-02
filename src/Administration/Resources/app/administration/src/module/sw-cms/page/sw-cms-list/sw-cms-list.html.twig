@@ -16,7 +16,18 @@
             </template>
 
             <template slot="smart-bar-actions">
-                <sw-button slot="actions" variant="primary" @click="onCreateNewLayout">{{ $tc('sw-cms.general.createNewLayout') }}</sw-button>
+                <sw-button
+                    slot="actions"
+                    variant="primary"
+                    :disabled="!acl.can('cms.creator')"
+                    v-tooltip="{
+                        message: $tc('sw-privileges.tooltip.warning'),
+                        disabled: acl.can('cms.creator'),
+                        showOnDisabledElements: true
+                    }"
+                    @click="onCreateNewLayout">
+                    {{ $tc('sw-cms.general.createNewLayout') }}
+                </sw-button>
             </template>
         {% endblock %}
 
@@ -130,13 +141,17 @@
                                                             {% block sw_cms_list_listing_list_data_grid_actions %}
                                                                 <template #actions="{ item }">
                                                                     {% block sw_cms_list_listing_list_data_grid_actions_edit %}
-                                                                        <sw-context-menu-item :routerLink="{ name: 'sw.cms.detail', params: { id: item.id } }">
+                                                                        <sw-context-menu-item :routerLink="{ name: 'sw.cms.detail', params: { id: item.id } }"
+                                                                                              class="sw-cms-list__context-menu-item-edit"
+                                                                                              :disabled="!acl.can('cms.editor')">
                                                                             {{ $tc('sw-cms.components.cmsListItem.edit') }}
                                                                         </sw-context-menu-item>
                                                                     {% endblock %}
 
                                                                     {% block sw_cms_list_listing_list_data_grid_actions_edit_duplicate %}
                                                                         <sw-context-menu-item
+                                                                            :disabled="!acl.can('cms.creator')"
+                                                                            class="sw-cms-list__context-menu-item-duplicate"
                                                                             @click="onDuplicateCmsPage(item)">
                                                                             {{ $tc('sw-cms.components.cmsListItem.duplicate') }}
                                                                         </sw-context-menu-item>
@@ -146,7 +161,8 @@
                                                                         <sw-context-menu-item
                                                                             variant="danger"
                                                                             @click="onDeleteCmsPage(item)"
-                                                                            :disabled="item.categories.length > 0"
+                                                                            class="sw-cms-list__context-menu-item-delete"
+                                                                            :disabled="item.categories.length > 0 || !acl.can('cms.deleter')"
                                                                             v-tooltip="deleteDisabledToolTip(item)"
                                                                             v-if="!item.locked">
                                                                             {{ $tc('sw-cms.components.cmsListItem.delete') }}
@@ -192,6 +208,7 @@
                                                                     {% block sw_cms_list_listing_list_item_option_add_preview %}
                                                                         <sw-context-menu-item
                                                                                 class="sw-cms-list-item__option-preview"
+                                                                                :disabled="!acl.can('cms.editor')"
                                                                                 @click="onPreviewChange(cmsPage)">
                                                                             {{ $tc('sw-cms.components.cmsListItem.addPreviewImage') }}
                                                                         </sw-context-menu-item>
@@ -202,6 +219,7 @@
                                                                                 class="sw-cms-list-item__option-preview"
                                                                                 v-if="cmsPage.previewMediaId"
                                                                                 variant="danger"
+                                                                                :disabled="!acl.can('cms.editor')"
                                                                                 @click="onPreviewImageRemove(cmsPage)">
                                                                             {{ $tc('sw-cms.components.cmsListItem.removePreviewImage') }}
                                                                         </sw-context-menu-item>
@@ -209,6 +227,8 @@
 
                                                                     {% block sw_cms_list_listing_list_item_option_duplicate %}
                                                                         <sw-context-menu-item
+                                                                            :disabled="!acl.can('cms.creator')"
+                                                                            class="sw-cms-list-item__option-duplicate"
                                                                             @click="onDuplicateCmsPage(cmsPage)">
                                                                             {{ $tc('sw-cms.components.cmsListItem.duplicate') }}
                                                                         </sw-context-menu-item>
@@ -219,7 +239,7 @@
                                                                                 v-if="!cmsPage.locked"
                                                                                 class="sw-cms-list-item__option-delete"
                                                                                 variant="danger"
-                                                                                :disabled="cmsPage.categories.length > 0"
+                                                                                :disabled="cmsPage.categories.length > 0 || !acl.can('cms.deleter')"
                                                                                 v-tooltip="deleteDisabledToolTip(cmsPage)"
                                                                                 @click="onDeleteCmsPage(cmsPage)">
                                                                             {{ $tc('sw-cms.components.cmsListItem.delete') }}

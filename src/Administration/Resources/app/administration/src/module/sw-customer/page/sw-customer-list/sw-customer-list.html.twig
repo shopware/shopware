@@ -31,7 +31,16 @@
         {% block sw_customer_list_smart_bar_actions %}
             <template #smart-bar-actions>
                 {% block sw_customer_list_smart_bar_actions_add %}
-                    <sw-button variant="primary" :routerLink="{ name: 'sw.customer.create' }">
+                    <sw-button
+                        class="sw-customer-list__button-create"
+                        variant="primary"
+                        :disabled="!acl.can('customer.creator')"
+                        :routerLink="{ name: 'sw.customer.create' }"
+                        v-tooltip="{
+                            message: $tc('sw-privileges.tooltip.warning'),
+                            disabled: acl.can('property.creator'),
+                            showOnDisabledElements: true
+                        }">
                         {{ $tc('sw-customer.list.buttonAddCustomer') }}
                     </sw-button>
                 {% endblock %}
@@ -42,18 +51,19 @@
             {% block sw_customer_list_content %}
                 <div class="sw-customer-list__content">
                     {% block sw_customer_list_grid %}
-
-                        <sw-entity-listing ref="swCustomerGrid"
-                                           v-if="customers"
-                                           class="sw-customer-list-grid"
-                                           :items="customers"
-                                           :columns="customerColumns"
-                                           :repository="customerRepository"
-                                           detailRoute="sw.customer.detail"
-                                           :showSelection="true"
-                                           :isLoading="isLoading"
-                                           identifier="sw-customer-list"
-                                           @inline-edit-save="onInlineEditSave">
+                        <sw-entity-listing
+                            ref="swCustomerGrid"
+                            v-if="customers"
+                            class="sw-customer-list-grid"
+                            :items="customers"
+                            :columns="customerColumns"
+                            :repository="customerRepository"
+                            detailRoute="sw.customer.detail"
+                            :showSelection="acl.can('customer.deleter')"
+                            :allowInlineEdit="acl.can('customer.editor')"
+                            :isLoading="isLoading"
+                            identifier="sw-customer-list"
+                            @inline-edit-save="onInlineEditSave">
 
                             {% block sw_customer_list_grid_columns %}
 
@@ -107,6 +117,13 @@
                                 {% endblock %}
                             {% endblock %}
 
+                            {% block sw_customer_list_grid_columns_group %}
+                                <template #column-group="{ item, compact, isInlineEdit }">
+                                    <sw-label v-if="item.requestedGroup" class="sw-customer-list__requested-group-label" variant="warning" appearance="pill" >{{ $tc('sw-customer.list.columnGroupRequested') }} {{ item.requestedGroup.translated.name }}</sw-label>
+                                    <sw-label v-else size="default" appearance="pill">{{ item.group.translated.name }}</sw-label>
+                                </template>
+                            {% endblock %}
+
                             {% block sw_customer_list_grid_columns_actions %}
                                 <template #actions="{ item }">
                                     {% block sw_customer_list_grid_columns_actions_view %}
@@ -118,13 +135,20 @@
                                     {% endblock %}
 
                                     {% block sw_customer_list_grid_columns_actions_edit %}
-                                        <sw-context-menu-item :routerLink="{ name: 'sw.customer.detail.base', params: { id: item.id }, query: { edit: true } }">
+                                        <sw-context-menu-item
+                                            class="sw-customer-list__edit-action"
+                                            :disabled="!acl.can('customer.editor')"
+                                            :routerLink="{ name: 'sw.customer.detail.base', params: { id: item.id }, query: { edit: true } }">
                                             {{ $tc('sw-customer.list.contextMenuEdit') }}
                                         </sw-context-menu-item>
                                     {% endblock %}
 
                                     {% block sw_customer_list_grid_columns_actions_delete %}
-                                        <sw-context-menu-item variant="danger" @click="onDelete(item.id)">
+                                        <sw-context-menu-item
+                                            class="sw-customer-list__delete-action"
+                                            variant="danger"
+                                            :disabled="!acl.can('customer.deleter')"
+                                            @click="onDelete(item.id)">
                                             {{ $tc('sw-customer.list.contextMenuDelete') }}
                                         </sw-context-menu-item>
                                     {% endblock %}
@@ -226,6 +250,14 @@
                                         @change="onChangeCampaignCodeFilter"
                                         :value="campaignCodeFilter">
                                     </sw-multi-select>
+                                {% endblock %}
+
+                                {% block sw_customer_list_sidebar_filter_requested_group %}
+                                    <sw-switch-field
+                                        :label="$tc('sw-customer.list.titleSidebarItemFilterRequestedGroup')"
+                                        @change="onChangeRequestedGroupFilter"
+                                        :value="showOnlyCustomerGroupRequests">
+                                    </sw-switch-field>
                                 {% endblock %}
 
                             {% endblock %}

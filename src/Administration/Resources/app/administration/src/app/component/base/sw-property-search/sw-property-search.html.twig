@@ -48,7 +48,7 @@
                                     <template slot="columns" slot-scope="{ item }">
 
                                         {% block sw_property_search_tree_group_grid_columns_name %}
-                                            <sw-grid-column truncate class="group_grid__column-name" flex="minmax(200px, 1fr)" dataIndex="name" @click="selectGroup(item)">
+                                            <sw-grid-column truncate class="group_grid__column-name" flex="auto" dataIndex="name" @click="selectGroup(item)">
                                                 <sw-icon name="multicolor-folder-breadcrumbs" size="16px" multicolor></sw-icon>
                                                 {{ item.translated.name }}
                                             </sw-grid-column>
@@ -108,7 +108,6 @@
                                                        :limit="10"
                                                        :total="optionTotal"
                                                        :total-visible="7"
-                                                       :autoHide="false"
                                                        @page-change="onOptionPageChange"
                                                        :steps="[10]" >
                                         </sw-pagination>
@@ -153,8 +152,7 @@
                                                :total="optionTotal"
                                                :total-visible="7"
                                                @page-change="onOptionSearchPageChange"
-                                               :steps="[10]"
-                                               :autoHide="false">
+                                               :steps="[10]">
                                 </sw-pagination>
                             {% endblock %}
                         </template>

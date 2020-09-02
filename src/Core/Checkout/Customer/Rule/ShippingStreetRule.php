@@ -35,7 +35,6 @@ class ShippingStreetRule extends Rule
             return false;
         }
 
-        /** @var CheckoutRuleScope $scope */
         if (!$location = $scope->getSalesChannelContext()->getShippingLocation()->getAddress()) {
             return false;
         }

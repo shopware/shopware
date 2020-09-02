@@ -11,5 +11,5 @@ use Symfony\Component\HttpFoundation\Request;
  */
 interface MenuOffcanvasPageletLoaderInterface
 {
-    public function load(Request $request, SalesChannelContext $salesChannelContext): MenuOffcanvasPagelet;
+    public function load(Request $request, SalesChannelContext $context): MenuOffcanvasPagelet;
 }

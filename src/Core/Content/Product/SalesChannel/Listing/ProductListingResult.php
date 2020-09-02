@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Listing;
 
+use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 
 class ProductListingResult extends EntitySearchResult
@@ -28,22 +29,45 @@ class ProductListingResult extends EntitySearchResult
 
     /**
      * @var ProductListingSorting[]
+     *
+     * @deprecated tag:v6.4.0 - use availableSortings instead
      */
     protected $sortings = [];
+
+    /**
+     * @var ProductSortingCollection
+     */
+    protected $availableSortings;
 
     public function addCurrentFilter(string $key, $value): void
     {
         $this->currentFilters[$key] = $value;
     }
 
+    /**
+     * @deprecated tag:v6.4.0 - use getAvailableSortings() instead
+     */
     public function getSortings(): array
     {
         return $this->sortings;
     }
 
+    /**
+     * @deprecated tag:v6.4.0 - use setAvailableSortings() instead
+     */
     public function setSortings(array $sortings): void
     {
         $this->sortings = $sortings;
+    }
+
+    public function getAvailableSortings(): ProductSortingCollection
+    {
+        return $this->availableSortings;
+    }
+
+    public function setAvailableSortings(ProductSortingCollection $availableSortings): void
+    {
+        $this->availableSortings = $availableSortings;
     }
 
     public function getSorting(): ?string

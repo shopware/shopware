@@ -100,7 +100,7 @@ class StorefrontMediaUploaderTest extends TestCase
         );
     }
 
-    private function removeMedia($ids): void
+    private function removeMedia(string $ids): void
     {
         if (!\is_array($ids)) {
             $ids = [$ids];

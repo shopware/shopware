@@ -36,6 +36,10 @@ $sw-property-assignment-background-color-options-item: $color-light-gray;
             color: $color-shopware-brand-500;
             margin-bottom: 20px;
         }
+
+        .sw-property-assignment {
+            width: 100%;
+        }
     }
 
     .sw-product-detail-properties__inherit-toggle-wrapper {

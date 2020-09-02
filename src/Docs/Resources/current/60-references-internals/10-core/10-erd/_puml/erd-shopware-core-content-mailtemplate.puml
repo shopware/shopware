@@ -31,18 +31,20 @@ Table(ShopwareCoreContentMailTemplateMailTemplateDefinition, "mail_template\n(Ma
    subject translated
    contentHtml translated
    contentPlain translated
+   customFields translated
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
    translated json
 }
 TranslationTable(ShopwareCoreContentMailTemplateAggregateMailTemplateTranslationMailTemplateTranslationDefinition, "mail_template_translation\n((Translations))") {
    senderName string
    description longText
    not_null(subject) string
-   not_null(contentHtml) longTextWithHtml
+   not_null(contentHtml) longText
    not_null(contentPlain) longText
+   customFields customFields
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
    primary_key(mailTemplateId) foreignKey
    primary_key(languageId) foreignKey
 }
@@ -52,7 +54,7 @@ Table(ShopwareCoreContentMailTemplateAggregateMailTemplateTypeMailTemplateTypeDe
    not_null(technicalName) string
    availableEntities json
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
    customFields translated
    translated json
 }
@@ -60,7 +62,7 @@ TranslationTable(ShopwareCoreContentMailTemplateAggregateMailTemplateTypeTransla
    not_null(name) string
    customFields customFields
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
    primary_key(mailTemplateTypeId) foreignKey
    primary_key(languageId) foreignKey
 }
@@ -70,11 +72,12 @@ Table(ShopwareCoreContentMailTemplateAggregateMailTemplateSalesChannelMailTempla
    not_null(salesChannelId) foreignKey
    mailTemplateTypeId foreignKey
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
 }
 Table(ShopwareCoreContentMailTemplateAggregateMailTemplateMediaMailTemplateMediaDefinition, "mail_template_media\n(M:N Mapping)") {
    primary_key(id) id
    not_null(mailTemplateId) foreignKey
+   not_null(languageId) foreignKey
    not_null(mediaId) foreignKey
    position int
 }
@@ -88,22 +91,22 @@ Table(ShopwareCoreContentMailTemplateAggregateMailHeaderFooterMailHeaderFooterDe
    footerHtml translated
    footerPlain translated
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
    translated json
 }
 TranslationTable(ShopwareCoreContentMailTemplateAggregateMailHeaderFooterTranslationMailHeaderFooterTranslationDefinition, "mail_header_footer_translation\n((Translations))") {
    not_null(name) string
    description string
-   headerHtml longTextWithHtml
+   headerHtml longText
    headerPlain longText
-   footerHtml longTextWithHtml
+   footerHtml longText
    footerPlain longText
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
    primary_key(mailHeaderFooterId) foreignKey
    primary_key(languageId) foreignKey
 }
-ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
+ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
 }
 ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
 }
@@ -116,13 +119,13 @@ ShopwareCoreContentMailTemplateAggregateMailTemplateTranslationMailTemplateTrans
 ShopwareCoreContentMailTemplateAggregateMailTemplateSalesChannelMailTemplateSalesChannelDefinition --> ShopwareCoreContentMailTemplateMailTemplateDefinition
 ShopwareCoreContentMailTemplateAggregateMailTemplateTypeMailTemplateTypeDefinition --> ShopwareCoreContentMailTemplateMailTemplateDefinition
 ShopwareCoreContentMailTemplateAggregateMailTemplateMediaMailTemplateMediaDefinition --> ShopwareCoreContentMailTemplateMailTemplateDefinition
-ShopwareCoreContentMailTemplateAggregateMailTemplateTranslationMailTemplateTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
+ShopwareCoreContentMailTemplateAggregateMailTemplateTranslationMailTemplateTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
 ShopwareCoreContentMailTemplateAggregateMailTemplateTypeTranslationMailTemplateTypeTranslationDefinition --> ShopwareCoreContentMailTemplateAggregateMailTemplateTypeMailTemplateTypeDefinition
 ShopwareCoreContentMailTemplateAggregateMailTemplateSalesChannelMailTemplateSalesChannelDefinition --> ShopwareCoreContentMailTemplateAggregateMailTemplateTypeMailTemplateTypeDefinition
-ShopwareCoreContentMailTemplateAggregateMailTemplateTypeTranslationMailTemplateTypeTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
+ShopwareCoreContentMailTemplateAggregateMailTemplateTypeTranslationMailTemplateTypeTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
 ShopwareCoreContentMailTemplateAggregateMailTemplateSalesChannelMailTemplateSalesChannelDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareCoreContentMailTemplateAggregateMailTemplateMediaMailTemplateMediaDefinition --> ShopwareCoreContentMediaMediaDefinition
 ShopwareCoreContentMailTemplateAggregateMailHeaderFooterTranslationMailHeaderFooterTranslationDefinition --> ShopwareCoreContentMailTemplateAggregateMailHeaderFooterMailHeaderFooterDefinition
 ShopwareCoreContentMailTemplateAggregateMailHeaderFooterMailHeaderFooterDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
-ShopwareCoreContentMailTemplateAggregateMailHeaderFooterTranslationMailHeaderFooterTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
+ShopwareCoreContentMailTemplateAggregateMailHeaderFooterTranslationMailHeaderFooterTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
 @enduml

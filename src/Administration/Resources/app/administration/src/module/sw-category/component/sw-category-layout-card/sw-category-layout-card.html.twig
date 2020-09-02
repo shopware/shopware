@@ -3,7 +3,11 @@
         <div class="sw-category-layout-card__base-layout">
             {% block sw_category_detail_layout_preview %}
                 <div class="sw-category-layout-card__preview" @click="openLayoutModal">
-                    <sw-cms-list-item :page="cmsPage" active></sw-cms-list-item>
+                    <sw-cms-list-item
+                        :page="cmsPage"
+                        :disabled="!acl.can('category.editor')"
+                        active>
+                    </sw-cms-list-item>
                 </div>
             {% endblock %}
 
@@ -39,6 +43,7 @@
                             {% block sw_category_detail_layout_desc_actions_layout %}
                                 <sw-button
                                     size="small"
+                                    :disabled="!acl.can('category.editor')"
                                     @click="openLayoutModal"
                                     class="sw-category-detail-layout__change-layout-action">
                                     {{ cmsPage ? $tc('sw-category.base.cms.changeLayout') : $tc('sw-category.base.cms.changeLayoutEmpty') }}
@@ -46,13 +51,21 @@
                             {% endblock %}
 
                             {% block sw_category_detail_layout_desc_actions_designer %}
-                                <sw-button size="small" @click="openInPagebuilder">
+                                <sw-button size="small"
+                                           :disabled="!acl.can('category.editor')"
+                                           class="sw-category-detail-layout__open-in-pagebuilder"
+                                           @click="openInPagebuilder">
                                     {{ cmsPage ? $tc('sw-category.base.cms.editInPagebuilder'): $tc('sw-category.base.cms.editInPagebuilderEmpty') }}
                                 </sw-button>
                             {% endblock %}
 
                             {% block sw_category_detail_layout_desc_actions_remove %}
-                                <sw-button v-if="cmsPage" size="small" @click="onLayoutReset" square>
+                                <sw-button v-if="cmsPage"
+                                           size="small"
+                                           :disabled="!acl.can('category.editor')"
+                                           class="sw-category-detail-layout__layout-reset"
+                                           @click="onLayoutReset"
+                                           square>
                                     <sw-icon name="default-action-trash" small></sw-icon>
                                 </sw-button>
                             {% endblock %}
@@ -61,7 +74,7 @@
 
                     {% block sw_category_detail_layout_desc_link %}
                         <router-link
-                            v-if="cmsPage"
+                            v-if="cmsPage && acl.can('category.editor')"
                             class="sw-category-layout-card__desc-link"
                             :to="{ name: 'sw.category.detail.cms', params: { id: $route.params.id }}">
 

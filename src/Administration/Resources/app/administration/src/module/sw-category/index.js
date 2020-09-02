@@ -8,6 +8,7 @@ import './component/sw-category-seo-form';
 import './page/sw-category-detail';
 import './view/sw-category-detail-base';
 import './view/sw-category-detail-cms';
+import './acl';
 
 const { Module } = Shopware;
 
@@ -28,13 +29,17 @@ Module.register('sw-category', {
             component: 'sw-category-detail',
             path: 'index',
             meta: {
-                parentPath: 'sw.category.index'
+                parentPath: 'sw.category.index',
+                privilege: 'category.viewer'
             }
         },
 
         detail: {
             component: 'sw-category-detail',
             path: 'index/:id',
+            meta: {
+                privilege: 'category.viewer'
+            },
             redirect: {
                 name: 'sw.category.detail.base'
             },
@@ -44,14 +49,16 @@ Module.register('sw-category', {
                     component: 'sw-category-detail-base',
                     path: 'base',
                     meta: {
-                        parentPath: 'sw.category.index'
+                        parentPath: 'sw.category.index',
+                        privilege: 'category.viewer'
                     }
                 },
                 cms: {
                     component: 'sw-category-detail-cms',
                     path: 'cms',
                     meta: {
-                        parentPath: 'sw.category.index'
+                        parentPath: 'sw.category.index',
+                        privilege: 'category.viewer' // change in NEXT-8921 to CMS rights
                     }
                 }
             },
@@ -71,6 +78,7 @@ Module.register('sw-category', {
         path: 'sw.category.index',
         label: 'sw-category.general.mainMenuItemIndex',
         parent: 'sw-catalogue',
+        privilege: 'category.viewer',
         position: 20
     }]
 });

@@ -2,6 +2,7 @@
     <component :is="conditionNodeComponent"
                class="condition-tree-node"
                v-bind="{ condition, parentCondition, level }"
+               :disabled="disabled"
                @create-before="insertNewNodeBefore"
                @create-after="insertNewNodeAfter"
                @condition-delete="deleteNode">

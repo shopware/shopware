@@ -16,11 +16,11 @@ class Migration1590758953ProductFeatureSet extends MigrationStep
     public const TRANSLATIONS = [
         'en-GB' => [
             'name' => 'Default',
-            'description' => 'Default template highlighting the product\'s price',
+            'description' => 'Default template displaying the product\'s price per scale unit',
         ],
         'de-DE' => [
             'name' => 'Standard',
-            'description' => 'Standardtemplate, hebt den Preis des Produkts hervor',
+            'description' => 'Standardtemplate, hebt den Grundpreis des Produkts hervor',
         ],
     ];
 
@@ -208,6 +208,6 @@ SQL;
             return $languageId;
         }
 
-        return [$languageId];
+        return $languageId === false ? [] : [$languageId];
     }
 }

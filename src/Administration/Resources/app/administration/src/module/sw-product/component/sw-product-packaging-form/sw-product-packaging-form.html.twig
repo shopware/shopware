@@ -106,6 +106,7 @@
                     <template #content="props">
 
                         <sw-field type="number"
+                                  class="sw-product-packaging-form__purchase-unit-field"
                                   :mapInheritance="props"
                                   numberType="float"
                                   :min="0"
@@ -152,6 +153,7 @@
                     <template #content="props">
 
                         <sw-field type="text"
+                                  class="sw-product-packaging-form__pack-unit-field"
                                   :mapInheritance="props"
                                   :error="productPackUnitError"
                                   :label="$tc('sw-product.priceForm.labelPackUnit')"
@@ -173,6 +175,7 @@
                     <template #content="props">
 
                         <sw-field type="text"
+                                  class="sw-product-packaging-form__pack-unit-plural-field"
                                   :mapInheritance="props"
                                   :error="productPackUnitPluralError"
                                   :label="$tc('sw-product.priceForm.labelPackUnitPlural')"
@@ -194,6 +197,7 @@
                     <template #content="props">
 
                         <sw-field type="number"
+                                  class="sw-product-packaging-form__reference-unit-field"
                                   :mapInheritance="props"
                                   numberType="float"
                                   :min="0"

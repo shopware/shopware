@@ -66,12 +66,12 @@ describe('Product: Sort grid', () => {
             });
     });
 
-    it.skip('@base @catalogue: sort product listing', () => {
+    it.skip('@catalogue: sort product listing', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/product/*',
-            method: 'patch'
+            url: '/api/v*/search/product',
+            method: 'post'
         }).as('saveData');
 
         // open context menu and display pound
@@ -89,6 +89,11 @@ describe('Product: Sort grid', () => {
 
         // sort products by gbp
         cy.get('.sw-data-grid__cell--9').click({ force: true });
+
+        // Verify search result
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
 
         cy.get('.sw-data-grid-skeleton').should('not.exist');
         cy.get('.sw-data-grid__sort-indicator').should('be.visible');

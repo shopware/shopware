@@ -24,7 +24,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -63,19 +62,9 @@ class DocumentService
     private $documentConfigRepository;
 
     /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
-
-    /**
      * @var MediaService
      */
     private $mediaService;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $customerRepository;
 
     /**
      * @var EventDispatcherInterface

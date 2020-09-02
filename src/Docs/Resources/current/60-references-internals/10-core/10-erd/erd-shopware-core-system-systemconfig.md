@@ -1,5 +1,5 @@
 [titleEn]: <>(System configuration)
-[hash]: <>(article:internals_core_erd_system_config)
+[hash]: <>(article:internals_core_erd_system_systemconfig)
 
 [Back to modules](./../10-modules.md)
 

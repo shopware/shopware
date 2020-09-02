@@ -56,6 +56,7 @@ describe('Manufacturer: Test crud operations', () => {
         cy.get('input[name=name]').clearTypeAndCheck('be.visible');
         cy.get('input[name=name]').clear().type('What does it means?(TM)');
         cy.get('input[name=link]').clear().type('https://google.com/doodles');
+
         cy.get(page.elements.manufacturerSave).click();
 
         // Verify updated manufacturer

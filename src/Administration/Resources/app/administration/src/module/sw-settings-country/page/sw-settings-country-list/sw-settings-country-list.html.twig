@@ -33,7 +33,16 @@
             {% block sw_settings_country_list_smart_bar_actions %}
                 <template slot="smart-bar-actions">
                     {% block sw_settings_country_list_smart_bar_actions_add %}
-                        <sw-button :routerLink="{ name: 'sw.settings.country.create' }" variant="primary">
+                        <sw-button
+                            v-tooltip.bottom="{
+                                message: $tc('sw-privileges.tooltip.warning'),
+                                disabled: acl.can('country.creator'),
+                                showOnDisabledElements: true
+                            }"
+                            class="sw-settings-country-list__button-create"
+                            variant="primary"
+                            :routerLink="{ name: 'sw.settings.country.create' }"
+                            :disabled="!acl.can('country.creator')">
                             {{ $tc('sw-settings-country.list.buttonAddCountry') }}
                         </sw-button>
                     {% endblock %}
@@ -60,6 +69,9 @@
                                                            detailRoute="sw.settings.country.detail"
                                                            :showSelection="false"
                                                            :isLoading="isLoading"
+                                                           :allowEdit="acl.can('country.editor')"
+                                                           :allowInlineEdit="acl.can('country.editor')"
+                                                           :allowDelete="acl.can('country.deleter')"
                                                            @inline-edit-save="onInlineEditSave">
 
                                             <template #column-active="{ item, isInlineEdit }">
@@ -82,14 +94,29 @@
                                                 <template #actions="{ item }">
                                                     {% block sw_settings_country_list_grid_columns_actions_edit %}
                                                         <sw-context-menu-item
+                                                            v-tooltip.top="{
+                                                                message: $tc('sw-privileges.tooltip.warning'),
+                                                                disabled: acl.can('country.editor'),
+                                                                showOnDisabledElements: true
+                                                            }"
                                                             :routerLink="{ name: 'sw.settings.country.detail', params: { id: item.id, edit: 'edit' }}"
+                                                            :disabled="!acl.can('country.editor')"
                                                             class="sw-country-list__edit-action">
                                                             {{ $tc('sw-settings-country.list.contextMenuEdit') }}
                                                         </sw-context-menu-item>
                                                     {% endblock %}
 
                                                     {% block sw_settings_country_list_grid_columns_actions_delete %}
-                                                        <sw-context-menu-item variant="danger" @click="onDelete(item.id)">
+                                                        <sw-context-menu-item
+                                                            v-tooltip.bottom="{
+                                                                message: $tc('sw-privileges.tooltip.warning'),
+                                                                disabled: acl.can('country.deleter'),
+                                                                showOnDisabledElements: true
+                                                            }"
+                                                            class="sw-country-list__delete-action"
+                                                            variant="danger"
+                                                            :disabled="!acl.can('country.deleter')"
+                                                            @click="onDelete(item.id)">
                                                             {{ $tc('sw-settings-country.list.contextMenuDelete') }}
                                                         </sw-context-menu-item>
                                                     {% endblock %}
@@ -118,7 +145,16 @@
                                                                     {% endblock %}
 
                                                                     {% block sw_settings_country_list_delete_modal_confirm %}
-                                                                        <sw-button @click="onConfirmDelete(item.id)" variant="danger" size="small">
+                                                                        <sw-button
+                                                                            v-tooltip.bottom="{
+                                                                                message: $tc('sw-privileges.tooltip.warning'),
+                                                                                disabled: acl.can('country.deleter'),
+                                                                                showOnDisabledElements: true
+                                                                            }"
+                                                                            variant="danger"
+                                                                            size="small"
+                                                                            :disabled="!acl.can('country.deleter')"
+                                                                            @click="onConfirmDelete(item.id)">
                                                                             {{ $tc('sw-settings-country.list.buttonDelete') }}
                                                                         </sw-button>
                                                                     {% endblock %}

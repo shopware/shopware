@@ -47,12 +47,18 @@
                              :class="'sw-users-permissions-permissions-grid__role_' + role"
                             class="sw-users-permissions-permissions-grid__checkbox-wrapper">
                             {% block sw_users_permissions_permissions_grid_permissions_roles_field %}
-                                <sw-field
+                                <sw-checkbox-field
                                     v-if="permission.roles[role]"
                                     :value="isPermissionSelected(permission.key, role)"
+                                    :disabled="isPermissionDisabled(permission.key, role)"
+                                    v-tooltip="{
+                                        message: $tc('sw-users-permissions.roles.grid.disabledCheckboxMessage'),
+                                        disabled: !isPermissionDisabled(permission.key, role),
+                                        showOnDisabledElements: false
+                                    }"
                                     @change="changePermission(permission.key, role)"
                                     type="checkbox">
-                                </sw-field>
+                                </sw-checkbox-field>
                             {% endblock %}
                         </div>
                     {% endblock %}
@@ -60,12 +66,12 @@
                     {% block sw_users_permissions_permissions_grid_permissions_all_roles %}
                         <div class="sw-users-permissions-permissions-grid__all sw-users-permissions-permissions-grid__role_all">
                             {% block sw_users_permissions_permissions_grid_permissions_all_roles_field %}
-                                <sw-field
+                                <sw-checkbox-field
                                     v-if="Object.keys(permission.roles).length > 0"
                                     :value="allPermissionsForKeySelected(permission.key)"
                                     @change="changeAllPermissionsForKey(permission.key)"
                                     type="checkbox">
-                                </sw-field>
+                                </sw-checkbox-field>
                             {% endblock %}
                         </div>
                     {% endblock %}

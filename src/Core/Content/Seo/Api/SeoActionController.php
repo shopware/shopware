@@ -10,6 +10,7 @@ use Shopware\Core\Content\Seo\SeoUrlPersister;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
 use Shopware\Core\Content\Seo\Validation\SeoUrlDataValidationFactoryInterface;
+use Shopware\Core\Content\Seo\Validation\SeoUrlValidationFactory;
 use Shopware\Core\Framework\Api\Exception\InvalidSalesChannelIdException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -199,6 +200,29 @@ class SeoActionController extends AbstractController
     }
 
     /**
+     * @Route("/api/v{version}/_action/seo-url/create-custom-url", name="api.seo-url.create", methods={"POST"}, requirements={"version"="\d+"})
+     */
+    public function createCustomSeoUrls(RequestDataBag $dataBag, Context $context): Response
+    {
+        $urls = $dataBag->get('urls')->all();
+
+        /** @var SeoUrlValidationFactory $validatorBuilder */
+        $validatorBuilder = $this->seoUrlValidator;
+
+        $validation = $validatorBuilder->buildValidation($context, null);
+
+        foreach ($urls as &$seoUrlData) {
+            $this->validator->validate($seoUrlData, $validation);
+            $seoUrlData['isModified'] = $seoUrlData['isModified'] ?? true;
+        }
+        unset($seoUrlData);
+
+        $this->seoUrlPersister->updateSeoUrls($context, $urls[0]['routeName'], array_column($urls, 'foreignKey'), $urls);
+
+        return new Response('', Response::HTTP_NO_CONTENT);
+    }
+
+    /**
      * @Route("/api/v{version}/_action/seo-url-template/default/{routeName}", name="api.seo-url-template.default", methods={"GET"}, requirements={"version"="\d+"})
      */
     public function getDefaultSeoTemplate(string $routeName, Context $context): JsonResponse
@@ -253,7 +277,7 @@ class SeoActionController extends AbstractController
             }
         }
 
-        $result = $this->seoUrlGenerator->generate($ids, $seoUrlTemplate['template'], $seoUrlRoute, $context, $salesChannel);
+        $result = $this->seoUrlGenerator->generate($ids, $seoUrlTemplate['template'] ?? '', $seoUrlRoute, $context, $salesChannel);
 
         return iterator_to_array($result);
     }

@@ -28,5 +28,12 @@
       "labelLogo": "Logo",
       "labelUseAsLogo": "Als Logo nutzen"
     }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "product_manufacturer": {
+        "label": "Hersteller"
+      }
+    }
   }
 }

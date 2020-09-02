@@ -12,6 +12,8 @@ export default class Criteria {
         this.postFilter = [];
         this.sortings = [];
         this.aggregations = [];
+        this.grouping = [];
+        this.groupFields = [];
         this.totalCountMode = 1;
     }
 
@@ -53,6 +55,12 @@ export default class Criteria {
         }
         if (this.aggregations.length > 0) {
             params.aggregations = this.aggregations;
+        }
+        if (this.groupFields.length > 0) {
+            params.groupFields = this.groupFields;
+        }
+        if (this.grouping.length > 0) {
+            params.grouping = this.grouping;
         }
         if (this.associations.length > 0) {
             params.associations = {};
@@ -172,6 +180,25 @@ export default class Criteria {
         }
 
         this.queries.push(query);
+
+        return this;
+    }
+
+    /**
+     * @param {Object} groupField
+     */
+    addGroupField(groupField) {
+        this.groupFields.push(groupField);
+        return this;
+    }
+
+    /**
+     * Allows grouping the result by an specific field
+     * @param {String} field
+     * @returns {Criteria} - self
+     */
+    addGrouping(field) {
+        this.grouping.push(field);
 
         return this;
     }

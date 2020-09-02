@@ -21,7 +21,9 @@
                                 </sw-confirm-field>
                             {% endblock %}
                         </slot>
-                        <span v-if="disabled" class="sw-tree-input-field__language-warning">{{ $tc('sw-tree.general.actions.actionsDisabledInLanguage') }}.</span>
+                        <span v-if="disabled" class="sw-tree-input-field__language-warning">
+                            {{ $tc('sw-tree.general.actions.actionsDisabledInLanguage') }}.
+                        </span>
                     </div>
                 {% endblock %}
             </div>

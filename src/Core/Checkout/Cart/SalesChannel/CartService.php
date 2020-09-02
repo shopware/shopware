@@ -128,6 +128,8 @@ class CartService
     }
 
     /**
+     * @param LineItem|LineItem[] $items
+     *
      * @throws InvalidQuantityException
      * @throws LineItemNotStackableException
      * @throws MixedLineItemTypeException

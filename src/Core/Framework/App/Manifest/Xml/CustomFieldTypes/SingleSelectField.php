@@ -1,0 +1,115 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Framework\App\Manifest\Xml\CustomFieldTypes;
+
+use Shopware\Core\System\CustomField\CustomFieldTypes;
+
+class SingleSelectField extends CustomFieldType
+{
+    protected const TRANSLATABLE_FIELDS = ['label', 'help-text', 'placeholder'];
+
+    protected const COMPONENT_NAME = 'sw-single-select';
+
+    /**
+     * @var array
+     */
+    protected $placeholder = [];
+
+    /**
+     * @var array
+     */
+    protected $options;
+
+    protected function __construct(array $data)
+    {
+        foreach ($data as $property => $value) {
+            $this->$property = $value;
+        }
+    }
+
+    public static function fromXml(\DOMElement $element): CustomFieldType
+    {
+        return new self(self::parseSelect($element));
+    }
+
+    public function getPlaceholder(): array
+    {
+        return $this->placeholder;
+    }
+
+    public function getOptions(): array
+    {
+        return $this->options;
+    }
+
+    protected function toEntityArray(): array
+    {
+        $options = [];
+
+        foreach ($this->options as $key => $names) {
+            $options[] = [
+                'label' => $names,
+                'value' => $key,
+            ];
+        }
+
+        return [
+            'type' => CustomFieldTypes::SELECT,
+            'config' => [
+                'placeholder' => $this->placeholder,
+                // use $this so child classes can override the const
+                'componentName' => $this::COMPONENT_NAME,
+                'customFieldType' => 'select',
+                'options' => $options,
+            ],
+        ];
+    }
+
+    protected static function parseSelect(\DOMElement $element): array
+    {
+        $values = [];
+
+        foreach ($element->attributes as $attribute) {
+            $values[$attribute->name] = $attribute->value;
+        }
+
+        foreach ($element->childNodes as $child) {
+            if (!$child instanceof \DOMElement) {
+                continue;
+            }
+
+            if ($child->tagName === 'options') {
+                $values[$child->tagName] = self::parseOptions($child);
+
+                continue;
+            }
+
+            $values = self::mapTranslatedTag($child, $values);
+
+            continue;
+        }
+
+        return $values;
+    }
+
+    protected static function parseOptions(\DOMElement $child): array
+    {
+        $values = [];
+
+        foreach ($child->childNodes as $option) {
+            if (!$option instanceof \DOMElement) {
+                continue;
+            }
+
+            $option = self::parse($option, ['name']);
+            /** @var string $key */
+            $key = $option['value'];
+            /** @var array<string, string> $names */
+            $names = $option['name'];
+
+            $values[$key] = $names;
+        }
+
+        return $values;
+    }
+}

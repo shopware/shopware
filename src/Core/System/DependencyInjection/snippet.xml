@@ -14,15 +14,22 @@
         </service>
 
         <service id="Shopware\Core\System\Snippet\SnippetValidatorInterface" class="Shopware\Core\System\Snippet\SnippetValidator">
-            <argument type="tagged" tag="shopware.snippet.file" />
+            <argument type="service" id="Shopware\Core\System\Snippet\Files\SnippetFileCollection" />
+            <argument type="service" id="Shopware\Core\System\Snippet\SnippetFileHandler" />
             <argument>%kernel.project_dir%/</argument>
+        </service>
+
+        <service id="Shopware\Core\System\Snippet\SnippetFixer">
+            <argument type="service" id="Shopware\Core\System\Snippet\SnippetFileHandler" />
         </service>
 
         <service id="Shopware\Core\System\Snippet\Command\ValidateSnippetsCommand">
             <argument type="service" id="Shopware\Core\System\Snippet\SnippetValidatorInterface" />
+            <argument type="service" id="Shopware\Core\System\Snippet\SnippetFixer" />
 
             <tag name="console.command"/>
         </service>
 
+        <service id="Shopware\Core\System\Snippet\SnippetFileHandler" />
     </services>
 </container>

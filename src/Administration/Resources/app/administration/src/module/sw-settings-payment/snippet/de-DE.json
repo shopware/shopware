@@ -43,5 +43,12 @@
   },
   "sw-plugin-box": {
     "buttonPluginSettings": "Plugin Einstellungen"
+  },
+  "sw-privileges": {
+    "permissions": {
+      "payment": {
+        "label": "Zahlungsarten"
+      }
+    }
   }
 }

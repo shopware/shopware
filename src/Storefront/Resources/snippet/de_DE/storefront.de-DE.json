@@ -150,6 +150,7 @@
     "overviewChangeBilling": "Rechnungsadresse ändern",
     "overviewChangeShipping": "Lieferadresse ändern",
     "overviewNewestOrderHeader": "Letzte Bestellung",
+    "overviewCustomerGroupRequest": "Anfrage zur Aufnahme in die Kundengruppe \"%group%\" gestellt.",
     "paymentChangeSubmit": "Ändern",
     "profilePersonalTitle": "Persönliche Daten",
     "profileMailTitle": "E-Mail-Adresse",
@@ -397,7 +398,8 @@
     "filterRangeActiveMinLabel": "Preis ab",
     "filterRangeActiveMaxLabel": "Preis bis",
     "filterRangeErrorMessage": "Der Mindestpreis darf nicht höher sein als der Höchstpreis.",
-    "filterSubmitText": "Filter"
+    "filterSubmitText": "Filter",
+    "defaultProductSortingLabel": "Name A-Z"
   },
   "newsletter": {
     "headline": "Newsletter abonnieren",
@@ -509,6 +511,7 @@
     "configure": "Konfigurieren",
     "configuration": "Einstellungen",
     "save": "Speichern",
+    "acceptAll": "Alle Cookies akzeptieren",
     "headline": "Cookie-Voreinstellungen",
     "groupRequired": "Technisch erforderlich",
     "groupRequiredDescription": "Für die Funktion des Shops erforderliche Cookies:",

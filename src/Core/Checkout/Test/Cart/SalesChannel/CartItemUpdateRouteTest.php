@@ -209,6 +209,54 @@ class CartItemUpdateRouteTest extends TestCase
         static::assertSame('CHECKOUT__CART_LINEITEM_NOT_STACKABLE', $response['errors'][0]['code']);
     }
 
+    public function testUpdateByTypeCredit(): void
+    {
+        $this->enableAdminAccess();
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/cart/line-item',
+                [
+                    'items' => [
+                        [
+                            'id' => $this->ids->get('p1'),
+                            'referencedId' => $this->ids->get('p1'),
+                            'label' => 'item',
+                            'type' => 'credit',
+                            'priceDefinition' => [
+                                'price' => 100.0,
+                                'type' => 'absolute',
+                                'absolute' => 1.0,
+                            ],
+                            'stackable' => true,
+                        ],
+                    ],
+                ]
+            );
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+
+        $this->browser
+            ->request(
+                'PATCH',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/cart/line-item',
+                [
+                    'items' => [
+                        [
+                            'id' => $this->ids->get('p1'),
+                            'label' => 'item update',
+                        ],
+                    ],
+                ]
+            );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+        static::assertSame('item update', $response['lineItems'][0]['label']);
+    }
+
     private function createTestData(): void
     {
         $this->productRepository->create([

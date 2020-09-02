@@ -18,7 +18,7 @@ Shopware Migration Assistant comes with the default Shopware 5.5 profile and is 
 </service>
 ```
 
-In order to identify itself, the profile has to implement a `getName` function, that returns the unique name of the profile.
+In order to identify itself, the profile has to implement getter functions like `getName`, which returns the unique name of the profile.
 The profile is used together with the [gateway](./060-gateway-and-reader.md) to check and apply the right processing during a migration run.
 
 ```php

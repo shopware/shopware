@@ -8,13 +8,14 @@
         <service id="Shopware\Core\Checkout\Cart\CreditCartProcessor">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator"/>
 
-            <tag name="shopware.cart.processor" priority="4000"/>
+            <tag name="shopware.cart.processor"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\CustomCartProcessor">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
 
-            <tag name="shopware.cart.processor"/>
+            <tag name="shopware.cart.processor" priority="4000"/>
+            <tag name="shopware.cart.collector"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\CartValueResolver">
@@ -159,7 +160,6 @@
             <argument type="service" id="serializer"/>
             <argument type="service" id="order.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountRegistrationService"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
             <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>

@@ -56,10 +56,10 @@ class Migration1595553089FixOrderConfirmationMailForAllPayloads extends Migratio
         Connection $connection,
         ?string $enLangId,
         ?string $deLangId,
-        $getHtmlTemplateEn,
-        $getPlainTemplateEn,
-        $getHtmlTemplateDe,
-        $getPlainTemplateDe
+        string $getHtmlTemplateEn,
+        string $getPlainTemplateEn,
+        string $getHtmlTemplateDe,
+        string $getPlainTemplateDe
     ): void {
         $templateId = $this->fetchSystemMailTemplateIdFromType($connection, $mailTemplateType);
 

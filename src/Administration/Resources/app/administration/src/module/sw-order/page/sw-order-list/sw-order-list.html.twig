@@ -33,6 +33,13 @@
 
                     {% block sw_order_list_smart_bar_actions_add %}
                         <sw-button
+                            class="sw-order-list__add-order"
+                            :disabled="!acl.can('order.creator')"
+                            v-tooltip="{
+                                message: $tc('sw-privileges.tooltip.warning'),
+                                disabled: acl.can('order.creator'),
+                                showOnDisabledElements: true
+                            }"
                             variant="primary"
                             :routerLink="{ name: 'sw.order.create' }">
                             {{ $tc('sw-order.list.buttonAddOrder') }}
@@ -136,7 +143,10 @@
                                             {% endblock %}
 
                                             {% block sw_order_list_grid_columns_actions_delete %}
-                                            <sw-context-menu-item variant="danger" :disabled="disableDeletion(item)" @click="onDelete(item.id)">
+                                            <sw-context-menu-item
+                                                variant="danger"
+                                                :disabled="disableDeletion(item)"
+                                                @click="onDelete(item.id)">
                                                 {{ $tc('sw-order.list.contextMenuDelete') }}
                                             </sw-context-menu-item>
                                             {% endblock %}

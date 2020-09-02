@@ -21,6 +21,10 @@ class EntityProtectionCollection extends Collection
         $this->set(get_class($element), $element);
     }
 
+    /**
+     * @param string|int       $key
+     * @param EntityProtection $element
+     */
     public function set($key, $element): void
     {
         parent::set(get_class($element), $element);

@@ -9,8 +9,8 @@ use Shopware\Core\Framework\Plugin\Event\PluginPreUninstallEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreUpdateEvent;
 use Shopware\Storefront\Theme\Exception\InvalidThemeBundleException;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
+use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
-use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
 use Shopware\Storefront\Theme\ThemeLifecycleHandler;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -28,7 +28,7 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
     private $projectDirectory;
 
     /**
-     * @var StorefrontPluginConfigurationFactory
+     * @var AbstractStorefrontPluginConfigurationFactory
      */
     private $pluginConfigurationFactory;
 
@@ -40,7 +40,7 @@ class PluginLifecycleSubscriber implements EventSubscriberInterface
     public function __construct(
         StorefrontPluginRegistryInterface $storefrontPluginRegistry,
         string $projectDirectory,
-        StorefrontPluginConfigurationFactory $pluginConfigurationFactory,
+        AbstractStorefrontPluginConfigurationFactory $pluginConfigurationFactory,
         ThemeLifecycleHandler $themeLifecycleHandler
     ) {
         $this->storefrontPluginRegistry = $storefrontPluginRegistry;

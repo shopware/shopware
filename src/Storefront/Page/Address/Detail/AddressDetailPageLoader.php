@@ -12,8 +12,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\System\Country\CountryCollection;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Shopware\Core\System\Country\SalesChannel\AbstractCountryRoute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\Salutation\SalesChannel\AbstractSalutationRoute;
 use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Core\System\Salutation\SalutationEntity;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
@@ -28,14 +29,14 @@ class AddressDetailPageLoader
     private $genericLoader;
 
     /**
-     * @var SalesChannelRepositoryInterface
+     * @var AbstractCountryRoute
      */
-    private $countryRepository;
+    private $countryRoute;
 
     /**
-     * @var SalesChannelRepositoryInterface
+     * @var AbstractSalutationRoute
      */
-    private $salutationRepository;
+    private $salutationRoute;
 
     /**
      * @var AddressService
@@ -49,14 +50,14 @@ class AddressDetailPageLoader
 
     public function __construct(
         GenericPageLoaderInterface $genericLoader,
-        SalesChannelRepositoryInterface $countryRepository,
-        SalesChannelRepositoryInterface $salutationRepository,
+        AbstractCountryRoute $countryRoute,
+        AbstractSalutationRoute $salutationRoute,
         AddressService $addressService,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->genericLoader = $genericLoader;
-        $this->countryRepository = $countryRepository;
-        $this->salutationRepository = $salutationRepository;
+        $this->countryRoute = $countryRoute;
+        $this->salutationRoute = $salutationRoute;
         $this->addressService = $addressService;
         $this->eventDispatcher = $eventDispatcher;
     }
@@ -92,8 +93,7 @@ class AddressDetailPageLoader
      */
     private function getSalutations(SalesChannelContext $salesChannelContext): SalutationCollection
     {
-        /** @var SalutationCollection $salutations */
-        $salutations = $this->salutationRepository->search(new Criteria(), $salesChannelContext)->getEntities();
+        $salutations = $this->salutationRoute->load(new Request(), $salesChannelContext)->getSalutations();
 
         $salutations->sort(function (SalutationEntity $a, SalutationEntity $b) {
             return $b->getSalutationKey() <=> $a->getSalutationKey();
@@ -111,8 +111,7 @@ class AddressDetailPageLoader
             ->addFilter(new EqualsFilter('country.active', true))
             ->addAssociation('states');
 
-        /** @var CountryCollection $countries */
-        $countries = $this->countryRepository->search($criteria, $salesChannelContext)->getEntities();
+        $countries = $this->countryRoute->load($criteria, $salesChannelContext)->getCountries();
 
         $countries->sortCountryAndStates();
 

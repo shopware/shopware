@@ -64,6 +64,12 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
             default: true
         },
 
+        allowView: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+
         allowDelete: {
             type: Boolean,
             required: false,
@@ -81,6 +87,15 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
             total: 10,
             lastSortedColumn: null
         };
+    },
+    computed: {
+        detailPageLinkText() {
+            if (!this.allowEdit && this.allowView) {
+                return this.$tc('global.default.view');
+            }
+
+            return this.$tc('global.default.edit');
+        }
     },
 
     watch: {

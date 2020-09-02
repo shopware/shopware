@@ -9,7 +9,7 @@ const types = Shopware.Utils.types;
 Component.register('sw-promotion-basic-form', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('placeholder')

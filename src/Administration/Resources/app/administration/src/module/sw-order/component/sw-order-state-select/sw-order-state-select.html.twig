@@ -3,6 +3,7 @@
         {% block sw_order_state_select_field %}
             <sw-field :class="`${selectStyle} ${backgroundStyle}`"
                       type="select"
+                      :disabled="disabled"
                       :placeholder="selectPlaceholder"
                       :options="transitionOptions"
                       size="small"

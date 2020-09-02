@@ -385,7 +385,7 @@ class SalesChannelCartController extends AbstractController
         }
     }
 
-    private function initPriceDefinition(Context $context, $priceDefinition, $lineItemType)
+    private function initPriceDefinition(Context $context, array $priceDefinition, string $lineItemType)
     {
         if (!isset($priceDefinition['type'])) {
             throw new InvalidPriceFieldTypeException('none');

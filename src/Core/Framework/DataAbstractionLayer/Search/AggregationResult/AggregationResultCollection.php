@@ -20,6 +20,10 @@ class AggregationResultCollection extends Collection
         $this->set($result->getName(), $result);
     }
 
+    /**
+     * @param string|int        $key
+     * @param AggregationResult $result
+     */
     public function set($key, $result): void
     {
         parent::set($result->getName(), $result);

@@ -23,6 +23,12 @@ Component.register('sw-condition-type-select', {
             type: Boolean,
             required: false,
             default: false
+        },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -66,6 +72,13 @@ Component.register('sw-condition-type-select', {
         },
 
         arrowColor() {
+            if (this.disabled) {
+                return {
+                    primary: '#d1d9e0',
+                    secondary: 'transparent'
+                };
+            }
+
             if (this.hasError) {
                 return {
                     primary: '#DE294C',

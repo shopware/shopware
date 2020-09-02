@@ -12,7 +12,6 @@ use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\PaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\PaymentService;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -69,11 +68,6 @@ class CheckoutController extends StorefrontController
      */
     private $offcanvasCartPageLoader;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $orderRepository;
-
     public function __construct(
         CartService $cartService,
         CheckoutCartPageLoader $cartPageLoader,
@@ -81,8 +75,7 @@ class CheckoutController extends StorefrontController
         CheckoutFinishPageLoader $finishPageLoader,
         OrderService $orderService,
         PaymentService $paymentService,
-        OffcanvasCartPageLoader $offcanvasCartPageLoader,
-        EntityRepositoryInterface $orderRepository
+        OffcanvasCartPageLoader $offcanvasCartPageLoader
     ) {
         $this->cartService = $cartService;
         $this->cartPageLoader = $cartPageLoader;
@@ -91,7 +84,6 @@ class CheckoutController extends StorefrontController
         $this->orderService = $orderService;
         $this->paymentService = $paymentService;
         $this->offcanvasCartPageLoader = $offcanvasCartPageLoader;
-        $this->orderRepository = $orderRepository;
     }
 
     /**

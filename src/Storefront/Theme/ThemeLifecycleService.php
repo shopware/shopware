@@ -90,15 +90,19 @@ class ThemeLifecycleService
     public function refreshThemes(
         Context $context,
         ?StorefrontPluginConfigurationCollection $configurationCollection = null
-    ): void {
+    ): array {
         if ($configurationCollection === null) {
             $configurationCollection = $this->pluginRegistry->getConfigurations()->getThemes();
         }
 
         // iterate over all theme configs in the filesystem (plugins/bundles)
+        $refreshed = [];
         foreach ($configurationCollection as $config) {
             $this->refreshTheme($config, $context);
+            $refreshed[] = $config->getTechnicalName();
         }
+
+        return $refreshed;
     }
 
     public function refreshTheme(StorefrontPluginConfiguration $configuration, Context $context): void

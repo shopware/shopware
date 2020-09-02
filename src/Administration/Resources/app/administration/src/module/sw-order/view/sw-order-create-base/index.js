@@ -3,6 +3,7 @@ import template from './sw-order-create-base.html.twig';
 const { Component, State, Utils, Data, Service, Mixin } = Shopware;
 const { Criteria } = Data;
 const { get, format, array } = Utils;
+const { mapGetters } = Component.getComponentHelper();
 
 Component.register('sw-order-create-base', {
     template,
@@ -35,10 +36,28 @@ Component.register('sw-order-create-base', {
 
         promotionCodeTags: {
             handler: 'handlePromotionCodeTags'
+        },
+
+        cartErrors: {
+            handler(newValue) {
+                if (!newValue || newValue.length === 0) {
+                    return;
+                }
+
+                Object.keys(newValue).forEach(key => {
+                    this.createNotificationError({
+                        message: newValue[key].message
+                    });
+                });
+            }
         }
     },
 
     computed: {
+        ...mapGetters('swOrder', [
+            'cartErrors'
+        ]),
+
         customerRepository() {
             return Service('repositoryFactory').create('customer');
         },

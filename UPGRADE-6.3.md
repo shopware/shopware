@@ -186,6 +186,7 @@ After that you are able to delete your implementation of the `SnippetFileInterfa
           $event->getCriteria()->addExtension('sortings', $availableSortings);
       }
     ```
+* Added validation deliverability in case purchase steps
 
 * Deprecated providing an until timestamp as the last argument when running the `database:migrate` or `database:migrate-destructive` commands, use the --until option instead.
     * Before:

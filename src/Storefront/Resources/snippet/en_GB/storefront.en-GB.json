@@ -361,6 +361,7 @@
     "shippingMethod": "Shipping method",
     "product-stock-reached": "The product %name% is only available %quantity% times",
     "product-out-of-stock": "The product %name% is not available any more",
+    "purchase-steps-quantity": "Your input quantity does not match with the setup of the %name%. The quantity was changed to %quantity%",
     "shipping-method-blocked": "The shipping method %name% is blocked for your current shopping cart.",
     "payment-method-blocked": "The payment method %name% is blocked for your current shopping cart.",
     "lineItemDeliveryDate": "Delivery period: %earliest% - %latest%",

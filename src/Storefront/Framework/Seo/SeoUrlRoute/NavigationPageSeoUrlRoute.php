@@ -50,7 +50,7 @@ class NavigationPageSeoUrlRoute implements SeoUrlRouteInterface
 
         $rootId = $this->detectRootId($category, $salesChannel);
 
-        $breadcrumbs = $category->buildSeoBreadcrumb($rootId);
+        $breadcrumbs = $category->buildSeoBreadcrumb($salesChannel, $rootId);
         $categoryJson = $category->jsonSerialize();
         $categoryJson['seoBreadcrumb'] = $breadcrumbs;
 

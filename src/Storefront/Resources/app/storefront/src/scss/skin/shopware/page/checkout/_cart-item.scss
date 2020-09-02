@@ -34,8 +34,10 @@
 .cart-item-label {
     color: $body-color;
     font-weight: $font-weight-bold;
+}
 
-    a&:hover {
+a.cart-item-label {
+    &:hover {
         color: $primary;
         text-decoration: none;
     }

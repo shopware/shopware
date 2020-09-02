@@ -290,12 +290,11 @@ For comparability reason they inherit from the `public` filesytem. So after the 
 All file system configuration have now an `url` config option, this url will be used for url generation to the files.
 
 ## Usage of the Symfony asset
-
 To unify the URL generation, we create a Symfony asset for each public filesystem adapter. This will build the correct URL with a version cache busting.
-These assets are prefixed in dependency injection with `shopware.asset.{ADAPTER_NAME}`
-    * `shopware.asset.public`
-    * `shopware.asset.theme`
-    * `shopware.asset.asset`
+These assets are prefixed in dependency injection with `shopware.asset.{ADAPTER_NAME}`:  
+*  `shopware.asset.public`
+*  `shopware.asset.theme`
+*  `shopware.asset.asset`
 
 Example in PHP:
 ```php

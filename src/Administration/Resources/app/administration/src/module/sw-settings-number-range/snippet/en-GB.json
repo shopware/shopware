@@ -49,5 +49,12 @@
       "errorSalesChannelNeededMessage": "No Sales Channel selected. Please assign at least one Sales Channel.",
       "errorPatternNeededMessage": "No pattern defined. Please define at least a start value."
     }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "number_ranges": {
+        "label": "Number Ranges"
+      }
+    }
   }
 }

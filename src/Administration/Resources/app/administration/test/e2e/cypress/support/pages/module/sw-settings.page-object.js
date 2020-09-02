@@ -28,7 +28,10 @@ export default class SettingsPageObject {
 
                 customerGroupSaveAction: '.sw-settings-customer-group-detail__save',
 
-                salutationListContent: '.sw-settings-salutation-list-grid'
+                salutationListContent: '.sw-settings-salutation-list-grid',
+
+                numberRangeSaveAction: '.sw-settings-number-range-detail__save-action',
+                numberRangeColumnName: '.sw-data-grid__cell--name'
             }
         };
     }

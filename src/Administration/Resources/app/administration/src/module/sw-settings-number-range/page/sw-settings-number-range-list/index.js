@@ -7,7 +7,10 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-settings-number-range-list', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [
+        'repositoryFactory',
+        'acl'
+    ],
 
     mixins: [
         Mixin.getByName('notification'),

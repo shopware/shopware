@@ -1,6 +1,7 @@
 import './page/sw-settings-number-range-list';
 import './page/sw-settings-number-range-detail';
 import './page/sw-settings-number-range-create';
+import './acl';
 
 const { Module } = Shopware;
 
@@ -19,21 +20,24 @@ Module.register('sw-settings-number-range', {
             component: 'sw-settings-number-range-list',
             path: 'index',
             meta: {
-                parentPath: 'sw.settings.index'
+                parentPath: 'sw.settings.index',
+                privilege: 'number_ranges.viewer'
             }
         },
         detail: {
             component: 'sw-settings-number-range-detail',
             path: 'detail/:id',
             meta: {
-                parentPath: 'sw.settings.number.range.index'
+                parentPath: 'sw.settings.number.range.index',
+                privilege: 'number_ranges.viewer'
             }
         },
         create: {
             component: 'sw-settings-number-range-create',
             path: 'create',
             meta: {
-                parentPath: 'sw.settings.number.range.index'
+                parentPath: 'sw.settings.number.range.index',
+                privilege: 'number_ranges.creator'
             }
         }
     },
@@ -41,6 +45,7 @@ Module.register('sw-settings-number-range', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.number.range.index',
-        icon: 'default-documentation-paper-pencil-signed'
+        icon: 'default-documentation-paper-pencil-signed',
+        privilege: 'number_ranges.viewer'
     }
 });

@@ -6,7 +6,11 @@ const { Component, Mixin, Data: { Criteria } } = Shopware;
 Component.register('sw-settings-number-range-detail', {
     template,
 
-    inject: ['numberRangeService', 'repositoryFactory'],
+    inject: [
+        'numberRangeService',
+        'repositoryFactory',
+        'acl'
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -132,6 +136,14 @@ Component.register('sw-settings-number-range-detail', {
         },
 
         tooltipSave() {
+            if (!this.acl.can('number_ranges.editor')) {
+                return {
+                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    disabled: this.acl.can('number_ranges.editor'),
+                    showOnDisabledElements: true
+                };
+            }
+
             const systemKey = this.$device.getSystemKey();
 
             return {

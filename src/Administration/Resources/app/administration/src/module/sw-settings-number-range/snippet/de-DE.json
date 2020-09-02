@@ -49,5 +49,12 @@
       "errorSalesChannelNeededMessage": "Kein Verkaufskanal ausgewählt. Bitte wähle mindestens einen Verkaufskanal.",
       "errorPatternNeededMessage": "Kein Pattern angegeben. Bitte gib mindestens eine Startnummer an."
     }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "number_ranges": {
+        "label": "Nummernkreise"
+      }
+    }
   }
 }

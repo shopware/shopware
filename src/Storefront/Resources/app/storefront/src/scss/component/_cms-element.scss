@@ -96,6 +96,11 @@ General styling for cms elements
         align-items: center;
         justify-content: center;
         text-align: center;
+
+        > div {
+            background: rgba(255, 255, 255, 0.5);
+            padding: $spacer;
+        }
     }
 }
 
@@ -139,6 +144,11 @@ General styling for cms elements
         align-items: center;
         justify-content: center;
         text-align: center;
+
+        > div {
+            background: rgba(255, 255, 255, 0.5);
+            padding: $spacer;
+        }
     }
 }
 

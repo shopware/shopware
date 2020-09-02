@@ -56,9 +56,12 @@
                     <div class="cms-element-vimeo-video__placeholder"
                          data-cms-gdpr-video-element="true"
                          data-cms-gdpr-video-element-options="{{ pluginConfiguration|json_encode }}">
-                        {% sw_thumbnails 'cms-element-vimeo-video__placeholder' with {
-                            media: elementData.media
-                        } %}
+
+                        {% if elementData.media %}
+                            {% sw_thumbnails 'cms-element-vimeo-video__placeholder' with {
+                                media: elementData.media
+                            } %}
+                        {% endif %}
                     </div>
                 {% endblock %}
             {% endif %}

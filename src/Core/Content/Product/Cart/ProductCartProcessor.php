@@ -247,7 +247,10 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
         $purchasePrices = null;
         if (Feature::isActive('FEATURE_NEXT_9825') && $product->getPurchasePrices()) {
-            $purchasePrices = $product->getPurchasePrices()->getCurrencyPrice(Defaults::CURRENCY);
+            $purchasePricesCollection = $product->getPurchasePrices();
+            if ($purchasePricesCollection !== null) {
+                $purchasePrices = $purchasePricesCollection->getCurrencyPrice(Defaults::CURRENCY);
+            }
         }
 
         $payload = [

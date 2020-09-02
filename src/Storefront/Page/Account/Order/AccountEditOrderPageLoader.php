@@ -167,12 +167,17 @@ class AccountEditOrderPageLoader
     {
         $transactions = $order->getTransactions();
 
-        if (!$transactions || $transactions->count() === 0) {
+        if ($transactions === null) {
             return false;
         }
 
         $transaction = $transactions->last();
-        if (!$stateMachineState = $transaction->getStateMachineState()) {
+        if ($transaction === null) {
+            return false;
+        }
+
+        $stateMachineState = $transaction->getStateMachineState();
+        if ($stateMachineState === null) {
             return false;
         }
 

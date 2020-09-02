@@ -221,7 +221,7 @@ class UpdateController extends AbstractController
             $this->systemConfig->set(self::UPDATE_TOKEN_KEY, $updateToken);
 
             return new JsonResponse([
-                'redirectTo' => $request->getBaseUrl() . '/api/v' . PlatformRequest::API_VERSION . ' /_action/update/finish/' . $this->systemConfig->get(self::UPDATE_TOKEN_KEY),
+                'redirectTo' => $request->getBaseUrl() . '/api/v' . PlatformRequest::API_VERSION . ' /_action/update/finish/' . $updateToken,
             ]);
         }
 
@@ -302,7 +302,7 @@ class UpdateController extends AbstractController
     public function finish(string $token, Request $request, Context $context): Response
     {
         $offset = $request->query->getInt('offset');
-        $oldVersion = (string) $this->systemConfig->get(self::UPDATE_PREVIOUS_VERSION_KEY);
+        $oldVersion = $this->systemConfig->getString(self::UPDATE_PREVIOUS_VERSION_KEY);
         if ($offset === 0) {
             if (!$token) {
                 return $this->redirectToRoute('administration.index');

@@ -37,8 +37,8 @@ class LogCleanupTaskHandler extends ScheduledTaskHandler
 
     public function run(): void
     {
-        $entryLifetimeSeconds = $this->systemConfigService->get('core.logging.entryLifetimeSeconds');
-        $maxEntries = $this->systemConfigService->get('core.logging.entryLimit');
+        $entryLifetimeSeconds = $this->systemConfigService->getInt('core.logging.entryLifetimeSeconds');
+        $maxEntries = $this->systemConfigService->getInt('core.logging.entryLimit');
 
         if ($entryLifetimeSeconds !== -1) {
             $deleteBefore = (new \DateTime(sprintf('- %s seconds', $entryLifetimeSeconds)))
@@ -53,7 +53,7 @@ class LogCleanupTaskHandler extends ScheduledTaskHandler
             $sql = 'DELETE ld FROM `log_entry` ld LEFT JOIN (
                         SELECT id
                         FROM `log_entry`
-                        ORDER BY `created_at` 
+                        ORDER BY `created_at`
                         DESC LIMIT :maxEntries
                     ) ls ON ld.ID = ls.ID
                     WHERE ls.ID IS NULL;';

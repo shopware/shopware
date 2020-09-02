@@ -8,9 +8,9 @@ class MailerTransportFactory implements MailerTransportFactoryInterface
 {
     public function create(SystemConfigService $configService, \Swift_Transport $innerTransport): \Swift_Transport
     {
-        $emailAgent = $configService->get('core.mailerSettings.emailAgent');
+        $emailAgent = $configService->getString('core.mailerSettings.emailAgent');
 
-        if ($emailAgent === null) {
+        if ($emailAgent === '') {
             return $innerTransport;
         }
 
@@ -24,14 +24,11 @@ class MailerTransportFactory implements MailerTransportFactoryInterface
         }
     }
 
-    /**
-     * @param SystemConfigService $configService
-     */
-    protected function createSmtpTransport($configService): \Swift_Transport
+    protected function createSmtpTransport(SystemConfigService $configService): \Swift_Transport
     {
         $transport = new \Swift_SmtpTransport(
-            $configService->get('core.mailerSettings.host'),
-            $configService->get('core.mailerSettings.port'),
+            $configService->getString('core.mailerSettings.host'),
+            $configService->getInt('core.mailerSettings.port'),
             $this->getEncryption($configService)
         );
 
@@ -40,19 +37,15 @@ class MailerTransportFactory implements MailerTransportFactoryInterface
             $transport->setAuthMode($auth);
         }
 
-        $transport->setUsername(
-            (string) $configService->get('core.mailerSettings.username')
-        );
-        $transport->setPassword(
-            (string) $configService->get('core.mailerSettings.password')
-        );
+        $transport->setUsername($configService->getString('core.mailerSettings.username'));
+        $transport->setPassword($configService->getString('core.mailerSettings.password'));
 
         return $transport;
     }
 
     private function getEncryption(SystemConfigService $configService): ?string
     {
-        $encryption = $configService->get('core.mailerSettings.encryption');
+        $encryption = $configService->getString('core.mailerSettings.encryption');
 
         switch ($encryption) {
             case 'ssl':
@@ -66,7 +59,7 @@ class MailerTransportFactory implements MailerTransportFactoryInterface
 
     private function getAuthMode(SystemConfigService $configService): ?string
     {
-        $authenticationMethod = $configService->get('core.mailerSettings.authenticationMethod');
+        $authenticationMethod = $configService->getString('core.mailerSettings.authenticationMethod');
 
         switch ($authenticationMethod) {
             case 'plain':
@@ -84,14 +77,14 @@ class MailerTransportFactory implements MailerTransportFactoryInterface
     {
         $command = '/usr/sbin/sendmail ';
 
-        $option = $configService->get('core.mailerSettings.sendMailOptions');
+        $option = $configService->getString('core.mailerSettings.sendMailOptions');
 
-        if (empty($option)) {
+        if ($option === '') {
             $option = '-t';
         }
 
         if ($option !== '-bs' && $option !== '-t') {
-            throw new \RuntimeException('Given sendmail option "%s" is invalid', $option);
+            throw new \RuntimeException(sprintf('Given sendmail option "%s" is invalid', $option));
         }
 
         return $command . $option;

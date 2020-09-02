@@ -35,8 +35,8 @@ class MailSender implements MailSenderInterface
             return;
         }
 
-        $deliveryAddress = $this->configService->get('core.mailerSettings.deliveryAddress');
-        if ($deliveryAddress) {
+        $deliveryAddress = $this->configService->getString('core.mailerSettings.deliveryAddress');
+        if ($deliveryAddress !== '') {
             $message->addBcc($deliveryAddress);
         }
 

@@ -192,8 +192,7 @@ describe('Search bar: Check main functionality', () => {
 
         // navigate down to test if active item also stays the same after refocus
         cy.get('input.sw-search-bar__input').type('{downarrow}');
-
-
+        
         // capture dom of search result box
         let searchResultsMarkup = undefined;
         cy.get('.sw-search-bar__results').then($el =>
@@ -222,40 +221,51 @@ describe('Search bar: Check main functionality', () => {
         cy.get('input.sw-search-bar__input').type('e');
         cy.get('.sw-search-bar__results').should('be.visible');
 
-        cy.get('.sw-search-bar-item')
-            .should('be.visible').should(($searchBarItems) => {
-            expect($searchBarItems).to.have.length(4)
-        });
-        cy.get('.sw-search-bar__results-column-header').should('be.visible').should(($resultsColumns) => {
-            expect($resultsColumns).to.have.length(3)
-        });
-
         // 'Cursor' is at the first element and should therefore not move
-        cy.get('.is--active.sw-search-bar-item').contains('RS-333 - Product name');
-        cy.get('input.sw-search-bar__input').type('{uparrow}');
-        cy.get('input.sw-search-bar__input').type('{leftarrow}');
-        cy.get('.is--active.sw-search-bar-item').contains('RS-333 - Product name');
-
-        cy.get('input.sw-search-bar__input').type('{downarrow}');
-        cy.get('.is--active.sw-search-bar-item').contains('Home');
-
-        cy.get('input.sw-search-bar__input').type('{leftarrow}');
-        cy.get('.is--active.sw-search-bar-item').contains('RS-333 - Product name');
-
-        cy.get('input.sw-search-bar__input').type('{rightarrow}');
-        cy.get('.is--active.sw-search-bar-item').contains('Home');
-
-        cy.get('input.sw-search-bar__input').type('{rightarrow}');
-        cy.get('input.sw-search-bar__input').type('{downarrow}');
-
-        // 'Cursor' is at the last element and should therefore not move
         cy.get('.is--active.sw-search-bar-item').invoke('text').then((resultTextBefore) => {
             // to ensure this try to move it anyways
-            cy.get('input.sw-search-bar__input').type('{downarrow}');
-            cy.get('input.sw-search-bar__input').type('{rightarrow}');
+            cy.get('input.sw-search-bar__input').type('{leftarrow}');
+            cy.get('input.sw-search-bar__input').type('{uparrow}');
             cy.get('.is--active.sw-search-bar-item').invoke('text').should((resultTextAfter) => {
                 expect(resultTextBefore).to.equal(resultTextAfter)
             })
+        });
+
+        // move the 'Cursor' down and then up again
+        cy.get('.is--active.sw-search-bar-item').invoke('text').then((resultTextBefore) => {
+            // to ensure this try to move it anyways
+            cy.get('input.sw-search-bar__input').type('{downarrow}');
+            cy.get('input.sw-search-bar__input').type('{uparrow}');
+            cy.get('.is--active.sw-search-bar-item').invoke('text').should((resultTextAfter) => {
+                expect(resultTextBefore).to.equal(resultTextAfter)
+            })
+        });
+
+        // move the 'Cursor' right and then left again
+        cy.get('.is--active.sw-search-bar-item').invoke('text').then((resultTextBefore) => {
+            // to ensure this try to move it anyways
+            cy.get('input.sw-search-bar__input').type('{rightarrow}');
+            cy.get('input.sw-search-bar__input').type('{leftarrow}');
+            cy.get('.is--active.sw-search-bar-item').invoke('text').should((resultTextAfter) => {
+                expect(resultTextBefore).to.equal(resultTextAfter)
+            })
+        });
+
+        cy.get('.sw-search-bar__results').find('.sw-search-bar-item').its('length').then((numberOfResults) => {
+            // navigate to the last result based on the numberOfResults
+            for (let i = 1; i <= numberOfResults; i++) {
+                cy.get('input.sw-search-bar__input').type('{downarrow}')
+            }
+
+            // 'Cursor' is at the last element and should therefore not move
+            cy.get('.is--active.sw-search-bar-item').invoke('text').then((resultTextBefore) => {
+                // to ensure this try to move it anyways
+                cy.get('input.sw-search-bar__input').type('{downarrow}');
+                cy.get('input.sw-search-bar__input').type('{rightarrow}');
+                cy.get('.is--active.sw-search-bar-item').invoke('text').should((resultTextAfter) => {
+                    expect(resultTextBefore).to.equal(resultTextAfter)
+                })
+            });
         });
     });
 });

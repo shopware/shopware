@@ -4,8 +4,10 @@ namespace Shopware\Core\Framework\Test\Seo;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
+use Shopware\Core\Content\Seo\SeoUrlGenerator;
 use Shopware\Core\Content\Seo\SeoUrlPersister;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -14,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
 
 class SeoUrlPersisterTest extends TestCase
 {
@@ -30,10 +33,22 @@ class SeoUrlPersisterTest extends TestCase
      */
     private $seoUrlPersister;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $categoryRepository;
+
+    /**
+     * @var SeoUrlGenerator
+     */
+    private $seoUrlGenerator;
+
     public function setUp(): void
     {
         $this->seoUrlRepository = $this->getContainer()->get('seo_url.repository');
         $this->seoUrlPersister = $this->getContainer()->get(SeoUrlPersister::class);
+        $this->categoryRepository = $this->getContainer()->get('category.repository');
+        $this->seoUrlGenerator = $this->getContainer()->get(SeoUrlGenerator::class);
 
         $connection = $this->getContainer()->get(Connection::class);
         $connection->exec('DELETE FROM `sales_channel`');
@@ -298,5 +313,91 @@ class SeoUrlPersisterTest extends TestCase
 
         static::assertTrue($canon->getIsModified());
         static::assertNotEquals('no-effect', $canon->getSeoPathInfo());
+    }
+
+    public function testUpdateSeoUrlsShouldMarkSeoUrlAsDeleted(): void
+    {
+        $isActive = false;
+        $category = $this->createCategory($isActive);
+        $this->createSeoUrlInDatabase($category->getId());
+
+        $seoUrls = $this->generateSeoUrls($category->getId());
+
+        $this->seoUrlPersister->updateSeoUrls(
+            Context::createDefaultContext(),
+            'frontend.navigation.page',
+            [$category->getId()],
+            $seoUrls
+        );
+
+        $seoUrl = $this->getSeoUrlFromDatabase($category->getId());
+
+        static::assertTrue($seoUrl->getIsDeleted());
+    }
+
+    public function testUpdateSeoUrlsShouldMarkSeoUrlAsNotDeleted(): void
+    {
+        $isActive = true;
+        $category = $this->createCategory($isActive);
+        $this->createSeoUrlInDatabase($category->getId());
+
+        $seoUrls = $this->generateSeoUrls($category->getId());
+
+        $this->seoUrlPersister->updateSeoUrls(
+            Context::createDefaultContext(),
+            'frontend.navigation.page',
+            [$category->getId()],
+            $seoUrls
+        );
+
+        $seoUrl = $this->getSeoUrlFromDatabase($category->getId());
+
+        static::assertFalse($seoUrl->getIsDeleted());
+    }
+
+    private function createCategory(bool $active): CategoryEntity
+    {
+        $id = Uuid::randomHex();
+
+        $this->categoryRepository->create([[
+            'id' => $id,
+            'active' => $active,
+            'name' => 'FancyCategory',
+        ]], Context::createDefaultContext());
+
+        return $this->categoryRepository->search(new Criteria([$id]), Context::createDefaultContext())->first();
+    }
+
+    private function getSeoUrlFromDatabase(string $categoryId): SeoUrlEntity
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('foreignKey', $categoryId));
+
+        return $this->seoUrlRepository->search($criteria, Context::createDefaultContext())->first();
+    }
+
+    private function createSeoUrlInDatabase(string $categoryId): void
+    {
+        $this->seoUrlRepository->create([
+            [
+                'foreignKey' => $categoryId,
+                'routeName' => 'frontend.navigation.page',
+                'pathInfo' => sprintf('navigation/%s', $categoryId),
+                'seoPathInfo' => 'FancyCategory',
+                'isCanonical' => true,
+                'isDeleted' => false,
+            ],
+        ], Context::createDefaultContext());
+    }
+
+    private function generateSeoUrls(string $categoryId): iterable
+    {
+        return $this->seoUrlGenerator->generate(
+            [$categoryId],
+            'mytemplate',
+            $this->getContainer()->get(NavigationPageSeoUrlRoute::class),
+            Context::createDefaultContext(),
+            null
+        );
     }
 }

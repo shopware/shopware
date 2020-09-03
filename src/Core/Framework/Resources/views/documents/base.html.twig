@@ -135,6 +135,12 @@
                     {% endif %}
                     {{ billingAddress.salutation.letterName }} {{ billingAddress.firstName }} {{ billingAddress.lastName }}<br>
                     {{ billingAddress.street }}<br>
+                    {% if billingAddress.additionalAddressLine1 %}
+                        {{ billingAddress.additionalAddressLine1 }}<br>
+                    {% endif %}
+                    {% if billingAddress.additionalAddressLine2 %}
+                        {{ billingAddress.additionalAddressLine2 }}<br>
+                    {% endif %}
                     {{ billingAddress.zipcode }} {{ billingAddress.city }}<br>
                     {{ billingAddress.country.name }}<br>
                 {% endblock %}
@@ -294,6 +300,10 @@
                                 {% endblock %}
 
                                 {% block document_line_item_table_shipping %}
+                                    
+                                    {% if billingAddress.additionalAddressLine1 %}<br>{% endif %}
+                                    {% if billingAddress.additionalAddressLine2 %}<br>{% endif %}
+
                                     {% if loop.last == true %}
                                         <tr class="line-item">
                                             {% block document_line_item_table_shipping_position %}

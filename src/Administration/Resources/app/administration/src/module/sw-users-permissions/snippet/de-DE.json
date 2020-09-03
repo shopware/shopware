@@ -151,6 +151,17 @@
       "creator": "Erstellen",
       "deleter": "Löschen"
     },
+    "permissions": {
+      "parents": {
+        "catalogues": "Kataloge",
+        "content": "Inhalte",
+        "customers": "Kunden",
+        "marketing": "Marketing",
+        "other": "Andere",
+        "orders": "Bestellungen",
+        "settings": "Einstellungen"
+      }
+    },
     "additional_permissions": {
       "system": {
         "label": "System"

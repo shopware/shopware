@@ -12,7 +12,7 @@ Shopware.Service('privileges')
     })
     .addPrivilegeMappingEntry({
         category: 'permissions',
-        parent: null,
+        parent: 'orders',
         key: 'order',
         roles: {
             viewer: {

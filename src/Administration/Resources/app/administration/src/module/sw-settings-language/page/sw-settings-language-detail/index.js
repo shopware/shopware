@@ -15,7 +15,12 @@ Component.register('sw-settings-language-detail', {
     ],
 
     shortcuts: {
-        'SYSTEMKEY+S': 'onSave',
+        'SYSTEMKEY+S': {
+            active() {
+                return this.allowSave;
+            },
+            method: 'onSave'
+        },
         ESCAPE: 'onCancel'
     },
 

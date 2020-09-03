@@ -6,7 +6,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-settings-tax-list', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('listing')

@@ -69,6 +69,7 @@
                         :items="languages"
                         :sortBy="sortBy"
                         :sortDirection="sortDirection"
+                        :allowView="acl.can('language.viewer')"
                         :allowEdit="acl.can('language.editor')"
                         :allowInlineEdit="acl.can('language.editor')"
                         :allowDelete="acl.can('language.deleter')">

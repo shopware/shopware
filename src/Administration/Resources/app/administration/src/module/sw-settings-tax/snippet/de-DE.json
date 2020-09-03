@@ -47,5 +47,12 @@
       "textDeleteConfirm": "Bist Du Dir sicher, dass Du das Land \"{name}\" löschen möchtest?",
       "placeholderStates": "Staaten hinzufügen"
     }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "tax": {
+        "label": "Steuern"
+      }
+    }
   }
 }

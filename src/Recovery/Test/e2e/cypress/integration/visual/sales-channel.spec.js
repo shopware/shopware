@@ -27,10 +27,14 @@ describe('Sales Channel: Visual tests', () => {
 
         // Open sales channel
         cy.log(Cypress.env('testDataUsage'));
-        let saleschannel = Cypress.env('testDataUsage') ? 'Footwear' : 'E2E install test';
+        const saleschannel = Cypress.env('testDataUsage') ? 'Footwear' : 'E2E install test';
         cy.contains(saleschannel).click();
 
         // Take snapshot for visual testing
+        cy.changeElementStyling(
+            '.sw-version__info',
+            'visibility: hidden'
+        );
         cy.takeSnapshot('Sales channel detail', '.sw-sales-channel-detail-base');
     });
 });

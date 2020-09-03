@@ -105,7 +105,7 @@ describe('Minimal install', () => {
 
         cy.get('.btn.btn-primary').contains('Verder').click();
 
-        // @frw: welcome
+        // @frw in Administration: welcome
         cy.get('.sw-modal.sw-first-run-wizard-modal').should('be.visible');
     });
 });

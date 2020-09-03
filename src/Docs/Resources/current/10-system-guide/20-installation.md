@@ -72,6 +72,18 @@ This may take a while since many caches need to be generated on first execution,
 
 To be sure that the installation succeeded, just open the following url in your favorite browser: [http://localhost:8000/](http://localhost:8000/)
 
+After exploring Shopware 6 you can terminate it with these two commands:
+
+1. Leave the shell:
+
+    ```bash
+    > exit
+
+2. Stop the containers:
+
+    ```bash
+    > ./psh.phar docker:stop
+
 ## Local installation
 
 If it's impossible to get docker up and running on your development environment you can install Shopware 6 locally.

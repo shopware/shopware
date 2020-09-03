@@ -26,6 +26,70 @@ class Migration1596441551CustomerGroupRegistration extends MigrationStep
     {
     }
 
+    public function createMailTypes(Connection $connection): void
+    {
+        $enLangId = $this->fetchLanguageId('en-GB', $connection);
+        $deLangId = $this->fetchLanguageId('de-DE', $connection);
+
+        $types = [
+            'customer.group.registration.accepted' => [
+                'de-DE' => 'Kunden Gruppen Registrierung Akzeptiert',
+                'en-GB' => 'Customer Group Registration Accepted',
+            ],
+            'customer.group.registration.declined' => [
+                'de-DE' => 'Kunden Gruppen Registrierung Abgelehnt',
+                'en-GB' => 'Customer Group Registration Declined',
+            ],
+        ];
+
+        foreach ($types as $typeName => $translations) {
+            $typeId = Uuid::randomBytes();
+
+            $connection->insert('mail_template_type', [
+                'id' => $typeId,
+                'technical_name' => $typeName,
+                'available_entities' => json_encode(['customer' => 'customer', 'customerGroup' => 'customer_group']),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ]);
+
+            $languageIds = [];
+
+            if ($enLangId) {
+                $connection->insert('mail_template_type_translation', [
+                    'mail_template_type_id' => $typeId,
+                    'language_id' => $enLangId,
+                    'name' => $translations['en-GB'],
+                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                ]);
+
+                $languageIds[] = Uuid::fromBytesToHex($enLangId);
+            }
+
+            if ($deLangId) {
+                $connection->insert('mail_template_type_translation', [
+                    'mail_template_type_id' => $typeId,
+                    'language_id' => $deLangId,
+                    'name' => $translations['de-DE'],
+                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                ]);
+
+                $languageIds[] = Uuid::fromBytesToHex($deLangId);
+            }
+
+            // We don't have both en and de
+            if (!in_array(Defaults::LANGUAGE_SYSTEM, $languageIds, true)) {
+                $connection->insert('mail_template_type_translation', [
+                    'mail_template_type_id' => $typeId,
+                    'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
+                    'name' => $translations['en-GB'],
+                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                ]);
+            }
+
+            $this->createMailTemplates($connection, $translations, $typeName, $typeId, $enLangId, $deLangId);
+        }
+    }
+
     private function updateCustomerTable(Connection $connection): void
     {
         $connection->executeUpdate('ALTER TABLE `customer`
@@ -64,64 +128,6 @@ ADD `registration_seo_meta_description` longtext NULL AFTER `registration_only_c
         return $langId;
     }
 
-    private function createMailTypes(Connection $connection): void
-    {
-        $enLangId = $this->fetchLanguageId('en-GB', $connection);
-        $deLangId = $this->fetchLanguageId('de-DE', $connection);
-
-        $types = [
-            'customer.group.registration.accepted' => [
-                'de-DE' => 'Kunden Gruppen Registrierung Akzeptiert',
-                'en-GB' => 'Customer Group Registration Accepted',
-            ],
-            'customer.group.registration.declined' => [
-                'de-DE' => 'Kunden Gruppen Registrierung Abgelehnt',
-                'en-GB' => 'Customer Group Registration Declined',
-            ],
-        ];
-
-        foreach ($types as $typeName => $translations) {
-            $typeId = Uuid::randomBytes();
-
-            $connection->insert('mail_template_type', [
-                'id' => $typeId,
-                'technical_name' => $typeName,
-                'available_entities' => json_encode(['customer' => 'customer', 'customerGroup' => 'customer_group']),
-                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-            ]);
-
-            if ($enLangId) {
-                $connection->insert('mail_template_type_translation', [
-                    'mail_template_type_id' => $typeId,
-                    'language_id' => $enLangId,
-                    'name' => $translations['en-GB'],
-                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                ]);
-            }
-
-            if ($deLangId) {
-                $connection->insert('mail_template_type_translation', [
-                    'mail_template_type_id' => $typeId,
-                    'language_id' => $deLangId,
-                    'name' => $translations['de-DE'],
-                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                ]);
-            }
-
-            // We don't have both en and de
-            if (!in_array(Defaults::LANGUAGE_SYSTEM, Uuid::fromBytesToHexList([$deLangId, $enLangId]), true)) {
-                $connection->insert('mail_template_type_translation', [
-                    'mail_template_type_id' => $typeId,
-                    'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
-                    'name' => $translations['en-GB'],
-                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                ]);
-            }
-
-            $this->createMailTemplates($connection, $translations, $typeName, $typeId, $enLangId, $deLangId);
-        }
-    }
-
     private function createMailTemplates(Connection $connection, array $typeTranslations, string $typeName, string $typeId, ?string $enLangId, ?string $deLangId): void
     {
         $mailTemplateContent = require __DIR__ . '/Fixtures/MailTemplateContent.php';
@@ -137,6 +143,8 @@ ADD `registration_seo_meta_description` longtext NULL AFTER `registration_only_c
             ]
         );
 
+        $languageIds = [];
+
         if ($enLangId) {
             $connection->insert(
                 'mail_template_translation',
@@ -151,6 +159,8 @@ ADD `registration_seo_meta_description` longtext NULL AFTER `registration_only_c
                     'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ]
             );
+
+            $languageIds[] = Uuid::fromBytesToHex($enLangId);
         }
 
         if ($deLangId) {
@@ -167,10 +177,12 @@ ADD `registration_seo_meta_description` longtext NULL AFTER `registration_only_c
                     'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 ]
             );
+
+            $languageIds[] = Uuid::fromBytesToHex($deLangId);
         }
 
         // We don't have both en and de
-        if (!in_array(Defaults::LANGUAGE_SYSTEM, Uuid::fromBytesToHexList([$deLangId, $enLangId]), true)) {
+        if (!in_array(Defaults::LANGUAGE_SYSTEM, $languageIds, true)) {
             $connection->insert(
                 'mail_template_translation',
                 [

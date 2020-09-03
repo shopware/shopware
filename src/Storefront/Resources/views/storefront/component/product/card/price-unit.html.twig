@@ -23,7 +23,7 @@
                 {% block component_product_box_price_reference_unit %}
                     {% if referncePrice is not null %}
                         <span class="price-unit-reference">
-                            {% if product.priceRange and product.isGrouped %}
+                            {% if product.priceRange %}
                                 ({{ "listing.listingTextFrom"|trans|sw_sanitize }} {{ fromPrice.referencePrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} / {{ fromPrice.referencePrice.referenceUnit }}&nbsp;{{ fromPrice.referencePrice.unitName }})
                             {% else %}
                                 ({{ referncePrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} / {{ referncePrice.referenceUnit }} {{ referncePrice.unitName }})
@@ -38,7 +38,7 @@
             {% set listPrice = product.priceRange or product.calculatedPrices.count > 0 ? null : product.calculatedPrice.listPrice %}
 
             <p class="product-price{% if listPrice.percentage > 0 %} with-list-price{% endif %}">
-                {% if product.priceRange and product.isGrouped %}
+                {% if product.priceRange %}
                     {{ fromPrice.unitPrice|currency }}
                     -
                     {{ listingPrice.to.unitPrice|currency }}{{ "general.star"|trans|sw_sanitize }}

@@ -112,4 +112,29 @@ describe('src/app/component/structure/sw-language-switch', () => {
 
         expect(Shopware.State.get('context').api.languageId).toBe('456');
     });
+
+    it('should show a warning modal with save button enabled', () => {
+        Shopware.State.commit('context/setApiLanguageId', '123');
+
+        wrapper.setProps({
+            abortChangeFunction: () => true
+        });
+        wrapper.vm.onInput('456');
+
+        const saveButton = wrapper.find('#sw-language-switch-save-changes-button');
+        expect(saveButton.attributes().disabled).toBeUndefined();
+    });
+
+    it('should show a warning modal with save button disabled', () => {
+        Shopware.State.commit('context/setApiLanguageId', '123');
+
+        wrapper.setProps({
+            abortChangeFunction: () => true,
+            allowEdit: false
+        });
+        wrapper.vm.onInput('456');
+
+        const saveButton = wrapper.find('#sw-language-switch-save-changes-button');
+        expect(saveButton.attributes().disabled).toBe('true');
+    });
 });

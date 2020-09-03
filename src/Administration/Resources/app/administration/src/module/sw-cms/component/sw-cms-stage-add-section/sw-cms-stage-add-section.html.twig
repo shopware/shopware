@@ -1,5 +1,5 @@
 {% block sw_cms_add_section %}
-    <div class="sw-cms-stage-add-section">
+    <div class="sw-cms-stage-add-section" :class="componentClasses">
 
         {% block sw_cms_add_section_selection %}
             <sw-cms-stage-section-selection
@@ -12,7 +12,7 @@
             <div class="sw-cms-stage-add-section__button"
                  :class="{ 'is--open': showSelection }"
                  v-if="!forceChoose"
-                 @click="showSelection = !showSelection">
+                 @click="toggleSelection">
                 <sw-icon name="default-basic-plus-circle" size="24"></sw-icon>
             </div>
         {% endblock %}

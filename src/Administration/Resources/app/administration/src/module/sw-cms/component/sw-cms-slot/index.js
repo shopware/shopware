@@ -21,6 +21,12 @@ Component.register('sw-cms-slot', {
             type: Boolean,
             required: false,
             default: false
+        },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -38,6 +44,12 @@ Component.register('sw-cms-slot', {
 
         cmsElements() {
             return this.cmsService.getCmsElementRegistry();
+        },
+
+        componentClasses() {
+            return {
+                'is--disabled': this.disabled
+            };
         },
 
         cmsSlotSettingsClasses() {

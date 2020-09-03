@@ -37,18 +37,15 @@ class Migration1595422169AddProductSorting extends MigrationStep
 
             $connection->insert(ProductSortingDefinition::ENTITY_NAME, $sorting);
 
-            $languages = array_unique(array_filter([
-                $this->getLanguageId('en-GB', $connection),
-                Defaults::LANGUAGE_SYSTEM,
-            ]));
+            $defaultLanguage = $this->getLanguageId('en-GB', $connection);
+            $deLanguage = $this->getLanguageId('de-DE', $connection);
 
-            foreach ($languages as $language) {
-                $this->insertTranslation($sorting['id'], $translations['en-GB'], $language, $connection);
+            if ($defaultLanguage && $defaultLanguage !== $deLanguage) {
+                $this->insertTranslation($sorting['id'], $translations['en-GB'], $defaultLanguage, $connection);
             }
 
-            $languages = array_filter([$this->getLanguageId('de-DE', $connection)]);
-            foreach ($languages as $language) {
-                $this->insertTranslation($sorting['id'], $translations['de-DE'], $language, $connection);
+            if ($deLanguage) {
+                $this->insertTranslation($sorting['id'], $translations['de-DE'], $deLanguage, $connection);
             }
         }
     }
@@ -171,15 +168,25 @@ class Migration1595422169AddProductSorting extends MigrationStep
         ];
     }
 
-    private function getLanguageId(string $locale, Connection $connection): string
+    private function getLanguageId(string $locale, Connection $connection): ?string
     {
-        return $connection->fetchColumn('
+        $languageId = $connection->fetchColumn('
             SELECT LOWER(HEX(`language`.id))
             FROM `language`
             INNER JOIN locale
                 ON locale.id = `language`.translation_code_id
                 AND locale.code = :locale
         ', ['locale' => $locale]);
+
+        if (!$languageId && $locale !== 'en-GB') {
+            return null;
+        }
+
+        if (!$languageId) {
+            return Defaults::LANGUAGE_SYSTEM;
+        }
+
+        return $languageId;
     }
 
     private function insertTranslation(string $productSortingId, string $label, string $languageId, Connection $connection): void

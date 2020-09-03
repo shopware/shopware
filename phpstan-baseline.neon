@@ -6171,84 +6171,9 @@ parameters:
 			path: src/Core/Migration/Migration1561712450NewSystemConfigsAndDefaultValues.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Migration1570621541UpdateDefaultMailTemplates\\:\\:fetchLanguageId\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Migration/Migration1570621541UpdateDefaultMailTemplates.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Migration1570621541UpdateDefaultMailTemplates\\:\\:getRegisterTemplate_HTML_EN\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Migration/Migration1570621541UpdateDefaultMailTemplates.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Migration1570621541UpdateDefaultMailTemplates\\:\\:getRegisterTemplate_PLAIN_EN\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Migration/Migration1570621541UpdateDefaultMailTemplates.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Migration1570621541UpdateDefaultMailTemplates\\:\\:getRegisterTemplate_HTML_DE\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Migration/Migration1570621541UpdateDefaultMailTemplates.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Migration1570621541UpdateDefaultMailTemplates\\:\\:getRegisterTemplate_PLAIN_DE\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Migration/Migration1570621541UpdateDefaultMailTemplates.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Migration1570621541UpdateDefaultMailTemplates\\:\\:getOptInTemplate_HTML_EN\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Migration/Migration1570621541UpdateDefaultMailTemplates.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Migration1570621541UpdateDefaultMailTemplates\\:\\:getOptInTemplate_PLAIN_EN\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Migration/Migration1570621541UpdateDefaultMailTemplates.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Migration1570621541UpdateDefaultMailTemplates\\:\\:getOptInTemplate_HTML_DE\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Migration/Migration1570621541UpdateDefaultMailTemplates.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Migration1570621541UpdateDefaultMailTemplates\\:\\:getOptInTemplate_PLAIN_DE\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Migration/Migration1570621541UpdateDefaultMailTemplates.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Migration1570622696CustomerPasswordRecovery\\:\\:getLanguageIdByLocale\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Migration/Migration1570622696CustomerPasswordRecovery.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Migration1571660203FixOrderDeliveryStateNames\\:\\:getMailTemplatesMapping\\(\\) has no return typehint specified\\.$#"
 			count: 1
 			path: src/Core/Migration/Migration1571660203FixOrderDeliveryStateNames.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Migration\\\\Migration1575021466AddCurrencies\\:\\:\\$deLanguage has no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Migration/Migration1575021466AddCurrencies.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Migration\\\\Migration1575021466AddCurrencies\\:\\:\\$enLanguage has no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Migration/Migration1575021466AddCurrencies.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Migration1575021466AddCurrencies\\:\\:getDeLanguageId\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Migration/Migration1575021466AddCurrencies.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Migration1575021466AddCurrencies\\:\\:getEnLanguageId\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Migration/Migration1575021466AddCurrencies.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Migration1575021466AddCurrencies\\:\\:fetchLanguageId\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Migration/Migration1575021466AddCurrencies.php
 
 		-
 			message: "#^Cannot call method fetchColumn\\(\\) on Doctrine\\\\DBAL\\\\Driver\\\\Statement\\|int\\.$#"
@@ -6261,31 +6186,6 @@ parameters:
 			path: src/Core/Migration/Migration1582011195FixCountryStateGermanTranslation.php
 
 		-
-			message: "#^Parameter \\#3 \\$enLangId of method Shopware\\\\Core\\\\Migration\\\\Migration1584953715UpdateMailTemplatesAfterOrderLink\\:\\:updateMailTemplate\\(\\) expects string, string\\|null given\\.$#"
-			count: 17
-			path: src/Core/Migration/Migration1584953715UpdateMailTemplatesAfterOrderLink.php
-
-		-
-			message: "#^Parameter \\#4 \\$deLangId of method Shopware\\\\Core\\\\Migration\\\\Migration1584953715UpdateMailTemplatesAfterOrderLink\\:\\:updateMailTemplate\\(\\) expects string, string\\|null given\\.$#"
-			count: 17
-			path: src/Core/Migration/Migration1584953715UpdateMailTemplatesAfterOrderLink.php
-
-		-
-			message: "#^Parameter \\#3 \\$enLangId of method Shopware\\\\Core\\\\Migration\\\\Migration1588143272UpdateOrderStateChangeMailTemplates\\:\\:updateMailTemplate\\(\\) expects string, string\\|null given\\.$#"
-			count: 17
-			path: src/Core/Migration/Migration1588143272UpdateOrderStateChangeMailTemplates.php
-
-		-
-			message: "#^Parameter \\#4 \\$deLangId of method Shopware\\\\Core\\\\Migration\\\\Migration1588143272UpdateOrderStateChangeMailTemplates\\:\\:updateMailTemplate\\(\\) expects string, string\\|null given\\.$#"
-			count: 17
-			path: src/Core/Migration/Migration1588143272UpdateOrderStateChangeMailTemplates.php
-
-		-
-			message: "#^Parameter \\#1 \\$str of function substr expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Migration/Migration1588143272UpdateOrderStateChangeMailTemplates.php
-
-		-
 			message: "#^Parameter \\#1 \\$str of function substr expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Migration/Migration1588153272UpdateGermanMailTemplates.php
@@ -6294,36 +6194,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$str of function substr expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Migration/Migration1591253089OrderDeeplinkForMailTemplates.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Migration\\\\Migration1591259559AddMissingCurrency\\:\\:\\$deLanguage has no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Migration/Migration1591259559AddMissingCurrency.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Migration\\\\Migration1591259559AddMissingCurrency\\:\\:\\$enLanguage has no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Migration/Migration1591259559AddMissingCurrency.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Migration1591259559AddMissingCurrency\\:\\:getDeLanguageId\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Migration/Migration1591259559AddMissingCurrency.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Migration1591259559AddMissingCurrency\\:\\:getEnLanguageId\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Migration/Migration1591259559AddMissingCurrency.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Migration1591259559AddMissingCurrency\\:\\:fetchLanguageId\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Migration/Migration1591259559AddMissingCurrency.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Migration1591259559AddMissingCurrency\\:\\:currencyExists\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Migration/Migration1591259559AddMissingCurrency.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Migration1591361320ChargebackAndAuthorized\\:\\:getLanguageId\\(\\) has no return typehint specified\\.$#"

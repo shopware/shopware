@@ -816,11 +816,6 @@ parameters:
 			path: src/Core/Checkout/Document/DocumentService.php
 
 		-
-			message: "#^Parameter \\#1 \\$specificConfig of static method Shopware\\\\Core\\\\Checkout\\\\Document\\\\DocumentConfigurationFactory\\:\\:createConfiguration\\(\\) expects array, array\\|null given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Document/DocumentService.php
-
-		-
 			message: "#^Cannot call method getTechnicalName\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Document\\\\Aggregate\\\\DocumentType\\\\DocumentTypeEntity\\|null\\.$#"
 			count: 1
 			path: src/Core/Checkout/Document/DocumentService.php
@@ -4321,7 +4316,7 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/OneToOneAssociationFieldSerializer.php
 
 		-
-			message: "#^Parameter \\#2 \\$algo of function password_hash expects int, int\\|string\\|null given\\.$#"
+			message: "#^Parameter \\#2 \\$algo of function password_hash expects #"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/PasswordFieldSerializer.php
 

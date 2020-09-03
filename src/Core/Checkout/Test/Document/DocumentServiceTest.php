@@ -13,8 +13,10 @@ use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\Order\OrderPersister;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
+use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentGenerator\DeliveryNoteGenerator;
 use Shopware\Core\Checkout\Document\DocumentGenerator\InvoiceGenerator;
@@ -297,6 +299,162 @@ class DocumentServiceTest extends TestCase
         foreach ($cart->getLineItems() as $lineItem) {
             static::assertStringContainsString($lineItem->getLabel(), $parsedDocument->getText());
         }
+    }
+
+    public function testConfigurationWithSalesChannelOverride(): void
+    {
+        /** @var DocumentService $documentService */
+        $documentService = $this->getContainer()->get(DocumentService::class);
+
+        $cart = $this->generateDemoCart(2);
+        $orderId = $this->persistCart($cart);
+
+        $base = $this->getBaseConfig(InvoiceGenerator::INVOICE);
+        $globalConfig = $base === null ? [] : $base->getConfig();
+        $globalConfig['companyName'] = 'Test corp.';
+        $globalConfig['displayCompanyAddress'] = true;
+        $this->upsertBaseConfig($globalConfig, InvoiceGenerator::INVOICE);
+
+        $salesChannelConfig = [
+            'companyName' => 'Custom corp.',
+            'displayCompanyAddress' => false,
+        ];
+        $this->upsertBaseConfig($salesChannelConfig, InvoiceGenerator::INVOICE, $this->salesChannelContext->getSalesChannel()->getId());
+
+        $documentId = $documentService->create(
+            $orderId,
+            InvoiceGenerator::INVOICE,
+            FileTypes::PDF,
+            new DocumentConfiguration(),
+            $this->context
+        );
+
+        /** @var EntityRepositoryInterface $documentRepository */
+        $documentRepository = $this->getContainer()->get('document.repository');
+        /** @var DocumentEntity $document */
+        $document = $documentRepository->search(new Criteria([$documentId->getId()]), Context::createDefaultContext())->first();
+
+        $expectedConfig = array_merge($globalConfig, $salesChannelConfig);
+
+        $actualConfig = $document->getConfig();
+        foreach ($expectedConfig as $key => $value) {
+            static::assertArrayHasKey($key, $actualConfig);
+            static::assertSame($actualConfig[$key], $value);
+        }
+    }
+
+    public function testConfigurationWithOverrides(): void
+    {
+        /** @var DocumentService $documentService */
+        $documentService = $this->getContainer()->get(DocumentService::class);
+
+        $cart = $this->generateDemoCart(2);
+        $orderId = $this->persistCart($cart);
+
+        $base = $this->getBaseConfig(InvoiceGenerator::INVOICE);
+        $globalConfig = $base === null ? [] : $base->getConfig();
+        $globalConfig['companyName'] = 'Test corp.';
+        $globalConfig['displayCompanyAddress'] = true;
+        $this->upsertBaseConfig($globalConfig, InvoiceGenerator::INVOICE);
+
+        $salesChannelConfig = [
+            'companyName' => 'Custom corp.',
+            'displayCompanyAddress' => false,
+            'pageSize' => 'a5',
+        ];
+        $this->upsertBaseConfig($salesChannelConfig, InvoiceGenerator::INVOICE, $this->salesChannelContext->getSalesChannel()->getId());
+
+        $overrides = [
+            'companyName' => 'Override corp.',
+            'displayCompanyAddress' => true,
+        ];
+        $overridesConfig = DocumentConfigurationFactory::createConfiguration($overrides);
+
+        $documentIdWithOverride = $documentService->create(
+            $orderId,
+            InvoiceGenerator::INVOICE,
+            FileTypes::PDF,
+            $overridesConfig,
+            $this->context
+        );
+
+        /** @var EntityRepositoryInterface $documentRepository */
+        $documentRepository = $this->getContainer()->get('document.repository');
+        /** @var DocumentEntity $document */
+        $document = $documentRepository->search(new Criteria([$documentIdWithOverride->getId()]), Context::createDefaultContext())->first();
+
+        $expectedConfig = array_merge($globalConfig, $salesChannelConfig, $overrides);
+
+        $actualConfig = $document->getConfig();
+        foreach ($expectedConfig as $key => $value) {
+            static::assertArrayHasKey($key, $actualConfig);
+            static::assertSame($actualConfig[$key], $value);
+        }
+    }
+
+    private function getBaseConfig(string $documentType, ?string $salesChannelId = null): ?DocumentBaseConfigEntity
+    {
+        /** @var EntityRepositoryInterface $documentTypeRepository */
+        $documentTypeRepository = $this->getContainer()->get('document_type.repository');
+        $documentTypeId = $documentTypeRepository->searchIds(
+            (new Criteria())->addFilter(new EqualsFilter('technicalName', $documentType)),
+            Context::createDefaultContext()
+        )->firstId();
+
+        /** @var EntityRepositoryInterface $documentBaseConfigRepository */
+        $documentBaseConfigRepository = $this->getContainer()->get('document_base_config.repository');
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('documentTypeId', $documentTypeId));
+        $criteria->addFilter(new EqualsFilter('global', true));
+
+        if ($salesChannelId !== null) {
+            $criteria->addFilter(new EqualsFilter('salesChannels.salesChannelId', $salesChannelId));
+            $criteria->addFilter(new EqualsFilter('salesChannels.documentTypeId', $documentTypeId));
+        }
+
+        return $documentBaseConfigRepository->search($criteria, Context::createDefaultContext())->first();
+    }
+
+    private function upsertBaseConfig($config, string $documentType, ?string $salesChannelId = null): void
+    {
+        $baseConfig = $this->getBaseConfig($documentType, $salesChannelId);
+
+        /** @var EntityRepositoryInterface $documentTypeRepository */
+        $documentTypeRepository = $this->getContainer()->get('document_type.repository');
+        $documentTypeId = $documentTypeRepository->searchIds(
+            (new Criteria())->addFilter(new EqualsFilter('technicalName', $documentType)),
+            Context::createDefaultContext()
+        )->firstId();
+
+        if ($baseConfig === null) {
+            $documentConfigId = Uuid::randomHex();
+        } else {
+            $documentConfigId = $baseConfig->getId();
+        }
+
+        $data = [
+            'id' => $documentConfigId,
+            'typeId' => $documentTypeId,
+            'documentTypeId' => $documentTypeId,
+            'config' => $config,
+        ];
+        if ($baseConfig === null) {
+            $data['name'] = $documentConfigId;
+        }
+        if ($salesChannelId !== null) {
+            $data['salesChannels'] = [
+                [
+                    'documentBaseConfigId' => $documentConfigId,
+                    'documentTypeId' => $documentTypeId,
+                    'salesChannelId' => $salesChannelId,
+                ],
+            ];
+        }
+
+        /** @var EntityRepositoryInterface $documentBaseConfigRepository */
+        $documentBaseConfigRepository = $this->getContainer()->get('document_base_config.repository');
+        $documentBaseConfigRepository->upsert([$data], Context::createDefaultContext());
     }
 
     /**

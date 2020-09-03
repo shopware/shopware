@@ -138,7 +138,7 @@ class ProductDefinition extends EntityDefinition
 
             (new StringField('display_group', 'displayGroup'))->addFlags(new WriteProtected()),
             (new JsonField('configurator_group_config', 'configuratorGroupConfig'))->addFlags(new ReadProtected(SalesChannelApiSource::class), new Inherited()),
-            (new FkField('main_variant_id', 'mainVariantId', ProductDefinition::class))->addFlags(new Inherited()),
+            (new FkField('main_variant_id', 'mainVariantId', ProductDefinition::class)),
             (new JsonField('variant_restrictions', 'variantRestrictions'))->addFlags(new ReadProtected(SalesChannelApiSource::class)),
             (new StringField('manufacturer_number', 'manufacturerNumber'))->addFlags(new Inherited(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             (new StringField('ean', 'ean'))->addFlags(new Inherited(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),

@@ -39,6 +39,9 @@ describe('Checkout: Visual tests', () => {
 
         // Off canvas
 
+        cy.get('.cart-item').should('be.visible');
+        cy.get('.cart-item-price').contains('64');
+
         // Take snapshot for visual testing on desktop
         cy.takeSnapshot(`Checkout - Offcanvas`,
             `${page.elements.offCanvasCart}.is-open`,
@@ -62,7 +65,7 @@ describe('Checkout: Visual tests', () => {
         cy.get('.login-submit > .btn[type="submit"]').click();
 
         // Confirm
-        let terms = Cypress.env('locale') === 'en-GB' ?
+        const terms = Cypress.env('locale') === 'en-GB' ?
             'Terms and conditions and cancellation policy' : 'AGB und Widerrufsbelehrung';
         cy.get('.confirm-tos .card-title').contains(terms);
         cy.get('.confirm-address').contains('Kathie Jäger');
@@ -71,7 +74,7 @@ describe('Checkout: Visual tests', () => {
         cy.get('.col-5.checkout-aside-summary-total').contains('64');
 
         // Take snapshot for visual testing on desktop
-        cy.takeSnapshot(`Checkout - Confirm`, '.confirm-tos', { widths: [375, 1920] });
+        cy.takeSnapshot('Checkout - Confirm', '.confirm-tos', { widths: [375, 1920] });
 
         // Set payment and shipping
         cy.contains('Zahlungsart auswählen').click();
@@ -95,15 +98,19 @@ describe('Checkout: Visual tests', () => {
         cy.get('.finish-header').contains(' Vielen Dank für Ihre Bestellung bei Footwear!');
 
         // Take snapshot for visual testing on desktop
-        cy.takeSnapshot(`Checkout - Finish`, '.finish-header', {widths: [375, 1920]});
+        cy.takeSnapshot('Checkout - Finish', '.finish-header', {widths: [375, 1920]});
 
-        cy.openInitialPage(`${Cypress.env('admin')}#/sw/order/index`);
+        cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
         cy.login();
 
         // Take snapshot for visual testing
         cy.get('.sw-data-grid__skeleton').should('not.exist');
+        cy.changeElementStyling(
+            '.sw-version__info',
+            'visibility: hidden'
+        );
         cy.changeElementStyling('.sw-data-grid__cell--orderDateTime', 'color: #fff');
-        cy.takeSnapshot('Order listing', '.sw-order-list');
+        cy.takeSnapshot(`Order listing`, '.sw-order-list');
 
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
@@ -129,6 +136,10 @@ describe('Checkout: Visual tests', () => {
         cy.changeElementStyling(
             '.sw-card-section--secondary > .sw-container > :nth-child(2) > :nth-child(4)',
             'color: rgb(240, 242, 245);'
+        );
+        cy.changeElementStyling(
+            '.sw-version__info',
+            'visibility: hidden'
         );
         cy.takeSnapshot('Order detail', '.sw-order-detail');
 

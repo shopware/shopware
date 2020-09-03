@@ -28,6 +28,7 @@
     "projectRoot": "/app",
     "localUsage": false,
     "testDataUsage": false,
+    "testBase": "Install",
     "usePercy": false,
     "dbUser": "root",
     "dbPassword": "root",

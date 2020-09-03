@@ -43,17 +43,24 @@ describe('Product: Visual tests', () => {
         cy.get('.sw-product-detail__select-visibility')
             .scrollIntoView();
 
-        let saleschannel = Cypress.env('testDataUsage') ? 'Footwear' : 'E2E install test';
+        const saleschannel = Cypress.env('testDataUsage') ? 'Footwear' : 'E2E install test';
         cy.get('.sw-product-detail__select-visibility').typeMultiSelectAndCheck(saleschannel);
         cy.get('.sw-product-detail__select-visibility .sw-select-selection-list__input')
             .type('{esc}');
+        cy.get(page.elements.productSaveAction).click();
 
         // Save product
-        cy.get(page.elements.productSaveAction).click();
         cy.wait('@saveData').then((xhr) => {
             expect(xhr).to.have.property('status', 204);
         });
 
+        cy.get('.sw-loader').should('not.exist');
+        const save = Cypress.env('locale') === 'en-GB' ? 'Save' : 'Speichern';
+        cy.get(page.elements.productSaveAction).contains(save);
+        cy.changeElementStyling(
+            '.sw-version__info',
+            'visibility: hidden'
+        );
         cy.takeSnapshot('Product detail base', '.sw-product-detail-base');
 
         cy.get(page.elements.smartBarBack).click();
@@ -64,6 +71,10 @@ describe('Product: Visual tests', () => {
             .contains('Product with file upload image');
 
         cy.get('.sw-data-grid__skeleton').should('not.exist');
+        cy.changeElementStyling(
+            '.sw-version__info',
+            'visibility: hidden'
+        );
         cy.takeSnapshot('Product listing');
     });
 });

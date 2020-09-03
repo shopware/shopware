@@ -1,3 +1,5 @@
+import '@percy/cypress';
+
 /**
  * Logs in to the Administration manually
  * @memberOf Cypress.Chainable#
@@ -43,10 +45,10 @@ Cypress.Commands.add('takeSnapshot', (title, selectorToCheck = null, width = nul
     }
 
     if (!width) {
-        cy.percySnapshot(title);
+        cy.percySnapshot(`[${Cypress.env('testBase')}] ${title}`);
         return;
     }
-    cy.percySnapshot(title, width);
+    cy.percySnapshot(`[${Cypress.env('testBase')}] ${title}`, width);
 });
 
 /**

@@ -47,6 +47,10 @@ describe('Customer:  Visual test', () => {
         }).as('saveData');
 
         // Take snapshot for visual testing
+        cy.changeElementStyling(
+            '.sw-version__info',
+            'visibility: hidden'
+        );
         cy.get('.sw-data-grid__skeleton').should('not.exist');
         cy.takeSnapshot('Customer listing', '.sw-customer-list-grid');
 
@@ -54,9 +58,13 @@ describe('Customer:  Visual test', () => {
         cy.get('a[href="#/sw/customer/create"]').click();
 
         // Take snapshot for visual testing
+        cy.changeElementStyling(
+            '.sw-version__info',
+            'visibility: hidden'
+        );
         cy.takeSnapshot('Customer create', '.sw-customer-create');
 
-        let salutation = Cypress.env('locale') === 'en-GB' ? 'Mr' : 'Herr';
+        const salutation = Cypress.env('locale') === 'en-GB' ? 'Mr' : 'Herr';
         cy.get('.sw-customer-base-form__salutation-select')
             .typeSingleSelectAndCheck(salutation, '.sw-customer-base-form__salutation-select');
 
@@ -64,15 +72,15 @@ describe('Customer:  Visual test', () => {
         cy.get('input[name=sw-field--customer-lastName]').type(customer.lastName);
         cy.get(page.elements.customerMailInput).type('tester@example.com');
 
-        let customerGroup = Cypress.env('locale') === 'en-GB' ? 'Standard customer group' : 'Standard-Kundengruppe';
+        const customerGroup = Cypress.env('locale') === 'en-GB' ? 'Standard customer group' : 'Standard-Kundengruppe';
         cy.get('.sw-customer-base-form__customer-group-select')
             .typeSingleSelectAndCheck(customerGroup, '.sw-customer-base-form__customer-group-select');
 
-        let saleschannel = Cypress.env('testDataUsage') ? 'Footwear' : 'E2E install test';
+        const saleschannel = Cypress.env('testDataUsage') ? 'Footwear' : 'E2E install test';
         cy.get('.sw-customer-base-form__sales-channel-select')
             .typeSingleSelectAndCheck(saleschannel, '.sw-customer-base-form__sales-channel-select');
 
-        let paymentMethod = Cypress.env('locale') === 'en-GB' ? 'Invoice' : 'Rechnung';
+        const paymentMethod = Cypress.env('locale') === 'en-GB' ? 'Invoice' : 'Rechnung';
         cy.get('.sw-customer-base-form__payment-method-select')
             .typeSingleSelectAndCheck(paymentMethod, '.sw-customer-base-form__payment-method-select');
 
@@ -91,6 +99,10 @@ describe('Customer:  Visual test', () => {
         });
 
         // Take snapshot for visual testing
+        cy.changeElementStyling(
+            '.sw-version__info',
+            'visibility: hidden'
+        );
         cy.takeSnapshot('Customer detail', '.sw-customer-card');
     });
 });

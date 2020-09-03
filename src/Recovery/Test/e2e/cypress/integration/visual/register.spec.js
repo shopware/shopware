@@ -11,7 +11,7 @@ describe('Account - Register: Visual tests', () => {
         // Take snapshot for visual testing
         cy.takeSnapshot('Registration', page.elements.registerCard, { widths: [375, 1920] });
 
-        let salutation = Cypress.env('locale') === 'en-GB' ? 'Mr.' : 'Herr';
+        const salutation = Cypress.env('locale') === 'en-GB' ? 'Mr.' : 'Herr';
         cy.get('select[name="salutationId"]').select(salutation);
         cy.get('input[name="firstName"]').type('John');
         cy.get('input[name="lastName"]').type('Doe');
@@ -23,12 +23,12 @@ describe('Account - Register: Visual tests', () => {
         cy.get('input[name="billingAddress[zipcode]"]').type('9876');
         cy.get('input[name="billingAddress[city]"]').type('Anytown');
 
-        let country = Cypress.env('locale') === 'en-GB' ? 'United Kingdom' : 'Deutschland';
+        const country = Cypress.env('locale') === 'en-GB' ? 'United Kingdom' : 'Deutschland';
         cy.get('select[name="billingAddress[countryId]"]').select(country);
 
         cy.get('.register-submit .btn[type="submit"]').click();
 
-        let header = Cypress.env('locale') === 'en-GB' ? 'Overview' : 'Übersicht';
+        const header = Cypress.env('locale') === 'en-GB' ? 'Overview' : 'Übersicht';
         cy.get('.account-welcome h1').should((element) => {
             expect(element).to.contain(header);
         });

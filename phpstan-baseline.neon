@@ -6146,11 +6146,6 @@ parameters:
 			path: src/Core/System/SalesChannel/Api/StructEncoder.php
 
 		-
-			message: "#^Parameter \\#1 \\$struct of method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Api\\\\StructEncoder\\:\\:encode\\(\\) expects Shopware\\\\Core\\\\Framework\\\\Struct\\\\Struct, Shopware\\\\Core\\\\Framework\\\\Struct\\\\Struct\\|null given\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Api/StructEncoder.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Api\\\\StructEncoder\\:\\:isStructArray\\(\\) has parameter \\$object with no typehint specified\\.$#"
 			count: 1
 			path: src/Core/System/SalesChannel/Api/StructEncoder.php

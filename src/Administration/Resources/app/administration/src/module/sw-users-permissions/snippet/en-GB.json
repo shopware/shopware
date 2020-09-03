@@ -6,7 +6,8 @@
     "permissions": {},
     "roles": {
       "general": {
-        "labelCreateNewRole": "Create new role"
+        "labelCreateNewRole": "Create new role",
+        "cardLabel": "Roles"
       },
       "role-grid": {
         "labelName": "Name",
@@ -47,7 +48,8 @@
         "mainMenuItemGeneral": "Users & permissions",
         "placeholderSearchBar": "Find users...",
         "labelUserList": "Users & permissions",
-        "labelCreateNewUser": "Create new user"
+        "labelCreateNewUser": "Create new user",
+        "cardLabel": "Users"
       },
       "user-grid": {
         "labelUsername": "Username",

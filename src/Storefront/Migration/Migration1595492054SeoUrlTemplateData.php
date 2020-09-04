@@ -18,10 +18,9 @@ class Migration1595492054SeoUrlTemplateData extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $stmt = $connection->prepare('SELECT count(`id`) FROM seo_url_template WHERE `entity_name` = ? AND `template` = ? AND `route_name` = ?');
+        $stmt = $connection->prepare('SELECT count(`id`) FROM seo_url_template WHERE `entity_name` = ? AND `route_name` = ?');
         $stmt->execute([
             'product',
-            ProductPageSeoUrlRoute::DEFAULT_TEMPLATE,
             ProductPageSeoUrlRoute::ROUTE_NAME,
         ]);
 
@@ -38,7 +37,6 @@ class Migration1595492054SeoUrlTemplateData extends MigrationStep
 
         $stmt->execute([
             'category',
-            NavigationPageSeoUrlRoute::DEFAULT_TEMPLATE,
             NavigationPageSeoUrlRoute::ROUTE_NAME,
         ]);
 

@@ -67,12 +67,12 @@
                             {% endblock %}
 
                             {% block sw_media_quickinfo_quickactions_delete %}
-                                <li :class="quickActionClasses(['quickaction--delete'], !acl.can('media.editor'))"
+                                <li :class="quickActionClasses(['quickaction--delete'], !acl.can('media.deleter'))"
                                     v-if="!item.private"
                                     @click="openModalDelete"
                                     v-tooltip="{
                                         message: $tc('sw-privileges.tooltip.warning'),
-                                        disabled: acl.can('media.editor'),
+                                        disabled: acl.can('media.deleter'),
                                         showOnDisabledElements: true
                                     }">
                                     <sw-icon small name="default-action-trash" class="sw-media-sidebar__quickactions-icon is--danger"></sw-icon>

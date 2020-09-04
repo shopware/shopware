@@ -5,7 +5,80 @@
       "textHeadline": "Products",
       "description": "Manage the display of products here.",
       "buttonSave": "Save",
-      "messageSaveSuccess": "The configuration has been saved."
+      "messageSaveSuccess": "Configuration saved.",
+      "messageSaveError": "An error occurred while saving the configuration.",
+      "labelDefaultSorting": "Default sorting",
+      "placeholderDefaultSorting": "Select a default sorting...",
+      "productSortingCriteriaGrid": {
+        "header": {
+          "name": "Name",
+          "order": "Order",
+          "priority": "Priority"
+        },
+        "options": {
+          "criteriaAlreadyUsed": "The \"{criteriaName}\" option is already being used.",
+          "label": {
+            "product": {
+              "name": "Product name",
+              "ratingAverage": "Average rating",
+              "productNumber": "Product number",
+              "releaseDate": "Release date",
+              "stock": "Product stock",
+              "listingPrices": "Product list price",
+              "unitsSold": "Units sold",
+              "isCloseout": "Clearance sale"
+            },
+            "customField": "Custom field",
+            "_score": "_score"
+          }
+        }
+      }
+    },
+    "index": {
+      "productSorting": {
+        "title": "Sorting options",
+        "addButton": "Add option",
+        "messageDeleteError": "There was an error while deleting the sorting option",
+        "emptyState": {
+          "title": "No options found",
+          "subline": "Create options"
+        },
+        "grid": {
+          "header": {
+            "name": "Name",
+            "criteria": "Criteria",
+            "priority": "Priority"
+          }
+        }
+      },
+      "deleteModal": {
+        "title": "Delete sorting option",
+        "description": "Are you sure you want to delete this sorting option?"
+      }
+    },
+    "create": {
+      "smartBarTitle": "Create product sorting"
+    },
+    "base": {
+      "smartBarTitle": "Edit product sorting",
+      "general": {
+        "title": "General",
+        "labelName": "Name",
+        "labelActive": "Active"
+      },
+      "notification": {
+        "saveSuccess": "Successfully saved \"{sortingOptionName}\" sorting option.",
+        "saveError": "There was an error while saving the sorting option \"{sortingOptionName}\"."
+      },
+      "criteria": {
+        "title": "Sorting options",
+        "selectPlaceholder": "Search and add criteria...",
+        "emptyStateSubline": "No criteria defined for this sorting option yet."
+      },
+      "delete": {
+        "modalTitle": "Delete criteria",
+        "modalDescription": "Are you sure you want to delete this criteria?"
+      }
     }
   }
 }

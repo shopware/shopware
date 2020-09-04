@@ -21,7 +21,9 @@
       "yes": "Ja",
       "no": "Nein",
       "confirm": "Bestätigen",
-      "view": "Anzeigen"
+      "view": "Anzeigen",
+      "ascending": "Aufsteigend",
+      "descending": "Absteigend"
     },
     "notification": {
       "notificationSaveErrorMessage": "Beim Speichern der Entität \"{entityName}\" ist ein Fehler aufgetreten.",

@@ -5,7 +5,80 @@
       "textHeadline": "Produkte",
       "description": "Verwaltung von Einstellungen für Produkte.",
       "buttonSave": "Speichern",
-      "messageSaveSuccess": "Die Konfiguration wurde erfolgreich gespeichert."
+      "messageSaveSuccess": "Die Konfiguration wurde gespeichert.",
+      "messageSaveError": "Es ist ein Fehler beim speichern der Sortier-Option aufgetreten.",
+      "labelDefaultSorting": "Standard-Sortierung",
+      "placeholderDefaultSorting": "Eine Standard-Sortierung auswählen",
+      "productSortingCriteriaGrid": {
+        "header": {
+          "name": "Name",
+          "order": "Reihenfolge",
+          "priority": "Priorität"
+        },
+        "options": {
+          "criteriaAlreadyUsed": "Die \"{criteriaName}\"-Option wird schon verwendet.",
+          "label": {
+            "product": {
+              "name": "Produktname",
+              "ratingAverage": "Produkt-Bewertung",
+              "productNumber": "Produktnummer",
+              "releaseDate": "Erscheinungsdatum",
+              "stock": "Lagerbestand",
+              "listingPrices": "Streichpreis",
+              "unitsSold": "Verkaufte Einheiten",
+              "isCloseout": "Ausverkauft"
+            },
+            "customField": "Zusatzfeld",
+            "_score": "_score"
+          }
+        }
+      }
+    },
+    "index": {
+      "productSorting": {
+        "title": "Sortier-Optionen",
+        "addButton": "Option hinzufügen",
+        "messageDeleteError": "Beim löschen der Sortier-Option ist ein Fehler aufgetreten.",
+        "emptyState": {
+          "title": "Keine Option gefunden",
+          "subline": "Optionen hinzufügen"
+        },
+        "grid": {
+          "header": {
+            "name": "Name",
+            "criteria": "Kriterium",
+            "priority": "Priorität"
+          }
+        }
+      },
+      "deleteModal": {
+        "title": "Sortier-Option löschen",
+        "description": "Willst du wirklich die Sortier-Option \"{sortingOptionName}\" löschen?"
+      }
+    },
+    "create": {
+      "smartBarTitle": "Produkt-Sortierung erstellen"
+    },
+    "base": {
+      "smartBarTitle": "Produkt-Sortierung bearbeiten",
+      "general": {
+        "title": "Allgemein",
+        "labelName": "Name",
+        "labelActive": "Aktiv"
+      },
+      "notification": {
+        "saveSuccess": "Sortier-Option \"{sortingOptionName}\" wurde erfolgreich gespeichert.",
+        "saveError": "Es gab ein Problem beim speichern der Sortier-Option \"{sortingOptionName}\"."
+      },
+      "criteria": {
+        "title": "Sortier-Optionen",
+        "selectPlaceholder": "Suchen und Kriterium hinzufügen.",
+        "emptyStateSubline": "Diese Produkt-Sortierung hat keine Kriterien."
+      },
+      "delete": {
+        "modalTitle": "Kriterium löschen",
+        "modalDescription": "Willst du wirklich dieses Kriterium löschen?"
+      }
     }
   }
 }

@@ -1,4 +1,8 @@
 import './page/sw-settings-listing';
+import './page/sw-settings-listing-option-create';
+import './component/sw-settings-listing-delete-modal';
+import './component/sw-settings-listing-option-general-info';
+import './component/sw-settings-listing-option-criteria-grid';
 
 const { Module } = Shopware;
 
@@ -20,6 +24,22 @@ Module.register('sw-settings-listing', {
             path: 'index',
             meta: {
                 parentPath: 'sw.settings.index'
+            }
+        },
+
+        edit: {
+            component: 'sw-settings-listing-option-base',
+            path: 'edit/:id',
+            meta: {
+                parentPath: 'sw.settings.listing.index'
+            }
+        },
+
+        create: {
+            component: 'sw-settings-listing-option-create',
+            path: 'create',
+            meta: {
+                parentPath: 'sw.settings.listing.index'
             }
         }
     },

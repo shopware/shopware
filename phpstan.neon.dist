@@ -21,6 +21,9 @@ parameters:
         - src/Storefront/Framework/Cache/CacheDecorator.php
         - src/Docs/Resources/current/2-internals/1-core/50-checkout-process/_examples/10-cart-example.php
 
+        # Symfony Patches, can be removed with next patch version
+        - src/Core/Framework/Adapter/Cache/CacheCollectorPass.php
+
         # Tests
         - src/**/*Test.php
         - src/Core/Framework/Test/**/*.php

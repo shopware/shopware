@@ -255,7 +255,7 @@ Component.register('sw-settings-document-detail', {
 
     computed: {
         identifier() {
-            return this.documentConfig.name;
+            return this.documentConfig ? this.documentConfig.name : '';
         },
 
         documentBaseConfigCriteria() {
@@ -329,7 +329,7 @@ Component.register('sw-settings-document-detail', {
             );
 
             if (this.documentConfig.config === null) {
-                this.documentConfig.config = [];
+                this.documentConfig.config = {};
             }
             await this.onChangeType(this.documentConfig.documentType);
 

@@ -6,7 +6,7 @@ const { Component, Context } = Shopware;
 Component.register('sw-media-index', {
     template,
 
-    inject: ['repositoryFactory', 'mediaService'],
+    inject: ['repositoryFactory', 'mediaService', 'acl'],
 
     props: {
         routeFolderId: {

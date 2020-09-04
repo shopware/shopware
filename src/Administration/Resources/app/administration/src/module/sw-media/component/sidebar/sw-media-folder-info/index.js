@@ -1,11 +1,12 @@
 import template from './sw-media-folder-info.html.twig';
+import './sw-media-folder-info.scss';
 
 const { Component, Mixin, Context } = Shopware;
 
 Component.register('sw-media-folder-info', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('media-sidebar-modal-mixin')
@@ -43,6 +44,14 @@ Component.register('sw-media-folder-info', {
             this.mediaFolder.name = newName;
             await this.mediaFolderRepository.save(this.mediaFolder, Context.api);
             this.$emit('media-folder-renamed');
+        },
+
+        quickActionClasses(classes, disabled) {
+            return [
+                'sw-media-sidebar__quickaction',
+                disabled ? 'sw-media-sidebar__quickaction--disabled' : '',
+                classes
+            ];
         }
     }
 });

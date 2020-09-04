@@ -54,31 +54,43 @@
                 {% block sw_media_media_item_context_group_quick_actions %}
                     <div :class="defaultContextMenuClass">
                         {% block sw_media_media_item_context_item_rename_item %}
-                            <sw-context-menu-item :disabled="!item.hasFile || item.private" @click="startInlineEdit">
+                            <sw-context-menu-item
+                                :disabled="!item.hasFile || item.private || !acl.can('media.editor')"
+                                @click="startInlineEdit">
                                 {{ $tc('global.sw-media-media-item.labelContextMenuRename') }}
                             </sw-context-menu-item>
                         {% endblock %}
 
                         {% block sw_media_media_item_context_item_copy_item_link %}
-                            <sw-context-menu-item v-if="item.hasFile" @click="copyItemLink(item)">
+                            <sw-context-menu-item v-if="item.hasFile"
+                                @click="copyItemLink(item)">
                                 {{ $tc('global.sw-media-media-item.labelContextMenuCopyLink') }}
                             </sw-context-menu-item>
                         {% endblock %}
 
                         {% block sw_media_media_item_context_item_replace %}
-                            <sw-context-menu-item :disabled="item.private" class="sw-media-context-item__replace-media-action"  @click="openModalReplace">
+                            <sw-context-menu-item
+                                :disabled="item.private || !acl.can('media.editor')"
+                                class="sw-media-context-item__replace-media-action"
+                                @click="openModalReplace">
                                 {{ $tc('global.sw-media-media-item.labelContextMenuReplace') }}
                             </sw-context-menu-item>
                         {% endblock %}
 
                         {% block sw_media_media_item_context_item_move %}
-                            <sw-context-menu-item class="sw-media-context-item__move-media-action"  @click="openModalMove">
+                            <sw-context-menu-item
+                                :disabled="!acl.can('media.editor')"
+                                class="sw-media-context-item__move-media-action"
+                                @click="openModalMove">
                                 {{ $tc('global.sw-media-media-item.labelContextMenuMove') }}
                             </sw-context-menu-item>
                         {% endblock %}
 
                         {% block sw_media_media_item_context_item_delete %}
-                            <sw-context-menu-item :disabled="item.private" @click="openModalDelete" variant="danger">
+                            <sw-context-menu-item
+                                :disabled="item.private || !acl.can('media.deleter')"
+                                @click="openModalDelete"
+                                variant="danger">
                                 {{ $tc('global.default.delete') }}
                             </sw-context-menu-item>
                         {% endblock %}

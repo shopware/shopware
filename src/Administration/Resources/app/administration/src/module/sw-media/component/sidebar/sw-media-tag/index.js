@@ -10,6 +10,11 @@ Shopware.Component.register('sw-media-tag', {
         media: {
             type: Object,
             required: true
+        },
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 

@@ -14,6 +14,8 @@ import './sw-media-base-item.scss';
 Shopware.Component.register('sw-media-base-item', {
     template,
 
+    inject: ['acl'],
+
     props: {
         item: {
             type: Object,
@@ -144,7 +146,7 @@ Shopware.Component.register('sw-media-base-item', {
         },
 
         startInlineEdit() {
-            if (this.editable) {
+            if (this.editable && this.acl.can('media.editor')) {
                 this.isInlineEdit = true;
             }
         },

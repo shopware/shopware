@@ -10,7 +10,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-media-modal-folder-settings', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('notification')
@@ -54,7 +54,9 @@ Component.register('sw-media-modal-folder-settings', {
             return this.repositoryFactory.create('media_folder_configuration');
         },
         notEditable() {
-            return this.folder.useParentConfiguration || !this.configuration.createThumbnails;
+            return this.folder.useParentConfiguration
+                || !this.configuration.createThumbnails
+                || !this.acl.can('media.editor');
         },
 
         thumbnailListClass() {

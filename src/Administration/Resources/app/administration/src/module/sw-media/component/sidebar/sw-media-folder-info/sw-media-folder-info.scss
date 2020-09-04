@@ -1,0 +1,11 @@
+@import "~scss/variables";
+
+$sw-media-quickinfo-border-color-preview:  $color-steam-cloud;
+$sw-media-quickinfo-border-radius-preview: $border-radius-default;
+
+.sw-media-folder-info {
+    .sw-media-sidebar__quickaction--disabled {
+        opacity: 0.5;
+        pointer-events: none;
+    }
+}

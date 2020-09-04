@@ -6,7 +6,7 @@ const { Component, Application, Mixin, Context } = Shopware;
 Component.register('sw-media-folder-item', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     inheritAttrs: false,
 

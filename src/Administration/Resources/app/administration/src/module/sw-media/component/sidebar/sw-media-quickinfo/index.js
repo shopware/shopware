@@ -8,7 +8,7 @@ const { Criteria } = Data;
 Component.register('sw-media-quickinfo', {
     template,
 
-    inject: ['mediaService', 'repositoryFactory'],
+    inject: ['mediaService', 'repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -70,6 +70,14 @@ Component.register('sw-media-quickinfo', {
     methods: {
         createdComponent() {
             this.getCustomFieldSets();
+        },
+
+        quickActionClasses(classes, disabled) {
+            return [
+                'sw-media-sidebar__quickaction',
+                disabled ? 'sw-media-sidebar__quickaction--disabled' : '',
+                classes
+            ];
         },
 
         async getCustomFieldSets() {
@@ -151,6 +159,10 @@ Component.register('sw-media-quickinfo', {
         },
 
         openModalReplace() {
+            if (!this.acl.can('media.editor')) {
+                return;
+            }
+
             this.showModalReplace = true;
         },
 

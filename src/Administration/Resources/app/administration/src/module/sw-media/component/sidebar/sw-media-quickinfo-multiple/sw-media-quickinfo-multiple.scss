@@ -1,6 +1,12 @@
 @import "~scss/variables";
 
 $sw-media-quickinfo-color-second-headline: $color-gutenberg;
+.sw-media-quickinfo-multiple {
+    .sw-media-sidebar__quickaction--disabled {
+        opacity: 0.5;
+        pointer-events: none;
+    }
+}
 
 .sw-media-quickinfo-multiple .sw-media-quickinfo-multiple__second-headline {
     display: block;

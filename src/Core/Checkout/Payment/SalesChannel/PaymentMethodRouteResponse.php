@@ -3,22 +3,26 @@
 namespace Shopware\Core\Checkout\Payment\SalesChannel;
 
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
 class PaymentMethodRouteResponse extends StoreApiResponse
 {
     /**
-     * @var PaymentMethodCollection
+     * @var EntitySearchResult
      */
     protected $object;
 
-    public function __construct(PaymentMethodCollection $paymentMethods)
+    public function __construct(EntitySearchResult $paymentMethods)
     {
         parent::__construct($paymentMethods);
     }
 
     public function getPaymentMethods(): PaymentMethodCollection
     {
-        return $this->object;
+        /** @var PaymentMethodCollection $collection */
+        $collection = $this->object->getEntities();
+
+        return $collection;
     }
 }

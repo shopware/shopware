@@ -68,9 +68,25 @@ class PaymentMethodRoute extends AbstractPaymentMethodRoute
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          description="All available payment methods",
-     *          @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/payment_method_flat"))
-     *     )
+     *          description="",
+     *          @OA\JsonContent(type="object",
+     *              @OA\Property(
+     *                  property="total",
+     *                  type="integer",
+     *                  description="Total amount"
+     *              ),
+     *              @OA\Property(
+     *                  property="aggregations",
+     *                  type="object",
+     *                  description="aggregation result"
+     *              ),
+     *              @OA\Property(
+     *                  property="elements",
+     *                  type="array",
+     *                  @OA\Items(ref="#/components/schemas/payment_method_flat")
+     *              )
+     *       )
+     *    )
      * )
      * @Route("/store-api/v{version}/payment-method", name="store-api.payment.method", methods={"GET", "POST"})
      */
@@ -84,8 +100,10 @@ class PaymentMethodRoute extends AbstractPaymentMethodRoute
             ->addFilter(new EqualsFilter('active', true))
             ->addAssociation('media');
 
+        $result = $this->paymentMethodsRepository->search($criteria, $context);
+
         /** @var PaymentMethodCollection $paymentMethods */
-        $paymentMethods = $this->paymentMethodsRepository->search($criteria, $context)->getEntities();
+        $paymentMethods = $result->getEntities();
         $paymentMethods->sort(function (PaymentMethodEntity $a, PaymentMethodEntity $b) {
             return $a->getPosition() <=> $b->getPosition();
         });
@@ -94,6 +112,8 @@ class PaymentMethodRoute extends AbstractPaymentMethodRoute
             $paymentMethods = $paymentMethods->filterByActiveRules($context);
         }
 
-        return new PaymentMethodRouteResponse($paymentMethods);
+        $result->assign(['entities' => $paymentMethods]);
+
+        return new PaymentMethodRouteResponse($result);
     }
 }

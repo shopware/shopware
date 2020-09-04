@@ -54,9 +54,9 @@ class PaymentMethodRouteTest extends TestCase
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
-        $ids = array_column($response, 'id');
+        $ids = array_column($response['elements'], 'id');
 
-        static::assertCount(2, $response);
+        static::assertSame(2, $response['total']);
         static::assertContains($this->ids->get('payment'), $ids);
         static::assertContains($this->ids->get('payment2'), $ids);
     }
@@ -78,9 +78,9 @@ class PaymentMethodRouteTest extends TestCase
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
-        static::assertCount(2, $response);
-        static::assertArrayHasKey('name', $response[0]);
-        static::assertArrayNotHasKey('id', $response[0]);
+        static::assertSame(2, $response['total']);
+        static::assertArrayHasKey('name', $response['elements'][0]);
+        static::assertArrayNotHasKey('id', $response['elements'][0]);
     }
 
     public function testAssociations(): void
@@ -98,8 +98,8 @@ class PaymentMethodRouteTest extends TestCase
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
-        static::assertCount(2, $response);
-        static::assertNotEmpty($response[0]['availabilityRule']);
+        static::assertSame(2, $response['total']);
+        static::assertNotEmpty($response['elements'][0]['availabilityRule']);
     }
 
     private function createData(): void

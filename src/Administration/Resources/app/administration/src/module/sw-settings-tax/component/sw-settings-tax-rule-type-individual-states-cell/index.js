@@ -46,6 +46,7 @@ Component.register('sw-settings-tax-rule-type-individual-states-cell', {
                 || !this.taxRule.data.states
                 || !this.taxRule.data.states.length
             ) {
+                this.individualStates = [];
                 return;
             }
 

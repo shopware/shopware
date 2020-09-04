@@ -361,13 +361,24 @@ Table(ShopwareCoreSystemCurrencyCurrencyDefinition, "currency\n(Currency)") {
    not_null(isoCode) string
    shortName translated
    name translated
-   not_null(decimalPrecision) int
    position int
    isSystemDefault bool
    customFields translated
+   itemRounding cashRoundingConfig
+   totalRounding cashRoundingConfig
+   decimalPrecision int
    not_null(createdAt) createdAt
    updatedAt updatedAt
    translated json
+}
+Table(ShopwareCoreSystemCurrencyAggregateCurrencyCountryRoundingCurrencyCountryRoundingDefinition, "currency_country_rounding\n(__EMPTY__)") {
+   primary_key(id) id
+   not_null(currencyId) foreignKey
+   not_null(countryId) foreignKey
+   not_null(itemRounding) cashRoundingConfig
+   not_null(totalRounding) cashRoundingConfig
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
 }
 TranslationTable(ShopwareCoreSystemCurrencyAggregateCurrencyTranslationCurrencyTranslationDefinition, "currency_translation\n((Translations))") {
    not_null(shortName) string
@@ -1644,6 +1655,8 @@ Table(ShopwareCoreCheckoutOrderOrderDefinition, "order\n(Order root table)") {
    customerComment longText
    not_null(stateId) stateMachineState
    customFields customFields
+   itemRounding cashRoundingConfig
+   totalRounding cashRoundingConfig
    not_null(createdAt) createdAt
    updatedAt updatedAt
 }
@@ -2077,6 +2090,7 @@ ShopwareCoreSystemCountryAggregateCountryTranslationCountryTranslationDefinition
 ShopwareCoreCheckoutCustomerAggregateCustomerAddressCustomerAddressDefinition --> ShopwareCoreSystemCountryCountryDefinition
 ShopwareCoreCheckoutOrderAggregateOrderAddressOrderAddressDefinition --> ShopwareCoreSystemCountryCountryDefinition
 ShopwareCoreSystemTaxAggregateTaxRuleTaxRuleDefinition --> ShopwareCoreSystemCountryCountryDefinition
+ShopwareCoreSystemCurrencyAggregateCurrencyCountryRoundingCurrencyCountryRoundingDefinition --> ShopwareCoreSystemCountryCountryDefinition
 ShopwareCoreSystemCountryAggregateCountryStateTranslationCountryStateTranslationDefinition --> ShopwareCoreSystemCountryAggregateCountryStateCountryStateDefinition
 ShopwareCoreCheckoutCustomerAggregateCustomerAddressCustomerAddressDefinition --> ShopwareCoreSystemCountryAggregateCountryStateCountryStateDefinition
 ShopwareCoreCheckoutOrderAggregateOrderAddressOrderAddressDefinition --> ShopwareCoreSystemCountryAggregateCountryStateCountryStateDefinition
@@ -2084,6 +2098,7 @@ ShopwareCoreSystemCurrencyAggregateCurrencyTranslationCurrencyTranslationDefinit
 ShopwareCoreCheckoutOrderOrderDefinition --> ShopwareCoreSystemCurrencyCurrencyDefinition
 ShopwareCoreCheckoutPromotionAggregatePromotionDiscountPricePromotionDiscountPriceDefinition --> ShopwareCoreSystemCurrencyCurrencyDefinition
 ShopwareCoreContentProductExportProductExportDefinition --> ShopwareCoreSystemCurrencyCurrencyDefinition
+ShopwareCoreSystemCurrencyAggregateCurrencyCountryRoundingCurrencyCountryRoundingDefinition --> ShopwareCoreSystemCurrencyCurrencyDefinition
 ShopwareCoreSystemLocaleAggregateLocaleTranslationLocaleTranslationDefinition --> ShopwareCoreSystemLocaleLocaleDefinition
 ShopwareCoreSystemUserUserDefinition --> ShopwareCoreSystemLocaleLocaleDefinition
 ShopwareCoreSystemSnippetSnippetDefinition --> ShopwareCoreSystemSnippetAggregateSnippetSetSnippetSetDefinition

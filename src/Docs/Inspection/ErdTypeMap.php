@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CalculatedPriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CartPriceField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CashRoundingConfigField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildCountField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ConfigJsonField;
@@ -101,6 +102,7 @@ class ErdTypeMap
         SlotConfigField::class => 'configurationValue',
         StateMachineStateField::class => 'stateMachineState',
         RemoteAddressField::class => 'remoteAddress',
+        CashRoundingConfigField::class => 'cashRoundingConfig',
     ];
 
     public function map(Field $field): string

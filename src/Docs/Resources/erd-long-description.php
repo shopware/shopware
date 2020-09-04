@@ -705,4 +705,8 @@ Provides functionality to define sorting groups to sort products by.
 EOD
     ,
     Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingTranslationDefinition::class => '',
+    Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCountryRoundingDefinition::class => <<<'EOD'
+__EMPTY__
+EOD
+    ,
 ];

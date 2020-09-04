@@ -14,4 +14,9 @@ Currencies allow source to target calculation of prices based on original curren
 A currency used to calculate and display prices.
 
 
+### Table `currency_country_rounding`
+
+__EMPTY__
+
+
 [Back to modules](./../10-modules.md)

@@ -48,6 +48,8 @@ Table(ShopwareCoreCheckoutOrderOrderDefinition, "order\n(Order root table)") {
    customerComment longText
    not_null(stateId) stateMachineState
    customFields customFields
+   itemRounding cashRoundingConfig
+   totalRounding cashRoundingConfig
    not_null(createdAt) createdAt
    updatedAt updatedAt
 }

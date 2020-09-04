@@ -8,11 +8,11 @@ Shopware.Service('privileges')
                 privileges: [
                     'cms_page:read',
                     'media:read',
+                    'cms_section:read',
                     'category:read',
                     'media_default_folder:read',
                     'media_folder:read',
                     'sales_channel:read',
-                    'cms_section:read',
                     'cms_block:read',
                     'cms_slot:read'
                 ],
@@ -30,7 +30,7 @@ Shopware.Service('privileges')
                     'cms_section:create',
                     'cms_block:create',
                     'cms_slot:create',
-                    // TODO: Add `Shopware.Service('privileges').getPrivileges('media.editor')` in NEXT-8922
+                    Shopware.Service('privileges').getPrivileges('media.creator'),
                     'product:read',
                     'property_group_option:read',
                     'property_group:read',

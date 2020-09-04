@@ -47,12 +47,12 @@ class ProductStockReachedError extends Error
         return $this->getMessageKey() . $this->id;
     }
 
-    public function getName():string
+    public function getName(): string
     {
         return $this->name;
     }
 
-    public function getQuantity():int
+    public function getQuantity(): int
     {
         return $this->quantity;
     }

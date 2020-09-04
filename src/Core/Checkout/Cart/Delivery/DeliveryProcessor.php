@@ -106,8 +106,10 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
 
         $deliveries = $this->builder->build($calculated, $data, $context, $behavior);
 
-        if ($deliveries->count() > 0 && $original->hasExtensionOfType(self::MANUAL_SHIPPING_COSTS, CalculatedPrice::class)) {
-            $deliveries->first()->setShippingCosts($original->getExtension(self::MANUAL_SHIPPING_COSTS));
+        $delivery = $deliveries->first();
+        $manualShippingCosts = $original->getExtension(self::MANUAL_SHIPPING_COSTS);
+        if ($delivery !== null && $manualShippingCosts instanceof CalculatedPrice) {
+            $delivery->setShippingCosts($manualShippingCosts);
         }
 
         $this->deliveryCalculator->calculate($data, $calculated, $deliveries, $context);

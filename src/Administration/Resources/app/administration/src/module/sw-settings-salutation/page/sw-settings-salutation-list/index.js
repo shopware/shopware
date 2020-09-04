@@ -6,7 +6,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-settings-salutation-list', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -36,6 +36,14 @@ Component.register('sw-settings-salutation-list', {
 
         salutationRepository() {
             return this.repositoryFactory.create('salutation');
+        },
+
+        tooltipAdd() {
+            return {
+                message: this.$tc('sw-privileges.tooltip.warning'),
+                disabled: this.acl.can('salutation.creator'),
+                showOnDisabledElements: true
+            };
         }
     },
 

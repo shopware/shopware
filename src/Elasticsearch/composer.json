@@ -29,10 +29,10 @@
         "ongr/elasticsearch-dsl": "7.0.0",
         "shopware/core": "*",
         "symfony/http-foundation": "4.4.7",
-        "symfony/messenger": "4.4.4"
+        "symfony/messenger": "~4.4.13"
     },
     "require-dev": {
-        "symfony/dependency-injection": "4.4.4",
+        "symfony/dependency-injection": "~4.4.13",
         "phpunit/phpunit": "8.5.2"
     }
 }

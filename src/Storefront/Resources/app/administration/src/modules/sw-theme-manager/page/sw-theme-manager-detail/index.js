@@ -88,10 +88,6 @@ Component.register('sw-theme-manager-detail', {
             };
         },
 
-        mediaStore() {
-            return StateDeprecated.getStore('media');
-        },
-
         themeId() {
             return this.$route.params.id;
         },
@@ -193,10 +189,12 @@ Component.register('sw-theme-manager-detail', {
         },
 
         successfulUpload(mediaItem, context) {
-            this.mediaStore.getByIdAsync(mediaItem.targetId).then((media) => {
-                this.setMediaItem(media, context);
-                return true;
-            });
+            this.mediaRepository
+                .get(mediaItem.targetId, Shopware.Context.api)
+                .then((media) => {
+                    this.setMediaItem(media, context);
+                    return true;
+                });
         },
 
         removeMediaItem(field) {

@@ -122,22 +122,28 @@ Component.register('sw-settings-product-feature-sets-detail', {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            return this.productFeatureSetsRepository.save(this.productFeatureSet, Shopware.Context.api).then(() => {
-                this.isSaveSuccessful = true;
-                if (!this.productFeatureSetId) {
-                    this.$router.push({
-                        name: 'sw.settings.product.feature.sets.detail',
-                        params: { id: this.productFeatureSet.id }
+            return this.productFeatureSetsRepository.save(this.productFeatureSet, Shopware.Context.api)
+                .then(() => {
+                    this.isSaveSuccessful = true;
+                    if (!this.productFeatureSetId) {
+                        this.$router.push({
+                            name: 'sw.settings.product.feature.sets.detail',
+                            params: { id: this.productFeatureSet.id }
+                        });
+                    }
+                })
+                .then(() => {
+                    this.loadEntityData();
+                })
+                .catch(() => {
+                    this.createNotificationError({
+                        title: this.$tc('global.default.error'),
+                        message: this.$tc('sw-settings-product-feature-sets.detail.notificationErrorMessage')
                     });
-                }
-            }).catch(() => {
-                this.createNotificationError({
-                    title: this.$tc('global.default.error'),
-                    message: this.$tc('sw-settings-product-feature-sets.detail.notificationErrorMessage')
+                })
+                .finally(() => {
+                    this.isLoading = false;
                 });
-            }).finally(() => {
-                this.isLoading = false;
-            });
         },
 
         onCancel() {

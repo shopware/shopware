@@ -25,8 +25,6 @@ Component.register('sw-product-variants-delivery-order', {
         };
     },
 
-    watch: {},
-
     mounted() {
         this.mountedComponent();
     },

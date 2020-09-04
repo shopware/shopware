@@ -35,7 +35,16 @@
             {% block sw_settings_language_list_smart_bar_actions %}
                 <template #smart-bar-actions>
                     {% block sw_settings_language_list_smart_bar_actions_add %}
-                        <sw-button :routerLink="{ name: 'sw.settings.language.create' }" variant="primary">
+                        <sw-button
+                            v-tooltip.bottom="{
+                                message: $tc('sw-privileges.tooltip.warning'),
+                                disabled: acl.can('language.creator'),
+                                showOnDisabledElements: true
+                            }"
+                            class="sw-settings-language-list__button-create"
+                            variant="primary"
+                            :disabled="!acl.can('language.creator')"
+                            :routerLink="{ name: 'sw.settings.language.create' }">
                             {{ $tc('sw-settings-language.list.buttonAddLanguage') }}
                         </sw-button>
                     {% endblock %}
@@ -51,14 +60,18 @@
             {% block sw_settings_language_list_content %}
                 <template #content>
                     <sw-entity-listing
-                        :isLoading="isLoading"
+                        class="sw-settings-language-list-grid"
                         key="language-listing"
                         detailRoute="sw.settings.language.detail"
+                        :isLoading="isLoading"
                         :repository="languageRepository"
                         :columns="getColumns"
                         :items="languages"
                         :sortBy="sortBy"
-                        :sortDirection="sortDirection">
+                        :sortDirection="sortDirection"
+                        :allowEdit="acl.can('language.editor')"
+                        :allowInlineEdit="acl.can('language.editor')"
+                        :allowDelete="acl.can('language.deleter')">
 
                         <template #column-name="{ item, column, compact, isInlineEdit }">
                             <sw-field v-if="isInlineEdit" :size="compact ? 'small' : 'default'" v-model="item.name"></sw-field>
@@ -86,7 +99,12 @@
                         </template>
 
                         <template #delete-action="{ item, showDelete }">
-                            <sw-context-menu-item @click="showDelete(item.id)" :disabled="isDefault(item.id)" variant="danger">
+                            <sw-context-menu-item
+                                v-tooltip.bottom="tooltipDelete(item.id)"
+                                class="sw-settings-language-list__delete-action"
+                                variant="danger"
+                                :disabled="isDefault(item.id) || !acl.can('language.deleter')"
+                                @click="showDelete(item.id)">
                                 {{ $tc('global.default.delete') }}
                             </sw-context-menu-item>
                         </template>

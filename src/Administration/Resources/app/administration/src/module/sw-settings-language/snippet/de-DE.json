@@ -41,5 +41,12 @@
       "textIsoCodeIsInUse": "Dieser ISO-Code wird bereits verwendet.",
       "textLanguageHasParent": "Diese Sprache erbt bereits von einer anderen Sprache."
     }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "language": {
+        "label": "Sprachen"
+      }
+    }
   }
 }

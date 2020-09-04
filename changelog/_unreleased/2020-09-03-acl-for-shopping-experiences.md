@@ -5,7 +5,7 @@ flag:           FEATURE_NEXT_3722
 author:         Jannis Leifeld
 author_email:   j.leifeld@shopware.com
 author_github:  @jleifeld
-___
+---
 # Administration
 * Added ACL privileges to the shopping experiences module for listing
 * Added prop `disabled` to `sw-cms-block` component

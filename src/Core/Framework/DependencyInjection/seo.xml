@@ -131,5 +131,10 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="sales_channel.repository"/>
         </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Twig\Extension\BuildBreadcrumbExtension">
+            <argument type="service" id="Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder"/>
+            <tag name="twig.extension"/>
+        </service>
     </services>
 </container>

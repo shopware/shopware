@@ -540,7 +540,7 @@ class CategoryEntity extends Entity
     /**
      * @deprecated tag:v6.4.0.0 - Use CategoryBreadcrumbBuilder instead
      */
-    public function buildSeoBreadcrumb(?SalesChannelEntity $salesChannel = null, ?string $navigationCategoryId = null): ?array
+    public function buildSeoBreadcrumb(?string $navigationCategoryId = null, ?SalesChannelEntity $salesChannel = null): ?array
     {
         $builder = new CategoryBreadcrumbBuilder();
 

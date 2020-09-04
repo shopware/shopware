@@ -469,10 +469,5 @@
             <argument type="service" id="event_dispatcher"/>
             <tag name="kernel.event_subscriber"/>
         </service>
-
-        <service id="Shopware\Storefront\Framework\Twig\Extension\BuildBreadcrumbExtension">
-            <argument type="service" id="Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder"/>
-            <tag name="twig.extension"/>
-        </service>
     </services>
 </container>

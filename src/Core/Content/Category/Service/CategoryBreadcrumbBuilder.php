@@ -17,13 +17,8 @@ class CategoryBreadcrumbBuilder
             return $categoryBreadcrumb;
         }
 
-        // Root case
-        if (count($categoryBreadcrumb) < 2) {
-            return null;
-        }
-
         $entryPoints = [
-            $navigationCategoryId
+            $navigationCategoryId,
         ];
 
         if ($salesChannel !== null) {

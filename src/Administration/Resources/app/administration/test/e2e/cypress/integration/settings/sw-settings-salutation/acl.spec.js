@@ -37,22 +37,6 @@ describe('Salutation: Test acl privileges', () => {
         });
     });
 
-    it('@settings: can not find salutation item in menu if have not privilege', () => {
-        cy.window().then((win) => {
-            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
-                return;
-            }
-
-            cy.loginAsUserWithPermissions([]);
-
-            // go to salutaion module
-            cy.get('.sw-admin-menu__item--sw-settings').click();
-
-            // assert that there is not an salutation setting menu
-            cy.get('#sw-settings-salutation').should('not.exist');
-        });
-    });
-
     it('@settings: can create a new salutation if have creator privilege', () => {
         cy.window().then((win) => {
             if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
@@ -69,10 +53,6 @@ describe('Salutation: Test acl privileges', () => {
                 {
                     key: 'salutation',
                     role: 'creator'
-                },
-                {
-                    key: 'salutation',
-                    role: 'editor'
                 }
             ]);
 
@@ -119,36 +99,6 @@ describe('Salutation: Test acl privileges', () => {
             // assert salutations list is exists and contains new salutation in list
             cy.get(`${page.elements.salutationListContent}`).should('be.visible');
             cy.get(`${page.elements.dataGridRow}--0`).should('be.visible').contains('Ms');
-        });
-    });
-
-    it('@settings: can not create a salutation if have privileges which not contain creator privilege', () => {
-        cy.window().then((win) => {
-            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
-                return;
-            }
-
-            cy.loginAsUserWithPermissions([
-                {
-                    key: 'salutation',
-                    role: 'viewer'
-                },
-                {
-                    key: 'salutation',
-                    role: 'editor'
-                },
-                {
-                    key: 'salutation',
-                    role: 'deleter'
-                }
-            ]);
-
-            // go to salutaion module
-            cy.get('.sw-admin-menu__item--sw-settings').click();
-            cy.get('#sw-settings-salutation').click();
-
-            // assert create salutation button disabled
-            cy.get('.sw-settings-salutation-list__create').invoke('css', 'cursor').should('equal', 'not-allowed');
         });
     });
 
@@ -207,38 +157,6 @@ describe('Salutation: Test acl privileges', () => {
         });
     });
 
-    it('@settings: can not edit a salutation if have privileges which not contain editor privilege', () => {
-        cy.window().then((win) => {
-            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
-                return;
-            }
-
-            cy.loginAsUserWithPermissions([
-                {
-                    key: 'salutation',
-                    role: 'viewer'
-                },
-                {
-                    key: 'salutation',
-                    role: 'deleter'
-                }
-            ]);
-
-            // go to salutaion module
-            cy.get('.sw-admin-menu__item--sw-settings').click();
-            cy.get('#sw-settings-salutation').click();
-
-            // click on first element in grid
-            cy.get('input.sw-search-bar__input').typeAndCheckSearchField('mrs');
-
-            // interact on option toggle
-            cy.get('.sw-data-grid__actions-menu .sw-context-button__button').click({ multiple: true });
-
-            // assert that edit button contain class is--disabled
-            cy.get('.sw-entity-listing__context-menu-edit-action').should('have.class', 'is--disabled');
-        });
-    });
-
     it('@settings: can delete a salutation if have a deleter privilege', () => {
         cy.window().then((win) => {
             if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
@@ -291,39 +209,6 @@ describe('Salutation: Test acl privileges', () => {
             cy.wait('@deleteSalutation').then((xhr) => {
                 expect(xhr).to.have.property('status', 204);
             });
-        });
-    });
-
-    it('@settings: can not delete a salutation if have privileges which not contain deleter privilege', () => {
-        cy.window().then((win) => {
-            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
-                return;
-            }
-
-            cy.loginAsUserWithPermissions([
-                {
-                    key: 'salutation',
-                    role: 'viewer'
-                },
-                {
-                    key: 'salutation',
-                    role: 'editor'
-                }
-            ]);
-
-            // go to salutaion module
-            cy.get('.sw-admin-menu__item--sw-settings').click();
-            cy.get('#sw-settings-salutation').click();
-
-
-            // click on first element in grid
-            cy.get('input.sw-search-bar__input').typeAndCheckSearchField('mrs');
-
-            // interact on option toggle
-            cy.get('.sw-data-grid__actions-menu .sw-context-button__button').click();
-
-            // assert that delete button contain class is--disabled
-            cy.get('.sw-context-menu-item--danger').should('have.class', 'is--disabled');
         });
     });
 });

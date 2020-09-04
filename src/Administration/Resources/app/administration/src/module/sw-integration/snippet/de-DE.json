@@ -39,5 +39,12 @@
       "messageSaveError": "Die Integration konnte nicht gespeichert werden.",
       "messageCreateNewError": "Die Integration konnte nicht erstellt werden."
     }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "integration": {
+        "label": "Integrationen"
+      }
+    }
   }
 }

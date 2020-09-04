@@ -291,6 +291,7 @@ NEXT
 * Deprecated `purchasePrice` in `Shopware\Core\Content\Product` use `purchasePrices` instead
 * Deprecated `payload.purchasePrice` in `Shopware\Core\Checkout\Cart\LineItem\LineItem` use `payload.purchasePrices` instead
 * Fixed a bug concering case insensetive IP comparsion in maintanence mode
+* Fixed a bug that manual shipping cost won't be recalculated if the cart is empty
 
 #### Storefront
 

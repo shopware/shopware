@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Api\Controller;
 
 use Shopware\Administration\Service\AdminOrderCartService;
-use Shopware\Core\Checkout\Cart\Delivery\DeliveryProcessor;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
@@ -191,8 +190,6 @@ class SalesChannelProxyController extends AbstractController
         $salesChannelId = $request->request->get('salesChannelId');
 
         $this->fetchSalesChannel($salesChannelId, $context);
-
-        $this->adminOrderCartService->addPermission($this->getContextToken($request), DeliveryProcessor::SKIP_DELIVERY_PRICE_RECALCULATION);
 
         $salesChannelContext = $this->fetchSalesChannelContext($salesChannelId, $request);
 

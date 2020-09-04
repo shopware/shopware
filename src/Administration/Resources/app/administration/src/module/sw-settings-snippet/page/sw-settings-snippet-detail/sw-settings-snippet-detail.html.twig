@@ -32,8 +32,9 @@
                     <sw-button-process
                         class="sw-snippet-detail__save-action"
                         :isLoading="isLoading"
+                        v-tooltip="getNoPermissionsTooltip('snippet.editor')"
                         :processSuccess="isSaveSuccessful"
-                        :disabled="isLoading || !translationKey || !isSaveable"
+                        :disabled="!acl.can('snippet.editor') || isLoading || !translationKey || !isSaveable"
                         variant="primary"
                         @process-finish="saveFinish"
                         @click.prevent="onSave">
@@ -57,6 +58,7 @@
                                                   :placeholder="$tc('sw-settings-snippet.detail.labelNamePlaceholder')"
                                                   v-model="translationKey"
                                                   @input="onChange"
+                                                  v-tooltip.bottom="getNoPermissionsTooltip('snippet.editor')"
                                                   :disabled="!(isCreate || isAddedSnippet)"
                                                   :error="invalidKeyError">
                                         </sw-field>
@@ -76,6 +78,8 @@
                                                   :class="`sw-settings-snippet-detail__translation-field--${index}`"
                                                   :key="snippet.setId"
                                                   @input="onChange"
+                                                  :disabled="!acl.can('snippet.editor')"
+                                                  v-tooltip.bottom="getNoPermissionsTooltip('snippet.editor')"
                                                   :label="$tc('sw-settings-snippet.detail.labelContent', 0, { name: sets.get(snippet.setId).name })"
                                                   :placeholder="snippet.origin || $tc('sw-settings-snippet.general.placeholderValue')">
                                         </sw-field>

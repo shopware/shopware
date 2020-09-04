@@ -93,5 +93,12 @@
             "author": "Autor",
             "more": "Weitere Filter"
         }
+    },
+    "sw-privileges": {
+        "permissions": {
+            "snippet": {
+                "label": "Snippets"
+            }
+        }
     }
 }

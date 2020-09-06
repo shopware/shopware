@@ -1,4 +1,5 @@
 import Criteria from './criteria.data';
+import RepositoryIterator from './repository-iterator.data';
 
 export default class Repository {
     /**
@@ -72,6 +73,46 @@ export default class Repository {
             .then((response) => {
                 return this.hydrator.hydrateSearchResult(this.route, this.entityName, response, context, criteria);
             });
+    }
+
+    /**
+     * Iterates over a paginated search request for the repository entity.
+     * @param {Object} context
+     * @param {Criteria} criteria
+     * @returns {Promise}
+     */
+    iterate(context, criteria) {
+        return new RepositoryIterator(this, context, criteria).iterate(null);
+    }
+
+    /**
+     * Iterates over a paginated search request for the repository entity.
+     * @param {Object} context
+     * @param {Criteria} criteria
+     * @returns {Promise}
+     */
+    async iterateAsync(context, criteria) {
+        return new RepositoryIterator(this, context, criteria).iterateAsync();
+    }
+
+    /**
+     * Iterates over a paginated search request for the repository entity ids.
+     * @param {Object} context
+     * @param {Criteria} criteria
+     * @returns {Promise}
+     */
+    iterateIds(context, criteria) {
+        return new RepositoryIterator(this, context, criteria).iterateIds(null);
+    }
+
+    /**
+     * Iterates over a paginated search request for the repository entity ids.
+     * @param {Object} context
+     * @param {Criteria} criteria
+     * @returns {Promise}
+     */
+    async iterateIdsAsync(context, criteria) {
+        return new RepositoryIterator(this, context, criteria).iterateIdsAsync();
     }
 
     /**

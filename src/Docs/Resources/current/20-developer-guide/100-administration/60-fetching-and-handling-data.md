@@ -26,6 +26,9 @@ The data handling was created with **predictability** as its main design goal. I
 `Criteria`
  : Contains all information for a search request (filter, sorting, pagination, ...)
 
+`RepositoryIterator`
+ : A utility class to support paginated access on repository searches
+
 ## Get access to a repository
 
 To create a repository it is required to inject the RepositoryFactory:
@@ -127,6 +130,27 @@ Component.register('sw-show-case-list', {
             .get(entityId, Shopware.Context.api)
             .then((entity) => {
                 this.entity = entity;
+            });
+    }
+});
+```
+
+## How to fetch all entities
+
+The result size of a repository search is limited with a pagination by default. To iterate over all entities for a given query the RepositoryIterator powered methods iterate and iterateAsync are your choices:
+  
+```js
+Component.register('sw-show-case-list', {
+    inject: ['repositoryFactory'],
+    
+    created() {
+        // create a repository for the `product` entity
+        this.repository = this.repositoryFactory.create('product');
+        
+        this.repository
+            .iterate()
+            .then((result) => {
+                this.result = result;
             });
     }
 });
@@ -463,3 +487,11 @@ Component.register('sw-show-case-list', {
     }
 });
 ```
+
+## Possible pitfalls
+
+Although javascript Criteria class resembles the same class in php there are small differences.
+The javascript class works with pages instead to the limit-offset known from database operations.
+As the pagination should be used using the API it is preset to the first page and 25 results per page.
+Using the Criteria class in php has no limits by default.
+This can result in different expectations regarding their usage although the similar appearance.

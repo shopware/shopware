@@ -1,8 +1,8 @@
 import template from './sw-product-cross-selling-form.html.twig';
 import './sw-product-cross-selling-form.scss';
 
-const { Criteria } = Shopware.Data;
-const { Component, Context } = Shopware;
+const { Component, Context, Data } = Shopware;
+const { Criteria } = Data;
 const { mapPropertyErrors, mapGetters, mapState } = Component.getComponentHelper();
 
 Component.register('sw-product-cross-selling-form', {
@@ -161,7 +161,7 @@ Component.register('sw-product-cross-selling-form', {
                     const criteria = new Criteria();
                     criteria.addFilter(Criteria.equals('productStreamId', this.crossSelling.productStreamId));
 
-                    return filterRepository.search(criteria, Context.api).then((productFilter) => {
+                    return filterRepository.iterate(Context.api, criteria).then((productFilter) => {
                         this.productStreamFilter = productFilter;
                     });
                 });

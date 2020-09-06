@@ -1,8 +1,8 @@
 import template from './sw-product-detail-cross-selling.html.twig';
 import './sw-product-detail-cross-selling.scss';
 
-const { Component } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Component, Context, Data } = Shopware;
+const { Criteria } = Data;
 const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-product-detail-cross-selling', {
@@ -50,10 +50,7 @@ Component.register('sw-product-detail-cross-selling', {
                 .addSorting(Criteria.sort('position', 'ASC'))
                 .addAssociation('product');
 
-            repository.search(
-                criteria,
-                { ...Shopware.Context.api, inheritance: true }
-            ).then((assignedProducts) => {
+            repository.iterate({ ...Context.api, inheritance: true }, criteria).then((assignedProducts) => {
                 crossSelling.assignedProducts = assignedProducts;
             });
 

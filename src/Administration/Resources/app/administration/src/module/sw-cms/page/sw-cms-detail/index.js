@@ -1,10 +1,10 @@
 import template from './sw-cms-detail.html.twig';
 import './sw-cms-detail.scss';
 
-const { Component, Mixin } = Shopware;
+const { Component, Context, Data, Mixin } = Shopware;
+const { Criteria } = Data;
 const { cloneDeep, getObjectDiff } = Shopware.Utils.object;
 const { warn } = Shopware.Utils.debug;
-const Criteria = Shopware.Data.Criteria;
 
 Component.register('sw-cms-detail', {
     template,
@@ -214,7 +214,7 @@ Component.register('sw-cms-detail', {
                     Criteria.equals('typeId', defaultStorefrontId)
                 );
 
-                this.salesChannelRepository.search(criteria, Shopware.Context.api).then((response) => {
+                this.salesChannelRepository.iterate(Context.api, criteria).then((response) => {
                     this.salesChannels = response;
 
                     if (this.salesChannels.length > 0) {
@@ -354,7 +354,8 @@ Component.register('sw-cms-detail', {
         onChangeLanguage() {
             this.isLoading = true;
 
-            return this.salesChannelRepository.search(new Criteria(), Shopware.Context.api).then((response) => {
+            const iterator = new RepositoryIterator(this.salesChannelRepository);
+            return iterator.iterate().then((response) => {
                 this.salesChannels = response;
                 const isSystemDefaultLanguage = Shopware.State.getters['context/isSystemDefaultLanguage'];
                 this.$store.commit('cmsPageState/setIsSystemDefaultLanguage', isSystemDefaultLanguage);

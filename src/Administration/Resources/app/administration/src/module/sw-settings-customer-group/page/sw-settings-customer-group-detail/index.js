@@ -1,8 +1,8 @@
 import './sw-settings-customer-group-detail.scss';
 import template from './sw-settings-customer-group-detail.html.twig';
 
-const { Component, Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Component, Context, Data, Mixin } = Shopware;
+const { Criteria } = Data;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const { ShopwareError } = Shopware.Classes;
 const types = Shopware.Utils.types;
@@ -150,7 +150,7 @@ Component.register('sw-settings-customer-group-detail', {
             criteria.addGroupField('seoPathInfo');
             criteria.addGroupField('salesChannelId');
 
-            this.seoUrls = await this.seoUrlRepository.search(criteria, Shopware.Context.api);
+            this.seoUrls = await this.seoUrlRepository.iterateAsync(Context.api, criteria);
         },
 
         onChangeLanguage() {

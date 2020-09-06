@@ -2,7 +2,6 @@ import template from './sw-sales-channel-modal-grid.html.twig';
 import './sw-sales-channel-modal-grid.scss';
 
 const { Component, Defaults } = Shopware;
-const { Criteria } = Shopware.Data;
 
 Component.register('sw-sales-channel-modal-grid', {
     template,
@@ -50,7 +49,7 @@ Component.register('sw-sales-channel-modal-grid', {
         createdComponent() {
             this.isLoading = true;
 
-            this.salesChannelTypeRepository.search(new Criteria(1, 500), Shopware.Context.api).then((response) => {
+            this.salesChannelTypeRepository.iterate().then((response) => {
                 this.total = response.total;
                 this.salesChannelTypes = response;
                 this.isLoading = false;

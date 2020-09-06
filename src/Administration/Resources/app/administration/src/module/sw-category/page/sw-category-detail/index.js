@@ -2,8 +2,8 @@ import pageState from './state';
 import template from './sw-category-detail.html.twig';
 import './sw-category-detail.scss';
 
-const { Component, Mixin } = Shopware;
-const { Criteria, ChangesetGenerator } = Shopware.Data;
+const { Component, Context, Data, Mixin } = Shopware;
+const { Criteria, ChangesetGenerator } = Data;
 const { cloneDeep, merge } = Shopware.Utils.object;
 const type = Shopware.Utils.types;
 
@@ -287,7 +287,7 @@ Component.register('sw-category-detail', {
         loadCustomFieldSet() {
             this.isCustomFieldLoading = true;
 
-            return this.customFieldSetRepository.search(this.customFieldSetCriteria, Shopware.Context.api)
+            return this.customFieldSetRepository.iterate(Context.api, this.customFieldSetCriteria)
                 .then((customFieldSet) => {
                     return this.$store.commit('swCategoryDetail/setCustomFieldSets', customFieldSet);
                 }).then(() => {

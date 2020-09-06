@@ -1,6 +1,5 @@
-const { Application, Service } = Shopware;
-const { Criteria } = Shopware.Data;
-
+const { Application, Context, Data, Service } = Shopware;
+const { Criteria } = Data;
 
 /**
  * @module core/service/customer-group-registration-listener
@@ -22,8 +21,7 @@ export default function addCustomerGroupRegistrationListener(loginService) {
         const criteria = new Criteria();
         criteria.addAssociation('requestedGroup');
         criteria.addFilter(Criteria.not('AND', [Criteria.equals('requestedGroupId', null)]));
-
-        const customers = await customerRepository.search(criteria, Shopware.Context.api);
+        const customers = await customerRepository.iterateAsync(Context.api, criteria);
 
         customers.forEach(createNotification);
     }

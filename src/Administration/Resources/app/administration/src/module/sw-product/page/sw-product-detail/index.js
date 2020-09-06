@@ -3,8 +3,8 @@ import swProductDetailState from './state';
 import errorConfiguration from './error.cfg.json';
 import './sw-product-detail.scss';
 
-const { Component, Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Component, Data, Mixin } = Shopware;
+const { Criteria } = Data;
 const { hasOwnProperty } = Shopware.Utils.object;
 const { mapPageErrors, mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
@@ -362,7 +362,7 @@ Component.register('sw-product-detail', {
         loadCurrencies() {
             Shopware.State.commit('swProductDetail/setLoading', ['currencies', true]);
 
-            return this.currencyRepository.search(new Criteria(1, 500), Shopware.Context.api).then((res) => {
+            this.currencyRepository.iterate().then((res) => {
                 Shopware.State.commit('swProductDetail/setCurrencies', res);
             }).then(() => {
                 Shopware.State.commit('swProductDetail/setLoading', ['currencies', false]);
@@ -372,7 +372,7 @@ Component.register('sw-product-detail', {
         loadTaxes() {
             Shopware.State.commit('swProductDetail/setLoading', ['taxes', true]);
 
-            return this.taxRepository.search(new Criteria(1, 500), Shopware.Context.api).then((res) => {
+            this.taxRepository.iterate().then((res) => {
                 Shopware.State.commit('swProductDetail/setTaxes', res);
             }).then(() => {
                 Shopware.State.commit('swProductDetail/setLoading', ['taxes', false]);

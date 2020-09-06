@@ -1,8 +1,8 @@
 import template from './sw-customer-detail-order.html.twig';
 import './sw-customer-detail-order.scss';
 
-const { Component } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Component, Context, Data } = Shopware;
+const { Criteria } = Data;
 
 Component.register('sw-customer-detail-order', {
     template,
@@ -91,7 +91,7 @@ Component.register('sw-customer-detail-order', {
             criteria.addAssociation('stateMachineState')
                 .addAssociation('currency');
 
-            this.orderRepository.search(criteria, Shopware.Context.api).then((orders) => {
+            this.orderRepository.iterate(Context.api, criteria).then((orders) => {
                 this.orders = orders;
                 this.isLoading = false;
             });

@@ -1,9 +1,9 @@
 import template from './sw-promotion-basic-form.html.twig';
 import './sw-promotion-basic-form.scss';
 
-const { Component, Mixin } = Shopware;
+const { Component, Context, Data, Mixin } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
-const { Criteria, EntityCollection } = Shopware.Data;
+const { Criteria, EntityCollection } = Data;
 const types = Shopware.Utils.types;
 
 Component.register('sw-promotion-basic-form', {
@@ -60,7 +60,7 @@ Component.register('sw-promotion-basic-form', {
             const promotionRepository = this.repositoryFactory.create('promotion');
             const criteria = (new Criteria()).addFilter(Criteria.equalsAny('id', this.promotion.exclusionIds));
 
-            promotionRepository.search(criteria, Shopware.Context.api).then((excluded) => {
+            promotionRepository.iterate(Context.api, criteria).then((excluded) => {
                 this.excludedPromotions = excluded;
             });
         },

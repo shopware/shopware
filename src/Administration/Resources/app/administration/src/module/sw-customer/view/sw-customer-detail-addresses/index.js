@@ -2,8 +2,8 @@ import { required } from 'src/core/service/validation.service';
 import template from './sw-customer-detail-addresses.html.twig';
 import './sw-customer-detail-addresses.scss';
 
-const { Component, Mixin, EntityDefinition } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Component, Context, Data, Mixin, EntityDefinition } = Shopware;
+const { Criteria } = Data;
 
 Component.register('sw-customer-detail-addresses', {
     template,
@@ -118,11 +118,11 @@ Component.register('sw-customer-detail-addresses', {
             customFieldSetCriteria.addFilter(Criteria.equals('relations.entityName', 'customer_address'))
                 .addAssociation('customFields');
 
-            this.customFieldSetRepository.search(customFieldSetCriteria, Shopware.Context.api).then((customFieldSets) => {
+            this.customFieldSetRepository.iterate(Context.api, customFieldSetCriteria).then((customFieldSets) => {
                 this.customerAddressCustomFieldSets = customFieldSets;
+            }).finally(() => {
+                this.isLoading = false;
             });
-
-            this.isLoading = false;
         },
 
         getAddressColumns() {

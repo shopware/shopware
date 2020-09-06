@@ -1,8 +1,8 @@
 import template from './sw-category-tree.html.twig';
 import './sw-category-tree.scss';
 
-const { Component } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Component, Context, Data } = Shopware;
+const { Criteria } = Data;
 
 Component.register('sw-category-tree', {
     template,
@@ -234,7 +234,7 @@ Component.register('sw-category-tree', {
             const criteria = new Criteria();
             criteria.limit = 500;
             criteria.addFilter(Criteria.equals('parentId', null));
-            return this.categoryRepository.search(criteria, Shopware.Context.api).then((result) => {
+            return this.categoryRepository.iterate(Context.api, criteria).then((result) => {
                 this.addCategories(result);
             });
         },

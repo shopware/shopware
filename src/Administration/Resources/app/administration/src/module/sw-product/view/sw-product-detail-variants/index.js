@@ -1,8 +1,8 @@
 import template from './sw-product-detail-variants.html.twig';
 import './sw-product-detail-variants.scss';
 
-const { Component } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Component, Data } = Shopware;
+const { Criteria } = Data;
 const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-product-detail-variants', {
@@ -100,17 +100,12 @@ Component.register('sw-product-detail-variants', {
         },
 
         loadGroups() {
-            return new Promise((resolve) => {
+            return new Promise((resolve, reject) => {
                 this.$nextTick().then(() => {
-                    const groupCriteria = new Criteria();
-                    groupCriteria
-                        .setLimit(100)
-                        .setPage(1);
-
-                    this.groupRepository.search(groupCriteria, Shopware.Context.api).then((searchResult) => {
+                    this.groupRepository.iterate().then((searchResult) => {
                         this.groups = searchResult;
                         resolve();
-                    });
+                    }).catch(reject);
                 });
             });
         },

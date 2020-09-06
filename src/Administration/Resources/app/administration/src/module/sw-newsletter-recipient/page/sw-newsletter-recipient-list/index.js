@@ -1,7 +1,8 @@
 import template from './sw-newsletter-recipient-list.html.twig';
 import './sw-newsletter-recipient-list.scss';
 
-const { Component, Mixin, Data: { Criteria, EntityCollection } } = Shopware;
+const { Component, Data, Mixin } = Shopware;
+const { Criteria, EntityCollection } = Data;
 
 Component.register('sw-newsletter-recipient-list', {
     template,
@@ -57,12 +58,11 @@ Component.register('sw-newsletter-recipient-list', {
         createdComponent() {
             this.tagCollection = new EntityCollection('/tag', 'tag', Shopware.Context.api, new Criteria());
 
-            const criteria = new Criteria(1, 100);
-            this.languageStore.search(criteria, Shopware.Context.api).then((items) => {
+            this.languageStore.iterate().then((items) => {
                 this.languageFilters = items;
             });
 
-            this.salesChannelRepository.search(new Criteria(1, 100), Shopware.Context.api).then((salesChannels) => {
+            this.salesChannelRepository.iterate().then((salesChannels) => {
                 this.salesChannelFilters = salesChannels;
             });
 

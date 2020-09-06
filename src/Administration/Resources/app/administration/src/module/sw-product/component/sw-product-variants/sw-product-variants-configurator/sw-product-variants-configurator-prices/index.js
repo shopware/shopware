@@ -2,7 +2,6 @@ import template from './sw-product-variants-configurator-prices.html.twig';
 import './sw-product-variants-configurator-prices.scss';
 
 const { Component } = Shopware;
-const { Criteria } = Shopware.Data;
 
 Component.register('sw-product-variants-configurator-prices', {
     template,
@@ -89,11 +88,9 @@ Component.register('sw-product-variants-configurator-prices', {
         },
 
         loadCurrencies() {
-            this.currencyRepository
-                .search(new Criteria(), Shopware.Context.api)
-                .then((searchResult) => {
-                    this.currencies = searchResult;
-                });
+            this.currencyRepository.iterate().then((searchResult) => {
+                this.currencies = searchResult;
+            });
         },
 
         getOptionsForGroup() {

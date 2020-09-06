@@ -2,9 +2,9 @@ import template from './sw-settings-shipping-detail.html.twig';
 import './sw-settings-shipping-detail.scss';
 import swShippingDetailState from './state';
 
-const { Component, Mixin, Context } = Shopware;
+const { Component, Context, Data, Mixin } = Shopware;
 const { mapState } = Shopware.Component.getComponentHelper();
-const { Criteria } = Shopware.Data;
+const { Criteria } = Data;
 const { warn } = Shopware.Utils.debug;
 
 Component.register('sw-settings-shipping-detail', {
@@ -170,7 +170,8 @@ Component.register('sw-settings-shipping-detail', {
 
         loadCurrencies() {
             this.currenciesLoading = true;
-            this.currencyRepository.search(new Criteria(1, 500), Context.api).then((currencyResponse) => {
+
+            this.currencyRepository.iterate().then((currencyResponse) => {
                 Shopware.State.commit('swShippingDetail/setCurrencies', this.sortCurrencies(currencyResponse));
                 this.currenciesLoading = false;
             });

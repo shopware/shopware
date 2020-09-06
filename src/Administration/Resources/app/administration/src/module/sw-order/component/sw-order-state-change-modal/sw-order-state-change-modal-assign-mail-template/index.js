@@ -1,8 +1,8 @@
 import template from './sw-order-state-change-modal-assign-mail-template.html.twig';
 import './sw-order-state-change-modal-assign-mail-template.scss';
 
-const { Criteria } = Shopware.Data;
-const { Component } = Shopware;
+const { Component, Data } = Shopware;
+const { Criteria } = Data;
 
 Component.register('sw-order-state-change-modal-assign-mail-template', {
     template,
@@ -148,13 +148,9 @@ Component.register('sw-order-state-change-modal-assign-mail-template', {
                 );
             }
 
-            const allTechnicalNamesCriteria = new Criteria();
-
-            this.mailTemplateSalesChannelAssociationRepository
-                .search(allTechnicalNamesCriteria, Shopware.Context.api)
-                .then((items) => {
-                    this.allTechnicalNames = items;
-                });
+            this.mailTemplateSalesChannelAssociationRepository.iterate().then((items) => {
+                this.allTechnicalNames = items;
+            });
 
             this.mailTemplateRepository.search(criteria, Shopware.Context.api).then((items) => {
                 this.total = items.total;

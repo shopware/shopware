@@ -3,8 +3,8 @@ import template from './sw-promotion-discount-component.html.twig';
 import './sw-promotion-discount-component.scss';
 import DiscountHandler from './handler';
 
-const { Component, Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Component, Data, Mixin } = Shopware;
+const { Criteria } = Data;
 const discountHandler = new DiscountHandler();
 
 Component.register('sw-promotion-discount-component', {
@@ -246,7 +246,7 @@ Component.register('sw-promotion-discount-component', {
             this.syncService = Shopware.Service('syncService');
             this.httpClient = this.syncService.httpClient;
 
-            this.currencyRepository.search(new Criteria(), Shopware.Context.api).then((response) => {
+            this.currencyRepository.iterate().then((response) => {
                 this.currencies = response;
                 this.defaultCurrency = this.currencies.find(currency => currency.isSystemDefault);
                 this.currencySymbol = this.defaultCurrency.symbol;

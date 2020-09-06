@@ -1,7 +1,7 @@
 import template from './sw-sales-channel-menu.html.twig';
 
-const { Component } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Component, Context, Data } = Shopware;
+const { Criteria } = Data;
 const FlatTree = Shopware.Helper.FlatTreeHelper;
 
 Component.register('sw-sales-channel-menu', {
@@ -59,7 +59,7 @@ Component.register('sw-sales-channel-menu', {
             criteria.addSorting(Criteria.sort('sales_channel.name', 'ASC'));
             criteria.addAssociation('type');
 
-            this.salesChannelRepository.search(criteria, Shopware.Context.api).then((response) => {
+            this.salesChannelRepository.iterate(Context.api, criteria).then((response) => {
                 this.salesChannels = response;
                 this.createMenuTree();
             });

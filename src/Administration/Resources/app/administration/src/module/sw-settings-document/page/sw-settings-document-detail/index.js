@@ -1,8 +1,8 @@
 import template from './sw-settings-document-detail.html.twig';
 import './sw-settings-document-detail.scss';
 
-const { Component, Mixin } = Shopware;
-const { Criteria, EntityCollection } = Shopware.Data;
+const { Component, Data, Mixin } = Shopware;
+const { Criteria, EntityCollection } = Data;
 
 Component.register('sw-settings-document-detail', {
     template,
@@ -339,7 +339,7 @@ Component.register('sw-settings-document-detail', {
         },
 
         async loadAvailableSalesChannel() {
-            this.salesChannels = await this.salesChannelRepository.search(new Criteria(1, 500), Shopware.Context.api);
+            this.salesChannels = await this.salesChannelRepository.iterateAsync();
         },
 
         showOption(item) {

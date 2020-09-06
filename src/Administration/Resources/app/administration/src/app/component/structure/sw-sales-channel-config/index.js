@@ -1,7 +1,7 @@
 import template from './sw-sales-channel-config.html.twig';
 
-const { Component } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Component, Context, Data } = Shopware;
+const { Criteria } = Data;
 
 Component.register('sw-sales-channel-config', {
     template,
@@ -73,7 +73,7 @@ Component.register('sw-sales-channel-config', {
     methods: {
         createdComponent() {
             if (!this.salesChannel.length) {
-                this.salesChannelRepository.search(this.criteria, Shopware.Context.api).then(res => {
+                this.salesChannelRepository.iterate(Context.api, this.criteria).then(res => {
                     res.add({
                         id: null,
                         translated: {

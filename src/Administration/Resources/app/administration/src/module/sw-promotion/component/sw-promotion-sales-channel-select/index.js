@@ -1,7 +1,6 @@
 import template from './sw-promotion-sales-channel-select.html.twig';
 
 const { Component } = Shopware;
-const { Criteria } = Shopware.Data;
 
 Component.register('sw-promotion-sales-channel-select', {
     template,
@@ -75,7 +74,7 @@ Component.register('sw-promotion-sales-channel-select', {
 
     methods: {
         createdComponent() {
-            this.salesChannelRepository.search(new Criteria(), Shopware.Context.api).then((searchresult) => {
+            this.salesChannelRepository.iterate().then((searchresult) => {
                 this.salesChannels = searchresult;
             });
         },

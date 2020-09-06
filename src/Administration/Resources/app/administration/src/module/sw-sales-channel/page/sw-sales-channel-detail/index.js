@@ -1,7 +1,7 @@
 import template from './sw-sales-channel-detail.html.twig';
 
-const { Component, Mixin, Context, Defaults } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Component, Context, Data, Defaults, Mixin } = Shopware;
+const { Criteria } = Data;
 
 Component.register('sw-sales-channel-detail', {
     template,
@@ -236,11 +236,9 @@ Component.register('sw-sales-channel-detail', {
             criteria.getAssociation('customFields')
                 .addSorting(Criteria.sort('config.customFieldPosition', 'ASC', true));
 
-            this.customFieldRepository
-                .search(criteria, Context.api)
-                .then((searchResult) => {
-                    this.customFieldSets = searchResult;
-                });
+            this.customFieldRepository.iterate(Context.api, criteria).then((searchResult) => {
+                this.customFieldSets = searchResult;
+            });
         },
 
         generateAccessUrl() {

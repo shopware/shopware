@@ -1,8 +1,8 @@
 import template from './sw-product-detail-context-prices.html.twig';
 import './sw-product-detail-context-prices.scss';
 
-const { Component, Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Component, Context, Data, Mixin } = Shopware;
+const { Criteria } = Data;
 const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-product-detail-context-prices', {
@@ -172,7 +172,7 @@ Component.register('sw-product-detail-context-prices', {
             );
 
             Shopware.State.commit('swProductDetail/setLoading', ['rules', true]);
-            this.ruleRepository.search(ruleCriteria, Shopware.Context.api).then((res) => {
+            this.ruleRepository.iterate(Context.api, ruleCriteria).then((res) => {
                 this.rules = res;
                 this.totalRules = res.total;
 

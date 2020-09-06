@@ -1,8 +1,8 @@
 import template from './sw-mail-template-detail.html.twig';
 import './sw-mail-template-detail.scss';
 
-const { Component, Mixin } = Shopware;
-const { Criteria, EntityCollection } = Shopware.Data;
+const { Component, Context, Data, Mixin } = Shopware;
+const { Criteria, EntityCollection } = Data;
 const { warn } = Shopware.Utils.debug;
 
 Component.register('sw-mail-template-detail', {
@@ -286,7 +286,8 @@ Component.register('sw-mail-template-detail', {
             mailTemplateSalesChannelCriteria.addFilter(
                 Criteria.equals('mailTemplateTypeId', id)
             );
-            mailTemplateSalesChannelsEntry.search(mailTemplateSalesChannelCriteria, Shopware.Context.api).then(
+
+            mailTemplateSalesChannelsEntry.iterate(Context.api, mailTemplateSalesChannelCriteria).then(
                 (responseSalesChannels) => {
                     const assignedSalesChannelIds = [];
                     responseSalesChannels.forEach((salesChannel) => {
@@ -304,10 +305,8 @@ Component.register('sw-mail-template-detail', {
             const criteria = new Criteria();
             criteria.addFilter(Criteria.equals('mailTemplateId', this.mailTemplate.id));
             criteria.addAssociation('salesChannel');
-            this.mailTemplateSalesChannelAssociationRepository.search(
-                criteria,
-                Shopware.Context.api
-            ).then((responseAssoc) => {
+
+            this.mailTemplateSalesChannelAssociationRepository.iterate(Context.api, criteria).then((responseAssoc) => {
                 this.enrichAssocStores(responseAssoc);
             });
         },

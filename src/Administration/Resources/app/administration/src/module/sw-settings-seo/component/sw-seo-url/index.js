@@ -1,9 +1,8 @@
 import swSeoUrlState from './state';
 import template from './sw-seo-url.html.twig';
 
-const { Component } = Shopware;
-const Criteria = Shopware.Data.Criteria;
-const EntityCollection = Shopware.Data.EntityCollection;
+const { Component, Context, Data } = Shopware;
+const { Criteria, EntityCollection } = Data;
 
 Component.register('sw-seo-url', {
     template,
@@ -143,10 +142,9 @@ Component.register('sw-seo-url', {
 
         initSalesChannelCollection() {
             const salesChannelCriteria = new Criteria();
-            salesChannelCriteria.setIds([]);
             salesChannelCriteria.addAssociation('type');
 
-            this.salesChannelRepository.search(salesChannelCriteria, Shopware.Context.api).then((salesChannelCollection) => {
+            this.salesChannelRepository.iterate(Context.api, salesChannelCriteria).then((salesChannelCollection) => {
                 Shopware.State.commit('swSeoUrl/setSalesChannelCollection', salesChannelCollection);
             });
         },

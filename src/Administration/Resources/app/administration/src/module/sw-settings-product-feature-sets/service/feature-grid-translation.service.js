@@ -1,4 +1,5 @@
-const { Criteria } = Shopware.Data;
+const { Context, Data } = Shopware;
+const { Criteria } = Data;
 
 export default class FeatureGridTranslationService {
     /**
@@ -57,7 +58,7 @@ export default class FeatureGridTranslationService {
             identifier
         ));
 
-        return repo.search(criteria, Shopware.Context.api).then((items) => {
+        return repo.iterate(Context.api, criteria).then((items) => {
             this.entities[type] = items;
         });
     }

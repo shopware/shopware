@@ -1,9 +1,9 @@
 import template from './sw-category-tree-field.html.twig';
 import './sw-category-tree-field.scss';
 
-const { Component } = Shopware;
+const { Component, Context, Data } = Shopware;
 const utils = Shopware.Utils;
-const { Criteria } = Shopware.Data;
+const { Criteria } = Data;
 
 Component.register('sw-category-tree-field', {
     template,
@@ -172,7 +172,7 @@ Component.register('sw-category-tree-field', {
             categoryCriteria.addFilter(Criteria.equals('parentId', parentId), 'AND', Criteria.equals('type', 'page'));
 
             // search for categories
-            return this.globalCategoryRepository.search(categoryCriteria, Shopware.Context.api).then((searchResult) => {
+            this.globalCategoryRepository.iterate(Context.api, categoryCriteria).then((searchResult) => {
                 // when requesting root categories, replace the data
                 if (parentId === null) {
                     this.categories = searchResult;
@@ -234,8 +234,7 @@ Component.register('sw-category-tree-field', {
             categorySearchCriteria.addFilter(Criteria.equals('type', 'page'));
             categorySearchCriteria.setTerm(term);
 
-            // search for categories
-            return this.globalCategoryRepository.search(categorySearchCriteria, Shopware.Context.api);
+            return this.globalCategoryRepository.iterate(Context.api, categorySearchCriteria);
         },
 
         isSearchItemChecked(itemId) {

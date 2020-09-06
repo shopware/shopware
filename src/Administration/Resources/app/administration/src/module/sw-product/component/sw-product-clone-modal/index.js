@@ -1,8 +1,8 @@
 import template from './sw-product-clone-modal.html.twig';
 import './sw-product-clone-modal.scss';
 
-const { Component } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Component, Context, Data } = Shopware;
+const { Criteria } = Data;
 
 Component.register('sw-product-clone-modal', {
     template,
@@ -92,11 +92,7 @@ Component.register('sw-product-clone-modal', {
                 Criteria.equals('parentId', this.product.id)
             );
 
-            return this.repository
-                .searchIds(criteria, Shopware.Context.api)
-                .then((response) => {
-                    return response.data;
-                });
+            return this.repository.iterateIds(Context.api, criteria);
         },
 
         duplicateVariant(duplicate, ids, callback) {

@@ -1,9 +1,8 @@
 import { DiscountTypes, DiscountScopes } from 'src/module/sw-promotion/helper/promotion.helper';
 import template from './sw-promotion-detail-discounts.html.twig';
 
-const { Component } = Shopware;
-const { Criteria } = Shopware.Data;
-
+const { Component, Data } = Shopware;
+const { Criteria } = Data;
 
 Component.register('sw-promotion-detail-discounts', {
     template,
@@ -68,7 +67,8 @@ Component.register('sw-promotion-detail-discounts', {
             const discountCriteria = (new Criteria()).addAssociation('promotionDiscountPrices');
 
             this.isLoading = true;
-            discountRepository.search(discountCriteria, this.promotion.discounts.context).then((discounts) => {
+
+            discountRepository.iterate(this.promotion.discounts.context, discountCriteria).then((discounts) => {
                 this.discounts = discounts;
                 this.isLoading = false;
             });

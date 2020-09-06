@@ -2,8 +2,8 @@ import { PromotionPermissions } from 'src/module/sw-promotion/helper/promotion.h
 import template from './sw-promotion-cart-condition-form.html.twig';
 import './sw-promotion-cart-condition-form.scss';
 
-const { Component } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Component, Context, Data } = Shopware;
+const { Criteria } = Data;
 
 Component.register('sw-promotion-cart-condition-form', {
     template,
@@ -119,7 +119,7 @@ Component.register('sw-promotion-cart-condition-form', {
                 Criteria.equals('promotionId', this.promotion.id)
             );
 
-            this.repositoryGroups.search(criteria, Shopware.Context.api).then((groups) => {
+            this.repositoryGroups.iterate(Context.api, criteria).then((groups) => {
                 this.promotion.setgroups = groups;
             });
         },

@@ -2,8 +2,8 @@ import { email } from 'src/core/service/validation.service';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-profile-index.html.twig';
 
-const { Component, Mixin, State } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Component, Context, Data, Mixin, State } = Shopware;
+const { Criteria } = Data;
 const { mapPropertyErrors } = Component.getComponentHelper();
 const types = Shopware.Utils.types;
 
@@ -147,7 +147,7 @@ Component.register('sw-profile-index', {
             languageCriteria.addFilter(Criteria.equalsAny('locale.code', registeredLocales));
             languageCriteria.limit = 500;
 
-            return this.languageRepository.search(languageCriteria, Shopware.Context.api).then((result) => {
+            this.languageRepository.iterate(Context.api, languageCriteria).then((result) => {
                 this.languages = [];
                 const localeIds = [];
                 let fallbackId = '';

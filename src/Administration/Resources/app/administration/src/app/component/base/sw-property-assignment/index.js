@@ -1,8 +1,8 @@
 import template from './sw-property-assignment.html.twig';
 import './sw-property-assignment.scss';
 
-const { Component } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Component, Context, Data } = Shopware;
+const { Criteria } = Data;
 
 Component.register('sw-property-assignment', {
     template,
@@ -124,10 +124,7 @@ Component.register('sw-property-assignment', {
                 Criteria.equalsAny('id', groupIds)
             );
 
-            // Fetch groups with options
-            this.groupRepository.search(groupSearchCriteria, Shopware.Context.api).then((res) => {
-                this.groups = res;
-            });
+            this.groupRepository.iterate(Context.api, groupSearchCriteria).then(groups => { this.groups = groups; });
 
             return true;
         }

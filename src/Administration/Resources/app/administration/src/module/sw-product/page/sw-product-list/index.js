@@ -1,8 +1,8 @@
 import template from './sw-product-list.twig';
 import './sw-product-list.scss';
 
-const { Component, Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Component, Data, Mixin } = Shopware;
+const { Criteria } = Data;
 
 Component.register('sw-product-list', {
     template,
@@ -95,11 +95,9 @@ Component.register('sw-product-list', {
             productCriteria.addAssociation('cover');
             productCriteria.addAssociation('manufacturer');
 
-            const currencyCriteria = new Criteria(1, 500);
-
             return Promise.all([
                 this.productRepository.search(productCriteria, Shopware.Context.api),
-                this.currencyRepository.search(currencyCriteria, Shopware.Context.api)
+                this.currencyRepository.iterate()
             ]).then((result) => {
                 const products = result[0];
                 const currencies = result[1];

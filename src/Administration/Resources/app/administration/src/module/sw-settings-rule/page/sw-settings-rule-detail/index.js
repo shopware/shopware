@@ -2,8 +2,7 @@ import { mapPropertyErrors } from 'src/app/service/map-errors.service';
 import template from './sw-settings-rule-detail.html.twig';
 import './sw-settings-rule-detail.scss';
 
-const { Component, Mixin, Context } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Component, Context, Mixin } = Shopware;
 
 Component.register('sw-settings-rule-detail', {
     template,
@@ -141,39 +140,10 @@ Component.register('sw-settings-rule-detail', {
 
             return this.ruleRepository.get(ruleId, Context.api).then((rule) => {
                 this.rule = rule;
-                return this.loadConditions();
-            });
-        },
 
-        loadConditions(conditions = null) {
-            const context = { ...Context.api, inheritance: true };
-
-            if (conditions === null) {
-                return this.conditionRepository.search(new Criteria(), context).then((searchResult) => {
-                    return this.loadConditions(searchResult);
+                return this.conditionRepository.iterate({ ...Context.api, inheritance: true }).then(conditions => {
+                    this.conditions = conditions;
                 });
-            }
-
-            if (conditions.total <= conditions.length) {
-                this.conditions = conditions;
-                return Promise.resolve();
-            }
-
-            const criteria = new Criteria(
-                conditions.criteria.page + 1,
-                conditions.criteria.limit
-            );
-
-            if (conditions.entity === 'product') {
-                criteria.addAssociation('options.group');
-            }
-
-            return this.conditionRepository.search(criteria, conditions.context).then((searchResult) => {
-                conditions.push(...searchResult);
-                conditions.criteria = searchResult.criteria;
-                conditions.total = searchResult.total;
-
-                return this.loadConditions(conditions);
             });
         },
 

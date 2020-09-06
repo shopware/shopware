@@ -1,9 +1,9 @@
 import template from './sw-product-stream-detail.html.twig';
 import './sw-product-stream-detail.scss';
 
-const { Component, Mixin, Context } = Shopware;
+const { Component, Context, Data, Mixin } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
-const { Criteria } = Shopware.Data;
+const { Criteria } = Data;
 
 Component.register('sw-product-stream-detail', {
     template,
@@ -161,7 +161,7 @@ Component.register('sw-product-stream-detail', {
                 const filterCriteria = new Criteria();
                 filterCriteria.addFilter(Criteria.equals('productStreamId', this.productStreamId));
 
-                return this.productStreamFiltersRepository.search(filterCriteria, Context.api).then((productFilter) => {
+                this.productStreamFiltersRepository.iterate(Context.api, filterCriteria).then((productFilter) => {
                     return this.loadFilters(productFilter);
                 });
             }
@@ -279,7 +279,7 @@ Component.register('sw-product-stream-detail', {
                 .addAssociation('customFields')
                 .addAssociation('relations');
 
-            this.customFieldSetRepository.search(customFieldsCriteria, Context.api).then((customFieldSets) => {
+            this.customFieldSetRepository.iterate(Context.api, customFieldsCriteria).then((customFieldSets) => {
                 customFieldSets.forEach((customFieldSet) => {
                     const customFields = customFieldSet.customFields
                         .reduce((acc, customField) => {

@@ -13,6 +13,7 @@ Core
 ----
 
 * Implementations of `\Shopware\Core\Framework\Api\Sync\SyncServiceInterface::sync` need to change the type of the first argument `$operations` to `iterable`.
+* System and plugin configurations made with `config.xml` can now have less than 4 characters as configuration key but are not allowed anymore to start with a number.
 
 Administration
 --------------

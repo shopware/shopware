@@ -1,8 +1,8 @@
 import template from './sw-product-detail-properties.html.twig';
 import './sw-product-detail-properties.scss';
 
-const { Component } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Component, Data } = Shopware;
+const { RepositoryIterator } = Data;
 const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-product-detail-properties', {
@@ -51,8 +51,9 @@ Component.register('sw-product-detail-properties', {
         },
 
         checkIfPropertiesExists() {
-            this.propertyRepository.search(new Criteria(1, 1), Shopware.Context.api).then((res) => {
-                this.propertiesAvailable = res.total > 0;
+            const iterator = new RepositoryIterator(this.propertyRepository);
+            iterator.getTotal().then(total => {
+                this.propertiesAvailable = total > 0;
             });
         },
 

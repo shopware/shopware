@@ -457,7 +457,8 @@ Component.register('sw-sales-channel-detail-base', {
                 )
             );
 
-            this.productExportRepository.search(criteria, Shopware.Context.api).then(({ total }) => {
+            const iterator = new RepositoryIterator(this.productExportRepository, Context.api, criteria);
+            iterator.getTotal().then(total => {
                 this.invalidFileName = total > 0;
                 this.isFileNameChecking = false;
             }).catch(() => {

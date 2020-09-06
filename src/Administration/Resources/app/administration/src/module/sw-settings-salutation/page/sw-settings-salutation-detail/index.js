@@ -1,7 +1,7 @@
 import template from './sw-settings-salutation-detail.html.twig';
 
-const { Component, Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Component, Context, Data, Mixin } = Shopware;
+const { Criteria, RepositoryIterator } = Data;
 const ShopwareError = Shopware.Classes.ShopwareError;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const utils = Shopware.Utils;
@@ -201,7 +201,8 @@ Component.register('sw-settings-salutation-detail', {
                 )
             );
 
-            this.salutationRepository.search(criteria, Shopware.Context.api).then(({ total }) => {
+            const iterator = new RepositoryIterator(this.salutationRepository, Context.api, criteria);
+            iterator.getTotal().then(total => {
                 this.invalidKey = total > 0;
                 this.isKeyChecking = false;
             }).catch(() => {

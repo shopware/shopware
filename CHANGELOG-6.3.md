@@ -106,6 +106,7 @@ NEXT
   * Deprecated `Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingSorting` for v6.4.0.
     Use `\Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingEntity` instead
 * Changed `\Shopware\Core\Content\Sitemap\Provider\CategoryUrlProvider` to list only categories associated to the current sales channels
+* Fixed `\Shopware\Core\Framework\DependencyInjection\Configuration::createFilesystemSection()` to pass `visibility` argument of private filesystems
 
 #### Storefront
 * Added ellipsis to the truncated long product name

@@ -166,7 +166,7 @@ Component.register('sw-product-detail-base', {
             criteria.addFilter(Criteria.equals('productId', this.product.id));
             criteria.setPage(this.page);
             criteria.setLimit(this.limit);
-            criteria.setTotalCountMode(1);
+            criteria.setTotalCountMode(Criteria.TOTAL_COUNT_MODE_EXACT);
 
             // load all our individual codes of our promotion
             // into our local promotion object.

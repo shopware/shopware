@@ -1,6 +1,27 @@
 import { types, object } from 'src/core/service/util.service';
 
 export default class Criteria {
+    /**
+     * no total count will be selected. Should be used if no pagination required (fastest)
+     */
+    static get TOTAL_COUNT_MODE_NONE() {
+        return 0;
+    }
+
+    /**
+     * exact total count will be selected. Should be used if an exact pagination is required (slow)
+     */
+    static get TOTAL_COUNT_MODE_EXACT() {
+        return 1;
+    }
+
+    /**
+     * fetches limit * 5 + 1. Should be used if pagination can work with "next page exists" (fast)
+     */
+    static get TOTAL_COUNT_MODE_NEXT_PAGES() {
+        return 2;
+    }
+
     constructor(page = 1, limit = 25) {
         this.page = page;
         this.limit = limit;
@@ -14,7 +35,8 @@ export default class Criteria {
         this.aggregations = [];
         this.grouping = [];
         this.groupFields = [];
-        this.totalCountMode = 1;
+        // \Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria::$totalCountMode defaults to TOTAL_COUNT_MODE_NONE
+        this.totalCountMode = this.TOTAL_COUNT_MODE_EXACT;
     }
 
     static fromCriteria(criteria) {
@@ -99,7 +121,7 @@ export default class Criteria {
             this.totalCountMode = null;
         }
 
-        this.totalCountMode = (mode < 0 || mode > 2) ? null : mode;
+        this.totalCountMode = (mode < this.TOTAL_COUNT_MODE_NONE || mode > this.TOTAL_COUNT_MODE_NEXT_PAGES) ? null : mode;
         return this;
     }
 

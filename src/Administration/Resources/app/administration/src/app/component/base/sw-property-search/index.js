@@ -2,7 +2,8 @@ import template from './sw-property-search.html.twig';
 import './sw-property-search.scss';
 
 // @deprecated tag:v6.4.0.0 for StateDeprecated
-const { Component, StateDeprecated } = Shopware;
+const { Component, Data, StateDeprecated } = Shopware;
+const { Criteria } = Data;
 const utils = Shopware.Utils;
 
 Component.register('sw-property-search', {
@@ -210,7 +211,7 @@ Component.register('sw-property-search', {
                 page: this.optionPage,
                 limit: 10,
                 queries: queries,
-                'total-count-mode': 1,
+                'total-count-mode': Criteria.TOTAL_COUNT_MODE_EXACT,
                 associations: {
                     group: {}
                 }
@@ -238,7 +239,7 @@ Component.register('sw-property-search', {
             const params = {
                 page: this.groupPage,
                 limit: 10,
-                'total-count-mode': 1
+                'total-count-mode': Criteria.TOTAL_COUNT_MODE_EXACT
             };
 
             this.groupOptions = [];
@@ -253,7 +254,7 @@ Component.register('sw-property-search', {
             const params = {
                 page: this.optionPage,
                 limit: 10,
-                'total-count-mode': 1
+                'total-count-mode': Criteria.TOTAL_COUNT_MODE_EXACT
             };
 
             if (this.currentGroup.sortingType === 'position') {

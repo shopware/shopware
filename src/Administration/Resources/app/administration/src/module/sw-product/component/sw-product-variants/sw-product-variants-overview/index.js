@@ -120,7 +120,7 @@ Component.register('sw-product-variants-overview', {
                 const searchCriteria = new Criteria();
 
                 // Criteria for Search
-                searchCriteria.setTotalCountMode(1);
+                searchCriteria.setTotalCountMode(Criteria.TOTAL_COUNT_MODE_EXACT);
                 searchCriteria
                     .setPage(this.page)
                     .setLimit(this.limit)

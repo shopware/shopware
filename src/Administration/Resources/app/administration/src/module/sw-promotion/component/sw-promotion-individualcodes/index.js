@@ -303,7 +303,7 @@ Component.register('sw-promotion-individualcodes', {
             criteria.addFilter(Criteria.equals('promotionId', this.promotion.id));
             criteria.setPage(this.gridCurrentPageNr);
             criteria.setLimit(this.gridPageLimit);
-            criteria.setTotalCountMode(1);
+            criteria.setTotalCountMode(Criteria.TOTAL_COUNT_MODE_EXACT);
 
             // load all our individual codes of our promotion
             // into our local promotion object.

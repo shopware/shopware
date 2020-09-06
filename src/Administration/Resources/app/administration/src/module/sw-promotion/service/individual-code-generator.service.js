@@ -188,7 +188,7 @@ export default class IndividualCodeGenerator extends EventEmitter {
         const criteria = new Criteria();
         criteria.setLimit(1);
         criteria.addFilter(Criteria.equals('promotionId', this.promotionId));
-        criteria.setTotalCountMode(1);
+        criteria.setTotalCountMode(Criteria.TOTAL_COUNT_MODE_EXACT);
 
         let count = 0;
 

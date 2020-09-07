@@ -9,9 +9,9 @@ use Shopware\Core\Content\Seo\HreflangLoaderParameter;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\PlatformRequest;
@@ -252,7 +252,9 @@ class StorefrontSubscriber implements EventSubscriberInterface
             return;
         }
 
-        if (!$event->getRequest()->attributes->has(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST)) {
+        /** @var RouteScope $scope */
+        $scope = $event->getRequest()->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, new RouteScope(['scopes' => []]));
+        if (!$scope->hasScope(StorefrontRouteScope::ID)) {
             return;
         }
 

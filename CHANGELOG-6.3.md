@@ -1342,5 +1342,4 @@ Refactored `src/module/sw-plugin/snippet/en-GB.json`:
 * Added an additional class to the cart offcanvas called `cart-offcanvas`
 * Added all language flags according to language packs
 * Deprecated global `apiAccessUrl`
-* Deprecated `StoreApiClient`, use storefront controller instead
 * Deprecated `Shopware\Storefront\Controller\CsrfController::getApiAccess`, use storefront controller instead

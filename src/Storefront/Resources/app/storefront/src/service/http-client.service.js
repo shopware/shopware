@@ -132,7 +132,9 @@ export default class HttpClient {
      */
     _registerOnLoaded(request, callback) {
         request.addEventListener('loadend', () => {
-            callback(request.responseText);
+            if (callback) {
+                callback(request.responseText);
+            }
         });
     }
 

@@ -9,7 +9,8 @@ Component.register('sw-custom-field-list', {
     template,
 
     inject: [
-        'repositoryFactory'
+        'repositoryFactory',
+        'acl'
     ],
 
     mixins: [

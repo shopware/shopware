@@ -12,7 +12,7 @@
                             type="select"
                             v-model="currentCustomField.config.customFieldType"
                             :helpText="$tc('sw-settings-custom-field.general.tooltipType')"
-                            :disabled="!currentCustomField._isNew">
+                            :disabled="!currentCustomField._isNew || !acl.can('custom_fields.editor')">
                         <option v-for="(option, key) in fieldTypes" :value="key">
                             {{ $tc(`sw-settings-custom-field.types.${key}`) }}
                         </option>
@@ -24,7 +24,7 @@
                             type="text"
                             :label="$tc('sw-settings-custom-field.customField.detail.labelTechnicalName')"
                             :helpText="$tc('sw-settings-custom-field.general.tooltipTechnicalName')"
-                            :disabled="!currentCustomField._isNew"
+                            :disabled="!currentCustomField._isNew || !acl.can('custom_fields.editor')"
                             v-model="currentCustomField.name">
                     </sw-field>
                 {% endblock %}
@@ -35,7 +35,8 @@
                             :helpText="$tc('sw-settings-custom-field.customField.detail.tooltipCustomFieldPosition')"
                             numberType="int"
                             :label="$tc('sw-settings-custom-field.customField.detail.labelCustomFieldPosition')"
-                            v-model="currentCustomField.config.customFieldPosition">
+                            v-model="currentCustomField.config.customFieldPosition"
+                            :disabled="!acl.can('custom_fields.editor')">
                     </sw-field>
                 {% endblock %}
 
@@ -47,7 +48,8 @@
                             class="sw-custom-field-detail__switch"
                             :label="$tc('sw-settings-custom-field.customField.detail.labelRequired')"
                             required
-                            v-model="required">
+                            v-model="required"
+                            :disabled="!acl.can('custom_fields.editor')">
                     </sw-field>
                 {% endblock %}
             </sw-container>
@@ -70,10 +72,11 @@
                     {% endblock %}
 
                     {% block sw_custom_field_detail_modal_footer_save %}
-                        <sw-button variant="primary"
-                                   size="small"
-                                   :disabled="!canSave"
-                                   @click="onSave">
+                        <sw-button
+                            variant="primary"
+                            size="small"
+                            :disabled="!canSave || !acl.can('custom_fields.editor')"
+                            @click="onSave">
                             {{ labelSaveButton }}
                         </sw-button>
                     {% endblock %}

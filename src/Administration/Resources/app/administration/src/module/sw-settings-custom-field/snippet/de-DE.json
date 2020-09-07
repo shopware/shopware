@@ -100,5 +100,12 @@
       "int": "Zahl",
       "colorpicker": "Farbauswahl"
     }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "custom_fields": {
+        "label": "Zusatzfelder"
+      }
+    }
   }
 }

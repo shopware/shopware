@@ -99,5 +99,12 @@
       "int": "Number",
       "colorpicker": "Colour picker"
     }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "custom_fields": {
+        "label": "Custom fields"
+      }
+    }
   }
 }

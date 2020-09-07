@@ -5,6 +5,8 @@ const { Component, Locale, Mixin, Data: { Criteria } } = Shopware;
 
 Component.register('sw-settings-custom-field-set-list', {
     template,
+    inject: ['acl'],
+
     mixins: [
         Mixin.getByName('sw-inline-snippet'),
         Mixin.getByName('sw-settings-list')

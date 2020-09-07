@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Test\Cart\Order;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
@@ -360,6 +361,34 @@ class RecalculationServiceTest extends TestCase
         $productPrice = 10.0;
         $productTaxRate = 19.0;
         $this->addProductToVersionedOrder($productName, $productPrice, $productTaxRate, $orderId, $versionId, $oldTotal);
+    }
+
+    public function testAddProductToOrderTriggersStockUpdate(): void
+    {
+        // create order
+        $cart = $this->generateDemoCart();
+        $order = $this->persistCart($cart);
+        $orderId = $order['orderId'];
+        $oldTotal = $order['total'];
+
+        // create version of order
+        $versionId = $this->createVersionedOrder($orderId);
+
+        $productName = 'Test';
+        $productPrice = 10.0;
+        $productTaxRate = 19.0;
+        $productId = $this->addProductToVersionedOrder($productName, $productPrice, $productTaxRate, $orderId, $versionId, $oldTotal);
+
+        $this->getContainer()->get('order.repository')
+            ->merge($versionId, Context::createDefaultContext());
+
+        $stocks = $this->getContainer()->get(Connection::class)
+            ->fetchAll('SELECT stock, available_stock FROM product WHERE id = :id', ['id' => Uuid::fromHexToBytes($productId)]);
+
+        $stocks = array_shift($stocks);
+
+        static::assertEquals(5, $stocks['stock']);
+        static::assertEquals(4, $stocks['available_stock']);
     }
 
     public function testAddCustomLineItemToOrder(): void
@@ -821,7 +850,7 @@ class RecalculationServiceTest extends TestCase
         $data = [
             'id' => $productId,
             'productNumber' => $productNumber,
-            'stock' => 1,
+            'stock' => 5,
             'name' => $name,
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => $price + ($price * $taxRate / 100), 'net' => $price, 'linked' => false]],
             'manufacturer' => ['name' => 'create'],

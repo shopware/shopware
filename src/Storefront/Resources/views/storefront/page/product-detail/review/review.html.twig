@@ -12,7 +12,7 @@
 		{% set productReviewCount = reviews|length %}
 
 		{% if productReviewCount > 0 %}
-			{% set productAvgRating = reviews.matrix.averageRating|round(2, 'floor')  %}
+            {% set productAvgRating = reviews.matrix.averageRating|round(2, 'common')  %}
 		{% endif %}
 
 		{# TODO: replace language flag #}
@@ -248,7 +248,7 @@
 
                                                             {% sw_include '@Storefront/storefront/component/pagination.html.twig' with {
                                                                 entities: reviews,
-                                                                criteria: reviews.criteria
+                                                                criteria: criteria
                                                             }  %}
                                                         </form>
                                                     </div>

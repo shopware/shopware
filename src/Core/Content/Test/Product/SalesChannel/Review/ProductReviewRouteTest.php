@@ -98,7 +98,7 @@ class ProductReviewRouteTest extends TestCase
         static::assertArrayHasKey('max', $response['aggregations']);
         static::assertArrayHasKey('average', $response['aggregations']);
 
-        static::assertEquals(3, $response['aggregations']['average']['avg']);
+        static::assertEquals(3.4, $response['aggregations']['average']['avg']);
         static::assertEquals(5, $response['aggregations']['max']['max']);
     }
 
@@ -145,7 +145,8 @@ class ProductReviewRouteTest extends TestCase
                 'productId' => $this->ids->get('product'),
                 'title' => 'Test',
                 'content' => 'test',
-                'points' => $i,
+                'points' => min(5, $i + $i / 5),
+                'status' => true,
             ];
         }
 

@@ -1,9 +1,8 @@
 import template from './sw-review-detail.html.twig';
 import './sw-review-detail.scss';
 
-const { Component, Mixin } = Shopware;
+const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
-const { warn } = Shopware.Utils.debug;
 
 Component.register('sw-review-detail', {
     template,
@@ -11,21 +10,59 @@ Component.register('sw-review-detail', {
     inject: ['repositoryFactory', 'acl'],
 
     mixins: [
-        Mixin.getByName('placeholder'),
-        Mixin.getByName('notification'),
-        Mixin.getByName('salutation')
+        'placeholder',
+        'notification',
+        'salutation'
     ],
 
     data() {
         return {
             isLoading: null,
+            isSaveSuccessful: false,
             reviewId: null,
             review: {}
         };
     },
 
-    created() {
-        this.createdComponent();
+    metaInfo() {
+        return {
+            title: this.$createTitle(this.identifier)
+        };
+    },
+
+    computed: {
+        identifier() {
+            return this.review.title;
+        },
+
+        repository() {
+            return this.repositoryFactory.create('product_review');
+        },
+
+        stars() {
+            if (this.review.points >= 0) {
+                return this.review.points;
+            }
+
+            return 0;
+        },
+
+        /** @deprecated tag:v6.4.0 No need to calculate when using `sw-rating-stars` component instead */
+        missingStars() {
+            if (this.review.points >= 0) {
+                return 5 - this.review.points;
+            }
+
+            return 5;
+        },
+
+        languageCriteria() {
+            const criteria = new Criteria();
+
+            criteria.addSorting(Criteria.sort('name', 'ASC', false));
+
+            return criteria;
+        }
     },
 
     watch: {
@@ -34,31 +71,8 @@ Component.register('sw-review-detail', {
         }
     },
 
-    computed: {
-        repository() {
-            return this.repositoryFactory.create('product_review');
-        },
-        stars() {
-            if (this.review.points >= 0) {
-                return this.review.points;
-            }
-
-            return 0;
-        },
-        missingStars() {
-            if (this.review.points >= 0) {
-                return 5 - this.review.points;
-            }
-
-            return 5;
-        },
-        languageCriteria() {
-            const criteria = new Criteria();
-
-            criteria.addSorting(Criteria.sort('name', 'ASC', false));
-
-            return criteria;
-        }
+    created() {
+        this.createdComponent();
     },
 
     methods: {
@@ -86,26 +100,22 @@ Component.register('sw-review-detail', {
         },
 
         onSave() {
-            const reviewName = this.review.title;
-            const titleSaveSuccess = this.$tc('global.default.success');
-            const messageSaveSuccess = this.$tc('sw-review.detail.messageSaveSuccess', 0, { name: reviewName });
-            const titleSaveError = this.$tc('global.default.error');
+            this.isSaveSuccessful = false;
             const messageSaveError = this.$tc(
                 'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'
             );
+
             this.repository.save(this.review, Shopware.Context.api).then(() => {
-                this.createNotificationSuccess({
-                    title: titleSaveSuccess,
-                    message: messageSaveSuccess
-                });
-            }).catch((exception) => {
+                this.isSaveSuccessful = true;
+            }).catch(() => {
                 this.createNotificationError({
-                    title: titleSaveError,
                     message: messageSaveError
                 });
-                warn(this._name, exception.message, exception.response);
-                throw exception;
             });
+        },
+
+        onSaveFinish() {
+            this.isSaveSuccessful = false;
         }
     }
 });

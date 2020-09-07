@@ -7,40 +7,21 @@ $sw-review-detail-base-color-text: $color-gutenberg;
         margin-bottom: 16px;
     }
 
-    .sw-review-detail__metadata-review-headline {
-        display: grid;
-        grid-template-columns: auto auto;
+    .sw-review-detail__metadata-review-stars {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        margin-right: 2px;
+    }
 
-        .sw-review-detail__metadata-review-stars {
-            text-align: right;
-            padding-left: 20px;
-            position: relative;
-            font-size: 0;
-
-            .icon--default-review-star-full {
-                color: $color-module-yellow-400;
-            }
-        }
+    .star-count-description {
+        font-weight: 700;
+        font-size: 16px;
+        margin-top: -8px;
     }
 
     .sw-review-detail__metadata-review-content {
-        display: grid;
-        grid-template-columns: 2fr 1fr;
-    }
-
-    .sw-review-properties {
-        .sw-card__content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-        }
-    }
-
-    .sw-field--switch {
-        &.sw-field--switch-bordered {
-            .sw-field--switch__content {
-                border: 0;
-            }
-        }
+        word-break: break-word;
     }
 
     .contents-border-styling {
@@ -65,6 +46,7 @@ $sw-review-detail-base-color-text: $color-gutenberg;
         font-weight: 600;
         font-size: 18px;
         margin-bottom: 1px;
+        word-break: break-word;
     }
 
     .sw-review-base-info {
@@ -73,6 +55,8 @@ $sw-review-detail-base-color-text: $color-gutenberg;
         margin-bottom: 16px;
 
         .sw-review-base-info-columns {
+            word-break: break-word;
+
             dt {
                 padding: 21px 4px 4px 4px;
             }
@@ -81,13 +65,6 @@ $sw-review-detail-base-color-text: $color-gutenberg;
                 padding: 1px 4px;
             }
         }
-    }
-
-    .star-count-description {
-        position: absolute;
-        font-weight: 700;
-        right: 0;
-        font-size: 16px;
     }
 
     .smart-bar__actions {

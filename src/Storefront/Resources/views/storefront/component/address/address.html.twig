@@ -1,8 +1,14 @@
 {% block component_address %}
     <div class="address">
-        {% if address.company %}
+        {% if address.company or address.vatId %}
             <p>
+            {% if address.company %}
                 {{ address.company }}{% if address.department %} - {{ address.department }}{% endif %}
+                <br/>
+            {% endif %}
+            {% if address.vatId %}
+                {{ "address.companyVatLabel"|trans|sw_sanitize }}: {{ address.vatId }}
+            {% endif %}
             </p>
         {% endif %}
         <p>

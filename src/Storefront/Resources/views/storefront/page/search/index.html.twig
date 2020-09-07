@@ -9,7 +9,7 @@
                         {{ "search.headline"|trans({
                             '%count%': page.listing.total,
                             '%searchTerm%': page.searchTerm,
-                        })|sw_sanitize }}
+                        }) }}
                     {% endblock %}
                 </h1>
             {% endblock %}

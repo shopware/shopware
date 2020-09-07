@@ -41,7 +41,16 @@
             {% block sw_settings_number_range_list_smart_bar_actions %}
                 <template slot="smart-bar-actions">
                     {% block sw_settings_number_range_list_smart_bar_actions_add %}
-                        <sw-button :routerLink="{ name: 'sw.settings.number.range.create' }" variant="primary">
+                        <sw-button
+                            v-tooltip="{
+                                message: $tc('sw-privileges.tooltip.warning'),
+                                disabled: acl.can('number_ranges.creator'),
+                                showOnDisabledElements: true
+                            }"
+                            class="sw-number-range-list__add-number-range"
+                            variant="primary"
+                            :disabled="!acl.can('number_ranges.creator')"
+                            :routerLink="{ name: 'sw.settings.number.range.create' }">
                             {{ $tc('sw-settings-number-range.list.buttonAddNumberRange') }}
                         </sw-button>
                     {% endblock %}
@@ -63,8 +72,11 @@
                                                            :fullPage="false"
                                                            detailRoute="sw.settings.number.range.detail"
                                                            :showSelection="false"
-                                                           :isLoading="isLoading">
-
+                                                           :isLoading="isLoading"
+                                                           :allowEdit="acl.can('number_ranges.editor')"
+                                                           :allowInlineEdit="acl.can('number_ranges.editor')"
+                                                           :allowDelete="acl.can('number_ranges.deleter')"
+                                                           :allowView="acl.can('number_ranges.viewer')">
                                             {% block sw_number_range_list_grid_columns_name %}
                                                 <template #column-global="{ item }">
                                                     <sw-label v-if="item.type.global || item.global"
@@ -87,13 +99,30 @@
                                             {% block sw_settings_number_range_list_grid_columns_actions %}
                                                 <template #actions="{ item }">
                                                     {% block sw_settings_number_range_list_grid_columns_actions_edit %}
-                                                        <sw-context-menu-item :routerLink="{ name: 'sw.settings.number.range.detail', params: { id: item.id, edit: 'edit' }}">
+                                                        <sw-context-menu-item
+                                                            v-tooltip="{
+                                                                message: $tc('sw-privileges.tooltip.warning'),
+                                                                disabled: acl.can('number_ranges.editor'),
+                                                                showOnDisabledElements: true
+                                                            }"
+                                                            class="sw-entity-listing__context-menu-edit-action"
+                                                            :disabled="!acl.can('number_ranges.editor')"
+                                                            :routerLink="{ name: 'sw.settings.number.range.detail', params: { id: item.id, edit: 'edit' }}">
                                                             {{ $tc('sw-settings-number-range.list.contextMenuEdit') }}
                                                         </sw-context-menu-item>
                                                     {% endblock %}
 
                                                     {% block sw_settings_number_range_list_grid_columns_actions_delete %}
-                                                        <sw-context-menu-item variant="danger" @click="onDelete(item.id)">
+                                                        <sw-context-menu-item
+                                                            v-tooltip.bottom="{
+                                                                message: $tc('sw-privileges.tooltip.warning'),
+                                                                disabled: acl.can('number_ranges.deleter'),
+                                                                showOnDisabledElements: true
+                                                            }"
+                                                            class="sw-entity-listing__context-menu-edit-delete"
+                                                            variant="danger"
+                                                            :disabled="!acl.can('number_ranges.deleter')"
+                                                            @click="onDelete(item.id)">
                                                             {{ $tc('sw-settings-number-range.list.contextMenuDelete') }}
                                                         </sw-context-menu-item>
                                                     {% endblock %}

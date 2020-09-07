@@ -24,6 +24,11 @@ class RepositoryIterator
      */
     private $context;
 
+    /**
+     * @var bool
+     */
+    private $endReached = false;
+
     public function __construct(EntityRepositoryInterface $repository, Context $context, ?Criteria $criteria = null)
     {
         if ($criteria === null) {
@@ -31,7 +36,7 @@ class RepositoryIterator
             $criteria->setOffset(0);
         }
 
-        if ($criteria->getLimit() === null || $criteria->getLimit() < 1) {
+        if ($criteria->getLimit() < 1) {
             $criteria->setLimit(50);
         }
 
@@ -54,9 +59,14 @@ class RepositoryIterator
 
     public function fetchIds(): ?array
     {
+        if ($this->endReached) {
+            return null;
+        }
+
         $this->criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
         $ids = $this->repository->searchIds($this->criteria, $this->context);
         $this->criteria->setOffset($this->criteria->getOffset() + $this->criteria->getLimit());
+        $this->endReached = $ids->getTotal() < $this->criteria->getLimit();
 
         if (!empty($ids->getIds())) {
             return $ids->getIds();
@@ -67,12 +77,17 @@ class RepositoryIterator
 
     public function fetch(): ?EntitySearchResult
     {
+        if ($this->endReached) {
+            return null;
+        }
+
         $this->criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
 
         $result = $this->repository->search(clone $this->criteria, $this->context);
 
         // increase offset for next iteration
         $this->criteria->setOffset($this->criteria->getOffset() + $this->criteria->getLimit());
+        $this->endReached = $result->getTotal() < $result->getCriteria()->getLimit();
 
         if (empty($result->getIds())) {
             return null;

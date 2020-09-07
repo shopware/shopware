@@ -9,9 +9,6 @@ on:
 
 jobs:
   build:
-    strategy:
-      matrix:
-        php: ['7.2', '7.3', '7.4']
     runs-on: ubuntu-latest
     env:
       DEVELOPMENT_BRANCH: master
@@ -37,7 +34,7 @@ jobs:
 
     - uses: shivammathur/setup-php@v2
       with:
-        php-version: ${{ matrix.php }}
+        php-version: 7.4
         tools: composer, prestissimo
         coverage: none
 

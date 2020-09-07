@@ -15,7 +15,7 @@ Component.register('sw-cms-el-config-product-listing', {
 
     data() {
         return {
-            productSortings: [],
+            productSortings: [], // only for presentational usage
             defaultSorting: {}
         };
     },

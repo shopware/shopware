@@ -706,7 +706,7 @@ EOD
     ,
     Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingTranslationDefinition::class => '',
     Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCountryRoundingDefinition::class => <<<'EOD'
-__EMPTY__
+With this entity the cash rounding configuration can be controlled per country. As in the currency entity, the cash rounding for the line items and the total can be configured individually
 EOD
     ,
 ];

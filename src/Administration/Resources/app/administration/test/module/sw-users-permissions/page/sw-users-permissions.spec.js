@@ -6,12 +6,17 @@ describe('modules/sw-users-permissions/page/sw-users-permissions', () => {
 
     beforeEach(() => {
         wrapper = shallowMount(Shopware.Component.build('sw-users-permissions'), {
-            provide: {},
+            provide: {
+                feature: {
+                    isActive: () => true
+                }
+            },
             mocks: {},
             stubs: {
                 'sw-page': '<div><slot name="content"></slot></div>',
                 'sw-card-view': true,
-                'sw-settings-user-list': true
+                'sw-settings-user-list': true,
+                'sw-users-permissions-role-listing': true
             }
         });
     });

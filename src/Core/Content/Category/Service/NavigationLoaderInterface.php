@@ -19,6 +19,7 @@ interface NavigationLoaderInterface
     public function load(string $activeId, SalesChannelContext $context, string $rootId, int $depth = 2): Tree;
 
     /**
+     * @deprecated tag:v6.4.0 - Use load with $depth 1 instead
      * Returns the category tree level for the provided category id.
      */
     public function loadLevel(string $categoryId, SalesChannelContext $context): Tree;

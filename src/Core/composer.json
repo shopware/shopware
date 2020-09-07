@@ -14,16 +14,7 @@
         ],
         "psr-4": {
             "Shopware\\Core\\": ""
-        },
-        "files": [
-            "Flag/feature_next733.php",
-            "Flag/feature_next1797.php",
-            "Flag/feature_next3722.php",
-            "Flag/feature_next6009.php",
-            "Flag/feature_next6997.php",
-            "Flag/feature_next9225.php",
-            "Flag/feature_next6059.php"
-        ]
+        }
     },
     "extra": {
         "branch-alias": {
@@ -48,7 +39,7 @@
         "ext-openssl": "*",
         "aws/aws-sdk-php": "3.133.6",
         "cocur/slugify": "4.0.0",
-        "composer/composer": "1.9.2",
+        "composer/composer": "1.10.10",
         "composer/semver": "1.5.1",
         "doctrine/annotations": "1.8.0",
         "doctrine/dbal": "2.10.1",
@@ -110,6 +101,7 @@
         "symfony/inflector": "4.4.4",
         "symfony/twig-bridge": "4.4.4",
         "symfony/process": "4.4.4",
+        "symfony/proxy-manager-bridge": "4.4.4",
         "symfony/debug": "4.4.4",
         "symfony/mime": "4.4.4",
         "symfony/var-exporter": "4.4.4",
@@ -126,6 +118,7 @@
         "fzaninotto/faker": "1.9.1",
         "johnkary/phpunit-speedtrap": "3.1.0",
         "mbezhanov/faker-provider-collection": "1.2.1",
+        "opis/json-schema": "1.0.19",
         "phpunit/phpunit": "8.5.2",
         "smalot/pdfparser": "0.14.0",
         "symfony/browser-kit": "4.4.4",

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Customer\DataAbstractionLayer;
 
-use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\Event\CustomerIndexerEvent;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
@@ -27,11 +26,6 @@ class CustomerIndexer extends EntityIndexer
     private $repository;
 
     /**
-     * @var Connection
-     */
-    private $connection;
-
-    /**
      * @var CacheClearer
      */
     private $cacheClearer;
@@ -49,14 +43,12 @@ class CustomerIndexer extends EntityIndexer
     public function __construct(
         IteratorFactory $iteratorFactory,
         EntityRepositoryInterface $repository,
-        Connection $connection,
         CacheClearer $cacheClearer,
         ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->iteratorFactory = $iteratorFactory;
         $this->repository = $repository;
-        $this->connection = $connection;
         $this->cacheClearer = $cacheClearer;
         $this->manyToManyIdFieldUpdater = $manyToManyIdFieldUpdater;
         $this->eventDispatcher = $eventDispatcher;

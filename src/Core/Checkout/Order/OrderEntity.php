@@ -544,11 +544,6 @@ class OrderEntity extends Entity
         $this->customerComment = $customerComment;
     }
 
-    public function getApiAlias(): string
-    {
-        return 'order';
-    }
-
     public function getItemRounding(): ?CashRoundingConfig
     {
         return $this->itemRounding;

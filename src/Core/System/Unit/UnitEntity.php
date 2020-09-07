@@ -85,9 +85,4 @@ class UnitEntity extends Entity
     {
         $this->customFields = $customFields;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'unit';
-    }
 }

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Migration\Command;
 
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Migration\Exception\MigrateException;
+use Shopware\Core\Framework\Migration\Exception\UnknownMigrationSourceException;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
@@ -54,54 +55,54 @@ class MigrationCommand extends Command
     protected function configure(): void
     {
         $this
-            ->addArgument('identifier', InputArgument::OPTIONAL, 'identifier to determine which migrations to run', 'core')
-            ->addArgument('until', InputArgument::OPTIONAL, 'timestamp cap for migrations')
+            ->addArgument('identifier', InputArgument::OPTIONAL | InputArgument::IS_ARRAY, 'identifier to determine which migrations to run', ['core'])
             ->addOption('all', 'all', InputOption::VALUE_NONE, 'no migration timestamp cap')
+            ->addOption('until', 'u', InputOption::VALUE_OPTIONAL, 'timestamp cap for migrations')
             ->addOption('limit', 'l', InputOption::VALUE_OPTIONAL, '', '0');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if (!$input->getArgument('until') && !$input->getOption('all')) {
-            throw new \InvalidArgumentException('missing timestamp cap or --all option');
+        $identifiers = $input->getArgument('identifier');
+        if (!is_array($identifiers)) {
+            $identifiers = [$identifiers];
         }
+
+        $until = (int) $input->getOption('until');
 
         $this->io = new ShopwareStyle($input, $output);
 
-        $this->io->writeln('Get collection from directories');
+        /*
+         * @deprecated tag:v6.4.0 Providing a timestamp cap as argument is deprecated and will be removed in v6.4.0, use the --until option instead.
+         */
+        if (!$until && is_numeric(end($identifiers))) {
+            $until = (int) array_pop($identifiers);
+            $this->io->note('Providing a timestamp cap as argument is deprecated and will be removed in v6.4.0, use the --until option instead.');
+        }
 
-        $collection = $this->loader->collect($input->getArgument('identifier'));
-        $collection->sync();
+        if (!$until && !$input->getOption('all')) {
+            throw new \InvalidArgumentException('missing timestamp cap or --all option');
+        }
 
-        $this->io->writeln('migrate Migrations');
+        if (count($identifiers) > 1 && (!$input->getOption('all') || $input->getOption('limit'))) {
+            throw new \InvalidArgumentException('Running migrations for mutliple identifiers without --all option or with --limit option is not supported.');
+        }
 
-        $until = (int) $input->getArgument('until');
         $limit = (int) $input->getOption('limit');
 
         if ($input->getOption('all')) {
             $until = null;
         }
 
-        $total = $this->getMigrationsCount($collection, $until, $limit);
-        $this->io->progressStart($total);
-        $migratedCounter = 0;
-
-        try {
-            foreach ($this->getMigrationGenerator($collection, $until, $limit) as $_return) {
-                $this->io->progressAdvance();
-                ++$migratedCounter;
-            }
-        } catch (\Exception $e) {
-            $this->finishProgress($migratedCounter, $total);
-
-            throw new MigrateException($e->getMessage() . PHP_EOL . 'Trace: ' . PHP_EOL . $e->getTraceAsString(), $e);
+        $total = 0;
+        foreach ($identifiers as $identifier) {
+            $total += $this->runMigrationForIdentifier($identifier, $limit, $until);
         }
 
-        $this->finishProgress($migratedCounter, $total);
-        $this->io->writeln('all migrations executed');
-
-        $this->cache->clear();
-        $this->io->writeln('cleared the shopware cache');
+        if ($total > 0) {
+            $this->cache->clear();
+            $this->io->writeln('cleared the shopware cache');
+        }
 
         return 0;
     }
@@ -118,5 +119,42 @@ class MigrationCommand extends Command
                 ['Migrated', $migrated . ' out of ' . $total],
             ]
         );
+    }
+
+    private function runMigrationForIdentifier(string $identifier, int $limit, ?int $until): int
+    {
+        $this->io->writeln(sprintf('Get collection for identifier: "%s"', $identifier));
+
+        try {
+            $collection = $this->loader->collect($identifier);
+        } catch (UnknownMigrationSourceException $e) {
+            $this->io->note(sprintf('No collection found for identifier: "%s", continuing', $identifier));
+
+            return 0;
+        }
+
+        $collection->sync();
+
+        $this->io->writeln('migrate Migrations');
+
+        $migrationCount = $this->getMigrationsCount($collection, $until, $limit);
+        $this->io->progressStart($migrationCount);
+        $migratedCounter = 0;
+
+        try {
+            foreach ($this->getMigrationGenerator($collection, $until, $limit) as $_return) {
+                $this->io->progressAdvance();
+                ++$migratedCounter;
+            }
+        } catch (\Exception $e) {
+            $this->finishProgress($migratedCounter, $migrationCount);
+
+            throw new MigrateException($e->getMessage() . PHP_EOL . 'Trace: ' . PHP_EOL . $e->getTraceAsString(), $e);
+        }
+
+        $this->finishProgress($migratedCounter, $migrationCount);
+        $this->io->writeln(sprintf('all migrations for identifier: "%s" executed', $identifier));
+
+        return $migrationCount;
     }
 }

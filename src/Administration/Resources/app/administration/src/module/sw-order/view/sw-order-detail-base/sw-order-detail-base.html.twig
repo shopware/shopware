@@ -25,6 +25,12 @@
                             <sw-order-state-select v-if="!isLoading && this.transaction"
                                                    roundedStyle
                                                    class="sw-order-state-select__payment-state"
+                                                   :disabled="!acl.can('order.editor')"
+                                                   v-tooltip="{
+                                                        message: $tc('sw-privileges.tooltip.warning'),
+                                                        disabled: acl.can('order.editor'),
+                                                        showOnDisabledElements: true
+                                                    }"
                                                    :transitionOptions="transactionOptions"
                                                    @state-select="onQuickTransactionStatusChange"
                                                    :placeholder="transactionOptionPlaceholder"
@@ -36,6 +42,12 @@
                             <sw-order-state-select
                                 class="sw-order-state-select__delivery-state"
                                 :transitionOptions="deliveryOptions"
+                                :disabled="!acl.can('order.editor')"
+                                v-tooltip="{
+                                    message: $tc('sw-privileges.tooltip.warning'),
+                                    disabled: acl.can('order.editor'),
+                                    showOnDisabledElements: true
+                                }"
                                 roundedStyle
                                 v-if="!isLoading && this.delivery"
                                 @state-select="onQuickDeliveryStatusChange"
@@ -48,6 +60,12 @@
                             <sw-order-state-select
                                 class="sw-order-state-select__order-state"
                                 :transitionOptions="orderOptions"
+                                :disabled="!acl.can('order.editor')"
+                                v-tooltip="{
+                                    message: $tc('sw-privileges.tooltip.warning'),
+                                    disabled: acl.can('order.editor'),
+                                    showOnDisabledElements: true
+                                }"
                                 roundedStyle
                                 v-if="!isLoading"
                                 @state-select="onQuickOrderStatusChange"
@@ -186,7 +204,7 @@
                      :isLoading="isLoading">
                 <sw-custom-field-set-renderer
                     :entity="order"
-                    :disabled="!isEditing"
+                    :disabled="!isEditing || !acl.can('order.editor')"
                     :sets="customFieldSets">
                 </sw-custom-field-set-renderer>
             </sw-card>

@@ -60,11 +60,10 @@ describe('Account: Edit order', () => {
         cy.get('#loginPassword').typeAndCheckStorefront('shopware');
         cy.get('.login-submit [type="submit"]').click();
 
-        // cancel order
-        cy.get('.order-table').should('be.visible');
         cy.get('.order-table-header-context-menu').click();
         cy.get('.dropdown-menu > [type="button"]').click();
         cy.get('form > .btn-primary').click();
+
         cy.get('.order-table-header-order-status').contains('Cancelled');
     });
 

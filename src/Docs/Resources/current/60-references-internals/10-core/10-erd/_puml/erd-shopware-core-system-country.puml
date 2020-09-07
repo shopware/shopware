@@ -35,10 +35,10 @@ Table(ShopwareCoreSystemCountryCountryDefinition, "country\n(Country)") {
    forceStateInRegistration bool
    customFields translated
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
    translated json
 }
-Table(ShopwareCoreSystemCountryAggregateCountryStateCountryStateDefinition, "country_state\n(A countries state)") {
+Table(ShopwareCoreSystemCountryAggregateCountryStateCountryStateDefinition, "country_state\n(Country state)") {
    primary_key(id) id
    not_null(countryId) foreignKey
    not_null(shortCode) string
@@ -47,14 +47,14 @@ Table(ShopwareCoreSystemCountryAggregateCountryStateCountryStateDefinition, "cou
    active bool
    customFields translated
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
    translated json
 }
 TranslationTable(ShopwareCoreSystemCountryAggregateCountryStateTranslationCountryStateTranslationDefinition, "country_state_translation\n((Translations))") {
    not_null(name) string
    customFields customFields
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
    primary_key(countryStateId) foreignKey
    primary_key(languageId) foreignKey
 }
@@ -62,7 +62,7 @@ TranslationTable(ShopwareCoreSystemCountryAggregateCountryTranslationCountryTran
    not_null(name) string
    customFields customFields
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
    primary_key(countryId) foreignKey
    primary_key(languageId) foreignKey
 }
@@ -74,7 +74,9 @@ ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channe
 }
 ForeignTable(ShopwareCoreSystemSalesChannelAggregateSalesChannelCountrySalesChannelCountryDefinition, "sales_channel_country") {
 }
-ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
+ForeignTable(ShopwareCoreSystemTaxAggregateTaxRuleTaxRuleDefinition, "tax_rule") {
+}
+ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
 }
 
 ' relationshipd
@@ -85,9 +87,10 @@ ShopwareCoreSystemCountryCountryDefinition --> ShopwareCoreCheckoutCustomerAggre
 ShopwareCoreSystemCountryCountryDefinition --> ShopwareCoreCheckoutOrderAggregateOrderAddressOrderAddressDefinition
 ShopwareCoreSystemCountryCountryDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareCoreSystemCountryCountryDefinition --> ShopwareCoreSystemSalesChannelAggregateSalesChannelCountrySalesChannelCountryDefinition
+ShopwareCoreSystemCountryCountryDefinition --> ShopwareCoreSystemTaxAggregateTaxRuleTaxRuleDefinition
 ShopwareCoreSystemCountryAggregateCountryStateTranslationCountryStateTranslationDefinition --> ShopwareCoreSystemCountryAggregateCountryStateCountryStateDefinition
 ShopwareCoreSystemCountryAggregateCountryStateCountryStateDefinition --> ShopwareCoreCheckoutCustomerAggregateCustomerAddressCustomerAddressDefinition
 ShopwareCoreSystemCountryAggregateCountryStateCountryStateDefinition --> ShopwareCoreCheckoutOrderAggregateOrderAddressOrderAddressDefinition
-ShopwareCoreSystemCountryAggregateCountryStateTranslationCountryStateTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
-ShopwareCoreSystemCountryAggregateCountryTranslationCountryTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
+ShopwareCoreSystemCountryAggregateCountryStateTranslationCountryStateTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
+ShopwareCoreSystemCountryAggregateCountryTranslationCountryTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
 @enduml

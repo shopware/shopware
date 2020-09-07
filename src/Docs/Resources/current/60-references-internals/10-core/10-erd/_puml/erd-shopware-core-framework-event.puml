@@ -28,7 +28,7 @@ Table(ShopwareCoreFrameworkEventEventActionEventActionDefinition, "event_action\
    not_null(actionName) string
    config json
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
 }
 
 ' relationshipd

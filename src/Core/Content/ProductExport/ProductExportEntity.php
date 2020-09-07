@@ -305,9 +305,4 @@ class ProductExportEntity extends Entity
     {
         $this->pausedSchedule = $pausedSchedule;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'product_export';
-    }
 }

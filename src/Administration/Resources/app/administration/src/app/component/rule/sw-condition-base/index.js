@@ -27,6 +27,12 @@ Component.register('sw-condition-base', {
             type: Object,
             required: false,
             default: null
+        },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -34,7 +40,7 @@ Component.register('sw-condition-base', {
         conditionClasses() {
             return {
                 'has--error': this.hasError,
-                'is--disabled': this.hasNoComponent
+                'is--disabled': this.hasNoComponent || this.disabled
             };
         },
 

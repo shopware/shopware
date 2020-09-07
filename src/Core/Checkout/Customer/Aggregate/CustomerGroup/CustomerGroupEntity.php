@@ -42,6 +42,36 @@ class CustomerGroupEntity extends Entity
      */
     protected $salesChannels;
 
+    /**
+     * @var bool
+     */
+    protected $registrationActive;
+
+    /**
+     * @var string
+     */
+    protected $registrationTitle;
+
+    /**
+     * @var string
+     */
+    protected $registrationIntroduction;
+
+    /**
+     * @var bool
+     */
+    protected $registrationOnlyCompanyRegistration;
+
+    /**
+     * @var string
+     */
+    protected $registrationSeoMetaDescription;
+
+    /**
+     * @var SalesChannelCollection|null
+     */
+    protected $registrationSalesChannels;
+
     public function getName(): ?string
     {
         return $this->name;
@@ -102,8 +132,63 @@ class CustomerGroupEntity extends Entity
         $this->salesChannels = $salesChannels;
     }
 
-    public function getApiAlias(): string
+    public function getRegistrationActive(): bool
     {
-        return 'customer_group';
+        return $this->registrationActive;
+    }
+
+    public function setRegistrationActive(bool $registrationActive): void
+    {
+        $this->registrationActive = $registrationActive;
+    }
+
+    public function getRegistrationTitle(): string
+    {
+        return $this->registrationTitle;
+    }
+
+    public function setRegistrationTitle(string $registrationTitle): void
+    {
+        $this->registrationTitle = $registrationTitle;
+    }
+
+    public function getRegistrationIntroduction(): string
+    {
+        return $this->registrationIntroduction;
+    }
+
+    public function setRegistrationIntroduction(string $registrationIntroduction): void
+    {
+        $this->registrationIntroduction = $registrationIntroduction;
+    }
+
+    public function getRegistrationOnlyCompanyRegistration(): bool
+    {
+        return $this->registrationOnlyCompanyRegistration;
+    }
+
+    public function setRegistrationOnlyCompanyRegistration(bool $registrationOnlyCompanyRegistration): void
+    {
+        $this->registrationOnlyCompanyRegistration = $registrationOnlyCompanyRegistration;
+    }
+
+    public function getRegistrationSeoMetaDescription(): string
+    {
+        return $this->registrationSeoMetaDescription;
+    }
+
+    public function setRegistrationSeoMetaDescription(string $registrationSeoMetaDescription): void
+    {
+        $this->registrationSeoMetaDescription = $registrationSeoMetaDescription;
+    }
+
+    public function getRegistrationSalesChannels(): ?SalesChannelCollection
+    {
+        return $this->registrationSalesChannels;
+    }
+
+    public function setRegistrationSalesChannels(SalesChannelCollection $registrationSalesChannels): void
+    {
+        $this->registrationSalesChannels = $registrationSalesChannels;
     }
 }

@@ -179,9 +179,4 @@ class CmsSlotEntity extends Entity
     {
         $this->fieldConfig = $fieldConfig;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'cms_page_slot';
-    }
 }

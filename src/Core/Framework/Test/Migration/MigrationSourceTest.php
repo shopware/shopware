@@ -64,7 +64,7 @@ class MigrationSourceTest extends TestCase
             ['Shopware\Storefront\Migration\Migration1565640170ThemeMigrateMedia', true],
             ['Shopware\Storefront\Migration\Migration1565640175RemoveSalesChannelTheme', true],
             ['Shopware\Storefront\Migration\Migration1568787535AddSeoUrlConstraints', true],
-            ['Shopware\Storefront\Migration\Migration1569482074AddProductMainCategory', true],
+            ['Shopware\Storefront\Migration\Migration1595919251MainCategory', true],
             ['Shopware\Storefront\Migration\Migration1569907970RemoveUnusedSeoColumns', true],
             ['Shopware\Storefront\Migration\Migration1572858066UpdateDefaultCategorySeoUrlTemplate', true],
             ['Shopware\Core\Migration\Something\Migration1571059598ChangeGreatBritainToUnitedKingdom', false],

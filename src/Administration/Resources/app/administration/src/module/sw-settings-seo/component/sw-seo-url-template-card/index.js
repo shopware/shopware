@@ -277,12 +277,6 @@ Component.register('sw-seo-url-template-card', {
                         entity.id,
                         this.$tc('sw-seo-url-template-card.general.textUrlNoEntitiesForPreview')
                     );
-                } else if (response.length === 0) {
-                    this.$set(
-                        this.errorMessages,
-                        entity.id,
-                        this.$tc('sw-seo-url-template-card.general.tooltipInvalidTemplate')
-                    );
                 } else {
                     this.$set(this.errorMessages, entity.id, null);
                 }

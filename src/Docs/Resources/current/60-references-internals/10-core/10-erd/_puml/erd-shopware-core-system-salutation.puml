@@ -28,14 +28,14 @@ Table(ShopwareCoreSystemSalutationSalutationDefinition, "salutation\n(Salutation
    displayName translated
    letterName translated
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
    translated json
 }
 TranslationTable(ShopwareCoreSystemSalutationAggregateSalutationTranslationSalutationTranslationDefinition, "salutation_translation\n((Translations))") {
    not_null(displayName) string
    not_null(letterName) string
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
    primary_key(salutationId) foreignKey
    primary_key(languageId) foreignKey
 }
@@ -49,7 +49,7 @@ ForeignTable(ShopwareCoreCheckoutOrderAggregateOrderAddressOrderAddressDefinitio
 }
 ForeignTable(ShopwareCoreContentNewsletterAggregateNewsletterRecipientNewsletterRecipientDefinition, "newsletter_recipient") {
 }
-ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
+ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
 }
 
 ' relationshipd
@@ -60,5 +60,5 @@ ShopwareCoreSystemSalutationSalutationDefinition --> ShopwareCoreCheckoutCustome
 ShopwareCoreSystemSalutationSalutationDefinition --> ShopwareCoreCheckoutOrderAggregateOrderCustomerOrderCustomerDefinition
 ShopwareCoreSystemSalutationSalutationDefinition --> ShopwareCoreCheckoutOrderAggregateOrderAddressOrderAddressDefinition
 ShopwareCoreSystemSalutationSalutationDefinition --> ShopwareCoreContentNewsletterAggregateNewsletterRecipientNewsletterRecipientDefinition
-ShopwareCoreSystemSalutationAggregateSalutationTranslationSalutationTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
+ShopwareCoreSystemSalutationAggregateSalutationTranslationSalutationTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
 @enduml

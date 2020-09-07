@@ -1,27 +1,56 @@
 {
-    "sw-settings-customer-group": {
-        "general": {
-            "mainMenuItemGeneral": "Kundengruppen",
-            "buttonCancel": "Abbrechen",
-            "buttonCreate": "Kundengruppe anlegen",
-            "buttonSave": "Speichern",
-            "placeholderSearchBar": "Durchsuche alle Kundengruppen ..."
-        },
-        "list": {
-            "columnName": "Name",
-            "columnDisplayGross": "Steuerdarstellung"
-        },
-        "detail": {
-            "cardTitle": "Kundengruppe",
-            "fieldNameLabel": "Name",
-            "fieldDisplayGrossLabel": "Steuerdarstellung",
-            "fieldDisplayGrossValues": "Brutto | Netto",
-            "placeholderName": "Einen Namen eingeben ...",
-            "placeholderNewCustomerGroup": "Neue Kundengruppe ...",
-            "notificationErrorMessage": "Fehler beim Speichern der Kundengruppe."
-        },
-        "notification": {
-            "errorMessageCannotDeleteCustomerGroup": "Dieser Kundengruppe sind noch Verkaufskanäle und/oder Kunden zugewiesen, daher kann sie nicht gelöscht werden."
-        }
+  "sw-settings-customer-group": {
+    "general": {
+      "mainMenuItemGeneral": "Kundengruppen",
+      "buttonCancel": "Abbrechen",
+      "buttonCreate": "Kundengruppe anlegen",
+      "buttonSave": "Speichern",
+      "placeholderSearchBar": "Durchsuche alle Kundengruppen ..."
+    },
+    "list": {
+      "columnName": "Name",
+      "columnDisplayGross": "Steuerdarstellung"
+    },
+    "detail": {
+      "cardTitle": "Kundengruppe",
+      "fieldNameLabel": "Name",
+      "fieldDisplayGrossLabel": "Steuerdarstellung",
+      "fieldDisplayGrossValues": "Brutto | Netto",
+      "placeholderName": "Einen Namen eingeben ...",
+      "placeholderNewCustomerGroup": "Neue Kundengruppe",
+      "notificationErrorMessage": "Fehler beim Speichern der Kundengruppe.",
+      "registrationForm": "Registrierungsformular einblenden"
+    },
+    "registration": {
+      "formTitle": "Registrierungsformular",
+      "placeholderTitle": "Einen Titel eingeben ...",
+      "placeholderIntroduction": "Eine Einführung eingeben ...",
+      "placeholderSeoMetaDescription": "Eine Seo Meta Beschreibung eingeben ...",
+      "title": "Titel",
+      "introduction": "Einführung",
+      "onlyCompaniesCanRegister": "Nur Unternehmen können sich registrieren",
+      "seoMetaDescription": "SEO Meta Beschreibung",
+      "linkUrlsTitle": "URLs",
+      "linkUrlDescription": "Klicken Sie auf die Schaltfläche auf der rechten Seite, um URLs zu generieren, die die Anfrageformulare mit jedem Vertriebskanal verbinden..",
+      "linkUrlButton": "URLs generieren",
+      "technicalUrl": "Technische URL",
+      "technicalUrlHelpText": "Techische URLs können im Kategorie-Modul als \"Benutzerdefinierter Link\" gesetzt werden und erlauben eine automatische Sprachzuweisung.",
+      "availabilitySalesChannel": "Verfügbare Verkaufskanäle"
+    },
+    "modal": {
+      "seoUrl": {
+        "title": "URL Einstellungen",
+        "salesChannel": "Verkaufskanal",
+        "urlSuffix": "URL Suffix",
+        "exampleUrl": "Beispiel URL",
+        "cancel": "Abbrechen",
+        "generate": "Generieren"
+      }
+    },
+    "notification": {
+      "errorMessageCannotDeleteCustomerGroup": "Dieser Kundengruppe sind noch Verkaufskanäle und/oder Kunden zugewiesen, daher kann sie nicht gelöscht werden.",
+      "errorUnableToCreateSeoUrls": "Die URLs konnten nicht generiert werden",
+      "successfulGeneratedSeoUrls": "Die URLs wurden generiert"
     }
+  }
 }

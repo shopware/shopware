@@ -47,10 +47,10 @@ describe('Checkout: Login as customer and run checkout in various viewports', ()
 
                 // Product detail
                 cy.get('.header-search-input')
-                    .should('be.visible')
                     .type(product.name);
                 cy.get('.search-suggest-product-name').contains(product.name);
                 cy.get('.search-suggest-product-name').click();
+
                 cy.get('.product-detail-buy .btn-buy').click();
 
                 // Off canvas
@@ -63,13 +63,14 @@ describe('Checkout: Login as customer and run checkout in various viewports', ()
                 // Login
                 cy.get('.checkout-main').should('be.visible');
                 cy.get('.login-collapse-toggle').click();
-                cy.get(accountPage.elements.loginCard).should('be.visible');
+
                 cy.get('#loginMail').typeAndCheckStorefront('test@example.com');
                 cy.get('#loginPassword').typeAndCheckStorefront('shopware');
                 cy.get(`${accountPage.elements.loginSubmit} [type="submit"]`).click();
 
                 // Confirm
                 cy.get('.confirm-tos .card-title').contains('Terms and conditions and cancellation policy');
+
                 cy.get('.confirm-tos .custom-checkbox label').scrollIntoView();
                 cy.get('.confirm-tos .custom-checkbox label').click(1, 1);
                 cy.get('.confirm-address').contains('Pep Eroni');
@@ -80,6 +81,7 @@ describe('Checkout: Login as customer and run checkout in various viewports', ()
                 // Finish checkout
                 cy.get('#confirmFormSubmit').scrollIntoView();
                 cy.get('#confirmFormSubmit').click();
+
                 cy.get('.finish-header').contains('Thank you for your order with Demostore!');
             });
         });

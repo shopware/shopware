@@ -24,12 +24,26 @@ Mixin.register('ruleContainer', {
         level: {
             type: Number,
             required: true
+        },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
     computed: {
         containerRowClass() {
-            return this.level % 2 ? 'container-condition-level__is--odd' : 'container-condition-level__is--even';
+            const classes = {
+                'is--disabled': this.disabled
+            };
+
+            const level = this.level % 2 ? 'container-condition-level__is--odd' : 'container-condition-level__is--even';
+
+            classes[level] = true;
+
+            return classes;
         },
 
         nextPosition() {

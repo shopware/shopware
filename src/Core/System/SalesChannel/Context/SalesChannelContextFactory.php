@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
@@ -30,7 +31,6 @@ use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Tax\TaxEntity;
 use Shopware\Core\System\Tax\TaxRuleType\TaxRuleTypeFilterInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use function Flag\next6059;
 
 class SalesChannelContextFactory
 {
@@ -264,6 +264,9 @@ class SalesChannelContextFactory
         return $salesChannelContext;
     }
 
+    /**
+     * @deprecated tag:v6.4.0 - Will be private
+     */
     public function getTaxRules(Context $context, ?CustomerEntity $customer, ShippingLocation $shippingLocation): TaxCollection
     {
         $criteria = new Criteria();
@@ -366,12 +369,17 @@ class SalesChannelContextFactory
 
         $languageChain = $this->buildLanguageChain($session, $defaultLanguageId, $languageIds);
 
+        $versionId = Defaults::LIVE_VERSION;
+        if (isset($session[SalesChannelContextService::VERSION_ID])) {
+            $versionId = $session[SalesChannelContextService::VERSION_ID];
+        }
+
         return new Context(
             $origin,
             [],
             Uuid::fromBytesToHex($data['sales_channel_currency_id']),
             $languageChain,
-            Defaults::LIVE_VERSION,
+            $versionId,
             (float) $data['sales_channel_currency_factor'],
             true
         );
@@ -490,7 +498,7 @@ class SalesChannelContextFactory
      */
     private function getCashRounding(CurrencyEntity $currency, ShippingLocation $shippingLocation, Context $context): array
     {
-        if (!next6059()) {
+        if (!Feature::isActive('FEATURE_NEXT_6059')) {
             return [
                 new CashRoundingConfig($currency->getDecimalPrecision(), 0.01, true),
                 new CashRoundingConfig($currency->getDecimalPrecision(), 0.01, true),

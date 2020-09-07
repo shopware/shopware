@@ -161,9 +161,4 @@ class ProductConfiguratorSettingEntity extends Entity
     {
         $this->customFields = $customFields;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'product_configurator_settings';
-    }
 }

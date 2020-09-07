@@ -102,7 +102,7 @@ class ResponseTypeRegistryTest extends TestCase
         $id = Uuid::randomHex();
         $accept = 'application/json';
         $context = $this->getSalesChannelContext();
-        $response = $this->getDetailResponse($context, $id, '/sales-channel-api/category/' . $id, '', $accept, false);
+        $response = $this->getDetailResponse($context, $id, '/sales-channel-api/category/' . $id, null, $accept, false);
 
         static::assertEquals($accept, $response->headers->get('content-type'));
         $content = json_decode($response->getContent(), true);
@@ -115,7 +115,7 @@ class ResponseTypeRegistryTest extends TestCase
         $accept = 'application/vnd.api+json';
         $self = 'http://localhost/sales-channel-api/category/' . $id;
         $context = $this->getSalesChannelContext();
-        $response = $this->getDetailResponse($context, $id, $self, '', $accept, false);
+        $response = $this->getDetailResponse($context, $id, $self, null, $accept, false);
 
         static::assertEquals($accept, $response->headers->get('content-type'));
         $content = json_decode($response->getContent(), true);
@@ -132,7 +132,7 @@ class ResponseTypeRegistryTest extends TestCase
         $accept = '*/*';
         $self = 'http://localhost/sales-channel-api/category/' . $id;
         $context = $this->getSalesChannelContext();
-        $response = $this->getDetailResponse($context, $id, $self, '', $accept, false);
+        $response = $this->getDetailResponse($context, $id, $self, null, $accept, false);
 
         static::assertEquals('application/json', $response->headers->get('content-type'));
         $content = json_decode($response->getContent(), true);
@@ -146,7 +146,7 @@ class ResponseTypeRegistryTest extends TestCase
         $accept = 'text/plain';
         $self = 'http://localhost/sales-channel-api/category/' . $id;
         $context = $this->getSalesChannelContext();
-        $this->getDetailResponse($context, $id, $self, '', $accept, false);
+        $this->getDetailResponse($context, $id, $self, null, $accept, false);
     }
 
     public function testSalesChannelJsonApiList(): void
@@ -155,7 +155,7 @@ class ResponseTypeRegistryTest extends TestCase
         $accept = 'application/vnd.api+json';
         $self = 'http://localhost/sales-channel-api/category';
         $context = $this->getSalesChannelContext();
-        $response = $this->getListResponse($context, $id, $self, '', $accept);
+        $response = $this->getListResponse($context, $id, $self, null, $accept);
 
         static::assertEquals($accept, $response->headers->get('content-type'));
         $content = json_decode($response->getContent(), true);
@@ -197,7 +197,7 @@ class ResponseTypeRegistryTest extends TestCase
         return new Context(new SalesChannelApiSource(Defaults::SALES_CHANNEL));
     }
 
-    private function getDetailResponse(Context $context, $id, $path, $version = '', $accept, $setLocationHeader): Response
+    private function getDetailResponse(Context $context, string $id, string $path, ?int $version, string $accept, bool $setLocationHeader): Response
     {
         $category = $this->getTestCategory($id);
 
@@ -209,7 +209,7 @@ class ResponseTypeRegistryTest extends TestCase
         return $this->getFactory($request)->createDetailResponse(new Criteria(), $category, $definition, $request, $context, $setLocationHeader);
     }
 
-    private function getListResponse($context, $id, $path, $version = '', $accept): Response
+    private function getListResponse(Context $context, string $id, string $path, ?int $version, string $accept): Response
     {
         $category = $this->getTestCategory($id);
 
@@ -235,9 +235,9 @@ class ResponseTypeRegistryTest extends TestCase
         return $category;
     }
 
-    private function setVersionHack(Request $request, $version): void
+    private function setVersionHack(Request $request, ?int $version): void
     {
-        if ($version) {
+        if ($version !== null) {
             $this->setRequestAttributeHack($request, 'version', $version);
         }
     }
@@ -247,6 +247,9 @@ class ResponseTypeRegistryTest extends TestCase
         $this->setRequestAttributeHack($request, PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context);
     }
 
+    /**
+     * @param Context|int $value
+     */
     private function setRequestAttributeHack(Request $request, string $key, $value): void
     {
         $r = new \ReflectionProperty(Request::class, 'attributes');

@@ -32,7 +32,9 @@ class FkFieldSerializer extends AbstractFieldSerializer
             try {
                 $value = $parameters->getContext()->get($field->getReferenceDefinition()->getClass(), $field->getReferenceField());
             } catch (\InvalidArgumentException $exception) {
-                $this->validate($this->getConstraints($field), $data, $parameters->getPath());
+                if ($this->requiresValidation($field, $existence, $value, $parameters)) {
+                    $this->validate($this->getConstraints($field), $data, $parameters->getPath());
+                }
             }
         }
 
@@ -41,10 +43,15 @@ class FkFieldSerializer extends AbstractFieldSerializer
 
             return;
         }
+        if ($this->requiresValidation($field, $existence, $value, $parameters)) {
+            $this->validate([new UuidConstraint()], $data, $parameters->getPath());
+        }
 
-        $this->validate([new UuidConstraint()], $data, $parameters->getPath());
+        if ($value !== null) {
+            $value = Uuid::fromHexToBytes($value);
+        }
 
-        yield $field->getStorageName() => Uuid::fromHexToBytes($value);
+        yield $field->getStorageName() => $value;
     }
 
     public function decode(Field $field, $value): ?string

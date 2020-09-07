@@ -114,9 +114,4 @@ class SeoUrlTemplateEntity extends Entity
     {
         $this->customFields = $customFields;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'seo_url_template';
-    }
 }

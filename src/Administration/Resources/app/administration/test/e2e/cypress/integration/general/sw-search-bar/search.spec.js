@@ -132,7 +132,7 @@ describe('Search bar: Check main functionality', () => {
             .contains('Order 10000');
     });
 
-    it('@searchBar @search: search for a media', { browser: "!firefox" }, () => {
+    it('@searchBar @search: search for a media', {browser: "!firefox"}, () => {
         cy.createDefaultFixture('media-folder')
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/media/index`);
@@ -173,5 +173,89 @@ describe('Search bar: Check main functionality', () => {
             .should('be.visible')
             .get('.sw-media-base-item__name')
             .contains('sw-login-background');
+    });
+
+    it('@searchBar @search: toggle result box with results for the letter "e"', () => {
+        cy.createProductFixture()
+            .then(() => {
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
+            });
+
+        cy.get('.sw-dashboard')
+            .should('exist');
+
+        cy.get('.sw-loader__element')
+            .should('not.exist');
+
+        cy.get('input.sw-search-bar__input').type('e');
+        cy.get('.sw-search-bar__results').should('be.visible');
+
+        // navigate down to test if active item also stays the same after refocus
+        cy.get('input.sw-search-bar__input').type('{downarrow}');
+
+
+        // capture dom of search result box
+        let searchResultsMarkup = undefined;
+        cy.get('.sw-search-bar__results').then($el =>
+            searchResultsMarkup = $el.html()
+        );
+
+        cy.get('input.sw-search-bar__input').blur();
+        cy.get('input.sw-search-bar__input').focus();
+
+        // compare result box dom after refocus wit the string captured before
+        cy.get('.sw-search-bar__results').then($el => expect($el.html()).to.be.equal(searchResultsMarkup));
+    });
+
+    it('@searchBar @search: navigate in the results for the letter "e"', () => {
+        cy.createProductFixture()
+            .then(() => {
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
+            });
+
+        cy.get('.sw-dashboard')
+            .should('exist');
+
+        cy.get('.sw-loader__element')
+            .should('not.exist');
+
+        cy.get('input.sw-search-bar__input').type('e');
+        cy.get('.sw-search-bar__results').should('be.visible');
+
+        cy.get('.sw-search-bar-item')
+            .should('be.visible').should(($searchBarItems) => {
+            expect($searchBarItems).to.have.length(4)
+        });
+        cy.get('.sw-search-bar__results-column-header').should('be.visible').should(($resultsColumns) => {
+            expect($resultsColumns).to.have.length(3)
+        });
+
+        // 'Cursor' is at the first element and should therefore not move
+        cy.get('.is--active.sw-search-bar-item').contains('RS-333 - Product name');
+        cy.get('input.sw-search-bar__input').type('{uparrow}');
+        cy.get('input.sw-search-bar__input').type('{leftarrow}');
+        cy.get('.is--active.sw-search-bar-item').contains('RS-333 - Product name');
+
+        cy.get('input.sw-search-bar__input').type('{downarrow}');
+        cy.get('.is--active.sw-search-bar-item').contains('Home');
+
+        cy.get('input.sw-search-bar__input').type('{leftarrow}');
+        cy.get('.is--active.sw-search-bar-item').contains('RS-333 - Product name');
+
+        cy.get('input.sw-search-bar__input').type('{rightarrow}');
+        cy.get('.is--active.sw-search-bar-item').contains('Home');
+
+        cy.get('input.sw-search-bar__input').type('{rightarrow}');
+        cy.get('input.sw-search-bar__input').type('{downarrow}');
+
+        // 'Cursor' is at the last element and should therefore not move
+        cy.get('.is--active.sw-search-bar-item').invoke('text').then((resultTextBefore) => {
+            // to ensure this try to move it anyways
+            cy.get('input.sw-search-bar__input').type('{downarrow}');
+            cy.get('input.sw-search-bar__input').type('{rightarrow}');
+            cy.get('.is--active.sw-search-bar-item').invoke('text').should((resultTextAfter) => {
+                expect(resultTextBefore).to.equal(resultTextAfter)
+            })
+        });
     });
 });

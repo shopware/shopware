@@ -81,9 +81,4 @@ class LocaleTranslationEntity extends TranslationEntity
     {
         $this->customFields = $customFields;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'locale_translation';
-    }
 }

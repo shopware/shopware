@@ -38,5 +38,12 @@
       "errorLoad": "Die Lieferzeit konnte nicht geladen werden.",
       "errorSave": "Die Lieferzeit konnte nicht gespeichert werden."
     }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "delivery_times": {
+        "label": "Lieferzeiten"
+      }
+    }
   }
 }

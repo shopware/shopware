@@ -6,8 +6,6 @@ import 'src/app/component/base/sw-simple-search-field';
 import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/form/sw-radio-field';
 
-// TODO: Remove skip from tests, once the FEATURE_NEXT_6997 flag is removed
-
 describe('src/module/sw-settings-product-feature-sets/component/sw-settings-product-feature-sets-modal', () => {
     let wrapper;
 
@@ -128,19 +126,19 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
         wrapper.destroy();
     });
 
-    it.skip('should be able to instantiate', () => {
+    it('should be able to instantiate', () => {
         wrapper = modal();
 
         expect(wrapper.isVueInstance()).toBeTruthy();
     });
 
-    it.skip('has the correct class', () => {
+    it('has the correct class', () => {
         wrapper = modal();
 
         expect(wrapper.classes()).toContain(classes.componentRoot);
     });
 
-    it.skip('contains the options container', () => {
+    it('contains the options container', () => {
         wrapper = modal(getPageConfig({ showPageOne: true }));
 
         const root = findSecure(wrapper, `.${classes.componentRoot}`);
@@ -157,7 +155,7 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
         });
     });
 
-    it.skip('contains the custom field list', () => {
+    it('contains the custom field list', () => {
         wrapper = modal(getPageConfig({ showCustomField: true }));
 
         const root = findSecure(wrapper, `.${classes.componentRoot}`);
@@ -178,7 +176,7 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
         expect(customFieldListHeaderContent.at(2).text()).toEqual(text.customFieldListTypeHeader);
     });
 
-    it.skip('contains the property group list', () => {
+    it('contains the property group list', () => {
         wrapper = modal(getPageConfig({ showPropertyGroups: true }));
 
         const root = findSecure(wrapper, `.${classes.componentRoot}`);
@@ -198,7 +196,7 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
         expect(propertyListHeaderContent.at(1).text()).toEqual(text.propertyListNameHeader);
     });
 
-    it.skip('contains the product information list', () => {
+    it('contains the product information list', () => {
         wrapper = modal(getPageConfig({ showCustomField: true }));
 
         const root = findSecure(wrapper, `.${classes.componentRoot}`);

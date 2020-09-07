@@ -67,6 +67,7 @@ describe('Category: Create several categories', () => {
         });
         cy.get('.sw-category-detail-base').should('be.visible');
         cy.get('input[name="categoryActive"]').click();
+
         cy.get('.sw-category-detail__save-action').click();
         cy.wait('@editCategory').then((xhr) => {
             expect(xhr).to.have.property('status', 204);

@@ -30,7 +30,7 @@ const middlewareHelper = new MiddlewareHelper();
 function getModuleRegistry() {
     modules.forEach((value, key) => {
         if (hasOwnProperty(value.manifest, 'flag')
-            && !Shopware.FeatureConfig.isActive(value.manifest.flag)
+            && !Shopware.Feature.isActive(value.manifest.flag)
         ) {
             modules.delete(key);
         }
@@ -316,7 +316,7 @@ function getModuleRoutes() {
 
     modules.forEach((module) => {
         module.routes.forEach((route) => {
-            if (hasOwnProperty(route, 'flag') && !Shopware.FeatureConfig.isActive(route.flag)) {
+            if (hasOwnProperty(route, 'flag') && !Shopware.Feature.isActive(route.flag)) {
                 return;
             }
 
@@ -381,7 +381,7 @@ function getModuleSnippets() {
  * @returns void
  */
 function addSettingsItemsToStore(moduleId, module) {
-    if (hasOwnProperty(module, 'flag') && !Shopware.FeatureConfig.isActive(module.flag)) {
+    if (hasOwnProperty(module, 'flag') && !Shopware.Feature.isActive(module.flag)) {
         return;
     }
 

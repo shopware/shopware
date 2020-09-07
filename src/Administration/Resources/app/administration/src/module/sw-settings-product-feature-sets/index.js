@@ -2,13 +2,11 @@ import './page/sw-settings-product-feature-sets-list';
 import './page/sw-settings-product-feature-sets-detail';
 import './component/sw-settings-product-feature-sets-values-card';
 import './component/sw-settings-product-feature-sets-modal';
-import { NEXT6997 } from 'src/flag/feature_next6997';
 
 
 const { Module } = Shopware;
 
 Module.register('sw-settings-product-feature-sets', {
-    flag: NEXT6997,
     type: 'core',
     name: 'settings-product-feature-sets',
     title: 'sw-settings-product-feature-sets.general.mainMenuItemGeneral',

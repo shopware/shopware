@@ -30,7 +30,6 @@ $sw-field-color-inherited: $color-purple;
         height: 16px;
         position: relative;
 
-
         input[type="checkbox"] {
             opacity: 0;
             display: block;
@@ -44,6 +43,10 @@ $sw-field-color-inherited: $color-purple;
             -webkit-appearance: none;
             cursor: pointer;
             z-index: 2;
+
+            &:disabled {
+                cursor: not-allowed;
+            }
 
             &:disabled ~ .sw-field__checkbox-state {
                 background: $color-light-gray;
@@ -104,7 +107,6 @@ $sw-field-color-inherited: $color-purple;
             }
         }
     }
-
 
     &.has--error {
         .sw-field__checkbox-state {

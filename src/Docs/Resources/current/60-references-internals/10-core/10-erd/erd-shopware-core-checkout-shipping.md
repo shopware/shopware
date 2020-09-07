@@ -13,4 +13,9 @@ Shipping processes and especially rules.
 Represents a list of available shipping methods for customers to choose from during checkout.
 
 
+### Table `shipping_method_price`
+
+__EMPTY__
+
+
 [Back to modules](./../10-modules.md)

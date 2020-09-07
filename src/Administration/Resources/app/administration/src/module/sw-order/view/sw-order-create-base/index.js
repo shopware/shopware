@@ -90,6 +90,10 @@ Component.register('sw-order-create-base', {
             return State.get('swOrder').customer;
         },
 
+        salesChannelId() {
+            return Utils.get(this.customer, 'salesChannelId', '');
+        },
+
         isCustomerActive() {
             return State.getters['swOrder/isCustomerActive'];
         },

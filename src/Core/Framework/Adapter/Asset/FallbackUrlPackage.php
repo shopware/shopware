@@ -20,7 +20,7 @@ class FallbackUrlPackage extends UrlPackage
         $basePath = $request->getSchemeAndHttpHost() . $request->getBasePath();
         $requestUrl = rtrim($basePath, '/') . '/';
 
-        if ($request->getHost() === '') {
+        if ($request->getHost() === '' && isset($_SERVER['APP_URL'])) {
             $requestUrl = $_SERVER['APP_URL'];
         }
 

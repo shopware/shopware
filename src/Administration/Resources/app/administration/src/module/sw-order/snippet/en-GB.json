@@ -96,6 +96,7 @@
       "columnTotalPriceGross": "Subtotal",
       "columnTax": "VAT",
       "textCreditTax": "auto",
+      "taxDetail": "{taxRate}%: {tax}",
       "contextMenuShowProduct": "Show product",
       "messageEmptyItem": "No items added yet",
       "buttonAddProduct": "Add product",
@@ -196,7 +197,8 @@
       "placeholderTrackingCodeSelect": "Add tracking codes...",
       "addTrackingCode": "Click here to add code",
       "enterValidTrackingCode": "Enter tracking code",
-      "textCreditTax": "auto"
+      "textCreditTax": "auto",
+      "taxDetail": "{taxRate}%: {tax}"
     },
     "detailDeliveries": {
       "cardTitleItems": "Shipment {count}",
@@ -238,7 +240,8 @@
       "labelLastEditedBy": "Last edited by",
       "labelSystemUser": "System",
       "labelSelectStatePlaceholder": "Select a status...",
-      "labelSelectStateButton": "Update status and send email",
+      "labelSelectStateButton": "Update status",
+      "labelSendMailSwitch": "Send email to customer",
       "labelErrorStateChange": "An error occured while updating the status:",
       "labelErrorNoAction": "Status unchanged.",
       "labelNoTransactionState": "No transactions yet",
@@ -259,6 +262,7 @@
     "documentCard": {
       "searchBarPlaceholder": "Search all documents...",
       "cardTitle": "Documents",
+      "modalTitle": "Status update",
       "labelDate": "Date",
       "labelNumber": "Number",
       "labelType": "Type",
@@ -310,6 +314,11 @@
     }
   },
   "sw-privileges": {
+    "permissions": {
+      "order": {
+        "label": "Orders"
+      }
+    },
     "additional_permissions": {
       "orders": {
         "create_discounts": "Create discounts"

@@ -4,18 +4,13 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
-        <service id="Shopware\Administration\Command\AdministrationDumpFeaturesCommand">
-            <argument type="service" id="kernel"/>
-
-            <tag name="console.command"/>
-        </service>
-
         <service id="Shopware\Administration\Controller\AdministrationController"
                  public="true">
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\TemplateFinder"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\FirstRunWizardClient"/>
             <argument type="service" id="Shopware\Administration\Snippet\SnippetFinder"/>
             <argument>%kernel.supported_api_versions%</argument>
+            <argument type="service" id="Shopware\Administration\Framework\Routing\KnownIps\KnownIpsCollector"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -33,5 +28,7 @@
             <argument type="service" id="Shopware\Administration\Snippet\CachedSnippetFinder.inner" />
             <argument type="service" id="cache.object" />
         </service>
+
+        <service id="Shopware\Administration\Framework\Routing\KnownIps\KnownIpsCollector"/>
     </services>
 </container>

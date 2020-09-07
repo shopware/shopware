@@ -12,7 +12,11 @@ function createWrapper(privileges = []) {
             $device: {
                 getSystemKey: () => {}
             },
-            next6059: () => true
+            feature: {
+                isActive() {
+                    return true;
+                }
+            }
         },
         provide: {
             repositoryFactory: {
@@ -69,7 +73,7 @@ describe('module/sw-settings-currency/page/sw-settings-currency-detail', () => {
         expect(saveButton.attributes().disabled).toBeTruthy();
     });
 
-    it('should not be able to save the currency', () => {
+    it('should be able to save the currency', () => {
         const wrapper = createWrapper([
             'currencies.editor'
         ]);

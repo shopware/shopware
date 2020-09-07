@@ -2,7 +2,7 @@
 [__RAW__]: <>(__RAW__)
 
 <style type="text/css">
-    .is--xl, .category--articles, .category--details, .category--title {
+    p.is--xl, .category--articles, .category--details, .category--title {
         display: none;
     }
     

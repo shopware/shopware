@@ -611,9 +611,4 @@ class MediaEntity extends Entity
     {
         $this->documents = $documents;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'media';
-    }
 }

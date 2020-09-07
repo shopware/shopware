@@ -36,19 +36,28 @@ Table(ShopwareCoreFrameworkMessageQueueDeadMessageDeadMessageDefinition, "dead_m
    not_null(exceptionLine) int
    scheduledTaskId foreignKey
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
 }
 Table(ShopwareCoreFrameworkMessageQueueMessageQueueStatsDefinition, "message_queue_stats\n(Stats)") {
    primary_key(id) id
    not_null(name) string
    not_null(size) int
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
 }
-ForeignTable(ShopwareCoreFrameworkScheduledTaskScheduledTaskDefinition, "scheduled_task") {
+Table(ShopwareCoreFrameworkMessageQueueScheduledTaskScheduledTaskDefinition, "scheduled_task\n(Cron job)") {
+   primary_key(id) id
+   not_null(name) string
+   not_null(scheduledTaskClass) string
+   not_null(runInterval) int
+   not_null(status) string
+   lastExecutionTime dateTime
+   not_null(nextExecutionTime) dateTime
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
 }
 
 ' relationshipd
 
-ShopwareCoreFrameworkMessageQueueDeadMessageDeadMessageDefinition --> ShopwareCoreFrameworkScheduledTaskScheduledTaskDefinition
+ShopwareCoreFrameworkMessageQueueScheduledTaskScheduledTaskDefinition --> ShopwareCoreFrameworkMessageQueueDeadMessageDeadMessageDefinition
 @enduml

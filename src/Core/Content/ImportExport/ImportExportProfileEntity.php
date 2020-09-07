@@ -184,9 +184,4 @@ class ImportExportProfileEntity extends Entity
     {
         $this->translations = $translations;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'import_export_profile';
-    }
 }

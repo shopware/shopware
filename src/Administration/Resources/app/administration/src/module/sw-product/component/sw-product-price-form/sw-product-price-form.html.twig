@@ -1,6 +1,6 @@
 {% block sw_product_price_form %}
     <div class="sw-product-price-form">
-        <sw-container columns="1fr 2fr" gap="0px 30px" class="sw-product-price-form__prices">
+        <sw-container columns="1fr 1fr" gap="0px 30px" class="sw-product-price-form__prices">
             <div>
                 {% block sw_product_price_form_tax_field %}
                     <sw-inherit-wrapper v-model="product.taxId"
@@ -32,7 +32,24 @@
                 {% endblock %}
 
                 {% block sw_product_price_form_purchase_price_field %}
-                    <sw-inherit-wrapper v-model="product.purchasePrice"
+                    <sw-inherit-wrapper v-if="!isLoading && feature.isActive('FEATURE_NEXT_9825')"
+                                        v-model="product.purchasePrices"
+                                        label=" "
+                                        class="sw-product-price-form__purchase-prices"
+                                        :hasParent="!!parentProduct.id"
+                                        :inheritedValue="parentProduct.purchasePrices">
+                        <template #content="{ currentValue, updateCurrentValue, isInherited }">
+                            <sw-purchase-price-field :price="currentValue"
+                                            :taxRate="productTaxRate"
+                                            :disabled="isInherited"
+                                            :error="productPurchasePricesError ? productPurchasePricesError[0] : null"
+                                            :currency="defaultCurrency">
+                            </sw-purchase-price-field>
+                        </template>
+                    </sw-inherit-wrapper>
+
+                    <sw-inherit-wrapper v-else-if="!isLoading && !feature.isActive('FEATURE_NEXT_9825')"
+                                        v-model="product.purchasePrice"
                                         :hasParent="!!parentProduct.id"
                                         :inheritedValue="parentProduct.purchasePrice"
                                         :label="$tc('sw-product.priceForm.labelPurchasePriceGross')">

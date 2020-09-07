@@ -1,0 +1,200 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <parameters>
+        <parameter key="shopware.app_dir">%kernel.project_dir%/custom/apps</parameter>
+    </parameters>
+    <services>
+        <service id="Shopware\Core\Framework\App\Subscriber\AppLoadedSubscriber">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Subscriber\CustomFieldProtectionSubscriber">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\ShopId\ShopIdProvider" public="true">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Manifest\ModuleLoader">
+            <argument type="service" id="app.repository"/>
+            <argument>%env(APP_URL)%</argument>
+            <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\CustomFieldPersister">
+            <argument type="service" id="custom_field_set.repository"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\ActionButtonPersister">
+            <argument type="service" id="app_action_button.repository"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\TemplatePersister">
+            <argument type="service" id="Shopware\Core\Framework\App\Template\TemplateLoader"/>
+            <argument type="service" id="app_template.repository"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Template\TemplateLoader">
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister">
+            <argument type="service" id="webhook.repository"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\AppService">
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\AppStateService">
+            <argument type="service" id="app.repository"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\ActiveAppsLoader">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService">
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Registration\HandshakeFactory"/>
+            <argument type="service" id="shopware.app_system.guzzle"/>
+            <argument type="service" id="app.repository"/>
+            <argument type="string">%env(APP_URL)%</argument>
+            <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Lifecycle\Registration\HandshakeFactory">
+            <argument type="string">%env(APP_URL)%</argument>
+            <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle">
+            <argument type="service" id="app.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\CustomFieldPersister"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\ActionButtonPersister"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\TemplatePersister"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService"/>
+            <argument type="service" id="Shopware\Core\Framework\App\AppStateService"/>
+            <argument type="string">%kernel.project_dir%</argument>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator">
+            <argument type="service" id="app.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Lifecycle\AppLoader">
+            <argument>%shopware.app_dir%</argument>
+        </service>
+
+        <service id="shopware.app_system.guzzle" class="GuzzleHttp\Client">
+        </service>
+
+        <service id="Shopware\Core\Framework\App\ActionButton\ActionButtonLoader">
+            <argument type="service" id="app_action_button.repository"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\ActionButton\Executor">
+            <argument type="service" id="shopware.app_system.guzzle"/>
+            <argument type="service" id="logger"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\ActionButton\AppActionLoader">
+            <argument>%env(APP_URL)%</argument>
+            <argument type="service" id="app_action_button.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Api\AppActionController" public="true">
+            <argument type="service" id="Shopware\Core\Framework\App\ActionButton\ActionButtonLoader"/>
+            <argument type="service" id="Shopware\Core\Framework\App\ActionButton\AppActionLoader"/>
+            <argument type="service" id="Shopware\Core\Framework\App\ActionButton\Executor"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Manifest\ModuleLoader"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Command\AppPrinter">
+            <argument type="service" id="app.repository"/>
+        </service>
+
+        <!-- COMMANDS -->
+        <service id="Shopware\Core\Framework\App\Command\RefreshAppCommand">
+            <argument type="service" id="Shopware\Core\Framework\App\AppService"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Command\AppPrinter"/>
+
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Command\InstallAppCommand">
+            <argument>%shopware.app_dir%</argument>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Command\AppPrinter"/>
+
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Command\UninstallAppCommand">
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle"/>
+            <argument type="service" id="app.repository"/>
+
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Command\ActivateAppCommand">
+            <argument type="service" id="app.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\App\AppStateService" />
+
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Command\DeactivateAppCommand">
+            <argument type="service" id="app.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\App\AppStateService" />
+
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Command\VerifyManifestCommand">
+            <tag name="console.command"/>
+        </service>
+
+        <!-- ENTITY DEFINITIONS -->
+        <service id="Shopware\Core\Framework\App\AppDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Aggregate\ActionButtonTranslation\ActionButtonTranslationDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Template\TemplateDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+    </services>
+</container>

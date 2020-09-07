@@ -81,6 +81,7 @@
 
                             {% block sw_order_line_items_grid_grid_columns_label_inline_edit %}
                                 <sw-order-product-select v-if="isInlineEdit"
+                                                         :salesChannelId="salesChannelId"
                                                          :item="item">
                                 </sw-order-product-select>
                             {% endblock %}
@@ -175,6 +176,14 @@
                                                  size="small"
                                                  placeholder="0">
                                 </sw-number-field>
+                            {% endblock %}
+
+                            {% block sw_order_line_items_grid_grid_columns_tax_content_tooltip %}
+                                <span v-else-if="hasMultipleTaxes(item)"
+                                      v-tooltip="tooltipTaxDetail(item)"
+                                      class="sw-order-line-items-grid__item-tax-tooltip">
+                                    {{ showTaxValue(item) }}
+                                </span>
                             {% endblock %}
 
                             {% block sw_order_line_items_grid_grid_columns_tax_content %}

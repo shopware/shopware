@@ -150,6 +150,7 @@
 
         {% block sw_custom_field_list_empty_state %}
             <sw-empty-state
+                    :absolute="false"
                     v-else-if="!set.isLoading"
                     :title="$tc('sw-settings-custom-field.set.detail.messageCustomFieldsEmpty')">
             </sw-empty-state>

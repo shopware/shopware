@@ -12,6 +12,7 @@
                     <parameter key="number_of_replicas">3</parameter>
                     <parameter key="mapping.total_fields.limit">5000</parameter>
                     <parameter key="mapping.nested_fields.limit">500</parameter>
+                    <parameter key="mapping.nested_objects.limit">1000000</parameter>
                 </parameter>
 
                 <parameter key="analysis" type="collection">

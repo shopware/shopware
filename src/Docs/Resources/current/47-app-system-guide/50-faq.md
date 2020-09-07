@@ -84,3 +84,9 @@ as powerful as they can be.
 >Can app developers use platform.sh for free?
 
 There is a free trial period for new customers of platform.sh.
+
+
+>How can i identify the shop, when i send request directly from the storefront to my app backends?
+
+You can use the twig variable `swagShopId` for this use case. This is the same shopId that is send with every request the Shopware backend makes against your app backend.
+However keep in mind that this variable may be null, for example when the shop is running under a different URL, than the one it registered your app with.

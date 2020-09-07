@@ -18,8 +18,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 
 class AntiJoinBuilder implements JoinBuilderInterface
 {
-    public function join(EntityDefinition $definition, string $joinType, $antiJoinInfo, string $on, string $alias, QueryBuilder $parentQueryBuilder, Context $context): void
-    {
+    /**
+     * @param AntiJoinInfo $antiJoinInfo
+     */
+    public function join(
+        EntityDefinition $definition,
+        string $joinType,
+        $antiJoinInfo,
+        string $on,
+        string $alias,
+        QueryBuilder $parentQueryBuilder,
+        Context $context
+    ): void {
         if (!$antiJoinInfo instanceof AntiJoinInfo) {
             throw new \InvalidArgumentException('Expected $antiJoinInfo to be ' . AntiJoinInfo::class);
         }

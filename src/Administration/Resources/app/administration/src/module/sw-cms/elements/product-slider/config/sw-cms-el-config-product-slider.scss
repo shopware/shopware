@@ -34,4 +34,34 @@
             max-width: 180px;
         }
     }
+
+    .sw-cms-el-config-product-slider__product-stream-performance-hint {
+        width: 100%;
+    }
+
+    .sw-cms-el-config-product-slider__product-stream-preview-link-container {
+        margin-top: -20px;
+        text-align: right;
+    }
+
+    .sw-cms-el-config-product-slider__product-stream-preview-link {
+        font-size: 14px;
+        text-decoration: none;
+
+        &.is--disabled {
+            opacity: 0.5;
+            cursor: default;
+            pointer-events: none;
+        }
+    }
+}
+
+.sw-modal.sw-cms-el-config-product-slider__product-stream-preview-modal {
+    .sw-modal__body {
+        padding: 0;
+    }
+
+    .sw-product-stream-grid-preview__toolbar {
+        border-top: 0;
+    }
 }

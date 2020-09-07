@@ -36,7 +36,7 @@ class MinimalQuickViewPageLoader
             throw new MissingRequestParameterException('productId', '/productId');
         }
 
-        $product = $this->productLoader->load($productId, $salesChannelContext);
+        $product = $this->productLoader->load($productId, $salesChannelContext, MinimalQuickViewPageCriteriaEvent::class);
 
         $page = new MinimalQuickViewPage($product);
 

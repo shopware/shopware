@@ -53,9 +53,4 @@ class EventActionEntity extends Entity
     {
         $this->config = $config;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'dal_event_action';
-    }
 }

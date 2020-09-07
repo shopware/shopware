@@ -15,6 +15,10 @@ $select-result-customer-item-gutter: 10px;
             margin-bottom: 0;
         }
     }
+
+    .sw-card__content {
+        overflow: hidden;
+    }
 }
 
 .sw-order-create-details-header {

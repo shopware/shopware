@@ -1126,4 +1126,80 @@ return [
                 Sollten Sie allerdings den Kauf ohne Registrierung, also ohne Anlage eines Kundenkontos, gewählt haben, steht Ihnen diese Möglichkeit nicht zur Verfügung.',
         ],
     ],
+    'customer.group.registration.accepted' => [
+        'en-GB' => [
+            'html' => '<div style="font-family:arial; font-size:12px;">
+                    <br/>
+                    <p>
+                        {{ customer.salutation.letterName }} {{ customer.lastName }},<br/>
+                        <br/>
+                        Your account has been activated for the customer group {{ customerGroup.translated.name }}.<br/>
+                        From now on you can shop at the new conditions of this customer group.<br/><br/>
+
+                        Please do not hesitate to contact us at any time if you have any questions.
+                    </p>
+                </div>',
+            'plain' => 'Hello {{ customer.salutation.letterName }} {{ customer.lastName }},<br/>
+Your account has been activated for the customer group {{ customerGroup.translated.name }}.<br/>
+From now on you can shop at the new conditions of this customer group.<br/><br/>
+
+Please do not hesitate to contact us at any time if you have any questions.',
+        ],
+        'de-DE' => [
+            'html' => '<div style="font-family:arial; font-size:12px;">
+                <br/>
+                <p>
+                    {{ customer.salutation.letterName }} {{ customer.lastName }},<br/>
+                    <br/>
+                    Ihr Account wurde für die Kundengruppe {{ customerGroup.translated.name }} freigeschaltet.<br/>
+                    Ab sofort kaufen Sie zu den neuen Konditionen dieser Kundengruppe ein.<br/>
+
+                    Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
+                </p>
+            </div>',
+            'plain' => '{{ customer.salutation.letterName }} {{ customer.lastName }},<br/>
+Ihr Account wurde für die Kundengruppe {{ customerGroup.translated.name }} freigeschaltet.
+Ab sofort kaufen Sie zu den neuen Konditionen dieser Kundengruppe ein.<br/><br/>
+
+Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.',
+        ],
+    ],
+    'customer.group.registration.declined' => [
+        'en-GB' => [
+            'html' => '<div style="font-family:arial; font-size:12px;">
+                    <br/>
+                    <p>
+                        {{ customer.salutation.letterName }} {{ customer.lastName }},<br/>
+                        <br/>
+                        Thank you for your interest in the conditions for customer group {{ customerGroup.translated.name }}.<br/>
+                        Unfortunately we cannot activate your account for this customer group.<br/><br/>
+
+                        If you have any questions, please feel free to contact us by phone or mail.
+                    </p>
+                </div>',
+            'plain' => '{{ customer.salutation.letterName }} {{ customer.lastName }},<br/>
+Thank you for your interest in the conditions for customer group {{ customerGroup.translated.name }}.<br/>
+Unfortunately we cannot activate your account for this customer group.
+
+If you have any questions, please feel free to contact us by phone or mail.',
+        ],
+        'de-DE' => [
+            'html' => '<div style="font-family:arial; font-size:12px;">
+                <br/>
+                <p>
+                    {{ customer.salutation.letterName }} {{ customer.lastName }},<br/>
+                    <br/>
+                    Vielen Dank für Ihr Interesse an den Konditionen für Kundengruppe {{ customerGroup.translated.name }}.<br/>
+                    Leider können wir sie nicht für diese Kundengruppe freischalten.<br/>
+
+                    Bei Rückfragen aller Art können Sie uns gerne telefonisch oder per Mail diesbezüglich erreichen.
+                </p>
+            </div>',
+            'plain' => '{{ customer.salutation.letterName }} {{ customer.lastName }},<br/>
+Vielen Dank für Ihr Interesse an den Konditionen für Kundengruppe  {{ customerGroup.translated.name }}.
+Leider können wir sie nicht für diese Kundengruppe freischalten.<br/>
+
+Bei Rückfragen aller Art können Sie uns gerne telefonisch oder per Mail diesbezüglich erreichen.',
+        ],
+    ],
 ];

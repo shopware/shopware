@@ -33,6 +33,11 @@ class EntityNotExists extends Constraint
      */
     public $criteria;
 
+    /**
+     * @var string
+     */
+    public $primaryProperty = 'id';
+
     protected static $errorNames = [
         self::ENTITY_EXISTS => 'ENTITY_EXISTS',
     ];
@@ -72,5 +77,10 @@ class EntityNotExists extends Constraint
     public function getCriteria(): Criteria
     {
         return $this->criteria;
+    }
+
+    public function getPrimaryProperty(): string
+    {
+        return $this->primaryProperty;
     }
 }

@@ -129,9 +129,4 @@ class StateMachineTransitionEntity extends Entity
     {
         $this->actionName = $actionName;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'state_machine_translation';
-    }
 }

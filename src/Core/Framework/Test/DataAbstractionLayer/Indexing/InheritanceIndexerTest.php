@@ -294,7 +294,7 @@ class InheritanceIndexerTest extends TestCase
         static::assertEquals($association, $product->getManufacturer()->getId());
     }
 
-    private function assertPriceInheritance(string $id, ?string $fk, ?string $association, $hasPrices = true): void
+    private function assertPriceInheritance(string $id, ?string $fk, ?string $association, bool $hasPrices = true): void
     {
         $connection = $this->getContainer()->get(Connection::class);
 

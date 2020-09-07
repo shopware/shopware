@@ -65,11 +65,17 @@ class Framework extends Bundle
         $loader->load('update.xml');
         $loader->load('seo.xml');
 
+        if (Feature::isActive('FEATURE_NEXT_10286')) {
+            $loader->load('app.xml');
+            $loader->load('webhook.xml');
+        }
+
         if ($container->getParameter('kernel.environment') === 'test') {
             $loader->load('services_test.xml');
         }
 
-        $container->addCompilerPass(new FeatureFlagCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION);
+        // make sure to remove services behind a feature flag, before some other compiler passes may reference them, therefore the high priority
+        $container->addCompilerPass(new FeatureFlagCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 1000);
         $container->addCompilerPass(new EntityCompilerPass());
         $container->addCompilerPass(new MigrationCompilerPass(), PassConfig::TYPE_AFTER_REMOVING);
         $container->addCompilerPass(new ActionEventCompilerPass());
@@ -87,6 +93,11 @@ class Framework extends Bundle
     public function boot(): void
     {
         parent::boot();
+
+        Feature::setRegisteredFeatures(
+            $this->container->getParameter('shopware.feature.flags'),
+            $this->container->getParameter('kernel.cache_dir') . '/shopware_features.php'
+        );
 
         $this->registerEntityExtensions(
             $this->container->get(DefinitionInstanceRegistry::class),
@@ -122,6 +133,10 @@ class Framework extends Bundle
 
         $configLoader->load($confDir . '/{packages}/*' . Kernel::CONFIG_EXTS, 'glob');
         $configLoader->load($confDir . '/{packages}/' . $environment . '/*' . Kernel::CONFIG_EXTS, 'glob');
+        $shopwareFeaturesPath = $container->getParameter('kernel.cache_dir') . '/shopware_features.php';
+        if (is_readable($shopwareFeaturesPath)) {
+            $configLoader->load($shopwareFeaturesPath, 'php');
+        }
     }
 
     private function registerEntityExtensions(

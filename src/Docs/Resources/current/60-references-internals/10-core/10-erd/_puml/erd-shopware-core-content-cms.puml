@@ -32,18 +32,18 @@ Table(ShopwareCoreContentCmsCmsPageDefinition, "cms_page\n(Content Page)") {
    customFields translated
    locked writeLockIndicator
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
    translated json
 }
 TranslationTable(ShopwareCoreContentCmsAggregateCmsPageTranslationCmsPageTranslationDefinition, "cms_page_translation\n((Translations))") {
    not_null(name) string
    customFields customFields
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
    primary_key(cmsPageId) foreignKey
    primary_key(languageId) foreignKey
 }
-Table(ShopwareCoreContentCmsAggregateCmsSectionCmsSectionDefinition, "cms_section\n(__EMPTY__)") {
+Table(ShopwareCoreContentCmsAggregateCmsSectionCmsSectionDefinition, "cms_section\n(Content Section)") {
    primary_key(id) id
    not_null(position) int
    not_null(type) string
@@ -58,7 +58,7 @@ Table(ShopwareCoreContentCmsAggregateCmsSectionCmsSectionDefinition, "cms_sectio
    not_null(pageId) foreignKey
    customFields customFields
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
 }
 Table(ShopwareCoreContentCmsAggregateCmsBlockCmsBlockDefinition, "cms_block\n(Content Block)") {
    primary_key(id) id
@@ -78,7 +78,7 @@ Table(ShopwareCoreContentCmsAggregateCmsBlockCmsBlockDefinition, "cms_block\n(Co
    not_null(sectionId) foreignKey
    customFields customFields
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
 }
 Table(ShopwareCoreContentCmsAggregateCmsSlotCmsSlotDefinition, "cms_slot\n(Content Slot)") {
    primary_key(id) id
@@ -91,14 +91,14 @@ Table(ShopwareCoreContentCmsAggregateCmsSlotCmsSlotDefinition, "cms_slot\n(Conte
    data json
    not_null(blockId) foreignKey
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
    translated json
 }
 TranslationTable(ShopwareCoreContentCmsAggregateCmsSlotTranslationCmsSlotTranslationDefinition, "cms_slot_translation\n((Translations))") {
    not_null(config) configurationValue
    customFields customFields
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
    primary_key(cmsSlotId) foreignKey
    primary_key(languageId) foreignKey
    primary_key(cmsSlotVersionId) referenceVersion
@@ -107,7 +107,7 @@ ForeignTable(ShopwareCoreContentMediaMediaDefinition, "media") {
 }
 ForeignTable(ShopwareCoreContentCategoryCategoryDefinition, "category") {
 }
-ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
+ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
 }
 
 ' relationshipd
@@ -116,11 +116,11 @@ ShopwareCoreContentCmsAggregateCmsSectionCmsSectionDefinition --> ShopwareCoreCo
 ShopwareCoreContentCmsAggregateCmsPageTranslationCmsPageTranslationDefinition --> ShopwareCoreContentCmsCmsPageDefinition
 ShopwareCoreContentCmsCmsPageDefinition --> ShopwareCoreContentMediaMediaDefinition
 ShopwareCoreContentCmsCmsPageDefinition --> ShopwareCoreContentCategoryCategoryDefinition
-ShopwareCoreContentCmsAggregateCmsPageTranslationCmsPageTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
+ShopwareCoreContentCmsAggregateCmsPageTranslationCmsPageTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
 ShopwareCoreContentCmsAggregateCmsSectionCmsSectionDefinition --> ShopwareCoreContentMediaMediaDefinition
 ShopwareCoreContentCmsAggregateCmsBlockCmsBlockDefinition --> ShopwareCoreContentCmsAggregateCmsSectionCmsSectionDefinition
 ShopwareCoreContentCmsAggregateCmsBlockCmsBlockDefinition --> ShopwareCoreContentMediaMediaDefinition
 ShopwareCoreContentCmsAggregateCmsSlotCmsSlotDefinition --> ShopwareCoreContentCmsAggregateCmsBlockCmsBlockDefinition
 ShopwareCoreContentCmsAggregateCmsSlotTranslationCmsSlotTranslationDefinition --> ShopwareCoreContentCmsAggregateCmsSlotCmsSlotDefinition
-ShopwareCoreContentCmsAggregateCmsSlotTranslationCmsSlotTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
+ShopwareCoreContentCmsAggregateCmsSlotTranslationCmsSlotTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
 @enduml

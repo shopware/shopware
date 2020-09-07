@@ -70,7 +70,10 @@ It provides all the information concerning your app, as seen in the minimal vers
 </manifest>
 ```
 
-The app can now be installed by running `bin/console app:install MyExampleApp`.
+The app can now be installed by running `bin/console app:install --activate MyExampleApp`.
+
+**Note:** Like with plugins, apps get installed as inactive. You can activate them by passing the `--activate` flag
+to the `app:install` command or by executing the `app:activate` command.
 
 ### Meta data
 
@@ -185,3 +188,35 @@ You set permission to all entities available in Shopware. The permission types t
 scheme, e.g. `read`, `create` or `update`. Keep in mind that read permissions also extend to the data contained
 in the requests so that your app needs read permissions for the entities contained in the subscribed events.
 
+## Handling the migration of shops
+
+In the real world it may happen that shops are migrated to new servers and are available under a new URL. In the same regard it is possible that a running production shop is duplicated and treated as a staging environment.
+These cases are challenging for app developers.
+In the first case you may have to make a request against the shop, but the URL you saved during the registration process may not be valid anymore and the shop cannot be reached over this URL.
+In the second case you may receive webhooks from both shops (prod & staging), that look like they came from the same shop (as the whole database was duplicated), thus it may corrupt the data associated with the original production shop.
+The main reason that this is problematic is that two Shopware installations in two different locations (on two different URLs) are associated to the same shopId, because the whole database was replicated.
+
+That's why we implemented a safe-guard mechanism that detects such situations, stops the communication to the apps to prevent data corruption and then ultimately let's the user decide how to solve the situation.
+**Notice: This mechanism relies on the fact that the `APP_URL` environment variable will be set to the correct URL to the shop. Especially it is assumed that the environment variable will be changed, when a shop is migrated to a new domain, or a staging shop is created as a duplicate of a production shop.**
+
+Keep in mind that this is only relevant for apps that have their own backends and where communication between app backends and shopware is necessary. That's why simple themes are not affected by shop migrations, they will continue to work.
+
+### Detecting APP_URL changes
+
+Everytime a request should be made against an app backend, Shopware will check whether the current APP_URL differs from the one used when Shopware generated an ID for this shop.
+If the APP_URL differs Shopware will stop sending any requests to the installed apps to prevent data corruption on the side of the apps.
+Now the user has the possibility to resolve the solution, by using one of the following strategies.
+The user can either run a strategy with the `bin/console app:url-change:resolve` command, or with a modal that pops up when the administration is opened.
+
+### APP_URL change resolver
+
+* **MoveShopPermanently**: This strategy should be used if the live production shop is migrated from one URL to another one.
+    This strategy will ultimately notify all apps about the change of the APP_URL and the apps continue working like before, including all the data the apps may already have associated with the given shop. It is important to notice that in this case the apps in the old installation on the old URL (if it is still running) will stop working!
+    Technically this is achieved by rerunning the registration process again for all apps. During the registration the same shopId is used like before, but now with a different shop-url and a different key pair used to communicate over the Shopware API. Also you **must** generate a new communication secret during this registration process, that is subsequently used for the communication between Shopware and the app backend.
+    This way it is ensured that the apps are notified about the new URL and the integration with the old installation stops working (because a new communication secret is associated with the given shop id, that the old installation does not know).
+    
+* **ReinstallApps**: This strategy makes sense to use in the case of the staging shop.     
+    By running this strategy all installed apps will be reinstalled, this means that this installation will get a new shopId, that is used during registration. 
+    Because the new installation will get a new shopId, the installed apps will continue working on the old installation as before, but as a consequence the data on the apps side that was associated with the old shopId can not be accessed on the new installation.
+    
+* **UninstallApps**: This strategy will simply uninstall all apps on the new installation, thus keeping the old installation working like before.

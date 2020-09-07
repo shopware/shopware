@@ -40,7 +40,8 @@
     },
     "priceForm": {
       "labelTaxRate": "Steuersatz",
-      "labelPurchasePriceGross": "Einkaufspreis (Brutto)",
+      "labelPurchasePriceGross": "Einkaufspreis (brutto)",
+      "labelPurchasePriceNet": "Einkaufspreis (netto)",
       "labelUnit": "Maßeinheit",
       "labelPurchaseUnit": "Verkaufseinheit",
       "labelReferenceUnit": "Grundeinheit",
@@ -209,14 +210,24 @@
       "advancedPricesNotExisting": "Für dieses Produkt existieren noch keine erweiterten Preise.",
       "columnFrom": "Menge von ...",
       "columnTo": "bis ...",
-      "selectRule": "Bedingungsregel auswählen ..."
+      "selectRule": "Bedingungsregel auswählen ...",
+      "advancedPricesInherited": "Dieses Produkt hat vererbte Preise vom Hauptprodukt.",
+      "linkAdvancedPricesOfParent": "Zeige die Preise des Hauptprodukts",
+      "inheritSwitchLabel": "Nutze die erweiterten Preise des Hauptprodukts",
+      "advancedPricesNotInherited": "Du kannst jetzt benutzerdefinierte Preisregeln für diese Variante verwenden."
+
     },
     "properties": {
       "cardTitleProperties": "Eigenschaften",
       "emptyStateNoOptionsTitle": "Keine Eigenschaftsausprägungen vorhanden.",
       "emptyStateNoOptionsDescription": "Du musst zuerst Eigenschaften und deren Ausprägungen erstellen, um diese hier zuordnen zu können.",
       "emptyStateNoSelectedOptionsTitle": "Keine Eigenschaftsausprägungen ausgewählt",
-      "emptyStateNoSelectedOptionsDescription": "Bitte wähle Ausprägungen aus der Suche aus."
+      "emptyStateNoSelectedOptionsDescription": "Bitte wähle Ausprägungen aus der Suche aus.",
+      "propertiesInherited": "Dieses Produkt hat vererbte Eigenschaften vom Hauptprodukt.",
+      "linkPropertiesOfParent": "Zeige die Eigenschaften des Hauptprodukts",
+      "inheritSwitchLabel": "Nutze die Eigfenschaften des Hauptprodukts",
+      "propertiesNotInherited": "Du kannst jetzt benutzerdefinierte Eigenschaften für diese Variante verwenden.",
+      "propertiesNotExisting": "Diesem Produkt sind noch keine Eigenschaften zugewiesen."
     },
     "variations": {
       "emptyStateDescription": "Dieses Produkt hat noch keine Varianten.",
@@ -250,7 +261,6 @@
       "generatedListDeleteModalButtonDelete": "Löschen",
       "generatedListMessageSaveSuccess": "Die Variante wurde gespeichert.",
       "generatedListMessageSaveError": "Die Variante konnte nicht gespeichert werden.",
-      "generatedListTitleDeleteError": "Gelöscht",
       "generatedListMessageDeleteSuccess": "Die Variante wurde gelöscht.",
       "overview": {
         "filterReset": "Zurücksetzen",
@@ -321,7 +331,6 @@
       "releaseDateDescendingSortingType": "Erscheinungsdatum, absteigend",
       "productStreamType": "Dynamische Produktgruppe",
       "productListType": "Manuelle Zuweisung",
-      "releaseDateSortingType": "Erscheinungsdatum",
       "deleteConfirmTitle": "Cross Selling löschen",
       "deleteConfirmText": "Möchtest Du die Cross Selling-Konfiguration wirklich löschen?",
       "deleteButtonCancel": "Zurück",

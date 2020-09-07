@@ -35,7 +35,8 @@
         "permissions": "Berechtigungen"
       },
       "grid": {
-        "title": "Berechtigungen"
+        "title": "Berechtigungen",
+        "disabledCheckboxMessage": "Um diese Option deaktivieren zu können, musst Du zuerst andere aktive Optionen deaktivieren."
       },
       "additional-permissions": {
         "title": "Zusätzliche Berechtigungen"

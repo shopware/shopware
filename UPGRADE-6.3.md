@@ -4,10 +4,16 @@ UPGRADE FROM 6.2.x to 6.3
 Table of contents
 ----------------
 
+* [API](#api)
 * [Core](#core)
 * [Administration](#administration)
 * [Storefront](#storefront)
 * [Refactorings](#refactorings)
+
+API
+----
+## Drop support of API version V1
+With Shopware 6.3.0.0 we increased the API version to `v3` and therefore dropped the API version `v1` and removed all corresponding deprecations which where marked for the 6.3 version tag. This mainly affects deprecations which where made during the development of the 6.1 version. As we try to keep the downwards compatibility always one API version backwards, there are now two available API versions: `v3` and `v2`.
 
 Core
 ----
@@ -95,7 +101,7 @@ After that you are able to delete your implementation of the `SnippetFileInterfa
         }
     }
     ```
-  * Added `Criteria $criteria` parameter in store api routes. The parameter will be required in 6.4. At the moment, the parameter is commented out in the `*AbstractRoute`, but it is already passed. If you decorate on of the following routes, you have to change your sources as follows:
+* Added `Criteria $criteria` parameter in store api routes. The parameter will be required in 6.4. At the moment, the parameter is commented out in the `*AbstractRoute`, but it is already passed. If you decorate on of the following routes, you have to change your sources as follows:
       * Affected routes:
           * `Shopware\Core\Checkout\Customer\SalesChannel\AbstractCustomerRoute`           
           * `Shopware\Core\Checkout\Order\SalesChannel\AbstractOrderRoute`                 
@@ -146,7 +152,68 @@ After that you are able to delete your implementation of the `SnippetFileInterfa
     * From now on migrations will be removed if the user data should be removed, and kept if the user data should be kept.
     * The `enableKeepMigrations()` function is no longer to be used and will be removed along with `keepMigrations()` in v6.4.0.
     * Please note: In case of a complete uninstall all tables should be removed as well. Please verify the uninstall method of your plugin complies with this.
+* Adding custom sortings to the storefront is now supported in the administration
+    * Before, custom sortings were handled by defining them as services and tagging them as `shopware.sales_channel.product_listing.sorting`:
+    ```xml
+    <service id="product_listing.sorting.name_ascending" class="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingSorting">
+        <argument>name-asc</argument>
+        <argument>filter.sortByNameAscending</argument>
+        <argument type="collection">
+            <argument key="product.name">asc</argument>
+        </argument>
+        <tag name="shopware.sales_channel.product_listing.sorting" />
+    </service>
+    ```
+    * Now it is possible to store custom sortings in the database `product_sorting` and its translatable label in `product_sorting_translation`
+    * Or you can subscribe to `ProductListingCriteriaEvent` for listing results and `ProductSearchCriteriaEvent` for search results to add available sortings to the storefront on the fly:
+    ```php
+      public function addMyCustomSortingToStorefront(\Shopware\Core\Content\Product\Events\ProductListingCriteriaEvent $event): void {
+          /** @var \Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingCollection $availableSortings */
+          $availableSortings = $event->getCriteria()->getExtension('sortings');
+  
+          $mySuperShinyCustomSorting = new \Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingEntity();
+          $mySuperShinyCustomSorting->setActive(true);
+          $mySuperShinyCustomSorting->setLabel('Super Shiny Custom Sorting');     // label shown in storefront
+          $mySuperShinyCustomSorting->setKey('my-custom-sort');                   // unique key, shown in url
+          $mySuperShinyCustomSorting->setPriority(100);                           // higher priority comes first
+          $mySuperShinyCustomSorting->setFields([
+              ['field' => 'product.listingPrices', 'order' => 'asc', 'priority' => 100, 'naturalSorting' => 0],
+              ['field' => 'product.name', 'order' => 'desc', 'priority' => 0, 'naturalSorting' => 1],
+              ...
+          );
+  
+          $availableSortings->add($mySuperShinyCustomSorting);
+          $event->getCriteria()->addExtension('sortings', $availableSortings);
+      }
+    ```
 
+* Deprecated providing an until timestamp as the last argument when running the `database:migrate` or `database:migrate-destructive` commands, use the --until option instead.
+    * Before:
+    ```
+    bin/console database:migrate MyPlugin 1598339065
+    ```
+    
+    * After
+    ```
+    bin/console database:migrate --until=1598339065 MyPlugin
+    ```
+
+* We have moved the logic for loading the detail page to Store-Api routes. The following extension points have been adapted for this:
+    * Some services and struct classes moved from the `Shopware\Storefront` domain to the `Shopware\Core` domain. The public api are still the same but if you decorated one of the following classes you have to change your `extends` expression and the `decorates` definition in your services.xml:
+        * `\Shopware\Storefront\Page\Product\Configurator\AvailableCombinationLoader` => `Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader`
+        * `\Shopware\Storefront\Page\Product\Configurator\ProductPageConfiguratorLoader` => `Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader`
+        * `\Shopware\Storefront\Page\Product\CrossSelling\CrossSellingLoader` => `\Shopware\Core\Content\Product\SalesChannel\CrossSelling\AbstractProductCrossSellingRoute`
+        * `\Shopware\Storefront\Page\Product\ProductLoader` => `Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute`
+    * Usage of the `\Shopware\Storefront\Page\Product\ProductLoader` are no longer recommend. To fetch the product data of a single product, use the `Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute`
+        * With this deprecation we also deprecated the `\Shopware\Storefront\Page\Product\ProductLoaderCriteriaEvent`. 
+            * If you have subscribed to this event to extend the product detail page, replace the event with `\Shopware\Storefront\Page\Product\ProductPageCriteriaEvent`
+            * If you have subscribed to this event to extend the listing quick view, replace the event with `\Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageCriteriaEvent`  
+    * As with the services, we have also moved some events from the storefront to the core. The public API of the events is the same. The following events can be replaced 1:1:
+        * `\Shopware\Storefront\Page\Product\CrossSelling\CrossSellingLoadedEvent` => `\Shopware\Core\Content\Product\Events\ProductCrossSellingsLoadedEvent` instead
+        * `\Shopware\Storefront\Page\Product\CrossSelling\CrossSellingProductCriteriaEvent` => `\Shopware\Core\Content\Product\Events\ProductCrossSellingCriteriaEvent` instead
+        * `\Shopware\Storefront\Page\Product\CrossSelling\CrossSellingProductListCriteriaEvent` => `\Shopware\Core\Content\Product\Events\ProductCrossSellingIdsCriteriaEvent` instead
+        * `\Shopware\Storefront\Page\Product\CrossSelling\CrossSellingProductStreamCriteriaEvent` => `\Shopware\Core\Content\Product\Events\ProductCrossSellingStreamCriteriaEvent` instead
+        
 Administration
 --------------
 
@@ -248,11 +315,11 @@ Example in SCSS
 
 ```scss
 body {
-  background: url("#{$sw-asset-theme-url}/bundles/storefront/assets/font/Inter-Regular.woff2");
+  background: url("#{$sw-asset-theme-url}/bundles/storefront/assets/img/some-image.webp");
 }
 ```
 
-To access in scss the asset url, you can use the variable `$sw-asset-url`
+To access in scss the asset url, you can use the variable `$sw-asset-theme-url`
 
 ## Configuring `asset` and `theme` asset to other locations
 

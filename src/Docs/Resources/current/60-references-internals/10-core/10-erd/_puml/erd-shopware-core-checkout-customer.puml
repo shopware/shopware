@@ -40,7 +40,13 @@ Table(ShopwareCoreCheckoutCustomerCustomerDefinition, "customer\n(The sales chan
    password password
    not_null(email) string
    title string
+   affiliateCode string
+   campaignCode string
    active bool
+   doubleOptInRegistration bool
+   doubleOptInEmailSentDate dateTime
+   doubleOptInConfirmDate dateTime
+   hash string
    guest bool
    firstLogin dateTime
    lastLogin dateTime
@@ -51,14 +57,21 @@ Table(ShopwareCoreCheckoutCustomerCustomerDefinition, "customer\n(The sales chan
    customFields customFields
    legacyPassword string
    legacyEncoder string
+   remoteAddress remoteAddress
+   tagIds manyToManyId
+   requestedGroupId foreignKey
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
 }
 TranslationTable(ShopwareCoreCheckoutCustomerAggregateCustomerGroupTranslationCustomerGroupTranslationDefinition, "customer_group_translation\n((Translations))") {
    not_null(name) string
+   registrationTitle string
+   registrationIntroduction longText
+   registrationOnlyCompanyRegistration bool
+   registrationSeoMetaDescription longText
    customFields customFields
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
    primary_key(customerGroupId) foreignKey
    primary_key(languageId) foreignKey
 }
@@ -82,16 +95,33 @@ Table(ShopwareCoreCheckoutCustomerAggregateCustomerAddressCustomerAddressDefinit
    additionalAddressLine2 string
    customFields customFields
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
+}
+Table(ShopwareCoreCheckoutCustomerAggregateCustomerRecoveryCustomerRecoveryDefinition, "customer_recovery\n(Customer recovery process)") {
+   primary_key(id) id
+   not_null(hash) string
+   not_null(customerId) foreignKey
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
 }
 Table(ShopwareCoreCheckoutCustomerAggregateCustomerGroupCustomerGroupDefinition, "customer_group\n(Customer groups)") {
    primary_key(id) id
    name translated
    displayGross bool
    customFields translated
+   registrationActive bool
+   registrationTitle translated
+   registrationIntroduction translated
+   registrationOnlyCompanyRegistration translated
+   registrationSeoMetaDescription translated
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
    translated json
+}
+Table(ShopwareCoreCheckoutCustomerAggregateCustomerGroupRegistrationSalesChannelCustomerGroupRegistrationSalesChannelDefinition, "customer_group_registration_sales_channels\n(M:N Mapping)") {
+   primary_key(customerGroupId) foreignKey
+   primary_key(salesChannelId) foreignKey
+   not_null(createdAt) createdAt
 }
 Table(ShopwareCoreCheckoutCustomerAggregateCustomerTagCustomerTagDefinition, "customer_tag\n(M:N Mapping)") {
    primary_key(customerId) foreignKey
@@ -101,7 +131,7 @@ ForeignTable(ShopwareCoreCheckoutPaymentPaymentMethodDefinition, "payment_method
 }
 ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
 }
-ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
+ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
 }
 ForeignTable(ShopwareCoreSystemSalutationSalutationDefinition, "salutation") {
 }
@@ -123,18 +153,21 @@ ForeignTable(ShopwareCoreSystemTagTagDefinition, "tag") {
 ShopwareCoreCheckoutCustomerAggregateCustomerGroupCustomerGroupDefinition --> ShopwareCoreCheckoutCustomerCustomerDefinition
 ShopwareCoreCheckoutCustomerCustomerDefinition --> ShopwareCoreCheckoutPaymentPaymentMethodDefinition
 ShopwareCoreCheckoutCustomerCustomerDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
-ShopwareCoreCheckoutCustomerCustomerDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
+ShopwareCoreCheckoutCustomerCustomerDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
 ShopwareCoreCheckoutCustomerAggregateCustomerAddressCustomerAddressDefinition --> ShopwareCoreCheckoutCustomerCustomerDefinition
 ShopwareCoreCheckoutCustomerCustomerDefinition --> ShopwareCoreSystemSalutationSalutationDefinition
 ShopwareCoreCheckoutCustomerCustomerDefinition --> ShopwareCoreCheckoutOrderAggregateOrderCustomerOrderCustomerDefinition
 ShopwareCoreCheckoutCustomerAggregateCustomerTagCustomerTagDefinition --> ShopwareCoreCheckoutCustomerCustomerDefinition
 ShopwareCoreCheckoutCustomerCustomerDefinition --> ShopwareCoreCheckoutPromotionAggregatePromotionPersonaCustomerPromotionPersonaCustomerDefinition
 ShopwareCoreCheckoutCustomerCustomerDefinition --> ShopwareCoreContentProductAggregateProductReviewProductReviewDefinition
+ShopwareCoreCheckoutCustomerAggregateCustomerRecoveryCustomerRecoveryDefinition --> ShopwareCoreCheckoutCustomerCustomerDefinition
 ShopwareCoreCheckoutCustomerAggregateCustomerGroupCustomerGroupDefinition --> ShopwareCoreCheckoutCustomerAggregateCustomerGroupTranslationCustomerGroupTranslationDefinition
-ShopwareCoreCheckoutCustomerAggregateCustomerGroupTranslationCustomerGroupTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
+ShopwareCoreCheckoutCustomerAggregateCustomerGroupTranslationCustomerGroupTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
 ShopwareCoreCheckoutCustomerAggregateCustomerAddressCustomerAddressDefinition --> ShopwareCoreSystemCountryCountryDefinition
 ShopwareCoreCheckoutCustomerAggregateCustomerAddressCustomerAddressDefinition --> ShopwareCoreSystemCountryAggregateCountryStateCountryStateDefinition
 ShopwareCoreCheckoutCustomerAggregateCustomerAddressCustomerAddressDefinition --> ShopwareCoreSystemSalutationSalutationDefinition
 ShopwareCoreCheckoutCustomerAggregateCustomerGroupCustomerGroupDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
+ShopwareCoreCheckoutCustomerAggregateCustomerGroupRegistrationSalesChannelCustomerGroupRegistrationSalesChannelDefinition --> ShopwareCoreCheckoutCustomerAggregateCustomerGroupCustomerGroupDefinition
+ShopwareCoreCheckoutCustomerAggregateCustomerGroupRegistrationSalesChannelCustomerGroupRegistrationSalesChannelDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareCoreCheckoutCustomerAggregateCustomerTagCustomerTagDefinition --> ShopwareCoreSystemTagTagDefinition
 @enduml

@@ -8,7 +8,8 @@ Component.register('sw-settings-rule-list', {
     template,
 
     inject: [
-        'repositoryFactory'
+        'repositoryFactory',
+        'acl'
     ],
 
     mixins: [

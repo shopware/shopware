@@ -53,5 +53,12 @@
     "labelPosition": "Position",
     "labelShortCode": "ISO-Code",
     "tooltipPosition": "Steuert die Position des Bundeslandes bei der Ausgabe in Listen usw."
+  },
+  "sw-privileges": {
+    "permissions": {
+      "country": {
+        "label": "Länder"
+      }
+    }
   }
 }

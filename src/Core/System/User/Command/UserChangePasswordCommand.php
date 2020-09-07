@@ -6,7 +6,7 @@ namespace Shopware\Core\System\User\Command;
 
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Symfony\Component\Console\Command\Command;
@@ -21,11 +21,11 @@ class UserChangePasswordCommand extends Command
     protected static $defaultName = 'user:change-password';
 
     /**
-     * @var EntityRepository
+     * @var EntityRepositoryInterface
      */
     private $userRepository;
 
-    public function __construct(EntityRepository $userRepository)
+    public function __construct(EntityRepositoryInterface $userRepository)
     {
         $this->userRepository = $userRepository;
         parent::__construct();

@@ -53,5 +53,12 @@
     "labelPosition": "Position",
     "labelShortCode": "ISO code",
     "tooltipPosition": "Controls positioning of the state/province in lists etc."
+  },
+  "sw-privileges": {
+    "permissions": {
+      "country": {
+        "label": "Countries"
+      }
+    }
   }
 }

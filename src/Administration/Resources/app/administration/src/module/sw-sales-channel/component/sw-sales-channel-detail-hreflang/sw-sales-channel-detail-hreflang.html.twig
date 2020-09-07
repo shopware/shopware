@@ -19,12 +19,13 @@
                 v-model="salesChannel.hreflangActive"
                 :label="$tc('sw-sales-channel.detail.hreflang.enableCheckbox')"
                 @change="salesChannel.hreflangDefaultDomainId = null"
+                :disabled="disabled"
             ></sw-switch-field>
         {% endblock %}
 
         {% block sw_sales_channel_detail_hreflang_content_domain %}
             <sw-entity-single-select
-                :disabled="!salesChannel.hreflangActive"
+                :disabled="!salesChannel.hreflangActive || disabled"
                 :label="$tc('sw-sales-channel.detail.hreflang.defaultDomain')"
                 entity="sales_channel_domain"
                 v-model="salesChannel.hreflangDefaultDomainId"

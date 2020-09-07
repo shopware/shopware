@@ -134,9 +134,4 @@ class DeliveryTimeEntity extends Entity
     {
         $this->products = $products;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'delivery_time';
-    }
 }

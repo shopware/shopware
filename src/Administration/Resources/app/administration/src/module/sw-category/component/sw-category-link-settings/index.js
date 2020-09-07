@@ -6,6 +6,8 @@ const { Component } = Shopware;
 Component.register('sw-category-link-settings', {
     template,
 
+    inject: ['acl'],
+
     props: {
         category: {
             type: Object,

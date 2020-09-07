@@ -4,11 +4,13 @@ namespace Shopware\Core\Framework\Plugin;
 
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationSource;
@@ -43,7 +45,6 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\EventListener\StopWorkerOnRestartSignalListener;
-use function Flag\next1797;
 
 class PluginLifecycleService
 {
@@ -149,7 +150,7 @@ class PluginLifecycleService
         }
 
         // TODO NEXT-1797: Not usable with Composer 1.8, Wait for Release of Composer 2.0
-        if (next1797()) {
+        if (Feature::isActive('FEATURE_NEXT_1797')) {
             $this->executor->require($plugin->getComposerName());
         } else {
             $this->requirementValidator->validateRequirements($plugin, $shopwareContext, 'install');
@@ -198,7 +199,6 @@ class PluginLifecycleService
         Context $shopwareContext,
         bool $keepUserData = false
     ): UninstallContext {
-        $pluginBaseClassString = $plugin->getBaseClass();
         if ($plugin->getInstalledAt() === null) {
             throw new PluginNotInstalledException($plugin->getName());
         }
@@ -207,6 +207,7 @@ class PluginLifecycleService
             $this->deactivatePlugin($plugin, $shopwareContext);
         }
 
+        $pluginBaseClassString = $plugin->getBaseClass();
         $pluginBaseClass = $this->getPluginBaseClass($pluginBaseClassString);
 
         $uninstallContext = new UninstallContext(
@@ -251,6 +252,10 @@ class PluginLifecycleService
      */
     public function updatePlugin(PluginEntity $plugin, Context $shopwareContext): UpdateContext
     {
+        if ($plugin->getInstalledAt() === null) {
+            throw new PluginNotInstalledException($plugin->getName());
+        }
+
         $pluginBaseClassString = $plugin->getBaseClass();
         $pluginBaseClass = $this->getPluginBaseClass($pluginBaseClassString);
 
@@ -264,7 +269,7 @@ class PluginLifecycleService
         );
 
         // TODO NEXT-1797: Not usable with Composer 1.8, Wait for Release of Composer 2.0
-        if (next1797()) {
+        if (Feature::isActive('FEATURE_NEXT_1797')) {
             $this->executor->require($plugin->getComposerName());
         } else {
             $this->requirementValidator->validateRequirements($plugin, $shopwareContext, 'update');
@@ -294,7 +299,7 @@ class PluginLifecycleService
             throw $updateException;
         }
 
-        if ($plugin->getInstalledAt() && $plugin->getActive()) {
+        if ($plugin->getActive()) {
             $this->assetInstaller->copyAssetsFromBundle($pluginBaseClassString);
         }
 
@@ -327,11 +332,11 @@ class PluginLifecycleService
      */
     public function activatePlugin(PluginEntity $plugin, Context $shopwareContext): ActivateContext
     {
-        $pluginBaseClassString = $plugin->getBaseClass();
         if ($plugin->getInstalledAt() === null) {
             throw new PluginNotInstalledException($plugin->getName());
         }
 
+        $pluginBaseClassString = $plugin->getBaseClass();
         $pluginBaseClass = $this->getPluginBaseClass($pluginBaseClassString);
 
         $activateContext = new ActivateContext(
@@ -350,7 +355,10 @@ class PluginLifecycleService
 
         $plugin->setActive(true);
 
-        $this->rebuildContainerWithNewPluginState($plugin);
+        // only skip rebuild if plugin has overwritten rebuildContainer method and source is system source (CLI)
+        if ($pluginBaseClass->rebuildContainer() || !$shopwareContext->getSource() instanceof SystemSource) {
+            $this->rebuildContainerWithNewPluginState($plugin);
+        }
 
         $pluginBaseClass = $this->getPluginInstance($pluginBaseClassString);
         $activateContext = new ActivateContext(
@@ -389,8 +397,6 @@ class PluginLifecycleService
      */
     public function deactivatePlugin(PluginEntity $plugin, Context $shopwareContext): DeactivateContext
     {
-        $pluginBaseClassString = $plugin->getBaseClass();
-
         if ($plugin->getInstalledAt() === null) {
             throw new PluginNotInstalledException($plugin->getName());
         }
@@ -408,6 +414,7 @@ class PluginLifecycleService
             throw new PluginHasActiveDependantsException($plugin->getName(), $dependants);
         }
 
+        $pluginBaseClassString = $plugin->getBaseClass();
         $pluginBaseClass = $this->getPluginInstance($pluginBaseClassString);
 
         $deactivateContext = new DeactivateContext(
@@ -427,7 +434,10 @@ class PluginLifecycleService
 
         $plugin->setActive(false);
 
-        $this->rebuildContainerWithNewPluginState($plugin);
+        // only skip rebuild if plugin has overwritten rebuildContainer method and source is system source (CLI)
+        if ($pluginBaseClass->rebuildContainer() || !$shopwareContext->getSource() instanceof SystemSource) {
+            $this->rebuildContainerWithNewPluginState($plugin);
+        }
 
         $this->updatePluginData(
             [

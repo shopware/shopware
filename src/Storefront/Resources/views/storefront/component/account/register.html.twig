@@ -34,6 +34,10 @@
                         <input type="hidden"
                                name="errorRoute"
                                value="frontend.account.register.page"/>
+
+                        <input type="hidden"
+                               name="errorParameters"
+                               value="{{ errorParameters }}">
                     {% endblock %}
 
                     {% block component_account_register_personal %}
@@ -250,7 +254,8 @@
                                         {% block component_account_register_address_billing_fields %}
                                             {% sw_include '@Storefront/storefront/component/address/address-form.html.twig' with {
                                                 'prefix': 'billingAddress',
-                                                'data': data.get('billingAddress')
+                                                'data': data.get('billingAddress'),
+                                                'hasSelectedBusiness': data.get('accountType') == constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS')
                                             } %}
                                         {% endblock %}
                                     </div>

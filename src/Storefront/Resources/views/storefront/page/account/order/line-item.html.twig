@@ -1,21 +1,19 @@
 {% sw_extends '@Storefront/storefront/page/checkout/checkout-item.html.twig' %}
 
 {% block page_checkout_item_info %}
-    <div class="col-6 cart-item-info">
+    <div class="col-12 col-md cart-item-info">
         {{ block('page_checkout_item_info_inner') }}
     </div>
 {% endblock %}
 
-{% block page_checkout_item_quantity %}
-    <div class="col-2 justify-content-end cart-item-quantity">
-        {{ lineItem.quantity }}
-    </div>
+{% block page_checkout_item_quantity_form %}
+    {{ block('page_checkout_item_quantity_number') }}
 {% endblock %}
 
 {% block page_checkout_item_unit_price %}
-    {# display tax instead of unit price in confirm item #}
+    {# display tax instead of item price in confirm item #}
     {% block page_account_order_line_item_tax_price %}
-        <div class="col-2 cart-item-tax-price">
+        <div class="col-12 col-sm-4 col-md-2 cart-item-unit-price">
             {% block page_account_order_line_item_price_label %}
                 <div class="cart-item-tax-price-label">
                     {% if context.taxState == "gross" %}
@@ -37,7 +35,7 @@
 {% endblock %}
 
 {% block page_checkout_item_total_price %}
-    <div class="col-2 cart-item-total-price">
+    <div class="col-12 col-sm-4 col-md-2 cart-item-total-price">
         {{ block('page_checkout_item_total_price_wrapper') }}
     </div>
 {% endblock %}

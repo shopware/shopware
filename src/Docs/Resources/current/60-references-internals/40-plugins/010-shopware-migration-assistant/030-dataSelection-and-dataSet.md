@@ -14,13 +14,14 @@ Each `DataSelection` consists of one or more `DataSets`:
     - ProductOptionRelationDataSet
     - ProductPropertyRelationDataSet
     - TranslationDataSet
+    - CrossSellingDataSet
 - MediaDataSelection (position: 300)
     - MediaFolderDataSet
     - MediaDataSet
 ```
 The order of the `DataSets` in the `DataSelection` class is important and specifies the processing order.
 `DataSelection` also holds a position specifying the order applied when migrating (lower numbers are migrated earlier).
-The `getEntityNamesRequiredForCount` method returns an array of all entities. Its count should be displayed in the administration.
+The `getDataSetsRequiredForCount` method returns an array of all DataSets. Its count should be displayed in the administration.
 
 `DataSelection` example:
 ```php
@@ -31,6 +32,7 @@ namespace SwagMigrationAssistant\Profile\Shopware\DataSelection;
 use SwagMigrationAssistant\Migration\DataSelection\DataSelectionInterface;
 use SwagMigrationAssistant\Migration\DataSelection\DataSelectionStruct;
 use SwagMigrationAssistant\Migration\MigrationContextInterface;
+use SwagMigrationAssistant\Profile\Shopware\DataSelection\DataSet\CrossSellingDataSet;
 use SwagMigrationAssistant\Profile\Shopware\DataSelection\DataSet\ManufacturerAttributeDataSet;
 use SwagMigrationAssistant\Profile\Shopware\DataSelection\DataSet\MediaFolderDataSet;
 use SwagMigrationAssistant\Profile\Shopware\DataSelection\DataSet\ProductAttributeDataSet;
@@ -55,39 +57,37 @@ class ProductDataSelection implements DataSelectionInterface
     {
         return new DataSelectionStruct(
             self::IDENTIFIER,
-            $this->getEntityNames(),
-            $this->getEntityNamesRequiredForCount(),
+            $this->getDataSets(),
+            $this->getDataSetsRequiredForCount(),
             'swag-migration.index.selectDataCard.dataSelection.products', // Snippet name
             100, // The position of the dataSelection
             true, // Is process-media needed (to download / copy images for example),
             DataSelectionStruct::BASIC_DATA_TYPE, // specify the type of data (core data or plugin data)
-            true // Is the selection required for every migration? (the user can't unselect this data selection)
+            false // Is the selection required for every migration? (the user can't unselect this data selection)
         );
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getEntityNames(): array
+    public function getDataSets(): array
     {
         return [
             // The order matters!
-            MediaFolderDataSet::getEntity(),
-            ProductAttributeDataSet::getEntity(),
-            ProductPriceAttributeDataSet::getEntity(),
-            ManufacturerAttributeDataSet::getEntity(),
-            ProductDataSet::getEntity(),
-            PropertyGroupOptionDataSet::getEntity(),
-            ProductOptionRelationDataSet::getEntity(),
-            ProductPropertyRelationDataSet::getEntity(),
-            TranslationDataSet::getEntity(),
+            new MediaFolderDataSet(),
+            new ProductAttributeDataSet(),
+            new ProductPriceAttributeDataSet(),
+            new ManufacturerAttributeDataSet(),
+            new ProductDataSet(),
+            new PropertyGroupOptionDataSet(),
+            new ProductOptionRelationDataSet(),
+            new ProductPropertyRelationDataSet(),
+            new TranslationDataSet(),
+            new CrossSellingDataSet(),
         ];
     }
 
-    public function getEntityNamesRequiredForCount(): array
+    public function getDataSetsRequiredForCount(): array
     {
         return [
-            ProductDataSet::getEntity(),
+            new ProductDataSet(),
         ];
     }
 }
@@ -136,6 +136,7 @@ namespace SwagMigrationAssistant\Profile\Shopware\DataSelection;
 use SwagMigrationAssistant\Migration\DataSelection\DataSelectionInterface;
 use SwagMigrationAssistant\Migration\DataSelection\DataSelectionStruct;
 use SwagMigrationAssistant\Migration\MigrationContextInterface;
+use SwagMigrationAssistant\Profile\Shopware\DataSelection\DataSet\CrossSellingDataSet;
 use SwagMigrationAssistant\Profile\Shopware\DataSelection\DataSet\CustomerAttributeDataSet;
 use SwagMigrationAssistant\Profile\Shopware\DataSelection\DataSet\CustomerDataSet;
 use SwagMigrationAssistant\Profile\Shopware\DataSelection\DataSet\ManufacturerAttributeDataSet;
@@ -163,8 +164,8 @@ class ProductReviewDataSelection implements DataSelectionInterface
     {
         return new DataSelectionStruct(
             self::IDENTIFIER,
-            $this->getEntityNames(),
-            $this->getEntityNamesRequiredForCount(),
+            $this->getDataSets(),
+            $this->getDataSetsRequiredForCount(),
             'swag-migration.index.selectDataCard.dataSelection.productReviews',
             250,
             true
@@ -174,29 +175,29 @@ class ProductReviewDataSelection implements DataSelectionInterface
     /**
      * {@inheritdoc}
      */
-    public function getEntityNames(): array
+    public function getDataSets(): array
     {
         return [
-            MediaFolderDataSet::getEntity(),
-            ProductAttributeDataSet::getEntity(),
-            ProductPriceAttributeDataSet::getEntity(),
-            ManufacturerAttributeDataSet::getEntity(),
-            ProductDataSet::getEntity(),
-            PropertyGroupOptionDataSet::getEntity(),
-            ProductOptionRelationDataSet::getEntity(),
-            ProductPropertyRelationDataSet::getEntity(),
-            TranslationDataSet::getEntity(),
-
-            CustomerAttributeDataSet::getEntity(),
-            CustomerDataSet::getEntity(),
-            ProductReviewDataSet::getEntity(),
+            new MediaFolderDataSet(),
+            new ProductAttributeDataSet(),
+            new ProductPriceAttributeDataSet(),
+            new ManufacturerAttributeDataSet(),
+            new ProductDataSet(),
+            new PropertyGroupOptionDataSet(),
+            new ProductOptionRelationDataSet(),
+            new ProductPropertyRelationDataSet(),
+            new TranslationDataSet(),
+            new CrossSellingDataSet(),
+            new CustomerAttributeDataSet(),
+            new CustomerDataSet(),
+            new ProductReviewDataSet(),
         ];
     }
 
-    public function getEntityNamesRequiredForCount(): array
+    public function getDataSetsRequiredForCount(): array
     {
         return [
-            ProductReviewDataSet::getEntity(),
+            new ProductReviewDataSet(),
         ];
     }
 }

@@ -43,6 +43,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendedProductDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ProductExtension;
@@ -64,7 +65,6 @@ use Shopware\Elasticsearch\Framework\Indexing\EntityMapper;
 use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
-use function Flag\skipTestNext6059;
 
 class ElasticsearchProductTest extends TestCase
 {
@@ -1181,10 +1181,10 @@ class ElasticsearchProductTest extends TestCase
 
         static::assertTrue($result->has('release-histogram'));
 
+        /** @var DateHistogramResult|null $histogram */
         $histogram = $result->get('release-histogram');
         static::assertInstanceOf(DateHistogramResult::class, $histogram);
 
-        /** @var DateHistogramResult $histogram */
         static::assertCount(count($case->getBuckets()), $histogram->getBuckets(), print_r($histogram->getBuckets(), true));
 
         foreach ($case->getBuckets() as $key => $count) {
@@ -1280,10 +1280,10 @@ class ElasticsearchProductTest extends TestCase
 
         static::assertTrue($result->has('release-histogram'));
 
+        /** @var DateHistogramResult|null $histogram */
         $histogram = $result->get('release-histogram');
         static::assertInstanceOf(DateHistogramResult::class, $histogram);
 
-        /** @var DateHistogramResult $histogram */
         static::assertCount(4, $histogram->getBuckets());
 
         $bucket = $histogram->get('2019-01-01 00:00:00');
@@ -1325,6 +1325,22 @@ class ElasticsearchProductTest extends TestCase
         $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
         static::assertCount(1, $products->getIds());
         static::assertSame(1, $products->getTotal());
+    }
+
+    /**
+     * @depends testIndexing
+     */
+    public function testFilterPurchasePricesPriceField(TestDataCollection $data): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_9825', $this);
+        $searcher = $this->createEntitySearcher();
+
+        // Filter by the PriceField purchasePrices
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('purchasePrices', 100));
+
+        $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
+        static::assertCount(3, $products->getIds());
     }
 
     /**
@@ -1557,7 +1573,7 @@ class ElasticsearchProductTest extends TestCase
      */
     public function testPriceFilterWithCashRounding(TestDataCollection $data): void
     {
-        skipTestNext6059($this);
+        Feature::skipTestIfInActive('FEATURE_NEXT_6059', $this);
 
         $searcher = $this->createEntitySearcher();
 
@@ -1584,7 +1600,7 @@ class ElasticsearchProductTest extends TestCase
      */
     public function testPriceAggregationWithCashRounding(TestDataCollection $data): void
     {
-        skipTestNext6059($this);
+        Feature::skipTestIfInActive('FEATURE_NEXT_6059', $this);
 
         $context = new Context(new SystemSource(), [], $this->currencyId);
 
@@ -1598,7 +1614,6 @@ class ElasticsearchProductTest extends TestCase
         $result = $aggregations->get('price');
         static::assertInstanceOf(StatsResult::class, $result);
 
-        /** @var StatsResult $result */
         static::assertEquals(19.90, $result->getMin());
         static::assertEquals(20.00, $result->getMax());
     }
@@ -1673,6 +1688,12 @@ class ElasticsearchProductTest extends TestCase
                 ['salesChannelId' => Defaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
             ],
         ];
+
+        if (Feature::isActive('FEATURE_NEXT_9825')) {
+            $data['purchasePrices'] = [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => $purchasePrice, 'net' => $purchasePrice / 115 * 100, 'linked' => false],
+            ];
+        }
 
         $categories[] = ['id' => $this->navigationId];
         $data['categories'] = $categories;

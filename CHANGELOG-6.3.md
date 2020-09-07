@@ -11,7 +11,9 @@ Table of contents
 ----------------
 * [Table of contents](#table-of-contents)
 * [NEXT](#NEXT)
-* [6.3.0.0](#630)
+* [6.3.1.0](#6310)
+* [6.3.0.2](#6302)
+* [6.3.0.0](#6300)
   - [Administration](#administration)
   - [Core](#core)
   - [Storefront](#storefront)
@@ -20,6 +22,106 @@ NEXT
 ----------------
 
 #### Administration
+* Added ACL permissions to countries module in settings
+* Added property `disabled` to `sw-settings-country-list` component
+* Added property `disabled` to `sw-settings-country-detail` component
+* Added property `disabled` to `sw-country-state-detail` component
+* Added property `disabled` to `sw-one-to-many-grid` component
+* Added ACL permissions to settings rule
+* Added property `disabled` to `sw-arrow-field` component
+* Added property `disabled` to `sw-condition-base` component
+* Added property `disabled` to `sw-condition-operator-select` component
+* Added property `disabled` to `sw-condition-tree-node` component
+* Added property `disabled` to `sw-condition-tree` component
+* Added property `disabled` to `sw-condition-type-select` component
+* Added property `disabled` to `rule-container` mixin
+* Added acl privileges to the `promotion` module
+* Added prop `dismissable` to `sw-label`
+* Added prop `allowView` to `sw-entity-listing`
+* Added prop `disabled` to `sw-select-selection-list`
+* Added ACL permissions to shipping module
+* Added property `disabled` to `sw-settings-shipping-price-matrices` component
+* Added property `disabled` to `sw-settings-shipping-price-matrix` component
+* Added ACL permissions to delivery times module
+* Added new privileges for `sw-setting-payment` module to privilege service
+* Added new privileges for `sw-customer` module to privilege service
+* Added `getPrivileges` method to `privileges` service
+* Added ACL privileges to the theme module
+* Added `src/Storefront/Resources/app/administration/src/modules/sw-theme-manager/acl/index.js`
+* Fixed keyboard navigation in the admin searchresults
+* Fixed the searchbar so the searchterm and results no longer get lost, when the searchbar losses focus
+* Added property `disabled` to `sw-sidebar-media-item`
+* Added ACL privileges to the `manufacturer` module
+* Added ACL privileges to the shopping experiences module for listing
+* Added a tooltip which shows the taxes detail for credit items and promotion items in create order and edit order page
+
+#### Core
+* Changed order address from customer to billing address in documents
+* Added `sendMail` parameter to change state routes, which allows to skip the mail delivery. Affected routes:
+    * `/api/v{version}/_action/order/{orderId}/state/{transition}`
+    * `/api/v{version}/_action/order_transaction/{orderTransactionId}/state/{transition}`
+    * `/api/v{version}/_action/order_delivery/{orderDeliveryId}/state/{transition}`
+* Custom field sets can now be sorted using a new `position` field
+* Added new event classes:
+	* `\Shopware\Core\Content\Product\Events\ProductCrossSellingIdsCriteriaEvent`
+	* `\Shopware\Core\Content\Product\Events\ProductCrossSellingsLoadedEvent`
+	* `\Shopware\Core\Content\Product\Events\ProductCrossSellingStreamCriteriaEvent`
+	* `\Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageCriteriaEvent`
+	* `\Shopware\Storefront\Page\Product\ProductPageCriteriaEvent`
+* Added new store api routes:
+	* `ProductDetailRoute` 			(/store-api/v{version}/product/{productId})
+	* `ProductCrossSellingRoute`	(/store-api/v{version}/product/{productId}/cross-selling)
+	* `ProductReviewRoute` 			(/store-api/v{version}/product/{productId}/reviews)
+	* `ProductReviewSaveRoute` 		(/store-api/v{version}/product/{productId}/review)
+* Added new structs:
+	* `\Shopware\Core\Content\Product\SalesChannel\CrossSelling\CrossSellingElementCollection`
+	* `\Shopware\Core\Content\Product\SalesChannel\CrossSelling\CrossSellingElement`
+	* `\Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationResult`
+	* `\Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilter`
+* Added new `Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader` service
+* Added new `MultiFilter::addQuery` function:
+* Added and deprecated `\Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity::$configurator`, only used for backward compatibility
+* Fixed `ArrayStruct::getVars() `to return internal data collection
+* Deprecated `\Shopware\Core\Content\Category\Service\NavigationLoader::loadLevel` use `\Shopware\Core\Content\Category\Service\NavigationLoader::load` with $depth 1 instead instead
+* Deprecated `\Shopware\Core\Content\Product\SalesChannel\ProductReviewService` use `\Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewSaveRoute` instead
+* Deprecated `\Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity::VISIBILITY_FILTERED`
+* Deprecated `\Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory::getTaxRules`
+* Deprecated `\Shopware\Storefront\Page\Product\Configurator\AvailableCombinationLoader` use `Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader` instead
+* Deprecated `\Shopware\Storefront\Page\Product\Configurator\AvailableCombinationResult` use `Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationResult` instead
+* Deprecated `\Shopware\Storefront\Page\Product\Configurator\ProductPageConfiguratorLoader` use `Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader` instead
+* Deprecated `\Shopware\Storefront\Page\Product\CrossSelling\CrossSellingElement` use `Shopware\Core\Content\Product\SalesChannel\CrossSelling\CrossSellingElement` instead
+* Deprecated `\Shopware\Storefront\Page\Product\CrossSelling\CrossSellingLoadedEvent` use `\Shopware\Core\Content\Product\Events\ProductCrossSellingsLoadedEvent` instead
+* Deprecated `\Shopware\Storefront\Page\Product\CrossSelling\CrossSellingLoader` use `\Shopware\Core\Content\Product\SalesChannel\CrossSelling\AbstractProductCrossSellingRoute` instead
+* Deprecated `\Shopware\Storefront\Page\Product\CrossSelling\CrossSellingLoaderResult` use `\Shopware\Core\Content\Product\SalesChannel\CrossSelling\CrossSellingElementCollection` instead
+* Deprecated `\Shopware\Storefront\Page\Product\CrossSelling\CrossSellingProductCriteriaEvent` use `\Shopware\Core\Content\Product\Events\ProductCrossSellingCriteriaEvent` instead
+* Deprecated `\Shopware\Storefront\Page\Product\CrossSelling\CrossSellingProductListCriteriaEvent` use `\Shopware\Core\Content\Product\Events\ProductCrossSellingIdsCriteriaEvent` instead
+* Deprecated `\Shopware\Storefront\Page\Product\CrossSelling\CrossSellingProductStreamCriteriaEvent` use `\Shopware\Core\Content\Product\Events\ProductCrossSellingStreamCriteriaEvent` instead
+* Deprecated `\Shopware\Storefront\Page\Product\ProductLoaderCriteriaEvent` use `ProductPageCriteriaEvent` or `MinimalQuickViewPageCriteriaEvent` event instead
+* Deprecated `\Shopware\Storefront\Page\Product\ProductLoader` use `Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute` instead
+* Changed `\Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateDefinition`, the `template`-property is not required anymore
+* Added `\Shopware\Core\Migration\Migration1598280548NullableSeoUrlTemplate` to mark `seo_url_template.template` nullable
+* Implemented individual sortings
+  * Added new `Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingEntity` to handle individual sortings stored in database
+  * Added new `\Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingTranslationEntity` to handle translated labels
+  * Deprecated `Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingSortingRegistry` for v6.4.0. 
+    Sortings are now stored in database, rather than declaring them as services
+  * Deprecated `Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingSorting` for v6.4.0.
+    Use `\Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingEntity` instead
+* Changed `\Shopware\Core\Content\Sitemap\Provider\CategoryUrlProvider` to list only categories associated to the current sales channels
+
+#### Storefront
+* Added ellipsis to the truncated long product name
+    * Added in the shopping cart line item 
+    * Added in the off-canvas cart menu item
+  
+6.3.1.0
+----------------
+
+#### Administration
+* Added new method to `src/Administration/Resources/app/administration/src/app/service/privileges.service.js`
+    * `addPrivilegeMappingEntries`
+* Added new function to `src/Administration/Resources/app/administration/src/core/service/utils/debug.utils.js`
+    * `error`
 * Added new privileges service: 
 `src/Administration/Resources/app/administration/src/module/sw-property/acl/index.js`
 * Added prop `savePermission` to `sw-language-switch/index.js`
@@ -27,6 +129,86 @@ NEXT
     * `allowInlineEdit`
     * `tooltipAdd`
     * `disableAddButton`
+* Extended `sw-category-detail-base/index.js`
+    * Added lifecycle hook `created`
+    * Added methods `createdComponent` and `loadProductStreamPreview`
+    * Added computed props `productStreamRepository`, `productAssignmentTypes` and `productStreamInvalidError`
+    * Added data props `productStreamFilter` and `productStreamInvalid`
+    * Extend `mapPropertyErrors` with props `productStreamId` and `productAssignmentType`
+* Added prop `plainAppearance` to `sw-data-grid` which provides an alternative and more minimalistic design
+* Added prop `absolute` to `sw-empty-state` which is `true` by default
+* Added prop `showDescription` to `sw-empty-state` which is `true` by default
+* Added prop `selectLabel` to `sw-many-to-many-assignment-card` in order to show a label for the default select element
+* Added slot `prepend-select` to `sw-many-to-many-assignment-card` in order to show additional content before the select element
+* Added new event `paginate` to `paginateGrid` method in `sw-many-to-many-assignment-card`
+* Added slot `select` to `sw-many-to-many-assignment-card` in order to override the default select element
+* Added slot `data-grid` to `sw-many-to-many-assignment-card` in order to override the data grid component
+* Added new component `sw-product-stream-grid-preview` which displays a product stream preview inside a `sw-data-grid`
+* Added support for custom field set selection to `sw-custom-field-set-renderer`
+    * Added property `showCustomFieldSetSelection`
+* Added support for inheritance to `sw-custom-field-set-renderer`
+    * Added property `parentEntity`
+* Added ACL permissions to categories module
+* Added property `disabled` to `sw-many-to-many-assignment-card` component
+* Added property `disabled` to `sw-media-upload-v2` component
+* Added property `contextMenuTooltipText` to `sw-tree-item` component
+* Added property `allowNewCategories` to `sw-tree-item` component
+* Added property `allowDeleteCategories` to `sw-tree-item` component
+* Added property `allowDeleteCategories` to `sw-tree` component
+* Added property `allowEdit` to `sw-category-tree` component
+* Added property `allowCreate` to `sw-category-tree` component
+* Added property `allowDelete` to `sw-category-tree` component
+* Added computed `contextMenuTooltipText` to `sw-category-tree` component
+* Added property `disabled` to `sw-cms-list-item` component
+* Added method `onItemClick` to `sw-cms-list-item` component
+* Added property `disabled` to `sw-seo-url` component
+* Deprecated block `sw_product_detail_properties_empty_state_text_empty` in `sw-product-detail-properties` component.
+* Added prop `salesChannelId` to `sw-order-line-items-grid-sales-channel/index.js`
+* Added prop `salesChannelId` to `sw-order-product-select/index.js`
+* Changed tax id of newly generated variants to null in order to inherit from the parent product
+* Added ACL permissions to orders module
+* Added prop `disabled` to `sw-order-state-history-card-entry`
+* Added prop `disabled` to `sw-order-state-select`
+* Removed `autoHide` property from `sw_property_search_tree_option_grid_pagination` and `sw_property_search_option_search_grid_pagination`
+* Removed exact property from `router-link` within `sw-tabs-item`
+* Extended `sw-cms-el-config-product-slider/index.js` to support selection of dynamic product groups
+    * Added data prop `productStream`
+    * Added data prop `showProductStreamPreview`
+    * Added data prop `tempProductIds`
+    * Added data prop `tempStreamId`
+    * Added computed `productStreamRepository`
+    * Added computed `productAssignmentTypes`
+    * Added computed `productStreamSortingOptions`
+    * Added method `onChangeAssignmentType`
+    * Added method `loadProductStream`
+    * Added method `onChangeProductStream`,
+    * Added method `onClickProductStreamPreview`,
+    * Added method `onCloseProductStreamModal`
+* Extended `src/Administration/Resources/app/administration/src/module/sw-cms/elements/product-slider/index.js` and add new properties to `defaultConfig`:
+    * Added property `productStreamSorting` with default value `name:ASC`
+    * Added property `productStreamLimit` with default value `10`
+* Added method `addGroupField` to `platform/src/Administration/Resources/app/administration/src/core/data-new/criteria.data.js`
+* Added method `addGrouping` to `platform/src/Administration/Resources/app/administration/src/core/data-new/criteria.data.js`
+* Added new component `sw-customer-group-registration-seo-modal` to generate urls for customer group registration
+* Changed `sw-settings-customer-group-detail` to add
+    * as data
+        * `openSeoModal`
+        * `seoUrls`
+    * as computed
+        * `customerGroupRegistrationRepository`
+        * `seoUrlRepository`
+        * `hasRegistration`
+    * as methods:
+        * `loadSeoUrls`
+        * `getSeoUrl`
+* Added new priviliges for `sw-review` module to privilege service
+* Added ACL permissions to salesChannel
+* Added property `disabled` to `sw-code-editor` component
+* Added property `disabled` to `sw-sales-channel-defaults-select` component
+* Added property `disabled` to `sw-sales-channel-detail-domains` component
+* Added property `disabled` to `sw-sales-channel-detail-hreflang` component
+* Added new privileges for `sw-review` module to privilege service
+
 #### Core
 
 * Changed `keyword` fields in Elasticsearch to normalize to lower case
@@ -36,6 +218,81 @@ NEXT
 * Added event `GenericPageLoadedEvent`, which is fired once a page is requested via the `GenericPageLoader`
 * Changed the way the `CheckoutConfirmPage` is loaded. It now uses the `GenericPageLoader` as well.
 * Deprecated the constructor of `Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPage`. Use `CheckoutConfirmPage::createFrom` instead.
+* Added fields in `src/Core/Content/Category/CategoryDefinition.php`
+    * `StringField` with `product_assignment_type`
+    * `FkField` with `product_stream_id`
+    * `ManyToOneAssociationField` with `product_stream_id`
+    * Extend defaults with `productAssignmentType` type `product`
+* Added new constants in `src/Core/Content/Category/CategoryDefinition.php`
+    * `PRODUCT_ASSIGNMENT_TYPE_PRODUCT` with value `product`
+    * `PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM` with value `product_stream`
+* Added new methods in `src/Core/Content/ProductStream/ProductStreamEntity.php`
+    * `getCategories`
+    * `setCategories`
+* Added new methods in `src/Core/Content/Category/CategoryEntity.php`
+    * `getProductStream`
+    * `setProductStream`
+    * `getProductStreamId`
+    * `setProductStreamId`
+    * `getProductAssignmentType`
+    * `setProductAssignmentType`
+* Added migration `src/Core/Migration/Migration1592837424AddProductTypeToCategory.php`
+* Added `OneToManyAssociationField` with `categories` and `product_stream_id` in `src/Core/Content/ProductStream/ProductStreamDefinition.php`
+* Added arguments `categoryRepository` and `productStreamBuilder` to `src/Core/Content/Product/SalesChannel/Listing/ProductListingRoute.php`
+    * Added arguments `category.repository` and `Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder` to service `Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute` in `src/Core/Content/DependencyInjection/product.xml`
+* Deprecated `.php_cs.dist` cs-fixer config file. Use Easy Coding Standard instead.
+* Plugins that are not installed can't be updated anymore. If you try to update an plugin that is not yet installed with `bin/console plugin:update` the plugin will be skipped.
+* Added bool `custom_field_set_selection_active` to ProductDefinition
+* Added many to many association `customFieldSets` to ProductDefinition
+* Added new entity `product_custom_field_set`
+* Added possibility to use a write operation without actual data, which then does nothing
+* Added generation of order delivery positions when editing an order in the administration
+* Changed the way `senderEmail` is resolved in `\Shopware\Core\Content\MailTemplate\Service\MailService`. It's now possible to override it with `$data['senderEmail']`. 
+* Thumbnails are no longer being upscaled when the original image is smaller than the desired thumbnail size
+* Added new constant `DISPLAY_TYPE_MEDIA` in `Shopware\Core\Content\Property\PropertyGroupDefinition`
+* Added `--fix` option to `snippet:validate` command, which will start a wizard to fix the translations step by step
+* Added app system basics (entities, manifest parsing, app lifecycle)
+* Added snippet loading of apps
+* Added action buttons to apps
+* Added webhook dispatching
+* Increased Elasticsearch config `mapping.nested_objects.limit` to 1000000
+* Fixed company name field on profile page and prefill it with billingAddress company
+* Fixed an issue with submitting the contact form when a contact form configuration was unavailable in another language
+* Added `rebuildContainer` function to `Shopware\Core\Framework\Plugin` which allows plugin developers to disable the container rebuild for their plugin to speed up the activation and deactivation of their plugin. Only works in the system context (CLI)
+* Added new supported field `FieldConfig::SOURCE_PRODUCT_STREAM` to `Shopware\Core\Content\Cms\DataAbstractionLayer\FieldSerializer\SlotConfigFieldSerializer::getConstraints`
+* `Shopware\Core\Content\Cms\DataResolver\Element\AbstractCmsElementResolver::resolveEntityValue` now returns `null` if parameter `Shopware\Core\Framework\DataAbstractionLayer\Entity` is `null`
+* Added new public const `SOURCE_PRODUCT_STREAM` to `Shopware\Core\Content\Cms\DataResolver\FieldConfig`
+* Added new public method `isProductStream` to `Shopware\Core\Content\Cms\DataResolver\FieldConfig`
+* Added new constructor parameter `Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder` to `Shopware\Core\Content\Product\Cms\ProductSliderCmsElementResolver`
+* Added new private property `$productStreamBuilder` to `Shopware\Core\Content\Product\Cms\ProductSliderCmsElementResolver`
+* Added new private method `collectByProductStream` to `Shopware\Core\Content\Product\Cms\ProductSliderCmsElementResolver`
+* Added new store-api route `/store-api/v3/customer-group-registration/config/{customerGroupId}` to fetch the configuration of the registration form
+* Added new controller `src/Core/Checkout/Customer/Api/CustomerGroupRegistrationActionController.php` to handle accept and decline of customer group requests
+    * Added new events  `Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationAccepted`
+    * Added new events  `Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationDeclined`
+* Added new association `requestedGroup` to `customer` entity
+* Added new association `registration` to `customer_group` entity
+* Added method `createCustomSeoUrls` to `Shopware/Core/Content/Seo/Api/SeoActionController` to allow creating custom seo urls in the Administration
+* Added new property `primaryProperty` to `Shopware/Core/Framework/DataAbstractionLayer/Validation/EntityExists` to allow checking existence of entities with another key
+* Changed `\Shopware\Core\System\SalesChannel\SalesChannel\StoreApiInfoController` to set correct `Content-Security-Policy` header
+* Swapped the priorities of `CreditCartProcessor` and `CustomCartProcessor`. Now `CustomCartProcessor` will run before `CreditCartProcessor`.
+* Fixed a bug cannot update credit items after creating in Admin order
+* Deprecated providing an until timestamp as the last argument to the `database:migrate` and `database:migrate-destructive` commands, use the `--until` option instead
+* Allow running migrations for multiple identifiers in `database:migrate` and `database:migrate-destructive` commands
+* Added `\Shopware\Core\Checkout\Customer\SalesChannel\ListAddressRoute` route to provide an endpoint to list all addresses of a logged-in customer.
+* Added `\Shopware\Core\Checkout\Customer\SalesChannel\UpsertAddressRoute` route to provide an endpoint to create or update addresses.
+* Added `\Shopware\Core\Checkout\Customer\SalesChannel\DeleteAddressRoute` route to provide an endpoint to delete addresses.
+* Added `\Shopware\Core\Checkout\Customer\SalesChannel\SwitchDefaultAddressRoute` route to provide an endpoint to switch the default shipping or billing address.
+* Deprecated `\Shopware\Core\Checkout\Customer\SalesChannel\AddressService` use one of following new routes
+    * `\Shopware\Core\Checkout\Customer\SalesChannel\ListAddressRoute`
+    * `\Shopware\Core\Checkout\Customer\SalesChannel\UpsertAddressRoute`
+    * `\Shopware\Core\Checkout\Customer\SalesChannel\DeleteAddressRoute`
+    * `\Shopware\Core\Checkout\Customer\SalesChannel\SwitchDefaultAddressRoute`
+* Added new $context parameter to `\Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister::replace`. This parameter will be required with 6.4.0.0.
+* Added new flag `\Shopware\Core\Checkout\Cart\Error\Error::isPersistent` which defines if an errors should be persistent when processing the cart multiple times.
+* Deprecated `purchasePrice` in `Shopware\Core\Content\Product` use `purchasePrices` instead
+* Deprecated `payload.purchasePrice` in `Shopware\Core\Checkout\Cart\LineItem\LineItem` use `payload.purchasePrices` instead
+* Fixed a bug concering case insensetive IP comparsion in maintanence mode
 
 #### Storefront
 
@@ -54,6 +311,41 @@ NEXT
     * Added `cmsProductListingWrapperSelector` property in `listing.plugin.js`
     * Added `addLoadingElementLoaderClass` function in `listing.plugin.js`
     * Added `removeLoadingElementLoaderClass` function in `listing.plugin.js`
+* Added block `page_checkout_item_quantity_number` in `page/checkout/checkout-item.html.twig` to other place can inherit
+    * Replace block `page_checkout_item_quantity` to `page_checkout_item_quantity_form` in `account/order/line-item.html.twig`
+* Fixed wrong meta tag value `twitter:card` in `storefront/layout/meta.html.twig`
+* Fixed `packUnit` and `packUnitPlural` not being properly accessed in `buy-widget-form.html.twig`
+* Fixed the search if input is only whitespaces
+* Deprecated template component/listing/breadcrumb.html.twig. Breadcrumb will be handled by generic layout/breadcrumb.html.twig.
+* Deprecated template component/product/breadcrumb.html.twig. Breadcrumb will be handled by generic layout/breadcrumb.html.twig.
+* Deprecated block page_product_detail_breadcrumb in page/product-detail/index.html.twig. Breadcrumb will be handled by block base_breadcrumb in storefront/base.html.twig.
+* Product box display mode inside the product listing won't behave the same way anymore
+* Added the ellipsis to the truncated long product name in the product box
+* Fixed switching to domains with upper case paths like `https://example.com/de-DE`
+* Fixed to hiding the `sort by` within the review options in the storefront when there are no reviews
+* The `FormFieldTogglePlugin` in `form-field-toggle.plugin.js` now supports using a scope.
+    * Added `scopeAll` property, which contains the default scope being used
+    * Added `scopeDataAttribute` property, which can be used to set the scope to `parent` instead of `all`
+    * Added `parentSelectorDataAttribute` property, which must be defined if you've set the scope to `parent`. It contains the selector of the parent element.
+* Added theme handling for apps    
+* Changed `\Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute` to provide loggedin context token
+* Changed `\Shopware\Core\System\SalesChannel\Api\StoreApiResponseListener` to pass the headers to the new response
+* Deprecated `\Shopware\Core\Checkout\Customer\SalesChannel\AccountRegistrationService` use `RegisterRoute` or `RegisterConfirmRoute`
+* Fixed to hiding the shipping cost dropdown if the customer is logged in block `page_checkout_cart_shipping_costs_form_group_country`
+* Fixed JS error occurred on tab switch on product detail page 
+
+
+6.3.0.2
+----------------
+
+#### Administration
+* Fixed template factory, so it is possible again to override nested blocks in one `Component.override()`
+
+#### Core
+* Fixed regression in `bin/console assets:install` that required the env var `APP_URL` to be defined. That broke the production template setup (https://github.com/shopware/production#setup-and-install).
+
+#### Storefront
+* Added `GenericPageLoaderInterface` to `CheckoutConfirmPageLoader`. This fixes the footer in the checkout confirm page.
 
 6.3.0.0
 ----------------
@@ -796,6 +1088,7 @@ Refactored `src/module/sw-plugin/snippet/en-GB.json`:
 * Added block `sw_corder_list_sidebar_filter_items` to `sw-order-list` allow easier adding filters to the sidebar
 * Fixed the sidebar with filters that wasn't displayed in the orderlist
 * Fix truncated text in `sw-property-search`. Changed prop `flex` of `sw-grid-column` to `minmax(0, 1fr)`
+* Fixed a bug where template resolving stopped the application from running if a `Component.override` or `Component.extend` was executed for a base component which was not registered. The application resolves this components to `false` and a `unknown custom element` exception will now be raised only if used in a template.
 
 #### Core
 * Deprecated `\Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator`, use `\Shopware\Core\Checkout\Cart\Tax\TaxCalculator` instead
@@ -992,6 +1285,8 @@ Refactored `src/module/sw-plugin/snippet/en-GB.json`:
 * Added `user:change-password` command to set the password of an administration user
 * Added `HttpCacheGenerateKeyEvent` to allow changing the hash
 * It is now possible to override the generic API routes with a `config/routes_overwrite.xml` in the bundle or plugin
+* Fixed a bug cannot remove credit items after creating in Admin order
+* Added custom item's tax into shipping cost's calculated taxes in Admin order
 
 #### Storefront
 * Added plugin injection in hot mode

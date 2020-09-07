@@ -29,20 +29,29 @@ Table(ShopwareCoreSystemCurrencyCurrencyDefinition, "currency\n(Currency)") {
    not_null(isoCode) string
    shortName translated
    name translated
-   not_null(decimalPrecision) int
    position int
    isSystemDefault bool
    customFields translated
+   not_null(decimalPrecision) int
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
    translated json
+}
+Table(ShopwareCoreSystemCurrencyAggregateCurrencyCountryRoundingCurrencyCountryRoundingDefinition, "currency_country_rounding\n(Country cash rounding config)") {
+   primary_key(id) id
+   not_null(currencyId) foreignKey
+   not_null(countryId) foreignKey
+   not_null(itemRounding) cashRoundingConfig
+   not_null(totalRounding) cashRoundingConfig
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
 }
 TranslationTable(ShopwareCoreSystemCurrencyAggregateCurrencyTranslationCurrencyTranslationDefinition, "currency_translation\n((Translations))") {
    not_null(shortName) string
    not_null(name) string
    customFields customFields
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
    primary_key(currencyId) foreignKey
    primary_key(languageId) foreignKey
 }
@@ -50,15 +59,15 @@ ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channe
 }
 ForeignTable(ShopwareCoreCheckoutOrderOrderDefinition, "order") {
 }
-ForeignTable(ShopwareCoreCheckoutShippingAggregateShippingMethodPriceShippingMethodPriceDefinition, "shipping_method_price") {
-}
 ForeignTable(ShopwareCoreSystemSalesChannelAggregateSalesChannelCurrencySalesChannelCurrencyDefinition, "sales_channel_currency") {
 }
 ForeignTable(ShopwareCoreSystemSalesChannelAggregateSalesChannelDomainSalesChannelDomainDefinition, "sales_channel_domain") {
 }
 ForeignTable(ShopwareCoreCheckoutPromotionAggregatePromotionDiscountPricePromotionDiscountPriceDefinition, "promotion_discount_prices") {
 }
-ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
+ForeignTable(ShopwareCoreContentProductExportProductExportDefinition, "product_export") {
+}
+ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
 }
 
 ' relationshipd
@@ -66,9 +75,9 @@ ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
 ShopwareCoreSystemCurrencyAggregateCurrencyTranslationCurrencyTranslationDefinition --> ShopwareCoreSystemCurrencyCurrencyDefinition
 ShopwareCoreSystemCurrencyCurrencyDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareCoreSystemCurrencyCurrencyDefinition --> ShopwareCoreCheckoutOrderOrderDefinition
-ShopwareCoreSystemCurrencyCurrencyDefinition --> ShopwareCoreCheckoutShippingAggregateShippingMethodPriceShippingMethodPriceDefinition
 ShopwareCoreSystemCurrencyCurrencyDefinition --> ShopwareCoreSystemSalesChannelAggregateSalesChannelCurrencySalesChannelCurrencyDefinition
 ShopwareCoreSystemCurrencyCurrencyDefinition --> ShopwareCoreSystemSalesChannelAggregateSalesChannelDomainSalesChannelDomainDefinition
 ShopwareCoreSystemCurrencyCurrencyDefinition --> ShopwareCoreCheckoutPromotionAggregatePromotionDiscountPricePromotionDiscountPriceDefinition
-ShopwareCoreSystemCurrencyAggregateCurrencyTranslationCurrencyTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
+ShopwareCoreSystemCurrencyCurrencyDefinition --> ShopwareCoreContentProductExportProductExportDefinition
+ShopwareCoreSystemCurrencyAggregateCurrencyTranslationCurrencyTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
 @enduml

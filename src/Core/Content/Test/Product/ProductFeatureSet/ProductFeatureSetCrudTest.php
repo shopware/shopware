@@ -9,7 +9,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
-use function Flag\skipTestNext6997;
 
 class ProductFeatureSetCrudTest extends TestCase
 {
@@ -18,7 +17,6 @@ class ProductFeatureSetCrudTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        skipTestNext6997($this);
     }
 
     public function testSetNullOnDelete(): void

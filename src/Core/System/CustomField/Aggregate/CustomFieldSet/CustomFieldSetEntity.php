@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\CustomField\Aggregate\CustomFieldSet;
 
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSetRelation\CustomFieldSetRelationCollection;
@@ -33,6 +34,11 @@ class CustomFieldSetEntity extends Entity
     protected $global;
 
     /**
+     * @var int
+     */
+    protected $position;
+
+    /**
      * @var CustomFieldCollection|null
      */
     protected $customFields;
@@ -46,6 +52,16 @@ class CustomFieldSetEntity extends Entity
      * @var ProductCollection|null
      */
     protected $products;
+
+    /**
+     * @var string|null
+     */
+    protected $appId;
+
+    /**
+     * @var AppEntity|null
+     */
+    protected $app;
 
     public function getName(): string
     {
@@ -77,6 +93,16 @@ class CustomFieldSetEntity extends Entity
         $this->active = $active;
     }
 
+    public function getPosition(): int
+    {
+        return $this->position;
+    }
+
+    public function setPosition(int $position): void
+    {
+        $this->position = $position;
+    }
+
     public function getCustomFields(): ?CustomFieldCollection
     {
         return $this->customFields;
@@ -97,11 +123,6 @@ class CustomFieldSetEntity extends Entity
         $this->relations = $relations;
     }
 
-    public function getApiAlias(): string
-    {
-        return 'custom_field_set';
-    }
-
     public function getProducts(): ?ProductCollection
     {
         return $this->products;
@@ -120,5 +141,25 @@ class CustomFieldSetEntity extends Entity
     public function setGlobal(bool $global): void
     {
         $this->global = $global;
+    }
+
+    public function getAppId(): ?string
+    {
+        return $this->appId;
+    }
+
+    public function setAppId(?string $appId): void
+    {
+        $this->appId = $appId;
+    }
+
+    public function getApp(): ?AppEntity
+    {
+        return $this->app;
+    }
+
+    public function setApp(?AppEntity $app): void
+    {
+        $this->app = $app;
     }
 }

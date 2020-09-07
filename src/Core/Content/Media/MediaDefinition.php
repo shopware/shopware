@@ -80,7 +80,7 @@ class MediaDefinition extends EntityDefinition
             (new FkField('user_id', 'userId', UserDefinition::class))->addFlags(new ReadProtected(SalesChannelApiSource::class)),
             (new FkField('media_folder_id', 'mediaFolderId', MediaFolderDefinition::class))->addFlags(new ReadProtected(SalesChannelApiSource::class)),
 
-            (new StringField('mime_type', 'mimeType'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new StringField('mime_type', 'mimeType'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE), new SearchRanking(SearchRanking::LOW_SEARCH_RAKING)),
             (new StringField('file_extension', 'fileExtension'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
             (new DateTimeField('uploaded_at', 'uploadedAt'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
             (new LongTextField('file_name', 'fileName'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
@@ -99,7 +99,7 @@ class MediaDefinition extends EntityDefinition
 
             (new TranslationsAssociationField(MediaTranslationDefinition::class, 'media_id'))->addFlags(new Required()),
 
-            new ManyToManyAssociationField('tags', TagDefinition::class, MediaTagDefinition::class, 'media_id', 'tag_id'),
+            (new ManyToManyAssociationField('tags', TagDefinition::class, MediaTagDefinition::class, 'media_id', 'tag_id'))->addFlags(new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
             (new OneToManyAssociationField('thumbnails', MediaThumbnailDefinition::class, 'media_id'))->addFlags(new CascadeDelete()),
 
             // reverse side of the associations, not available in sales-channel-api

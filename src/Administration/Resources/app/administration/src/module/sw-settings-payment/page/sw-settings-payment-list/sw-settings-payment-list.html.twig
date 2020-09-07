@@ -33,7 +33,16 @@
             {% block sw_settings_payment_list_smart_bar_actions %}
                 <template #smart-bar-actions>
                     {% block sw_settings_payment_list_smart_bar_actions_add %}
-                        <sw-button :routerLink="{ name: 'sw.settings.payment.create' }" variant="primary">
+                        <sw-button
+                            class="sw-settings-payment-list__button-create"
+                            :disabled="!acl.can('payment.creator')"
+                            :routerLink="{ name: 'sw.settings.payment.create' }"
+                            variant="primary"
+                            v-tooltip="{
+                                message: $tc('sw-privileges.tooltip.warning'),
+                                disabled: acl.can('payment.creator'),
+                                showOnDisabledElements: true
+                            }">
                             {{ $tc('sw-settings-payment.list.buttonAddPaymentMethod') }}
                         </sw-button>
                     {% endblock %}
@@ -51,16 +60,18 @@
                     {% block sw_settings_payment_list_content %}
                         <div class="sw-settings-payment-list__content">
                             {% block sw_settings_payment_list_grid %}
-                                <sw-entity-listing v-if="payment"
-                                                   ref="swSettingsPaymentGrid"
-                                                   class="sw-settings-payment-list-grid"
-                                                   :items="payment"
-                                                   :columns="getPaymentColumns()"
-                                                   :repository="paymentRepository"
-                                                   detailRoute="sw.settings.payment.detail"
-                                                   :showSelection="false"
-                                                   :isLoading="isLoading"
-                                                   @inline-edit-save="onInlineEditSave">
+                                <sw-entity-listing
+                                    v-if="payment"
+                                    ref="swSettingsPaymentGrid"
+                                    class="sw-settings-payment-list-grid"
+                                    :items="payment"
+                                    :columns="getPaymentColumns()"
+                                    :repository="paymentRepository"
+                                    detailRoute="sw.settings.payment.detail"
+                                    :showSelection="false"
+                                    :allowInlineEdit="acl.can('payment.editor')"
+                                    :isLoading="isLoading"
+                                    @inline-edit-save="onInlineEditSave">
 
                                     {% block sw_settings_payment_list_column_active %}
                                         <template #column-active="{ item, isInlineEdit }">
@@ -85,7 +96,7 @@
                                             <sw-data-grid-column-position
                                                 v-model="payment"
                                                 :item="item"
-                                                :disabled="disablePositioning"
+                                                :disabled="disablePositioning || !acl.can('payment.editor')"
                                                 :showValue="true"
                                                 @position-changed="onPositionChanged">
                                             </sw-data-grid-column-position>
@@ -96,14 +107,19 @@
                                         <template #actions="{ item }">
                                             {% block sw_settings_payment_list_grid_columns_actions_edit %}
                                                 <sw-context-menu-item
-                                                    :routerLink="{ name: 'sw.settings.payment.detail', params: { id: item.id, edit: 'edit' }}"
-                                                    class="sw-settings-payment-list__edit-action">
+                                                    class="sw-settings-payment-list__edit-action"
+                                                    :disabled="!acl.can('payment.editor')"
+                                                    :routerLink="{ name: 'sw.settings.payment.detail', params: { id: item.id, edit: 'edit' }}">
                                                     {{ $tc('sw-settings-payment.list.contextMenuEdit') }}
                                                 </sw-context-menu-item>
                                             {% endblock %}
 
                                             {% block sw_settings_payment_list_grid_columns_actions_delete %}
-                                                <sw-context-menu-item variant="danger" @click="onDelete(item.id)">
+                                                <sw-context-menu-item
+                                                    class="sw-settings-payment-list__delete-action"
+                                                    :disabled="!acl.can('payment.deleter')"
+                                                    variant="danger"
+                                                    @click="onDelete(item.id)">
                                                     {{ $tc('sw-settings-payment.list.contextMenuDelete') }}
                                                 </sw-context-menu-item>
                                             {% endblock %}

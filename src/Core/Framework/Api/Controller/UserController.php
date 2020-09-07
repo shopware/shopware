@@ -3,8 +3,10 @@
 namespace Shopware\Core\Framework\Api\Controller;
 
 use League\OAuth2\Server\Exception\OAuthServerException;
+use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
+use Shopware\Core\Framework\Api\Controller\Exception\ExpectedUserHttpException;
 use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
@@ -30,6 +32,11 @@ class UserController extends AbstractController
     private $userRepository;
 
     /**
+     * @var EntityRepositoryInterface
+     */
+    private $roleRepository;
+
+    /**
      * @var UserDefinition
      */
     private $userDefinition;
@@ -41,10 +48,12 @@ class UserController extends AbstractController
 
     public function __construct(
         EntityRepositoryInterface $userRepository,
+        EntityRepositoryInterface $roleRepository,
         EntityRepositoryInterface $keyRepository,
         UserDefinition $userDefinition
     ) {
         $this->userRepository = $userRepository;
+        $this->roleRepository = $roleRepository;
         $this->userDefinition = $userDefinition;
         $this->keyRepository = $keyRepository;
     }
@@ -59,7 +68,9 @@ class UserController extends AbstractController
         }
 
         $userId = $context->getSource()->getUserId();
-
+        if (!$userId) {
+            throw new ExpectedUserHttpException();
+        }
         $criteria = new Criteria([$userId]);
         $criteria->addAssociation('aclRoles');
 
@@ -81,6 +92,9 @@ class UserController extends AbstractController
         }
 
         $userId = $context->getSource()->getUserId();
+        if (!$userId) {
+            throw new ExpectedUserHttpException();
+        }
         $result = $this->userRepository->searchIds(new Criteria([$userId]), $context);
 
         if ($result->getTotal() === 0) {
@@ -148,6 +162,50 @@ class UserController extends AbstractController
         $entityId = array_pop($eventIds);
 
         return $factory->createRedirectResponse($this->userRepository->getDefinition(), $entityId, $request, $context);
+    }
+
+    /**
+     * @Route("/api/v{version}/acl-role", name="api.acl_role.create", defaults={"auth_required"=true}, methods={"POST"})
+     * @Route("/api/v{version}/acl-role/{roleId}", name="api.acl_role.update", defaults={"auth_required"=true}, methods={"PATCH"})
+     */
+    public function upsertRole(?string $roleId, Request $request, Context $context, ResponseFactoryInterface $factory): Response
+    {
+        if (!$this->hasScope($request, UserVerifiedScope::IDENTIFIER)) {
+            throw new AccessDeniedHttpException(sprintf('This access token does not have the scope "%s" to process this Request', UserVerifiedScope::IDENTIFIER));
+        }
+
+        $data = $request->request->all();
+
+        if (!isset($data['id'])) {
+            $data['id'] = $roleId ?? null;
+        }
+
+        $events = $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($data) {
+            return $this->roleRepository->upsert([$data], $context);
+        });
+
+        $event = $events->getEventByEntityName(AclRoleDefinition::ENTITY_NAME);
+
+        $eventIds = $event->getIds();
+        $entityId = array_pop($eventIds);
+
+        return $factory->createRedirectResponse($this->roleRepository->getDefinition(), $entityId, $request, $context);
+    }
+
+    /**
+     * @Route("/api/v{version}/acl-role/{roleId}", name="api.acl_role.delete", defaults={"auth_required"=true}, methods={"DELETE"})
+     */
+    public function deleteRole(string $roleId, Request $request, Context $context, ResponseFactoryInterface $factory): Response
+    {
+        if (!$this->hasScope($request, UserVerifiedScope::IDENTIFIER)) {
+            throw new AccessDeniedHttpException(sprintf('This access token does not have the scope "%s" to process this Request', UserVerifiedScope::IDENTIFIER));
+        }
+
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($roleId): void {
+            $this->roleRepository->delete([['id' => $roleId]], $context);
+        });
+
+        return $factory->createRedirectResponse($this->roleRepository->getDefinition(), $roleId, $request, $context);
     }
 
     private function hasScope(Request $request, string $scopeIdentifier): bool

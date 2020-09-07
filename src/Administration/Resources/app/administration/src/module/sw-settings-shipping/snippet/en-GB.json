@@ -1,103 +1,111 @@
 {
-  "sw-settings-shipping": {
-    "general": {
-      "mainMenuItemGeneral": "Shipping",
-      "placeholderSearchBar": "Search all shipping methods...",
-      "descriptionTextModule": "Manage shipping methods here."
+    "sw-settings-shipping": {
+        "general": {
+            "mainMenuItemGeneral": "Shipping",
+            "placeholderSearchBar": "Search all shipping methods...",
+            "descriptionTextModule": "Manage shipping methods here."
+        },
+        "list": {
+            "textHeadline": "Shipping",
+            "buttonAddShippingMethod": "Add shipping method",
+            "buttonCancel": "Cancel",
+            "buttonDelete": "Delete",
+            "columnName": "Name",
+            "columnDescription": "Description",
+            "columnActive": "Active",
+            "contextMenuEdit": "Edit",
+            "contextMenuDelete": "Delete",
+            "contextMenuDuplicate": "Duplicate",
+            "messageEmpty": "No shipping methods yet",
+            "textDeleteConfirm": "Are you sure you really want to delete the shipping method \"{name}\"?",
+            "titleSidebarItemRefresh": "Refresh",
+            "messageSaveSuccess": "Shipping method \"{name}\" has been saved.",
+            "messageSaveError": "Shipping method \"{name}\" could not be saved.",
+            "messageDeleteError": "Shipping method \"{name}\" could not be deleted.",
+            "messageDeleteSuccess": "Shipping method \"{name}\" has been deleted."
+        },
+        "detail": {
+            "textHeadline": "New shipping method",
+            "titleCard": "Settings",
+            "messageSaveSuccess": "Shipping rate \"{name}\" has been saved.",
+            "labelName": "Name",
+            "labelActive": "Active",
+            "labelDeliveryTime": "Delivery time",
+            "placeholderDeliveryTime": "Search delivery times...",
+            "placeholderName": "Enter name...",
+            "placeholderDescription": "Enter description...",
+            "labelDescription": "Description",
+            "buttonCancel": "Cancel",
+            "buttonSave": "Save",
+            "labelSetRules": "Select rules",
+            "labelBasicInfo": "Basic information",
+            "topRule": "Availability",
+            "placeholderTopRule": "Search or create availability rule...",
+            "labelLogoUpload": "Upload logo",
+            "labelTrackingUrl": "Tracking URL",
+            "placeholderTrackingUrl": "Enter URL...",
+            "helpTextTrackingUrl": "You may enter the shipping provider's tracking URL here. Just replace the actual shipping code with '%s' as a placeholder, Shopware will then insert the correct code for each order automatically, given one is provided in the order details."
+        },
+        "constants": {
+            "weight": "Weight",
+            "price": "Price",
+            "lineItemCount": "Product quantity"
+        },
+        "priceMatrix": {
+            "titleCard": "Price matrix",
+            "noRestriction": "Unrestricted",
+            "addNewRule": "Add new rule",
+            "addNewShippingPrice": "Add pricing level",
+            "duplicateMatrixContextLabel": "Duplicate price matrix",
+            "deleteMatrixContextLabel": "Delete price matrix",
+            "contextMenuDuplicatePrice": "Duplicate pricing level",
+            "contextMenuDeletePrice": "Delete pricing level",
+            "selectProperty": "Select cart property...",
+            "useRules": "Build a rule",
+            "emptyText": "Create a price matrix based on predefined cart properties and/or custom built rules. Please choose:",
+            "chooseCustomRule": "Choose a custom rule",
+            "calculationLineItemCount": "Product quantity",
+            "calculationPrice": "Cart price",
+            "calculationWeight": "Weight",
+            "calculationVolume": "Volume",
+            "columnQuantityStart": "Quantity from...",
+            "columnQuantityEnd": "to...",
+            "columnWeightStart": "Weight from...",
+            "columnWeightEnd": "to...",
+            "columnPriceStart": "Cart price from...",
+            "columnPriceEnd": "to...",
+            "columnVolumeStart": "Volume from...",
+            "columnVolumeEnd": "to...",
+            "columnPrice": "Price",
+            "columnCalculationRule": "Rule",
+            "buttonAddAdditionalPriceMatrix": "Add price matrix",
+            "any": "∞",
+            "buttonCancel": "Cancel",
+            "buttonDelete": "Delete",
+            "textDeleteConfirm": "Are you sure you really want to delete the price matrix \"{name}\"? | Are you sure you really want to delete these price matrices?",
+            "deletionNotPossibleMessage": "At least one price tier needed. Try deleting the entire pricing rule instead.",
+            "labelGrossNet": "(gross / net)",
+            "ruleAlreadyUsed": "This rule is already used for a price matrix",
+            "ruleAlreadyUsedInMatrix": "This rule is already used in this price matrix",
+            "textOr": "or",
+            "chooseOrCreateRule": "Choose or create a rule",
+            "unrestrictedRuleAlreadyExistsMessage": "There is already an unrestricted price matrix.",
+            "newMatrixAlreadyExists": "There is already a new price matrix without a rule assigned.",
+            "newMatrixAlertMessage": "A rule has to be assigned to save this price matrix.",
+            "contextMenuModifyPrice": "Change price rule"
+        },
+        "sidebar": {
+            "labelUseAsLogo": "Use as logo"
+        },
+        "shippingPriceModal": {
+            "modalTitle": "Add shipping price rule"
+        }
     },
-    "list": {
-      "textHeadline": "Shipping",
-      "buttonAddShippingMethod": "Add shipping method",
-      "buttonCancel": "Cancel",
-      "buttonDelete": "Delete",
-      "columnName": "Name",
-      "columnDescription": "Description",
-      "columnActive": "Active",
-      "contextMenuEdit": "Edit",
-      "contextMenuDelete": "Delete",
-      "contextMenuDuplicate": "Duplicate",
-      "messageEmpty": "No shipping methods yet",
-      "textDeleteConfirm": "Are you sure you really want to delete the shipping method \"{name}\"?",
-      "titleSidebarItemRefresh": "Refresh",
-      "messageSaveSuccess": "Shipping method \"{name}\" has been saved.",
-      "messageSaveError": "Shipping method \"{name}\" could not be saved.",
-      "messageDeleteError": "Shipping method \"{name}\" could not be deleted.",
-      "messageDeleteSuccess": "Shipping method \"{name}\" has been deleted."
-    },
-    "detail": {
-      "textHeadline": "New shipping method",
-      "titleCard": "Settings",
-      "messageSaveSuccess": "Shipping rate \"{name}\" has been saved.",
-      "labelName": "Name",
-      "labelActive": "Active",
-      "labelDeliveryTime": "Delivery time",
-      "placeholderDeliveryTime": "Search delivery times...",
-      "placeholderName": "Enter name...",
-      "placeholderDescription": "Enter description...",
-      "labelDescription": "Description",
-      "buttonCancel": "Cancel",
-      "buttonSave": "Save",
-      "labelSetRules": "Select rules",
-      "labelBasicInfo": "Basic information",
-      "topRule": "Availability",
-      "placeholderTopRule": "Search or create availability rule...",
-      "labelLogoUpload": "Upload logo",
-      "labelTrackingUrl": "Tracking URL",
-      "placeholderTrackingUrl": "Enter URL...",
-      "helpTextTrackingUrl": "You may enter the shipping provider's tracking URL here. Just replace the actual shipping code with '%s' as a placeholder, Shopware will then insert the correct code for each order automatically, given one is provided in the order details."
-    },
-    "constants": {
-      "weight": "Weight",
-      "price": "Price",
-      "lineItemCount": "Product quantity"
-    },
-    "priceMatrix": {
-      "titleCard": "Price matrix",
-      "noRestriction": "Unrestricted",
-      "addNewRule": "Add new rule",
-      "addNewShippingPrice": "Add pricing level",
-      "duplicateMatrixContextLabel": "Duplicate price matrix",
-      "deleteMatrixContextLabel": "Delete price matrix",
-      "contextMenuDuplicatePrice": "Duplicate pricing level",
-      "contextMenuDeletePrice": "Delete pricing level",
-      "selectProperty": "Select cart property...",
-      "useRules": "Build a rule",
-      "emptyText": "Create a price matrix based on predefined cart properties and/or custom built rules. Please choose:",
-      "chooseCustomRule": "Choose a custom rule",
-      "calculationLineItemCount": "Product quantity",
-      "calculationPrice": "Cart price",
-      "calculationWeight": "Weight",
-      "calculationVolume": "Volume",
-      "columnQuantityStart": "Quantity from...",
-      "columnQuantityEnd": "to...",
-      "columnWeightStart": "Weight from...",
-      "columnWeightEnd": "to...",
-      "columnPriceStart": "Cart price from...",
-      "columnPriceEnd": "to...",
-      "columnVolumeStart": "Volume from...",
-      "columnVolumeEnd": "to...",
-      "columnPrice": "Price",
-      "columnCalculationRule": "Rule",
-      "buttonAddAdditionalPriceMatrix": "Add price matrix",
-      "any": "∞",
-      "buttonCancel": "Cancel",
-      "buttonDelete": "Delete",
-      "textDeleteConfirm": "Are you sure you really want to delete the price matrix \"{name}\"? | Are you sure you really want to delete these price matrices?",
-      "deletionNotPossibleMessage": "At least one price tier needed. Try deleting the entire pricing rule instead.",
-      "labelGrossNet": "(gross / net)",
-      "ruleAlreadyUsed": "This rule is already used for a price matrix",
-      "ruleAlreadyUsedInMatrix": "This rule is already used in this price matrix",
-      "textOr": "or",
-      "chooseOrCreateRule": "Choose or create a rule",
-      "unrestrictedRuleAlreadyExistsMessage": "There is already an unrestricted price matrix.",
-      "newMatrixAlreadyExists": "There is already a new price matrix without a rule assigned.",
-      "newMatrixAlertMessage": "A rule has to be assigned to save this price matrix."
-    },
-    "sidebar": {
-      "labelUseAsLogo": "Use as logo"
-    },
-    "shippingPriceModal": {
-      "modalTitle": "Add shipping price rule"
+    "sw-privileges": {
+      "permissions": {
+        "shipping": {
+          "label": "Shipping"
+        }
+      }
     }
-  }
 }

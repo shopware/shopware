@@ -21,11 +21,6 @@ class ShippingMethodPriceEntity extends Entity
     /**
      * @var string|null
      */
-    protected $currencyId;
-
-    /**
-     * @var string|null
-     */
     protected $ruleId;
 
     /**
@@ -42,11 +37,6 @@ class ShippingMethodPriceEntity extends Entity
      * @var float|null
      */
     protected $quantityEnd;
-
-    /**
-     * @var float|null
-     */
-    protected $price;
 
     /**
      * @var ShippingMethodEntity|null
@@ -113,16 +103,6 @@ class ShippingMethodPriceEntity extends Entity
         $this->quantityEnd = $quantityEnd;
     }
 
-    public function getPrice(): ?float
-    {
-        return $this->price;
-    }
-
-    public function setPrice(?float $price): void
-    {
-        $this->price = $price;
-    }
-
     public function getCalculation(): ?int
     {
         return $this->calculation;
@@ -153,16 +133,6 @@ class ShippingMethodPriceEntity extends Entity
         $this->customFields = $customFields;
     }
 
-    public function getCurrencyId(): ?string
-    {
-        return $this->currencyId;
-    }
-
-    public function setCurrencyId(?string $currencyId): void
-    {
-        $this->currencyId = $currencyId;
-    }
-
     public function getRuleId(): ?string
     {
         return $this->ruleId;
@@ -181,16 +151,6 @@ class ShippingMethodPriceEntity extends Entity
     public function setRule(?RuleEntity $rule): void
     {
         $this->rule = $rule;
-    }
-
-    public function getCurrency(): ?CurrencyEntity
-    {
-        return $this->currency;
-    }
-
-    public function setCurrency(?CurrencyEntity $currency): void
-    {
-        $this->currency = $currency;
     }
 
     public function getCalculationRuleId(): ?string
@@ -221,10 +181,5 @@ class ShippingMethodPriceEntity extends Entity
     public function setCurrencyPrice(?PriceCollection $price): void
     {
         $this->currencyPrice = $price;
-    }
-
-    public function getApiAlias(): string
-    {
-        return 'shipping_method_price';
     }
 }

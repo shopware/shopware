@@ -108,7 +108,7 @@
 
                             {% block sw_settings_currency_detail_content_field_decimal_precision %}
                                 <sw-field type="number"
-                                          v-if="!next6059"
+                                          v-if="!feature.isActive('FEATURE_NEXT_6059')"
                                           required
                                           :label="$tc('sw-settings-currency.detail.labelPrecision')"
                                           :placeholder="$tc('sw-settings-currency.detail.placeholderPrecision')"
@@ -122,7 +122,7 @@
 
                 {% block sw_settings_currency_detail_content_card_price_rounding %}
                     <sw-card
-                        v-if="next6059"
+                        v-if="feature.isActive('FEATURE_NEXT_6059')"
                         :isLoading="isLoading"
                         :title="$tc('sw-settings-currency.detail.titleRoundingCard')">
                         <sw-settings-price-rounding
@@ -136,7 +136,7 @@
                     <sw-card
                         :title="$tc('sw-settings-currency.detail.titleCountryRoundingCard')"
                         :isLoading="currencyCountryLoading"
-                        v-if="next6059">
+                        v-if="feature.isActive('FEATURE_NEXT_6059')">
                         <template #toolbar v-if="this.currency.id && !this.currency.isNew()">
                             {% block sw_settings_currency_detail_content_card_country_price_rounding_toolbar %}
                                 <div class="sw-settings-currency-detail__currency-country-toolbar">

@@ -18,7 +18,7 @@ class PluginInstallCommand extends AbstractPluginLifecycleCommand
     protected function configure(): void
     {
         $this->configureCommand(self::LIFECYCLE_METHOD);
-        $this->addOption('activate', null, InputOption::VALUE_NONE, 'Activate plugins after installation.')
+        $this->addOption('activate', 'a', InputOption::VALUE_NONE, 'Activate plugins after installation.')
             ->addOption('reinstall', null, InputOption::VALUE_NONE, 'Reinstall the plugins');
     }
 

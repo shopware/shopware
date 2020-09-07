@@ -3,7 +3,8 @@ const { Mixin } = Shopware;
 Mixin.register('theme', {
     inject: [
         'repositoryFactory',
-        'themeService'
+        'themeService',
+        'acl'
     ],
 
     data() {
@@ -25,6 +26,10 @@ Mixin.register('theme', {
 
     methods: {
         onDeleteTheme(theme) {
+            if (!this.acl.can('theme.deleter')) {
+                return;
+            }
+
             this.modalTheme = theme;
             this.showDeleteModal = true;
         },
@@ -63,6 +68,10 @@ Mixin.register('theme', {
         },
 
         onDuplicateTheme(theme) {
+            if (!this.acl.can('theme.creator')) {
+                return;
+            }
+
             this.modalTheme = theme;
             this.showDuplicateModal = true;
         },
@@ -102,6 +111,10 @@ Mixin.register('theme', {
         },
 
         onRenameTheme(theme) {
+            if (!this.acl.can('theme.editor')) {
+                return;
+            }
+
             this.modalTheme = theme;
             this.newThemeName = this.modalTheme.name;
             this.showRenameModal = true;

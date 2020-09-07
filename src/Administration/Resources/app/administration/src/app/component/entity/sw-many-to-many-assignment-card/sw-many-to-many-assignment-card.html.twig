@@ -4,84 +4,93 @@
             <template #default>
                 {% block sw_entity_many_to_many_assignment_card_head %}
                     <div class="sw-many-to-many-assignment-card__select-container">
+
+                        {% block sw_entity_many_to_many_assignment_card_pre_select %}
+                            <slot name="prepend-select"></slot>
+                        {% endblock %}
+
                         {% block sw_entity_many_to_many_assignment_card_select %}
-                            <sw-select-base
-                                class="sw-entity-many-to-many-select"
-                                ref="selectBase"
-                                :isLoading="isLoadingResults"
-                                @select-expanded="onSelectExpanded"
-                                @select-collapsed="onSelectCollapsed"
-                                v-bind="$attrs"
-                                v-on="$listeners">
+                            <slot name="select">
+                                <sw-select-base
+                                    class="sw-entity-many-to-many-select"
+                                    ref="selectBase"
+                                    :disabled="disabled"
+                                    :label="selectLabel"
+                                    :isLoading="isLoadingResults"
+                                    @select-expanded="onSelectExpanded"
+                                    @select-collapsed="onSelectCollapsed"
+                                    v-bind="$attrs"
+                                    v-on="$listeners">
 
-                                <template #sw-select-selection="{ identification, error, disabled, size, expand, collapse }">
-                                    {% block sw_entity_many_to_many_assignment_card_search_field %}
-                                        <input ref="searchInput"
-                                               tabindex="-1"
-                                               :placeholder="placeholder"
-                                               :value="searchTerm"
-                                               @input="onSearchTermChange">
-                                    {% endblock %}
-                                </template>
+                                    <template #sw-select-selection="{ identification, error, disabled, size, expand, collapse }">
+                                        {% block sw_entity_many_to_many_assignment_card_search_field %}
+                                            <input ref="searchInput"
+                                                   tabindex="-1"
+                                                   :placeholder="placeholder"
+                                                   :value="searchTerm"
+                                                   @input="onSearchTermChange">
+                                        {% endblock %}
+                                    </template>
 
-                                <template #results-list>
-                                    {% block sw_entity_many_to_many_assignment_card_results_list%}
-                                        <sw-select-result-list
-                                            ref="swSelectResultList"
-                                            :options="resultCollection"
-                                            :isLoading="isLoadingResults"
-                                            :emptyMessage="$tc('global.sw-entity-many-to-many-select.messageNoResults', 0, { term: searchTerm })"
-                                            :focusEl="$refs.searchInput"
-                                            @paginate="paginateResult"
-                                            @item-select="onItemSelect">
+                                    <template #results-list>
+                                        {% block sw_entity_many_to_many_assignment_card_results_list%}
+                                            <sw-select-result-list
+                                                ref="swSelectResultList"
+                                                :options="resultCollection"
+                                                :isLoading="isLoadingResults"
+                                                :emptyMessage="$tc('global.sw-entity-many-to-many-select.messageNoResults', 0, { term: searchTerm })"
+                                                :focusEl="$refs.searchInput"
+                                                @paginate="paginateResult"
+                                                @item-select="onItemSelect">
 
-                                            <template #before-item-list>
-                                                {% block sw_entity_many_to_many_assignment_card_results_list_before %}
-                                                    <slot name="before-item-list"></slot>
-                                                {% endblock %}
-                                            </template>
+                                                <template #before-item-list>
+                                                    {% block sw_entity_many_to_many_assignment_card_results_list_before %}
+                                                        <slot name="before-item-list"></slot>
+                                                    {% endblock %}
+                                                </template>
 
-                                            <template #result-item="{ item, index }">
-                                                {% block sw_entity_many_to_many_assignment_card_results_list_result %}
-                                                    <slot name="result-item"
-                                                          v-bind="{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, isSelected, onItemSelect, getKey }">
+                                                <template #result-item="{ item, index }">
+                                                    {% block sw_entity_many_to_many_assignment_card_results_list_result %}
+                                                        <slot name="result-item"
+                                                              v-bind="{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, isSelected, onItemSelect, getKey }">
 
-                                                        {% block sw_entity_many_to_many_assignment_card_results_list_list_item %}
-                                                            <li is="sw-select-result"
-                                                                :selected="isSelected(item)"
-                                                                @item-select="onItemSelect"
-                                                                v-bind="{ item, index }">
+                                                            {% block sw_entity_many_to_many_assignment_card_results_list_list_item %}
+                                                                <li is="sw-select-result"
+                                                                    :selected="isSelected(item)"
+                                                                    @item-select="onItemSelect"
+                                                                    v-bind="{ item, index }">
 
-                                                                {% block sw_entity_many_to_many_assignment_card_results_list_list_item_label %}
-                                                                    <slot name="result-label-property"
-                                                                          v-bind="{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, getKey }">
+                                                                    {% block sw_entity_many_to_many_assignment_card_results_list_list_item_label %}
+                                                                        <slot name="result-label-property"
+                                                                              v-bind="{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, getKey }">
 
-                                                                        <sw-highlight-text v-if="highlightSearchTerm"
-                                                                                           :text="getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`)"
-                                                                                           :searchTerm="searchTerm">
-                                                                        </sw-highlight-text>
+                                                                            <sw-highlight-text v-if="highlightSearchTerm"
+                                                                                               :text="getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`)"
+                                                                                               :searchTerm="searchTerm">
+                                                                            </sw-highlight-text>
 
-                                                                        <template v-else>
-                                                                            {{ getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`) }}
-                                                                        </template>
-                                                                    </slot>
-                                                                {% endblock %}
-                                                            </li>
-                                                        {% endblock %}
-                                                    </slot>
-                                                {% endblock %}
-                                            </template>
+                                                                            <template v-else>
+                                                                                {{ getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`) }}
+                                                                            </template>
+                                                                        </slot>
+                                                                    {% endblock %}
+                                                                </li>
+                                                            {% endblock %}
+                                                        </slot>
+                                                    {% endblock %}
+                                                </template>
 
-                                            <template #after-item-list>
-                                                {% block sw_entity_many_to_many_assignment_card_results_list_after %}
-                                                    <slot name="after-item-list"></slot>
-                                                {% endblock %}
-                                            </template>
+                                                <template #after-item-list>
+                                                    {% block sw_entity_many_to_many_assignment_card_results_list_after %}
+                                                        <slot name="after-item-list"></slot>
+                                                    {% endblock %}
+                                                </template>
 
-                                        </sw-select-result-list>
-                                    {% endblock %}
-                                </template>
-                            </sw-select-base>
+                                            </sw-select-result-list>
+                                        {% endblock %}
+                                    </template>
+                                </sw-select-base>
+                            </slot>
                         {% endblock %}
                     </div>
                 {% endblock %}
@@ -90,62 +99,68 @@
 
         {% block sw_entity_many_to_many_assignment_card_grid %}
             <template #grid>
-                <sw-data-grid
-                    class="sw-many-to-many-assignment-card__grid"
-                    :dataSource="gridData"
-                    :isLoading="isLoadingGrid"
-                    :columns="columns"
-                    :v-bind="$attrs"
-                    :showSelection="false">
+                <slot name="data-grid">
+                    <sw-data-grid
+                        class="sw-many-to-many-assignment-card__grid"
+                        :dataSource="gridData"
+                        :isLoading="isLoadingGrid"
+                        :columns="columns"
+                        :v-bind="$attrs"
+                        :showSelection="false"
+                        :plainAppearance="true">
 
-                    <template v-for="column in columns" v-slot:[`column-${column.property}`]="columnProps">
-                        {% block sw_entity_many_to_many_assignment_card_grid_column %}
-                            <slot :name="`column-${column.property}`"
-                                  v-bind="{ ...columnProps, searchTerm, highlightSearchTerm }"></slot>
-                        {% endblock %}
-                    </template>
-
-                    <template #actions="{ item }">
-                        {% block sw_entity_many_to_many_assignment_card_grid_column_actions %}
-                            <sw-context-menu-item variant="danger" @click="removeFromGrid(item)">
-                                {{ $tc('global.entity-components.labelRemoveAssociation') }}
-                            </sw-context-menu-item>
-                        {% endblock %}
-                    </template>
-
-                    <template #pagination>
-                        {% block sw_entity_many_to_many_assignment_card_grid_footer %}
-                            {% block sw_entity_many_to_many_assignment_card_grid_footer_remote_mode %}
-                                <template v-if="!localMode">
-                                    <sw-pagination
-                                        v-if="total > 0"
-                                        v-bind="{ limit, page, total }"
-                                        :autoHide="false"
-                                        @page-change="paginateGrid">
-                                    </sw-pagination>
-
-                                    <div v-else-if="!!searchTerm"
-                                         class="sw-many-to-many-assignment-card__empty-state">
-                                        <sw-icon name="default-action-search" size="20px"></sw-icon>
-                                        {{  $tc('global.sw-select-result-list.messageNoResults') }}
-                                    </div>
-
-                                    <div v-else class="sw-many-to-many-assignment-card__empty-state">
-                                        <slot name="empty-state"></slot>
-                                    </div>
-                                </template>
+                        <template v-for="column in columns" v-slot:[`column-${column.property}`]="columnProps">
+                            {% block sw_entity_many_to_many_assignment_card_grid_column %}
+                                <slot :name="`column-${column.property}`"
+                                      v-bind="{ ...columnProps, searchTerm, highlightSearchTerm }"></slot>
                             {% endblock %}
+                        </template>
 
-                            {% block sw_entity_many_to_many_assignment_card_grid_footer_local_mode %}
-                                <template v-else>
-                                    <div v-if="total === 0" class="sw-many-to-many-assignment-card__empty-state">
-                                        <slot name="empty-state"></slot>
-                                    </div>
-                                </template>
+                        <template #actions="{ item }">
+                            {% block sw_entity_many_to_many_assignment_card_grid_column_actions %}
+                                <sw-context-menu-item
+                                    variant="danger"
+                                    @click="removeFromGrid(item)"
+                                    :disabled="disabled">
+                                    {{ $tc('global.entity-components.labelRemoveAssociation') }}
+                                </sw-context-menu-item>
                             {% endblock %}
-                        {% endblock %}
-                    </template>
-                </sw-data-grid>
+                        </template>
+
+                        <template #pagination>
+                            {% block sw_entity_many_to_many_assignment_card_grid_footer %}
+                                {% block sw_entity_many_to_many_assignment_card_grid_footer_remote_mode %}
+                                    <template v-if="!localMode">
+                                        <sw-pagination
+                                            v-if="total > 0"
+                                            v-bind="{ limit, page, total }"
+                                            :autoHide="false"
+                                            @page-change="paginateGrid">
+                                        </sw-pagination>
+
+                                        <div v-else-if="!!searchTerm"
+                                             class="sw-many-to-many-assignment-card__empty-state">
+                                            <sw-icon name="default-action-search" size="20px"></sw-icon>
+                                            {{  $tc('global.sw-select-result-list.messageNoResults') }}
+                                        </div>
+
+                                        <div v-else class="sw-many-to-many-assignment-card__empty-state">
+                                            <slot name="empty-state"></slot>
+                                        </div>
+                                    </template>
+                                {% endblock %}
+
+                                {% block sw_entity_many_to_many_assignment_card_grid_footer_local_mode %}
+                                    <template v-else>
+                                        <div v-if="total === 0" class="sw-many-to-many-assignment-card__empty-state">
+                                            <slot name="empty-state"></slot>
+                                        </div>
+                                    </template>
+                                {% endblock %}
+                            {% endblock %}
+                        </template>
+                    </sw-data-grid>
+                </slot>
             </template>
         {% endblock %}
     </sw-card>

@@ -84,9 +84,4 @@ class PaymentMethodTranslationEntity extends TranslationEntity
     {
         $this->customFields = $customFields;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'payment_method_translation';
-    }
 }

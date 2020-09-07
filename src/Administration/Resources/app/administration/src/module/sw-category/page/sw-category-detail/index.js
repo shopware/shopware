@@ -11,6 +11,7 @@ Component.register('sw-category-detail', {
     template,
 
     inject: [
+        'acl',
         'cmsPageService',
         'cmsService',
         'repositoryFactory',
@@ -76,6 +77,10 @@ Component.register('sw-category-detail', {
         },
 
         category() {
+            if (!Shopware.State.get('swCategoryDetail')) {
+                return {};
+            }
+
             return Shopware.State.get('swCategoryDetail').category;
         },
 
@@ -114,6 +119,14 @@ Component.register('sw-category-detail', {
         },
 
         tooltipSave() {
+            if (!this.acl.can('category.editor')) {
+                return {
+                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    disabled: this.acl.can('category.editor'),
+                    showOnDisabledElements: true
+                };
+            }
+
             const systemKey = this.$device.getSystemKey();
 
             return {

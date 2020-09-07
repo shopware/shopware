@@ -33,12 +33,12 @@ describe('Currency: Test crud operations', () => {
             cy.get('input[name=sw-field--currency-isoCode]').type('D');
             cy.get('input[name=sw-field--currency-shortName]').type('D');
             cy.get('input[name=sw-field--currency-symbol]').type('D¥');
-            if (!win.Shopware.FeatureConfig.isActive('next6059')) {
+            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_6059')) {
                 cy.get('input[name=sw-field--currency-decimalPrecision]').type('2');
             }
             cy.get('input[name=sw-field--currency-factor]').type('1.0076');
 
-            if (win.Shopware.FeatureConfig.isActive('next6059')) {
+            if (win.Shopware.Feature.isActive('FEATURE_NEXT_6059')) {
                 cy.get('input[name=sw-field--itemRounding-decimals]').clearTypeAndCheck('20');
                 cy.get('.sw-settings-price-rounding__item-interval-select')
                     .typeSingleSelectAndCheck('0.10', '.sw-settings-price-rounding__item-interval-select');

@@ -2,16 +2,20 @@
 
 namespace Shopware\Core\System\Integration;
 
+use Shopware\Core\Framework\App\AppDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PasswordField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Feature;
 
 class IntegrationDefinition extends EntityDefinition
 {
@@ -34,7 +38,7 @@ class IntegrationDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([
+        $collection = new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new StringField('label', 'label'))->addFlags(new Required()),
             (new StringField('access_key', 'accessKey'))->addFlags(new Required()),
@@ -43,5 +47,14 @@ class IntegrationDefinition extends EntityDefinition
             new DateTimeField('last_usage_at', 'lastUsageAt'),
             new CustomFields(),
         ]);
+
+        if (Feature::isActive('FEATURE_NEXT_10286')) {
+            $collection->add(
+                (new OneToOneAssociationField('app', 'id', 'integration_id', AppDefinition::class, false))
+                    ->addFlags(new CascadeDelete())
+            );
+        }
+
+        return $collection;
     }
 }

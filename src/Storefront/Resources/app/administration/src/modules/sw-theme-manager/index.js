@@ -3,6 +3,7 @@ import './page/sw-theme-manager-detail';
 import './page/sw-theme-manager-list';
 import './component/sw-theme-list-item/';
 import './component/sw-theme-modal/';
+import './acl';
 
 const { Module } = Shopware;
 
@@ -20,7 +21,10 @@ Module.register('sw-theme-manager', {
     routes: {
         index: {
             component: 'sw-theme-manager-list',
-            path: 'index'
+            path: 'index',
+            meta: {
+                privilege: 'theme.viewer'
+            }
         },
         create: {
             component: 'sw-theme-manager-create',
@@ -33,7 +37,8 @@ Module.register('sw-theme-manager', {
             component: 'sw-theme-manager-detail',
             path: 'detail/:id',
             meta: {
-                parentPath: 'sw.theme.manager.index'
+                parentPath: 'sw.theme.manager.index',
+                privilege: 'theme.viewer'
             }
         }
     },
@@ -44,6 +49,7 @@ Module.register('sw-theme-manager', {
         color: '#ff68b4',
         icon: 'default-object-image',
         path: 'sw.theme.manager.index',
+        privilege: 'theme.viewer',
         position: 80,
         parent: 'sw-content'
     }],
@@ -55,7 +61,10 @@ Module.register('sw-theme-manager', {
                 component: 'sw-sales-channel-detail-theme',
                 name: 'sw.sales.channel.detail.theme',
                 isChildren: true,
-                path: '/sw/sales/channel/detail/:id/theme'
+                path: '/sw/sales/channel/detail/:id/theme',
+                meta: {
+                    privilege: 'sales_channel.viewer'
+                }
             });
         }
 

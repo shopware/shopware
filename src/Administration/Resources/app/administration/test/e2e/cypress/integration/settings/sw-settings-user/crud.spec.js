@@ -92,7 +92,7 @@ describe('User: Test crud operations', () => {
             expect(xhr).to.have.property('status', 200);
         });
 
-        cy.get('.sw-simple-search-field input').type('abraham');
+        cy.get('.sw-simple-search-field input').first().type('abraham');
 
         cy.wait('@searchCall').then((xhr) => {
             expect(xhr).to.have.property('status', 200);

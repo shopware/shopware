@@ -75,9 +75,10 @@
                 {% block sw_tree_item_element_actions %}
                     <div class="sw-tree-item__actions">
                         <slot name="actions" :item="item" :openTreeItem="openTreeItem">
-                            <sw-context-button v-tooltip="toolTip" :disabled="isDisabled">
+                            <sw-context-button class="sw-tree-item__context_button" v-tooltip="toolTip" :disabled="isDisabled">
                             {% block sw_tree_items_actions_before %}
                                 <sw-context-menu-item
+                                    :disabled="!allowNewCategories"
                                     class="sw-tree-item__before-action"
                                     @click="addElement(item, 'before');">
                                     {{ $tc(`${translationContext}.general.actions.createBefore`) }}
@@ -85,6 +86,7 @@
                             {% endblock %}
                             {% block sw_tree_items_actions_after %}
                                 <sw-context-menu-item
+                                    :disabled="!allowNewCategories"
                                     class="sw-tree-item__after-action"
                                     @click="addElement(item, 'after');">
                                     {{ $tc(`${translationContext}.general.actions.createAfter`) }}
@@ -92,6 +94,7 @@
                             {% endblock %}
                             {% block sw_tree_items_actions_sub %}
                                 <sw-context-menu-item
+                                    :disabled="!allowNewCategories"
                                     class="sw-tree-item__sub-action"
                                     @click="addSubElement(item); openTreeItem(true)">
                                     {{ $tc(`${translationContext}.general.actions.createSub`) }}
@@ -106,7 +109,11 @@
                                         </sw-context-menu-item>
                                     {% endblock %}
                                     {% block sw_tree_items_actions_delete %}
-                                        <sw-context-menu-item variant="danger" @click="deleteElement(item)">
+                                        <sw-context-menu-item
+                                            class="sw-context-menu__group-button-delete"
+                                            :disabled="!allowDeleteCategories"
+                                            variant="danger"
+                                            @click="deleteElement(item)">
                                             {{ $tc('global.default.delete') }}
                                         </sw-context-menu-item>
                                     {% endblock %}
@@ -184,18 +191,21 @@
                                                     <sw-context-button v-tooltip="toolTip" :disabled="isDisabled">
                                                         {% block sw_tree_items_actions_before %}
                                                             <sw-context-menu-item
+                                                                :disabled="!allowNewCategories"
                                                                 @click="addElement(item, 'before');">
                                                                 {{ $tc(`${translationContext}.general.actions.createBefore`) }}
                                                             </sw-context-menu-item>
                                                         {% endblock %}
                                                         {% block sw_tree_items_actions_after %}
                                                             <sw-context-menu-item
+                                                                :disabled="!allowNewCategories"
                                                                 @click="addElement(item, 'after');">
                                                                 {{ $tc(`${translationContext}.general.actions.createAfter`) }}
                                                             </sw-context-menu-item>
                                                         {% endblock %}
                                                         {% block sw_tree_items_actions_sub %}
                                                             <sw-context-menu-item
+                                                                :disabled="!allowNewCategories"
                                                                 @click="addSubElement(item); openTreeItem(true)">
                                                                 {{ $tc(`${translationContext}.general.actions.createSub`) }}
                                                             </sw-context-menu-item>
@@ -209,7 +219,10 @@
                                                                 </sw-context-menu-item>
                                                             {% endblock %}
                                                             {% block sw_tree_items_actions_delete %}
-                                                                <sw-context-menu-item variant="danger" @click="deleteElement(item)">
+                                                                <sw-context-menu-item
+                                                                    variant="danger"
+                                                                    :disabled="!allowDeleteCategories"
+                                                                    @click="deleteElement(item)">
                                                                     {{ $tc('sw-tree.actions.delete') }}
                                                                 </sw-context-menu-item>
                                                             {% endblock %}

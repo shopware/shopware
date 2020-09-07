@@ -7,8 +7,9 @@ use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Content\Sitemap\Provider\CategoryUrlProvider;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
-use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
@@ -17,6 +18,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class CategoryUrlProviderTest extends TestCase
 {
     use IntegrationTestBehaviour;
+    use SalesChannelApiTestBehaviour;
 
     /**
      * @var SalesChannelRepositoryInterface
@@ -31,10 +33,13 @@ class CategoryUrlProviderTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        $sc = $this->createSalesChannel([
+            'navigationCategoryId' => $this->createTestData(),
+        ]);
         $this->categorySalesChannelRepository = $this->getContainer()->get('sales_channel.category.repository');
 
         $contextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
-        $this->salesChannelContext = $contextFactory->create('', Defaults::SALES_CHANNEL);
+        $this->salesChannelContext = $contextFactory->create('', $sc['id']);
     }
 
     public function testCategoryUrlObjectContainsValidContent(): void
@@ -50,31 +55,6 @@ class CategoryUrlProviderTest extends TestCase
 
     public function testReturnedOffsetIsValid(): void
     {
-        $categories = [
-            [
-                'id' => Uuid::randomHex(),
-                'name' => 'test category 1',
-            ],
-            [
-                'id' => Uuid::randomHex(),
-                'name' => 'test category 2',
-            ],
-            [
-                'id' => Uuid::randomHex(),
-                'name' => 'test category 3',
-            ],
-            [
-                'id' => Uuid::randomHex(),
-                'name' => 'test category 4',
-            ],
-            [
-                'id' => Uuid::randomHex(),
-                'name' => 'test category 5',
-            ],
-        ];
-
-        $this->getContainer()->get('category.repository')->create($categories, $this->salesChannelContext->getContext());
-
         $categoryUrlProvider = $this->getCategoryUrlProvider();
 
         // first run
@@ -97,5 +77,37 @@ class CategoryUrlProviderTest extends TestCase
             $this->getContainer()->get(ConfigHandler::class),
             $this->getContainer()->get(SeoUrlPlaceholderHandlerInterface::class)
         );
+    }
+
+    private function createTestData(): string
+    {
+        $id = Uuid::randomHex();
+        $categories = [
+            [
+                'id' => $id,
+                'name' => 'Main',
+                'children' => [
+                    [
+                        'name' => 'Sub 1',
+                    ],
+                    [
+                        'name' => 'Sub 2',
+                    ],
+                    [
+                        'name' => 'Sub 3',
+                    ],
+                    [
+                        'name' => 'Sub 4',
+                    ],
+                    [
+                        'name' => 'Sub 5',
+                    ],
+                ],
+            ],
+        ];
+
+        $this->getContainer()->get('category.repository')->create($categories, Context::createDefaultContext());
+
+        return $id;
     }
 }

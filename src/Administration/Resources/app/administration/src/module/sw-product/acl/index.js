@@ -44,7 +44,8 @@ Shopware.Service('privileges')
                     'product_stream_filter:read',
                     'payment_method:read',
                     'shipping_method:read',
-                    'product_tag:read'
+                    'product_tag:read',
+                    'product_feature_set:read'
                 ],
                 dependencies: []
             },
@@ -80,7 +81,13 @@ Shopware.Service('privileges')
                     'product_tag:create',
                     'product_tag:delete',
                     'tag:create',
-                    'main_category:create'
+                    'main_category:create',
+                    'product_option:create',
+                    'review:read',
+                    'review:delete',
+                    'product_feature_set:create',
+                    'product_feature_set:update',
+                    'product_feature_set:delete'
                 ],
                 dependencies: [
                     'product.viewer'
@@ -88,13 +95,7 @@ Shopware.Service('privileges')
             },
             creator: {
                 privileges: [
-                    'delivery_time:read',
-                    'product:create',
-                    'product_option:create',
-                    'product_configurator_setting:create',
-                    'media:create',
-                    'product_media:create',
-                    'product_visibility:create'
+                    'product:create'
                 ],
                 dependencies: [
                     'product.viewer',

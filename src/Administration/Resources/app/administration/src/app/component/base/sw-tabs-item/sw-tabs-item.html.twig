@@ -11,8 +11,7 @@
                  v-bind="$attrs"
                  class="sw-tabs-item"
                  @click.native="clickEvent"
-                 :to="route"
-                 exact>
+                 :to="route">
         {% block sw_tabs_item_slot_native %}
             <slot></slot>
             <sw-icon v-if="hasError"

@@ -3,6 +3,7 @@ import './page/sw-settings-shipping-detail';
 import './component/sw-price-rule-modal';
 import './component/sw-settings-shipping-price-matrices';
 import './component/sw-settings-shipping-price-matrix';
+import './acl';
 
 
 const { Module } = Shopware;
@@ -22,14 +23,16 @@ Module.register('sw-settings-shipping', {
             component: 'sw-settings-shipping-list',
             path: 'index',
             meta: {
-                parentPath: 'sw.settings.index'
+                parentPath: 'sw.settings.index',
+                privilege: 'shipping.viewer'
             }
         },
         detail: {
             component: 'sw-settings-shipping-detail',
             path: 'detail/:id?',
             meta: {
-                parentPath: 'sw.settings.shipping.index'
+                parentPath: 'sw.settings.shipping.index',
+                privilege: 'shipping.viewer'
             },
             props: {
                 default: (route) => ({ shippingMethodId: route.params.id })
@@ -39,7 +42,8 @@ Module.register('sw-settings-shipping', {
             component: 'sw-settings-shipping-detail',
             path: 'create',
             meta: {
-                parentPath: 'sw.settings.shipping.index'
+                parentPath: 'sw.settings.shipping.index',
+                privilege: 'shipping.creator'
             }
         }
     },
@@ -47,6 +51,7 @@ Module.register('sw-settings-shipping', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.shipping.index',
-        icon: 'default-package-open'
+        icon: 'default-package-open',
+        privilege: 'shipping.viewer'
     }
 });

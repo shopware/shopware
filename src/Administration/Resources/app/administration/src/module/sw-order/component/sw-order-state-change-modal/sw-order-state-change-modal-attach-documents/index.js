@@ -18,6 +18,12 @@ Component.register('sw-order-state-change-modal-attach-documents', {
         }
     },
 
+    data() {
+        return {
+            sendMail: true
+        };
+    },
+
     methods: {
         onConfirm() {
             const docIds = [];
@@ -27,7 +33,7 @@ Component.register('sw-order-state-change-modal-attach-documents', {
                 }
             });
 
-            this.$emit('on-confirm', docIds);
+            this.$emit('on-confirm', docIds, this.sendMail);
         }
     }
 });

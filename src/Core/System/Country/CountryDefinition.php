@@ -21,13 +21,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
 use Shopware\Core\System\Country\Aggregate\CountryTranslation\CountryTranslationDefinition;
 use Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCountryRoundingDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCountry\SalesChannelCountryDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleDefinition;
-use function Flag\next6059;
 
 class CountryDefinition extends EntityDefinition
 {
@@ -86,7 +86,7 @@ class CountryDefinition extends EntityDefinition
                 ->addFlags(new RestrictDelete(), new ReadProtected(SalesChannelApiSource::class)),
         ]);
 
-        if (next6059()) {
+        if (Feature::isActive('FEATURE_NEXT_6059')) {
             $fields->add(
                 (new OneToManyAssociationField('currencyCountryRoundings', CurrencyCountryRoundingDefinition::class, 'country_id'))
                     ->addFlags(new CascadeDelete(), new ReadProtected(SalesChannelApiSource::class))

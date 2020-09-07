@@ -33,17 +33,17 @@
                                             <template slot="suffix">
                                                 {% block sw_seo_url_template_card_entries_input_suffix %}
                                                     <sw-loader v-if="previewLoadingStates[seoUrlTemplate.id]" size="16px"></sw-loader>
-                                                    <sw-icon v-else-if="!errorMessages[seoUrlTemplate.id]"
-                                                             name="default-basic-checkmark-line"
-                                                             v-tooltip="$tc('sw-seo-url-template-card.general.tooltipValidTemplate')"
-                                                             color="#37D046"
-                                                             size="16">
-                                                    </sw-icon>
                                                     <sw-icon v-else-if="errorMessages[seoUrlTemplate.id]"
                                                              name="default-basic-x-line"
-                                                             v-tooltip="$tc('sw-seo-url-template-card.general.tooltipInvalidTemplate')"
-                                                             color="#DE294C"
-                                                             size="16">
+                                                             v-tooltip="$tc('sw-seo-url-template-card.general.tooltipInvalidTemplate')">
+                                                    </sw-icon>
+                                                    <sw-icon v-else-if="!seoUrlTemplate.template"
+                                                             name="default-badge-warning"
+                                                             v-tooltip="$tc('sw-seo-url-template-card.general.textUrlPreviewEmptyTemplate',1,{entity:seoUrlTemplate.entityName})">
+                                                    </sw-icon>
+                                                    <sw-icon v-else
+                                                             name="default-basic-checkmark-line"
+                                                             v-tooltip="$tc('sw-seo-url-template-card.general.tooltipValidTemplate')">
                                                     </sw-icon>
                                                 {% endblock %}
                                             </template>
@@ -60,14 +60,13 @@
                                               labelProperty="name"
                                               :options="getVariableOptions(seoUrlTemplate.id)"
                                               :placeholder="$tc('sw-seo-url-template-card.general.placeholderSelectVariables')"
-                                              :disabled="seoUrlTemplate.template === null"
                                               @change="(propertyName) => onSelectInput(propertyName, seoUrlTemplate)"
                                               :label="$tc('sw-seo-url-template-card.general.labelPossibleValues')">
                             </sw-single-select>
                         {% endblock %}
                     </sw-container>
                     {% block sw_seo_url_template_card_entries_preview %}
-                        <div v-if="seoUrlTemplate.template !== null" class="sw-seo-url-template-card__preview">
+                        <div v-if="seoUrlTemplate.template" class="sw-seo-url-template-card__preview">
                             {% block sw_seo_url_template_card_entries_preview_label %}
                                 <label class="sw-seo-url-template-card__preview-label">
                                     {{ $tc('sw-seo-url-template-card.general.preview') }}

@@ -231,8 +231,11 @@ class EntityReader implements EntityReaderInterface
                 continue;
             }
 
-            /** @var Field $field */
-            if ($parentAssociation !== null && $field instanceof StorageAware && $field->is(Inherited::class) && $context->considerInheritance()) {
+            if ($parentAssociation !== null
+                && $field instanceof StorageAware
+                && $field->is(Inherited::class)
+                && $context->considerInheritance()
+            ) {
                 $parentAlias = $root . '.' . $parentAssociation->getPropertyName();
 
                 //contains the field accessor for the child value (eg. `product.name`.`name`)

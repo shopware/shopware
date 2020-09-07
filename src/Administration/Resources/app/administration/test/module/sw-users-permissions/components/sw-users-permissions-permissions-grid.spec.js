@@ -1,5 +1,7 @@
+import Vue from 'vue';
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-users-permissions/components/sw-users-permissions-permissions-grid';
+import 'src/app/component/form/sw-checkbox-field';
 import PrivilegesService from 'src/app/service/privileges.service';
 
 function createWrapper({ privilegesMappings = [], rolePrivileges = [] } = {}) {
@@ -15,16 +17,10 @@ function createWrapper({ privilegesMappings = [], rolePrivileges = [] } = {}) {
         localVue,
         stubs: {
             'sw-card': true,
-            'sw-field': {
-                props: ['value'],
-                template: `
-                        <input :value="value"
-                               @click="$emit('change', !value)"
-                               type="checkbox"
-                               class="sw-field-stub">
-                        </input>
-                    `
-            }
+            'sw-checkbox-field': Shopware.Component.build('sw-checkbox-field'),
+            'sw-icon': true,
+            'sw-field-error': true,
+            'sw-base-field': true
         },
         provide: {
             privileges: privilegesService
@@ -32,9 +28,9 @@ function createWrapper({ privilegesMappings = [], rolePrivileges = [] } = {}) {
         mocks: {
             $tc: t => t
         },
-        propsData: {
+        propsData: Vue.observable({
             role: { privileges: rolePrivileges }
-        }
+        })
     });
 }
 
@@ -110,11 +106,11 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
 
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
 
-        const productViewer = productRow.find('.sw-users-permissions-permissions-grid__role_viewer .sw-field-stub');
-        const productEditor = productRow.find('.sw-users-permissions-permissions-grid__role_editor .sw-field-stub');
-        const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator .sw-field-stub');
-        const productDeleter = productRow.find('.sw-users-permissions-permissions-grid__role_deleter .sw-field-stub');
-        const productAll = productRow.find('.sw-users-permissions-permissions-grid__all .sw-field-stub');
+        const productViewer = productRow.find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
+        const productEditor = productRow.find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+        const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
+        const productDeleter = productRow.find('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
+        const productAll = productRow.find('.sw-users-permissions-permissions-grid__all .sw-field--checkbox');
 
         expect(productRow.exists()).toBeTruthy();
         expect(productViewer.exists()).toBeTruthy();
@@ -147,11 +143,11 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
 
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
 
-        const productViewer = productRow.find('.sw-users-permissions-permissions-grid__role_viewer .sw-field-stub');
-        const productEditor = productRow.find('.sw-users-permissions-permissions-grid__role_editor .sw-field-stub');
-        const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator .sw-field-stub');
-        const productDeleter = productRow.find('.sw-users-permissions-permissions-grid__role_deleter .sw-field-stub');
-        const productAll = productRow.find('.sw-users-permissions-permissions-grid__all .sw-field-stub');
+        const productViewer = productRow.find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
+        const productEditor = productRow.find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+        const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
+        const productDeleter = productRow.find('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
+        const productAll = productRow.find('.sw-users-permissions-permissions-grid__all .sw-field--checkbox');
 
         expect(productRow.exists()).toBeTruthy();
         expect(productViewer.exists()).toBeTruthy();
@@ -246,10 +242,11 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
 
         expect(wrapper.vm.role.privileges.length).toBe(0);
 
-        productViewer.find('.sw-field-stub').trigger('click');
+        productViewer.find('.sw-field--checkbox input').trigger('click');
 
         expect(wrapper.vm.role.privileges.length).toBe(1);
         expect(wrapper.vm.role.privileges[0]).toBe('product.viewer');
+        expect(productViewer.find('.sw-field--checkbox').props().value).toBe(true);
     });
 
     it('should select the creator role', () => {
@@ -286,10 +283,11 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
 
         expect(wrapper.vm.role.privileges.length).toBe(0);
 
-        productCreator.find('.sw-field-stub').trigger('click');
+        productCreator.find('.sw-field--checkbox input').trigger('click');
 
         expect(wrapper.vm.role.privileges.length).toBeGreaterThan(0);
         expect(wrapper.vm.role.privileges).toContain('product.creator');
+        expect(productCreator.find('.sw-field--checkbox').props().value).toBe(true);
     });
 
     it('should select a role and all its dependencies in the same row', () => {
@@ -325,17 +323,23 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         });
 
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
+        const productEditor = productRow.find('.sw-users-permissions-permissions-grid__role_editor');
         const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator');
+        const productViewer = productRow.find('.sw-users-permissions-permissions-grid__role_viewer');
 
         expect(wrapper.vm.role.privileges.length).toBe(0);
 
-        productCreator.find('.sw-field-stub').trigger('click');
+        productCreator.find('.sw-field--checkbox input').trigger('click');
 
         expect(wrapper.vm.role.privileges.length).toBe(3);
 
         expect(wrapper.vm.role.privileges).toContain('product.creator');
         expect(wrapper.vm.role.privileges).toContain('product.editor');
         expect(wrapper.vm.role.privileges).toContain('product.viewer');
+
+        expect(productViewer.find('.sw-field--checkbox').props().value).toBe(true);
+        expect(productEditor.find('.sw-field--checkbox').props().value).toBe(true);
+        expect(productCreator.find('.sw-field--checkbox').props().value).toBe(true);
     });
 
     it('should have enabled checkboxes when selecting a role with its dependencies', () => {
@@ -371,15 +375,15 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         });
 
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
-        const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator .sw-field-stub');
-        const productEditor = productRow.find('.sw-users-permissions-permissions-grid__role_editor .sw-field-stub');
-        const productViewer = productRow.find('.sw-users-permissions-permissions-grid__role_viewer .sw-field-stub');
+        const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
+        const productEditor = productRow.find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+        const productViewer = productRow.find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
 
         expect(productCreator.props().value).toBe(false);
         expect(productEditor.props().value).toBe(false);
         expect(productViewer.props().value).toBe(false);
 
-        productCreator.find('.sw-field-stub').trigger('click');
+        productCreator.find('.sw-field--checkbox input').trigger('click');
 
         wrapper.vm.$forceUpdate();
 
@@ -444,17 +448,24 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         });
 
         const categoryRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_category');
+        const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
         const categoryCreator = categoryRow.find('.sw-users-permissions-permissions-grid__role_creator');
+        const productViewer = productRow.find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
+        const productEditor = productRow.find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
 
         expect(wrapper.vm.role.privileges.length).toBe(0);
 
-        categoryCreator.find('.sw-field-stub').trigger('click');
+        categoryCreator.find('.sw-field--checkbox input').trigger('click');
 
         expect(wrapper.vm.role.privileges.length).toBe(3);
 
         expect(wrapper.vm.role.privileges).toContain('category.creator');
         expect(wrapper.vm.role.privileges).toContain('product.editor');
         expect(wrapper.vm.role.privileges).toContain('product.viewer');
+
+        expect(categoryCreator.find('.sw-field--checkbox').props().value).toBe(true);
+        expect(productViewer.find('.sw-field--checkbox').props().value).toBe(true);
+        expect(productEditor.find('.sw-field--checkbox').props().value).toBe(true);
     });
 
     it('should select a role and add it to the role privileges prop', () => {
@@ -489,7 +500,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
         const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator');
 
-        productCreator.find('.sw-field-stub').trigger('click');
+        productCreator.find('.sw-field--checkbox input').trigger('click');
 
         expect(wrapper.vm.role.privileges).toContain('product.creator');
     });
@@ -529,7 +540,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
         const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator');
 
-        productCreator.find('.sw-field-stub').trigger('click');
+        productCreator.find('.sw-field--checkbox input').trigger('click');
 
         expect(wrapper.vm.role.privileges).toContain('product.creator');
         expect(wrapper.vm.role.privileges).toContain('product.editor');
@@ -573,7 +584,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
         const productAll = productRow.find('.sw-users-permissions-permissions-grid__all');
 
-        productAll.find('.sw-field-stub').trigger('click');
+        productAll.find('.sw-field--checkbox input').trigger('click');
 
         expect(wrapper.vm.role.privileges).toContain('product.viewer');
         expect(wrapper.vm.role.privileges).toContain('product.editor');
@@ -611,10 +622,10 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         });
 
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
-        const productViewer = productRow.find('.sw-users-permissions-permissions-grid__role_viewer .sw-field-stub');
-        const productEditor = productRow.find('.sw-users-permissions-permissions-grid__role_editor .sw-field-stub');
-        const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator .sw-field-stub');
-        const productDeleter = productRow.find('.sw-users-permissions-permissions-grid__role_deleter .sw-field-stub');
+        const productViewer = productRow.find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
+        const productEditor = productRow.find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+        const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
+        const productDeleter = productRow.find('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
         const productAll = productRow.find('.sw-users-permissions-permissions-grid__all');
 
         expect(productViewer.props().value).toBe(false);
@@ -622,7 +633,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(productCreator.props().value).toBe(false);
         expect(productDeleter.props().value).toBe(false);
 
-        productAll.find('.sw-field-stub').trigger('click');
+        productAll.find('.sw-field--checkbox input').trigger('click');
         wrapper.vm.$forceUpdate();
 
         expect(productViewer.props().value).toBe(true);
@@ -683,16 +694,16 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         });
 
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
-        const productViewer = productRow.find('.sw-users-permissions-permissions-grid__role_viewer .sw-field-stub');
-        const productEditor = productRow.find('.sw-users-permissions-permissions-grid__role_editor .sw-field-stub');
-        const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator .sw-field-stub');
-        const productDeleter = productRow.find('.sw-users-permissions-permissions-grid__role_deleter .sw-field-stub');
+        const productViewer = productRow.find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
+        const productEditor = productRow.find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+        const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
+        const productDeleter = productRow.find('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
 
         const categoryRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_category');
-        const categoryViewer = categoryRow.find('.sw-users-permissions-permissions-grid__role_viewer .sw-field-stub');
-        const categoryEditor = categoryRow.find('.sw-users-permissions-permissions-grid__role_editor .sw-field-stub');
-        const categoryCreator = categoryRow.find('.sw-users-permissions-permissions-grid__role_creator .sw-field-stub');
-        const categoryDeleter = categoryRow.find('.sw-users-permissions-permissions-grid__role_deleter .sw-field-stub');
+        const categoryViewer = categoryRow.find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
+        const categoryEditor = categoryRow.find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+        const categoryCreator = categoryRow.find('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
+        const categoryDeleter = categoryRow.find('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
 
         const productAll = productRow.find('.sw-users-permissions-permissions-grid__all');
 
@@ -706,7 +717,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(categoryCreator.props().value).toBe(false);
         expect(categoryDeleter.props().value).toBe(false);
 
-        productAll.find('.sw-field-stub').trigger('click');
+        productAll.find('.sw-field--checkbox input').trigger('click');
         wrapper.vm.$forceUpdate();
 
         expect(productViewer.props().value).toBe(true);
@@ -750,15 +761,15 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         });
 
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
-        const productViewer = productRow.find('.sw-users-permissions-permissions-grid__role_viewer .sw-field-stub');
-        const productEditor = productRow.find('.sw-users-permissions-permissions-grid__role_editor .sw-field-stub');
-        const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator .sw-field-stub');
-        const productDeleter = productRow.find('.sw-users-permissions-permissions-grid__role_deleter .sw-field-stub');
+        const productViewer = productRow.find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
+        const productEditor = productRow.find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+        const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
+        const productDeleter = productRow.find('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
 
         const productAll = productRow.find('.sw-users-permissions-permissions-grid__all');
 
-        productViewer.find('.sw-field-stub').trigger('click');
-        productCreator.find('.sw-field-stub').trigger('click');
+        productViewer.find('.sw-field--checkbox input').trigger('click');
+        productCreator.find('.sw-field--checkbox input').trigger('click');
         wrapper.vm.$forceUpdate();
 
         expect(productViewer.props().value).toBe(true);
@@ -766,7 +777,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(productCreator.props().value).toBe(true);
         expect(productDeleter.props().value).toBe(false);
 
-        productAll.find('.sw-field-stub').trigger('click');
+        productAll.find('.sw-field--checkbox input').trigger('click');
         wrapper.vm.$forceUpdate();
 
         expect(productViewer.props().value).toBe(true);
@@ -804,19 +815,19 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         });
 
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
-        const productViewer = productRow.find('.sw-users-permissions-permissions-grid__role_viewer .sw-field-stub');
-        const productEditor = productRow.find('.sw-users-permissions-permissions-grid__role_editor .sw-field-stub');
-        const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator .sw-field-stub');
-        const productDeleter = productRow.find('.sw-users-permissions-permissions-grid__role_deleter .sw-field-stub');
+        const productViewer = productRow.find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
+        const productEditor = productRow.find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+        const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
+        const productDeleter = productRow.find('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
 
-        const productAll = productRow.find('.sw-users-permissions-permissions-grid__all .sw-field-stub');
+        const productAll = productRow.find('.sw-users-permissions-permissions-grid__all .sw-field--checkbox');
 
         expect(productAll.props().value).toBe(false);
 
-        productViewer.find('.sw-field-stub').trigger('click');
-        productEditor.find('.sw-field-stub').trigger('click');
-        productCreator.find('.sw-field-stub').trigger('click');
-        productDeleter.find('.sw-field-stub').trigger('click');
+        productViewer.find('.sw-field--checkbox input').trigger('click');
+        productEditor.find('.sw-field--checkbox input').trigger('click');
+        productCreator.find('.sw-field--checkbox input').trigger('click');
+        productDeleter.find('.sw-field--checkbox input').trigger('click');
         wrapper.vm.$forceUpdate();
 
         expect(productAll.props().value).toBe(true);
@@ -852,17 +863,17 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         });
 
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
-        const productViewer = productRow.find('.sw-users-permissions-permissions-grid__role_viewer .sw-field-stub');
-        const productEditor = productRow.find('.sw-users-permissions-permissions-grid__role_editor .sw-field-stub');
-        const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator .sw-field-stub');
-        const productDeleter = productRow.find('.sw-users-permissions-permissions-grid__role_deleter .sw-field-stub');
+        const productViewer = productRow.find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
+        const productEditor = productRow.find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+        const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
+        const productDeleter = productRow.find('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
 
-        const productAll = productRow.find('.sw-users-permissions-permissions-grid__all .sw-field-stub');
+        const productAll = productRow.find('.sw-users-permissions-permissions-grid__all .sw-field--checkbox');
 
-        productViewer.trigger('click');
-        productEditor.trigger('click');
-        productCreator.trigger('click');
-        productDeleter.trigger('click');
+        productViewer.find('input').trigger('click');
+        productEditor.find('input').trigger('click');
+        productCreator.find('input').trigger('click');
+        productDeleter.find('input').trigger('click');
 
         wrapper.vm.$forceUpdate();
 
@@ -871,12 +882,240 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(productCreator.props().value).toBe(true);
         expect(productDeleter.props().value).toBe(true);
 
-        productAll.trigger('click');
+        productAll.find('input').trigger('click');
         wrapper.vm.$forceUpdate();
 
         expect(productViewer.props().value).toBe(false);
         expect(productEditor.props().value).toBe(false);
         expect(productCreator.props().value).toBe(false);
         expect(productDeleter.props().value).toBe(false);
+    });
+
+    it('should disable checkboxes which are dependencies for viewer (0 dependencies)', () => {
+        const wrapper = createWrapper({
+            privilegesMappings: [
+                {
+                    category: 'permissions',
+                    key: 'product',
+                    parent: null,
+                    roles: {
+                        viewer: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        editor: {
+                            dependencies: [
+                                'product.viewer'
+                            ],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: [
+                                'product.viewer',
+                                'product.editor'
+                            ],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: [
+                                'product.viewer'
+                            ],
+                            privileges: []
+                        }
+                    }
+                }
+            ]
+        });
+
+        const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
+        const productViewer = productRow.find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
+        const productEditor = productRow.find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+        const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
+        const productDeleter = productRow.find('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
+
+        productViewer.find('input').trigger('click');
+
+        expect(productViewer.props().value).toBe(true);
+        expect(productViewer.props().disabled).toBe(false);
+
+        expect(productEditor.props().value).toBe(false);
+        expect(productEditor.props().disabled).toBe(false);
+
+        expect(productCreator.props().value).toBe(false);
+        expect(productCreator.props().disabled).toBe(false);
+
+        expect(productDeleter.props().value).toBe(false);
+        expect(productDeleter.props().disabled).toBe(false);
+    });
+
+    it('should disable checkboxes which are dependencies for editor (1 dependency)', () => {
+        const wrapper = createWrapper({
+            privilegesMappings: [
+                {
+                    category: 'permissions',
+                    key: 'product',
+                    parent: null,
+                    roles: {
+                        viewer: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        editor: {
+                            dependencies: [
+                                'product.viewer'
+                            ],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: [
+                                'product.viewer',
+                                'product.editor'
+                            ],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: [
+                                'product.viewer'
+                            ],
+                            privileges: []
+                        }
+                    }
+                }
+            ]
+        });
+
+        const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
+        const productViewer = productRow.find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
+        const productEditor = productRow.find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+        const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
+        const productDeleter = productRow.find('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
+
+        productEditor.find('input').trigger('click');
+
+        expect(productViewer.props().value).toBe(true);
+        expect(productViewer.props().disabled).toBe(true);
+
+        expect(productEditor.props().value).toBe(true);
+        expect(productEditor.props().disabled).toBe(false);
+
+        expect(productCreator.props().value).toBe(false);
+        expect(productCreator.props().disabled).toBe(false);
+
+        expect(productDeleter.props().value).toBe(false);
+        expect(productDeleter.props().disabled).toBe(false);
+    });
+
+    it('should disable checkboxes which are dependencies for creator (2 dependencies)', () => {
+        const wrapper = createWrapper({
+            privilegesMappings: [
+                {
+                    category: 'permissions',
+                    key: 'product',
+                    parent: null,
+                    roles: {
+                        viewer: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        editor: {
+                            dependencies: [
+                                'product.viewer'
+                            ],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: [
+                                'product.viewer',
+                                'product.editor'
+                            ],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: [
+                                'product.viewer'
+                            ],
+                            privileges: []
+                        }
+                    }
+                }
+            ]
+        });
+
+        const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
+        const productViewer = productRow.find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
+        const productEditor = productRow.find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+        const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
+        const productDeleter = productRow.find('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
+
+        productCreator.find('input').trigger('click');
+
+        expect(productViewer.props().value).toBe(true);
+        expect(productViewer.props().disabled).toBe(true);
+
+        expect(productEditor.props().value).toBe(true);
+        expect(productEditor.props().disabled).toBe(true);
+
+        expect(productCreator.props().value).toBe(true);
+        expect(productCreator.props().disabled).toBe(false);
+
+        expect(productDeleter.props().value).toBe(false);
+        expect(productDeleter.props().disabled).toBe(false);
+    });
+
+    it('should disable checkboxes which are dependencies for deleter (1 dependency)', () => {
+        const wrapper = createWrapper({
+            privilegesMappings: [
+                {
+                    category: 'permissions',
+                    key: 'product',
+                    parent: null,
+                    roles: {
+                        viewer: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        editor: {
+                            dependencies: [
+                                'product.viewer'
+                            ],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: [
+                                'product.viewer',
+                                'product.editor'
+                            ],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: [
+                                'product.viewer'
+                            ],
+                            privileges: []
+                        }
+                    }
+                }
+            ]
+        });
+
+        const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
+        const productViewer = productRow.find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
+        const productEditor = productRow.find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+        const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
+        const productDeleter = productRow.find('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
+
+        productDeleter.find('input').trigger('click');
+
+        expect(productViewer.props().value).toBe(true);
+        expect(productViewer.props().disabled).toBe(true);
+
+        expect(productEditor.props().value).toBe(false);
+        expect(productEditor.props().disabled).toBe(false);
+
+        expect(productCreator.props().value).toBe(false);
+        expect(productCreator.props().disabled).toBe(false);
+
+        expect(productDeleter.props().value).toBe(true);
+        expect(productDeleter.props().disabled).toBe(false);
     });
 });

@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Cart\Order;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPosition;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
@@ -149,7 +150,33 @@ class RecalculationService
             ->setRemovable(true)
             ->setStackable(true);
 
-        $this->addCustomLineItem($orderId, $lineItem, $context);
+        $order = $this->fetchOrder($orderId, $context);
+
+        $this->validateOrder($order, $orderId);
+
+        $salesChannelContext = $this->orderConverter->assembleSalesChannelContext($order, $context);
+        $cart = $this->orderConverter->convertToCart($order, $context);
+        $cart->add($lineItem);
+
+        $recalculatedCart = $this->recalculateCart($cart, $salesChannelContext);
+
+        $new = $cart->get($lineItem->getId());
+        if ($new) {
+            $this->addProductToDeliveryPosition($new, $recalculatedCart);
+        }
+
+        $conversionContext = (new OrderConversionContext())
+            ->setIncludeCustomer(false)
+            ->setIncludeBillingAddress(false)
+            ->setIncludeDeliveries(true)
+            ->setIncludeTransactions(false);
+
+        $orderData = $this->orderConverter->convertToOrder($recalculatedCart, $salesChannelContext, $conversionContext);
+        $orderData['id'] = $order->getId();
+
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($orderData): void {
+            $this->orderRepository->upsert([$orderData], $context);
+        });
     }
 
     /**
@@ -205,6 +232,22 @@ class RecalculationService
         $newOrderAddress = AddressTransformer::transform($customerAddress);
         $newOrderAddress['id'] = $orderAddressId;
         $this->orderAddressRepository->upsert([$newOrderAddress], $context);
+    }
+
+    private function addProductToDeliveryPosition(LineItem $item, Cart $cart): void
+    {
+        if ($cart->getDeliveries()->count() <= 0) {
+            return;
+        }
+
+        $delivery = $cart->getDeliveries()->first();
+        if (!$delivery) {
+            return;
+        }
+
+        $position = new DeliveryPosition($item->getId(), clone $item, $item->getQuantity(), $item->getPrice(), $delivery->getDeliveryDate());
+
+        $delivery->getPositions()->add($position);
     }
 
     private function fetchOrder(string $orderId, Context $context)

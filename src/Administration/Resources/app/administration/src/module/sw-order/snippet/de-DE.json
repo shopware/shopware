@@ -93,9 +93,10 @@
       "columnTotalPrice": "Gesamt",
       "columnTotalPriceGross": "Gesamt",
       "columnTax": "Steuersatz",
-      "textCreditTax": "auto",
       "columnPriceNet": "Nettopreis",
       "columnTotalPriceNet": "Gesamt",
+      "textCreditTax": "auto",
+      "taxDetail": "{taxRate}%: {tax}",
       "contextMenuShowProduct": "Produkt anzeigen",
       "messageEmptyItem": "Noch keine Positionen vorhanden",
       "buttonAddProduct": "Produkt hinzufügen",
@@ -196,7 +197,8 @@
       "placeholderTrackingCodeSelect": "Tracking-Code hinzufügen ...",
       "addTrackingCode": "Zum Hinzufügen hier klicken",
       "enterValidTrackingCode": "Tracking-Code eingeben",
-      "textCreditTax": "auto"
+      "textCreditTax": "auto",
+      "taxDetail": "{taxRate}%: {tax}"
     },
     "addressSelection": {
       "modalTitleEditAddress": "Adressen",
@@ -238,7 +240,8 @@
       "labelLastEditedBy": "Zuletzt geändert von",
       "labelSystemUser": "System",
       "labelSelectStatePlaceholder": "Bitte wählen ...",
-      "labelSelectStateButton": "Status ändern und E-Mail versenden",
+      "labelSelectStateButton": "Status aktualisieren",
+      "labelSendMailSwitch": "E-Mail an Kunden senden",
       "labelErrorStateChange": "Beim Setzen des Status ist ein Fehler aufgetreten:",
       "labelErrorNoAction": "Kein neuer Zustand gewählt.",
       "labelNoTransactionState": "Keine Transaktionen vorhanden",
@@ -259,6 +262,7 @@
     "documentCard": {
       "searchBarPlaceholder": "Belege durchsuchen ...",
       "cardTitle": "Belege",
+      "modalTitle": "Status aktualisieren",
       "labelDate": "Datum",
       "labelNumber": "Nummer",
       "labelType": "Typ",
@@ -310,6 +314,11 @@
     }
   },
   "sw-privileges": {
+    "permissions": {
+      "order": {
+        "label": "Bestellungen"
+      }
+    },
     "additional_permissions": {
       "orders": {
         "create_discounts": "Rabatte erstellen"

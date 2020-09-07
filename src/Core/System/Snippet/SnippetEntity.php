@@ -99,9 +99,4 @@ class SnippetEntity extends Entity
     {
         $this->customFields = $customFields;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'snippet';
-    }
 }

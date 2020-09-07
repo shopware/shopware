@@ -19,7 +19,9 @@
       "success": "Erfolg",
       "info": "Info",
       "yes": "Ja",
-      "no": "Nein"
+      "no": "Nein",
+      "confirm": "Bestätigen",
+      "view": "Anzeigen"
     },
     "notification": {
       "notificationSaveErrorMessage": "Beim Speichern der Entität \"{entityName}\" ist ein Fehler aufgetreten.",
@@ -115,7 +117,12 @@
       "deleteMessage": "Soll der Eintrag wirklich gelöscht werden? | Sollen diese {count} Einträge wirklich gelöscht werden?",
       "deleteTitle": "Eintrag löschen",
       "placeholderToManyAssociationCard": "Nach Assoziationen suchen ...",
-      "labelRemoveAssociation": "Zuweisung aufheben"
+      "labelRemoveAssociation": "Zuweisung aufheben",
+      "productStreamPreview": {
+        "emptyMessageNoStream": "Keine dynamische Produktgruppe ausgewählt",
+        "emptyMessageNoProducts": "Keine Produkte gefunden",
+        "emptyMessageNoSearchResults": "Keine Produkte gefunden für \"{term}\""
+      }
     },
     "sw-field": {
       "notification": {
@@ -440,7 +447,10 @@
     },
     "sw-multi-tag-ip-select": {
       "enterValidIp": "Bitte gib eine valide IPv4- oder IPv6-Adresse ein",
-      "addIpAdress": "IP-Adresse hinzufügen"
+      "addIpAdress": "IP-Adresse hinzufügen",
+      "knownIps": {
+        "you": "Du"
+      }
     },
     "sw-multi-ip-select": {
       "enterValidIp": "Bitte gib eine valide IPv4- oder IPv6-Adresse ein",
@@ -485,7 +495,9 @@
         "greaterThan": "Größer",
         "notEquals": "Ungleich",
         "isOneOf": "Ist eine von",
-        "isNoneOf": "Ist keine von"
+        "isNoneOf": "Ist keine von",
+        "gross": "Brutto",
+        "net": "Netto"
       },
       "placeholderErrorMessage": "Platzhalter können nicht gespeichert werden.",
       "dataErrorMessage": "Es wurden nicht alle Pflichtfelder befüllt.",

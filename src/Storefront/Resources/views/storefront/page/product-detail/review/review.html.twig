@@ -105,9 +105,7 @@
                                                                            id="showForeignReviews"
                                                                            value="filter-language"
                                                                            name="language"
-                                                                            {% if app.request.get('language') %}
-                                                                            checked="checked"
-                                                                            {% endif %}>
+                                                                           {% if app.request.get('language') %}checked="checked"{% endif %}>
                                                                     <label class="custom-control-label form-label"
                                                                            for="showForeignReviews">
                                                                         <small>{{ "detail.reviewLanguageFilterLabel"|trans|sw_sanitize }}</small>
@@ -119,63 +117,65 @@
                                                 {% endblock %}
 
                                                 {% block page_product_detail_review_list_action_sortby %}
-                                                    <div class="col-12 col-md-auto product-detail-review-sortby">
-                                                        {% set formAjaxSubmitOptions = {
-                                                            replaceSelectors: [
-                                                                ".js-review-info",
-                                                                ".js-review-teaser",
-                                                                ".js-review-content"
-                                                            ],
-                                                            submitOnChange: true
-                                                        } %}
+                                                    {% if productReviewCount > 0 %}
+                                                        <div class="col-12 col-md-auto product-detail-review-sortby">
+                                                            {% set formAjaxSubmitOptions = {
+                                                                replaceSelectors: [
+                                                                    ".js-review-info",
+                                                                    ".js-review-teaser",
+                                                                    ".js-review-content"
+                                                                ],
+                                                                submitOnChange: true
+                                                            } %}
 
-                                                        {% block page_product_detail_review_list_action_sortby_form %}
-                                                            <form class="form-inline product-detail-review-sortby-form"
-                                                                  action="{{ path('frontend.product.reviews', { productId: reviews.productId, parentId: reviews.parentId }) }}"
-                                                                  method="post"
-                                                                  data-form-ajax-submit="true"
-                                                                  data-form-ajax-submit-options='{{ formAjaxSubmitOptions|json_encode }}'>
+                                                            {% block page_product_detail_review_list_action_sortby_form %}
+                                                                <form class="form-inline product-detail-review-sortby-form"
+                                                                      action="{{ path('frontend.product.reviews', { productId: reviews.productId, parentId: reviews.parentId }) }}"
+                                                                      method="post"
+                                                                      data-form-ajax-submit="true"
+                                                                      data-form-ajax-submit-options='{{ formAjaxSubmitOptions|json_encode }}'>
 
-                                                                {% block page_product_detail_review_list_action_sortby_form_csrf %}
-                                                                    {{ sw_csrf('frontend.product.reviews') }}
-                                                                {% endblock %}
+                                                                    {% block page_product_detail_review_list_action_sortby_form_csrf %}
+                                                                        {{ sw_csrf('frontend.product.reviews') }}
+                                                                    {% endblock %}
 
-                                                                {% if app.request.get('limit') %}
-                                                                    <input type="hidden" name="limit" value="{{ app.request.get('limit') }}">
-                                                                {% endif %}
+                                                                    {% if app.request.get('limit') %}
+                                                                        <input type="hidden" name="limit" value="{{ app.request.get('limit') }}">
+                                                                    {% endif %}
 
-                                                                {% if app.request.get('language') %}
-                                                                    <input type="hidden" name="language" value="{{ app.request.get('language') }}">
-                                                                {% endif %}
+                                                                    {% if app.request.get('language') %}
+                                                                        <input type="hidden" name="language" value="{{ app.request.get('language') }}">
+                                                                    {% endif %}
 
-                                                                {% if app.request.get('points') %}
-                                                                    {% for points in app.request.get('points') %}
-                                                                        <input type="hidden" name="points[]" value="{{ points }}">
-                                                                    {% endfor %}
-                                                                {% endif %}
+                                                                    {% if app.request.get('points') %}
+                                                                        {% for points in app.request.get('points') %}
+                                                                            <input type="hidden" name="points[]" value="{{ points }}">
+                                                                        {% endfor %}
+                                                                    {% endif %}
 
-                                                                {% block page_product_detail_review_list_action_sortby_label %}
-                                                                    <label class="form-label product-detail-review-sortby-label"
-                                                                           for="reviewsSortby">
-                                                                        <small>{{ "detail.reviewSortLabel"|trans|sw_sanitize }}</small>
-                                                                    </label>
-                                                                {% endblock %}
+                                                                    {% block page_product_detail_review_list_action_sortby_label %}
+                                                                        <label class="form-label product-detail-review-sortby-label"
+                                                                               for="reviewsSortby">
+                                                                            <small>{{ "detail.reviewSortLabel"|trans|sw_sanitize }}</small>
+                                                                        </label>
+                                                                    {% endblock %}
 
-                                                                {% block page_product_detail_review_list_action_sortby_select %}
-                                                                    <select class="custom-select custom-select-sm"
-                                                                            name="sort"
-                                                                            id="reviewsSortby">
-                                                                        <option value="createdAt"{% if reviews.criteria.sorting.0.field == 'createdAt' %} selected{% endif %}>
-                                                                            {{ "detail.reviewSortNewLabel"|trans|sw_sanitize }}
-                                                                        </option>
-                                                                        <option value="points"{% if reviews.criteria.sorting.0.field== 'points' %} selected{% endif %}>
-                                                                            {{ "detail.reviewSortTopRatedLabel"|trans|sw_sanitize }}
-                                                                        </option>
-                                                                    </select>
-                                                                {% endblock %}
-                                                            </form>
-                                                        {% endblock %}
-                                                    </div>
+                                                                    {% block page_product_detail_review_list_action_sortby_select %}
+                                                                        <select class="custom-select custom-select-sm"
+                                                                                name="sort"
+                                                                                id="reviewsSortby">
+                                                                            <option value="createdAt"{% if reviews.criteria.sorting.0.field == 'createdAt' %} selected{% endif %}>
+                                                                                {{ "detail.reviewSortNewLabel"|trans|sw_sanitize }}
+                                                                            </option>
+                                                                            <option value="points"{% if reviews.criteria.sorting.0.field== 'points' %} selected{% endif %}>
+                                                                                {{ "detail.reviewSortTopRatedLabel"|trans|sw_sanitize }}
+                                                                            </option>
+                                                                        </select>
+                                                                    {% endblock %}
+                                                                </form>
+                                                            {% endblock %}
+                                                        </div>
+                                                    {% endif %}
                                                 {% endblock %}
                                             </div>
 

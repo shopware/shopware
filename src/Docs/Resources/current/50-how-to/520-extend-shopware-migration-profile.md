@@ -34,13 +34,11 @@ First of all, you need to create a new `DataSet` for your bundle entity:
 
 namespace SwagMigrationBundleExample\Profile\Shopware\DataSelection\DataSet;
 
-use SwagMigrationAssistant\Migration\DataSelection\DataSet\CountingInformationStruct;
-use SwagMigrationAssistant\Migration\DataSelection\DataSet\CountingQueryStruct;
+use SwagMigrationAssistant\Migration\DataSelection\DataSet\DataSet;
 use SwagMigrationAssistant\Migration\MigrationContextInterface;
-use SwagMigrationAssistant\Profile\Shopware\DataSelection\DataSet\ShopwareDataSet;
 use SwagMigrationAssistant\Profile\Shopware\ShopwareProfileInterface;
 
-class BundleDataSet extends ShopwareDataSet
+class BundleDataSet extends DataSet
 {
     public static function getEntity(): string
     {
@@ -53,22 +51,9 @@ class BundleDataSet extends ShopwareDataSet
         return $migrationContext->getProfile() instanceof ShopwareProfileInterface;
     }
 
-    public function getCountingInformation(): ?CountingInformationStruct
+    public function getSnippet(): string
     {
-        $information = new CountingInformationStruct(self::getEntity());
-        $information->addQueryStruct(new CountingQueryStruct('s_bundles')); // Counting of the given bundle table
-
-        return $information;
-    }
-
-    public function getApiRoute(): string
-    {
-        return 'SwagMigrationBundles'; // This is only for fetching via API gateway
-    }
-
-    public function getExtraQueryParameters(): array
-    {
-        return []; // This is only for fetching via API gateway
+        return 'swag-migration.index.selectDataCard.entities.' . static::getEntity();
     }
 }
 ```
@@ -108,11 +93,11 @@ class ProductDataSelection implements DataSelectionInterface
     {
         $dataSelection = $this->originalDataSelection->getData();
 
-        // Add the modified entities array to a new DataSelectionStruct
+        // Add the modified DataSet array to a new DataSelectionStruct
         return new DataSelectionStruct(
             $dataSelection->getId(),
-            $this->getEntityNames(),
-            $this->getEntityNamesRequiredForCount(),
+            $this->getDataSets(),
+            $this->getDataSetsRequiredForCount(),
             $dataSelection->getSnippet(),
             $dataSelection->getPosition(),
             $dataSelection->getProcessMediaFiles(),
@@ -120,22 +105,17 @@ class ProductDataSelection implements DataSelectionInterface
         );
     }
 
-    /**
-     * @return string[]
-     */
-    public function getEntityNames(): array
+    public function getDataSets(): array
     {
-        $entities = $this->originalDataSelection->getEntityNames();
-        $entities[] = BundleDataSet::getEntity(); // Add the BundleDataSet entity to the entities array
+        $entities = $this->originalDataSelection->getDataSets();
+        $entities[] = new BundleDataSet(); // Add the BundleDataSet to the DataSet array
 
         return $entities;
     }
 
-    public function getEntityNamesRequiredForCount(): array
+    public function getDataSetsRequiredForCount(): array
     {
-        return [
-            ProductDataSet::getEntity(),
-        ];
+        return $this->originalDataSelection->getDataSetsRequiredForCount();
     }
 }
 ```
@@ -179,8 +159,8 @@ First of all you create a new snippet file e.g. `en-GB.json`:
     }
 }
 ```
-All count entity descriptions are located in the `swag-migration.index.selectDataCard.entities` namespace, so you have to
-create a new entry with the entity name of the new bundle entity.
+All count entity descriptions are located in the `swag-migration.index.selectDataCard.entities` namespace by default, so you have to
+create a new entry with the entity name of the new bundle entity or you could change the snippet in the `getSnippet` function of the DataSet.
 
 At last you have to create the `main.js` in the `Resources/app/administration` directory like this:
 
@@ -210,18 +190,44 @@ local reader to fetch all entity data from your source system:
 namespace SwagMigrationBundleExample\Profile\Shopware\Gateway\Local\Reader;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\ResultStatement;
 use SwagMigrationAssistant\Migration\MigrationContextInterface;
-use SwagMigrationAssistant\Profile\Shopware\Gateway\Local\Reader\LocalAbstractReader;
-use SwagMigrationAssistant\Profile\Shopware\Gateway\Local\Reader\LocalReaderInterface;
+use SwagMigrationAssistant\Migration\TotalStruct;
+use SwagMigrationAssistant\Profile\Shopware\Gateway\Local\Reader\AbstractReader;
+use SwagMigrationAssistant\Profile\Shopware\Gateway\Local\ShopwareLocalGateway;
 use SwagMigrationAssistant\Profile\Shopware\ShopwareProfileInterface;
 use SwagMigrationBundleExample\Profile\Shopware\DataSelection\DataSet\BundleDataSet;
 
-class LocalBundleReader extends LocalAbstractReader implements LocalReaderInterface
+class LocalBundleReader extends AbstractReader
 {
+    public function supportsTotal(MigrationContextInterface $migrationContext): bool
+    {
+        return $migrationContext->getProfile() instanceof ShopwareProfileInterface
+            && $migrationContext->getGateway()->getName() === ShopwareLocalGateway::GATEWAY_NAME;
+    }
+
+    public function readTotal(MigrationContextInterface $migrationContext): ?TotalStruct
+    {
+        $this->setConnection($migrationContext);
+
+        $query = $this->connection->createQueryBuilder()
+            ->select('COUNT(*)')
+            ->from('s_bundles')
+            ->execute();
+
+        $total = 0;
+        if ($query instanceof ResultStatement) {
+            $total = (int) $query->fetchColumn();
+        }
+
+        return new TotalStruct(BundleDataSet::getEntity(), $total);
+    }
+
     public function supports(MigrationContextInterface $migrationContext): bool
     {
         // Make sure that this reader is only called for the BundleDataSet entity
         return $migrationContext->getProfile() instanceof ShopwareProfileInterface
+            && $migrationContext->getGateway()->getName() === ShopwareLocalGateway::GATEWAY_NAME
             && $migrationContext->getDataSet()::getEntity() === BundleDataSet::getEntity();
     }
 
@@ -285,14 +291,14 @@ class LocalBundleReader extends LocalAbstractReader implements LocalReaderInterf
 ``` 
 
 In this local reader, you fetch all bundles with associated products and return this in the `read` method. Like the `DataSelection`
-and `DataSet`, you have to register the local reader and tag it with `shopware.migration.local_reader`
+and `DataSet`, you have to register the local reader and tag it with `shopware.migration.reader`
 in your `migration_assistant_extension.xml`.
-Also, you have to set the parent property of your local reader to `LocalAbstractReader` to inherit from this class:
+Also, you have to set the parent property of your local reader to `AbstractReader` to inherit from this class:
 
 ```xml
 <service id="SwagMigrationBundleExample\Profile\Shopware\Gateway\Local\Reader\LocalBundleReader"
-         parent="SwagMigrationAssistant\Profile\Shopware\Gateway\Local\Reader\LocalAbstractReader">
-    <tag name="shopware.migration.local_reader" />
+         parent="SwagMigrationAssistant\Profile\Shopware\Gateway\Local\Reader\AbstractReader">
+    <tag name="shopware.migration.reader"/>
 </service>
 ```
 

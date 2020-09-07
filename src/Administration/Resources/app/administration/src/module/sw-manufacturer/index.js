@@ -1,5 +1,6 @@
 import './page/sw-manufacturer-list';
 import './page/sw-manufacturer-detail';
+import './acl';
 
 const { Module } = Shopware;
 
@@ -20,20 +21,25 @@ Module.register('sw-manufacturer', {
             components: {
                 default: 'sw-manufacturer-list'
             },
-            path: 'index'
+            path: 'index',
+            meta: {
+                privilege: 'product_manufacturer.viewer'
+            }
         },
         create: {
             component: 'sw-manufacturer-detail',
             path: 'create',
             meta: {
-                parentPath: 'sw.manufacturer.index'
+                parentPath: 'sw.manufacturer.index',
+                privilege: 'product_manufacturer.creator'
             }
         },
         detail: {
             component: 'sw-manufacturer-detail',
             path: 'detail/:id',
             meta: {
-                parentPath: 'sw.manufacturer.index'
+                parentPath: 'sw.manufacturer.index',
+                privilege: 'product_manufacturer.viewer'
             },
             props: {
                 default(route) {
@@ -47,6 +53,7 @@ Module.register('sw-manufacturer', {
 
     navigation: [{
         path: 'sw.manufacturer.index',
+        privilege: 'product_manufacturer.viewer',
         label: 'sw-manufacturer.general.mainMenuItemList',
         id: 'sw-manufacturer',
         parent: 'sw-catalogue',

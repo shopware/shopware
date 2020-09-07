@@ -6,6 +6,16 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 Component.extend('sw-condition-line-item-release-date', 'sw-condition-base', {
     template,
 
+    data() {
+        return {
+            datepickerConfig: {
+                enableTime: true,
+                dateFormat: 'H:i',
+                altFormat: 'H:i'
+            }
+        };
+    },
+
     computed: {
         operators() {
             return this.conditionDataProviderService.getOperatorSet('date');

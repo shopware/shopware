@@ -14,8 +14,8 @@
             {% set accounTypeRequired = true %}
         {% endif %}
 
-        {% if shopware.config.core.loginRegistration.showAccountTypeSelection or prefix == "address" or prefix == "shippingAddress" %}
-            <div class="{% if prefix == "shippingAddress" %}address-contact-type-company{% elseif prefix == "address" %}js-field-toggle-contact-type-company d-block{% else %}js-field-toggle-contact-type-company d-none{% endif %}">
+        {% if shopware.config.core.loginRegistration.showAccountTypeSelection or prefix == "address" or prefix == "shippingAddress" or hasSelectedBusiness %}
+            <div class="{% if prefix == "shippingAddress" or hasSelectedBusiness %}address-contact-type-company{% elseif prefix == "address" %}js-field-toggle-contact-type-company d-block{% else %}js-field-toggle-contact-type-company d-none{% endif %}">
                 {% block component_address_form_company_fields %}
                     <div class="form-row">
                         {% block component_address_form_company_name %}

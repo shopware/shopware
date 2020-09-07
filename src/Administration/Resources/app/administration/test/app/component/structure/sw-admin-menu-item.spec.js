@@ -73,7 +73,7 @@ function createWrapper({ propsData = {}, privileges = [] } = {}) {
 
 describe('src/app/component/structure/sw-admin-menu-item', () => {
     beforeAll(() => {
-        Shopware.FeatureConfig.isActive = () => true;
+        Shopware.Feature.isActive = () => true;
     });
 
     it('should be a Vue.js component', () => {

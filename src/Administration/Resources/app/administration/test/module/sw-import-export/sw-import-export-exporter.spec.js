@@ -190,12 +190,16 @@ describe('components/sw-import-export-exporter', () => {
             }
         });
 
-        const variantsWarningLink = wrapper.findAll('.sw-import-export-exporter__variants-warning .sw-import-export-exporter__link');
+        const variantsWarningLink = wrapper.findAll(
+            '.sw-import-export-exporter__variants-warning .sw-import-export-exporter__link'
+        );
         expect(variantsWarningLink.at(0).exists()).toBeTruthy();
         expect(variantsWarningLink.at(0).text()).toContain('sw-import-export.exporter.directExportVariantsLabel');
 
         expect(variantsWarningLink.at(1).exists()).toBeTruthy();
-        expect(variantsWarningLink.at(1).text()).toContain('sw-import-export.exporter.directExportPropertiesLabel');
+        expect(variantsWarningLink.at(1).text()).toContain(
+            'sw-import-export.exporter.directExportPropertiesLabel'
+        );
     });
 
     it('should show a modal with an exporter', async () => {
@@ -212,7 +216,9 @@ describe('components/sw-import-export-exporter', () => {
             }
         });
 
-        const variantsWarningLink = wrapper.find('.sw-import-export-exporter__variants-warning .sw-import-export-exporter__link');
+        const variantsWarningLink = wrapper.find(
+            '.sw-import-export-exporter__variants-warning .sw-import-export-exporter__link'
+        );
         variantsWarningLink.trigger('click');
 
         const modalExporter = wrapper.findAll({ name: 'sw-import-export-exporter' }).at(1);
@@ -234,7 +240,9 @@ describe('components/sw-import-export-exporter', () => {
             }
         });
 
-        const variantsWarningLink = wrapper.find('.sw-import-export-exporter__variants-warning .sw-import-export-exporter__link');
+        const variantsWarningLink = wrapper.find(
+            '.sw-import-export-exporter__variants-warning .sw-import-export-exporter__link'
+        );
         variantsWarningLink.trigger('click');
 
         const modalExporter = wrapper.findAll({ name: 'sw-import-export-exporter' }).at(1);

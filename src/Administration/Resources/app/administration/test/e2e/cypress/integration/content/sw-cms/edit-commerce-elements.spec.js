@@ -10,6 +10,9 @@ describe('CMS: Check usage and editing of commerce elements', () => {
                 return cy.createCmsFixture();
             })
             .then(() => {
+                return cy.createDefaultFixture('product-stream', {}, 'product-stream-valid');
+            })
+            .then(() => {
                 return cy.createProductFixture({
                     name: 'First product',
                     productNumber: 'RS-11111',
@@ -110,6 +113,98 @@ describe('CMS: Check usage and editing of commerce elements', () => {
 
         // Verify layout in Storefront
         cy.visit('/');
+        cy.get('.product-name[title="First product"]').should('be.visible');
+        cy.get('.product-name[title="Second product"]').should('be.visible');
+        cy.get('.product-name[title="Third product"]').should('be.visible');
+    });
+
+    it('@base @content: use product slider block with dynamic product group', () => {
+        cy.server();
+        cy.route({
+            url: `${Cypress.env('apiPath')}/cms-page/*`,
+            method: 'patch'
+        }).as('saveData');
+
+        cy.route({
+            url: `${Cypress.env('apiPath')}/category/*`,
+            method: 'patch'
+        }).as('saveCategory');
+
+        cy.get('.sw-cms-list-item--0').click();
+        cy.get('.sw-cms-section__empty-stage').should('be.visible');
+
+        // Add product slider block
+        cy.get('.sw-cms-section__empty-stage').click();
+        cy.get('#sw-field--currentBlockCategory').select('Commerce');
+        cy.get('.sw-cms-preview-product-slider').should('be.visible');
+        cy.get('.sw-cms-sidebar__block-preview')
+            .eq(1)
+            .dragTo('.sw-cms-section__empty-stage');
+
+        cy.get('.sw-cms-block__config-overlay').invoke('show');
+        cy.get('.sw-cms-block__config-overlay').should('be.visible');
+        cy.get('.sw-cms-block__config-overlay').click();
+        cy.get('.sw-cms-block__config-overlay.is--active').should('be.visible');
+        cy.get('.sw-cms-slot .sw-cms-slot__overlay').invoke('show');
+
+        // Configure product slider
+        cy.get('.sw-cms-slot .sw-cms-slot__settings-action').first().click();
+        cy.get('.sw-cms-slot__config-modal').should('be.visible');
+
+        // Change the type to dynamic product group
+        cy.get('.sw-cms-el-config-product-slider__product-assignment-type-select')
+            .typeSingleSelectAndCheck('Dynamic product group', '.sw-cms-el-config-product-slider__product-assignment-type-select');
+
+        cy.get('.sw-cms-el-config-product-slider__product-stream-performance-hint').should('be.visible');
+
+        // Sorting options and preview link should be disabled when to dynamic product group is selected
+        cy.get('.sw-cms-el-config-product-slider__product-stream-sorting')
+            .should('have.class', 'is--disabled');
+        cy.get('.sw-cms-el-config-product-slider__product-stream-limit')
+            .should('have.class', 'is--disabled');
+        cy.get('.sw-cms-el-config-product-slider__product-stream-preview-link')
+            .should('have.class', 'is--disabled');
+
+        // Select dynamic product group
+        cy.get('.sw-cms-el-config-product-slider__product-stream-select')
+            .typeSingleSelectAndCheck('2nd Product stream', '.sw-cms-el-config-product-slider__product-stream-select');
+
+        // Verify dynamic product group preview is available
+        cy.get('.sw-cms-el-config-product-slider__product-stream-preview-link').click();
+        cy.get('.sw-cms-el-config-product-slider__product-stream-preview-modal').should('be.visible');
+        cy.get('.sw-cms-el-config-product-slider__product-stream-preview-modal .sw-product-stream-grid-preview__grid')
+            .should('be.visible');
+
+        // Close preview
+        cy.get('.sw-cms-el-config-product-slider__product-stream-preview-modal .sw-modal__footer .sw-button').click();
+
+        // Close config modal
+        cy.get('.sw-cms-slot__config-modal .sw-button--primary').click();
+
+        // Save new page layout
+        cy.get('.sw-cms-detail__save-action').click();
+        cy.wait('@saveData').then(() => {
+            cy.get('.sw-cms-detail__back-btn').click();
+        });
+
+        // Assign layout to root category
+        cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
+        cy.get('.sw-tree-item__element').contains('Home').click();
+        cy.get('.sw-card.sw-category-layout-card').scrollIntoView();
+        cy.get('.sw-category-detail-layout__change-layout-action').click();
+        cy.get('.sw-modal__dialog').should('be.visible');
+        cy.get('.sw-cms-layout-modal__content-item--0 .sw-field--checkbox').click();
+        cy.get('.sw-modal .sw-button--primary').click();
+        cy.get('.sw-card.sw-category-layout-card .sw-cms-list-item__title').contains('Vierte Wand');
+        cy.get('.sw-category-detail__save-action').click();
+
+        cy.wait('@saveCategory').then((response) => {
+            expect(response).to.have.property('status', 204);
+        });
+
+        // Verify layout in Storefront
+        cy.visit('/');
+        cy.get('.cms-element-product-slider').should('be.visible');
         cy.get('.product-name[title="First product"]').should('be.visible');
         cy.get('.product-name[title="Second product"]').should('be.visible');
         cy.get('.product-name[title="Third product"]').should('be.visible');

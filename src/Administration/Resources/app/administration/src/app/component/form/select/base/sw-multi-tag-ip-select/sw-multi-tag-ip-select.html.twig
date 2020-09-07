@@ -5,3 +5,28 @@
 {% block sw_multi_tag_select_validation_invalid_message %}
     {{ $tc('global.sw-multi-tag-ip-select.enterValidIp') }}
 {% endblock %}
+
+{% block sw_multi_tag_select_validation_invalid %}
+    {% parent %}
+
+    <div
+        @click="addSpecific(knownIp.value)"
+        v-for="knownIp of validUnselectedKnownIps"
+        class="sw-multi-tag-select-valid"
+    >
+        <span>
+            {{ knownIp.value }} ({{ $te(knownIp.name) ? $tc(knownIp.name) : knownIp.name }})
+        </span>
+    </div>
+{% endblock %}
+
+{% block sw_multi_tag_select_base_selection_list_label_inner %}
+    <template v-if="getKnownIp(item)">
+        <slot name="selection-label-property" v-bind="{ item, index, labelProperty, valueProperty}">
+            {{ getKey(item, labelProperty) }} ({{ $te(getKnownIp(item).name) ? $tc(getKnownIp(item).name) : getKnownIp(item).name }})
+        </slot>
+    </template>
+    <template v-else>
+        {% parent %}
+    </template>
+{% endblock %}

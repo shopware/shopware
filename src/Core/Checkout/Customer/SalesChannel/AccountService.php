@@ -17,7 +17,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -25,11 +24,6 @@ use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 class AccountService
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $customerAddressRepository;
-
     /**
      * @var EntityRepositoryInterface
      */
@@ -50,18 +44,23 @@ class AccountService
      */
     private $legacyPasswordVerifier;
 
+    /**
+     * @var AbstractSwitchDefaultAddressRoute
+     */
+    private $switchDefaultAddressRoute;
+
     public function __construct(
-        EntityRepositoryInterface $customerAddressRepository,
         EntityRepositoryInterface $customerRepository,
         SalesChannelContextPersister $contextPersister,
         EventDispatcherInterface $eventDispatcher,
-        LegacyPasswordVerifier $legacyPasswordVerifier
+        LegacyPasswordVerifier $legacyPasswordVerifier,
+        AbstractSwitchDefaultAddressRoute $switchDefaultAddressRoute
     ) {
-        $this->customerAddressRepository = $customerAddressRepository;
         $this->customerRepository = $customerRepository;
         $this->contextPersister = $contextPersister;
         $this->eventDispatcher = $eventDispatcher;
         $this->legacyPasswordVerifier = $legacyPasswordVerifier;
+        $this->switchDefaultAddressRoute = $switchDefaultAddressRoute;
     }
 
     /**
@@ -71,14 +70,7 @@ class AccountService
      */
     public function setDefaultBillingAddress(string $addressId, SalesChannelContext $context): void
     {
-        $this->validateCustomer($context);
-        $this->validateAddressId($addressId, $context);
-
-        $data = [
-            'id' => $context->getCustomer()->getId(),
-            'defaultBillingAddressId' => $addressId,
-        ];
-        $this->customerRepository->update([$data], $context->getContext());
+        $this->switchDefaultAddressRoute->swap($addressId, AbstractSwitchDefaultAddressRoute::TYPE_BILLING, $context);
     }
 
     /**
@@ -88,14 +80,7 @@ class AccountService
      */
     public function setDefaultShippingAddress(string $addressId, SalesChannelContext $context): void
     {
-        $this->validateCustomer($context);
-        $this->validateAddressId($addressId, $context);
-
-        $data = [
-            'id' => $context->getCustomer()->getId(),
-            'defaultShippingAddressId' => $addressId,
-        ];
-        $this->customerRepository->update([$data], $context->getContext());
+        $this->switchDefaultAddressRoute->swap($addressId, AbstractSwitchDefaultAddressRoute::TYPE_SHIPPING, $context);
     }
 
     /**
@@ -117,7 +102,7 @@ class AccountService
             throw new UnauthorizedHttpException('json', $exception->getMessage());
         }
 
-        $newToken = $this->contextPersister->replace($context->getToken());
+        $newToken = $this->contextPersister->replace($context->getToken(), $context);
         $this->contextPersister->save(
             $newToken,
             [
@@ -193,40 +178,6 @@ class AccountService
         // todo in this case we have to filter "customer.salesChannelId is null or salesChannelId = :current"
 
         return $this->customerRepository->search($criteria, $context->getContext());
-    }
-
-    /**
-     * @throws CustomerNotLoggedInException
-     */
-    private function validateCustomer(SalesChannelContext $context): void
-    {
-        if ($context->getCustomer()) {
-            return;
-        }
-
-        throw new CustomerNotLoggedInException();
-    }
-
-    /**
-     * @throws AddressNotFoundException
-     * @throws InvalidUuidException
-     */
-    private function validateAddressId(string $addressId, SalesChannelContext $context): void
-    {
-        if (!Uuid::isValid($addressId)) {
-            throw new InvalidUuidException($addressId);
-        }
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('id', $addressId));
-        $criteria->addFilter(new EqualsFilter('customerId', $context->getCustomer()->getId()));
-
-        $searchResult = $this->customerAddressRepository->searchIds($criteria, $context->getContext());
-        if ($searchResult->getTotal()) {
-            return;
-        }
-
-        throw new AddressNotFoundException($addressId);
     }
 
     private function updatePasswordHash(string $password, CustomerEntity $customer, Context $context): void

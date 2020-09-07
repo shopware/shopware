@@ -18,6 +18,7 @@ Component.register('sw-seo-url', {
             required: false,
             default: null
         },
+
         urls: {
             type: Array,
             required: false,
@@ -25,15 +26,23 @@ Component.register('sw-seo-url', {
                 return [];
             }
         },
+
         isLoading: {
             type: Boolean,
             required: false,
             default: false
         },
+
         hasDefaultTemplate: {
             type: Boolean,
             required: false,
             default: true
+        },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -50,6 +59,10 @@ Component.register('sw-seo-url', {
         },
 
         currentSeoUrl() {
+            if (!Shopware.State.get('swSeoUrl')) {
+                return {};
+            }
+
             return Shopware.State.get('swSeoUrl').currentSeoUrl;
         },
 
@@ -66,6 +79,10 @@ Component.register('sw-seo-url', {
         },
 
         isHeadlessSalesChannel() {
+            if (!Shopware.State.get('swSeoUrl')) {
+                return true;
+            }
+
             if (Shopware.State.get('swSeoUrl').salesChannelCollection === null) {
                 return true;
             }

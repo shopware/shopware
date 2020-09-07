@@ -1,3 +1,4 @@
+import './sw-customer-detail.scss';
 import template from './sw-customer-detail.html.twig';
 import errorConfig from './error-config.json';
 
@@ -8,7 +9,12 @@ const { mapPageErrors } = Shopware.Component.getComponentHelper();
 Component.register('sw-customer-detail', {
     template,
 
-    inject: ['systemConfigApiService', 'repositoryFactory'],
+    inject: [
+        'systemConfigApiService',
+        'repositoryFactory',
+        'customerGroupRegistrationService',
+        'acl'
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -81,7 +87,8 @@ Component.register('sw-customer-detail', {
                 .addAssociation('defaultShippingAddress.country')
                 .addAssociation('defaultShippingAddress.countryState')
                 .addAssociation('defaultShippingAddress.salutation')
-                .addAssociation('tags');
+                .addAssociation('tags')
+                .addAssociation('requestedGroup');
 
             return criteria;
         },
@@ -217,6 +224,38 @@ Component.register('sw-customer-detail', {
             }
 
             return true;
+        },
+
+        acceptCustomerGroupRegistration() {
+            this.customerGroupRegistrationService.accept(this.customer.id).then(() => {
+                this.createNotificationSuccess({
+                    title: this.$tc('global.default.success'),
+                    message: this.$tc('sw-customer.customerGroupRegistration.acceptMessage')
+                });
+            }).catch(() => {
+                this.createNotificationError({
+                    title: this.$tc('global.default.error'),
+                    message: this.$tc('sw-customer.customerGroupRegistration.errorMessage')
+                });
+            }).finally(() => {
+                this.createdComponent();
+            });
+        },
+
+        declineCustomerGroupRegistration() {
+            this.customerGroupRegistrationService.decline(this.customer.id).then(() => {
+                this.createNotificationSuccess({
+                    title: this.$tc('global.default.success'),
+                    message: this.$tc('sw-customer.customerGroupRegistration.declineMessage')
+                });
+            }).catch(() => {
+                this.createNotificationError({
+                    title: this.$tc('global.default.error'),
+                    message: this.$tc('sw-customer.customerGroupRegistration.errorMessage')
+                });
+            }).finally(() => {
+                this.createdComponent();
+            });
         }
     }
 });

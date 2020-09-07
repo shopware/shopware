@@ -5,6 +5,8 @@ const { Component } = Shopware;
 Component.register('sw-category-seo-form', {
     template,
 
+    inject: ['acl'],
+
     props: {
         category: {
             type: Object,

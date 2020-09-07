@@ -4,7 +4,10 @@ namespace Shopware\Core\Content\Product\Subscriber;
 
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\ProductEvents;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionEntity;
+use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -27,7 +30,45 @@ class ProductSubscriber implements EventSubscriberInterface
             $product->setVariation(
                 $this->buildVariation($product)
             );
+
+            if ($product instanceof SalesChannelProductEntity) {
+                $product->setSortedProperties(
+                    $this->sortProperties($product)
+                );
+            }
         }
+    }
+
+    private function sortProperties(SalesChannelProductEntity $product): PropertyGroupCollection
+    {
+        $properties = $product->getProperties();
+        if ($properties === null) {
+            return new PropertyGroupCollection();
+        }
+
+        $sorted = [];
+        foreach ($properties as $option) {
+            $origin = $option->getGroup();
+
+            if (!$origin) {
+                continue;
+            }
+            $group = clone $origin;
+
+            if (!$group->getOptions()) {
+                $group->setOptions(new PropertyGroupOptionCollection());
+            }
+
+            $group->getOptions()->add($option);
+
+            $sorted[$group->getId()] = $group;
+        }
+
+        $collection = new PropertyGroupCollection($sorted);
+        $collection->sortByPositions();
+        $collection->sortByConfig();
+
+        return $collection;
     }
 
     private function buildVariation(ProductEntity $product): array

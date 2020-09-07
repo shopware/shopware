@@ -98,8 +98,9 @@ class ContactFormRoute extends AbstractContactFormRoute
             if ($slotId) {
                 $criteria = new Criteria([$slotId]);
                 $slot = $this->cmsSlotRepository->search($criteria, $context->getContext());
-                $receivers = $slot->getEntities()->first()->get('config')['mailReceiver']['value'];
-                $message = $slot->getEntities()->first()->get('config')['confirmationText']['value'];
+
+                $receivers = $slot->getEntities()->first()->getTranslated()['config']['mailReceiver']['value'];
+                $message = $slot->getEntities()->first()->getTranslated()['config']['confirmationText']['value'];
             }
         }
 

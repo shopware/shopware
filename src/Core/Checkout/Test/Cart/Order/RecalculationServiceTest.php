@@ -8,8 +8,8 @@ use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryCalculator;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
-use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\Order\OrderPersister;
 use Shopware\Core\Checkout\Cart\Order\RecalculationService;
@@ -38,7 +38,6 @@ use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseHelper\ExtensionHelper;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -170,10 +169,8 @@ class RecalculationServiceTest extends TestCase
         // transactions are currently not supported so they are excluded for comparison
         $cart->setTransactions(new TransactionCollection());
 
-        // remove all extensions for comparision
-        $extensionHelper = new ExtensionHelper();
-        $extensionHelper->removeExtensions($convertedCart);
-        $extensionHelper->removeExtensions($cart);
+        $this->removeExtensions($cart);
+        $this->removeExtensions($convertedCart);
 
         // remove delivery information from line items
 
@@ -199,8 +196,6 @@ class RecalculationServiceTest extends TestCase
             $lineItem->setDeliveryInformation(null);
             $lineItem->setQuantityInformation(null);
         }
-
-        $cart->setData(new CartDataCollection());
 
         static::assertEquals($cart, $convertedCart);
     }
@@ -498,13 +493,8 @@ class RecalculationServiceTest extends TestCase
         static::assertSame(1, $newShippingCosts->getQuantity());
         static::assertSame(5.0, $newShippingCosts->getUnitPrice());
         static::assertSame(5.0, $newShippingCosts->getTotalPrice());
-        static::assertSame(2, $newShippingCosts->getCalculatedTaxes()->count());
-        static::assertEquals($shippingCosts->getTaxRules(), $newShippingCosts->getTaxRules());
-        static::assertEquals(
-            5,
-            $newShippingCosts->getCalculatedTaxes()->get('5')->getPrice()
-            + $newShippingCosts->getCalculatedTaxes()->get('19')->getPrice()
-        );
+
+        static::assertSame(0, $newShippingCosts->getCalculatedTaxes()->count());
     }
 
     public function testForeachLoopInCalculateDeliveryFunction(): void
@@ -762,6 +752,33 @@ class RecalculationServiceTest extends TestCase
         );
 
         return $countryId;
+    }
+
+    private function removeExtensions(Cart $cart): void
+    {
+        $this->removeLineItemsExtension($cart->getLineItems());
+
+        foreach ($cart->getDeliveries() as $delivery) {
+            $delivery->setExtensions([]);
+
+            $delivery->getShippingMethod()->setExtensions([]);
+
+            foreach ($delivery->getPositions() as $position) {
+                $position->setExtensions([]);
+                $this->removeLineItemsExtension(new LineItemCollection([$position->getLineItem()]));
+            }
+        }
+
+        $cart->setExtensions([]);
+        $cart->setData(null);
+    }
+
+    private function removeLineItemsExtension(LineItemCollection $lineItems): void
+    {
+        foreach ($lineItems as $lineItem) {
+            $lineItem->setExtensions([]);
+            $this->removeLineItemsExtension($lineItem->getChildren());
+        }
     }
 
     private function addAddressToCustomer(

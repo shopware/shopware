@@ -159,7 +159,7 @@ class OrderRoute extends AbstractOrderRoute
         return $promotions;
     }
 
-    private function checkRuleType($rule): bool
+    private function checkRuleType(Container $rule): bool
     {
         foreach ($rule->getRules() as $nestedRule) {
             if ($nestedRule instanceof Container && $this->checkRuleType($nestedRule) === false) {

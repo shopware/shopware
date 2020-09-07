@@ -74,5 +74,7 @@ describe('Import/Export - Export:', () => {
             .should('contain', 'E2E');
         cy.get(`.sw-import-export-activity ${page.elements.dataGridRow}--0 .sw-data-grid__cell--state`)
             .should('contain', 'Succeeded');
+
+        cy.awaitAndCheckNotification('The export was completed successfully.');
     });
 });

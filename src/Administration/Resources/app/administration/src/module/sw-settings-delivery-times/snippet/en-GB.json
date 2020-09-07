@@ -38,5 +38,12 @@
       "errorLoad": "Unable to load the delivery time.",
       "errorSave": "The delivery time could not be saved."
     }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "delivery_times": {
+        "label": "Delivery times"
+      }
+    }
   }
 }

@@ -9,7 +9,10 @@ use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
 use Shopware\Core\Content\Sitemap\Struct\Url;
 use Shopware\Core\Content\Sitemap\Struct\UrlResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -86,6 +89,12 @@ class CategoryUrlProvider implements UrlProviderInterface
     {
         $categoriesCriteria = new Criteria();
         $categoriesCriteria->setLimit($limit);
+        $categoriesCriteria->addFilter(new EqualsFilter('active', true));
+        $categoriesCriteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
+            new ContainsFilter('path', '|' . $salesChannelContext->getSalesChannel()->getNavigationCategoryId() . '|'),
+            new ContainsFilter('path', '|' . $salesChannelContext->getSalesChannel()->getFooterCategoryId() . '|'),
+            new ContainsFilter('path', '|' . $salesChannelContext->getSalesChannel()->getServiceCategoryId() . '|'),
+        ]));
 
         if ($offset !== null) {
             $categoriesCriteria->setOffset($offset);

@@ -50,7 +50,10 @@ Module.register('sw-order', {
             components: {
                 default: 'sw-order-list'
             },
-            path: 'index'
+            path: 'index',
+            meta: {
+                privilege: 'order.viewer'
+            }
         },
 
         create: {
@@ -59,12 +62,16 @@ Module.register('sw-order', {
             redirect: {
                 name: 'sw.order.create.base'
             },
+            meta: {
+                privilege: 'order.creator'
+            },
             children: {
                 base: {
                     component: 'sw-order-create-base',
                     path: 'base',
                     meta: {
-                        parentPath: 'sw.order.index'
+                        parentPath: 'sw.order.index',
+                        privilege: 'order.creator'
                     }
                 }
             }
@@ -76,12 +83,16 @@ Module.register('sw-order', {
             redirect: {
                 name: 'sw.order.detail.base'
             },
+            meta: {
+                privilege: 'order.viewer'
+            },
             children: {
                 base: {
                     component: 'sw-order-detail-base',
                     path: 'base',
                     meta: {
-                        parentPath: 'sw.order.index'
+                        parentPath: 'sw.order.index',
+                        privilege: 'order.viewer'
                     }
                 }
             }
@@ -94,10 +105,12 @@ Module.register('sw-order', {
         color: '#A092F0',
         path: 'sw.order.index',
         icon: 'default-shopping-paper-bag',
-        position: 30
+        position: 30,
+        privilege: 'order.viewer'
     }, {
         path: 'sw.order.index',
         label: 'sw-order.general.mainMenuItemList',
-        parent: 'sw-order'
+        parent: 'sw-order',
+        privilege: 'order.viewer'
     }]
 });

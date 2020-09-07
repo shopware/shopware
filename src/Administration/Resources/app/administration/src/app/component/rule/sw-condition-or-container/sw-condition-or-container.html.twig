@@ -10,6 +10,7 @@
                     :key="`condition-or-container-child--${index}`"
                     :parentCondition="condition"
                     :condition="child"
+                    :disabled="disabled"
                     :level="level + 1">
                 </sw-condition-tree-node>
             </template>
@@ -17,15 +18,20 @@
 
         {% block sw_condition_or_container_actions %}
             <div class="sw-condition-or-container__actions">
-                <sw-button class="sw-condition-or-container__actions--or" @click="onAddPlaceholder">
+                <sw-button class="sw-condition-or-container__actions--or"
+                           @click="onAddPlaceholder"
+                           :disabled="disabled">
                     {{ $tc('global.sw-condition.condition.or') }}
                 </sw-button>
 
-                <sw-button v-if="level !== 0" class="sw-condition-or-container__actions--sub" @click="onAddAndContainer">
+                <sw-button v-if="level !== 0" class="sw-condition-or-container__actions--sub"
+                           @click="onAddAndContainer"
+                           :disabled="disabled">
                     {{ $tc('global.sw-condition.condition.subCondition') }}
                 </sw-button>
 
                 <sw-button class="sw-condition-or-container__actions--delete"
+                           :disabled="disabled"
                            @click="onDeleteAll">
                     <span v-if="level !== 0">{{ $tc('global.sw-condition.condition.deleteConditions') }}</span>
                     <span v-else>{{ $tc('global.sw-condition.condition.deleteAllConditions') }}</span>

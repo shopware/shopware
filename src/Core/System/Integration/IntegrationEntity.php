@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Integration;
 
+use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
@@ -38,6 +39,11 @@ class IntegrationEntity extends Entity
      * @var array|null
      */
     protected $customFields;
+
+    /**
+     * @var AppEntity|null
+     */
+    protected $app;
 
     public function getLabel(): string
     {
@@ -99,8 +105,13 @@ class IntegrationEntity extends Entity
         $this->customFields = $customFields;
     }
 
-    public function getApiAlias(): string
+    public function getApp(): ?AppEntity
     {
-        return 'integration';
+        return $this->app;
+    }
+
+    public function setApp(?AppEntity $app): void
+    {
+        $this->app = $app;
     }
 }

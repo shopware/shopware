@@ -23,7 +23,8 @@
       "placeholderSelectVariables": "Auswählen ...",
       "labelSalesChannelSelect": "Verkaufskanal",
       "textUrlPreviewNotPossible": "Für dieses Template ist keine Vorschau möglich.",
-      "textUrlNoEntitiesForPreview": "Es ist kein(e) {entity} vorhanden, um eine Vorschau zu generieren. Bitte lege eine(s) an."
+      "textUrlNoEntitiesForPreview": "Es ist kein(e) {entity} vorhanden, um eine Vorschau zu generieren. Bitte lege eine(s) an.",
+      "textUrlPreviewEmptyTemplate": "Das Template ist leer, es werden keine SEO-URLs für Routen der {entity}-Entität erstellt."
     },
     "routeNames": {
       "frontend-detail-page": "Produktdetailseite",

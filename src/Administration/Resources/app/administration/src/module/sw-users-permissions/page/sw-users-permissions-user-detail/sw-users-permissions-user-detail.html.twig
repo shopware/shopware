@@ -131,7 +131,7 @@
 
                                         {% block sw_settings_user_detail_grid_content_acl_is_admin %}
                                             <sw-switch-field
-                                                v-if="next3722"
+                                                v-if="feature.isActive('FEATURE_NEXT_3722')"
                                                 class="sw-settings-user-detail__grid-is-admin"
                                                 :label="$tc('sw-users-permissions.users.user-detail.labelAdministrator')"
                                                 :disabled="isCurrentUser"
@@ -141,7 +141,7 @@
 
                                         {% block sw_settings_user_detail_grid_content_job_title %}
                                             <sw-text-field
-                                                v-if="next3722"
+                                                v-if="feature.isActive('FEATURE_NEXT_3722')"
                                                 class="sw-settings-user-detail__grid-jobTitle"
                                                 :label="$tc('sw-users-permissions.users.user-detail.labelJobTitle')"
                                                 v-model="user.title">
@@ -150,7 +150,7 @@
 
                                         {% block sw_settings_user_detail_grid_content_acl_roles %}
                                             <sw-entity-multi-select
-                                                v-if="next3722"
+                                                v-if="feature.isActive('FEATURE_NEXT_3722')"
                                                 class="sw-settings-user-detail__grid-aclRoles"
                                                 :label="$tc('sw-users-permissions.users.user-detail.labelRoles')"
                                                 v-model="user.aclRoles"
@@ -167,43 +167,8 @@
                                 {% block sw_settings_user_detail_content_password_modal %}{% endblock %}
 
                                 {% block sw_settings_user_detail_content_confirm_password_modal %}
-                                    <sw-modal v-if="confirmPasswordModal"
-                                              @modal-close="onCloseConfirmPasswordModal"
-                                              :title="$tc('sw-settings-user.user-detail.passwordConfirmation.titleConfirmPasswordModal')"
-                                              variant="small">
-
-                                        {% block sw_settings_user_detail_content_confirm_password_modal_input__confirm_password %}
-                                            <sw-password-field
-                                                class="sw-settings-user-detail__confirm-password"
-                                                v-model="confirmPassword"
-                                                name="sw-field--confirm-password"
-                                                :passwordToggleAble="true"
-                                                :copyAble="false"
-                                                :label="$tc('sw-settings-user.user-detail.passwordConfirmation.labelConfirmPassword')"
-                                                :placeholder="$tc('sw-settings-user.user-detail.passwordConfirmation.placeholderConfirmPassword')">
-                                            </sw-password-field>
-                                        {% endblock %}
-
-                                        {% block sw_settings_user_detail_content_confirm_password_modal_footer %}
-                                            <template #modal-footer>
-                                                {% block sw_settings_user_detail_content_confirm_password_modal_actions_cancel %}
-                                                    <sw-button @click="onCloseConfirmPasswordModal"
-                                                               size="small">
-                                                        {{ $tc('sw-settings-user.user-detail.passwordConfirmation.labelButtonCancel') }}
-                                                    </sw-button>
-                                                {% endblock %}
-
-                                                {% block sw_settings_user_detail_content_confirm_password_modal_actions_change %}
-                                                    <sw-button @click="onSubmitConfirmPassword"
-                                                               variant="primary"
-                                                               :disabled="!confirmPassword"
-                                                               size="small">
-                                                        {{ $tc('sw-settings-user.user-detail.passwordConfirmation.labelButtonConfirm') }}
-                                                    </sw-button>
-                                                {% endblock %}
-                                            </template>
-                                        {% endblock %}
-                                    </sw-modal>
+                                    <sw-verify-user-modal v-if="confirmPasswordModal" @verified="saveUser" @close="onCloseConfirmPasswordModal">
+                                    </sw-verify-user-modal>
                                 {% endblock %}
                             </sw-card>
                         {% endblock %}

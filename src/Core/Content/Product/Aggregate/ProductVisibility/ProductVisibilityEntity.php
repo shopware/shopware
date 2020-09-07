@@ -85,9 +85,4 @@ class ProductVisibilityEntity extends Entity
     {
         $this->salesChannel = $salesChannel;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'product_visibility';
-    }
 }

@@ -47,7 +47,12 @@ Component.register('sw-sales-channel-defaults-select', {
             type: String,
             required: false,
             default: null
+        },
 
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 

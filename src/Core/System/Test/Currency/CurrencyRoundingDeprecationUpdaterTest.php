@@ -6,11 +6,11 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyEntity;
-use function Flag\skipTestNext6059;
 
 class CurrencyRoundingDeprecationUpdaterTest extends TestCase
 {
@@ -47,7 +47,7 @@ class CurrencyRoundingDeprecationUpdaterTest extends TestCase
      */
     public function testCreate(?int $decimals, ?array $rounding, array $expected): void
     {
-        skipTestNext6059($this);
+        Feature::skipTestIfInActive('FEATURE_NEXT_6059', $this);
 
         $this->setBlueGreen(false);
 
@@ -79,7 +79,6 @@ class CurrencyRoundingDeprecationUpdaterTest extends TestCase
 
         static::assertInstanceOf(CurrencyEntity::class, $currency);
 
-        /** @var CurrencyEntity $currency */
         static::assertEquals($expected['decimals'], $currency->getDecimalPrecision());
         static::assertEquals($expected['decimals'], $currency->getItemRounding()->getDecimals());
         static::assertEquals($expected['roundForNet'], $currency->getItemRounding()->roundForNet());
@@ -112,7 +111,7 @@ class CurrencyRoundingDeprecationUpdaterTest extends TestCase
      */
     public function testUpdate(?int $decimals, ?array $rounding, array $expected): void
     {
-        skipTestNext6059($this);
+        Feature::skipTestIfInActive('FEATURE_NEXT_6059', $this);
 
         $this->setBlueGreen(false);
 
@@ -154,7 +153,6 @@ class CurrencyRoundingDeprecationUpdaterTest extends TestCase
 
         static::assertInstanceOf(CurrencyEntity::class, $currency);
 
-        /** @var CurrencyEntity $currency */
         static::assertEquals($expected['decimals'], $currency->getDecimalPrecision());
         static::assertEquals($expected['decimals'], $currency->getItemRounding()->getDecimals());
         static::assertEquals($expected['roundForNet'], $currency->getItemRounding()->roundForNet());

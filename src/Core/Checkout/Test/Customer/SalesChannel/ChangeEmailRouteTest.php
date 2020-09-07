@@ -8,7 +8,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -16,7 +15,7 @@ use Shopware\Core\PlatformRequest;
 class ChangeEmailRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    use SalesChannelApiTestBehaviour;
+    use CustomerTestTrait;
 
     /**
      * @var \Symfony\Bundle\FrameworkBundle\KernelBrowser

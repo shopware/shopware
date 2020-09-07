@@ -87,7 +87,7 @@ class ThemeHierarchyBuilderTest extends TestCase
         ], $hierarchy);
     }
 
-    private function assertThemes($expectation, ThemeNamespaceHierarchyBuilder $builder): void
+    private function assertThemes(array $expectation, ThemeNamespaceHierarchyBuilder $builder): void
     {
         $refObj = new \ReflectionObject($builder);
         $refProperty = $refObj->getProperty('themes');

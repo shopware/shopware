@@ -8,8 +8,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\Country\CountryCollection;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Shopware\Core\System\Country\SalesChannel\AbstractCountryRoute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\Salutation\SalesChannel\AbstractSalutationRoute;
 use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Core\System\Salutation\SalutationEntity;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
@@ -29,25 +30,25 @@ class AccountLoginPageLoader
     private $eventDispatcher;
 
     /**
-     * @var SalesChannelRepositoryInterface
+     * @var AbstractCountryRoute
      */
-    private $salutationRepository;
+    private $countryRoute;
 
     /**
-     * @var SalesChannelRepositoryInterface
+     * @var AbstractSalutationRoute
      */
-    private $countryRepository;
+    private $salutationRoute;
 
     public function __construct(
         GenericPageLoaderInterface $genericLoader,
-        SalesChannelRepositoryInterface $countryRepository,
         EventDispatcherInterface $eventDispatcher,
-        SalesChannelRepositoryInterface $salutationRepository
+        AbstractCountryRoute $countryRoute,
+        AbstractSalutationRoute $salutationRoute
     ) {
         $this->genericLoader = $genericLoader;
         $this->eventDispatcher = $eventDispatcher;
-        $this->salutationRepository = $salutationRepository;
-        $this->countryRepository = $countryRepository;
+        $this->countryRoute = $countryRoute;
+        $this->salutationRoute = $salutationRoute;
     }
 
     /**
@@ -77,8 +78,7 @@ class AccountLoginPageLoader
      */
     private function getSalutations(SalesChannelContext $salesChannelContext): SalutationCollection
     {
-        /** @var SalutationCollection $salutations */
-        $salutations = $this->salutationRepository->search(new Criteria(), $salesChannelContext)->getEntities();
+        $salutations = $this->salutationRoute->load(new Request(), $salesChannelContext, new Criteria())->getSalutations();
 
         $salutations->sort(function (SalutationEntity $a, SalutationEntity $b) {
             return $b->getSalutationKey() <=> $a->getSalutationKey();
@@ -93,8 +93,7 @@ class AccountLoginPageLoader
             ->addFilter(new EqualsFilter('active', true))
             ->addAssociation('country.states');
 
-        /** @var CountryCollection $countries */
-        $countries = $this->countryRepository->search($criteria, $salesChannelContext)->getEntities();
+        $countries = $this->countryRoute->load($criteria, $salesChannelContext)->getCountries();
 
         $countries->sortCountryAndStates();
 

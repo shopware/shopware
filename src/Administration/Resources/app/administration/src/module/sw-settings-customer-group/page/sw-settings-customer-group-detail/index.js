@@ -1,12 +1,17 @@
+import './sw-settings-customer-group-detail.scss';
 import template from './sw-settings-customer-group-detail.html.twig';
 
 const { Component, Mixin } = Shopware;
+const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
+const { ShopwareError } = Shopware.Classes;
+const types = Shopware.Utils.types;
+const domainPlaceholderId = '124c71d524604ccbad6042edce3ac799';
 
 Component.register('sw-settings-customer-group-detail', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'feature'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -31,7 +36,10 @@ Component.register('sw-settings-customer-group-detail', {
         return {
             isLoading: false,
             customerGroup: null,
-            isSaveSuccessful: false
+            isSaveSuccessful: false,
+            openSeoModal: false,
+            registrationTitleError: null,
+            seoUrls: []
         };
     },
 
@@ -48,6 +56,10 @@ Component.register('sw-settings-customer-group-detail', {
 
         customerGroupRepository() {
             return this.repositoryFactory.create('customer_group');
+        },
+
+        seoUrlRepository() {
+            return this.repositoryFactory.create('seo_url');
         },
 
         entityDescription() {
@@ -74,6 +86,23 @@ Component.register('sw-settings-customer-group-detail', {
             };
         },
 
+        hasRegistration: {
+            get() {
+                return this.customerGroup && this.customerGroup.registration !== undefined;
+            },
+            set(value) {
+                if (value) {
+                    this.customerGroup.registration = this.customerGroupRegistrationRepository.create(Shopware.Context.api);
+                } else {
+                    this.customerGroup.registration = null;
+                }
+            }
+        },
+
+        technicalUrl() {
+            return `${domainPlaceholderId}/customer-group-registration/${this.customerGroupId}#`;
+        },
+
         ...mapPropertyErrors('customerGroup', ['name'])
     },
 
@@ -82,6 +111,9 @@ Component.register('sw-settings-customer-group-detail', {
             if (!this.customerGroupId) {
                 this.createdComponent();
             }
+        },
+        'customerGroup.registrationTitle'() {
+            this.registrationTitleError = null;
         }
     },
 
@@ -93,7 +125,11 @@ Component.register('sw-settings-customer-group-detail', {
         createdComponent() {
             this.isLoading = true;
             if (this.customerGroupId) {
-                this.customerGroupRepository.get(this.customerGroupId, Shopware.Context.api).then((customerGroup) => {
+                this.loadSeoUrls();
+                const criteria = new Criteria();
+                criteria.addAssociation('registrationSalesChannels');
+
+                this.customerGroupRepository.get(this.customerGroupId, Shopware.Context.api, criteria).then((customerGroup) => {
                     this.customerGroup = customerGroup;
                     this.isLoading = false;
                 });
@@ -105,6 +141,18 @@ Component.register('sw-settings-customer-group-detail', {
             this.isLoading = false;
         },
 
+        async loadSeoUrls() {
+            const criteria = new Criteria();
+            criteria.addFilter(Criteria.equals('pathInfo', `/customer-group-registration/${this.customerGroupId}`));
+            criteria.addFilter(Criteria.equals('languageId', Shopware.Context.api.languageId));
+            criteria.addFilter(Criteria.equals('isCanonical', true));
+            criteria.addAssociation('salesChannel.domains');
+            criteria.addGroupField('seoPathInfo');
+            criteria.addGroupField('salesChannelId');
+
+            this.seoUrls = await this.seoUrlRepository.search(criteria, Shopware.Context.api);
+        },
+
         onChangeLanguage() {
             this.createdComponent();
         },
@@ -113,29 +161,58 @@ Component.register('sw-settings-customer-group-detail', {
             this.$router.push({ name: 'sw.settings.customer.group.index' });
         },
 
-        onSave() {
+        getSeoUrl(seoUrl) {
+            let shopUrl = '';
+
+            seoUrl.salesChannel.domains.forEach(domain => {
+                if (domain.languageId === seoUrl.languageId) {
+                    shopUrl = domain.url;
+                }
+            });
+
+            return `${shopUrl}/${seoUrl.seoPathInfo}`;
+        },
+
+        async onSave() {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            return this.customerGroupRepository.save(this.customerGroup, Shopware.Context.api).then(() => {
+            if (
+                Shopware.Context.api.languageId === Shopware.Context.api.systemLanguageId &&
+                this.customerGroup.registrationActive &&
+                types.isEmpty(this.customerGroup.registrationTitle)) {
+                this.createNotificationError({
+                    message: this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid')
+                });
+
+                this.registrationTitleError = new ShopwareError({
+                    code: 'CUSTOMER_GROUP_REGISTERATION_MISSING_TITLE',
+                    detail: this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid')
+                });
+
+                this.isLoading = false;
+                this.isSaveSuccessful = false;
+                return;
+            }
+
+            try {
+                await this.customerGroupRepository.save(this.customerGroup, Shopware.Context.api);
+
                 this.isSaveSuccessful = true;
                 if (!this.customerGroupId) {
+                    this.customerGroupId = this.customerGroup.id;
                     this.$router.push({ name: 'sw.settings.customer.group.detail', params: { id: this.customerGroup.id } });
                 }
 
-                this.customerGroupRepository.get(this.customerGroup.id, Shopware.Context.api)
-                    .then((updatedCustomerGroup) => {
-                        this.customerGroup = updatedCustomerGroup;
-                        this.isLoading = false;
-                    });
-            }).catch(() => {
+                this.customerGroup = await this.createdComponent();
+            } catch (err) {
                 this.createNotificationError({
                     title: this.$tc('global.default.error'),
                     message: this.$tc('sw-settings-customer-group.detail.notificationErrorMessage')
                 });
-            }).finally(() => {
-                this.isLoading = false;
-            });
+            }
+
+            this.isLoading = false;
         }
     }
 });

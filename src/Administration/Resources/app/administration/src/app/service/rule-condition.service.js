@@ -44,6 +44,16 @@ export default function createConditionService() {
         isNoneOf: {
             identifier: '!=',
             label: 'global.sw-condition.operator.isNoneOf'
+        },
+        // @internal (flag:FEATURE_NEXT_9825)
+        gross: {
+            identifier: false,
+            label: 'global.sw-condition.operator.gross'
+        },
+        // @internal (flag:FEATURE_NEXT_9825)
+        net: {
+            identifier: true,
+            label: 'global.sw-condition.operator.net'
         }
     };
     const operatorSets = {
@@ -83,6 +93,11 @@ export default function createConditionService() {
             operators.lowerThan,
             operators.lowerThanEquals,
             operators.notEquals
+        ],
+        // @internal (flag:FEATURE_NEXT_9825)
+        isNet: [
+            operators.gross,
+            operators.net
         ]
     };
 

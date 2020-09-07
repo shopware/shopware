@@ -38,6 +38,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -45,7 +46,6 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use function Flag\next6059;
 
 class OrderConverter
 {
@@ -143,7 +143,6 @@ class OrderConverter
         $data['languageId'] = $context->getSalesChannel()->getLanguageId();
 
         $convertedLineItems = LineItemTransformer::transformCollection($cart->getLineItems(), null, $context->getContext());
-
         $shippingAddresses = [];
 
         if ($conversionContext->shouldIncludeDeliveries()) {
@@ -264,6 +263,7 @@ class OrderConverter
             SalesChannelContextService::COUNTRY_STATE_ID => $billingAddress->getCountryStateId(),
             SalesChannelContextService::CUSTOMER_GROUP_ID => $customerGroupId,
             SalesChannelContextService::PERMISSIONS => self::ADMIN_EDIT_ORDER_PERMISSIONS,
+            SalesChannelContextService::VERSION_ID => $context->getVersionId(),
         ];
 
         //get the first not paid transaction or, if all paid, the last transaction
@@ -281,7 +281,7 @@ class OrderConverter
 
         $salesChannelContext = $this->salesChannelContextFactory->create(Uuid::randomHex(), $order->getSalesChannelId(), $options);
 
-        if (next6059()) {
+        if (Feature::isActive('FEATURE_NEXT_6059')) {
             $salesChannelContext->setItemRounding($order->getItemRounding());
             $salesChannelContext->setTotalRounding($order->getTotalRounding());
         } else {

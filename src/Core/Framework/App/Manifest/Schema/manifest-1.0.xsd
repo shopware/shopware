@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+    <xs:element name="manifest">
+        <xs:complexType>
+            <xs:all>
+                <xs:element name="meta" type="meta">
+                    <xs:annotation>
+                        <xs:documentation xml:lang="en">
+                            The Meta-Information about your app.
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="setup" type="setup" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation xml:lang="en">
+                            Authentication data for your app.
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="admin" type="admin" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation xml:lang="en">
+                            Define the administration customizations of your app.
+                        </xs:documentation>
+                    </xs:annotation>
+                    <xs:unique name="uniqueActionName">
+                        <xs:annotation>
+                            <xs:documentation xml:lang="en">
+                                Add a button to a detail or list page, that triggers an event for your app.
+                            </xs:documentation>
+                        </xs:annotation>
+                        <xs:selector xpath="action-button"/>
+                        <xs:field xpath="@action"/>
+                    </xs:unique>
+                    <xs:unique name="uniqueModuleName">
+                        <xs:annotation>
+                            <xs:documentation xml:lang="en">
+                                Add a module to the admin, which loads webpages provided by your app.
+                            </xs:documentation>
+                        </xs:annotation>
+                        <xs:selector xpath="module"/>
+                        <xs:field xpath="@name"/>
+                    </xs:unique>
+                </xs:element>
+                <xs:element name="permissions" type="permissions" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation xml:lang="en">
+                            Define all permissions your app needs.
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="custom-fields" type="custom-fields" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation xml:lang="en">
+                            Register custom-fields your app needs.
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:element>
+                <xs:element name="webhooks" type="webhooks" minOccurs="0">
+                    <xs:annotation>
+                        <xs:documentation xml:lang="en">
+                            Register webhooks your app wants to receive.
+                        </xs:documentation>
+                    </xs:annotation>
+                    <xs:unique name="uniqueWebhookName">
+                        <xs:selector xpath="webhook"/>
+                        <xs:field xpath="@name"/>
+                    </xs:unique>
+                </xs:element>
+            </xs:all>
+        </xs:complexType>
+    </xs:element>
+    <xs:complexType name="meta">
+        <xs:sequence>
+            <xs:element type="xs:string" name="name"/>
+            <xs:element name="label" maxOccurs="unbounded" type="translatableString"/>
+            <xs:element name="description" maxOccurs="unbounded" minOccurs="0" type="translatableString"/>
+            <xs:element type="xs:string" name="author"/>
+            <xs:element type="xs:string" name="copyright"/>
+            <xs:element type="xs:string" name="version"/>
+            <xs:element type="xs:string" name="icon" minOccurs="0"/>
+            <xs:element type="xs:string" name="license"/>
+            <xs:element type="xs:anyURI" name="privacy" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation xml:lang="en">
+                        Link to your privacy policy.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="setup">
+        <xs:all>
+            <xs:element type="xs:anyURI" name="registrationUrl">
+                <xs:annotation>
+                    <xs:documentation xml:lang="en">
+                        This url is used by a shop to register to your app.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element type="xs:string" name="secret" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation xml:lang="en">
+                        Optional: This secret can be used to develop your app locally.
+                        If this secret is set, the shop will not use the plugin store
+                        to authenticate itself with your app.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:all>
+    </xs:complexType>
+    <xs:complexType name="admin">
+        <xs:sequence>
+            <xs:element name="action-button" maxOccurs="unbounded" minOccurs="0" type="action-button"/>
+            <xs:element name="module" minOccurs="0" type="module"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="permissions">
+        <xs:choice maxOccurs="unbounded">
+            <xs:element name="read" maxOccurs="unbounded" type="xs:string"/>
+            <xs:element name="create" maxOccurs="unbounded" type="xs:string"/>
+            <xs:element name="update" maxOccurs="unbounded" type="xs:string"/>
+            <xs:element name="delete" maxOccurs="unbounded" type="xs:string"/>
+        </xs:choice>
+    </xs:complexType>
+    <xs:complexType name="custom-fields">
+        <xs:sequence>
+            <xs:element name="custom-field-set" maxOccurs="unbounded" minOccurs="0" type="custom-field-set"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="webhooks">
+        <xs:sequence>
+            <xs:element name="webhook" maxOccurs="unbounded" minOccurs="0" type="webhook"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="action-button">
+        <xs:sequence>
+            <xs:element name="label" maxOccurs="unbounded" type="translatableString"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="action" use="required"/>
+        <xs:attribute type="entity" name="entity" use="required"/>
+        <xs:attribute type="view" name="view" use="required"/>
+        <xs:attribute type="xs:anyURI" name="url" use="required"/>
+        <xs:attribute type="xs:boolean" name="openNewTab" default="false"/>
+    </xs:complexType>
+    <xs:complexType name="module">
+        <xs:sequence>
+            <xs:element name="label" maxOccurs="unbounded" type="translatableString"/>
+        </xs:sequence>
+        <xs:attribute type="xs:anyURI" name="source" use="required"/>
+        <xs:attribute type="xs:string" name="name" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="webhook">
+        <xs:attribute type="xs:string" name="name" use="required"/>
+        <xs:attribute type="xs:anyURI" name="url" use="required"/>
+        <xs:attribute type="xs:string" name="event" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="custom-field-set">
+        <xs:sequence>
+            <xs:element name="name" type="xs:string"/>
+            <xs:element name="label" maxOccurs="unbounded" type="translatableString"/>
+            <xs:element name="related-entities" type="entity-list"/>
+            <xs:element name="fields" maxOccurs="unbounded" type="custom-field-list"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="custom-field-list">
+        <xs:choice maxOccurs="unbounded">
+            <xs:element name="int" type="custom-field-int-type" maxOccurs="unbounded" minOccurs="0"/>
+            <xs:element name="float" type="custom-field-float-type" maxOccurs="unbounded" minOccurs="0"/>
+            <xs:element name="text" type="custom-field-text-type" maxOccurs="unbounded" minOccurs="0"/>
+            <xs:element name="text-area" type="custom-field-text-area-type" maxOccurs="unbounded" minOccurs="0"/>
+            <xs:element name="bool" type="custom-field-bool-type" maxOccurs="unbounded" minOccurs="0"/>
+            <xs:element name="datetime" type="custom-field-datetime-type" maxOccurs="unbounded" minOccurs="0"/>
+            <xs:element name="single-select" type="custom-field-single-select-type" maxOccurs="unbounded"
+                        minOccurs="0"/>
+            <xs:element name="multi-select" type="custom-field-multi-select-type" maxOccurs="unbounded" minOccurs="0"/>
+            <xs:element name="color-picker" type="custom-field-color-picker-type" maxOccurs="unbounded" minOccurs="0"/>
+            <xs:element name="media-selection" type="custom-field-media-type" maxOccurs="unbounded" minOccurs="0"/>
+        </xs:choice>
+    </xs:complexType>
+    <xs:group name="custom-field-type">
+        <xs:choice>
+            <xs:element name="label" maxOccurs="unbounded" type="translatableString"/>
+            <xs:element name="help-text" type="translatableString" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="required" type="xs:boolean" minOccurs="0" default="false"/>
+            <xs:element name="position" type="xs:int" minOccurs="0" default="1"/>
+        </xs:choice>
+    </xs:group>
+    <xs:complexType name="custom-field-int-type">
+        <xs:choice maxOccurs="unbounded">
+            <xs:group ref="custom-field-type"/>
+            <xs:element name="placeholder" type="translatableString" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="steps" type="xs:int" minOccurs="0" default="1"/>
+            <xs:element name="min" type="xs:int" minOccurs="0"/>
+            <xs:element name="max" type="xs:int" minOccurs="0"/>
+        </xs:choice>
+        <xs:attribute type="xs:string" name="name" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="custom-field-float-type">
+        <xs:choice maxOccurs="unbounded">
+            <xs:group ref="custom-field-type"/>
+            <xs:element name="placeholder" type="translatableString" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="steps" type="xs:float" minOccurs="0" default="0.1"/>
+            <xs:element name="min" type="xs:float" minOccurs="0"/>
+            <xs:element name="max" type="xs:float" minOccurs="0"/>
+        </xs:choice>
+        <xs:attribute type="xs:string" name="name" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="custom-field-text-type">
+        <xs:choice maxOccurs="unbounded">
+            <xs:group ref="custom-field-type"/>
+            <xs:element name="placeholder" type="translatableString" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:choice>
+        <xs:attribute type="xs:string" name="name" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="custom-field-text-area-type">
+        <xs:choice maxOccurs="unbounded">
+            <xs:group ref="custom-field-type"/>
+            <xs:element name="placeholder" type="translatableString" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:choice>
+        <xs:attribute type="xs:string" name="name" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="custom-field-bool-type">
+        <xs:choice maxOccurs="unbounded">
+            <xs:group ref="custom-field-type"/>
+        </xs:choice>
+        <xs:attribute type="xs:string" name="name" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="custom-field-datetime-type">
+        <xs:choice maxOccurs="unbounded">
+            <xs:group ref="custom-field-type"/>
+        </xs:choice>
+        <xs:attribute type="xs:string" name="name" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="custom-field-single-select-type">
+        <xs:choice maxOccurs="unbounded">
+            <xs:group ref="custom-field-type"/>
+            <xs:element name="placeholder" type="translatableString" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="options" type="option-collection"/>
+        </xs:choice>
+        <xs:attribute type="xs:string" name="name" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="custom-field-multi-select-type">
+        <xs:complexContent>
+            <xs:extension base="custom-field-single-select-type"/>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="custom-field-color-picker-type">
+        <xs:choice maxOccurs="unbounded">
+            <xs:group ref="custom-field-type"/>
+        </xs:choice>
+        <xs:attribute type="xs:string" name="name" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="custom-field-media-type">
+        <xs:choice maxOccurs="unbounded">
+            <xs:group ref="custom-field-type"/>
+        </xs:choice>
+        <xs:attribute type="xs:string" name="name" use="required"/>
+    </xs:complexType>
+    <xs:simpleType name="entity">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="product"/>
+            <xs:enumeration value="order"/>
+            <xs:enumeration value="catalogue"/>
+            <xs:enumeration value="promotion"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="option-collection">
+        <xs:sequence>
+            <xs:element name="option" type="option" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="option">
+        <xs:sequence>
+            <xs:element name="name" type="translatableString" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="value" use="required"/>
+    </xs:complexType>
+    <xs:simpleType name="view">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="detail"/>
+            <xs:enumeration value="index"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="entity-list">
+        <xs:choice maxOccurs="unbounded">
+            <xs:element name="product" type="empty" minOccurs="0"/>
+            <xs:element name="order" type="empty" minOccurs="0"/>
+            <xs:element name="category" type="empty" minOccurs="0"/>
+            <xs:element name="customer" type="empty" minOccurs="0"/>
+            <xs:element name="customer_address" type="empty" minOccurs="0"/>
+            <xs:element name="media" type="empty" minOccurs="0"/>
+            <xs:element name="product_manufacturer" type="empty" minOccurs="0"/>
+            <xs:element name="sales_channel" type="empty" minOccurs="0"/>
+        </xs:choice>
+    </xs:complexType>
+    <xs:complexType name="empty">
+        <xs:complexContent>
+            <xs:restriction base="xs:anyType"/>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="translatableString">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="lang" type="languageCode" default="en-GB"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:simpleType name="languageCode">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[a-z]{2}-[A-Z]{2}"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

@@ -49,7 +49,7 @@ class LineItemGroupUnitPriceGrossPackagerTest extends TestCase
 
     /**
      * This test verifies that we have finished building our
-     * package, as soon as we have reached a gross unit price of 100.0.
+     * package, as soon as we have reached a gross item price of 100.0.
      * This is archived with 2 items - but most important - only if taxes are considered.
      * Otherwise it would be 3 items.
      *

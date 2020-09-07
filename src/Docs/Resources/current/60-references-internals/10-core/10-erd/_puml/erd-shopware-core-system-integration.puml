@@ -31,7 +31,7 @@ Table(ShopwareCoreSystemIntegrationIntegrationDefinition, "integration\n(O-Auth 
    lastUsageAt dateTime
    customFields customFields
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
 }
 
 ' relationshipd

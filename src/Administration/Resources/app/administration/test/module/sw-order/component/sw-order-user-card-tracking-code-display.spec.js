@@ -52,7 +52,8 @@ describe('modules/sw-order/component/sw-order-user-card/tracking-code-display', 
         ).toBe(`${trackingUrl}${trackingCode}%3B%2C%2F%3F%3A%40%26%3D%2B%24`);
     });
 
-    it('should render an intact tracking url with a tracking code containing special characters which don\'t need escaping', () => {
+    it('should render an intact tracking url ' +
+        'with a tracking code containing special characters which don\'t need escaping', () => {
         expect(
             userCard.methods.renderTrackingUrl(
                 `${trackingCode}${unescapedCharacters}`,

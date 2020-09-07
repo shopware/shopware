@@ -276,11 +276,6 @@ class CountryEntity extends Entity
         $this->taxRules = $taxRules;
     }
 
-    public function getApiAlias(): string
-    {
-        return 'country';
-    }
-
     public function getCurrencyCountryRoundings(): ?CurrencyCountryRoundingCollection
     {
         return $this->currencyCountryRoundings;

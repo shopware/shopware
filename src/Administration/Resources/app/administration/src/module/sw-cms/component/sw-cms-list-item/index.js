@@ -17,6 +17,12 @@ Component.register('sw-cms-list-item', {
             type: Boolean,
             required: false,
             default: false
+        },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -64,6 +70,13 @@ Component.register('sw-cms-list-item', {
 
         componentClasses() {
             return {
+                'is--active': this.isActive(),
+                'is--disabled': this.disabled
+            };
+        },
+
+        statusClasses() {
+            return {
                 'is--active': this.isActive()
             };
         }
@@ -79,7 +92,19 @@ Component.register('sw-cms-list-item', {
         },
 
         onElementClick() {
+            if (this.disabled) {
+                return;
+            }
+
             this.$emit('onItemClick', this.page);
+        },
+
+        onItemClick(page) {
+            if (this.disabled) {
+                return;
+            }
+
+            this.$emit('item-click', page);
         },
 
         onRemovePreviewImage(page) {

@@ -40,7 +40,7 @@ class LineItemGroupPriceDescSorterTest extends TestCase
 
     /**
      * This test verifies that our sorting works correctly.
-     * We add 3 items with different unit prices and test that
+     * We add 3 items with different item prices and test that
      * the sorted list comes in the correct order.
      *
      * @test

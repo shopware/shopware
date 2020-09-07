@@ -23,6 +23,7 @@
                             v-model="isSaveSuccessful"
                             variant="primary"
                             v-tooltip.bottom="tooltipSave"
+                            :disabled="!acl.can('rule.editor')"
                             @click="onSave">
                         {{ $tc('sw-settings-rule.detail.buttonSave') }}
                     </sw-button-process>
@@ -43,6 +44,7 @@
                                                   :label="$tc('sw-settings-rule.detail.labelName')"
                                                   :placeholder="$tc('sw-settings-rule.detail.placeholderName')"
                                                   :error="ruleNameError"
+                                                  :disabled="!acl.can('rule.editor')"
                                                   required
                                                   v-model="rule.name">
                                         </sw-field>
@@ -53,6 +55,7 @@
                                                   :label="$tc('sw-settings-rule.detail.labelPriority')"
                                                   :placeholder="$tc('sw-settings-rule.detail.placeholderPriority')"
                                                   :error="rulePriorityError"
+                                                  :disabled="!acl.can('rule.editor')"
                                                   required
                                                   v-model="rule.priority">
                                         </sw-field>
@@ -62,6 +65,7 @@
                                     <sw-field type="textarea"
                                               :label="$tc('sw-settings-rule.detail.labelDescription')"
                                               :placeholder="$tc('sw-settings-rule.detail.placeholderDescription')"
+                                              :disabled="!acl.can('rule.editor')"
                                               v-model="rule.description">
                                     </sw-field>
                                 {% endblock %}
@@ -71,6 +75,7 @@
                                             valueProperty="id"
                                             labelProperty="name"
                                             :label="$tc('sw-settings-rule.detail.labelType')"
+                                            :disabled="!acl.can('rule.editor')"
                                             :options="availableModuleTypes"
                                             v-model="moduleTypes">
                                         <template #selection-label-property="{ item }">
@@ -96,6 +101,7 @@
                                 associationField="ruleId"
                                 :associationValue="ruleId || rule.id"
                                 :rootCondition="null"
+                                :disabled="!acl.can('rule.editor')"
                                 @conditions-changed="conditionsChanged">
                             </sw-condition-tree>
                         </sw-card>

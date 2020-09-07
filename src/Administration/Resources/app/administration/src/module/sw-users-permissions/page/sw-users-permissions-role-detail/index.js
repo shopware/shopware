@@ -7,7 +7,12 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 Component.register('sw-users-permissions-role-detail', {
     template,
 
-    inject: ['repositoryFactory', 'privileges', 'userService'],
+    inject: [
+        'repositoryFactory',
+        'privileges',
+        'userService',
+        'loginService'
+    ],
 
     mixins: [
         Mixin.getByName('notification')
@@ -22,7 +27,8 @@ Component.register('sw-users-permissions-role-detail', {
         return {
             isLoading: true,
             isSaveSuccessful: false,
-            role: null
+            role: null,
+            confirmPasswordModal: false
         };
     },
 
@@ -64,10 +70,6 @@ Component.register('sw-users-permissions-role-detail', {
 
         roleId() {
             return this.$route.params.id;
-        },
-
-        requiredPrivileges() {
-            return this.privileges.getRequiredPrivileges();
         }
     },
 
@@ -117,15 +119,18 @@ Component.register('sw-users-permissions-role-detail', {
         },
 
         onSave() {
+            this.confirmPasswordModal = true;
+        },
+
+        saveRole(context) {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            this.role.privileges = [
-                ...this.getPrivilegesForSelections(),
-                ...this.requiredPrivileges
-            ];
+            this.role.privileges = this.privileges.getPrivilegesForAdminPrivilegeKeys(this.role.privileges);
 
-            return this.roleRepository.save(this.role, Shopware.Context.api)
+            this.confirmPasswordModal = false;
+
+            return this.roleRepository.save(this.role, context)
                 .then(() => {
                     return this.updateCurrentUser();
                 }).then(() => {
@@ -162,16 +167,8 @@ Component.register('sw-users-permissions-role-detail', {
             });
         },
 
-        getPrivilegesForSelections() {
-            const privileges = [];
-
-            this.role.privileges.forEach(privilegeKey => {
-                const privilegeRole = this.privileges.getPrivilegeRole(privilegeKey);
-
-                privileges.push(privilegeKey, ...privilegeRole.privileges);
-            });
-
-            return privileges;
+        onCloseConfirmPasswordModal() {
+            this.confirmPasswordModal = false;
         },
 
         saveFinish() {

@@ -75,7 +75,6 @@
                             {% endblock %}
                             {% block sw_settings_document_detail_content_form_field_renderer_content %}
                                 <template v-if="documentConfig.config" v-for="formField in generalFormFields">
-                                    <template v-for="formField in generalFormFields">
                                     {% block sw_settings_document_detail_content_form_field_renderer %}
                                         <sw-form-field-renderer
                                             class="sw-settings-document-detail__form-field-renderer"
@@ -83,7 +82,6 @@
                                             v-model="documentConfig.config[formField.name]">
                                         </sw-form-field-renderer>
                                     {% endblock %}
-                                </template>
                                 </template>
                             {% endblock %}
                         </sw-container>

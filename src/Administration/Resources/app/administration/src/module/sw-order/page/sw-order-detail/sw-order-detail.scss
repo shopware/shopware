@@ -1,13 +1,12 @@
 @import "~scss/variables";
 
-.sw-order-detail{
-
+.sw-order-detail {
     .smart-bar__actions .sw-button-group .sw-button {
         margin-right: 0;
     }
-    
+
     .sw-order-detail__summary {
-        grid-template-areas: 'empty summary'
+        grid-template-areas: 'empty summary';
     }
 
     .sw-order-detail__summary-data {
@@ -37,4 +36,7 @@
         }
     }
 
+    .sw-card__content {
+        overflow: hidden;
+    }
 }

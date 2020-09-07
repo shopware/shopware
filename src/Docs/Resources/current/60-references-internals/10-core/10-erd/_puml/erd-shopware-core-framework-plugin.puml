@@ -47,7 +47,7 @@ Table(ShopwareCoreFrameworkPluginPluginDefinition, "plugin\n(Plugin)") {
    changelog translated
    customFields translated
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
    translated json
 }
 TranslationTable(ShopwareCoreFrameworkPluginAggregatePluginTranslationPluginTranslationDefinition, "plugin_translation\n((Translations))") {
@@ -58,18 +58,18 @@ TranslationTable(ShopwareCoreFrameworkPluginAggregatePluginTranslationPluginTran
    changelog json
    customFields customFields
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
    primary_key(pluginId) foreignKey
    primary_key(languageId) foreignKey
 }
 ForeignTable(ShopwareCoreCheckoutPaymentPaymentMethodDefinition, "payment_method") {
 }
-ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
+ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
 }
 
 ' relationshipd
 
 ShopwareCoreFrameworkPluginAggregatePluginTranslationPluginTranslationDefinition --> ShopwareCoreFrameworkPluginPluginDefinition
 ShopwareCoreFrameworkPluginPluginDefinition --> ShopwareCoreCheckoutPaymentPaymentMethodDefinition
-ShopwareCoreFrameworkPluginAggregatePluginTranslationPluginTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
+ShopwareCoreFrameworkPluginAggregatePluginTranslationPluginTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
 @enduml

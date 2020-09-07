@@ -2,6 +2,7 @@ import './component/sw-plugin-box';
 import './page/sw-settings-payment-list';
 import './page/sw-settings-payment-detail';
 import './page/sw-settings-payment-create';
+import './acl';
 
 const { Module } = Shopware;
 
@@ -20,21 +21,24 @@ Module.register('sw-settings-payment', {
             component: 'sw-settings-payment-list',
             path: 'index',
             meta: {
-                parentPath: 'sw.settings.index'
+                parentPath: 'sw.settings.index',
+                privilege: 'payment.viewer'
             }
         },
         detail: {
             component: 'sw-settings-payment-detail',
             path: 'detail/:id',
             meta: {
-                parentPath: 'sw.settings.payment.index'
+                parentPath: 'sw.settings.payment.index',
+                privilege: 'payment.viewer'
             }
         },
         create: {
             component: 'sw-settings-payment-create',
             path: 'create',
             meta: {
-                parentPath: 'sw.settings.payment.index'
+                parentPath: 'sw.settings.payment.index',
+                privilege: 'payment.create'
             }
         }
     },
@@ -42,6 +46,7 @@ Module.register('sw-settings-payment', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.payment.index',
-        icon: 'default-money-card'
+        icon: 'default-money-card',
+        privilege: 'payment.viewer'
     }
 });

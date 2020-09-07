@@ -3,43 +3,41 @@ import CheckoutPageObject from "../../support/pages/checkout.page-object";
 let product = {};
 
 const additionalData = {
-    featureSets: [
-        {
-            name: 'Testing feature set',
-            description: 'Lorem ipsum dolor sit amet',
-            features: [
-                {
-                    type: 'referencePrice',
-                    id: null,
-                    name: null,
-                    position: 0
-                }
-            ]
-        }
-    ],
+    featureSet: {
+        name: 'Testing feature set',
+        description: 'Lorem ipsum dolor sit amet',
+        features: [
+            {
+                type: 'referencePrice',
+                id: null,
+                name: null,
+                position: 0
+            }
+        ]
+    },
     unit: {
         shortCode: 'l',
         name: 'litres'
     },
     purchaseUnit: 2,
     referenceUnit: 0.33
-}
-
-// TODO: Remove skip from tests, once the NEXT_6997 feature flag is removed
+};
 
 describe('Test if essential characteristics are displayed in checkout', () => {
     beforeEach(() => {
-        return cy.createProductFixture(additionalData).then(() => {
-            return cy.createDefaultFixture('category')
-        }).then(() => {
-            return cy.fixture('product');
-        }).then((result) => {
-            product = result;
-            cy.visit('/');
+        cy.setToInitialState().then(() => {
+            cy.createProductFixture(additionalData).then(() => {
+                return cy.createDefaultFixture('category')
+            }).then(() => {
+                return cy.fixture('product');
+            }).then((result) => {
+                product = result;
+                cy.visit('/');
+            });
         });
     });
 
-    it.skip('@package @checkout: Should display essential characteristics', () => {
+    it.skip('@checkout: Should display essential characteristics', () => {
         const page = new CheckoutPageObject();
 
         // Product detail

@@ -100,7 +100,10 @@ class CsvReader extends AbstractReader
         $this->seek($resource, $offset);
     }
 
-    private function readSingleRecord($resource, $offset): ?array
+    /**
+     * @param resource $resource
+     */
+    private function readSingleRecord($resource, int $offset): ?array
     {
         $this->seek($resource, $offset);
 
@@ -129,7 +132,7 @@ class CsvReader extends AbstractReader
         return null;
     }
 
-    private function mapRecord($record): ?array
+    private function mapRecord(array $record): ?array
     {
         if (!$this->withHeader) {
             return $record;

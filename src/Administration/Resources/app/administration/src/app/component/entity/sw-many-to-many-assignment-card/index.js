@@ -71,6 +71,12 @@ Component.register('sw-many-to-many-assignment-card', {
             default: 'name'
         },
 
+        selectLabel: {
+            type: String,
+            required: false,
+            default: ''
+        },
+
         placeholder: {
             type: String,
             required: false,
@@ -85,6 +91,12 @@ Component.register('sw-many-to-many-assignment-card', {
             default() {
                 return [];
             }
+        },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -336,6 +348,7 @@ Component.register('sw-many-to-many-assignment-card', {
             this.assignmentRepository.search(this.gridCriteria, this.context).then((assignments) => {
                 this.gridData = assignments;
                 this.isLoadingGrid = false;
+                this.$emit('paginate', this.gridData);
             });
         },
 

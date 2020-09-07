@@ -223,11 +223,7 @@
             "badgeTopseller": "Topseller",
             "badgeNew": "Neu",
             "priceUnitContent": "Inhalt:"
-          },
-          "actionBuy": "In den Warenkorb",
-          "badgeTopseller": "Topseller",
-          "priceUnitContent": "Inhalt:",
-          "badgeNew": "Neu"
+          }
         },
         "config": {
           "label": {
@@ -254,13 +250,34 @@
             "navigation": "Navigation",
             "rotate": "Automatischer Wechsel",
             "border": "Rahmen",
-            "minWidth": "Minimale Weite"
+            "minWidth": "Minimale Weite",
+            "productAssignmentType": "Produkt-Zuweisung",
+            "productStreamSorting": "Sortierung",
+            "productStreamLimit": "Maximale Produktanzahl",
+            "productStreamChoice": "Dynamische Produktgruppe"
           },
           "placeholder": {
             "title": "Slider-Titel",
             "selection": "Produkte auswählen",
-            "minWidth": "Minimale Breite"
-          }
+            "minWidth": "Minimale Breite",
+            "productStreamChoice": "Wähle eine dynamische Produktgruppe...",
+            "productStreamSorting": "Wähle eine Sortierung..."
+          },
+          "productAssignmentTypeOptions": {
+            "manual": "Manuelle Zuweisung",
+            "productStream": "Dynamische Produktgruppe"
+          },
+          "productStreamSortingOptions": {
+            "nameAsc": "Name aufsteigend",
+            "nameDesc": "Name absteigend",
+            "priceAsc": "Price aufsteigend",
+            "priceDesc": "Price absteigend",
+            "creationDateAsc": "Erstellungsdatum aufsteigend",
+            "creationDateDesc": "Erstellungsdatum absteigend",
+            "random": "Zufällig"
+          },
+          "textProductStreamPreviewLink": "Vorschau dynamische Produktgruppe",
+          "textProductStreamPerformanceHint": "Bitte beachten: Dynamische Produktgruppen können einen spürbaren Einfluss auf die Performance haben, abhängig von der Komplexität der Produktgruppen-Filter und der Anzahl der Slider-Elemente auf der Seite."
         }
       },
       "sidebarCategoryNavigation": {
@@ -510,6 +527,13 @@
           "buttonCancel": "Abbrechen",
           "buttonDelete": "Löschen"
         }
+      }
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "cms": {
+        "label": "Erlebniswelten"
       }
     }
   }

@@ -24,4 +24,18 @@ class ProductCrossSellingAssignedProductsCollection extends EntityCollection
     {
         return 'product_cross_selling_assigned_products_collection';
     }
+
+    public function getProductIds(): array
+    {
+        return $this->fmap(function (ProductCrossSellingAssignedProductsEntity $entity) {
+            return $entity->getProductId();
+        });
+    }
+
+    public function sortByPosition(): void
+    {
+        $this->sort(function (ProductCrossSellingAssignedProductsEntity $a, ProductCrossSellingAssignedProductsEntity $b) {
+            return $a->getPosition() <=> $b->getPosition();
+        });
+    }
 }

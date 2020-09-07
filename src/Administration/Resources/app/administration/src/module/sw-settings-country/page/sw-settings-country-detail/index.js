@@ -1,4 +1,5 @@
 import template from './sw-settings-country-detail.html.twig';
+import './sw-settings-country-detail.scss';
 
 const { Component, Mixin } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
@@ -6,13 +7,23 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 Component.register('sw-settings-country-detail', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('notification'),
         Mixin.getByName('placeholder'),
         Mixin.getByName('discard-detail-page-changes')('country')
     ],
+
+    shortcuts: {
+        'SYSTEMKEY+S': {
+            active() {
+                return this.allowSave;
+            },
+            method: 'onSave'
+        },
+        ESCAPE: 'onCancel'
+    },
 
     data() {
         return {
@@ -38,11 +49,42 @@ Component.register('sw-settings-country-detail', {
         countryRepository() {
             return this.repositoryFactory.create('country');
         },
+
         identifier() {
             return this.placeholder(this.country, 'name');
         },
+
         stateColumns() {
             return this.getStateColumns();
+        },
+
+        isNewCountry() {
+            return typeof this.country.isNew === 'function'
+                ? this.country.isNew()
+                : false;
+        },
+
+        allowSave() {
+            return this.isNewCountry
+                ? this.acl.can('country.creator')
+                : this.acl.can('country.editor');
+        },
+
+        tooltipSave() {
+            if (!this.allowSave) {
+                return {
+                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    disabled: this.allowSave,
+                    showOnDisabledElements: true
+                };
+            }
+
+            const systemKey = this.$device.getSystemKey();
+
+            return {
+                message: `${systemKey} + S`,
+                appearance: 'light'
+            };
         },
 
         ...mapPropertyErrors('country', ['name'])
@@ -91,6 +133,10 @@ Component.register('sw-settings-country-detail', {
             }).catch(() => {
                 this.isLoading = false;
             });
+        },
+
+        onCancel() {
+            this.$router.push({ name: 'sw.settings.country.index' });
         },
 
         countryStateSelectionChanged(selection, selectionCount) {

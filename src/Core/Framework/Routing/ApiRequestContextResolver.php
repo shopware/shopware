@@ -13,13 +13,12 @@ use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Symfony\Component\HttpFoundation\Request;
-use function Flag\next3722;
-use function Flag\next6059;
 
 class ApiRequestContextResolver implements RequestContextResolverInterface
 {
@@ -236,7 +235,19 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
     private function getAdminApiSource(?string $userId, ?string $integrationId = null): AdminApiSource
     {
         $source = new AdminApiSource($userId, $integrationId);
-        if (!next3722()) {
+
+        // Use the permissions associated to that app, if the request is made by an integration associated to an app
+        $appPermissions = $this->fetchPermissionsIntegrationByApp($integrationId);
+        if ($appPermissions !== null) {
+            $source->setIsAdmin(false);
+            $source->setPermissions(
+                $appPermissions
+            );
+
+            return $source;
+        }
+
+        if (!Feature::isActive('FEATURE_NEXT_3722')) {
             $source->setIsAdmin(true);
 
             return $source;
@@ -290,7 +301,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             ['id' => Uuid::fromHexToBytes($currencyId)]
         );
 
-        if (!next6059()) {
+        if (!Feature::isActive('FEATURE_NEXT_6059')) {
             return new CashRoundingConfig((int) $rounding['decimal_precision'], 0.01, true);
         }
 
@@ -301,5 +312,25 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             (float) $rounding['interval'],
             (bool) $rounding['roundForNet']
         );
+    }
+
+    private function fetchPermissionsIntegrationByApp(?string $integrationId): ?array
+    {
+        if (!$integrationId) {
+            return null;
+        }
+
+        $privileges = $this->connection->fetchColumn('
+            SELECT `acl_role`.`privileges`
+            FROM `acl_role`
+            INNER JOIN `app` ON `app`.`acl_role_id` = `acl_role`.`id`
+            WHERE `app`.`integration_id` = :integrationId
+        ', ['integrationId' => Uuid::fromHexToBytes($integrationId)]);
+
+        if ($privileges === false) {
+            return null;
+        }
+
+        return json_decode($privileges, true);
     }
 }

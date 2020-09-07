@@ -29,7 +29,7 @@
                 "label": "Label",
                 "tax": "VAT",
                 "quantity": "QTY",
-                "unitPrice": "Unit price",
+                "unitPrice": "Item price",
                 "productNumber": "Prod. no.",
                 "total": "Total"
             },

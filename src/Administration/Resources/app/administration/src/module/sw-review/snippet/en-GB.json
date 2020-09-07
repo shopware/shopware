@@ -48,5 +48,12 @@
       "review4PointRatingText": "Very good",
       "review5PointRatingText": "Excellent"
     }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "review": {
+        "label": "Reviews"
+      }
+    }
   }
 }

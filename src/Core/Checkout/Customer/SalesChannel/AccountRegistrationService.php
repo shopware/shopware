@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
+/**
+ * @deprecated tag:v6.4.0 - use RegisterRoute / RegisterConfirmRoute instead
+ */
 class AccountRegistrationService
 {
     /**

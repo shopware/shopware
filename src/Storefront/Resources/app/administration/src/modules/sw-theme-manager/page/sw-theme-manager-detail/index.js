@@ -11,6 +11,8 @@ const { getObjectDiff, cloneDeep } = Shopware.Utils.object;
 Component.register('sw-theme-manager-detail', {
     template,
 
+    inject: ['acl'],
+
     mixins: [
         Mixin.getByName('theme'),
         Mixin.getByName('notification')
@@ -84,10 +86,6 @@ Component.register('sw-theme-manager-detail', {
                 message: this.$tc('sw-theme-manager.actions.deleteDisabledToolTip'),
                 disabled: this.theme.salesChannels.length === 0
             };
-        },
-
-        mediaStore() {
-            return StateDeprecated.getStore('media');
         },
 
         themeId() {
@@ -191,10 +189,12 @@ Component.register('sw-theme-manager-detail', {
         },
 
         successfulUpload(mediaItem, context) {
-            this.mediaStore.getByIdAsync(mediaItem.targetId).then((media) => {
-                this.setMediaItem(media, context);
-                return true;
-            });
+            this.mediaRepository
+                .get(mediaItem.targetId, Shopware.Context.api)
+                .then((media) => {
+                    this.setMediaItem(media, context);
+                    return true;
+                });
         },
 
         removeMediaItem(field) {
@@ -202,6 +202,10 @@ Component.register('sw-theme-manager-detail', {
         },
 
         onReset() {
+            if (!this.acl.can('theme.editor')) {
+                return;
+            }
+
             if (this.theme.configValues === null) {
                 return;
             }
@@ -218,6 +222,10 @@ Component.register('sw-theme-manager-detail', {
         },
 
         onConfirmThemeReset() {
+            if (!this.acl.can('theme.editor')) {
+                return;
+            }
+
             this.themeService.resetTheme(this.themeId).then(() => {
                 this.getTheme();
             });
@@ -244,6 +252,10 @@ Component.register('sw-theme-manager-detail', {
         },
 
         onSaveTheme() {
+            if (!this.acl.can('theme.editor')) {
+                return;
+            }
+
             this.isSaveSuccessful = false;
             this.isLoading = true;
 

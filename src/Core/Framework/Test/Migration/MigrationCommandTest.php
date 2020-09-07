@@ -4,12 +4,19 @@ namespace Shopware\Core\Framework\Test\Migration;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Migration\Command\MigrationCommand;
 use Shopware\Core\Framework\Migration\Command\MigrationDestructiveCommand;
 use Shopware\Core\Framework\Migration\Exception\MigrateException;
+use Shopware\Core\Framework\Migration\MigrationCollection;
+use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
+use Shopware\Core\Framework\Migration\MigrationRuntime;
+use Shopware\Core\Framework\Migration\MigrationSource;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
+use Symfony\Component\Console\Tester\CommandTester;
 
 class MigrationCommandTest extends TestCase
 {
@@ -57,14 +64,72 @@ class MigrationCommandTest extends TestCase
         static::assertSame(2, $this->getMigrationCount());
     }
 
+    /**
+     * @deprecated tag:v6.4.0 can safely be deleted if we don't support until timestamp as argument anymore
+     */
+    public function testCommandAddMigrationsWithUntilTimestampAsLastArgument(): void
+    {
+        static::assertSame(0, $this->getMigrationCount());
+
+        $tester = new CommandTester($this->getCommand());
+
+        $tester->execute(['identifier' => [self::INTEGRATION_IDENTIFIER(), PHP_INT_MAX]]);
+
+        // assert deprecation notice is shown
+        static::assertStringContainsString('v6.4.0', $tester->getDisplay());
+        static::assertSame(2, $this->getMigrationCount());
+    }
+
+    public function testCommandMigrateMultipleIdentifiers(): void
+    {
+        static::assertSame(0, $this->getMigrationCount(true));
+
+        $command = $this->getCommand();
+
+        $command->run(new ArrayInput(['identifier' => [self::INTEGRATION_IDENTIFIER(), '_test_migrations_valid_run_time'], '--all' => true]), new BufferedOutput());
+        static::assertSame(4, $this->getMigrationCount(true));
+    }
+
+    public function testCommandMigrateMultipleIdentifiersSkipsNotFoundMigrationSources(): void
+    {
+        static::assertSame(0, $this->getMigrationCount(true));
+
+        $command = $this->getCommand();
+
+        $command->run(new ArrayInput(['identifier' => ['noMigratioNSource', self::INTEGRATION_IDENTIFIER()], '--all' => true]), new BufferedOutput());
+        static::assertSame(2, $this->getMigrationCount(true));
+    }
+
+    public function testCommandMigrateMultipleIdentifiersWithoutAllOptionThrowsException(): void
+    {
+        static::assertSame(0, $this->getMigrationCount(true));
+
+        $command = $this->getCommand();
+
+        $this->expectException(\InvalidArgumentException::class);
+        $command->run(new ArrayInput(['identifier' => [self::INTEGRATION_IDENTIFIER(), '_test_migrations_valid_run_time'], '--until' => PHP_INT_MAX]), new BufferedOutput());
+    }
+
+    public function testCommandMigrateMultipleIdentifiersWithLimitOptionThrowsException(): void
+    {
+        static::assertSame(0, $this->getMigrationCount(true));
+
+        $command = $this->getCommand();
+
+        $this->expectException(\InvalidArgumentException::class);
+        $command->run(new ArrayInput(['identifier' => [self::INTEGRATION_IDENTIFIER(), '_test_migrations_valid_run_time'], '--all' => true, '--limit' => 10]), new BufferedOutput());
+    }
+
     public function testCommandAddMigrations(): void
     {
         static::assertSame(0, $this->getMigrationCount());
 
-        $command = $this->getCommand();
+        $tester = new CommandTester($this->getCommand());
 
-        $command->run(new ArrayInput(['until' => PHP_INT_MAX, 'identifier' => self::INTEGRATION_IDENTIFIER()]), new BufferedOutput());
+        $tester->execute(['identifier' => [self::INTEGRATION_IDENTIFIER()], '--until' => PHP_INT_MAX]);
 
+        // assert no deprecation notice is shown
+        static::assertStringNotContainsString('v6.4.0', $tester->getDisplay());
         static::assertSame(2, $this->getMigrationCount());
     }
 
@@ -75,7 +140,7 @@ class MigrationCommandTest extends TestCase
         $command = $this->getCommand();
 
         try {
-            $command->run(new ArrayInput(['-all' => true, 'identifier' => self::INTEGRATION_WITH_EXCEPTION_IDENTIFIER()]), new BufferedOutput());
+            $command->run(new ArrayInput(['--all' => true, 'identifier' => [self::INTEGRATION_WITH_EXCEPTION_IDENTIFIER()]]), new BufferedOutput());
         } catch (MigrateException $e) {
             //nth
         }
@@ -99,8 +164,24 @@ class MigrationCommandTest extends TestCase
 
         $command = $this->getDestructiveCommand();
 
-        $command->run(new ArrayInput(['-all' => true, 'identifier' => self::INTEGRATION_IDENTIFIER()]), new BufferedOutput());
+        $command->run(new ArrayInput(['--all' => true, 'identifier' => [self::INTEGRATION_IDENTIFIER()]]), new BufferedOutput());
 
+        static::assertSame(2, $this->getMigrationCount());
+    }
+
+    /**
+     * @deprecated tag:v6.4.0 can safely be deleted if we don't support until timestamp as argument anymore
+     */
+    public function testDestructiveCommandAddMigrationsWithUntilTimestampAsLastArgument(): void
+    {
+        static::assertSame(0, $this->getMigrationCount());
+
+        $tester = new CommandTester($this->getDestructiveCommand());
+
+        $tester->execute(['identifier' => [self::INTEGRATION_IDENTIFIER(), PHP_INT_MAX]]);
+
+        // assert deprecation notice is shown
+        static::assertStringContainsString('v6.4.0', $tester->getDisplay());
         static::assertSame(2, $this->getMigrationCount());
     }
 
@@ -108,10 +189,12 @@ class MigrationCommandTest extends TestCase
     {
         static::assertSame(0, $this->getMigrationCount());
 
-        $command = $this->getDestructiveCommand();
+        $tester = new CommandTester($this->getDestructiveCommand());
 
-        $command->run(new ArrayInput(['until' => PHP_INT_MAX, 'identifier' => self::INTEGRATION_IDENTIFIER()]), new BufferedOutput());
+        $tester->execute(['identifier' => [self::INTEGRATION_IDENTIFIER()], '--until' => PHP_INT_MAX]);
 
+        // assert no deprecation notice is shown
+        static::assertStringNotContainsString('v6.4.0', $tester->getDisplay());
         static::assertSame(2, $this->getMigrationCount());
     }
 
@@ -122,7 +205,7 @@ class MigrationCommandTest extends TestCase
         $command = $this->getCommand();
 
         try {
-            $command->run(new ArrayInput(['-all' => true, 'identifier' => self::INTEGRATION_WITH_EXCEPTION_IDENTIFIER()]), new BufferedOutput());
+            $command->run(new ArrayInput(['--all' => true, 'identifier' => [self::INTEGRATION_WITH_EXCEPTION_IDENTIFIER()]]), new BufferedOutput());
         } catch (MigrateException $e) {
             //nth
         }
@@ -130,7 +213,7 @@ class MigrationCommandTest extends TestCase
         $command = $this->getDestructiveCommand();
 
         try {
-            $command->run(new ArrayInput(['-all' => true, 'identifier' => self::INTEGRATION_WITH_EXCEPTION_IDENTIFIER()]), new BufferedOutput());
+            $command->run(new ArrayInput(['--all' => true, 'identifier' => [self::INTEGRATION_WITH_EXCEPTION_IDENTIFIER()]]), new BufferedOutput());
         } catch (MigrateException $e) {
             //nth
         }
@@ -144,7 +227,60 @@ class MigrationCommandTest extends TestCase
 
         $command = $this->getCommand();
 
-        $command->run(new ArrayInput(['-all' => true, 'identifier' => self::INTEGRATION_IDENTIFIER()]), new BufferedOutput());
+        $command->run(new ArrayInput(['--all' => true, 'identifier' => [self::INTEGRATION_IDENTIFIER()]]), new BufferedOutput());
+
+        static::assertSame(2, $this->getMigrationCount(true));
+    }
+
+    public function testCommandMigrateCacheClearBehaviourWithoutMigrations(): void
+    {
+        static::assertSame(0, $this->getMigrationCount(true));
+
+        $connection = $this->getConnection();
+        $loader = $this->getMockBuilder(MigrationCollectionLoader::class)->disableOriginalConstructor()->getMock();
+
+        $loader->expects(static::once())->method('collect')->willReturn(
+            new MigrationCollection(
+                new MigrationSource(''),
+                new MigrationRuntime($connection, new NullLogger()),
+                $connection
+            )
+        );
+
+        $cache = $this->getMockBuilder(TagAwareAdapter::class)->disableOriginalConstructor()->getMock();
+        $cache->expects(static::never())->method('clear');
+
+        $command = new MigrationCommand($loader, $cache);
+
+        $command->run(new ArrayInput(['--all' => true, 'identifier' => [self::INTEGRATION_IDENTIFIER()]]), new BufferedOutput());
+
+        static::assertSame(0, $this->getMigrationCount(true));
+    }
+
+    public function testCommandMigrateCacheClearBehaviourWithOneMigration(): void
+    {
+        static::assertSame(0, $this->getMigrationCount(true));
+
+        $cache = $this->getMockBuilder(TagAwareAdapter::class)->disableOriginalConstructor()->getMock();
+        $cache->expects(static::once())->method('clear');
+
+        $command = new MigrationCommand($this->getContainer()->get(MigrationCollectionLoader::class), $cache);
+
+        $command->run(new ArrayInput(['--all' => true, '--limit' => 1, 'identifier' => [self::INTEGRATION_IDENTIFIER()]]), new BufferedOutput());
+
+        static::assertSame(1, $this->getMigrationCount(true));
+    }
+
+    public function testCommandMigrateCacheClearBehaviourWithTwoMigrations(): void
+    {
+        static::assertSame(0, $this->getMigrationCount(true));
+
+        $cache = $this->getMockBuilder(TagAwareAdapter::class)->disableOriginalConstructor()->getMock();
+        $cache->expects(static::once())->method('clear');
+
+        $command = new MigrationCommand($this->getContainer()->get(MigrationCollectionLoader::class), $cache);
+
+        $command->run(new ArrayInput(['--all' => true, 'identifier' => [self::INTEGRATION_IDENTIFIER()]]), new BufferedOutput());
 
         static::assertSame(2, $this->getMigrationCount(true));
     }

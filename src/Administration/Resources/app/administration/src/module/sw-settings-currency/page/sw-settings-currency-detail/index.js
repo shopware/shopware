@@ -9,7 +9,7 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 Component.register('sw-settings-currency-detail', {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: ['repositoryFactory', 'acl', 'feature'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -208,7 +208,7 @@ Component.register('sw-settings-currency-detail', {
             return this.currencyRepository.get(this.currencyId, Shopware.Context.api)
                 .then((currency) => {
                     this.currency = currency;
-                    if (!this.next6059) {
+                    if (!this.feature.isActive('FEATURE_NEXT_6059')) {
                         return currency;
                     }
                     return this.loadCurrencyCountryRoundings().then((currencyCountryRoundings) => {

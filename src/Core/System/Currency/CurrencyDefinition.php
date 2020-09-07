@@ -26,12 +26,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCountryRoundingDefinition;
 use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCurrency\SalesChannelCurrencyDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
-use function Flag\next6059;
 
 class CurrencyDefinition extends EntityDefinition
 {
@@ -76,7 +76,7 @@ class CurrencyDefinition extends EntityDefinition
             (new OneToManyAssociationField('productExports', ProductExportDefinition::class, 'currency_id', 'id'))->addFlags(new RestrictDelete(), new ReadProtected(SalesChannelApiSource::class)),
         ]);
 
-        if (next6059()) {
+        if (Feature::isActive('FEATURE_NEXT_6059')) {
             $decimalsField = (new IntField('decimal_precision', 'decimalPrecision'))
                 ->addFlags(new Deprecated('v6.3.0', 'v6.4.0', 'itemRounding'));
 

@@ -9,6 +9,7 @@
                               v-model="promotion.name"
                               :error="promotionNameError"
                               required
+                              :disabled="!acl.can('promotion.editor')"
                               validation="required">
                     </sw-field>
                 {% endblock %}
@@ -16,6 +17,7 @@
                 {% block sw_promotion_basic_form_active_field %}
                     <sw-field type="switch"
                               bordered
+                              :disabled="!acl.can('promotion.editor')"
                               :label="$tc('sw-promotion.detail.main.general.labelActive')"
                               v-model="promotion.active">
                     </sw-field>
@@ -28,6 +30,7 @@
                         class="sw-promotion-basic-form__select-sales-channels"
                         :label="$tc('sw-promotion.detail.main.general.labelSalesChannels')"
                         :placeholder="$tc('sw-promotion.detail.main.general.placeholderSalesChannels')"
+                        :disabled="!acl.can('promotion.editor')"
                         :promotion="promotion">
                     </sw-promotion-sales-channel-select>
                 {% endblock %}
@@ -36,6 +39,7 @@
             <sw-container columns="1fr 1fr" gap="0px 30px">
                 {% block sw_promotion_basic_form_valid_from_field %}
                     <sw-datepicker dateType="datetime-local"
+                                   :disabled="!acl.can('promotion.editor')"
                                    :label="$tc('sw-promotion.detail.main.general.labelValidFrom')"
                                    v-model="promotion.validFrom">
                     </sw-datepicker>
@@ -45,6 +49,7 @@
                     <sw-datepicker dateType="datetime-local"
                                    :label="$tc('sw-promotion.detail.main.general.labelValidUntil')"
                                    v-model="promotion.validUntil"
+                                   :disabled="!acl.can('promotion.editor')"
                                    :error="promotionValidUntilError">
                     </sw-datepicker>
                 {% endblock %}
@@ -57,6 +62,7 @@
                               :placeholder="$tc('sw-promotion.detail.main.general.placeholderMaxRedemptionsGlobal')"
                               :helpText="$tc('sw-promotion.detail.main.general.helpTextMaxRedemptionsGlobal')"
                               numberType="int"
+                              :disabled="!acl.can('promotion.editor')"
                               v-model="promotion.maxRedemptionsGlobal">
                     </sw-field>
                 {% endblock %}
@@ -67,6 +73,7 @@
                               :placeholder="$tc('sw-promotion.detail.main.general.placeholderMaxRedemptionsPerCustomer')"
                               :helpText="$tc('sw-promotion.detail.main.general.helpTextMaxRedemptionsPerCustomer')"
                               numberType="int"
+                              :disabled="!acl.can('promotion.editor')"
                               v-model="promotion.maxRedemptionsPerCustomer">
                     </sw-field>
                 {% endblock %}
@@ -81,6 +88,7 @@
                             :placeholder="$tc('sw-promotion.detail.main.general.placeholderPromotionExclusions')"
                             :criteria="exclusionCriteria"
                             :entityCollection="excludedPromotions"
+                            :disabled="!acl.can('promotion.editor')"
                             @change="onChangeExclusions">
                     </sw-entity-multi-select>
                 {% endblock %}

@@ -19,7 +19,7 @@ abstract class AbstractCmsElementResolver implements CmsElementResolverInterface
     protected function resolveEntityValue(?Entity $entity, string $path)
     {
         if ($entity === null) {
-            return $entity;
+            return null;
         }
 
         $value = $entity;

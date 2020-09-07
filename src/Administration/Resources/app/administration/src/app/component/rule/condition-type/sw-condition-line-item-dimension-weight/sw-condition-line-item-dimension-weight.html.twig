@@ -1,7 +1,9 @@
 {% block sw_condition_value_content %}
     <div class="sw-condition-line-item-dimension-weight sw-condition__condition-value">
         {% block sw_condition_line_item_dimension_weight_field_operator %}
-            <sw-condition-operator-select v-bind="{ operators, condition }"></sw-condition-operator-select>
+            <sw-condition-operator-select v-bind="{ operators, condition }"
+                                          :disabled="disabled">
+            </sw-condition-operator-select>
         {% endblock %}
 
         {% block sw_condition_line_item_dimension_weight_field_amount %}
@@ -12,6 +14,7 @@
                 :digits="3"
                 :placeholder="$tc('sw-product.settingsForm.placeholderWidth')"
                 :min="0"
+                :disabled="disabled"
                 v-model="amount">
                 <template #suffix>
                     <span>kg</span>

@@ -64,5 +64,10 @@
             <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreClient"/>
             <tag name="shopware.update_api.checker" priority="4"/>
         </service>
+
+        <service id="Shopware\Core\Framework\Update\Services\UpdateHtaccess">
+            <argument>%kernel.project_dir%/public/.htaccess</argument>
+            <tag name="kernel.event_subscriber"/>
+        </service>
     </services>
 </container>

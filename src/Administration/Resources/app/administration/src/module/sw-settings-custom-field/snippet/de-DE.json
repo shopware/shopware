@@ -22,6 +22,7 @@
       },
       "detail": {
         "labelTechnicalName": "Technischer Name",
+        "labelPosition": "Position",
         "textHeadline": "Zusatzfeld-Set",
         "buttonCancel": "Abbrechen",
         "buttonSave": "Speichern",

@@ -78,6 +78,12 @@ class LineItemCustomFieldRule extends Rule
     {
         try {
             $customFields = $lineItem->getPayloadValue('customFields');
+
+            if (empty($customFields)
+                || !\array_key_exists($this->renderedField['name'], $customFields)) {
+                return false;
+            }
+
             $expected = $this->renderedFieldValue;
             $actual = $customFields[$this->renderedField['name']];
         } catch (PayloadKeyNotFoundException $e) {

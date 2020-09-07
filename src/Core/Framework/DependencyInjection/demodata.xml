@@ -8,13 +8,13 @@
 
         <service id="Shopware\Core\Framework\Demodata\Command\DemodataCommand">
             <argument type="service" id="Shopware\Core\Framework\Demodata\DemodataService"/>
+            <argument type="service" id="event_dispatcher" />
             <argument>%kernel.environment%</argument>
 
             <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Core\Framework\Demodata\DemodataService">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="tagged" tag="shopware.demodata_generator" />
             <argument>%kernel.project_dir%</argument>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>

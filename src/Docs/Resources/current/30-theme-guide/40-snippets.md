@@ -140,9 +140,6 @@ Example:
         <service id="MyTheme\Resources\snippet\en_GB\SnippetFile_en_GB" public="true">
             <tag name="shopware.snippet.file"/>
         </service>
-    </services>
-
-    <services>
         <service id="MyTheme\Resources\snippet\de_DE\SnippetFile_de_DE" public="true">
             <tag name="shopware.snippet.file"/>
         </service>

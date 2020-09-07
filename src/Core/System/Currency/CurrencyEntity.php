@@ -296,11 +296,6 @@ class CurrencyEntity extends Entity
         $this->productExports = $productExports;
     }
 
-    public function getApiAlias(): string
-    {
-        return 'currency';
-    }
-
     public function getCountryRoundings(): ?CurrencyCountryRoundingCollection
     {
         return $this->countryRoundings;

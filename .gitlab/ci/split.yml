@@ -6,7 +6,6 @@ Repository Split:
     only:
         refs:
             - master
-            - /^6\..*$/
             - saas-release
     environment:
         name: Github

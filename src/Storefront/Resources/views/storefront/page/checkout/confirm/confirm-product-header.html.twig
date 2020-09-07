@@ -1,7 +1,7 @@
 {% sw_extends '@Storefront/storefront/page/checkout/cart/cart-product-header.html.twig' %}
 
 {% block page_checkout_cart_header_unit_price %}
-    {# display tax instead of unit price in confirm header #}
+    {# display tax instead of item price in confirm header #}
     {% block page_checkout_cart_header_tax_price %}
         {% if context.salesChannel.taxCalculationType == 'horizontal' %}
             <div class="col-2 cart-header-tax-price">

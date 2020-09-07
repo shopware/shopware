@@ -197,6 +197,37 @@ trait MediaFixtures
                     ],
                 ],
             ],
+
+            'NamedMimePngEtxPngWithFolderHugeThumbnails' => [
+                'id' => Uuid::randomHex(),
+                'mimeType' => 'image/png',
+                'fileExtension' => 'png',
+                'fileName' => 'pngFileWithExtensionAndFolder',
+                'fileSize' => 1024,
+                'mediaType' => new ImageType(),
+                'uploadedAt' => new \DateTime('2011-01-01T15:03:01.012345Z'),
+                'mediaFolder' => [
+                    'name' => 'test folder',
+                    'useParentConfiguration' => false,
+                    'configuration' => [
+                        'createThumbnails' => true,
+                        'keepAspectRatio' => true,
+                        'thumbnailQuality' => 80,
+                        'mediaThumbnailSizes' => [
+                            [
+                                'id' => $thumbnailSize150Id,
+                                'width' => 1500,
+                                'height' => 1500,
+                            ],
+                            [
+                                'id' => $thumbnailSize300Id,
+                                'width' => 3000,
+                                'height' => 3000,
+                            ],
+                        ],
+                    ],
+                ],
+            ],
         ];
     }
 
@@ -248,6 +279,11 @@ trait MediaFixtures
     public function getPngWithFolder(): MediaEntity
     {
         return $this->getMediaFixture('NamedMimePngEtxPngWithFolder');
+    }
+
+    public function getPngWithFolderHugeThumbnails(): MediaEntity
+    {
+        return $this->getMediaFixture('NamedMimePngEtxPngWithFolderHugeThumbnails');
     }
 
     public function getJpgWithFolder(): MediaEntity

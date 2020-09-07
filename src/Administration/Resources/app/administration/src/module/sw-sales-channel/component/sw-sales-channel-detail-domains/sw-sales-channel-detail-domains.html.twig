@@ -19,7 +19,10 @@
                 {% endblock %}
 
                 {% block sw_sales_channel_detail_domains_add_button %}
-                    <sw-button size="small" @click="onClickOpenCreateDomainModal" class="sw-sales-channel-detail__button-domain-add">
+                    <sw-button size="small"
+                               :disabled="disableEdit"
+                               @click="onClickOpenCreateDomainModal"
+                               class="sw-sales-channel-detail__button-domain-add">
                         {{ $tc('sw-sales-channel.detail.buttonAddDomain') }}
                     </sw-button>
                 {% endblock %}
@@ -58,13 +61,16 @@
                         {% block sw_sales_channel_detail_domains_column_actions %}
                             <template #actions="{ item }">
                                 {% block sw_sales_channel_detail_domains_column_action_domain_edit %}
-                                    <sw-context-menu-item @click="onClickEditDomain(item)">
+                                    <sw-context-menu-item @click="onClickEditDomain(item)"
+                                                          :disabled="disableEdit">
                                         {{ $tc('sw-sales-channel.detail.buttonEditDomain') }}
                                     </sw-context-menu-item>
                                 {% endblock %}
 
                                 {% block sw_sales_channel_detail_domains_column_action_domain_delete %}
-                                    <sw-context-menu-item @click="onClickDeleteDomain(item)" variant="danger">
+                                    <sw-context-menu-item @click="onClickDeleteDomain(item)"
+                                                          :disabled="disableEdit"
+                                                          variant="danger">
                                         {{ $tc('sw-sales-channel.detail.buttonDeleteDomain') }}
                                     </sw-context-menu-item>
                                 {% endblock %}

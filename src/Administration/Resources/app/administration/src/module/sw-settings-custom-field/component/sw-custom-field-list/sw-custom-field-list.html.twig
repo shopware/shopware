@@ -120,6 +120,7 @@
                             <sw-context-button>
                                 {% block sw_custom_field_list_grid_column_actions_edit %}
                                     <sw-context-menu-item
+                                        class="sw-custom-field-list__edit-action"
                                         @click="onCustomFieldEdit(item)"
                                         :disabled="item.isDeleted || !acl.can('custom_fields.editor')">
                                         {{ $tc('sw-settings-custom-field.customField.list.contextMenuCustomFieldView') }}
@@ -137,7 +138,9 @@
 
                                 {% block sw_custom_field_list_grid_column_actions_delete %}
                                     <sw-context-menu-item
-                                        v-else variant="danger"
+                                        v-else
+                                        variant="danger"
+                                        class="sw-custom-field-list__delete-action"
                                         :disabled="!acl.can('custom_fields.editor')"
                                         @click="onCustomFieldDelete(item)">
                                         {{ $tc('sw-settings-custom-field.customField.list.contextMenuCustomFieldDelete') }}

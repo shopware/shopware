@@ -31,6 +31,7 @@
             <template slot="smart-bar-actions">
                 {% block sw_settings_custom_field_set_list_actions_add %}
                     <sw-button
+                        class="sw-settings-custom-field-set-list__button-create"
                         :disabled="!acl.can('custom_fields.creator')"
                         :routerLink="{ name: 'sw.settings.custom.field.create' }"
                         variant="primary"
@@ -99,6 +100,7 @@
 
                                                         <template v-if="!item.global">
                                                             <sw-context-menu-item
+                                                                class="sw-settings-custom-field-set-list__delete-action"
                                                                 :disabled="!acl.can('custom_fields.deleter')"
                                                                 variant="danger"
                                                                 @click="onDelete(item.id)">

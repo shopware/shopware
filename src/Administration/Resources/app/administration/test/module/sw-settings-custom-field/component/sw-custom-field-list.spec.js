@@ -1,4 +1,4 @@
-import { shallowMount } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-custom-field/component/sw-custom-field-list';
 import 'src/app/component/grid/sw-grid';
 import 'src/app/component/grid/sw-pagination';
@@ -63,10 +63,13 @@ function mockCustomFieldRepository() {
     return new Repository();
 }
 
-function createWrapper() {
+function createWrapper(privileges = []) {
     customFields = mockCustomFieldData();
+    const localVue = createLocalVue();
+    localVue.directive('tooltip', {});
 
     return shallowMount(Shopware.Component.build('sw-custom-field-list'), {
+        localVue,
         mocks: {
             $tc: () => {},
             $device: {
@@ -82,7 +85,14 @@ function createWrapper() {
                 create() {
                     return mockCustomFieldRepository();
                 }
-            }
+            },
+            acl: {
+                can: (identifier) => {
+                    if (!identifier) { return true; }
+
+                    return privileges.includes(identifier);
+                }
+            },
         },
         stubs: {
             'sw-button': true,
@@ -91,7 +101,9 @@ function createWrapper() {
             'sw-simple-search-field': '<div></div>',
             'sw-container': true,
             'sw-grid': Shopware.Component.build('sw-grid'),
-            'sw-context-button': '<div></div>',
+            'sw-context-button': '<div class="sw-context-button"><slot></slot></div>',
+            'sw-context-menu-item': '<div class="sw-context-menu-item"><slot></slot></div>',
+            'sw-context-menu': '<div><slot></slot></div>',
             'sw-grid-column': '<div class="sw-grid-column"><slot></slot></div>',
             'sw-grid-row': '<div class="sw-grid-row"><slot></slot></div>',
             'sw-field': '<div></div>',
@@ -189,5 +201,23 @@ describe('src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-
         expect(second.text()).toBe('2');
         expect(third.text()).toBe('3');
         expect(fourth.text()).toBe('4');
+    });
+
+    it('should not be able to edit', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
+        const editMenuItem = wrapper.find('.sw-custom-field-list__edit-action');
+        expect(editMenuItem.attributes().disabled).toBeTruthy();
+    });
+
+    it('should be able to edit', async () => {
+        const wrapper = createWrapper([
+            'custom_fields.editor'
+        ]);
+        await wrapper.vm.$nextTick();
+
+        const editMenuItem = wrapper.find('.sw-custom-field-list__edit-action');
+        expect(editMenuItem.attributes().disabled).toBeFalsy();
     });
 });

@@ -1,4 +1,4 @@
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-mail-template/page/sw-mail-template-detail';
 import EntityCollection from 'src/core/data-new/entity-collection.data';
 
@@ -7,7 +7,8 @@ const LanguageStore = DataDeprecated.LanguageStore;
 
 const mailTemplateMock = {
     id: 'ed3866445dd744bb9e0f88f8f340141f',
-    media: []
+    media: [],
+    isNew: () => false
 };
 
 const mediaMock = [
@@ -58,28 +59,92 @@ const repositoryMockFactory = () => {
     };
 };
 
+const createWrapper = (privileges = []) => {
+    const localVue = createLocalVue();
+    localVue.directive('tooltip', {});
+
+    return shallowMount(Shopware.Component.build('sw-mail-template-detail'), {
+        localVue,
+        provide: {
+            repositoryFactory: {
+                create: () => repositoryMockFactory()
+            },
+            mailService: {},
+            entityMappingService: {
+                getEntityMapping: () => []
+            },
+            acl: {
+                can: (identifier) => {
+                    if (!identifier) { return true; }
+
+                    return privileges.includes(identifier);
+                }
+            }
+        },
+        mocks: {
+            $tc: (translationPath) => translationPath,
+            $router: { replace: () => {} },
+            $route: { params: { id: Shopware.Utils.createId() } },
+            $device: {
+                getSystemKey: () => 'CTRL'
+            }
+        },
+        stubs: {
+            'sw-page': {
+                template: `
+                    <div class="sw-page">
+                        <slot name="smart-bar-actions"></slot>
+                        <slot name="content"></slot>
+                        <slot name="sidebar"></slot>
+                        <slot></slot>
+                    </div>`
+            },
+            'sw-card-view': {
+                template: '<div><slot></slot></div>'
+            },
+            'sw-card': {
+                template: '<div><slot></slot></div>'
+            },
+            'sw-container': {
+                template: '<div><slot></slot></div>'
+            },
+            'sw-button': true,
+            'sw-button-process': true,
+            'sw-language-info': true,
+            'sw-entity-single-select': true,
+            'sw-entity-multi-select': true,
+            'sw-field': true,
+            'sw-text-field': true,
+            'sw-context-menu-item': true,
+            'sw-code-editor': true,
+            'sw-upload-listener': true,
+            'sw-media-upload-v2': true,
+            'sw-data-grid': {
+                props: ['dataSource'],
+                template: `
+                    <div>
+                        <template v-for="item in dataSource">
+                            <slot name="actions" v-bind="{ item }"></slot>
+                        </template>
+                    </div>`
+            },
+            'sw-sidebar': {
+                template: '<div><slot></slot></div>'
+            },
+            'sw-sidebar-item': {
+                template: '<div><slot></slot></div>'
+            },
+            'sw-sidebar-media-item': {
+                template: '<div><slot name="context-menu-items"></slot></div>'
+            }
+        }
+    });
+};
+
 describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
     let wrapper;
     beforeEach(() => {
-        wrapper = shallowMount(Shopware.Component.build('sw-mail-template-detail'), {
-            provide: {
-                repositoryFactory: {
-                    create: () => repositoryMockFactory()
-                },
-                mailService: {},
-                entityMappingService: {
-                    getEntityMapping: () => []
-                }
-            },
-            mocks: {
-                $tc: (translationPath) => translationPath,
-                $router: { replace: () => {} },
-                $route: { params: { id: Shopware.Utils.createId() } }
-            },
-            stubs: {
-                'sw-page': true
-            }
-        });
+        wrapper = createWrapper();
 
         const languageStore = new LanguageStore(
             'languageService',
@@ -167,5 +232,72 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
         const hasMediaAfterTest = wrapper.vm.mailTemplate.media
             .some((media) => media.id === 'ad3466455ed794bb9e0f28s8g3701s1z');
         expect(hasMediaAfterTest).toBeFalsy();
+    });
+
+    it('all fields should be disabled without edit permission', async () => {
+        wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
+        wrapper.setData({ mailTemplateMedia: [mailTemplateMediaMock] });
+        await wrapper.vm.$nextTick();
+
+        [
+            { selector: wrapper.find('.sw-mail-template-detail__save-action'), attribute: 'disabled', expect: 'true' },
+            { selector: wrapper.findAll('sw-field-stub'), attribute: 'disabled', expect: 'true' },
+            { selector: wrapper.findAll('sw-code-editor-stub'), attribute: 'disabled', expect: 'true' },
+            { selector: wrapper.findAll('sw-context-menu-item-stub'), attribute: 'disabled', expect: 'true' },
+            { selector: wrapper.find('sw-entity-single-select-stub'), attribute: 'disabled', expect: 'true' },
+            { selector: wrapper.find('sw-entity-multi-select-stub'), attribute: 'disabled', expect: 'true' },
+            { selector: wrapper.find('sw-media-upload-v2-stub'), attribute: 'disabled', expect: 'true' },
+            { selector: wrapper.find('sw-text-field-stub'), attribute: 'disabled', expect: 'true' },
+            { selector: wrapper.find('.sw-mail-template-detail__attachments-info-grid'), attribute: 'showselection', expect: undefined }
+        ].forEach(element => {
+            if (element.selector.length > 1) {
+                element.selector.wrappers.forEach(el => {
+                    expect(el.attributes()[element.attribute]).toBe(element.expect);
+                });
+            } else {
+                expect(element.selector.attributes()[element.attribute]).toBe(element.expect);
+            }
+        });
+
+        expect(wrapper.vm.tooltipSave).toStrictEqual({
+            message: 'sw-privileges.tooltip.warning',
+            disabled: false,
+            showOnDisabledElements: true
+        });
+    });
+
+    it('all fields should be enabled with edit permission', async () => {
+        wrapper = createWrapper(['mail_templates.editor']);
+        await wrapper.vm.$nextTick();
+
+        wrapper.setData({ mailTemplateMedia: [mailTemplateMediaMock] });
+        await wrapper.vm.$nextTick();
+
+        [
+            { selector: wrapper.find('.sw-mail-template-detail__save-action'), attribute: 'disabled', expect: undefined },
+            { selector: wrapper.findAll('sw-field-stub'), attribute: 'disabled', expect: undefined },
+            { selector: wrapper.findAll('sw-code-editor-stub'), attribute: 'disabled', expect: undefined },
+            { selector: wrapper.findAll('sw-context-menu-item-stub'), attribute: 'disabled', expect: undefined },
+            { selector: wrapper.find('sw-entity-single-select-stub'), attribute: 'disabled', expect: undefined },
+            { selector: wrapper.find('sw-entity-multi-select-stub'), attribute: 'disabled', expect: undefined },
+            { selector: wrapper.find('sw-media-upload-v2-stub'), attribute: 'disabled', expect: undefined },
+            { selector: wrapper.find('sw-text-field-stub'), attribute: 'disabled', expect: undefined },
+            { selector: wrapper.find('.sw-mail-template-detail__attachments-info-grid'), attribute: 'showselection', expect: 'true' }
+        ].forEach(element => {
+            if (element.selector.length > 1) {
+                element.selector.wrappers.forEach(el => {
+                    expect(el.attributes()[element.attribute]).toBe(element.expect);
+                });
+            } else {
+                expect(element.selector.attributes()[element.attribute]).toBe(element.expect);
+            }
+        });
+
+        expect(wrapper.vm.tooltipSave).toStrictEqual({
+            message: 'CTRL + S',
+            appearance: 'light'
+        });
     });
 });

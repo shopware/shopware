@@ -60,7 +60,23 @@ class SalutationRoute extends AbstractSalutationRoute
      *      @OA\Response(
      *          response="200",
      *          description="",
-     *          @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/salutation_flat"))
+     *          @OA\JsonContent(type="object",
+     *              @OA\Property(
+     *                  property="total",
+     *                  type="integer",
+     *                  description="Total amount"
+     *              ),
+     *              @OA\Property(
+     *                  property="aggregations",
+     *                  type="object",
+     *                  description="aggregation result"
+     *              ),
+     *              @OA\Property(
+     *                  property="elements",
+     *                  type="array",
+     *                  @OA\Items(ref="#/components/schemas/salutation_flat")
+     *              )
+     *          )
      *     )
      * )
      * @Route(path="/store-api/v{version}/salutation", name="store-api.salutation", methods={"GET", "POST"})
@@ -72,6 +88,6 @@ class SalutationRoute extends AbstractSalutationRoute
             $criteria = $this->requestCriteriaBuilder->handleRequest($request, new Criteria(), $this->definition, $context->getContext());
         }
 
-        return new SalutationRouteResponse($this->salesChannelRepository->search($criteria, $context)->getEntities());
+        return new SalutationRouteResponse($this->salesChannelRepository->search($criteria, $context));
     }
 }

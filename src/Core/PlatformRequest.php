@@ -5,7 +5,7 @@ namespace Shopware\Core;
 final class PlatformRequest
 {
     // should be increased with every major version
-    public const API_VERSION = 3;
+    public const API_VERSION = 4;
 
     /**
      * Response Headers
@@ -43,6 +43,7 @@ final class PlatformRequest
     public const ATTRIBUTE_SALES_CHANNEL_ID = 'sw-sales-channel-id';
     public const ATTRIBUTE_ROUTE_SCOPE = '_routeScope';
     public const ATTRIBUTE_CONTEXT_TOKEN_REQUIRED = '_contextTokenRequired';
+    public const ATTRIBUTE_VERSION = 'version';
 
     /**
      * CSP

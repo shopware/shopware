@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Seo\SalesChannel;
 
 use OpenApi\Annotations as OA;
 use Shopware\Core\Content\Seo\SeoUrl\SalesChannel\SalesChannelSeoUrlDefinition;
-use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -49,11 +48,27 @@ class SeoUrlRoute extends AbstractSeoUrlRoute
      *      operationId="readSeoUrl",
      *      tags={"Store API", "Seo"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),
-     *      @OA\Response(
+     *     @OA\Response(
      *          response="200",
-     *          description="Found seo urls",
-     *          @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/seo_url_flat"))
-     *     ),
+     *          description="",
+     *          @OA\JsonContent(type="object",
+     *              @OA\Property(
+     *                  property="total",
+     *                  type="integer",
+     *                  description="Total amount"
+     *              ),
+     *              @OA\Property(
+     *                  property="aggregations",
+     *                  type="object",
+     *                  description="aggregation result"
+     *              ),
+     *              @OA\Property(
+     *                  property="elements",
+     *                  type="array",
+     *                  @OA\Items(ref="#/components/schemas/seo_url_flat")
+     *              )
+     *          )
+     * ),
      *     @OA\Response(
      *          response="404",
      *          ref="#/components/responses/404"
@@ -69,9 +84,6 @@ class SeoUrlRoute extends AbstractSeoUrlRoute
             $criteria = $this->requestCriteriaBuilder->handleRequest($request, new Criteria(), new SalesChannelSeoUrlDefinition(), $context->getContext());
         }
 
-        /** @var SeoUrlCollection $seoUrlCollection */
-        $seoUrlCollection = $this->salesChannelRepository->search($criteria, $context)->getEntities();
-
-        return new SeoUrlRouteResponse($seoUrlCollection);
+        return new SeoUrlRouteResponse($this->salesChannelRepository->search($criteria, $context));
     }
 }

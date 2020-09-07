@@ -60,16 +60,20 @@ POST /store-api/v3/language
 }
 
 [
-    {
-        "name": "English",
-        "id": "2fbb5fe2e29a4d70aa5854ce7ce3e20b",
-        "apiAlias": "language"
-    },
-    {
-        "name": "Deutsch",
-        "id": "77afb1f1401447a7b23ef13ba6d19bdc",
-        "apiAlias": "language"
-    }
+    "total": 2,
+    "aggregations": [],
+    "elements": [
+        {
+            "name": "English",
+            "id": "2fbb5fe2e29a4d70aa5854ce7ce3e20b",
+            "apiAlias": "language"
+        },
+        {
+            "name": "Deutsch",
+            "id": "77afb1f1401447a7b23ef13ba6d19bdc",
+            "apiAlias": "language"
+        }
+    ]
 ]
 ```
 
@@ -93,20 +97,24 @@ POST /store-api/v3/currency
 }
 
 [
-    {
-        "factor": 0.89157,
-        "shortName": "GBP",
-        "name": "Pound",
-        "id": "01913e4cbe604f45be84cbabd5966239",
-        "apiAlias": "currency"
-    },
-    {
-        "factor": 10.51,
-        "shortName": "SEK",
-        "name": "Swedish krone",
-        "id": "3dfbaa78994b4f1cac491f1a992646fd",
-        "apiAlias": "currency"
-    }
+    "total": 2,
+    "aggregations": [],
+    "elements": [
+        {
+            "factor": 0.89157,
+            "shortName": "GBP",
+            "name": "Pound",
+            "id": "01913e4cbe604f45be84cbabd5966239",
+            "apiAlias": "currency"
+        },
+        {
+            "factor": 10.51,
+            "shortName": "SEK",
+            "name": "Swedish krone",
+            "id": "3dfbaa78994b4f1cac491f1a992646fd",
+            "apiAlias": "currency"
+        }
+    ]
 ]
 ```
 
@@ -164,18 +172,22 @@ GET /store-api/v3/seo-url
 }
 
 [
-    {
-        "routeName": "frontend.navigation.page",
-        "pathInfo": "/navigation/4d7ec66a7b854e59b8cf1b8b90fc651e",
-        "id": "013b993661f44cfb9ab2880ab8e00843",
-        "apiAlias": "seo_url"
-    },
-    {
-        "routeName": "frontend.navigation.page",
-        "pathInfo": "/navigation/298d3206940a48a3aab5b5e5919f18e4",
-        "id": "03ce5a4f4a35447288e5df2f39ad0975",
-        "apiAlias": "seo_url"
-    },
+    "total": 2,
+    "aggregations": [],
+    "elements": [
+        {
+            "routeName": "frontend.navigation.page",
+            "pathInfo": "/navigation/4d7ec66a7b854e59b8cf1b8b90fc651e",
+            "id": "013b993661f44cfb9ab2880ab8e00843",
+            "apiAlias": "seo_url"
+        },
+        {
+            "routeName": "frontend.navigation.page",
+            "pathInfo": "/navigation/298d3206940a48a3aab5b5e5919f18e4",
+            "id": "03ce5a4f4a35447288e5df2f39ad0975",
+            "apiAlias": "seo_url"
+        }
+    ]
 ]
 ```
 
@@ -195,18 +207,22 @@ POST /store-api/v3/payment-method
 }
 
 [
-    {
-        "name": "Cash on delivery",
-        "description": "Payment upon receipt of goods.",
-        "active": true,
-        "apiAlias": "payment_method"
-    },
-    {
-        "name": "Paid in advance",
-        "description": "Pay in advance and get your order afterwards",
-        "active": true,
-        "apiAlias": "payment_method"
-    }
+    "total": 2,
+    "aggregations": [],
+    "elements": [
+        {
+            "name": "Cash on delivery",
+            "description": "Payment upon receipt of goods.",
+            "active": true,
+            "apiAlias": "payment_method"
+        },
+        {
+            "name": "Paid in advance",
+            "description": "Pay in advance and get your order afterwards",
+            "active": true,
+            "apiAlias": "payment_method"
+        }
+    ]
 ]
 ```
 
@@ -227,15 +243,19 @@ POST /store-api/v3/shipping-method
 }
 
 [
-    {
-        "name": "Express",
-        "active": true,
-        "deliveryTime": {
-            "name": "1-3 days",
-            "unit": "day",
-            "apiAlias": "delivery_time"
-        },
-        "apiAlias": "shipping_method"
-    }
+    "total": 2,
+    "aggregations": [],
+    "elements": [
+        {
+            "name": "Express",
+            "active": true,
+            "deliveryTime": {
+                "name": "1-3 days",
+                "unit": "day",
+                "apiAlias": "delivery_time"
+            },
+            "apiAlias": "shipping_method"
+        }
+    ]
 ]
 ```

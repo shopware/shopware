@@ -43,9 +43,9 @@ class SeoUrlRouteTest extends TestCase
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
-        static::assertCount(1, $response);
-        static::assertSame('seo_url', $response[0]['apiAlias']);
-        static::assertSame('foo', $response[0]['pathInfo']);
+        static::assertSame(1, $response['total']);
+        static::assertSame('seo_url', $response['elements'][0]['apiAlias']);
+        static::assertSame('foo', $response['elements'][0]['pathInfo']);
     }
 
     public function testIncludes(): void
@@ -64,10 +64,10 @@ class SeoUrlRouteTest extends TestCase
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
-        static::assertCount(1, $response);
-        static::assertSame('seo_url', $response[0]['apiAlias']);
-        static::assertSame('foo', $response[0]['pathInfo']);
-        static::assertArrayNotHasKey('id', $response[0]);
+        static::assertSame(1, $response['total']);
+        static::assertSame('seo_url', $response['elements'][0]['apiAlias']);
+        static::assertSame('foo', $response['elements'][0]['pathInfo']);
+        static::assertArrayNotHasKey('id', $response['elements'][0]);
     }
 
     public function testFilterMiss(): void
@@ -88,7 +88,7 @@ class SeoUrlRouteTest extends TestCase
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
-        static::assertCount(0, $response);
+        static::assertSame(0, $response['total']);
     }
 
     public function testFilter(): void
@@ -109,7 +109,7 @@ class SeoUrlRouteTest extends TestCase
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
-        static::assertCount(1, $response);
+        static::assertSame(1, $response['total']);
     }
 
     private function createData(): void

@@ -69,6 +69,11 @@ Component.register('sw-entity-multi-select', {
             default() {
                 return Shopware.Context.api;
             }
+        },
+        hideLabels: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 

@@ -1,1 +1,20 @@
-.sw-cms-el-config-product-listing {}
+.sw-cms-el-config-product-listing {
+    div.sw-field--switch {
+        margin: 0;
+
+        label {
+            flex-grow: 0;
+            margin-right: 0px;
+        }
+    }
+
+    div.sw-cms-el-config-product-listing-custom-sortings {
+        margin-bottom: 18px;
+    }
+
+    .sw-select-selection-list {
+        > li {
+            width: 100%;
+        }
+    }
+}

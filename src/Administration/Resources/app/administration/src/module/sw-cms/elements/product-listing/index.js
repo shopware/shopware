@@ -1,6 +1,7 @@
 import './component';
 import './config';
 import './preview';
+import './config/components/sw-cms-el-config-product-listing-config-sorting-grid';
 
 Shopware.Service('cmsService').registerCmsElement({
     name: 'product-listing',
@@ -14,6 +15,22 @@ Shopware.Service('cmsService').registerCmsElement({
         boxLayout: {
             source: 'static',
             value: 'standard'
+        },
+        showSorting: {
+            source: 'static',
+            value: true
+        },
+        useCustomSorting: {
+            source: 'static',
+            value: false
+        },
+        availableSortings: {
+            source: 'static',
+            value: {}
+        },
+        defaultSorting: {
+            source: 'static',
+            value: ''
         }
     }
 });

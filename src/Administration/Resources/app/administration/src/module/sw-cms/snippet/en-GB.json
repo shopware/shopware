@@ -239,7 +239,28 @@
         }
       },
       "productListing": {
-        "label": "Product listing"
+        "label": "Product listing",
+        "config": {
+          "tab": {
+            "sorting": "Sorting"
+          },
+          "sorting": {
+            "labelShowSorting": "Show product sorting",
+            "labelUseCustomSortings": "Use custom sortings",
+            "labelDefaultSorting": "Default sorting",
+            "labelProductSortings": "Product sortings",
+            "placeHolderProductSortings": "Add or remove product sortings",
+            "helpTextUseCustomSortings": "You're able to define custom product sortings for the product listing. To create an individual sorting for this listing enable this switch.",
+            "helpTextDefaultSorting": "Default sorting for the listing, if no other sorting is provided.",
+            "gridHeaderName": "Name",
+            "gridHeaderFields": "Criteria",
+            "gridHeaderPriority": "Priority",
+            "deleteModal": {
+              "heading": "Deleting \"{productSortingName}\".",
+              "body": "Are you sure you want to delete \"{productSortingName}\"?"
+            }
+          }
+        }
       },
       "productSlider": {
         "label": "Product slider",

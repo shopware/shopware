@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Migration\Command;
 
+use Shopware\Core\Framework\Migration\MigrationSource;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Symfony\Component\Console\Command\Command;
@@ -15,20 +16,20 @@ class CreateMigrationCommand extends Command
     protected static $defaultName = 'database:create-migration';
 
     /**
-     * @var string
-     */
-    private $projectDir;
-
-    /**
      * @var KernelPluginCollection
      */
     private $kernelPluginCollection;
 
-    public function __construct(KernelPluginCollection $kernelPluginCollection, string $projectDir)
+    /**
+     * @var MigrationSource
+     */
+    private $coreMigrationSource;
+
+    public function __construct(KernelPluginCollection $kernelPluginCollection, MigrationSource $coreMigrationSource)
     {
         parent::__construct();
-        $this->projectDir = $projectDir;
         $this->kernelPluginCollection = $kernelPluginCollection;
+        $this->coreMigrationSource = $coreMigrationSource;
     }
 
     protected function configure(): void
@@ -96,8 +97,9 @@ class CreateMigrationCommand extends Command
             $output->writeln(sprintf('Creating plugin-migration with namespace %s in path %s...', $namespace, $directory));
         } else {
             // We create a core-migration in case no plugin was given
-            $directory = $this->projectDir . '/vendor/shopware/platform/src/Core/Migration/';
+            $sourceDirectories = $this->coreMigrationSource->getSourceDirectories();
             $namespace = 'Shopware\\Core\\Migration';
+            $directory = array_search($namespace, $sourceDirectories, true);
 
             $output->writeln('Creating core-migration ...');
         }

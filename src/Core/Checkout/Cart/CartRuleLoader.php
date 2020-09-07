@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
@@ -148,6 +149,7 @@ class CartRuleLoader
 
         $criteria = new Criteria();
         $criteria->addSorting(new FieldSorting('priority', FieldSorting::DESCENDING));
+        $criteria->addFilter(new EqualsFilter('invalid', false));
         $criteria->setLimit(500);
         $criteria->setTitle('cart-rule-loader::load-rules');
 
@@ -155,12 +157,9 @@ class CartRuleLoader
         $rules = new RuleCollection();
         while (($result = $repositoryIterator->fetch()) !== null) {
             foreach ($result->getEntities() as $rule) {
-                if (!$rule->isInvalid() && $rule->getPayload()) {
+                if ($rule->getPayload()) {
                     $rules->add($rule);
                 }
-            }
-            if ($result->count() < 500) {
-                break;
             }
         }
 

@@ -78,7 +78,7 @@
       "navigation": "Navigation",
       "navigationCategoryId": "Entry point main navigation",
       "navigationCategoryDepth": "Navigation levels",
-      "navigationCategoryHelpText": "For this entry point, you can not select categories of the type \"customizable link\" or \"structuring element\".",
+      "navigationCategoryHelpText": "For this entry point, you can not select categories of the type \"customisable link\" or \"structuring element\".",
       "footerCategory": "Entry point footer navigation",
       "serviceCategory": "Entry point service navigation",
       "titleOptionsApiKey": "API access",

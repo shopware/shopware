@@ -20,7 +20,7 @@
       "declineMessage": "Request has been declined",
       "errorMessage": "Cannot process request",
       "notification": {
-        "title": "Merchant request",
+        "title": "Merchant status request",
         "message": "Customer \"{name}\" requests access to customer group \"{groupName}\".",
         "openCustomer": "Open customer"
       }
@@ -56,7 +56,7 @@
       "columnStreet": "Street",
       "columnZip": "Postal code",
       "columnCity": "City",
-      "columnEmail": "Email",
+      "columnEmail": "Email address",
       "columnLastLogin": "Last login",
       "columnActions": "Action(s)",
       "columnAffiliateCode": "Affiliate code",

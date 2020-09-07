@@ -232,7 +232,7 @@
     "variations": {
       "emptyStateDescription": "Dieses Produkt hat noch keine Varianten.",
       "emptyStateButton": "Varianten-Generator starten",
-      "generateVariationsButton": "Varianten generieren!",
+      "generateVariationsButton": "Varianten generieren",
       "deleteVariationsButton": "Alle Produktvarianten löschen",
       "cancelVariationsButton": "Abbrechen",
       "configuratorCardTitle": "Varianten generieren",

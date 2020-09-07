@@ -55,7 +55,7 @@ jobs:
         ./psh.phar init-composer
         if [[ ! -h vendor/shopware/platform ]]; then echo 'vendor/shopware/platform should be a symlink'; exit 1; fi
         nohup php -S localhost:8000 -t public > phpd.log 2>&1 &
-        ./psh.phar e2e:init --CYPRESS_LOCAL=true
+        ./psh.phar e2e:init-local --CYPRESS_LOCAL=true
 
     - name: Cypress run
       uses: cypress-io/github-action@v2

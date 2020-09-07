@@ -425,7 +425,7 @@ SET FOREIGN_KEY_CHECKS = 1;
         $subCascadeEvent = $delete->getEventByEntityName(SubCascadeDefinition::ENTITY_NAME);
         static::assertInstanceOf(EntityDeletedEvent::class, $subCascadeEvent);
         static::assertCount(1, $subCascadeEvent->getWriteResults());
-        static::assertSame([$idRoot], $subCascadeEvent->getIds());
+        static::assertSame([$idSubCascade], $subCascadeEvent->getIds());
     }
 
     public function testRestrictDelete(): void

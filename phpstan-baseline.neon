@@ -656,11 +656,6 @@ parameters:
 			path: src/Core/Checkout/Customer/Subscriber/CustomerGroupSubscriber.php
 
 		-
-			message: "#^Cannot call method getCustomerId\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderCustomer\\\\OrderCustomerEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/Subscriber/CustomerMetaFieldSubscriber.php
-
-		-
 			message: "#^Cannot call method count\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Order\\\\Aggregate\\\\OrderCustomer\\\\OrderCustomerCollection\\|null\\.$#"
 			count: 1
 			path: src/Core/Checkout/Customer/Subscriber/CustomerMetaFieldSubscriber.php
@@ -3776,13 +3771,8 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityForeignKeyResolver.php
 
 		-
-			message: "#^Argument of an invalid type array\\<int, int\\|string\\>\\|null supplied for foreach, only iterables are supported\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityForeignKeyResolver.php
-
-		-
 			message: "#^Cannot call method getPropertyName\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\|null\\.$#"
-			count: 3
+			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Dbal/EntityForeignKeyResolver.php
 
 		-
@@ -4898,11 +4888,6 @@ parameters:
 		-
 			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\|Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\StorageAware\\:\\:getPropertyName\\(\\)\\.$#"
 			count: 2
-			path: src/Core/Framework/DataAbstractionLayer/Write/EntityWriter.php
-
-		-
-			message: "#^Possibly invalid array key type \\(array\\|string\\)\\.$#"
-			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Write/EntityWriter.php
 
 		-

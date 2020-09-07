@@ -5,19 +5,18 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SetNullOnDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageDefinition;
@@ -45,17 +44,18 @@ class EntityForeignKeyResolver
     }
 
     /**
-     * Returns an associated nested array which contains all affected restrictions of the provided ids.
+     * Returns a list of all entities and their primary keys which will restrict the delete in the mysql server
      * Example:
      *  [
-     *      [
-     *          'pk' => '43c6baad756140d8aabbbca533a8284f'
-     *          restrictions => [
-     *              'Shopware\Core\Content\Product\ProductDefinition' => [
-     *                  '1ffd7ea958c643558256927aae8efb07',
-     *                  '1ffd7ea958c643558256927aae8efb07'
-     *              ]
-     *          ]
+     *      "order_customer" => array:2 [
+     *          "cace68bdbca140b6ac43a083fb19f82b",
+     *          "50330f5531ed485fbd72ba016b20ea2a",
+     *      ]
+     *      "order_address" => array:4 [
+     *          "29d6334b01e64be28c89a5f1757fd661",
+     *          "484ef1124595434fa9b14d6d2cc1e9f8",
+     *          "601133b1173f4ca3aeda5ef64ad38355",
+     *          "9fd6c61cf9844a8984a45f4e5b55a59c",
      *      ]
      *  ]
      *
@@ -67,17 +67,18 @@ class EntityForeignKeyResolver
     }
 
     /**
-     * Returns an associated nested array which contains all affected cascaded delete entities.
+     * Returns a list of all entities and their primary keys which will be deleted by the mysql server
      * Example:
      *  [
-     *      [
-     *          'pk' => '43c6baad756140d8aabbbca533a8284f'
-     *          restrictions => [
-     *              'Shopware\Core\Content\Product\ProductDefinition' => [
-     *                  '1ffd7ea958c643558256927aae8efb07',
-     *                  '1ffd7ea958c643558256927aae8efb07'
-     *              ]
-     *          ]
+     *      "order_customer" => array:2 [
+     *          "cace68bdbca140b6ac43a083fb19f82b",
+     *          "50330f5531ed485fbd72ba016b20ea2a",
+     *      ]
+     *      "order_address" => array:4 [
+     *          "29d6334b01e64be28c89a5f1757fd661",
+     *          "484ef1124595434fa9b14d6d2cc1e9f8",
+     *          "601133b1173f4ca3aeda5ef64ad38355",
+     *          "9fd6c61cf9844a8984a45f4e5b55a59c",
      *      ]
      *  ]
      *
@@ -91,17 +92,12 @@ class EntityForeignKeyResolver
     /**
      * Returns an associated nested array which contains all affected set null on delete entities.
      * Example:
-     *  [
-     *      [
-     *          'pk' => '43c6baad756140d8aabbbca533a8284f'
-     *          restrictions => [
-     *              'Shopware\Core\Content\Product\ProductDefinition' => [
-     *                  '1ffd7ea958c643558256927aae8efb07' => ['category_id'],
-     *                  '1ffd7ea958c643558256927aae8efb07' => ['category_id', 'main_category_id']
-     *              ]
-     *          ]
-     *      ]
-     *  ]
+     *   [
+     *       'product.manufacturer_id' => [
+     *           '1ffd7ea958c643558256927aae8efb07'
+     *           '1ffd7ea958c643558256927aae8efb07'
+     *       ]
+     *   ]
      *
      * @throws \RuntimeException
      */
@@ -136,262 +132,102 @@ class EntityForeignKeyResolver
             return [];
         }
 
+        $result = [];
+        foreach ($cascades as $association) {
+            if (!$association instanceof AssociationField) {
+                continue;
+            }
+
+            $affected = $this->fetchAssociation($ids, $definition, $association, $class, $context);
+
+            $result = array_merge($result, $affected);
+        }
+
+        return $result;
+    }
+
+    private function fetchAssociation(array $ids, EntityDefinition $root, AssociationField $association, string $class, Context $context): array
+    {
+        if (empty($ids)) {
+            return [];
+        }
+
         $query = new QueryBuilder($this->connection);
+        $query->from(
+            EntityDefinitionQueryHelper::escape($root->getEntityName()),
+            EntityDefinitionQueryHelper::escape($root->getEntityName())
+        );
 
-        $root = $definition->getEntityName();
-        $rootAlias = EntityDefinitionQueryHelper::escape($definition->getEntityName());
+        $this->queryHelper->resolveField($association, $root, $root->getEntityName(), $query, $context);
 
-        $query->from(EntityDefinitionQueryHelper::escape($definition->getEntityName()), $rootAlias);
-        $query->addSelect($rootAlias . '.id as root');
+        $alias = $root->getEntityName() . '.' . $association->getPropertyName();
 
-        $this->joinCascades($definition, $cascades, $root, $query, $class, $context);
+        if ($association instanceof ManyToManyAssociationField) {
+            $alias .= '.mapping';
+        }
 
-        $this->addWhere($ids, $rootAlias, $query);
+        $primaryKeys = $association->getReferenceDefinition()->getPrimaryKeys()->filter(function (Field $field) {
+            if ($field instanceof ReferenceVersionField || $field instanceof VersionField) {
+                return null;
+            }
 
-        $query->setParameter('version', Uuid::fromHexToBytes($context->getVersionId()));
-        $query->setParameter('liveVersion', Uuid::fromHexToBytes(Defaults::LIVE_VERSION));
+            return $field;
+        });
 
-        $result = $query->execute()->fetchAll();
-        $result = FetchModeHelper::groupUnique($result);
+        foreach ($primaryKeys as $field) {
+            $vars = [
+                '#root#' => EntityDefinitionQueryHelper::escape($alias),
+                '#field#' => EntityDefinitionQueryHelper::escape($field->getStorageName()),
+                '#property#' => $field->getPropertyName(),
+            ];
+
+            $template = '#root#.#field# as #property#';
+            if ($field instanceof IdField || $field instanceof FkField) {
+                $template = 'LOWER(HEX(#root#.#field#)) as #property#';
+            }
+
+            $accessor = str_replace(array_keys($vars), array_values($vars), $template);
+            $query->addSelect($accessor);
+
+            $accessor = str_replace(array_keys($vars), array_values($vars), '#root#.#field#');
+            $query->andWhere($accessor . ' IS NOT NULL');
+        }
+
+        if ($root->isVersionAware()) {
+            $query->andWhere(EntityDefinitionQueryHelper::escape($root->getEntityName()) . '.`version_id` = :version');
+            $query->setParameter('version', Uuid::fromHexToBytes($context->getVersionId()));
+        }
+
+        $this->queryHelper->addIdCondition(new Criteria($ids), $root, $query);
+
+        $affected = $query->execute()->fetchAll();
+
+        if (empty($affected)) {
+            return [];
+        }
+
+        // create flat list for single primary key entities
+        if ($primaryKeys->count() === 1) {
+            $property = $primaryKeys->first()->getPropertyName();
+            $affected = array_column($affected, $property);
+        }
+
+        // prevent circular reference for many to many
+        if ($association instanceof ManyToManyAssociationField) {
+            return [$association->getReferenceDefinition()->getEntityName() => $affected];
+        }
 
         if ($class === SetNullOnDelete::class) {
-            return $this->extractValuesForUpdate($definition, $result, $root);
+            // add entity prefix for the current association
+            $formatted = [$association->getReferenceDefinition()->getEntityName() . '.' . $association->getReferenceField() => $affected];
+        } else {
+            // add entity prefix for the current association
+            $formatted = [$association->getReferenceDefinition()->getEntityName() => $affected];
         }
 
-        return $this->extractValuesForDelete($definition, $result, $root);
-    }
+        // call recursion for nested cascades
+        $nested = $this->fetch($association->getReferenceDefinition(), $affected, $class, $context);
 
-    private function joinCascades(EntityDefinition $definition, FieldCollection $cascades, string $root, QueryBuilder $query, string $class, Context $context): void
-    {
-        /** @var AssociationField $cascade */
-        foreach ($cascades as $cascade) {
-            $alias = $root . '.' . $cascade->getPropertyName();
-
-            // `EntityTranslationDefinitions` dont have an id column. We need to construct one by combining the entity id and the language id.
-            if ($cascade instanceof TranslationsAssociationField) {
-                $this->queryHelper->resolveField($cascade, $definition, $root, $query, $context);
-                $entityColumnName = $cascade->getReferenceField();
-                $languageColumnName = $cascade->getLanguageField();
-
-                $query->addSelect(
-                    'GROUP_CONCAT(DISTINCT CONCAT('
-                        . 'HEX(' . EntityDefinitionQueryHelper::escape($alias) . '.`' . $entityColumnName . '`),"-",'
-                        . 'HEX(' . EntityDefinitionQueryHelper::escape($alias) . '.`' . $languageColumnName . '`)'
-                    . ')'
-                    . ' SEPARATOR \'||\')  as ' . EntityDefinitionQueryHelper::escape($alias)
-                );
-
-                continue;
-            }
-
-            if ($cascade instanceof OneToManyAssociationField) {
-                $this->queryHelper->resolveField($cascade, $definition, $root, $query, $context);
-
-                $query->addSelect(
-                    'GROUP_CONCAT(DISTINCT HEX('
-                    . EntityDefinitionQueryHelper::escape($alias) . '.`id`)'
-                    . ' SEPARATOR \'||\')  as ' . EntityDefinitionQueryHelper::escape($alias)
-                );
-
-                continue;
-            }
-
-            if ($cascade instanceof ManyToManyAssociationField) {
-                $mappingAlias = $root . '.' . $cascade->getPropertyName() . '.mapping';
-
-                $this->queryHelper->resolveField($cascade, $definition, $root, $query, $context);
-
-                $query->addSelect(
-                    'GROUP_CONCAT(DISTINCT HEX('
-                    . EntityDefinitionQueryHelper::escape($mappingAlias) . '.' . $cascade->getMappingReferenceColumn()
-                    . ') SEPARATOR \'||\')  as ' . EntityDefinitionQueryHelper::escape($alias)
-                );
-
-                continue;
-            }
-
-            if ($cascade instanceof ManyToOneAssociationField || $cascade instanceof OneToOneAssociationField) {
-                $this->queryHelper->resolveField($cascade, $definition, $root, $query, $context);
-
-                $query->addSelect(
-                    'GROUP_CONCAT(DISTINCT HEX('
-                    . EntityDefinitionQueryHelper::escape($alias) . '.'
-                    . EntityDefinitionQueryHelper::escape($cascade->getReferenceField()) . ')'
-                    . ' SEPARATOR \'||\')  as ' . EntityDefinitionQueryHelper::escape($alias)
-                );
-            }
-
-            // avoid infinite recursive call
-            if ($cascade->getReferenceDefinition() === $definition) {
-                continue;
-            }
-            $nested = $cascade->getReferenceDefinition()->getFields()->filterByFlag($class);
-
-            $this->joinCascades($cascade->getReferenceDefinition(), $nested, $alias, $query, $class, $context);
-        }
-    }
-
-    private function addWhere(array $ids, string $rootAlias, QueryBuilder $query): void
-    {
-        $counter = 1;
-        $group = null;
-        foreach ($ids as $pk) {
-            $part = [];
-            $group = array_keys($pk);
-            foreach ($pk as $key => $value) {
-                $param = 'param' . $counter;
-
-                $part[] = sprintf(
-                    '%s.%s = :%s',
-                    $rootAlias,
-                    EntityDefinitionQueryHelper::escape($key),
-                    $param
-                );
-
-                $query->setParameter($param, Uuid::fromHexToBytes($value));
-                ++$counter;
-            }
-            $query->orWhere(implode(' AND ', $part));
-        }
-
-        foreach ($group as $column) {
-            $query->addGroupBy($rootAlias . '.' . EntityDefinitionQueryHelper::escape($column));
-        }
-    }
-
-    private function extractValuesForDelete(EntityDefinition $definition, array $result, string $root): array
-    {
-        $mapped = [];
-
-        foreach ($result as $pk => $row) {
-            $pk = Uuid::fromBytesToHex($pk);
-
-            $restrictions = [];
-
-            foreach ($row as $key => $value) {
-                $value = array_filter(explode('||', (string) $value));
-                if (empty($value)) {
-                    continue;
-                }
-
-                $value = array_map('strtolower', $value);
-
-                /** @var AssociationField|null $field */
-                $field = $this->queryHelper->getField($key, $definition, $root);
-
-                if (!$field) {
-                    throw new \RuntimeException(sprintf('Field by key %s not found', $key));
-                }
-
-                if ($field instanceof ManyToManyAssociationField) {
-                    $referenceDefinition = $field->getReferenceDefinition();
-
-                    if (!array_key_exists($referenceDefinition->getEntityName(), $restrictions)) {
-                        $restrictions[$referenceDefinition->getEntityName()] = [];
-                    }
-
-                    $sourceProperty = $referenceDefinition->getFields()->getByStorageName(
-                        $field->getMappingLocalColumn()
-                    );
-                    $targetProperty = $referenceDefinition->getFields()->getByStorageName(
-                        $field->getMappingReferenceColumn()
-                    );
-
-                    foreach ($value as $nested) {
-                        $restrictions[$referenceDefinition->getEntityName()][] = [
-                            $sourceProperty->getPropertyName() => $pk,
-                            $targetProperty->getPropertyName() => $nested,
-                        ];
-                    }
-
-                    continue;
-                }
-
-                if (!$field instanceof AssociationField) {
-                    continue;
-                }
-
-                $class = $field->getReferenceDefinition()->getEntityName();
-
-                if (!array_key_exists($class, $restrictions)) {
-                    $restrictions[$class] = [];
-                }
-
-                if ($field instanceof TranslationsAssociationField) {
-                    $targetProperty = $field->getReferenceDefinition()->getFields()->getByStorageName($field->getReferenceField());
-
-                    $value = array_map(function ($key) use ($targetProperty) {
-                        $key = explode('-', $key);
-
-                        return [
-                            $targetProperty->getPropertyName() => $key[0],
-                            'languageId' => $key[1],
-                        ];
-                    }, $value);
-                }
-
-                $restrictions[$class] = array_merge_recursive($restrictions[$class], $value);
-            }
-
-            if (empty($restrictions)) {
-                continue;
-            }
-            $mapped[] = ['pk' => $pk, 'restrictions' => $restrictions];
-        }
-
-        return array_values($mapped);
-    }
-
-    private function extractValuesForUpdate(EntityDefinition $definition, array $result, string $root): array
-    {
-        $mapped = [];
-
-        foreach ($result as $pk => $row) {
-            $pk = Uuid::fromBytesToHex($pk);
-
-            $restrictions = [];
-
-            foreach ($row as $key => $value) {
-                $value = array_filter(explode('||', (string) $value));
-                if (empty($value)) {
-                    continue;
-                }
-
-                /** @var AssociationField|null $field */
-                $field = $this->queryHelper->getField($key, $definition, $root);
-
-                if (!$field) {
-                    throw new \RuntimeException(sprintf('Field by key %s not found', $key));
-                }
-
-                if ($field instanceof ManyToManyAssociationField) {
-                    continue;
-                }
-
-                if (!$field instanceof AssociationField) {
-                    continue;
-                }
-
-                $values = [];
-                foreach ($value as $id) {
-                    $values[mb_strtolower($id)] = [$field->getReferenceField()];
-                }
-
-                $class = $field->getReferenceDefinition()->getEntityName();
-
-                if (!array_key_exists($class, $restrictions)) {
-                    $restrictions[$class] = [];
-                }
-
-                $restrictions[$class] = array_merge_recursive($restrictions[$class], $values);
-            }
-
-            if (empty($restrictions)) {
-                continue;
-            }
-            $mapped[] = ['pk' => $pk, 'restrictions' => $restrictions];
-        }
-
-        return array_values($mapped);
+        return array_merge($formatted, $nested);
     }
 }

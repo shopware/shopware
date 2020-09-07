@@ -10,6 +10,9 @@ variables:
     PERCY_TOKEN: $PERCY_TOKEN
     PERCY_BRANCH: $CI_DEV_BRANCH
     PERCY_TARGET_BRANCH: $CI_TARGET_BRANCH_NAME
+    DEV_IMAGE: shopware/development:latest
+    MYSQL_IMAGE: mysql:5.7
+    MYSQL_CMD: mysqld
 
 stages:
     - unit
@@ -155,6 +158,10 @@ Check generated Docs:
         TEST_SUITES: "administration storefront checkout content framework profiling migration system elasticsearch docs"
     timeout: 1h 00m
     script:
+        - echo Mysql $MYSQL_IMAGE
+        - echo Mysql cmd $MYSQL_CMD
+        - echo Dev template $DEV_IMAGE
+        - echo Features $FEATURE_ALL
         - ./psh.phar init
         - if [[ ! -h vendor/shopware/platform ]]; then echo 'vendor/shopware/platform should be a symlink'; exit 1; fi
         - mkdir -p build/artifacts/
@@ -189,6 +196,8 @@ PHP 7.2:
             - merge_requests
             - master
             - /^6\..*$/
+    except:
+        - schedules
     extends: .phpunit_base
     image: shopware/development:7.2
     stage: unit
@@ -200,73 +209,7 @@ PHP 7.2:
             alias: elasticsearch
             command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
 
-PHP 7.3:
-    only:
-        refs:
-            - merge_requests
-            - master
-            - /^6\..*$/
-    except:
-        - schedules
-    extends: .phpunit_base
-    image: shopware/development:7.3
-    stage: unit
-    when: manual
-    timeout: 1h 00m
-    services:
-        -   name: mysql:5.7
-            alias: mysql
-        -   name: elastic/elasticsearch:7.1.1
-            alias: elasticsearch
-            command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
-
-PHP 7.3 (Schedule):
-    only:
-        - schedules
-    extends: .phpunit_base
-    image: shopware/development:7.3
-    stage: unit
-    services:
-        -   name: mysql:5.7
-            alias: mysql
-        -   name: elastic/elasticsearch:7.1.1
-            alias: elasticsearch
-            command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
-
-PHP 7.4:
-    only:
-        refs:
-            - merge_requests
-            - master
-            - /^6\..*$/
-    except:
-        - schedules
-    extends: .phpunit_base
-    image: shopware/development:7.4
-    stage: unit
-    when: manual
-    timeout: 1h 00m
-    services:
-        -   name: mysql:5.7
-            alias: mysql
-        -   name: elastic/elasticsearch:7.1.1
-            alias: elasticsearch
-            command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
-
-PHP 7.4 (Schedule):
-    only:
-        - schedules
-    extends: .phpunit_base
-    image: shopware/development:7.4
-    stage: unit
-    services:
-        -   name: mysql:5.7
-            alias: mysql
-        -   name: elastic/elasticsearch:7.1.1
-            alias: elasticsearch
-            command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
-
-MySQL 5.7:
+Unit:
     only:
         refs:
             - merge_requests
@@ -278,6 +221,24 @@ MySQL 5.7:
     stage: unit
     when: manual
     timeout: 1h 00m
+    parallel:
+        matrix:
+            # mysql 5.7 with php 7.3 and 7.4
+            -   DEV_IMAGE:
+                    - shopware/development:7.3
+                    - shopware/development:7.4
+                FEATURE_ALL: ["false"]
+            # php 7.2 with mysql 5.7 and mariadb 10.4
+            -   MYSQL_IMAGE:
+                    - mysql:5.7
+                    - mariadb:10.3
+                    - mariadb:10.4
+                FEATURE_ALL: ["false"]
+            -   MYSQL_IMAGE:
+                    - mysql:8.0.19
+                FEATURE_ALL: ["false"]
+                MYSQL_CMD: 'mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON'
+    image: $DEV_IMAGE
     services:
         -   name: mysql:5.7
             alias: mysql
@@ -285,83 +246,41 @@ MySQL 5.7:
             alias: elasticsearch
             command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
 
-MySQL 5.7 (Schedule):
-    only:
-        - schedules
-    extends: .phpunit_base
-    stage: unit
-    services:
-        -   name: mysql:5.7
-            alias: mysql
-        -   name: elastic/elasticsearch:7.1.1
-            alias: elasticsearch
-            command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
-
-MySQL 8.0:
+Unit tests (all):
     only:
         refs:
             - merge_requests
             - master
             - /^6\..*$/
-    except:
-        - schedules
+            - schedules
     extends: .phpunit_base
+    parallel:
+        matrix:
+            # mysql 5.7 with php 7.3 and 7.4
+            - DEV_IMAGE:
+                - shopware/development:7.3
+                - shopware/development:7.4
+              FEATURE_ALL: ["false", "true"]
+            # php 7.2 with mysql 5.7 and mariadb 10.4
+            - MYSQL_IMAGE:
+                - mysql:5.7
+                - mariadb:10.3
+                - mariadb:10.4
+              FEATURE_ALL: ["false", "true"]
+            - MYSQL_IMAGE:
+                - mysql:8.0.19
+              FEATURE_ALL: ["false", "true"]
+              MYSQL_CMD: 'mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON'
+    image: $DEV_IMAGE
     stage: unit
-    when: manual
-    timeout: 1h 00m
     services:
-        -   name: mysql:8.0.19
+        -   name: $MYSQL_IMAGE
             alias: mysql
-            command: ["mysqld", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci", "--default-authentication-plugin=mysql_native_password", "--sql-require-primary-key=ON"]
+            entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL_CMD" ]
         -   name: elastic/elasticsearch:7.1.1
             alias: elasticsearch
             command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
 
-MySQL 8.0 (Schedule):
-    only:
-        - schedules
-    extends: .phpunit_base
-    allow_failure: true
-    stage: unit
-    services:
-        -   name: mysql:8.0.19
-            alias: mysql
-            command: ["mysqld", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci", "--default-authentication-plugin=mysql_native_password", "--sql-require-primary-key=ON"]
-        -   name: elastic/elasticsearch:7.1.1
-            alias: elasticsearch
-            command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
-
-MariaDB 10.4:
-    only:
-        refs:
-            - merge_requests
-            - master
-            - /^6\..*$/
-    except:
-        - schedules
-    extends: .phpunit_base
-    stage: unit
-    when: manual
-    timeout: 1h 00m
-    services:
-        -   name: mariadb:10.4
-            alias: mysql
-        -   name: elastic/elasticsearch:7.1.1
-            alias: elasticsearch
-            command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
-
-MariaDB 10.4 (Schedule):
-    only:
-        - schedules
-    extends: .phpunit_base
-    stage: unit
-    allow_failure: true
-    services:
-        -   name: mariadb:10.4
-            alias: mysql
-        -   name: elastic/elasticsearch:7.1.1
-            alias: elasticsearch
-            command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
 
 Administration (Jest):
     only:
@@ -768,6 +687,12 @@ RIPS security:
 
 Symfony security check:
     stage: Security
+    only:
+        refs:
+            - merge_requests
+            - master
+            - /^6\..*$/
+            - schedules
     image: shopware/development:latest
     before_script: []
     allow_failure: true
@@ -780,6 +705,12 @@ Symfony security check:
 
 NPM security check:
     stage: Security
+    only:
+        refs:
+            - merge_requests
+            - master
+            - /^6\..*$/
+            - schedules
     image: shopware/development:latest
     before_script: []
     allow_failure: true

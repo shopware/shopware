@@ -24,6 +24,12 @@
 
         <service id="Shopware\Core\Content\Sitemap\Service\SitemapHandleFactoryInterface" class="Shopware\Core\Content\Sitemap\Service\SitemapHandleFactory"/>
 
+        <service id="Shopware\Core\Content\Sitemap\SalesChannel\SitemapRoute" public="true">
+            <argument type="service" id="Shopware\Core\Content\Sitemap\Service\SitemapLister"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\Content\Sitemap\Service\SitemapExporter"/>
+        </service>
+
         <!-- UrlProviders -->
         <service id="Shopware\Core\Content\Sitemap\Provider\CategoryUrlProvider">
             <argument type="service" id="sales_channel.category.repository"/>

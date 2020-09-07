@@ -71,11 +71,13 @@ NEXT
 	* `ProductCrossSellingRoute`	(/store-api/v{version}/product/{productId}/cross-selling)
 	* `ProductReviewRoute` 			(/store-api/v{version}/product/{productId}/reviews)
 	* `ProductReviewSaveRoute` 		(/store-api/v{version}/product/{productId}/review)
+	* `SitemapRoute` 		        (/store-api/v{version}/sitemap)
 * Added new structs:
 	* `\Shopware\Core\Content\Product\SalesChannel\CrossSelling\CrossSellingElementCollection`
 	* `\Shopware\Core\Content\Product\SalesChannel\CrossSelling\CrossSellingElement`
 	* `\Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationResult`
 	* `\Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilter`
+	* `\Shopware\Core\Content\Sitemap\Struct\SitemapCollection`
 * Added new `Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader` service
 * Added new `MultiFilter::addQuery` function:
 * Added and deprecated `\Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity::$configurator`, only used for backward compatibility

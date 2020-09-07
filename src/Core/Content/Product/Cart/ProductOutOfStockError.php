@@ -37,6 +37,11 @@ class ProductOutOfStockError extends Error
         return $this->getMessageKey() . $this->id;
     }
 
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
     public function getMessageKey(): string
     {
         return 'product-out-of-stock';

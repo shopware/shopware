@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolation;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -83,11 +84,7 @@ class MediaRepositoryDecorator implements EntityRepositoryInterface
         // check delete restrictions before files get removed.
         $restrictions = $this->foreignKeyResolver->getAffectedDeleteRestrictions($this->innerRepo->getDefinition(), $ids, $context);
         if (!empty($restrictions)) {
-            $restrictions = array_map(function ($restriction) {
-                return new RestrictDeleteViolation($restriction['pk'], $restriction['restrictions']);
-            }, $restrictions);
-
-            throw new RestrictDeleteViolationException($this->innerRepo->getDefinition(), $restrictions);
+            throw new RestrictDeleteViolationException($this->innerRepo->getDefinition(), [new RestrictDeleteViolation(Uuid::randomHex(), $restrictions)]);
         }
 
         $filesToDelete = [];

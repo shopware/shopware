@@ -167,7 +167,7 @@ class EntityAggregator implements EntityAggregatorInterface
             $query->setTitle($criteria->getTitle() . '::aggregation::' . $aggregation->getName());
         }
 
-        $this->addIdCondition($criteria, $definition, $query);
+        $this->helper->addIdCondition($criteria, $definition, $query);
 
         $table = $definition->getEntityName();
 

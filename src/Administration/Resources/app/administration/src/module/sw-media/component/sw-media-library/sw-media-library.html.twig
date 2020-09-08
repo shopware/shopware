@@ -53,6 +53,8 @@
 
                             {% block sw_media_library_back_to_parent_item %}
                                 <sw-media-folder-item
+                                    :allowEdit="acl.can('media.editor')"
+                                    :allowDelete="acl.can('media.deleter')"
                                     v-if="parentFolder"
                                     class="sw-media-library__parent-folder"
                                     :item="parentFolder"
@@ -71,6 +73,8 @@
                                     :key="gridItem.getEntityName() + '_' + gridItem.id"
                                     :class="`sw-media-grid-item__item--${index}`"
                                     :item="gridItem"
+                                    :allowEdit="acl.can('media.editor')"
+                                    :allowDelete="acl.can('media.deleter')"
                                     :selected="showItemSelected(gridItem)"
                                     :showSelectionIndicator="isListSelect"
                                     :showContextMenuButton="editable"

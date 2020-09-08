@@ -72,14 +72,6 @@ Component.register('sw-media-quickinfo', {
             this.getCustomFieldSets();
         },
 
-        quickActionClasses(classes, disabled) {
-            return [
-                'sw-media-sidebar__quickaction',
-                disabled ? 'sw-media-sidebar__quickaction--disabled' : '',
-                classes
-            ];
-        },
-
         async getCustomFieldSets() {
             const criteria = new Criteria(1, 100)
                 .addFilter(Criteria.equals('relations.entityName', 'media'))
@@ -176,6 +168,12 @@ Component.register('sw-media-quickinfo', {
             this.$nextTick(() => {
                 this.$emit('media-item-replaced');
             });
+        },
+
+        quickActionClasses(disabled) {
+            return ['sw-media-sidebar__quickaction', {
+                'sw-media-sidebar__quickaction--disabled': disabled
+            }];
         }
     }
 });

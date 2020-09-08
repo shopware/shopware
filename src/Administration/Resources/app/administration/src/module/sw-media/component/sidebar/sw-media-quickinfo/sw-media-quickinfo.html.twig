@@ -17,7 +17,8 @@
                         <ul class="sw-media-sidebar__quickactions-list">
                             {% block sw_media_quickinfo_quickactions_replace %}
                             <li v-if="!item.private"
-                                :class="quickActionClasses(['quickaction--replace'], !acl.can('media.editor'))"
+                                class="quickaction--replace"
+                                :class="quickActionClasses(!acl.can('media.editor'))"
                                 @click="openModalReplace"
                                 v-tooltip="{
                                     message: $tc('sw-privileges.tooltip.warning'),
@@ -43,7 +44,8 @@
                                 </li>
                             {% endblock %}
                             {% block sw_media_quickinfo_quickactions_move %}
-                                <li :class="quickActionClasses(['quickaction--move'], !acl.can('media.editor'))"
+                                <li class="quickaction--move"
+                                    :class="quickActionClasses(!acl.can('media.editor'))"
                                     @click="openModalMove"
                                     v-tooltip="{
                                         message: $tc('sw-privileges.tooltip.warning'),
@@ -67,7 +69,8 @@
                             {% endblock %}
 
                             {% block sw_media_quickinfo_quickactions_delete %}
-                                <li :class="quickActionClasses(['quickaction--delete'], !acl.can('media.deleter'))"
+                                <li class="quickaction--delete"
+                                    :class="quickActionClasses(!acl.can('media.deleter'))"
                                     v-if="!item.private"
                                     @click="openModalDelete"
                                     v-tooltip="{

@@ -64,12 +64,10 @@ Component.register('sw-media-quickinfo-multiple', {
             this.$emit('media-item-selection-remove', event);
         },
 
-        quickActionClasses(classes, disabled) {
-            return [
-                'sw-media-sidebar__quickaction',
-                disabled ? 'sw-media-sidebar__quickaction--disabled' : '',
-                classes
-            ];
+        quickActionClassesDelete(disabled) {
+            return ['sw-media-sidebar__quickaction', {
+                'sw-media-sidebar__quickaction--disabled': disabled
+            }];
         }
     }
 });

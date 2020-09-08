@@ -10,7 +10,8 @@
                     <template slot="content">
                         <ul class="sw-media-sidebar__quickactions-list">
                             {% block sw_media_quickinfo_multiple_quickactions_move %}
-                                <li :class="quickActionClasses(['quickaction--move'], !acl.can('media.editor'))"
+                                <li class="quickaction--move"
+                                    :class="quickActionClasses(!acl.can('media.editor'))"
                                     @click="openModalMove">
 
                                     <sw-icon small name="default-action-move-file" class="sw-media-sidebar__quickactions-icon"></sw-icon>
@@ -19,7 +20,8 @@
                             {% endblock %}
 
                             {% block sw_media_quickinfo_multiple_quickactions_delete %}
-                                <li  :class="quickActionClasses(['is--danger'], !acl.can('media.deleter'))"
+                                <li class="is--danger"
+                                    :class="quickActionClasses(!acl.can('media.deleter'))"
                                     v-if="!isPrivate"
                                     @click="openModalDelete">
 
@@ -30,7 +32,8 @@
 
                             {% block sw_media_quickinfo_folder_quickactions_dissolve %}
                                 <li v-if="!hasMedia"
-                                    :class="quickActionClasses(['quickaction--dissolve'], !acl.can('media.editor'))"
+                                    class="quickaction--dissolve"
+                                    :class="quickActionClasses(!acl.can('media.editor'))"
                                     @click="openFolderDissolve">
 
                                     <sw-icon small name="default-web-loading-star" class="sw-media-sidebar__quickactions-icon"></sw-icon>

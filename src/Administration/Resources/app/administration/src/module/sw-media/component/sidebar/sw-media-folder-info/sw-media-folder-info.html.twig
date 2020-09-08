@@ -10,7 +10,8 @@
                     <template slot="content">
                         <ul class="sw-media-sidebar__quickactions-list">
                             {% block sw_media_quickinfo_folder_quickactions_move %}
-                                <li :class="quickActionClasses(['quickaction--move'], !acl.can('media.editor'))"
+                                <li class="quickaction--move"
+                                    :class="quickActionClasses(!acl.can('media.editor'))"
                                     @click="openModalMove"
                                     v-tooltip="{
                                         message: $tc('sw-privileges.tooltip.warning'),
@@ -36,7 +37,8 @@
                             {% endblock %}
 
                             {% block sw_media_quickinfo_folder_quickactions_dissolve %}
-                               <li :class="quickActionClasses(['quickaction--dissolve'], !acl.can('media.editor'))"
+                               <li class="quickaction--dissolve"
+                                   :class="quickActionClasses(!acl.can('media.editor'))"
                                    @click="openFolderDissolve"
                                    v-tooltip="{
                                         message: $tc('sw-privileges.tooltip.warning'),
@@ -52,10 +54,8 @@
                             {% endblock %}
 
                             {% block sw_media_quickinfo_folder_quickactions_delete %}
-                                <li :class="quickActionClasses(
-                                    ['quickaction--delete', 'is--danger'],
-                                    !acl.can('media.deleter')
-                                    )"
+                                <li class="quickaction--delete is--danger"
+                                    :class="quickActionClasses(!acl.can('media.deleter'))"
                                     @click="openModalDelete"
                                     v-tooltip="{
                                         message: $tc('sw-privileges.tooltip.warning'),
@@ -113,6 +113,7 @@
 
         {% block sw_media_folder_info_settings_modal %}
             <sw-media-modal-folder-settings
+                :disabled="!acl.can('media.editor')"
                 v-if="showFolderSettings"
                 :folder="mediaFolder"
                 @media-settings-modal-save="closeFolderSettings"

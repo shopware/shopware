@@ -173,7 +173,7 @@ describe('components/media/sw-media-folder-item', () => {
         await aclWrapper.vm.$nextTick();
 
         const deleteMenuItem = aclWrapper.find('.sw-media-context-item__delete-folder-action');
-        expect(deleteMenuItem.attributes().disabled).toBeFalsy();
+        expect(deleteMenuItem.attributes().disabled).toBeDefined();
     });
 
     it('should not be able to edit', async () => {
@@ -189,9 +189,8 @@ describe('components/media/sw-media-folder-item', () => {
             'media.editor'
         ]);
         await aclWrapper.vm.$nextTick();
-        console.log(aclWrapper.html());
 
         const editMenuItem = aclWrapper.find('.sw-media-context-item__move-folder-action');
-        expect(editMenuItem.attributes().disabled).toBeFalsy();
+        expect(editMenuItem.attributes().disabled).toBeDefined();
     });
 });

@@ -29,7 +29,6 @@ Component.register('sw-media-folder-info', {
     },
 
     computed: {
-
         mediaFolderRepository() {
             return this.repositoryFactory.create('media_folder');
         },
@@ -46,12 +45,10 @@ Component.register('sw-media-folder-info', {
             this.$emit('media-folder-renamed');
         },
 
-        quickActionClasses(classes, disabled) {
-            return [
-                'sw-media-sidebar__quickaction',
-                disabled ? 'sw-media-sidebar__quickaction--disabled' : '',
-                classes
-            ];
+        quickActionClasses(disabled) {
+            return ['sw-media-sidebar__quickaction', {
+                'sw-media-sidebar__quickaction--disabled': disabled
+            }];
         }
     }
 });

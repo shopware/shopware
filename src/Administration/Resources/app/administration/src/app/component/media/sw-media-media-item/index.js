@@ -27,7 +27,7 @@ Component.register('sw-media-media-item', {
     template,
     inheritAttrs: false,
 
-    inject: ['mediaService', 'acl'],
+    inject: ['mediaService'],
 
     mixins: [
         Mixin.getByName('notification')
@@ -127,7 +127,7 @@ Component.register('sw-media-media-item', {
         },
 
         openModalDelete() {
-            if (!this.acl.can('media.deleter')) {
+            if (!this.allowDelete) {
                 return;
             }
 
@@ -145,7 +145,7 @@ Component.register('sw-media-media-item', {
         },
 
         openModalReplace() {
-            if (!this.acl.can('media.editor')) {
+            if (!this.allowEdit) {
                 return;
             }
             this.showModalReplace = true;
@@ -156,7 +156,7 @@ Component.register('sw-media-media-item', {
         },
 
         openModalMove() {
-            if (!this.acl.can('media.editor')) {
+            if (!this.allowEdit) {
                 return;
             }
 

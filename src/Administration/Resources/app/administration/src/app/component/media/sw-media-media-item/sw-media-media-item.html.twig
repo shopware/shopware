@@ -46,7 +46,7 @@
         {% endblock %}
 
         {% block sw_media_media_item_context_menu %}
-            <template #context-menu="{ item, startInlineEdit }">
+            <template #context-menu="{ item, startInlineEdit, allowEdit, allowDelete }">
                 <slot>
                     {% block sw_media_media_item_additional_context_menu_slot %}{% endblock %}
                 </slot>
@@ -55,7 +55,7 @@
                     <div :class="defaultContextMenuClass">
                         {% block sw_media_media_item_context_item_rename_item %}
                             <sw-context-menu-item
-                                :disabled="!item.hasFile || item.private || !acl.can('media.editor')"
+                                :disabled="!item.hasFile || item.private || !allowEdit"
                                 @click="startInlineEdit">
                                 {{ $tc('global.sw-media-media-item.labelContextMenuRename') }}
                             </sw-context-menu-item>
@@ -70,7 +70,7 @@
 
                         {% block sw_media_media_item_context_item_replace %}
                             <sw-context-menu-item
-                                :disabled="item.private || !acl.can('media.editor')"
+                                :disabled="item.private || !allowEdit"
                                 class="sw-media-context-item__replace-media-action"
                                 @click="openModalReplace">
                                 {{ $tc('global.sw-media-media-item.labelContextMenuReplace') }}
@@ -79,7 +79,7 @@
 
                         {% block sw_media_media_item_context_item_move %}
                             <sw-context-menu-item
-                                :disabled="!acl.can('media.editor')"
+                                :disabled="!allowEdit"
                                 class="sw-media-context-item__move-media-action"
                                 @click="openModalMove">
                                 {{ $tc('global.sw-media-media-item.labelContextMenuMove') }}
@@ -88,7 +88,7 @@
 
                         {% block sw_media_media_item_context_item_delete %}
                             <sw-context-menu-item
-                                :disabled="item.private || !acl.can('media.deleter')"
+                                :disabled="item.private || !allowDelete"
                                 @click="openModalDelete"
                                 variant="danger">
                                 {{ $tc('global.default.delete') }}

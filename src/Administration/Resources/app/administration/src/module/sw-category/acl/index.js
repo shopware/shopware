@@ -26,6 +26,8 @@ Shopware.Service('privileges')
             editor: {
                 privileges: [
                     'category:update',
+                    'media:delete',
+                    'media_thumbnail:delete',
                     Shopware.Service('privileges').getPrivileges('media.creator'),
                     'product_category:create',
                     'tag:create',

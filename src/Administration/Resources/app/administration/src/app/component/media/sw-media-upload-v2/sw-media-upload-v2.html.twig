@@ -66,7 +66,8 @@
                         {% block sw_media_upload_v2_regular_header_switch %}
                             <sw-context-button
                                 v-if="!source && uploadUrlFeatureEnabled"
-                                class="sw-media-upload-v2__switch-mode">
+                                class="sw-media-upload-v2__switch-mode"
+                                :disabled="disabled">
                                 {% block sw_media_upload_v2_regular_header_switch_file_upload %}
                                     <sw-context-menu-item
                                         v-if="!isFileUpload"
@@ -131,6 +132,7 @@
                                     </div>
                                     <sw-icon class="sw-media-upload-v2__remove-icon"
                                         name="small-default-x-line-small"
+                                        v-if="!disabled"
                                         @click="onRemoveMediaItem"
                                         small>
                                     </sw-icon>

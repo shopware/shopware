@@ -5,7 +5,7 @@ flag:           FEATURE_NEXT_3722
 author:         Jannis Leifeld
 author_email:   j.leifeld@shopware.com
 author_github:  @jleifeld
-___
+---
 # Administration
 * Added labels to users and permissions module cards
 * Added "Create new role" title to create new role module

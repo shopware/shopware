@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
 
@@ -80,7 +80,7 @@ describe('Product: Test variants', () => {
         cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--price-EUR .icon--default-lock-open').click();
         cy.get('.sw-data-grid__cell--price-EUR #sw-price-field-net')
             .invoke('val')
-            .should('eq', '84.03');
+            .should('eq', '84.03361344537815');
         cy.get('.icon--custom-uninherited').should('be.visible');
         cy.get('.sw-data-grid__inline-edit-save').click();
 
@@ -112,8 +112,8 @@ describe('Product: Test variants', () => {
                     cy.log('Variant "Green" is already open.');
                     cy.get('.product-detail-price').contains('100.00');
                 }
-            })
-        })
+            });
+        });
 
         cy.contains('Red').click();
 

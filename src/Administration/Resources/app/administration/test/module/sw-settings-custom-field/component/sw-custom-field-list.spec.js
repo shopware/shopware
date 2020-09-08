@@ -92,7 +92,7 @@ function createWrapper(privileges = []) {
 
                     return privileges.includes(identifier);
                 }
-            },
+            }
         },
         stubs: {
             'sw-button': true,

@@ -3,8 +3,6 @@ import 'src/module/sw-settings/mixin/sw-settings-list.mixin';
 import 'src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-list';
 import 'src/app/component/grid/sw-grid';
 
-let customFieldSets = mockCustomFieldSetData();
-
 function mockCustomFieldSetData() {
     const _customFieldSets = [];
 
@@ -27,36 +25,11 @@ function mockCustomFieldSetData() {
 
         _customFieldSets.push(customFieldSet);
     }
-    console.log('_set', _customFieldSets);
 
     return _customFieldSets;
 }
 
-function mockCustomFieldSetRepository() {
-    class Repository {
-        constructor() {
-            this._customFields = customFieldSets;
-        }
-
-        search() {
-            const response = this._customFields;
-            response.total = this._customFields.length;
-
-            return Promise.resolve(this._customFields);
-        }
-
-        syncDeleted() {
-            this._customFields.splice(0, 1);
-
-            return Promise.resolve();
-        }
-    }
-
-    return new Repository();
-}
-
 function createWrapper(privileges = []) {
-    customFieldSets = mockCustomFieldSetData();
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
@@ -70,6 +43,13 @@ function createWrapper(privileges = []) {
             $route: {
                 params: {
                     id: '1234'
+                },
+                query: {
+                    limit: '25',
+                    naturalSorting: false,
+                    page: 1,
+                    sortBy: 'config.name',
+                    sortDirection: 'ASC'
                 }
             },
             $router: {
@@ -84,7 +64,7 @@ function createWrapper(privileges = []) {
             repositoryFactory: {
                 create: () => ({
                     search: () => {
-                        return mockCustomFieldSetRepository();
+                        return Promise.resolve(mockCustomFieldSetData());
                     }
                 })
             },
@@ -184,7 +164,6 @@ describe('module/sw-settings-custom-field/page/sw-settings-custom-field-set-list
             'custom_fields.editor'
         ]);
         await wrapper.vm.$nextTick();
-        console.log(wrapper.html());
 
         const editMenuItem = wrapper.find('.sw-custom-field-set-list__edit-action');
         expect(editMenuItem.attributes().disabled).toBeFalsy();

@@ -40,7 +40,7 @@ class ProductReviewRoute extends AbstractProductReviewRoute
      *      path="/product/{productId}/reviews",
      *      description="",
      *      operationId="readProductReviews",
-     *      tags={"Store API","Language"},
+     *      tags={"Store API","Product"},
      *      @OA\Response(
      *          response="200",
      *          description="Found reviews",

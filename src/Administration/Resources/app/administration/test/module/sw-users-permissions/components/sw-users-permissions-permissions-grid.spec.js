@@ -1118,4 +1118,1345 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(productDeleter.props().value).toBe(true);
         expect(productDeleter.props().disabled).toBe(false);
     });
+
+    it('should show the parent permissions', () => {
+        const wrapper = createWrapper({
+            privilegesMappings: [
+                {
+                    category: 'permissions',
+                    key: 'product',
+                    parent: 'catalogues',
+                    roles: {
+                        viewer: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        editor: {
+                            dependencies: ['product.viewer'],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: ['product.viewer', 'product.editor'],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: ['product.viewer'],
+                            privileges: []
+                        }
+                    }
+                },
+                {
+                    category: 'permissions',
+                    key: 'categories',
+                    parent: 'catalogues',
+                    roles: {
+                        viewer: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        editor: {
+                            dependencies: ['categories.viewer'],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: ['categories.viewer', 'categories.editor'],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: ['categories.viewer'],
+                            privileges: []
+                        }
+                    }
+                },
+                {
+                    category: 'permissions',
+                    key: 'currencies',
+                    parent: 'settings',
+                    roles: {
+                        viewer: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        editor: {
+                            dependencies: ['currencies.viewer'],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: ['currencies.viewer', 'currencies.editor'],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: ['currencies.viewer'],
+                            privileges: []
+                        }
+                    }
+                },
+                {
+                    category: 'permissions',
+                    key: 'sales_channel',
+                    parent: null,
+                    roles: {
+                        viewer: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        editor: {
+                            dependencies: ['sales_channel.viewer'],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: ['sales_channel.viewer', 'sales_channel.editor'],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: ['sales_channel.viewer'],
+                            privileges: []
+                        }
+                    }
+                }
+            ]
+        });
+
+        const parentGrids = wrapper.findAll('.sw-users-permissions-permissions-grid__parent');
+        expect(parentGrids.length).toBe(3);
+
+        const parentCatalogues = wrapper.find('.sw-users-permissions-permissions-grid__parent_catalogues');
+        const parentNull = wrapper.find('.sw-users-permissions-permissions-grid__parent_null');
+        const parentSettings = wrapper.find('.sw-users-permissions-permissions-grid__parent_settings');
+
+        expect(parentCatalogues.isVisible()).toBeTruthy();
+        expect(parentNull.isVisible()).toBeTruthy();
+        expect(parentSettings.isVisible()).toBeTruthy();
+    });
+
+    it('should organize the children to the matching parents', () => {
+        const wrapper = createWrapper({
+            privilegesMappings: [
+                {
+                    category: 'permissions',
+                    key: 'product',
+                    parent: 'catalogues',
+                    roles: {
+                        viewer: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        editor: {
+                            dependencies: ['product.viewer'],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: ['product.viewer', 'product.editor'],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: ['product.viewer'],
+                            privileges: []
+                        }
+                    }
+                },
+                {
+                    category: 'permissions',
+                    key: 'categories',
+                    parent: 'catalogues',
+                    roles: {
+                        viewer: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        editor: {
+                            dependencies: ['categories.viewer'],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: ['categories.viewer', 'categories.editor'],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: ['categories.viewer'],
+                            privileges: []
+                        }
+                    }
+                },
+                {
+                    category: 'permissions',
+                    key: 'currencies',
+                    parent: 'settings',
+                    roles: {
+                        viewer: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        editor: {
+                            dependencies: ['currencies.viewer'],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: ['currencies.viewer', 'currencies.editor'],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: ['currencies.viewer'],
+                            privileges: []
+                        }
+                    }
+                },
+                {
+                    category: 'permissions',
+                    key: 'sales_channel',
+                    parent: null,
+                    roles: {
+                        viewer: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        editor: {
+                            dependencies: ['sales_channel.viewer'],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: ['sales_channel.viewer', 'sales_channel.editor'],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: ['sales_channel.viewer'],
+                            privileges: []
+                        }
+                    }
+                }
+            ]
+        });
+
+        const gridEntries = wrapper.findAll('.sw-users-permissions-permissions-grid__entry');
+        expect(gridEntries.length).toBe(8);
+
+        // header in beginning
+        expect(gridEntries.at(0).classes()).toContain('sw-users-permissions-permissions-grid__entry-header');
+
+        // catalogues with children
+        expect(gridEntries.at(1).classes()).toContain('sw-users-permissions-permissions-grid__parent_catalogues');
+        expect(gridEntries.at(2).classes()).toContain('sw-users-permissions-permissions-grid__entry_categories');
+        expect(gridEntries.at(3).classes()).toContain('sw-users-permissions-permissions-grid__entry_product');
+
+        // other (null) with children
+        expect(gridEntries.at(4).classes()).toContain('sw-users-permissions-permissions-grid__parent_null');
+        expect(gridEntries.at(5).classes()).toContain('sw-users-permissions-permissions-grid__entry_sales_channel');
+
+        // settings with children
+        expect(gridEntries.at(6).classes()).toContain('sw-users-permissions-permissions-grid__parent_settings');
+        expect(gridEntries.at(7).classes()).toContain('sw-users-permissions-permissions-grid__entry_currencies');
+    });
+
+    it('should sort parents alphabetically with the label', () => {
+        const wrapper = createWrapper({
+            privilegesMappings: [
+                {
+                    category: 'permissions',
+                    key: 'categories',
+                    parent: 'orders',
+                    roles: {}
+                },
+                {
+                    category: 'permissions',
+                    key: 'currencies',
+                    parent: 'settings',
+                    roles: {}
+                },
+                {
+                    category: 'permissions',
+                    key: 'sales_channel',
+                    parent: 'content',
+                    roles: {}
+                },
+                {
+                    category: 'permissions',
+                    key: 'product',
+                    parent: 'catalogues',
+                    roles: {}
+                }
+            ]
+        });
+
+        const gridEntries = wrapper.findAll('.sw-users-permissions-permissions-grid__entry');
+        expect(gridEntries.length).toBe(9);
+
+        // check if order is sorted alphabetically
+        expect(gridEntries.at(1).classes()).toContain('sw-users-permissions-permissions-grid__parent_catalogues');
+        expect(gridEntries.at(3).classes()).toContain('sw-users-permissions-permissions-grid__parent_content');
+        expect(gridEntries.at(5).classes()).toContain('sw-users-permissions-permissions-grid__parent_orders');
+        expect(gridEntries.at(7).classes()).toContain('sw-users-permissions-permissions-grid__parent_settings');
+    });
+
+    it('should sort children in parents alphabetically', () => {
+        const wrapper = createWrapper({
+            privilegesMappings: [
+                {
+                    category: 'permissions',
+                    key: 'rule_builder',
+                    parent: 'settings',
+                    roles: {}
+                },
+                {
+                    category: 'permissions',
+                    key: 'currencies',
+                    parent: 'settings',
+                    roles: {}
+                },
+                {
+                    category: 'permissions',
+                    key: 'basic_information',
+                    parent: 'settings',
+                    roles: {}
+                },
+                {
+                    category: 'permissions',
+                    key: 'documents',
+                    parent: 'settings',
+                    roles: {}
+                }
+            ]
+        });
+
+        const gridEntries = wrapper.findAll('.sw-users-permissions-permissions-grid__entry');
+        expect(gridEntries.length).toBe(6);
+
+        // check if order is sorted alphabetically
+        expect(gridEntries.at(2).classes()).toContain('sw-users-permissions-permissions-grid__entry_basic_information');
+        expect(gridEntries.at(3).classes()).toContain('sw-users-permissions-permissions-grid__entry_currencies');
+        expect(gridEntries.at(4).classes()).toContain('sw-users-permissions-permissions-grid__entry_documents');
+        expect(gridEntries.at(5).classes()).toContain('sw-users-permissions-permissions-grid__entry_rule_builder');
+    });
+
+    it('parent checkbox should be ghost checked when some of the child permission is clicked (TODO)', () => {
+        const wrapper = createWrapper({
+            privilegesMappings: [
+                {
+                    category: 'permissions',
+                    key: 'product',
+                    parent: 'catalogues',
+                    roles: {
+                        viewer: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        editor: {
+                            dependencies: [
+                                'product.viewer'
+                            ],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: [
+                                'product.viewer',
+                                'product.editor'
+                            ],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: [
+                                'product.viewer'
+                            ],
+                            privileges: []
+                        }
+                    }
+                },
+                {
+                    category: 'permissions',
+                    key: 'categories',
+                    parent: 'catalogues',
+                    roles: {
+                        viewer: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        editor: {
+                            dependencies: ['categories.viewer'],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: ['categories.viewer', 'categories.editor'],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: ['categories.viewer'],
+                            privileges: []
+                        }
+                    }
+                },
+                {
+                    category: 'permissions',
+                    key: 'currencies',
+                    parent: 'settings',
+                    roles: {
+                        viewer: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        editor: {
+                            dependencies: ['currencies.viewer'],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: ['currencies.viewer', 'currencies.editor'],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: ['currencies.viewer'],
+                            privileges: []
+                        }
+                    }
+                },
+                {
+                    category: 'permissions',
+                    key: 'sales_channel',
+                    parent: null,
+                    roles: {
+                        viewer: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        editor: {
+                            dependencies: ['sales_channel.viewer'],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: ['sales_channel.viewer', 'sales_channel.editor'],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: ['sales_channel.viewer'],
+                            privileges: []
+                        }
+                    }
+                }
+            ]
+        });
+
+        const cataloguesRow = wrapper.find('.sw-users-permissions-permissions-grid__parent_catalogues');
+        const catalogueViewerCheckbox = cataloguesRow
+            .find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
+        const catalogueEditorCheckbox = cataloguesRow
+            .find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+
+        expect(catalogueViewerCheckbox.props().ghostValue).toBe(false);
+        expect(catalogueEditorCheckbox.props().ghostValue).toBe(false);
+
+        const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
+        const productEditorCheckbox = productRow
+            .find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+
+        productEditorCheckbox.find('input').trigger('click');
+
+        expect(catalogueViewerCheckbox.props().ghostValue).toBe(true);
+        expect(catalogueEditorCheckbox.props().ghostValue).toBe(true);
+    });
+
+    it('parent checkbox should be ghost checked when some of the child permission is clicked (all)', () => {
+        const wrapper = createWrapper({
+            privilegesMappings: [
+                {
+                    category: 'permissions',
+                    key: 'product',
+                    parent: 'catalogues',
+                    roles: {
+                        viewer: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        editor: {
+                            dependencies: [
+                                'product.viewer'
+                            ],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: [
+                                'product.viewer',
+                                'product.editor'
+                            ],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: [
+                                'product.viewer'
+                            ],
+                            privileges: []
+                        }
+                    }
+                },
+                {
+                    category: 'permissions',
+                    key: 'categories',
+                    parent: 'catalogues',
+                    roles: {
+                        viewer: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        editor: {
+                            dependencies: ['categories.viewer'],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: ['categories.viewer', 'categories.editor'],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: ['categories.viewer'],
+                            privileges: []
+                        }
+                    }
+                },
+                {
+                    category: 'permissions',
+                    key: 'currencies',
+                    parent: 'settings',
+                    roles: {
+                        viewer: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        editor: {
+                            dependencies: ['currencies.viewer'],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: ['currencies.viewer', 'currencies.editor'],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: ['currencies.viewer'],
+                            privileges: []
+                        }
+                    }
+                },
+                {
+                    category: 'permissions',
+                    key: 'sales_channel',
+                    parent: null,
+                    roles: {
+                        viewer: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        editor: {
+                            dependencies: ['sales_channel.viewer'],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: ['sales_channel.viewer', 'sales_channel.editor'],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: ['sales_channel.viewer'],
+                            privileges: []
+                        }
+                    }
+                }
+            ]
+        });
+
+        const cataloguesRow = wrapper.find('.sw-users-permissions-permissions-grid__parent_catalogues');
+        const catalogueAllCheckbox = cataloguesRow
+            .find('.sw-users-permissions-permissions-grid__role_all .sw-field--checkbox');
+
+        expect(catalogueAllCheckbox.props().ghostValue).toBe(false);
+
+        const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
+        const productAllCheckbox = productRow
+            .find('.sw-users-permissions-permissions-grid__role_all .sw-field--checkbox');
+
+        productAllCheckbox.find('input').trigger('click');
+
+        expect(catalogueAllCheckbox.props().ghostValue).toBe(true);
+    });
+
+    it('parent checkbox should be checked when all of the child permission is clicked', () => {
+        const wrapper = createWrapper({
+            privilegesMappings: [
+                {
+                    category: 'permissions',
+                    key: 'product',
+                    parent: 'catalogues',
+                    roles: {
+                        viewer: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        editor: {
+                            dependencies: [
+                                'product.viewer'
+                            ],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: [
+                                'product.viewer',
+                                'product.editor'
+                            ],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: [
+                                'product.viewer'
+                            ],
+                            privileges: []
+                        }
+                    }
+                },
+                {
+                    category: 'permissions',
+                    key: 'categories',
+                    parent: 'catalogues',
+                    roles: {
+                        viewer: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        editor: {
+                            dependencies: ['categories.viewer'],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: ['categories.viewer', 'categories.editor'],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: ['categories.viewer'],
+                            privileges: []
+                        }
+                    }
+                },
+                {
+                    category: 'permissions',
+                    key: 'currencies',
+                    parent: 'settings',
+                    roles: {
+                        viewer: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        editor: {
+                            dependencies: ['currencies.viewer'],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: ['currencies.viewer', 'currencies.editor'],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: ['currencies.viewer'],
+                            privileges: []
+                        }
+                    }
+                },
+                {
+                    category: 'permissions',
+                    key: 'sales_channel',
+                    parent: null,
+                    roles: {
+                        viewer: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        editor: {
+                            dependencies: ['sales_channel.viewer'],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: ['sales_channel.viewer', 'sales_channel.editor'],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: ['sales_channel.viewer'],
+                            privileges: []
+                        }
+                    }
+                }
+            ]
+        });
+
+        const cataloguesRow = wrapper.find('.sw-users-permissions-permissions-grid__parent_catalogues');
+        const catalogueEditorCheckbox = cataloguesRow
+            .find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+
+        const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
+        const categoryRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_categories');
+        const productEditorCheckbox = productRow
+            .find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+        const categoryEditorCheckbox = categoryRow
+            .find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+
+        expect(catalogueEditorCheckbox.props().value).toBe(false);
+        expect(productEditorCheckbox.props().value).toBe(false);
+        expect(categoryEditorCheckbox.props().value).toBe(false);
+
+        productEditorCheckbox.find('input').trigger('click');
+
+        expect(catalogueEditorCheckbox.props().value).toBe(false);
+
+        categoryEditorCheckbox.find('input').trigger('click');
+
+        expect(catalogueEditorCheckbox.props().value).toBe(true);
+        expect(productEditorCheckbox.props().value).toBe(true);
+        expect(categoryEditorCheckbox.props().value).toBe(true);
+    });
+
+    it('parent checkbox should be disabled when all of the child permission are disabled', () => {
+        const wrapper = createWrapper({
+            privilegesMappings: [
+                {
+                    category: 'permissions',
+                    key: 'product',
+                    parent: 'catalogues',
+                    roles: {
+                        viewer: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        editor: {
+                            dependencies: [
+                                'product.viewer'
+                            ],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: [
+                                'product.viewer',
+                                'product.editor'
+                            ],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: [
+                                'product.viewer'
+                            ],
+                            privileges: []
+                        }
+                    }
+                },
+                {
+                    category: 'permissions',
+                    key: 'categories',
+                    parent: 'catalogues',
+                    roles: {
+                        viewer: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        editor: {
+                            dependencies: ['categories.viewer'],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: ['categories.viewer', 'categories.editor'],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: ['categories.viewer'],
+                            privileges: []
+                        }
+                    }
+                },
+                {
+                    category: 'permissions',
+                    key: 'currencies',
+                    parent: 'settings',
+                    roles: {
+                        viewer: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        editor: {
+                            dependencies: ['currencies.viewer'],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: ['currencies.viewer', 'currencies.editor'],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: ['currencies.viewer'],
+                            privileges: []
+                        }
+                    }
+                },
+                {
+                    category: 'permissions',
+                    key: 'sales_channel',
+                    parent: null,
+                    roles: {
+                        viewer: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        editor: {
+                            dependencies: ['sales_channel.viewer'],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: ['sales_channel.viewer', 'sales_channel.editor'],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: ['sales_channel.viewer'],
+                            privileges: []
+                        }
+                    }
+                }
+            ]
+        });
+
+        const cataloguesRow = wrapper.find('.sw-users-permissions-permissions-grid__parent_catalogues');
+        const catalogueViewerCheckbox = cataloguesRow
+            .find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
+
+        const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
+        const categoryRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_categories');
+        const productEditorCheckbox = productRow
+            .find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+
+        const categoryEditorCheckbox = categoryRow
+            .find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+
+        expect(catalogueViewerCheckbox.props().disabled).toBe(false);
+
+        productEditorCheckbox.find('input').trigger('click');
+
+        expect(catalogueViewerCheckbox.props().disabled).toBe(false);
+
+        categoryEditorCheckbox.find('input').trigger('click');
+
+        expect(catalogueViewerCheckbox.props().disabled).toBe(true);
+    });
+
+    it('parent checkbox should check all of the child permission when clicked', () => {
+        const wrapper = createWrapper({
+            privilegesMappings: [
+                {
+                    category: 'permissions',
+                    key: 'product',
+                    parent: 'catalogues',
+                    roles: {
+                        viewer: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        editor: {
+                            dependencies: [
+                                'product.viewer'
+                            ],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: [
+                                'product.viewer',
+                                'product.editor'
+                            ],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: [
+                                'product.viewer'
+                            ],
+                            privileges: []
+                        }
+                    }
+                },
+                {
+                    category: 'permissions',
+                    key: 'categories',
+                    parent: 'catalogues',
+                    roles: {
+                        viewer: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        editor: {
+                            dependencies: ['categories.viewer'],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: ['categories.viewer', 'categories.editor'],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: ['categories.viewer'],
+                            privileges: []
+                        }
+                    }
+                },
+                {
+                    category: 'permissions',
+                    key: 'currencies',
+                    parent: 'settings',
+                    roles: {
+                        viewer: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        editor: {
+                            dependencies: ['currencies.viewer'],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: ['currencies.viewer', 'currencies.editor'],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: ['currencies.viewer'],
+                            privileges: []
+                        }
+                    }
+                },
+                {
+                    category: 'permissions',
+                    key: 'sales_channel',
+                    parent: null,
+                    roles: {
+                        viewer: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        editor: {
+                            dependencies: ['sales_channel.viewer'],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: ['sales_channel.viewer', 'sales_channel.editor'],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: ['sales_channel.viewer'],
+                            privileges: []
+                        }
+                    }
+                }
+            ]
+        });
+
+        const cataloguesRow = wrapper.find('.sw-users-permissions-permissions-grid__parent_catalogues');
+        const catalogueEditorCheckbox = cataloguesRow
+            .find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+
+        const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
+        const categoryRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_categories');
+        const productEditorCheckbox = productRow
+            .find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+        const categoryEditorCheckbox = categoryRow
+            .find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+
+        expect(catalogueEditorCheckbox.props().value).toBe(false);
+        expect(productEditorCheckbox.props().value).toBe(false);
+        expect(categoryEditorCheckbox.props().value).toBe(false);
+
+        catalogueEditorCheckbox.find('input').trigger('click');
+
+        expect(catalogueEditorCheckbox.props().value).toBe(true);
+        expect(productEditorCheckbox.props().value).toBe(true);
+        expect(categoryEditorCheckbox.props().value).toBe(true);
+    });
+
+    // eslint-disable-next-line max-len
+    it('parent checkbox should check all of the child permission when clicked and some child permissions are already clicked', () => {
+        const wrapper = createWrapper({
+            privilegesMappings: [
+                {
+                    category: 'permissions',
+                    key: 'product',
+                    parent: 'catalogues',
+                    roles: {
+                        viewer: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        editor: {
+                            dependencies: [
+                                'product.viewer'
+                            ],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: [
+                                'product.viewer',
+                                'product.editor'
+                            ],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: [
+                                'product.viewer'
+                            ],
+                            privileges: []
+                        }
+                    }
+                },
+                {
+                    category: 'permissions',
+                    key: 'categories',
+                    parent: 'catalogues',
+                    roles: {
+                        viewer: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        editor: {
+                            dependencies: ['categories.viewer'],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: ['categories.viewer', 'categories.editor'],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: ['categories.viewer'],
+                            privileges: []
+                        }
+                    }
+                },
+                {
+                    category: 'permissions',
+                    key: 'currencies',
+                    parent: 'settings',
+                    roles: {
+                        viewer: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        editor: {
+                            dependencies: ['currencies.viewer'],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: ['currencies.viewer', 'currencies.editor'],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: ['currencies.viewer'],
+                            privileges: []
+                        }
+                    }
+                },
+                {
+                    category: 'permissions',
+                    key: 'sales_channel',
+                    parent: null,
+                    roles: {
+                        viewer: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        editor: {
+                            dependencies: ['sales_channel.viewer'],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: ['sales_channel.viewer', 'sales_channel.editor'],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: ['sales_channel.viewer'],
+                            privileges: []
+                        }
+                    }
+                }
+            ]
+        });
+
+        const cataloguesRow = wrapper.find('.sw-users-permissions-permissions-grid__parent_catalogues');
+        const catalogueEditorCheckbox = cataloguesRow
+            .find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+
+        const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
+        const categoryRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_categories');
+        const productEditorCheckbox = productRow
+            .find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+        const categoryEditorCheckbox = categoryRow
+            .find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+
+        productEditorCheckbox.find('input').trigger('click');
+
+        expect(catalogueEditorCheckbox.props().value).toBe(false);
+        expect(productEditorCheckbox.props().value).toBe(true);
+        expect(categoryEditorCheckbox.props().value).toBe(false);
+
+        catalogueEditorCheckbox.find('input').trigger('click');
+
+        expect(catalogueEditorCheckbox.props().value).toBe(true);
+        expect(productEditorCheckbox.props().value).toBe(true);
+        expect(categoryEditorCheckbox.props().value).toBe(true);
+    });
+
+    it('parent checkbox should uncheck all of the child permission when unchecked', () => {
+        const wrapper = createWrapper({
+            privilegesMappings: [
+                {
+                    category: 'permissions',
+                    key: 'product',
+                    parent: 'catalogues',
+                    roles: {
+                        viewer: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        editor: {
+                            dependencies: [
+                                'product.viewer'
+                            ],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: [
+                                'product.viewer',
+                                'product.editor'
+                            ],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: [
+                                'product.viewer'
+                            ],
+                            privileges: []
+                        }
+                    }
+                },
+                {
+                    category: 'permissions',
+                    key: 'categories',
+                    parent: 'catalogues',
+                    roles: {
+                        viewer: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        editor: {
+                            dependencies: ['categories.viewer'],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: ['categories.viewer', 'categories.editor'],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: ['categories.viewer'],
+                            privileges: []
+                        }
+                    }
+                },
+                {
+                    category: 'permissions',
+                    key: 'currencies',
+                    parent: 'settings',
+                    roles: {
+                        viewer: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        editor: {
+                            dependencies: ['currencies.viewer'],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: ['currencies.viewer', 'currencies.editor'],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: ['currencies.viewer'],
+                            privileges: []
+                        }
+                    }
+                },
+                {
+                    category: 'permissions',
+                    key: 'sales_channel',
+                    parent: null,
+                    roles: {
+                        viewer: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        editor: {
+                            dependencies: ['sales_channel.viewer'],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: ['sales_channel.viewer', 'sales_channel.editor'],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: ['sales_channel.viewer'],
+                            privileges: []
+                        }
+                    }
+                }
+            ]
+        });
+
+        const cataloguesRow = wrapper.find('.sw-users-permissions-permissions-grid__parent_catalogues');
+        const catalogueEditorCheckbox = cataloguesRow
+            .find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+
+        const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
+        const categoryRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_categories');
+        const productEditorCheckbox = productRow
+            .find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+        const categoryEditorCheckbox = categoryRow
+            .find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+
+        productEditorCheckbox.find('input').trigger('click');
+        categoryEditorCheckbox.find('input').trigger('click');
+
+        expect(catalogueEditorCheckbox.props().value).toBe(true);
+        expect(productEditorCheckbox.props().value).toBe(true);
+        expect(categoryEditorCheckbox.props().value).toBe(true);
+
+        catalogueEditorCheckbox.find('input').trigger('click');
+
+        expect(catalogueEditorCheckbox.props().value).toBe(false);
+        expect(productEditorCheckbox.props().value).toBe(false);
+        expect(categoryEditorCheckbox.props().value).toBe(false);
+    });
+
+    it('parent checkbox should uncheck all of the child permission when unchecked expect disabled checkboxes', () => {
+        const wrapper = createWrapper({
+            privilegesMappings: [
+                {
+                    category: 'permissions',
+                    key: 'product',
+                    parent: 'catalogues',
+                    roles: {
+                        viewer: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        editor: {
+                            dependencies: [
+                                'product.viewer'
+                            ],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: [
+                                'product.viewer',
+                                'product.editor'
+                            ],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: [
+                                'product.viewer'
+                            ],
+                            privileges: []
+                        }
+                    }
+                },
+                {
+                    category: 'permissions',
+                    key: 'categories',
+                    parent: 'catalogues',
+                    roles: {
+                        viewer: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        editor: {
+                            dependencies: ['categories.viewer'],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: ['categories.viewer', 'categories.editor'],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: ['categories.viewer'],
+                            privileges: []
+                        }
+                    }
+                },
+                {
+                    category: 'permissions',
+                    key: 'currencies',
+                    parent: 'settings',
+                    roles: {
+                        viewer: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        editor: {
+                            dependencies: ['currencies.viewer'],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: ['currencies.viewer', 'currencies.editor'],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: ['currencies.viewer'],
+                            privileges: []
+                        }
+                    }
+                },
+                {
+                    category: 'permissions',
+                    key: 'sales_channel',
+                    parent: null,
+                    roles: {
+                        viewer: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        editor: {
+                            dependencies: ['sales_channel.viewer'],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: ['sales_channel.viewer', 'sales_channel.editor'],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: ['sales_channel.viewer'],
+                            privileges: []
+                        }
+                    }
+                }
+            ]
+        });
+
+        const cataloguesRow = wrapper.find('.sw-users-permissions-permissions-grid__parent_catalogues');
+        const catalogueViewerCheckbox = cataloguesRow
+            .find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
+
+        const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
+        const categoryRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_categories');
+        const productViewerCheckbox = productRow
+            .find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
+        const productEditorCheckbox = productRow
+            .find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+        const categoryEditorCheckbox = categoryRow
+            .find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
+        const categoryViewerCheckbox = categoryRow
+            .find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
+
+        // check product.editor
+        productEditorCheckbox.find('input').trigger('click');
+
+        expect(catalogueViewerCheckbox.props().value).toBe(false);
+        expect(productViewerCheckbox.props().value).toBe(true);
+        expect(productEditorCheckbox.props().value).toBe(true);
+        expect(categoryViewerCheckbox.props().value).toBe(false);
+        expect(categoryEditorCheckbox.props().value).toBe(false);
+
+        // check all catalogues viewer children
+        categoryViewerCheckbox.find('input').trigger('click');
+
+        expect(catalogueViewerCheckbox.props().value).toBe(true);
+        expect(productViewerCheckbox.props().value).toBe(true);
+        expect(categoryViewerCheckbox.props().value).toBe(true);
+
+        // uncheck all catalogues viewer children
+        catalogueViewerCheckbox.find('input').trigger('click');
+
+        expect(productViewerCheckbox.props().value).toBe(true);
+        expect(categoryViewerCheckbox.props().value).toBe(false);
+    });
 });

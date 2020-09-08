@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\System\Test\StateMachine\Api;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
@@ -165,6 +167,7 @@ class StateMachineActionControllerTest extends TestCase
         $options = [
             SalesChannelContextService::LANGUAGE_ID => $this->getDeDeLanguageId(),
             SalesChannelContextService::CUSTOMER_ID => $customerId,
+            SalesChannelContextService::SHIPPING_METHOD_ID => $this->createShippingMethod(),
         ];
 
         /** @var SalesChannelContext $salesChannelContext */
@@ -230,6 +233,7 @@ class StateMachineActionControllerTest extends TestCase
         $options = [
             SalesChannelContextService::LANGUAGE_ID => Defaults::LANGUAGE_SYSTEM,
             SalesChannelContextService::CUSTOMER_ID => $customerId,
+            SalesChannelContextService::SHIPPING_METHOD_ID => $this->createShippingMethod(),
         ];
 
         /** @var SalesChannelContext $salesChannelContext */
@@ -282,6 +286,43 @@ class StateMachineActionControllerTest extends TestCase
         $order = $orderRepository->search(new Criteria([$orderId]), $salesChannelContext->getContext())->first();
 
         static::assertEquals($order->getLanguageId(), Defaults::LANGUAGE_SYSTEM);
+    }
+
+    private function createShippingMethod()
+    {
+        $rule = [
+            'id' => Uuid::randomHex(),
+            'name' => 'test',
+            'priority' => 1,
+            'conditions' => [
+                ['type' => (new AlwaysValidRule())->getName()],
+            ],
+        ];
+
+        $this->getContainer()->get('rule.repository')
+            ->create([$rule], Context::createDefaultContext());
+
+        $shipping = [
+            'id' => Uuid::randomHex(),
+            'name' => 'test',
+            'prices' => [
+                [
+                    'ruleId' => null,
+                    'quantityStart' => 0,
+                    'currencyPrice' => [
+                        ['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 10, 'linked' => false],
+                    ],
+                ],
+            ],
+            'availabilityRuleId' => $rule['id'],
+            'deliveryTimeId' => $this->getContainer()->get(Connection::class)->fetchColumn('SELECT LOWER(HEX(id)) FROm delivery_time LIMIT 1'),
+            'salesChannels' => [['id' => Defaults::SALES_CHANNEL]],
+        ];
+
+        $this->getContainer()->get('shipping_method.repository')
+            ->create([$shipping], Context::createDefaultContext());
+
+        return $shipping['id'];
     }
 
     private function createOrder(string $customerId, Context $context): string

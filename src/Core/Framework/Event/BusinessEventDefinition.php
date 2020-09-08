@@ -26,12 +26,18 @@ class BusinessEventDefinition extends Struct
      */
     protected $logAware;
 
-    public function __construct(string $name, string $class, bool $mailAware, bool $logAware)
+    /**
+     * @var array
+     */
+    protected $data;
+
+    public function __construct(string $name, string $class, bool $mailAware, bool $logAware, array $data)
     {
         $this->name = $name;
         $this->class = $class;
         $this->mailAware = $mailAware;
         $this->logAware = $logAware;
+        $this->data = $data;
     }
 
     public function getName(): string
@@ -77,5 +83,15 @@ class BusinessEventDefinition extends Struct
     public function getApiAlias(): string
     {
         return 'business_event_definition';
+    }
+
+    public function getData(): array
+    {
+        return $this->data;
+    }
+
+    public function setData(array $data): void
+    {
+        $this->data = $data;
     }
 }

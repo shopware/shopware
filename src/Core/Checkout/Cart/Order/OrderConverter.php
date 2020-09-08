@@ -243,6 +243,13 @@ class OrderConverter
      */
     public function assembleSalesChannelContext(OrderEntity $order, Context $context): SalesChannelContext
     {
+        if ($order->getTransactions() === null) {
+            throw new MissingOrderRelationException('transactions');
+        }
+        if ($order->getOrderCustomer() === null) {
+            throw new MissingOrderRelationException('orderCustomer');
+        }
+
         $customerId = $order->getOrderCustomer()->getCustomerId();
         $customerGroupId = null;
 
@@ -266,7 +273,7 @@ class OrderConverter
         ];
 
         //get the first not paid transaction or, if all paid, the last transaction
-        if ($order->getTransactions()) {
+        if ($order->getTransactions() !== null) {
             foreach ($order->getTransactions() as $transaction) {
                 $options[SalesChannelContextService::PAYMENT_METHOD_ID] = $transaction->getPaymentMethodId();
                 if (

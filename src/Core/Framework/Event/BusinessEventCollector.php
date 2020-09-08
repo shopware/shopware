@@ -2,86 +2,42 @@
 
 namespace Shopware\Core\Framework\Event;
 
-use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
-use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
-use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
-use Shopware\Core\Checkout\Customer\Event\CustomerChangedPaymentMethodEvent;
-use Shopware\Core\Checkout\Customer\Event\CustomerDoubleOptInRegistrationEvent;
-use Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationAccepted;
-use Shopware\Core\Checkout\Customer\Event\CustomerGroupRegistrationDeclined;
-use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
-use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
-use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
-use Shopware\Core\Checkout\Customer\Event\DoubleOptInGuestOrderEvent;
-use Shopware\Core\Checkout\Customer\Event\GuestCustomerRegisterEvent;
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
-use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
-use Shopware\Core\Content\ContactForm\Event\ContactFormEvent;
-use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
-use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
-use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
-use Shopware\Core\Content\Newsletter\Event\NewsletterConfirmEvent;
-use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
-use Shopware\Core\Content\Newsletter\Event\NewsletterUpdateEvent;
-use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\LogAwareBusinessEventInterface;
-use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
-use Shopware\Core\System\StateMachine\Event\StateMachineStateChangeEvent;
-use Shopware\Core\System\User\Recovery\UserRecoveryRequestEvent;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class BusinessEventCollector
 {
     /**
-     * @var EntityRepositoryInterface
+     * @var BusinessEventRegistry
      */
-    private $stateRepository;
+    private $registry;
 
     /**
-     * @var EntityRepositoryInterface
+     * @var EventDispatcherInterface
      */
-    private $paymentRepository;
+    private $eventDispatcher;
 
     public function __construct(
-        EntityRepositoryInterface $stateRepository,
-        EntityRepositoryInterface $paymentRepository
+        BusinessEventRegistry $registry,
+        EventDispatcherInterface $eventDispatcher
     ) {
-        $this->stateRepository = $stateRepository;
-        $this->paymentRepository = $paymentRepository;
+        $this->registry = $registry;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function collect(Context $context): BusinessEventCollectorResponse
     {
-        $events = [
-            CheckoutOrderPlacedEvent::class,
-            CustomerAccountRecoverRequestEvent::class,
-            CustomerBeforeLoginEvent::class,
-            CustomerChangedPaymentMethodEvent::class,
-            CustomerDoubleOptInRegistrationEvent::class,
-            CustomerGroupRegistrationAccepted::class,
-            CustomerGroupRegistrationDeclined::class,
-            CustomerLoginEvent::class,
-            CustomerLogoutEvent::class,
-            CustomerRegisterEvent::class,
-            DoubleOptInGuestOrderEvent::class,
-            GuestCustomerRegisterEvent::class,
-            OrderStateMachineStateChangeEvent::class,
-            ContactFormEvent::class,
-            MailBeforeSentEvent::class,
-            MailBeforeValidateEvent::class,
-            MailSentEvent::class,
-            NewsletterConfirmEvent::class,
-            NewsletterRegisterEvent::class,
-            NewsletterUpdateEvent::class,
-            ProductExportLoggingEvent::class,
-            UserRecoveryRequestEvent::class,
-        ];
+        if (!Feature::isActive('FEATURE_NEXT_9351')) {
+            throw new Feature\FeatureNotActiveException('FEATURE_NEXT_9351');
+        }
+
+        $events = $this->registry->getClasses();
 
         $result = new BusinessEventCollectorResponse();
         foreach ($events as $class) {
-            $definition = self::define($class);
+            $definition = $this->define($class);
 
             if (!$definition) {
                 continue;
@@ -89,13 +45,28 @@ class BusinessEventCollector
             $result->set($definition->getName(), $definition);
         }
 
-        $this->addOrderStateEvents($result, $context);
+        // allows to mutate different events by plugins
+        $event = new BusinessEventCollectorEvent($result, $context);
+        $this->eventDispatcher->dispatch($event, BusinessEventCollectorEvent::NAME);
+
+        $result = $event->getCollection();
+
+        $result->sort(function (BusinessEventDefinition $a, BusinessEventDefinition $b) {
+            return $a->getName() <=> $b->getName();
+        });
 
         return $result;
     }
 
-    public static function define(string $class, ?string $name = null): ?BusinessEventDefinition
+    /**
+     * @param class-string $class
+     */
+    public function define(string $class, ?string $name = null): ?BusinessEventDefinition
     {
+        if ($class === BusinessEvent::class) {
+            return null;
+        }
+
         $instance = (new \ReflectionClass($class))
             ->newInstanceWithoutConstructor();
 
@@ -112,50 +83,8 @@ class BusinessEventCollector
             $name,
             $class,
             $instance instanceof MailActionInterface,
-            $instance instanceof LogAwareBusinessEventInterface
+            $instance instanceof LogAwareBusinessEventInterface,
+            $instance::getAvailableData()->toArray()
         );
-    }
-
-    private function addOrderStateEvents(BusinessEventCollectorResponse $result, Context $context): void
-    {
-        $payments = $this->paymentRepository->search(new Criteria(), $context);
-
-        $criteria = new Criteria();
-        $criteria->addAssociation('stateMachine');
-
-        $states = $this->stateRepository->search($criteria, $context);
-
-        $sides = [
-            //            StateMachineStateChangeEvent::STATE_MACHINE_TRANSITION_SIDE_LEAVE,
-            StateMachineStateChangeEvent::STATE_MACHINE_TRANSITION_SIDE_ENTER,
-        ];
-
-        /** @var StateMachineStateEntity $state */
-        foreach ($states as $state) {
-            foreach ($sides as $side) {
-                $machine = $state->getStateMachine();
-                if (!$machine) {
-                    continue;
-                }
-
-                $name = implode('.', [
-                    $side,
-                    $machine->getTechnicalName(),
-                    $state->getTechnicalName(),
-                ]);
-
-                $definition = self::define(OrderStateMachineStateChangeEvent::class, $name);
-
-                if (!$definition) {
-                    continue;
-                }
-
-                $result->set($name, $definition);
-
-                if ($machine->getTechnicalName() !== OrderTransactionStates::STATE_MACHINE) {
-                    continue;
-                }
-            }
-        }
     }
 }

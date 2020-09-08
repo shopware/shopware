@@ -6,10 +6,6 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 
@@ -24,14 +20,9 @@ class CartRuleLoader
     private $cartPersister;
 
     /**
-     * @var EntityRepositoryInterface
-     */
-    private $repository;
-
-    /**
      * @var null|RuleCollection
      */
-    private $rules = null;
+    private $rules;
 
     /**
      * @var Processor
@@ -48,18 +39,23 @@ class CartRuleLoader
      */
     private $cache;
 
+    /**
+     * @var RuleLoader
+     */
+    private $ruleLoader;
+
     public function __construct(
         CartPersisterInterface $cartPersister,
         Processor $processor,
-        EntityRepositoryInterface $repository,
         LoggerInterface $logger,
-        TagAwareAdapterInterface $cache
+        TagAwareAdapterInterface $cache,
+        RuleLoader $loader
     ) {
         $this->cartPersister = $cartPersister;
-        $this->repository = $repository;
         $this->processor = $processor;
         $this->logger = $logger;
         $this->cache = $cache;
+        $this->ruleLoader = $loader;
     }
 
     public function loadByToken(SalesChannelContext $context, string $cartToken): RuleLoaderResult
@@ -146,23 +142,7 @@ class CartRuleLoader
             return $this->rules = $rules;
         }
 
-        $criteria = new Criteria();
-        $criteria->addSorting(new FieldSorting('priority', FieldSorting::DESCENDING));
-        $criteria->setLimit(500);
-        $criteria->setTitle('cart-rule-loader::load-rules');
-
-        $repositoryIterator = new RepositoryIterator($this->repository, $context, $criteria);
-        $rules = new RuleCollection();
-        while (($result = $repositoryIterator->fetch()) !== null) {
-            foreach ($result->getEntities() as $rule) {
-                if (!$rule->isInvalid() && $rule->getPayload()) {
-                    $rules->add($rule);
-                }
-            }
-            if ($result->count() < 500) {
-                break;
-            }
-        }
+        $rules = $this->ruleLoader->load($context);
 
         $item->set($rules);
 

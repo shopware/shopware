@@ -31,5 +31,12 @@
         </service>
 
         <service id="Shopware\Core\System\Snippet\SnippetFileHandler" />
+
+        <service id="Shopware\Core\System\Snippet\Subscriber\CustomFieldSubscriber">
+            <argument type="service" id="snippet.repository"/>
+            <argument type="service" id="snippet_set.repository"/>
+            <argument type="service" id="custom_field.repository"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
     </services>
 </container>

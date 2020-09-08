@@ -74,7 +74,7 @@
         "labelMultiSelect": "Multi select",
         "tooltipCustomFieldPosition": "Controls this custom field's position on detail pages.",
         "tooltipRequired": "Makes this custom field required on detail pages.",
-        "infoText": "If the custom field is created or updated, the according snippet for all of your snippet sets will be created or updated as well. The snippet will be named \"customField.{name}\"."
+        "infoText": "If a custom field is created, the according snippet for all of your snippet sets will be created as well. The snippet will be named \"customField.{name}\"."
       },
       "list": {
         "labelCustomFieldLabel": "Label",

@@ -75,7 +75,7 @@
         "tooltipCustomFieldPosition": "Steuert die Position des Zusatzfeldes auf den Detailseiten.",
         "tooltipRequired": "Macht dieses Zusatzfeld zu einem Pflichtfeld auf Detailseiten.",
         "placeholderCustomFieldType": "Wähle aus ...",
-        "infoText": "Wenn Du ein Zusatzfeld erstellst oder aktualisierst, wird ein entsprechender Textbaustein in allen Deinen Textbaustein-Sets erstellt oder aktualisiert. Du findest den Textbaustein unter dem Namen \"customField.{name}\"."
+        "infoText": "Wenn Du ein Zusatzfeld erstellst, wird ein entsprechender Textbaustein in allen Deinen Textbaustein-Sets erstellt. Du findest den Textbaustein unter dem Namen \"customField.{name}\"."
       },
       "list": {
         "labelCustomFieldLabel": "Label",

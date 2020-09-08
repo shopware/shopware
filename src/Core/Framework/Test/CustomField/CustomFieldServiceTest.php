@@ -3,8 +3,6 @@
 namespace Shopware\Core\Framework\Test\CustomField;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -89,86 +87,5 @@ class CustomFieldServiceTest extends TestCase
         ]], Context::createDefaultContext());
         $actual = $this->attributeService->getCustomField('test_attr');
         static::assertNotNull($actual);
-    }
-
-    public function testGetCustomFieldLabels(): void
-    {
-        $context = Context::createDefaultContext();
-        $attribute = [
-            [
-                'name' => 'custom_field_1',
-                'type' => CustomFieldTypes::TEXT,
-                'config' => [
-                    'label' => [
-                        'en-GB' => 'EN-Label-1',
-                        'de-DE' => 'DE-Label-1',
-                    ],
-                ],
-            ],
-
-            [
-                'name' => 'custom_field_2',
-                'type' => CustomFieldTypes::TEXT,
-                'config' => [
-                    'label' => [
-                        'en-GB' => 'EN-Label-2',
-                    ],
-                ],
-            ],
-        ];
-        $this->attributeRepository->create($attribute, $context);
-
-        $chain = [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM];
-        $context = new Context(new SystemSource(), [], Defaults::CURRENCY, $chain);
-
-        $labels = $this->attributeService->getCustomFieldLabels(['custom_field_1', 'custom_field_2'], $context);
-        static::assertSame($attribute[0]['config']['label']['de-DE'], $labels['custom_field_1']);
-        static::assertSame($attribute[1]['config']['label']['en-GB'], $labels['custom_field_2']);
-    }
-
-    public function testGetCustomFieldLabelsWithInvalidCustomFieldNames(): void
-    {
-        $chain = [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM];
-        $context = new Context(new SystemSource(), [], Defaults::CURRENCY, $chain);
-
-        $labels = $this->attributeService->getCustomFieldLabels(['custom_field_1', 'custom_field_2'], $context);
-        static::assertEmpty($labels);
-
-        $labels = $this->attributeService->getCustomFieldLabels([], $context);
-        static::assertEmpty($labels);
-    }
-
-    public function testGetCustomFieldLabelsWithoutDefaultLanguageTranslation(): void
-    {
-        $context = Context::createDefaultContext();
-        $attribute = [
-            [
-                'name' => 'custom_field_1',
-                'type' => CustomFieldTypes::TEXT,
-                'config' => [
-                    'label' => [
-                        'foo' => 'EN-Label-1',
-                        'bar' => 'DE-Label-1',
-                    ],
-                ],
-            ],
-
-            [
-                'name' => 'custom_field_2',
-                'type' => CustomFieldTypes::TEXT,
-                'config' => [
-                    'label' => [
-                        'foo' => 'EN-Label-2',
-                    ],
-                ],
-            ],
-        ];
-        $this->attributeRepository->create($attribute, $context);
-
-        $chain = [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM];
-        $context = new Context(new SystemSource(), [], Defaults::CURRENCY, $chain);
-
-        $labels = $this->attributeService->getCustomFieldLabels(['custom_field_1', 'custom_field_2'], $context);
-        static::assertEmpty($labels);
     }
 }

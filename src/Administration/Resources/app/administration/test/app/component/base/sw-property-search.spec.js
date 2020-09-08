@@ -112,6 +112,14 @@ function createWrapper() {
                                     translated: { name: 'darkbrown', position: 1, customFields: [] },
                                     id: `${i}66e8d9b5ce24916896d29e27a9e1763`,
                                     translations: [],
+                                    group: {
+                                        versionId: '__vue_devtool_undefined__',
+                                        id: `${i}c909198131346e299b93aa60dd40eeb`,
+                                        name: 'length',
+                                        description: null,
+                                        displayType: 'text',
+                                        sortingType: 'alphanumeric'
+                                    },
                                     productConfiguratorSettings: [],
                                     productProperties: [],
                                     productOptions: []
@@ -182,7 +190,7 @@ describe('components/base/sw-property-search', () => {
 
         await wrapper.vm.$nextTick();
 
-        const groupElement = wrapper.find('.group_grid__column-name');
+        const groupElement = wrapper.find('.group_grid__column-name .sw-grid__cell-content');
         await groupElement.trigger('click');
 
         await wrapper.vm.$nextTick();
@@ -199,6 +207,7 @@ describe('components/base/sw-property-search', () => {
         await wrapper.vm.$nextTick();
 
         const groupElement = wrapper.find('.group_grid__column-name');
+
         await groupElement.trigger('click');
 
         await wrapper.vm.$nextTick();

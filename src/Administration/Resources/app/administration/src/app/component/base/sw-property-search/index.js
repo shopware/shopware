@@ -78,12 +78,9 @@ Component.register('sw-property-search', {
         },
 
         propertyGroupOptionCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, null);
 
-            criteria.setPage(this.optionPage);
-            criteria.setLimit(10);
             criteria.setTotalCountMode(1);
-            criteria.setTerm(this.searchTerm);
             criteria.addAssociation('group');
 
             return criteria;
@@ -248,10 +245,22 @@ Component.register('sw-property-search', {
         loadOptions() {
             this.propertyGroupOptionRepository.search(this.propertyGroupOptionCriteria, Shopware.Context.api)
                 .then((groupOptions) => {
-                    this.groupOptions = groupOptions;
+                    this.groupOptions = this.sortOptions(groupOptions);
                     this.optionTotal = groupOptions.total;
                     this.selectOptions(this.$refs.optionGrid);
                 });
+        },
+
+        sortOptions(options) {
+            if (options.length > 0 && options[0].group.sortingType === 'alphanumeric') {
+                options.sort((a, b) => (a.name.localeCompare(b.name, undefined, { numeric: true })));
+            } else {
+                options.sort((a, b) => (a.position - b.position));
+            }
+            const start = (this.optionPage - 1) * 10;
+            const end = start + 10;
+            options = options.slice(start, end);
+            return options;
         },
 
         refreshSelection() {

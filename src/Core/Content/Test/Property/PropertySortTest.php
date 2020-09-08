@@ -128,59 +128,6 @@ class PropertySortTest extends TestCase
         );
     }
 
-    /**
-     * Expected: [1a, 20aa, 2aa, 3-x$e, 3d, 3e, 44f, 55g, h6, i7, j2]
-     *
-     * @deprecated tag:v6.4.0 - Numeric Sort will be removed in 6.4.0
-     */
-    public function testNumericSortingMixed(): void
-    {
-        $propertyGroup = $this->getPropertyGroupNumericMixed();
-        $propertyGroup->sortByConfig();
-        $propertyOptionsArray = json_decode(json_encode($propertyGroup->first()->getOptions()), true);
-
-        $wrongNumericSorted = [
-            '1a',
-            '20aa',
-            '2aa',
-            '3-x$e',
-            '3d',
-            '3e',
-            '44f',
-            '55g',
-            'h6',
-            'i7',
-            'j2',
-        ];
-
-        static::assertEquals(
-            $wrongNumericSorted,
-            array_column($propertyOptionsArray, 'name')
-        );
-    }
-
-    /**
-     * Expected: [0 => 0, 1 => 1, 2 => 2, ...[49] => 49]
-     *
-     * @deprecated tag:v6.4.0 - Numeric Sort will be removed in 6.4.0
-     */
-    public function testNumericSortingOnlyNumber(): void
-    {
-        $propertyGroup = $this->getPropertyGroupNumericOnlyNumbers();
-        $propertyGroup->sortByConfig();
-        $propertyOptionsArray = json_decode(json_encode($propertyGroup->first()->getOptions()), true);
-
-        $equalsArray = [];
-        for ($x = 0; $x < 50; ++$x) {
-            $equalsArray[] = $x;
-        }
-
-        static::assertEquals(
-            $equalsArray,
-            array_column($propertyOptionsArray, 'name')
-        );
-    }
-
     private function getPropertyGroupAlphaNumericOnlyNumbers(): PropertyGroupCollection
     {
         $propertyGroup = new PropertyGroupEntity();
@@ -255,38 +202,6 @@ class PropertySortTest extends TestCase
         $propertyGroup->setDisplayType(PropertyGroupDefinition::DISPLAY_TYPE_TEXT);
         $propertyGroup->setPosition(1);
         $propertyGroup->setOptions($this->getPropertyOptionsMixed());
-
-        return new PropertyGroupCollection([$propertyGroup]);
-    }
-
-    /**
-     * @deprecated tag:v6.4.0 - Numeric Sort will be removed in 6.4.0
-     */
-    private function getPropertyGroupNumericMixed(): PropertyGroupCollection
-    {
-        $propertyGroup = new PropertyGroupEntity();
-        $propertyGroup->setId(Uuid::randomHex());
-        $propertyGroup->setName('Position');
-        $propertyGroup->setSortingType(PropertyGroupDefinition::SORTING_TYPE_NUMERIC);
-        $propertyGroup->setDisplayType(PropertyGroupDefinition::DISPLAY_TYPE_TEXT);
-        $propertyGroup->setPosition(1);
-        $propertyGroup->setOptions($this->getPropertyOptionsMixed());
-
-        return new PropertyGroupCollection([$propertyGroup]);
-    }
-
-    /**
-     * @deprecated tag:v6.4.0 - Numeric Sort will be removed in 6.4.0
-     */
-    private function getPropertyGroupNumericOnlyNumbers(): PropertyGroupCollection
-    {
-        $propertyGroup = new PropertyGroupEntity();
-        $propertyGroup->setId(Uuid::randomHex());
-        $propertyGroup->setName('Position');
-        $propertyGroup->setSortingType(PropertyGroupDefinition::SORTING_TYPE_NUMERIC);
-        $propertyGroup->setDisplayType(PropertyGroupDefinition::DISPLAY_TYPE_TEXT);
-        $propertyGroup->setPosition(1);
-        $propertyGroup->setOptions($this->getPropertyOptionsOnlyNumbers());
 
         return new PropertyGroupCollection([$propertyGroup]);
     }

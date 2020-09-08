@@ -100,7 +100,7 @@ Component.extend('sw-url-field', 'sw-text-field', {
                 try {
                     const url = new URL(`${this.urlPrefix}${this.currentValue}`);
                     const path = this.currentValue.endsWith('/') ? url.pathname : url.pathname.replace(/\/$/, '');
-                    this.currentValue = url.hostname + path;
+                    this.currentValue = url.host + path;
                     this.errorUrl = null;
                 } catch {
                     this.errorUrl = new ShopwareError({

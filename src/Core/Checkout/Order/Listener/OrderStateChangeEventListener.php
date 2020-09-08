@@ -6,16 +6,16 @@ use Shopware\Core\Checkout\Cart\Exception\OrderDeliveryNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\OrderTransactionNotFoundException;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\StateMachine\Event\StateMachineStateChangeEvent;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-class OrderStateChangeEventListener
+class OrderStateChangeEventListener implements EventSubscriberInterface
 {
     /**
      * @var EntityRepositoryInterface
@@ -25,12 +25,12 @@ class OrderStateChangeEventListener
     /**
      * @var EntityRepositoryInterface
      */
-    private $orderTransactionRepository;
+    private $transactionRepository;
 
     /**
      * @var EntityRepositoryInterface
      */
-    private $orderDeliveryRepository;
+    private $deliveryRepository;
 
     /**
      * @var EventDispatcherInterface
@@ -39,14 +39,23 @@ class OrderStateChangeEventListener
 
     public function __construct(
         EntityRepositoryInterface $orderRepository,
-        EntityRepositoryInterface $orderTransactionRepository,
-        EntityRepositoryInterface $orderDeliveryRepository,
+        EntityRepositoryInterface $transactionRepository,
+        EntityRepositoryInterface $deliveryRepository,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->orderRepository = $orderRepository;
-        $this->orderTransactionRepository = $orderTransactionRepository;
-        $this->orderDeliveryRepository = $orderDeliveryRepository;
+        $this->transactionRepository = $transactionRepository;
+        $this->deliveryRepository = $deliveryRepository;
         $this->eventDispatcher = $eventDispatcher;
+    }
+
+    public static function getSubscribedEvents()
+    {
+        return [
+            'state_machine.order.state_changed' => 'onOrderStateChange',
+            'state_machine.order_delivery.state_changed' => 'onOrderDeliveryStateChange',
+            'state_machine.order_transaction.state_changed' => 'onOrderTransactionStateChange',
+        ];
     }
 
     /**
@@ -59,10 +68,9 @@ class OrderStateChangeEventListener
         $context = $event->getContext();
 
         /** @var OrderDeliveryEntity|null $orderDelivery */
-        $orderDelivery = $this->orderDeliveryRepository->search(
-            new Criteria([$orderDeliveryId]),
-            $context
-        )->first();
+        $orderDelivery = $this->deliveryRepository
+            ->search(new Criteria([$orderDeliveryId]), $context)
+            ->first();
 
         if ($orderDelivery === null) {
             throw new OrderDeliveryNotFoundException($orderDeliveryId);
@@ -82,11 +90,10 @@ class OrderStateChangeEventListener
         $orderTransactionId = $event->getTransition()->getEntityId();
         $context = $event->getContext();
 
-        /** @var OrderTransactionEntity|null $orderTransaction */
-        $orderTransaction = $this->orderTransactionRepository->search(
-            new Criteria([$orderTransactionId]),
-            $context
-        )->first();
+        $criteria = new Criteria([$orderTransactionId]);
+        $orderTransaction = $this->transactionRepository
+            ->search($criteria, $context)
+            ->first();
 
         if ($orderTransaction === null) {
             throw new OrderTransactionNotFoundException($orderTransactionId);
@@ -131,9 +138,12 @@ class OrderStateChangeEventListener
     private function getOrder(string $orderId, Context $context): OrderEntity
     {
         $orderCriteria = $this->getOrderCriteria($orderId);
-        /** @var OrderEntity|null $order */
-        $order = $this->orderRepository->search($orderCriteria, $context)->first();
-        if ($order === null) {
+
+        $order = $this->orderRepository
+            ->search($orderCriteria, $context)
+            ->first();
+
+        if (!$order instanceof OrderEntity) {
             throw new OrderNotFoundException($orderId);
         }
 
@@ -142,13 +152,13 @@ class OrderStateChangeEventListener
 
     private function getOrderCriteria(string $orderId): Criteria
     {
-        $orderCriteria = new Criteria([$orderId]);
-        $orderCriteria->addAssociation('orderCustomer.salutation');
-        $orderCriteria->addAssociation('stateMachineState');
-        $orderCriteria->addAssociation('transactions');
-        $orderCriteria->addAssociation('deliveries.shippingMethod');
-        $orderCriteria->addAssociation('salesChannel');
+        $criteria = new Criteria([$orderId]);
+        $criteria->addAssociation('orderCustomer.salutation');
+        $criteria->addAssociation('stateMachineState');
+        $criteria->addAssociation('transactions');
+        $criteria->addAssociation('deliveries.shippingMethod');
+        $criteria->addAssociation('salesChannel');
 
-        return $orderCriteria;
+        return $criteria;
     }
 }

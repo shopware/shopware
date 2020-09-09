@@ -32,7 +32,7 @@ Module.register('sw-settings-custom-field', {
             path: 'index',
             meta: {
                 parentPath: 'sw.settings.index',
-                privilege: 'custom_fields.viewer'
+                privilege: 'custom_field.viewer'
             }
         },
         detail: {
@@ -40,7 +40,7 @@ Module.register('sw-settings-custom-field', {
             path: 'detail/:id',
             meta: {
                 parentPath: 'sw.settings.custom.field.index',
-                privilege: 'custom_fields.viewer'
+                privilege: 'custom_field.viewer'
             }
         },
         create: {
@@ -48,7 +48,7 @@ Module.register('sw-settings-custom-field', {
             path: 'create',
             meta: {
                 parentPath: 'sw.settings.custom.field.index',
-                privilege: 'custom_fields.creator'
+                privilege: 'custom_field.creator'
             }
         }
     },
@@ -57,6 +57,6 @@ Module.register('sw-settings-custom-field', {
         group: 'system',
         to: 'sw.settings.custom.field.index',
         icon: 'default-basic-stack-block',
-        privilege: 'custom_fields.viewer'
+        privilege: 'custom_field.viewer'
     }
 });

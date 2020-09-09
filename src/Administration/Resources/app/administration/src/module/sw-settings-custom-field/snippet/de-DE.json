@@ -103,7 +103,7 @@
   },
   "sw-privileges": {
     "permissions": {
-      "custom_fields": {
+      "custom_field": {
         "label": "Zusatzfelder"
       }
     }

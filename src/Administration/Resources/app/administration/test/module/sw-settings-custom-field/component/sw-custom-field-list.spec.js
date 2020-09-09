@@ -213,7 +213,7 @@ describe('src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-
 
     it('should be able to edit', async () => {
         const wrapper = createWrapper([
-            'custom_fields.editor'
+            'custom_field.editor'
         ]);
         await wrapper.vm.$nextTick();
 

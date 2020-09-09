@@ -15,7 +15,7 @@ Component.register('sw-settings-custom-field-set-detail', {
     shortcuts: {
         'SYSTEMKEY+S': {
             active() {
-                return this.acl.can('custom_fields.editor');
+                return this.acl.can('custom_field.editor');
             },
             method: 'onSave'
         },
@@ -73,10 +73,10 @@ Component.register('sw-settings-custom-field-set-detail', {
         },
 
         tooltipSave() {
-            if (!this.acl.can('custom_fields.editor')) {
+            if (!this.acl.can('custom_field.editor')) {
                 return {
                     message: this.$tc('sw-privileges.tooltip.warning'),
-                    disabled: this.acl.can('custom_fields.editor'),
+                    disabled: this.acl.can('custom_field.editor'),
                     showOnDisabledElements: true
                 };
             }

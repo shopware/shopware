@@ -6,7 +6,7 @@
                     <sw-field
                         v-for="(label, name) in propertyNames"
                         v-model="config[name][locale]"
-                        :disabled="!acl.can('custom_fields.editor')"
+                        :disabled="disabled"
                         @input="onInput($event, name, locale)"
                         :label="getLabel(label, locale)"
                         :key="getInlineSnippet(name)"
@@ -22,6 +22,7 @@
                     <template slot-scope="{ active }">
                         <sw-tabs-item
                                 v-for="locale in locales"
+                                class="sw-custom-field-translated-labels__translated-labels-field"
                                 :key="locale"
                                 variant="minimal"
                                 :name="locale"
@@ -39,7 +40,8 @@
                                 <sw-field
                                     v-for="(label, name) in propertyNames"
                                     v-model="config[name][locale]"
-                                    :disabled="!acl.can('custom_fields.editor')"
+                                    class="sw-custom-field-translated-labels__translated-content-field"
+                                    :disabled="disabled"
                                     :label="getLabel(label, locale)"
                                     :key="getInlineSnippet(name)"
                                     @input="onInput($event, name, locale)"

@@ -4,18 +4,20 @@
             :title="$tc('sw-settings-custom-field.set.detail.titleCardInformation')">
         {% block sw_settings_custom_field_set_detail_base_technical_name %}
             <sw-field
-                    type="text"
-                    :label="$tc(`sw-settings-custom-field.set.detail.labelTechnicalName`)"
-                    :helpText="$tc('sw-settings-custom-field.general.tooltipTechnicalName')"
-                    :disabled="!set._isNew || !acl.can('custom_fields.editor')"
-                    v-model="set.name">
+                type="text"
+                class="sw-settings-custom-field-set-detail-base__technical-name"
+                :label="$tc(`sw-settings-custom-field.set.detail.labelTechnicalName`)"
+                :helpText="$tc('sw-settings-custom-field.general.tooltipTechnicalName')"
+                :disabled="!set._isNew || !acl.can('custom_field.editor')"
+                v-model="set.name">
             </sw-field>
         {% endblock %}
 
         {% block sw_settings_custom_field_set_detail_base_position %}
             <sw-field
                 type="number"
-                :disabled="!acl.can('custom_fields.editor')"
+                class="sw-settings-custom-field-set-detail-base__base-postion"
+                :disabled="!acl.can('custom_field.editor')"
                 :label="$tc(`sw-settings-custom-field.set.detail.labelPosition`)"
                 v-model="set.position">
             </sw-field>
@@ -24,7 +26,8 @@
         {% block sw_settings_custom_field_set_detail_base_translated %}
             <sw-field
                 type="switch"
-                :disabled="!acl.can('custom_fields.editor')"
+                class="sw-settings-custom-field-set-detail-base__base-translation"
+                :disabled="!acl.can('custom_field.editor')"
                 :label="$tc('sw-settings-custom-field.set.detail.labelCheckboxTranslated')"
                 v-if="set.config"
                 v-model="set.config.translated">
@@ -42,7 +45,8 @@
 
         {% block sw_settings_custom_field_set_detail_base_multi_select %}
             <sw-multi-select
-                :disabled="!acl.can('custom_fields.editor')"
+                class="sw-settings-custom-field-set-detail-base__label-entities"
+                :disabled="!acl.can('custom_field.editor')"
                 :label="$tc('sw-settings-custom-field.set.detail.labelEntities')"
                 :options="relationEntityNames"
                 id="entities"

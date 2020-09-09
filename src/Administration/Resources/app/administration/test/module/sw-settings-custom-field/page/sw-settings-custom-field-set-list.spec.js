@@ -99,6 +99,7 @@ function createWrapper(privileges = []) {
             'sw-grid-row': '<div class="sw-grid-row"><slot></slot></div>',
             'sw-pagination': true,
             'sw-empty-state': true,
+            'router-link': true,
             'sw-card': true,
             'sw-card-view': true
         }
@@ -124,7 +125,7 @@ describe('module/sw-settings-custom-field/page/sw-settings-custom-field-set-list
 
     it('should be able to create a new custom-field set', async () => {
         const wrapper = createWrapper([
-            'custom_fields.creator'
+            'custom_field.creator'
         ]);
         await wrapper.vm.$nextTick();
 
@@ -143,12 +144,12 @@ describe('module/sw-settings-custom-field/page/sw-settings-custom-field-set-list
 
     it('should be able to delete', async () => {
         const wrapper = createWrapper([
-            'custom_fields.editor'
+            'custom_field.deleter'
         ]);
         await wrapper.vm.$nextTick();
 
         const deleteMenuItem = wrapper.find('.sw-settings-custom-field-set-list__delete-action');
-        expect(deleteMenuItem.attributes().disabled).toBeFalsy();
+        expect(deleteMenuItem.attributes('disabled')).toBeFalsy();
     });
 
     it('should not be able to edit', async () => {
@@ -161,11 +162,11 @@ describe('module/sw-settings-custom-field/page/sw-settings-custom-field-set-list
 
     it('should be able to edit', async () => {
         const wrapper = createWrapper([
-            'custom_fields.editor'
+            'custom_field.editor'
         ]);
         await wrapper.vm.$nextTick();
 
         const editMenuItem = wrapper.find('.sw-custom-field-set-list__edit-action');
-        expect(editMenuItem.attributes().disabled).toBeFalsy();
+        expect(editMenuItem.attributes('disabled')).toBeFalsy();
     });
 });

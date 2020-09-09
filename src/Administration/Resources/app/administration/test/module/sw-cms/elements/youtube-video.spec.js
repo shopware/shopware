@@ -1,3 +1,4 @@
+import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 import 'src/module/sw-cms/elements/youtube-video/config';
 
 describe('modules/sw-cms/elements/youtube-video', () => {

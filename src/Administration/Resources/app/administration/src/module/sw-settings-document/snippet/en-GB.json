@@ -61,5 +61,13 @@
       "disabledSalesChannelSelect": "Choose a document type first.",
       "disabledTypeSelect": "The type of global documents cannot be changed."
     }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "document": {
+        "label": "Documents"
+      }
+    }
   }
 }
+

@@ -55,9 +55,19 @@ jobs:
         ./psh.phar init-composer
         if [[ ! -h vendor/shopware/platform ]]; then echo 'vendor/shopware/platform should be a symlink'; exit 1; fi
         nohup php -S localhost:8000 -t public > phpd.log 2>&1 &
-        ./psh.phar e2e:init-local --CYPRESS_LOCAL=true
+        php dev-ops/generate_ssl.php
+        ./psh.phar init-composer
+        ./psh.phar init-database
+        ./psh.phar init-shopware
+        ./psh.phar administration:build
+        npm install --prefix vendor/shopware/platform/src/"__CYPRESS_ENV__"/Resources/app/"$(echo "__CYPRESS_ENV__" | tr '[:upper:]' '[:lower:]')"/test/e2e
+        ./psh.phar init-test-databases
+        ./psh.phar e2e:dump-db
+        bin/console theme:change --all Storefront
+        bin/console cache:clear
 
     - name: Cypress run
       uses: cypress-io/github-action@v2
       with:
         project: platform/src/Administration/Resources/app/administration/test/e2e/
+        env: localUsage=true

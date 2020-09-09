@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -148,7 +149,11 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
 
         $this->validator->validate($parameters, $definition);
 
-        $this->contextPersister->save($context->getToken(), $parameters);
+        if (Feature::isActive('FEATURE_NEXT_10058') && $customer = $context->getCustomer()) {
+            $this->contextPersister->save($context->getToken(), $parameters, $customer->getId());
+        } else {
+            $this->contextPersister->save($context->getToken(), $parameters);
+        }
 
         $event = new SalesChannelContextSwitchEvent($context, $data);
         $this->eventDispatcher->dispatch($event);

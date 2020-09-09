@@ -7930,3 +7930,23 @@ parameters:
 			count: 1
 			path: ../src/Command/DatabaseDebugViewGenerator.php
 
+		-
+			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\LogoutRoute\\:\\:logout\\(\\) has no return typehint specified\\.$#"
+			count: 1
+			path: src/Core/Checkout/Customer/SalesChannel/LogoutRoute.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\ChangePasswordRoute\\:\\:change\\(\\) has no return typehint specified\\.$#"
+			count: 1
+			path: src/Core/Checkout/Customer/SalesChannel/ChangePasswordRoute.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\AbstractLogoutRoute\\:\\:logout\\(\\) has no return typehint specified\\.$#"
+			count: 1
+			path: src/Core/Checkout/Customer/SalesChannel/AbstractLogoutRoute.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\AbstractChangePasswordRoute\\:\\:change\\(\\) has no return typehint specified\\.$#"
+			count: 1
+			path: src/Core/Checkout/Customer/SalesChannel/AbstractChangePasswordRoute.php
+

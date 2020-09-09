@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Framework\Routing;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
+use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
 use Shopware\Core\Content\Seo\HreflangLoaderInterface;
 use Shopware\Core\Content\Seo\HreflangLoaderParameter;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
@@ -122,7 +123,10 @@ class StorefrontSubscriber implements EventSubscriberInterface
                 ['preventPageLoadingFromXmlHttpRequest', KernelListenerPriorities::KERNEL_CONTROLLER_EVENT_SCOPE_VALIDATE],
             ],
             CustomerLoginEvent::class => [
-                'updateSession',
+                'updateSessionAfterLogin',
+            ],
+            CustomerLogoutEvent::class => [
+                'updateSessionAfterLogout',
             ],
             BeforeSendResponseEvent::class => [
                 ['replaceCsrfToken'],
@@ -170,7 +174,25 @@ class StorefrontSubscriber implements EventSubscriberInterface
         );
     }
 
-    public function updateSession(CustomerLoginEvent $event): void
+    public function updateSessionAfterLogin(CustomerLoginEvent $event): void
+    {
+        $token = $event->getContextToken();
+
+        $this->updateSession($token);
+    }
+
+    public function updateSessionAfterLogout(CustomerLogoutEvent $event): void
+    {
+        if (!Feature::isActive('FEATURE_NEXT_10058')) {
+            return;
+        }
+
+        $newToken = $event->getSalesChannelContext()->getToken();
+
+        $this->updateSession($newToken);
+    }
+
+    public function updateSession(string $token): void
     {
         $master = $this->requestStack->getMasterRequest();
         if (!$master) {
@@ -188,7 +210,6 @@ class StorefrontSubscriber implements EventSubscriberInterface
         $session->migrate();
         $session->set('sessionId', $session->getId());
 
-        $token = $event->getContextToken();
         $session->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $token);
         $master->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $token);
     }

@@ -36,7 +36,7 @@
         "symfony/event-dispatcher": "~4.4.13",
         "symfony/event-dispatcher-contracts": "1.1.7",
         "symfony/framework-bundle": "~4.4.13",
-        "symfony/http-foundation": "4.4.7",
+        "symfony/http-foundation": "~4.4.13",
         "symfony/http-kernel": "~4.4.13",
         "symfony/routing": "~4.4.13",
         "symfony/security-csrf": "~4.4.13",

@@ -53,7 +53,7 @@
                                         :value="areAllChildrenRolesSelected(permission.value, role)"
                                         :ghostValue="areSomeChildrenRolesSelected(permission.value, role)"
                                         @change="toggleAllChildrenWithRole(permission.value, role)"
-                                        :disabled="isParentRoleDisabled(permission.value, role)"
+                                        :disabled="isParentRoleDisabled(permission.value, role) || disabled"
                                         type="checkbox">
                                     </sw-checkbox-field>
                                 {% endblock %}
@@ -67,6 +67,7 @@
                                         :value="areAllChildrenWithAllRolesSelected(permission.value)"
                                         :ghostValue="areSomeChildrenWithAllRolesSelected(permission.value)"
                                         @change="toggleAllChildrenWithAllRoles(permission.value)"
+                                        :disabled="disabled"
                                         type="checkbox">
                                     </sw-checkbox-field>
                                 {% endblock %}
@@ -93,10 +94,10 @@
                                     <sw-checkbox-field
                                         v-if="permission.roles[role]"
                                         :value="isPermissionSelected(permission.key, role)"
-                                        :disabled="isPermissionDisabled(permission.key, role)"
+                                        :disabled="isPermissionDisabled(permission.key, role) || disabled"
                                         v-tooltip="{
                                         message: $tc('sw-users-permissions.roles.grid.disabledCheckboxMessage'),
-                                        disabled: !isPermissionDisabled(permission.key, role),
+                                        disabled: !isPermissionDisabled(permission.key, role) || disabled,
                                         showOnDisabledElements: false
                                     }"
                                         @change="changePermission(permission.key, role)"
@@ -113,6 +114,7 @@
                                         v-if="Object.keys(permission.roles).length > 0"
                                         :value="allPermissionsForKeySelected(permission.key)"
                                         @change="changeAllPermissionsForKey(permission.key)"
+                                        :disabled="disabled"
                                         type="checkbox">
                                     </sw-checkbox-field>
                                 {% endblock %}

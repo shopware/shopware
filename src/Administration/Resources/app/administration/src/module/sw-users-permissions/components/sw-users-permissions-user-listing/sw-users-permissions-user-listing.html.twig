@@ -19,6 +19,7 @@
                             :routerLink="{ name: 'sw.users.permissions.user.create' }"
                             variant="ghost"
                             size="small"
+                            :disabled="!acl.can('users_and_permissions.creator')"
                             class="sw-users-permissions-user-listing__add-user-button">
                             {{ $tc('sw-users-permissions.users.general.labelCreateNewUser') }}
                         </sw-button>
@@ -41,13 +42,18 @@
                     {% block sw_settings_user_list_content_grid_actions %}
                         <template #actions="{ item }">
                             {% block sw_settings_user_list_actions_edit %}
-                                <sw-context-menu-item class="sw-settings-user-list__user-view-action" :routerLink="{ name: 'sw.users.permissions.user.detail', params: { id: item.id } }">
+                                <sw-context-menu-item class="sw-settings-user-list__user-view-action"
+                                                      :disabled="!acl.can('users_and_permissions.editor')"
+                                                      :routerLink="{ name: 'sw.users.permissions.user.detail', params: { id: item.id } }">
                                     {{ $tc('sw-users-permissions.users.user-grid.contextMenuEdit') }}
                                 </sw-context-menu-item>
                             {% endblock %}
 
                             {% block sw_settings_user_list_actions_delete %}
-                                <sw-context-menu-item class="sw-settings-user-list__user-delete-action" variant="danger" @click="onDelete(item)">
+                                <sw-context-menu-item class="sw-settings-user-list__user-delete-action"
+                                                      variant="danger"
+                                                      :disabled="!acl.can('users_and_permissions.deleter')"
+                                                      @click="onDelete(item)">
                                     {{ $tc('sw-users-permissions.users.user-grid.contextMenuDelete') }}
                                 </sw-context-menu-item>
                             {% endblock %}

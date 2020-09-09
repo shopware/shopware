@@ -160,6 +160,9 @@
         "other": "Other",
         "orders": "Orders",
         "settings": "Settings"
+      },
+      "users_and_permissions": {
+        "label": "Users & Permissions"
       }
     },
     "additional_permissions": {

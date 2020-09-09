@@ -19,6 +19,7 @@
                             <template v-for="(value, roleName) in privilege.roles">
                                 {% block sw_users_permissions_additional_permissions_additional_privileges_switches_content_switch %}
                                     <sw-field type="switch"
+                                              :disabled="disabled"
                                               :class="'sw_users_permissions_additional_permissions_' + privilege.key + '_' + roleName"
                                               :value="isPrivilegeSelected(privilege.key + '.' + roleName)"
                                               @change="onSelectPrivilege(privilege.key + '.' + roleName, $event)"

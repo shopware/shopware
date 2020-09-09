@@ -690,6 +690,8 @@ class WebhookDispatcherTest extends TestCase
 
     public function testDispatchesEntityWrittenEventIfAppHasPermission(): void
     {
+        static::markTestSkipped('NEXT-10286');
+
         $appId = Uuid::randomHex();
         $aclRoleId = Uuid::randomHex();
         $appRepository = $this->getContainer()->get('app.repository');

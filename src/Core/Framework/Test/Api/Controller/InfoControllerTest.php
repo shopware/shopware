@@ -3,6 +3,8 @@
 namespace Shopware\Core\Framework\Test\Api\Controller;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\CustomerDefinition;
+use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Kernel;
@@ -46,7 +48,7 @@ class InfoControllerTest extends TestCase
     {
         Feature::skipTestIfInActive('FEATURE_NEXT_9351', $this);
 
-        $url = sprintf('/api/v%s/_info/business-events.json', PlatformRequest::API_VERSION);
+        $url = sprintf('/api/v%s/_info/events.json', PlatformRequest::API_VERSION);
         $client = $this->getBrowser();
         $client->request('GET', $url);
 
@@ -63,6 +65,15 @@ class InfoControllerTest extends TestCase
                 'mailAware' => false,
                 'logAware' => false,
                 'extensions' => [],
+                'data' => [
+                    'customer' => [
+                        'type' => 'entity',
+                        'entityClass' => CustomerDefinition::class,
+                    ],
+                    'contextToken' => [
+                        'type' => 'string',
+                    ],
+                ],
             ],
             [
                 'name' => 'checkout.order.placed',
@@ -70,6 +81,12 @@ class InfoControllerTest extends TestCase
                 'mailAware' => true,
                 'logAware' => false,
                 'extensions' => [],
+                'data' => [
+                    'order' => [
+                        'type' => 'entity',
+                        'entityClass' => OrderDefinition::class,
+                    ],
+                ],
             ],
             [
                 'name' => 'state_enter.order_delivery.state.shipped_partially',
@@ -77,6 +94,12 @@ class InfoControllerTest extends TestCase
                 'mailAware' => true,
                 'logAware' => false,
                 'extensions' => [],
+                'data' => [
+                    'order' => [
+                        'type' => 'entity',
+                        'entityClass' => OrderDefinition::class,
+                    ],
+                ],
             ],
             [
                 'name' => 'state_enter.order_transaction.state.cash_payment.cancelled',
@@ -84,11 +107,22 @@ class InfoControllerTest extends TestCase
                 'mailAware' => true,
                 'logAware' => false,
                 'extensions' => [],
+                'data' => [
+                    'order' => [
+                        'type' => 'entity',
+                        'entityClass' => OrderDefinition::class,
+                    ],
+                ],
             ],
         ];
 
         foreach ($expected as $event) {
-            static::assertContains($event, $response);
+            $actualEvents = array_values(array_filter($response, function ($x) use ($event) {
+                return $x['name'] === $event['name'];
+            }));
+            static::assertNotEmpty($actualEvents, 'Event with name "' . $event['name'] . '" not found');
+            static::assertCount(1, $actualEvents);
+            static::assertEquals($event, $actualEvents[0]);
         }
     }
 }

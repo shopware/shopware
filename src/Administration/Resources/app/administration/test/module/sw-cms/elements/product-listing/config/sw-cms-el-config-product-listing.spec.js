@@ -35,7 +35,11 @@ function createWrapper() {
             },
             repositoryFactory: {
                 create: () => ({
-                    search: () => Promise.resolve([])
+                    search: () => Promise.resolve([]),
+                    route: '/product_sorting',
+                    schema: {
+                        entity: 'product_sorting'
+                    }
                 })
             },
             feature: {
@@ -61,8 +65,8 @@ function createWrapper() {
                     showSorting: {
                         value: true
                     },
-                    useDefaultSorting: {
-                        value: false
+                    useCustomSorting: {
+                        value: true
                     }
                 }
             }
@@ -73,7 +77,7 @@ function createWrapper() {
 describe('src/module/sw-cms/elements/product-listing/config', () => {
     it('should be a Vue.js component', () => {
         const wrapper = createWrapper();
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should contain both tab items', () => {
@@ -89,7 +93,7 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
         const showSortingSwitchField = wrapper
             .find('sw-switch-field-stub[label="sw-cms.elements.productListing.config.sorting.labelShowSorting"]');
         const useDefaultSortingSwitchField = wrapper
-            .find('sw-switch-field-stub[label="sw-cms.elements.productListing.config.sorting.labelUseSortingFromSettings"]');
+            .find('sw-switch-field-stub[label="sw-cms.elements.productListing.config.sorting.labelUseCustomSortings"]');
         const defaultSortingIdSelect = wrapper.find('sw-entity-single-select-stub[entity="product_sorting"]');
         const productSortingsSelect = wrapper.find('sw-entity-multi-select-stub');
         const cmsElConfigProductListingConfigSortingGrid = wrapper
@@ -102,14 +106,16 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
         expect(cmsElConfigProductListingConfigSortingGrid.exists()).toBeTruthy();
     });
 
-    it('should contain only some content for sorting when defaultSorting is activated', () => {
+    it('should contain only some content for sorting when defaultSorting is activated', async () => {
         const wrapper = createWrapper();
-        wrapper.vm.element.config.useDefaultSorting.value = true;
+        wrapper.vm.element.config.useCustomSorting.value = false;
+
+        await wrapper.vm.$nextTick();
 
         const showSortingSwitchField = wrapper
             .find('sw-switch-field-stub[label="sw-cms.elements.productListing.config.sorting.labelShowSorting"]');
         const useDefaultSortingSwitchField = wrapper
-            .find('sw-switch-field-stub[label="sw-cms.elements.productListing.config.sorting.labelUseSortingFromSettings"]');
+            .find('sw-switch-field-stub[label="sw-cms.elements.productListing.config.sorting.labelUseCustomSortings"]');
         const defaultSortingIdSelect = wrapper.find('sw-entity-single-select-stub[entity="product_sorting"]');
         const productSortingsSelect = wrapper.find('sw-entity-multi-select-stub');
         const cmsElConfigProductListingConfigSortingGrid = wrapper
@@ -122,12 +128,12 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
         expect(cmsElConfigProductListingConfigSortingGrid.exists()).toBeFalsy();
     });
 
-    it('should update the config when product sortings changes', () => {
+    it('should update the config when product sortings changes', async () => {
         const wrapper = createWrapper();
 
         expect(wrapper.vm.element.config.availableSortings.value).toStrictEqual({});
 
-        wrapper.setData({
+        await wrapper.setData({
             productSortings: [
                 {
                     key: 'foo',

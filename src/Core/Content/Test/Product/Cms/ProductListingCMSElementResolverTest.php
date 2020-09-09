@@ -177,7 +177,7 @@ class ProductListingCMSElementResolverTest extends TestCase
                     'price-desc' => 1,
                     'price-asc' => 100,
                     'name-asc' => 77,
-                ]
+                ],
             ],
             'useCustomSorting' => ['value' => true],
         ];

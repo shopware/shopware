@@ -36,11 +36,11 @@ Shopware.Component.register('sw-cms-el-config-product-listing-config-sorting-gri
             this.productSortings.remove(productSorting.id);
         },
 
-        onPriorityChange(productSorting) {
-            this.productSortings.get(productSorting.id).priority = productSorting.priority;
-        },
-
         isDefaultSorting(productSorting) {
+            if (!this.defaultSorting) {
+                return false;
+            }
+
             return productSorting.id === this.defaultSorting.id;
         }
     },

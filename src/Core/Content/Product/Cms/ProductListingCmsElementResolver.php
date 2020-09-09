@@ -99,6 +99,7 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
 
         if ($config && isset($config['defaultSorting']) && isset($config['defaultSorting']['value']) && $config['defaultSorting']['value']) {
             $request->request->set('order', $config['defaultSorting']['value']);
+
             return;
         }
 

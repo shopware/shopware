@@ -19,11 +19,17 @@ function createWrapper(productSortings = []) {
 <div>
   <template v-for="item in dataSource">
       <slot name="actions" v-bind="{ item: item }"></slot>
-      <slot name="column-priority" v-bind="{ item: item }"></slot>
+      <slot name="column-priority" v-bind="{ item: item }">
+          <div :class="'column-priority_' + item.id">
+              <sw-number-field v-model="item.priority" class="sw-grid-priority"></sw-number-field>
+          </div>
+      </slot>
   </template>
 </div>`
             },
-            'sw-context-menu-item': '<div @click="$emit(\'click\')"></div>',
+            'sw-context-menu-item': {
+                template: '<div @click="$emit(\'click\')"></div>'
+            },
             'sw-number-field': {
                 template: `
                     <input type="number" :value="value" @input="$emit('input', Number($event.target.value))" />
@@ -34,7 +40,8 @@ function createWrapper(productSortings = []) {
             }
         },
         propsData: Vue.observable({
-            productSortings: productSortings
+            productSortings: productSortings,
+            defaultSorting: {}
         })
     });
 }
@@ -42,7 +49,7 @@ function createWrapper(productSortings = []) {
 describe('src/module/sw-cms/elements/product-listing/config/components/sw-cms-el-config-product-listing-config-sorting-grid', () => {
     it('should be a Vue.js component', () => {
         const wrapper = createWrapper();
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should format product sorting fields correctly', () => {
@@ -118,7 +125,7 @@ describe('src/module/sw-cms/elements/product-listing/config/components/sw-cms-el
 
         expect(wrapper.vm.productSortings.get('bar').priority).toBe(3);
 
-        const itemBar = wrapper.find('.sw-cms-el-config-product-listing-config-sorting-grid__grid_item_number_field_bar');
+        const itemBar = wrapper.find('.column-priority_bar');
         itemBar.find('input').setValue(7);
 
         await wrapper.vm.$nextTick();

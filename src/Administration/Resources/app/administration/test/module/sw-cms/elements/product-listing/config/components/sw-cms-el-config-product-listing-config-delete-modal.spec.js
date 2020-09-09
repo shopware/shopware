@@ -25,7 +25,9 @@ function createWrapper() {
             $tc: v => v
         },
         stubs: {
-            'sw-modal': '<div class="sw-modal"><slot name="modal-footer">Test</slot></div>',
+            'sw-modal': {
+                template: '<div class="sw-modal"><slot name="modal-footer">Test</slot></div>'
+            },
             'sw-button': Shopware.Component.build('sw-button')
         }
     });
@@ -35,7 +37,7 @@ function createWrapper() {
 describe('src/module/sw-cms/elements/product-listing/config/components/sw-cms-el-config-product-listing-config-delete-modal', () => {
     it('should be a Vue.js component', () => {
         const wrapper = createWrapper();
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it('cancels the dialog', async () => {

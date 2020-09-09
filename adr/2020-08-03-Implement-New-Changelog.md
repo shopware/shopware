@@ -49,7 +49,7 @@ In the sections under the headlines you add the corresponding information as lis
 
 *  Added
 *  Removed
-*  Refactored
+*  Changed
 *  Deprecated
 
 There should be no entry without one of the listed keywords. Have a look into the `/changelog/_example.md` file for some examples.

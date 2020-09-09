@@ -10,7 +10,7 @@ author_github:
 * Changed `Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRoute.php` to aknowledge reviews active state again  
 ___
 # Administration
-* Refactored `sw-review` module
+* Changed `sw-review` module
     * Added sidebar and refresh button for `sw-review-list`
     * Extracted star display into new component `sw-rating-stars`, which also can e.g. work with float values
     * Fixed a display bug in `sw-review-detail`, to break to long texts in headline & description

@@ -6,4 +6,4 @@ author_email:   hhoechtl@1drop.de
 author_github:  @hhoechtl
 ---
 # Administration
-* Refactored webpack config to fail hard in production
+* Changed webpack config to fail hard in production

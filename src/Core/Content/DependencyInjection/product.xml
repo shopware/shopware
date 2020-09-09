@@ -363,6 +363,7 @@
             <argument type="service" id="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder"/>
             <argument type="service" id="sales_channel.product.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewSaveRoute" public="true">

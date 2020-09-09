@@ -140,6 +140,7 @@ class ListingPriceUpdater
 
         foreach ($defaults as $row) {
             $row['price'] = json_decode($row['price'], true);
+            $row['price'] = $this->normalizePrices($row['price']);
             $grouped[$row['group_id']][] = $row;
         }
 
@@ -315,5 +316,15 @@ class ListingPriceUpdater
         }
 
         throw new \RuntimeException(sprintf('Missing default price for variant %s', $id));
+    }
+
+    private function normalizePrices(array $prices): array
+    {
+        foreach ($prices as &$price) {
+            $price['net'] = (float) $price['net'];
+            $price['gross'] = (float) $price['gross'];
+        }
+
+        return $prices;
     }
 }

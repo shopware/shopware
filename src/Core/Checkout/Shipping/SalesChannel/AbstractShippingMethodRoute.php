@@ -16,8 +16,5 @@ abstract class AbstractShippingMethodRoute
 {
     abstract public function getDecorated(): AbstractShippingMethodRoute;
 
-    /**
-     * @deprecated tag:v6.4.0 - Parameter $criteria will be mandatory in future implementation
-     */
-    abstract public function load(Request $request, SalesChannelContext $context/*, Criteria $criteria*/): ShippingMethodRouteResponse;
+    abstract public function load(Request $request, SalesChannelContext $context, Criteria $criteria): ShippingMethodRouteResponse;
 }

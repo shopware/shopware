@@ -123,7 +123,6 @@ class SalesChannelProxyController extends AbstractController
     }
 
     /**
-     * @Route("/api/v{version}/_proxy/sales-channel-api/{salesChannelId}/{_path}", name="api.proxy.sales-channel", requirements={"_path" = ".*"})
      * @Route("/api/v{version}/_proxy/store-api/{salesChannelId}/{_path}", name="api.proxy.store-api", requirements={"_path" = ".*"})
      *
      * @throws InvalidSalesChannelIdException
@@ -244,13 +243,7 @@ class SalesChannelProxyController extends AbstractController
     {
         $contextToken = $this->getContextToken($request);
 
-        $prefix = '/sales-channel-api/';
-
-        if ($request->attributes->get('_route') === 'api.proxy.store-api') {
-            $prefix = '/store-api/';
-        }
-
-        $server = array_merge($request->server->all(), ['REQUEST_URI' => $prefix . $path]);
+        $server = array_merge($request->server->all(), ['REQUEST_URI' => '/store-api/' . $path]);
         $subrequest = $request->duplicate(null, null, [], null, null, $server);
 
         $subrequest->headers->set(PlatformRequest::HEADER_ACCESS_KEY, $salesChannel->getAccessKey());

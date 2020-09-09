@@ -116,7 +116,7 @@ class BusinessEventEncoder
             new Criteria(),
             $definition,
             $property,
-            '/sales-channel-api/v',
+            '/store-api/v',
             PlatformRequest::API_VERSION
         );
     }

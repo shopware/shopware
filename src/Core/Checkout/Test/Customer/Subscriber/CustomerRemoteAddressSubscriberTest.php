@@ -56,7 +56,6 @@ class CustomerRemoteAddressSubscriberTest extends TestCase
         $password = 'shopware';
 
         $this->login($email, $password);
-        $this->createCart();
 
         $this->getContainer()->get('product.repository')->create([
             [
@@ -78,7 +77,7 @@ class CustomerRemoteAddressSubscriberTest extends TestCase
         $this->order();
 
         $order = json_decode($this->browser->getResponse()->getContent(), true);
-        $orderCustomer = $order['data']['orderCustomer'];
+        $orderCustomer = $order['orderCustomer'];
 
         static::assertSame($email, $orderCustomer['email']);
         static::assertTrue(isset($orderCustomer['remoteAddress']));
@@ -88,30 +87,33 @@ class CustomerRemoteAddressSubscriberTest extends TestCase
 
     private function addProduct(string $id, int $quantity = 1): void
     {
-        $this->browser->request(
-            'POST',
-            '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/checkout/cart/product/' . $id,
-            [
-                'quantity' => $quantity,
-            ]
-        );
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/cart/line-item',
+                [
+                    'items' => [
+                        [
+                            'id' => $id,
+                            'type' => 'product',
+                            'referencedId' => $id,
+                            'quantity' => $quantity,
+                        ],
+                    ],
+                ]
+            );
     }
 
     private function order(): void
     {
-        $this->browser->request('POST', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/checkout/order');
-    }
-
-    private function createCart(): void
-    {
-        $this->browser->request('POST', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/checkout/cart');
+        $this->browser->request('POST', '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/order');
     }
 
     private function login(string $email, string $password): string
     {
         $customerId = $this->createCustomer($password, $email);
 
-        $this->browser->request('POST', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/customer/login', [
+        $this->browser->request('POST', '/store-api/v' . PlatformRequest::API_VERSION . '/account/login', [
             'username' => $email,
             'password' => $password,
         ]);
@@ -119,7 +121,7 @@ class CustomerRemoteAddressSubscriberTest extends TestCase
         $response = $this->browser->getResponse();
         $content = json_decode($response->getContent(), true);
 
-        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $content[PlatformRequest::HEADER_CONTEXT_TOKEN]);
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $content['contextToken']);
 
         return $customerId;
     }

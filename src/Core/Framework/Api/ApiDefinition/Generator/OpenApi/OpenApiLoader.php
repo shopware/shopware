@@ -75,7 +75,6 @@ class OpenApiLoader
             $path = $item->getPath();
             if (
                 strpos($path, '/api/') !== 0
-                && strpos($path, '/sales-channel-api/') !== 0
                 && strpos($path, '/store-api/') !== 0
             ) {
                 continue;

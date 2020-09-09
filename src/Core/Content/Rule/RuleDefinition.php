@@ -74,7 +74,7 @@ class RuleDefinition extends EntityDefinition
 
             (new OneToManyAssociationField('conditions', RuleConditionDefinition::class, 'rule_id', 'id'))->addFlags(new CascadeDelete()),
 
-            // Reverse Associations not available in sales-channel-api
+            // Reverse Associations not available in store-api
             (new OneToManyAssociationField('productPrices', ProductPriceDefinition::class, 'rule_id', 'id'))->addFlags(new CascadeDelete(), new ReadProtected(SalesChannelApiSource::class)),
             (new OneToManyAssociationField('shippingMethodPrices', ShippingMethodPriceDefinition::class, 'rule_id', 'id'))->addFlags(new CascadeDelete(), new ReadProtected(SalesChannelApiSource::class)),
             (new OneToManyAssociationField('shippingMethodPriceCalculations', ShippingMethodPriceDefinition::class, 'calculation_rule_id', 'id'))->addFlags(new CascadeDelete(), new ReadProtected(SalesChannelApiSource::class)),

@@ -43,25 +43,6 @@
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer" on-invalid="null"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Customer\SalesChannel\SalesChannelCustomerController" public="true">
-            <argument type="service" id="serializer"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
-            <argument type="service" id="order.repository"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountRegistrationService"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AddressService"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\CustomerDefinition"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition"/>
-            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\ChangeCustomerProfileRoute"/>
-            <call method="setContainer">
-                <argument type="service" id="service_container"/>
-            </call>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\ChangePasswordRoute"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\ChangeEmailRoute"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute"/>
-        </service>
-
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\AccountRegistrationService">
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\RegisterConfirmRoute"/>
@@ -199,9 +180,7 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\CustomerRoute" public="true">
-            <argument type="service" id="Shopware\Core\Checkout\Customer\CustomerDefinition"/>
             <argument type="service" id="customer.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\DeleteCustomerRoute" public="true">

@@ -102,7 +102,7 @@ class MediaDefinition extends EntityDefinition
             (new ManyToManyAssociationField('tags', TagDefinition::class, MediaTagDefinition::class, 'media_id', 'tag_id'))->addFlags(new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
             (new OneToManyAssociationField('thumbnails', MediaThumbnailDefinition::class, 'media_id'))->addFlags(new CascadeDelete()),
 
-            // reverse side of the associations, not available in sales-channel-api
+            // reverse side of the associations, not available in store-api
             (new ManyToOneAssociationField('user', 'user_id', UserDefinition::class, 'id', false))->addFlags(new ReadProtected(SalesChannelApiSource::class)),
             (new OneToManyAssociationField('categories', CategoryDefinition::class, 'media_id', 'id'))->addFlags(new SetNullOnDelete(), new ReadProtected(SalesChannelApiSource::class)),
             (new OneToManyAssociationField('productManufacturers', ProductManufacturerDefinition::class, 'media_id', 'id'))->addFlags(new SetNullOnDelete(), new ReadProtected(SalesChannelApiSource::class)),

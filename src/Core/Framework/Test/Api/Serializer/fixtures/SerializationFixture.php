@@ -9,7 +9,7 @@ use Shopware\Core\PlatformRequest;
 abstract class SerializationFixture
 {
     public const API_BASE_URL = 'http://localhost/api/v' . PlatformRequest::API_VERSION;
-    public const SALES_CHANNEL_API_BASE_URL = 'http://localhost/sales-channel-api/v' . PlatformRequest::API_VERSION;
+    public const SALES_CHANNEL_API_BASE_URL = 'http://localhost/store-api/v' . PlatformRequest::API_VERSION;
     public const API_VERSION = 1;
 
     /**

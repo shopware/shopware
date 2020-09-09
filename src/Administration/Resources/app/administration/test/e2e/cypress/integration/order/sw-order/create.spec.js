@@ -23,12 +23,12 @@ describe('Order: Create order', () => {
 
         // network requests
         cy.route({
-            url: `${Cypress.env('apiPath')}/_proxy/sales-channel-api/**/v*/checkout/cart/product/*`,
+            url: `${Cypress.env('apiPath')}/_proxy/store-api/*/v*/checkout/cart/line-item`,
             method: 'post'
         }).as('addProductCall');
 
         cy.route({
-            url: `${Cypress.env('apiPath')}/_proxy/sales-channel-api/**/v*/checkout/order`,
+            url: `${Cypress.env('apiPath')}/_proxy/store-api/*/v*/checkout/order`,
             method: 'post'
         }).as('saveOrderCall');
 

@@ -91,17 +91,10 @@
         <service id="Shopware\Core\Framework\Api\Response\ResponseFactoryRegistry">
             <argument type="service" id="Shopware\Core\Framework\Api\Response\Type\Api\JsonApiType"/>
             <!-- deactivated, the current sales channel api design does not match the json api requirements -->
-            <argument type="service" id="Shopware\Core\Framework\Api\Response\Type\SalesChannel\JsonApiType"/>
             <argument type="service" id="Shopware\Core\Framework\Api\Response\Type\Api\JsonType"/>
-            <argument type="service" id="Shopware\Core\Framework\Api\Response\Type\SalesChannel\JsonType"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\Response\Type\Api\JsonApiType">
-            <argument type="service" id="Shopware\Core\Framework\Api\Serializer\JsonApiEncoder"/>
-            <argument type="service" id="Shopware\Core\System\SalesChannel\Api\StructEncoder"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Api\Response\Type\SalesChannel\JsonApiType">
             <argument type="service" id="Shopware\Core\Framework\Api\Serializer\JsonApiEncoder"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Api\StructEncoder"/>
         </service>
@@ -116,11 +109,6 @@
         </service>
 
         <service id="Shopware\Core\Framework\Api\Response\Type\Api\JsonType">
-            <argument type="service" id="Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder"/>
-            <argument type="service" id="Shopware\Core\System\SalesChannel\Api\StructEncoder"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Api\Response\Type\SalesChannel\JsonType">
             <argument type="service" id="Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Api\StructEncoder"/>
         </service>
@@ -333,7 +321,6 @@
 
         <service id="Shopware\Core\Framework\Api\Route\ApiRouteLoader">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument type="service" id="Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry"/>
             <tag name="routing.loader"/>
         </service>
 

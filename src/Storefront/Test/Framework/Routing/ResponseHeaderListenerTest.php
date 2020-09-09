@@ -23,10 +23,13 @@ class ResponseHeaderListenerTest extends TestCase
         static::assertFalse($response->headers->has(PlatformRequest::HEADER_LANGUAGE_ID));
     }
 
-    public function testSalesChannelApiPresent(): void
+    public function testStoreApiPresent(): void
     {
         $browser = $this->createCustomSalesChannelBrowser(['id' => Defaults::SALES_CHANNEL]);
-        $browser->request('POST', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/checkout/cart');
+        $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_CONTEXT_TOKEN, '1234');
+        $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_VERSION_ID, '1234');
+        $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_LANGUAGE_ID, '1234');
+        $browser->request('GET', '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/cart');
         $response = $browser->getResponse();
 
         static::assertTrue($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));

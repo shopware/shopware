@@ -14,8 +14,5 @@ abstract class AbstractSalutationRoute
 {
     abstract public function getDecorated(): AbstractSalutationRoute;
 
-    /**
-     * @deprecated tag:v6.4.0 - Parameter $criteria will be mandatory in future implementation
-     */
-    abstract public function load(Request $request, SalesChannelContext $context/*, Criteria $criteria*/): SalutationRouteResponse;
+    abstract public function load(Request $request, SalesChannelContext $context, Criteria $criteria): SalutationRouteResponse;
 }

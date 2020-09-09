@@ -366,16 +366,6 @@ parameters:
 			path: src/Core/Checkout/Cart/SalesChannel/CartLoadRoute.php
 
 		-
-			message: "#^Parameter \\#1 \\$lineItem of method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\SalesChannel\\\\SalesChannelCartController\\:\\:updateLineItemByRequest\\(\\) expects Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItem, Shopware\\\\Core\\\\Checkout\\\\Cart\\\\LineItem\\\\LineItem\\|null given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/SalesChannel/SalesChannelCartController.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\SalesChannel\\\\SalesChannelCartController\\:\\:initPriceDefinition\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/SalesChannel/SalesChannelCartController.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Validator\\:\\:\\$validators \\(array\\<Shopware\\\\Core\\\\Checkout\\\\Cart\\\\CartValidatorInterface\\>\\) does not accept iterable\\.$#"
 			count: 1
 			path: src/Core/Checkout/Cart/Validator.php
@@ -589,16 +579,6 @@ parameters:
 			message: "#^Cannot call method getElements\\(\\) on Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Aggregate\\\\SalesChannelDomain\\\\SalesChannelDomainCollection\\|null\\.$#"
 			count: 1
 			path: src/Core/Checkout/Customer/SalesChannel/RegisterRoute.php
-
-		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/SalesChannel/SalesChannelCustomerController.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\SalesChannelCustomerController\\:\\:serialize\\(\\) has parameter \\$data with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/SalesChannel/SalesChannelCustomerController.php
 
 		-
 			message: "#^Cannot call method getElements\\(\\) on Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Aggregate\\\\SalesChannelDomain\\\\SalesChannelDomainCollection\\|null\\.$#"
@@ -2159,11 +2139,6 @@ parameters:
 			message: "#^Cannot call method count\\(\\) on Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductCrossSellingAssignedProducts\\\\ProductCrossSellingAssignedProductsCollection\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/Product/SalesChannel/CrossSelling/ProductCrossSellingRoute.php
-
-		-
-			message: "#^Parameter \\#1 \\$productStreamId of method Shopware\\\\Core\\\\Content\\\\ProductStream\\\\Service\\\\ProductStreamBuilderInterface\\:\\:buildFilters\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SalesChannel/CrossSelling/SalesChannelCrossSellingController.php
 
 		-
 			message: "#^Cannot call method fetchAll\\(\\) on Doctrine\\\\DBAL\\\\Driver\\\\Statement\\|int\\.$#"
@@ -6274,36 +6249,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\DataAbstractionLayer\\\\SalesChannelIndexer\\:\\:iterate\\(\\) has parameter \\$offset with no typehint specified\\.$#"
 			count: 1
 			path: src/Core/System/SalesChannel/DataAbstractionLayer/SalesChannelIndexer.php
-
-		-
-			message: "#^Parameter \\#3 \\$definition of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\RequestCriteriaBuilder\\:\\:handleRequest\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInterface given\\.$#"
-			count: 3
-			path: src/Core/System/SalesChannel/Entity/SalesChannelApiController.php
-
-		-
-			message: "#^Parameter \\#2 \\$definition of method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelApiController\\:\\:checkProtectedAssociations\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInterface given\\.$#"
-			count: 3
-			path: src/Core/System/SalesChannel/Entity/SalesChannelApiController.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInterface\\:\\:processCriteria\\(\\)\\.$#"
-			count: 3
-			path: src/Core/System/SalesChannel/Entity/SalesChannelApiController.php
-
-		-
-			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInterface\\:\\:getEntityName\\(\\)\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Entity/SalesChannelApiController.php
-
-		-
-			message: "#^Parameter \\#3 \\$definition of method Shopware\\\\Core\\\\Framework\\\\Api\\\\Response\\\\ResponseFactoryInterface\\:\\:createDetailResponse\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInterface given\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Entity/SalesChannelApiController.php
-
-		-
-			message: "#^Parameter \\#3 \\$definition of method Shopware\\\\Core\\\\Framework\\\\Api\\\\Response\\\\ResponseFactoryInterface\\:\\:createListingResponse\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInterface given\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Entity/SalesChannelApiController.php
 
 		-
 			message: "#^Parameter \\#1 \\$definition of static method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\RepositorySearchDetector\\:\\:isSearchRequired\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInterface given\\.$#"

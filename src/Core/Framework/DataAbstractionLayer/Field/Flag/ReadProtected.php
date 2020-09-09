@@ -9,7 +9,7 @@ class ReadProtected extends Flag
 {
     private const BASE_URLS = [
         AdminApiSource::class => '/api/v',
-        SalesChannelApiSource::class => '/sales-channel-api/v',
+        SalesChannelApiSource::class => '/store-api/v',
     ];
 
     /**

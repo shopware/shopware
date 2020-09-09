@@ -174,7 +174,7 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
         $paymentRequest = new Request();
         $paymentRequest->query->set('onlyAvailable', 1);
 
-        $availablePayments = $this->paymentRoute->load($paymentRequest, $salesChannelContext);
+        $availablePayments = $this->paymentRoute->load($paymentRequest, $salesChannelContext, new Criteria());
 
         if ($availablePayments->getPaymentMethods()->get($paymentMethodId) === null) {
             throw new UnknownPaymentMethodException($paymentMethodId);

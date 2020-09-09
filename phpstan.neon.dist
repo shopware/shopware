@@ -38,13 +38,6 @@ parameters:
         - '#Access to an undefined property Faker\\Generator::\$[^.]+\.#'
         # For BC with Symfony 4
         - '#Method Symfony\\Contracts\\EventDispatcher\\EventDispatcherInterface::dispatch\(\) invoked with 2 parameters, 1 required\.#'
-        # For BC in Store api routes
-        - '#Method Shopware\\Core\\Content\\Category\\SalesChannel\\AbstractNavigationRoute::load\(\) invoked with 5 parameters, 4 required\.#'
-        - '#Method Shopware\\Core\\Content\\Product\\SalesChannel\\Listing\\AbstractProductListingRoute::load\(\) invoked with 4 parameters, 3 required\.#'
-        - '#Method .*Route::load\(\) invoked with 3 parameters, 2 required\.#'
-        -
-            message: '#PHPDoc tag @param references unknown parameter: \$criteria#'
-            path: src/Core/**/SalesChannel/**Route.php
         # For BC in Entity repository clone
         - '#Method .*EntityRepositoryInterface::clone\(\) invoked with 4 parameters, 2-3 required\.#'
         -

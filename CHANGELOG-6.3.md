@@ -11,21 +11,20 @@ Table of contents
 ----------------
 * [Table of contents](#table-of-contents)
 * [NEXT](#NEXT)
+* [6.3.1.1](#6311)
 * [6.3.1.0](#6310)
 * [6.3.0.2](#6302)
 * [6.3.0.0](#6300)
   - [Administration](#administration)
   - [Core](#core)
   - [Storefront](#storefront)
-  
-NEXT
-----------------
 
-#### Administration
 
-#### Core
-
-#### Storefront
+## 6.3.1.1
+*  [NEXT-10641 - Locking Symfony version to minor version](./changelog/release-6-3-1-1/2020-09-04-symfony-update-4.4.11.md)
+*  [NEXT-10624 - Escaping search page](./changelog/release-6-3-1-1/2020-09-07-escaping-search.md)
+*  [NEXT-10598 - Fix listing price view](./changelog/release-6-3-1-1/2020-09-09-fix-listing-price-view.md)
+*  [NEXT-10738 - Fixed price serializer type checking](./changelog/release-6-3-1-1/2020-09-09-prices-serializer-checks-type.md)
   
 6.3.1.0
 ----------------

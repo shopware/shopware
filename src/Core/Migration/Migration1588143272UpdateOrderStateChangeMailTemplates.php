@@ -4,7 +4,9 @@ namespace Shopware\Core\Migration;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class Migration1588143272UpdateOrderStateChangeMailTemplates extends MigrationStep
 {
@@ -16,14 +18,14 @@ class Migration1588143272UpdateOrderStateChangeMailTemplates extends MigrationSt
     public function update(Connection $connection): void
     {
         // implement update
-        $enLangId = $this->fetchLanguageId('en-GB', $connection);
+        $defaultLangId = $this->fetchLanguageId('en-GB', $connection);
         $deLangId = $this->fetchLanguageId('de-DE', $connection);
 
         // update order confirmation email templates
         $this->updateMailTemplate(
             MailTemplateTypes::MAILTYPE_ORDER_CONFIRM,
             $connection,
-            $enLangId,
+            $defaultLangId,
             $deLangId,
             $this->getOrderConfirmationHtmlTemplateEn(),
             $this->getOrderConfirmationPlainTemplateEn(),
@@ -35,7 +37,7 @@ class Migration1588143272UpdateOrderStateChangeMailTemplates extends MigrationSt
         $this->updateMailTemplate(
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_CANCELLED,
             $connection,
-            $enLangId,
+            $defaultLangId,
             $deLangId,
             $this->getDeliveryCancellationHtmlTemplateEn(),
             $this->getDeliveryCancellationPlainTemplateEn(),
@@ -46,7 +48,7 @@ class Migration1588143272UpdateOrderStateChangeMailTemplates extends MigrationSt
         $this->updateMailTemplate(
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_RETURNED,
             $connection,
-            $enLangId,
+            $defaultLangId,
             $deLangId,
             $this->getDeliveryReturnedHtmlTemplateEn(),
             $this->getDeliveryReturnedPlainTemplateEn(),
@@ -57,7 +59,7 @@ class Migration1588143272UpdateOrderStateChangeMailTemplates extends MigrationSt
         $this->updateMailTemplate(
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_SHIPPED_PARTIALLY,
             $connection,
-            $enLangId,
+            $defaultLangId,
             $deLangId,
             $this->getDeliveryShippedPartiallyHtmlTemplateEn(),
             $this->getDeliveryShippedPartiallyPlainTemplateEn(),
@@ -68,7 +70,7 @@ class Migration1588143272UpdateOrderStateChangeMailTemplates extends MigrationSt
         $this->updateMailTemplate(
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_SHIPPED,
             $connection,
-            $enLangId,
+            $defaultLangId,
             $deLangId,
             $this->getDeliveryShippedHtmlTemplateEn(),
             $this->getDeliveryShippedPlainTemplateEn(),
@@ -79,7 +81,7 @@ class Migration1588143272UpdateOrderStateChangeMailTemplates extends MigrationSt
         $this->updateMailTemplate(
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_RETURNED_PARTIALLY,
             $connection,
-            $enLangId,
+            $defaultLangId,
             $deLangId,
             $this->getDeliveryReturnedPartiallyHtmlTemplateEn(),
             $this->getDeliveryReturnedPartiallyPlainTemplateEn(),
@@ -91,7 +93,7 @@ class Migration1588143272UpdateOrderStateChangeMailTemplates extends MigrationSt
         $this->updateMailTemplate(
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_STATE_CANCELLED,
             $connection,
-            $enLangId,
+            $defaultLangId,
             $deLangId,
             $this->getOrderStateCancelledHtmlTemplateEn(),
             $this->getOrderStateCancelledPlainTemplateEn(),
@@ -102,7 +104,7 @@ class Migration1588143272UpdateOrderStateChangeMailTemplates extends MigrationSt
         $this->updateMailTemplate(
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_STATE_OPEN,
             $connection,
-            $enLangId,
+            $defaultLangId,
             $deLangId,
             $this->getOrderStateOpenHtmlTemplateEn(),
             $this->getOrderStateOpenPlainTemplateEn(),
@@ -113,7 +115,7 @@ class Migration1588143272UpdateOrderStateChangeMailTemplates extends MigrationSt
         $this->updateMailTemplate(
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_STATE_IN_PROGRESS,
             $connection,
-            $enLangId,
+            $defaultLangId,
             $deLangId,
             $this->getOrderStateProgressHtmlTemplateEn(),
             $this->getOrderStateProgressPlainTemplateEn(),
@@ -124,7 +126,7 @@ class Migration1588143272UpdateOrderStateChangeMailTemplates extends MigrationSt
         $this->updateMailTemplate(
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_STATE_COMPLETED,
             $connection,
-            $enLangId,
+            $defaultLangId,
             $deLangId,
             $this->getOrderStateCompletedHtmlTemplateEn(),
             $this->getOrderStateCompletedPlainTemplateEn(),
@@ -136,7 +138,7 @@ class Migration1588143272UpdateOrderStateChangeMailTemplates extends MigrationSt
         $this->updateMailTemplate(
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_REFUNDED_PARTIALLY,
             $connection,
-            $enLangId,
+            $defaultLangId,
             $deLangId,
             $this->getPaymentRefundPartiallyHtmlTemplateEn(),
             $this->getPaymentRefundPartiallyPlainTemplateEn(),
@@ -147,7 +149,7 @@ class Migration1588143272UpdateOrderStateChangeMailTemplates extends MigrationSt
         $this->updateMailTemplate(
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_REMINDED,
             $connection,
-            $enLangId,
+            $defaultLangId,
             $deLangId,
             $this->getPaymentRemindedHtmlTemplateEn(),
             $this->getPaymentRemindedPlainTemplateEn(),
@@ -158,7 +160,7 @@ class Migration1588143272UpdateOrderStateChangeMailTemplates extends MigrationSt
         $this->updateMailTemplate(
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_OPEN,
             $connection,
-            $enLangId,
+            $defaultLangId,
             $deLangId,
             $this->getPaymentOpenHtmlTemplateEn(),
             $this->getPaymentOpenPlainTemplateEn(),
@@ -169,7 +171,7 @@ class Migration1588143272UpdateOrderStateChangeMailTemplates extends MigrationSt
         $this->updateMailTemplate(
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_PAID,
             $connection,
-            $enLangId,
+            $defaultLangId,
             $deLangId,
             $this->getPaymentPaidHtmlTemplateEn(),
             $this->getPaymentPaidPlainTemplateEn(),
@@ -180,7 +182,7 @@ class Migration1588143272UpdateOrderStateChangeMailTemplates extends MigrationSt
         $this->updateMailTemplate(
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_CANCELLED,
             $connection,
-            $enLangId,
+            $defaultLangId,
             $deLangId,
             $this->getPaymentCancelledHtmlTemplateEn(),
             $this->getPaymentCancelledPlainTemplateEn(),
@@ -191,7 +193,7 @@ class Migration1588143272UpdateOrderStateChangeMailTemplates extends MigrationSt
         $this->updateMailTemplate(
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_REFUNDED,
             $connection,
-            $enLangId,
+            $defaultLangId,
             $deLangId,
             $this->getPaymentRefundedHtmlTemplateEn(),
             $this->getPaymentRefundedPlainTemplateEn(),
@@ -202,7 +204,7 @@ class Migration1588143272UpdateOrderStateChangeMailTemplates extends MigrationSt
         $this->updateMailTemplate(
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_TRANSACTION_STATE_PAID_PARTIALLY,
             $connection,
-            $enLangId,
+            $defaultLangId,
             $deLangId,
             $this->getPaymentPaidPartiallyHtmlTemplateEn(),
             $this->getPaymentPaidPartiallyPlainTemplateEn(),
@@ -222,8 +224,12 @@ class Migration1588143272UpdateOrderStateChangeMailTemplates extends MigrationSt
         SELECT `language`.`id` FROM `language` INNER JOIN `locale` ON `language`.`locale_id` = `locale`.`id` WHERE `code` = :code LIMIT 1
         ', ['code' => $code]);
 
-        if (!$langId) {
+        if (!$langId && $code !== 'en-GB') {
             return null;
+        }
+
+        if (!$langId) {
+            return Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
         }
 
         return $langId;
@@ -232,8 +238,8 @@ class Migration1588143272UpdateOrderStateChangeMailTemplates extends MigrationSt
     private function updateMailTemplate(
         string $mailTemplateType,
         Connection $connection,
-        string $enLangId,
-        string $deLangId,
+        ?string $enLangId,
+        ?string $deLangId,
         string $getHtmlTemplateEn,
         string $getPlainTemplateEn,
         string $getHtmlTemplateDe,
@@ -244,26 +250,30 @@ class Migration1588143272UpdateOrderStateChangeMailTemplates extends MigrationSt
         if ($templateId !== null) {
             // updating available entities of mail template
             $availableEntities = $this->fetchSystemMailTemplateAvailableEntitiesFromType($connection, $mailTemplateType);
-            $newAvaibleEntities = substr($availableEntities, 0, -1) . ',"editOrderUrl": null}';
+            $newAvaibleEntities = substr($availableEntities ?: '', 0, -1) . ',"editOrderUrl": null}';
 
             $sqlStatement = 'UPDATE `mail_template_type` SET `available_entities` = :availableEntities WHERE `technical_name` = :mailTemplateType AND `updated_at` IS NULL';
             $connection->executeUpdate($sqlStatement, ['availableEntities' => $newAvaibleEntities, 'mailTemplateType' => $mailTemplateType]);
 
-            $this->updateMailTemplateTranslation(
-                $connection,
-                $templateId,
-                $enLangId,
-                $getHtmlTemplateEn,
-                $getPlainTemplateEn
-            );
+            if ($enLangId !== $deLangId) {
+                $this->updateMailTemplateTranslation(
+                    $connection,
+                    $templateId,
+                    $enLangId,
+                    $getHtmlTemplateEn,
+                    $getPlainTemplateEn
+                );
+            }
 
-            $this->updateMailTemplateTranslation(
-                $connection,
-                $templateId,
-                $deLangId,
-                $getHtmlTemplateDe,
-                $getPlainTemplateDe
-            );
+            if ($deLangId) {
+                $this->updateMailTemplateTranslation(
+                    $connection,
+                    $templateId,
+                    $deLangId,
+                    $getHtmlTemplateDe,
+                    $getPlainTemplateDe
+                );
+            }
         }
     }
 

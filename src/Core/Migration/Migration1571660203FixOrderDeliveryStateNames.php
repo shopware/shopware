@@ -3,7 +3,9 @@
 namespace Shopware\Core\Migration;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class Migration1571660203FixOrderDeliveryStateNames extends MigrationStep
 {
@@ -14,22 +16,39 @@ class Migration1571660203FixOrderDeliveryStateNames extends MigrationStep
 
     public function update(Connection $connection): void
     {
+        $defaultLangId = $this->getLanguageIdByLocale($connection, 'en-GB');
+        $deLangId = $this->getLanguageIdByLocale($connection, 'de-DE');
+
         foreach ($this->getMailTemplatesMapping() as $technicalName => $mailTemplate) {
-            $sql = <<<SQL
-            UPDATE `mail_template_type_translation` SET `name` = :name 
-                WHERE `mail_template_type_id` = (SELECT `id` FROM `mail_template_type` WHERE `technical_name` = :technicalName) 
-                  AND `language_id` = :lang
+            if ($defaultLangId !== $deLangId) {
+                $sql = <<<SQL
+                UPDATE `mail_template_type_translation` SET `name` = :name
+                    WHERE `mail_template_type_id` = (SELECT `id` FROM `mail_template_type` WHERE `technical_name` = :technicalName)
+                      AND `language_id` = :lang
 SQL;
 
-            $connection->executeUpdate($sql, ['name' => $mailTemplate['name'], 'technicalName' => $technicalName, 'lang' => $this->getLanguageIdByLocale($connection, 'en-GB')]);
+                $connection->executeUpdate($sql, ['name' => $mailTemplate['name'], 'technicalName' => $technicalName, 'lang' => $defaultLangId]);
+            }
 
-            $sql = <<<SQL
-            UPDATE `mail_template_type_translation` SET `name` = :name 
-                WHERE `mail_template_type_id` = (SELECT `id` FROM `mail_template_type` WHERE `technical_name` = :technicalName) 
-                  AND `language_id` = :lang
+            if ($defaultLangId !== Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)) {
+                $sql = <<<SQL
+                UPDATE `mail_template_type_translation` SET `name` = :name
+                    WHERE `mail_template_type_id` = (SELECT `id` FROM `mail_template_type` WHERE `technical_name` = :technicalName)
+                      AND `language_id` = :lang
 SQL;
 
-            $connection->executeUpdate($sql, ['name' => $mailTemplate['nameDe'], 'technicalName' => $technicalName, 'lang' => $this->getLanguageIdByLocale($connection, 'de-DE')]);
+                $connection->executeUpdate($sql, ['name' => $mailTemplate['name'], 'technicalName' => $technicalName, 'lang' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]);
+            }
+
+            if ($deLangId) {
+                $sql = <<<SQL
+                UPDATE `mail_template_type_translation` SET `name` = :name
+                    WHERE `mail_template_type_id` = (SELECT `id` FROM `mail_template_type` WHERE `technical_name` = :technicalName)
+                      AND `language_id` = :lang
+SQL;
+
+                $connection->executeUpdate($sql, ['name' => $mailTemplate['nameDe'], 'technicalName' => $technicalName, 'lang' => $deLangId]);
+            }
         }
     }
 
@@ -64,18 +83,22 @@ SQL;
         ];
     }
 
-    private function getLanguageIdByLocale(Connection $connection, string $locale): string
+    private function getLanguageIdByLocale(Connection $connection, string $locale): ?string
     {
         $sql = <<<SQL
-SELECT `language`.`id` 
-FROM `language` 
+SELECT `language`.`id`
+FROM `language`
 INNER JOIN `locale` ON `locale`.`id` = `language`.`locale_id`
 WHERE `locale`.`code` = :code
 SQL;
 
         $languageId = $connection->executeQuery($sql, ['code' => $locale])->fetchColumn();
+        if (!$languageId && $locale !== 'en-GB') {
+            return null;
+        }
+
         if (!$languageId) {
-            throw new \RuntimeException(sprintf('Language for locale "%s" not found.', $locale));
+            return Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
         }
 
         return $languageId;

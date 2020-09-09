@@ -4,7 +4,9 @@ namespace Shopware\Core\Migration;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class Migration1570621541UpdateDefaultMailTemplates extends MigrationStep
 {
@@ -16,39 +18,65 @@ class Migration1570621541UpdateDefaultMailTemplates extends MigrationStep
     public function update(Connection $connection): void
     {
         // implement update
-        $enLangId = $this->fetchLanguageId('en-GB', $connection);
+        $defaultLangId = $this->fetchLanguageId('en-GB', $connection);
         $deLangId = $this->fetchLanguageId('de-DE', $connection);
 
         // update order confirmation
         $templateId = $this->fetchSystemMailTemplateIdFromType($connection, MailTemplateTypes::MAILTYPE_ORDER_CONFIRM);
         if ($templateId !== null) {
-            $this->updateMailTemplateTranslation(
-                $connection,
-                $templateId,
-                $enLangId,
-                $this->getOrderConfirmationHtmlTemplateEn(),
-                $this->getOrderConfirmationPlainTemplateEn()
-            );
+            if ($defaultLangId !== $deLangId) {
+                $this->updateMailTemplateTranslation(
+                    $connection,
+                    $templateId,
+                    $defaultLangId,
+                    $this->getOrderConfirmationHtmlTemplateEn(),
+                    $this->getOrderConfirmationPlainTemplateEn()
+                );
+            }
 
-            $this->updateMailTemplateTranslation(
-                $connection,
-                $templateId,
-                $deLangId,
-                $this->getOrderConfirmationHtmlTemplateDe(),
-                $this->getOrderConfirmationPlainTemplateDe()
-            );
+            if ($defaultLangId !== Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)) {
+                $this->updateMailTemplateTranslation(
+                    $connection,
+                    $templateId,
+                    Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
+                    $this->getOrderConfirmationHtmlTemplateEn(),
+                    $this->getOrderConfirmationPlainTemplateEn()
+                );
+            }
+
+            if ($deLangId) {
+                $this->updateMailTemplateTranslation(
+                    $connection,
+                    $templateId,
+                    $deLangId,
+                    $this->getOrderConfirmationHtmlTemplateDe(),
+                    $this->getOrderConfirmationPlainTemplateDe()
+                );
+            }
         }
 
         // update customer registration
         $templateId = $this->fetchSystemMailTemplateIdFromType($connection, MailTemplateTypes::MAILTYPE_CUSTOMER_REGISTER);
         if ($templateId !== null) {
-            $this->updateMailTemplateTranslation(
-                $connection,
-                $templateId,
-                $enLangId,
-                $this->getRegistrationHtmlTemplateEn(),
-                $this->getRegistrationPlainTemplateEn()
-            );
+            if ($defaultLangId !== $deLangId) {
+                $this->updateMailTemplateTranslation(
+                    $connection,
+                    $templateId,
+                    $defaultLangId,
+                    $this->getRegistrationHtmlTemplateEn(),
+                    $this->getRegistrationPlainTemplateEn()
+                );
+            }
+
+            if ($defaultLangId !== Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)) {
+                $this->updateMailTemplateTranslation(
+                    $connection,
+                    $templateId,
+                    Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
+                    $this->getRegistrationHtmlTemplateEn(),
+                    $this->getRegistrationPlainTemplateEn()
+                );
+            }
 
             $this->updateMailTemplateTranslation(
                 $connection,
@@ -62,13 +90,25 @@ class Migration1570621541UpdateDefaultMailTemplates extends MigrationStep
         // update password change
         $templateId = $this->fetchSystemMailTemplateIdFromType($connection, MailTemplateTypes::MAILTYPE_PASSWORD_CHANGE);
         if ($templateId !== null) {
-            $this->updateMailTemplateTranslation(
-                $connection,
-                $templateId,
-                $enLangId,
-                $this->getPasswordChangeHtmlTemplateEn(),
-                $this->getPasswordChangePlainTemplateEn()
-            );
+            if ($defaultLangId !== $deLangId) {
+                $this->updateMailTemplateTranslation(
+                    $connection,
+                    $templateId,
+                    $defaultLangId,
+                    $this->getPasswordChangeHtmlTemplateEn(),
+                    $this->getPasswordChangePlainTemplateEn()
+                );
+            }
+
+            if ($defaultLangId !== Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)) {
+                $this->updateMailTemplateTranslation(
+                    $connection,
+                    $templateId,
+                    Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
+                    $this->getPasswordChangeHtmlTemplateEn(),
+                    $this->getPasswordChangePlainTemplateEn()
+                );
+            }
 
             $this->updateMailTemplateTranslation(
                 $connection,
@@ -82,14 +122,27 @@ class Migration1570621541UpdateDefaultMailTemplates extends MigrationStep
         // update newsletter register
         $templateId = $this->fetchSystemMailTemplateIdFromType($connection, 'newsletterRegister');
         if ($templateId !== null) {
-            $this->updateMailTemplateTranslation(
-                $connection,
-                $templateId,
-                $enLangId,
-                $this->getRegisterTemplate_HTML_EN(),
-                $this->getRegisterTemplate_PLAIN_EN(),
-                '{{ salesChannel.name }}'
-            );
+            if ($defaultLangId !== $deLangId) {
+                $this->updateMailTemplateTranslation(
+                    $connection,
+                    $templateId,
+                    $defaultLangId,
+                    $this->getRegisterTemplate_HTML_EN(),
+                    $this->getRegisterTemplate_PLAIN_EN(),
+                    '{{ salesChannel.name }}'
+                );
+            }
+
+            if ($defaultLangId !== Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)) {
+                $this->updateMailTemplateTranslation(
+                    $connection,
+                    $templateId,
+                    Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
+                    $this->getRegisterTemplate_HTML_EN(),
+                    $this->getRegisterTemplate_PLAIN_EN(),
+                    '{{ salesChannel.name }}'
+                );
+            }
 
             $this->updateMailTemplateTranslation(
                 $connection,
@@ -104,14 +157,27 @@ class Migration1570621541UpdateDefaultMailTemplates extends MigrationStep
         // update newsletter opt in
         $templateId = $this->fetchSystemMailTemplateIdFromType($connection, 'newsletterDoubleOptIn');
         if ($templateId !== null) {
-            $this->updateMailTemplateTranslation(
-                $connection,
-                $templateId,
-                $enLangId,
-                $this->getOptInTemplate_HTML_EN(),
-                $this->getOptInTemplate_PLAIN_EN(),
-                '{{ salesChannel.name }}'
-            );
+            if ($defaultLangId !== $deLangId) {
+                $this->updateMailTemplateTranslation(
+                    $connection,
+                    $templateId,
+                    $defaultLangId,
+                    $this->getOptInTemplate_HTML_EN(),
+                    $this->getOptInTemplate_PLAIN_EN(),
+                    '{{ salesChannel.name }}'
+                );
+            }
+
+            if ($defaultLangId !== Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)) {
+                $this->updateMailTemplateTranslation(
+                    $connection,
+                    $templateId,
+                    Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
+                    $this->getOptInTemplate_HTML_EN(),
+                    $this->getOptInTemplate_PLAIN_EN(),
+                    '{{ salesChannel.name }}'
+                );
+            }
 
             $this->updateMailTemplateTranslation(
                 $connection,
@@ -145,11 +211,19 @@ class Migration1570621541UpdateDefaultMailTemplates extends MigrationStep
         return $templateId;
     }
 
-    private function fetchLanguageId(string $code, Connection $connection)
+    private function fetchLanguageId(string $code, Connection $connection): ?string
     {
         $langId = $connection->fetchColumn('
         SELECT `language`.`id` FROM `language` INNER JOIN `locale` ON `language`.`locale_id` = `locale`.`id` WHERE `code` = :code LIMIT 1
         ', ['code' => $code]);
+
+        if (!$langId && $code !== 'en-GB') {
+            return null;
+        }
+
+        if (!$langId) {
+            return Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
+        }
 
         return $langId;
     }
@@ -587,7 +661,7 @@ Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
 ';
     }
 
-    private function getRegisterTemplate_HTML_EN()
+    private function getRegisterTemplate_HTML_EN(): string
     {
         return '<h3>Hello {{ newsletterRecipient.firstName }} {{ newsletterRecipient.lastName }}</h3>
                 <p>thank you very much for your registration.</p>
@@ -595,7 +669,7 @@ Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
         ';
     }
 
-    private function getRegisterTemplate_PLAIN_EN()
+    private function getRegisterTemplate_PLAIN_EN(): string
     {
         return 'Hello {{ newsletterRecipient.firstName }} {{ newsletterRecipient.lastName }}
 
@@ -605,7 +679,7 @@ Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
         ';
     }
 
-    private function getRegisterTemplate_HTML_DE()
+    private function getRegisterTemplate_HTML_DE(): string
     {
         return '<h3>Hallo {{ newsletterRecipient.firstName }} {{ newsletterRecipient.lastName }}</h3>
                 <p>vielen Dank für Ihre Anmeldung.</p>
@@ -613,7 +687,7 @@ Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
         ';
     }
 
-    private function getRegisterTemplate_PLAIN_DE()
+    private function getRegisterTemplate_PLAIN_DE(): string
     {
         return 'Hallo {{ newsletterRecipient.firstName }} {{ newsletterRecipient.lastName }}
 
@@ -623,7 +697,7 @@ Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
         ';
     }
 
-    private function getOptInTemplate_HTML_EN()
+    private function getOptInTemplate_HTML_EN(): string
     {
         return '<h3>Hello {{ newsletterRecipient.firstName }} {{ newsletterRecipient.lastName }}</h3>
                 <p>Thank you for your interest in our newsletter!</p>
@@ -632,7 +706,7 @@ Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
         ';
     }
 
-    private function getOptInTemplate_PLAIN_EN()
+    private function getOptInTemplate_PLAIN_EN(): string
     {
         return 'Hello {{ newsletterRecipient.firstName }} {{ newsletterRecipient.lastName }}
 
@@ -644,7 +718,7 @@ Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
         ';
     }
 
-    private function getOptInTemplate_HTML_DE()
+    private function getOptInTemplate_HTML_DE(): string
     {
         return '<h3>Hallo {{ newsletterRecipient.firstName }} {{ newsletterRecipient.lastName }}</h3>
                 <p>Schön, dass Sie sich für unseren Newsletter interessieren!</p>
@@ -653,7 +727,7 @@ Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
         ';
     }
 
-    private function getOptInTemplate_PLAIN_DE()
+    private function getOptInTemplate_PLAIN_DE(): string
     {
         return 'Hallo {{ newsletterRecipient.firstName }} {{ newsletterRecipient.lastName }}
 

@@ -132,8 +132,8 @@ describe('module/sw-settings-delivery-times/page/sw-settings-delivery-time-list'
         const wrapper = createWrapper(['delivery_times.deleter']);
         await wrapper.vm.$nextTick();
 
-        const editMenuItem = wrapper.find('.sw-entity-listing__context-menu-edit-delete');
-        expect(editMenuItem.attributes().disabled).toBeFalsy();
+        const deleteMenuItem = wrapper.find('.sw-entity-listing__context-menu-edit-delete');
+        expect(deleteMenuItem.attributes().disabled).toBeFalsy();
     });
 
     it('should hide item selection if user does not have delete permission', async () => {

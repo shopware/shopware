@@ -32,6 +32,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
+ * @deprecated tag:v6.4.0 - Use Store-API instead
  * @RouteScope(scopes={"sales-channel-api"})
  */
 class SalesChannelApiController

@@ -39,6 +39,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Serializer;
 
 /**
+ * @deprecated tag:v6.4.0 - Use Store-API Cart Routes
  * @RouteScope(scopes={"sales-channel-api"})
  * @ContextTokenRequired()
  */

@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Api\Response\Type\Api;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @deprecated tag:v6.4.0 - Use Store-API instead
+ */
 class JsonType extends Api\JsonType
 {
     public function supports(string $contentType, ContextSource $origin): bool

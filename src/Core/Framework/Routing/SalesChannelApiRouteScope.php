@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @deprecated tag:v6.4.0 - Use Store-API instead
+ */
 class SalesChannelApiRouteScope extends AbstractRouteScope implements SalesChannelContextRouteScopeDependant
 {
     public const ID = 'sales-channel-api';

@@ -1,6 +1,8 @@
 [titleEn]: <>(SalesChannel-API context endpoint)
 [hash]: <>(article:api_sales_channel_context)
 
+**The Sales Channel API is deprecated and will be removed with 6.4.0.0. Consider using the Store-API**
+
 The `context` endpoint is used to obtain information about various entities like currency, language or country which are assigned to a
 sales channel.
 

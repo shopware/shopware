@@ -1,6 +1,8 @@
 [titleEn]: <>(SalesChannel-API newsletter endpoint)
 [hash]: <>(article:api_sales_channel_newsletter)
 
+**The Sales Channel API is deprecated and will be removed with 6.4.0.0. Consider using the Store-API**
+
 The newsletter endpoint is used to subscribe, confirm and unsubscribe to newsletters. It can also be used to change newsletter recipient related information.
 
 ## Subscribe to newsletters

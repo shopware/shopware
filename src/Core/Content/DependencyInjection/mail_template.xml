@@ -88,6 +88,7 @@
             <argument type="service" id="media.repository"/>
             <argument type="service" id="document.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Document\DocumentService"/>
+            <argument type="service" id="logger"/>
         </service>
 
         <!-- Commands -->

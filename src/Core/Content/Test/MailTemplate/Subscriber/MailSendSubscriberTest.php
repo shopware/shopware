@@ -54,7 +54,8 @@ class MailSendSubscriberTest extends TestCase
             $this->getContainer()->get(MediaService::class),
             $this->getContainer()->get('media.repository'),
             $this->getContainer()->get('document.repository'),
-            $this->getContainer()->get(DocumentService::class)
+            $this->getContainer()->get(DocumentService::class),
+            $this->getContainer()->get('logger')
         );
 
         $subscriber->sendMail(new BusinessEvent('test', $event, $config));

@@ -103,21 +103,7 @@ class InfoControllerTest extends TestCase
                         'entityClass' => OrderDefinition::class,
                     ],
                 ],
-            ],
-            [
-                'name' => 'state_enter.order_transaction.state.cash_payment.cancelled',
-                'class' => "Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent",
-                'mailAware' => true,
-                'logAware' => false,
-                'salesChannelAware' => true,
-                'extensions' => [],
-                'data' => [
-                    'order' => [
-                        'type' => 'entity',
-                        'entityClass' => OrderDefinition::class,
-                    ],
-                ],
-            ],
+            ]
         ];
 
         foreach ($expected as $event) {

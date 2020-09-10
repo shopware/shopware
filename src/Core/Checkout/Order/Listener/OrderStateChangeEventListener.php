@@ -8,7 +8,6 @@ use Shopware\Core\Checkout\Cart\Exception\OrderTransactionNotFoundException;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\Event\OrderStateChangeCriteriaEvent;
 use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -160,15 +159,6 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
         $context = $this->getContext($order, $event->getContext());
 
         $this->dispatchEvent($event->getStateEventName(), $order, $context);
-
-        $name = implode('.', [
-            $event->getTransitionSide(),
-            $event->getStateMachine()->getTechnicalName(),
-            $orderTransaction->getPaymentMethod()->getShortName(),
-            $event->getStateName(),
-        ]);
-
-        $this->dispatchEvent($name, $order, $context);
     }
 
     /**
@@ -196,8 +186,6 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
         $context = $event->getContext();
 
         $collection = $event->getCollection();
-
-        $payments = $this->paymentRepository->search(new Criteria(), $context);
 
         $criteria = new Criteria();
         $criteria->addAssociation('stateMachine');
@@ -230,27 +218,6 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
                 }
 
                 $collection->set($name, $definition);
-
-                if ($machine->getTechnicalName() !== OrderTransactionStates::STATE_MACHINE) {
-                    continue;
-                }
-
-                /** @var PaymentMethodEntity $payment */
-                foreach ($payments as $payment) {
-                    $name = implode('.', [
-                        $side,
-                        $machine->getTechnicalName(),
-                        $payment->getShortName(),
-                        $state->getTechnicalName(),
-                    ]);
-                    $definition = $this->businessEventCollector->define(OrderStateMachineStateChangeEvent::class, $name);
-
-                    if (!$definition) {
-                        continue;
-                    }
-
-                    $collection->set($name, $definition);
-                }
             }
         }
     }
@@ -301,10 +268,15 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
     {
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('orderCustomer.salutation');
+        $criteria->addAssociation('orderCustomer.customer');
         $criteria->addAssociation('stateMachineState');
-        $criteria->addAssociation('transactions');
         $criteria->addAssociation('deliveries.shippingMethod');
+        $criteria->addAssociation('deliveries.shippingOrderAddress.country');
         $criteria->addAssociation('salesChannel');
+        $criteria->addAssociation('transactions.paymentMethod');
+        $criteria->addAssociation('lineItems');
+        $criteria->addAssociation('currency');
+        $criteria->addAssociation('addresses.country');
 
         $event = new OrderStateChangeCriteriaEvent($orderId, $criteria);
         $this->eventDispatcher->dispatch($event);

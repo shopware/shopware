@@ -1,0 +1,45 @@
+{
+  "sw-event-action": {
+    "general": {
+      "mainMenuItemGeneral": "Event actions",
+      "placeholderSearchBar": "Search all events ...",
+      "descriptionTextModule": "Manage event actions."
+    },
+    "list": {
+      "textHeadline": "Event actions",
+      "labelActionAdd": "Add event action",
+      "columnEventName": "Event name",
+      "columnSalesChannel": "Sales channel",
+      "columnRules": "Rules",
+      "columnMailTemplate": "Mail template",
+      "columnTitle": "Title",
+      "columnActive": "Active"
+    },
+    "detail": {
+      "titleNewEntity": "New event action",
+      "fieldLabelEventName": "Event",
+      "fieldLabelSalesChannel": "Sales channel",
+      "fieldLabelRules": "Rules",
+      "fieldMailTemplate": "Mail template",
+      "fieldMailTemplateDetailLink": "Mail template details",
+      "fieldLabelActive": "Active",
+      "fieldLabelTitle": "Titel",
+      "placeholderEventName": "Select a business event...",
+      "placeholderRules": "Select rules...",
+      "placeholderSalesChannels": "Select sales channels...",
+      "placeholderMailTemplate": "Select an email template...",
+      "errorMailTemplateId": "Please select an email template...",
+      "titleRecipientsCard": "Email recipients",
+      "textEmptyStateRecipients": "There are no recipients for this event action yet. The mail will be sent to the customer.",
+      "columnRecipientName": "Recipient name",
+      "columnRecipientMail": "Email"
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "event_action": {
+        "label": "Event actions"
+      }
+    }
+  }
+}

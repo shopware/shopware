@@ -44,10 +44,7 @@ class OrderStateChangeEventListenerTest extends TestCase
         $this->createOrder($ids);
 
         $this->assertEvent('state_leave.order_transaction.state.open');
-        $this->assertEvent('state_leave.order_transaction.state.pre_payment.open');
-
         $this->assertEvent('state_enter.order_transaction.state.in_progress');
-        $this->assertEvent('state_enter.order_transaction.state.pre_payment.in_progress');
 
         $this->getContainer()
             ->get(StateMachineRegistry::class)

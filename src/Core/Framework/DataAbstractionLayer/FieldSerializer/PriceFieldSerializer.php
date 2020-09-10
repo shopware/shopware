@@ -64,6 +64,9 @@ class PriceFieldSerializer extends AbstractFieldSerializer
             $converted = [];
 
             foreach ($value as $price) {
+                $price['gross'] = (float) $price['gross'];
+                $price['net'] = (float) $price['net'];
+
                 $converted['c' . $price['currencyId']] = $price;
             }
             $value = $converted;
@@ -114,15 +117,15 @@ class PriceFieldSerializer extends AbstractFieldSerializer
                 'allowMissingFields' => false,
                 'fields' => [
                     'currencyId' => [new NotBlank(), new Uuid()],
-                    'gross' => [new NotBlank(), new Type('numeric')],
-                    'net' => [new NotBlank(), new Type('numeric')],
+                    'gross' => [new NotBlank(), new Type(['numeric'])],
+                    'net' => [new NotBlank(), new Type(['numeric'])],
                     'linked' => [new Type('boolean')],
                     'listPrice' => [new Optional(
                         new Collection([
                             'allowExtraFields' => true,
                             'allowMissingFields' => false,
                             'fields' => [
-                                'gross' => [new NotBlank(), new Type('numeric')],
+                                'gross' => [new NotBlank(), new Type(['numeric'])],
                                 'net' => [new NotBlank(), new Type('numeric')],
                                 'linked' => [new Type('boolean')],
                             ],

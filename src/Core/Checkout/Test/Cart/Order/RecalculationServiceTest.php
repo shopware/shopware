@@ -1231,8 +1231,8 @@ class RecalculationServiceTest extends TestCase
                     'currencyPrice' => [
                         [
                             'currencyId' => Defaults::CURRENCY,
-                            'net' => '10.00',
-                            'gross' => '10.00',
+                            'net' => 10.00,
+                            'gross' => 10.00,
                             'linked' => false,
                         ],
                     ],
@@ -1244,8 +1244,8 @@ class RecalculationServiceTest extends TestCase
                     'currencyPrice' => [
                         [
                             'currencyId' => Defaults::CURRENCY,
-                            'net' => '8.00',
-                            'gross' => '8.00',
+                            'net' => 8.00,
+                            'gross' => 8.00,
                             'linked' => false,
                         ],
                     ],
@@ -1293,8 +1293,8 @@ class RecalculationServiceTest extends TestCase
                     'currencyPrice' => [
                         [
                             'currencyId' => Defaults::CURRENCY,
-                            'net' => '15.00',
-                            'gross' => '15.00',
+                            'net' => 15.00,
+                            'gross' => 15.00,
                             'linked' => false,
                         ],
                     ],
@@ -1316,8 +1316,8 @@ class RecalculationServiceTest extends TestCase
                     'currencyPrice' => [
                         [
                             'currencyId' => Defaults::CURRENCY,
-                            'net' => '20.00',
-                            'gross' => '20.00',
+                            'net' => 20.00,
+                            'gross' => 20.00,
                             'linked' => false,
                         ],
                     ],
@@ -1372,8 +1372,8 @@ class RecalculationServiceTest extends TestCase
                     'currencyPrice' => [
                         [
                             'currencyId' => Defaults::CURRENCY,
-                            'net' => '15.00',
-                            'gross' => '15.00',
+                            'net' => 15.00,
+                            'gross' => 15.00,
                             'linked' => false,
                         ],
                     ],
@@ -1396,8 +1396,8 @@ class RecalculationServiceTest extends TestCase
                     'currencyPrice' => [
                         [
                             'currencyId' => Defaults::CURRENCY,
-                            'net' => '10.00',
-                            'gross' => '10.00',
+                            'net' => 10.00,
+                            'gross' => 10.00,
                             'linked' => false,
                         ],
                     ],
@@ -1454,8 +1454,8 @@ class RecalculationServiceTest extends TestCase
                     'currencyPrice' => [
                         [
                             'currencyId' => Defaults::CURRENCY,
-                            'net' => '15.00',
-                            'gross' => '15.00',
+                            'net' => 15.00,
+                            'gross' => 15.00,
                             'linked' => false,
                         ],
                     ],
@@ -1478,8 +1478,8 @@ class RecalculationServiceTest extends TestCase
                     'currencyPrice' => [
                         [
                             'currencyId' => Defaults::CURRENCY,
-                            'net' => '9.99',
-                            'gross' => '9.99',
+                            'net' => 9.99,
+                            'gross' => 9.99,
                             'linked' => false,
                         ],
                     ],

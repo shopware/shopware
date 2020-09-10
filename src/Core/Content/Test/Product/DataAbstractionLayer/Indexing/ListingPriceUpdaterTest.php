@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Content\Test\Product\DataAbstractionLayer\Indexing;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\DataAbstractionLayer\Indexing\ListingPriceUpdater;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
@@ -16,7 +18,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-class ProductListingPriceIndexerTest extends TestCase
+class ListingPriceUpdaterTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
@@ -733,6 +735,57 @@ class ProductListingPriceIndexerTest extends TestCase
 
         static::assertInstanceOf(ListingPriceCollection::class, $prices);
         static::assertEquals(1, $prices->count());
+    }
+
+    public function testListingPriceUpdatesWithStringPrices(): void
+    {
+        $ids = new TestDataCollection(Context::createDefaultContext());
+
+        $this->getContainer()->get('product.repository')->create([
+            [
+                'id' => $ids->create('product'),
+                'stock' => 10,
+                'name' => 'Simple 2',
+                'tax' => ['name' => 'test', 'taxRate' => 15],
+                'productNumber' => Uuid::randomHex(),
+                'price' => [
+                    ['currencyId' => Defaults::CURRENCY, 'gross' => 10.5, 'net' => 10.5, 'linked' => false],
+                ],
+            ],
+        ], $ids->getContext());
+
+        /** @var Connection $connection */
+        $connection = $this->getContainer()->get(Connection::class);
+
+        $price = $connection->fetchColumn('SELECT price FROM product WHERE id = UNHEX(?)', [
+            $ids->get('product'),
+        ]);
+
+        $decodedPrice = json_decode($price, true);
+
+        // Check Serializer did their job
+        static::assertIsFloat($decodedPrice['cb7d2554b0ce847cd82f3ac9bd1c0dfca']['net']);
+        static::assertIsFloat($decodedPrice['cb7d2554b0ce847cd82f3ac9bd1c0dfca']['gross']);
+
+        // Let's break it to see ListingPriceUpdater takes care about that
+        $decodedPrice['cb7d2554b0ce847cd82f3ac9bd1c0dfca']['net'] = (string) $decodedPrice['cb7d2554b0ce847cd82f3ac9bd1c0dfca']['net'];
+        $decodedPrice['cb7d2554b0ce847cd82f3ac9bd1c0dfca']['gross'] = (string) $decodedPrice['cb7d2554b0ce847cd82f3ac9bd1c0dfca']['gross'];
+
+        $connection->executeUpdate('UPDATE product SET price = ? WHERE id = UNHEX(?)', [
+            json_encode($decodedPrice),
+            $ids->get('product'),
+        ]);
+
+        $this->getContainer()->get(ListingPriceUpdater::class)->update([$ids->get('product')], $ids->getContext());
+
+        $listingPrices = json_decode($connection->fetchColumn('SELECT listing_prices FROM product WHERE id = UNHEX(?)', [
+            $ids->get('product'),
+        ]), true);
+
+        static::assertIsFloat($listingPrices['default']['cb7d2554b0ce847cd82f3ac9bd1c0dfca']['from']['net']);
+        static::assertIsFloat($listingPrices['default']['cb7d2554b0ce847cd82f3ac9bd1c0dfca']['from']['gross']);
+        static::assertIsFloat($listingPrices['default']['cb7d2554b0ce847cd82f3ac9bd1c0dfca']['to']['net']);
+        static::assertIsFloat($listingPrices['default']['cb7d2554b0ce847cd82f3ac9bd1c0dfca']['to']['gross']);
     }
 
     private function filterByCurrencyId(iterable $prices, string $currencyId): array

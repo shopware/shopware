@@ -36,10 +36,11 @@
 
         {% block sw_settings_custom_field_set_detail_base_labels %}
             <sw-custom-field-translated-labels
-                    v-if="set.config"
-                    v-model="set.config"
-                    :propertyNames="propertyNames"
-                    :locales="locales">
+                v-if="set.config"
+                v-model="set.config"
+                :disabled="!acl.can('custom_field.editor')"
+                :propertyNames="propertyNames"
+                :locales="locales">
             </sw-custom-field-translated-labels>
         {% endblock %}
 

@@ -11,7 +11,7 @@ const set = {
 const localVue = createLocalVue();
 localVue.directive('tooltip', {});
 
-function createWrapper() {
+function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-settings-custom-field-set-detail'), {
         localVue,
         mocks: {
@@ -38,6 +38,13 @@ function createWrapper() {
                             return Promise.resolve(set);
                         }
                     };
+                }
+            },
+            acl: {
+                can: (identifier) => {
+                    if (!identifier) { return true; }
+
+                    return privileges.includes(identifier);
                 }
             }
         },

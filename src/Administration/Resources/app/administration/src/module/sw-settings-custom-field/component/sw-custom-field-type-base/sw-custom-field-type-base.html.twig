@@ -3,6 +3,7 @@
         {% block sw_custom_field_type_base_content %}
             {% block sw_custom_field_type_base_labels %}
                 <sw-custom-field-translated-labels
+                        :disabled="disabled"
                         v-model="currentCustomField.config"
                         :propertyNames="propertyNames"
                         :locales="locales">

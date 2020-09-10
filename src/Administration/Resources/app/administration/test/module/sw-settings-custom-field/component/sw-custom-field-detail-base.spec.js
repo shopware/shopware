@@ -12,7 +12,7 @@ const set = {
     _isNew: false
 };
 
-function createWrapper() {
+function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-custom-field-set-detail-base'), {
         propsData: {
             set: set
@@ -31,7 +31,14 @@ function createWrapper() {
                     return 'entity_name_example';
                 }
             },
-            validationService: {}
+            validationService: {},
+            acl: {
+                can: (identifier) => {
+                    if (!identifier) { return true; }
+
+                    return privileges.includes(identifier);
+                }
+            }
         },
         stubs: {
             'sw-card': true,

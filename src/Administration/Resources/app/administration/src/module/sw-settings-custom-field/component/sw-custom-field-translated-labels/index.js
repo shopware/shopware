@@ -6,6 +6,8 @@ const { Component, Mixin } = Shopware;
 Component.register('sw-custom-field-translated-labels', {
     template,
 
+    inject: ['acl'],
+
     model: {
         prop: 'config'
     },
@@ -25,6 +27,11 @@ Component.register('sw-custom-field-translated-labels', {
         propertyNames: {
             type: Object,
             required: true
+        },
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 

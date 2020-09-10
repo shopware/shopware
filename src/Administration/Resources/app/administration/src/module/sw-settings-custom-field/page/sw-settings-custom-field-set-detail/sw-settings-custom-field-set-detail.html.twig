@@ -21,7 +21,7 @@
                         class="sw-settings-set-detail__save-action"
                         :isLoading="isLoading"
                         :processSuccess="isSaveSuccessful"
-                        :disabled="set.isLoading"
+                        :disabled="set.isLoading || !acl.can('custom_field.editor')"
                         variant="primary"
                         @process-finish="saveFinish"
                         v-tooltip.bottom="tooltipSave"

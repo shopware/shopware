@@ -34,6 +34,10 @@ Component.register('sw-settings-listing', {
             return this.repositoryFactory.create('product_sorting');
         },
 
+        filteredProductSortingOptions() {
+            return this.productSortingOptions.filter(option => !option.locked);
+        },
+
         customFieldRepository() {
             return this.repositoryFactory.create('custom_field');
         },
@@ -56,7 +60,7 @@ Component.register('sw-settings-listing', {
             const criteria = new Criteria();
 
             criteria.addFilter(
-                Criteria.equals('label', this.productSortingOptionsSearchTerm)
+                Criteria.contains('label', this.productSortingOptionsSearchTerm)
             );
 
             return criteria;

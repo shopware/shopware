@@ -114,7 +114,7 @@
                                     <sw-data-grid v-if="productSortingOptions.length > 0"
                                         :compactMode="false"
                                         :columns="productSortingOptionColumns"
-                                        :dataSource="productSortingOptions"
+                                        :dataSource="filteredProductSortingOptions"
                                         allowInlineEdit
                                         plainAppearance
                                         :showSelection="false"

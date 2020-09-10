@@ -10,6 +10,9 @@ function createWrapper(privileges = []) {
     const shippingMethod = {};
     shippingMethod.getEntityName = () => 'shipping_method';
     shippingMethod.isNew = () => false;
+    shippingMethod.prices = {
+        add: () => {}
+    };
 
     return shallowMount(Shopware.Component.build('sw-settings-shipping-detail'), {
         localVue,

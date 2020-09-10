@@ -85,7 +85,7 @@ class ProductListingRoute extends AbstractProductListingRoute
      *      path="/product-listing/{categoryId}",
      *      description="Loads products from listing",
      *      operationId="readProductListing",
-     *      tags={"Store API","Language"},
+     *      tags={"Store API","Product"},
      *      @OA\Response(
      *          response="200",
      *          description="Found products",

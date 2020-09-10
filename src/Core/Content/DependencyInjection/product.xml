@@ -371,5 +371,9 @@
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
+
+        <service id="Shopware\Core\Content\Product\SalesChannel\ProductListListRoute" public="true">
+            <argument type="service" id="sales_channel.product.repository"/>
+        </service>
     </services>
 </container>

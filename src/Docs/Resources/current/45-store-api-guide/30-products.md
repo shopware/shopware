@@ -4,12 +4,43 @@
 ## Products
 In this article we will show how you load product listings, searches and suggest searches via the API.
 
+### Fetching products
+
+To get a list of products you can use the route : `store-api.product.search`
+Additionally, you can use the api basic parameters (`filter`,  `aggregations`, etc.) for more information look [here](./../40-admin-api-guide/20-reading-entities.md).
+
+```
+POST /store-api/v3/product
+{
+    "includes": {
+        "product": ["id", "name"]
+    }
+}
+{
+  "total": 2,
+  "aggregations": [],
+  "elements": [
+    {
+      "id": "00a284072bcb42ed8fee31e26ea53b60",
+      "name": "Synergistic Wooden Coffee Patch",
+      "apiAlias": "product"
+    },
+    {
+      "id": "bd835e75afa14b09b7da156d095a9a30",
+      "name": "Intelligent Cotton Presto Pesto",
+      "apiAlias": "product"
+    }
+  ],
+  "apiAlias": "dal_entity_search_result"
+}
+```
+
 ### Get a single product
 To get a single product use the following route: `store-api.product.detail`.
 This route only needs the `productId` parameter.
 
 In addition to the product, the configurator is also read for a variant product. This route should be used to display a product detail page.
-Additionally you can use the api basic parameters (`filter`,  `aggregations`, etc.) for more information look [here](./../40-admin-api-guide/20-reading-entities.md).
+Additionally, you can use the api basic parameters (`filter`,  `aggregations`, etc.) for more information look [here](./../40-admin-api-guide/20-reading-entities.md).
 
 ```
 POST /store-api/v3/product/62fbaaceefdb4dcbb5c05a2f683a59f4

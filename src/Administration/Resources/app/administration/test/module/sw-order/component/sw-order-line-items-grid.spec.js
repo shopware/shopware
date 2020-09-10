@@ -159,6 +159,7 @@ function createWrapper({ privileges = [] }) {
             'sw-button-group': true,
             'sw-context-button': true,
             'sw-context-menu-item': true,
+            'sw-card-filter': true,
             'sw-data-grid': Shopware.Component.build('sw-data-grid')
         },
         mocks: {
@@ -312,5 +313,26 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         const taxDetailTooltip = wrapper.find('.sw-order-line-items-grid__item-tax-tooltip');
 
         expect(taxDetailTooltip.attributes()['tooltip-message']).toBe('sw-order.detailBase.tax<br>10%: -€3.33<br>20%: -€13.33');
+    });
+
+    it('should show items correctly when search by search tearm', async () => {
+        const wrapper = createWrapper({});
+
+        wrapper.setProps({
+            order: {
+                ...wrapper.props().order,
+                lineItems: [...mockItems]
+            }
+        });
+
+        wrapper.setData({
+            searchTerm: 'item product'
+        });
+
+        await wrapper.vm.$nextTick();
+
+        const firstRow = wrapper.find('.sw-data-grid__row--0');
+
+        expect(firstRow.contains('Product item'));
     });
 });

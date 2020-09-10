@@ -735,4 +735,77 @@ describe('src/app/service/acl.service.js', () => {
             'message_queue_stats:read'
         ].sort());
     });
+
+    it('should merge existing roles', () => {
+        const privilegesService = new PrivilegesService();
+
+        const privilegeMappingCore = {
+            category: 'permissions',
+            parent: null,
+            key: 'product',
+            roles: {
+                viewer: {
+                    privileges: ['product:read'],
+                    dependencies: []
+                },
+                editor: {
+                    privileges: ['product:update'],
+                    dependencies: ['product.viewer']
+                },
+                creator: {
+                    privileges: ['product:create'],
+                    dependencies: ['product.viewer', 'product.editor']
+                }
+            }
+        };
+
+        const privilegeMappingPlugin = {
+            category: 'permissions',
+            parent: null,
+            key: 'product',
+            roles: {
+                viewer: {
+                    privileges: ['plugin:read']
+                },
+                editor: {
+                    privileges: ['plugin:update']
+                },
+                newrole: {
+                    privileges: ['plugin:write']
+                }
+            }
+        };
+
+        privilegesService.addPrivilegeMappingEntry(privilegeMappingCore);
+
+        let allPrivilegesWithDependencies = privilegesService.getPrivilegesForAdminPrivilegeKeys([
+            'product.editor'
+        ]);
+        expect(allPrivilegesWithDependencies).toStrictEqual([
+            'language:read',
+            'locale:read',
+            'message_queue_stats:read',
+            'product.editor',
+            'product.viewer',
+            'product:read',
+            'product:update'
+        ].sort());
+
+        privilegesService.addPrivilegeMappingEntry(privilegeMappingPlugin);
+
+        allPrivilegesWithDependencies = privilegesService.getPrivilegesForAdminPrivilegeKeys([
+            'product.editor'
+        ]);
+        expect(allPrivilegesWithDependencies).toStrictEqual([
+            'language:read',
+            'locale:read',
+            'message_queue_stats:read',
+            'plugin:update',
+            'plugin:read',
+            'product.editor',
+            'product.viewer',
+            'product:read',
+            'product:update'
+        ].sort());
+    });
 });

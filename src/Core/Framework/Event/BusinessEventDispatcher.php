@@ -6,7 +6,9 @@ use Psr\EventDispatcher\StoppableEventInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Event\EventAction\EventActionCollection;
 use Shopware\Core\Framework\Event\EventAction\EventActionDefinition;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -95,6 +97,14 @@ class BusinessEventDispatcher implements EventDispatcherInterface
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('event_action.eventName', $eventName));
+        $criteria->addFilter(new EqualsFilter('event_action.active', true));
+
+        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
+            new EqualsFilter('event_action.rules.id', null),
+            new EqualsAnyFilter('event_action.rules.id', $context->getRuleIds()),
+        ]));
+
+        $criteria->addAssociation('rules');
 
         /** @var EventActionCollection $events */
         $events = $this->definitionRegistry

@@ -8,6 +8,7 @@ use Shopware\Core\Content\MailTemplate\MailTemplateActions;
 use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Content\MailTemplate\Service\MailServiceInterface;
 use Shopware\Core\Content\Media\MediaService;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -21,6 +22,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class MailSendSubscriber implements EventSubscriberInterface
 {
     public const ACTION_NAME = MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION;
+    public const SKIP_MAILS = 'skip-mails';
 
     /**
      * @var MailServiceInterface
@@ -63,40 +65,21 @@ class MailSendSubscriber implements EventSubscriberInterface
     {
         $mailEvent = $event->getEvent();
 
+        if ($event->getContext()->hasExtension(self::SKIP_MAILS)) {
+            return;
+        }
+
         if (!$mailEvent instanceof MailActionInterface) {
             throw new MailEventConfigurationException('Not a instance of MailActionInterface', get_class($mailEvent));
         }
 
-        if (!\array_key_exists('mail_template_type_id', $event->getConfig())) {
-            throw new MailEventConfigurationException('Configuration mail_template_type_id missing.', get_class($mailEvent));
-        }
+        $config = $event->getConfig();
 
-        $mailTemplateTypeId = $event->getConfig()['mail_template_type_id'];
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('mailTemplateTypeId', $mailTemplateTypeId));
-        $criteria->addAssociation('media.media');
-        $criteria->setLimit(1);
-
-        if ($mailEvent->getSalesChannelId()) {
-            $criteria->addFilter(new EqualsFilter('mail_template.salesChannels.salesChannel.id', $mailEvent->getSalesChannelId()));
-
-            /** @var MailTemplateEntity|null $mailTemplate */
-            $mailTemplate = $this->mailTemplateRepository->search($criteria, $event->getContext())->first();
-
-            // Fallback if no template for the saleschannel is found
-            if ($mailTemplate === null) {
-                $criteria = new Criteria();
-                $criteria->addFilter(new EqualsFilter('mailTemplateTypeId', $mailTemplateTypeId));
-                $criteria->addAssociation('media.media');
-                $criteria->setLimit(1);
-
-                /** @var MailTemplateEntity|null $mailTemplate */
-                $mailTemplate = $this->mailTemplateRepository->search($criteria, $event->getContext())->first();
-            }
-        } else {
-            /** @var MailTemplateEntity|null $mailTemplate */
-            $mailTemplate = $this->mailTemplateRepository->search($criteria, $event->getContext())->first();
+        $mailTemplate = null;
+        if (isset($config['mail_template_type_id'])) {
+            $mailTemplate = $this->getMailTemplateByType($config['mail_template_type_id'], $event->getContext(), $mailEvent->getSalesChannelId());
+        } elseif (isset($config['mail_template_id'])) {
+            $mailTemplate = $this->getMailTemplate($config['mail_template_id'], $event->getContext());
         }
 
         if ($mailTemplate === null) {
@@ -104,7 +87,13 @@ class MailSendSubscriber implements EventSubscriberInterface
         }
 
         $data = new DataBag();
-        $data->set('recipients', $mailEvent->getMailStruct()->getRecipients());
+
+        $recipients = $mailEvent->getMailStruct()->getRecipients();
+        if (isset($config['recipients'])) {
+            $recipients = $config['recipients'];
+        }
+
+        $data->set('recipients', $recipients);
         $data->set('senderName', $mailTemplate->getTranslation('senderName'));
         $data->set('salesChannelId', $mailEvent->getSalesChannelId());
 
@@ -121,8 +110,7 @@ class MailSendSubscriber implements EventSubscriberInterface
                 if ($mailTemplateMedia->getMedia() === null) {
                     continue;
                 }
-                if ($mailTemplateMedia->getLanguageId() !== null && $mailTemplateMedia->getLanguageId() !== $event->getContext()
-                        ->getLanguageId()) {
+                if ($mailTemplateMedia->getLanguageId() !== null && $mailTemplateMedia->getLanguageId() !== $event->getContext()->getLanguageId()) {
                     continue;
                 }
 
@@ -141,6 +129,53 @@ class MailSendSubscriber implements EventSubscriberInterface
             $event->getContext(),
             $this->getTemplateData($mailEvent)
         );
+    }
+
+    private function getMailTemplateByType($typeId, Context $context, ?string $salesChannelId)
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('mailTemplateTypeId', $typeId));
+        $criteria->addAssociation('media.media');
+        $criteria->setLimit(1);
+
+        if ($salesChannelId === null) {
+            return $this->mailTemplateRepository
+                ->search($criteria, $context)
+                ->first();
+        }
+
+        $criteria->addFilter(new EqualsFilter('mail_template.salesChannels.salesChannel.id', $salesChannelId));
+
+        /** @var MailTemplateEntity|null $mailTemplate */
+        $mailTemplate = $this->mailTemplateRepository
+            ->search($criteria, $context)
+            ->first();
+
+        // Fallback if no template for the saleschannel is found
+        if ($mailTemplate !== null) {
+            return $mailTemplate;
+        }
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('mailTemplateTypeId', $typeId));
+        $criteria->addAssociation('media.media');
+        $criteria->setLimit(1);
+
+        /* @var MailTemplateEntity|null $mailTemplate */
+        return $this->mailTemplateRepository
+            ->search($criteria, $context)
+            ->first();
+    }
+
+    private function getMailTemplate(string $id, Context $context)
+    {
+        $criteria = new Criteria([$id]);
+        $criteria->addAssociation('media.media');
+        $criteria->setLimit(1);
+
+        return $this->mailTemplateRepository
+            ->search($criteria, $context)
+            ->first();
     }
 
     /**

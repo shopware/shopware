@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Event\EventAction;
 
+use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
@@ -20,9 +21,19 @@ class EventActionEntity extends Entity
     protected $actionName;
 
     /**
+     * @var bool
+     */
+    protected $active;
+
+    /**
      * @var array|null
      */
     protected $config;
+
+    /**
+     * @var RuleCollection|null
+     */
+    protected $rules;
 
     public function getEventName(): string
     {
@@ -52,5 +63,25 @@ class EventActionEntity extends Entity
     public function setConfig(array $config): void
     {
         $this->config = $config;
+    }
+
+    public function isActive(): bool
+    {
+        return $this->active;
+    }
+
+    public function setActive(bool $active): void
+    {
+        $this->active = $active;
+    }
+
+    public function getRules(): ?RuleCollection
+    {
+        return $this->rules;
+    }
+
+    public function setRules(RuleCollection $rules): void
+    {
+        $this->rules = $rules;
     }
 }

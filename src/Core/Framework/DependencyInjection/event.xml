@@ -35,5 +35,9 @@
             <argument type="service" id="Shopware\Core\Framework\Event\BusinessEventCollector"/>
             <tag name="console.command"/>
         </service>
+
+        <service id="Shopware\Core\Framework\Event\EventAction\Aggregate\EventActionRule\EventActionRuleDefinition">
+            <tag name="shopware.entity.definition" entity="event_action_rule"/>
+        </service>
     </services>
 </container>

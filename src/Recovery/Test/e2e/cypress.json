@@ -2,7 +2,7 @@
   "viewportHeight": 1080,
   "viewportWidth": 1920,
   "baseUrl": "http://localhost:8000",
-  "watchForFileChanges": false,
+  "watchForFileChanges": true,
   "requestTimeout": 10000,
   "responseTimeout": 60000,
   "defaultCommandTimeout": 10000,
@@ -12,9 +12,30 @@
   "useShopwareTheme": true,
   "theme": "dark",
   "screenshotsFolder": "artifacts/screenshots",
+  "videosFolder": "artifacts/videos",
   "reporter": "cypress-multi-reporters",
   "reporterOptions": {
     "configFile": "reporter-config.json"
+  },
+  "env": {
+    "apiVersion": "v2",
+    "user": "admin",
+    "pass": "shopware",
+    "salesChannelName": "Storefront",
+    "admin": "/admin",
+    "apiPath": "**/api/v*",
+    "locale": "en-GB",
+    "projectRoot": "/app",
+    "localUsage": false,
+    "testDataUsage": false,
+    "testBase": "Install",
+    "usePercy": false,
+    "dbUser": "root",
+    "dbPassword": "root",
+    "dbHost": "mysql",
+    "dbName": "sw6_e2e_test",
+    "acceptLanguage": "en-GB,en;q=0.5",
+    "expectedVersion": "6.2."
   },
   "chromeWebSecurity": false
 }

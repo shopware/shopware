@@ -11,6 +11,8 @@
 // This function is called when a project is opened or re-opened (e.g. due to
 // the project's config changing)
 
+const percyHealthCheck = require('@percy/cypress/task')
+
 module.exports = (on, config) => {
     require('@shopware-ag/e2e-testsuite-platform/cypress/plugins');
 
@@ -22,4 +24,7 @@ module.exports = (on, config) => {
             return launchOptions;
         }
     });
+
+    // Start percy
+    on("task", percyHealthCheck);
 }

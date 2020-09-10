@@ -7,9 +7,9 @@ author_email:       p.schuch@shopware.com                   # Optional for shopw
 author_github:      @Phil23                                 # Optional
 ---
 # Core
-*  Added new method `getCategories` in src/Core/Content/ProductStream/ProductStreamEntity.php
-*  Added new method `setCategories` in src/Core/Content/ProductStream/ProductStreamEntity.php
-*  Deprecated the constructor of Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPage. Use CheckoutConfirmPage::createFrom instead.
+*  Added new method `getCategories` in `src/Core/Content/ProductStream/ProductStreamEntity.php`
+*  Added new method `setCategories` in `src/Core/Content/ProductStream/ProductStreamEntity.php`
+*  Deprecated the constructor of `Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPage`. Use `CheckoutConfirmPage::createFrom` instead.
 *  Removed required flag of `customer_id`
 ___
 # API
@@ -20,12 +20,12 @@ ___
 *  Added new computed prop `allowInlineEdit` to `sw-property-option-list/index.js`
 *  Added new computed prop `tooltipAdd` to `sw-property-option-list/index.js`
 *  Added new computed prop `disableAddButton` to `sw-property-option-list/index.js`
-*  Deprecated LanguageStore
+*  Deprecated `LanguageStore`
 *  Removed deprecated component `sw-property-option-select/index.js`
 ___
 # Storefront
 *  Added new plugin class `clear-input.plugin.js`
-*  Deprecated window.accessKey and window.contextToken, the variables contain now an empty string
+*  Deprecated `window.accessKey` and `window.contextToken`, the variables contain now an empty string
 *  Removed `/widgets/search/{search}` route
 ___
 # Upgrade Information

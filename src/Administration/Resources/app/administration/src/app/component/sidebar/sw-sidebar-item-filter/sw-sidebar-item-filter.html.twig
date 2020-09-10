@@ -53,25 +53,24 @@
                     :value="filter[filterOption.name]">
             </sw-multi-select>
 
-
             <span v-else-if="filterOption.inputType === 'range'">
-            <h3>{{ filterOption.label }}</h3>
-            <sw-container columns="1fr 1fr" gap="12px">
-                <sw-number-field numberType="float"
-                                 :label="$tc('sw-product.list.filter.range.from.placeholder')"
-                                 :placeholder="$tc('sw-product.list.filter.range.from.placeholder')"
-                                 :value="filter[filterOption.name].from"
-                                 @change="rangeInputTrigger($event, filterOption.name, 'from')">
-                </sw-number-field>
+                <h3>{{ filterOption.label }}</h3>
+                <sw-container columns="1fr 1fr" gap="12px">
+                    <sw-number-field numberType="float"
+                                     :label="$tc('sw-product.list.filter.range.from.placeholder')"
+                                     :placeholder="$tc('sw-product.list.filter.range.from.placeholder')"
+                                     :value="filter[filterOption.name].from"
+                                     @change="rangeInputTrigger($event, filterOption.name, 'from')">
+                    </sw-number-field>
 
-                <sw-number-field numberType="float"
-                                 :label="$tc('sw-product.list.filter.range.to.placeholder')"
-                                 :placeholder="$tc('sw-product.list.filter.range.to.placeholder')"
-                                 :value="filter[filterOption.name].to"
-                                 @change="rangeInputTrigger($event, filterOption.name, 'to')">
-                </sw-number-field>
-            </sw-container>
-        </span>
+                    <sw-number-field numberType="float"
+                                     :label="$tc('sw-product.list.filter.range.to.placeholder')"
+                                     :placeholder="$tc('sw-product.list.filter.range.to.placeholder')"
+                                     :value="filter[filterOption.name].to"
+                                     @change="rangeInputTrigger($event, filterOption.name, 'to')">
+                    </sw-number-field>
+                </sw-container>
+            </span>
         </sw-container>
 
     </sw-sidebar-item>

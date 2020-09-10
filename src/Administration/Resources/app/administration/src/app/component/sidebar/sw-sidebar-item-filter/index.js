@@ -2,7 +2,7 @@ import template from './sw-sidebar-item-filter.html.twig';
 import './sw-sidebar-item-filter.scss';
 
 const {Component, Mixin} = Shopware;
-const {Criteria} = Shopware.Data;
+const {Criteria, EntityCollection} = Shopware.Data;
 
 const filterInputTypeOptions = {
     switch: 'switch',
@@ -104,8 +104,8 @@ Component.register('sw-sidebar-item-filter', {
         setRepositoriesAndNestedVariables() {
             const neededRepositories = [];
             this.filterOptions.forEach((filterOption) => {
-                if (filterOption.repository) {
-                    neededRepositories.push(filterOption.repository);
+                if (filterOption.entity) {
+                    neededRepositories.push(filterOption.entity);
                 }
 
                 if (filterOption.inputType === filterInputTypeOptions.range) {
@@ -129,8 +129,8 @@ Component.register('sw-sidebar-item-filter', {
             this.loading = true;
             const promises = [];
             this.filterOptions.forEach((filterOption) => {
-                if (filterOption.repository) {
-                    promises.push(this.repository[filterOption.repository].search(
+                if (filterOption.entity) {
+                    promises.push(this.repository[filterOption.entity].search(
                         new Criteria(),
                         Shopware.Context.api
                     ).then((response) => {

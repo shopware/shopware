@@ -12,6 +12,7 @@ let filterFactory = {
 
         for (const key in entity.properties) {
             const property = entity.properties[key];
+            console.log(property);
             let settings = filterSettings[key];
             if (settings === undefined) settings = {};
             if (settings.hide) continue;
@@ -25,7 +26,7 @@ let filterFactory = {
 
             const filter = {}
 
-            filter.name = key
+            filter.name = key;
 
             if (settings.label) {
                 filter.label = settings.label;
@@ -86,10 +87,11 @@ let filterFactory = {
                     skip = true;
                     break;
             }
+
             if (skip) continue;
 
             if (property.entity) {
-                filter.repository = property.entity
+                filter.entity = property.entity
             }
 
             filters.push(filter);

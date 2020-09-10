@@ -5,7 +5,7 @@ flag:           FEATURE_NEXT_9351
 author:         Tobias Berge
 author_email:   t.berge@shopware.com
 author_github:  @tobiasberge
-___
+---
 # Storefront
 * Added new variable `isPaymentNeeded` to `src/Storefront/Resources/views/storefront/page/account/order-history/order-item.html.twig` which determines if the order has an unfinished payment.
 * Added new const `ORDER_TRANSACTION_STATE_OPEN` to `src/Storefront/Resources/views/storefront/page/account/order-history/order-item.html.twig`.

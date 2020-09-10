@@ -7,14 +7,18 @@ author_github:      @OliverSkroblin
 ---
 # Core
 * Changed result of `\Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityForeignKeyResolver`.   
-* The entity foreign key resolver has previously executed a single query to determine the foreign keys of the associations. This leads to very slow queries for large amounts of data, which block the database. The foreign keys are now determined per association using a separate query.
+* Changed the foreign keys to be determined per association using a separate query. The entity foreign key resolver has previously executed a single query to determine the foreign keys of the associations. This leads to very slow queries for large amounts of data, which block the database.
 * Deprecated `\Shopware\Core\Framework\DataAbstractionLayer\Dbal\CriteriaQueryHelper::addIdCondition` use `se \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper::addIdCondition` instead
----
-# Upgrade
+___
+# Upgrade Information
+## Entity Foreign Key Resolver
 There are currently systems that have performance problems with the `\Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityForeignKeyResolver`.
 We have now created a solution for this, but we have to change the format of the return value of the different functions as follow:
 
-## `EntityForeignKeyResolver::getAffectedDeleteRestrictions` && `EntityForeignKeyResolver::getAffectedDeletes`
+### getAffectedDeleteRestrictions & getAffectedDeletes
+* `EntityForeignKeyResolver::getAffectedDeleteRestrictions`
+* `EntityForeignKeyResolver::getAffectedDeletes`
+
 **before**
 ```
 [
@@ -52,7 +56,8 @@ We have now created a solution for this, but we have to change the format of the
 ]
 ```
 
-## `EntityForeignKeyResolver::getAffectedSetNulls`
+### getAffectedSetNulls
+* `EntityForeignKeyResolver::getAffectedSetNulls`
 
 **before**
 ```

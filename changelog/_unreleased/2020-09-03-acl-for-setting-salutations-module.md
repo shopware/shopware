@@ -5,6 +5,6 @@ flag:           FEATURE_NEXT_3722
 author:         Thuan Le
 author_email:   th.le@shopware.com
 author_github:  @thuanle
-___
+---
 # Administration
 * Added ACL privileges to the setting salutations module

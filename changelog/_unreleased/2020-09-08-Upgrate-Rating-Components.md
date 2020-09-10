@@ -1,7 +1,6 @@
 ---
 title: Upgrade rating components
 issue: NEXT-10063
-flag:
 author: Marcel Brode
 author_email: m.brode@shopware.com
 author_github:

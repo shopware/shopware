@@ -4,7 +4,6 @@ issue:          NEXT-8962
 flag:           FEATURE_NEXT_3722 
 author:         Niklas Limberg
 author_email:   n.limberg@shopware.com
-author_github:  
 ---
 # Administration
 * Added ACL privileges to the setting documents module

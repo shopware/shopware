@@ -1,7 +1,6 @@
 ---
 title: Extract AccountOrderDetailPage from AccountOrderController 
 issue: NEXT-10261
-flag:
 author: Joshua Behrens
 author_email: behrens@heptacom.de
 author_github: @JoshuaBehrens

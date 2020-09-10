@@ -5,8 +5,6 @@ namespace Shopware\Core\Migration\Test;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Api\Context\SystemSource;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -62,7 +60,12 @@ class MigrationForeignDefaultLanguageTest extends TestCase
             }
 
             if ($_className === Migration1536233560BasicData::class) {
-                $deLiLocale = $connection->fetchAssoc('SELECT * FROM `locale` WHERE `code` = "de-LI"');
+                $deLiLocale = $connection->fetchAssoc(
+                    'SELECT * FROM `locale` WHERE `code` = :code',
+                    [
+                        'code' => 'de-LI',
+                    ]
+                );
                 $connection->update(
                     'language',
                     [
@@ -75,12 +78,31 @@ class MigrationForeignDefaultLanguageTest extends TestCase
             }
         }
 
-        $templateDefault = $connection->fetchAssoc('SELECT subject FROM mail_template_translation WHERE subject = "Password recovery" AND language_id = "' . Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM) . '"');
+        $templateDefault = $connection->fetchAssoc(
+            'SELECT subject FROM mail_template_translation
+                WHERE subject = :subject AND language_id = :languageId',
+            [
+                'subject' => 'Password recovery',
+                'languageId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
+            ]
+        );
         static::assertEquals('Password recovery', $templateDefault['subject']);
 
-        $deDeLanguage = $connection->fetchAssoc('SELECT * FROM `language` WHERE `name` = "Deutsch"');
+        $deDeLanguage = $connection->fetchAssoc(
+            'SELECT * FROM `language` WHERE `name` = :name',
+            [
+                'name' => 'Deutsch',
+            ]
+        );
 
-        $templateDeDe = $connection->fetchAssoc('SELECT subject FROM mail_template_translation WHERE subject = "Password Wiederherstellung" AND language_id = "' . $deDeLanguage['id'] . '"');
+        $templateDeDe = $connection->fetchAssoc(
+            'SELECT subject FROM mail_template_translation
+                WHERE subject = :subject AND language_id = :languageId',
+            [
+                'subject' => 'Password Wiederherstellung',
+                'languageId' => $deDeLanguage['id'],
+            ]
+        );
         static::assertEquals('Password Wiederherstellung', $templateDeDe['subject']);
     }
 
@@ -111,7 +133,12 @@ class MigrationForeignDefaultLanguageTest extends TestCase
             }
 
             if ($_className === Migration1536233560BasicData::class) {
-                $deLiLocale = $connection->fetchAssoc('SELECT * FROM `locale` WHERE `code` = "de-LI"');
+                $deLiLocale = $connection->fetchAssoc(
+                    'SELECT * FROM `locale` WHERE `code` = :code',
+                    [
+                        'code' => 'de-LI',
+                    ]
+                );
                 $connection->update(
                     'language',
                     [
@@ -121,9 +148,19 @@ class MigrationForeignDefaultLanguageTest extends TestCase
                     ],
                     ['id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]
                 );
-                $deLuLocale = $connection->fetchAssoc('SELECT * FROM `locale` WHERE `code` = "de-LU"');
+                $deLuLocale = $connection->fetchAssoc(
+                    'SELECT * FROM `locale` WHERE `code` = :code',
+                    [
+                        'code' => 'de-LU',
+                    ]
+                );
 
-                $deLuLanguage = $connection->fetchAssoc('SELECT * FROM `language` WHERE `locale_id` = "' . $deLuLocale['id'] . '"');
+                $deLuLanguage = $connection->fetchAssoc(
+                    'SELECT * FROM `language` WHERE `name` = :name',
+                    [
+                        'name' => 'Deutsch',
+                    ]
+                );
 
                 $connection->update(
                     'language',
@@ -137,11 +174,25 @@ class MigrationForeignDefaultLanguageTest extends TestCase
             }
         }
 
-        $templateDefault = $connection->fetchAssoc('SELECT subject FROM mail_template_translation WHERE subject = "Password recovery" AND language_id = "' . Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM) . '"');
+        $templateDefault = $connection->fetchAssoc(
+            'SELECT subject FROM mail_template_translation
+                WHERE subject = :subject AND language_id = :languageId',
+            [
+                'subject' => 'Password recovery',
+                'languageId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
+            ]
+        );
         static::assertEquals('Password recovery', $templateDefault['subject']);
 
-        $templateDeLu = $connection->fetchAssoc('SELECT subject FROM mail_template_translation WHERE subject = "Password recovery" AND language_id = "' . $deLuLanguage['id'] . '"');
-        static::assertEmpty($templateDeLu['subject']);
+        $templateDeLu = $connection->fetchAssoc(
+            'SELECT subject FROM mail_template_translation
+                WHERE subject = :subject AND language_id = :languageId',
+            [
+                'subject' => 'Password recovery',
+                'languageId' => $deLuLanguage['id'],
+            ]
+        );
+        static::assertEmpty($templateDeLu);
     }
 
     /**
@@ -169,7 +220,12 @@ class MigrationForeignDefaultLanguageTest extends TestCase
             }
 
             if ($_className === Migration1536233560BasicData::class) {
-                $deLiLocale = $connection->fetchAssoc('SELECT * FROM `locale` WHERE `code` = "de-LI"');
+                $deLiLocale = $connection->fetchAssoc(
+                    'SELECT * FROM `locale` WHERE `code` = :code',
+                    [
+                        'code' => 'de-LI',
+                    ]
+                );
                 $connection->update(
                     'language',
                     [
@@ -179,7 +235,12 @@ class MigrationForeignDefaultLanguageTest extends TestCase
                     ],
                     ['id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]
                 );
-                $enGbLocale = $connection->fetchAssoc('SELECT * FROM `locale` WHERE `code` = "en-GB"');
+                $enGbLocale = $connection->fetchAssoc(
+                    'SELECT * FROM `locale` WHERE `code` = :code',
+                    [
+                        'code' => 'en-GB',
+                    ]
+                );
 
                 $connection->insert(
                     'language',
@@ -194,10 +255,24 @@ class MigrationForeignDefaultLanguageTest extends TestCase
             }
         }
 
-        $templateDefault = $connection->fetchAssoc('SELECT subject FROM mail_template_translation WHERE subject = "Password recovery" AND language_id = "' . Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM) . '"');
+        $templateDefault = $connection->fetchAssoc(
+            'SELECT subject FROM mail_template_translation
+                WHERE subject = :subject AND language_id = :languageId',
+            [
+                'subject' => 'Password recovery',
+                'languageId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
+            ]
+        );
         static::assertEquals('Password recovery', $templateDefault['subject']);
 
-        $templateEnGb = $connection->fetchAssoc('SELECT subject FROM mail_template_translation WHERE subject = "Password recovery" AND language_id = "' . $enGbId . '"');
+        $templateEnGb = $connection->fetchAssoc(
+            'SELECT subject FROM mail_template_translation
+                WHERE subject = :subject AND language_id = :languageId',
+            [
+                'subject' => 'Password recovery',
+                'languageId' => $enGbId,
+            ]
+        );
         static::assertEquals('Password recovery', $templateEnGb['subject']);
     }
 
@@ -232,10 +307,5 @@ class MigrationForeignDefaultLanguageTest extends TestCase
         $connection->exec($dumpFile);
 
         return $connection;
-    }
-
-    private function createLanguageContext(array $languages, bool $inheritance)
-    {
-        return new Context(new SystemSource(), [], Defaults::CURRENCY, $languages, Defaults::LIVE_VERSION, 1.0, 2, $inheritance);
     }
 }

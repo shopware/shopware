@@ -1,6 +1,8 @@
 [titleEn]: <>(SalesChannel-API product endpoint)
 [hash]: <>(article:api_sales_channel_product)
 
+**The Sales Channel API is deprecated and will be removed with 6.4.0.0. Consider using the Store-API**
+
 The product endpoint of the SalesChannel-API is used to get product information e.g. for a listing.
 
 ## Listing of products

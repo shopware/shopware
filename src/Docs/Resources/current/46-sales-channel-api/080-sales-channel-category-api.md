@@ -1,6 +1,8 @@
 [titleEn]: <>(SalesChannel-API category endpoint)
 [hash]: <>(article:api_sales_channel_category)
 
+**The Sales Channel API is deprecated and will be removed with 6.4.0.0. Consider using the Store-API**
+
 The category endpoint is used to get category information e.g. for a navigation.
 
 ## Listing of categories

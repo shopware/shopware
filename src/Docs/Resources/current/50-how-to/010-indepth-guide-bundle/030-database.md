@@ -55,7 +55,7 @@ Since your base class' location is the `src` directory, that's also where the `M
 
 After creating the directory, you can use symfony's `bin/console` to create boilerplate migration files.
 
-    bin/console database:create-migration --plugin SwagBundleExample --name Bundle
+    bin/console database:create-migration --plugin BundleExample --name Bundle
     
 <dl>
 <dt>`--plugin`</dt>

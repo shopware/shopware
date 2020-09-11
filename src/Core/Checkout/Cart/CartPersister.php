@@ -86,7 +86,7 @@ class CartPersister implements CartPersisterInterface
 
         $this->connection->insert('cart', $data);
 
-        $this->eventDispatcher->dispatch(new CartSavedEvent($context));
+        $this->eventDispatcher->dispatch(new CartSavedEvent($context, $cart));
     }
 
     public function delete(string $token, SalesChannelContext $context): void

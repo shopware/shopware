@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Product\SearchKeyword;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\TokenizerInterface;
+use Shopware\Core\Framework\Feature;
 
 class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterface
 {
@@ -40,6 +41,11 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
         }
         if ($product->getEan()) {
             $keywords->add(new AnalyzedKeyword($product->getEan(), 500));
+        }
+        if (Feature::isActive('FEATURE_NEXT_10075') && !empty($product->getProductSearchKeywords())) {
+            foreach ($product->getProductSearchKeywords() as $searchKeyword) {
+                $keywords->add(new AnalyzedKeyword($searchKeyword, 800));
+            }
         }
 
         return $keywords;

@@ -158,27 +158,6 @@ After that you are able to delete your implementation of the `SnippetFileInterfa
     </service>
     ```
     * Now it is possible to store custom sortings in the database `product_sorting` and its translatable label in `product_sorting_translation`
-    * Or you can subscribe to `ProductListingCriteriaEvent` for listing results and `ProductSearchCriteriaEvent` for search results to add available sortings to the storefront on the fly:
-    ```php
-      public function addMyCustomSortingToStorefront(\Shopware\Core\Content\Product\Events\ProductListingCriteriaEvent $event): void {
-          /** @var \Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingCollection $availableSortings */
-          $availableSortings = $event->getCriteria()->getExtension('sortings');
-  
-          $mySuperShinyCustomSorting = new \Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingEntity();
-          $mySuperShinyCustomSorting->setActive(true);
-          $mySuperShinyCustomSorting->setLabel('Super Shiny Custom Sorting');     // label shown in storefront
-          $mySuperShinyCustomSorting->setKey('my-custom-sort');                   // unique key, shown in url
-          $mySuperShinyCustomSorting->setPriority(100);                           // higher priority comes first
-          $mySuperShinyCustomSorting->setFields([
-              ['field' => 'product.listingPrices', 'order' => 'asc', 'priority' => 100, 'naturalSorting' => 0],
-              ['field' => 'product.name', 'order' => 'desc', 'priority' => 0, 'naturalSorting' => 1],
-              ...
-          );
-  
-          $availableSortings->add($mySuperShinyCustomSorting);
-          $event->getCriteria()->addExtension('sortings', $availableSortings);
-      }
-    ```
 * Added validation deliverability in case purchase steps
 
 * Deprecated providing an until timestamp as the last argument when running the `database:migrate` or `database:migrate-destructive` commands, use the --until option instead.

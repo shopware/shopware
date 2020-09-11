@@ -100,7 +100,20 @@ abstract class Bundle extends SymfonyBundle
         }
     }
 
+    /**
+     * @feature-deprecated tag:v6.4.0 - Implement `getActionEventClasses` instead
+     */
     protected function getActionEvents(): array
+    {
+        return [];
+    }
+
+    /**
+     * Returns a list of all action event class references of this bundle. The events will be registered inside the `\Shopware\Core\Framework\Event\BusinessEventRegistry`.
+     *
+     * @return string[]
+     */
+    protected function getActionEventClasses(): array
     {
         return [];
     }
@@ -146,6 +159,7 @@ abstract class Bundle extends SymfonyBundle
     {
         $definition = $container->getDefinition(BusinessEventRegistry::class);
         $definition->addMethodCall('addMultiple', [$this->getActionEvents()]);
+        $definition->addMethodCall('addClasses', [$this->getActionEventClasses()]);
     }
 
     /**

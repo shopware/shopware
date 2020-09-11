@@ -34,6 +34,7 @@ class VersionTest extends TestCase
             ['POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/sync'],
             ['GET', '/api/v' . PlatformRequest::API_VERSION . '/_info/swagger.html'],
             ['GET', '/api/v' . PlatformRequest::API_VERSION . '/_info/entity-schema.json'],
+            ['GET', '/api/v' . PlatformRequest::API_VERSION . '/_info/business-events.json'],
         ];
     }
 

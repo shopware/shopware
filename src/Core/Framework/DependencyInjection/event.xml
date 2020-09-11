@@ -25,5 +25,15 @@
             <argument type="service" id="Shopware\Core\Framework\Event\NestedEventDispatcher.inner"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Event\BusinessEventCollector">
+
+            <argument type="service" id="Shopware\Core\Framework\Event\BusinessEventRegistry"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Event\Command\DebugDumpBusinessEventsCommand">
+            <argument type="service" id="Shopware\Core\Framework\Event\BusinessEventCollector"/>
+            <tag name="console.command"/>
+        </service>
     </services>
 </container>

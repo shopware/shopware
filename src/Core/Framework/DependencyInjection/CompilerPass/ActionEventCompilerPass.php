@@ -17,16 +17,19 @@ class ActionEventCompilerPass implements CompilerPassInterface
     {
         $events = [];
 
+        $classes = [];
         /** @var BusinessEventInterface $eventClass */
         foreach ($this->getEventClasses() as $eventName => $eventClass) {
             if (!is_subclass_of($eventClass, BusinessEventInterface::class, true)) {
                 continue;
             }
             $events[$eventName] = $eventClass::getAvailableData()->toArray();
+            $classes[] = $eventClass;
         }
 
         $definition = $container->getDefinition(BusinessEventRegistry::class);
         $definition->addMethodCall('addMultiple', [$events]);
+        $definition->addMethodCall('addClasses', [$classes]);
     }
 
     protected function getReflectionClass(): \ReflectionClass

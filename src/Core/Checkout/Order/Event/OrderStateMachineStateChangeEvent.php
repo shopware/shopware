@@ -85,6 +85,6 @@ class OrderStateMachineStateChangeEvent extends Event implements MailActionInter
 
     public function getName(): string
     {
-        return $this->name;
+        return (string) $this->name;
     }
 }

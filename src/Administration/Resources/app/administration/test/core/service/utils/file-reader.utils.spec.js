@@ -23,7 +23,7 @@ describe('src/core/service/utils/file-reader.utils.js', () => {
         const fileMock = new Blob(['this is test data']);
 
         fileReaderUtils.readFileAsDataURL(fileMock).then((dataURL) => {
-            expect(dataURL).toMatch(/^data:;base64/);
+            expect(dataURL).toMatch(/^data:.*;base64.*/);
         }).finally(done);
     });
 

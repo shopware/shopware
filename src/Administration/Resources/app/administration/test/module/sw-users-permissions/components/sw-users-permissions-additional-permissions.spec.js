@@ -145,6 +145,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
 
         expect(clearCacheField.props().value).toBeTruthy();
     });
+
     it('should contain the a false value in a field when the privilege is not in roles', () => {
         const clearCacheField = wrapper.find(
             '.sw-field-stub[label="sw-privileges.additional_permissions.system.clear_cache"]'
@@ -152,6 +153,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
 
         expect(clearCacheField.props().value).toBeFalsy();
     });
+
     it('should add the checked value to the role privileges', async () => {
         const clearCacheField = wrapper.find(
             '.sw-field-stub[label="sw-privileges.additional_permissions.system.clear_cache"]'
@@ -165,6 +167,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
         expect(wrapper.vm.role.privileges).toContain('system.clear_cache');
         expect(clearCacheField.props().value).toBeTruthy();
     });
+
     it('should remove the value when it get unchecked', async () => {
         await wrapper.setProps({
             role: {
@@ -183,5 +186,18 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
 
         expect(wrapper.vm.role.privileges).not.toContain('system.clear_cache');
         expect(clearCacheField.props().value).toBeFalsy();
+    });
+
+    it('should disable all checkboxes', async () => {
+        await wrapper.setProps({
+            role: {
+                privileges: ['system.clear_cache']
+            },
+            disabled: true
+        });
+
+        wrapper.findAll('.sw-field-stub').wrappers.forEach(field => {
+            expect(field.attributes().disabled).toBe('disabled');
+        });
     });
 });

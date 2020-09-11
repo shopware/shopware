@@ -12,6 +12,11 @@ Component.register('sw-users-permissions-permissions-grid', {
         role: {
             type: Object,
             required: true
+        },
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 

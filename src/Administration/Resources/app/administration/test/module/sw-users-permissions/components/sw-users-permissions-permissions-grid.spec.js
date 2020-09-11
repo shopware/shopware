@@ -2459,4 +2459,122 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(productViewerCheckbox.props().value).toBe(true);
         expect(categoryViewerCheckbox.props().value).toBe(false);
     });
+
+    it('should disable all checkboxes', async () => {
+        const wrapper = createWrapper({
+            privilegesMappings: [
+                {
+                    category: 'permissions',
+                    key: 'product',
+                    parent: 'catalogues',
+                    roles: {
+                        viewer: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        editor: {
+                            dependencies: [
+                                'product.viewer'
+                            ],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: [
+                                'product.viewer',
+                                'product.editor'
+                            ],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: [
+                                'product.viewer'
+                            ],
+                            privileges: []
+                        }
+                    }
+                },
+                {
+                    category: 'permissions',
+                    key: 'categories',
+                    parent: 'catalogues',
+                    roles: {
+                        viewer: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        editor: {
+                            dependencies: ['categories.viewer'],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: ['categories.viewer', 'categories.editor'],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: ['categories.viewer'],
+                            privileges: []
+                        }
+                    }
+                },
+                {
+                    category: 'permissions',
+                    key: 'currencies',
+                    parent: 'settings',
+                    roles: {
+                        viewer: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        editor: {
+                            dependencies: ['currencies.viewer'],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: ['currencies.viewer', 'currencies.editor'],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: ['currencies.viewer'],
+                            privileges: []
+                        }
+                    }
+                },
+                {
+                    category: 'permissions',
+                    key: 'sales_channel',
+                    parent: null,
+                    roles: {
+                        viewer: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        editor: {
+                            dependencies: ['sales_channel.viewer'],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: ['sales_channel.viewer', 'sales_channel.editor'],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: ['sales_channel.viewer'],
+                            privileges: []
+                        }
+                    }
+                }
+            ]
+        });
+
+        const checkboxes = wrapper.findAll('.sw-field--checkbox');
+
+        checkboxes.wrappers.forEach(checkbox => {
+            expect(checkbox.props().disabled).toBe(false);
+        });
+
+        wrapper.setProps({ disabled: true });
+
+        checkboxes.wrappers.forEach(checkbox => {
+            expect(checkbox.props().disabled).toBe(true);
+        });
+    });
 });

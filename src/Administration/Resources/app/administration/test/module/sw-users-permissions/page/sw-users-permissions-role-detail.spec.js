@@ -12,7 +12,8 @@ function isNew() {
 
 function createWrapper({
     privileges = [],
-    privilegeMappingEntries = []
+    privilegeMappingEntries = [],
+    aclPrivileges = []
 } = {}, options = {
     isNew: false
 }) {
@@ -53,6 +54,13 @@ function createWrapper({
         },
         propsData: {},
         provide: {
+            acl: {
+                can: (identifier) => {
+                    if (!identifier) { return true; }
+
+                    return aclPrivileges.includes(identifier);
+                }
+            },
             loginService: {},
             repositoryFactory: {
                 create: () => ({
@@ -335,7 +343,9 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
     });
 
     it('should open the confirm password modal on save', async () => {
-        const wrapper = createWrapper();
+        const wrapper = createWrapper({
+            aclPrivileges: ['users_and_permissions.editor']
+        });
         await wrapper.setData({
             isLoading: false
         });
@@ -402,5 +412,49 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
         await wrapper.vm.$nextTick();
 
         expect(title.text()).toBe('Test');
+    });
+
+    it('should disable the button and fields when no aclPrivileges exists', async () => {
+        const wrapper = createWrapper({
+            aclPrivileges: []
+        });
+        await wrapper.setData({
+            isLoading: false
+        });
+
+        const saveButton = wrapper.find('.sw-users-permissions-role-detail__button-save');
+        const fieldRoleName = wrapper.find('sw-field-stub[label="sw-users-permissions.roles.detail.labelName"]');
+        const fieldRoleDescription = wrapper
+            .find('sw-field-stub[label="sw-users-permissions.roles.detail.labelDescription"]');
+        const permissionsGrid = wrapper.find('sw-users-permissions-permissions-grid-stub');
+        const additionalPermissionsGrid = wrapper.find('sw-users-permissions-additional-permissions-stub');
+
+        expect(saveButton.attributes().disabled).toBe('disabled');
+        expect(fieldRoleName.attributes().disabled).toBe('true');
+        expect(fieldRoleDescription.attributes().disabled).toBe('true');
+        expect(permissionsGrid.attributes().disabled).toBe('true');
+        expect(additionalPermissionsGrid.attributes().disabled).toBe('true');
+    });
+
+    it('should enable the button and fields when edit aclPrivileges exists', async () => {
+        const wrapper = createWrapper({
+            aclPrivileges: ['users_and_permissions.editor']
+        });
+        await wrapper.setData({
+            isLoading: false
+        });
+
+        const saveButton = wrapper.find('.sw-users-permissions-role-detail__button-save');
+        const fieldRoleName = wrapper.find('sw-field-stub[label="sw-users-permissions.roles.detail.labelName"]');
+        const fieldRoleDescription = wrapper
+            .find('sw-field-stub[label="sw-users-permissions.roles.detail.labelDescription"]');
+        const permissionsGrid = wrapper.find('sw-users-permissions-permissions-grid-stub');
+        const additionalPermissionsGrid = wrapper.find('sw-users-permissions-additional-permissions-stub');
+
+        expect(saveButton.attributes().disabled).toBeUndefined();
+        expect(fieldRoleName.attributes().disabled).toBeUndefined();
+        expect(fieldRoleDescription.attributes().disabled).toBeUndefined();
+        expect(permissionsGrid.attributes().disabled).toBeUndefined();
+        expect(additionalPermissionsGrid.attributes().disabled).toBeUndefined();
     });
 });

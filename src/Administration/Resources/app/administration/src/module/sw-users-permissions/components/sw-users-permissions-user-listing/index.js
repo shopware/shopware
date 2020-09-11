@@ -12,7 +12,8 @@ Component.register('sw-users-permissions-user-listing', {
     inject: [
         'userService',
         'loginService',
-        'repositoryFactory'
+        'repositoryFactory',
+        'acl'
     ],
 
     mixins: [

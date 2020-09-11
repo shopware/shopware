@@ -27,7 +27,7 @@
                         class="sw-users-permissions-role-detail__button-save"
                         :isLoading="isLoading"
                         :processSuccess="isSaveSuccessful"
-                        :disabled="isLoading"
+                        :disabled="isLoading || !acl.can('users_and_permissions.editor')"
                         variant="primary"
                         @process-finish="saveFinish"
                         v-tooltip.bottom="tooltipSave"
@@ -49,6 +49,7 @@
                                         type="text"
                                         v-model="role.name"
                                         :error="roleNameError"
+                                        :disabled="!acl.can('users_and_permissions.editor')"
                                         :label="$tc('sw-users-permissions.roles.detail.labelName')"
                                         required>
                                     </sw-field>
@@ -59,6 +60,7 @@
                                         type="textarea"
                                         v-model="role.description"
                                         :error="roleDescriptionError"
+                                        :disabled="!acl.can('users_and_permissions.editor')"
                                         :label="$tc('sw-users-permissions.roles.detail.labelDescription')">
                                     </sw-field>
                                 {% endblock %}
@@ -66,11 +68,15 @@
                         {% endblock %}
 
                         {% block sw_users_permissions_role_detail_content_card_view_permissions %}
-                            <sw-users-permissions-permissions-grid :role="role" />
+                            <sw-users-permissions-permissions-grid :role="role"
+                                                                   :disabled="!acl.can('users_and_permissions.editor')">
+                            </sw-users-permissions-permissions-grid>
                         {% endblock %}
 
                         {% block sw_users_permissions_role_detail_content_card_view_additional_permissions %}
-                            <sw-users-permissions-additional-permissions :role="role" />
+                            <sw-users-permissions-additional-permissions :role="role"
+                                                                         :disabled="!acl.can('users_and_permissions.editor')">
+                            </sw-users-permissions-additional-permissions>
                         {% endblock %}
                     </sw-card-view>
                 {% endblock %}

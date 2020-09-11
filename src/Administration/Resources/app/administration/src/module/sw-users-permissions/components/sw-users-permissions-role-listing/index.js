@@ -12,7 +12,10 @@ Component.register('sw-users-permissions-role-listing', {
         Mixin.getByName('notification')
     ],
 
-    inject: ['repositoryFactory'],
+    inject: [
+        'repositoryFactory',
+        'acl'
+    ],
 
     data() {
         return {

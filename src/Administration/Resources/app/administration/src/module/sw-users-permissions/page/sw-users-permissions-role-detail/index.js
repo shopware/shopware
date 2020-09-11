@@ -11,12 +11,14 @@ Component.register('sw-users-permissions-role-detail', {
         'repositoryFactory',
         'privileges',
         'userService',
-        'loginService'
+        'loginService',
+        'acl'
     ],
 
     mixins: [
         Mixin.getByName('notification')
     ],
+
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',

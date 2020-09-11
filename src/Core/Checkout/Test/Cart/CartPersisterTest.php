@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Framework\Struct\Serializer\StructNormalizer;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Serializer\Encoder\ChainDecoder;
 use Symfony\Component\Serializer\Encoder\ChainEncoder;
 use Symfony\Component\Serializer\Encoder\CsvEncoder;
@@ -58,7 +59,7 @@ class CartPersisterTest extends TestCase
     public function testLoadWithNotExistingToken(): void
     {
         $connection = $this->createMock(Connection::class);
-        $eventDispatcher = $this->createMock('event_dispatcher');
+        $eventDispatcher = $this->createMock(EventDispatcher::class);
         $connection->expects(static::once())
             ->method('fetchColumn')
             ->willReturn(false);
@@ -80,7 +81,7 @@ class CartPersisterTest extends TestCase
     public function testLoadWithExistingToken(): void
     {
         $connection = $this->createMock(Connection::class);
-        $eventDispatcher = $this->createMock('event_dispatcher');
+        $eventDispatcher = $this->createMock(EventDispatcher::class);
         $connection->expects(static::once())
             ->method('fetchColumn')
             ->willReturn(
@@ -108,7 +109,7 @@ class CartPersisterTest extends TestCase
     public function testSaveWithItems(): void
     {
         $connection = $this->createMock(Connection::class);
-        $eventDispatcher = $this->createMock('event_dispatcher');
+        $eventDispatcher = $this->createMock(EventDispatcher::class);
         $connection->expects(static::once())->method('executeUpdate');
 
         $persister = new CartPersister($connection, $eventDispatcher, $this->serializer);

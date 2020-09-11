@@ -8,7 +8,7 @@ const { Criteria } = Data;
 Component.register('sw-media-quickinfo', {
     template,
 
-    inject: ['mediaService', 'repositoryFactory'],
+    inject: ['mediaService', 'repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -151,6 +151,10 @@ Component.register('sw-media-quickinfo', {
         },
 
         openModalReplace() {
+            if (!this.acl.can('media.editor')) {
+                return;
+            }
+
             this.showModalReplace = true;
         },
 
@@ -164,6 +168,12 @@ Component.register('sw-media-quickinfo', {
             this.$nextTick(() => {
                 this.$emit('media-item-replaced');
             });
+        },
+
+        quickActionClasses(disabled) {
+            return ['sw-media-sidebar__quickaction', {
+                'sw-media-sidebar__quickaction--disabled': disabled
+            }];
         }
     }
 });

@@ -15,6 +15,7 @@ import './component/sw-media-breadcrumbs';
 import './component/sw-media-library';
 import './component/sw-media-modal';
 import './component/sw-media-modal-v2';
+import './acl';
 
 const { Module } = Shopware;
 
@@ -42,6 +43,9 @@ Module.register('sw-media', {
                         routeFolderId: route.params.folderId
                     };
                 }
+            },
+            meta: {
+                privilege: 'media.viewer'
             }
         }
     },

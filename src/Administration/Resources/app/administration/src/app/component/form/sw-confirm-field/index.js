@@ -37,6 +37,12 @@ Component.register('sw-confirm-field', {
             type: Boolean,
             required: false,
             default: false
+        },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 

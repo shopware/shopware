@@ -16,7 +16,15 @@
                     {% block sw_media_quickinfo_quickactions_content %}
                         <ul class="sw-media-sidebar__quickactions-list">
                             {% block sw_media_quickinfo_quickactions_replace %}
-                            <li v-if="!item.private" class="sw-media-sidebar__quickaction quickaction--replace" @click="openModalReplace">
+                            <li v-if="!item.private"
+                                class="quickaction--replace"
+                                :class="quickActionClasses(!acl.can('media.editor'))"
+                                @click="openModalReplace"
+                                v-tooltip="{
+                                    message: $tc('sw-privileges.tooltip.warning'),
+                                    disabled: acl.can('media.editor'),
+                                    showOnDisabledElements: true
+                                }">
                                 <sw-icon small name="default-action-replace" class="sw-media-sidebar__quickactions-icon"> </sw-icon>
                                 {{ $tc('sw-media.sidebar.actions.replace') }}
                             </li>
@@ -35,10 +43,15 @@
                                     </a>
                                 </li>
                             {% endblock %}
-
                             {% block sw_media_quickinfo_quickactions_move %}
-                                <li class="sw-media-sidebar__quickaction quickaction--move"
-                                    @click="openModalMove">
+                                <li class="quickaction--move"
+                                    :class="quickActionClasses(!acl.can('media.editor'))"
+                                    @click="openModalMove"
+                                    v-tooltip="{
+                                        message: $tc('sw-privileges.tooltip.warning'),
+                                        disabled: acl.can('media.editor'),
+                                        showOnDisabledElements: true
+                                    }">
 
                                     <sw-icon small name="default-action-move-file" class="sw-media-sidebar__quickactions-icon"></sw-icon>
                                     {{ $tc('sw-media.sidebar.actions.move') }}
@@ -56,10 +69,15 @@
                             {% endblock %}
 
                             {% block sw_media_quickinfo_quickactions_delete %}
-                                <li class="sw-media-sidebar__quickaction is--danger quickaction--delete"
+                                <li class="quickaction--delete"
+                                    :class="quickActionClasses(!acl.can('media.deleter'))"
                                     v-if="!item.private"
-                                    @click="openModalDelete">
-
+                                    @click="openModalDelete"
+                                    v-tooltip="{
+                                        message: $tc('sw-privileges.tooltip.warning'),
+                                        disabled: acl.can('media.deleter'),
+                                        showOnDisabledElements: true
+                                    }">
                                     <sw-icon small name="default-action-trash" class="sw-media-sidebar__quickactions-icon is--danger"></sw-icon>
                                     {{ $tc('sw-media.sidebar.actions.delete') }}
                                 </li>
@@ -106,6 +124,7 @@
 
                                      <sw-confirm-field
                                          v-if="editable"
+                                         :disabled="!acl.can('media.editor')"
                                          compact
                                          ref="inlineEditFieldName"
                                          :value="item.fileName"
@@ -126,6 +145,7 @@
 
                                      <sw-confirm-field
                                          v-if="editable"
+                                         :disabled="!acl.can('media.editor')"
                                          compact
                                          ref="inlineEditFieldAlt"
                                          :placeholder="placeholder(item, 'alt', $tc('sw-media.sidebar.metadata.altText'))"
@@ -141,6 +161,7 @@
 
                                      <sw-confirm-field
                                          v-if="editable"
+                                         :disabled="!acl.can('media.editor')"
                                          compact
                                          :value="item.title"
                                          :placeholder="placeholder(item, 'title', $tc('sw-media.sidebar.metadata.title'))"
@@ -196,7 +217,10 @@
         {% endblock %}
 
         {% block sw_media_quickinfo_tags %}
-            <sw-media-tag :media="item"></sw-media-tag>
+            <sw-media-tag
+                :disabled="!acl.can('media.editor')"
+                :media="item">
+            </sw-media-tag>
         {% endblock %}
 
         {% block sw_media_quickinfo_usage %}
@@ -240,13 +264,14 @@
 
         {% block sw_media_quickinfo_custom_field_sets %}
             <sw-custom-field-set-renderer
-                    :entity="item"
-                    variant="media-collapse"
-                    @save="onSaveCustomFields(item)"
-                    @process-finish="saveFinish"
-                    :sets="customFieldSets"
-                    :isLoading="isLoading"
-                    :isSaveSuccessful="isSaveSuccessful">
+                :disabled="!acl.can('media.editor')"
+                :entity="item"
+                variant="media-collapse"
+                @save="onSaveCustomFields(item)"
+                @process-finish="saveFinish"
+                :sets="customFieldSets"
+                :isLoading="isLoading"
+                :isSaveSuccessful="isSaveSuccessful">
             </sw-custom-field-set-renderer>
         {% endblock %}
     </div>

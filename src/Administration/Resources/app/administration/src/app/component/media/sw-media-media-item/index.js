@@ -127,6 +127,10 @@ Component.register('sw-media-media-item', {
         },
 
         openModalDelete() {
+            if (!this.allowDelete) {
+                return;
+            }
+
             this.showModalDelete = true;
         },
 
@@ -141,6 +145,9 @@ Component.register('sw-media-media-item', {
         },
 
         openModalReplace() {
+            if (!this.allowEdit) {
+                return;
+            }
             this.showModalReplace = true;
         },
 
@@ -149,6 +156,10 @@ Component.register('sw-media-media-item', {
         },
 
         openModalMove() {
+            if (!this.allowEdit) {
+                return;
+            }
+
             this.showModalMove = true;
         },
 

@@ -1,7 +1,7 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/app/component/media/sw-media-upload-v2';
 
-function createWrapper(customOptions = {}) {
+function createWrapper(customOptions = {}, privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('droppable', {});
 
@@ -20,7 +20,14 @@ function createWrapper(customOptions = {}) {
         provide: {
             repositoryFactory: {},
             mediaService: {},
-            configService: {}
+            configService: {},
+            acl: {
+                can: (identifier) => {
+                    if (!identifier) { return true; }
+
+                    return privileges.includes(identifier);
+                }
+            }
         },
         propsData: {
             uploadTag: 'my-upload'
@@ -33,7 +40,9 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
     let wrapper;
 
     beforeEach(() => {
-        wrapper = createWrapper();
+        wrapper = createWrapper({}, [
+            'media.editor'
+        ]);
     });
 
     it('should be a Vue.js component', () => {
@@ -100,7 +109,7 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         wrapper.vm.isUploadUrlFeatureEnabled = true;
 
         const uploadButton = wrapper.find('.sw-media-upload-v2__button-context-menu');
-        expect(uploadButton.exists()).toBeFalsy();
+        expect(uploadButton.attributes().disabled).toBeTruthy();
     });
 
     it('context button switch mode should be enabled', () => {
@@ -121,7 +130,7 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         });
 
         const switchModeButton = wrapper.find('.sw-media-upload-v2__switch-mode');
-        expect(switchModeButton.exists()).toBeFalsy();
+        expect(switchModeButton.attributes().disabled).toBeTruthy();
     });
 
     it('remove icon should be enabled', () => {
@@ -183,3 +192,4 @@ describe('src/app/component/media/sw-media-upload-v2', () => {
         expect(uploadButton.attributes().disabled).toBeDefined();
     });
 });
+

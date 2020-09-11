@@ -25,3 +25,4 @@ describe('components/base/sw-alert', () => {
         expect(wrapper.element).toMatchSnapshot();
     });
 });
+

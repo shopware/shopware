@@ -27,7 +27,7 @@ Shopware.Service('privileges')
                     'custom_field_set_relation:read',
                     'category:read',
                     'customer_group:read',
-                    'media:read',
+                    Shopware.Service('privileges').getPrivileges('media.viewer'),
                     'product_export:read',
                     'product_stream:read'
                 ],

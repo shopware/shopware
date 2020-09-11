@@ -136,7 +136,7 @@
                                 <sw-button-process
                                         :isLoading="isLoading"
                                         :processSuccess="isSaveSuccessful"
-                                        :disabled="isLoading"
+                                        :disabled="isLoading || disabled"
                                         variant="primary"
                                         size="small"
                                         @process-finish="$emit('process-finish')"

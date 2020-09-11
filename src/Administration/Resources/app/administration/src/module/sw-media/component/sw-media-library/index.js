@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-media-library', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     model: {
         prop: 'selection',

@@ -58,11 +58,12 @@ class CartPersisterTest extends TestCase
     public function testLoadWithNotExistingToken(): void
     {
         $connection = $this->createMock(Connection::class);
+        $eventDispatcher = $this->createMock('event_dispatcher');
         $connection->expects(static::once())
             ->method('fetchColumn')
             ->willReturn(false);
 
-        $persister = new CartPersister($connection, $this->serializer);
+        $persister = new CartPersister($connection, $eventDispatcher, $this->serializer);
 
         $e = null;
 
@@ -79,13 +80,14 @@ class CartPersisterTest extends TestCase
     public function testLoadWithExistingToken(): void
     {
         $connection = $this->createMock(Connection::class);
+        $eventDispatcher = $this->createMock('event_dispatcher');
         $connection->expects(static::once())
             ->method('fetchColumn')
             ->willReturn(
                 \serialize(new Cart('shopware', 'existing'))
             );
 
-        $persister = new CartPersister($connection);
+        $persister = new CartPersister($connection, $eventDispatcher);
         $cart = $persister->load('existing', Generator::createSalesChannelContext());
 
         static::assertEquals(new Cart('shopware', 'existing'), $cart);
@@ -106,9 +108,10 @@ class CartPersisterTest extends TestCase
     public function testSaveWithItems(): void
     {
         $connection = $this->createMock(Connection::class);
+        $eventDispatcher = $this->createMock('event_dispatcher');
         $connection->expects(static::once())->method('executeUpdate');
 
-        $persister = new CartPersister($connection, $this->serializer);
+        $persister = new CartPersister($connection, $eventDispatcher, $this->serializer);
 
         $calc = new Cart('shopware', 'existing');
         $calc->add(

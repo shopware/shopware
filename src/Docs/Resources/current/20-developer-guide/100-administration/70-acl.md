@@ -92,6 +92,7 @@ the user goes to the roles detail page. For convenience we recommend this patter
 
 Now you can use the method `addPrivilegeMappingEntry` to add a new entry:
 
+To add a new mapping for your custom key:
 ```js
 // your-module-folder/acl/index.js
 
@@ -115,6 +116,28 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
         deleter: {
             privileges: [],
             dependencies: []
+        }
+    }
+});
+```
+
+To add privileges to an existing key:
+```js
+// your-module-folder/acl/index.js
+
+Shopware.Service('privileges').addPrivilegeMappingEntry({
+    category: 'permissions',
+    parent: null,
+    key: 'product',
+    roles: {
+        viewer: {
+            privileges: ['plugin:read']
+        },
+        editor: {
+            privileges: ['plugin:update']
+        },
+        newrole: {
+            privileges: ['plugin:write']
         }
     }
 });

@@ -6,6 +6,7 @@ use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartPersisterInterface;
+use Shopware\Core\Checkout\Cart\Event\CartSavedEvent;
 use Shopware\Core\Checkout\Cart\Event\LineItemAddedEvent;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -92,7 +93,7 @@ class CartItemAddRoute extends AbstractCartItemAddRoute
 
         $cart = $this->cartCalculator->calculate($cart, $context);
         $this->cartPersister->save($cart, $context);
-
+        $this->eventDispatcher->dispatch(new CartSavedEvent($context));
         return new CartResponse($cart);
     }
 }

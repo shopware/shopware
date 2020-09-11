@@ -6,6 +6,7 @@ use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartPersisterInterface;
+use Shopware\Core\Checkout\Cart\Event\CartSavedEvent;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -33,11 +34,17 @@ class CartItemUpdateRoute extends AbstractCartItemUpdateRoute
      */
     private $lineItemFactory;
 
-    public function __construct(CartPersisterInterface $cartPersister, CartCalculator $cartCalculator, LineItemFactoryRegistry $lineItemFactory)
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    public function __construct(CartPersisterInterface $cartPersister, CartCalculator $cartCalculator, LineItemFactoryRegistry $lineItemFactory, EventDispatcherInterface $eventDispatcher)
     {
         $this->cartPersister = $cartPersister;
         $this->cartCalculator = $cartCalculator;
         $this->lineItemFactory = $lineItemFactory;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function getDecorated(): AbstractCartItemUpdateRoute
@@ -71,7 +78,7 @@ class CartItemUpdateRoute extends AbstractCartItemUpdateRoute
         $cart = $this->cartCalculator->calculate($cart, $context);
 
         $this->cartPersister->save($cart, $context);
-
+        $this->eventDispatcher->dispatch(new CartSavedEvent($context));
         return new CartResponse($cart);
     }
 }

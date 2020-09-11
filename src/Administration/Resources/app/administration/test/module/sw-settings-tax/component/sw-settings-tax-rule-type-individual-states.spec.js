@@ -56,14 +56,14 @@ function createWrapper(taxRule) {
 }
 
 describe('module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-states', () => {
-    it('should be a Vue.JS component', () => {
+    it('should be a Vue.JS component', async () => {
         const wrapper = createWrapper({
             data: {
                 states: []
             }
         });
 
-        expect(wrapper.isVueInstance()).toBe(true);
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it('creates an empty entity collection if taxRule.data.states is empty', async () => {

@@ -127,19 +127,19 @@ describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
         wrapper.destroy();
     });
 
-    it('should be able to instantiate', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+    it('should be able to instantiate', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('has the correct class', () => {
+    it('has the correct class', async () => {
         expect(wrapper.classes()).toContain(classes.componentRoot);
     });
 
-    it('contains the description container', () => {
+    it('contains the description container', async () => {
         expect(findSecure(wrapper, `.${classes.descriptionContainer}`).exists()).toBeTruthy();
     });
 
-    it('has a complete description', () => {
+    it('has a complete description', async () => {
         const descriptionContainer = findSecure(wrapper, `.${classes.descriptionContainer}`);
 
         const title = findSecure(descriptionContainer, `.${classes.descriptionTitle}`);
@@ -155,7 +155,7 @@ describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
         expect(configInformation.attributes().path).toEqual(text.descriptionConfigInformation);
     });
 
-    it('has a link to the feature set config module', () => {
+    it('has a link to the feature set config module', async () => {
         const linkContainer = findSecure(wrapper, `.${classes.descriptionLink}`);
         const link = findSecure(linkContainer, `.${classes.quickLink}`);
 
@@ -164,11 +164,11 @@ describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
         expect(link.props().to.name).toEqual(text.descriptionLinkTarget);
     });
 
-    it('contains the form container', () => {
+    it('contains the form container', async () => {
         expect(findSecure(wrapper, `.${classes.formContainer}`).exists()).toBeTruthy();
     });
 
-    it('has a sw-entity-single-select for selecting templates and supports inheritance', () => {
+    it('has a sw-entity-single-select for selecting templates and supports inheritance', async () => {
         const form = findSecure(wrapper, `.${classes.formContainer}`);
 
         const inheritWrapper = findSecure(form, `.${classes.formInheritWrapper}`);
@@ -178,7 +178,7 @@ describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
         expect(singleSelect.props().placeholder).toEqual(text.templateSelectPlaceholder);
     });
 
-    it('shows the current product\'s featureSet', () => {
+    it('shows the current product\'s featureSet', async () => {
         const singleSelect = findSecure(wrapper, `.${classes.templateSingleSelect}`);
         const selection = findSecure(singleSelect, `.${classes.singleSelectSelection}`);
 

@@ -126,19 +126,19 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
         wrapper.destroy();
     });
 
-    it('should be able to instantiate', () => {
+    it('should be able to instantiate', async () => {
         wrapper = modal();
 
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('has the correct class', () => {
+    it('has the correct class', async () => {
         wrapper = modal();
 
         expect(wrapper.classes()).toContain(classes.componentRoot);
     });
 
-    it('contains the options container', () => {
+    it('contains the options container', async () => {
         wrapper = modal(getPageConfig({ showPageOne: true }));
 
         const root = findSecure(wrapper, `.${classes.componentRoot}`);
@@ -155,7 +155,7 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
         });
     });
 
-    it('contains the custom field list', () => {
+    it('contains the custom field list', async () => {
         wrapper = modal(getPageConfig({ showCustomField: true }));
 
         const root = findSecure(wrapper, `.${classes.componentRoot}`);
@@ -176,7 +176,7 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
         expect(customFieldListHeaderContent.at(2).text()).toEqual(text.customFieldListTypeHeader);
     });
 
-    it('contains the property group list', () => {
+    it('contains the property group list', async () => {
         wrapper = modal(getPageConfig({ showPropertyGroups: true }));
 
         const root = findSecure(wrapper, `.${classes.componentRoot}`);
@@ -196,7 +196,7 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
         expect(propertyListHeaderContent.at(1).text()).toEqual(text.propertyListNameHeader);
     });
 
-    it('contains the product information list', () => {
+    it('contains the product information list', async () => {
         wrapper = modal(getPageConfig({ showCustomField: true }));
 
         const root = findSecure(wrapper, `.${classes.componentRoot}`);

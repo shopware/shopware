@@ -27,19 +27,19 @@ describe('module/sw-first-run-wizard/sw-first-run-wizard-modal', () => {
         });
     };
 
-    it('should be a vue js component', () => {
+    it('should be a vue js component', async () => {
         const firstRunWizardModal = new CreateFirstRunWizardModal();
 
-        expect(firstRunWizardModal.isVueInstance()).toBeTruthy();
+        expect(firstRunWizardModal.vm).toBeTruthy();
     });
 
-    it('the default button config should be empty', () => {
+    it('the default button config should be empty', async () => {
         const firstRunWizardModal = new CreateFirstRunWizardModal();
 
         expect(firstRunWizardModal.vm.$data.buttonConfig).toStrictEqual([]);
     });
 
-    it('the footer should not contain buttons', () => {
+    it('the footer should not contain buttons', async () => {
         const firstRunWizardModal = new CreateFirstRunWizardModal();
 
         const footerLeft = firstRunWizardModal.find('.footer-left');
@@ -49,7 +49,7 @@ describe('module/sw-first-run-wizard/sw-first-run-wizard-modal', () => {
         expect(footerRight.isEmpty()).toBeTruthy();
     });
 
-    it('the button config should have the same config which are emitted by an event', () => {
+    it('the button config should have the same config which are emitted by an event', async () => {
         const firstRunWizardModal = new CreateFirstRunWizardModal();
         const routerView = firstRunWizardModal.find('#router-view');
 
@@ -87,7 +87,7 @@ describe('module/sw-first-run-wizard/sw-first-run-wizard-modal', () => {
         expect(firstRunWizardModal.vm.$data.buttonConfig).toStrictEqual(newButtonConfig);
     });
 
-    it('the footer should have the button config which are emitted by an event', () => {
+    it('the footer should have the button config which are emitted by an event', async () => {
         const firstRunWizardModal = new CreateFirstRunWizardModal();
         const routerView = firstRunWizardModal.find('#router-view');
 
@@ -124,7 +124,7 @@ describe('module/sw-first-run-wizard/sw-first-run-wizard-modal', () => {
             }
         ];
 
-        routerView.vm.$emit('buttons-update', newButtonConfig);
+        await routerView.vm.$emit('buttons-update', newButtonConfig);
 
         footerLeft = firstRunWizardModal.find('.footer-left');
         footerRight = firstRunWizardModal.find('.footer-right');
@@ -133,7 +133,7 @@ describe('module/sw-first-run-wizard/sw-first-run-wizard-modal', () => {
         expect(footerRight.isEmpty()).toBeFalsy();
     });
 
-    it('the buttonConfig should push a button in the left footer', () => {
+    it('the buttonConfig should push a button in the left footer', async () => {
         const firstRunWizardModal = new CreateFirstRunWizardModal();
         const routerView = firstRunWizardModal.find('#router-view');
 
@@ -148,7 +148,7 @@ describe('module/sw-first-run-wizard/sw-first-run-wizard-modal', () => {
             }
         ];
 
-        routerView.vm.$emit('buttons-update', newButtonConfig);
+        await routerView.vm.$emit('buttons-update', newButtonConfig);
 
         const footerLeft = firstRunWizardModal.find('.footer-left');
         const footerRight = firstRunWizardModal.find('.footer-right');
@@ -157,7 +157,7 @@ describe('module/sw-first-run-wizard/sw-first-run-wizard-modal', () => {
         expect(footerRight.isEmpty()).toBeTruthy();
     });
 
-    it('the buttonConfig should push a button in the right footer', () => {
+    it('the buttonConfig should push a button in the right footer', async () => {
         const firstRunWizardModal = new CreateFirstRunWizardModal();
         const routerView = firstRunWizardModal.find('#router-view');
 
@@ -172,7 +172,7 @@ describe('module/sw-first-run-wizard/sw-first-run-wizard-modal', () => {
             }
         ];
 
-        routerView.vm.$emit('buttons-update', newButtonConfig);
+        await routerView.vm.$emit('buttons-update', newButtonConfig);
 
         const footerLeft = firstRunWizardModal.find('.footer-left');
         const footerRight = firstRunWizardModal.find('.footer-right');
@@ -181,7 +181,7 @@ describe('module/sw-first-run-wizard/sw-first-run-wizard-modal', () => {
         expect(footerRight.isEmpty()).toBeFalsy();
     });
 
-    it('the buttonConfig should overwrite the previous one', () => {
+    it('the buttonConfig should overwrite the previous one', async () => {
         const firstRunWizardModal = new CreateFirstRunWizardModal();
         const routerView = firstRunWizardModal.find('#router-view');
         let footerLeft;
@@ -198,7 +198,7 @@ describe('module/sw-first-run-wizard/sw-first-run-wizard-modal', () => {
             }
         ];
 
-        routerView.vm.$emit('buttons-update', firstButtonConfig);
+        await routerView.vm.$emit('buttons-update', firstButtonConfig);
 
         footerLeft = firstRunWizardModal.find('.footer-left');
         footerRight = firstRunWizardModal.find('.footer-right');
@@ -217,7 +217,7 @@ describe('module/sw-first-run-wizard/sw-first-run-wizard-modal', () => {
             }
         ];
 
-        routerView.vm.$emit('buttons-update', secondButtonConfig);
+        await routerView.vm.$emit('buttons-update', secondButtonConfig);
 
         footerLeft = firstRunWizardModal.find('.footer-left');
         footerRight = firstRunWizardModal.find('.footer-right');
@@ -226,13 +226,13 @@ describe('module/sw-first-run-wizard/sw-first-run-wizard-modal', () => {
         expect(footerRight.isEmpty()).toBeTruthy();
     });
 
-    it('the title should show an warning when not defined', () => {
+    it('the title should show an warning when not defined', async () => {
         const firstRunWizardModal = new CreateFirstRunWizardModal();
 
         expect(firstRunWizardModal.vm.$data.title).toBe('No title defined');
     });
 
-    it('the title should be updated when the router view emits an event', () => {
+    it('the title should be updated when the router view emits an event', async () => {
         const firstRunWizardModal = new CreateFirstRunWizardModal();
         const routerView = firstRunWizardModal.find('#router-view');
 
@@ -243,7 +243,7 @@ describe('module/sw-first-run-wizard/sw-first-run-wizard-modal', () => {
         expect(firstRunWizardModal.vm.$data.title).toBe(newTitle);
     });
 
-    it('onButtonClick: should call the redirect function when string', () => {
+    it('onButtonClick: should call the redirect function when string', async () => {
         const firstRunWizardModal = new CreateFirstRunWizardModal();
         const spy = jest.spyOn(firstRunWizardModal.vm, 'redirect');
 
@@ -254,7 +254,7 @@ describe('module/sw-first-run-wizard/sw-first-run-wizard-modal', () => {
         expect(spy).toHaveBeenCalled();
     });
 
-    it('onButtonClick: should call the callback function', () => {
+    it('onButtonClick: should call the callback function', async () => {
         const firstRunWizardModal = new CreateFirstRunWizardModal();
         const callbackFunction = jest.fn();
 

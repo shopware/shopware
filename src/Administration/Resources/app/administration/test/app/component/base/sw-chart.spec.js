@@ -70,12 +70,12 @@ const setup = ({ type, series, options, fillEmptyDates, sort } = {}) => {
 };
 
 describe('components/base/sw-chart', () => {
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = setup();
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should override some default options', () => {
+    it('should override some default options', async () => {
         const referenceFont = '"Comic Sans MS", cursive, sans-serif';
         const referenceText = 'Check against Comic Sans MS';
 
@@ -92,13 +92,13 @@ describe('components/base/sw-chart', () => {
         expect(wrapper.vm.mergedOptions.title.text).toMatch(referenceText);
     });
 
-    it('should have custom options by default', () => {
+    it('should have custom options by default', async () => {
         const wrapper = setup();
 
         expect(wrapper.vm.mergedOptions.tooltip.theme).toMatch('dark');
     });
 
-    it('should fill empty dates', () => {
+    it('should fill empty dates', async () => {
         const numberOfSeries = 2;
         const numberOfDates = 30;
         const demoDateSeries = generateRandomDateSeries(numberOfSeries, numberOfDates);
@@ -126,7 +126,7 @@ describe('components/base/sw-chart', () => {
         expect(wrapper.vm.optimizedSeries[1].data).not.toHaveLength(seriesTwoLength);
     });
 
-    it('should not fill empty dates', () => {
+    it('should not fill empty dates', async () => {
         const numberOfSeries = 2;
         const numberOfDates = 30;
         const demoDateSeries = generateRandomDateSeries(numberOfSeries, numberOfDates);
@@ -151,7 +151,7 @@ describe('components/base/sw-chart', () => {
         expect(wrapper.vm.optimizedSeries[1].data).toHaveLength(seriesTwoLength);
     });
 
-    it('should sort the series', () => {
+    it('should sort the series', async () => {
         const seriesToSort = [
             {
                 name: 'First series',
@@ -191,7 +191,7 @@ describe('components/base/sw-chart', () => {
         expect(wrapper.vm.optimizedSeries[1].data).not.toEqual(seriesToSort[1].data);
     });
 
-    it('should not sort the series', () => {
+    it('should not sort the series', async () => {
         const seriesToSort = [
             {
                 name: 'First series',
@@ -219,7 +219,7 @@ describe('components/base/sw-chart', () => {
         expect(wrapper.vm.optimizedSeries[1].data).toEqual(seriesToSort[1].data);
     });
 
-    it('should convert the data structure', () => {
+    it('should convert the data structure', async () => {
         const seriesToConvert = [
             {
                 name: 'Sales Channel Orders',

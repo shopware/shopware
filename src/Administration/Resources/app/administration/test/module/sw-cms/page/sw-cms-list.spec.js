@@ -61,18 +61,18 @@ function createWrapper(privileges = []) {
 }
 
 describe('module/sw-cms/page/sw-cms-list', () => {
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should open the media modal when user clicks on edit preview image', () => {
+    it('should open the media modal when user clicks on edit preview image', async () => {
         const wrapper = createWrapper([
             'cms.editor'
         ]);
 
-        wrapper.setData({
+        await wrapper.setData({
             pages: [
                 {
                     sections: [],
@@ -84,12 +84,12 @@ describe('module/sw-cms/page/sw-cms-list', () => {
             ]
         });
 
-        wrapper.find('.sw-cms-list-item--0 .sw-context-button__button')
+        await wrapper.find('.sw-cms-list-item--0 .sw-context-button__button')
             .trigger('click');
 
         expect(wrapper.vm.showMediaModal).toBeFalsy();
 
-        wrapper.find('.sw-cms-list-item--0 .sw-cms-list-item__option-preview')
+        await wrapper.find('.sw-cms-list-item--0 .sw-cms-list-item__option-preview')
             .trigger('click');
 
         expect(wrapper.vm.showMediaModal).toBeTruthy();
@@ -98,10 +98,10 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         expect(mediaModal.classes()).toContain('sw-media-modal-v2-mock');
     });
 
-    it('should show an disabled create new button', () => {
+    it('should show an disabled create new button', async () => {
         const wrapper = createWrapper();
 
-        wrapper.setData({
+        await wrapper.setData({
             pages: [
                 {
                     sections: [],
@@ -117,12 +117,12 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         expect(createButton.attributes().disabled).toBe('true');
     });
 
-    it('should show an enabled create new button', () => {
+    it('should show an enabled create new button', async () => {
         const wrapper = createWrapper([
             'cms.creator'
         ]);
 
-        wrapper.setData({
+        await wrapper.setData({
             pages: [
                 {
                     sections: [],
@@ -141,12 +141,12 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     it('should show disabled context fields in data grid view', async () => {
         const wrapper = createWrapper();
 
-        wrapper.find('.sw-cms-list__actions-mode')
+        await wrapper.find('.sw-cms-list__actions-mode')
             .trigger('click');
 
         await wrapper.vm.$nextTick();
 
-        wrapper.setData({
+        await wrapper.setData({
             isLoading: false,
             pages: [
                 {
@@ -160,7 +160,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
             ]
         });
 
-        wrapper.find('.sw-data-grid__actions-menu')
+        await wrapper.find('.sw-data-grid__actions-menu')
             .trigger('click');
 
         const contextMenuItemEdit = wrapper.find('.sw-cms-list__context-menu-item-edit');
@@ -177,12 +177,12 @@ describe('module/sw-cms/page/sw-cms-list', () => {
             'cms.editor'
         ]);
 
-        wrapper.find('.sw-cms-list__actions-mode')
+        await wrapper.find('.sw-cms-list__actions-mode')
             .trigger('click');
 
         await wrapper.vm.$nextTick();
 
-        wrapper.setData({
+        await wrapper.setData({
             isLoading: false,
             pages: [
                 {
@@ -196,7 +196,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
             ]
         });
 
-        wrapper.find('.sw-data-grid__actions-menu')
+        await wrapper.find('.sw-data-grid__actions-menu')
             .trigger('click');
 
         const contextMenuItemEdit = wrapper.find('.sw-cms-list__context-menu-item-edit');
@@ -213,12 +213,12 @@ describe('module/sw-cms/page/sw-cms-list', () => {
             'cms.creator'
         ]);
 
-        wrapper.find('.sw-cms-list__actions-mode')
+        await wrapper.find('.sw-cms-list__actions-mode')
             .trigger('click');
 
         await wrapper.vm.$nextTick();
 
-        wrapper.setData({
+        await wrapper.setData({
             isLoading: false,
             pages: [
                 {
@@ -232,7 +232,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
             ]
         });
 
-        wrapper.find('.sw-data-grid__actions-menu')
+        await wrapper.find('.sw-data-grid__actions-menu')
             .trigger('click');
 
         const contextMenuItemEdit = wrapper.find('.sw-cms-list__context-menu-item-edit');
@@ -249,12 +249,12 @@ describe('module/sw-cms/page/sw-cms-list', () => {
             'cms.deleter'
         ]);
 
-        wrapper.find('.sw-cms-list__actions-mode')
+        await wrapper.find('.sw-cms-list__actions-mode')
             .trigger('click');
 
         await wrapper.vm.$nextTick();
 
-        wrapper.setData({
+        await wrapper.setData({
             isLoading: false,
             pages: [
                 {
@@ -268,7 +268,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
             ]
         });
 
-        wrapper.find('.sw-data-grid__actions-menu')
+        await wrapper.find('.sw-data-grid__actions-menu')
             .trigger('click');
 
         const contextMenuItemEdit = wrapper.find('.sw-cms-list__context-menu-item-edit');
@@ -280,10 +280,10 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         expect(contextMenuItemDelete.props().disabled).toBe(false);
     });
 
-    it('should show disabled context fields in normal view', () => {
+    it('should show disabled context fields in normal view', async () => {
         const wrapper = createWrapper();
 
-        wrapper.setData({
+        await wrapper.setData({
             isLoading: false,
             pages: [
                 {
@@ -297,7 +297,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
             ]
         });
 
-        wrapper.find('.sw-cms-list-item--0 .sw-context-button__button')
+        await wrapper.find('.sw-cms-list-item--0 .sw-context-button__button')
             .trigger('click');
 
         const contextMenuItemPreview = wrapper.find('.sw-cms-list-item__option-preview');
@@ -309,12 +309,12 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         expect(contextMenuItemDelete.props().disabled).toBe(true);
     });
 
-    it('should show enabled preview context field in normal view', () => {
+    it('should show enabled preview context field in normal view', async () => {
         const wrapper = createWrapper([
             'cms.editor'
         ]);
 
-        wrapper.setData({
+        await wrapper.setData({
             isLoading: false,
             pages: [
                 {
@@ -328,7 +328,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
             ]
         });
 
-        wrapper.find('.sw-cms-list-item--0 .sw-context-button__button')
+        await wrapper.find('.sw-cms-list-item--0 .sw-context-button__button')
             .trigger('click');
 
         const contextMenuItemPreview = wrapper.find('.sw-cms-list-item__option-preview');
@@ -340,12 +340,12 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         expect(contextMenuItemDelete.props().disabled).toBe(true);
     });
 
-    it('should show enabled duplicate context field in normal view', () => {
+    it('should show enabled duplicate context field in normal view', async () => {
         const wrapper = createWrapper([
             'cms.creator'
         ]);
 
-        wrapper.setData({
+        await wrapper.setData({
             isLoading: false,
             pages: [
                 {
@@ -359,7 +359,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
             ]
         });
 
-        wrapper.find('.sw-cms-list-item--0 .sw-context-button__button')
+        await wrapper.find('.sw-cms-list-item--0 .sw-context-button__button')
             .trigger('click');
 
         const contextMenuItemPreview = wrapper.find('.sw-cms-list-item__option-preview');
@@ -371,12 +371,12 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         expect(contextMenuItemDelete.props().disabled).toBe(true);
     });
 
-    it('should show enabled delete context field in normal view', () => {
+    it('should show enabled delete context field in normal view', async () => {
         const wrapper = createWrapper([
             'cms.deleter'
         ]);
 
-        wrapper.setData({
+        await wrapper.setData({
             isLoading: false,
             pages: [
                 {
@@ -390,7 +390,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
             ]
         });
 
-        wrapper.find('.sw-cms-list-item--0 .sw-context-button__button')
+        await wrapper.find('.sw-cms-list-item--0 .sw-context-button__button')
             .trigger('click');
 
         const contextMenuItemPreview = wrapper.find('.sw-cms-list-item__option-preview');

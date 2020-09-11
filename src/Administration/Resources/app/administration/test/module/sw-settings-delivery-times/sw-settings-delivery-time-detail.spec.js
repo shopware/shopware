@@ -147,7 +147,7 @@ describe('src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-d
         await wrapper.vm.$nextTick();
 
         // Assume that user navigate to sw-setting-delivery-time-create page
-        wrapper.setData({ deliveryTime: wrapper.vm.deliveryTimeRepository.create() });
+        await wrapper.setData({ deliveryTime: wrapper.vm.deliveryTimeRepository.create() });
 
         await wrapper.vm.$nextTick();
 

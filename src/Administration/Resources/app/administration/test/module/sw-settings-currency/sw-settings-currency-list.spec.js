@@ -84,7 +84,7 @@ describe('module/sw-settings-currency/page/sw-settings-currency-list', () => {
         const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.isVueInstance()).toBe(true);
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should not be able to create a new currency', async () => {

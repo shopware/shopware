@@ -45,13 +45,13 @@ describe('src/module/sw-promotion/view/sw-promotion-detail-discounts', () => {
         Shopware.State.registerModule('swPromotionDetail', promotionState);
     });
 
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should disable adding discounts when privileges not set', () => {
+    it('should disable adding discounts when privileges not set', async () => {
         const wrapper = createWrapper();
 
         const element = wrapper.find('sw-button-stub');
@@ -60,7 +60,7 @@ describe('src/module/sw-promotion/view/sw-promotion-detail-discounts', () => {
         expect(element.attributes().disabled).toBeTruthy();
     });
 
-    it('should enable adding discounts when privilege is set', () => {
+    it('should enable adding discounts when privilege is set', async () => {
         const wrapper = createWrapper([
             'promotion.editor'
         ]);

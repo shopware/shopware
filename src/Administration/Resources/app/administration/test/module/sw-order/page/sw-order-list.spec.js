@@ -42,17 +42,17 @@ describe('src/module/sw-order/page/sw-order-list', () => {
         wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should have an disabled add button', () => {
+    it('should have an disabled add button', async () => {
         const addButton = wrapper.find('.sw-order-list__add-order');
 
         expect(addButton.attributes().disabled).toBe('true');
     });
 
-    it('should have an disabled add button', () => {
+    it('should have an disabled add button', async () => {
         wrapper = createWrapper(['order.creator']);
         const addButton = wrapper.find('.sw-order-list__add-order');
 

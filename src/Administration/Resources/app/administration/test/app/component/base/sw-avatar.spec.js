@@ -16,16 +16,16 @@ describe('components/base/sw-avatar', () => {
         wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should be a circle in default', () => {
+    it('should be a circle in default', async () => {
         expect(wrapper.classes()).toContain('sw-avatar__circle');
     });
 
-    it('should change the variant to a square', () => {
-        wrapper.setProps({
+    it('should change the variant to a square', async () => {
+        await wrapper.setProps({
             variant: 'square'
         });
 

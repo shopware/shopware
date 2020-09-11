@@ -28,6 +28,7 @@ const ID_MAILTEMPLATE_FOLDER = '4006d6aa64ce409692ac2b952fa56ade';
 const ID_PRODUCTS_FOLDER = '0e6b005ca7a1440b8e87ac3d45ed5c9f';
 const ID_CONTENT_FOLDER = '08bc82b315c54cb097e5c3fb30f6ff16';
 
+
 function createWrapper(defaultFolderId, privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
@@ -88,14 +89,22 @@ function createWrapper(defaultFolderId, privileges = []) {
             }
         },
         stubs: {
-            'sw-media-base-item': `
-                <div class="sw-media-base-item">
-                    <slot name="context-menu"></slot>
-                    <slot></slot>
-                </div>`,
-            'sw-context-button': '<div class="sw-context-button"><slot></slot></div>',
-            'sw-context-menu-item': '<div class="sw-context-menu-item"><slot></slot></div>',
-            'sw-context-menu': '<div><slot></slot></div>'
+            'sw-media-base-item': {
+                template: `
+                    <div class="sw-media-base-item">
+                        <slot name="context-menu"></slot>
+                        <slot></slot>
+                    </div>`
+            },
+            'sw-context-button': {
+                template: '<div class="sw-context-button"><slot></slot></div>'
+            },
+            'sw-context-menu-item': {
+                template: '<div class="sw-context-menu-item"><slot></slot></div>'
+            },
+            'sw-context-menu': {
+                template: '<div><slot></slot></div>'
+            }
         },
         propsData: {
             item: {
@@ -124,10 +133,11 @@ function createWrapper(defaultFolderId, privileges = []) {
 }
 
 describe('components/media/sw-media-folder-item', () => {
-    it('should be a Vue.js component', () => {
-        const wrapper = createWrapper(ID_PRODUCTS_FOLDER);
+    it('should be a Vue.js component', async () => {
+        const wrapper = await createWrapper(ID_PRODUCTS_FOLDER);
+        await wrapper.vm.$nextTick();
 
-        expect(wrapper.isVueInstance()).toBe(true);
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should provide correct folder color for product module', async () => {

@@ -47,14 +47,14 @@ describe('components/rule/condition-type/sw-condition-line-item-dimension-width'
         wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should allow input of float values', async () => {
         const input = wrapper.find('input[name=sw-field--amount]');
-        input.setValue('3.56');
-        input.trigger('change');
+        await input.setValue('3.56');
+        await input.trigger('change');
         expect(input.element.value).toBe('3.56');
     });
 });

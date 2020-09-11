@@ -42,7 +42,7 @@ describe('module/sw-settings-country/component/sw-country-state-detail', () => {
         const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.isVueInstance()).toBe(true);
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should be able to create a new country state', async () => {

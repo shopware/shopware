@@ -94,13 +94,13 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
         wrapper = createWrapper();
     });
 
-    it('should be a Vue.JS component', () => {
-        expect(wrapper.isVueInstance()).toBe(true);
+    it('should be a Vue.JS component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should not be able to edit the customer', async () => {
         const wrapperWithPrivileges = createWrapper();
-        wrapperWithPrivileges.setData({
+        await wrapperWithPrivileges.setData({
             isLoading: false
         });
 
@@ -116,7 +116,7 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
         const wrapperWithPrivileges = createWrapper([
             'customer.editor'
         ]);
-        wrapperWithPrivileges.setData({
+        await wrapperWithPrivileges.setData({
             isLoading: false
         });
         await wrapperWithPrivileges.vm.$nextTick();

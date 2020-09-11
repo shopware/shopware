@@ -31,13 +31,13 @@ function createWrapper(customPropsData = {}) {
 }
 
 describe('src/app/component/entity/sw-many-to-many-assignment-card', () => {
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should have an enabled sw-select-base', () => {
+    it('should have an enabled sw-select-base', async () => {
         const wrapper = createWrapper();
 
         const selectBase = wrapper.find('.sw-select-base');
@@ -45,7 +45,7 @@ describe('src/app/component/entity/sw-many-to-many-assignment-card', () => {
         expect(selectBase.attributes().disabled).not.toBeDefined();
     });
 
-    it('should have an disabled sw-select-base', () => {
+    it('should have an disabled sw-select-base', async () => {
         const wrapper = createWrapper({ disabled: true });
 
         const selectBase = wrapper.find('.sw-select-base');
@@ -53,7 +53,7 @@ describe('src/app/component/entity/sw-many-to-many-assignment-card', () => {
         expect(selectBase.attributes().disabled).toBeDefined();
     });
 
-    it('should have an enabled context menu item', () => {
+    it('should have an enabled context menu item', async () => {
         const wrapper = createWrapper();
 
         const selectBase = wrapper.find('sw-context-menu-item-stub');
@@ -61,7 +61,7 @@ describe('src/app/component/entity/sw-many-to-many-assignment-card', () => {
         expect(selectBase.attributes().disabled).not.toBeDefined();
     });
 
-    it('should have an disabled context menu item', () => {
+    it('should have an disabled context menu item', async () => {
         const wrapper = createWrapper({ disabled: true });
 
         const selectBase = wrapper.find('sw-context-menu-item-stub');

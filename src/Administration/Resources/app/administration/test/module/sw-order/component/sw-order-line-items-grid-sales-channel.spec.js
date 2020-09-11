@@ -184,7 +184,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
         });
     });
 
-    it('should show empty state when there is not item', () => {
+    it('should show empty state when there is not item', async () => {
         const wrapper = createWrapper({});
 
         const emtyState = wrapper.find('.sw-order-line-items-grid-sales-channel__empty-container');
@@ -198,7 +198,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
     it('only product item should have redirect link', async () => {
         const wrapper = createWrapper({});
 
-        wrapper.setProps({
+        await wrapper.setProps({
             cart: {
                 lineItems: [...mockItems]
             }
@@ -232,7 +232,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
     it('should not show tooltip if only items which have single tax', async () => {
         const wrapper = createWrapper({});
 
-        wrapper.setProps({
+        await wrapper.setProps({
             cart: {
                 lineItems: [...mockItems]
             }
@@ -249,7 +249,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
     it('should show tooltip if item has multiple taxes', async () => {
         const wrapper = createWrapper({});
 
-        wrapper.setProps({
+        await wrapper.setProps({
             cart: {
                 lineItems: [{ ...mockMultipleTaxesItem }]
             }
@@ -266,7 +266,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
     it('should show tooltip message correctly with item detail', async () => {
         const wrapper = createWrapper({});
 
-        wrapper.setProps({
+        await wrapper.setProps({
             cart: {
                 lineItems: [{ ...mockMultipleTaxesItem }]
             }

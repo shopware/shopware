@@ -21,19 +21,19 @@ function createWrapper(propsData = {}, listeners = {}) {
 }
 
 describe('src/app/component/base/sw-label', () => {
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should be dismissable', () => {
+    it('should be dismissable', async () => {
         const wrapper = createWrapper({ dismissable: true }, { dismiss: () => {} });
 
         expect(wrapper.find('sw-label__dismiss')).toBeTruthy();
     });
 
-    it('should not be dismissable', () => {
+    it('should not be dismissable', async () => {
         const wrapper = createWrapper({ dismissable: false }, { dismiss: () => {} });
 
         expect(wrapper.find('sw-label__dismiss').exists()).toBeFalsy();

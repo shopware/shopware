@@ -58,17 +58,17 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should have an disabled create new button', () => {
+    it('should have an disabled create new button', async () => {
         const createNewButton = wrapper.find('.sw-order-document-grid-button');
 
         expect(createNewButton.attributes().disabled).toBe('true');
     });
 
-    it('should not have an disabled create new button', () => {
+    it('should not have an disabled create new button', async () => {
         wrapper = createWrapper([
             'order.editor'
         ]);

@@ -115,35 +115,35 @@ describe('components/sw-import-export-importer', () => {
         wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should not show the warning when nothing is selected', () => {
+    it('should not show the warning when nothing is selected', async () => {
         expect(wrapper.find('.sw-import-export-importer__variants-warning').exists()).toBeFalsy();
     });
 
     it('should not show the warning when a product profile without variants is selected', async () => {
-        wrapper.find('.sw-import-export-importer__profile-select .sw-select__selection').trigger('click');
+        await wrapper.find('.sw-import-export-importer__profile-select .sw-select__selection').trigger('click');
         await wrapper.vm.$nextTick();
 
         const defaultProduct = wrapper.find('.sw-select-option--0');
         expect(defaultProduct.text()).toBe('Default product');
 
-        defaultProduct.trigger('click');
+        await defaultProduct.trigger('click');
 
         expect(wrapper.find('.sw-entity-single-select__selection-text').text()).toBe('Default product');
         expect(wrapper.find('.sw-import-export-importer__variants-warning').exists()).toBeFalsy();
     });
 
     it('should not show the warning when a product profile should not import variants', async () => {
-        wrapper.find('.sw-import-export-importer__profile-select .sw-select__selection').trigger('click');
+        await wrapper.find('.sw-import-export-importer__profile-select .sw-select__selection').trigger('click');
         await wrapper.vm.$nextTick();
 
         const defaultProduct = wrapper.find('.sw-select-option--0');
         expect(defaultProduct.text()).toBe('Default product');
 
-        defaultProduct.trigger('click');
+        await defaultProduct.trigger('click');
 
         expect(wrapper.find('.sw-entity-single-select__selection-text').text()).toBe('Default product');
 
@@ -153,17 +153,17 @@ describe('components/sw-import-export-importer', () => {
     });
 
     it('should show the warning when a product profile should also import variants', async () => {
-        wrapper.find('.sw-import-export-importer__profile-select .sw-select__selection').trigger('click');
+        await wrapper.find('.sw-import-export-importer__profile-select .sw-select__selection').trigger('click');
         await wrapper.vm.$nextTick();
 
         const defaultProduct = wrapper.find('.sw-select-option--0');
         expect(defaultProduct.text()).toBe('Default product');
 
-        defaultProduct.trigger('click');
+        await defaultProduct.trigger('click');
 
         expect(wrapper.find('.sw-entity-single-select__selection-text').text()).toBe('Default product');
 
-        wrapper.setData({
+        await wrapper.setData({
             config: {
                 includeVariants: true
             }
@@ -176,12 +176,12 @@ describe('components/sw-import-export-importer', () => {
     });
 
     it('should show a warning which contains an open modal link', async () => {
-        wrapper.find('.sw-import-export-importer__profile-select .sw-select__selection').trigger('click');
+        await wrapper.find('.sw-import-export-importer__profile-select .sw-select__selection').trigger('click');
         await wrapper.vm.$nextTick();
 
-        wrapper.find('.sw-select-option--0').trigger('click');
+        await wrapper.find('.sw-select-option--0').trigger('click');
 
-        wrapper.setData({
+        await wrapper.setData({
             config: {
                 includeVariants: true
             }
@@ -202,12 +202,12 @@ describe('components/sw-import-export-importer', () => {
     });
 
     it('should show a modal with an importer', async () => {
-        wrapper.find('.sw-import-export-importer__profile-select .sw-select__selection').trigger('click');
+        await wrapper.find('.sw-import-export-importer__profile-select .sw-select__selection').trigger('click');
         await wrapper.vm.$nextTick();
 
-        wrapper.find('.sw-select-option--0').trigger('click');
+        await wrapper.find('.sw-select-option--0').trigger('click');
 
-        wrapper.setData({
+        await wrapper.setData({
             config: {
                 includeVariants: true
             }
@@ -216,7 +216,7 @@ describe('components/sw-import-export-importer', () => {
         const variantsWarningLink = wrapper.find(
             '.sw-import-export-importer__variants-warning .sw-import-export-importer__link'
         );
-        variantsWarningLink.trigger('click');
+        await variantsWarningLink.trigger('click');
 
         const modalExporter = wrapper.findAll({ name: 'sw-import-export-importer' }).at(1);
 
@@ -224,12 +224,12 @@ describe('components/sw-import-export-importer', () => {
     });
 
     it('should show a modal which only contains configurator settings profiles', async () => {
-        wrapper.find('.sw-import-export-importer__profile-select .sw-select__selection').trigger('click');
+        await wrapper.find('.sw-import-export-importer__profile-select .sw-select__selection').trigger('click');
         await wrapper.vm.$nextTick();
 
-        wrapper.find('.sw-select-option--0').trigger('click');
+        await wrapper.find('.sw-select-option--0').trigger('click');
 
-        wrapper.setData({
+        await wrapper.setData({
             config: {
                 includeVariants: true
             }
@@ -238,7 +238,7 @@ describe('components/sw-import-export-importer', () => {
         const variantsWarningLink = wrapper.find(
             '.sw-import-export-importer__variants-warning .sw-import-export-importer__link'
         );
-        variantsWarningLink.trigger('click');
+        await variantsWarningLink.trigger('click');
 
         const modalExporter = wrapper.findAll({ name: 'sw-import-export-importer' }).at(1);
 
@@ -246,9 +246,9 @@ describe('components/sw-import-export-importer', () => {
     });
 
     it('should show all profiles when sourceEntity is empty', async () => {
-        wrapper.setProps({ sourceEntity: '' });
+        await wrapper.setProps({ sourceEntity: '' });
 
-        wrapper.find('.sw-import-export-importer__profile-select .sw-select__selection').trigger('click');
+        await wrapper.find('.sw-import-export-importer__profile-select .sw-select__selection').trigger('click');
         await wrapper.vm.$nextTick();
 
         const results = wrapper.findAll('.sw-select-result');
@@ -261,9 +261,9 @@ describe('components/sw-import-export-importer', () => {
     });
 
     it('should show only matching profiles when sourceEntity property is setted', async () => {
-        wrapper.setProps({ sourceEntity: 'product_configurator_setting' });
+        await wrapper.setProps({ sourceEntity: 'product_configurator_setting' });
 
-        wrapper.find('.sw-import-export-importer__profile-select .sw-select__selection').trigger('click');
+        await wrapper.find('.sw-import-export-importer__profile-select .sw-select__selection').trigger('click');
         await wrapper.vm.$nextTick();
 
         const results = wrapper.findAll('.sw-select-result');
@@ -276,7 +276,7 @@ describe('components/sw-import-export-importer', () => {
     });
 
     it('should throw an warning if the import fails hard', async () => {
-        wrapper.setData({
+        await wrapper.setData({
             selectedProfileId: 'a1b2c3d4e5',
             config: {
                 error: true
@@ -285,7 +285,7 @@ describe('components/sw-import-export-importer', () => {
 
         wrapper.vm.createNotificationError = jest.fn();
 
-        wrapper.vm.onStartProcess();
+        await wrapper.vm.onStartProcess();
 
         await wrapper.vm.$nextTick();
 

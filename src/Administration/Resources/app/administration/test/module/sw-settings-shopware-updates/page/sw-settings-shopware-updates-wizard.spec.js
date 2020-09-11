@@ -170,11 +170,11 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
         });
     });
 
-    it('should be a Vue.JS component', () => {
-        expect(wrapper.isVueInstance()).toBe(true);
+    it('should be a Vue.JS component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should have three green color badges and one red one', () => {
+    it('should have three green color badges and one red one', async () => {
         const allGreenColorBadges = wrapper.findAll('.sw-color-badge.is--success');
         const allRedColorBadges = wrapper.findAll('.sw-color-badge.is--error');
 
@@ -182,7 +182,7 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
         expect(allRedColorBadges.length).toBe(1);
     });
 
-    it('should disable the button if one requirement is not met', () => {
+    it('should disable the button if one requirement is not met', async () => {
         const button = wrapper.find('.smart-bar__actions .sw-button');
 
         expect(button.attributes('disabled')).toBe('disabled');

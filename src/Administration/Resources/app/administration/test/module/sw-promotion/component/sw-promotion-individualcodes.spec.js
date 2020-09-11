@@ -113,11 +113,11 @@ describe('src/module/sw-promotion/component/sw-promotion-individualcodes', () =>
         });
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should have disabled form fields', () => {
+    it('should have disabled form fields', async () => {
         expect(wrapper.vm.isEditingDisabled).toBe(true);
 
         let elements = wrapper.findAll('.sw-field');
@@ -133,7 +133,7 @@ describe('src/module/sw-promotion/component/sw-promotion-individualcodes', () =>
         elements.wrappers.forEach(el => expect(el.attributes().disabled).toBe('disabled'));
     });
 
-    it('should not have disabled form fields', () => {
+    it('should not have disabled form fields', async () => {
         wrapper = createWrapper([
             'promotion.editor'
         ]);

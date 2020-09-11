@@ -225,8 +225,8 @@ describe('module/sw-product/page/sw-product-list', () => {
         wrapper.destroy();
     });
 
-    it('should be a Vue.JS component', () => {
-        expect(wrapper.isVueInstance()).toBe(true);
+    it('should be a Vue.JS component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should sort grid when sorting for price', async () => {
@@ -246,6 +246,7 @@ describe('module/sw-product/page/sw-product-list', () => {
 
         // sort grid after price
         await currencyColumnHeader.trigger('click');
+        await wrapper.vm.$nextTick();
 
         const sortedPriceCells = wrapper.findAll('.sw-data-grid__cell--price-EUR');
         const firstSortedPriceCell = sortedPriceCells.at(0);
@@ -278,7 +279,7 @@ describe('module/sw-product/page/sw-product-list', () => {
         const columnHeaders = wrapper.findAll('.sw-data-grid__cell.sw-data-grid__cell--header');
         const poundColumn = columnHeaders.at(6);
 
-        poundColumn.trigger('click');
+        await poundColumn.trigger('click');
 
         await wrapper.vm.$nextTick();
 
@@ -289,7 +290,7 @@ describe('module/sw-product/page/sw-product-list', () => {
         expect(secondSortedPoundCell.text()).toBe('400');
     });
 
-    it('should return price when given currency id', () => {
+    it('should return price when given currency id', async () => {
         const currencyId = 'b7d2554b0ce847cd82f3ac9bd1c0dfca';
         const prices = mockPrices();
 
@@ -304,7 +305,7 @@ describe('module/sw-product/page/sw-product-list', () => {
         expect(foundPriceData).toEqual(expectedPriceData);
     });
 
-    it('should return fallback when no price was found', () => {
+    it('should return fallback when no price was found', async () => {
         const currencyId = 'no-valid-id';
         const prices = mockPrices();
 

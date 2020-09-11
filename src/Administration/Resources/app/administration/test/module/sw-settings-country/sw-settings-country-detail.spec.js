@@ -120,7 +120,7 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
         const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.isVueInstance()).toBe(true);
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should be able to save the country', async () => {

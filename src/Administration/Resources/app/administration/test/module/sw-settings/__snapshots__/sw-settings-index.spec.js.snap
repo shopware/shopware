@@ -12,10 +12,9 @@ exports[`module/sw-settings/page/sw-settings-index should render correctly 1`] =
     >
       <div
         class="sw-tabs__content"
-        style="padding-bottom: 0px;"
       >
         <a
-          class="sw-tabs-item sw-settings__tab-shop sw-tabs-item--active"
+          class="sw-tabs-item sw-settings__tab-shop"
           title="sw-settings.index.tabShop"
         >
           

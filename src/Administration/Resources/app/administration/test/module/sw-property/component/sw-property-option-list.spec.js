@@ -141,8 +141,8 @@ describe('module/sw-property/component/sw-property-option-list', () => {
         wrapper = createWrapper();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBe(true);
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should get rid of color value', async () => {

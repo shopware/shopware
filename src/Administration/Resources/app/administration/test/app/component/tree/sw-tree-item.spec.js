@@ -54,18 +54,18 @@ describe('src/app/component/tree/sw-tree-item', () => {
         wrapper = createWrapper();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should have an enabled context menu', () => {
+    it('should have an enabled context menu', async () => {
         const contextButton = wrapper.find('.sw-tree-item__context_button');
 
         expect(contextButton.attributes().disabled).not.toBeDefined();
     });
 
-    it('should have an disabled context menu', () => {
-        wrapper.setProps({
+    it('should have an disabled context menu', async () => {
+        await wrapper.setProps({
             disableContextMenu: true
         });
 
@@ -74,16 +74,16 @@ describe('src/app/component/tree/sw-tree-item', () => {
         expect(contextButton.attributes().disabled).toBeDefined();
     });
 
-    it('should contain the default context menu tooltip text when context menu is disabled', () => {
+    it('should contain the default context menu tooltip text when context menu is disabled', async () => {
         const contextButton = wrapper.find('.sw-tree-item__context_button');
 
         expect(contextButton.attributes()['data-tooltip-message']).toBe('sw-tree.general.actions.actionsDisabledInLanguage');
     });
 
-    it('should contain the custom context menu tooltip text when context menu is disabled', () => {
+    it('should contain the custom context menu tooltip text when context menu is disabled', async () => {
         const customTooltipMessage = 'You do not have the rights to edit the tree item.';
 
-        wrapper.setProps({
+        await wrapper.setProps({
             contextMenuTooltipText: customTooltipMessage
         });
 
@@ -91,7 +91,7 @@ describe('src/app/component/tree/sw-tree-item', () => {
         expect(contextButton.attributes()['data-tooltip-message']).toBe(customTooltipMessage);
     });
 
-    it('should be able to create new categories', () => {
+    it('should be able to create new categories', async () => {
         const contextButton = wrapper.find('.sw-tree-item__context_button');
 
         expect(contextButton.find('.sw-tree-item__before-action').attributes().disabled).toBeUndefined();
@@ -99,8 +99,8 @@ describe('src/app/component/tree/sw-tree-item', () => {
         expect(contextButton.find('.sw-tree-item__sub-action').attributes().disabled).toBeUndefined();
     });
 
-    it('should be unable to create new categories', () => {
-        wrapper.setProps({
+    it('should be unable to create new categories', async () => {
+        await wrapper.setProps({
             allowNewCategories: false
         });
 
@@ -111,14 +111,14 @@ describe('src/app/component/tree/sw-tree-item', () => {
         expect(contextButton.find('.sw-tree-item__sub-action').attributes().disabled).not.toBeUndefined();
     });
 
-    it('should be able to delete categories', () => {
+    it('should be able to delete categories', async () => {
         const contextButton = wrapper.find('.sw-tree-item__context_button');
 
         expect(contextButton.find('.sw-context-menu__group-button-delete').attributes().disabled).toBeUndefined();
     });
 
-    it('should be unable to delete categories', () => {
-        wrapper.setProps({
+    it('should be unable to delete categories', async () => {
+        await wrapper.setProps({
             allowDeleteCategories: false
         });
         const contextButton = wrapper.find('.sw-tree-item__context_button');

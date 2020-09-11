@@ -111,7 +111,7 @@ describe('module/sw-settings-custom-field/page/sw-settings-custom-field-set-list
         const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.isVueInstance()).toBe(true);
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should not be able to create a new custom-field set', async () => {

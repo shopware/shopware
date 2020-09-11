@@ -93,18 +93,18 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
         wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should be able to add an item to the attachment', () => {
-        wrapper.setData({ mailTemplateMedia: [] });
+    it('should be able to add an item to the attachment', async () => {
+        await wrapper.setData({ mailTemplateMedia: [] });
         wrapper.vm.onAddItemToAttachment(mailTemplateMediaMock);
 
         expect(wrapper.vm.mailTemplate.media.some((media) => media.mediaId === mailTemplateMediaMock.id)).toBeTruthy();
     });
 
-    it('should be unable to add an item to the attachment exist this item', () => {
+    it('should be unable to add an item to the attachment exist this item', async () => {
         wrapper.vm.createNotificationInfo = jest.fn();
         wrapper.vm.onAddItemToAttachment(mailTemplateMediaMock);
 
@@ -116,12 +116,12 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
         wrapper.vm.createNotificationInfo.mockRestore();
     });
 
-    it('should be success to get media columns', () => {
+    it('should be success to get media columns', async () => {
         expect(wrapper.vm.getMediaColumns().length).toBe(1);
     });
 
-    it('should be success to upload an attachment', () => {
-        wrapper.setData({
+    it('should be success to upload an attachment', async () => {
+        await wrapper.setData({
             mailTemplate: {
                 media: new EntityCollection(
                     '/media',
@@ -139,16 +139,16 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
         expect(wrapper.vm.mailTemplate.media.some((media) => media.mediaId === mailTemplateMediaMock.id)).toBeTruthy();
     });
 
-    it('should be return if the user upload duplicated the attachment', () => {
-        wrapper.setData({ mailTemplate: mailTemplateMock });
+    it('should be return if the user upload duplicated the attachment', async () => {
+        await wrapper.setData({ mailTemplate: mailTemplateMock });
         const mediaLengthBeforeTest = wrapper.vm.mailTemplate.media.length;
 
         expect(wrapper.vm.successfulUpload({ targetId: '30c0082ccb03494799b42f22c7fa07d9' })).toBeUndefined();
         expect(wrapper.vm.mailTemplate.media.length).toBe(mediaLengthBeforeTest);
     });
 
-    it('should be able to delete media', () => {
-        wrapper.setData({
+    it('should be able to delete media', async () => {
+        await wrapper.setData({
             mailTemplateMedia: [mailTemplateMediaMock]
         });
 

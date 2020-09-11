@@ -78,7 +78,7 @@ describe('module/sw-review/page/sw-review-list', () => {
         const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.isVueInstance()).toBe(true);
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should not be able to delete', async () => {

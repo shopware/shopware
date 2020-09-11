@@ -52,13 +52,13 @@ function createWrapper(privileges = []) {
 }
 
 describe('module/sw-settings-currency/page/sw-settings-currency-detail', () => {
-    it('should be a Vue.JS component', () => {
+    it('should be a Vue.JS component', async () => {
         const wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBe(true);
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should not be able to save the currency', () => {
+    it('should not be able to save the currency', async () => {
         const wrapper = createWrapper();
 
         const saveButton = wrapper.find('.sw-settings-currency-detail__save-action');
@@ -66,7 +66,7 @@ describe('module/sw-settings-currency/page/sw-settings-currency-detail', () => {
         expect(saveButton.attributes().disabled).toBeTruthy();
     });
 
-    it('should be able to save the currency', () => {
+    it('should be able to save the currency', async () => {
         const wrapper = createWrapper([
             'currencies.editor'
         ]);

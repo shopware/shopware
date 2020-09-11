@@ -104,15 +104,15 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         });
     });
 
-    it('should be a Vue.JS component', () => {
+    it('should be a Vue.JS component', async () => {
         wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBe(true);
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should not be able to delete', async () => {
         wrapper = createWrapper();
-        wrapper.setData({
+        await wrapper.setData({
             reviewItemData: mockReviews,
             total: 1
         });
@@ -126,7 +126,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         wrapper = createWrapper([
             'product.editor'
         ]);
-        wrapper.setData({
+        await wrapper.setData({
             reviewItemData: mockReviews,
             total: 1
         });
@@ -139,7 +139,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
 
     it('should not be able to edit', async () => {
         wrapper = createWrapper();
-        wrapper.setData({
+        await wrapper.setData({
             reviewItemData: mockReviews,
             total: 1
         });
@@ -153,7 +153,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         wrapper = createWrapper([
             'product.editor'
         ]);
-        wrapper.setData({
+        await wrapper.setData({
             reviewItemData: mockReviews,
             total: 1
         });

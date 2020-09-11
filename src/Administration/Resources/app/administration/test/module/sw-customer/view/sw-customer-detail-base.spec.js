@@ -89,11 +89,11 @@ describe('module/sw-customer/view/sw-customer-detail-base.spec.js', () => {
         wrapper = createWrapper();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBe(true);
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should have a criteria that sorts custom field by their position', () => {
+    it('should have a criteria that sorts custom field by their position', async () => {
         const customFieldSetCriteria = wrapper.vm.customFieldSetCriteria;
         const customFieldSorting = customFieldSetCriteria.associations[0].criteria.sortings[0];
 
@@ -101,7 +101,7 @@ describe('module/sw-customer/view/sw-customer-detail-base.spec.js', () => {
         expect(customFieldSorting.field).toBe('config.customFieldPosition');
     });
 
-    it('should sort custom fields by their position', () => {
+    it('should sort custom fields by their position', async () => {
         const formFields = wrapper.findAll('.sw-form-field-renderer');
 
         expect(formFields.length).toBe(6);

@@ -104,15 +104,15 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
         wrapper.destroy();
     });
 
-    it('should be able to instantiate', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+    it('should be able to instantiate', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('has the correct class', () => {
+    it('has the correct class', async () => {
         expect(wrapper.classes()).toContain(classes.componentRoot);
     });
 
-    it('should show the name field', () => {
+    it('should show the name field', async () => {
         const root = findSecure(wrapper, `.${classes.componentRoot}`);
         const nameField = findSecure(root, { name: components.nameField });
         const nameFieldLabel = findSecure(nameField, `.${classes.fieldLabel}`);
@@ -121,7 +121,7 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
         expect(nameField.props().placeholder).toEqual(text.placeholderNameField);
     });
 
-    it('should show the description field', () => {
+    it('should show the description field', async () => {
         const root = findSecure(wrapper, `.${classes.componentRoot}`);
         const descriptionField = findSecure(root, { name: components.descriptionField });
         const descriptionFieldLabel = findSecure(descriptionField, `.${classes.fieldLabel}`);

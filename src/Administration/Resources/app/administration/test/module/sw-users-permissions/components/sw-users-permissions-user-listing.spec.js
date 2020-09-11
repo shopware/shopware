@@ -55,11 +55,11 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
         wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('the data-grid should show the right columns', () => {
+    it('the data-grid should show the right columns', async () => {
         const swDataGrid = wrapper.find('.sw-data-grid-stub');
         expect(swDataGrid.props().columns).toStrictEqual([{
             property: 'username',
@@ -79,11 +79,11 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
         }]);
     });
 
-    it('the data-grid should get the right user data', () => {
+    it('the data-grid should get the right user data', async () => {
         const swDataGrid = wrapper.find('.sw-data-grid-stub');
         expect(swDataGrid.props().dataSource).toStrictEqual([]);
 
-        wrapper.setData({
+        await wrapper.setData({
             user: [{
                 localeId: '12345',
                 username: 'maxmuster',
@@ -116,12 +116,12 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
         }]);
     });
 
-    it('the card should contain the right title', () => {
+    it('the card should contain the right title', async () => {
         const title = wrapper.attributes().title;
         expect(title).toBe('sw-users-permissions.users.general.cardLabel');
     });
 
-    it('the add user button should be disabled', () => {
+    it('the add user button should be disabled', async () => {
         const addUser = wrapper.find('.sw-users-permissions-user-listing__add-user-button');
         expect(addUser.attributes().disabled).toBe('true');
     });
@@ -137,7 +137,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
     it('the context menu should be disabled', async () => {
         wrapper = createWrapper([]);
         await wrapper.vm.$nextTick();
-        wrapper.setData({
+        await wrapper.setData({
             user: [
                 {}
             ]
@@ -153,7 +153,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
     it('the context menu edit should be enabled', async () => {
         wrapper = createWrapper(['users_and_permissions.editor']);
         await wrapper.vm.$nextTick();
-        wrapper.setData({
+        await wrapper.setData({
             user: [
                 {}
             ]
@@ -169,7 +169,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
     it('the context menu delete should be enabled', async () => {
         wrapper = createWrapper(['users_and_permissions.deleter']);
         await wrapper.vm.$nextTick();
-        wrapper.setData({
+        await wrapper.setData({
             user: [
                 {}
             ]

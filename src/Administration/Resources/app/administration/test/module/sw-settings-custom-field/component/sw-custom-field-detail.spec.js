@@ -72,12 +72,12 @@ function createWrapper(privileges = []) {
 }
 
 describe('src/module/sw-settings-custom-field/component/sw-custom-field-detail', () => {
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
-        expect(wrapper.isVueInstance()).toBe(true);
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('can edit fields', () => {
+    it('can edit fields', async () => {
         const wrapper = createWrapper([
             'custom_field.editor'
         ]);
@@ -95,7 +95,7 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-detail',
         expect(modalSaveButton.attributes('disabled')).toBeFalsy();
     });
 
-    it('cannot edit fields', () => {
+    it('cannot edit fields', async () => {
         const wrapper = createWrapper();
 
         const modalTypeField = wrapper.find('.sw-custom-field-detail__modal-type');

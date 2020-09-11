@@ -42,13 +42,13 @@ function createWrapper(privileges = []) {
 }
 
 describe('src/module/sw-promotion/page/sw-promotion-list', () => {
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should disable create button when privilege not available', () => {
+    it('should disable create button when privilege not available', async () => {
         const wrapper = createWrapper();
 
         const element = wrapper.find('.sw-promotion-list__button-add-promotion');
@@ -57,7 +57,7 @@ describe('src/module/sw-promotion/page/sw-promotion-list', () => {
         expect(element.attributes().disabled).toBeTruthy();
     });
 
-    it('should enable create button when privilege available', () => {
+    it('should enable create button when privilege available', async () => {
         const wrapper = createWrapper([
             'promotion.creator'
         ]);
@@ -68,10 +68,10 @@ describe('src/module/sw-promotion/page/sw-promotion-list', () => {
         expect(element.attributes().disabled).toBeUndefined();
     });
 
-    it('should disable editing of entries when privilege not set', () => {
+    it('should disable editing of entries when privilege not set', async () => {
         const wrapper = createWrapper();
 
-        wrapper.setData({
+        await wrapper.setData({
             isLoading: false
         });
 
@@ -84,13 +84,13 @@ describe('src/module/sw-promotion/page/sw-promotion-list', () => {
         expect(element.attributes().allowinlineedit).toBeUndefined();
     });
 
-    it('should enable editing of entries when privilege is set', () => {
+    it('should enable editing of entries when privilege is set', async () => {
         const wrapper = createWrapper([
             'promotion.viewer',
             'promotion.editor'
         ]);
 
-        wrapper.setData({
+        await wrapper.setData({
             isLoading: false
         });
 
@@ -103,14 +103,14 @@ describe('src/module/sw-promotion/page/sw-promotion-list', () => {
         expect(element.attributes().allowinlineedit).toBeTruthy();
     });
 
-    it('should enable deletion of entries when privilege is set', () => {
+    it('should enable deletion of entries when privilege is set', async () => {
         const wrapper = createWrapper([
             'promotion.viewer',
             'promotion.editor',
             'promotion.deleter'
         ]);
 
-        wrapper.setData({
+        await wrapper.setData({
             isLoading: false
         });
 

@@ -71,10 +71,10 @@ function createWrapper(privileges = []) {
 }
 
 describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should be able to save edit', async () => {

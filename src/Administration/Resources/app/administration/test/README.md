@@ -143,7 +143,7 @@ describe('components/sw-multi-select', () => {
     });
 
     it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 });
 ```
@@ -240,7 +240,7 @@ describe('components/sw-multi-select', () => {
     });
 
     it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 });
 ```

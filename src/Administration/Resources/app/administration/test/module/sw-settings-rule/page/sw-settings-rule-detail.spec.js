@@ -54,13 +54,13 @@ function createWrapper(privileges = []) {
 }
 
 describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
-    it('should be a Vue.JS component', () => {
+    it('should be a Vue.JS component', async () => {
         const wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBe(true);
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should have disabled fields', () => {
+    it('should have disabled fields', async () => {
         const wrapper = createWrapper();
 
         const buttonSave = wrapper.find('.sw-settings-rule-detail__save-action');
@@ -78,7 +78,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-detail', () => {
         expect(conditionTree.attributes().disabled).toBe('true');
     });
 
-    it('should have enabled fields', () => {
+    it('should have enabled fields', async () => {
         const wrapper = createWrapper([
             'rule.editor'
         ]);

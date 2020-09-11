@@ -45,28 +45,28 @@ describe('components/form/sw-colorpicker', () => {
         wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('the watcher value updates the colorValue', () => {
-        wrapper.setProps({
+    it('the watcher value updates the colorValue', async () => {
+        await wrapper.setProps({
             value: '#123123'
         });
 
         expect(wrapper.vm.colorValue).toBe('#123123');
     });
 
-    it('should be a number multiplied by 100', () => {
-        wrapper.setData({
+    it('should be a number multiplied by 100', async () => {
+        await wrapper.setData({
             alphaValue: 0.5
         });
 
         expect(wrapper.vm.integerAlpha).toBe(50);
     });
 
-    it('should compute the correct alpha slider background', () => {
-        wrapper.setData({
+    it('should compute the correct alpha slider background', async () => {
+        await wrapper.setData({
             hueValue: 50,
             saturationValue: 30,
             luminanceValue: 80
@@ -78,40 +78,40 @@ describe('components/form/sw-colorpicker', () => {
         );
     });
 
-    it('colorValid should be true when using hex', () => {
-        wrapper.setData({
+    it('colorValid should be true when using hex', async () => {
+        await wrapper.setData({
             colorValue: '#fff'
         });
 
         expect(wrapper.vm.isColorValid).toBe(true);
     });
 
-    it('colorValid should be true when using rgb', () => {
-        wrapper.setData({
+    it('colorValid should be true when using rgb', async () => {
+        await wrapper.setData({
             colorValue: 'rgb(50, 40, 200)'
         });
 
         expect(wrapper.vm.isColorValid).toBe(true);
     });
 
-    it('colorValid should be true when using hsl', () => {
-        wrapper.setData({
+    it('colorValid should be true when using hsl', async () => {
+        await wrapper.setData({
             colorValue: 'hsl(40, 50%, 60%)'
         });
 
         expect(wrapper.vm.isColorValid).toBe(true);
     });
 
-    it('colorValid should not be true when using unvalid colorValue', () => {
-        wrapper.setData({
+    it('colorValid should not be true when using unvalid colorValue', async () => {
+        await wrapper.setData({
             colorValue: 'super random color'
         });
 
         expect(wrapper.vm.isColorValid).toBe(false);
     });
 
-    it('should preview the prop value', () => {
-        wrapper.setProps({
+    it('should preview the prop value', async () => {
+        await wrapper.setProps({
             value: '#123123'
         });
 
@@ -122,16 +122,16 @@ describe('components/form/sw-colorpicker', () => {
         expect(previewColorStyleAttribute).toBe('background: rgb(18, 49, 35);');
     });
 
-    it('should be the correct selector background', () => {
-        wrapper.setData({
+    it('should be the correct selector background', async () => {
+        await wrapper.setData({
             hueValue: 154
         });
 
         expect(wrapper.vm.selectorBackground).toBe('hsl(154, 100%, 50%)');
     });
 
-    it('should be the correct red value', () => {
-        wrapper.setData({
+    it('should be the correct red value', async () => {
+        await wrapper.setData({
             hueValue: 153,
             saturationValue: 78,
             luminanceValue: 57
@@ -140,8 +140,8 @@ describe('components/form/sw-colorpicker', () => {
         expect(wrapper.vm.redValue).toBe(60);
     });
 
-    it('red value setter should function properly', () => {
-        wrapper.setData({
+    it('red value setter should function properly', async () => {
+        await wrapper.setData({
             greenValue: 0,
             blueValue: 45
         });
@@ -152,8 +152,8 @@ describe('components/form/sw-colorpicker', () => {
         expect(wrapper.vm.luminanceValue).toBe(8.8);
     });
 
-    it('green value setter should function properly', () => {
-        wrapper.setData({
+    it('green value setter should function properly', async () => {
+        await wrapper.setData({
             redValue: 101,
             blueValue: 100
         });
@@ -164,8 +164,8 @@ describe('components/form/sw-colorpicker', () => {
         expect(wrapper.vm.luminanceValue).toBe(32.2);
     });
 
-    it('blue value setter should function properly', () => {
-        wrapper.setData({
+    it('blue value setter should function properly', async () => {
+        await wrapper.setData({
             redValue: 39,
             greenValue: 123
         });
@@ -176,8 +176,8 @@ describe('components/form/sw-colorpicker', () => {
         expect(wrapper.vm.luminanceValue).toBe(36.7);
     });
 
-    it('should be the correct green value', () => {
-        wrapper.setData({
+    it('should be the correct green value', async () => {
+        await wrapper.setData({
             hueValue: 153,
             saturationValue: 78,
             luminanceValue: 57
@@ -186,8 +186,8 @@ describe('components/form/sw-colorpicker', () => {
         expect(wrapper.vm.greenValue).toBe(231);
     });
 
-    it('should be the correct blue value', () => {
-        wrapper.setData({
+    it('should be the correct blue value', async () => {
+        await wrapper.setData({
             hueValue: 153,
             saturationValue: 78,
             luminanceValue: 57
@@ -196,8 +196,8 @@ describe('components/form/sw-colorpicker', () => {
         expect(wrapper.vm.blueValue).toBe(154);
     });
 
-    it('should be the correct rgb value', () => {
-        wrapper.setData({
+    it('should be the correct rgb value', async () => {
+        await wrapper.setData({
             hueValue: 85,
             saturationValue: 80,
             luminanceValue: 55,
@@ -207,8 +207,8 @@ describe('components/form/sw-colorpicker', () => {
         expect(wrapper.vm.rgbValue).toBe('rgba(156, 232, 48, 0.67)');
     });
 
-    it('should set the correct red value', () => {
-        wrapper.setProps({
+    it('should set the correct red value', async () => {
+        await wrapper.setProps({
             redValue: 25,
             greenValue: 25,
             blueValue: 25
@@ -219,8 +219,8 @@ describe('components/form/sw-colorpicker', () => {
         expect(wrapper.vm.redValue).toBe(80);
     });
 
-    it('should set the correct green value', () => {
-        wrapper.setProps({
+    it('should set the correct green value', async () => {
+        await wrapper.setProps({
             redValue: 25,
             greenValue: 25,
             blueValue: 25
@@ -231,8 +231,8 @@ describe('components/form/sw-colorpicker', () => {
         expect(wrapper.vm.greenValue).toBe(192);
     });
 
-    it('should set the correct blue value', () => {
-        wrapper.setProps({
+    it('should set the correct blue value', async () => {
+        await wrapper.setProps({
             redValue: 25,
             greenValue: 25,
             blueValue: 25
@@ -243,7 +243,7 @@ describe('components/form/sw-colorpicker', () => {
         expect(wrapper.vm.blueValue).toBe(245);
     });
 
-    it('should split the rgb string correctly', () => {
+    it('should split the rgb string correctly', async () => {
         const rgbValues = wrapper.vm.splitRGBValues('rgb(40, 50, 199)');
 
         expect(rgbValues.red).toBe(40);
@@ -251,8 +251,8 @@ describe('components/form/sw-colorpicker', () => {
         expect(rgbValues.blue).toBe(199);
     });
 
-    it('should be the correct hsl value', () => {
-        wrapper.setData({
+    it('should be the correct hsl value', async () => {
+        await wrapper.setData({
             hueValue: 176,
             saturationValue: 66,
             luminanceValue: 40
@@ -261,8 +261,8 @@ describe('components/form/sw-colorpicker', () => {
         expect(wrapper.vm.hslValue).toBe('hsl(176, 66%, 40%)');
     });
 
-    it('should be the correct hsla value', () => {
-        wrapper.setData({
+    it('should be the correct hsla value', async () => {
+        await wrapper.setData({
             hueValue: 40,
             saturationValue: 33,
             luminanceValue: 13,
@@ -272,8 +272,8 @@ describe('components/form/sw-colorpicker', () => {
         expect(wrapper.vm.hslValue).toBe('hsla(40, 33%, 13%, 0.5)');
     });
 
-    it('should set the correct hsla values', () => {
-        wrapper.setData({
+    it('should set the correct hsla values', async () => {
+        await wrapper.setData({
             hueValue: 40,
             saturationValue: 50,
             luminanceValue: 87,
@@ -288,8 +288,8 @@ describe('components/form/sw-colorpicker', () => {
         expect(wrapper.vm.alphaValue).toBe(0.74);
     });
 
-    it('should be the correct hex value', () => {
-        wrapper.setData({
+    it('should be the correct hex value', async () => {
+        await wrapper.setData({
             hueValue: 341,
             saturationValue: 46,
             luminanceValue: 84
@@ -298,8 +298,8 @@ describe('components/form/sw-colorpicker', () => {
         expect(wrapper.vm.hexValue).toBe('#e9c3cf');
     });
 
-    it('should validate the hex input', () => {
-        wrapper.setData({
+    it('should validate the hex input', async () => {
+        await wrapper.setData({
             hueValue: 275,
             saturationValue: 55,
             luminanceValue: 89,
@@ -309,8 +309,8 @@ describe('components/form/sw-colorpicker', () => {
         expect(wrapper.vm.hexValue).toBe('#e6d4f2');
     });
 
-    it('should be the correct hex-alpha value', () => {
-        wrapper.setData({
+    it('should be the correct hex-alpha value', async () => {
+        await wrapper.setData({
             hueValue: 341,
             saturationValue: 46,
             luminanceValue: 84,
@@ -320,28 +320,28 @@ describe('components/form/sw-colorpicker', () => {
         expect(wrapper.vm.hexValue).toBe('#e9c3cf66');
     });
 
-    it('selector should have the right x co-ordinate', () => {
-        wrapper.setData({
+    it('selector should have the right x co-ordinate', async () => {
+        await wrapper.setData({
             saturationValue: 63
         });
 
         expect(wrapper.vm.selectorPositionX).toBe('calc(63% - 9px)');
     });
 
-    it('selector should have the right y co-ordinate', () => {
-        wrapper.setData({
+    it('selector should have the right y co-ordinate', async () => {
+        await wrapper.setData({
             luminanceValue: 32
         });
 
         expect(wrapper.vm.selectorPositionY).toBe('calc(68% - 9px)');
     });
 
-    it('colorValue should be a rgb value', () => {
-        wrapper.setProps({
+    it('colorValue should be a rgb value', async () => {
+        await wrapper.setProps({
             colorOutput: 'rgb'
         });
 
-        wrapper.setData({
+        await wrapper.setData({
             hueValue: 180,
             saturationValue: 50,
             luminanceValue: 40
@@ -350,12 +350,12 @@ describe('components/form/sw-colorpicker', () => {
         expect(wrapper.vm.colorValue).toBe('rgb(51, 153, 153)');
     });
 
-    it('colorValue should be a hsl value', () => {
-        wrapper.setProps({
+    it('colorValue should be a hsl value', async () => {
+        await wrapper.setProps({
             colorOutput: 'hsl'
         });
 
-        wrapper.setData({
+        await wrapper.setData({
             hueValue: 0,
             saturationValue: 81,
             luminanceValue: 72
@@ -364,12 +364,12 @@ describe('components/form/sw-colorpicker', () => {
         expect(wrapper.vm.colorValue).toBe('hsl(0, 81%, 72%)');
     });
 
-    it('colorValue should be a hex value', () => {
-        wrapper.setProps({
+    it('colorValue should be a hex value', async () => {
+        await wrapper.setProps({
             colorOutput: 'hex'
         });
 
-        wrapper.setData({
+        await wrapper.setData({
             hueValue: 149,
             saturationValue: 55,
             luminanceValue: 63
@@ -378,12 +378,12 @@ describe('components/form/sw-colorpicker', () => {
         expect(wrapper.vm.colorValue).toBe('#6dd59f');
     });
 
-    it('colorValue should be a hex value if colorOutput is `auto` ', () => {
-        wrapper.setProps({
+    it('colorValue should be a hex value if colorOutput is `auto` ', async () => {
+        await wrapper.setProps({
             colorOutput: 'auto'
         });
 
-        wrapper.setData({
+        await wrapper.setData({
             hueValue: 149,
             saturationValue: 55,
             luminanceValue: 63
@@ -392,12 +392,12 @@ describe('components/form/sw-colorpicker', () => {
         expect(wrapper.vm.colorValue).toBe('#6dd59f');
     });
 
-    it('colorValue should be a rgba value if colorOutput is `auto` ', () => {
-        wrapper.setProps({
+    it('colorValue should be a rgba value if colorOutput is `auto` ', async () => {
+        await wrapper.setProps({
             colorOutput: 'auto'
         });
 
-        wrapper.setData({
+        await wrapper.setData({
             hueValue: 149,
             saturationValue: 55,
             luminanceValue: 63,
@@ -407,28 +407,28 @@ describe('components/form/sw-colorpicker', () => {
         expect(wrapper.vm.colorValue).toBe('rgba(109, 213, 159, 0.87)');
     });
 
-    it('should add an event listener on the window', () => {
+    it('should add an event listener on the window', async () => {
         wrapper.vm.setOutsideClickEvent();
         expect(eventListener).toHaveProperty('mousedown');
 
         wrapper.vm.removeOutsideClickEvent();
     });
 
-    it('should remove an event listener on the window', () => {
+    it('should remove an event listener on the window', async () => {
         wrapper.vm.setOutsideClickEvent();
         wrapper.vm.removeOutsideClickEvent();
 
         expect(eventListener).not.toHaveProperty('mousedown');
     });
 
-    it('should show only the input field without colorpicker', () => {
-        wrapper.setData({ visible: false });
+    it('should show only the input field without colorpicker', async () => {
+        await wrapper.setData({ visible: false });
         const colorpicker = wrapper.find('.sw-colorpicker__colorpicker');
 
         expect(colorpicker.exists()).toBe(false);
     });
 
-    it('should split rgb values correctly', () => {
+    it('should split rgb values correctly', async () => {
         const rgbValues = wrapper.vm.splitRGBValues('rgba(40, 242, 74, 0.8)');
 
         expect(rgbValues.red).toBe(40);
@@ -437,27 +437,27 @@ describe('components/form/sw-colorpicker', () => {
         expect(rgbValues.alpha).toBe(0.8);
     });
 
-    it('should show the colorpicker', () => {
-        wrapper.setData({ visible: true });
+    it('should show the colorpicker', async () => {
+        await wrapper.setData({ visible: true });
         const colorpicker = wrapper.find('.sw-colorpicker__colorpicker');
 
         expect(colorpicker.exists()).toBe(true);
     });
 
-    it('should output in rgb', () => {
-        wrapper.setProps({
+    it('should output in rgb', async () => {
+        await wrapper.setProps({
             value: '#123123',
             colorOutput: 'rgb'
         });
 
-        wrapper.setData({
+        await wrapper.setData({
             visible: true
         });
 
         expect(wrapper.vm.colorValue).toBe('rgb(18, 49, 35)');
     });
 
-    it('should split hsl values correctly', () => {
+    it('should split hsl values correctly', async () => {
         const hslValues = wrapper.vm.splitHSLValues('hsla(67, 43%, 67%, 0.98)');
 
         expect(hslValues.hue).toBe(67);
@@ -466,7 +466,7 @@ describe('components/form/sw-colorpicker', () => {
         expect(hslValues.alpha).toBe(0.98);
     });
 
-    it('should convert HSLA to RGBA', () => {
+    it('should convert HSLA to RGBA', async () => {
         const hue = 201;
         const saturation = 46;
         const luminance = 51;
@@ -485,13 +485,13 @@ describe('components/form/sw-colorpicker', () => {
         expect(rgbValue.alpha).toBe(0.27);
     });
 
-    it('should convert Hsl to Hex', () => {
+    it('should convert Hsl to Hex', async () => {
         const hexValues = wrapper.vm.convertHSLtoHEX(75, 72, 65, 0.6);
 
         expect(hexValues).toBe('#c6e66599');
     });
 
-    it('should convert Rgb to Hsl', () => {
+    it('should convert Rgb to Hsl', async () => {
         const hslValues = wrapper.vm.convertRGBtoHSL(255, 23, 67, 0.8);
 
         expect(hslValues.hue).toBe(349);
@@ -499,7 +499,7 @@ describe('components/form/sw-colorpicker', () => {
         expect(hslValues.luminance).toBe(54.5);
     });
 
-    it('should convert Hex to Hsl', () => {
+    it('should convert Hex to Hsl', async () => {
         const hslValues = wrapper.vm.convertHEXtoHSL('#24db5b99');
 
         expect(hslValues.hue).toBe(138);

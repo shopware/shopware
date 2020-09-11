@@ -43,19 +43,19 @@ function createWrapper(privileges = []) {
 }
 
 describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should have an enabled create button', () => {
+    it('should have an enabled create button', async () => {
         const wrapper = createWrapper(['product_manufacturer.creator']);
         const addButton = wrapper.find('.sw-manufacturer-list__add-manufacturer');
         expect(addButton.attributes().disabled).toBeUndefined();
     });
 
-    it('should have an disabled create button', () => {
+    it('should have an disabled create button', async () => {
         const wrapper = createWrapper();
         const addButton = wrapper.find('.sw-manufacturer-list__add-manufacturer');
 

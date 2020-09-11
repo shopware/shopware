@@ -8,3 +8,4 @@ author_github:  @jleifeld
 # Administration
 * Changed jest version in administration to 26.4.2
 * Changed babel-jest Version in administration to 26.3.0
+* Changed all unit tests in the administration to fix breaking changes

@@ -61,13 +61,13 @@ function createPageProp() {
 }
 
 describe('module/sw-cms/component/sw-cms-page-form', () => {
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should have only one empty state \'card\'', () => {
+    it('should have only one empty state \'card\'', async () => {
         const wrapper = createWrapper();
         const lengthOfEmptyStates = wrapper.findAll('.sw-cms-page-form__block-card.is--empty').length;
 
@@ -75,14 +75,14 @@ describe('module/sw-cms/component/sw-cms-page-form', () => {
         expect(lengthOfEmptyStates).toBe(1);
     });
 
-    it('should have correct path to snippet', () => {
+    it('should have correct path to snippet', async () => {
         const wrapper = createWrapper();
         const textOfEmptyStateBlock = wrapper.find('.sw-cms-page-form__empty-state-text').text();
 
         expect(textOfEmptyStateBlock).toBe('sw-cms.section.sectionEmptyState');
     });
 
-    it('should have an cms section with a text element', () => {
+    it('should have an cms section with a text element', async () => {
         const wrapper = createWrapper();
         const configElement = wrapper.find('.config-element');
 

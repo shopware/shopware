@@ -68,16 +68,16 @@ function createWrapper() {
 describe('src/app/component/form/select/base/sw-select-result/', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
-    afterEach(() => {
-        wrapper.destroy();
+    afterEach(async () => {
+        await wrapper.destroy();
     });
 
 
-    it('should be a Vue.JS component', () => {
-        expect(wrapper.isVueInstance()).toBe(true);
+    it('should be a Vue.JS component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should react on $parent.$parent event', async () => {
@@ -91,7 +91,9 @@ describe('src/app/component/form/select/base/sw-select-result/', () => {
     });
 
     it('should remove the event listener', async () => {
-        wrapper.find('.parent').vm.showSwSelectResult = false;
+        await wrapper.find('.parent').setData({
+            showSwSelectResult: false
+        });
 
         // $on and $off methods get each called twice in the lifecyclehooks
         // because we are using two listeners
@@ -101,12 +103,16 @@ describe('src/app/component/form/select/base/sw-select-result/', () => {
         expect(onSpy).toHaveBeenCalledTimes(0);
         expect(onSpy).toHaveBeenCalledTimes(0);
 
-        wrapper.find('.parent').vm.showSwSelectResult = true;
+        await wrapper.find('.parent').setData({
+            showSwSelectResult: true
+        });
 
         expect(onSpy).toHaveBeenCalledTimes(2);
         expect(offSpy).toHaveBeenCalledTimes(0);
 
-        wrapper.find('.parent').vm.showSwSelectResult = false;
+        await wrapper.find('.parent').setData({
+            showSwSelectResult: false
+        });
 
         expect(onSpy).toHaveBeenCalledTimes(2);
         expect(offSpy).toHaveBeenCalledTimes(2);

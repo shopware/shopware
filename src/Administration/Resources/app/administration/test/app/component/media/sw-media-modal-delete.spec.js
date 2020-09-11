@@ -43,12 +43,12 @@ describe('components/media/sw-media-modal-delete', () => {
         });
     };
 
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = CreateWrapper();
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should return list of Media with only one media selected', () => {
+    it('should return list of Media with only one media selected', async () => {
         const productMediaMock = {
             id: '3093dl23hf83jh29d0jsj',
             product: {
@@ -69,7 +69,7 @@ describe('components/media/sw-media-modal-delete', () => {
         expect(wrapper.find('.sw-media-media-item').exists()).toBeFalsy();
     });
 
-    it('should return list of Media quick info usage with all of places already linked', () => {
+    it('should return list of Media quick info usage with all of places already linked', async () => {
         const avatarUser = { id: '2d221dd5z2d2d90389fj1d21' };
         const category = { id: '30f832hdk5bn383h23023hf02' };
         const productManufacturer = { id: '923hf9202jd02j29d72h20' };
@@ -107,7 +107,7 @@ describe('components/media/sw-media-modal-delete', () => {
         expect(wrapper.find('.sw-media-media-item').exists()).toBeFalsy();
     });
 
-    it('should return list of File have media in usage with more than one media selected', () => {
+    it('should return list of File have media in usage with more than one media selected', async () => {
         const productMediaMock = {
             id: '02djd92jdj1d928djc93333nf90',
             product: {
@@ -129,7 +129,7 @@ describe('components/media/sw-media-modal-delete', () => {
         });
     });
 
-    it('should not return media in usage when it is a folder', () => {
+    it('should not return media in usage when it is a folder', async () => {
         const folderDeleteMock = {
             getEntityName: () => { return 'media_folder'; },
             id: 'kc3m3iw0289d82392nd8cd33d3d3',

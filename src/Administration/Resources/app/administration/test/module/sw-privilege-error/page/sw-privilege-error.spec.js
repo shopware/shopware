@@ -23,22 +23,22 @@ describe('src/module/sw-privilege-error/page/sw-privilege-error', () => {
         });
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should show a back button', () => {
+    it('should show a back button', async () => {
         const backButton = wrapper.find('.sw-privilege-error__back-button');
 
         expect(backButton.text()).toContain('sw-privilege-error.general.goBack');
     });
 
-    it('should go a page back when button is clicked', () => {
+    it('should go a page back when button is clicked', async () => {
         const backButton = wrapper.find('.sw-privilege-error__back-button');
 
         expect(wrapper.vm.$router.go).not.toHaveBeenCalled();
 
-        backButton.trigger('click');
+        await backButton.trigger('click');
 
         expect(wrapper.vm.$router.go).toHaveBeenCalledWith(-1);
     });

@@ -55,20 +55,20 @@ describe('src/module/sw-media/page/sw-media-index', () => {
         });
     }
 
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should contain the default accept value', () => {
+    it('should contain the default accept value', async () => {
         const wrapper = createWrapper();
         const fileInput = wrapper.find('sw-media-upload-v2-stub');
         expect(fileInput.attributes().fileaccept).toBe('*/*');
     });
 
-    it('should contain "application/pdf" value', () => {
+    it('should contain "application/pdf" value', async () => {
         const wrapper = createWrapper();
-        wrapper.setProps({
+        await wrapper.setProps({
             fileAccept: 'application/pdf'
         });
         const fileInput = wrapper.find('sw-media-upload-v2-stub');

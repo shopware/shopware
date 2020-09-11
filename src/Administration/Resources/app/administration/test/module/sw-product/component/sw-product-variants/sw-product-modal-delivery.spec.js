@@ -35,13 +35,13 @@ function createWrapper(privileges = []) {
 }
 
 describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-delivery', () => {
-    it('should be a Vue.JS component', () => {
+    it('should be a Vue.JS component', async () => {
         const wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBe(true);
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should have an disabled save button', () => {
+    it('should have an disabled save button', async () => {
         const wrapper = createWrapper();
         const saveButton = wrapper.find('.sw-product-modal-delivery__save-button');
 
@@ -49,7 +49,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-modal-d
         expect(saveButton.attributes().disabled).toBeTruthy();
     });
 
-    it('should have an enabled save button', () => {
+    it('should have an enabled save button', async () => {
         const wrapper = createWrapper([
             'product.editor'
         ]);

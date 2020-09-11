@@ -14,6 +14,8 @@ import state from 'src/module/sw-settings-shipping/page/sw-settings-shipping-det
 
 Shopware.State.registerModule('swShippingDetail', state);
 
+const swSettingsShippingPriceMatrix = Shopware.Component.build('sw-settings-shipping-price-matrix');
+
 const createWrapper = () => {
     const localVue = createLocalVue();
     localVue.directive('popover', {});
@@ -23,7 +25,7 @@ const createWrapper = () => {
         localVue,
         store: Shopware.State._store,
         stubs: {
-            'sw-settings-shipping-price-matrix': Shopware.Component.build('sw-settings-shipping-price-matrix'),
+            'sw-settings-shipping-price-matrix': swSettingsShippingPriceMatrix,
             'sw-card': true,
             'sw-alert': true,
             'sw-container': true,
@@ -137,13 +139,13 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         };
     });
 
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should render one shipping price matrix', () => {
+    it('should render one shipping price matrix', async () => {
         const wrapper = createWrapper();
 
         Shopware.State.commit('swShippingDetail/setShippingMethod', {
@@ -153,30 +155,31 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
             ]
         });
 
-        const matrices = wrapper.findAll('.sw-settings-shipping-price-matrix');
+        const matrices = wrapper.findAllComponents(swSettingsShippingPriceMatrix);
 
         expect(matrices).toHaveLength(1);
     });
 
-    it('should render two shipping price matrices', () => {
+    it('should render two shipping price matrices', async () => {
         const wrapper = createWrapper();
 
-        Shopware.State.commit('swShippingDetail/setShippingMethod', {
+        await Shopware.State.commit('swShippingDetail/setShippingMethod', {
             prices: [
                 { ruleId: '1' },
                 { ruleId: '2' }
             ]
         });
 
-        const matrices = wrapper.findAll('.sw-settings-shipping-price-matrix');
+        const matrices = wrapper.findAllComponents(swSettingsShippingPriceMatrix);
 
         expect(matrices).toHaveLength(2);
     });
 
-    it('should render five shipping price matrices', () => {
+    it('should render five shipping price matrices', async () => {
         const wrapper = createWrapper();
 
-        Shopware.State.commit('swShippingDetail/setShippingMethod', {
+
+        await Shopware.State.commit('swShippingDetail/setShippingMethod', {
             prices: [
                 { ruleId: '1' },
                 { ruleId: '2' },
@@ -186,12 +189,12 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
             ]
         });
 
-        const matrices = wrapper.findAll('.sw-settings-shipping-price-matrix');
+        const matrices = wrapper.findAllComponents(swSettingsShippingPriceMatrix);
 
         expect(matrices).toHaveLength(5);
     });
 
-    it('should enable the button when there are available rules', () => {
+    it('should enable the button when there are available rules', async () => {
         const wrapper = createWrapper();
 
         Shopware.State.commit('swShippingDetail/setShippingMethod', {
@@ -205,7 +208,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         expect(addPriceMatrixButton.attributes('disabled')).toBeFalsy();
     });
 
-    it('should duplicate the price matrix', () => {
+    it('should duplicate the price matrix', async () => {
         const wrapper = createWrapper();
 
         Shopware.State.commit('swShippingDetail/setShippingMethod', {
@@ -262,7 +265,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         });
     });
 
-    it('should delete the shipping price group', () => {
+    it('should delete the shipping price group', async () => {
         const wrapper = createWrapper();
 
         Shopware.State.commit('swShippingDetail/setShippingMethod', {
@@ -282,7 +285,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         expect(Object.keys(wrapper.vm.shippingPriceGroups)).not.toContain('2');
     });
 
-    it('should add the shipping price group', () => {
+    it('should add the shipping price group', async () => {
         const wrapper = createWrapper();
 
         Shopware.State.commit('swShippingDetail/setShippingMethod', {
@@ -306,7 +309,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         expect(Object.keys(wrapper.vm.shippingPriceGroups)).toContain('null');
     });
 
-    it('should show all rules with matching prices', () => {
+    it('should show all rules with matching prices', async () => {
         const wrapper = createWrapper();
 
         const rowOneQuantityStart = wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--quantityStart input');
@@ -320,7 +323,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         expect(rowTwoQuantityEnd.element.value).toEqual('');
     });
 
-    it('should show all rules with weight and up to three decimal places', () => {
+    it('should show all rules with weight and up to three decimal places', async () => {
         Shopware.State.commit('swShippingDetail/setShippingMethod', {
             id: '12345',
             prices: [
@@ -423,7 +426,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         expect(rowFourQuantityEnd.element.value).toEqual('');
     });
 
-    it('all rules should have the right min and max values', () => {
+    it('all rules should have the right min and max values', async () => {
         const wrapper = createWrapper();
 
         const rowOneQuantityStart = wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--quantityStart input');
@@ -444,7 +447,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         expect(rowTwoQuantityEnd.attributes().max).toEqual(undefined);
     });
 
-    it('should add a new pricing rule and change the values', () => {
+    it('should add a new pricing rule and change the values', async () => {
         const wrapper = createWrapper();
 
         const addNewPriceRuleButton = wrapper.find('.sw-settings-shipping-price-matrix__top-container .sw-button__content');
@@ -455,7 +458,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         expect(lastRowStart.element.value).toEqual('21');
         expect(lastRowEnd.element.value).toEqual('');
 
-        addNewPriceRuleButton.trigger('click');
+        await addNewPriceRuleButton.trigger('click');
 
         lastRowStart = wrapper.find('.sw-data-grid__row:last-child .sw-data-grid__cell--quantityStart input');
         lastRowEnd = wrapper.find('.sw-data-grid__row:last-child .sw-data-grid__cell--quantityEnd input');
@@ -473,7 +476,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         expect(beforeLastRowEnd.element.value).toEqual('21');
     });
 
-    it('should delete the last pricing rule and change the values', () => {
+    it('should delete the last pricing rule and change the values', async () => {
         const wrapper = createWrapper();
 
         let rowOneQuantityStart = wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--quantityStart input');
@@ -491,7 +494,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
             '.sw-data-grid__row.sw-data-grid__row--0 .sw-data-grid__cell--actions .sw-context-button__button'
         );
 
-        firstRowContextButton.trigger('click');
+        await firstRowContextButton.trigger('click');
 
         const contextMenu = wrapper.find('.sw-context-menu');
         expect(contextMenu.isVisible()).toBeTruthy();
@@ -499,7 +502,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         const deleteButton = contextMenu.find('.sw-context-menu-item--danger');
         expect(deleteButton.isVisible()).toBeTruthy();
 
-        deleteButton.trigger('click');
+        await deleteButton.trigger('click');
 
         rowOneQuantityStart = wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--quantityStart input');
         rowOneQuantityEnd = wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--quantityEnd input');
@@ -513,7 +516,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         expect(rowTwoQuantityEnd.exists()).toEqual(false);
     });
 
-    it('should delete a pricing rule and change the values', () => {
+    it('should delete a pricing rule and change the values', async () => {
         Shopware.State.commit('swShippingDetail/setShippingMethod', {
             id: '12345',
             prices: [
@@ -600,7 +603,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
             '.sw-data-grid__row.sw-data-grid__row--1 .sw-data-grid__cell--actions .sw-context-button__button'
         );
 
-        firstRowContextButton.trigger('click');
+        await firstRowContextButton.trigger('click');
 
         const contextMenu = wrapper.find('.sw-context-menu');
         expect(contextMenu.isVisible()).toBeTruthy();
@@ -608,7 +611,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         const deleteButton = contextMenu.find('.sw-context-menu-item--danger');
         expect(deleteButton.isVisible()).toBeTruthy();
 
-        deleteButton.trigger('click');
+        await deleteButton.trigger('click');
 
         rowOneQuantityStart = wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--quantityStart input');
         rowOneQuantityEnd = wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--quantityEnd input');
@@ -627,10 +630,10 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         expect(rowThreeQuantityEnd.exists()).toEqual(false);
     });
 
-    it('should have all fields disabled when property disabled is true', () => {
+    it('should have all fields disabled when property disabled is true', async () => {
         const wrapper = createWrapper();
 
-        wrapper.setProps({
+        await wrapper.setProps({
             disabled: true
         });
 
@@ -644,7 +647,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         expect(toolbarContextButton.props().disabled).toBe(true);
         expect(ruleSelect.attributes().disabled).toBe('true');
 
-        const allPricesMatrix = wrapper.findAll('.sw-settings-shipping-price-matrix');
+        const allPricesMatrix = wrapper.findAllComponents(swSettingsShippingPriceMatrix);
         const numberFields = wrapper.findAll('input[type="number"]');
         const inheritanceSwitches = wrapper.findAll('.sw-inheritance-switch');
 
@@ -670,7 +673,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         });
     });
 
-    it('should have all fields enabled when property disabled is not set', () => {
+    it('should have all fields enabled when property disabled is not set', async () => {
         const wrapper = createWrapper();
 
         const addMatrixButton = wrapper.find('.sw-settings-shipping-price-matrices__actions-add-matrix');
@@ -683,7 +686,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         expect(toolbarContextButton.props().disabled).toBe(false);
         expect(ruleSelect.attributes().disabled).toBeUndefined();
 
-        const allPricesMatrix = wrapper.findAll('.sw-settings-shipping-price-matrix');
+        const allPricesMatrix = wrapper.findAllComponents(swSettingsShippingPriceMatrix);
         const numberFields = wrapper.findAll('input[type="number"]');
         const inheritanceSwitches = wrapper.findAll('.sw-inheritance-switch');
 

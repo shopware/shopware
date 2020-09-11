@@ -78,12 +78,12 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         return { wrapper, localVue };
     };
 
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const { wrapper } = createWrapper();
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should open the activity detail modal', () => {
+    it('should open the activity detail modal', async () => {
         const { wrapper } = createWrapper();
         const logEntity = {
             id: 'id',
@@ -100,16 +100,16 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
             state: 'succeeded'
         };
 
-        wrapper.setData({ selectedLog: logEntity });
+        await wrapper.setData({ selectedLog: logEntity });
 
         const detailModal = wrapper.find('.sw-import-export-activity-detail-modal');
 
-        expect(wrapper.isVueInstance()).toBeTruthy();
-        expect(detailModal.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
+        expect(detailModal.vm).toBeTruthy();
         expect(detailModal.vm.logEntity).toEqual(logEntity);
     });
 
-    it('should show the correct label', () => {
+    it('should show the correct label', async () => {
         const { wrapper } = createWrapper();
 
         expect(wrapper.vm.getStateLabel('progress')).toEqual('Progress');
@@ -119,7 +119,7 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         expect(wrapper.vm.getStateLabel('aborted')).toEqual('Aborted');
     });
 
-    it('should show the technical name when no translation exists', () => {
+    it('should show the technical name when no translation exists', async () => {
         const { wrapper } = createWrapper();
 
         expect(wrapper.vm.getStateLabel('waiting')).toEqual('waiting');

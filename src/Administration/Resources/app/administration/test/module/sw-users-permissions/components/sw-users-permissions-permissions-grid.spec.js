@@ -35,12 +35,12 @@ function createWrapper({ privilegesMappings = [], rolePrivileges = [] } = {}) {
 }
 
 describe('src/module/sw-users-permissions/components/sw-users-permissions-permissions-grid', () => {
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should show the header with all titles', () => {
+    it('should show the header with all titles', async () => {
         const wrapper = createWrapper();
 
         const gridHeader = wrapper.find('.sw-users-permissions-permissions-grid__entry-header');
@@ -72,7 +72,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(gridRoleAll.text()).toBe('sw-privileges.roles.all');
     });
 
-    it('should show a row with privileges', () => {
+    it('should show a row with privileges', async () => {
         const wrapper = createWrapper({
             privilegesMappings: [
                 {
@@ -120,7 +120,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(productAll.exists()).toBeTruthy();
     });
 
-    it('should show only privileges with the right category', () => {
+    it('should show only privileges with the right category', async () => {
         const wrapper = createWrapper({
             privilegesMappings: [
                 {
@@ -157,7 +157,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(productAll.exists()).toBeTruthy();
     });
 
-    it('should show only roles which are existing', () => {
+    it('should show only roles which are existing', async () => {
         const wrapper = createWrapper({
             privilegesMappings: [
                 {
@@ -179,7 +179,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(productRow.exists()).toBeFalsy();
     });
 
-    it('should ignore role which doesn´t fit in the category', () => {
+    it('should ignore role which doesn´t fit in the category', async () => {
         const wrapper = createWrapper({
             privilegesMappings: [
                 {
@@ -208,7 +208,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(entry.exists()).toBeFalsy();
     });
 
-    it('should select the viewer role', () => {
+    it('should select the viewer role', async () => {
         const wrapper = createWrapper({
             privilegesMappings: [
                 {
@@ -242,14 +242,14 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
 
         expect(wrapper.vm.role.privileges.length).toBe(0);
 
-        productViewer.find('.sw-field--checkbox input').trigger('click');
+        await productViewer.find('.sw-field--checkbox input').trigger('click');
 
         expect(wrapper.vm.role.privileges.length).toBe(1);
         expect(wrapper.vm.role.privileges[0]).toBe('product.viewer');
         expect(productViewer.find('.sw-field--checkbox').props().value).toBe(true);
     });
 
-    it('should select the creator role', () => {
+    it('should select the creator role', async () => {
         const wrapper = createWrapper({
             privilegesMappings: [
                 {
@@ -283,14 +283,14 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
 
         expect(wrapper.vm.role.privileges.length).toBe(0);
 
-        productCreator.find('.sw-field--checkbox input').trigger('click');
+        await productCreator.find('.sw-field--checkbox input').trigger('click');
 
         expect(wrapper.vm.role.privileges.length).toBeGreaterThan(0);
         expect(wrapper.vm.role.privileges).toContain('product.creator');
         expect(productCreator.find('.sw-field--checkbox').props().value).toBe(true);
     });
 
-    it('should select a role and all its dependencies in the same row', () => {
+    it('should select a role and all its dependencies in the same row', async () => {
         const wrapper = createWrapper({
             privilegesMappings: [
                 {
@@ -329,7 +329,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
 
         expect(wrapper.vm.role.privileges.length).toBe(0);
 
-        productCreator.find('.sw-field--checkbox input').trigger('click');
+        await productCreator.find('.sw-field--checkbox input').trigger('click');
 
         expect(wrapper.vm.role.privileges.length).toBe(3);
 
@@ -342,7 +342,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(productCreator.find('.sw-field--checkbox').props().value).toBe(true);
     });
 
-    it('should have enabled checkboxes when selecting a role with its dependencies', () => {
+    it('should have enabled checkboxes when selecting a role with its dependencies', async () => {
         const wrapper = createWrapper({
             privilegesMappings: [
                 {
@@ -383,7 +383,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(productEditor.props().value).toBe(false);
         expect(productViewer.props().value).toBe(false);
 
-        productCreator.find('.sw-field--checkbox input').trigger('click');
+        await productCreator.find('.sw-field--checkbox input').trigger('click');
 
         wrapper.vm.$forceUpdate();
 
@@ -392,7 +392,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(productViewer.props().value).toBe(true);
     });
 
-    it('should select a role and all its dependencies in other rows', () => {
+    it('should select a role and all its dependencies in other rows', async () => {
         const wrapper = createWrapper({
             privilegesMappings: [
                 {
@@ -455,7 +455,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
 
         expect(wrapper.vm.role.privileges.length).toBe(0);
 
-        categoryCreator.find('.sw-field--checkbox input').trigger('click');
+        await categoryCreator.find('.sw-field--checkbox input').trigger('click');
 
         expect(wrapper.vm.role.privileges.length).toBe(3);
 
@@ -468,7 +468,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(productEditor.find('.sw-field--checkbox').props().value).toBe(true);
     });
 
-    it('should select a role and add it to the role privileges prop', () => {
+    it('should select a role and add it to the role privileges prop', async () => {
         const wrapper = createWrapper({
             privilegesMappings: [
                 {
@@ -500,12 +500,12 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
         const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator');
 
-        productCreator.find('.sw-field--checkbox input').trigger('click');
+        await productCreator.find('.sw-field--checkbox input').trigger('click');
 
         expect(wrapper.vm.role.privileges).toContain('product.creator');
     });
 
-    it('should select a role and all dependencies to the role privileges prop', () => {
+    it('should select a role and all dependencies to the role privileges prop', async () => {
         const wrapper = createWrapper({
             privilegesMappings: [
                 {
@@ -540,14 +540,14 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
         const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator');
 
-        productCreator.find('.sw-field--checkbox input').trigger('click');
+        await productCreator.find('.sw-field--checkbox input').trigger('click');
 
         expect(wrapper.vm.role.privileges).toContain('product.creator');
         expect(wrapper.vm.role.privileges).toContain('product.editor');
         expect(wrapper.vm.role.privileges).toContain('product.viewer');
     });
 
-    it('should select all and all roles in the row should be selected', () => {
+    it('should select all and all roles in the row should be selected', async () => {
         const wrapper = createWrapper({
             privilegesMappings: [
                 {
@@ -584,7 +584,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
         const productAll = productRow.find('.sw-users-permissions-permissions-grid__all');
 
-        productAll.find('.sw-field--checkbox input').trigger('click');
+        await productAll.find('.sw-field--checkbox input').trigger('click');
 
         expect(wrapper.vm.role.privileges).toContain('product.viewer');
         expect(wrapper.vm.role.privileges).toContain('product.editor');
@@ -592,7 +592,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(wrapper.vm.role.privileges).toContain('product.deleter');
     });
 
-    it('should select all and all checkboxes in the row should be selected', () => {
+    it('should select all and all checkboxes in the row should be selected', async () => {
         const wrapper = createWrapper({
             privilegesMappings: [
                 {
@@ -633,7 +633,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(productCreator.props().value).toBe(false);
         expect(productDeleter.props().value).toBe(false);
 
-        productAll.find('.sw-field--checkbox input').trigger('click');
+        await productAll.find('.sw-field--checkbox input').trigger('click');
         wrapper.vm.$forceUpdate();
 
         expect(productViewer.props().value).toBe(true);
@@ -641,7 +641,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(productCreator.props().value).toBe(true);
         expect(productDeleter.props().value).toBe(true);
     });
-    it('should select all and roles in other rows should not be selected', () => {
+    it('should select all and roles in other rows should not be selected', async () => {
         const wrapper = createWrapper({
             privilegesMappings: [
                 {
@@ -717,7 +717,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(categoryCreator.props().value).toBe(false);
         expect(categoryDeleter.props().value).toBe(false);
 
-        productAll.find('.sw-field--checkbox input').trigger('click');
+        await productAll.find('.sw-field--checkbox input').trigger('click');
         wrapper.vm.$forceUpdate();
 
         expect(productViewer.props().value).toBe(true);
@@ -731,7 +731,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(categoryDeleter.props().value).toBe(false);
     });
 
-    it('should select some and click on all. All have to be selected', () => {
+    it('should select some and click on all. All have to be selected', async () => {
         const wrapper = createWrapper({
             privilegesMappings: [
                 {
@@ -768,8 +768,8 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
 
         const productAll = productRow.find('.sw-users-permissions-permissions-grid__all');
 
-        productViewer.find('.sw-field--checkbox input').trigger('click');
-        productCreator.find('.sw-field--checkbox input').trigger('click');
+        await productViewer.find('.sw-field--checkbox input').trigger('click');
+        await productCreator.find('.sw-field--checkbox input').trigger('click');
         wrapper.vm.$forceUpdate();
 
         expect(productViewer.props().value).toBe(true);
@@ -777,7 +777,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(productCreator.props().value).toBe(true);
         expect(productDeleter.props().value).toBe(false);
 
-        productAll.find('.sw-field--checkbox input').trigger('click');
+        await productAll.find('.sw-field--checkbox input').trigger('click');
         wrapper.vm.$forceUpdate();
 
         expect(productViewer.props().value).toBe(true);
@@ -785,7 +785,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(productCreator.props().value).toBe(true);
         expect(productDeleter.props().value).toBe(true);
     });
-    it('should select all roles each and the checkbox all have to be checked', () => {
+    it('should select all roles each and the checkbox all have to be checked', async () => {
         const wrapper = createWrapper({
             privilegesMappings: [
                 {
@@ -824,16 +824,16 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
 
         expect(productAll.props().value).toBe(false);
 
-        productViewer.find('.sw-field--checkbox input').trigger('click');
-        productEditor.find('.sw-field--checkbox input').trigger('click');
-        productCreator.find('.sw-field--checkbox input').trigger('click');
-        productDeleter.find('.sw-field--checkbox input').trigger('click');
+        await productViewer.find('.sw-field--checkbox input').trigger('click');
+        await productEditor.find('.sw-field--checkbox input').trigger('click');
+        await productCreator.find('.sw-field--checkbox input').trigger('click');
+        await productDeleter.find('.sw-field--checkbox input').trigger('click');
         wrapper.vm.$forceUpdate();
 
         expect(productAll.props().value).toBe(true);
     });
 
-    it('should unselect all roles with the checkbox all', () => {
+    it('should unselect all roles with the checkbox all', async () => {
         const wrapper = createWrapper({
             privilegesMappings: [
                 {
@@ -870,10 +870,10 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
 
         const productAll = productRow.find('.sw-users-permissions-permissions-grid__all .sw-field--checkbox');
 
-        productViewer.find('input').trigger('click');
-        productEditor.find('input').trigger('click');
-        productCreator.find('input').trigger('click');
-        productDeleter.find('input').trigger('click');
+        await productViewer.find('input').trigger('click');
+        await productEditor.find('input').trigger('click');
+        await productCreator.find('input').trigger('click');
+        await productDeleter.find('input').trigger('click');
 
         wrapper.vm.$forceUpdate();
 
@@ -882,7 +882,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(productCreator.props().value).toBe(true);
         expect(productDeleter.props().value).toBe(true);
 
-        productAll.find('input').trigger('click');
+        await productAll.find('input').trigger('click');
         wrapper.vm.$forceUpdate();
 
         expect(productViewer.props().value).toBe(false);
@@ -891,7 +891,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(productDeleter.props().value).toBe(false);
     });
 
-    it('should disable checkboxes which are dependencies for viewer (0 dependencies)', () => {
+    it('should disable checkboxes which are dependencies for viewer (0 dependencies)', async () => {
         const wrapper = createWrapper({
             privilegesMappings: [
                 {
@@ -933,7 +933,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
         const productDeleter = productRow.find('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
 
-        productViewer.find('input').trigger('click');
+        await productViewer.find('input').trigger('click');
 
         expect(productViewer.props().value).toBe(true);
         expect(productViewer.props().disabled).toBe(false);
@@ -948,7 +948,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(productDeleter.props().disabled).toBe(false);
     });
 
-    it('should disable checkboxes which are dependencies for editor (1 dependency)', () => {
+    it('should disable checkboxes which are dependencies for editor (1 dependency)', async () => {
         const wrapper = createWrapper({
             privilegesMappings: [
                 {
@@ -990,7 +990,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
         const productDeleter = productRow.find('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
 
-        productEditor.find('input').trigger('click');
+        await productEditor.find('input').trigger('click');
 
         expect(productViewer.props().value).toBe(true);
         expect(productViewer.props().disabled).toBe(true);
@@ -1005,7 +1005,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(productDeleter.props().disabled).toBe(false);
     });
 
-    it('should disable checkboxes which are dependencies for creator (2 dependencies)', () => {
+    it('should disable checkboxes which are dependencies for creator (2 dependencies)', async () => {
         const wrapper = createWrapper({
             privilegesMappings: [
                 {
@@ -1047,7 +1047,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
         const productDeleter = productRow.find('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
 
-        productCreator.find('input').trigger('click');
+        await productCreator.find('input').trigger('click');
 
         expect(productViewer.props().value).toBe(true);
         expect(productViewer.props().disabled).toBe(true);
@@ -1062,7 +1062,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(productDeleter.props().disabled).toBe(false);
     });
 
-    it('should disable checkboxes which are dependencies for deleter (1 dependency)', () => {
+    it('should disable checkboxes which are dependencies for deleter (1 dependency)', async () => {
         const wrapper = createWrapper({
             privilegesMappings: [
                 {
@@ -1104,7 +1104,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         const productCreator = productRow.find('.sw-users-permissions-permissions-grid__role_creator .sw-field--checkbox');
         const productDeleter = productRow.find('.sw-users-permissions-permissions-grid__role_deleter .sw-field--checkbox');
 
-        productDeleter.find('input').trigger('click');
+        await productDeleter.find('input').trigger('click');
 
         expect(productViewer.props().value).toBe(true);
         expect(productViewer.props().disabled).toBe(true);
@@ -1119,7 +1119,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(productDeleter.props().disabled).toBe(false);
     });
 
-    it('should show the parent permissions', () => {
+    it('should show the parent permissions', async () => {
         const wrapper = createWrapper({
             privilegesMappings: [
                 {
@@ -1229,7 +1229,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(parentSettings.isVisible()).toBeTruthy();
     });
 
-    it('should organize the children to the matching parents', () => {
+    it('should organize the children to the matching parents', async () => {
         const wrapper = createWrapper({
             privilegesMappings: [
                 {
@@ -1347,7 +1347,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(gridEntries.at(7).classes()).toContain('sw-users-permissions-permissions-grid__entry_currencies');
     });
 
-    it('should sort parents alphabetically with the label', () => {
+    it('should sort parents alphabetically with the label', async () => {
         const wrapper = createWrapper({
             privilegesMappings: [
                 {
@@ -1387,7 +1387,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(gridEntries.at(7).classes()).toContain('sw-users-permissions-permissions-grid__parent_settings');
     });
 
-    it('should sort children in parents alphabetically', () => {
+    it('should sort children in parents alphabetically', async () => {
         const wrapper = createWrapper({
             privilegesMappings: [
                 {
@@ -1427,7 +1427,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(gridEntries.at(5).classes()).toContain('sw-users-permissions-permissions-grid__entry_rule_builder');
     });
 
-    it('parent checkbox should be ghost checked when some of the child permission is clicked (TODO)', () => {
+    it('parent checkbox should be ghost checked when some of the child permission is clicked (TODO)', async () => {
         const wrapper = createWrapper({
             privilegesMappings: [
                 {
@@ -1545,13 +1545,13 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         const productEditorCheckbox = productRow
             .find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
 
-        productEditorCheckbox.find('input').trigger('click');
+        await productEditorCheckbox.find('input').trigger('click');
 
         expect(catalogueViewerCheckbox.props().ghostValue).toBe(true);
         expect(catalogueEditorCheckbox.props().ghostValue).toBe(true);
     });
 
-    it('parent checkbox should be ghost checked when some of the child permission is clicked (all)', () => {
+    it('parent checkbox should be ghost checked when some of the child permission is clicked (all)', async () => {
         const wrapper = createWrapper({
             privilegesMappings: [
                 {
@@ -1666,12 +1666,12 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         const productAllCheckbox = productRow
             .find('.sw-users-permissions-permissions-grid__role_all .sw-field--checkbox');
 
-        productAllCheckbox.find('input').trigger('click');
+        await productAllCheckbox.find('input').trigger('click');
 
         expect(catalogueAllCheckbox.props().ghostValue).toBe(true);
     });
 
-    it('parent checkbox should be checked when all of the child permission is clicked', () => {
+    it('parent checkbox should be checked when all of the child permission is clicked', async () => {
         const wrapper = createWrapper({
             privilegesMappings: [
                 {
@@ -1791,18 +1791,18 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(productEditorCheckbox.props().value).toBe(false);
         expect(categoryEditorCheckbox.props().value).toBe(false);
 
-        productEditorCheckbox.find('input').trigger('click');
+        await productEditorCheckbox.find('input').trigger('click');
 
         expect(catalogueEditorCheckbox.props().value).toBe(false);
 
-        categoryEditorCheckbox.find('input').trigger('click');
+        await categoryEditorCheckbox.find('input').trigger('click');
 
         expect(catalogueEditorCheckbox.props().value).toBe(true);
         expect(productEditorCheckbox.props().value).toBe(true);
         expect(categoryEditorCheckbox.props().value).toBe(true);
     });
 
-    it('parent checkbox should be disabled when all of the child permission are disabled', () => {
+    it('parent checkbox should be disabled when all of the child permission are disabled', async () => {
         const wrapper = createWrapper({
             privilegesMappings: [
                 {
@@ -1921,16 +1921,16 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
 
         expect(catalogueViewerCheckbox.props().disabled).toBe(false);
 
-        productEditorCheckbox.find('input').trigger('click');
+        await productEditorCheckbox.find('input').trigger('click');
 
         expect(catalogueViewerCheckbox.props().disabled).toBe(false);
 
-        categoryEditorCheckbox.find('input').trigger('click');
+        await categoryEditorCheckbox.find('input').trigger('click');
 
         expect(catalogueViewerCheckbox.props().disabled).toBe(true);
     });
 
-    it('parent checkbox should check all of the child permission when clicked', () => {
+    it('parent checkbox should check all of the child permission when clicked', async () => {
         const wrapper = createWrapper({
             privilegesMappings: [
                 {
@@ -2050,7 +2050,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(productEditorCheckbox.props().value).toBe(false);
         expect(categoryEditorCheckbox.props().value).toBe(false);
 
-        catalogueEditorCheckbox.find('input').trigger('click');
+        await catalogueEditorCheckbox.find('input').trigger('click');
 
         expect(catalogueEditorCheckbox.props().value).toBe(true);
         expect(productEditorCheckbox.props().value).toBe(true);
@@ -2058,7 +2058,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
     });
 
     // eslint-disable-next-line max-len
-    it('parent checkbox should check all of the child permission when clicked and some child permissions are already clicked', () => {
+    it('parent checkbox should check all of the child permission when clicked and some child permissions are already clicked', async () => {
         const wrapper = createWrapper({
             privilegesMappings: [
                 {
@@ -2174,20 +2174,20 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         const categoryEditorCheckbox = categoryRow
             .find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
 
-        productEditorCheckbox.find('input').trigger('click');
+        await productEditorCheckbox.find('input').trigger('click');
 
         expect(catalogueEditorCheckbox.props().value).toBe(false);
         expect(productEditorCheckbox.props().value).toBe(true);
         expect(categoryEditorCheckbox.props().value).toBe(false);
 
-        catalogueEditorCheckbox.find('input').trigger('click');
+        await catalogueEditorCheckbox.find('input').trigger('click');
 
         expect(catalogueEditorCheckbox.props().value).toBe(true);
         expect(productEditorCheckbox.props().value).toBe(true);
         expect(categoryEditorCheckbox.props().value).toBe(true);
     });
 
-    it('parent checkbox should uncheck all of the child permission when unchecked', () => {
+    it('parent checkbox should uncheck all of the child permission when unchecked', async () => {
         const wrapper = createWrapper({
             privilegesMappings: [
                 {
@@ -2303,21 +2303,21 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         const categoryEditorCheckbox = categoryRow
             .find('.sw-users-permissions-permissions-grid__role_editor .sw-field--checkbox');
 
-        productEditorCheckbox.find('input').trigger('click');
-        categoryEditorCheckbox.find('input').trigger('click');
+        await productEditorCheckbox.find('input').trigger('click');
+        await categoryEditorCheckbox.find('input').trigger('click');
 
         expect(catalogueEditorCheckbox.props().value).toBe(true);
         expect(productEditorCheckbox.props().value).toBe(true);
         expect(categoryEditorCheckbox.props().value).toBe(true);
 
-        catalogueEditorCheckbox.find('input').trigger('click');
+        await catalogueEditorCheckbox.find('input').trigger('click');
 
         expect(catalogueEditorCheckbox.props().value).toBe(false);
         expect(productEditorCheckbox.props().value).toBe(false);
         expect(categoryEditorCheckbox.props().value).toBe(false);
     });
 
-    it('parent checkbox should uncheck all of the child permission when unchecked expect disabled checkboxes', () => {
+    it('parent checkbox should uncheck all of the child permission when unchecked expect disabled checkboxes', async () => {
         const wrapper = createWrapper({
             privilegesMappings: [
                 {
@@ -2438,7 +2438,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
             .find('.sw-users-permissions-permissions-grid__role_viewer .sw-field--checkbox');
 
         // check product.editor
-        productEditorCheckbox.find('input').trigger('click');
+        await productEditorCheckbox.find('input').trigger('click');
 
         expect(catalogueViewerCheckbox.props().value).toBe(false);
         expect(productViewerCheckbox.props().value).toBe(true);
@@ -2447,14 +2447,14 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(categoryEditorCheckbox.props().value).toBe(false);
 
         // check all catalogues viewer children
-        categoryViewerCheckbox.find('input').trigger('click');
+        await categoryViewerCheckbox.find('input').trigger('click');
 
         expect(catalogueViewerCheckbox.props().value).toBe(true);
         expect(productViewerCheckbox.props().value).toBe(true);
         expect(categoryViewerCheckbox.props().value).toBe(true);
 
         // uncheck all catalogues viewer children
-        catalogueViewerCheckbox.find('input').trigger('click');
+        await catalogueViewerCheckbox.find('input').trigger('click');
 
         expect(productViewerCheckbox.props().value).toBe(true);
         expect(categoryViewerCheckbox.props().value).toBe(false);
@@ -2571,7 +2571,7 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
             expect(checkbox.props().disabled).toBe(false);
         });
 
-        wrapper.setProps({ disabled: true });
+        await wrapper.setProps({ disabled: true });
 
         checkboxes.wrappers.forEach(checkbox => {
             expect(checkbox.props().disabled).toBe(true);

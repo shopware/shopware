@@ -33,13 +33,13 @@ describe('app/plugins/shortcut.plugin', () => {
         wrapper.destroy();
     });
 
-    it('should test with a Vue.js component', () => {
+    it('should test with a Vue.js component', async () => {
         wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('String: should call the onSave method', () => {
+    it('String: should call the onSave method', async () => {
         const onSaveMock = jest.fn();
 
         wrapper = createWrapper({
@@ -55,17 +55,17 @@ describe('app/plugins/shortcut.plugin', () => {
 
         expect(onSaveMock).not.toHaveBeenCalled();
 
-        wrapper.trigger('keydown', {
+        await wrapper.trigger('keydown', {
             key: 's'
         });
-        wrapper.trigger('keydown', {
+        await wrapper.trigger('keydown', {
             key: 'CTRL'
         });
 
         expect(onSaveMock).toHaveBeenCalledWith();
     });
 
-    it('Object with boolean active: should call the onSave method', () => {
+    it('Object with boolean active: should call the onSave method', async () => {
         const onSaveMock = jest.fn();
 
         wrapper = createWrapper({
@@ -84,14 +84,14 @@ describe('app/plugins/shortcut.plugin', () => {
 
         expect(onSaveMock).not.toHaveBeenCalled();
 
-        wrapper.trigger('keydown', {
+        await wrapper.trigger('keydown', {
             key: 's'
         });
 
         expect(onSaveMock).toHaveBeenCalledWith();
     });
 
-    it('Object with boolean active: should NOT call the onSave method', () => {
+    it('Object with boolean active: should NOT call the onSave method', async () => {
         const onSaveMock = jest.fn();
 
         wrapper = createWrapper({
@@ -110,14 +110,14 @@ describe('app/plugins/shortcut.plugin', () => {
 
         expect(onSaveMock).not.toHaveBeenCalled();
 
-        wrapper.trigger('keydown', {
+        await wrapper.trigger('keydown', {
             key: 's'
         });
 
         expect(onSaveMock).not.toHaveBeenCalledWith();
     });
 
-    it('Object with function active: should call the onSave method', () => {
+    it('Object with function active: should call the onSave method', async () => {
         const onSaveMock = jest.fn();
 
         wrapper = createWrapper({
@@ -138,14 +138,14 @@ describe('app/plugins/shortcut.plugin', () => {
 
         expect(onSaveMock).not.toHaveBeenCalled();
 
-        wrapper.trigger('keydown', {
+        await wrapper.trigger('keydown', {
             key: 's'
         });
 
         expect(onSaveMock).toHaveBeenCalledWith();
     });
 
-    it('Object with function active: should NOT call the onSave method', () => {
+    it('Object with function active: should NOT call the onSave method', async () => {
         const onSaveMock = jest.fn();
 
         wrapper = createWrapper({
@@ -166,14 +166,14 @@ describe('app/plugins/shortcut.plugin', () => {
 
         expect(onSaveMock).not.toHaveBeenCalled();
 
-        wrapper.trigger('keydown', {
+        await wrapper.trigger('keydown', {
             key: 's'
         });
 
         expect(onSaveMock).not.toHaveBeenCalledWith();
     });
 
-    it('Object with function active which access the vue instance: should call the onSave method', () => {
+    it('Object with function active which access the vue instance: should call the onSave method', async () => {
         const onSaveMock = jest.fn();
 
         wrapper = createWrapper({
@@ -199,14 +199,14 @@ describe('app/plugins/shortcut.plugin', () => {
 
         expect(onSaveMock).not.toHaveBeenCalled();
 
-        wrapper.trigger('keydown', {
+        await wrapper.trigger('keydown', {
             key: 's'
         });
 
         expect(onSaveMock).toHaveBeenCalledWith();
     });
 
-    it('Object with function active which access the vue instance: should NOT call the onSave method', () => {
+    it('Object with function active which access the vue instance: should NOT call the onSave method', async () => {
         const onSaveMock = jest.fn();
 
         wrapper = createWrapper({
@@ -232,14 +232,14 @@ describe('app/plugins/shortcut.plugin', () => {
 
         expect(onSaveMock).not.toHaveBeenCalled();
 
-        wrapper.trigger('keydown', {
+        await wrapper.trigger('keydown', {
             key: 's'
         });
 
         expect(onSaveMock).not.toHaveBeenCalledWith();
     });
 
-    it('Object with function: function should be executed for each shortcut press', () => {
+    it('Object with function: function should be executed for each shortcut press', async () => {
         const onSaveMock = jest.fn();
         let shouldExecute = true;
 
@@ -262,7 +262,7 @@ describe('app/plugins/shortcut.plugin', () => {
         // shortcut should be executed
         expect(onSaveMock).not.toHaveBeenCalled();
 
-        wrapper.trigger('keydown', {
+        await wrapper.trigger('keydown', {
             key: 's'
         });
 
@@ -274,7 +274,7 @@ describe('app/plugins/shortcut.plugin', () => {
 
         expect(onSaveMock).not.toHaveBeenCalled();
 
-        wrapper.trigger('keydown', {
+        await wrapper.trigger('keydown', {
             key: 's'
         });
 

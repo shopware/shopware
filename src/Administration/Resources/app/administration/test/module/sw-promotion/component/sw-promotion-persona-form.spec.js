@@ -98,11 +98,11 @@ describe('src/module/sw-promotion/component/sw-promotion-persona-form', () => {
         Shopware.State.registerModule('swPromotionDetail', promotionState);
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should have disabled form fields', () => {
+    it('should have disabled form fields', async () => {
         expect(wrapper.vm.isEditingDisabled).toBe(true);
 
         console.log('wrapper.htm() : ', wrapper.html());
@@ -112,7 +112,7 @@ describe('src/module/sw-promotion/component/sw-promotion-persona-form', () => {
         elements.wrappers.forEach(el => expect(el.attributes().disabled).toBe('disabled'));
     });
 
-    it('should not have disabled form fields', () => {
+    it('should not have disabled form fields', async () => {
         wrapper = createWrapper([
             'promotion.editor'
         ]);

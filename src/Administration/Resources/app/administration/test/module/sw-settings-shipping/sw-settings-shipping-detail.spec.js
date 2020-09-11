@@ -64,9 +64,9 @@ function createWrapper(privileges = []) {
 }
 
 describe('module/sw-settings-shipping/page/sw-settings-shipping-detail', () => {
-    it('should have all fields disabled', () => {
+    it('should have all fields disabled', async () => {
         const wrapper = createWrapper();
-        wrapper.setData({
+        await wrapper.setData({
             isProcessLoading: false
         });
 
@@ -96,11 +96,11 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-detail', () => {
         expect(settingsShippingPriceMatrices.attributes().disabled).toBe('true');
     });
 
-    it('should have all fields enabled', () => {
+    it('should have all fields enabled', async () => {
         const wrapper = createWrapper([
             'shipping.editor'
         ]);
-        wrapper.setData({
+        await wrapper.setData({
             isProcessLoading: false
         });
 

@@ -29,13 +29,13 @@ describe('module/sw-first-run-wizard/sw-first-run-wizard-modal', () => {
         });
     };
 
-    it('should be a vue js component', () => {
+    it('should be a vue js component', async () => {
         const frwMailerSettings = new CreateFirstRunWizardMailerSettings();
 
-        expect(frwMailerSettings.isVueInstance()).toBeTruthy();
+        expect(frwMailerSettings.vm).toBeTruthy();
     });
 
-    it('should emit the button config and the title on creation', () => {
+    it('should emit the button config and the title on creation', async () => {
         const frwMailerSettings = new CreateFirstRunWizardMailerSettings();
         const buttonConfig = frwMailerSettings.vm.buttonConfig;
         const title = 'sw-first-run-wizard.mailerSelection.modalTitle';
@@ -54,7 +54,7 @@ describe('module/sw-first-run-wizard/sw-first-run-wizard-modal', () => {
     it('handleSelection: should not emit an redirect when user has not select an mailAgent', async () => {
         const frwMailerSettings = new CreateFirstRunWizardMailerSettings();
         const spyButtonUpdateEmit = jest.spyOn(frwMailerSettings.vm, '$emit');
-        frwMailerSettings.setData({ mailAgent: '' });
+        await frwMailerSettings.setData({ mailAgent: '' });
 
         expect(spyButtonUpdateEmit).not.toBeCalledWith('frw-redirect', frwRedirectSmtp);
         expect(spyButtonUpdateEmit).not.toBeCalledWith('frw-redirect', frwRedirectLocal);
@@ -67,7 +67,7 @@ describe('module/sw-first-run-wizard/sw-first-run-wizard-modal', () => {
     it('handleSelection: should emit redirect to mailer settings when user has select an smtp mailAgent', async () => {
         const frwMailerSettings = new CreateFirstRunWizardMailerSettings();
         const spyButtonUpdateEmit = jest.spyOn(frwMailerSettings.vm, '$emit');
-        frwMailerSettings.setData({ mailAgent: 'smtp' });
+        await frwMailerSettings.setData({ mailAgent: 'smtp' });
 
         expect(spyButtonUpdateEmit).not.toBeCalledWith('frw-redirect', frwRedirectSmtp);
         expect(spyButtonUpdateEmit).not.toBeCalledWith('frw-redirect', frwRedirectLocal);
@@ -80,7 +80,7 @@ describe('module/sw-first-run-wizard/sw-first-run-wizard-modal', () => {
     it('handleSelection: should emit redirect to paypal when user has select an local mailAgent', async () => {
         const frwMailerSettings = new CreateFirstRunWizardMailerSettings();
         const spyButtonUpdateEmit = jest.spyOn(frwMailerSettings.vm, '$emit');
-        frwMailerSettings.setData({ mailAgent: 'local' });
+        await frwMailerSettings.setData({ mailAgent: 'local' });
 
         expect(spyButtonUpdateEmit).not.toBeCalledWith('frw-redirect', frwRedirectSmtp);
         expect(spyButtonUpdateEmit).not.toBeCalledWith('frw-redirect', frwRedirectLocal);

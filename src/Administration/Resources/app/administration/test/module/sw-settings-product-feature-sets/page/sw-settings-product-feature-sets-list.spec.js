@@ -136,15 +136,15 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
         wrapper.destroy();
     });
 
-    it('should be able to instantiate', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+    it('should be able to instantiate', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('has the correct class', () => {
+    it('has the correct class', async () => {
         expect(wrapper.classes()).toContain(classes.componentRoot);
     });
 
-    it('should show a list of featuresets', () => {
+    it('should show a list of featuresets', async () => {
         const root = findSecure(wrapper, `.${classes.componentRoot}`);
         const list = findSecure(root, `.${classes.featureSetList}`);
         const listBody = findSecure(root, `.${classes.featureSetListBody}`);

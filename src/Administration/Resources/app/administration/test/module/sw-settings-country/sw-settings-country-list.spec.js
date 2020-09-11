@@ -116,7 +116,7 @@ describe('module/sw-settings-country/page/sw-settings-country-list', () => {
         const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.isVueInstance()).toBe(true);
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should be able to create a new country', async () => {

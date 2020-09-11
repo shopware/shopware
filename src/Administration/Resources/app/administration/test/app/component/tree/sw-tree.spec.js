@@ -31,38 +31,38 @@ describe('src/app/component/tree/sw-tree', () => {
         wrapper = createWrapper();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should show the delete button', () => {
+    it('should show the delete button', async () => {
         expect(wrapper.find('.sw-tree-actions__delete_categories').exists()).toBeFalsy();
 
-        wrapper.setData({
+        await wrapper.setData({
             checkedElementsCount: 2
         });
 
         expect(wrapper.find('.sw-tree-actions__delete_categories').exists()).toBeTruthy();
     });
 
-    it('should allow to delete the items', () => {
+    it('should allow to delete the items', async () => {
         expect(wrapper.find('.sw-tree-actions__delete_categories').exists()).toBeFalsy();
 
-        wrapper.setData({
+        await wrapper.setData({
             checkedElementsCount: 2
         });
 
         expect(wrapper.find('.sw-tree-actions__delete_categories').attributes().disabled).not.toBeDefined();
     });
 
-    it('should not allow to delete the items', () => {
+    it('should not allow to delete the items', async () => {
         expect(wrapper.find('.sw-tree-actions__delete_categories').exists()).toBeFalsy();
 
-        wrapper.setProps({
+        await wrapper.setProps({
             allowDeleteCategories: false
         });
 
-        wrapper.setData({
+        await wrapper.setData({
             checkedElementsCount: 2
         });
 

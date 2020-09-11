@@ -57,33 +57,33 @@ const setup = (propOverride) => {
 };
 
 describe('components/form/sw-price-field', () => {
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = setup();
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should renders correctly', () => {
+    it('should renders correctly', async () => {
         const wrapper = setup();
         expect(wrapper.element).toMatchSnapshot();
     });
 
-    it('should contain the dollar price', () => {
+    it('should contain the dollar price', async () => {
         const wrapper = setup();
         expect(wrapper.vm.priceForCurrency.gross).toEqual(dollarPrice.gross);
         expect(wrapper.vm.priceForCurrency.net).toEqual(dollarPrice.net);
     });
 
-    it('should not be an disabled field', () => {
+    it('should not be an disabled field', async () => {
         const wrapper = setup();
         expect(wrapper.find('.sw-price-field--disabled').exists()).toBeFalsy();
     });
 
-    it('should be an disabled field', () => {
+    it('should be an disabled field', async () => {
         const wrapper = setup({ price: [euroPrice] });
         expect(wrapper.find('.sw-price-field--disabled').exists()).toBeTruthy();
     });
 
-    it('should calculate price based on default price', () => {
+    it('should calculate price based on default price', async () => {
         const wrapper = setup({ price: [euroPrice] });
         const dollarPriceConverted = {
             gross: (euroPrice.gross * currency.factor).toFixed(2),
@@ -94,10 +94,10 @@ describe('components/form/sw-price-field', () => {
         expect(`${wrapper.vm.priceForCurrency.net}`).toEqual(dollarPriceConverted.net);
     });
 
-    it('should remove the inheritation when matching currency price exists', () => {
+    it('should remove the inheritation when matching currency price exists', async () => {
         const wrapper = setup({ price: [euroPrice] });
         expect(wrapper.vm.isInherited).toBeTruthy();
-        wrapper.setProps({ price: [dollarPrice, euroPrice] });
+        await wrapper.setProps({ price: [dollarPrice, euroPrice] });
         expect(wrapper.vm.isInherited).toBeFalsy();
     });
 });

@@ -349,28 +349,28 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
         wrapper.vm.$refs.systemConfig.actualConfigData = { null: { 'core.listing.defaultSorting': 'name-asc' } };
     });
 
-    it('should be a Vue.JS component', () => {
-        expect(wrapper.isVueInstance()).toBe(true);
+    it('should be a Vue.JS component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should have a pagination', () => {
+    it('should have a pagination', async () => {
         const pagination = wrapper.find('.sw-pagination');
 
         expect(pagination.exists()).toBe(true);
     });
 
-    it('should paginate', () => {
+    it('should paginate', async () => {
         const pageButtons = wrapper.findAll('.sw-pagination .sw-pagination__list-button');
         const nextPageButton = pageButtons.wrappers[1];
 
         expect(wrapper.vm.sortingOptionsGridPage).toBe(1);
 
-        nextPageButton.trigger('click');
+        await nextPageButton.trigger('click');
 
         expect(wrapper.vm.sortingOptionsGridPage).toBe(2);
     });
 
-    it('should disable delete button when product sorting is default product sorting', () => {
+    it('should disable delete button when product sorting is default product sorting', async () => {
         const deleteButtonOfFirstRecord = wrapper.find('.sw-data-grid__row--0 .sw-data-grid__actions-menu :last-child');
 
         expect(deleteButtonOfFirstRecord.attributes('disabled')).toBe('true');
@@ -380,7 +380,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
         expect(deleteButtonOfSecondRecord.attributes('disabled')).toBe(undefined);
     });
 
-    it('should check if product sorting is the default product sorting', () => {
+    it('should check if product sorting is the default product sorting', async () => {
         // sets the default sorting option
         wrapper.vm.$refs.systemConfig.actualConfigData = { null: { 'core.listing.defaultSorting': 'price-asc' } };
 

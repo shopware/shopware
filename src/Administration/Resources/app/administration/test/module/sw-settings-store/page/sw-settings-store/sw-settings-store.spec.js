@@ -23,12 +23,12 @@ function createWrapper(customString = '') {
 }
 
 describe('src/module/sw-settings-store/page/sw-settings-store', () => {
-    it('should be a vue.js component', () => {
+    it('should be a vue.js component', async () => {
         const wrapper = createWrapper();
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should trim empty spaces from license host', () => {
+    it('should trim empty spaces from license host', async () => {
         const wrapper = createWrapper('  foobar  ');
 
         expect(wrapper.vm.$refs.systemConfig.actualConfigData).toStrictEqual({

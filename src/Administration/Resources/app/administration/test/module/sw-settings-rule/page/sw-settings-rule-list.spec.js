@@ -56,7 +56,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
         const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.isVueInstance()).toBe(true);
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should have disabled fields', async () => {

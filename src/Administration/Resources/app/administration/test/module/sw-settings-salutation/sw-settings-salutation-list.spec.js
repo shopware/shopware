@@ -80,7 +80,7 @@ function createWrapper(privileges = []) {
                     <div>
                         <template v-for="item in items">
                             <slot name="actions" v-bind="{item}">
-                                <slot name="detail-action" v-bind="{ item }" > 
+                                <slot name="detail-action" v-bind="{ item }" >
                                     <sw-context-menu-item
                                         class="sw-salutation-list__edit-action"
                                         :disabled="!allowEdit"
@@ -88,7 +88,7 @@ function createWrapper(privileges = []) {
                                         {{ $tc('global.default.edit') }}
                                     </sw-context-menu-item>
                                 </slot>
-                                <slot name="delete-action" v-bind="{ item }" > 
+                                <slot name="delete-action" v-bind="{ item }" >
                                     <sw-context-menu-item
                                         class="sw-salutation-list__delete-action"
                                         :disabled="!allowDelete"
@@ -115,7 +115,7 @@ describe('module/sw-settings-salutation/page/sw-settings-salutation-list', () =>
         const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.isVueInstance()).toBe(true);
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should be able to create a new salutation if have a creator privilege', async () => {

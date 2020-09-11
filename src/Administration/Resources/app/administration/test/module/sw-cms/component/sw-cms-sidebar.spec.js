@@ -69,15 +69,15 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         });
     });
 
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('disable all sidebar items', () => {
+    it('disable all sidebar items', async () => {
         const wrapper = createWrapper();
-        wrapper.setProps({
+        await wrapper.setProps({
             disabled: true
         });
 
@@ -89,7 +89,7 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         });
     });
 
-    it('enable all sidebar items', () => {
+    it('enable all sidebar items', async () => {
         const wrapper = createWrapper();
 
         const sidebarItems = wrapper.findAll('sw-sidebar-item-stub');

@@ -21,22 +21,22 @@ function createWrapper() {
 }
 
 describe('module/sw-cms/component/sw-cms-stage-add-section', () => {
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('set a is--disabled class to wrapper', () => {
+    it('set a is--disabled class to wrapper', async () => {
         const wrapper = createWrapper();
-        wrapper.setProps({
+        await wrapper.setProps({
             disabled: true
         });
 
         expect(wrapper.classes()).toContain('is--disabled');
     });
 
-    it('do not set a is--disabled class to wrapper', () => {
+    it('do not set a is--disabled class to wrapper', async () => {
         const wrapper = createWrapper();
 
         expect(wrapper.classes()).not.toContain('is--disabled');

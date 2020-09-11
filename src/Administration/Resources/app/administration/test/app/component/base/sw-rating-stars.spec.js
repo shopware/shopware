@@ -41,16 +41,16 @@ const cases = {
 };
 
 describe('src/app/component/base/sw-rating-stars', () => {
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
     const maxStarCases = [5, 3, 8];
 
     maxStarCases.forEach((maxStars) => {
-        it(`should round render float values per default into full stars (MaxStars = ${maxStars})`, () => {
+        it(`should round render float values per default into full stars (MaxStars = ${maxStars})`, async () => {
             cases.full.forEach(({ value }) => {
                 const wrapper = createWrapper({ value, maxStars });
 
@@ -61,7 +61,7 @@ describe('src/app/component/base/sw-rating-stars', () => {
     });
 
     maxStarCases.forEach((maxStars) => {
-        it(`should round render float values per default into quarter stars (MaxStars = ${maxStars})`, () => {
+        it(`should round render float values per default into quarter stars (MaxStars = ${maxStars})`, async () => {
             cases.partial.forEach(({ value, renderPercentage }) => {
                 const wrapper = createWrapper({ value, maxStars });
 

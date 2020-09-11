@@ -25,11 +25,11 @@ describe('modules/sw-users-permissions/page/sw-users-permissions', () => {
         wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should contain the user list', () => {
+    it('should contain the user list', async () => {
         const userListComponent = wrapper.find('sw-settings-user-list-stub');
 
         expect(userListComponent.exists()).toBeTruthy();

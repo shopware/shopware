@@ -22,27 +22,27 @@ function createWrapper(customProps = {}) {
 }
 
 describe('src/app/component/rule/sw-condition-tree', () => {
-    it('should be a Vue.JS component', () => {
+    it('should be a Vue.JS component', async () => {
         const wrapper = createWrapper();
-        wrapper.setData({ conditionTree: {} });
+        await wrapper.setData({ conditionTree: {} });
 
-        expect(wrapper.isVueInstance()).toBe(true);
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should have enabled condition tree node', () => {
+    it('should have enabled condition tree node', async () => {
         const wrapper = createWrapper();
-        wrapper.setData({ conditionTree: {} });
+        await wrapper.setData({ conditionTree: {} });
 
         const conditionTreeNode = wrapper.find('sw-condition-tree-node-stub');
 
         expect(conditionTreeNode.attributes().disabled).toBeUndefined();
     });
 
-    it('should have disabled condition type select', () => {
+    it('should have disabled condition type select', async () => {
         const wrapper = createWrapper({
             disabled: true
         });
-        wrapper.setData({ conditionTree: {} });
+        await wrapper.setData({ conditionTree: {} });
 
         const conditionTreeNode = wrapper.find('sw-condition-tree-node-stub');
 

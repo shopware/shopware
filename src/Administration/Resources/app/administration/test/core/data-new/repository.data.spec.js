@@ -38,7 +38,7 @@ function createRepositoryData() {
 }
 
 describe('repository.data.js', () => {
-    it('should build the correct headers', () => {
+    it('should build the correct headers', async () => {
         const repositoryData = createRepositoryData('language');
         const actualHeaders = repositoryData.buildHeaders(mockContext());
         const exptectedHeaders = {

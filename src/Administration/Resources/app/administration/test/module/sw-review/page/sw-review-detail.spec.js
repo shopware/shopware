@@ -97,10 +97,10 @@ describe('module/sw-review/page/sw-review-detail', () => {
         const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.isVueInstance()).toBe(true);
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should not be able to save the review', () => {
+    it('should not be able to save the review', async () => {
         const wrapper = createWrapper();
 
         const saveButton = wrapper.find('.sw-review-detail__save-action');
@@ -112,7 +112,7 @@ describe('module/sw-review/page/sw-review-detail', () => {
         const wrapper = createWrapper([
             'review.editor'
         ]);
-        wrapper.setData({
+        await wrapper.setData({
             isLoading: false
         });
         await wrapper.vm.$nextTick();
@@ -122,7 +122,7 @@ describe('module/sw-review/page/sw-review-detail', () => {
         expect(saveButton.attributes().disabled).toBeFalsy();
     });
 
-    it('should not be able to edit review fields', () => {
+    it('should not be able to edit review fields', async () => {
         const wrapper = createWrapper();
 
         const languageField = wrapper.find('.sw-review__language-select');
@@ -134,7 +134,7 @@ describe('module/sw-review/page/sw-review-detail', () => {
         expect(commentField.attributes().disabled).toBeTruthy();
     });
 
-    it('should be able to edit review fields', () => {
+    it('should be able to edit review fields', async () => {
         const wrapper = createWrapper([
             'review.editor'
         ]);

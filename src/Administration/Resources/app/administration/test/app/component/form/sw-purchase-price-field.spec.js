@@ -57,17 +57,17 @@ const setup = (propOverride) => {
 };
 
 describe('components/form/sw-purchase-price-field', () => {
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = setup();
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should renders correctly', () => {
+    it('should renders correctly', async () => {
         const wrapper = setup();
         expect(wrapper.element).toMatchSnapshot();
     });
 
-    it('should contain the dollar price', () => {
+    it('should contain the dollar price', async () => {
         const wrapper = setup();
         expect(wrapper.vm.purchasePrice[0].gross).toEqual(dollarPrice.gross);
         expect(wrapper.vm.purchasePrice[0].net).toEqual(dollarPrice.net);

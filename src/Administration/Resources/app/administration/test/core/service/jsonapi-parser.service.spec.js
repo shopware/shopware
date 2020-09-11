@@ -5,7 +5,7 @@ const Application = Shopware.Application;
 describe('core/service/jsonapi-parser.service.js', () => {
     it(
         'should reject when we are providing an array, number, undefined or null',
-        () => {
+        async () => {
             const arrayParser = jsonApiParserService([1, 2, 3]);
             expect(arrayParser).toBe(null);
 
@@ -29,14 +29,14 @@ describe('core/service/jsonapi-parser.service.js', () => {
         }
     );
 
-    it('should not parse a malformed JSON string', () => {
+    it('should not parse a malformed JSON string', async () => {
         const brokenJsonParser = jsonApiParserService('{foo:"bar"}');
         expect(brokenJsonParser).toBe(null);
     });
 
     it(
         'should parse a valid JSON string which is not following the spec',
-        () => {
+        async () => {
             const validJsonParser = jsonApiParserService('{"foo":"bar"}');
             expect(validJsonParser).toEqual({
                 foo: 'bar'
@@ -44,7 +44,7 @@ describe('core/service/jsonapi-parser.service.js', () => {
         }
     );
 
-    it('should parse a valid JSON string which follows the spec', () => {
+    it('should parse a valid JSON string which follows the spec', async () => {
         const validJsonApiParser = jsonApiParserService(JSON.stringify({
             data: [{
                 id: 1,

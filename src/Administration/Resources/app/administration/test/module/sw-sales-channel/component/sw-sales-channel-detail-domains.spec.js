@@ -24,13 +24,13 @@ function createWrapper(customProps = {}) {
 }
 
 describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains', () => {
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should have button enabled', () => {
+    it('should have button enabled', async () => {
         const wrapper = createWrapper();
 
         const button = wrapper.find('.sw-sales-channel-detail__button-domain-add');
@@ -38,7 +38,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
         expect(button.attributes().disabled).toBeUndefined();
     });
 
-    it('should have button disabled', () => {
+    it('should have button disabled', async () => {
         const wrapper = createWrapper({
             disableEdit: true
         });
@@ -48,7 +48,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
         expect(button.attributes().disabled).toBe('true');
     });
 
-    it('should have context menu item enabled', () => {
+    it('should have context menu item enabled', async () => {
         const wrapper = createWrapper();
 
         const contextMenuItems = wrapper.findAll('sw-context-menu-item-stub');
@@ -58,7 +58,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
         });
     });
 
-    it('should have context menu item disabled', () => {
+    it('should have context menu item disabled', async () => {
         const wrapper = createWrapper({
             disableEdit: true
         });

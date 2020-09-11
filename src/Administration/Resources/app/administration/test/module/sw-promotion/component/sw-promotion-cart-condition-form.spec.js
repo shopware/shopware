@@ -102,11 +102,11 @@ describe('src/module/sw-promotion/component/sw-promotion-cart-condition-form', (
         });
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should have disabled form fields', () => {
+    it('should have disabled form fields', async () => {
         let elements = wrapper.findAll('.sw-field');
         expect(elements.wrappers.length).toBeGreaterThan(0);
         elements.wrappers.forEach(el => expect(el.attributes().disabled).toBe('disabled'));

@@ -81,7 +81,7 @@ describe('module/sw-settings-language/page/sw-settings-language-detail', () => {
         const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.isVueInstance()).toBe(true);
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should be able to save the language', async () => {

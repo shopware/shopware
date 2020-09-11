@@ -97,7 +97,7 @@ describe('src/app/component/rule/condition-type/*.js', () => {
     it.each(conditionTypes)('The component "%s" should be a mounted successfully', (conditionType) => {
         const wrapper = createWrapperForComponent(conditionType);
 
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it.each(conditionTypes)('The component "%s" should have all fields enabled', (conditionType) => {

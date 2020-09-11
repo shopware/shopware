@@ -36,6 +36,12 @@ $sw-custom-field-list-color-label-link: $color-shopware-brand-500;
             }
         }
 
+        .sw-tooltip--wrapper {
+            .sw-button {
+                width: 100%
+            }
+        }
+
         .sw-simple-search-field .sw-simple-search-field__input {
             margin-bottom: 0;
 

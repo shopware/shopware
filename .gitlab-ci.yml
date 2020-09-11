@@ -30,7 +30,7 @@ default:
         - export CI_DEV_BRANCH=$(echo $CI_COMMIT_REF_NAME | cut -d'+' -f2-)
         - if [[ -d "development/" ]]; then zip -rq cache.zip development/; rm -rf development; fi
         - zip -rq platform.zip .
-        - git clone http://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.shopware.com/shopware/6/product/development.git
+        - git clone https://github.com/shopware/development.git
         - unzip -q platform.zip -d development/platform/
         - cd development
         - git -C platform checkout master
@@ -42,14 +42,6 @@ default:
             elif [ "$(git ls-remote origin $CI_COMMIT_REF_NAME | wc -l)" == 1 ]; then
               echo "Development Branch: $CI_COMMIT_REF_NAME (implicit by same branch name)";
               git checkout $CI_COMMIT_REF_NAME;
-            else
-              export CI_TARGET_BRANCH_NAME=$(curl -LsS -H "PRIVATE-TOKEN: $CI_GITLAB_API_TOKEN" "https://gitlab.shopware.com/api/v4/projects/$CI_PROJECT_ID/merge_requests?source_branch=$CI_COMMIT_REF_NAME" | jq --raw-output ".[0].target_branch");
-              if [ "$(git ls-remote origin $CI_TARGET_BRANCH_NAME | wc -l)" == 1 ]; then
-                echo "Development Branch: $CI_TARGET_BRANCH_NAME (implicit by merge request target branch)";
-                git checkout $CI_TARGET_BRANCH_NAME;
-              else
-                echo "Development Branch: master (fallback)";
-              fi
             fi
         - cp -v dev-ops/gitlab/.psh.yaml.override .
         - /entrypoint supervisord > /dev/null 2>&1 &

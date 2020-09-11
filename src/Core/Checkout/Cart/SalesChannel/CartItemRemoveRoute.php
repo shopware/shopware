@@ -6,6 +6,7 @@ use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartPersisterInterface;
+use Shopware\Core\Checkout\Cart\Event\CartSavedEvent;
 use Shopware\Core\Checkout\Cart\Event\LineItemRemovedEvent;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -82,7 +83,7 @@ class CartItemRemoveRoute extends AbstractCartItemRemoveRoute
 
         $cart = $this->cartCalculator->calculate($cart, $context);
         $this->cartPersister->save($cart, $context);
-
+        $this->eventDispatcher->dispatch(new CartSavedEvent($context));
         return new CartResponse($cart);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Event;
 
+use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
@@ -12,13 +13,27 @@ class CartSavedEvent extends Event
      */
     protected $context;
 
-    public function __construct(SalesChannelContext $context)
+    /**
+     * @var Cart
+     */
+    protected $cart;
+
+    public function __construct(SalesChannelContext $context, Cart $cart)
     {
         $this->context = $context;
+        $this->cart = $cart;
     }
 
     public function getContext(): SalesChannelContext
     {
         return $this->context;
+    }
+
+    /**
+     * @return Cart
+     */
+    public function getCart(): Cart
+    {
+        return $this->cart;
     }
 }

@@ -64,7 +64,7 @@ class CartPersisterTest extends TestCase
             ->method('fetchColumn')
             ->willReturn(false);
 
-        $persister = new CartPersister($connection, $eventDispatcher, $this->serializer);
+        $persister = new CartPersister($connection, $eventDispatcher);
 
         $e = null;
 
@@ -97,9 +97,10 @@ class CartPersisterTest extends TestCase
     public function testEmptyCartShouldnBeSaved(): void
     {
         $connection = $this->createMock(Connection::class);
+        $eventDispatcher = $this->createMock(EventDispatcher::class);
         $connection->expects(static::never())->method('insert');
 
-        $persister = new CartPersister($connection, $this->serializer);
+        $persister = new CartPersister($connection, $eventDispatcher);
 
         $calc = new Cart('shopware', 'existing');
 
@@ -112,7 +113,7 @@ class CartPersisterTest extends TestCase
         $eventDispatcher = $this->createMock(EventDispatcher::class);
         $connection->expects(static::once())->method('executeUpdate');
 
-        $persister = new CartPersister($connection, $eventDispatcher, $this->serializer);
+        $persister = new CartPersister($connection, $eventDispatcher);
 
         $calc = new Cart('shopware', 'existing');
         $calc->add(

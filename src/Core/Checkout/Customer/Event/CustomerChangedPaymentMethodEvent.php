@@ -8,11 +8,12 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
+use Shopware\Core\Framework\Event\SalesChannelAware;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class CustomerChangedPaymentMethodEvent extends Event implements BusinessEventInterface
+class CustomerChangedPaymentMethodEvent extends Event implements BusinessEventInterface, SalesChannelAware
 {
     public const EVENT_NAME = 'checkout.customer.changed-payment-method';
 
@@ -51,6 +52,11 @@ class CustomerChangedPaymentMethodEvent extends Event implements BusinessEventIn
     public function getSalesChannelContext(): SalesChannelContext
     {
         return $this->salesChannelContext;
+    }
+
+    public function getSalesChannelId(): string
+    {
+        return $this->salesChannelContext->getSalesChannel()->getId();
     }
 
     public function getContext(): Context

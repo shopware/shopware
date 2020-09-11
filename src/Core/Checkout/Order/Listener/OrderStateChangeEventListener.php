@@ -269,12 +269,7 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
     private function dispatchEvent(string $stateEventName, OrderEntity $order, Context $context): void
     {
         $this->eventDispatcher->dispatch(
-            new OrderStateMachineStateChangeEvent(
-                $stateEventName,
-                $order,
-                $order->getSalesChannelId(),
-                $context
-            ),
+            new OrderStateMachineStateChangeEvent($stateEventName, $order, $context),
             $stateEventName
         );
     }

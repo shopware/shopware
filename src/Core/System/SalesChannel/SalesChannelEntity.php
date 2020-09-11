@@ -24,6 +24,7 @@ use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Event\EventAction\EventActionCollection;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyCollection;
@@ -341,6 +342,11 @@ class SalesChannelEntity extends Entity
      * @var CustomerGroupCollection|null
      */
     protected $customerGroupsRegistrations;
+
+    /**
+     * @var EventActionCollection|null
+     */
+    protected $eventActions;
 
     public function getMailHeaderFooter(): ?MailHeaderFooterEntity
     {
@@ -946,5 +952,15 @@ class SalesChannelEntity extends Entity
     public function setCustomerGroupsRegistrations(CustomerGroupCollection $customerGroupsRegistrations): void
     {
         $this->customerGroupsRegistrations = $customerGroupsRegistrations;
+    }
+
+    public function getEventActions(): ?EventActionCollection
+    {
+        return $this->eventActions;
+    }
+
+    public function setEventActions(EventActionCollection $eventActions): void
+    {
+        $this->eventActions = $eventActions;
     }
 }

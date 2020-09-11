@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Event\EventAction;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 class EventActionEntity extends Entity
 {
@@ -34,6 +35,11 @@ class EventActionEntity extends Entity
      * @var RuleCollection|null
      */
     protected $rules;
+
+    /**
+     * @var SalesChannelCollection|null
+     */
+    protected $salesChannels;
 
     public function getEventName(): string
     {
@@ -83,5 +89,15 @@ class EventActionEntity extends Entity
     public function setRules(RuleCollection $rules): void
     {
         $this->rules = $rules;
+    }
+
+    public function getSalesChannels(): ?SalesChannelCollection
+    {
+        return $this->salesChannels;
+    }
+
+    public function setSalesChannels(SalesChannelCollection $salesChannels): void
+    {
+        $this->salesChannels = $salesChannels;
     }
 }

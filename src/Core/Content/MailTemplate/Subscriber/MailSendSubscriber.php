@@ -131,7 +131,7 @@ class MailSendSubscriber implements EventSubscriberInterface
         );
     }
 
-    private function getMailTemplateByType($typeId, Context $context, ?string $salesChannelId)
+    private function getMailTemplateByType(string $typeId, Context $context, ?string $salesChannelId): ?MailTemplateEntity
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('mailTemplateTypeId', $typeId));
@@ -167,7 +167,7 @@ class MailSendSubscriber implements EventSubscriberInterface
             ->first();
     }
 
-    private function getMailTemplate(string $id, Context $context)
+    private function getMailTemplate(string $id, Context $context): ?MailTemplateEntity
     {
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('media.media');

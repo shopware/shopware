@@ -39,5 +39,9 @@
         <service id="Shopware\Core\Framework\Event\EventAction\Aggregate\EventActionRule\EventActionRuleDefinition">
             <tag name="shopware.entity.definition" entity="event_action_rule"/>
         </service>
+
+        <service id="Shopware\Core\Framework\Event\EventAction\Aggregate\EventActionSalesChannel\EventActionSalesChannelDefinition">
+            <tag name="shopware.entity.definition" entity="event_action_sales_channel"/>
+        </service>
     </services>
 </container>

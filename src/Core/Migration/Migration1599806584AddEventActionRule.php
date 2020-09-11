@@ -5,17 +5,15 @@ namespace Shopware\Core\Migration;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
-class Migration1599720163 extends MigrationStep
+class Migration1599806584AddEventActionRule extends MigrationStep
 {
     public function getCreationTimestamp(): int
     {
-        return 1599720163;
+        return 1599806584;
     }
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate('ALTER TABLE `event_action` ADD `active` tinyint(1) NOT NULL DEFAULT 1 AFTER `config`;');
-
         $connection->executeUpdate('
             CREATE TABLE IF NOT EXISTS `event_action_rule` (
               `event_action_id` binary(16) NOT NULL,

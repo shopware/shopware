@@ -1,0 +1,12 @@
+@startuml
+
+hide empty description
+
+[*] -> Empty
+
+Empty --> Full : fill
+Full --> Empty : drink
+
+Full -> [*]
+
+@enduml

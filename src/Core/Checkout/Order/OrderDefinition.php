@@ -98,7 +98,7 @@ class OrderDefinition extends EntityDefinition
 
             new LongTextField('customer_comment', 'customerComment'),
 
-            (new StateMachineStateField('state_id', 'stateId', OrderStates::STATE_MACHINE))->setFlags(new Required()),
+            (new StateMachineStateField('state_id', 'stateId', OrderStates::STATE_MACHINE))->addFlags(new Required()),
             new ManyToOneAssociationField('stateMachineState', 'state_id', StateMachineStateDefinition::class, 'id', true),
 
             new ListField('rule_ids', 'ruleIds', StringField::class),

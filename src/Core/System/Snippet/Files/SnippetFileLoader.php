@@ -75,7 +75,7 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
                 continue;
             }
 
-            $snippetDir = $bundle->getPath() . '/Resources/snippet';
+            $snippetDir = $bundle->getPath() . $bundle->getSnippetPath();
 
             if (!is_dir($snippetDir)) {
                 continue;

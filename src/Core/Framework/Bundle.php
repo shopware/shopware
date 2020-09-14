@@ -24,6 +24,11 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
 
 abstract class Bundle extends SymfonyBundle
 {
+    public const DEFAULT_PATH_VIEWS = 'Resources/views';
+    public const DEFAULT_PATH_SNIPPET = 'Resources/snippets';
+    public const DEFAULT_PATH_ADMINISTRATION = 'Resources/app/administration';
+    public const DEFAULT_PATH_STOREFRONT = 'Resources/app/storefront';
+
     public function build(ContainerBuilder $container): void
     {
         parent::build($container);
@@ -98,6 +103,26 @@ abstract class Bundle extends SymfonyBundle
         if ($fileSystem->exists($confDir)) {
             $routes->import($confDir . '/{routes_overwrite}' . Kernel::CONFIG_EXTS, '/', 'glob');
         }
+    }
+
+    public function getViewPaths(): array
+    {
+        return [self::DEFAULT_PATH_VIEWS];
+    }
+
+    public function getSnippetPath(): string
+    {
+        return self::DEFAULT_PATH_SNIPPET;
+    }
+
+    public function getAdministrationPath(): string
+    {
+        return self::DEFAULT_PATH_ADMINISTRATION;
+    }
+
+    public function getStorefrontPath(): string
+    {
+        return self::DEFAULT_PATH_STOREFRONT;
     }
 
     /**

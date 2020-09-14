@@ -89,18 +89,18 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
 
             $bundles[$bundle->getName()] = [
                 'basePath' => $path . '/',
-                'views' => ['Resources/views'],
+                'views' => $bundle->getViewPaths(),
                 'technicalName' => str_replace('_', '-', $bundle->getContainerPrefix()),
                 'administration' => [
-                    'path' => 'Resources/app/administration/src',
-                    'entryFilePath' => $this->getEntryFile($bundle->getPath(), 'Resources/app/administration/src'),
-                    'webpack' => $this->getWebpackConfig($bundle->getPath(), 'Resources/app/administration'),
+                    'path' => $bundle->getAdministrationPath() . '/src',
+                    'entryFilePath' => $this->getEntryFile($bundle->getPath(), $bundle->getAdministrationPath() . '/src'),
+                    'webpack' => $this->getWebpackConfig($bundle->getPath(), $bundle->getAdministrationPath()),
                 ],
                 'storefront' => [
-                    'path' => 'Resources/app/storefront/src',
-                    'entryFilePath' => $this->getEntryFile($bundle->getPath(), 'Resources/app/storefront/src'),
-                    'webpack' => $this->getWebpackConfig($bundle->getPath(), 'Resources/app/storefront'),
-                    'styleFiles' => $this->getStyleFiles($bundle->getPath(), $bundle->getName()),
+                    'path' => $bundle->getStorefrontPath() . '/src',
+                    'entryFilePath' => $this->getEntryFile($bundle->getPath(), $bundle->getStorefrontPath() . '/src'),
+                    'webpack' => $this->getWebpackConfig($bundle->getPath(), $bundle->getStorefrontPath()),
+                    'styleFiles' => $this->getStyleFiles($bundle->getPath(), $bundle->getName(), $bundle->getStorefrontPath()),
                 ],
             ];
         }
@@ -143,7 +143,7 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
 
         return file_exists($absolutePath . '/main.ts') ? $path . '/main.ts'
             : (file_exists($absolutePath . '/main.js') ? $path . '/main.js'
-            : null);
+                : null);
     }
 
     private function getWebpackConfig(string $rootPath, string $componentPath): ?string
@@ -158,7 +158,7 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
         return $path . '/build/webpack.config.js';
     }
 
-    private function getStyleFiles(string $rootPath, string $technicalName): array
+    private function getStyleFiles(string $rootPath, string $technicalName, ?string $storefrontPath = Bundle::DEFAULT_PATH_STOREFRONT): array
     {
         $files = [];
         if ($this->kernel->getContainer()->has('Shopware\Storefront\Theme\StorefrontPluginRegistry')) {
@@ -171,7 +171,7 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
             }
         }
 
-        $path = $rootPath . DIRECTORY_SEPARATOR . 'Resources/app/storefront/src/scss';
+        $path = $rootPath . DIRECTORY_SEPARATOR . $storefrontPath . '/src/scss';
         if (is_dir($path)) {
             $finder = new Finder();
             $finder->in($path)->files()->depth(0);

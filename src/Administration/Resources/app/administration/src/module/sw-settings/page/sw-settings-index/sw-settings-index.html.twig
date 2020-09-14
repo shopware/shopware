@@ -61,7 +61,8 @@
                                                                       :key="settingsItem.name"
                                                                       :label="$tc(settingsItem.label)"
                                                                       :to="{ name: settingsItem.to }"
-                                                                      :id="settingsItem.id">
+                                                                      :id="settingsItem.id"
+                                                                      :backgroundEnabled="settingsItem.backgroundEnabled">
                                                         <template #icon>
                                                             <component v-if="settingsItem.iconComponent" :is="settingsItem.iconComponent"></component>
                                                             <sw-icon v-else :name="settingsItem.icon"></sw-icon>
@@ -86,7 +87,8 @@
                                                                       :key="pluginSettingsItem.name"
                                                                       :label="$tc(pluginSettingsItem.label)"
                                                                       :to="{ name: pluginSettingsItem.to }"
-                                                                      :id="pluginSettingsItem.id">
+                                                                      :id="pluginSettingsItem.id"
+                                                                      :backgroundEnabled="pluginSettingsItem.backgroundEnabled">
                                                         <template #icon>
                                                             <component v-if="pluginSettingsItem.iconComponent" :is="pluginSettingsItem.iconComponent"></component>
                                                             <sw-icon v-else :name="pluginSettingsItem.icon"></sw-icon>

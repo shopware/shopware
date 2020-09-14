@@ -1,7 +1,7 @@
 import template from './sw-sidebar-item-filter.html.twig';
 import './sw-sidebar-item-filter.scss';
 
-const {Component, Mixin} = Shopware;
+const {Component, Mixin, Context} = Shopware;
 const {Criteria, EntityCollection} = Shopware.Data;
 
 const filterInputTypeOptions = {
@@ -102,19 +102,62 @@ Component.register('sw-sidebar-item-filter', {
         },
 
         setRepositoriesAndNestedVariables() {
-            const neededRepositories = [];
             this.filterOptions.forEach((filterOption) => {
-                if (filterOption.entity) {
-                    neededRepositories.push(filterOption.entity);
+                switch (filterOption.property.type) {
+                    case "association":
+                        filterOption.inputType = 'multiSelect'
+                        filterOption.criteriaType = 'equalsAny'
+
+                        break;
+                    case "boolean":
+                        filterOption.inputType = 'singleSelect';
+                        filterOption.criteriaType = 'equals';
+
+                        filterOption.options = [
+                            {
+                                name: 'All',
+                                value: null
+                            },
+                            {
+                                name: 'True',
+                                value: true
+                            },
+                            {
+                                name: 'False',
+                                value: false
+                            }
+                        ]
+
+                        break;
+                    case "string":
+                        filterOption.inputType = 'input';
+                        filterOption.criteriaType = 'contains';
+
+                        break;
+                    case "int":
+                        filterOption.inputType = 'range';
+                        filterOption.criteriaType = 'range';
+
+                        break;
+                }
+
+                if (filterOption.property.entity) {
+                    filterOption.entity = filterOption.property.entity
+
+                    const entityRepository = this.repositoryFactory.create(filterOption.entity);
+
+                    this.repository[filterOption.entity] = entityRepository;
+
+                    filterOption.entityCollection = new EntityCollection(
+                        entityRepository.route,
+                        entityRepository.entityName,
+                        Context.api
+                    );
                 }
 
                 if (filterOption.inputType === filterInputTypeOptions.range) {
-                    this.$set(this.filter, filterOption.name, {from: null, to: null});
+                    this.$set(this.filter, filterOption.key, {from: null, to: null});
                 }
-            });
-
-            neededRepositories.forEach((neededRepository) => {
-                this.repository[neededRepository] = this.repositoryFactory.create(neededRepository);
             });
         },
 
@@ -167,15 +210,15 @@ Component.register('sw-sidebar-item-filter', {
                 let value;
                 if (filterOption.criteriaType === filterInputTypeOptions.range) {
                     value = {};
-                    if (this.filter[filterOption.name].from || this.filter[filterOption.name].from === 0) {
-                        value.gte = this.filter[filterOption.name].from;
+                    if (this.filter[filterOption.key].from || this.filter[filterOption.key].from === 0) {
+                        value.gte = this.filter[filterOption.key].from;
                     }
-                    if (this.filter[filterOption.name].to || this.filter[filterOption.name].to === 0) {
-                        value.lte = this.filter[filterOption.name].to;
+                    if (this.filter[filterOption.key].to || this.filter[filterOption.key].to === 0) {
+                        value.lte = this.filter[filterOption.key].to;
                     }
                     if (!value.gte && value.gte !== 0 && !value.lte && value.lte !== 0) return;
                 } else {
-                    value = this.filter[filterOption.name];
+                    value = this.filter[filterOption.key];
                 }
 
                 if ((typeof value === 'undefined') || value === null || value.length === 0) return;

@@ -4,67 +4,61 @@
             title="Filter"
             ref="filter">
 
-        <sw-container v-for="filterOption in filterOptions" :key="filterOption.name" columns="1fr " gap="6px"
+        <sw-container v-for="filterOption in filterOptions" :key="filterOption.key" columns="1fr " gap="6px"
                       class="sidebar--filter-container">
-            <sw-sidebar-collapse
-                    v-if="filterOption.inputType === 'input'"
-            >
-                <div slot="header">{{ filterOption.label }} <small
-                            class="sw-selected-options">{{ filter[filterOption.name] }}</small></div>
+            <sw-sidebar-collapse v-if="filterOption.inputType === 'input'">
+                <div slot="header">
+                    {{ filterOption.label }}
+                    <small class="sw-selected-options">{{ filter[filterOption.key] }}</small>
+                </div>
 
                 <div slot="content">
                     <sw-text-field
                             :placeholder="filterOption.placeholder"
-                            :value="filter[filterOption.name]"
-                            @input="inputTrigger($event, filterOption.name)">
+                            :value="filter[filterOption.key]"
+                            @input="inputTrigger($event, filterOption.key)">
                     </sw-text-field>
                 </div>
             </sw-sidebar-collapse>
 
-            <sw-sidebar-collapse
-                    v-else-if="filterOption.inputType === 'number'"
-            >
+            <sw-sidebar-collapse v-else-if="filterOption.inputType === 'number'">
                 <div slot="header">{{ filterOption.label }}
-                    <small class="sw-selected-options">{{ filter[filterOption.name] }}</small>
+                    <small class="sw-selected-options">{{ filter[filterOption.key] }}</small>
                 </div>
 
                 <div slot="content">
                     <sw-number-field
                             numberType="float"
                             :placeholder="filterOption.placeholder"
-                            :value="filter[filterOption.name]"
-                            @change="inputTrigger($event, filterOption.name)">
+                            :value="filter[filterOption.key]"
+                            @change="inputTrigger($event, filterOption.key)">
                     </sw-number-field>
                 </div>
             </sw-sidebar-collapse>
 
-            <sw-sidebar-collapse
-                    v-else-if="filterOption.inputType === 'singleSelect'"
-            >
+            <sw-sidebar-collapse v-else-if="filterOption.inputType === 'singleSelect'">
                 <div slot="header">{{ filterOption.label }} <small
-                            class="sw-selected-options">{{ filter[filterOption.name] }}</small></div>
+                            class="sw-selected-options">{{ filter[filterOption.key] }}</small></div>
 
                 <div slot="content">
                     <sw-single-select
-                            v-model="filter[filterOption.name]"
+                            v-model="filter[filterOption.key]"
                             :placeholder="filterOption.placeholder"
                             :options="filterOption.options"
                             valueProperty="value"
                             labelProperty="name"
-                            :value="filter[filterOption.name]">
+                            :value="filter[filterOption.key]">
                     </sw-single-select>
                 </div>
             </sw-sidebar-collapse>
 
-            <sw-sidebar-collapse
-                    v-else-if="filterOption.inputType === 'multiSelect'"
-
-            >
+            <sw-sidebar-collapse v-else-if="filterOption.inputType === 'multiSelect'">
                 <div slot="header">
-                    {{ filterOption.label }} <small
-                            v-if="filter[filterOption.name]">{{ filter[filterOption.name].length }} {{ 'Selected' }}</small>
+                    {{ filterOption.label }}
+                    <small v-if="filter[filterOption.key]">{{ filter[filterOption.key].length }} {{ 'Selected' }}</small>
+
                     <div>
-                        <sw-label v-for="selectedOption in filter[filterOption.name]" size="medium" appearance="default"
+                        <sw-label v-for="selectedOption in filter[filterOption.key]" size="medium" appearance="default"
                                   :ghost="false" :caps="false" :dismissable="true">
                             {{ selectedOption }}
                         </sw-label>
@@ -73,23 +67,28 @@
 
                 <div slot="content">
                     <sw-multi-select
-                            v-model="filter[filterOption.name]"
+                            v-model="filter[filterOption.key]"
                             :placeholder="filterOption.placeholder"
                             :options="filterOption.options"
                             valueProperty="value"
                             labelProperty="name"
-                            :value="filter[filterOption.name]">
+                            :value="filter[filterOption.key]">
                     </sw-multi-select>
+
+                    <sw-entity-many-to-many-select
+                            v-model="filter[filterOption.key]"
+                            :placeholder="filterOption.placeholder"
+                            :entityCollection="filterOption.entityCollection"
+                            :value="filter[filterOption.key]">
+                    </sw-entity-many-to-many-select>
                 </div>
             </sw-sidebar-collapse>
 
-            <sw-sidebar-collapse
-                    v-else-if="filterOption.inputType === 'range'"
-            >
+            <sw-sidebar-collapse v-else-if="filterOption.inputType === 'range'">
                 <div slot="header">{{ filterOption.label }}
-                    <small v-if="filter[filterOption.name].from || filter[filterOption.name].to"
+                    <small v-if="filter[filterOption.key].from || filter[filterOption.key].to"
                            class="sw-selected-options">
-                        {{ filter[filterOption.name].from }} - {{ filter[filterOption.name].to }}
+                        {{ filter[filterOption.key].from }} - {{ filter[filterOption.key].to }}
                     </small>
                 </div>
 
@@ -100,15 +99,15 @@
                             <sw-number-field numberType="float"
                                              :label="$tc('sw-product.list.filter.range.from.placeholder')"
                                              :placeholder="$tc('sw-product.list.filter.range.from.placeholder')"
-                                             :value="filter[filterOption.name].from"
-                                             @change="rangeInputTrigger($event, filterOption.name, 'from')">
+                                             :value="filter[filterOption.key].from"
+                                             @change="rangeInputTrigger($event, filterOption.key, 'from')">
                             </sw-number-field>
 
                             <sw-number-field numberType="float"
                                              :label="$tc('sw-product.list.filter.range.to.placeholder')"
                                              :placeholder="$tc('sw-product.list.filter.range.to.placeholder')"
-                                             :value="filter[filterOption.name].to"
-                                             @change="rangeInputTrigger($event, filterOption.name, 'to')">
+                                             :value="filter[filterOption.key].to"
+                                             @change="rangeInputTrigger($event, filterOption.key, 'to')">
                             </sw-number-field>
                         </sw-container>
                     </span>

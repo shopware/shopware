@@ -9,12 +9,14 @@ function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-product-detail-base'), {
         localVue,
         stubs: {
-            'sw-page': `
-                <div class="sw-page">
-                    <slot name="smart-bar-actions"></slot>
-                    <slot name="content">CONTENT</slot>
-                    <slot></slot>
-                </div>`,
+            'sw-page': {
+                template: `
+                    <div class="sw-page">
+                        <slot name="smart-bar-actions"></slot>
+                        <slot name="content">CONTENT</slot>
+                        <slot></slot>
+                    </div>`
+            },
             'sw-product-detail-base__review-card': true,
             'sw-data-grid': {
                 props: ['dataSource'],
@@ -35,7 +37,9 @@ function createWrapper(privileges = []) {
             'sw-product-feature-set-form': true,
             'sw-inherit-wrapper': true,
             'sw-empty-state': true,
-            'sw-card': '<div><slot></slot><slot name="grid"></slot></div>',
+            'sw-card': {
+                template: '<div><slot></slot><slot name="grid"></slot></div>'
+            },
             'sw-context-menu-item': true
         },
         mocks: {

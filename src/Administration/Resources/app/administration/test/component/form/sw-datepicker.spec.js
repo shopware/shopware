@@ -5,11 +5,13 @@ function createWrapper(customOptions = {}) {
     return shallowMount(Shopware.Component.build('sw-datepicker'), {
         sync: false,
         stubs: {
-            'sw-contextual-field': `
-            <div class="sw-contextual-field">
-                <slot name="sw-field-input"></slot>
-                <slot name="sw-contextual-field-suffix"></slot>
-            </div>`,
+            'sw-contextual-field': {
+                template: `
+                <div class="sw-contextual-field">
+                    <slot name="sw-field-input"></slot>
+                    <slot name="sw-contextual-field-suffix"></slot>
+                </div>`
+            },
             'sw-icon': true
         },
         ...customOptions

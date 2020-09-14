@@ -190,26 +190,64 @@ function createWrapper() {
             }
         },
         stubs: {
-            'sw-page': '<div><slot name="content"></slot></div>',
+            'sw-page': {
+                template: '<div><slot name="content"></slot></div>'
+            },
             'sw-entity-listing': Shopware.Component.build('sw-entity-listing'),
-            'sw-context-button': '<div></div>',
-            'sw-context-menu-item': '<div></div>',
-            'sw-data-grid-settings': '<div></div>',
-            'sw-empty-state': '<div></div>',
-            'sw-pagination': '<div></div>',
-            'sw-icon': '<div></div>',
-            'sw-button': '<div></div>',
-            'sw-sidebar': '<div></div>',
-            'sw-sidebar-item': '<div></div>',
-            'router-link': '<div></div>',
-            'sw-language-switch': '<div></div>',
-            'sw-notification-center': '<div></div>',
-            'sw-search-bar': '<div></div>',
-            'sw-loader': '<div></div>',
-            'sw-data-grid-skeleton': '<div class="sw-data-grid-skeleton"></div>',
-            'sw-checkbox-field': '<div></div>',
-            'sw-media-preview-v2': '<div></div>',
-            'sw-color-badge': '<div></div>'
+            'sw-context-button': {
+                template: '<div></div>'
+            },
+            'sw-context-menu-item': {
+                template: '<div></div>'
+            },
+            'sw-data-grid-settings': {
+                template: '<div></div>'
+            },
+            'sw-empty-state': {
+                template: '<div></div>'
+            },
+            'sw-pagination': {
+                template: '<div></div>'
+            },
+            'sw-icon': {
+                template: '<div></div>'
+            },
+            'sw-button': {
+                template: '<div></div>'
+            },
+            'sw-sidebar': {
+                template: '<div></div>'
+            },
+            'sw-sidebar-item': {
+                template: '<div></div>'
+            },
+            'router-link': {
+                template: '<div></div>'
+            },
+            'sw-language-switch': {
+                template: '<div></div>'
+            },
+            'sw-notification-center': {
+                template: '<div></div>'
+            },
+            'sw-search-bar': {
+                template: '<div></div>'
+            },
+            'sw-loader': {
+                template: '<div></div>'
+            },
+            'sw-data-grid-skeleton': {
+                template: '<div class="sw-data-grid-skeleton"></div>'
+            },
+            'sw-checkbox-field': {
+                template: '<div></div>'
+            },
+            'sw-media-preview-v2': {
+                template: '<div></div>'
+            },
+            'sw-color-badge': {
+                template: '<div></div>'
+            }
         }
     });
 }

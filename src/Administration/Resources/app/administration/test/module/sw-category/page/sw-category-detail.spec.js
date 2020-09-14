@@ -10,11 +10,13 @@ function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-category-detail'), {
         localVue,
         stubs: {
-            'sw-page': `
-<div>
-    <slot name="smart-bar-actions"></slot>
-    <slot name="side-content"></slot>
-</div>`,
+            'sw-page': {
+                template: `
+    <div>
+        <slot name="smart-bar-actions"></slot>
+        <slot name="side-content"></slot>
+    </div>`
+            },
             'sw-category-tree': true,
             'sw-button': true,
             'sw-button-process': true

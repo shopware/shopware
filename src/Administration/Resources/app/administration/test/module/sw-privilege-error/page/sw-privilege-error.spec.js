@@ -11,8 +11,12 @@ describe('src/module/sw-privilege-error/page/sw-privilege-error', () => {
         wrapper = shallowMount(Shopware.Component.build('sw-privilege-error'), {
             localVue,
             stubs: {
-                'sw-page': '<div><slot name="content"></slot></div>',
-                'sw-button': '<button @click="$emit(\'click\', $event)"><slot></slot></button>'
+                'sw-page': {
+                    template: '<div><slot name="content"></slot></div>'
+                },
+                'sw-button': {
+                    template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>'
+                }
             },
             mocks: {
                 $router: {

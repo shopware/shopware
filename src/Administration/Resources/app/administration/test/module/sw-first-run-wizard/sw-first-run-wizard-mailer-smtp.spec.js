@@ -5,8 +5,12 @@ describe('module/sw-first-run-wizard/sw-first-run-wizard-mailer-smtp', () => {
     const CreateFirstRunWizardMailerSmtp = function CreateFirstRunWizardMailerSmtp() {
         return shallowMount(Shopware.Component.build('sw-first-run-wizard-mailer-smtp'), {
             stubs: {
-                'sw-settings-mailer-smtp': '<div />',
-                'sw-loader': '<div />'
+                'sw-settings-mailer-smtp': {
+                    template: '<div />'
+                },
+                'sw-loader': {
+                    template: '<div />'
+                }
             },
             mocks: {
                 $tc: (translationPath) => translationPath

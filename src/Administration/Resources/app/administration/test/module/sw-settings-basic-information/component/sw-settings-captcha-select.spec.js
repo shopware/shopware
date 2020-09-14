@@ -5,7 +5,9 @@ describe('src/module/sw-settings-basic-information/component/sw-settings-captcha
     function CaptchaSelect() {
         return shallowMount(Shopware.Component.build('sw-settings-captcha-select'), {
             stubs: {
-                'sw-multi-select': '<div></div>'
+                'sw-multi-select': {
+                    template: '<div></div>'
+                }
             },
             mocks: {
                 $tc: (translationPath) => translationPath,

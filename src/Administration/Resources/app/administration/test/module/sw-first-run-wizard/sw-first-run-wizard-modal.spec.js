@@ -9,9 +9,15 @@ describe('module/sw-first-run-wizard/sw-first-run-wizard-modal', () => {
             stubs: {
                 'sw-modal': Shopware.Component.build('sw-modal'),
                 'sw-container': Shopware.Component.build('sw-container'),
-                'sw-icon': '<div />',
-                'router-view': '<div id="router-view" />',
-                'sw-button': '<div />'
+                'sw-icon': {
+                    template: '<div />'
+                },
+                'router-view': {
+                    template: '<div id="router-view" />'
+                },
+                'sw-button': {
+                    template: '<div />'
+                }
             },
             mocks: {
                 $tc: (translationPath) => translationPath,

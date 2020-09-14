@@ -8,10 +8,14 @@ function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-order-document-card'), {
         localVue,
         stubs: {
-            'sw-card': '<div><slot name="grid"></slot></div>',
+            'sw-card': {
+                template: '<div><slot name="grid"></slot></div>'
+            },
             'sw-empty-state': true,
             'sw-card-section': true,
-            'sw-card-filter': '<div><slot name="filter"></slot></div>',
+            'sw-card-filter': {
+                template: '<div><slot name="filter"></slot></div>'
+            },
             'sw-context-button': true,
             'sw-button': true
         },

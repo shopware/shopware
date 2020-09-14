@@ -14,24 +14,44 @@ function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-cms-list'), {
         localVue,
         stubs: {
-            'sw-page': `
-<div>
-    <slot name="smart-bar-actions"></slot>
-    <slot name="content"></slot>
-</div>`,
-            'sw-card-view': '<div><slot></slot></div>',
-            'sw-tabs': '<div><slot name="content"></slot></div>',
-            'sw-field': '<div></div>',
-            'sw-icon': '<div></div>',
-            'sw-pagination': '<div></div>',
+            'sw-page': {
+                template: `
+    <div>
+        <slot name="smart-bar-actions"></slot>
+        <slot name="content"></slot>
+    </div>`
+            },
+            'sw-card-view': {
+                template: '<div><slot></slot></div>'
+            },
+            'sw-tabs': {
+                template: '<div><slot name="content"></slot></div>'
+            },
+            'sw-field': {
+                template: '<div></div>'
+            },
+            'sw-icon': {
+                template: '<div></div>'
+            },
+            'sw-pagination': {
+                template: '<div></div>'
+            },
             'sw-cms-list-item': Shopware.Component.build('sw-cms-list-item'),
             'sw-context-button': Shopware.Component.build('sw-context-button'),
-            'sw-popover': '<div><slot></slot></div>',
-            'sw-context-menu': '<div><slot></slot></div>',
+            'sw-popover': {
+                template: '<div><slot></slot></div>'
+            },
+            'sw-context-menu': {
+                template: '<div><slot></slot></div>'
+            },
             'sw-context-menu-item': Shopware.Component.build('sw-context-menu-item'),
-            'sw-media-modal-v2': '<div class="sw-media-modal-v2-mock"></div>',
+            'sw-media-modal-v2': {
+                template: '<div class="sw-media-modal-v2-mock"></div>'
+            },
             'sw-button': true,
-            'sw-card': '<div><slot name="grid"></slot></div>',
+            'sw-card': {
+                template: '<div><slot name="grid"></slot></div>'
+            },
             'sw-data-grid': Shopware.Component.build('sw-data-grid'),
             'router-link': true,
             'sw-data-grid-skeleton': true

@@ -13,9 +13,13 @@ function createWrapper() {
             page: createPageProp()
         },
         stubs: {
-            'sw-icon': '<div></div>',
+            'sw-icon': {
+                template: '<div></div>'
+            },
             'sw-card': Shopware.Component.build('sw-card'),
-            'sw-cms-el-config-text': '<div class="config-element">Config element</div>'
+            'sw-cms-el-config-text': {
+                template: '<div class="config-element">Config element</div>'
+            }
         },
         mocks: {
             $tc: (value) => value

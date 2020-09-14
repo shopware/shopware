@@ -89,10 +89,14 @@ function createWrapper(privileges = []) {
             'sw-modal': Shopware.Component.build('sw-modal'),
             'sw-language-switch': true,
             'sw-search-bar': true,
-            'sw-context-menu-item': '<div class="sw-context-menu-item"><div class="sw-context-menu-item__text"></div></div>',
+            'sw-context-menu-item': {
+                template: '<div class="sw-context-menu-item"><div class="sw-context-menu-item__text"></div></div>'
+            },
             'sw-icon': true,
             'sw-button': Shopware.Component.build('sw-button'),
-            'sw-container': '<div><slot></slot></div>',
+            'sw-container': {
+                template: '<div><slot></slot></div>'
+            },
             'sw-field': Shopware.Component.build('sw-field'),
             'sw-text-field': Shopware.Component.build('sw-text-field'),
             'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
@@ -101,7 +105,9 @@ function createWrapper(privileges = []) {
             'sw-checkbox-field': Shopware.Component.build('sw-checkbox-field'),
             'sw-field-error': true,
             'sw-field-copyable': true,
-            'sw-empty-state': '<div class="sw-empty-state"></div>',
+            'sw-empty-state': {
+                template: '<div class="sw-empty-state"></div>'
+            },
             'sw-entity-listing': {
                 props: ['items', 'detailRoute'],
                 template: `
@@ -143,7 +149,7 @@ describe('when has privilege', () => {
             'integration.editor'
         ]);
         await wrapper.vm.$nextTick();
-        wrapper.setData({
+        await wrapper.setData({
             currentIntegration: true
         });
 
@@ -192,9 +198,9 @@ describe('when has not privilege', () => {
     });
 
     it('should not be able to edit a integration', async () => {
-        const wrapper = createWrapper([]);
+        const wrapper = await createWrapper([]);
         await wrapper.vm.$nextTick();
-        wrapper.setData({
+        await wrapper.setData({
             currentIntegration: true
         });
 
@@ -210,12 +216,12 @@ describe('when has not privilege', () => {
     });
 
     it('should not be able to edit a integration', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'integration.viewer',
             'integration.deleter'
         ]);
         await wrapper.vm.$nextTick();
-        wrapper.setData({
+        await wrapper.setData({
             currentIntegration: true
         });
 

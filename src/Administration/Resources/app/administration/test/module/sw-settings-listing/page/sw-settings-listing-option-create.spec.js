@@ -60,7 +60,9 @@ describe('src/module/sw-setttigs-listing/page/sw-settings-listing-option-create'
                 }
             },
             stubs: {
-                'sw-page': '<div></div>'
+                'sw-page': {
+                    template: '<div></div>'
+                }
             }
         });
     }

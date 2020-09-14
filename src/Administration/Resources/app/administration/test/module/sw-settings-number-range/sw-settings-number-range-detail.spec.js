@@ -50,17 +50,25 @@ function createWrapper(privileges = []) {
             }
         },
         stubs: {
-            'sw-page': `
-                <div class="sw-page">
-                    <slot name="smart-bar-actions" />
-                    <slot name="content" />
-                    <slot />
-                </div>`,
+            'sw-page': {
+                template: `
+                    <div class="sw-page">
+                        <slot name="smart-bar-actions" />
+                        <slot name="content" />
+                        <slot />
+                    </div>`
+            },
             'sw-button': true,
             'sw-button-process': true,
-            'sw-card': '<div class="sw-card"><slot /></div>',
-            'sw-field': '<div class="sw-field"/>',
-            'sw-card-view': '<div><slot /></div>',
+            'sw-card': {
+                template: '<div class="sw-card"><slot /></div>'
+            },
+            'sw-field': {
+                template: '<div class="sw-field"/>'
+            },
+            'sw-card-view': {
+                template: '<div><slot /></div>'
+            },
             'sw-container': true,
             'sw-language-info': true,
             'sw-help-text': true,

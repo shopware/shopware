@@ -8,8 +8,12 @@ function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-promotion-order-condition-form'), {
         localVue,
         stubs: {
-            'sw-card': '<div class="sw-card"><slot></slot></div>',
-            'sw-promotion-rule-select': '<div class="sw-promotion-rule-select"><slot></slot></div>'
+            'sw-card': {
+                template: '<div class="sw-card"><slot></slot></div>'
+            },
+            'sw-promotion-rule-select': {
+                template: '<div class="sw-promotion-rule-select"><slot></slot></div>'
+            }
         },
         provide: {
             acl: {

@@ -51,10 +51,14 @@ describe('module/sw-category/view/sw-category-detail-base.spec', () => {
                 'sw-entity-tag-select': true,
                 'sw-category-detail-menu': true,
                 'sw-many-to-many-assignment-card': swManyToManyAssignmentCardStub,
-                'sw-product-stream-grid-preview': '<div class="sw-product-stream-grid-preview"></div>',
+                'sw-product-stream-grid-preview': {
+                    template: '<div class="sw-product-stream-grid-preview"></div>'
+                },
                 'sw-entity-single-select': true,
                 'sw-category-seo-form': true,
-                'sw-alert': '<div class="sw-alert"><slot></slot></div>'
+                'sw-alert': {
+                    template: '<div class="sw-alert"><slot></slot></div>'
+                }
             },
             mocks: {
                 $tc: key => key,

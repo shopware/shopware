@@ -26,7 +26,9 @@ const createWrapper = () => {
         stubs: {
             'sw-switch-field': Shopware.Component.build('sw-switch-field'),
             'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-field-error': '<div></div>'
+            'sw-field-error': {
+                template: '<div></div>'
+            }
         }
     });
 };

@@ -9,13 +9,27 @@ function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-promotion-persona-form'), {
         localVue,
         stubs: {
-            'sw-entity-single-select': '<div class="sw-entity-single-select"></div>',
-            'sw-field': '<div class="sw-field"><slot></slot></div>',
-            'sw-data-grid': '<div class="sw-data-grid"><slot></slot><slot name="actions"></slot></div>',
-            'sw-pagination': '<div class="sw-pagination"><slot></slot></div>',
-            'sw-card': '<div class="sw-card"><slot></slot></div>',
-            'sw-context-menu-item': '<div class="sw-context-menu-item"><slot></slot></div>',
-            'sw-promotion-rule-select': '<div class="sw-promotion-rule-select"><slot></slot></div>'
+            'sw-entity-single-select': {
+                template: '<div class="sw-entity-single-select"></div>'
+            },
+            'sw-field': {
+                template: '<div class="sw-field"><slot></slot></div>'
+            },
+            'sw-data-grid': {
+                template: '<div class="sw-data-grid"><slot></slot><slot name="actions"></slot></div>'
+            },
+            'sw-pagination': {
+                template: '<div class="sw-pagination"><slot></slot></div>'
+            },
+            'sw-card': {
+                template: '<div class="sw-card"><slot></slot></div>'
+            },
+            'sw-context-menu-item': {
+                template: '<div class="sw-context-menu-item"><slot></slot></div>'
+            },
+            'sw-promotion-rule-select': {
+                template: '<div class="sw-promotion-rule-select"><slot></slot></div>'
+            }
         },
         provide: {
             acl: {

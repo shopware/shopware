@@ -12,7 +12,9 @@ describe('src/module/sw-media/component/sw-media-modal-v2', () => {
             localVue,
             stubs: {
                 'sw-modal': true,
-                'sw-tabs': '<div><slot name="content" active="upload"></slot></div>',
+                'sw-tabs': {
+                    template: '<div><slot name="content" active="upload"></slot></div>'
+                },
                 'sw-media-sidebar': true,
                 'sw-button': true,
                 'sw-media-upload-v2': true,

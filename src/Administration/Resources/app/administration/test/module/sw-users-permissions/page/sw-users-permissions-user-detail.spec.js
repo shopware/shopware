@@ -76,14 +76,18 @@ function createWrapper(privileges = []) {
             }
         },
         stubs: {
-            'sw-page': '<div><slot name="content"></slot></div>',
+            'sw-page': {
+                template: '<div><slot name="content"></slot></div>'
+            },
             'sw-card-view': true,
-            'sw-card': `
-<div class="sw-card-stub">
-    <slot></slot>
-    <slot name="grid"></slot>
-</div>
-`,
+            'sw-card': {
+                template: `
+    <div class="sw-card-stub">
+        <slot></slot>
+        <slot name="grid"></slot>
+    </div>
+    `
+            },
             'sw-text-field': true,
             'sw-upload-listener': true,
             'sw-media-upload-v2': true,

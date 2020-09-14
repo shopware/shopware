@@ -39,7 +39,9 @@ function createWrapper(privileges = []) {
             }
         },
         stubs: {
-            'sw-page': '<div><slot name="content"></slot><slot name="smart-bar-actions"></slot></div>',
+            'sw-page': {
+                template: '<div><slot name="content"></slot><slot name="smart-bar-actions"></slot></div>'
+            },
             'sw-button': true,
             'sw-entity-listing': true,
             'sw-empty-state': true

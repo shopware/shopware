@@ -25,8 +25,12 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-ge
                 }
             },
             stubs: {
-                'sw-card': '<div><slot></slot></div>',
-                'sw-container': '<div><slot></slot></div>',
+                'sw-card': {
+                    template: '<div><slot></slot></div>'
+                },
+                'sw-container': {
+                    template: '<div><slot></slot></div>'
+                },
                 'sw-field': Shopware.Component.build('sw-field'),
                 'sw-text-field': Shopware.Component.build('sw-text-field'),
                 'sw-switch-field': Shopware.Component.build('sw-switch-field'),

@@ -36,9 +36,15 @@ function createWrapper(privileges = []) {
             };
         },
         stubs: {
-            'sw-page': '<div><slot name="smart-bar-actions"></slot><slot name="content">CONTENT</slot></div>',
-            'sw-card-view': '<div><slot/></div> ',
-            'sw-card': '<div><slot/><slot name="grid"/></div>',
+            'sw-page': {
+                template: '<div><slot name="smart-bar-actions"></slot><slot name="content">CONTENT</slot></div>'
+            },
+            'sw-card-view': {
+                template: '<div><slot/></div> '
+            },
+            'sw-card': {
+                template: '<div><slot/><slot name="grid"/></div>'
+            },
             'sw-grid': Shopware.Component.build('sw-grid'),
             'sw-grid-row': true,
             'sw-empty-state': true,

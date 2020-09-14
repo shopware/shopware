@@ -12,10 +12,16 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         const defaultOptions = {
             localVue,
             stubs: {
-                'sw-entity-listing': '<div></div>',
+                'sw-entity-listing': {
+                    template: '<div></div>'
+                },
                 'sw-import-export-activity-detail-modal': Shopware.Component.build('sw-import-export-activity-detail-modal'),
-                'sw-import-export-edit-profile-modal': '<div></div>',
-                'sw-modal': '<div></div>'
+                'sw-import-export-edit-profile-modal': {
+                    template: '<div></div>'
+                },
+                'sw-modal': {
+                    template: '<div></div>'
+                }
             },
             mocks: {
                 $tc: (key) => {

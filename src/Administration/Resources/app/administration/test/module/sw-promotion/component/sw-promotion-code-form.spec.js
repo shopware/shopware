@@ -8,10 +8,18 @@ function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-promotion-code-form'), {
         localVue,
         stubs: {
-            'sw-container': '<div class="sw-container"><slot></slot></div>',
-            'sw-switch-field': '<div class="sw-switch-field"></div>',
-            'sw-field': '<div class="sw-field"></div>',
-            'sw-icon': '<div class="sw-icon"></div>'
+            'sw-container': {
+                template: '<div class="sw-container"><slot></slot></div>'
+            },
+            'sw-switch-field': {
+                template: '<div class="sw-switch-field"></div>'
+            },
+            'sw-field': {
+                template: '<div class="sw-field"></div>'
+            },
+            'sw-icon': {
+                template: '<div class="sw-icon"></div>'
+            }
         },
         provide: {
             acl: {

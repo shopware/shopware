@@ -9,9 +9,15 @@ function createWrapper(customPropsData = {}) {
 
     return shallowMount(Shopware.Component.build('sw-many-to-many-assignment-card'), {
         stubs: {
-            'sw-card': '<div><slot></slot><slot name="grid"></slot></div>',
-            'sw-select-base': '<div class="sw-select-base"></div>',
-            'sw-data-grid': '<div><slot name="actions"></slot></div>',
+            'sw-card': {
+                template: '<div><slot></slot><slot name="grid"></slot></div>'
+            },
+            'sw-select-base': {
+                template: '<div class="sw-select-base"></div>'
+            },
+            'sw-data-grid': {
+                template: '<div><slot name="actions"></slot></div>'
+            },
             'sw-context-menu': true,
             'sw-context-menu-item': true
         },

@@ -71,12 +71,20 @@ function createWrapper() {
         },
 
         stubs: {
-            'sw-card': '<div><slot></slot></div>',
-            'sw-customer-card': '<div></div>',
+            'sw-card': {
+                template: '<div><slot></slot></div>'
+            },
+            'sw-customer-card': {
+                template: '<div></div>'
+            },
             'sw-custom-field-set-renderer': Shopware.Component.build('sw-custom-field-set-renderer'),
-            'sw-tabs': '<div><slot name="content"></slot></div>',
+            'sw-tabs': {
+                template: '<div><slot name="content"></slot></div>'
+            },
             'sw-form-field-renderer': Shopware.Component.build('sw-form-field-renderer'),
-            'sw-field': '<div></div>',
+            'sw-field': {
+                template: '<div></div>'
+            },
             'sw-inherit-wrapper': Shopware.Component.build('sw-inherit-wrapper')
         }
     });

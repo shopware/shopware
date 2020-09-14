@@ -31,7 +31,9 @@ const createWrapper = () => {
         stubs: {
             'sw-radio-field': Shopware.Component.build('sw-radio-field'),
             'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-field-error': '<div></div>'
+            'sw-field-error': {
+                template: '<div></div>'
+            }
         }
     });
 };

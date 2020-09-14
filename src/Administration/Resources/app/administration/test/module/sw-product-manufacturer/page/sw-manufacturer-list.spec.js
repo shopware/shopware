@@ -8,7 +8,9 @@ function createWrapper(privileges = []) {
     return mount(Shopware.Component.build('sw-manufacturer-list'), {
         localVue,
         stubs: {
-            'sw-page': '<div><slot name="smart-bar-actions"></slot><slot name="content">CONTENT</slot></div>',
+            'sw-page': {
+                template: '<div><slot name="smart-bar-actions"></slot><slot name="content">CONTENT</slot></div>'
+            },
             'sw-entity-listing': {
                 props: ['items', 'allowEdit', 'allowDelete'],
                 template: `

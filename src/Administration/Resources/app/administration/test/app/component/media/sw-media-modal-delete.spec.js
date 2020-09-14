@@ -26,8 +26,12 @@ describe('components/media/sw-media-modal-delete', () => {
             stubs: {
                 'sw-modal': true,
                 'sw-button': true,
-                'sw-media-quickinfo-usage': '<div class="sw-media-quickinfo-usage"></div>',
-                'sw-media-media-item': '<div class="sw-media-media-item"></div>',
+                'sw-media-quickinfo-usage': {
+                    template: '<div class="sw-media-quickinfo-usage"></div>'
+                },
+                'sw-media-media-item': {
+                    template: '<div class="sw-media-media-item"></div>'
+                },
                 'sw-alert': true
             },
             mocks: {

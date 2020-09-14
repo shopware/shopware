@@ -19,7 +19,9 @@ const createSingleSelect = (customOptions) => {
             'sw-select-base': Shopware.Component.build('sw-select-base'),
             'sw-block-field': Shopware.Component.build('sw-block-field'),
             'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-icon': '<div></div>',
+            'sw-icon': {
+                template: '<div></div>'
+            },
             'sw-field-error': Shopware.Component.build('sw-field-error'),
             'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
             'sw-popover': Shopware.Component.build('sw-popover'),

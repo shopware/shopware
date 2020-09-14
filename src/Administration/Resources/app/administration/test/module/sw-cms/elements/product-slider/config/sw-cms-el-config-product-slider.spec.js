@@ -39,7 +39,9 @@ function createWrapper(customCmsElementConfig) {
             defaultConfig: {}
         },
         stubs: {
-            'sw-tabs': '<div class="sw-tabs"><slot></slot><slot name="content" active="content"></slot></div>',
+            'sw-tabs': {
+                template: '<div class="sw-tabs"><slot></slot><slot name="content" active="content"></slot></div>'
+            },
             'sw-tabs-item': true,
             'sw-container': true,
             'sw-field': true,

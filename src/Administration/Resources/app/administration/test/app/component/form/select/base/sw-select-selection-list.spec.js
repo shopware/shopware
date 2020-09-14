@@ -8,7 +8,9 @@ function createWrapper(propsData = {}) {
     return shallowMount(Shopware.Component.build('sw-select-selection-list'), {
         localVue,
         stubs: {
-            'sw-label': '<div class="sw-label"><slot></slot></div>'
+            'sw-label': {
+                template: '<div class="sw-label"><slot></slot></div>'
+            }
         },
         provide: {
         },

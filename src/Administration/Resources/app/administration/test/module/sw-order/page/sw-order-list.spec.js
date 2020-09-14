@@ -8,7 +8,9 @@ function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-order-list'), {
         localVue,
         stubs: {
-            'sw-page': '<div><slot name="smart-bar-actions"></slot></div>',
+            'sw-page': {
+                template: '<div><slot name="smart-bar-actions"></slot></div>'
+            },
             'sw-button': true
         },
         provide: {

@@ -9,15 +9,33 @@ function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-promotion-individualcodes'), {
         localVue,
         stubs: {
-            'sw-container': '<div class="sw-container"><slot></slot></div>',
-            'sw-field': '<div class="sw-field"><slot></slot></div>',
-            'sw-number-field': '<div class="sw-number-field"><slot></slot></div>',
-            'sw-button': '<div class="sw-button"><slot></slot></div>',
-            'sw-progress-bar': '<div class="sw-progress-bar"><slot></slot></div>',
-            'sw-label': '<div class="sw-label"><slot></slot></div>',
-            'sw-empty-state': '<div class="sw-empty-state"><slot></slot></div>',
-            'sw-data-grid': '<div class="sw-data-grid"><slot></slot><slot name="actions"></slot></div>',
-            'sw-icon': '<div class="sw-icon"></div>'
+            'sw-container': {
+                template: '<div class="sw-container"><slot></slot></div>'
+            },
+            'sw-field': {
+                template: '<div class="sw-field"><slot></slot></div>'
+            },
+            'sw-number-field': {
+                template: '<div class="sw-number-field"><slot></slot></div>'
+            },
+            'sw-button': {
+                template: '<div class="sw-button"><slot></slot></div>'
+            },
+            'sw-progress-bar': {
+                template: '<div class="sw-progress-bar"><slot></slot></div>'
+            },
+            'sw-label': {
+                template: '<div class="sw-label"><slot></slot></div>'
+            },
+            'sw-empty-state': {
+                template: '<div class="sw-empty-state"><slot></slot></div>'
+            },
+            'sw-data-grid': {
+                template: '<div class="sw-data-grid"><slot></slot><slot name="actions"></slot></div>'
+            },
+            'sw-icon': {
+                template: '<div class="sw-icon"></div>'
+            }
         },
         provide: {
             acl: {

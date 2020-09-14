@@ -12,9 +12,15 @@ describe('module/sw-first-run-wizard/sw-first-run-wizard-modal', () => {
         return shallowMount(Shopware.Component.build('sw-first-run-wizard-mailer-selection'), {
             localVue,
             stubs: {
-                'sw-help-text': '<div />',
-                'sw-icon': '<div />',
-                'sw-loader': '<div />'
+                'sw-help-text': {
+                    template: '<div />'
+                },
+                'sw-icon': {
+                    template: '<div />'
+                },
+                'sw-loader': {
+                    template: '<div />'
+                }
             },
             mocks: {
                 $tc: (translationPath) => translationPath

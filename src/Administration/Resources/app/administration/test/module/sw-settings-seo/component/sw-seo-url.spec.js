@@ -9,7 +9,9 @@ function createWrapper() {
     return shallowMount(Shopware.Component.build('sw-seo-url'), {
         localVue,
         stubs: {
-            'sw-card': '<div><slot name="toolbar"></slot></div>',
+            'sw-card': {
+                template: '<div><slot name="toolbar"></slot></div>'
+            },
             'sw-sales-channel-switch': true
         },
         mocks: {

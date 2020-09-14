@@ -323,13 +323,23 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                 }
             },
             stubs: {
-                'sw-page': '<div><slot name="content"></slot></div>',
+                'sw-page': {
+                    template: '<div><slot name="content"></slot></div>'
+                },
                 'sw-system-config': true,
-                'sw-card-view': '<div><slot></slot></div>',
-                'sw-card': '<div><slot></slot></div>',
-                'sw-empty-state': '<div class="sw-empty-state"></div>',
+                'sw-card-view': {
+                    template: '<div><slot></slot></div>'
+                },
+                'sw-card': {
+                    template: '<div><slot></slot></div>'
+                },
+                'sw-empty-state': {
+                    template: '<div class="sw-empty-state"></div>'
+                },
                 'sw-data-grid': Shopware.Component.build('sw-data-grid'),
-                'sw-checkbox-field': '<div class="sw-checkbox-field"></div>',
+                'sw-checkbox-field': {
+                    template: '<div class="sw-checkbox-field"></div>'
+                },
                 'sw-context-button': true,
                 'sw-context-menu-item': true,
                 'router-link': true,

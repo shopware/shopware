@@ -75,7 +75,9 @@ function createWrapper(privileges = []) {
             }
         },
         stubs: {
-            'sw-page': '<div><slot name="content"></slot></div>',
+            'sw-page': {
+                template: '<div><slot name="content"></slot></div>'
+            },
             'sw-card-view': true,
             'sw-card': true,
             'sw-text-field': true,

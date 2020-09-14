@@ -36,11 +36,17 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
                 }
             },
             stubs: {
-                'sw-card': '<div><slot></slot></div>',
-                'sw-empty-state': '<div class="sw-empty-state"></div>',
+                'sw-card': {
+                    template: '<div><slot></slot></div>'
+                },
+                'sw-empty-state': {
+                    template: '<div class="sw-empty-state"></div>'
+                },
                 'sw-data-grid': Shopware.Component.build('sw-data-grid'),
                 'sw-checkbox-field': Shopware.Component.build('sw-checkbox-field'),
-                'sw-icon': '<i></i>',
+                'sw-icon': {
+                    template: '<i></i>'
+                },
                 'sw-base-field': Shopware.Component.build('sw-base-field'),
                 'sw-block-field': Shopware.Component.build('sw-block-field'),
                 'sw-field-error': Shopware.Component.build('sw-field-error'),

@@ -33,7 +33,9 @@ function createWrapper() {
             'sw-block-field': Shopware.Component.build('sw-block-field'),
             'sw-base-field': Shopware.Component.build('sw-base-field'),
             'sw-field-error': Shopware.Component.build('sw-field-error'),
-            'sw-icon': '<div></div>'
+            'sw-icon': {
+                template: '<div></div>'
+            }
         }
     });
 }

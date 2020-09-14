@@ -4,7 +4,9 @@ import { shallowMount } from '@vue/test-utils';
 function createWrapper(customString = '') {
     return shallowMount(Shopware.Component.build('sw-settings-store'), {
         stubs: {
-            'sw-page': '<div><slot name="content"></slot></div>',
+            'sw-page': {
+                template: '<div><slot name="content"></slot></div>'
+            },
             'sw-card-view': true,
             'sw-system-config': {
                 template: '<div></div>',

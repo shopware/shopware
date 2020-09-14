@@ -66,12 +66,14 @@ function createWrapper(privileges = []) {
             }
         },
         stubs: {
-            'sw-page': `
-                <div class="sw-page">
-                    <slot name="smart-bar-actions"></slot>
-                    <slot name="content"></slot>
-                    <slot></slot>
-                </div>`,
+            'sw-page': {
+                template: `
+                    <div class="sw-page">
+                        <slot name="smart-bar-actions"></slot>
+                        <slot name="content"></slot>
+                        <slot></slot>
+                    </div>`
+            },
             'sw-button': true,
             'sw-button-process': true,
             'sw-language-switch': true,

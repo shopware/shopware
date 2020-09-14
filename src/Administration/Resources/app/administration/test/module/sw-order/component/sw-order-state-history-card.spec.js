@@ -17,7 +17,9 @@ function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-order-state-history-card'), {
         localVue,
         stubs: {
-            'sw-card': '<div><slot></slot></div>',
+            'sw-card': {
+                template: '<div><slot></slot></div>'
+            },
             'sw-container': true,
             'sw-order-state-card-entry': true
         },

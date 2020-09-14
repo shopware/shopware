@@ -13,7 +13,9 @@ describe('modules/sw-users-permissions/page/sw-users-permissions', () => {
             },
             mocks: {},
             stubs: {
-                'sw-page': '<div><slot name="content"></slot></div>',
+                'sw-page': {
+                    template: '<div><slot name="content"></slot></div>'
+                },
                 'sw-card-view': true,
                 'sw-settings-user-list': true,
                 'sw-users-permissions-role-listing': true

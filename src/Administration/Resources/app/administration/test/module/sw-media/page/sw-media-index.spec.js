@@ -14,7 +14,9 @@ describe('src/module/sw-media/page/sw-media-index', () => {
                 'sw-context-menu-item': true,
                 'sw-icon': true,
                 'sw-button': true,
-                'sw-page': '<div><slot name="smart-bar-actions"></slot></div>',
+                'sw-page': {
+                    template: '<div><slot name="smart-bar-actions"></slot></div>'
+                },
                 'sw-search-bar': true,
                 'sw-media-sidebar': true,
                 'sw-upload-listener': true,

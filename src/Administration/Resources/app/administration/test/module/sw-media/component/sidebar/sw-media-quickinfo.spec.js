@@ -60,18 +60,22 @@ function createWrapper(privileges = []) {
             ]
         },
         stubs: {
-            'sw-page': `
-                <div class="sw-page">
-                    <slot name="smart-bar-actions"></slot>
-                    <slot name="content">CONTENT</slot>
-                    <slot></slot>
-                </div>`,
+            'sw-page': {
+                template: `
+                    <div class="sw-page">
+                        <slot name="smart-bar-actions"></slot>
+                        <slot name="content">CONTENT</slot>
+                        <slot></slot>
+                    </div>`
+            },
             'sw-alert': true,
             'sw-icon': true,
-            'sw-media-collapse': `
-                <div class="sw-media-quickinfo">
-                    <slot name="content"></slot>
-                </div>`,
+            'sw-media-collapse': {
+                template: `
+                    <div class="sw-media-quickinfo">
+                        <slot name="content"></slot>
+                    </div>`
+            },
             'sw-media-quickinfo-metadata-item': true,
             'sw-media-preview-v2': true,
             'sw-media-tag': true,

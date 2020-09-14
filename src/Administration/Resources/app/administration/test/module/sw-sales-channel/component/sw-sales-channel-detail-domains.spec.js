@@ -4,9 +4,13 @@ import 'src/module/sw-sales-channel/component/sw-sales-channel-detail-domains';
 function createWrapper(customProps = {}) {
     return shallowMount(Shopware.Component.build('sw-sales-channel-detail-domains'), {
         stubs: {
-            'sw-card': '<div><slot></slot><slot name="grid"></slot></div>',
+            'sw-card': {
+                template: '<div><slot></slot><slot name="grid"></slot></div>'
+            },
             'sw-button': true,
-            'sw-data-grid': '<div><slot name="actions"></slot></div>',
+            'sw-data-grid': {
+                template: '<div><slot name="actions"></slot></div>'
+            },
             'sw-context-menu-item': true
         },
         provide: {

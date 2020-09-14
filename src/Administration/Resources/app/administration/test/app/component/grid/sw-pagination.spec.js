@@ -65,8 +65,12 @@ describe('src/component/grid/sw-pagination', () => {
                 $tc: key => key
             },
             stubs: {
-                'sw-icon': '<div class="icon"></div>',
-                'sw-field': '<div class="field"></div>'
+                'sw-icon': {
+                    template: '<div class="icon"></div>'
+                },
+                'sw-field': {
+                    template: '<div class="field"></div>'
+                }
             }
         });
     }

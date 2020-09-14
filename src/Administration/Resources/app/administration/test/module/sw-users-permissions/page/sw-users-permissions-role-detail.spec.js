@@ -28,13 +28,13 @@ function createWrapper({
         localVue,
         sync: false,
         stubs: {
-            'sw-page': `
+            'sw-page': { template: `
 <div>
     <slot name="smart-bar-header"></slot>
     <slot name="smart-bar-actions"></slot>
     <slot name="content"></slot>
 </div>
-`,
+    ` },
             'sw-button': Shopware.Component.build('sw-button'),
             'sw-button-process': Shopware.Component.build('sw-button-process'),
             'sw-icon': true,

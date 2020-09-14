@@ -8,19 +8,23 @@ function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-settings-rule-list'), {
         localVue,
         stubs: {
-            'sw-page': `
-<div>
-    <slot name="smart-bar-actions"></slot>
-    <slot name="content"></slot>
-</div>`,
+            'sw-page': {
+                template: `
+    <div>
+        <slot name="smart-bar-actions"></slot>
+        <slot name="content"></slot>
+    </div>`
+            },
             'sw-button': true,
             'sw-empty-state': true,
             'sw-loader': true,
-            'sw-entity-listing': `
-<div class="sw-entity-listing">
-    <slot name="more-actions"></slot>
-</div>
-`,
+            'sw-entity-listing': {
+                template: `
+    <div class="sw-entity-listing">
+        <slot name="more-actions"></slot>
+    </div>
+    `
+            },
             'sw-context-menu-item': true
         },
         provide: {

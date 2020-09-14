@@ -21,15 +21,23 @@ function createWrapper(privileges = []) {
         },
 
         stubs: {
-            'sw-page': `
-                <div class="sw-page">
-                    <slot name="smart-bar-actions"></slot>
-                    <slot name="content"></slot>
-                    <slot></slot>
-                </div>`,
-            'sw-card-view': '<div><slot></slot></div>',
-            'sw-card': '<div><slot></slot></div>',
-            'sw-container': '<div><slot></slot></div>',
+            'sw-page': {
+                template: `
+                    <div class="sw-page">
+                        <slot name="smart-bar-actions"></slot>
+                        <slot name="content"></slot>
+                        <slot></slot>
+                    </div>`
+            },
+            'sw-card-view': {
+                template: '<div><slot></slot></div>'
+            },
+            'sw-card': {
+                template: '<div><slot></slot></div>'
+            },
+            'sw-container': {
+                template: '<div><slot></slot></div>'
+            },
             'sw-field': true,
             'sw-boolean-radio-group': true,
             'sw-text-field': true,

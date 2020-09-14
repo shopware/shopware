@@ -17,15 +17,17 @@ describe('src/app/component/structure/sw-language-switch', () => {
             localVue,
             stubs: {
                 'sw-entity-single-select': true,
-                'sw-modal': `
-                    <div class="sw-modal-stub">
-                        <slot></slot>
+                'sw-modal': {
+                    template: `
+                        <div class="sw-modal-stub">
+                            <slot></slot>
 
-                        <div class="modal-footer">
-                            <slot name="modal-footer"></slot>
+                            <div class="modal-footer">
+                                <slot name="modal-footer"></slot>
+                            </div>
                         </div>
-                    </div>
-                `,
+                    `
+                },
                 'sw-button': true
             },
             mocks: {

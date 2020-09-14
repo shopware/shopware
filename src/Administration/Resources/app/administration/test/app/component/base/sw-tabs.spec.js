@@ -3,9 +3,6 @@ import VueRouter from 'vue-router';
 import 'src/app/component/base/sw-tabs';
 import 'src/app/component/base/sw-tabs-item';
 
-const swTabs = Shopware.Component.build('sw-tabs');
-const swTabsItem = Shopware.Component.build('sw-tabs-item');
-
 const componentWithTabs = {
     name: 'componentWithTabs',
     template:
@@ -40,8 +37,8 @@ function mountSwTabs(routes) {
             routes
         },
         stubs: {
-            'sw-tabs': swTabs,
-            'sw-tabs-item': swTabsItem
+            'sw-tabs': Shopware.Component.build('sw-tabs'),
+            'sw-tabs-item': Shopware.Component.build('sw-tabs-item')
         },
         mocks: {
             $device: {
@@ -107,7 +104,6 @@ describe('sw-tabs', () => {
 
         let activeTab = activeTabs.at(0);
         expect(activeTab.text()).toEqual('first.route');
-
 
         wrapper.vm.$router.push({ name: 'second.route' });
         await wrapper.vm.$nextTick();

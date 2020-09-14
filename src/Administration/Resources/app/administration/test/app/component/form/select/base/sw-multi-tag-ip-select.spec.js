@@ -21,7 +21,9 @@ const createMultiDataIpSelect = (customOptions) => {
             'sw-field-error': Shopware.Component.build('sw-field-error'),
             'sw-select-selection-list': Shopware.Component.build('sw-select-selection-list'),
             'sw-popover': Shopware.Component.build('sw-popover'),
-            'sw-icon': '<div></div>'
+            'sw-icon': {
+                template: '<div></div>'
+            }
         },
         mocks: { $tc: key => key },
         propsData: {

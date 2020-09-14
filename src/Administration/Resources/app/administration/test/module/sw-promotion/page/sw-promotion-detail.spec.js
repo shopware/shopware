@@ -51,7 +51,9 @@ function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-promotion-detail'), {
         localVue,
         stubs: {
-            'sw-page': '<div class="sw-page"><slot name="smart-bar-actions"></slot></div>',
+            'sw-page': {
+                template: '<div class="sw-page"><slot name="smart-bar-actions"></slot></div>'
+            },
             'sw-search-bar': true,
             'sw-notification-center': true,
             'sw-language-switch': true,

@@ -67,7 +67,8 @@
     "product-not-found": "The product could not be found.",
     "message-403-ajax": "Your session has expired. Please reload the page and try again.",
     "message-403": "Your session has expired. Please return to the last page and try again.",
-    "product-out-of-stock": "%name% is not available at the moment."
+    "product-out-of-stock": "%name% is not available at the moment.",
+    "auto-promotion-not-found": "Promotion \"%name%\" was no longer valid!"
   },
   "account": {
     "confirmationIsAlreadyDone": "Either the email address has already been confirmed or the URL is invalid.",
@@ -369,6 +370,7 @@
     "promotion-discount-deleted": "Discount \"%name%\" has been removed",
     "promotion-discount-added": "Discount \"%name%\" has been added",
     "promotion-not-found": "Promotion with code \"%code%\" could not be found.",
+    "auto-promotion-not-found": "Promotion \"%name%\" was no longer valid!",
     "promotion-not-eligible": "Promotion code valid - however, not all conditions were met and the discount was not applied. Once all conditions are met, the discount will be applied automatically.",
     "shipping-address-blocked": "Shipping to the selected shipping address is currently not possible.",
     "customerCommentHeader": "Additional information",

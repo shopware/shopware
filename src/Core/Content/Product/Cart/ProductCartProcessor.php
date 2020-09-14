@@ -144,7 +144,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             if ($available <= 0 || $available < $product->getMinPurchase()) {
                 $original->remove($lineItem->getId());
 
-                $original->addErrors(
+                $toCalculate->addErrors(
                     new ProductOutOfStockError($product->getId(), (string) $product->getTranslation('name'))
                 );
 

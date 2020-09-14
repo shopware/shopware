@@ -67,7 +67,8 @@
     "product-not-found": "Das Produkt wurde nicht gefunden.",
     "message-403-ajax": "Die Sitzung ist abgelaufen. Bitte laden Sie die Seite neu und versuchen Sie es erneut.",
     "message-403": "Die Sitzung ist abgelaufen. Bitte kehren Sie zur letzten Seite zurück neu und versuchen Sie  es erneut.",
-    "product-out-of-stock": "%name% ist momentan nicht verfügbar."
+    "product-out-of-stock": "%name% ist momentan nicht verfügbar.",
+    "auto-promotion-not-found": "Promotion \"%name%\" was no longer valid!"
   },
   "account": {
     "confirmationIsAlreadyDone": "Die Bestätigung ist bereits erfolgt oder die URL ist ungültig.",
@@ -370,6 +371,7 @@
     "promotion-discount-added": "Rabatt \"%name%\" wurde dem Warenkorb hinzugefügt",
     "promotion-not-found": "Der Gutschein-Code \"%code%\" existiert nicht.",
     "promotion-not-eligible": "Der Gutschein-Code wurde gespeichert, aber nicht auf den Warenkorb angewendet, da die Voraussetzungen dafür nicht zutreffen. Sobald die Voraussetzungen zutreffen, wird er automatisch hinzugefügt.",
+    "auto-promotion-not-found": "Promotion \"%name%\" was no longer valid!",
     "shipping-address-blocked": "Lieferungen an die gewählte Lieferadresse sind nicht möglich.",
     "customerCommentHeader": "Zusätzliche Informationen",
     "customerCommentLabel": "Möchten Sie uns etwas über Ihre Bestellung mitteilen?",

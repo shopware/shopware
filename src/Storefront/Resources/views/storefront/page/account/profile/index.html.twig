@@ -38,7 +38,7 @@
 
                                     {% block page_account_profile_personal_fields %}
                                         {% sw_include '@Storefront/storefront/page/account/profile/personal.html.twig' with {
-                                            'showBirthdayField': shopware.config.core.loginRegistration.birthdayFieldRequired,
+                                            'showBirthdayField': shopware.config.core.loginRegistration.showBirthdayField,
                                             'data': context.customer
                                         } %}
                                     {% endblock %}

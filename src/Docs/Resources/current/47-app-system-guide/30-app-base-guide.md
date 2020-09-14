@@ -100,9 +100,11 @@ their shop.
 
 | Event        | Description           | 
 | -------------- |-------------------- |
-| `app_installed` | Triggers once the app is installed | 
-| `app_updated` | Triggers if the app is updated | 
-| `app_deleted` | Triggers once the app is removed |
+| `app.installed` | Triggers once the app is installed | 
+| `app.updated` | Triggers if the app is updated | 
+| `app.deleted` | Triggers once the app is removed |
+| `app.activated` | Triggers if an inactive app is activated |
+| `app.deactivated` | Triggers if an active app is deactivated |
 
 Example request body:
 ```json

@@ -254,7 +254,9 @@ class EntityAggregator implements EntityAggregatorInterface
 
     private function parseFilterAggregation(FilterAggregation $aggregation, QueryBuilder $query, EntityDefinition $definition, Context $context): void
     {
-        $this->addFilter($definition, new MultiFilter(MultiFilter::CONNECTION_OR, $aggregation->getFilter()), $query, $context);
+        if (!empty($aggregation->getFilter())) {
+            $this->addFilter($definition, new MultiFilter(MultiFilter::CONNECTION_OR, $aggregation->getFilter()), $query, $context);
+        }
 
         $this->extendQuery($aggregation->getAggregation(), $query, $definition, $context);
     }

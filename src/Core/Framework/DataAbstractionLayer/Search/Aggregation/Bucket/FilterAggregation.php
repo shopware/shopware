@@ -39,4 +39,11 @@ class FilterAggregation extends BucketAggregation
 
         return $fields;
     }
+
+    public function addFilters(array $filters): void
+    {
+        foreach ($filters as $filter) {
+            $this->filter[] = $filter;
+        }
+    }
 }

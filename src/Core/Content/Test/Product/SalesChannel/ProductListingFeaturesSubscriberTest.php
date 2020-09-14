@@ -137,14 +137,15 @@ class ProductListingFeaturesSubscriberTest extends TestCase
         $event = new ProductListingCriteriaEvent($request, $criteria, Generator::createSalesChannelContext());
         $this->eventDispatcher->dispatch($event);
 
+        $filters = $this->getFiltersOfField($criteria->getPostFilters(), 'product.shippingFree');
         if ($expected === null) {
-            static::assertCount(0, $criteria->getPostFilters());
+            static::assertCount(0, $filters);
 
             return;
         }
 
-        static::assertCount(1, $criteria->getPostFilters());
-        $filter = $criteria->getPostFilters()[0];
+        static::assertCount(1, $filters, print_r($request, true));
+        $filter = array_shift($filters);
 
         static::assertInstanceOf(EqualsFilter::class, $filter);
         static::assertSame($expected, $filter->getValue());
@@ -436,33 +437,18 @@ class ProductListingFeaturesSubscriberTest extends TestCase
 
         $filters = $criteria->getPostFilters();
 
-        static::assertCount(\count($properties), $filters, $message);
+        $filters = array_shift($filters);
 
-        $filtered = [];
+        if (count($properties) <= 0) {
+            static::assertNull($filters);
 
-        foreach ($filters as $filter) {
-            if (!$filter instanceof MultiFilter) {
-                continue;
-            }
-
-            foreach ($filter->getQueries() as $query) {
-                if (!$query instanceof EqualsAnyFilter) {
-                    continue;
-                }
-
-                if ($query->getField() !== 'product.optionIds') {
-                    continue;
-                }
-
-                foreach ($query->getValue() as $id) {
-                    $filtered[] = $id;
-                }
-            }
-        }
-
-        if (empty($properties)) {
             return;
         }
+
+        static::assertInstanceOf(MultiFilter::class, $filters);
+        static::assertCount(\count($properties), $filters->getQueries(), $message);
+
+        $filtered = $this->getFilteredValues($filters->getQueries());
 
         static::assertNotEmpty($filtered, $message);
 
@@ -471,5 +457,37 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                 static::assertContains($id, $filtered, $message);
             }
         }
+    }
+
+    private function getFilteredValues(array $filters): array
+    {
+        $filtered = [];
+        foreach ($filters as $filter) {
+            if ($filter instanceof EqualsAnyFilter && $filter->getField() === 'product.optionIds') {
+                $filtered = array_merge($filtered, $filter->getValue());
+            }
+
+            if ($filter instanceof MultiFilter) {
+                $filtered = array_merge($filtered, $this->getFilteredValues($filter->getQueries()));
+            }
+        }
+
+        return $filtered;
+    }
+
+    private function getFiltersOfField(array $filters, string $field)
+    {
+        $matches = [];
+        foreach ($filters as $filter) {
+            if ($filter->getField() === $field) {
+                $matches[] = $filter;
+            }
+
+            if ($filter instanceof MultiFilter) {
+                $matches = array_merge($matches, $this->getFiltersOfField($filter->getQueries()));
+            }
+        }
+
+        return $matches;
     }
 }

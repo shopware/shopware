@@ -19,7 +19,7 @@
                             {% block page_account_sidebar_link_home %}
                                 <a href="{{ path('frontend.account.home.page') }}"
                                    title="{{ "account.overviewLink"|trans|striptags }}"
-                                   class="list-group-item list-group-item-action account-aside-item{% if controllerName is same as('AccountProfile') and controllerAction is same as('index') %} is-active{% endif %}">
+                                   class="list-group-item list-group-item-action account-aside-item{% if activeRoute is same as('frontend.account.home.page') %} is-active{% endif %}">
                                     {{ "account.overviewLink"|trans|sw_sanitize }}
                                 </a>
                             {% endblock %}
@@ -27,7 +27,7 @@
                             {% block page_account_sidebar_link_profile %}
                                 <a href="{{ path('frontend.account.profile.page') }}"
                                    title="{{ "account.profileLink"|trans|striptags }}"
-                                   class="list-group-item list-group-item-action account-aside-item{% if controllerName is same as('AccountProfile') and controllerAction is same as('profileOverview') %} is-active{% endif %}">
+                                   class="list-group-item list-group-item-action account-aside-item{% if activeRoute is same as('frontend.account.profile.page') %} is-active{% endif %}">
                                     {{ "account.profileLink"|trans|sw_sanitize }}
                                 </a>
                             {% endblock %}
@@ -35,7 +35,7 @@
                             {% block page_account_sidebar_link_address %}
                                 <a href="{{ path('frontend.account.address.page') }}"
                                    title="{{ "account.addressLink"|trans|striptags }}"
-                                   class="list-group-item list-group-item-action account-aside-item{% if controllerName is same as('Address') and controllerAction is same as('accountAddressOverview') %} is-active{% endif %}">
+                                   class="list-group-item list-group-item-action account-aside-item{% if activeRoute is same as('frontend.account.address.page') %} is-active{% endif %}">
                                     {{ "account.addressLink"|trans|sw_sanitize }}
                                 </a>
                             {% endblock %}
@@ -43,7 +43,7 @@
                             {% block page_account_sidebar_link_payment %}
                                 <a href="{{ path('frontend.account.payment.page') }}"
                                    title="{{ "account.paymentLink"|trans|striptags }}"
-                                   class="list-group-item list-group-item-action account-aside-item{% if controllerName is same as('AccountPayment') and controllerAction is same as('paymentOverview') %} is-active{% endif %}">
+                                   class="list-group-item list-group-item-action account-aside-item{% if activeRoute is same as('frontend.account.payment.page') %} is-active{% endif %}">
                                     {{ "account.paymentLink"|trans|sw_sanitize }}
                                 </a>
                             {% endblock %}
@@ -51,7 +51,7 @@
                             {% block page_account_sidebar_link_orders %}
                                 <a href="{{ path('frontend.account.order.page') }}"
                                    title="{{ "account.ordersLink"|trans|striptags }}"
-                                   class="list-group-item list-group-item-action account-aside-item{% if controllerName is same as('AccountOrder') and controllerAction is same as('orderOverview') %} is-active{% endif %}">
+                                   class="list-group-item list-group-item-action account-aside-item{% if activeRoute is same as('frontend.account.order.page') %} is-active{% endif %}">
                                     {{ "account.ordersLink"|trans|sw_sanitize }}
                                 </a>
                             {% endblock %}

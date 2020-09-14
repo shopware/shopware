@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 let filterFactory = {
     /**
      *
@@ -31,7 +33,7 @@ let filterFactory = {
             if (settings.label) {
                 filter.label = settings.label;
             } else {
-                filter.label = key; // this.$tc('sw-product.list.filter.manufacturer.label') // make translation
+                filter.label = _.startCase(key); // this.$tc('sw-product.list.filter.manufacturer.label') // make translation
             }
 
             if (settings.placeholder) {

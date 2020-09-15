@@ -21,6 +21,7 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
       thumbnailControlsSelector: '[data-thumbnail-slider-controls=true]',
       dotActiveClass: 'tns-nav-active',
       navDotDataAttr: 'data-nav-dot',
+      loadingCls: 'is-loading',
       slider: {
           startIndex: 1,
           responsive: {
@@ -202,10 +203,16 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
       const navContainer = this.el.querySelector(this.options.thumbnailsSelector);
       const controlsContainer = this.el.querySelector(this.options.controlsSelector);
 
+      const hasThumbnails = (!!navContainer);
+
       if (container) {
           const onInit = () => {
               PluginManager.initializePlugin('Magnifier', '[data-magnifier]');
               PluginManager.initializePlugin('ZoomModal', '[data-zoom-modal]');
+
+              if (!hasThumbnails) {
+                  this.el.classList.remove(this.options.loadingCls);
+              }
 
               this.$emitter.publish('initGallerySlider');
           };
@@ -231,6 +238,9 @@ export default class GallerySliderPlugin extends BaseSliderPlugin {
           const thumbnailControls = this.el.querySelector(this.options.thumbnailControlsSelector);
 
           const onInitThumbnails = () => {
+              if (hasThumbnails) {
+                  this.el.classList.remove(this.options.loadingCls);
+              }
               this.$emitter.publish('initThumbnailSlider');
           };
 

@@ -20,6 +20,10 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
         max-width: 100%;
         position: relative;
 
+        &.is-not-first {
+            display: none;
+        }
+
         &.is-cover {
             height: 100%;
 
@@ -39,6 +43,10 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
     .image-slider-link {
         display: block;
     }
+}
+
+.js-slider-initialized .image-slider-item.is-not-first {
+    display: block;
 }
 
 .image-slider-controls-prev {

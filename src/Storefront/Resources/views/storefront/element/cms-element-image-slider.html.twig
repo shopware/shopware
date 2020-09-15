@@ -26,7 +26,7 @@
                             {% for image in element.data.sliderItems %}
 
                                 {% set imageElement %}
-                                    <div class="image-slider-item is-{{ sliderConfig.displayMode.value }}"{% if sliderConfig.minHeight.value and  sliderConfig.displayMode.value == "cover" %} style="min-height: {{ sliderConfig.minHeight.value }}"{% endif %}>
+                                    <div class="image-slider-item{% if loop.first != true %} is-not-first{% endif %} is-{{ sliderConfig.displayMode.value }}"{% if sliderConfig.minHeight.value and  sliderConfig.displayMode.value == "cover" %} style="min-height: {{ sliderConfig.minHeight.value }}"{% endif %}>
                                         {% set attributes = {
                                             'class': 'img-fluid image-slider-image',
                                             'alt': (image.media.translated.alt ?: ''),

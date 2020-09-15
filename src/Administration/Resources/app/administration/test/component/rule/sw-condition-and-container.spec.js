@@ -3,6 +3,7 @@ import 'src/app/component/rule/sw-condition-and-container';
 
 function createWrapper(customProps = {}) {
     const localVue = createLocalVue();
+    localVue.directive('tooltip', {});
 
     return shallowMount(Shopware.Component.build('sw-condition-and-container'), {
         localVue,
@@ -18,7 +19,10 @@ function createWrapper(customProps = {}) {
             insertNodeTree: {},
             insertNodeIntoTree: () => {},
             removeNodeFromTree: {},
-            childAssociationField: 'test'
+            childAssociationField: 'test',
+            acl: {
+                can: () => true
+            }
         },
         mocks: {
             $tc: v => v

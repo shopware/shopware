@@ -35,19 +35,20 @@ $sw-condition-and-container-background-odd: #f0f2f5;
     }
 
     .sw-condition-and-container__actions {
+        display: flex;
         margin-top: 20px;
 
-        .sw-condition-and-container__actions--and {
-            margin-right: 10px;
-            text-transform: uppercase;
-        }
-
+        .sw-condition-and-container__actions--and,
         .sw-condition-and-container__actions--sub {
             text-transform: uppercase;
         }
 
-        .sw-condition-and-container__actions--delete {
-            float: right;
+        .sw-condition-and-container__actions--and {
+            margin-right: 10px;
+        }
+
+        :last-child {
+            margin-left: auto;
         }
     }
 }

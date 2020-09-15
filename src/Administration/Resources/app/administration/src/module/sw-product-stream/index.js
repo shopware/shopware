@@ -1,3 +1,4 @@
+import './acl';
 import './page/sw-product-stream-list';
 import './page/sw-product-stream-detail';
 import './component/sw-product-stream-field-select';
@@ -24,20 +25,25 @@ Module.register('sw-product-stream', {
             components: {
                 default: 'sw-product-stream-list'
             },
-            path: 'index'
+            path: 'index',
+            meta: {
+                privilege: 'product_stream.viewer'
+            }
         },
         create: {
             component: 'sw-product-stream-detail',
             path: 'create',
             meta: {
-                parentPath: 'sw.product.stream.index'
+                parentPath: 'sw.product.stream.index',
+                privilege: 'product_stream.viewer'
             }
         },
         detail: {
             component: 'sw-product-stream-detail',
             path: 'detail/:id',
             meta: {
-                parentPath: 'sw.product.stream.index'
+                parentPath: 'sw.product.stream.index',
+                privilege: 'product_stream.viewer'
             },
             props: {
                 default(route) {
@@ -51,6 +57,7 @@ Module.register('sw-product-stream', {
         path: 'sw.product.stream.index',
         label: 'sw-product-stream.general.mainMenuItemGeneral',
         id: 'sw-product-stream',
+        privilege: 'product_stream.viewer',
         parent: 'sw-catalogue',
         color: '#57D9A3',
         position: 30

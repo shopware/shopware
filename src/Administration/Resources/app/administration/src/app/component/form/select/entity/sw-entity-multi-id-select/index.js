@@ -44,6 +44,12 @@ Component.register('sw-entity-multi-id-select', {
             default() {
                 return Context.api;
             }
+        },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 

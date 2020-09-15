@@ -5,6 +5,10 @@
       "placeholderSearchBar": "Search dynamic product groups...",
       "descriptionTextModule": "Manage dynamic product groups here."
     },
+    "acl": {
+      "conditionsAlertHeading": "Not enough permissions",
+      "conditionsAlertDescription": "You have not enough permissions to perform all actions inside the \"Conditions\" section."
+    },
     "list": {
       "textProductStreamOverview": "Dynamic product groups",
       "columnName": "Name",
@@ -113,6 +117,13 @@
       "title": "Preview",
       "empty": "No products found.",
       "close": "Close"
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "product_stream": {
+        "label": "Dynamic product groups"
+      }
     }
   }
 }

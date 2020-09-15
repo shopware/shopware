@@ -25,21 +25,25 @@ Component.register('sw-entity-multi-select', {
             required: false,
             default: 'name'
         },
+
         resultLimit: {
             type: Number,
             required: false,
             default: 25
         },
+
         valueLimit: {
             type: Number,
             required: false,
             default: 5
         },
+
         placeholder: {
             type: String,
             required: false,
             default: ''
         },
+
         criteria: {
             type: Object,
             required: false,
@@ -47,15 +51,18 @@ Component.register('sw-entity-multi-select', {
                 return new Criteria(1, this.resultLimit);
             }
         },
+
         highlightSearchTerm: {
             type: Boolean,
             required: false,
             default: true
         },
+
         entityCollection: {
             type: Array,
             required: true
         },
+
         context: {
             type: Object,
             required: false,

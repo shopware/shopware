@@ -16,7 +16,10 @@ function createWrapper(customProps = {}) {
             insertNodeTree: {},
             insertNodeIntoTree: () => {},
             removeNodeFromTree: {},
-            childAssociationField: 'test'
+            childAssociationField: 'test',
+            acl: {
+                can: () => true
+            }
         },
         mocks: {
             $tc: v => v

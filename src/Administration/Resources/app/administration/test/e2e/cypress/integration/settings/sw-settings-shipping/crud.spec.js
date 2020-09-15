@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import ShippingPageObject from '../../../support/pages/module/sw-shipping.page-object';
 
@@ -97,5 +97,18 @@ describe('Shipping: Test crud operations', () => {
         });
 
         cy.awaitAndCheckNotification('Shipping method "Luftpost" has been deleted.');
+    });
+
+    it('@base @settings: new shipping method should show default price matrix', () => {
+        // Request we want to wait for later
+        cy.server();
+        cy.route({
+            url: '/api/v*/shipping-method',
+            method: 'post'
+        }).as('saveData');
+
+        // Create shipping method
+        cy.get('a[href="#/sw/settings/shipping/create"]').click();
+        cy.get('.sw-settings-shipping-price-matrix__top-container').should('exist');
     });
 });

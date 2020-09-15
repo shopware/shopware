@@ -158,6 +158,10 @@ Component.register('sw-settings-product-feature-sets-values-card', {
             }
         },
 
+        onPositionChange(features) {
+            this.$set(this.productFeatureSet, 'features', features);
+        },
+
         resetPositions() {
             this.productFeatureSet.features.forEach((feature, index) => {
                 feature.position = index + 1;

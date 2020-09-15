@@ -1,8 +1,10 @@
-import { shallowMount, Wrapper } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 
 import 'src/module/sw-settings-product-feature-sets/component/sw-settings-product-feature-sets-values-card';
 import 'src/app/component/base/sw-card';
+import 'src/app/component/base/sw-button';
 import 'src/app/component/data-grid/sw-data-grid';
+import 'src/app/component/data-grid/sw-data-grid-column-position';
 
 describe('src/module/sw-settings-product-feature-sets/component/sw-settings-product-feature-sets-values-card', () => {
     let wrapper;
@@ -16,7 +18,13 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
         valueListHeader: 'sw-data-grid__header',
         valueListBody: 'sw-data-grid__body',
         valueListRow: 'sw-data-grid__row',
-        valueListCellContent: 'sw-data-grid__cell-content'
+        valueListCellContent: 'sw-data-grid__cell-content',
+        valueListCellName: 'sw-data-grid__cell--name',
+        valueListPositionColumn: 'sw-data-grid-column-position',
+        valueListPositionButtons: 'sw-data-grid-column-position__group',
+        valueListFirstRow: 'sw-data-grid__row--0',
+        valueListSecondRow: 'sw-data-grid__row--1',
+        valueListThirdRow: 'sw-data-grid__row--2'
     };
 
     const text = {
@@ -25,7 +33,10 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
         labelType: 'sw-settings-product-feature-sets.valuesCard.labelType',
         labelPosition: 'sw-settings-product-feature-sets.valuesCard.labelPosition',
         labelReferencePriceType: 'sw-settings-product-feature-sets.modal.label.referencePrice',
-        labelReferencePriceValue: 'sw-settings-product-feature-sets.modal.textReferencePriceLabel'
+        labelReferencePriceValue: 'sw-settings-product-feature-sets.modal.textReferencePriceLabel',
+        labelReferencePrice: 'sw-settings-product-feature-sets.modal.label.referencePrice',
+        labelDescription: 'sw-settings-product-feature-sets.modal.label.description',
+        labelName: 'sw-settings-product-feature-sets.modal.label.name'
     };
 
     const valuesCard = (additionalOptions = {}) => {
@@ -34,12 +45,13 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
                 'sw-card': Shopware.Component.build('sw-card'),
                 'sw-container': true,
                 'sw-simple-search-field': true,
-                'sw-button': true,
+                'sw-button': Shopware.Component.build('sw-button'),
                 'sw-icon': true,
                 'sw-data-grid': Shopware.Component.build('sw-data-grid'),
                 'sw-loader': true,
                 'sw-checkbox-field': true,
-                'sw-data-grid-column-position': true,
+                'sw-data-grid-column-position': Shopware.Component.build('sw-data-grid-column-position'),
+                'sw-button-group': true,
                 i18n: true
             },
             mocks: {
@@ -62,6 +74,18 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
                             id: null,
                             name: null,
                             position: 0
+                        },
+                        {
+                            type: 'product',
+                            id: null,
+                            name: 'description',
+                            position: 1
+                        },
+                        {
+                            type: 'product',
+                            id: null,
+                            name: 'name',
+                            position: 2
                         }
                     ]
                 }
@@ -79,19 +103,8 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
         });
     };
 
-    /*
-     * Workaround, since the current vue-test-utils version doesn't support get()
-     *
-     * @see https://vue-test-utils.vuejs.org/api/wrapper/#get
-     */
-    const findSecure = (wrapperEl, findArg) => {
-        const el = wrapperEl.find(findArg);
-
-        if (el instanceof Wrapper) {
-            return el;
-        }
-
-        throw new Error(`Could not find element ${findArg}.`);
+    const getReferencePrice = (props) => {
+        return props.productFeatureSet.features.find(feature => feature.type === 'referencePrice');
     };
 
     beforeEach(() => {
@@ -111,11 +124,11 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
     });
 
     it('shows a list of features', async () => {
-        const root = findSecure(wrapper, `.${classes.componentRoot}`);
-        const list = findSecure(root, `.${classes.valueList}`);
-        const header = findSecure(list, `.${classes.valueListHeader}`);
-        const body = findSecure(list, `.${classes.valueListBody}`);
-        const firstRow = findSecure(body, `.${classes.valueListRow}`);
+        const root = wrapper.get(`.${classes.componentRoot}`);
+        const list = root.get(`.${classes.valueList}`);
+        const header = list.get(`.${classes.valueListHeader}`);
+        const body = list.get(`.${classes.valueListBody}`);
+        const firstRow = body.get(`.${classes.valueListFirstRow}`);
 
         const headerCellContent = {
             selectAll: '',
@@ -147,5 +160,28 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
         ].forEach((value, index) => {
             expect(bodyCells.at(index).text()).toEqual(value);
         });
+    });
+
+    it('correctly propagates changes when a position is updated', async () => {
+        const root = wrapper.get(`.${classes.componentRoot}`);
+        const list = root.get(`.${classes.valueList}`);
+        const body = list.get(`.${classes.valueListBody}`);
+        const firstRow = body.get(`.${classes.valueListFirstRow}`);
+        const secondRow = body.get(`.${classes.valueListSecondRow}`);
+        const firstRowPositionButtons = firstRow.get(`.${classes.valueListPositionButtons}`);
+
+        expect(getReferencePrice(wrapper.props()).position).toEqual(0);
+
+        // Same check for DOM
+        expect(firstRow.get(`.${classes.valueListCellName}`).text()).toEqual(text.labelReferencePrice);
+        expect(secondRow.get(`.${classes.valueListCellName}`).text()).toEqual(text.labelDescription);
+
+        await firstRowPositionButtons.find('button.arrow_down').trigger('click');
+
+        expect(getReferencePrice(wrapper.props()).position).toEqual(1);
+
+        // Same check for DOM
+        expect(secondRow.get(`.${classes.valueListCellName}`).text()).toEqual(text.labelReferencePrice);
+        expect(firstRow.get(`.${classes.valueListCellName}`).text()).toEqual(text.labelDescription);
     });
 });

@@ -71,7 +71,8 @@
                                 <sw-data-grid-column-position ref="columnPosition"
                                                               v-model="values"
                                                               :showValue="false"
-                                                              :item="item">
+                                                              :item="item"
+                                                              @position-changed="onPositionChange">
                                 </sw-data-grid-column-position>
                             </template>
                         {% endblock %}

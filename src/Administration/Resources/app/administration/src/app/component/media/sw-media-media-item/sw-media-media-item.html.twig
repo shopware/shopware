@@ -100,10 +100,10 @@
             </template>
         {% endblock %}
 
-        <template #modal-windows="{ item }">
+        <template #modal-windows="{ item, allowEdit, allowDelete }">
             {% block sw_media_media_item_modal_replace %}
                 <sw-media-modal-replace
-                    v-if="showModalReplace"
+                    v-if="showModalReplace && allowEdit"
                     :itemToReplace="item"
                     @media-replace-modal-item-replaced="emitRefreshMediaLibrary"
                     @media-replace-modal-close="closeModalReplace">
@@ -112,7 +112,7 @@
 
             {% block sw_media_media_item_delete_modal %}
                 <sw-media-modal-delete
-                    v-if="showModalDelete"
+                    v-if="showModalDelete && allowDelete"
                     :itemsToDelete="[item]"
                     @media-delete-modal-items-delete="emitItemDeleted"
                     @media-delete-modal-close="closeModalDelete">
@@ -121,7 +121,7 @@
 
             {% block sw_media_media_item_move_modal %}
                 <sw-media-modal-move
-                    v-if="showModalMove"
+                    v-if="showModalMove && allowEdit"
                     :itemsToMove="[item]"
                     @media-move-modal-close="closeModalMove"
                     @media-move-modal-items-move="onMediaItemMoved">

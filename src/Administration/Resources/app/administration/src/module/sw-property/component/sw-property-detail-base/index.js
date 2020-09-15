@@ -27,6 +27,7 @@ Component.register('sw-property-detail-base', {
     data() {
         return {
             sortingTypes: [
+                /** @deprecated tag:v6.4.0 - SORTING_TYPE_NUMERIC will be removed in 6.4.0 */
                 { value: 'numeric', label: this.$tc('sw-property.detail.numericSortingType') },
                 { value: 'alphanumeric', label: this.$tc('sw-property.detail.alphanumericSortingType') },
                 { value: 'position', label: this.$tc('sw-property.detail.positionSortingType') }

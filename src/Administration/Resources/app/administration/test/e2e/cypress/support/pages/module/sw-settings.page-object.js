@@ -34,7 +34,9 @@ export default class SettingsPageObject {
                 salutationListContent: '.sw-settings-salutation-list-grid',
 
                 numberRangeSaveAction: '.sw-settings-number-range-detail__save-action',
-                numberRangeColumnName: '.sw-data-grid__cell--name'
+                numberRangeColumnName: '.sw-data-grid__cell--name',
+
+                integrationListConent: '.sw-integration-list'
             }
         };
     }

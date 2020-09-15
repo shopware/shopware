@@ -8,7 +8,7 @@ const { StateDeprecated } = Shopware;
 Component.register('sw-integration-list', {
     template,
 
-    inject: ['integrationService', 'repositoryFactory'],
+    inject: ['integrationService', 'repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('notification')

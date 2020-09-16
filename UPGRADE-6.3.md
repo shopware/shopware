@@ -1,14 +1,7 @@
 UPGRADE FROM 6.2.x to 6.3
 =======================
 
-Table of contents
-----------------
-
-* [API](#api)
-* [Core](#core)
-* [Administration](#administration)
-* [Storefront](#storefront)
-* [Refactorings](#refactorings)
+# 6.3
 
 API
 ----

@@ -329,4 +329,8 @@ Admin Users
 * [Entity relationship diagram](./10-erd/erd-shopware-core-system-user.md)
 EOD
     ,
+    'Framework/Changelog' => <<<'EOD'
+Console commands for the changelog workflow
+EOD
+    ,
 ];

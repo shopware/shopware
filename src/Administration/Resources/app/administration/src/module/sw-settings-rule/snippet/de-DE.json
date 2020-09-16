@@ -15,8 +15,8 @@
       "columnStatus": "Status",
       "contextMenuDuplicate": "Duplizieren",
       "titleSidebarItemRefresh": "Aktualisieren",
-      "valid": "Valide",
-      "invalid": "Invalide",
+      "valid": "Gültig",
+      "invalid": "Ungütig",
       "messageEmpty": "Noch keine Regeln"
     },
     "detail": {

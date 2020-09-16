@@ -15,7 +15,7 @@
             "placeholderValue": "Inhalt definieren ...",
             "searchBarTitleSets": "Textbaustein-Sets",
             "searchBarTitleSnippets": "Textbausteine",
-            "errorBackRoutingTitle": "Invalider Seitenauruf"
+            "errorBackRoutingTitle": "Ungültiger Seitenauruf"
         },
         "detail": {
             "buttonCancel": "Abbrechen",

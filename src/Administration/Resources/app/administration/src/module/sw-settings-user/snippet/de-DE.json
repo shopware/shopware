@@ -92,7 +92,7 @@
           "title": "Erfolg",
           "message": "Der Benutzer \"{name}\" wurde erfolgreich gespeichert."
         },
-        "notificationInvalidEmailErrorMessage": "Bitte gib eine valide E-Mail Adresse ein."
+        "notificationInvalidEmailErrorMessage": "Bitte gib eine gültige E-Mail-Adresse ein."
       },
       "passwordConfirmation": {
         "titleConfirmPasswordModal": "Gib Dein Passwort zur Bestätigung ein",

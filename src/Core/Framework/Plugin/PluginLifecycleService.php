@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Plugin;
 
+use Composer\Composer;
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
@@ -150,7 +151,7 @@ class PluginLifecycleService
         }
 
         // TODO NEXT-1797: Not usable with Composer 1.8, Wait for Release of Composer 2.0
-        if (Feature::isActive('FEATURE_NEXT_1797')) {
+        if (Feature::isActive('FEATURE_NEXT_1797') && version_compare(Composer::getVersion(), '2', 'ge')) {
             $this->executor->require($plugin->getComposerName());
         } else {
             $this->requirementValidator->validateRequirements($plugin, $shopwareContext, 'install');
@@ -269,7 +270,7 @@ class PluginLifecycleService
         );
 
         // TODO NEXT-1797: Not usable with Composer 1.8, Wait for Release of Composer 2.0
-        if (Feature::isActive('FEATURE_NEXT_1797')) {
+        if (Feature::isActive('FEATURE_NEXT_1797') && version_compare(Composer::getVersion(), '2', 'ge')) {
             $this->executor->require($plugin->getComposerName());
         } else {
             $this->requirementValidator->validateRequirements($plugin, $shopwareContext, 'update');

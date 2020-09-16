@@ -115,7 +115,11 @@ class StateMachineActionControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse()->getContent();
         $response = json_decode($response, true);
 
-        static::assertEquals(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertEquals(
+            Response::HTTP_OK,
+            $this->getBrowser()->getResponse()->getStatusCode(),
+            $this->getBrowser()->getResponse()->getContent()
+        );
 
         $stateId = $response['data']['id'] ?? '';
         static::assertTrue(Uuid::isValid($stateId));
@@ -333,6 +337,7 @@ class StateMachineActionControllerTest extends TestCase
 
         $order = [
             'id' => $orderId,
+            'orderNumber' => Uuid::randomHex(),
             'orderDateTime' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             'price' => new CartPrice(10, 10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET),
             'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
@@ -351,6 +356,7 @@ class StateMachineActionControllerTest extends TestCase
             'billingAddressId' => $billingAddressId,
             'addresses' => [
                 [
+                    'id' => $billingAddressId,
                     'salutationId' => $this->getValidSalutationId(),
                     'firstName' => 'Max',
                     'lastName' => 'Mustermann',

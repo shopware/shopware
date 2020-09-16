@@ -394,7 +394,7 @@ class AppEntity extends Entity
         return $this->webhooks;
     }
 
-    public function setWebhooks(?WebhookCollection $webhooks): void
+    public function setWebhooks(WebhookCollection $webhooks): void
     {
         $this->webhooks = $webhooks;
     }

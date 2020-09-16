@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -234,10 +235,10 @@ class WebhookDispatcher implements EventDispatcherInterface
                 new EqualsFilter('appId', null),
             ]));
 
+        if (!$this->container->has('webhook.repository')) {
+            throw new ServiceNotFoundException('webhook.repository');
+        }
         /**
-         * @todo remove ignore-line once the next-10286 feature flag is removed
-         * @phpstan-ignore-next-line
-         *
          * @var EntityRepositoryInterface $webhookRepository
          */
         $webhookRepository = $this->container->get('webhook.repository');
@@ -284,12 +285,11 @@ class WebhookDispatcher implements EventDispatcherInterface
 
     private function getShopIdProvider(): ShopIdProvider
     {
-        /**
-         * @todo remove ignore-line once the next-10286 feature flag is removed
-         * @phpstan-ignore-next-line
-         *
-         * @var ShopIdProvider $shopIdProvider
-         */
+        if (!$this->container->has(ShopIdProvider::class)) {
+            throw new ServiceNotFoundException(ShopIdProvider::class);
+        }
+
+        /** @var ShopIdProvider $shopIdProvider */
         $shopIdProvider = $this->container->get(ShopIdProvider::class);
 
         return $shopIdProvider;

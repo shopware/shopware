@@ -15,8 +15,12 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
 use Shopware\Core\Checkout\Order\OrderDefinition;
+use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PrePayment;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -236,7 +240,7 @@ class OrderStateChangeEventListenerTest extends TestCase
             'transactions' => [
                 [
                     'id' => $ids->create('transaction'),
-                    'paymentMethodId' => $this->getValidPaymentMethodId(),
+                    'paymentMethodId' => $this->getPrePaymentMethodId(),
                     'stateId' => $this->getStateId('open', 'order_transaction.state'),
                     'amount' => new CalculatedPrice(200, 200, new CalculatedTaxCollection(), new TaxRuleCollection()),
                 ],
@@ -245,6 +249,19 @@ class OrderStateChangeEventListenerTest extends TestCase
 
         $this->getContainer()->get('order.repository')
             ->create([$data], Context::createDefaultContext());
+    }
+
+    private function getPrePaymentMethodId(): string
+    {
+        /** @var EntityRepositoryInterface $repository */
+        $repository = $this->getContainer()->get('payment_method.repository');
+
+        $criteria = (new Criteria())
+            ->setLimit(1)
+            ->addFilter(new EqualsFilter('active', true))
+            ->addFilter(new EqualsFilter('handlerIdentifier', PrePayment::class));
+
+        return $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
     }
 
     private function getStateId(string $state, string $machine)

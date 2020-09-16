@@ -82,14 +82,9 @@ class ApiRequestContextResolverAppTest extends TestCase
         );
         $response = $browser->getResponse();
 
-        $shopwareVersion = $this->getContainer()->getParameter('kernel.shopware_version');
-        if (version_compare($shopwareVersion, '6.3.0.0', '<')) {
-            static::assertEquals(403, $response->getStatusCode(), $response->getContent());
-        } else {
-            static::assertEquals(400, $response->getStatusCode(), $response->getContent());
-            $data = json_decode($response->getContent(), true);
-            static::assertEquals(AclWriteValidator::VIOLATION_NO_PERMISSION, $data['errors'][0]['code']);
-        }
+        static::assertEquals(403, $response->getStatusCode(), $response->getContent());
+        $data = json_decode($response->getContent(), true);
+        static::assertEquals(AclWriteValidator::VIOLATION_NO_PERMISSION, $data['errors'][0]['code']);
     }
 
     public function testCanWriteWithPermissionsSet(): void

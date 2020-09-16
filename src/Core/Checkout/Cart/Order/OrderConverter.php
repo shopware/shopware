@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
 use Shopware\Core\Checkout\Cart\Exception\MissingOrderRelationException;
 use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
+use Shopware\Core\Checkout\Cart\Exception\OrderInconsistentException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Order\Transformer\AddressTransformer;
 use Shopware\Core\Checkout\Cart\Order\Transformer\CartTransformer;
@@ -220,7 +221,12 @@ class OrderConverter
         $cart = new Cart(self::CART_TYPE, Uuid::randomHex());
         $cart->setPrice($order->getPrice());
         $cart->addExtension(self::ORIGINAL_ID, new IdStruct($order->getId()));
-        $cart->addExtension(self::ORIGINAL_ORDER_NUMBER, new IdStruct($order->getOrderNumber()));
+        $orderNumber = $order->getOrderNumber();
+        if ($orderNumber === null) {
+            throw new OrderInconsistentException($order->getId(), 'orderNumber is required');
+        }
+
+        $cart->addExtension(self::ORIGINAL_ORDER_NUMBER, new IdStruct($orderNumber));
         /* NEXT-708 support:
             - transactions
         */

@@ -467,7 +467,7 @@ class OrderEntity extends Entity
         $this->documents = $documents;
     }
 
-    public function getOrderNumber(): string
+    public function getOrderNumber(): ?string
     {
         return $this->orderNumber;
     }

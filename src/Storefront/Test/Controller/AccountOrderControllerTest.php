@@ -10,10 +10,12 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -34,6 +36,17 @@ class AccountOrderControllerTest extends TestCase
         $orderId = Uuid::randomHex();
         $orderData = $this->getOrderData($orderId, $context);
         $orderData[0]['orderCustomer']['customer'] = ['id' => $customer->getId()];
+
+        $criteria = new Criteria();
+        $criteria
+            ->addFilter(new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT))
+            ->addFilter(new EqualsFilter('active', true));
+
+        /** @var SalesChannelEntity|null $salesChannel */
+        $salesChannel = $this->getContainer()->get('sales_channel.repository')->search($criteria, $context)->first();
+        if ($salesChannel !== null) {
+            $orderData[0]['salesChannelId'] = $salesChannel->getId();
+        }
 
         $productId = $this->createProduct($context);
         $orderData[0]['lineItems'][0]['identifier'] = $productId;

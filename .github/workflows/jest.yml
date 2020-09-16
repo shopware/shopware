@@ -2,16 +2,25 @@ name: Jest
 
 on:
     push:
-        branches:
-            - '6.2'
-            - master
     pull_request:
 
 jobs:
   admin:
     runs-on: ubuntu-latest
+    container: shopware/development:7.4
     env:
       DEVELOPMENT_BRANCH: master
+
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+            MYSQL_ROOT_PASSWORD: shopware
+            MYSQL_DATABASE: shopware
+      elasticsearch:
+        image: elastic/elasticsearch:7.1.1
+        env:
+          discovery.type: single-node
 
     steps:
     - name: Clone development
@@ -30,18 +39,6 @@ jobs:
         git checkout -
         cd ..
         git reset --hard @
-
-    - uses: shivammathur/setup-php@v2
-      with:
-        php-version: '7.4'
-        tools: composer, prestissimo
-        coverage: none
-
-    - name: Start MySQL
-      run: ./development/platform/.github/setup-db.sh mysql:5.7
-
-    - name: Start Elasticsearch
-      run: ./development/platform/.github/setup-es.sh elastic/elasticsearch:7.1.1
 
     - name: Install Shopware
       run: |
@@ -57,8 +54,21 @@ jobs:
 
   storefront:
     runs-on: ubuntu-latest
+    container: shopware/development:7.4
     env:
-      DEVELOPMENT_BRANCH: 6.2-BoostDay
+      DEVELOPMENT_BRANCH: master
+
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+            MYSQL_ROOT_PASSWORD: shopware
+            MYSQL_DATABASE: shopware
+      elasticsearch:
+        image: elastic/elasticsearch:7.1.1
+        env:
+          discovery.type: single-node
+
     steps:
     - name: Clone development
       run: git clone -b $DEVELOPMENT_BRANCH https://github.com/shopware/development.git && cd development && rm -rf platform
@@ -76,18 +86,6 @@ jobs:
         git checkout -
         cd ..
         git reset --hard @
-
-    - uses: shivammathur/setup-php@v2
-      with:
-        php-version: '7.4'
-        tools: composer, prestissimo
-        coverage: none
-
-    - name: Start MySQL
-      run: ./development/platform/.github/setup-db.sh mysql:5.7
-
-    - name: Start Elasticsearch
-      run: ./development/platform/.github/setup-es.sh elastic/elasticsearch:7.1.1
 
     - name: Install Shopware
       run: |

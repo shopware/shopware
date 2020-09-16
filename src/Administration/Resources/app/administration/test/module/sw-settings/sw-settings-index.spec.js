@@ -77,7 +77,7 @@ function createWrapper(privileges = []) {
             },
             'sw-settings-item': Shopware.Component.build('sw-settings-item'),
             'router-link': {
-                template: '<a></a>'
+                template: '<a><slot></slot></a>'
             },
             'sw-icon': {
                 template: '<span></span>'
@@ -243,5 +243,38 @@ describe('module/sw-settings/page/sw-settings-index', () => {
         const barSetting = settingsGroups.find(setting => setting.id === 'sw-settings-bar');
 
         expect(barSetting).toBeUndefined();
+    });
+
+    it('should hide icon background when backgroundEnabled is false', async () => {
+        const settingsItemToAdd = {
+            group: 'shop',
+            to: 'sw.bar.index',
+            icon: 'bar',
+            id: 'settings-background-disabled',
+            name: 'settings-background-disabled',
+            label: 'b',
+            backgroundEnabled: false
+        };
+
+        Shopware.State.commit('settingsItems/addItem', settingsItemToAdd);
+
+        const wrapper = createWrapper();
+
+        const settingsGroups = Object.entries(wrapper.vm.settingsGroups);
+
+        settingsGroups.forEach(([settingsGroup, settingsItems]) => {
+            const settingsGroupWrapper = wrapper.find(`#sw-settings__content-grid-${settingsGroup}`);
+            const settingsItemsWrappers = settingsGroupWrapper.findAll('.sw-settings-item');
+
+            settingsItemsWrappers.wrappers.forEach((settingsItemsWrapper, index) => {
+                const iconClasses = settingsItemsWrapper.find('.sw-settings-item__icon').attributes().class;
+
+                if (settingsItems[index].backgroundEnabled === false) {
+                    expect(iconClasses).not.toContain('background--enabled');
+                } else {
+                    expect(iconClasses).toContain('background--enabled');
+                }
+            });
+        });
     });
 });

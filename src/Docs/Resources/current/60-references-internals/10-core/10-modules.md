@@ -227,6 +227,12 @@ Shopware app system
 
 * [User guide](./../../47-app-system-guide/__categoryInfo.md)
 
+#### Changelog <span class="tip is--primary">Maintenance</span> <span class="tip is--primary">Extension</span>
+
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Framework/Changelog)
+
+Console commands for the changelog workflow
+
 #### DataAbstractionLayer <span class="tip is--primary">Data store</span> <span class="tip is--primary">Maintenance</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Extension</span>
 
 * [Sources](https://github.com/shopware/platform/tree/master/src/Core/Framework/DataAbstractionLayer)

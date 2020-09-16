@@ -462,6 +462,40 @@ base-uri 'self';
             <tag name="messenger.message_handler"/>
         </service>
 
+        <!-- Changelog -->
+        <service id="Shopware\Core\Framework\Changelog\ChangelogGenerator" public="false">
+            <argument>%kernel.project_dir%</argument>
+        </service>
+
+        <service id="Shopware\Core\Framework\Changelog\ChangelogReleaseCreator">
+            <argument type="service" id="Shopware\Core\Framework\Changelog\ChangelogParser"/>
+            <argument type="service" id="filesystem"/>
+            <argument>%kernel.project_dir%</argument>
+        </service>
+
+        <service id="Shopware\Core\Framework\Changelog\ChangelogReleaseExporter">
+            <argument type="service" id="Shopware\Core\Framework\Changelog\ChangelogParser"/>
+            <argument type="service" id="filesystem"/>
+            <argument>%kernel.project_dir%</argument>
+        </service>
+
+        <service id="Shopware\Core\Framework\Changelog\ChangelogParser" public="false" />
+
+        <service id="Shopware\Core\Framework\Changelog\Command\ChangelogCreateCommand">
+            <argument type="service" id="Shopware\Core\Framework\Changelog\ChangelogGenerator"/>
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Changelog\Command\ChangelogReleaseCommand">
+            <argument type="service" id="Shopware\Core\Framework\Changelog\ChangelogReleaseCreator"/>
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Changelog\Command\ChangelogChangeCommand">
+            <argument type="service" id="Shopware\Core\Framework\Changelog\ChangelogReleaseExporter"/>
+            <tag name="console.command"/>
+        </service>
+
         <!-- Util -->
         <service id="Shopware\Core\Framework\Log\LoggerFactory">
             <argument type="string">%kernel.logs_dir%/%%s_%kernel.environment%.log</argument>

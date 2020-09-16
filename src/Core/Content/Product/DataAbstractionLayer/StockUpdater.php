@@ -248,7 +248,7 @@ class StockUpdater implements EventSubscriberInterface
         }
 
         $sql = '
-SELECT product_id,
+SELECT LOWER(HEX(order_line_item.product_id)) as product_id,
     IFNULL(
         SUM(IF(state_machine_state.technical_name = :completed_state, 0, order_line_item.quantity)),
         0
@@ -270,7 +270,7 @@ FROM order_line_item
 WHERE LOWER(order_line_item.referenced_id) IN (:ids)
     AND order_line_item.type = :type
     AND order_line_item.version_id = :version
-
+    AND order_line_item.product_id IS NOT NULL
 GROUP BY product_id;
         ';
 
@@ -288,24 +288,28 @@ GROUP BY product_id;
             ]
         );
 
-        $sql = '
-UPDATE product
-    SET available_stock = stock - :open_quantity,
-        sales = :sales_quantity
-    WHERE id = :id
-        ';
+        $fallback = array_column($rows, 'product_id');
+
+        $fallback = array_diff($ids, $fallback);
+
+        $update = new RetryableQuery(
+            $this->connection->prepare('UPDATE product SET available_stock = stock - :open_quantity, sales = :sales_quantity WHERE id = :id')
+        );
+
+        foreach ($fallback as $id) {
+            $update->execute([
+                'id' => Uuid::fromHexToBytes((string) $id),
+                'open_quantity' => 0,
+                'sales_quantity' => 0,
+            ]);
+        }
 
         foreach ($rows as $row) {
-            RetryableQuery::retryable(function () use ($sql, $row): void {
-                $this->connection->executeUpdate(
-                    $sql,
-                    [
-                        'id' => Uuid::fromHexToBytes($row['id']),
-                        'open_quantity' => $row['open_quantity'],
-                        'sales_quantity' => $row['sales_quantity'],
-                    ]
-                );
-            });
+            $update->execute([
+                'id' => Uuid::fromHexToBytes($row['product_id']),
+                'open_quantity' => $row['open_quantity'],
+                'sales_quantity' => $row['sales_quantity'],
+            ]);
         }
     }
 

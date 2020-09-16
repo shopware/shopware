@@ -1,4 +1,4 @@
-name: PHP analysis
+name: Validate Snippets
 
 on:
     push:
@@ -7,7 +7,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: shopware/development:7.3
+    container: shopware/development:7.4
     env:
       DEVELOPMENT_BRANCH: master
 
@@ -46,12 +46,8 @@ jobs:
         cp platform/.github/.psh.yaml.override .
         ./psh.phar init
 
-    - name: Check Code
+    - name: Check Snippets
       run: |
         cd development
-        php dev-ops/analyze/generate-composer.php
-        php dev-ops/analyze/vendor/bin/ecs check platform/src --config platform/easy-coding-standard.yml
-        php dev-ops/analyze/phpstan-config-generator.php
-        php dev-ops/analyze/vendor/bin/phpstan analyze --autoload-file=dev-ops/analyze/vendor/autoload.php --configuration platform/phpstan.neon --error-format gitlab | tee phpstan-report.json
-        php dev-ops/analyze/vendor/bin/psalm --config=platform/psalm.xml --threads=$(nproc) --diff --diff-methods --show-info=false
+        php bin/console snippets:validate
 

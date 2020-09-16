@@ -29,6 +29,14 @@
             <helpText lang="de-DE">Aktivieren um Bewertungen anzuzeigen</helpText>
         </input-field>
 
+        <input-field type="bool">
+            <name>disableEmptyFilterOptions</name>
+            <label>Disable filter options without results</label>
+            <label lang="de-DE">Filteroptionen ohne Ergebnisse deaktivieren</label>
+            <helpText>Filter options are deactivated and cannot be clicked if they provide no results</helpText>
+            <helpText lang="de-DE">Filteroptionen sind deaktiviert und können nicht angeklickt werden, wenn sie keine Ergebnisse liefern</helpText>
+        </input-field>
+
         <input-field type="int">
             <name>markAsNew</name>
             <label>Mark products as 'new', for ? days</label>

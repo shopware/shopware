@@ -3,6 +3,7 @@ use HansOtt\PSR7Cookies\SetCookie;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
+use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Recovery\Common\HttpClient\Client;
 use Shopware\Recovery\Common\Service\JwtCertificateService;
 use Shopware\Recovery\Common\Service\SystemConfigService;
@@ -536,6 +537,7 @@ $app->any('/database-import/importDatabase', function (ServerRequestInterface $r
 
     /** @var MigrationCollectionLoader $migrationCollectionLoader */
     $migrationCollectionLoader = $container->offsetGet('migration.collection.loader');
+    $_SERVER[MigrationStep::INSTALL_ENVIRONMENT_VARIABLE] = true;
 
     $coreMigrations = $migrationCollectionLoader->collect('core');
 

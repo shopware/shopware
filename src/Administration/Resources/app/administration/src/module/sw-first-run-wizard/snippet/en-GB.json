@@ -81,15 +81,17 @@
             "otherRecommendations": "Other recommendations"
         },
         "shopwareAccount": {
-            "headline": "Shopware Account",
-            "passwordPlaceholder": "Enter password...",
-            "idPlaceholder": "Enter Shopware ID...",
-            "modalTitle": "Shopware",
-            "message": "Sign up now with your Shopware ID to have access to purchased plugins and licenses.<br><br>With your Shopware ID you are able to log into even more Shopware platforms such as  <a href=\"https://store.shopware.com/en\" class=\"external-link\" target=\"_blank\">Community Store</a>, <a href=\"https://forum.shopware.com\" class=\"external-link\" target=\"_blank\">the forum</a> or your personal <a href=\"https://account.shopware.com/\" class=\"external-link\" target=\"_blank\">Shopware account</a>.",
-            "registerAccountText": "You don't have a Shopware ID yet? Sign up right away!",
+            "headline": "Shopware Account - Login",
+            "passwordLabel": "Password",
+            "passwordPlaceholder": "Enter your password...",
+            "emailAddressLabel": "Email address",
+            "emailAddressPlaceholder": "Enter your email address...",
+            "modalTitle": "Shopware Account",
+            "message": "The Shopware Account is your main hub for interaction with all Shopware services.",
+            "registerAccountText": "You don't have a Shopware Account yet? Sign up right",
             "registerAccountHere": "here",
             "registerAccountUrl": "https://account.shopware.com/register?lang=en",
-            "forgotPasswordText": "Forgot your password?",
+            "forgotPasswordText": "Did you forget your password?",
             "forgotPasswordUrl": "https://account.shopware.com/recovery?lang=en"
         },
         "error": {
@@ -117,9 +119,9 @@
         "stepItemTitle": {
             "dataImport": "Data import",
             "mailer": "Mailer configuration",
-            "setupPaypal": "Setup PayPal",
+            "setupPaypal": "PayPal setup",
             "plugins": "Plugins",
-            "shopware": "Shopware"
+            "shopware": "Shopware Account"
         }
     }
 }

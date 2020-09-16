@@ -528,3 +528,18 @@ Upload Component Library:
         - aws s3 sync --delete --acl public-read . s3://shopware-ui-component-library-docs/
         - aws cloudfront create-invalidation --distribution-id E18U17118IAC82 --paths "/*"
     interruptible: false
+
+Create Major MR:
+    stage: Deploy
+    image: curlimages/curl:7.72.0
+    only:
+        refs:
+            - schedules
+    allow_failure: true
+    variables:
+        GIT_STRATEGY: none
+    before_script: []
+    script:
+        - >
+            DATA='{ "source_branch": "master", "target_branch": "major", "title": "[CI] Update major", "description": "This MR was automatically created by this scheduled pipeline '"$CI_PIPELINE_URL"'", "labels": [ "workflow::review" ], "assignee_ids": [83, 12, 41, 11] }';
+            curl -v --header "Private-Token: $CREATE_MR_TOKEN" --header "Content-Type: application/json" --data "$DATA" "$CI_API_V4_URL/projects/$CI_PROJECT_ID/merge_requests"

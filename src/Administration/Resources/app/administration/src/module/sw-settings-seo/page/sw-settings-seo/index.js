@@ -14,6 +14,7 @@ Component.register('sw-settings-seo', {
     methods: {
         onClickSave() {
             this.$refs.seoUrlTemplateCard.onClickSave();
+            this.$refs.systemConfig.saveAll();
         }
     }
 });

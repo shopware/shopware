@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/master/src/Core/System/SystemConfig/Schema/config.xsd">
+    <card>
+        <title>Settings</title>
+        <title lang="de-DE">Einstellungen</title>
+
+        <input-field type="bool">
+            <name>redirectToCanonicalUrl</name>
+            <label>Always redirect (HTTP 301) to canonical URLs</label>
+            <label lang="de-DE">Immer auf Canonical-URLs umleiten (HTTP 301)</label>
+        </input-field>
+    </card>
+</config>

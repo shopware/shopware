@@ -35,15 +35,15 @@ describe('components/data-grid/sw-data-grid', () => {
         wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should be in compact mode by default', () => {
+    it('should be in compact mode by default', async () => {
         expect(wrapper.classes()).toContain('is--compact');
     });
 
-    it('should render grid header with correct columns', () => {
+    it('should render grid header with correct columns', async () => {
         const nameColumn = wrapper.find('.sw-data-grid__header .sw-data-grid__cell--0 .sw-data-grid__cell-content');
         const companyColumn = wrapper.find('.sw-data-grid__header .sw-data-grid__cell--1 .sw-data-grid__cell-content');
         const selectionColumn = wrapper.find('.sw-data-grid__header .sw-data-grid__cell--selection');
@@ -56,8 +56,8 @@ describe('components/data-grid/sw-data-grid', () => {
         expect(companyColumn.text()).toBe('Company');
     });
 
-    it('should hide selection column, action column and header based on prop', () => {
-        wrapper.setProps({
+    it('should hide selection column, action column and header based on prop', async () => {
+        await wrapper.setProps({
             showSelection: false,
             showActions: false,
             showHeader: false
@@ -72,14 +72,14 @@ describe('components/data-grid/sw-data-grid', () => {
         expect(actionColumn.exists()).toBeFalsy();
     });
 
-    it('should render a row for each item in dataSource prop', () => {
+    it('should render a row for each item in dataSource prop', async () => {
         const rows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
 
         expect(rows.length).toBe(5);
     });
 
-    it('should change appearance class based on prop', () => {
-        wrapper.setProps({
+    it('should change appearance class based on prop', async () => {
+        await wrapper.setProps({
             plainAppearance: true
         });
 

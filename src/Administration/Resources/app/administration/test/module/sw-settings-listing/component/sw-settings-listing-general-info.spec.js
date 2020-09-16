@@ -25,8 +25,12 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-ge
                 }
             },
             stubs: {
-                'sw-card': '<div><slot></slot></div>',
-                'sw-container': '<div><slot></slot></div>',
+                'sw-card': {
+                    template: '<div><slot></slot></div>'
+                },
+                'sw-container': {
+                    template: '<div><slot></slot></div>'
+                },
                 'sw-field': Shopware.Component.build('sw-field'),
                 'sw-text-field': Shopware.Component.build('sw-text-field'),
                 'sw-switch-field': Shopware.Component.build('sw-switch-field'),
@@ -45,17 +49,17 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-ge
         wrapper = createWrapper();
     });
 
-    it('is a Vue.js component ', () => {
-        expect(wrapper.isVueInstance()).toBe(true);
+    it('is a Vue.js component ', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should display the correct name', () => {
+    it('should display the correct name', async () => {
         const textField = wrapper.find('.sw-field--text input');
 
         expect(textField.element.value).toBe('Price descending');
     });
 
-    it('should display the correct active state', () => {
+    it('should display the correct active state', async () => {
         const switchField = wrapper.find('.sw-field--switch input');
         const isActive = switchField.element.value;
 

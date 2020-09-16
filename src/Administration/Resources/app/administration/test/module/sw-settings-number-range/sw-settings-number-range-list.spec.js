@@ -38,13 +38,15 @@ function createWrapper(privileges = []) {
             }
         },
         stubs: {
-            'sw-page': `
-                <div class="sw-page">
-                    <slot name="smart-bar-actions"></slot>
-                    <slot name="content"></slot>
-                    <slot></slot>
-                </div>
-            `,
+            'sw-page': {
+                template: `
+                    <div class="sw-page">
+                        <slot name="smart-bar-actions"></slot>
+                        <slot name="content"></slot>
+                        <slot></slot>
+                    </div>
+                `
+            },
             'sw-card-view': true,
             'sw-card': Shopware.Component.build('sw-card'),
             'sw-entity-listing': {
@@ -78,17 +80,17 @@ describe('module/sw-settings-number-range/page/sw-settings-number-range-list', (
         wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('Should not allow create without permission', () => {
+    it('Should not allow create without permission', async () => {
         const addButton = wrapper.find('.sw-number-range-list__add-number-range');
 
         expect(addButton.attributes().disabled).toBe('true');
     });
 
-    it('Should allow create with correct permission', () => {
+    it('Should allow create with correct permission', async () => {
         wrapper = createWrapper(['number_ranges.creator']);
         const addButton = wrapper.find('.sw-number-range-list__add-number-range');
 

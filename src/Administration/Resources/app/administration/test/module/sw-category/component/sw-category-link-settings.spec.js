@@ -32,13 +32,13 @@ function createWrapper(privileges = []) {
 }
 
 describe('src/module/sw-category/component/sw-category-link-settings', () => {
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should have an enabled text field for the external link', () => {
+    it('should have an enabled text field for the external link', async () => {
         const wrapper = createWrapper([
             'category.editor'
         ]);
@@ -47,7 +47,7 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
         expect(textField.attributes().disabled).toBeUndefined();
     });
 
-    it('should have an enabled text field for the external link', () => {
+    it('should have an enabled text field for the external link', async () => {
         const wrapper = createWrapper();
 
         const textField = wrapper.find('sw-text-field-stub');

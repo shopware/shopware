@@ -33,7 +33,9 @@ function createWrapper() {
             'sw-block-field': Shopware.Component.build('sw-block-field'),
             'sw-base-field': Shopware.Component.build('sw-base-field'),
             'sw-field-error': Shopware.Component.build('sw-field-error'),
-            'sw-icon': '<div></div>'
+            'sw-icon': {
+                template: '<div></div>'
+            }
         }
     });
 }
@@ -45,17 +47,17 @@ describe('components/base/sw-product-variants-configurator-selection', () => {
         wrapper = createWrapper();
     });
 
-    it('should be a Vue.JS component', () => {
-        expect(wrapper.isVueInstance()).toBe(true);
+    it('should be a Vue.JS component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should keep the text content when search list opens', () => {
+    it('should keep the text content when search list opens', async () => {
         const inputField = wrapper.find('.sw-field input');
 
         // verify that input field is empty
         expect(inputField.element.value).toBe('');
 
-        inputField.setValue('15');
+        await inputField.setValue('15');
 
         expect(inputField.element.value).toBe('15');
     });

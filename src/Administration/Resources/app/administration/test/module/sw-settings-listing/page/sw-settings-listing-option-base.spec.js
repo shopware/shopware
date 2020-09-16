@@ -102,12 +102,12 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing-option-base', 
         wrapper = createWrapper();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBe(true);
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should disable the save button if no criteria exists', () => {
-        wrapper.setData({
+    it('should disable the save button if no criteria exists', async () => {
+        await wrapper.setData({
             productSortingEntity: getProductSortingEntityWithoutCriteria()
         });
 
@@ -116,20 +116,20 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing-option-base', 
         expect(isSaveButtonDisabled).toBe(true);
     });
 
-    it('should enable the save button if at least one criteria exists', () => {
+    it('should enable the save button if at least one criteria exists', async () => {
         const isSaveButtonDisabled = wrapper.vm.isSaveButtonDisabled;
 
         expect(isSaveButtonDisabled).toBe(false);
     });
 
-    it('should display the entity name when the entity has a name', () => {
+    it('should display the entity name when the entity has a name', async () => {
         const displayValue = wrapper.vm.smartBarHeading;
 
         expect(displayValue).toBe('Price descending');
     });
 
-    it('should display the fallback snippet when the entity has no name', () => {
-        wrapper.setData({
+    it('should display the fallback snippet when the entity has no name', async () => {
+        await wrapper.setData({
             productSortingEntity: getProductSortingEntityWithoutName()
         });
 
@@ -138,25 +138,25 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing-option-base', 
         expect(displayValue).toBe('sw-settings-listing.base.smartBarTitle');
     });
 
-    it('should get the correct entity id from the route', () => {
+    it('should get the correct entity id from the route', async () => {
         const idOfProductSortingEntity = wrapper.vm.getProductSortingEntityId();
 
         expect(idOfProductSortingEntity).toBe('2e55a50661ce4f42b188996aebbf6117');
     });
 
-    it('should return true if criteria is a custom field', () => {
+    it('should return true if criteria is a custom field', async () => {
         const isCriteriaACustomField = wrapper.vm.isCriteriaACustomField('my_first_custom_field');
 
         expect(isCriteriaACustomField).toBe(true);
     });
 
-    it('should return false if criteria is not a custom field', () => {
+    it('should return false if criteria is not a custom field', async () => {
         const isCriteriaACustomField = wrapper.vm.isCriteriaACustomField('non_existing_custom_field');
 
         expect(isCriteriaACustomField).toBe(false);
     });
 
-    it('should transform custom field criterias', () => {
+    it('should transform custom field criterias', async () => {
         wrapper.vm.transformCustomFieldCriterias();
         const transformedCustomFieldCriterias = wrapper.vm.productSortingEntity.fields;
 
@@ -192,7 +192,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing-option-base', 
         wrapper.vm.createNotificationSuccess.mockRestore();
     });
 
-    it('should throw an error message when saving goes wrong', () => {
+    it('should throw an error message when saving goes wrong', async () => {
         // mock notification function
         wrapper.vm.createNotificationError = jest.fn();
 

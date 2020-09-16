@@ -75,7 +75,9 @@ function createWrapper(privileges = []) {
             }
         },
         stubs: {
-            'sw-page': '<div><slot name="content"></slot></div>',
+            'sw-page': {
+                template: '<div><slot name="content"></slot></div>'
+            },
             'sw-card-view': true,
             'sw-card': true,
             'sw-text-field': true,
@@ -105,11 +107,11 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-create', (
         Shopware.State.get('session').languageId = '';
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should create a new user', () => {
+    it('should create a new user', async () => {
         expect(wrapper.vm.user).toStrictEqual({
             admin: true,
             localeId: '',
@@ -121,11 +123,11 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-create', (
         });
     });
 
-    it('should allow to set the password', () => {
+    it('should allow to set the password', async () => {
         expect(wrapper.vm.user.password).toBe('');
 
         const fieldPassword = wrapper.find('.sw-settings-user-detail__grid-password');
-        fieldPassword.setValue('Passw0rd!');
+        await fieldPassword.setValue('Passw0rd!');
 
         expect(wrapper.vm.user.password).toBe('Passw0rd!');
     });

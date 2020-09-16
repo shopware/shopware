@@ -94,11 +94,11 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
         wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should display all keys from the category additional_permissions', () => {
+    it('should display all keys from the category additional_permissions', async () => {
         const systemPermissions = wrapper.find('.sw-users-permissions-additional-permissions_system');
         const ordersPermissions = wrapper.find('.sw-users-permissions-additional-permissions_orders');
 
@@ -106,13 +106,13 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
         expect(ordersPermissions.exists()).toBeTruthy();
     });
 
-    it('should not display keys from other categories', () => {
+    it('should not display keys from other categories', async () => {
         const productPermissions = wrapper.find('.sw-users-permissions-additional-permissions_product');
 
         expect(productPermissions.exists()).toBeFalsy();
     });
 
-    it('should show all roles after the key', () => {
+    it('should show all roles after the key', async () => {
         const systemRoles = wrapper.find(
             '.sw-users-permissions-additional-permissions_system + .sw-users-permissions-additional-permissions__switches'
         );
@@ -146,7 +146,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
         expect(clearCacheField.props().value).toBeTruthy();
     });
 
-    it('should contain the a false value in a field when the privilege is not in roles', () => {
+    it('should contain the a false value in a field when the privilege is not in roles', async () => {
         const clearCacheField = wrapper.find(
             '.sw-field-stub[label="sw-privileges.additional_permissions.system.clear_cache"]'
         );

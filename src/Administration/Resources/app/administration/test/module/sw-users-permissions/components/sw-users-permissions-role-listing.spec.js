@@ -54,29 +54,29 @@ describe('module/sw-users-permissions/components/sw-users-permissions-role-listi
         wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('the card should contain the right title', () => {
+    it('the card should contain the right title', async () => {
         const title = wrapper.attributes().title;
         expect(title).toBe('sw-users-permissions.roles.general.cardLabel');
     });
 
-    it('should disable the create button', () => {
+    it('should disable the create button', async () => {
         const createButton = wrapper.find('.sw-users-permissions-role-listing__add-role-button');
         expect(createButton.attributes().disabled).toBe('true');
     });
 
-    it('should enable the create button', () => {
+    it('should enable the create button', async () => {
         wrapper = createWrapper(['users_and_permissions.creator']);
 
         const createButton = wrapper.find('.sw-users-permissions-role-listing__add-role-button');
         expect(createButton.attributes().disabled).toBeUndefined();
     });
 
-    it('should disable all context menu items', () => {
-        wrapper.setData({
+    it('should disable all context menu items', async () => {
+        await wrapper.setData({
             roles: [
                 {},
                 {}
@@ -93,7 +93,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-role-listi
     it('should enable the edit context menu item', async () => {
         wrapper = createWrapper(['users_and_permissions.editor']);
         await wrapper.vm.$nextTick();
-        wrapper.setData({
+        await wrapper.setData({
             roles: [
                 {},
                 {}
@@ -110,7 +110,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-role-listi
     it('should enable the delete context menu item', async () => {
         wrapper = createWrapper(['users_and_permissions.deleter']);
         await wrapper.vm.$nextTick();
-        wrapper.setData({
+        await wrapper.setData({
             roles: [
                 {},
                 {}

@@ -21,15 +21,23 @@ function createWrapper(privileges = []) {
         },
 
         stubs: {
-            'sw-page': `
-                <div class="sw-page">
-                    <slot name="smart-bar-actions"></slot>
-                    <slot name="content"></slot>
-                    <slot></slot>
-                </div>`,
-            'sw-card-view': '<div><slot></slot></div>',
-            'sw-card': '<div><slot></slot></div>',
-            'sw-container': '<div><slot></slot></div>',
+            'sw-page': {
+                template: `
+                    <div class="sw-page">
+                        <slot name="smart-bar-actions"></slot>
+                        <slot name="content"></slot>
+                        <slot></slot>
+                    </div>`
+            },
+            'sw-card-view': {
+                template: '<div><slot></slot></div>'
+            },
+            'sw-card': {
+                template: '<div><slot></slot></div>'
+            },
+            'sw-container': {
+                template: '<div><slot></slot></div>'
+            },
             'sw-field': true,
             'sw-boolean-radio-group': true,
             'sw-text-field': true,
@@ -116,13 +124,13 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
             { name: 'seo meta field', selector: 'sw-field-stub[label="sw-settings-customer-group.registration.seoMetaDescription"]' },
             { name: 'sales channel multiple select', selector: 'sw-entity-multi-select-stub' }
         ].forEach(({ name, selector }) => {
-            it(`${name} should be disabled`, () => {
+            it(`${name} should be disabled`, async () => {
                 const element = wrapper.find(selector);
                 return expect(element.attributes().disabled).toBeTruthy();
             });
         });
 
-        it('should show warning tooltip', () => {
+        it('should show warning tooltip', async () => {
             expect(wrapper.vm.tooltipSave).toStrictEqual({
                 message: 'sw-privileges.tooltip.warning',
                 disabled: false,
@@ -150,13 +158,13 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
             { name: 'seo meta field', selector: 'sw-field-stub[label="sw-settings-customer-group.registration.seoMetaDescription"]' },
             { name: 'sales channel multiple select', selector: 'sw-entity-multi-select-stub' }
         ].forEach(({ name, selector }) => {
-            it(`${name} should be enabled`, () => {
+            it(`${name} should be enabled`, async () => {
                 const element = wrapper.find(selector);
                 return expect(element.attributes().disabled).toBeFalsy();
             });
         });
 
-        it('should show save shortcut tooltip', () => {
+        it('should show save shortcut tooltip', async () => {
             expect(wrapper.vm.tooltipSave).toStrictEqual({
                 message: 'CTRL + S',
                 appearance: 'light'

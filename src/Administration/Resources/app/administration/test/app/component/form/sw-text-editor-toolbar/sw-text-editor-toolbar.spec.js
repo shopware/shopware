@@ -192,10 +192,10 @@ beforeEach(() => {
 });
 
 describe('components/form/sw-text-editor/sw-text-editor-toolbar', () => {
-    it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
-    it('it should apply http correctly', () => {
+    it('it should apply http correctly', async () => {
         testCases.forEach(({ link, result }) => {
             expect(wrapper.vm.prepareLink(link).startsWith('http://')).toBe(result);
         });

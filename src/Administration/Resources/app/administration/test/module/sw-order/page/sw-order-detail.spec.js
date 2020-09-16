@@ -8,7 +8,9 @@ function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-order-detail'), {
         localVue,
         stubs: {
-            'sw-page': '<div><slot name="smart-bar-actions"></slot></div>',
+            'sw-page': {
+                template: '<div><slot name="smart-bar-actions"></slot></div>'
+            },
             'sw-button': true
         },
         provide: {
@@ -47,21 +49,21 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should have an disabled edit button', () => {
-        wrapper.setData({ isLoading: false });
+    it('should have an disabled edit button', async () => {
+        await wrapper.setData({ isLoading: false });
 
         const editButton = wrapper.find('.sw-order-detail__smart-bar-edit-button');
 
         expect(editButton.attributes().disabled).toBe('true');
     });
 
-    it('should have an enabled edit button', () => {
+    it('should have an enabled edit button', async () => {
         wrapper = createWrapper(['order.editor']);
-        wrapper.setData({ isLoading: false });
+        await wrapper.setData({ isLoading: false });
 
         const editButton = wrapper.find('.sw-order-detail__smart-bar-edit-button');
 

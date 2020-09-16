@@ -24,15 +24,23 @@ function createWrapper() {
             'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
             'sw-block-field': Shopware.Component.build('sw-block-field'),
             'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-field-error': '<div></div>',
-            'sw-container': '<div><slot></slot></div>',
+            'sw-field-error': {
+                template: '<div></div>'
+            },
+            'sw-container': {
+                template: '<div><slot></slot></div>'
+            },
             'sw-grid': Shopware.Component.build('sw-grid'),
             'sw-pagination': Shopware.Component.build('sw-pagination'),
             'sw-grid-row': Shopware.Component.build('sw-grid-row'),
             'sw-grid-column': Shopware.Component.build('sw-grid-column'),
             'sw-button': Shopware.Component.build('sw-button'),
-            'sw-icon': '<div></div>',
-            'sw-checkbox-field': '<div class="checkbox"></div>'
+            'sw-icon': {
+                template: '<div></div>'
+            },
+            'sw-checkbox-field': {
+                template: '<div class="checkbox"></div>'
+            }
         },
         mocks: {
             $tc: (translationPath) => translationPath,
@@ -122,16 +130,16 @@ describe('components/base/sw-property-search', () => {
         });
     });
 
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBe(true);
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should have a pagination element inside group grid', async () => {
         const wrapper = createWrapper();
 
-        wrapper.vm.onFocusSearch();
+        await wrapper.vm.onFocusSearch();
 
         await wrapper.vm.$nextTick();
 
@@ -142,7 +150,7 @@ describe('components/base/sw-property-search', () => {
 
     it('should have pagination with two buttons inside group grid', async () => {
         const wrapper = createWrapper();
-        wrapper.vm.onFocusSearch();
+        await wrapper.vm.onFocusSearch();
 
         await wrapper.vm.$nextTick();
 
@@ -153,26 +161,26 @@ describe('components/base/sw-property-search', () => {
 
     it('should change group page when paginating', async () => {
         const wrapper = createWrapper();
-        wrapper.vm.onFocusSearch();
+        await wrapper.vm.onFocusSearch();
 
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.groupPage).toBe(1);
 
         const nextPageButton = wrapper.find('.sw-pagination__list-button:not(.is-active)');
-        nextPageButton.trigger('click');
+        await nextPageButton.trigger('click');
 
         expect(wrapper.vm.groupPage).toBe(2);
     });
 
     it('should open options grid after clicking on property group', async () => {
         const wrapper = createWrapper();
-        wrapper.vm.onFocusSearch();
+        await wrapper.vm.onFocusSearch();
 
         await wrapper.vm.$nextTick();
 
         const groupElement = wrapper.find('.group_grid__column-name');
-        groupElement.trigger('click');
+        await groupElement.trigger('click');
 
         await wrapper.vm.$nextTick();
 
@@ -183,12 +191,12 @@ describe('components/base/sw-property-search', () => {
 
     it('should have a pagination for the option grid', async () => {
         const wrapper = createWrapper();
-        wrapper.vm.onFocusSearch();
+        await wrapper.vm.onFocusSearch();
 
         await wrapper.vm.$nextTick();
 
         const groupElement = wrapper.find('.group_grid__column-name');
-        groupElement.trigger('click');
+        await groupElement.trigger('click');
 
         await wrapper.vm.$nextTick();
 
@@ -198,12 +206,12 @@ describe('components/base/sw-property-search', () => {
 
     it('should have multiple pages for option grid', async () => {
         const wrapper = createWrapper();
-        wrapper.vm.onFocusSearch();
+        await wrapper.vm.onFocusSearch();
 
         await wrapper.vm.$nextTick();
 
         const groupElement = wrapper.find('.group_grid__column-name');
-        groupElement.trigger('click');
+        await groupElement.trigger('click');
 
         await wrapper.vm.$nextTick();
 
@@ -216,12 +224,12 @@ describe('components/base/sw-property-search', () => {
 
     it('should change the option page when clicking pagination', async () => {
         const wrapper = createWrapper();
-        wrapper.vm.onFocusSearch();
+        await wrapper.vm.onFocusSearch();
 
         await wrapper.vm.$nextTick();
 
         const groupElement = wrapper.find('.group_grid__column-name');
-        groupElement.trigger('click');
+        await groupElement.trigger('click');
 
         await wrapper.vm.$nextTick();
 
@@ -229,7 +237,7 @@ describe('components/base/sw-property-search', () => {
 
         // eslint-disable-next-line max-len
         const nextPageButton = wrapper.find('.sw-property-search__tree-selection__option_grid .sw-pagination__list-button:not(.is-active)');
-        nextPageButton.trigger('click');
+        await nextPageButton.trigger('click');
 
         expect(wrapper.vm.optionPage).toBe(2);
     });
@@ -245,7 +253,7 @@ describe('components/base/sw-property-search', () => {
         expect(searchInput.element.value).toBe('');
 
         // entering text into input field
-        searchInput.setValue('color');
+        await searchInput.setValue('color');
 
         // check if content of input field is not empty
         expect(searchInput.element.value).toBe('color');

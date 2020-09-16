@@ -64,12 +64,12 @@ function createWrapper(privileges = []) {
 }
 
 describe('src/module/sw-settings-custom-field/component/sw-custom-field-set-detail-base', () => {
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
-        expect(wrapper.isVueInstance()).toBe(true);
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('can edit fields', () => {
+    it('can edit fields', async () => {
         const wrapper = createWrapper([
             'custom_field.editor'
         ]);
@@ -83,7 +83,7 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-set-deta
         expect(entitiesField.attributes('disabled')).toBeFalsy();
     });
 
-    it('cannot edit fields', () => {
+    it('cannot edit fields', async () => {
         const wrapper = createWrapper();
 
         const technicalNameField = wrapper.find('.sw-settings-custom-field-set-detail-base__technical-name');

@@ -151,30 +151,46 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
             },
             stubs: {
                 'sw-page': Shopware.Component.build('sw-page'),
-                'sw-search-bar': '<div></div>',
-                'sw-notification-center': '<div></div>',
-                'sw-tooltip': '<div></div>',
+                'sw-search-bar': {
+                    template: '<div></div>'
+                },
+                'sw-notification-center': {
+                    template: '<div></div>'
+                },
+                'sw-tooltip': {
+                    template: '<div></div>'
+                },
                 'sw-settings-shopware-updates-requirements':
                     Shopware.Component.build('sw-settings-shopware-updates-requirements'),
                 'sw-data-grid': Shopware.Component.build('sw-data-grid'),
                 'sw-card-view': Shopware.Component.build('sw-card-view'),
                 'sw-card': Shopware.Component.build('sw-card'),
-                'sw-settings-shopware-updates-info': '<div></div>',
-                'sw-settings-shopware-updates-plugins': '<div></div>',
-                'sw-loader': '<div></div>',
-                'sw-icon': '<div></div>',
-                'router-link': '<a></a>',
+                'sw-settings-shopware-updates-info': {
+                    template: '<div></div>'
+                },
+                'sw-settings-shopware-updates-plugins': {
+                    template: '<div></div>'
+                },
+                'sw-loader': {
+                    template: '<div></div>'
+                },
+                'sw-icon': {
+                    template: '<div></div>'
+                },
+                'router-link': {
+                    template: '<a></a>'
+                },
                 'sw-button': Shopware.Component.build('sw-button'),
                 'sw-color-badge': Shopware.Component.build('sw-color-badge')
             }
         });
     });
 
-    it('should be a Vue.JS component', () => {
-        expect(wrapper.isVueInstance()).toBe(true);
+    it('should be a Vue.JS component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should have three green color badges and one red one', () => {
+    it('should have three green color badges and one red one', async () => {
         const allGreenColorBadges = wrapper.findAll('.sw-color-badge.is--success');
         const allRedColorBadges = wrapper.findAll('.sw-color-badge.is--error');
 
@@ -182,7 +198,7 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
         expect(allRedColorBadges.length).toBe(1);
     });
 
-    it('should disable the button if one requirement is not met', () => {
+    it('should disable the button if one requirement is not met', async () => {
         const button = wrapper.find('.smart-bar__actions .sw-button');
 
         expect(button.attributes('disabled')).toBe('disabled');

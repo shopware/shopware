@@ -68,7 +68,7 @@ describe('src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-
         wrapper = createWrapper();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBe(true);
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 });

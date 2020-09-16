@@ -20,12 +20,12 @@ describe('src/module/sw-settings-basic-information/service/captcha.service.js', 
         captchaService = new CaptchaService(httpClient, loginService);
     });
 
-    it('should be initialized', () => {
+    it('should be initialized', async () => {
         expect(captchaService).not.toBeNull();
         expect(captchaService).toBeInstanceOf(CaptchaService);
     });
 
-    it('should return auth headers', () => {
+    it('should return auth headers', async () => {
         expect(captchaService.getAuthHeaders()).toMatchObject({
             Accept: 'application/json',
             Authorization: `Bearer ${token}`,

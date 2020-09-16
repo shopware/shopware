@@ -8,10 +8,18 @@ function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-promotion-cart-condition-form'), {
         localVue,
         stubs: {
-            'sw-container': '<div class="sw-container"><slot></slot></div>',
-            'sw-field': '<div class="sw-field"></div>',
-            'sw-card': '<div class="sw-card"><slot></slot></div>',
-            'sw-promotion-rule-select': '<div class="sw-promotion-rule-select"></div>'
+            'sw-container': {
+                template: '<div class="sw-container"><slot></slot></div>'
+            },
+            'sw-field': {
+                template: '<div class="sw-field"></div>'
+            },
+            'sw-card': {
+                template: '<div class="sw-card"><slot></slot></div>'
+            },
+            'sw-promotion-rule-select': {
+                template: '<div class="sw-promotion-rule-select"></div>'
+            }
         },
         provide: {
             acl: {
@@ -102,11 +110,11 @@ describe('src/module/sw-promotion/component/sw-promotion-cart-condition-form', (
         });
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should have disabled form fields', () => {
+    it('should have disabled form fields', async () => {
         let elements = wrapper.findAll('.sw-field');
         expect(elements.wrappers.length).toBeGreaterThan(0);
         elements.wrappers.forEach(el => expect(el.attributes().disabled).toBe('disabled'));

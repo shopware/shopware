@@ -100,7 +100,7 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
         const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.isVueInstance()).toBe(true);
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should be able to create a new language', async () => {
@@ -124,7 +124,7 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
     });
 
     it('should be able to edit a language', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'language.editor'
         ]);
         await wrapper.vm.$nextTick();
@@ -135,7 +135,7 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
     });
 
     it('should not be able to edit a language', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const editMenuItem = wrapper.find('.sw-entity-listing__context-menu-edit-action');
@@ -144,7 +144,7 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
     });
 
     it('should be able to delete a language', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'language.deleter'
         ]);
         await wrapper.vm.$nextTick();
@@ -155,7 +155,7 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
     });
 
     it('should not be able to delete a language', async () => {
-        const wrapper = createWrapper();
+        const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
         const deleteMenuItem = wrapper.find('.sw-settings-language-list__delete-action');
@@ -164,7 +164,7 @@ describe('module/sw-settings-language/page/sw-settings-language-list', () => {
     });
 
     it('should be able to inline edit a language', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'language.editor'
         ]);
         await wrapper.vm.$nextTick();

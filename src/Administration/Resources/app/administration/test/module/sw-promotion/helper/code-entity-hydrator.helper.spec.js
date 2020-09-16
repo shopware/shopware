@@ -4,7 +4,7 @@ import hydrator from 'src/module/sw-promotion/helper/code-entity-hydrator.helper
 jest.spyOn(global.console, 'warn').mockImplementation(() => jest.fn());
 
 describe('module/sw-promotion/helper/code-entity-hydrator.helper.js', () => {
-    it('should not be redeemed if payload is NULL', () => {
+    it('should not be redeemed if payload is NULL', async () => {
         const item = {
             payload: null
         };
@@ -12,7 +12,7 @@ describe('module/sw-promotion/helper/code-entity-hydrator.helper.js', () => {
         expect(item.isRedeemed).toBe(false);
     });
 
-    it('should be redeemed if payload has value', () => {
+    it('should be redeemed if payload has value', async () => {
         const item = {
             payload: {
                 orderId: '4',
@@ -24,7 +24,7 @@ describe('module/sw-promotion/helper/code-entity-hydrator.helper.js', () => {
         expect(item.isRedeemed).toBe(true);
     });
 
-    it('should have orderId property with NULL if payload is null to have a consistent object', () => {
+    it('should have orderId property with NULL if payload is null to have a consistent object', async () => {
         const item = {
             payload: null
         };
@@ -32,7 +32,7 @@ describe('module/sw-promotion/helper/code-entity-hydrator.helper.js', () => {
         expect(item.orderId).toBe(null);
     });
 
-    it('should have a orderId property if payload has that content', () => {
+    it('should have a orderId property if payload has that content', async () => {
         const item = {
             payload: {
                 orderId: '4',
@@ -44,7 +44,7 @@ describe('module/sw-promotion/helper/code-entity-hydrator.helper.js', () => {
         expect(item.orderId).toBe('4');
     });
 
-    it('should have customerId property with NULL if payload is null to have a consistent object', () => {
+    it('should have customerId property with NULL if payload is null to have a consistent object', async () => {
         const item = {
             payload: null
         };
@@ -52,7 +52,7 @@ describe('module/sw-promotion/helper/code-entity-hydrator.helper.js', () => {
         expect(item.customerId).toBe(null);
     });
 
-    it('should have a customerId property if payload has that content', () => {
+    it('should have a customerId property if payload has that content', async () => {
         const item = {
             payload: {
                 orderId: '4',
@@ -64,7 +64,7 @@ describe('module/sw-promotion/helper/code-entity-hydrator.helper.js', () => {
         expect(item.customerId).toBe('15');
     });
 
-    it('should have customerName property with NULL if payload is null to have a consistent object', () => {
+    it('should have customerName property with NULL if payload is null to have a consistent object', async () => {
         const item = {
             payload: null
         };
@@ -72,7 +72,7 @@ describe('module/sw-promotion/helper/code-entity-hydrator.helper.js', () => {
         expect(item.customerName).toBe(null);
     });
 
-    it('should have a customerName property if payload has that content', () => {
+    it('should have a customerName property if payload has that content', async () => {
         const item = {
             payload: {
                 orderId: '4',

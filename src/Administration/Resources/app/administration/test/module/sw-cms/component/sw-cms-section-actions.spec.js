@@ -18,22 +18,22 @@ function createWrapper() {
     });
 }
 describe('module/sw-cms/component/sw-cms-section-actions', () => {
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should contain disabled styling', () => {
+    it('should contain disabled styling', async () => {
         const wrapper = createWrapper();
-        wrapper.setProps({
+        await wrapper.setProps({
             disabled: true
         });
 
         expect(wrapper.classes()).toContain('is--disabled');
     });
 
-    it('should not contain disabled styling', () => {
+    it('should not contain disabled styling', async () => {
         const wrapper = createWrapper();
 
         expect(wrapper.classes()).not.toContain('is--disabled');

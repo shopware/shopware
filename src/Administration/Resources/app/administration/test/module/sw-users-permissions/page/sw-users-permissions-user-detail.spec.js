@@ -76,14 +76,18 @@ function createWrapper(privileges = []) {
             }
         },
         stubs: {
-            'sw-page': '<div><slot name="content"></slot></div>',
+            'sw-page': {
+                template: '<div><slot name="content"></slot></div>'
+            },
             'sw-card-view': true,
-            'sw-card': `
-<div class="sw-card-stub">
-    <slot></slot>
-    <slot name="grid"></slot>
-</div>
-`,
+            'sw-card': {
+                template: `
+    <div class="sw-card-stub">
+        <slot></slot>
+        <slot name="grid"></slot>
+    </div>
+    `
+            },
             'sw-text-field': true,
             'sw-upload-listener': true,
             'sw-media-upload-v2': true,
@@ -109,18 +113,18 @@ function createWrapper(privileges = []) {
 describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', () => {
     let wrapper;
 
-    beforeEach(() => {
+    beforeEach(async () => {
         Shopware.State.get('session').languageId = '123456789';
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
     });
 
-    afterEach(() => {
-        wrapper.destroy();
+    afterEach(async () => {
+        await wrapper.destroy();
         Shopware.State.get('session').languageId = '';
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should contain all fields', async () => {
@@ -150,13 +154,15 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
     });
 
     it('should contain all fields', async () => {
-        wrapper.vm.user = {
-            localeId: '12345',
-            username: 'maxmuster',
-            firstName: 'Max',
-            lastName: 'Mustermann',
-            email: 'max@mustermann.com'
-        };
+        await wrapper.setData({
+            user: {
+                localeId: '12345',
+                username: 'maxmuster',
+                firstName: 'Max',
+                lastName: 'Mustermann',
+                email: 'max@mustermann.com'
+            }
+        });
 
         const fieldFirstName = wrapper.find('.sw-settings-user-detail__grid-firstName');
         const fieldLastName = wrapper.find('.sw-settings-user-detail__grid-lastName');
@@ -184,15 +190,17 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
     });
 
     it('should enable the tooltip warning when user is admin', async () => {
-        wrapper = createWrapper('users_and_permissions.editor');
-        wrapper.vm.user = {
-            admin: true,
-            localeId: '12345',
-            username: 'maxmuster',
-            firstName: 'Max',
-            lastName: 'Mustermann',
-            email: 'max@mustermann.com'
-        };
+        wrapper = await createWrapper('users_and_permissions.editor');
+        await wrapper.setData({
+            user: {
+                admin: true,
+                localeId: '12345',
+                username: 'maxmuster',
+                firstName: 'Max',
+                lastName: 'Mustermann',
+                email: 'max@mustermann.com'
+            }
+        });
 
         const aclRolesSelect = wrapper.find('.sw-settings-user-detail__grid-aclRoles');
 
@@ -203,15 +211,17 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
     });
 
     it('should disable the tooltip warning when user is not admin', async () => {
-        wrapper = createWrapper('users_and_permissions.editor');
-        wrapper.vm.user = {
-            admin: false,
-            localeId: '12345',
-            username: 'maxmuster',
-            firstName: 'Max',
-            lastName: 'Mustermann',
-            email: 'max@mustermann.com'
-        };
+        wrapper = await createWrapper('users_and_permissions.editor');
+        await wrapper.setData({
+            user: {
+                admin: false,
+                localeId: '12345',
+                username: 'maxmuster',
+                firstName: 'Max',
+                lastName: 'Mustermann',
+                email: 'max@mustermann.com'
+            }
+        });
 
         const aclRolesSelect = wrapper.find('.sw-settings-user-detail__grid-aclRoles');
 
@@ -219,7 +229,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
     });
 
     it('should disable all fields when user has not editor rights', async () => {
-        wrapper.setData({
+        await wrapper.setData({
             isLoading: false,
             user: {
                 admin: false,
@@ -258,7 +268,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
     it('should enable all fields when user has not editor rights', async () => {
         wrapper = createWrapper('users_and_permissions.editor');
 
-        wrapper.setData({
+        await wrapper.setData({
             isLoading: false,
             user: {
                 admin: false,

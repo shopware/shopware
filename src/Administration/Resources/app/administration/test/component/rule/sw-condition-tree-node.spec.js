@@ -25,13 +25,13 @@ function createWrapper(customProps = {}) {
 }
 
 describe('src/app/component/rule/sw-condition-tree-node', () => {
-    it('should be a Vue.JS component', () => {
+    it('should be a Vue.JS component', async () => {
         const wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBe(true);
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should have enabled component node', () => {
+    it('should have enabled component node', async () => {
         const wrapper = createWrapper();
 
         const demoComponent = wrapper.find('sw-demo-stub');
@@ -39,9 +39,9 @@ describe('src/app/component/rule/sw-condition-tree-node', () => {
         expect(demoComponent.attributes().disabled).toBeUndefined();
     });
 
-    it('should have disabled component node', () => {
+    it('should have disabled component node', async () => {
         const wrapper = createWrapper();
-        wrapper.setProps({
+        await wrapper.setProps({
             disabled: true
         });
 

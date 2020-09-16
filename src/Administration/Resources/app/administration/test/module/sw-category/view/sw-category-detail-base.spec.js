@@ -51,10 +51,14 @@ describe('module/sw-category/view/sw-category-detail-base.spec', () => {
                 'sw-entity-tag-select': true,
                 'sw-category-detail-menu': true,
                 'sw-many-to-many-assignment-card': swManyToManyAssignmentCardStub,
-                'sw-product-stream-grid-preview': '<div class="sw-product-stream-grid-preview"></div>',
+                'sw-product-stream-grid-preview': {
+                    template: '<div class="sw-product-stream-grid-preview"></div>'
+                },
                 'sw-entity-single-select': true,
                 'sw-category-seo-form': true,
-                'sw-alert': '<div class="sw-alert"><slot></slot></div>'
+                'sw-alert': {
+                    template: '<div class="sw-alert"><slot></slot></div>'
+                }
             },
             mocks: {
                 $tc: key => key,
@@ -87,12 +91,12 @@ describe('module/sw-category/view/sw-category-detail-base.spec', () => {
         localVue = null;
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should render stream select when changing the assignment type to stream', async () => {
-        wrapper.setData({
+        await wrapper.setData({
             category: {
                 productAssignmentType: 'product_stream'
             }
@@ -106,7 +110,7 @@ describe('module/sw-category/view/sw-category-detail-base.spec', () => {
     });
 
     it('should render stream preview when changing the assignment type to product stream', async () => {
-        wrapper.setData({
+        await wrapper.setData({
             category: {
                 productAssignmentType: 'product_stream'
             }
@@ -120,7 +124,7 @@ describe('module/sw-category/view/sw-category-detail-base.spec', () => {
     });
 
     it('should show message when assigment type is product stream and products are manually assigned', async () => {
-        wrapper.setData({
+        await wrapper.setData({
             manualAssignedProductsCount: 5,
             category: {
                 productAssignmentType: 'product_stream'
@@ -133,7 +137,7 @@ describe('module/sw-category/view/sw-category-detail-base.spec', () => {
             .toBe('sw-category.base.products.alertManualAssignedProductsOnAssignmentTypeStream');
     });
 
-    it('should have correct default assignment types', () => {
+    it('should have correct default assignment types', async () => {
         const assignmentTypes = wrapper.vm.productAssignmentTypes;
 
         expect(assignmentTypes[0].value).toBe('product');
@@ -141,7 +145,7 @@ describe('module/sw-category/view/sw-category-detail-base.spec', () => {
     });
 
     it('should try to load product stream preview when stream id is present', async () => {
-        wrapper.setData({
+        await wrapper.setData({
             manualAssignedProductsCount: 5,
             category: {
                 productStreamId: '12345'

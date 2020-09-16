@@ -28,13 +28,13 @@ function createWrapper({
         localVue,
         sync: false,
         stubs: {
-            'sw-page': `
+            'sw-page': { template: `
 <div>
     <slot name="smart-bar-header"></slot>
     <slot name="smart-bar-actions"></slot>
     <slot name="content"></slot>
 </div>
-`,
+    ` },
             'sw-button': Shopware.Component.build('sw-button'),
             'sw-button-process': Shopware.Component.build('sw-button-process'),
             'sw-icon': true,
@@ -87,9 +87,9 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
         privilegesService = new PrivilegesService();
     });
 
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should not contain any privileges', async () => {

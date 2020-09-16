@@ -17,7 +17,9 @@ function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-order-state-history-card'), {
         localVue,
         stubs: {
-            'sw-card': '<div><slot></slot></div>',
+            'sw-card': {
+                template: '<div><slot></slot></div>'
+            },
             'sw-container': true,
             'sw-order-state-card-entry': true
         },
@@ -65,30 +67,30 @@ describe('src/module/sw-order/component/sw-order-state-history-card', () => {
         wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should have an disabled payment state', () => {
+    it('should have an disabled payment state', async () => {
         const paymentState = wrapper.find('.sw-order-state-history-card__payment-state');
 
         expect(paymentState.attributes().disabled).toBe('true');
     });
 
-    it('should not have an disabled payment state', () => {
+    it('should not have an disabled payment state', async () => {
         wrapper = createWrapper(['order.editor']);
         const paymentState = wrapper.find('.sw-order-state-history-card__payment-state');
 
         expect(paymentState.attributes().disabled).toBeUndefined();
     });
 
-    it('should have an disabled delivery state', () => {
+    it('should have an disabled delivery state', async () => {
         const deliveryState = wrapper.find('.sw-order-state-history-card__delivery-state');
 
         expect(deliveryState.attributes().disabled).toBe('true');
     });
 
-    it('should not have an disabled delivery state', () => {
+    it('should not have an disabled delivery state', async () => {
         wrapper = createWrapper(['order.editor']);
         const deliveryState = wrapper.find('.sw-order-state-history-card__delivery-state');
 

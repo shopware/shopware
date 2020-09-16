@@ -62,17 +62,17 @@ function createWrapper(privileges = []) {
 }
 
 describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
         wrapper.destroy();
     });
 
-    it('should disable the save button when privilege does not exists', () => {
+    it('should disable the save button when privilege does not exists', async () => {
         const wrapper = createWrapper();
         const saveButton = wrapper.find('.sw-sales-channel-detail__save-action');
 
-        wrapper.setData({
+        await wrapper.setData({
             isLoading: false
         });
 
@@ -80,12 +80,12 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         wrapper.destroy();
     });
 
-    it('should enable the save button when privilege does exists', () => {
+    it('should enable the save button when privilege does exists', async () => {
         const wrapper = createWrapper([
             'sales_channel.editor'
         ]);
 
-        wrapper.setData({
+        await wrapper.setData({
             isLoading: false
         });
 

@@ -9,7 +9,9 @@ function createWrapper() {
     return shallowMount(Shopware.Component.build('sw-seo-url'), {
         localVue,
         stubs: {
-            'sw-card': '<div><slot name="toolbar"></slot></div>',
+            'sw-card': {
+                template: '<div><slot name="toolbar"></slot></div>'
+            },
             'sw-sales-channel-switch': true
         },
         mocks: {
@@ -42,20 +44,22 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
         wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('sales channel switch should not be disabled', () => {
-        wrapper.vm.showEmptySeoUrlError = false;
+    it('sales channel switch should not be disabled', async () => {
+        await wrapper.setData({
+            showEmptySeoUrlError: false
+        });
 
         const salesChannelSwitch = wrapper.find('sw-sales-channel-switch-stub');
         expect(salesChannelSwitch.attributes().disabled).toBeUndefined();
     });
 
-    it('sales channel switch should not be disabled', () => {
+    it('sales channel switch should not be disabled', async () => {
         wrapper.vm.showEmptySeoUrlError = false;
-        wrapper.setProps({
+        await wrapper.setProps({
             disabled: true
         });
 

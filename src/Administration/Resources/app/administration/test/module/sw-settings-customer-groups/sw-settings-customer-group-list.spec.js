@@ -18,14 +18,20 @@ function createWrapper(privileges = []) {
             }
         },
         stubs: {
-            'sw-page': `
-                <div class="sw-page">
-                    <slot name="smart-bar-actions"></slot>
-                    <slot name="content"></slot>
-                    <slot></slot>
-                </div>`,
-            'sw-card-view': '<div><slot></slot></div>',
-            'sw-card': '<div><slot name="grid"></slot></div>',
+            'sw-page': {
+                template: `
+                    <div class="sw-page">
+                        <slot name="smart-bar-actions"></slot>
+                        <slot name="content"></slot>
+                        <slot></slot>
+                    </div>`
+            },
+            'sw-card-view': {
+                template: '<div><slot></slot></div>'
+            },
+            'sw-card': {
+                template: '<div><slot name="grid"></slot></div>'
+            },
             'sw-context-menu-item': true,
             'sw-button': true,
             'sw-entity-listing': {
@@ -91,20 +97,20 @@ function createDeletableCustomerGroup() {
 }
 
 describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-list', () => {
-    it('should be a vue js component', () => {
+    it('should be a vue js component', async () => {
         const wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should return false if customer group has a customer and/or SalesChannel assigned to it', () => {
+    it('should return false if customer group has a customer and/or SalesChannel assigned to it', async () => {
         const wrapper = createWrapper();
         const customerGroup = createCustomerGroupWithCustomer();
 
         expect(wrapper.vm.customerGroupCanBeDeleted(customerGroup)).toBe(false);
     });
 
-    it('should return true if customer group has no customer and no SalesChannel assigned to id', () => {
+    it('should return true if customer group has no customer and no SalesChannel assigned to id', async () => {
         const wrapper = createWrapper();
         const customerGroup = createDeletableCustomerGroup();
 

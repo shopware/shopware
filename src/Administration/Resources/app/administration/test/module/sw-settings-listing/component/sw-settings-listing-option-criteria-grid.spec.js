@@ -36,11 +36,17 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
                 }
             },
             stubs: {
-                'sw-card': '<div><slot></slot></div>',
-                'sw-empty-state': '<div class="sw-empty-state"></div>',
+                'sw-card': {
+                    template: '<div><slot></slot></div>'
+                },
+                'sw-empty-state': {
+                    template: '<div class="sw-empty-state"></div>'
+                },
                 'sw-data-grid': Shopware.Component.build('sw-data-grid'),
                 'sw-checkbox-field': Shopware.Component.build('sw-checkbox-field'),
-                'sw-icon': '<i></i>',
+                'sw-icon': {
+                    template: '<i></i>'
+                },
                 'sw-base-field': Shopware.Component.build('sw-base-field'),
                 'sw-block-field': Shopware.Component.build('sw-block-field'),
                 'sw-field-error': Shopware.Component.build('sw-field-error'),
@@ -80,11 +86,11 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
         wrapper = createWrapper();
     });
 
-    it('should be a Vue.js Component', () => {
-        expect(wrapper.isVueInstance()).toBe(true);
+    it('should be a Vue.js Component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should sort criterias by their position', () => {
+    it('should sort criterias by their position', async () => {
         function getRowValuesAt(index) {
             function getContentOfCell(columnName) {
                 return wrapper.find(`.sw-data-grid__row--${index} .sw-data-grid__cell--${columnName}`).text();
@@ -105,31 +111,31 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
         }
     });
 
-    it('should strip custom field path', () => {
+    it('should strip custom field path', async () => {
         const strippedCustomFieldPath = wrapper.vm.stripCustomFieldPath('customFields.my_first_custom_field');
 
         expect(strippedCustomFieldPath).toBe('my_first_custom_field');
     });
 
-    it('should return true when giving it a custom field', () => {
+    it('should return true when giving it a custom field', async () => {
         const isItemACustomField = wrapper.vm.isItemACustomField('customFields.my_first_custom_field');
 
         expect(isItemACustomField).toBe(true);
     });
 
-    it('should return true if newly added criteria already exists', () => {
+    it('should return true if newly added criteria already exists', async () => {
         const isCriteriaAlreadyUsed = wrapper.vm.criteriaIsAlreadyUsed('product.stock');
 
         expect(isCriteriaAlreadyUsed).toBe(true);
     });
 
-    it('should return false if newly added criteria does not already exist', () => {
+    it('should return false if newly added criteria does not already exist', async () => {
         const isCriteriaAlreadyUsed = wrapper.vm.criteriaIsAlreadyUsed('product.name');
 
         expect(isCriteriaAlreadyUsed).toBe(false);
     });
 
-    it('should emit an event when newly added custom field is not already used', () => {
+    it('should emit an event when newly added custom field is not already used', async () => {
         wrapper.vm.onAddCriteria('product.name');
 
         const criteriaAddEvent = wrapper.emitted()['criteria-add'];
@@ -137,7 +143,7 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-cr
         expect(criteriaAddEvent[0]).toContain('product.name');
     });
 
-    it('should create an error notification when newly added custom field is already used', () => {
+    it('should create an error notification when newly added custom field is already used', async () => {
         // mocking createNotificationError function
         wrapper.vm.createNotificationError = jest.fn();
 

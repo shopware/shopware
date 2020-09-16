@@ -102,15 +102,15 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
         wrapper.destroy();
     });
 
-    it('should be able to instantiate', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+    it('should be able to instantiate', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('has the correct class', () => {
+    it('has the correct class', async () => {
         expect(wrapper.classes()).toContain(classes.componentRoot);
     });
 
-    it('shows a list of features', () => {
+    it('shows a list of features', async () => {
         const root = findSecure(wrapper, `.${classes.componentRoot}`);
         const list = findSecure(root, `.${classes.valueList}`);
         const header = findSecure(list, `.${classes.valueListHeader}`);

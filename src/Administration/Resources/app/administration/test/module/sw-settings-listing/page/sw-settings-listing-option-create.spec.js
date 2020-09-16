@@ -60,7 +60,9 @@ describe('src/module/sw-setttigs-listing/page/sw-settings-listing-option-create'
                 }
             },
             stubs: {
-                'sw-page': '<div></div>'
+                'sw-page': {
+                    template: '<div></div>'
+                }
             }
         });
     }
@@ -71,11 +73,11 @@ describe('src/module/sw-setttigs-listing/page/sw-settings-listing-option-create'
         wrapper = createWrapper();
     });
 
-    it('should be a Vue.JS component', () => {
-        expect(wrapper.isVueInstance()).toBe(true);
+    it('should be a Vue.JS component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should create a product sorting entity', () => {
+    it('should create a product sorting entity', async () => {
         const productSortingEntity = wrapper.vm.productSortingEntity;
 
         expect(productSortingEntity).resolves.toEqual({
@@ -129,13 +131,13 @@ describe('src/module/sw-setttigs-listing/page/sw-settings-listing-option-create'
         expect(wrapper.vm.createNotificationError).toHaveBeenCalled();
     });
 
-    it('should display the entity name for the smart bar heading', () => {
+    it('should display the entity name for the smart bar heading', async () => {
         wrapper.vm.productSortingEntity.label = 'label';
 
         expect(wrapper.vm.smartBarHeading).toBe('label');
     });
 
-    it('should display the fallback snippet for the smart bar heading', () => {
+    it('should display the fallback snippet for the smart bar heading', async () => {
         expect(wrapper.vm.smartBarHeading).toBe('sw-settings-listing.create.smartBarTitle');
     });
 });

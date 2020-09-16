@@ -97,16 +97,32 @@ function createWrapper(privileges = []) {
         stubs: {
             'sw-button': true,
             'sw-card': true,
-            'sw-empty-state': '<div></div>',
-            'sw-simple-search-field': '<div></div>',
+            'sw-empty-state': {
+                template: '<div></div>'
+            },
+            'sw-simple-search-field': {
+                template: '<div></div>'
+            },
             'sw-container': true,
             'sw-grid': Shopware.Component.build('sw-grid'),
-            'sw-context-button': '<div class="sw-context-button"><slot></slot></div>',
-            'sw-context-menu-item': '<div class="sw-context-menu-item"><slot></slot></div>',
-            'sw-context-menu': '<div><slot></slot></div>',
-            'sw-grid-column': '<div class="sw-grid-column"><slot></slot></div>',
-            'sw-grid-row': '<div class="sw-grid-row"><slot></slot></div>',
-            'sw-field': '<div></div>',
+            'sw-context-button': {
+                template: '<div class="sw-context-button"><slot></slot></div>'
+            },
+            'sw-context-menu-item': {
+                template: '<div class="sw-context-menu-item"><slot></slot></div>'
+            },
+            'sw-context-menu': {
+                template: '<div><slot></slot></div>'
+            },
+            'sw-grid-column': {
+                template: '<div class="sw-grid-column"><slot></slot></div>'
+            },
+            'sw-grid-row': {
+                template: '<div class="sw-grid-row"><slot></slot></div>'
+            },
+            'sw-field': {
+                template: '<div></div>'
+            },
             'sw-pagination': Shopware.Component.build('sw-pagination'),
             'sw-icon': true,
             'sw-loader': true,
@@ -116,9 +132,9 @@ function createWrapper(privileges = []) {
 }
 
 describe('src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-detail', () => {
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
-        expect(wrapper.isVueInstance()).toBe(true);
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should always have a pagination', async () => {
@@ -175,7 +191,7 @@ describe('src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-
             }
         };
 
-        wrapper.setData({
+        await wrapper.setData({
             deleteCustomField: deleteCustomField
         });
 

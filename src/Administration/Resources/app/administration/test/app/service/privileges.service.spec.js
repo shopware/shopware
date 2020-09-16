@@ -11,13 +11,13 @@ describe('src/app/service/acl.service.js', () => {
         global.console.error.mockReset();
     });
 
-    it('should contain no privilege mappings', () => {
+    it('should contain no privilege mappings', async () => {
         const privilegesService = new PrivilegesService();
 
         expect(privilegesService.getPrivilegesMappings().length).toBe(0);
     });
 
-    it('should add a privilege mapping', () => {
+    it('should add a privilege mapping', async () => {
         const privilegesService = new PrivilegesService();
 
         const privilegeMapping = {
@@ -38,7 +38,7 @@ describe('src/app/service/acl.service.js', () => {
         expect(privilegesService.getPrivilegesMappings()[0]).toStrictEqual(privilegeMapping);
     });
 
-    it('should add a list of privilege mappings', () => {
+    it('should add a list of privilege mappings', async () => {
         const privilegesService = new PrivilegesService();
 
         const privilegeMappings = [
@@ -63,7 +63,7 @@ describe('src/app/service/acl.service.js', () => {
         expect(privilegesService.getPrivilegesMappings()[1]).toStrictEqual(privilegeMappings[1]);
     });
 
-    it('should throw a warning if the argument is not an object', () => {
+    it('should throw a warning if the argument is not an object', async () => {
         const privilegesService = new PrivilegesService();
 
         expect(global.console.warn).not.toHaveBeenCalled();
@@ -76,7 +76,7 @@ describe('src/app/service/acl.service.js', () => {
         expect(privilegesService.getPrivilegesMappings().length).toBe(0);
     });
 
-    it('should throw an error if the argument is not an array', () => {
+    it('should throw an error if the argument is not an array', async () => {
         const privilegesService = new PrivilegesService();
 
         expect(global.console.error).not.toHaveBeenCalled();
@@ -89,7 +89,7 @@ describe('src/app/service/acl.service.js', () => {
         expect(privilegesService.getPrivilegesMappings().length).toBe(0);
     });
 
-    it('should throw a warning if the property category is missing', () => {
+    it('should throw a warning if the property category is missing', async () => {
         const privilegesService = new PrivilegesService();
 
         const privilegeMapping = {
@@ -113,7 +113,7 @@ describe('src/app/service/acl.service.js', () => {
         expect(privilegesService.getPrivilegesMappings().length).toBe(0);
     });
 
-    it('should throw a warning if the property parent is missing', () => {
+    it('should throw a warning if the property parent is missing', async () => {
         const privilegesService = new PrivilegesService();
 
         const privilegeMapping = {
@@ -137,7 +137,7 @@ describe('src/app/service/acl.service.js', () => {
         expect(privilegesService.getPrivilegesMappings().length).toBe(0);
     });
 
-    it('should throw a warning if the property key is missing', () => {
+    it('should throw a warning if the property key is missing', async () => {
         const privilegesService = new PrivilegesService();
 
         const privilegeMapping = {
@@ -161,7 +161,7 @@ describe('src/app/service/acl.service.js', () => {
         expect(privilegesService.getPrivilegesMappings().length).toBe(0);
     });
 
-    it('should add multiple privilege mappings', () => {
+    it('should add multiple privilege mappings', async () => {
         const privilegesService = new PrivilegesService();
 
         const privilegeMappingOne = {
@@ -196,7 +196,7 @@ describe('src/app/service/acl.service.js', () => {
         expect(privilegesService.getPrivilegesMappings()[1]).toStrictEqual(privilegeMappingTwo);
     });
 
-    it('should merge multiple privileges with same category and key', () => {
+    it('should merge multiple privileges with same category and key', async () => {
         const privilegesService = new PrivilegesService();
 
         const privilegeMappingOne = {
@@ -241,7 +241,7 @@ describe('src/app/service/acl.service.js', () => {
         });
     });
 
-    it('should return the privilege with all roles', () => {
+    it('should return the privilege with all roles', async () => {
         const privilegesService = new PrivilegesService();
 
         const privilegeMappingOne = {
@@ -289,7 +289,7 @@ describe('src/app/service/acl.service.js', () => {
         });
     });
 
-    it('should return the exact privilege role', () => {
+    it('should return the exact privilege role', async () => {
         const privilegesService = new PrivilegesService();
 
         const privilegeMappingOne = {
@@ -330,13 +330,13 @@ describe('src/app/service/acl.service.js', () => {
         });
     });
 
-    it('should return undefined when the exact privilege role does not exists', () => {
+    it('should return undefined when the exact privilege role does not exists', async () => {
         const privilegesService = new PrivilegesService();
 
         expect(privilegesService.getPrivilegeRole('does.not_exists')).toBe(undefined);
     });
 
-    it('should check if the privilege exists', () => {
+    it('should check if the privilege exists', async () => {
         const privilegesService = new PrivilegesService();
 
         const privilegeMappingOne = {
@@ -370,7 +370,7 @@ describe('src/app/service/acl.service.js', () => {
         expect(privilegesService._existsPrivilege('system.not_exists')).toBeFalsy();
     });
 
-    it('should filter only matching privileges', () => {
+    it('should filter only matching privileges', async () => {
         const privilegesService = new PrivilegesService();
 
         const privilegeMappingOne = {
@@ -411,7 +411,7 @@ describe('src/app/service/acl.service.js', () => {
         expect(privilegesService.filterPrivilegesRoles(testPrivileges)).not.toContain('orders:read.');
     });
 
-    it('should filter only matching privileges and duplicates', () => {
+    it('should filter only matching privileges and duplicates', async () => {
         const privilegesService = new PrivilegesService();
 
         const privilegeMappingOne = {
@@ -451,7 +451,7 @@ describe('src/app/service/acl.service.js', () => {
         ]);
     });
 
-    it('should return the function getPrivilegesWithDependencies without adding admin identifier', () => {
+    it('should return the function getPrivilegesWithDependencies without adding admin identifier', async () => {
         const privilegesService = new PrivilegesService();
         privilegesService._getPrivilegesWithDependencies = jest.fn();
 
@@ -466,7 +466,7 @@ describe('src/app/service/acl.service.js', () => {
         );
     });
 
-    it('should return all privileges with dependencies and defaults', () => {
+    it('should return all privileges with dependencies and defaults', async () => {
         const privilegesService = new PrivilegesService();
 
         const privilegeMappingRule = {
@@ -541,7 +541,7 @@ describe('src/app/service/acl.service.js', () => {
         ]);
     });
 
-    it('should return all privileges with dependencies', () => {
+    it('should return all privileges with dependencies', async () => {
         const privilegesService = new PrivilegesService();
 
         const privilegeMappingRule = {
@@ -621,7 +621,7 @@ describe('src/app/service/acl.service.js', () => {
         ].sort());
     });
 
-    it('should not call duplicated getPrivileges again', () => {
+    it('should not call duplicated getPrivileges again', async () => {
         const privilegesService = new PrivilegesService();
 
         const privilegeMappingProduct = {
@@ -736,7 +736,7 @@ describe('src/app/service/acl.service.js', () => {
         ].sort());
     });
 
-    it('should merge existing roles', () => {
+    it('should merge existing roles', async () => {
         const privilegesService = new PrivilegesService();
 
         const privilegeMappingCore = {

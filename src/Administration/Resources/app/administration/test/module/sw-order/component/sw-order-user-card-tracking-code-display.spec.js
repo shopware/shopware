@@ -16,7 +16,7 @@ describe('modules/sw-order/component/sw-order-user-card/tracking-code-display', 
     const shippingMethodWithoutPlaceholder = { trackingUrl: trackingUrl };
     const shippingMethodWithPlaceholder = { trackingUrl: trackingUrlWithPlaceholder };
 
-    it('should render no url, when no base url is present in the shipping method', () => {
+    it('should render no url, when no base url is present in the shipping method', async () => {
         expect(
             userCard.methods.renderTrackingUrl(
                 trackingCode,
@@ -25,7 +25,7 @@ describe('modules/sw-order/component/sw-order-user-card/tracking-code-display', 
         ).toBe('');
     });
 
-    it('should render the same url, when no placeholder is present', () => {
+    it('should render the same url, when no placeholder is present', async () => {
         expect(
             userCard.methods.renderTrackingUrl(
                 trackingCode,
@@ -34,7 +34,7 @@ describe('modules/sw-order/component/sw-order-user-card/tracking-code-display', 
         ).toBe(trackingUrl);
     });
 
-    it('should render an intact tracking url with an innocuous tracking code', () => {
+    it('should render an intact tracking url with an innocuous tracking code', async () => {
         expect(
             userCard.methods.renderTrackingUrl(
                 trackingCode,
@@ -43,7 +43,7 @@ describe('modules/sw-order/component/sw-order-user-card/tracking-code-display', 
         ).toBe(`${trackingUrl}${trackingCode}`);
     });
 
-    it('should render an intact tracking url with a tracking code containing reserved characters', () => {
+    it('should render an intact tracking url with a tracking code containing reserved characters', async () => {
         expect(
             userCard.methods.renderTrackingUrl(
                 `${trackingCode}${reservedCharacters}`,
@@ -53,7 +53,7 @@ describe('modules/sw-order/component/sw-order-user-card/tracking-code-display', 
     });
 
     it('should render an intact tracking url ' +
-        'with a tracking code containing special characters which don\'t need escaping', () => {
+        'with a tracking code containing special characters which don\'t need escaping', async () => {
         expect(
             userCard.methods.renderTrackingUrl(
                 `${trackingCode}${unescapedCharacters}`,
@@ -62,7 +62,7 @@ describe('modules/sw-order/component/sw-order-user-card/tracking-code-display', 
         ).toBe(`${trackingUrl}${trackingCode}-_.!~*'()`);
     });
 
-    it('should render an intact tracking url with a tracking code containing spaces', () => {
+    it('should render an intact tracking url with a tracking code containing spaces', async () => {
         expect(
             userCard.methods.renderTrackingUrl(
                 `${trackingCode}${spaceSeparatedWords}`,

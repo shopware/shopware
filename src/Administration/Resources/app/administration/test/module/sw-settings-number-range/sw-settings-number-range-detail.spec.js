@@ -50,17 +50,25 @@ function createWrapper(privileges = []) {
             }
         },
         stubs: {
-            'sw-page': `
-                <div class="sw-page">
-                    <slot name="smart-bar-actions" />
-                    <slot name="content" />
-                    <slot />
-                </div>`,
+            'sw-page': {
+                template: `
+                    <div class="sw-page">
+                        <slot name="smart-bar-actions" />
+                        <slot name="content" />
+                        <slot />
+                    </div>`
+            },
             'sw-button': true,
             'sw-button-process': true,
-            'sw-card': '<div class="sw-card"><slot /></div>',
-            'sw-field': '<div class="sw-field"/>',
-            'sw-card-view': '<div><slot /></div>',
+            'sw-card': {
+                template: '<div class="sw-card"><slot /></div>'
+            },
+            'sw-field': {
+                template: '<div class="sw-field"/>'
+            },
+            'sw-card-view': {
+                template: '<div><slot /></div>'
+            },
             'sw-container': true,
             'sw-language-info': true,
             'sw-help-text': true,
@@ -81,8 +89,8 @@ describe('src/module/sw-settings-number-range/page/sw-settings-number-range-deta
         wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should not be able to save the number range', async () => {
@@ -103,7 +111,7 @@ describe('src/module/sw-settings-number-range/page/sw-settings-number-range-deta
             'number_ranges.editor'
         ]);
 
-        wrapper.setData({
+        await wrapper.setData({
             isLoading: false
         });
 
@@ -119,7 +127,7 @@ describe('src/module/sw-settings-number-range/page/sw-settings-number-range-deta
     });
 
     it('should be able to edit the number range', async () => {
-        wrapper = createWrapper([
+        wrapper = await createWrapper([
             'number_ranges.editor'
         ]);
 
@@ -128,6 +136,7 @@ describe('src/module/sw-settings-number-range/page/sw-settings-number-range-deta
         const elements = wrapper.findAll('.sw-field');
         elements.wrappers.forEach(el => {
             if ([
+                'sw-settings-number-range.detail.labelCurrentNumber',
                 'sw-settings-number-range.detail.labelPreview',
                 'sw-settings-number-range.detail.labelSuffix',
                 'sw-settings-number-range.detail.labelPrefix'

@@ -82,21 +82,33 @@ function createWrapper(privileges = []) {
             ]
         },
         stubs: {
-            'sw-page': `
-                <div class="sw-page">
-                    <slot name="smart-bar-actions"></slot>
-                    <slot name="content">CONTENT</slot>
-                    <slot></slot>
-                </div>`,
+            'sw-page': {
+                template: `
+                    <div class="sw-page">
+                        <slot name="smart-bar-actions"></slot>
+                        <slot name="content">CONTENT</slot>
+                        <slot></slot>
+                    </div>`
+            },
             'sw-button': true,
             'sw-icon': true,
             'sw-search-bar': true,
             'sw-grid': Shopware.Component.build('sw-grid'),
-            'sw-context-button': '<div class="sw-context-button"><slot></slot></div>',
-            'sw-context-menu-item': '<div class="sw-context-menu-item"><slot></slot></div>',
-            'sw-context-menu': '<div><slot></slot></div>',
-            'sw-grid-column': '<div class="sw-grid-column"><slot></slot></div>',
-            'sw-grid-row': '<div class="sw-grid-row"><slot></slot></div>',
+            'sw-context-button': {
+                template: '<div class="sw-context-button"><slot></slot></div>'
+            },
+            'sw-context-menu-item': {
+                template: '<div class="sw-context-menu-item"><slot></slot></div>'
+            },
+            'sw-context-menu': {
+                template: '<div><slot></slot></div>'
+            },
+            'sw-grid-column': {
+                template: '<div class="sw-grid-column"><slot></slot></div>'
+            },
+            'sw-grid-row': {
+                template: '<div class="sw-grid-row"><slot></slot></div>'
+            },
             'sw-pagination': true,
             'sw-empty-state': true,
             'router-link': true,
@@ -111,7 +123,7 @@ describe('module/sw-settings-custom-field/page/sw-settings-custom-field-set-list
         const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.isVueInstance()).toBe(true);
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should not be able to create a new custom-field set', async () => {

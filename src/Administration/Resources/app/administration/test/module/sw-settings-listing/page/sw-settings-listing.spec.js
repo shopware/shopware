@@ -323,13 +323,23 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                 }
             },
             stubs: {
-                'sw-page': '<div><slot name="content"></slot></div>',
+                'sw-page': {
+                    template: '<div><slot name="content"></slot></div>'
+                },
                 'sw-system-config': true,
-                'sw-card-view': '<div><slot></slot></div>',
-                'sw-card': '<div><slot></slot></div>',
-                'sw-empty-state': '<div class="sw-empty-state"></div>',
+                'sw-card-view': {
+                    template: '<div><slot></slot></div>'
+                },
+                'sw-card': {
+                    template: '<div><slot></slot></div>'
+                },
+                'sw-empty-state': {
+                    template: '<div class="sw-empty-state"></div>'
+                },
                 'sw-data-grid': Shopware.Component.build('sw-data-grid'),
-                'sw-checkbox-field': '<div class="sw-checkbox-field"></div>',
+                'sw-checkbox-field': {
+                    template: '<div class="sw-checkbox-field"></div>'
+                },
                 'sw-context-button': true,
                 'sw-context-menu-item': true,
                 'router-link': true,
@@ -349,28 +359,28 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
         wrapper.vm.$refs.systemConfig.actualConfigData = { null: { 'core.listing.defaultSorting': 'name-asc' } };
     });
 
-    it('should be a Vue.JS component', () => {
-        expect(wrapper.isVueInstance()).toBe(true);
+    it('should be a Vue.JS component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should have a pagination', () => {
+    it('should have a pagination', async () => {
         const pagination = wrapper.find('.sw-pagination');
 
         expect(pagination.exists()).toBe(true);
     });
 
-    it('should paginate', () => {
+    it('should paginate', async () => {
         const pageButtons = wrapper.findAll('.sw-pagination .sw-pagination__list-button');
         const nextPageButton = pageButtons.wrappers[1];
 
         expect(wrapper.vm.sortingOptionsGridPage).toBe(1);
 
-        nextPageButton.trigger('click');
+        await nextPageButton.trigger('click');
 
         expect(wrapper.vm.sortingOptionsGridPage).toBe(2);
     });
 
-    it('should disable delete button when product sorting is default product sorting', () => {
+    it('should disable delete button when product sorting is default product sorting', async () => {
         const deleteButtonOfFirstRecord = wrapper.find('.sw-data-grid__row--0 .sw-data-grid__actions-menu :last-child');
 
         expect(deleteButtonOfFirstRecord.attributes('disabled')).toBe('true');
@@ -380,7 +390,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
         expect(deleteButtonOfSecondRecord.attributes('disabled')).toBe(undefined);
     });
 
-    it('should check if product sorting is the default product sorting', () => {
+    it('should check if product sorting is the default product sorting', async () => {
         // sets the default sorting option
         wrapper.vm.$refs.systemConfig.actualConfigData = { null: { 'core.listing.defaultSorting': 'price-asc' } };
 

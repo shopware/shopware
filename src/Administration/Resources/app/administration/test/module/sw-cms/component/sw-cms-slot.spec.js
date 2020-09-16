@@ -26,15 +26,15 @@ function createWrapper() {
     });
 }
 describe('module/sw-cms/component/sw-cms-slot', () => {
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('disable the custom component', () => {
+    it('disable the custom component', async () => {
         const wrapper = createWrapper();
-        wrapper.setProps({
+        await wrapper.setProps({
             disabled: true
         });
 
@@ -44,7 +44,7 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
         expect(customComponent.attributes().disabled).toBe('true');
     });
 
-    it('enable the custom component', () => {
+    it('enable the custom component', async () => {
         const wrapper = createWrapper();
 
         expect(wrapper.classes()).not.toContain('is--disabled');

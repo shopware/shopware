@@ -129,7 +129,7 @@ describe('module/sw-settings-salutation/page/sw-settings-salutation-list', () =>
         const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.isVueInstance()).toBe(true);
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should be able to save a salutation if have a editor privilege', async () => {

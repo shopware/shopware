@@ -17,15 +17,17 @@ describe('src/app/component/structure/sw-language-switch', () => {
             localVue,
             stubs: {
                 'sw-entity-single-select': true,
-                'sw-modal': `
-                    <div class="sw-modal-stub">
-                        <slot></slot>
+                'sw-modal': {
+                    template: `
+                        <div class="sw-modal-stub">
+                            <slot></slot>
 
-                        <div class="modal-footer">
-                            <slot name="modal-footer"></slot>
+                            <div class="modal-footer">
+                                <slot name="modal-footer"></slot>
+                            </div>
                         </div>
-                    </div>
-                `,
+                    `
+                },
                 'sw-button': true
             },
             mocks: {
@@ -35,11 +37,11 @@ describe('src/app/component/structure/sw-language-switch', () => {
         });
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should change the language', () => {
+    it('should change the language', async () => {
         Shopware.State.commit('context/setApiLanguageId', '123');
 
         expect(Shopware.State.get('context').api.languageId).toBe('123');
@@ -49,13 +51,13 @@ describe('src/app/component/structure/sw-language-switch', () => {
         expect(Shopware.State.get('context').api.languageId).toBe('456');
     });
 
-    it('should open a modal with a warning if abortChangesFunction is set', () => {
+    it('should open a modal with a warning if abortChangesFunction is set', async () => {
         Shopware.State.commit('context/setApiLanguageId', '123');
 
-        wrapper.setProps({
+        await wrapper.setProps({
             abortChangeFunction: () => true
         });
-        wrapper.vm.onInput('456');
+        await wrapper.vm.onInput('456');
 
         const modal = wrapper.find('.sw-modal-stub');
         expect(modal.exists()).toBeTruthy();
@@ -69,13 +71,13 @@ describe('src/app/component/structure/sw-language-switch', () => {
         Shopware.State.commit('context/setApiLanguageId', '123');
         const abortChangeMock = jest.fn(() => true);
 
-        wrapper.setProps({
+        await wrapper.setProps({
             abortChangeFunction: abortChangeMock
         });
 
         expect(abortChangeMock).not.toHaveBeenCalled();
 
-        wrapper.vm.onInput('456');
+        await wrapper.vm.onInput('456');
 
         expect(Shopware.State.get('context').api.languageId).toBe('123');
 
@@ -94,12 +96,12 @@ describe('src/app/component/structure/sw-language-switch', () => {
         Shopware.State.commit('context/setApiLanguageId', '123');
         const saveChangesMock = jest.fn(() => Promise.resolve());
 
-        wrapper.setProps({
+        await wrapper.setProps({
             abortChangeFunction: () => true,
             saveChangesFunction: saveChangesMock
         });
 
-        wrapper.vm.onInput('456');
+        await wrapper.vm.onInput('456');
 
         expect(Shopware.State.get('context').api.languageId).toBe('123');
 
@@ -113,26 +115,26 @@ describe('src/app/component/structure/sw-language-switch', () => {
         expect(Shopware.State.get('context').api.languageId).toBe('456');
     });
 
-    it('should show a warning modal with save button enabled', () => {
+    it('should show a warning modal with save button enabled', async () => {
         Shopware.State.commit('context/setApiLanguageId', '123');
 
-        wrapper.setProps({
+        await wrapper.setProps({
             abortChangeFunction: () => true
         });
-        wrapper.vm.onInput('456');
+        await wrapper.vm.onInput('456');
 
         const saveButton = wrapper.find('#sw-language-switch-save-changes-button');
         expect(saveButton.attributes().disabled).toBeUndefined();
     });
 
-    it('should show a warning modal with save button disabled', () => {
+    it('should show a warning modal with save button disabled', async () => {
         Shopware.State.commit('context/setApiLanguageId', '123');
 
-        wrapper.setProps({
+        await wrapper.setProps({
             abortChangeFunction: () => true,
             allowEdit: false
         });
-        wrapper.vm.onInput('456');
+        await wrapper.vm.onInput('456');
 
         const saveButton = wrapper.find('#sw-language-switch-save-changes-button');
         expect(saveButton.attributes().disabled).toBe('true');

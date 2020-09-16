@@ -19,13 +19,13 @@ function createWrapper() {
     });
 }
 describe('module/sw-cms/component/sw-cms-block', () => {
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('the overlay should exist and be visible', () => {
+    it('the overlay should exist and be visible', async () => {
         const wrapper = createWrapper();
 
         const overlay = wrapper.find('.sw-cms-block__config-overlay');
@@ -33,9 +33,9 @@ describe('module/sw-cms/component/sw-cms-block', () => {
         expect(overlay.isVisible()).toBeTruthy();
     });
 
-    it('the overlay should not exist', () => {
+    it('the overlay should not exist', async () => {
         const wrapper = createWrapper();
-        wrapper.setProps({
+        await wrapper.setProps({
             disabled: true
         });
 

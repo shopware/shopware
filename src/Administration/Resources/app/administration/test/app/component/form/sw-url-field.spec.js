@@ -33,21 +33,21 @@ describe('components/form/sw-url-field', () => {
         wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should validate the url correctly', () => {
-        wrapper.find('.sw-url-input-field__input').setValue('www.test-domain.de');
+    it('should validate the url correctly', async () => {
+        await wrapper.find('.sw-url-input-field__input').setValue('www.test-domain.de');
         expect(wrapper.find('.sw-field__error').exists()).toBe(false);
 
-        wrapper.find('.sw-url-input-field__input').setValue('#');
+        await wrapper.find('.sw-url-input-field__input').setValue('#');
         expect(wrapper.find('.sw-field__error').exists()).toBe(true);
     });
 
-    it('should set the urlPrefix correctly', () => {
+    it('should set the urlPrefix correctly', async () => {
         expect(wrapper.text()).toBe('https://');
-        wrapper.find('.sw-field__url-input__prefix').trigger('click');
+        await wrapper.find('.sw-field__url-input__prefix').trigger('click');
         expect(wrapper.text()).toBe('http://');
     });
 });

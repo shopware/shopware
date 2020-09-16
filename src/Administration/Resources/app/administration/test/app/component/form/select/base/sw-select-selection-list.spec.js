@@ -8,7 +8,9 @@ function createWrapper(propsData = {}) {
     return shallowMount(Shopware.Component.build('sw-select-selection-list'), {
         localVue,
         stubs: {
-            'sw-label': '<div class="sw-label"><slot></slot></div>'
+            'sw-label': {
+                template: '<div class="sw-label"><slot></slot></div>'
+            }
         },
         provide: {
         },
@@ -22,13 +24,13 @@ function createWrapper(propsData = {}) {
 }
 
 describe('src/app/component/form/select/base/sw-select-selection-list', () => {
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should render dismissable labels', () => {
+    it('should render dismissable labels', async () => {
         const wrapper = createWrapper({
             selections: [{ label: 'Selection1' }]
         });
@@ -38,7 +40,7 @@ describe('src/app/component/form/select/base/sw-select-selection-list', () => {
         expect(element.attributes().dismissable).toBeTruthy();
     });
 
-    it('should render labels which are not dismissable', () => {
+    it('should render labels which are not dismissable', async () => {
         const wrapper = createWrapper({
             disabled: true,
             selections: [{ label: 'Selection1' }]

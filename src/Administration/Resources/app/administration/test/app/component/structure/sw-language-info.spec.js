@@ -7,7 +7,7 @@ describe('src/app/component/structure/sw-language-info', () => {
 
     beforeAll(() => {});
 
-    beforeEach(() => {
+    beforeEach(async () => {
         const localVue = createLocalVue();
         localVue.use(Vuex);
 
@@ -18,7 +18,7 @@ describe('src/app/component/structure/sw-language-info', () => {
             parentId: '456'
         });
 
-        wrapper = shallowMount(Shopware.Component.build('sw-language-info'), {
+        wrapper = await shallowMount(Shopware.Component.build('sw-language-info'), {
             localVue,
             stubs: {},
             mocks: {
@@ -36,33 +36,33 @@ describe('src/app/component/structure/sw-language-info', () => {
         });
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should contain the languageId', () => {
+    it('should contain the languageId', async () => {
         expect(wrapper.vm.languageId).toBe('123456789');
     });
 
-    it('should not render the infoText when no language is set', () => {
-        Shopware.State.commit('context/setApiLanguage', null);
+    it('should not render the infoText when no language is set', async () => {
+        await Shopware.State.commit('context/setApiLanguage', null);
 
-        expect(wrapper.html()).toBeUndefined();
+        expect(wrapper.html()).toBe('');
     });
 
-    it('should not render the infoText when user is in default language', () => {
-        Shopware.State.commit('context/setApiLanguage', {
+    it('should not render the infoText when user is in default language', async () => {
+        await Shopware.State.commit('context/setApiLanguage', {
             id: '1a2b3c',
             parentId: null
         });
-        Shopware.State.commit('context/setApiLanguageId', '123');
-        Shopware.State.commit('context/setApiSystemLanguageId', '123');
+        await Shopware.State.commit('context/setApiLanguageId', '123');
+        await Shopware.State.commit('context/setApiSystemLanguageId', '123');
 
-        expect(wrapper.html()).toBeUndefined();
+        expect(wrapper.html()).toBe('');
     });
 
-    it('should render the infoText for a new entity', () => {
-        wrapper.setProps({
+    it('should render the infoText for a new entity', async () => {
+        await wrapper.setProps({
             isNewEntity: true
         });
 
@@ -74,7 +74,7 @@ describe('src/app/component/structure/sw-language-info', () => {
         });
     });
 
-    it('should render the infoText for a child language', () => {
+    it('should render the infoText for a child language', async () => {
         Shopware.State.commit('context/setApiLanguage', {
             id: '1a2b3c',
             parentId: '123'
@@ -88,9 +88,9 @@ describe('src/app/component/structure/sw-language-info', () => {
         });
     });
 
-    it('should render the infoText for a root language', () => {
-        Shopware.State.commit('context/setApiSystemLanguageId', '987654312');
-        Shopware.State.commit('context/setApiLanguage', {
+    it('should render the infoText for a root language', async () => {
+        await Shopware.State.commit('context/setApiSystemLanguageId', '987654312');
+        await Shopware.State.commit('context/setApiLanguage', {
             id: '1a2b3c',
             parentId: null
         });
@@ -103,8 +103,8 @@ describe('src/app/component/structure/sw-language-info', () => {
         });
     });
 
-    it('should render the infoText with entityDescription for a new entity', () => {
-        wrapper.setProps({
+    it('should render the infoText with entityDescription for a new entity', async () => {
+        await wrapper.setProps({
             isNewEntity: true,
             entityDescription: 'My entity description'
         });
@@ -117,13 +117,13 @@ describe('src/app/component/structure/sw-language-info', () => {
         });
     });
 
-    it('should render the infoText with entityDescription for a child language', () => {
+    it('should render the infoText with entityDescription for a child language', async () => {
         Shopware.State.commit('context/setApiLanguage', {
             id: '1a2b3c',
             parentId: '123'
         });
 
-        wrapper.setProps({
+        await wrapper.setProps({
             entityDescription: 'My entity description'
         });
 
@@ -135,14 +135,14 @@ describe('src/app/component/structure/sw-language-info', () => {
         });
     });
 
-    it('should render the infoText with entityDescription for a root language', () => {
+    it('should render the infoText with entityDescription for a root language', async () => {
         Shopware.State.commit('context/setApiSystemLanguageId', '987654312');
         Shopware.State.commit('context/setApiLanguage', {
             id: '1a2b3c',
             parentId: null
         });
 
-        wrapper.setProps({
+        await wrapper.setProps({
             entityDescription: 'My entity description'
         });
 
@@ -154,14 +154,14 @@ describe('src/app/component/structure/sw-language-info', () => {
         });
     });
 
-    it('should render the infoText with language name for a child language', () => {
+    it('should render the infoText with language name for a child language', async () => {
         Shopware.State.commit('context/setApiLanguage', {
             id: '1a2b3c',
             name: 'demoLanguage',
             parentId: '123'
         });
 
-        wrapper.setProps({
+        await wrapper.setProps({
             entityDescription: 'My entity description'
         });
 
@@ -174,7 +174,7 @@ describe('src/app/component/structure/sw-language-info', () => {
         });
     });
 
-    it('should render the infoText with language name for a root language', () => {
+    it('should render the infoText with language name for a root language', async () => {
         Shopware.State.commit('context/setApiSystemLanguageId', '987654312');
         Shopware.State.commit('context/setApiLanguage', {
             id: '1a2b3c',
@@ -182,7 +182,7 @@ describe('src/app/component/structure/sw-language-info', () => {
             parentId: null
         });
 
-        wrapper.setProps({
+        await wrapper.setProps({
             entityDescription: 'My entity description'
         });
 

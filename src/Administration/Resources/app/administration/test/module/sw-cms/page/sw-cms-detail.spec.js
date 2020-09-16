@@ -74,16 +74,18 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         Shopware.State._store.state.cmsPageState = { ...cmsPageStateBackup };
     });
 
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should disable all fields when acl rights are missing', async () => {
         const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
-        wrapper.vm.isLoading = false;
+        await wrapper.setData({
+            isLoading: false
+        });
 
         const formIcon = wrapper.find('sw-icon-stub[name="default-basic-stack-block"]');
         expect(formIcon.classes()).toContain('is--disabled');
@@ -109,7 +111,9 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
             'cms.editor'
         ]);
         await wrapper.vm.$nextTick();
-        wrapper.vm.isLoading = false;
+        await wrapper.setData({
+            isLoading: false
+        });
 
         const formIcon = wrapper.find('sw-icon-stub[name="default-basic-stack-block"]');
         expect(formIcon.classes()).not.toContain('is--disabled');

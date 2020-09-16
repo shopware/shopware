@@ -59,13 +59,13 @@ describe('module/sw-cms/component/sw-cms-section', () => {
         });
     });
 
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('the disable all sub components', () => {
+    it('the disable all sub components', async () => {
         const wrapper = createWrapper();
 
         const cmsSectionActions = wrapper.find('sw-cms-section-actions-stub');
@@ -82,9 +82,9 @@ describe('module/sw-cms/component/sw-cms-section', () => {
         });
     });
 
-    it('the disable all sub components', () => {
+    it('the disable all sub components', async () => {
         const wrapper = createWrapper();
-        wrapper.setProps({
+        await wrapper.setProps({
             disabled: true
         });
 

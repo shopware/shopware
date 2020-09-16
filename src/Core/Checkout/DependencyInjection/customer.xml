@@ -202,6 +202,12 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Customer\SalesChannel\DeleteCustomerRoute" public="true">
+            <argument type="service" id="customer.repository"/>
+            <argument type="service" id="Symfony\Component\EventDispatcher\EventDispatcherInterface" />
+            <tag name="shopware.feature" flag="FEATURE_NEXT_10077"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute" public="true">
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface"/>

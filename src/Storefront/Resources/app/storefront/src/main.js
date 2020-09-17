@@ -42,6 +42,7 @@ import FormAjaxSubmitPlugin from 'src/plugin/forms/form-ajax-submit.plugin';
 import FormPreserverPlugin from 'src/plugin/forms/form-preserver.plugin';
 import FormValidationPlugin from 'src/plugin/forms/form-validation.plugin';
 import FormSubmitLoaderPlugin from 'src/plugin/forms/form-submit-loader.plugin';
+import FormSubmitOncePlugin from 'src/plugin/forms/form-submit-once.plugin';
 import FormFieldTogglePlugin from 'src/plugin/forms/form-field-toggle.plugin';
 import FromScrollToInvalidFieldPlugin from 'src/plugin/forms/form-scroll-to-invalid-field.plugin';
 import OffCanvasTabsPlugin from 'src/plugin/offcanvas-tabs/offcanvas-tabs.plugin';
@@ -111,6 +112,7 @@ PluginManager.register('FormFieldToggle', FormFieldTogglePlugin, '[data-form-fie
 PluginManager.register('FormAutoSubmit', FormAutoSubmitPlugin, '[data-form-auto-submit]');
 PluginManager.register('FormAjaxSubmit', FormAjaxSubmitPlugin, '[data-form-ajax-submit]');
 PluginManager.register('FormPreserver', FormPreserverPlugin, '[data-form-preserver]');
+PluginManager.register('FormSubmitOnce', FormSubmitOncePlugin, '[data-form-submit-once]');
 PluginManager.register('AccountMenu', AccountMenuPlugin, '[data-offcanvas-account-menu]');
 PluginManager.register('OffCanvasTabs', OffCanvasTabsPlugin, '[data-offcanvas-tabs]');
 PluginManager.register('BaseSlider', BaseSliderPlugin, '[data-base-slider]');

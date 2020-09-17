@@ -184,13 +184,13 @@ Component.register('sw-product-media-form', {
 
             productMedia.productId = this.product.id;
             productMedia.mediaId = targetId;
+            productMedia.position = this.product.media.length;
 
-            if (this.product.media.length <= 0) {
-                productMedia.position = 0;
+            if (productMedia.position === 0) {
                 this.product.coverId = productMedia.id;
-            } else {
-                productMedia.position = this.product.media.length;
+                this.product.cover = productMedia;
             }
+
             return productMedia;
         },
 
@@ -245,15 +245,7 @@ Component.register('sw-product-media-form', {
                 return;
             }
 
-            const productMedia = this.createMediaAssociation(dragData.mediaItem.id);
-            if (this.product.media.length === 0) {
-                // set media item as cover
-                productMedia.position = 0;
-                this.product.cover = productMedia;
-                this.product.coverId = productMedia.id;
-            }
-
-            this.product.media.add(productMedia);
+            this.product.media.add(this.createMediaAssociation(dragData.mediaItem.id));
         },
 
         onMediaItemDragSort(dragData, dropData, validDrop) {

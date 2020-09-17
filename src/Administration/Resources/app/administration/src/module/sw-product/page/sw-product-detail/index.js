@@ -565,16 +565,14 @@ Component.register('sw-product-detail', {
 
             const newMedia = this.mediaRepository.create(Shopware.Context.api);
             newMedia.mediaId = mediaItem.id;
+            newMedia.position = this.product.media.length;
 
             return new Promise((resolve) => {
-                // if no other media exists
-                if (this.product.media.length === 0) {
-                    // set media item as cover
-                    newMedia.position = 0;
+                if (newMedia.position === 0) {
                     this.product.coverId = newMedia.id;
                 }
-                this.product.media.add(newMedia);
 
+                this.product.media.add(newMedia);
                 Shopware.State.commit('swProductDetail/setLoading', ['media', false]);
 
                 resolve(newMedia.mediaId);

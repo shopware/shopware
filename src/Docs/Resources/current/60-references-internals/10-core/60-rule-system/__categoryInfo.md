@@ -43,7 +43,7 @@ Which will result in the following call order:
 
 ![rule state diagram](./dist/rule-sequence.png)
 
-As you can see a single rule can either contain user defined values or other, user defined, rules. These are *Container rules*. The rule system here bears some resemblance to the [SearchCriteria](./../130-dal.md), although independent. Where a criteria is the the representation of a query that gets translated and executed through the storage engine, the rule matches **in memory** in PHP.
+As you can see a single rule can either contain user defined values or other, user defined, rules. These are *Container rules*. The rule system here bears some resemblance to the [SearchCriteria](./../130-dal.md), although independent. Where a criteria is the representation of a query that gets translated and executed through the storage engine, the rule matches **in memory** in PHP.
 
 The last building block then is the **Rule Scope**. The Scope contains the current runtime state of the application and is necessary to match the data. The whole picture is visualized in the next diagram:
 

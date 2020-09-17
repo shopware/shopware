@@ -117,6 +117,7 @@ class CheckoutCartPageLoader
         $criteria = new Criteria();
         $criteria->addSorting(new FieldSorting('position'));
         $criteria->addSorting(new FieldSorting('name'));
+
         return $this->countryRoute->load($criteria, $context)->getCountries();
     }
 }

@@ -102,7 +102,7 @@ class CustomerRepositoryTest extends TestCase
                 'defaultShippingAddress' => $address,
                 'defaultPaymentMethodId' => $paymentMethod,
                 'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-                'email' => $matchTerm,
+                'email' => $matchTerm . '@example.com',
                 'password' => 'not',
                 'lastName' => 'not',
                 'firstName' => 'not',

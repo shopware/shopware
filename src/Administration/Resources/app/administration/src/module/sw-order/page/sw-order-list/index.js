@@ -58,7 +58,9 @@ Component.register('sw-order-list', {
                 criteria.addFilter(Criteria.equalsAny('campaignCode', this.campaignCodeFilter));
             }
 
-            criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
+            this.sortBy.split(',').forEach(sortBy => {
+                criteria.addSorting(Criteria.sort(sortBy, this.sortDirection));
+            });
 
             criteria.addAssociation('addresses');
             criteria.addAssociation('salesChannel');

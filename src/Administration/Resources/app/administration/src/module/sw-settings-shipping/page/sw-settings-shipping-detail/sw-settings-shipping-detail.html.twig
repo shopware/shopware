@@ -148,6 +148,7 @@
                                                        :ruleFilter="ruleFilter"
                                                        :disabled="!acl.can('shipping.editor')"
                                                        required
+                                                       :label="$tc('sw-settings-shipping.detail.topRule')"
                                                        class="sw-settings-shipping-detail__top-rule"
                                                        @save-rule="onSaveRule">
                                 </sw-select-rule-create>

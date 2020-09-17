@@ -111,7 +111,7 @@ class CustomerDefinition extends EntityDefinition
             new DateField('birthday', 'birthday'),
             (new DateTimeField('last_order_date', 'lastOrderDate'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
             (new IntField('order_count', 'orderCount'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
-            new CustomFields(),
+            (new CustomFields())->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new StringField('legacy_password', 'legacyPassword'))->addFlags(new ReadProtected(SalesChannelApiSource::class, AdminApiSource::class)),
             (new StringField('legacy_encoder', 'legacyEncoder'))->addFlags(new ReadProtected(SalesChannelApiSource::class, AdminApiSource::class)),
             new ManyToOneAssociationField('group', 'customer_group_id', CustomerGroupDefinition::class, 'id', false),

@@ -173,7 +173,7 @@ class ProductDefinition extends EntityDefinition
             (new TranslatedField('metaTitle'))->addFlags(new Inherited()),
             (new TranslatedField('packUnit'))->addFlags(new Inherited()),
             (new TranslatedField('packUnitPlural'))->addFlags(new Inherited()),
-            (new TranslatedField('customFields'))->addFlags(new Inherited()),
+            (new TranslatedField('customFields'))->addFlags(new Inherited(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
 
             // associations
             new ParentAssociationField(self::class, 'id'),

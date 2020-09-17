@@ -50,7 +50,7 @@ class ProductManufacturerDefinition extends EntityDefinition
             new StringField('link', 'link'),
             (new TranslatedField('name'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new TranslatedField('description'),
-            new TranslatedField('customFields'),
+            (new TranslatedField('customFields'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, 'id', false),
             (new OneToManyAssociationField('products', ProductDefinition::class, 'product_manufacturer_id', 'id'))->addFlags(new RestrictDelete(), new ReverseInherited('manufacturer')),
             (new TranslationsAssociationField(ProductManufacturerTranslationDefinition::class, 'product_manufacturer_id'))->addFlags(new Required()),

@@ -239,7 +239,28 @@
         }
       },
       "productListing": {
-        "label": "Produkt-Listing"
+        "label": "Produkt-Listing",
+        "config": {
+          "tab": {
+            "sorting": "Sortierungen"
+          },
+          "sorting": {
+            "labelShowSorting": "Produkt-Sortierung anzeigen",
+            "labelUseCustomSortings": "Eigene Sortierungen verwenden",
+            "labelDefaultSorting": "Standard-Sortierung",
+            "labelProductSortings": "Produkt-Sortierungen",
+            "placeHolderProductSortings": "Produkt-Sortierungen hinzufügen oder entfernen",
+            "helpTextUseCustomSortings": "Sortier-Optionen kannst Du für dieses Produkt-Listing definieren. Aktiviere diese Option um die Sortier-Option für dieses Listing individuell anzupassen.",
+            "helpTextDefaultSorting": "Die Standard Sortierung für das Listing, wenn keine andere Sortierung angegeben ist.",
+            "gridHeaderName": "Name",
+            "gridHeaderFields": "Kriterien",
+            "gridHeaderPriority": "Priorität",
+            "deleteModal": {
+              "heading": "\"{productSortingName}\" entfernen.",
+              "body": "Willst du wirklich die Sortier-Option \"{productSortingName}\" entfernen?"
+            }
+          }
+        }
       },
       "productSlider": {
         "label": "Produkt-Slider",

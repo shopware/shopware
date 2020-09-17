@@ -100,13 +100,6 @@ NEXT
 * Deprecated `\Shopware\Storefront\Page\Product\ProductLoader` use `Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute` instead
 * Changed `\Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateDefinition`, the `template`-property is not required anymore
 * Added `\Shopware\Core\Migration\Migration1598280548NullableSeoUrlTemplate` to mark `seo_url_template.template` nullable
-* Implemented individual sortings
-  * Added new `Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingEntity` to handle individual sortings stored in database
-  * Added new `\Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingTranslationEntity` to handle translated labels
-  * Deprecated `Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingSortingRegistry` for v6.4.0. 
-    Sortings are now stored in database, rather than declaring them as services
-  * Deprecated `Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingSorting` for v6.4.0.
-    Use `\Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingEntity` instead
 * Changed `\Shopware\Core\Content\Sitemap\Provider\CategoryUrlProvider` to list only categories associated to the current sales channels
 
 #### Storefront

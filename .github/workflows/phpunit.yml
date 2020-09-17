@@ -26,6 +26,11 @@ jobs:
           discovery.type: single-node
 
     steps:
+    - name: Cancel Previous Runs
+      uses: styfle/cancel-workflow-action@0.5.0
+      with:
+        access_token: ${{ github.token }}
+
     - name: Clone development
       run: git clone -b $DEVELOPMENT_BRANCH https://github.com/shopware/development.git && cd development && rm -rf platform
 

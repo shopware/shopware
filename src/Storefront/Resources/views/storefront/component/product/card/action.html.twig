@@ -58,10 +58,12 @@
                                            value="{{ product.translated.name }}">
                                 {% endblock %}
 
-                                <button class="btn btn-block btn-buy"
-                                        title="{{ "listing.boxAddProduct"|trans|striptags }}">
-                                    {{ "listing.boxAddProduct"|trans|sw_sanitize }}
-                                </button>
+                                {% block page_product_detail_product_buy_button %}
+                                    <button class="btn btn-block btn-buy"
+                                            title="{{ "listing.boxAddProduct"|trans|striptags }}">
+                                        {{ "listing.boxAddProduct"|trans|sw_sanitize }}
+                                    </button>
+                                {% endblock %}
                             {% endblock %}
                         </form>
                 {% endblock %}

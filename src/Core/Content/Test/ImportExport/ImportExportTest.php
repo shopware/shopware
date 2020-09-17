@@ -27,8 +27,10 @@ use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOp
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\FilesystemBehaviour;
@@ -208,6 +210,7 @@ class ImportExportTest extends TestCase
         $categoryRepository->delete([['id' => $childId], ['id' => $betweenId], ['id' => $rootId]], Context::createDefaultContext());
 
         $exportFileTmp = tempnam(sys_get_temp_dir(), '');
+
         \file_put_contents($exportFileTmp, $filesystem->read($logEntity->getFile()->getPath()));
         $file = new UploadedFile($exportFileTmp, 'test.csv', $logEntity->getProfile()->getFileType());
 
@@ -401,6 +404,8 @@ class ImportExportTest extends TestCase
 
     public function importCategoryCsv(): void
     {
+        $context = Context::createDefaultContext();
+        $context->addExtension(EntityIndexerRegistry::DISABLE_INDEXING, new ArrayEntity());
         $factory = $this->getContainer()->get(ImportExportFactory::class);
 
         /** @var ImportExportService $importExportService */
@@ -411,15 +416,15 @@ class ImportExportTest extends TestCase
         $expireDate = new \DateTimeImmutable('2099-01-01');
         $file = new UploadedFile(__DIR__ . '/fixtures/categories.csv', 'categories.csv', 'text/csv');
         $logEntity = $importExportService->prepareImport(
-            Context::createDefaultContext(),
+            $context,
             $profileId,
             $expireDate,
             $file
         );
         $progress = new Progress($logEntity->getId(), Progress::STATE_PROGRESS, 0, null);
+        $importExport = $factory->create($logEntity->getId(), 5, 5);
         do {
-            $importExport = $factory->create($logEntity->getId(), 5, 5);
-            $progress = $importExport->import(Context::createDefaultContext(), $progress->getOffset());
+            $progress = $importExport->import($context, $progress->getOffset());
         } while (!$progress->isFinished());
 
         static::assertSame(Progress::STATE_SUCCEEDED, $progress->getState());
@@ -427,6 +432,8 @@ class ImportExportTest extends TestCase
 
     public function importPropertyCsv(): void
     {
+        $context = Context::createDefaultContext();
+        $context->addExtension(EntityIndexerRegistry::DISABLE_INDEXING, new ArrayEntity());
         $factory = $this->getContainer()->get(ImportExportFactory::class);
 
         /** @var ImportExportService $importExportService */
@@ -437,15 +444,15 @@ class ImportExportTest extends TestCase
         $expireDate = new \DateTimeImmutable('2099-01-01');
         $file = new UploadedFile(__DIR__ . '/fixtures/properties.csv', 'properties.csv', 'text/csv');
         $logEntity = $importExportService->prepareImport(
-            Context::createDefaultContext(),
+            $context,
             $profileId,
             $expireDate,
             $file
         );
         $progress = new Progress($logEntity->getId(), Progress::STATE_PROGRESS, 0, null);
+        $importExport = $factory->create($logEntity->getId(), 5, 5);
         do {
-            $importExport = $factory->create($logEntity->getId(), 5, 5);
-            $progress = $importExport->import(Context::createDefaultContext(), $progress->getOffset());
+            $progress = $importExport->import($context, $progress->getOffset());
         } while (!$progress->isFinished());
 
         static::assertSame(Progress::STATE_SUCCEEDED, $progress->getState());
@@ -453,6 +460,8 @@ class ImportExportTest extends TestCase
 
     public function importPropertyCsvWithoutIds(): void
     {
+        $context = Context::createDefaultContext();
+        $context->addExtension(EntityIndexerRegistry::DISABLE_INDEXING, new ArrayEntity());
         $factory = $this->getContainer()->get(ImportExportFactory::class);
 
         /** @var ImportExportService $importExportService */
@@ -463,15 +472,15 @@ class ImportExportTest extends TestCase
         $expireDate = new \DateTimeImmutable('2099-01-01');
         $file = new UploadedFile(__DIR__ . '/fixtures/propertieswithoutid.csv', 'properties.csv', 'text/csv');
         $logEntity = $importExportService->prepareImport(
-            Context::createDefaultContext(),
+            $context,
             $profileId,
             $expireDate,
             $file
         );
         $progress = new Progress($logEntity->getId(), Progress::STATE_PROGRESS, 0, null);
+        $importExport = $factory->create($logEntity->getId(), 5, 5);
         do {
-            $importExport = $factory->create($logEntity->getId(), 5, 5);
-            $progress = $importExport->import(Context::createDefaultContext(), $progress->getOffset());
+            $progress = $importExport->import($context, $progress->getOffset());
         } while (!$progress->isFinished());
 
         static::assertSame(Progress::STATE_SUCCEEDED, $progress->getState());
@@ -481,12 +490,15 @@ class ImportExportTest extends TestCase
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', 'alicebluenew'));
-        $property = $propertyRepository->search($criteria, Context::createDefaultContext());
+        $property = $propertyRepository->search($criteria, $context);
         static::assertCount(1, $property);
     }
 
     public function testProductsCsv(): void
     {
+        $context = Context::createDefaultContext();
+        $context->addExtension(EntityIndexerRegistry::DISABLE_INDEXING, new ArrayEntity());
+
         $this->importCategoryCsv();
         $this->importPropertyCsv();
         $this->importPropertyCsvWithoutIds();
@@ -502,15 +514,16 @@ class ImportExportTest extends TestCase
         $file = new UploadedFile(__DIR__ . '/fixtures/products.csv', 'products.csv', 'text/csv');
 
         $logEntity = $importExportService->prepareImport(
-            Context::createDefaultContext(),
+            $context,
             $profileId,
             $expireDate,
             $file
         );
+
         $progress = new Progress($logEntity->getId(), Progress::STATE_PROGRESS, 0, null);
+        $importExport = $factory->create($logEntity->getId(), 5, 5);
         do {
-            $importExport = $factory->create($logEntity->getId(), 5, 5);
-            $progress = $importExport->import(Context::createDefaultContext(), $progress->getOffset());
+            $progress = $importExport->import($context, $progress->getOffset());
         } while (!$progress->isFinished());
 
         static::assertSame(Progress::STATE_SUCCEEDED, $progress->getState());

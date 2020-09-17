@@ -71,10 +71,11 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
         if ($this->working) {
             return;
         }
-
         $this->working = true;
 
         if ($event->getContext()->hasExtension(self::DISABLE_INDEXING)) {
+            $this->working = false;
+
             return;
         }
 
@@ -150,7 +151,6 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
 
             return;
         }
-
         $this->handle($message);
     }
 

@@ -6,15 +6,15 @@
         {% block component_pagination %}
             <ul class="pagination">
                 {% block component_pagination_first %}
-                    <li class="page-item page-first{% if currentPage == 1 %} disabled{% endif %}">
+                    {% if currentPage > 1 %}
+                    <li class="page-item page-first">
                         {% block component_pagination_first_input %}
-                            <input type="radio"
-                                   {% if currentPage == 1 %}disabled="disabled"{% endif %}
-                                   name="p"
-                                   id="p-first"
-                                   value="1"
-                                   class="d-none"
-                                   title="pagination">
+                                <input type="radio"
+                                       name="p"
+                                       id="p-first"
+                                       value="1"
+                                       class="d-none"
+                                       title="pagination">
                         {% endblock %}
 
                         {% block component_pagination_first_label %}
@@ -25,13 +25,14 @@
                             </label>
                         {% endblock %}
                     </li>
+                    {% endif %}
                 {% endblock %}
 
                 {% block component_pagination_prev %}
-                    <li class="page-item page-prev{% if currentPage == 1 %} disabled{% endif %}">
+                    {% if currentPage > 1 %}
+                    <li class="page-item page-prev">
                         {% block component_pagination_prev_input %}
                             <input type="radio"
-                                   {% if currentPage == 1 %}disabled="disabled"{% endif %}
                                    name="p"
                                    id="p-prev"
                                    value="{{ currentPage - 1 }}"
@@ -49,6 +50,7 @@
                             </label>
                         {% endblock %}
                     </li>
+                    {% endif %}
                 {% endblock %}
 
                 {% block component_pagination_loop %}
@@ -99,10 +101,10 @@
                 {% endblock %}
 
                 {% block component_pagination_next %}
-                    <li class="page-item page-next{% if currentPage == totalPages %} disabled{% endif %}">
+                    {% if currentPage < totalPages %}
+                    <li class="page-item page-next">
                         {% block component_pagination_next_input %}
                             <input type="radio"
-                                   {% if currentPage == totalPages %}disabled="disabled"{% endif %}
                                    name="p"
                                    id="p-next"
                                    value="{{ currentPage + 1 }}"
@@ -120,13 +122,14 @@
                             </label>
                         {% endblock %}
                     </li>
+                    {% endif %}
                 {% endblock %}
 
                 {% block component_pagination_last %}
-                    <li class="page-item page-last{% if currentPage == totalPages %} disabled{% endif %}">
+                    {% if currentPage < totalPages %}
+                    <li class="page-item page-last">
                         {% block component_pagination_last_input %}
                             <input type="radio"
-                                   {% if currentPage == totalPages %}disabled="disabled"{% endif %}
                                    name="p"
                                    id="p-last"
                                    value="{{ totalPages }}"
@@ -147,6 +150,7 @@
                             </label>
                         {% endblock %}
                     </li>
+                    {% endif %}
                 {% endblock %}
             </ul>
         {% endblock %}

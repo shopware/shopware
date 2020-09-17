@@ -19,11 +19,9 @@ class DocumentGeneratorRegistry
     public function hasGenerator(string $documentType): bool
     {
         foreach ($this->documentGenerators as $documentGenerator) {
-            if ($documentGenerator->supports() !== $documentType) {
-                continue;
+            if ($documentGenerator->supports($documentType)) {
+                return true;
             }
-
-            return true;
         }
 
         return false;
@@ -35,11 +33,9 @@ class DocumentGeneratorRegistry
     public function getGenerator(string $documentType): DocumentGeneratorInterface
     {
         foreach ($this->documentGenerators as $documentGenerator) {
-            if ($documentGenerator->supports() !== $documentType) {
-                continue;
+            if ($documentGenerator->supports($documentType)) {
+                return $documentGenerator;
             }
-
-            return $documentGenerator;
         }
 
         throw new InvalidDocumentGeneratorTypeException($documentType);
@@ -48,11 +44,9 @@ class DocumentGeneratorRegistry
     public function getGenerators(string $documentType): \Generator
     {
         foreach ($this->documentGenerators as $documentGenerator) {
-            if ($documentGenerator->supports() !== $documentType) {
-                continue;
+            if ($documentGenerator->supports($documentType)) {
+                yield $documentGenerator;
             }
-
-            yield $documentGenerator;
         }
     }
 }

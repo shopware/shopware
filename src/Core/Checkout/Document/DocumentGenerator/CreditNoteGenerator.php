@@ -31,9 +31,9 @@ class CreditNoteGenerator implements DocumentGeneratorInterface
         $this->rootDir = $rootDir;
     }
 
-    public function supports(): string
+    public function supports(string $documentType): bool
     {
-        return self::CREDIT_NOTE;
+        return $documentType === self::CREDIT_NOTE;
     }
 
     public function getFileName(DocumentConfiguration $config): string

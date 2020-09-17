@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Context;
 
 interface DocumentGeneratorInterface
 {
-    public function supports(): string;
+    public function supports(string $documentType): bool;
 
     public function generate(
         OrderEntity $order,

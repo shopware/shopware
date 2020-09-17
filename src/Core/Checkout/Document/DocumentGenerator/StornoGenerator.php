@@ -30,9 +30,9 @@ class StornoGenerator implements DocumentGeneratorInterface
         $this->documentTemplateRenderer = $documentTemplateRenderer;
     }
 
-    public function supports(): string
+    public function supports(string $documentType): bool
     {
-        return self::STORNO;
+        return $documentType === self::STORNO;
     }
 
     /**

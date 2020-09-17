@@ -30,9 +30,9 @@ class DeliveryNoteGenerator implements DocumentGeneratorInterface
         $this->documentTemplateRenderer = $documentTemplateRenderer;
     }
 
-    public function supports(): string
+    public function supports(string $documentType): bool
     {
-        return self::DELIVERY_NOTE;
+        return $documentType === self::DELIVERY_NOTE;
     }
 
     /**

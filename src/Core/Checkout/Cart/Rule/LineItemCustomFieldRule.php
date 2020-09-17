@@ -7,6 +7,8 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
+use Shopware\Core\System\CustomField\CustomFieldTypes;
+use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
@@ -54,7 +56,7 @@ class LineItemCustomFieldRule extends Rule
             'renderedField' => [new NotBlank()],
             'selectedField' => [new NotBlank()],
             'selectedFieldSet' => [new NotBlank()],
-            'renderedFieldValue' => [new NotBlank()],
+            'renderedFieldValue' => $this->getRenderedFieldValueConstraints(),
             'operator' => [
                 new NotBlank(),
                 new Choice(
@@ -79,27 +81,25 @@ class LineItemCustomFieldRule extends Rule
         try {
             $customFields = $lineItem->getPayloadValue('customFields');
 
-            if (empty($customFields)
-                || !\array_key_exists($this->renderedField['name'], $customFields)) {
+            $actual = $this->getValue($customFields, $this->renderedField);
+
+            if ($actual === null) {
                 return false;
             }
 
-            $expected = $this->renderedFieldValue;
-            $actual = $customFields[$this->renderedField['name']];
+            $expected = $this->getExpectedValue($this->renderedFieldValue, $this->renderedField);
         } catch (PayloadKeyNotFoundException $e) {
             return false;
         }
 
         switch ($this->operator) {
             case self::OPERATOR_NEQ:
-                // mixed data types, thus weak value only comparison
                 return $actual !== $expected;
             case self::OPERATOR_GTE:
                 return $actual >= $expected;
             case self::OPERATOR_LTE:
                 return $actual <= $expected;
             case self::OPERATOR_EQ:
-                // mixed data types, thus weak value only comparison
                 return $actual === $expected;
             case self::OPERATOR_GT:
                 return $actual > $expected;
@@ -108,5 +108,49 @@ class LineItemCustomFieldRule extends Rule
             default:
                 throw new UnsupportedOperatorException($this->operator, self::class);
         }
+    }
+
+    /**
+     * @return Constraint[]
+     */
+    private function getRenderedFieldValueConstraints(): array
+    {
+        $constraints = [];
+
+        if (!\is_array($this->renderedField) || !\array_key_exists('type', $this->renderedField)) {
+            return [new NotBlank()];
+        }
+
+        if ($this->renderedField['type'] !== CustomFieldTypes::BOOL) {
+            $constraints[] = new NotBlank();
+        }
+
+        return $constraints;
+    }
+
+    private function getValue(array $customFields, array $renderedField)
+    {
+        if (in_array($renderedField['type'], [CustomFieldTypes::BOOL, CustomFieldTypes::SWITCH], true)) {
+            if (!empty($customFields) && \array_key_exists($this->renderedField['name'], $customFields)) {
+                return $customFields[$renderedField['name']];
+            }
+
+            return false;
+        }
+
+        if (!empty($customFields) && \array_key_exists($this->renderedField['name'], $customFields)) {
+            return $customFields[$renderedField['name']];
+        }
+
+        return null;
+    }
+
+    private function getExpectedValue($renderedFieldValue, array $renderedField)
+    {
+        if (in_array($renderedField['type'], [CustomFieldTypes::BOOL, CustomFieldTypes::SWITCH], true)) {
+            return $renderedFieldValue ?? false; // those fields are initialized with null in the rule builder
+        }
+
+        return $renderedFieldValue;
     }
 }

@@ -12,6 +12,7 @@ final class CustomFieldTypes
     public const TEXT = 'text';
     public const HTML = 'html';
     public const SELECT = 'select';
+    public const SWITCH = 'switch';
 
     private function __construct()
     {

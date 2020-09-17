@@ -140,6 +140,8 @@ class RuleValidator implements EventSubscriberInterface
         }
 
         $value = $this->getConditionValue($condition, $payload);
+        $ruleInstance->assign($value);
+
         $this->validateConsistence(
             $ruleInstance->getConstraints(),
             $value,

@@ -40,7 +40,10 @@ public function __construct (EntityRepositoryInterface $productRepository)
 }
 ```
 
-Then, configure the `product.repository` service to be injected:
+If you're using [service autowiring](https://symfony.com/doc/current/service_container/autowiring.html), and the
+type and argument variable names are correct, the repository will be injected automatically.
+
+Alternatively, configure the `product.repository` service to be injected explicitly:
 
 ```xml
 <!-- SwagExamplePlugin/src/Resources/config/service.xml -->

@@ -47,7 +47,7 @@ Component.register('sw-settings-snippet-set-list', {
             );
 
             if (this.term) {
-                this.criteria.setTerm(this.term);
+                criteria.setTerm(this.term);
             }
 
             return criteria;

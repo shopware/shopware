@@ -36,11 +36,6 @@ class CreditNoteGenerator implements DocumentGeneratorInterface
         return $documentType === self::CREDIT_NOTE;
     }
 
-    public function getFileName(DocumentConfiguration $config): string
-    {
-        return $config->getFilenamePrefix() . $config->getDocumentNumber() . $config->getFilenameSuffix();
-    }
-
     /**
      * @throws Error
      */
@@ -78,5 +73,10 @@ class CreditNoteGenerator implements DocumentGeneratorInterface
         );
 
         return $documentString;
+    }
+
+    public function getFileName(DocumentConfiguration $config): string
+    {
+        return $config->getFilenamePrefix() . $config->getDocumentNumber() . $config->getFilenameSuffix();
     }
 }

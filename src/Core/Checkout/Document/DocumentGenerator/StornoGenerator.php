@@ -46,7 +46,7 @@ class StornoGenerator implements DocumentGeneratorInterface
     ): string {
         $templatePath = $templatePath ?? self::DEFAULT_TEMPLATE;
 
-        $order = $this->handlePrices($order);
+        $this->negatePrices($order);
 
         $documentString = $this->documentTemplateRenderer->render(
             $templatePath,
@@ -70,20 +70,18 @@ class StornoGenerator implements DocumentGeneratorInterface
         return $config->getFilenamePrefix() . $config->getDocumentNumber() . $config->getFilenameSuffix();
     }
 
-    private function handlePrices(OrderEntity $order)
+    private function negatePrices(OrderEntity $order)
     {
         foreach ($order->getLineItems() as $lineItem) {
-            $lineItem->setUnitPrice($lineItem->getUnitPrice() / -1);
-            $lineItem->setTotalPrice($lineItem->getTotalPrice() / -1);
+            $lineItem->setUnitPrice(-1 * $lineItem->getUnitPrice());
+            $lineItem->setTotalPrice(-1 * $lineItem->getTotalPrice());
         }
         foreach ($order->getPrice()->getCalculatedTaxes()->sortByTax()->getElements() as $tax) {
-            $tax->setTax($tax->getTax() / -1);
+            $tax->setTax(-1 * $tax->getTax());
         }
 
-        $order->setShippingTotal($order->getShippingTotal() / -1);
-        $order->setAmountNet($order->getAmountNet() / -1);
-        $order->setAmountTotal($order->getAmountTotal() / -1);
-
-        return $order;
+        $order->setShippingTotal(-1 * $order->getShippingTotal());
+        $order->setAmountNet(-1 * $order->getAmountNet());
+        $order->setAmountTotal(-1 * $order->getAmountTotal());
     }
 }

@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Cache\Annotation\HttpCache;
+use Shopware\Storefront\Page\Product\ProductPageLoader;
 use Shopware\Storefront\Page\Search\SearchPageLoader;
 use Shopware\Storefront\Page\Suggest\SuggestPageLoader;
 use Symfony\Component\HttpFoundation\Request;
@@ -41,6 +42,13 @@ class SearchController extends StorefrontController
     {
         try {
             $page = $this->searchPageLoader->load($request, $context);
+            if($page->getListing()->getTotal() == 1)
+            {
+                $elements = $page->getListing()->getElements();
+                $product = array_pop($elements);
+                $productId = $product->getId();
+                return $this->forwardToRoute('frontend.detail.page', [], ['productId' => $productId]);
+            }
         } catch (MissingRequestParameterException $missingRequestParameterException) {
             return $this->forwardToRoute('frontend.home.page');
         }

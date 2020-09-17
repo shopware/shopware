@@ -65,6 +65,8 @@ parameters:
         -
              message: '#Strict comparison using#'
              path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi/OpenApiLoader.php
+        # For BC in SalesChannelContextService get
+        - '#Method Shopware\\Core\\System\\SalesChannel\\Context\\SalesChannelContextServiceInterface::get\(\) invoked with 4 parameters, 3 required\.#'
 
 services:
     -

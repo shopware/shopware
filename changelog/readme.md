@@ -3,6 +3,8 @@ For every feature or important code change there has to be a changelog markdown 
 {YYYY-MM-DD}-Meaningful-title-of-the-change.md  
 **Example**: 2020-08-03-New-CMS-components-for-3D-content.md
 
+For simplicity there is a console command which helps you to create new changelog files: `bin/console changelog:create [<title>] [options]`. For a full list of options just use the --help flag of the command.
+
 In the file all necessary changes are documented. The content of the file should always use the template which can be found in the `/changelog/_template.md` file. You can see a full example in the `/changelog/_example.md` file for a better understanding. 
 
 ## Meta Information

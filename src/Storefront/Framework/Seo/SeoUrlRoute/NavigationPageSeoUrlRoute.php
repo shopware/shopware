@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Framework\Seo\SeoUrlRoute;
 
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlMapping;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface;
@@ -22,9 +23,15 @@ class NavigationPageSeoUrlRoute implements SeoUrlRouteInterface
      */
     private $categoryDefinition;
 
-    public function __construct(CategoryDefinition $categoryDefinition)
+    /**
+     * @var CategoryBreadcrumbBuilder
+     */
+    private $breadcrumbBuilder;
+
+    public function __construct(CategoryDefinition $categoryDefinition, CategoryBreadcrumbBuilder $breadcrumbBuilder)
     {
         $this->categoryDefinition = $categoryDefinition;
+        $this->breadcrumbBuilder = $breadcrumbBuilder;
     }
 
     public function getConfig(): SeoUrlRouteConfig
@@ -50,7 +57,7 @@ class NavigationPageSeoUrlRoute implements SeoUrlRouteInterface
 
         $rootId = $this->detectRootId($category, $salesChannel);
 
-        $breadcrumbs = $category->buildSeoBreadcrumb($rootId);
+        $breadcrumbs = $this->breadcrumbBuilder->build($category, $salesChannel, $rootId);
         $categoryJson = $category->jsonSerialize();
         $categoryJson['seoBreadcrumb'] = $breadcrumbs;
 

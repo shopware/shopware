@@ -124,9 +124,9 @@
 
         {% block sw_property_search_option_search %}
             <div class="sw-property-search__search-selection" v-if="displaySearch">
-
                 {% block sw_property_search_option_search_grid %}
                     <sw-grid class="sw-property-search__search-selection__option_grid"
+                             v-if="groupOptions.length > 0"
                              ref="optionSearchGrid"
                              :items="groupOptions"
                              :header="false"
@@ -158,6 +158,11 @@
                         </template>
                     </sw-grid>
                 {% endblock %}
+                <sw-empty-state v-else
+                                :title="$tc('sw-property-search.noPropertiesFound')"
+                                :subline="$tc('sw-property-search.noPropertiesFoundDescription')">
+                </sw-empty-state>
+
             </div>
         {% endblock %}
 

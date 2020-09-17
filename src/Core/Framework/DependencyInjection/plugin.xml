@@ -21,7 +21,7 @@
 
         <service id="Shopware\Core\Framework\Plugin\BundleConfigDumper">
             <argument type="service" id="Shopware\Core\Framework\Plugin\BundleConfigGenerator" />
-            <argument>%kernel.cache_dir%</argument>
+            <argument>%kernel.project_dir%</argument>
 
             <tag name="kernel.event_subscriber" />
         </service>

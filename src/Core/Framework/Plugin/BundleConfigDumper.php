@@ -16,14 +16,14 @@ class BundleConfigDumper implements EventSubscriberInterface
     /**
      * @var string
      */
-    private $cacheDir;
+    private $projectDir;
 
     public function __construct(
         BundleConfigGeneratorInterface $bundleConfigGenerator,
-        string $cacheDir
+        string $projectDir
     ) {
         $this->bundleConfigGenerator = $bundleConfigGenerator;
-        $this->cacheDir = $cacheDir;
+        $this->projectDir = $projectDir;
     }
 
     public static function getSubscribedEvents(): array
@@ -39,7 +39,7 @@ class BundleConfigDumper implements EventSubscriberInterface
         $config = $this->bundleConfigGenerator->getConfig();
 
         file_put_contents(
-            $this->cacheDir . '/../../plugins.json',
+            $this->projectDir . '/var/plugins.json',
             json_encode($config, JSON_PRETTY_PRINT)
         );
     }

@@ -824,7 +824,9 @@
     },
     "sw-property-search": {
         "placeholderSearch": "Search properties...",
-        "selected": "{count} option selected | {count} options selected"
+        "selected": "{count} option selected | {count} options selected",
+        "noPropertiesFound": "No properties found",
+        "noPropertiesFoundDescription": "Try another search phrase."
     },
     "sw-property-assignment": {
         "columnGroup": "Property",

@@ -29,7 +29,7 @@
             {#{% if config.title %}#}
             <title>{% block document_title_tag %}{% endblock %}</title>
             {#{% endif %}#}
-            {% if config.custom.pageOrientation == 'landscape' %}
+            {% if config.pageOrientation == 'landscape' %}
                 {% sw_include '@Framework/documents/style_base_landscape.css.twig' %}
             {% else %}
                 {% sw_include '@Framework/documents/style_base_portrait.css.twig' %}

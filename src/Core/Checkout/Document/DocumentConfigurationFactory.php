@@ -40,12 +40,12 @@ class DocumentConfigurationFactory
         foreach ($additionalConfigArray as $key => $value) {
             if ($value !== null) {
                 if ($key === 'custom' && \is_array($value)) {
-                    $baseConfig->__set('custom', array_merge($baseConfig->__get('custom'), $value));
+                    $baseConfig->custom = array_merge($baseConfig->custom ?? [], $value);
                 } elseif (strncmp($key, 'custom.', 7) === 0) {
                     $customKey = mb_substr($key, 7);
-                    $baseConfig->__set('custom', array_merge($baseConfig->__get('custom'), [$customKey => $value]));
+                    $baseConfig->custom = array_merge($baseConfig->custom ?? [], [$customKey => $value]);
                 } else {
-                    $baseConfig->__set($key, $value);
+                    $baseConfig->$key = $value;
                 }
             }
         }

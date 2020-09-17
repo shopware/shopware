@@ -2,7 +2,13 @@ name: Validate Snippets
 
 on:
     push:
+      branches:
+        - master
+      paths:
+        - 'src/**/snippet/**/*.json'
     pull_request:
+      paths:
+        - 'src/**/snippet/**/*.json'
 
 jobs:
   build:

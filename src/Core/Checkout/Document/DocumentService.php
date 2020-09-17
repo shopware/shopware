@@ -115,10 +115,12 @@ class DocumentService
             throw new InvalidFileGeneratorTypeException($fileType);
         }
 
+        $order = $this->getOrderById($orderId, Defaults::LIVE_VERSION, $context);
+
         $documentConfiguration = $this->getConfiguration(
             $context,
             $documentType->getId(),
-            $orderId,
+            $order->getSalesChannelId(),
             $config->jsonSerialize()
         );
 
@@ -165,16 +167,28 @@ class DocumentService
 
     public function getDocument(DocumentEntity $document, Context $context): GeneratedDocument
     {
-        $config = DocumentConfigurationFactory::createConfiguration($document->getConfig());
-
         $generatedDocument = new GeneratedDocument();
         if (!$this->hasValidFile($document) && !$document->isStatic()) {
-            $generatedDocument->setPageOrientation($config->getPageOrientation());
-            $generatedDocument->setPageSize($config->getPageSize());
+            $this->validateVersion($document->getOrderVersionId());
 
+            $documentGenerator = $this->documentGeneratorRegistry->getGenerator(
+                $document->getDocumentType()->getTechnicalName()
+            );
             $fileGenerator = $this->fileGeneratorRegistry->getGenerator($document->getFileType());
-            $generatedDocument->setContentType($fileGenerator->getContentType());
-            $this->generateDocument($document, $context, $generatedDocument, $config, $fileGenerator);
+
+            $config = DocumentConfigurationFactory::createConfiguration($document->getConfig());
+            $config->order = $this->getOrderById($document->getOrderId(), $document->getOrderVersionId(), $context);
+
+            $generatedDocument = $this->generateDocument($documentGenerator, $fileGenerator, $config, $context);
+
+            $this->saveDocumentFile(
+                $document,
+                $context,
+                $generatedDocument->getFileBlob(),
+                $fileGenerator,
+                $documentGenerator,
+                $config
+            );
         } else {
             $generatedDocument->setFilename($document->getDocumentMediaFile()->getFileName() . '.' . $document->getDocumentMediaFile()->getFileExtension());
             $generatedDocument->setContentType($document->getDocumentMediaFile()->getMimeType());
@@ -214,21 +228,12 @@ class DocumentService
         $documentConfiguration = $this->getConfiguration(
             $context,
             $documentType->getId(),
-            $orderId,
+            $order->getSalesChannelId(),
             $config->jsonSerialize()
         );
+        $documentConfiguration->order = $order;
 
-        $generatedDocument = new GeneratedDocument();
-        $generatedDocument->setHtml($documentGenerator->generate($order, $documentConfiguration, $context));
-        $generatedDocument->setFilename(
-            $documentGenerator->getFileName($config) . '.' . $fileGenerator->getExtension()
-        );
-        $generatedDocument->setPageOrientation($config->getPageOrientation());
-        $generatedDocument->setPageSize($config->getPageSize());
-        $generatedDocument->setFileBlob($fileGenerator->generate($generatedDocument));
-        $generatedDocument->setContentType($fileGenerator->getContentType());
-
-        return $generatedDocument;
+        return $this->generateDocument($documentGenerator, $fileGenerator, $documentConfiguration, $context);
     }
 
     /**
@@ -331,7 +336,7 @@ class DocumentService
     private function getConfiguration(
         Context $context,
         string $documentTypeId,
-        string $orderId,
+        string $salesChannelId,
         ?array $specificConfiguration
     ): DocumentConfiguration {
         $specificConfiguration = $specificConfiguration ?? [];
@@ -343,11 +348,10 @@ class DocumentService
         /** @var DocumentBaseConfigEntity $globalConfig */
         $globalConfig = $this->documentConfigRepository->search($criteria, $context)->first();
 
-        $order = $this->getOrderById($orderId, Defaults::LIVE_VERSION, $context);
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('documentTypeId', $documentTypeId));
         $criteria->addAssociation('logo');
-        $criteria->addFilter(new EqualsFilter('salesChannels.salesChannelId', $order->getSalesChannelId()));
+        $criteria->addFilter(new EqualsFilter('salesChannels.salesChannelId', $salesChannelId));
         $criteria->addFilter(new EqualsFilter('salesChannels.documentTypeId', $documentTypeId));
 
         $salesChannelConfig = $this->documentConfigRepository->search($criteria, $context)->first();
@@ -444,25 +448,20 @@ class DocumentService
     }
 
     private function generateDocument(
-        DocumentEntity $document,
-        Context $context,
-        GeneratedDocument $generatedDocument,
+        DocumentGeneratorInterface $documentGenerator,
+        FileGeneratorInterface $fileGenerator,
         DocumentConfiguration $config,
-        FileGeneratorInterface $fileGenerator
-    ): void {
-        $documentGenerator = $this->documentGeneratorRegistry->getGenerator(
-            $document->getDocumentType()->getTechnicalName()
-        );
-        $this->validateVersion($document->getOrderVersionId());
-
-        $order = $this->getOrderById($document->getOrderId(), $document->getOrderVersionId(), $context);
-
-        $generatedDocument->setHtml($documentGenerator->generate($order, $config, $context));
+        Context $context
+    ): GeneratedDocument {
+        $generatedDocument = new GeneratedDocument();
+        $generatedDocument->setPageOrientation($config->getPageOrientation());
+        $generatedDocument->setPageSize($config->getPageSize());
+        $generatedDocument->setHtml($documentGenerator->generate($config, $context));
         $generatedDocument->setFilename($documentGenerator->getFileName($config) . '.' . $fileGenerator->getExtension());
-        $fileBlob = $fileGenerator->generate($generatedDocument);
-        $generatedDocument->setFileBlob($fileBlob);
+        $generatedDocument->setFileBlob($fileGenerator->generate($generatedDocument));
+        $generatedDocument->setContentType($fileGenerator->getContentType());
 
-        $this->saveDocumentFile($document, $context, $fileBlob, $fileGenerator, $documentGenerator, $config);
+        return $generatedDocument;
     }
 
     private function getOrderBaseCriteria(string $orderId): Criteria

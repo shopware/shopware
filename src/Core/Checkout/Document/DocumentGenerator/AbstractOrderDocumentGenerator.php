@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Document\DocumentGenerator;
 
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
+use Shopware\Core\Checkout\Document\Exception\DocumentGenerationException;
 use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
@@ -28,13 +29,18 @@ abstract class AbstractOrderDocumentGenerator
 
     /**
      * @throws Error
+     * @throws DocumentGenerationException
      */
     public function generate(
-        OrderEntity $order,
         DocumentConfiguration $config,
         Context $context,
         ?string $templatePath = null
     ): string {
+        $order = $config->order;
+        if (!($order instanceof OrderEntity)) {
+            throw new DocumentGenerationException();
+        }
+
         $defaultParameters = [
             'config' => $config->jsonSerialize(),
             'context' => $context,

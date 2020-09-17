@@ -4,7 +4,8 @@
                      :to="routerLink"
                      class="sw-button"
                      :event="!disabled ? 'click' : ''"
-                     :class="buttonClasses">
+                     :class="buttonClasses"
+                     v-bind="$attrs">
             {% block sw_button_router_link_content %}
                 <span class="sw-button__content">
                     <slot>{% block sw_button_router_link_slot_default %}{% endblock %}</slot>
@@ -19,7 +20,8 @@
            target="_blank"
            rel="noopener"
            class="sw-button"
-           :class="buttonClasses">
+           :class="buttonClasses"
+           v-bind="$attrs">
             {% block sw_button_link_content %}
                 <span class="sw-button__content">
                     <slot>{% block sw_button_link_slot_default %}{% endblock %}</slot>
@@ -33,6 +35,7 @@
                 class="sw-button"
                 :class="buttonClasses"
                 :disabled="disabled || isLoading"
+                v-bind="$attrs"
                 v-on="$listeners">
             {% block sw_button_button_content %}
                 <sw-icon name="default-web-loading-circle"

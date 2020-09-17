@@ -38,6 +38,7 @@
                                 <sw-entity-single-select
                                     size="small"
                                     entity="customer"
+                                    :criteria="customerCriteria"
                                     labelProperty="firstName"
                                     :value="customerId"
                                     :placeholder="$tc('sw-order.createBase.detailsHeader.placeholder')"
@@ -58,41 +59,53 @@
                                                 v-bind="{ item, index }"
                                                 class="sw-order-create-details-header__customer-result">
                                                 {% block sw_order_create_search_customer_slot_result_item_content_container %}
-                                                    <div class="sw-order-create-details-header__customer-result-item">
-                                                        {% block sw_order_create_search_customer_slot_result_item_number %}
-                                                            <sw-highlight-text
-                                                                v-if="highlightSearchTerm"
-                                                                :text="getKey(item, 'customerNumber') || getKey(item, `translated.customerNumber`)"
-                                                                :searchTerm="searchTerm">
-                                                            </sw-highlight-text>
-                                                        {% endblock %}
-                                                    </div>
 
                                                     <div class="sw-order-create-details-header__customer-result-item has-many-childrens">
-                                                        {% block sw_order_create_search_customer_slot_result_item_firstname %}
-                                                            <sw-highlight-text
+                                                        <div>
+                                                            {% block sw_order_create_search_customer_slot_result_item_firstname %}
+                                                                <sw-highlight-text
+                                                                    v-if="highlightSearchTerm"
+                                                                    :text="getKey(item, 'firstName') || getKey(item, `translated.firstName`)"
+                                                                    :searchTerm="searchTerm">
+                                                                </sw-highlight-text>
+                                                            {% endblock %}
+
+                                                            {% block sw_order_create_search_customer_slot_result_item_lastname %}
+                                                                <sw-highlight-text
+                                                                    v-if="highlightSearchTerm"
+                                                                    :text="getKey(item, 'lastName') || getKey(item, `translated.lastName`)"
+                                                                    :searchTerm="searchTerm">
+                                                                </sw-highlight-text>
+                                                            {% endblock %}
+                                                        </div>
+
+                                                        {% block sw_order_create_search_customer_slot_result_item_number %}
+                                                        <sw-highlight-text
                                                                 v-if="highlightSearchTerm"
-                                                                :text="getKey(item, 'firstName') || getKey(item, `translated.firstName`)"
-                                                                :searchTerm="searchTerm">
-                                                            </sw-highlight-text>
+                                                                :text="getKey(item, 'customerNumber') || getKey(item, `translated.customerNumber`)"
+                                                                :searchTerm="searchTerm"
+                                                                class="text-truncate">
+                                                        </sw-highlight-text>
                                                         {% endblock %}
 
-                                                        {% block sw_order_create_search_customer_slot_result_item_lastname %}
-                                                            <sw-highlight-text
-                                                                v-if="highlightSearchTerm"
-                                                                :text="getKey(item, 'lastName') || getKey(item, `translated.lastName`)"
-                                                                :searchTerm="searchTerm">
-                                                            </sw-highlight-text>
-                                                        {% endblock %}
                                                     </div>
 
-                                                    <div class="sw-order-create-details-header__customer-result-item">
+
+                                                    <div v-if="getKey(item, 'company') || getKey(item, `translated.company`)" class="sw-order-create-details-header__customer-result-item">
                                                         {% block sw_order_create_search_customer_slot_result_item_company %}
                                                             <sw-highlight-text
                                                                 v-if="highlightSearchTerm"
                                                                 :text="getKey(item, 'company') || getKey(item, `translated.company`)"
                                                                 :searchTerm="searchTerm">
                                                             </sw-highlight-text>
+                                                        {% endblock %}
+                                                    </div>
+
+                                                    <div class="sw-order-create-details-header__customer-result-item text-gray-500">
+                                                        {% block sw_order_create_search_customer_slot_result_item_address %}
+                                                        {{ item.defaultBillingAddress.street }} <br />
+                                                        {{ item.defaultBillingAddress.zipcode }} {{ item.defaultBillingAddress.city }} <br />
+                                                        {{ item.defaultBillingAddress.country.name }}
                                                         {% endblock %}
                                                     </div>
                                                 {% endblock %}

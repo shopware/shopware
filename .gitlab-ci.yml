@@ -143,6 +143,7 @@ Javascript analysis:
             - merge_requests
             - master
             - /^6\..*$/
+            - schedules
     stage: unit
     timeout: 1h 00m
     before_script: []
@@ -330,14 +331,16 @@ E2E:
         reports:
             junit: development/build/artifacts/e2e/*.xml
     rules:
-        -   if: '$CI_PIPELINE_SOURCE == "schedule" && $cypress_grep == null '
-        -   if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $cypress_grep == null'
+        -   if: '$cypress_grep == null && $CI_PIPELINE_SOURCE == "schedule"'
+        -   if: '$cypress_grep && $CI_PIPELINE_SOURCE == "schedule"'
+            when: never
+        -   if: '$cypress_grep == null && $CI_PIPELINE_SOURCE == "merge_request_event"'
             changes:
                 - "Migration*.php"
                 - "**/Migration*.php"
-        -   if: '$CI_MERGE_REQUEST_LABELS =~ /.*E2E::all.*/ && $cypress_grep == null'
-        -   if: '($CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH =~ "^(master|6\..+)$") && $cypress_grep'
-        -   if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $cypress_grep == null'
+        -   if: '$cypress_grep == null &&$CI_MERGE_REQUEST_LABELS =~ /.*E2E::all.*/'
+        -   if: '$cypress_grep && ($CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH =~ "^(master|6\..+)$")'
+        -   if: '$cypress_grep == null && $CI_PIPELINE_SOURCE == "merge_request_event"'
             when: manual
             allow_failure: true
     parallel:

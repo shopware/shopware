@@ -212,6 +212,8 @@ $sw-tree-item-color-text: $color-gutenberg;
             text-decoration: inherit;
             padding: 12px 0;
             display: block;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
     }
 

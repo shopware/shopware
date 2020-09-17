@@ -1,6 +1,8 @@
 name: Cancel
 on:
     push:
+        branches: 
+            - master
     pull_request:
 jobs:
   cancel:

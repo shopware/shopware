@@ -3,9 +3,9 @@
         {% set sliderConfig = element.fieldConfig.elements %}
     {% endif %}
 
-    <div class="cms-element-{{ element.type }}{% if sliderConfig.displayMode.value == "standard" and sliderConfig.verticalAlign.value %} has-vertical-alignment{% endif %}">
+    <div class="cms-element-{{ element.type }}{% if sliderConfig.boxLayout.value == "standard" and sliderConfig.verticalAlign.value %} has-vertical-alignment{% endif %}">
         {% block element_product_slider_alignment %}
-            {% if config.verticalAlign.value %}
+            {% if sliderConfig.verticalAlign.value %}
                 <div class="cms-element-alignment{% if sliderConfig.verticalAlign.value == "center" %} align-self-center{% elseif sliderConfig.verticalAlign.value == "flex-end" %} align-self-end{% else %} align-self-start{% endif %}">
             {% endif %}
 
@@ -83,7 +83,7 @@
                         {% endblock %}
                     </div>
                 {% endblock %}
-            {% if config.verticalAlign.value %}
+            {% if sliderConfig.verticalAlign.value %}
                 </div>
             {% endif %}
         {% endblock %}

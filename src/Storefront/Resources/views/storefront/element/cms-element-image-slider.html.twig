@@ -13,7 +13,7 @@
         } %}
 
         {% block element_image_slider_alignment %}
-            {% if config.verticalAlign.value %}
+            {% if sliderConfig.verticalAlign.value %}
                 <div class="cms-element-alignment{% if sliderConfig.verticalAlign.value == "center" %} align-self-center{% elseif sliderConfig.verticalAlign.value == "flex-end" %} align-self-end{% else %} align-self-start{% endif %}">
             {%  endif %}
                 <div class="base-slider image-slider{% if sliderConfig.navigationArrows.value == "outside" %} has-nav-outside{% endif %}{% if sliderConfig.navigationDots.value == "outside" %} has-dots-outside{% endif %}"
@@ -84,7 +84,7 @@
                         {% endblock %}
                     {% endblock %}
                 </div>
-            {% if config.verticalAlign.value %}
+            {% if sliderConfig.verticalAlign.value %}
                 </div>
             {% endif %}
         {% endblock %}

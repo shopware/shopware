@@ -45,7 +45,7 @@
 
     <div class="cms-element-{{ element.type }}{% if displayMode == "standard" and verticalAlign %} has-vertical-alignment{% endif %}">
         {% block element_image_gallery_alignment %}
-            {% if config.verticalAlign.value %}
+            {% if sliderConfig.verticalAlign.value %}
                 <div class="cms-element-alignment{% if verticalAlign == "center" %} align-self-center{% elseif verticalAlign == "flex-end" %} align-self-end{% else %} align-self-start{% endif %}">
             {% endif %}
 
@@ -462,7 +462,7 @@
                     </div>
                 {% endblock %}
 
-            {% if config.verticalAlign.value %}
+            {% if sliderConfig.verticalAlign.value %}
                 </div>
             {% endif %}
         {% endblock %}

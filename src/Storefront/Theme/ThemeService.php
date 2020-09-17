@@ -268,6 +268,7 @@ class ThemeService
                 'helpText' => $fieldConfig['helpText'] ?? null,
                 'type' => $fieldConfig['type'],
                 'custom' => $fieldConfig['custom'],
+                'fullWidth' => $fieldConfig['fullWidth'],
             ];
         }
 

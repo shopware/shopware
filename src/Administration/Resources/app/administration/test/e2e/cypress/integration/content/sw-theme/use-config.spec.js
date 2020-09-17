@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
 
@@ -23,6 +23,11 @@ describe('Theme: Test loading and saving of theme', () => {
             .click();
 
         cy.get('.sw-theme-manager-detail__area').its('length').should('be.gte', 1);
+
+        // Check whether logo media inputs are full width
+        cy.get('.sw-theme-manager-detail__content--section_field-full-width').contains('Desktop');
+        cy.get('.sw-theme-manager-detail__content--section_field-full-width').contains('Tablet');
+        cy.get('.sw-theme-manager-detail__content--section_field-full-width').contains('Mobile');
     });
 
     it('@base @content: rename theme', () => {

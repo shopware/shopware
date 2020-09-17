@@ -24,7 +24,7 @@ class EventActionEntity extends Entity
     /**
      * @var bool
      */
-    protected $active;
+    protected $active = true;
 
     /**
      * @var array|null

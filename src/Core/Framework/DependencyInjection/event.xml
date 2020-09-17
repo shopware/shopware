@@ -37,11 +37,11 @@
         </service>
 
         <service id="Shopware\Core\Framework\Event\EventAction\Aggregate\EventActionRule\EventActionRuleDefinition">
-            <tag name="shopware.entity.definition" entity="event_action_rule"/>
+            <tag name="shopware.entity.definition" entity="event_action_rule" flag="FEATURE_NEXT_9351"/>
         </service>
 
         <service id="Shopware\Core\Framework\Event\EventAction\Aggregate\EventActionSalesChannel\EventActionSalesChannelDefinition">
-            <tag name="shopware.entity.definition" entity="event_action_sales_channel"/>
+            <tag name="shopware.entity.definition" entity="event_action_sales_channel" flag="FEATURE_NEXT_9351"/>
         </service>
     </services>
 </container>

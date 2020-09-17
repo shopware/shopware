@@ -6,7 +6,6 @@ use Shopware\Core\Checkout\Cart\Exception\OrderDeliveryNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\OrderTransactionNotFoundException;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
-use Shopware\Core\Checkout\Cart\RuleLoader;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
@@ -58,11 +57,6 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
     private $eventDispatcher;
 
     /**
-     * @var RuleLoader
-     */
-    private $ruleLoader;
-
-    /**
      * @var OrderConverter
      */
     private $orderConverter;
@@ -77,7 +71,6 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
         EntityRepositoryInterface $transactionRepository,
         EntityRepositoryInterface $deliveryRepository,
         EventDispatcherInterface $eventDispatcher,
-        RuleLoader $ruleLoader,
         OrderConverter $orderConverter,
         BusinessEventCollector $businessEventCollector,
         EntityRepositoryInterface $stateRepository,
@@ -87,7 +80,6 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
         $this->transactionRepository = $transactionRepository;
         $this->deliveryRepository = $deliveryRepository;
         $this->eventDispatcher = $eventDispatcher;
-        $this->ruleLoader = $ruleLoader;
         $this->orderConverter = $orderConverter;
         $this->paymentRepository = $paymentRepository;
         $this->stateRepository = $stateRepository;
@@ -269,7 +261,7 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
     private function dispatchEvent(string $stateEventName, OrderEntity $order, Context $context): void
     {
         $this->eventDispatcher->dispatch(
-            new OrderStateMachineStateChangeEvent($stateEventName, $order, $context),
+            new OrderStateMachineStateChangeEvent($stateEventName, $order, $order->getSalesChannelId(), $context),
             $stateEventName
         );
     }
@@ -280,12 +272,9 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
 
         $salesChannelContext = $this->orderConverter->assembleSalesChannelContext($order, $context);
 
-        $cart = $this->orderConverter->convertToCart($order, $salesChannelContext->getContext());
-
-        $rules = $this->ruleLoader->load($context);
-        $rules = $rules->filterMatchingRules($cart, $salesChannelContext);
-
-        $salesChannelContext->setRuleIds($rules->getIds());
+        if ($order->getRuleIds() !== null) {
+            $salesChannelContext->setRuleIds($order->getRuleIds());
+        }
 
         return $salesChannelContext->getContext();
     }
@@ -313,12 +302,8 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('orderCustomer.salutation');
         $criteria->addAssociation('stateMachineState');
-        $criteria->addAssociation('lineItems');
         $criteria->addAssociation('transactions');
         $criteria->addAssociation('deliveries.shippingMethod');
-        $criteria->addAssociation('deliveries.shippingOrderAddress.country');
-        $criteria->addAssociation('deliveries.shippingOrderAddress.countryState');
-        $criteria->addAssociation('deliveries.positions.orderLineItem');
         $criteria->addAssociation('salesChannel');
 
         $event = new OrderStateChangeCriteriaEvent($orderId, $criteria);

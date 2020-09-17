@@ -31,13 +31,25 @@ class BusinessEventDefinition extends Struct
      */
     protected $data;
 
-    public function __construct(string $name, string $class, bool $mailAware, bool $logAware, array $data)
-    {
+    /**
+     * @var bool
+     */
+    protected $salesChannelAware;
+
+    public function __construct(
+        string $name,
+        string $class,
+        bool $mailAware,
+        bool $logAware,
+        bool $salesChannelAware,
+        array $data
+    ) {
         $this->name = $name;
         $this->class = $class;
         $this->mailAware = $mailAware;
         $this->logAware = $logAware;
         $this->data = $data;
+        $this->salesChannelAware = $salesChannelAware;
     }
 
     public function getName(): string
@@ -93,5 +105,15 @@ class BusinessEventDefinition extends Struct
     public function setData(array $data): void
     {
         $this->data = $data;
+    }
+
+    public function isSalesChannelAware(): bool
+    {
+        return $this->salesChannelAware;
+    }
+
+    public function setSalesChannelAware(bool $salesChannelAware): void
+    {
+        $this->salesChannelAware = $salesChannelAware;
     }
 }

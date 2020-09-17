@@ -64,6 +64,7 @@ class InfoControllerTest extends TestCase
                 'class' => "Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent",
                 'mailAware' => false,
                 'logAware' => false,
+                'salesChannelAware' => true,
                 'extensions' => [],
                 'data' => [
                     'customer' => [
@@ -80,6 +81,7 @@ class InfoControllerTest extends TestCase
                 'class' => "Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent",
                 'mailAware' => true,
                 'logAware' => false,
+                'salesChannelAware' => true,
                 'extensions' => [],
                 'data' => [
                     'order' => [
@@ -93,6 +95,7 @@ class InfoControllerTest extends TestCase
                 'class' => "Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent",
                 'mailAware' => true,
                 'logAware' => false,
+                'salesChannelAware' => true,
                 'extensions' => [],
                 'data' => [
                     'order' => [
@@ -106,6 +109,7 @@ class InfoControllerTest extends TestCase
                 'class' => "Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent",
                 'mailAware' => true,
                 'logAware' => false,
+                'salesChannelAware' => true,
                 'extensions' => [],
                 'data' => [
                     'order' => [

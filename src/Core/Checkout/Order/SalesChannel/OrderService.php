@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
@@ -172,6 +173,10 @@ class OrderService
             throw new StateMachineStateNotFoundException('order_transaction', $transition);
         }
 
+        if (Feature::isActive('FEATURE_NEXT_9351')) {
+            return $toPlace;
+        }
+
         $orderCriteria = new Criteria([$orderId]);
         if ($customerId !== null) {
             $orderCriteria->addFilter(
@@ -222,6 +227,10 @@ class OrderService
             throw new StateMachineStateNotFoundException('order_transaction', $transition);
         }
 
+        if (Feature::isActive('FEATURE_NEXT_9351')) {
+            return $toPlace;
+        }
+
         //We need to get the order twice to get it in the correct context
         $orderCriteria = new Criteria();
         $orderCriteria->addFilter(new EqualsFilter('transactions.id', $orderTransactionId));
@@ -267,6 +276,10 @@ class OrderService
 
         if (!$toPlace) {
             throw new StateMachineStateNotFoundException('order_transaction', $transition);
+        }
+
+        if (Feature::isActive('FEATURE_NEXT_9351')) {
+            return $toPlace;
         }
 
         //We need to get the order twice to get it in the correct context

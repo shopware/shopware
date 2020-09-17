@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\MailTemplate\Subscriber;
 
+use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException;
 use Shopware\Core\Content\MailTemplate\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Content\MailTemplate\MailTemplateActions;
@@ -12,7 +13,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Event\BusinessEvent;
 use Shopware\Core\Framework\Event\EventData\EventDataType;
 use Shopware\Core\Framework\Event\MailActionInterface;
@@ -22,7 +22,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 class MailSendSubscriber implements EventSubscriberInterface
 {
     public const ACTION_NAME = MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION;
-    public const SKIP_MAILS = 'skip-mails';
+    public const MAIL_CONFIG_EXTENSION = 'mail-attachments';
 
     /**
      * @var MailServiceInterface
@@ -39,14 +39,35 @@ class MailSendSubscriber implements EventSubscriberInterface
      */
     private $mediaService;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $mediaRepository;
+
+    /**
+     * @var DocumentService
+     */
+    private $documentService;
+
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $documentRepository;
+
     public function __construct(
         MailServiceInterface $mailService,
         EntityRepositoryInterface $mailTemplateRepository,
-        MediaService $mediaService
+        MediaService $mediaService,
+        EntityRepositoryInterface $mediaRepository,
+        EntityRepositoryInterface $documentRepository,
+        DocumentService $documentService
     ) {
         $this->mailService = $mailService;
         $this->mailTemplateRepository = $mailTemplateRepository;
         $this->mediaService = $mediaService;
+        $this->mediaRepository = $mediaRepository;
+        $this->documentRepository = $documentRepository;
+        $this->documentService = $documentService;
     }
 
     public static function getSubscribedEvents(): array
@@ -65,7 +86,12 @@ class MailSendSubscriber implements EventSubscriberInterface
     {
         $mailEvent = $event->getEvent();
 
-        if ($event->getContext()->hasExtension(self::SKIP_MAILS)) {
+        $extension = $event->getContext()->getExtension(self::MAIL_CONFIG_EXTENSION);
+        if (!$extension instanceof MailSendSubscriberConfig) {
+            $extension = new MailSendSubscriberConfig(false, [], []);
+        }
+
+        if ($extension->skip()) {
             return;
         }
 
@@ -75,12 +101,11 @@ class MailSendSubscriber implements EventSubscriberInterface
 
         $config = $event->getConfig();
 
-        $mailTemplate = null;
-        if (isset($config['mail_template_type_id'])) {
-            $mailTemplate = $this->getMailTemplateByType($config['mail_template_type_id'], $event->getContext(), $mailEvent->getSalesChannelId());
-        } elseif (isset($config['mail_template_id'])) {
-            $mailTemplate = $this->getMailTemplate($config['mail_template_id'], $event->getContext());
+        if (!isset($config['mail_template_id'])) {
+            return;
         }
+
+        $mailTemplate = $this->getMailTemplate($config['mail_template_id'], $event->getContext());
 
         if ($mailTemplate === null) {
             return;
@@ -104,22 +129,8 @@ class MailSendSubscriber implements EventSubscriberInterface
         $data->set('subject', $mailTemplate->getTranslation('subject'));
         $data->set('mediaIds', []);
 
-        $attachments = [];
-        if ($mailTemplate->getMedia() !== null) {
-            foreach ($mailTemplate->getMedia() as $mailTemplateMedia) {
-                if ($mailTemplateMedia->getMedia() === null) {
-                    continue;
-                }
-                if ($mailTemplateMedia->getLanguageId() !== null && $mailTemplateMedia->getLanguageId() !== $event->getContext()->getLanguageId()) {
-                    continue;
-                }
+        $attachments = $this->buildAttachments($event, $mailTemplate, $extension);
 
-                $attachments[] = $this->mediaService->getAttachment(
-                    $mailTemplateMedia->getMedia(),
-                    $event->getContext()
-                );
-            }
-        }
         if (!empty($attachments)) {
             $data->set('binAttachments', $attachments);
         }
@@ -129,42 +140,6 @@ class MailSendSubscriber implements EventSubscriberInterface
             $event->getContext(),
             $this->getTemplateData($mailEvent)
         );
-    }
-
-    private function getMailTemplateByType(string $typeId, Context $context, ?string $salesChannelId): ?MailTemplateEntity
-    {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('mailTemplateTypeId', $typeId));
-        $criteria->addAssociation('media.media');
-        $criteria->setLimit(1);
-
-        if ($salesChannelId === null) {
-            return $this->mailTemplateRepository
-                ->search($criteria, $context)
-                ->first();
-        }
-
-        $criteria->addFilter(new EqualsFilter('mail_template.salesChannels.salesChannel.id', $salesChannelId));
-
-        /** @var MailTemplateEntity|null $mailTemplate */
-        $mailTemplate = $this->mailTemplateRepository
-            ->search($criteria, $context)
-            ->first();
-
-        // Fallback if no template for the saleschannel is found
-        if ($mailTemplate !== null) {
-            return $mailTemplate;
-        }
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('mailTemplateTypeId', $typeId));
-        $criteria->addAssociation('media.media');
-        $criteria->setLimit(1);
-
-        /* @var MailTemplateEntity|null $mailTemplate */
-        return $this->mailTemplateRepository
-            ->search($criteria, $context)
-            ->first();
     }
 
     private function getMailTemplate(string $id, Context $context): ?MailTemplateEntity
@@ -195,5 +170,58 @@ class MailSendSubscriber implements EventSubscriberInterface
         }
 
         return $data;
+    }
+
+    private function buildAttachments(BusinessEvent $event, MailTemplateEntity $mailTemplate, MailSendSubscriberConfig $config): array
+    {
+        $attachments = [];
+
+        if ($mailTemplate->getMedia() === null) {
+            return [];
+        }
+
+        if ($mailTemplate->getMedia() !== null) {
+            foreach ($mailTemplate->getMedia() as $mailTemplateMedia) {
+                if ($mailTemplateMedia->getMedia() === null) {
+                    continue;
+                }
+                if ($mailTemplateMedia->getLanguageId() !== null && $mailTemplateMedia->getLanguageId() !== $event->getContext()->getLanguageId()) {
+                    continue;
+                }
+
+                $attachments[] = $this->mediaService->getAttachment(
+                    $mailTemplateMedia->getMedia(),
+                    $event->getContext()
+                );
+            }
+        }
+
+        if (!empty($config->getMediaIds())) {
+            $entities = $this->mediaRepository->search(new Criteria($config->getMediaIds()), $event->getContext());
+
+            foreach ($entities as $media) {
+                $attachments[] = $this->mediaService->getAttachment($media, $event->getContext());
+            }
+        }
+
+        if (!empty($config->getDocumentIds())) {
+            $criteria = new Criteria($config->getDocumentIds());
+            $criteria->addAssociation('documentMediaFile');
+            $criteria->addAssociation('documentType');
+
+            $entities = $this->documentRepository->search($criteria, $event->getContext());
+
+            foreach ($entities as $document) {
+                $document = $this->documentService->getDocument($document, $event->getContext());
+
+                $attachments[] = [
+                    'content' => $document->getFileBlob(),
+                    'fileName' => $document->getFilename(),
+                    'mimeType' => $document->getContentType(),
+                ];
+            }
+        }
+
+        return $attachments;
     }
 }

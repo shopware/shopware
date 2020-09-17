@@ -3,16 +3,17 @@
 namespace Shopware\Core\Content\Test\MailTemplate\Subscriber;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Content\ContactForm\Event\ContactFormEvent;
 use Shopware\Core\Content\MailTemplate\Service\MailService;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriber;
+use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\BusinessEvent;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
-use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 
@@ -30,7 +31,7 @@ class MailSendSubscriberTest extends TestCase
 
         $context = Context::createDefaultContext();
         if ($skip) {
-            $context->addExtension(MailSendSubscriber::SKIP_MAILS, new ArrayStruct());
+            $context->addExtension(MailSendSubscriber::MAIL_CONFIG_EXTENSION, new MailSendSubscriberConfig(true, [], []));
         }
         $mailTemplateId = $this->getContainer()
             ->get('mail_template.repository')
@@ -50,7 +51,10 @@ class MailSendSubscriberTest extends TestCase
         $subscriber = new MailSendSubscriber(
             $mailService,
             $this->getContainer()->get('mail_template.repository'),
-            $this->getContainer()->get(MediaService::class)
+            $this->getContainer()->get(MediaService::class),
+            $this->getContainer()->get('media.repository'),
+            $this->getContainer()->get('document.repository'),
+            $this->getContainer()->get(DocumentService::class)
         );
 
         $subscriber->sendMail(new BusinessEvent('test', $event, $config));

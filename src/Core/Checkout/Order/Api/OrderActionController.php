@@ -5,10 +5,10 @@ namespace Shopware\Core\Checkout\Order\Api;
 use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriber;
+use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\System\StateMachine\StateMachineDefinition;
 use Shopware\Core\System\StateMachine\Transition;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -55,10 +55,14 @@ class OrderActionController extends AbstractController
         Request $request,
         Context $context
     ): JsonResponse {
-        if ($request->request->get('sendMail', true) === false) {
-            // this extension allows to skip all business event mails
-            $context->addExtension(MailSendSubscriber::SKIP_MAILS, new ArrayStruct());
-        }
+        $context->addExtension(
+            MailSendSubscriber::MAIL_CONFIG_EXTENSION,
+            new MailSendSubscriberConfig(
+                $request->request->get('sendMail', true) === false,
+                $request->request->get('mediaIds', []),
+                $request->request->get('documentIds', [])
+            )
+        );
 
         $toPlace = $this->orderService->orderStateTransition(
             $orderId,
@@ -88,10 +92,14 @@ class OrderActionController extends AbstractController
         Request $request,
         Context $context
     ): JsonResponse {
-        if ($request->request->get('sendMail', true) === false) {
-            // this extension allows to skip all business event mails
-            $context->addExtension(MailSendSubscriber::SKIP_MAILS, new ArrayStruct());
-        }
+        $context->addExtension(
+            MailSendSubscriber::MAIL_CONFIG_EXTENSION,
+            new MailSendSubscriberConfig(
+                $request->request->get('sendMail', true) === false,
+                $request->request->get('mediaIds', []),
+                $request->request->get('documentIds', [])
+            )
+        );
 
         $toPlace = $this->orderService->orderTransactionStateTransition(
             $orderTransactionId,
@@ -121,10 +129,14 @@ class OrderActionController extends AbstractController
         Request $request,
         Context $context
     ): JsonResponse {
-        if ($request->request->get('sendMail', true) === false) {
-            // this extension allows to skip all business event mails
-            $context->addExtension(MailSendSubscriber::SKIP_MAILS, new ArrayStruct());
-        }
+        $context->addExtension(
+            MailSendSubscriber::MAIL_CONFIG_EXTENSION,
+            new MailSendSubscriberConfig(
+                $request->request->get('sendMail', true) === false,
+                $request->request->get('mediaIds', []),
+                $request->request->get('documentIds', [])
+            )
+        );
 
         $toPlace = $this->orderService->orderDeliveryStateTransition(
             $orderDeliveryId,

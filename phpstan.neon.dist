@@ -66,6 +66,11 @@ parameters:
              message: '#Strict comparison using#'
              path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi/OpenApiLoader.php
 
+        - '#Property Shopware\\Core\\Checkout\\Order\\Event\\OrderStateMachineStateChangeEvent::\$salesChannelId is never read, only written.#'
+        -
+            message: '#Cannot call method fetchAll\(\) on Doctrine\\DBAL\\Driver\\Statement\|int.#'
+            path: src/Core/Migration/Migration1599822061MigrateOrderMails.php
+
 services:
     -
         class: Shopware\Development\Analyze\PHPStan\Rules\Decoratable\DecoratableImplementsInterfaceRule

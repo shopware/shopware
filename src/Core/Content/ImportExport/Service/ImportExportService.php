@@ -158,7 +158,7 @@ class ImportExportService
         $this->fileRepository->update([$data], $context);
     }
 
-    private function detectType(UploadedFile $file): string
+    private function detectType(UploadedFile $file): ?string
     {
         // TODO: we should do a mime type detection on the file content
         $guessedExtension = $file->guessClientExtension();
@@ -196,7 +196,7 @@ class ImportExportService
      * @throws FileNotReadableException
      * @throws \League\Flysystem\FileNotFoundException
      */
-    private function storeFile(Context $context, \DateTimeInterface $expireDate, ?string $sourcePath, string $originalFileName, string $activity, ?string $path = null): ImportExportFileEntity
+    private function storeFile(Context $context, \DateTimeInterface $expireDate, ?string $sourcePath, ?string $originalFileName, string $activity, ?string $path = null): ImportExportFileEntity
     {
         $id = Uuid::randomHex();
         $path = $path ?? $activity . '/' . ImportExportFileEntity::buildPath($id);

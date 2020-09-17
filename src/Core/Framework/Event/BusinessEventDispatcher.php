@@ -100,10 +100,9 @@ class BusinessEventDispatcher implements EventDispatcherInterface
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('event_action.eventName', $name));
+        $criteria->addFilter(new EqualsFilter('event_action.active', true));
 
         if (Feature::isActive('FEATURE_NEXT_9351')) {
-            $criteria->addFilter(new EqualsFilter('event_action.active', true));
-
             $criteria->addFilter(new OrFilter([
                 new EqualsFilter('event_action.rules.id', null),
                 new EqualsAnyFilter('event_action.rules.id', $context->getRuleIds()),

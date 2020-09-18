@@ -182,7 +182,7 @@ describe('Minimal install', () => {
             expect(loc.hash).to.eq('#/sw/first/run/wizard/index/paypal/info');
         });
         cy.get('.sw-step-display').should('be.visible');
-        cy.get('.sw-step-display .sw-step-item.sw-step-item--active span').contains('Setup PayPal');
+        cy.get('.sw-step-display .sw-step-item.sw-step-item--active span').contains('PayPal setup');
 
         // Take snapshot for visual testing
         cy.changeElementStyling(

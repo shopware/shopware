@@ -1,7 +1,6 @@
 import template from './sw-verify-user-modal.html.twig';
 
-const { Component, Mixin, State } = Shopware;
-const types = Shopware.Utils.types;
+const { Component, Mixin } = Shopware;
 
 Component.register('sw-verify-user-modal', {
     template,
@@ -28,38 +27,32 @@ Component.register('sw-verify-user-modal', {
         createdComponent() {
         },
 
-        async onSubmitConfirmPassword() {
-            const verifiedToken = await this.verifyUserToken();
+        onSubmitConfirmPassword() {
+            return this.loginService.verifyUserToken(this.confirmPassword).then((verifiedToken) => {
+                const context = { ...Shopware.Context.api };
+                context.authToken.access = verifiedToken;
 
-            if (!verifiedToken) {
-                return;
-            }
-
-            const context = { ...Shopware.Context.api };
-            context.authToken.access = verifiedToken;
-
-            this.$emit('verified', context);
-        },
-
-        verifyUserToken() {
-            const { username } = State.get('session').currentUser;
-
-            return this.loginService.verifyUserByUsername(username, this.confirmPassword).then(({ access }) => {
-                this.confirmPassword = '';
-
-                if (types.isString(access)) {
-                    return access;
-                }
-
-                return false;
+                this.$emit('verified', context);
             }).catch(() => {
-                this.confirmPassword = '';
                 this.createNotificationError({
                     title: this.$tc('sw-settings-user.user-detail.passwordConfirmation.notificationPasswordErrorTitle'),
                     message: this.$tc('sw-settings-user.user-detail.passwordConfirmation.notificationPasswordErrorMessage')
                 });
+            }).finally(() => {
+                this.confirmPassword = '';
+            });
+        },
 
-                return false;
+        // @deprecated tag:v6.4.0 use loginService.verifyUserToken() instead
+        verifyUserToken() {
+            // eslint-disable-next-line no-unused-vars
+            return this.loginService.verifyUserToken(this.confirmPassword).catch(e => {
+                this.createNotificationError({
+                    title: this.$tc('sw-settings-user.user-detail.passwordConfirmation.notificationPasswordErrorTitle'),
+                    message: this.$tc('sw-settings-user.user-detail.passwordConfirmation.notificationPasswordErrorMessage')
+                });
+            }).finally(() => {
+                this.confirmPassword = '';
             });
         },
 

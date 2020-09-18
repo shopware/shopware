@@ -26,23 +26,16 @@ class Autoprefixer extends PadaliyajayAutoprefixer
         $this->cssParser = new Parser($cssCode);
     }
 
-    /**
-     * @return string|bool
-     */
-    public function compile(bool $prettyOutput = true)
+    public function compile(bool $prettyOutput = true): string
     {
-        if ($this->cssParser) {
-            $cssDocument = $this->cssParser->parse();
+        $cssDocument = $this->cssParser->parse();
 
-            $this->compileCSSList($cssDocument);
+        $this->compileCSSList($cssDocument);
 
-            $outputFormat = $prettyOutput
-                ? OutputFormat::createPretty()
-                : OutputFormat::createCompact();
+        $outputFormat = $prettyOutput
+            ? OutputFormat::createPretty()
+            : OutputFormat::createCompact();
 
-            return $cssDocument->render($outputFormat);
-        }
-
-        return false;
+        return $cssDocument->render($outputFormat);
     }
 }

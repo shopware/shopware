@@ -258,7 +258,9 @@
             "deleteModal": {
               "heading": "\"{productSortingName}\" entfernen.",
               "body": "Willst du wirklich die Sortier-Option \"{productSortingName}\" entfernen?"
-            }
+            },
+            "defaultSortingInUse": "Diese Produkt-Sortierung ist bereits als Standardsortierung ausgewählt.",
+            "defaultSortingCantBeDisabled": "Diese Product-Sortierung ist die Standardsortierung. Sie muss aktiviert bleiben, um keine Probleme mit Deinen Produkt-Listings zu verursachen."
           }
         }
       },

@@ -95,7 +95,7 @@ Shopware.Component.register('sw-settings-listing-option-criteria-grid', {
         },
 
         criteriaOptions() {
-            return [
+            const criteriaOptions = [
                 {
                     value: 'product.name',
                     label: this.$tc(
@@ -133,15 +133,9 @@ Shopware.Component.register('sw-settings-listing-option-criteria-grid', {
                     )
                 },
                 {
-                    value: 'product.unitsSold',
+                    value: 'product.sales',
                     label: this.$tc(
-                        'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.unitsSold'
-                    )
-                },
-                {
-                    value: 'product.isCloseout',
-                    label: this.$tc(
-                        'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.isCloseout'
+                        'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.sales'
                     )
                 },
                 {
@@ -149,6 +143,10 @@ Shopware.Component.register('sw-settings-listing-option-criteria-grid', {
                     label: this.$tc('sw-settings-listing.general.productSortingCriteriaGrid.options.label.customField')
                 }
             ];
+
+            return criteriaOptions.sort((a, b) => {
+                return a.label.localeCompare(b.label);
+            });
         },
 
         orderOptions() {

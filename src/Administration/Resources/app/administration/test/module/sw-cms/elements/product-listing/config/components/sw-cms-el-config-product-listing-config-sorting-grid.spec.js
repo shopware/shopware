@@ -53,23 +53,6 @@ describe('src/module/sw-cms/elements/product-listing/config/components/sw-cms-el
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should format product sorting fields correctly', () => {
-        const wrapper = createWrapper();
-
-        const input = [
-            {
-                field: 'foo'
-            },
-            {
-                field: 'bar'
-            }
-        ];
-
-        const output = wrapper.vm.formatProductSortingFields(input);
-
-        expect(output).toBe('foo, bar');
-    });
-
     it('should remove entry from product sortings on delete', async () => {
         const productSortings = new EntityCollection('', '', {}, {}, [
             { id: '1a2b3c', locked: false },

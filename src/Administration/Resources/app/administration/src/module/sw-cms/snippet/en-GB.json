@@ -258,7 +258,9 @@
             "deleteModal": {
               "heading": "Deleting \"{productSortingName}\".",
               "body": "Are you sure you want to delete \"{productSortingName}\"?"
-            }
+            },
+            "defaultSortingInUse": "This product sorting is already selected as default sorting.",
+            "defaultSortingCantBeDisabled": "This sorting is the default sorting. It has to be active to cause no problems with your product listing."
           }
         }
       },

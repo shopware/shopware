@@ -312,13 +312,17 @@ class CriteriaParser
 
     private function parseNotFilter(NotFilter $filter, EntityDefinition $definition, string $root, Context $context): BuilderInterface
     {
-        $bool = new BoolQuery();
+        $boolMust = new BoolQuery();
+
         foreach ($filter->getQueries() as $nested) {
-            $bool->add(
+            $boolMust->add(
                 $this->parseFilter($nested, $definition, $root, $context),
-                BoolQuery::MUST_NOT
+                BoolQuery::MUST
             );
         }
+
+        $bool = new BoolQuery();
+        $bool->add($boolMust, BoolQuery::MUST_NOT);
 
         return $bool;
     }

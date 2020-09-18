@@ -311,6 +311,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
 
         const taxDetailTooltip = wrapper.find('.sw-order-line-items-grid__item-tax-tooltip');
 
-        expect(taxDetailTooltip.attributes()['tooltip-message']).toBe('sw-order.detailBase.tax<br>10%: -€3.33<br>20%: -€13.33');
+        expect(taxDetailTooltip.attributes()['tooltip-message'])
+            .toBe('sw-order.detailBase.tax<br>10%: -€3.33<br>20%: -€13.33');
     });
 });

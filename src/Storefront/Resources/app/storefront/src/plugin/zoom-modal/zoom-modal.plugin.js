@@ -150,7 +150,7 @@ export default class ZoomModalPlugin extends Plugin {
 
         Iterator.iterate(imagesToLoad, img => {
             const src = DomAccess.getDataAttribute(img, this.options.imgDataSrcAttr);
-            const srcSet = DomAccess.getDataAttribute(img, this.options.imgDataSrcSetAttr);
+            const srcSet = DomAccess.getDataAttribute(img, this.options.imgDataSrcSetAttr, false);
 
             if (src) {
                 img.onload = () => {

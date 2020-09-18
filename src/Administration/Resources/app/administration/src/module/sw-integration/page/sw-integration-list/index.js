@@ -164,6 +164,7 @@ Component.register('sw-integration-list', {
             this.isModalLoading = true;
 
             this.integrationService.generateKey().then((response) => {
+                this.currentIntegration = this.currentIntegration || this.integrationRepository.create();
                 this.currentIntegration.accessKey = response.accessKey;
                 this.currentIntegration.secretAccessKey = response.secretAccessKey;
                 this.showSecretAccessKey = true;

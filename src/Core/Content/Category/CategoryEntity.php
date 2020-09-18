@@ -524,7 +524,9 @@ class CategoryEntity extends Entity
 
         $filtered = [];
         foreach ($parts as $id) {
-            $filtered[$id] = $breadcrumb[$id];
+            if (isset($breadcrumb[$id])) {
+                $filtered[$id] = $breadcrumb[$id];
+            }
         }
 
         $filtered[$this->getId()] = $breadcrumb[$this->getId()];

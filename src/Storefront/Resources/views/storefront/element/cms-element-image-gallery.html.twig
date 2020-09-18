@@ -95,7 +95,7 @@
                 {% endif %}
 
                 {% block element_image_gallery_inner %}
-                    <div class="row gallery-slider-row{% if imageCount == 1 %} is-single-image{% endif %} js-gallery-zoom-modal-container"
+                    <div class="row gallery-slider-row{% if imageCount == 1 %} is-single-image{% else %} is-loading{% endif %} js-gallery-zoom-modal-container"
                             {% if zoom %}
                                 data-magnifier="true"
                             {% endif %}

@@ -101,6 +101,7 @@ class ProductDefinition extends EntityDefinition
             'purchaseSteps' => 1,
             'shippingFree' => false,
             'restockTime' => 3,
+            'active' => true,
         ];
     }
 
@@ -131,7 +132,7 @@ class ProductDefinition extends EntityDefinition
             (new IntField('stock', 'stock'))->addFlags(new Required()),
             (new IntField('restock_time', 'restockTime'))->addFlags(new Inherited()),
             (new IntField('auto_increment', 'autoIncrement'))->addFlags(new WriteProtected()),
-            new BoolField('active', 'active'),
+            (new BoolField('active', 'active'))->addFlags(new Inherited()),
             (new IntField('available_stock', 'availableStock'))->addFlags(new WriteProtected()),
             (new BoolField('available', 'available'))->addFlags(new WriteProtected()),
             (new BoolField('is_closeout', 'isCloseout'))->addFlags(new Inherited()),

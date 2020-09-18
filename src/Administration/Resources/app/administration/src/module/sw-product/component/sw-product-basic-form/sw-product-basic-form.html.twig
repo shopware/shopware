@@ -72,11 +72,22 @@
 
         <div class="product-basic-form__switches">
             {% block sw_product_settings_form_active_field %}
-                <sw-field type="switch"
-                          :error="productActiveError"
-                          :label="$tc('sw-product.settingsForm.labelActive')"
-                          v-model="product.active">
-                </sw-field>
+                <sw-inherit-wrapper v-model="product.active"
+                                    :hasParent="!!parentProduct.id"
+                                    :inheritedValue="parentProduct.active">
+                    <template #content="props">
+
+                        <sw-field type="switch"
+                                  class="sw-field--product-active"
+                                  :error="productActiveError"
+                                  :mapInheritance="props"
+                                  :label="$tc('sw-product.settingsForm.labelActive')"
+                                  :disabled="props.isInherited"
+                                  :value="props.currentValue"
+                                  @change="props.updateCurrentValue">
+                        </sw-field>
+                    </template>
+                </sw-inherit-wrapper>
             {% endblock %}
 
             {% block sw_product_settings_form_mark_as_topseller_field %}

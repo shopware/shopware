@@ -4,7 +4,8 @@ namespace Shopware\Core\System\SalesChannel\Context;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Util\Random;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\Event\SalesChannelContextTokenChangeEvent;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class SalesChannelContextPersister
 {
@@ -13,9 +14,15 @@ class SalesChannelContextPersister
      */
     private $connection;
 
-    public function __construct(Connection $connection)
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    public function __construct(Connection $connection, EventDispatcherInterface $eventDispatcher)
     {
         $this->connection = $connection;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function save(string $token, array $parameters): void
@@ -78,6 +85,7 @@ class SalesChannelContextPersister
         if (func_num_args() === 2) {
             $context = func_get_arg(1);
             $context->assign(['token' => $newToken]);
+            $this->eventDispatcher->dispatch(new SalesChannelContextTokenChangeEvent($context, $oldToken, $newToken));
         }
 
         return $newToken;

@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class SalesChannelContextPersisterTest extends TestCase
 {
@@ -27,7 +28,8 @@ class SalesChannelContextPersisterTest extends TestCase
     public function setUp(): void
     {
         $this->connection = $this->getContainer()->get(Connection::class);
-        $this->contextPersister = new SalesChannelContextPersister($this->connection);
+        $eventDispatcher = new EventDispatcher();
+        $this->contextPersister = new SalesChannelContextPersister($this->connection, $eventDispatcher);
     }
 
     public function testLoad(): void

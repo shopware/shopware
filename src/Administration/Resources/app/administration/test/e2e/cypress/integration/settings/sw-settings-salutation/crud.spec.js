@@ -69,7 +69,7 @@ describe('Salutation: crud salutations', () => {
             method: 'patch'
         }).as('editSalutation');
 
-        // go to salutaion module
+        // go to salutation module
         cy.get('.sw-admin-menu__item--sw-settings').click();
         cy.get('#sw-settings-salutation').click();
 

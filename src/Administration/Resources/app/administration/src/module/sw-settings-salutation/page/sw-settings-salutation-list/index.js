@@ -60,6 +60,7 @@ Component.register('sw-settings-salutation-list', {
             this.isLoading = true;
             const criteria = new Criteria(this.page, this.limit);
             criteria.setTerm(this.term);
+            criteria.addSorting(Criteria.sort('salutationKey', 'ASC', false));
 
             this.salutationRepository.search(criteria, Shopware.Context.api).then((searchResult) => {
                 this.total = searchResult.total;

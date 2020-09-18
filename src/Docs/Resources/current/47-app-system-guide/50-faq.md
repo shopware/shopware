@@ -36,7 +36,7 @@ For general admin user interaction you can use app action buttons.
 
 >What about Errorhandling?
 
-Once the the app system is running asynchronous it will come with retry logic. 
+Once the app system is running asynchronous it will come with retry logic. 
 Should the request to the app fail there is no need to manually retry it, it will be automatically retried 
 by the message system in the Shopware core.
 

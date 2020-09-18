@@ -10,7 +10,7 @@ So that they can be used as a checklist during packing.
 
 It demonstrates three ways to interact with an app.
 1. Webhooks to be notified of business events
-2. An extra admin module to display the the order lists
+2. An extra admin module to display the order lists
 3. An action button to extend the order detail page
 
 The source code can be found on [GitHub](https://github.com/shopwareLabs/AppExample).

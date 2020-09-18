@@ -73,7 +73,7 @@ class OffCanvasSingleton {
     }
 
     /**
-     * Close the offcanvas and its backdrop
+     * Close the offcanvas and its backdrop when the browser goes back in history
      * @param {number} delay
      */
     close(delay) {
@@ -94,6 +94,14 @@ class OffCanvasSingleton {
     }
 
     /**
+     * Callback for close button, goes back in browser history to trigger close
+     * @returns {void}
+     */
+    goBackInHistory() {
+        window.history.back();
+    }
+
+    /**
      * Returns whether any OffCanvas exists or not
      * @returns {boolean}
      */
@@ -102,7 +110,7 @@ class OffCanvasSingleton {
     }
 
     /**
-     * opens the offcanvas and its backdrop
+     * Opens the offcanvas and its backdrop
      *
      * @param {HTMLElement} offCanvas
      * @param {function} callback
@@ -114,6 +122,7 @@ class OffCanvasSingleton {
         setTimeout(() => {
             Backdrop.create(() => {
                 offCanvas.classList.add(OFF_CANVAS_OPEN_CLASS);
+                window.history.pushState('offcanvas-open', '');
 
                 // if a callback function is being injected execute it after opening the OffCanvas
                 if (typeof callback === 'function') {
@@ -142,8 +151,9 @@ class OffCanvasSingleton {
             document.addEventListener(BACKDROP_EVENT.ON_CLICK, onBackdropClick);
         }
 
+        window.addEventListener('popstate', this.close.bind(this, delay), { once: true });
         const closeTriggers = document.querySelectorAll(`.${OFF_CANVAS_CLOSE_TRIGGER_CLASS}`);
-        Iterator.iterate(closeTriggers, trigger => trigger.addEventListener(event, this.close.bind(this, delay)));
+        Iterator.iterate(closeTriggers, trigger => trigger.addEventListener(event, this.goBackInHistory.bind(this)));
     }
 
     /**

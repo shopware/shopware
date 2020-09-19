@@ -105,9 +105,10 @@ class ThemeCompiler implements ThemeCompilerInterface
     ): void {
         $themePrefix = self::getThemePrefix($salesChannelId, $themeId);
         $outputPath = 'theme' . DIRECTORY_SEPARATOR . $themePrefix;
+        $outputPathTmp = $outputPath . 'tmp';
 
-        if ($withAssets && $this->filesystem->has($outputPath)) {
-            $this->filesystem->deleteDir($outputPath);
+        if ($this->filesystem->has($outputPathTmp)) {
+            $this->filesystem->deleteDir($outputPathTmp);
         }
 
         $resolvedFiles = $this->themeFileResolver->resolveFiles($themeConfig, $configurationCollection, false);
@@ -119,7 +120,8 @@ class ThemeCompiler implements ThemeCompilerInterface
             $concatenatedStyles .= $this->themeFileImporter->getConcatenableStylePath($file, $themeConfig);
         }
         $compiled = $this->compileStyles($concatenatedStyles, $themeConfig, $styleFiles->getResolveMappings(), $salesChannelId);
-        $cssFilepath = $outputPath . DIRECTORY_SEPARATOR . 'css' . DIRECTORY_SEPARATOR . 'all.css';
+        $cssFilepath = $outputPathTmp . DIRECTORY_SEPARATOR . 'css' . DIRECTORY_SEPARATOR . 'all.css';
+
         $this->filesystem->put($cssFilepath, $compiled);
 
         /** @var FileCollection $scriptFiles */
@@ -128,14 +130,19 @@ class ThemeCompiler implements ThemeCompilerInterface
         foreach ($scriptFiles as $file) {
             $concatenatedScripts .= $this->themeFileImporter->getConcatenableScriptPath($file, $themeConfig);
         }
-
-        $scriptFilepath = $outputPath . DIRECTORY_SEPARATOR . 'js' . DIRECTORY_SEPARATOR . 'all.js';
+        $scriptFilepath = $outputPathTmp . DIRECTORY_SEPARATOR . 'js' . DIRECTORY_SEPARATOR . 'all.js';
         $this->filesystem->put($scriptFilepath, $concatenatedScripts);
 
         // assets
         if ($withAssets) {
-            $this->copyAssets($themeConfig, $configurationCollection, $outputPath);
+            $this->copyAssets($themeConfig, $configurationCollection, $outputPathTmp);
+
+            if ($this->filesystem->has($outputPath)) {
+                $this->filesystem->deleteDir($outputPath);
+            }
         }
+
+        $this->filesystem->rename($outputPathTmp, $outputPath);
 
         // Reset cache buster state for improving performance in getMetadata
         $this->cacheClearer->invalidateTags(['theme-metaData']);

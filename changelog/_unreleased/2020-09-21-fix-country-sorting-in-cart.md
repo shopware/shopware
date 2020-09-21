@@ -6,7 +6,8 @@ author_email: 24492269+zaifastafa@users.noreply.github.com
 author_github: zaifastafa
 ---
 # Core
-*  
+*  Added criteria in `\Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoader::getCountries` to first sort by 
+position and then by name, so the countries are sorted properly.   
 ___
 # API
 *  
@@ -15,7 +16,7 @@ ___
 *  
 ___
 # Storefront
-*  Fixed country sorting to first sort by position and then naturally (ascending alphabetically)
+*
 ___
 # Upgrade Information
 ## Topic 1

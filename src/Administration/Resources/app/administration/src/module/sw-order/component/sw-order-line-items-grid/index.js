@@ -179,8 +179,8 @@ Component.register('sw-order-line-items-grid', {
                 totalPrice: 0
             };
             item.quantity = 1;
-            item.unitPrice = 0;
-            item.totalPrice = 0;
+            item.unitPrice = '...';
+            item.totalPrice = '...';
             item.precision = 2;
             item.label = '';
 

@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Theme;
 
 use League\Flysystem\FilesystemInterface;
+use Padaliyajay\PHPAutoprefixer\Autoprefixer;
 use ScssPhp\ScssPhp\Compiler;
 use ScssPhp\ScssPhp\Formatter\Crunched;
 use ScssPhp\ScssPhp\Formatter\Expanded;

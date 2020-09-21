@@ -286,6 +286,10 @@ Component.register('sw-category-tree', {
         },
 
         addCategory(category) {
+            if (!category) {
+                return;
+            }
+
             this.loadedCategories = { ...this.loadedCategories, [category.id]: category };
         },
 

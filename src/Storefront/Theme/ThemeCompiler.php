@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Theme;
 
 use League\Flysystem\FilesystemInterface;
+use Padaliyajay\PHPAutoprefixer\Autoprefixer;
 use ScssPhp\ScssPhp\Compiler;
 use ScssPhp\ScssPhp\Formatter\Crunched;
 use ScssPhp\ScssPhp\Formatter\Expanded;
@@ -69,11 +70,6 @@ class ThemeCompiler implements ThemeCompilerInterface
      */
     private $cacheClearer;
 
-    /**
-     * @var bool
-     */
-    private $debug;
-
     public function __construct(
         FilesystemInterface $filesystem,
         FilesystemInterface $tempFilesystem,
@@ -98,8 +94,6 @@ class ThemeCompiler implements ThemeCompilerInterface
         $this->mediaRepository = $mediaRepository;
         $this->packages = $packages;
         $this->cacheClearer = $cacheClearer;
-
-        $this->debug = $debug;
     }
 
     public function compileTheme(
@@ -220,8 +214,16 @@ class ThemeCompiler implements ThemeCompilerInterface
             );
         }
         $autoPreFixer = new Autoprefixer($cssOutput);
+        /** @var string|false $compiled */
+        $compiled = $autoPreFixer->compile();
+        if ($compiled === false) {
+            throw new ThemeCompileException(
+                $configuration->getTechnicalName(),
+                'CSS parser not initialized'
+            );
+        }
 
-        return $autoPreFixer->compile($this->debug);
+        return $compiled;
     }
 
     private function formatVariables(array $variables): array

@@ -6,7 +6,7 @@ author_email: info@claudio-bianco.de
 author_github: @claudiobianco
 ---
 # Core
-* Catch `EmptyCartException` when submitting order with empty cart (e.g. due to double click submit button)
+* Changed `CheckoutController` to catch `EmptyCartException` when submitting an order with an empty cart (e.g. due to double-click of the submit button)
 ___
 # Storefront
 * Changed checkout order button to use `FormSubmitLoader` to prevent submitting it multiple times

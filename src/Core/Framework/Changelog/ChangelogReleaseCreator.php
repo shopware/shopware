@@ -152,7 +152,7 @@ class ChangelogReleaseCreator
             $output[] = '---';
             $output[] = 'Update the Upgrade Information in: ' . $this->getTargetUpgradeFile($version, false);
             $output[] = '---';
-            $output[] = implode($append, "\n");
+            $output[] = implode("\n", $append);
         }
     }
 }

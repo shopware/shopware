@@ -76,6 +76,8 @@ class RequestTransformer implements RequestTransformerInterface
         SalesChannelRequest::ATTRIBUTE_THEME_BASE_NAME,
 
         SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK,
+
+        SalesChannelRequest::ATTRIBUTE_CSRF_PROTECTED,
     ];
 
     /**

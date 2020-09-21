@@ -6,6 +6,7 @@ use Composer\Autoload\ClassLoader;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Test\Filesystem\Adapter\MemoryAdapterFactory;
+use Shopware\Core\Framework\Test\TestCaseHelper\TestBrowser;
 use Shopware\Core\Profiling\Doctrine\DebugStack;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -55,7 +56,7 @@ class KernelLifecycleManager
     /**
      * Create a web client with the default kernel and disabled reboots
      */
-    public static function createBrowser(KernelInterface $kernel, bool $enableReboot = false): KernelBrowser
+    public static function createBrowser(KernelInterface $kernel, bool $enableReboot = false, bool $disableCsrf = false): KernelBrowser
     {
         /** @var KernelBrowser $apiBrowser */
         $apiBrowser = $kernel->getContainer()->get('test.browser');
@@ -64,6 +65,13 @@ class KernelLifecycleManager
             $apiBrowser->enableReboot();
         } else {
             $apiBrowser->disableReboot();
+        }
+        if ($apiBrowser instanceof TestBrowser) {
+            if ($disableCsrf) {
+                $apiBrowser->disableCsrf();
+            } else {
+                $apiBrowser->enableCsrf();
+            }
         }
 
         return $apiBrowser;

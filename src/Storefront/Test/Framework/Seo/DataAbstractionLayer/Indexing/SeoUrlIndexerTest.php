@@ -8,9 +8,11 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
+use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateEntity;
 use Shopware\Core\Content\Seo\SeoUrlUpdater;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -504,7 +506,7 @@ class SeoUrlIndexerTest extends TestCase
         static::assertSame('updated/C2', $canonical->getSeoPathInfo());
     }
 
-    public function testIndex(): void
+    public function testIndex(?int $seoUrlCount = 1): void
     {
         $salesChannelId = Uuid::randomHex();
         $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
@@ -546,7 +548,34 @@ class SeoUrlIndexerTest extends TestCase
         /** @var SeoUrlCollection $seoUrls */
         $seoUrls = $product->getSeoUrls();
         static::assertInstanceOf(SeoUrlCollection::class, $seoUrls);
-        static::assertCount(1, $seoUrls);
+        static::assertCount($seoUrlCount, $seoUrls);
+    }
+
+    public function testIndexWithEmptySeoUrlTemplate(): void
+    {
+        /* @var EntityRepositoryInterface $templateRepository */
+        $templateRepository = $this->getContainer()->get('seo_url_template.repository');
+
+        $ids = $templateRepository->searchIds(new Criteria(), Context::createDefaultContext())->getIds();
+
+        /* @var EntityCollection $templates */
+        $templates = $templateRepository->search(new Criteria($ids), Context::createDefaultContext())->getEntities();
+
+        foreach ($templates as $template) {
+            /* @var SeoUrlTemplateEntity $template */
+            $template->setTemplate('');
+        }
+
+        $data = array_map(static function (string $templateId): array {
+            return [
+                'id' => $templateId,
+                'template' => null,
+            ];
+        }, $templates->getIds());
+
+        $templateRepository->upsert(array_values($data), Context::createDefaultContext());
+
+        $this->testIndex(0);
     }
 
     private function getSeoUrls(string $salesChannelId, string $productId): SeoUrlCollection

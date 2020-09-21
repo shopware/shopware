@@ -78,7 +78,7 @@ class SeoUrlGeneratorTest extends TestCase
      *
      * @dataProvider templateDataProvider
      */
-    public function testGenerateUrlCount(string $id, ?string $template, int $count, ?string $pathInfo): void
+    public function testGenerateUrlCount(string $id, string $template, int $count, ?string $pathInfo): void
     {
         /** @var SeoUrlEntity[] $urls */
         $urls = $this->seoUrlGenerator->generate(
@@ -98,7 +98,7 @@ class SeoUrlGeneratorTest extends TestCase
      *
      * @dataProvider templateDataProvider
      */
-    public function testGenerateSeoPathInfo(string $id, ?string $template, int $count, ?string $pathInfo): void
+    public function testGenerateSeoPathInfo(string $id, string $template, int $count, ?string $pathInfo): void
     {
         /** @var SeoUrlEntity[] $urls */
         $urls = $this->seoUrlGenerator->generate(

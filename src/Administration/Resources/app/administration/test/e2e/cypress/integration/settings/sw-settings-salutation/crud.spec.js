@@ -74,7 +74,7 @@ describe('Salutation: crud salutations', () => {
         cy.get('#sw-settings-salutation').click();
 
         // click on the first element in grid
-        cy.get(`${page.elements.dataGridRow}--1`).contains('mr').click();
+        cy.get(`${page.elements.dataGridRow}--0`).contains('mr').click();
 
         // clear old data and type another one in letterName field
         cy.get('#sw-field--salutation-letterName')

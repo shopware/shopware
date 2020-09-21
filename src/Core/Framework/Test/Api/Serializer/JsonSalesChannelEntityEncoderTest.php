@@ -33,6 +33,7 @@ class JsonSalesChannelEntityEncoderTest extends TestCase
 {
     use KernelTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
+    use AssertValuesTrait;
 
     public function emptyInputProvider(): array
     {
@@ -122,18 +123,5 @@ class JsonSalesChannelEntityEncoderTest extends TestCase
         unset($actual['apiAlias']);
 
         $this->assertValues($fixture->getSalesChannelJsonFixtures(), $actual);
-    }
-
-    private function assertValues(array $expected, array $actual): void
-    {
-        foreach ($expected as $key => $value) {
-            static::assertArrayHasKey($key, $actual);
-
-            if (is_array($value)) {
-                $this->assertValues($value, $actual[$key]);
-            } else {
-                static::assertEquals($value, $actual[$key]);
-            }
-        }
     }
 }

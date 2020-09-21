@@ -158,7 +158,7 @@ class ImportExportService
         $this->fileRepository->update([$data], $context);
     }
 
-    private function detectType(UploadedFile $file): ?string
+    private function detectType(UploadedFile $file): string
     {
         // TODO: we should do a mime type detection on the file content
         $guessedExtension = $file->guessClientExtension();

@@ -4,7 +4,7 @@ namespace Shopware\Storefront\Page\Product;
 
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Cms\CmsPageEntity;
-use Shopware\Core\Content\Cms\DataResolver\CmsSlotsDataResolver;
+use Shopware\Core\Content\Cms\DataResolver\CmsSlotsDataResolverInterface;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageRepository;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
@@ -38,7 +38,7 @@ class ProductPageLoader
     private $cmsPageRepository;
 
     /**
-     * @var CmsSlotsDataResolver
+     * @var CmsSlotsDataResolverInterface
      */
     private $slotDataResolver;
 
@@ -66,7 +66,7 @@ class ProductPageLoader
         GenericPageLoaderInterface $genericLoader,
         EventDispatcherInterface $eventDispatcher,
         SalesChannelCmsPageRepository $cmsPageRepository,
-        CmsSlotsDataResolver $slotDataResolver,
+        CmsSlotsDataResolverInterface $slotDataResolver,
         ProductDefinition $productDefinition,
         ProductLoader $productLoader,
         ProductReviewLoader $productReviewLoader,

@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Cms\SalesChannel;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockEntity;
 use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionEntity;
 use Shopware\Core\Content\Cms\CmsPageEntity;
-use Shopware\Core\Content\Cms\DataResolver\CmsSlotsDataResolver;
+use Shopware\Core\Content\Cms\DataResolver\CmsSlotsDataResolverInterface;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\Events\CmsPageLoadedEvent;
 use Shopware\Core\Content\Cms\Events\CmsPageLoaderCriteriaEvent;
@@ -24,7 +24,7 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
     private $cmsPageRepository;
 
     /**
-     * @var CmsSlotsDataResolver
+     * @var CmsSlotsDataResolverInterface
      */
     private $slotDataResolver;
 
@@ -35,7 +35,7 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
 
     public function __construct(
         EntityRepositoryInterface $cmsPageRepository,
-        CmsSlotsDataResolver $slotDataResolver,
+        CmsSlotsDataResolverInterface $slotDataResolver,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->cmsPageRepository = $cmsPageRepository;

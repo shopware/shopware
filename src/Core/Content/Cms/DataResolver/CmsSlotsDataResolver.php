@@ -17,7 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-class CmsSlotsDataResolver
+class CmsSlotsDataResolver implements CmsSlotsDataResolverInterface
 {
     /**
      * @var CmsElementResolverInterface[]

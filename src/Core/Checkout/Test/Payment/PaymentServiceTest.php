@@ -217,7 +217,7 @@ class PaymentServiceTest extends TestCase
         $transactionEntity = $this->orderTransactionRepository->search($criteria, $this->context)->first();
 
         static::assertSame(
-            OrderTransactionStates::STATE_FAILED,
+            OrderTransactionStates::STATE_CANCELLED,
             $transactionEntity->getStateMachineState()->getTechnicalName()
         );
 
@@ -232,11 +232,11 @@ class PaymentServiceTest extends TestCase
         $transactionEntity = $this->orderTransactionRepository->search($criteria, $this->context)->first();
 
         static::assertSame(
-            OrderTransactionStates::STATE_FAILED,
+            OrderTransactionStates::STATE_CANCELLED,
             $transactionEntity->getStateMachineState()->getTechnicalName()
         );
 
-        //can success after fail
+        //can success after cancelled
         $request->query->set('cancel', false);
         $this->paymentService->finalizeTransaction($token, $request, $this->getSalesChannelContext($paymentMethodId));
 

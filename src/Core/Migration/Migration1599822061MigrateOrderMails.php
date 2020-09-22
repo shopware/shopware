@@ -141,7 +141,7 @@ class Migration1599822061MigrateOrderMails extends MigrationStep
                 'config' => json_encode([
                     'mail_template_id' => $mail['mail_template_id'],
 
-                    // blue green deployment => mail send subscriber expects in blue state a type id here
+                    // blue green deployment => mail send subscriber expects in blue state a type id without isset() condition
                     'mail_template_type_id' => Uuid::randomHex(),
                 ]),
                 'event_name' => $mail['technical_name'],

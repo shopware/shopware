@@ -119,9 +119,13 @@ class CheckoutControllerTest extends TestCase
 
         static::assertInstanceOf(RedirectResponse::class, $response);
 
-        static::assertStringContainsString('/checkout/finish', $response->getTargetUrl(), 'Target Url does not point to /checkout/finish');
-        static::assertStringContainsString('paymentFailed=1', $response->getTargetUrl(), 'Target Url does not contain paymentFailed=1 as query parameter');
-        static::assertStringContainsString('changedPayment=0', $response->getTargetUrl(), 'Target Url does not contain changedPayment=0 as query parameter');
+        if (Feature::isActive('FEATURE_NEXT_9351')) {
+            static::assertStringContainsString('/account/order/edit', $response->getTargetUrl(), 'Target Url does not point to /checkout/finish');
+        } else {
+            static::assertStringContainsString('/checkout/finish', $response->getTargetUrl(), 'Target Url does not point to /checkout/finish');
+            static::assertStringContainsString('paymentFailed=1', $response->getTargetUrl(), 'Target Url does not contain paymentFailed=1 as query parameter');
+            static::assertStringContainsString('changedPayment=0', $response->getTargetUrl(), 'Target Url does not contain changedPayment=0 as query parameter');
+        }
     }
 
     public function testAffiliateOrder(): void

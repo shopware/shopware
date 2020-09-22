@@ -71,6 +71,8 @@
     "auto-promotion-not-found": "Promotion \"%name%\" was no longer valid!"
   },
   "account": {
+    "externalPaymentCanceled": "Wir haben Ihre Bestellung erhalten, aber die Zahlung wurde abgebrochen. Bitte ändern Sie Ihre Zahlungsmethode oder versuchen Sie es erneut",
+    "externalPaymentFailure": "Wir haben Ihre Bestellung erhalten, aber wir konnten Ihre Zahlung nicht bearbeiten, bitte ändern Sie die Zahlungsmethode oder versuchen Sie es erneut",
     "confirmationIsAlreadyDone": "Die Bestätigung ist bereits erfolgt oder die URL ist ungültig.",
     "doubleOptInMailConfirmationSuccessfully": "Vielen Dank für die Bestätigung Ihrer E-Mail-Adresse! Sie können Ihre Bestellung nun abschließen.",
     "doubleOptInRegistrationSuccessfully": "Vielen Dank für Ihre Anmeldung! Ihr Account wurde erfolgreich freigeschaltet.",

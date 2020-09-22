@@ -166,7 +166,7 @@ class ImportExportService
             return 'text/csv';
         }
 
-        return $file->getClientMimeType();
+        return (string) $file->getClientMimeType();
     }
 
     private function findLog(Context $context, string $logId): ?ImportExportLogEntity

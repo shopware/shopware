@@ -8,16 +8,15 @@ If you want to learn more about writing or using the changelog, have a look [her
 
 Table of contents
 ----------------
-* [NEXT](#NEXT)
-* [6.3.1.0](#6310)
+* [6.3.2.0](#6320)
 * [6.3.0.2](#6302)
 * [6.3.0.0](#6300)
   - [Administration](#administration)
   - [Core](#core)
   - [Storefront](#storefront)
   
-NEXT
-----------------
+
+## 6.3.2.0
 
 #### Administration
 * Added ACL permissions to countries module in settings

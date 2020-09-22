@@ -373,7 +373,9 @@ E2E:
                 FEATURE_ALL: ["false", "true"]
                 cypress_usePercy: 'false'
             -   SECTION: 'Administration'
-                TEST_DIRECTORY: "cypress/integration/!\\(visual\\)/**/*"
+                TEST_DIRECTORY:
+                    - "cypress/integration/content/**/* cypress/integration/catalogue/**/* cypress/integration/customer/**/* cypress/integration/media-marketing/**/*"
+                    - "cypress/integration/general/**/* cypress/integration/order/**/* cypress/integration/rule-product-stream/**/* cypress/integration/settings/**/*"
                 BROWSER: ['firefox', 'chrome']
                 FEATURE_ALL: ["false", "true"]
                 cypress_usePercy: 'false'

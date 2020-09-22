@@ -8,6 +8,7 @@
             "Shopware\\Administration\\": ""
         }
     },
+    "version": "6.3.2.0",
     "config": {
         "platform": {
             "php": "7.2.9"

@@ -6,6 +6,7 @@
         "shopware",
         "shop"
     ],
+    "version": "6.3.2.0",
     "homepage": "http://www.shopware.com",
     "license": "MIT",
     "autoload": {

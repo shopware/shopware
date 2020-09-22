@@ -312,12 +312,13 @@ E2E:
         - ./psh.phar e2e:dump-db --APP_ENV="prod"
         - E2E_BASE_PATH=vendor/shopware/platform/src/${SECTION}/Resources/app/$(echo ${SECTION} | tr '[:upper:]' '[:lower:]')/test/e2e
         - npm i @shopware-ag/e2e-testsuite-platform@1.3.0-beta.3 --prefix $E2E_BASE_PATH
-        - if [[ $cypress_usePercy = "true" ]]; then npm install --save-dev @percy/cypress; fi
         - forever start ${E2E_BASE_PATH}/node_modules/@shopware-ag/e2e-testsuite-platform/routes/cypress.js
         - chown -R 1000:1000 .
-        - CYPRESS_CMD="npm install --production --prefix /e2e && export PERCY_TOKEN=$PERCY_TOKEN && npx percy exec -- cypress run --browser chrome --headless --project /e2e --config baseUrl=http://docker.vm:8000 $CYPRESS_PARAMS --spec $TEST_DIRECTORY"
-        - echo $CYPRESS_CMD
-        - docker run --shm-size=2g --name cypress --add-host="docker.vm:$(hostname -I)" -e cypress_grep -e cypress_usePercy -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/${E2E_BASE_PATH}:/e2e -v $(pwd):/app -w /e2e --entrypoint "sh" cypress/included:4.10.0 -c "$CYPRESS_CMD"
+        - CYPRESS_CMD="cypress run"
+        - if [[ $cypress_usePercy = "true" ]]; then export CYPRESS_CMD="npx percy exec -- cypress run"; npm install --save-dev @percy/cypress; fi
+        - FULL_CYPRESS_CMD="npm install --production --prefix /e2e && export PERCY_TOKEN=$PERCY_TOKEN && $CYPRESS_CMD --browser chrome --headless --project /e2e --config baseUrl=http://docker.vm:8000 $CYPRESS_PARAMS --spec $TEST_DIRECTORY"
+        - echo $FULL_CYPRESS_CMD
+        - docker run --shm-size=2g --name cypress --add-host="docker.vm:$(hostname -I)" -e cypress_grep -e cypress_usePercy -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/${E2E_BASE_PATH}:/e2e -v $(pwd):/app -w /e2e --entrypoint "sh" cypress/included:4.10.0 -c "$FULL_CYPRESS_CMD"
     after_script:
         - npx mochawesome-merge development/build/artifacts/e2e/mochawesome/single-reports/mochawesome*.json > development/build/artifacts/e2e/mochawesome/report-final.json
         - npx mochawesome-report-generator development/build/artifacts/e2e/mochawesome/report-final.json --cdn true --reportDir development/build/artifacts/e2e/mochawesome

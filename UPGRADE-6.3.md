@@ -1,6 +1,99 @@
 UPGRADE FROM 6.2.x to 6.3
 =======================
 
+# 6.3.2.0
+## Deprecation of the Sales Channel API
+
+As we finished with the implementation of our new Store API, we are deprecating the old Sales Channel API. 
+The removal is planned for the 6.4.0.0 release. Projects are using the current Sales Channel API can migrate on api route base.
+
+## HTTP Client for Store API
+Use the HTTP client in your Javascript for calls to the Store API.
+
+Example usage:
+```javascript
+import StoreApiClient from 'src/service/store-api-client.service';
+const client = new StoreApiClient;
+client.get('/store-api/v2/country', function(response) {
+  console.log(response)
+});
+```
+## Entity Foreign Key Resolver
+There are currently systems that have performance problems with the `\Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityForeignKeyResolver`.
+We have now created a solution for this, but we have to change the format of the return value of the different functions as follow:
+
+### getAffectedDeleteRestrictions & getAffectedDeletes
+* `EntityForeignKeyResolver::getAffectedDeleteRestrictions`
+* `EntityForeignKeyResolver::getAffectedDeletes`
+
+**before**
+```
+[
+    [
+        'pk' => '43c6baad756140d8aabbbca533a8284f'
+        restrictions => [
+            "order_customer" => array:2 [
+                "cace68bdbca140b6ac43a083fb19f82b",
+                "50330f5531ed485fbd72ba016b20ea2a",
+            ]
+            "order_address" => array:4 [
+                "29d6334b01e64be28c89a5f1757fd661",
+                "484ef1124595434fa9b14d6d2cc1e9f8",
+                "601133b1173f4ca3aeda5ef64ad38355",
+                "9fd6c61cf9844a8984a45f4e5b55a59c",
+            ]
+        ]
+    ]
+]
+```
+
+**after** 
+```
+[
+    "order_customer" => array:2 [
+        "cace68bdbca140b6ac43a083fb19f82b",
+        "50330f5531ed485fbd72ba016b20ea2a",
+    ]
+    "order_address" => array:4 [
+        "29d6334b01e64be28c89a5f1757fd661",
+        "484ef1124595434fa9b14d6d2cc1e9f8",
+        "601133b1173f4ca3aeda5ef64ad38355",
+        "9fd6c61cf9844a8984a45f4e5b55a59c",
+    ]
+]
+```
+
+### getAffectedSetNulls
+* `EntityForeignKeyResolver::getAffectedSetNulls`
+
+**before**
+```
+[
+    [
+        'pk' => '43c6baad756140d8aabbbca533a8284f'
+        restrictions => [
+            'Shopware\Core\Content\Product\ProductDefinition' => [
+                '1ffd7ea958c643558256927aae8efb07' => ['category_id'],
+                '1ffd7ea958c643558256927aae8efb07' => ['category_id', 'main_category_id']
+            ]
+        ]
+    ]
+]
+```               
+
+**after**
+```
+[
+    'product.manufacturer_id' => [
+        '1ffd7ea958c643558256927aae8efb07',
+        '1ffd7ea958c643558256927aae8efb07'
+    ],
+    'product.cover_id' => [
+        '1ffd7ea958c643558256927aae8efb07'
+        '1ffd7ea958c643558256927aae8efb07'
+    ]
+]
+```
 # 6.3
 
 API

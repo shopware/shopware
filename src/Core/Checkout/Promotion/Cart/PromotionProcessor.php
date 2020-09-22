@@ -8,6 +8,8 @@ use Shopware\Core\Checkout\Cart\CartProcessorInterface;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Checkout\Promotion\Cart\Error\AutoPromotionNotFoundError;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class PromotionProcessor implements CartProcessorInterface
@@ -49,6 +51,17 @@ class PromotionProcessor implements CartProcessorInterface
 
         // if there is no collected promotion we may return - nothing to calculate!
         if (!$data->has(self::DATA_KEY)) {
+            if (Feature::isActive('FEATURE_NEXT_10058')) {
+                $lineItemPromotions = $original->getLineItems()->filterType(self::LINE_ITEM_TYPE);
+                foreach ($lineItemPromotions as $lineItemPromotion) {
+                    if (empty($lineItemPromotion->getReferencedId())) {
+                        $calculated->addErrors(
+                            new AutoPromotionNotFoundError($lineItemPromotion->getLabel())
+                        );
+                    }
+                }
+            }
+
             return;
         }
 

@@ -215,7 +215,7 @@ class SalesChannelCheckoutController extends AbstractController
         $salesChannelContext = $this->salesChannelContextFactory->create(
             $newToken,
             $context->getSalesChannel()->getId(),
-            [SalesChannelContextService::CUSTOMER_ID => $customerId]
+            [SalesChannelContextService::CUSTOMER_ID => $customerId, SalesChannelContextService::SHIPPING_METHOD_ID => $context->getShippingMethod()->getId()]
         );
 
         // todo: load matching rules

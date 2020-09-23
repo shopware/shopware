@@ -3461,16 +3461,6 @@ parameters:
 			path: src/Core/Framework/App/Lifecycle/Registration/AppRegistrationService.php
 
 		-
-			message: "#^Cannot call method getSecret\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Setup\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Lifecycle/Registration/HandshakeFactory.php
-
-		-
-			message: "#^Cannot call method getRegistrationUrl\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Setup\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Lifecycle/Registration/HandshakeFactory.php
-
-		-
 			message: "#^Argument of an invalid type Shopware\\\\Core\\\\Framework\\\\App\\\\Aggregate\\\\AppTranslation\\\\AppTranslationCollection\\|null supplied for foreach, only iterables are supported\\.$#"
 			count: 1
 			path: src/Core/Framework/App/Manifest/ModuleLoader.php

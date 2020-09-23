@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SystemConfig\Api;
 
+use Shopware\Core\Framework\Routing\Annotation\Acl;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
@@ -35,6 +36,7 @@ class SystemConfigController extends AbstractController
 
     /**
      * @Route("/api/v{version}/_action/system-config/check", name="api.action.core.system-config.check", methods={"GET"})
+     * @Acl({"system_config:read"})
      */
     public function checkConfiguration(Request $request): JsonResponse
     {
@@ -65,6 +67,7 @@ class SystemConfigController extends AbstractController
 
     /**
      * @Route("/api/v{version}/_action/system-config", name="api.action.core.system-config.value", methods={"GET"})
+     * @Acl({"system_config:read"})
      */
     public function getConfigurationValues(Request $request): JsonResponse
     {
@@ -87,6 +90,7 @@ class SystemConfigController extends AbstractController
 
     /**
      * @Route("/api/v{version}/_action/system-config", name="api.action.core.save.system-config", methods={"POST"})
+     * @Acl({"system_config:update", "system_config:create", "system_config:delete"})
      */
     public function saveConfiguration(Request $request): JsonResponse
     {
@@ -99,6 +103,7 @@ class SystemConfigController extends AbstractController
 
     /**
      * @Route("/api/v{version}/_action/system-config/batch", name="api.action.core.save.system-config.batch", methods={"POST"})
+     * @Acl({"system_config:update", "system_config:create", "system_config:delete"})
      */
     public function batchSaveConfiguration(Request $request): JsonResponse
     {

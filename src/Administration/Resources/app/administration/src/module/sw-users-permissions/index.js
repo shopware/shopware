@@ -4,6 +4,7 @@ import './components/sw-users-permissions-role-listing';
 import './components/sw-users-permissions-additional-permissions';
 import './components/sw-users-permissions-permissions-grid';
 import './components/sw-users-permissions-detailed-permissions-grid';
+import './components/sw-users-permissions-detailed-additional-permissions';
 import './page/sw-users-permissions-user-detail';
 import './page/sw-users-permissions-user-create';
 import './page/sw-users-permissions-role-detail';

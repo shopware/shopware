@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Api\Controller;
 
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
+use Shopware\Core\Framework\Routing\Annotation\Acl;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -15,6 +16,7 @@ class AccessKeyController extends AbstractController
 {
     /**
      * @Route("/api/v{version}/_action/access-key/intergration", name="api.action.access-key.integration", methods={"GET"})
+     * @Acl({"api_action_access-key_integration"})
      */
     public function generateIntegrationKey(): JsonResponse
     {

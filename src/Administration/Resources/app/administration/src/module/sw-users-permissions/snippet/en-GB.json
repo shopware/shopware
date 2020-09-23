@@ -42,6 +42,9 @@
       "additional-permissions": {
         "title": "Additional permissions"
       },
+      "detailed-additional-permissions": {
+        "title": "Additional permissions"
+      },
       "view": {
         "detailed": {
           "alertText": "In this view privileges can be configured in detail. This configuration is only necessary in exceptional situations. If e.g. extensions are used in the system that add new datasets but do not have privileges, they can be configured here. All deactivated checkboxes are permissions that have already been assigned in the \"General\" tab."
@@ -178,6 +181,9 @@
       },
       "users_and_permissions": {
         "label": "Users & Permissions"
+      },
+      "routes": {
+        "label": "Routes"
       }
     },
     "additional_permissions": {
@@ -189,6 +195,21 @@
       },
       "orders": {
         "label": "Orders"
+      },
+      "routes": {
+        "label": "Routes",
+        "api_action_access-key_integration": "Create new API key",
+        "api_acl_privileges_get": "Read all acl privileges",
+        "api_acl_privileges_route_get": "Read acl route privileges",
+        "api_action_cache_info": "Read cache info",
+        "api_action_cache_index": "Trigger indexer",
+        "api_action_cache_delete_and_warmup": "Delete and Warmup Cache",
+        "api_action_cache_delete": "Delete Cache",
+        "api_action_cache_cleanup": "Cleanup Cache",
+        "api_action_container-cache_delete": "Delete Container Cache",
+        "api_info_me": "Read own api user info",
+        "api_info_ping": "Refresh auth token",
+        "system:clear:cache": "Clear Cache"
       }
     }
   }

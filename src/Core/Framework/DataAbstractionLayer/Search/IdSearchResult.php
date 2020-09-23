@@ -124,4 +124,14 @@ class IdSearchResult extends Struct
     {
         return 'dal_id_search_result';
     }
+
+    public function getIdsForDelete(): array
+    {
+        $ids = [];
+        foreach ($this->ids as $id) {
+            $ids[] = ['id' => $id];
+        }
+
+        return $ids;
+    }
 }

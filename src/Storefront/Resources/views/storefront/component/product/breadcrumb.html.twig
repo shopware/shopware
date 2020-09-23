@@ -3,6 +3,7 @@
     {% for item in navigationTree %}
         {% if item.category.id == product.categoryTree|last %}
             {% set breadcrumb = sw_breadcrumb(item.category) %}
+            {% set breadcrumbKeys = breadcrumb|keys %}
             {% for key, item in breadcrumb %}
                 {% block component_product_breadcrumb_category %}
                     <a class="{% if key is same as(product.categoryTree|last) %} is-active{% endif %}"
@@ -13,7 +14,7 @@
                     </a>
                 {% endblock %}
                 {% block component_product_breadcrumb_placeholder %}
-                    {% if item != breadcrumb|last %}
+                    {% if key != breadcrumbKeys|last %}
                         <div class="breadcrumb-placeholder">
                             {% sw_icon 'arrow-medium-right' style { 'size': 'fluid', 'pack': 'solid'} %}
                         </div>

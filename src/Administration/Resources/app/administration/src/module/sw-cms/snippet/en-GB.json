@@ -345,7 +345,9 @@
             "showTitle": "Show video title",
             "advancedPrivacy": "Advanced privacy mode",
             "start": "Start video at",
-            "end": "End video at"
+            "end": "End video at",
+            "needsConfirmation": "Load video only after confirmation by the user",
+            "previewImage": "Preview image"
           },
           "placeholder": {
             "videoId": "Enter a video link..."

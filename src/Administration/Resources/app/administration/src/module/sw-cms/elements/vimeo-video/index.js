@@ -47,6 +47,17 @@ Application.getContainer('service').cmsService.registerCmsElement({
         controls: {
             source: 'static',
             value: true
+        },
+        needsConfirmation: {
+            source: 'static',
+            value: false
+        },
+        previewMedia: {
+            source: 'static',
+            value: null,
+            entity: {
+                name: 'media'
+            }
         }
     }
 });

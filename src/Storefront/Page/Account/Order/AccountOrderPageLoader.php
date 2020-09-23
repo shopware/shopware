@@ -118,6 +118,7 @@ class AccountOrderPageLoader
             ->addAssociation('lineItems')
             ->addAssociation('lineItems.cover')
             ->addAssociation('addresses')
+            ->addAssociation('currency')
             ->setLimit($limit)
             ->setOffset(($page - 1) * $limit)
             ->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NEXT_PAGES);

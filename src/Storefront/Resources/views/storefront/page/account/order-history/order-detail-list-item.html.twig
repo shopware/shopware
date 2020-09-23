@@ -118,7 +118,7 @@
                                             <div class="order-price-reference">
                                                 {% block page_account_order_item_detail_referenceunit_content %}
                                                     <span class="order-price-reference-content">
-                                                        ({{ referencePrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} / {{ referencePrice.referenceUnit }} {{ referencePrice.unitName }})
+                                                        ({{ referencePrice.price|currency(order.currency.isoCode) }}{{ "general.star"|trans|sw_sanitize }} / {{ referencePrice.referenceUnit }} {{ referencePrice.unitName }})
                                                     </span>
                                                 {% endblock %}
                                             </div>
@@ -160,7 +160,7 @@
                             {% block page_account_order_item_detail_price_value %}
                                 <span class="order-item-value order-item-price-value">
                                     {% if lineItem.unitPrice and lineItem.type == 'product' %}
-                                        {{ lineItem.unitPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
+                                        {{ lineItem.unitPrice|currency(order.currency.isoCode) }}{{ "general.star"|trans|sw_sanitize }}
                                     {% elseif lineItem.type == 'promotion' %}
                                         /
                                     {% else %}
@@ -183,7 +183,7 @@
                         {% block page_account_order_item_detail_total_value %}
                             <span class="order-item-value order-item-total-value">
                                 {% if lineItem.totalPrice %}
-                                    {{ lineItem.totalPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
+                                    {{ lineItem.totalPrice|currency(order.currency.isoCode) }}{{ "general.star"|trans|sw_sanitize }}
                                 {% else %}
                                     {{ "account.orderItemInfoFree"|trans|sw_sanitize }}
                                 {% endif %}

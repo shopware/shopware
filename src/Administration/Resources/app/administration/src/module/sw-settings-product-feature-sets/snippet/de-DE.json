@@ -23,6 +23,7 @@
       "titleCard": "Allgemeine Informationen",
       "titleCardValues": "Werte",
       "messageSaveSuccess": "Wesentliches Merkmal \"{name}\" wurde gespeichert.",
+      "messageSaveError": "Das wesentliche Merkmal konnte nicht gespeichert werden.",
       "labelName": "Name",
       "labelDescription": "Beschreibung",
       "labelValues": "Werte",

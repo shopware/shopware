@@ -268,7 +268,7 @@ Table(ShopwareCoreContentProductAggregateProductFeatureSetProductFeatureSetDefin
    translated json
 }
 TranslationTable(ShopwareCoreContentProductAggregateProductFeatureSetTranslationProductFeatureSetTranslationDefinition, "product_feature_set_translation\n((Translations))") {
-   name string
+   not_null(name) string
    description string
    not_null(createdAt) createdAt
    updatedAt updatedAt

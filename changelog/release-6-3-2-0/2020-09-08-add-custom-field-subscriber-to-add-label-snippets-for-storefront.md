@@ -1,7 +1,6 @@
 ---
 title: Add CustomFieldSubscriber to add snippets for storefront
 issue: NEXT-10062
-flag:
 author: Krispin Lütjann
 author_email: k.luetjann@shopware.com
 author_github: @King-of-Babylon

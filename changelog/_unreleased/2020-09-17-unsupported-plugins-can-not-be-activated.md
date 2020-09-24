@@ -1,5 +1,5 @@
 ---
-title: Unsupported plugins can not be acitvated
+title: Unsupported plugins can not be activated
 issue: NEXT-10184
 author: Tim Goldbach
 author_email: t.goldbach@shopware.com 

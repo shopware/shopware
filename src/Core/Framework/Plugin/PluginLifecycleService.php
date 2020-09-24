@@ -352,6 +352,8 @@ class PluginLifecycleService
             return $activateContext;
         }
 
+        $this->requirementValidator->validateRequirements($plugin, $shopwareContext, 'activate');
+
         $this->eventDispatcher->dispatch(new PluginPreActivateEvent($plugin, $activateContext));
 
         $plugin->setActive(true);

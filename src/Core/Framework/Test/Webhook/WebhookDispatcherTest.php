@@ -196,11 +196,12 @@ class WebhookDispatcherTest extends TestCase
             'restockTime',
             'createdAt',
             'name',
+            'active',
         ];
-        sort($actualUpdatedFields);
-        sort($expectedUpdatedFields);
 
-        static::assertEquals($expectedUpdatedFields, $actualUpdatedFields);
+        foreach ($expectedUpdatedFields as $field) {
+            static::assertContains($field, $actualUpdatedFields);
+        }
 
         static::assertFalse($request->hasHeader('shopware-shop-signature'));
     }

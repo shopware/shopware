@@ -95,10 +95,10 @@ class HookableEventFactoryTest extends TestCase
             'createdAt',
             'name',
         ];
-        sort($actualUpdatedFields);
-        sort($expectedUpdatedFields);
 
-        static::assertEquals($expectedUpdatedFields, $actualUpdatedFields);
+        foreach ($expectedUpdatedFields as $field) {
+            static::assertContains($field, $actualUpdatedFields);
+        }
     }
 
     public function testCreatesHookableEntityUpdate(): void

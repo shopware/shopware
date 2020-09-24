@@ -28,10 +28,11 @@ class AvailableCombinationLoader
     {
         $query = $this->connection->createQueryBuilder();
         $query->from('product');
+        $query->leftJoin('product', 'product', 'parent', 'product.parent_id = parent.id');
 
         $query->andWhere('product.parent_id = :id');
         $query->andWhere('product.version_id = :versionId');
-        $query->andWhere('product.active = :active');
+        $query->andWhere('IFNULL(product.active, parent.active) = :active');
         $query->andWhere('product.option_ids IS NOT NULL');
 
         $query->setParameter('id', Uuid::fromHexToBytes($productId));

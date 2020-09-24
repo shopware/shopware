@@ -25,6 +25,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -44,6 +45,7 @@ use Symfony\Component\HttpFoundation\Response;
 class CheckoutControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
+    use StorefrontSalesChannelTestHelper;
 
     private const UUID_LENGTH = 32;
     private const PRODUCT_PRICE = 15.99;
@@ -138,6 +140,22 @@ class CheckoutControllerTest extends TestCase
 
         static::assertSame(self::TEST_AFFILIATE_CODE, $order->getAffiliateCode());
         static::assertSame(self::TEST_CAMPAIGN_CODE, $order->getCampaignCode());
+    }
+
+    public function testOrderWithEmptyCartDoesNotResultIn400StatusCode(): void
+    {
+        $browser = $this->getBrowserWithLoggedInCustomer();
+
+        $browser->request(
+            'POST',
+            $_SERVER['APP_URL'] . '/checkout/order',
+            [
+                'tos' => 'on',
+            ]
+        );
+
+        $response = $browser->getResponse();
+        static::assertLessThan(400, $response->getStatusCode(), $response->getContent());
     }
 
     /**

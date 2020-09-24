@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Framework\Csrf;
 
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
+use Shopware\Core\SalesChannelRequest;
 use Shopware\Storefront\Framework\Csrf\Exception\InvalidCsrfTokenException;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -80,7 +81,7 @@ class CsrfRouteListener implements EventSubscriberInterface
 
         $request = $event->getRequest();
 
-        if ($request->attributes->get('csrf_protected', true) === false) {
+        if ($request->attributes->get(SalesChannelRequest::ATTRIBUTE_CSRF_PROTECTED, true) === false) {
             return;
         }
 

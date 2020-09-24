@@ -805,6 +805,9 @@
         "de-DE": "German",
         "en-GB": "English"
     },
+    "sw-image-slider": {
+        "imageAlt": "Image {index} / {total}"
+    },
     "sw-rule-modal": {
         "modalTitleNew": "Create new global rule",
         "modalTitleModify": "Modify global rule",

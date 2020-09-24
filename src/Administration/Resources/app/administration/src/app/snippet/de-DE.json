@@ -805,6 +805,9 @@
     "de-DE": "Deutsch",
     "en-GB": "Englisch"
   },
+  "sw-image-slider": {
+    "imageAlt": "Bild {index} / {total}"
+  },
   "sw-rule-modal": {
     "modalTitleNew": "Neue globale Regel erstellen",
     "labelDescription": "Beschreibung",

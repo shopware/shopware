@@ -25,7 +25,6 @@ export default class FilterRangePlugin extends FilterBasePlugin {
         this._inputMin = DomAccess.querySelector(this.el, this.options.inputMinSelector);
         this._inputMax = DomAccess.querySelector(this.el, this.options.inputMaxSelector);
         this._timeout = null;
-        this._hasError = false;
 
         this._registerEvents();
     }
@@ -45,12 +44,14 @@ export default class FilterRangePlugin extends FilterBasePlugin {
         clearTimeout(this._timeout);
 
         this._timeout = setTimeout(() => {
-            if (this._isInputInvalid()) {
-                this._setError();
+            if (this._isMinInvalid()) {
+                this._setMinError();
+            } else if (this._isInvalid()) {
+                this._setDefaultError();
             } else {
                 this._removeError();
+                this.listing.changeListing();
             }
-            this.listing.changeListing();
         }, this.options.inputTimeout);
     }
 
@@ -71,32 +72,71 @@ export default class FilterRangePlugin extends FilterBasePlugin {
      * @return {boolean}
      * @private
      */
-    _isInputInvalid() {
-        return parseInt(this._inputMin.value) > parseInt(this._inputMax.value);
+    _isMinInvalid() {
+        return parseFloat(this._inputMin.value) > parseFloat(this._inputMax.value);
+    }
+
+    /**
+     * @return {boolean}
+     * @private
+     */
+    _isInvalid() {
+        if (!this._inputMin.checkValidity()) {
+            return true;
+        }
+
+        if (!this._inputMax.checkValidity()) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
      * @return {string}
      * @private
      */
-    _getErrorMessageTemplate() {
-        return `<div class="${this.options.errorContainerClass}">${this.options.snippets.filterRangeErrorMessage}</div>`;
+    _getErrorMessageTemplate(message) {
+        return `<div class="${this.options.errorContainerClass}">${message}</div>`;
     }
 
     /**
      * @private
      */
-    _setError() {
-        if (this._hasError) {
-            return;
+    _setDefaultError() {
+        if (this._inputMin.validationMessage) {
+            this._inputMin.classList.add(this.options.inputInvalidCLass);
+            this._setError(this._inputMin.validationMessage.toString());
         }
 
+        if (this._inputMax.validationMessage) {
+            this._inputMin.classList.add(this.options.inputInvalidCLass);
+            this._setError(this._inputMax.validationMessage.toString());
+        }
+    }
+
+    /**
+     * @private
+     */
+    _setMinError() {
         this._inputMin.classList.add(this.options.inputInvalidCLass);
         this._inputMax.classList.add(this.options.inputInvalidCLass);
 
-        this._container.insertAdjacentHTML('afterend', this._getErrorMessageTemplate());
+        this._setError(this.options.snippets.filterRangeErrorMessage);
+    }
 
-        this._hasError = true;
+    /**
+     * @private
+     */
+    _setError(message) {
+        const error = DomAccess.querySelector(this.el, `.${this.options.errorContainerClass}`, false);
+
+        if (error) {
+            error.innerText = message;
+            return;
+        }
+
+        this._container.insertAdjacentHTML('afterend', this._getErrorMessageTemplate(message));
     }
 
     /**
@@ -111,8 +151,6 @@ export default class FilterRangePlugin extends FilterBasePlugin {
         if (error) {
             error.remove();
         }
-
-        this._hasError = false;
     }
 
     /**

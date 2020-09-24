@@ -75,7 +75,8 @@
                                            type="number"
                                            name="min-price"
                                            min="0"
-                                           max="{{ price.max }}">
+                                           max="{{ price.max }}"
+                                           step="any">
                                 {% endblock %}
 
                                 {% block component_filter_range_min_currency_symbol %}
@@ -104,7 +105,8 @@
                                            type="number"
                                            name="max-price"
                                            min="0"
-                                           max="{{ price.max }}">
+                                           max="{{ price.max }}"
+                                           step="any">
                                 {% endblock %}
 
                                 {% block component_filter_range_max_currency_symbol %}

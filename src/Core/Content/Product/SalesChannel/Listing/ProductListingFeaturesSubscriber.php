@@ -651,7 +651,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
 
     private function getShippingFreeFilter(Request $request): Filter
     {
-        $filtered = $request->get('shipping-free');
+        $filtered = (bool) $request->get('shipping-free', false);
 
         return new Filter(
             'shipping-free',

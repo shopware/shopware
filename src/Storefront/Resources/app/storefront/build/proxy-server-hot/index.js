@@ -9,7 +9,7 @@ const { spawn } = require('child_process');
 
 module.exports = function createProxyServer({ appPort, originalHost, proxyHost, proxyPort }) {
     const proxyUrl = `${proxyHost}:${proxyPort}`;
-    
+
     const originalUrl = appPort !== 80 && appPort !== 443 ? `${originalHost}:${appPort}` : originalHost;
 
     // Create the HTTP proxy
@@ -23,8 +23,8 @@ module.exports = function createProxyServer({ appPort, originalHost, proxyHost, 
                 host: originalUrl,
                 'hot-reload-mode': true,
                 'hot-reload-port': process.env.STOREFRONT_ASSETS_PORT || 9999,
-                'accept-encoding': 'identity',
-            },
+                'accept-encoding': 'identity'
+            }
         };
 
         // pipe a new request to the client request
@@ -56,7 +56,7 @@ module.exports = function createProxyServer({ appPort, originalHost, proxyHost, 
 function openBrowserWithUrl(url) {
     const childProcessOptions = {
         stdio: 'ignore',
-        detached: true,
+        detached: true
     };
 
     try {

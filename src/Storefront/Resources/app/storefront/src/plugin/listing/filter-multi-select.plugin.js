@@ -7,7 +7,12 @@ export default class FilterMultiSelectPlugin extends FilterBasePlugin {
 
     static options = deepmerge(FilterBasePlugin.options, {
         checkboxSelector: '.filter-multi-select-checkbox',
-        countSelector: '.filter-multi-select-count'
+        countSelector: '.filter-multi-select-count',
+        listItemSelector: '.filter-multi-select-list-item',
+        snippets: {
+            disabledFilterText: 'Filter not active'
+        },
+        mainFilterButtonSelector: '.filter-panel-item-toggle'
     });
 
     init() {
@@ -106,7 +111,7 @@ export default class FilterMultiSelectPlugin extends FilterBasePlugin {
      * @private
      */
     _onChangeFilter() {
-        this.listing.changeListing();
+        this.listing.changeListing(this);
     }
 
     /**
@@ -135,6 +140,94 @@ export default class FilterMultiSelectPlugin extends FilterBasePlugin {
                 checkbox.checked = false;
             });
         }
+    }
+
+    /**
+     * @public
+     */
+    refreshDisabledState(filter) {
+        const activeItems = [];
+
+        const disabledFilter = filter[this.options.name];
+
+        if (disabledFilter.entities) {
+            activeItems.push(...disabledFilter.entities);
+        }
+
+        if (activeItems.length < 1) {
+            this.disableFilter();
+            return;
+        } else {
+            this.enableFilter();
+        }
+
+        this._disableInactiveFilterOptions(activeItems.map(entity => entity.id));
+    }
+
+    /**
+     * @private
+     */
+    _disableInactiveFilterOptions(activeItemIds) {
+        const checkboxes = DomAccess.querySelectorAll(this.el, this.options.checkboxSelector);
+        Iterator.iterate(checkboxes, (checkbox) => {
+            if (checkbox.checked === true) {
+                return;
+            }
+
+            if (activeItemIds.includes(checkbox.id)) {
+                this.enableOption(checkbox);
+            } else {
+                this.disableOption(checkbox);
+            }
+        });
+    }
+
+    /**
+     * @public
+     */
+    disableOption(input){
+        const listItem = input.closest(this.options.listItemSelector);
+        listItem.classList.add('disabled');
+        listItem.setAttribute('title', this.options.snippets.disabledFilterText);
+        input.disabled = true;
+    }
+
+    /**
+     * @public
+     */
+    enableOption(input) {
+        const listItem = input.closest(this.options.listItemSelector);
+        listItem.removeAttribute('title');
+        listItem.classList.remove('disabled');
+        input.disabled = false;
+    }
+
+    /**
+     * @public
+     */
+    enableAllOptions() {
+        const checkboxes = DomAccess.querySelectorAll(this.el, this.options.checkboxSelector);
+        Iterator.iterate(checkboxes, (checkbox) => {
+            this.enableOption(checkbox);
+        });
+    }
+
+    /**
+     * @public
+     */
+    disableFilter() {
+        const mainFilterButton = DomAccess.querySelector(this.el, this.options.mainFilterButtonSelector);
+        mainFilterButton.classList.add('disabled');
+        mainFilterButton.setAttribute('title', this.options.snippets.disabledFilterText);
+    }
+
+    /**
+     * @public
+     */
+    enableFilter() {
+        const mainFilterButton = DomAccess.querySelector(this.el, this.options.mainFilterButtonSelector);
+        mainFilterButton.classList.remove('disabled');
+        mainFilterButton.removeAttribute('title');
     }
 
     /**

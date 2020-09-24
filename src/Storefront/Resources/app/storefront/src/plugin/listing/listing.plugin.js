@@ -5,6 +5,7 @@ import DomAccess from 'src/helper/dom-access.helper';
 import querystring from 'query-string';
 import ElementReplaceHelper from 'src/helper/element-replace.helper';
 import HistoryUtil from 'src/utility/history/history.util';
+import Debouncer from 'src/helper/debouncer.helper';
 
 export default class ListingPlugin extends Plugin {
 
@@ -23,6 +24,7 @@ export default class ListingPlugin extends Plugin {
         resetAllFilterButtonSelector: '.filter-reset-all',
         loadingIndicatorClass: 'is-loading',
         loadingElementLoaderClass: 'has-element-loader',
+        disableEmptyFilter: false,
         snippets: {
             resetAllButtonText: 'Reset all'
         }
@@ -49,6 +51,8 @@ export default class ListingPlugin extends Plugin {
 
         this._cmsProductListingWrapper = DomAccess.querySelector(document, this.options.cmsProductListingWrapperSelector, false);
         this._cmsProductListingWrapperActive = !!this._cmsProductListingWrapper;
+
+        this._allFiltersInitializedDebounce = Debouncer.debounce(this.sendDisabledFiltersRequest.bind(this), 100);
     }
 
     /**
@@ -87,6 +91,10 @@ export default class ListingPlugin extends Plugin {
         this._registry.push(filterItem);
 
         this._setFilterState(filterItem);
+
+        if(this.options.disableEmptyFilter) {
+            this._allFiltersInitializedDebounce();
+        }
     }
 
     _setFilterState(filterItem) {
@@ -114,7 +122,7 @@ export default class ListingPlugin extends Plugin {
     /**
      * @private
      */
-    _buildRequest() {
+    _fetchValuesOfRegisteredFilters() {
         const filters = {};
 
         this._registry.forEach((filterPlugin) => {
@@ -131,6 +139,13 @@ export default class ListingPlugin extends Plugin {
             });
         });
 
+        return filters;
+    }
+
+    /**
+     * @private
+     */
+    _mapFilters(filters) {
         const mapped = {};
         Object.keys(filters).forEach((key) => {
             let value = filters[key];
@@ -144,6 +159,16 @@ export default class ListingPlugin extends Plugin {
                 mapped[key] = value;
             }
         });
+
+        return mapped;
+    }
+
+    /**
+     * @private
+     */
+    _buildRequest() {
+        const filters = this._fetchValuesOfRegisteredFilters();
+        const mapped = this._mapFilters(filters);
 
         if (this._filterPanelActive) {
             this._showResetAll = !!Object.keys(mapped).length;
@@ -165,6 +190,18 @@ export default class ListingPlugin extends Plugin {
         query = querystring.stringify(mapped);
 
         this._updateHistory(query);
+    }
+
+    /**
+     * @private
+     */
+    _getDisabledFiltersParamsFromParams(params) {
+        const filterParams = Object.assign({}, {'only-aggregations': 1, 'reduce-aggregations': 1}, params);
+        delete filterParams['p'];
+        delete filterParams['order'];
+        delete filterParams['no-aggregations'];
+
+        return filterParams;
     }
 
     _updateHistory(query) {
@@ -341,7 +378,10 @@ export default class ListingPlugin extends Plugin {
             this.addLoadingElementLoaderClass();
         }
 
-        this.httpClient.abort();
+        if (this.options.disableEmptyFilter) {
+            this.sendDisabledFiltersRequest();
+        }
+
         this.httpClient.get(`${this.options.dataUrl}?${filterParams}`, (response) => {
             this.renderResponse(response);
 
@@ -352,6 +392,34 @@ export default class ListingPlugin extends Plugin {
             if (this._cmsProductListingWrapperActive) {
                 this.removeLoadingElementLoaderClass();
             }
+        });
+    }
+
+    /**
+     * Send request to get disabled filters data
+     */
+    sendDisabledFiltersRequest() {
+        const filters = this._fetchValuesOfRegisteredFilters();
+        const mapped = this._mapFilters(filters);
+        if (this.options.params) {
+            Object.keys(this.options.params).forEach((key) => {
+                mapped[key] = this.options.params[key];
+            });
+        }
+
+        // unset the debounce function after first execution
+        this._allFiltersInitializedDebounce = () => {};
+
+        const filterParams = this._getDisabledFiltersParamsFromParams(mapped);
+
+        this.httpClient.get(`${this.options.filterUrl}?${querystring.stringify(filterParams)}`, (response) => {
+            const filter =  JSON.parse(response);
+
+            this._registry.forEach((item) => {
+                if (typeof item.refreshDisabledState === 'function') {
+                    item.refreshDisabledState(filter, filterParams);
+                }
+            });
         });
     }
 

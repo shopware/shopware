@@ -1,11 +1,18 @@
 {% set currentPage = ((searchResult.criteria.offset + 1) / searchResult.criteria.limit )|round(0, 'ceil') %}
 {% set paginationConfig = { page: currentPage }|json_encode %}
 
+{% if feature('FEATURE_NEXT_5993') %}
+    {% set disableEmptyFilter = shopware.config.core.listing.disableEmptyFilterOptions %}
+{% else %}
+    {% set disableEmptyFilter = false %}
+{% endif %}
+
 {% set listingPagination = {
     sidebar: sidebar,
     params: params,
     dataUrl: dataUrl,
     filterUrl: filterUrl,
+    disableEmptyFilter: disableEmptyFilter,
     snippets: {
         resetAllButtonText: 'listing.filterPanelResetAll'|trans|sw_sanitize
     }

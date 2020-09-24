@@ -28,6 +28,9 @@ class Filter extends Struct
      */
     protected $filter;
 
+    /**
+     * @var array
+     */
     protected $values;
 
     /**

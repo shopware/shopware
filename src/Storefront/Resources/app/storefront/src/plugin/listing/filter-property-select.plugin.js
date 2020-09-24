@@ -1,8 +1,13 @@
 import FilterMultiSelectPlugin from 'src/plugin/listing/filter-multi-select.plugin'
 import Iterator from 'src/helper/iterator.helper';
 import DomAccess from 'src/helper/dom-access.helper';
+import deepmerge from 'deepmerge';
 
 export default class FilterPropertySelectPlugin extends FilterMultiSelectPlugin {
+
+    static options = deepmerge(FilterMultiSelectPlugin.options, {
+        propertyName: ''
+    });
 
     /**
      * @return {Array}
@@ -28,5 +33,44 @@ export default class FilterPropertySelectPlugin extends FilterMultiSelectPlugin 
         }
 
         return labels;
+    }
+
+    /**
+     * @public
+     */
+    refreshDisabledState(filter) {
+        // Prevent disabling if propertyName is not set correctly
+        if (this.options.propertyName === '') {
+            return;
+        }
+
+        const activeItems = [];
+        const properties = filter[this.options.name];
+        const entities = properties.entities;
+
+        if (!entities) {
+            return;
+        }
+
+        const property = entities.find(entity => entity.translated.name === this.options.propertyName);
+        if (property) {
+            activeItems.push(...property.options);
+        } else {
+            return;
+        }
+
+        const actualValues = this.getValues();
+
+        if (activeItems.length < 1 && actualValues.properties.length === 0) {
+            this.disableFilter()
+        } else {
+            this.enableFilter();
+        }
+
+        if(actualValues.properties.length > 0) {
+            return;
+        }
+
+        this._disableInactiveFilterOptions(activeItems.map(entity => entity.id));
     }
 }

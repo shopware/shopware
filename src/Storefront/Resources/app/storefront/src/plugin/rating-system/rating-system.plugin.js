@@ -16,6 +16,8 @@ export default class RatingSystemPlugin extends Plugin {
         this._ratingPoints = DomAccess.querySelectorAll(this.el, '[' + this.options.reviewPointAttr + ']');
         this._textWrappers = DomAccess.querySelectorAll(this.el, '[' + this.options.ratingTextAttr + ']', false);
 
+        this._maxRating = null;
+
         if (!this._ratingPoints) {
             return;
         }
@@ -37,7 +39,13 @@ export default class RatingSystemPlugin extends Plugin {
      * @param {Event} event
      */
     _onClickRating(event) {
-        this.setRating(event.currentTarget.getAttribute(this.options.reviewPointAttr));
+        const points = event.currentTarget.getAttribute(this.options.reviewPointAttr);
+
+        if (this._maxRating && this._maxRating < points) {
+            return;
+        }
+
+        this.setRating(points);
     }
 
     /**
@@ -86,6 +94,17 @@ export default class RatingSystemPlugin extends Plugin {
         );
 
         return points ? points.length : 0;
+    }
+
+    /**
+     * Stops the onclick handler for points higher than the maxRating
+     *
+     * @param {number} maxRating
+     *
+     * @public
+     */
+    setMaxRating(maxRating) {
+        this._maxRating = maxRating;
     }
 
     /**

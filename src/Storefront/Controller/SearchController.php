@@ -2,12 +2,15 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Content\Product\SalesChannel\Search\AbstractProductSearchRoute;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Cache\Annotation\HttpCache;
 use Shopware\Storefront\Page\Search\SearchPageLoader;
 use Shopware\Storefront\Page\Suggest\SuggestPageLoader;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -27,10 +30,19 @@ class SearchController extends StorefrontController
      */
     private $suggestPageLoader;
 
-    public function __construct(SearchPageLoader $searchPageLoader, SuggestPageLoader $suggestPageLoader)
-    {
+    /**
+     * @var AbstractProductSearchRoute
+     */
+    private $productSearchRoute;
+
+    public function __construct(
+        SearchPageLoader $searchPageLoader,
+        SuggestPageLoader $suggestPageLoader,
+        AbstractProductSearchRoute $productSearchRout
+    ) {
         $this->searchPageLoader = $searchPageLoader;
         $this->suggestPageLoader = $suggestPageLoader;
+        $this->productSearchRoute = $productSearchRout;
     }
 
     /**
@@ -76,5 +88,40 @@ class SearchController extends StorefrontController
         $page = $this->searchPageLoader->load($request, $context);
 
         return $this->renderStorefront('@Storefront/storefront/page/search/search-pagelet.html.twig', ['page' => $page]);
+    }
+
+    /**
+     * @HttpCache()
+     *
+     * Route to load the available listing filters
+     *
+     * @RouteScope(scopes={"storefront"})
+     * @Route("/widgets/search/filter", name="widgets.search.filter", methods={"GET", "POST"}, defaults={"XmlHttpRequest"=true})
+     *
+     * @throws MissingRequestParameterException
+     */
+    public function filter(Request $request, SalesChannelContext $context): Response
+    {
+        if (!$request->query->has('search')) {
+            throw new MissingRequestParameterException('search');
+        }
+
+        // Allows to fetch only aggregations over the gateway.
+        $request->request->set('only-aggregations', true);
+        // Allows to convert all post-filters to filters. This leads to the fact that only aggregation values are returned, which are combinable with the previous applied filters.
+        $request->request->set('reduce-aggregations', true);
+        $criteria = new Criteria();
+        $criteria->setTitle('search-page');
+
+        $result = $this->productSearchRoute
+            ->load($request, $context, $criteria)
+            ->getListingResult();
+        $mapped = [];
+
+        foreach ($result->getAggregations() as $aggregation) {
+            $mapped[$aggregation->getName()] = $aggregation;
+        }
+
+        return new JsonResponse($mapped);
     }
 }

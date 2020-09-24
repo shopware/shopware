@@ -34,6 +34,7 @@ class JsonSalesChannelApiEncoderTest extends TestCase
 {
     use KernelTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
+    use AssertValuesTrait;
 
     public function emptyInputProvider(): array
     {
@@ -88,7 +89,7 @@ class JsonSalesChannelApiEncoderTest extends TestCase
         $actual = $this->arrayRemove($actual, 'extensions');
         $actual['included'] = $this->removeIncludedExtensions($actual['included']);
 
-        static::assertEquals($fixture->getSalesChannelJsonApiFixtures(), $actual);
+        $this->assertValues($fixture->getSalesChannelJsonApiFixtures(), $actual);
     }
 
     /**
@@ -112,7 +113,7 @@ class JsonSalesChannelApiEncoderTest extends TestCase
         static::assertStringNotContainsString('"links":[]', $actual);
         static::assertStringContainsString('"links":{}', $actual);
 
-        static::assertEquals($fixture->getSalesChannelJsonApiFixtures(), json_decode($actual, true));
+        $this->assertValues($fixture->getSalesChannelJsonApiFixtures(), json_decode($actual, true));
     }
 
     /**
@@ -139,7 +140,7 @@ class JsonSalesChannelApiEncoderTest extends TestCase
         static::assertStringNotContainsString('"attributes":[]', $actual);
         static::assertStringContainsString('"attributes":{}', $actual);
 
-        static::assertEquals($fixture->getSalesChannelJsonApiFixtures(), json_decode($actual, true));
+        $this->assertValues($fixture->getSalesChannelJsonApiFixtures(), json_decode($actual, true));
     }
 
     private function arrayRemove($haystack, string $keyToRemove): array

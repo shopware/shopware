@@ -33,6 +33,7 @@ class JsonEntityEncoderTest extends TestCase
 {
     use KernelTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
+    use AssertValuesTrait;
 
     public function emptyInputProvider(): array
     {
@@ -79,7 +80,7 @@ class JsonEntityEncoderTest extends TestCase
         $encoder = $this->getContainer()->get(JsonEntityEncoder::class);
         $actual = $encoder->encode(new Criteria(), $definition, $fixture->getInput(), SerializationFixture::API_BASE_URL, SerializationFixture::API_VERSION);
 
-        static::assertEquals($fixture->getAdminJsonFixtures(), $actual);
+        $this->assertValues($fixture->getAdminJsonFixtures(), $actual);
     }
 
     /**
@@ -101,6 +102,7 @@ class JsonEntityEncoderTest extends TestCase
 
         unset($actual['apiAlias']);
         static::assertEquals($fixture->getAdminJsonFixtures(), $actual);
+        $this->assertValues($fixture->getAdminJsonFixtures(), $actual);
     }
 
     /**
@@ -120,6 +122,6 @@ class JsonEntityEncoderTest extends TestCase
         $actual = $encoder->encode(new Criteria(), $extendableDefinition, $fixture->getInput(), SerializationFixture::API_BASE_URL, SerializationFixture::API_VERSION);
 
         unset($actual['apiAlias']);
-        static::assertEquals($fixture->getAdminJsonFixtures(), $actual);
+        $this->assertValues($fixture->getAdminJsonFixtures(), $actual);
     }
 }

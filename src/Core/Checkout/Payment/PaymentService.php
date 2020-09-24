@@ -130,6 +130,11 @@ class PaymentService
 
         try {
             $paymentHandler->finalize($paymentTransactionStruct, $request, $salesChannelContext);
+        } catch (CustomerCanceledAsyncPaymentException $e) {
+            $this->transactionStateHandler->cancel($e->getOrderTransactionId(), $context);
+            $paymentTokenStruct->setException($e);
+
+            return $paymentTokenStruct;
         } catch (PaymentProcessException $e) {
             $this->transactionStateHandler->fail($e->getOrderTransactionId(), $context);
             $paymentTokenStruct->setException($e);

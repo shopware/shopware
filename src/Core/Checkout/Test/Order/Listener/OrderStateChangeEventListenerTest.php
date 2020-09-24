@@ -113,8 +113,6 @@ class OrderStateChangeEventListenerTest extends TestCase
         Feature::skipTestIfInActive('FEATURE_NEXT_9351', $this);
         $ids = new TestDataCollection();
 
-        $this->createOrder($ids);
-
         $rule = [
             'id' => $ids->create('rule'),
             'name' => 'Demo rule',
@@ -132,6 +130,8 @@ class OrderStateChangeEventListenerTest extends TestCase
 
         $this->getContainer()->get('rule.repository')
             ->create([$rule], Context::createDefaultContext());
+
+        $this->createOrder($ids);
 
         $validator = new RuleValidator();
         $this->getContainer()
@@ -178,6 +178,7 @@ class OrderStateChangeEventListenerTest extends TestCase
             'stateId' => $this->getStateId('open', 'order.state'),
             'price' => new CartPrice(200, 200, 200, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS),
             'shippingCosts' => new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            'ruleIds' => [$ids->get('rule')],
             'orderCustomer' => [
                 'id' => $ids->get('customer'),
                 'salutationId' => $this->getValidSalutationId(),

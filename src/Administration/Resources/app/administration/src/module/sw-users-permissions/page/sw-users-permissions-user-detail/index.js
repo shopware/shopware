@@ -366,7 +366,6 @@ Component.register('sw-users-permissions-user-detail', {
                 }
 
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-users-permissions.users.user-detail.notification.duplicateEmailErrorMessage')
                 });
 

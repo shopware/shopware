@@ -109,8 +109,7 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
         wrapper.vm.onAddItemToAttachment(mailTemplateMediaMock);
 
         expect(wrapper.vm.createNotificationInfo).toHaveBeenCalledWith({
-            message: 'sw-mail-template.list.errorMediaItemDuplicated',
-            title: 'global.default.info'
+            message: 'sw-mail-template.list.errorMediaItemDuplicated'
         });
 
         wrapper.vm.createNotificationInfo.mockRestore();

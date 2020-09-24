@@ -290,8 +290,7 @@ describe('components/sw-import-export-importer', () => {
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
-            message: 'This is an error code: This is an detailed error message',
-            title: 'global.default.error'
+            message: 'This is an error code: This is an detailed error message'
         });
 
         wrapper.vm.createNotificationError.mockRestore();

@@ -244,7 +244,6 @@ Component.register('sw-product-stream-detail', {
 
         showErrorNotification() {
             this.createNotificationError({
-                title: this.$tc('global.default.error'),
                 message: this.$tc(
                     'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'
                 )

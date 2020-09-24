@@ -28,7 +28,6 @@ Component.register('sw-plugin-store-login', {
                 }
             ).then(() => {
                 this.createNotificationSuccess({
-                    title: this.$tc('global.default.success'),
                     message: this.$tc('sw-plugin.store-login.loginMessage')
                 });
                 this.$emit('close-modal');

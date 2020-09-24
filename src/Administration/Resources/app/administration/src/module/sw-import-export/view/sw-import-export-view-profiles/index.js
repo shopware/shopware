@@ -138,13 +138,11 @@ Shopware.Component.register('sw-import-export-view-profiles', {
             this.profileRepository.save(this.selectedProfile, Shopware.Context.api).then(() => {
                 this.selectedProfile = null;
                 this.createNotificationSuccess({
-                    title: this.$tc('global.default.success'),
                     message: this.$tc('sw-import-export.profile.messageSaveSuccess', 0)
                 });
                 return this.loadProfiles();
             }).catch(() => {
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-import-export.profile.messageSaveError', 0)
                 });
             }).finally(() => {

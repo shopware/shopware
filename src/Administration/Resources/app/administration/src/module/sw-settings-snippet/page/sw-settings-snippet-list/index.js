@@ -278,7 +278,6 @@ Component.register('sw-settings-snippet-list', {
             this.$router.push({ name: 'sw.settings.snippet.index' });
 
             this.createNotificationError({
-                title: this.$tc('global.default.error'),
                 message: this.$tc('sw-settings-snippet.general.errorBackRoutingMessage')
             });
         },

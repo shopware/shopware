@@ -131,10 +131,7 @@
         "includeVariants": "Varianten als eigene Produkte exportieren",
         "interval": "Generierungsintervall",
         "generateByCronjob": "Per Scheduler generieren",
-        "notificationTitleValidateSuccessful": "Erfolg",
         "notificationMessageValidateSuccessful": "Keine Fehler gefunden.",
-        "notificationTitleValidateError": "Test fehlerhaft",
-        "notificationTitlePreviewError": "Vorschau fehlerhaft",
         "intervalLabels": {
           "0": "Live",
           "120": "2 Minuten",

@@ -137,7 +137,6 @@ Component.register('sw-settings-product-feature-sets-detail', {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        title: this.$tc('global.default.error'),
                         message: this.$tc('sw-settings-product-feature-sets.detail.notificationErrorMessage')
                     });
                 })

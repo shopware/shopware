@@ -103,7 +103,6 @@ Component.register('sw-settings-product-feature-sets-list', {
         onInlineEditSave(promise, productFeatureSets) {
             promise.then(() => {
                 this.createNotificationSuccess({
-                    title: this.$tc('global.default.success'),
                     message: this.$tc(
                         'sw-settings-product-feature-sets.detail.messageSaveSuccess',
                         0,
@@ -113,7 +112,6 @@ Component.register('sw-settings-product-feature-sets-list', {
             }).catch(() => {
                 this.getList();
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-settings-product-feature-sets.detail.messageSaveError')
                 });
             });

@@ -103,7 +103,6 @@ Component.register('sw-settings-tax-detail', {
                 });
             }).catch(() => {
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-settings-tax.detail.messageSaveError')
                 });
                 this.isLoading = false;

@@ -204,7 +204,6 @@
       "coverSubline": "Cover"
     },
     "advancedPrices": {
-      "deletionNotPossibleTitle": "Fehler",
       "deletionNotPossibleMessage": "Es muss immer mindestens eine Preisstaffel vorhanden sein. Versuche alternativ, die gesamte Preisregel zu löschen.",
       "newRuleWarning": "Um eine neue Preisregel anzulegen, musst du erst eine Bedingungs-Regel auswählen.",
       "advancedPricesNotExisting": "Für dieses Produkt existieren noch keine erweiterten Preise.",

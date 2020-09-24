@@ -72,13 +72,11 @@ Component.register('sw-settings-payment-list', {
         onInlineEditSave(promise, payment) {
             promise.then(() => {
                 this.createNotificationSuccess({
-                    title: this.$tc('global.default.success'),
                     message: this.$tc('sw-settings-payment.detail.messageSaveSuccess', 0, { name: payment.name })
                 });
             }).catch(() => {
                 this.getList();
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-settings-payment.detail.messageSaveError')
                 });
             });
@@ -108,7 +106,6 @@ Component.register('sw-settings-payment-list', {
                 .catch(() => {
                     this.getList();
                     this.createNotificationError({
-                        title: this.$tc('global.default.error'),
                         message: this.$tc('global.notification.unspecifiedSaveErrorMessage')
                     });
                 });

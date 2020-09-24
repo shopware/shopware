@@ -425,7 +425,6 @@ Component.register('sw-product-variants-overview', {
                 this.modalLoading = false;
 
                 this.createNotificationSuccess({
-                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-product.variations.generatedListMessageDeleteSuccess')
                 });
 

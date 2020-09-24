@@ -909,5 +909,16 @@
     "placeholderCustomFieldSetSelect": "Select custom field sets...",
     "labelCustomFieldSetSelect": "Custom field sets",
     "messagePluginSets": "Plugin custom field sets (Can't be removed)"
+  },
+  "sw-sidebar-filter": {
+    "range-filter": {
+      "from": "From",
+      "to": "To"
+    },
+    "bool-options": {
+      "true": "True",
+      "false": "False",
+      "all": "All"
+    }
   }
 }

@@ -70,10 +70,11 @@ Component.register('sw-order-list', {
         createFilterOptions() {
             this.filterOptions = filterFactory.create('order',
                 {
-                    'stateMachineState': {label: 'Order status', placeholder: 'Order status'},
                     'autoIncrement': {hide: true},
                     'deepLinkCode': {hide: true},
                     'taxStatus': {hide: true},
+                    'orderDateTime': {hide: true},
+                    'deliveries': {hide: true},
                 }
             );
         },

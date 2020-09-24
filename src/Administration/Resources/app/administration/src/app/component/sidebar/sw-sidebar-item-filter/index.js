@@ -9,8 +9,9 @@ const filterInputTypeOptions = {
     range: 'range',
     input: 'input',
     number: 'number',
+    date: 'date',
     singleSelect: 'singleSelect',
-    multiSelect: 'multiSelect'
+    multiSelect: 'multiSelect',
 };
 
 Component.register('sw-sidebar-item-filter', {
@@ -37,7 +38,7 @@ Component.register('sw-sidebar-item-filter', {
             required: false,
             default: [
                 {
-                    name: 'activeInactive',
+                    key: 'activeInactive',
                     label: 'activeInactive',
                     placeholder: 'activeInactive',
                     field: 'product.active',
@@ -105,8 +106,16 @@ Component.register('sw-sidebar-item-filter', {
             this.filterOptions.forEach((filterOption) => {
                 switch (filterOption.property.type) {
                     case "association":
-                        filterOption.inputType = 'multiSelect'
-                        filterOption.criteriaType = 'equalsAny'
+                        if (filterOption.property.entity === 'document') {
+                            filterOption.inputType = 'switch';
+                            filterOption.criteriaType = 'equals';
+                            filterOption.field = 'documents.id'
+
+                            break;
+                        }
+
+                        filterOption.inputType = 'multiSelect';
+                        filterOption.criteriaType = 'equalsAny';
 
                         break;
                     case "boolean":
@@ -115,18 +124,18 @@ Component.register('sw-sidebar-item-filter', {
 
                         filterOption.options = [
                             {
-                                name: 'All',
+                                name: $tc('sw-sidebar-filter.bool-options.all'),
                                 value: null
                             },
                             {
-                                name: 'True',
+                                name: $tc('sw-sidebar-filter.bool-options.true'),
                                 value: true
                             },
                             {
-                                name: 'False',
+                                name: $tc('sw-sidebar-filter.bool-options.false'),
                                 value: false
                             }
-                        ]
+                        ];
 
                         break;
                     case "string":
@@ -139,6 +148,11 @@ Component.register('sw-sidebar-item-filter', {
                         filterOption.criteriaType = 'range';
 
                         break;
+                    case "date":
+                        filterOption.inputType = 'date';
+                        filterOption.criteriaType = 'range';
+
+                        break;
                 }
 
                 if (filterOption.property.entity) {
@@ -148,14 +162,14 @@ Component.register('sw-sidebar-item-filter', {
 
                     this.repository[filterOption.entity] = entityRepository;
 
-                    filterOption.entityCollection = new EntityCollection(
-                        entityRepository.route,
-                        entityRepository.entityName,
-                        Context.api
-                    );
+                    // filterOption.entityCollection = new EntityCollection(
+                    //     entityRepository.route,
+                    //     entityRepository.entityName,
+                    //     Context.api
+                    // );
                 }
 
-                if (filterOption.inputType === filterInputTypeOptions.range) {
+                if (filterOption.criteriaType === filterInputTypeOptions.range) {
                     this.$set(this.filter, filterOption.key, {from: null, to: null});
                 }
             });
@@ -174,12 +188,22 @@ Component.register('sw-sidebar-item-filter', {
             this.filterOptions.forEach((filterOption) => {
                 if (filterOption.entity) {
                     promises.push(this.repository[filterOption.entity].search(
-                        new Criteria(),
+                        (new Criteria()).setLimit(500),
                         Shopware.Context.api
                     ).then((response) => {
                         response = response.map((object) => {
+                            name = '';
+                            if (object.name || object.title || object.label || (object.firstName && object.lastName)) {
+                                name = object.name
+                                    || object.title
+                                    || object.label
+                                    || object.firstName + ' ' + object.lastName;
+                            } else if (object.stateMachineState) {
+                                name = object.stateMachineState.name;
+                            }
+
                             return {
-                                name: object.name || object.title,
+                                name: name,
                                 value: object.id
                             };
                         });
@@ -195,13 +219,13 @@ Component.register('sw-sidebar-item-filter', {
         },
 
         getFilterCriteria() {
-            const filterCriterias = [];
+            const filterCriteria = [];
 
             this.filterOptions.forEach((filterOption) => {
                 if (!filterInputTypeOptions[filterOption.inputType]) {
                     this.createNotificationError({
                         title: `Unknown type ${filterOption.inputType}`,
-                        message: `Unknown type ${filterOption.inputType} for ${JSON.parse(filterOption)}`
+                        message: `Unknown type ${filterOption.inputType} for ${JSON.stringify(filterOption)}`
                     });
                 }
 
@@ -223,8 +247,16 @@ Component.register('sw-sidebar-item-filter', {
 
                 if ((typeof value === 'undefined') || value === null || value.length === 0) return;
 
+                if (filterOption.entity === 'document') {
+                    if (value === true) {
+                        value = null;
+                    } else {
+                        return;
+                    }
+                }
+
                 try {
-                    filterCriterias.push(Criteria[filterOption.criteriaType](field, value));
+                    filterCriteria.push(Criteria[filterOption.criteriaType](field, value));
                 } catch (error) {
                     this.createNotificationError({
                         title: `Unknown criteriaType ${filterOption.criteriaType} for ${filterOption}`,
@@ -233,47 +265,60 @@ Component.register('sw-sidebar-item-filter', {
                 }
             });
 
-            if (filterCriterias.length) {
+            if (filterCriteria.length) {
                 return Criteria.multi(
                     'AND',
-                    filterCriterias
+                    filterCriteria
                 )
             }
             return false;
         },
 
-        getManufacturerList() {
-            const criteria = new Criteria();
-            criteria.setLimit(500);
-            this.manufacturerRepository.search(criteria, Shopware.Context.api).then(response => {
-                let manufacturers = response;
+        // getManufacturerList() {
+        //     const criteria = new Criteria();
+        //     criteria.setLimit(500);
+        //     this.manufacturerRepository.search(criteria, Shopware.Context.api).then(response => {
+        //         let manufacturers = response;
+        //
+        //         manufacturers = manufacturers.map((manufacturer) => {
+        //             return {
+        //                 id: manufacturer.id,
+        //                 name: manufacturer.name
+        //             };
+        //         });
+        //
+        //         this.manufacturers = manufacturers;
+        //     });
+        // },
+        //
+        // getSalesChannelList() {
+        //     const criteria = new Criteria();
+        //     criteria.setLimit(500);
+        //     this.salesChannelRepository.search(criteria, Shopware.Context.api).then(response => {
+        //         let salesChannels = response;
+        //
+        //         salesChannels = salesChannels.map((salesChannel) => {
+        //             return {
+        //                 id: salesChannel.id,
+        //                 name: salesChannel.name
+        //             };
+        //         });
+        //
+        //         this.salesChannels = salesChannels;
+        //     });
+        // },
 
-                manufacturers = manufacturers.map((manufacturer) => {
-                    return {
-                        id: manufacturer.id,
-                        name: manufacturer.name
-                    };
-                });
+        getOptionLabels(filterOption) {
+            const selectedOptionLabels = [];
+            const selectedOptions = this.filter[filterOption.key];
 
-                this.manufacturers = manufacturers;
+            filterOption.options.forEach((filterOption) => {
+                if (selectedOptions.includes(filterOption.value)) {
+                    selectedOptionLabels.push(filterOption.name);
+                }
             });
-        },
 
-        getSalesChannelList() {
-            const criteria = new Criteria();
-            criteria.setLimit(500);
-            this.salesChannelRepository.search(criteria, Shopware.Context.api).then(response => {
-                let salesChannels = response;
-
-                salesChannels = salesChannels.map((salesChannel) => {
-                    return {
-                        id: salesChannel.id,
-                        name: salesChannel.name
-                    };
-                });
-
-                this.salesChannels = salesChannels;
-            });
+            return selectedOptionLabels;
         }
     }
 });

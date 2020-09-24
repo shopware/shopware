@@ -1,5 +1,6 @@
 import template from './sw-customer-list.html.twig';
 import './sw-customer-list.scss';
+import filterFactory from "../../../../app/filter.factory";
 
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -27,7 +28,9 @@ Component.register('sw-customer-list', {
             availableAffiliateCodes: [],
             affiliateCodeFilter: [],
             availableCampaignCodes: [],
-            campaignCodeFilter: []
+            campaignCodeFilter: [],
+            filterCriteria: false,
+            filterOptions: null
         };
     },
 
@@ -50,13 +53,13 @@ Component.register('sw-customer-list', {
             const criteria = new Criteria(this.page, this.limit);
             this.naturalSorting = this.sortBy === 'customerNumber';
 
-            criteria.setTerm(this.term);
-            if (this.affiliateCodeFilter.length > 0) {
-                criteria.addFilter(Criteria.equalsAny('affiliateCode', this.affiliateCodeFilter));
-            }
-            if (this.campaignCodeFilter.length > 0) {
-                criteria.addFilter(Criteria.equalsAny('campaignCode', this.campaignCodeFilter));
-            }
+            // criteria.setTerm(this.term);
+            // if (this.affiliateCodeFilter.length > 0) {
+            //     criteria.addFilter(Criteria.equalsAny('affiliateCode', this.affiliateCodeFilter));
+            // }
+            // if (this.campaignCodeFilter.length > 0) {
+            //     criteria.addFilter(Criteria.equalsAny('campaignCode', this.campaignCodeFilter));
+            // }
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
             criteria.addAssociation('defaultBillingAddress');
 
@@ -81,8 +84,41 @@ Component.register('sw-customer-list', {
     },
 
     methods: {
+        createFilterOptions() {
+            this.filterOptions = filterFactory.create('customer',
+                {
+                    'addresses': {hide: true},
+                    'autoIncrement': {hide: true},
+                    'birthday': {hide: true},
+                    'customFields': {hide: true},
+                    'defaultBillingAddress': {hide: true},
+                    'defaultPaymentMethod': {hide: true},
+                    'defaultShippingAddress': {hide: true},
+                    'doubleOptInEmailSentDate': {hide: true},
+                    'doubleOptInRegistration': {hide: true},
+                    'doubleOptInConfirmDate': {hide: true},
+                    'firstLogin': {hide: true},
+                    'hash': {hide: true},
+                    'updatedAt': {hide: true},
+                    'legacyEncoder': {hide: true},
+                    'legacyPassword': {hide: true},
+                    'lastPaymentMethod': {hide: true},
+                    'promotions': {hide: true},
+                }
+            );
+        },
+
+        updateFilterCriteria(filterCriteria) {
+            this.filterCriteria = filterCriteria;
+
+            //TODO: go to page 1
+
+            this.getList();
+        },
+
         createdComponent() {
             this.loadFilterValues();
+            this.createFilterOptions()
         },
 
         onInlineEditSave(promise, customer) {
@@ -103,7 +139,24 @@ Component.register('sw-customer-list', {
         getList() {
             this.isLoading = true;
 
-            this.customerRepository.search(this.defaultCriteria, Shopware.Context.api).then((items) => {
+            const criteria = new Criteria(this.page, this.limit);
+            this.naturalSorting = this.sortBy === 'customerNumber';
+
+            criteria.setTerm(this.term);
+            if (this.affiliateCodeFilter.length > 0) {
+                criteria.addFilter(Criteria.equalsAny('affiliateCode', this.affiliateCodeFilter));
+            }
+            if (this.campaignCodeFilter.length > 0) {
+                criteria.addFilter(Criteria.equalsAny('campaignCode', this.campaignCodeFilter));
+            }
+            criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
+            criteria.addAssociation('defaultBillingAddress');
+
+            if (this.filterCriteria) {
+                criteria.addFilter(this.filterCriteria);
+            }
+
+            this.customerRepository.search(criteria, Shopware.Context.api).then((items) => {
                 this.total = items.total;
                 this.customers = items;
                 this.isLoading = false;

@@ -1,5 +1,5 @@
 .sidebar--filter-container {
-    padding: 15px;
+    //padding: 15px;
     .sw-field--switch {
         margin: 0;
     }
@@ -10,5 +10,13 @@
 
     .sw-selected-options {
         color: rgb(179, 191, 204);
+    }
+
+    .sw-filter-multi-select-label-container {
+        padding-top: 5px;
+    }
+
+    .sw-collapse__content {
+        padding: 0 15px;
     }
 }

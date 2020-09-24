@@ -10,18 +10,19 @@ let filterFactory = {
     create(entityName, filterSettings) {
         const entity = Shopware.EntityDefinition.get(entityName)
 
+        console.log(entity);
+
         const filters = [];
 
         for (const key in entity.properties) {
             const property = entity.properties[key];
             let settings = filterSettings[key];
             if (settings === undefined) settings = {};
+
             if (settings.hide) continue;
 
-            if (property.type === "uuid"
-                || property.type === "json_object"
-                || property.localField === "id"
-                || !['association', 'singleSelect', 'input', 'boolean', 'int'].includes(property.type)
+            if (
+                !['association', 'singleSelect', 'input', 'boolean', 'int', 'date', 'string'].includes(property.type)
             ) {
                 continue;
             }

@@ -29,78 +29,7 @@ Component.register('sw-product-list', {
             product: null,
             cloning: false,
             filterCriteria: false,
-            filterOptions: null,
-            // filterOptions: [
-            //     {
-            //         name: 'onClearance',
-            //         label: this.$tc('sw-product.list.filter.clearanceSale.label'),
-            //         field: 'product.isCloseout',
-            //         inputType: 'switch',
-            //         criteriaType: 'equals'
-            //     },
-            //     {
-            //         name: 'activeInactive',
-            //         label: this.$tc('sw-product.list.filter.activeInactive.label'),
-            //         placeholder: this.$tc('sw-product.list.filter.activeInactive.placeholder'),
-            //         field: 'product.active',
-            //         inputType: 'singleSelect',
-            //         criteriaType: 'equals',
-            //         options: [
-            //             {
-            //                 name: 'All',
-            //                 value: null
-            //             },
-            //             {
-            //                 name: 'Active',
-            //                 value: true
-            //             },
-            //             {
-            //                 name: 'Inactive',
-            //                 value: false
-            //             }
-            //         ]
-            //     },
-            //     {
-            //         name: 'manufacturer',
-            //         label: this.$tc('sw-product.list.filter.manufacturer.label'),
-            //         placeholder: this.$tc('sw-product.list.filter.manufacturer.placeholder'),
-            //         field: 'product.manufacturerId',
-            //         inputType: 'multiSelect',
-            //         criteriaType: 'equalsAny',
-            //         repository: 'product_manufacturer'
-            //     },
-            //     {
-            //         name: 'salesChannel',
-            //         label: this.$tc('sw-product.list.filter.salesChannel.label'),
-            //         placeholder: this.$tc('sw-product.list.filter.salesChannel.placeholder'),
-            //         field: 'product.visibilities.salesChannelId',
-            //         inputType: 'multiSelect',
-            //         criteriaType: 'equalsAny',
-            //         repository: 'sales_channel'
-            //     },
-            //     {
-            //         name: 'productNumber',
-            //         label: this.$tc('sw-product.list.filter.productNumber.label'),
-            //         placeholder: this.$tc('sw-product.list.filter.productNumber.placeholder'),
-            //         field: 'product.productNumber',
-            //         inputType: 'input',
-            //         criteriaType: 'contains'
-            //     },
-            //     {
-            //         name: 'price',
-            //         label: this.$tc('sw-product.list.filter.price.label'),
-            //         field: 'product.price',
-            //         inputType: 'range',
-            //         criteriaType: 'range'
-            //     },
-            //     {
-            //         name: 'stock',
-            //         label: this.$tc('sw-product.list.filter.stock.label'),
-            //         field: 'product.stock',
-            //         inputType: 'range',
-            //         criteriaType: 'range'
-            //     }
-            // ]
+            filterOptions: null
         };
     },
 
@@ -165,7 +94,6 @@ Component.register('sw-product-list', {
             this.filterOptions = filterFactory.create('product',
                 {
                     'active': {label: 'Active state', placeholder: 'All products'}, // adds a custom label to this field
-                    'productNumber': {label: 'Product number', placeholder: 'Product number'}, // adds a custom label to this field
                     'displayGroup': {hide: true},
                     'categoriesRo': {hide: true},
                     'autoIncrement': {hide: true},

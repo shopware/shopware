@@ -75,6 +75,7 @@ Component.register('sw-order-list', {
                     'taxStatus': {hide: true},
                     'orderDateTime': {hide: true},
                     'deliveries': {hide: true},
+                    'documents': {label: 'Has No Documents'},
                 }
             );
         },

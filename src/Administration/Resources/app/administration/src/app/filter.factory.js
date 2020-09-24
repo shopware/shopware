@@ -10,8 +10,6 @@ let filterFactory = {
     create(entityName, filterSettings) {
         const entity = Shopware.EntityDefinition.get(entityName)
 
-        console.log(entity);
-
         const filters = [];
 
         for (const key in entity.properties) {

@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class AuthControllerTest extends TestCase
 {
@@ -82,6 +83,18 @@ class AuthControllerTest extends TestCase
 
         $newSessionId = $session->getId();
         static::assertSame($sessionId, $newSessionId);
+    }
+
+    public function testRedirectToAccountPageAfterLogin(): void
+    {
+        $browser = $this->login();
+
+        $browser->request('GET', '/account/login', []);
+        $response = $browser->getResponse();
+
+        static::assertSame(302, $response->getStatusCode(), $response->getContent());
+        static::assertInstanceOf(RedirectResponse::class, $response);
+        static::assertSame('/account', $response->getTargetUrl());
     }
 
     private function login(): KernelBrowser

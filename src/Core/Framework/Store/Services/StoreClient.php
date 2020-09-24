@@ -36,6 +36,7 @@ class StoreClient
     private const SBP_API_URL_PLUGIN_COMPATIBILITY = '/swplatform/autoupdate';
     private const SBP_API_URL_PLUGIN_DOWNLOAD_INFO = '/swplatform/pluginfiles/{pluginName}';
     private const SBP_API_URL_UPDATE_PERMISSIONS = '/swplatform/autoupdate/permission';
+    private const SBP_API_URL_GENERATE_SIGNATURE = '/swplatform/generatesignature';
 
     /**
      * @var Client
@@ -303,6 +304,22 @@ class StoreClient
         ]);
 
         return json_decode((string) $response->getBody(), true)['updateAllowed'];
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10286)
+     */
+    public function signPayloadWithAppSecret(string $payload, string $appName): string
+    {
+        $response = $this->client->post(self::SBP_API_URL_GENERATE_SIGNATURE, [
+            'headers' => $this->getHeaders(),
+            'json' => [
+                'payload' => $payload,
+                'appName' => $appName,
+            ],
+        ]);
+
+        return json_decode((string) $response->getBody(), true)['signature'];
     }
 
     /**

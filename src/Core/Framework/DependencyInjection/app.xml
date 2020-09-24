@@ -78,6 +78,7 @@
         <service id="Shopware\Core\Framework\App\Lifecycle\Registration\HandshakeFactory">
             <argument type="string">%env(APP_URL)%</argument>
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreClient"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle">

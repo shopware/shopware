@@ -17,18 +17,9 @@
                 </sw-promotion-rule-select>
             {% endblock %}
 
-            {% block sw_promotion_cart_condition_form_allow_experimental %}
-                <sw-field type="checkbox"
-                          :disabled="!acl.can('promotion.editor')"
-                          v-model="allowExperimentalFeatures"
-                          :label="$tc('sw-promotion.detail.main.preconditions.cart.setgroups.switchGroupsExperimental')">
-                </sw-field>
-            {% endblock %}
-
             {% block sw_promotion_cart_condition_form_use_setgroups_field %}
                 <sw-container columns="1fr" gap="0px 30px">
-                    <sw-field v-if="allowExperimentalFeatures"
-                              type="switch"
+                    <sw-field type="switch"
                               :disabled="!acl.can('promotion.editor')"
                               v-model="promotion.useSetGroups"
                               :label="$tc('sw-promotion.detail.main.preconditions.cart.setgroups.switchGroupsEnabled')">
@@ -36,7 +27,7 @@
                 </sw-container>
             {% endblock %}
 
-            <div v-if="promotion.useSetGroups && allowExperimentalFeatures">
+            <div v-if="promotion.useSetGroups">
 
                 {% block sw_promotion_cart_condition_setgroup %}
                     <div class="sw-promotion-cart-condition-form__setgroup-root-div"

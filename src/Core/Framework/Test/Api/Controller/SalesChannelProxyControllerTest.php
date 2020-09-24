@@ -27,6 +27,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Response;
 
 class SalesChannelProxyControllerTest extends TestCase
@@ -95,7 +96,8 @@ class SalesChannelProxyControllerTest extends TestCase
         $this->context = Context::createDefaultContext();
         $this->customerRepository = $this->getContainer()->get('customer.repository');
         $this->connection = $this->getContainer()->get(Connection::class);
-        $this->contextPersister = new SalesChannelContextPersister($this->connection);
+        $eventDispatcher = new EventDispatcher();
+        $this->contextPersister = new SalesChannelContextPersister($this->connection, $eventDispatcher);
         $this->ids = new TestDataCollection($this->context);
     }
 

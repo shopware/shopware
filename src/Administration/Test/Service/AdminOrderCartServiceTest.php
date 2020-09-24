@@ -13,6 +13,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class AdminOrderCartServiceTest extends TestCase
 {
@@ -41,7 +42,8 @@ class AdminOrderCartServiceTest extends TestCase
     protected function setUp(): void
     {
         $this->connection = $this->getContainer()->get(Connection::class);
-        $this->contextPersister = new SalesChannelContextPersister($this->connection);
+        $eventDispatcher = new EventDispatcher();
+        $this->contextPersister = new SalesChannelContextPersister($this->connection, $eventDispatcher);
         $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
         $this->adminOrderCartService = $this->getContainer()->get(AdminOrderCartService::class);

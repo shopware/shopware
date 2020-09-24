@@ -6,4 +6,4 @@ author_email: o.skroblin@shopware.com
 author_github: @OliverSkroblin
 ---
 # Core
-* `product.active` field is now inherited  
+* Added `Inherited` flag to `product.active`  

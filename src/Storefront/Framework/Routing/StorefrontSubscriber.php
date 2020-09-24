@@ -341,7 +341,8 @@ class StorefrontSubscriber implements EventSubscriberInterface
         $context = $this->contextService->get(
             $salesChannelId,
             $contextToken,
-            $event->getRequest()->headers->get(PlatformRequest::HEADER_LANGUAGE_ID)
+            $event->getRequest()->headers->get(PlatformRequest::HEADER_LANGUAGE_ID),
+            $event->getRequest()->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID)
         );
         $event->getRequest()->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
     }

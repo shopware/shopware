@@ -24,6 +24,7 @@ use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
@@ -319,7 +320,8 @@ class SalesChannelProxyController extends AbstractController
         $salesChannelContext = $this->contextService->get(
             $salesChannelId,
             $contextToken,
-            $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID)
+            $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID),
+            $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID)
         );
 
         return $salesChannelContext;

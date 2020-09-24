@@ -140,8 +140,6 @@ Component.register('sw-entity-many-to-many-select', {
         },
 
         initData() {
-            console.log('entityCollection', this.entityCollection);
-
             this.entityCollection.criteria.setLimit(this.valueLimit);
             this.searchCriteria = new Criteria(1, this.resultLimit);
 

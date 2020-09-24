@@ -21,6 +21,11 @@ Component.extend('sw-url-field', 'sw-text-field', {
         error: {
             type: Object,
             required: false
+        },
+
+        allowQueryParams: {
+            type: Boolean,
+            required: false
         }
     },
 
@@ -101,6 +106,9 @@ Component.extend('sw-url-field', 'sw-text-field', {
                     const url = new URL(`${this.urlPrefix}${this.currentValue}`);
                     const path = this.currentValue.endsWith('/') ? url.pathname : url.pathname.replace(/\/$/, '');
                     this.currentValue = url.hostname + path;
+                    if (this.allowQueryParams) {
+                        this.currentValue += url.search;
+                    }
                     this.errorUrl = null;
                 } catch {
                     this.errorUrl = new ShopwareError({

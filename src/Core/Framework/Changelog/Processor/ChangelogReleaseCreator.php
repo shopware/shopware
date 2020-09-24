@@ -1,20 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Changelog;
+namespace Shopware\Core\Framework\Changelog\Processor;
 
-use Symfony\Component\Filesystem\Filesystem;
+use Shopware\Core\Framework\Changelog\ChangelogFileCollection;
 
-class ChangelogReleaseCreator
+class ChangelogReleaseCreator extends ChangelogProcessor
 {
-    use ChangelogReleaseTrait;
-
-    public function __construct(ChangelogParser $parser, Filesystem $filesystem, string $projectDir)
-    {
-        $this->parser = $parser;
-        $this->filesystem = $filesystem;
-        $this->initialize($projectDir);
-    }
-
     /**
      * Start to release a given version
      */

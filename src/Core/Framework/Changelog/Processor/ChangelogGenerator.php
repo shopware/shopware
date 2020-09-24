@@ -1,16 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Changelog;
+namespace Shopware\Core\Framework\Changelog\Processor;
 
-class ChangelogGenerator
+use Shopware\Core\Framework\Changelog\ChangelogDefinition;
+
+class ChangelogGenerator extends ChangelogProcessor
 {
-    use ChangelogReleaseTrait;
-
-    public function __construct(string $projectDir)
-    {
-        $this->initialize($projectDir);
-    }
-
     public function generate(ChangelogDefinition $template, string $date, bool $dryRun = false): string
     {
         $target = $this->getTemplateFile($template, $date);

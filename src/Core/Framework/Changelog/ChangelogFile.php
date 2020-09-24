@@ -6,13 +6,19 @@ use Shopware\Core\Framework\Struct\Struct;
 
 class ChangelogFile extends Struct
 {
-    /** @var string */
+    /**
+     * @var string
+     */
     protected $name;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     protected $path;
 
-    /** @var ChangelogDefinition */
+    /**
+     * @var ChangelogDefinition
+     */
     protected $definition;
 
     public function getName(): string

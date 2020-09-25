@@ -41,6 +41,15 @@
       },
       "additional-permissions": {
         "title": "Additional permissions"
+      },
+      "view": {
+        "detailed": {
+          "alertText": "In this view privileges can be configured in detail. This configuration is only necessary in exceptional situations. If e.g. extensions are used in the system that add new datasets but do not have privileges, they can be configured here. All deactivated checkboxes are permissions that have already been assigned in the \"General\" tab."
+        }
+      },
+      "tabs": {
+        "general": "General",
+        "detailed": "Detailed privileges"
       }
     },
     "users": {
@@ -150,6 +159,12 @@
       "editor": "Edit",
       "creator": "Create",
       "deleter": "Delete"
+    },
+    "permissionType": {
+      "read": "Read",
+      "update": "Update",
+      "create": "Create",
+      "delete": "Delete"
     },
     "permissions": {
       "parents": {

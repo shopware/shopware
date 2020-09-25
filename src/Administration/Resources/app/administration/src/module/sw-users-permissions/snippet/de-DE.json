@@ -41,6 +41,15 @@
       },
       "additional-permissions": {
         "title": "Zusätzliche Berechtigungen"
+      },
+      "view": {
+        "detailed": {
+          "alertText": "In dieser Ansicht können Privilegien detailliert konfiguriert werden. Diese Konfiguration ist nur in Ausnahmesituationen notwendig. Sollten im System z. B. Erweiterungen eingesetzt werden die neue Datensätze hinzufügen jedoch keine Rechte hierfür vergeben haben, können diese hier konfiguriert werden. Alle deaktivierten Checkboxen sind Berechtigungen, die bereits im Tab “Allgemein” vergeben wurden."
+        }
+      },
+      "tabs": {
+        "general": "Allgemein",
+        "detailed": "Detaillierte Privilegien"
       }
     },
     "users": {
@@ -150,6 +159,12 @@
       "editor": "Bearbeiten",
       "creator": "Erstellen",
       "deleter": "Löschen"
+    },
+    "permissionType": {
+      "read": "Lesen",
+      "update": "Schreiben",
+      "create": "Erstellen",
+      "delete": "Löschen"
     },
     "permissions": {
       "parents": {

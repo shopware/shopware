@@ -1,0 +1,11 @@
+<div class="sw-users-permissions-role-view-detailed">
+    <sw-alert>
+        {{ $tc('sw-users-permissions.roles.view.detailed.alertText') }}
+    </sw-alert>
+
+    <sw-users-permissions-detailed-permissions-grid
+        :role="role"
+        :detailedPrivileges="detailedPrivileges"
+        :disabled="!acl.can('users_and_permissions.editor')"
+    ></sw-users-permissions-detailed-permissions-grid>
+</div>

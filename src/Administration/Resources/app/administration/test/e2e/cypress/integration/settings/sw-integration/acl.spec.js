@@ -9,6 +9,9 @@ describe('Integration: Test acl privileges', () => {
                 cy.loginViaApi();
             })
             .then(() => {
+                return cy.createDefaultFixture('integration');
+            })
+            .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
             });
     });
@@ -73,7 +76,7 @@ describe('Integration: Test acl privileges', () => {
             // clear old data and type another one in name field
             cy.get('#sw-field--currentIntegration-label')
                 .clear()
-                .type('chat-key');
+                .type('automation key');
             cy.get('.sw-field__checkbox input[type="checkbox"]').check();
 
             cy.get('.sw-integration-detail-modal__save-action').click();
@@ -83,7 +86,7 @@ describe('Integration: Test acl privileges', () => {
                 expect(xhr).to.have.property('status', 204);
             });
 
-            cy.get('.sw-data-grid__cell-content a[href="#"]').contains('chat-key');
+            cy.get('.sw-data-grid__cell-content a[href="#"]').contains('automation key');
         });
     });
 
@@ -102,20 +105,12 @@ describe('Integration: Test acl privileges', () => {
                 },
                 {
                     key: 'integration',
-                    role: 'creator'
-                },
-                {
-                    key: 'integration',
                     role: 'editor'
                 }
             ]);
 
             // Request we want to wait for later
             cy.server();
-            cy.route({
-                url: '/api/v*/integration',
-                method: 'post'
-            }).as('createIntegration');
             cy.route({
                 url: '/api/v*/integration/*',
                 method: 'patch'
@@ -125,22 +120,6 @@ describe('Integration: Test acl privileges', () => {
             cy.get('.sw-admin-menu__item--sw-settings').click();
             cy.get('.sw-settings__tab-system').click();
             cy.get('#sw-integration').click();
-
-            // go to create page
-            cy.get('.sw-integration-list__add-integration-action').click();
-
-            // clear old data and type another one in name field
-            cy.get('#sw-field--currentIntegration-label')
-                .clear()
-                .type('chat-key');
-            cy.get('.sw-field__checkbox input[type="checkbox"]').check();
-
-            cy.get('.sw-integration-detail-modal__save-action').click();
-
-            // Verify create a integration
-            cy.wait('@createIntegration').then((xhr) => {
-                expect(xhr).to.have.property('status', 204);
-            });
 
             // click on the first element in grid
             cy.get(`${page.elements.dataGridRow}--0`).contains('chat-key').click();
@@ -176,20 +155,12 @@ describe('Integration: Test acl privileges', () => {
                 },
                 {
                     key: 'integration',
-                    role: 'creator'
-                },
-                {
-                    key: 'integration',
                     role: 'deleter'
                 }
             ]);
 
             // Request we want to wait for later
             cy.server();
-            cy.route({
-                url: '/api/v*/integration',
-                method: 'post'
-            }).as('createIntegration');
             cy.route({
                 url: '/api/v*/integration/*',
                 method: 'delete'
@@ -200,21 +171,7 @@ describe('Integration: Test acl privileges', () => {
             cy.get('.sw-settings__tab-system').click();
             cy.get('#sw-integration').click();
 
-            // go to create page
-            cy.get('.sw-integration-list__add-integration-action').click();
-
-            // clear old data and type another one in name field
-            cy.get('#sw-field--currentIntegration-label')
-                .clear()
-                .type('chat-key');
-            cy.get('.sw-field__checkbox input[type="checkbox"]').check();
-
-            cy.get('.sw-integration-detail-modal__save-action').click();
-
-            // Verify create a integration
-            cy.wait('@createIntegration').then((xhr) => {
-                expect(xhr).to.have.property('status', 204);
-            });
+            // click on the first element in grid
             cy.clickContextMenuItem(
                 `${page.elements.contextMenu}-item--danger`,
                 page.elements.contextMenuButton,

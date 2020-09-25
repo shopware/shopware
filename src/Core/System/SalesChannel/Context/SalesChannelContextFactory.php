@@ -465,7 +465,9 @@ class SalesChannelContextFactory
 
         //check provided language is part of the available languages
         if (!\in_array($current, $availableLanguageIds, true)) {
-            throw new \RuntimeException('Provided language is not available');
+            throw new \RuntimeException(
+                sprintf('Provided language %s is not in list of available languages: %s', $current, implode(', ', $availableLanguageIds))
+            );
         }
 
         if ($current === Defaults::LANGUAGE_SYSTEM) {

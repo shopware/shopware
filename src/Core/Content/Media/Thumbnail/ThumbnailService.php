@@ -210,7 +210,8 @@ class ThumbnailService
 
     private function ensureConfigIsLoaded(MediaEntity $media, Context $context): void
     {
-        if (!$media->getMediaFolderId()) {
+        $mediaFolderId = $media->getMediaFolderId();
+        if ($mediaFolderId === null) {
             return;
         }
 
@@ -218,10 +219,10 @@ class ThumbnailService
             return;
         }
 
-        $criteria = new Criteria([$media->getMediaFolderId()]);
+        $criteria = new Criteria([$mediaFolderId]);
         $criteria->addAssociation('configuration.mediaThumbnailSizes');
         /** @var MediaFolderEntity $folder */
-        $folder = $this->mediaFolderRepository->search($criteria, $context)->get($media->getMediaFolderId());
+        $folder = $this->mediaFolderRepository->search($criteria, $context)->get($mediaFolderId);
         $media->setMediaFolder($folder);
     }
 

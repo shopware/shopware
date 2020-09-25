@@ -77,8 +77,13 @@ class ThemeDumpCommand extends Command
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('theme.salesChannels.typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT));
 
-        if ($id = $input->getArgument('theme-id')) {
-            $criteria->setIds([$id]);
+        $id = $input->getArgument('theme-id');
+        if ($id !== null) {
+            if (\is_array($id)) {
+                $criteria->setIds($id);
+            } else {
+                $criteria->setIds([$id]);
+            }
         }
 
         $themes = $this->themeRepository->search($criteria, $this->context);

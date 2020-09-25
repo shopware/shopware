@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Update\Api;
 
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
+use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceUserException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -328,11 +329,15 @@ class UpdateController extends AbstractController
 
     private function getUpdateLocale(Context $context): string
     {
-        if (!$context->getSource() instanceof AdminApiSource) {
-            throw new InvalidContextSourceException(AdminApiSource::class, \get_class($context->getSource()));
+        $contextSource = $context->getSource();
+        if (!($contextSource instanceof AdminApiSource)) {
+            throw new InvalidContextSourceException(AdminApiSource::class, \get_class($contextSource));
         }
 
-        $userId = $context->getSource()->getUserId();
+        $userId = $contextSource->getUserId();
+        if ($userId === null) {
+            throw new InvalidContextSourceUserException(\get_class($contextSource));
+        }
 
         $criteria = new Criteria([$userId]);
         $criteria->getAssociation('locale');

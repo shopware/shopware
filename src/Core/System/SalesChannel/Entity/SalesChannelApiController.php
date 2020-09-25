@@ -155,7 +155,6 @@ class SalesChannelApiController
 
     private function checkProtectedAssociations(Criteria $criteria, EntityDefinition $definition): Criteria
     {
-        /** @var Criteria $associationCriteria */
         foreach ($criteria->getAssociations() as $entityName => $associationCriteria) {
             $field = $definition->getField($entityName);
             if (!$field || !$field instanceof AssociationField) {

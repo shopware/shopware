@@ -310,7 +310,7 @@ Plugin services
 
 Rule matching
 
-#### Store <span class="tip is--primary">Maintenance</span> <span class="tip is--primary">Extension</span>
+#### Store <span class="tip is--primary">Maintenance</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Extension</span>
 
 * [Sources](https://github.com/shopware/platform/tree/master/src/Core/Framework/Store)
 

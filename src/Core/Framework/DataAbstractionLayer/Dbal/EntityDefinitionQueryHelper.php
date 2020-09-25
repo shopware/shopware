@@ -554,10 +554,11 @@ class EntityDefinitionQueryHelper
             $primaryKeyField = $definition->getPrimaryKeys()->first();
             if ($primaryKeyField instanceof IdField) {
                 $primaryKeys = array_map(function ($id) {
-                    if (is_array($id)) {
-                        $id = array_shift($id);
+                    if (\is_array($id)) {
+                        /** @var string $shiftedId */
+                        $shiftedId = array_shift($id);
 
-                        return Uuid::fromHexToBytes($id);
+                        return Uuid::fromHexToBytes($shiftedId);
                     }
 
                     return Uuid::fromHexToBytes($id);

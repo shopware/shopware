@@ -1,42 +1,44 @@
 Shopware.Service('privileges').addPrivilegeMappingEntry({
     category: 'permissions',
     parent: 'settings',
-    key: 'country',
+    key: 'tax',
     roles: {
         viewer: {
             privileges: [
-                'country:read',
-                'country_state:read'
+                'tax:read',
+                'tax_rule:read',
+                'tax_rule_type:read',
+                'country:read'
             ],
             dependencies: []
         },
         editor: {
             privileges: [
-                'country:update',
-                'country_state:read',
-                'country_state:create',
-                'country_state:update',
-                'country_state:delete'
+                'tax:update',
+                'tax_rule:read',
+                'tax_rule:create',
+                'tax_rule:update',
+                'tax_rule:delete'
             ],
             dependencies: [
-                'country.viewer'
+                'tax.viewer'
             ]
         },
         creator: {
             privileges: [
-                'country:create'
+                'tax:create'
             ],
             dependencies: [
-                'country.viewer',
-                'country.editor'
+                'tax.viewer',
+                'tax.editor'
             ]
         },
         deleter: {
             privileges: [
-                'country:delete'
+                'tax:delete'
             ],
             dependencies: [
-                'country.viewer'
+                'tax.viewer'
             ]
         }
     }

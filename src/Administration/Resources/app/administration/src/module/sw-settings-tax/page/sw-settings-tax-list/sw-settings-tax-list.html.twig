@@ -32,7 +32,16 @@
             {% block sw_settings_tax_list_smart_bar_actions %}
                 <template slot="smart-bar-actions">
                     {% block sw_settings_tax_list_smart_bar_actions_add %}
-                        <sw-button :routerLink="{ name: 'sw.settings.tax.create' }" variant="primary">
+                        <sw-button
+                            v-tooltip.bottom="{
+                                message: $tc('sw-privileges.tooltip.warning'),
+                                disabled: acl.can('tax.creator'),
+                                showOnDisabledElements: true
+                            }"
+                            class="sw-settings-tax-list__button-create"
+                            variant="primary"
+                            :disabled="!acl.can('tax.creator')"
+                            :routerLink="{ name: 'sw.settings.tax.create' }">
                             {{ $tc('sw-settings-tax.list.buttonAddTax') }}
                         </sw-button>
                     {% endblock %}
@@ -47,13 +56,17 @@
                                 {% block sw_settings_tax_list_grid %}
                                     <sw-entity-listing ref="swSettingsTaxGrid"
                                                        class="sw-settings-tax-list-grid"
+                                                       detailRoute="sw.settings.tax.detail"
                                                        :items="tax"
                                                        :columns="getTaxColumns()"
                                                        :repository="taxRepository"
                                                        :fullPage="false"
-                                                       detailRoute="sw.settings.tax.detail"
                                                        :showSelection="false"
                                                        :isLoading="isLoading"
+                                                       :allowView="acl.can('tax.viewer')"
+                                                       :allowEdit="acl.can('tax.editor')"
+                                                       :allowInlineEdit="acl.can('tax.editor')"
+                                                       :allowDelete="acl.can('tax.deleter')"
                                                        @inline-edit-save="onInlineEditSave">
                                         {% block sw_settings_tax_list_grid_column_default_tax_rate %}
                                             <template #column-taxRate="{ item, isInlineEdit, compact }">
@@ -76,14 +89,32 @@
                                             <template #actions="{ item }">
                                                 {% block sw_settings_tax_list_grid_columns_actions_edit %}
                                                     <sw-context-menu-item
-                                                        :routerLink="{ name: 'sw.settings.tax.detail', params: { id: item.id, edit: 'edit' }}"
-                                                        class="sw-tax-list__edit-action">
+                                                        v-tooltip.top="{
+                                                            message: $tc('sw-privileges.tooltip.warning'),
+                                                            disabled: acl.can('tax.editor'),
+                                                            showOnDisabledElements: true
+                                                        }"
+                                                        class="sw-tax-list__edit-action"
+                                                        :disabled="!acl.can('tax.editor')"
+                                                        :routerLink="{
+                                                            name: 'sw.settings.tax.detail',
+                                                            params: { id: item.id, edit: 'edit' }
+                                                        }">
                                                         {{ $tc('sw-settings-tax.list.contextMenuEdit') }}
                                                     </sw-context-menu-item>
                                                 {% endblock %}
 
                                                 {% block sw_settings_tax_list_grid_columns_actions_delete %}
-                                                    <sw-context-menu-item variant="danger" @click="onDelete(item.id)">
+                                                    <sw-context-menu-item
+                                                        v-tooltip.bottom="{
+                                                            message: $tc('sw-privileges.tooltip.warning'),
+                                                            disabled: acl.can('tax.deleter'),
+                                                            showOnDisabledElements: true
+                                                        }"
+                                                        class="sw-tax-list__delete-action"
+                                                        variant="danger"
+                                                        :disabled="!acl.can('tax.deleter')"
+                                                        @click="onDelete(item.id)">
                                                         {{ $tc('sw-settings-tax.list.contextMenuDelete') }}
                                                     </sw-context-menu-item>
                                                 {% endblock %}

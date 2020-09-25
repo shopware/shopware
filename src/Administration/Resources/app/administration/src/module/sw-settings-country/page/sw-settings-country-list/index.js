@@ -34,6 +34,14 @@ Component.register('sw-settings-country-list', {
     computed: {
         countryRepository() {
             return this.repositoryFactory.create('country');
+        },
+
+        detailPageLinkText() {
+            if (!this.acl.can('country.editor') && this.acl.can('country.viewer')) {
+                return this.$tc('global.default.view');
+            }
+
+            return this.$tc('global.default.edit');
         }
     },
 

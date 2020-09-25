@@ -215,12 +215,14 @@ class ThemeService
             $resolvedConfig[$key] = $data['value'];
         }
 
-        $criteria = new Criteria(array_keys($mediaItems));
+        /** @var string[] $mediaIds */
+        $mediaIds = array_keys($mediaItems);
+        $criteria = new Criteria($mediaIds);
         $criteria->setTitle('theme-service::resolve-media');
         $result = $this->mediaRepository->search($criteria, $context);
 
         foreach ($result as $media) {
-            if (!array_key_exists($media->getId(), $mediaItems)) {
+            if (!\array_key_exists($media->getId(), $mediaItems)) {
                 continue;
             }
 

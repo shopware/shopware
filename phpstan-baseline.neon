@@ -2706,11 +2706,6 @@ parameters:
 			path: src/Core/Content/Seo/SeoUrlRoute/SeoUrlRouteRegistry.php
 
 		-
-			message: "#^Parameter \\#2 \\.\\.\\.\\$args of function sprintf expects bool\\|float\\|int\\|string\\|null, \\(array\\<string\\>\\)\\|string\\|true given\\.$#"
-			count: 1
-			path: src/Core/Content/Sitemap/Commands/SitemapGenerateCommand.php
-
-		-
 			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Aggregate\\\\SalesChannelType\\\\SalesChannelTypeEntity\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/Sitemap/Commands/SitemapGenerateCommand.php
@@ -5516,21 +5511,6 @@ parameters:
 			path: src/Core/Framework/Store/Api/FirstRunWizardController.php
 
 		-
-			message: "#^Cannot call method getShopUserToken\\(\\) on Shopware\\\\Core\\\\Framework\\\\Store\\\\Struct\\\\AccessTokenStruct\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Store/Api/FirstRunWizardController.php
-
-		-
-			message: "#^Cannot call method getStoreToken\\(\\) on Shopware\\\\Core\\\\System\\\\User\\\\UserEntity\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Store/Api/FirstRunWizardController.php
-
-		-
-			message: "#^Cannot call method getStoreToken\\(\\) on Shopware\\\\Core\\\\System\\\\User\\\\UserEntity\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Store/Api/StoreController.php
-
-		-
 			message: "#^Parameter \\#2 \\$user of method Shopware\\\\Core\\\\Framework\\\\Store\\\\Command\\\\StoreDownloadCommand\\:\\:getUserStoreToken\\(\\) expects string, array\\<string\\>\\|bool\\|string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Framework/Store/Command/StoreDownloadCommand.php
@@ -6391,11 +6371,6 @@ parameters:
 			path: src/Core/System/SalesChannel/Command/SalesChannelListCommand.php
 
 		-
-			message: "#^Parameter \\#1 \\$ids of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Criteria\\:\\:setIds\\(\\) expects array, array\\<string\\>\\|string given\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Command/SalesChannelMaintenanceEnableCommand.php
-
-		-
 			message: "#^Parameter \\#1 \\$address of static method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Delivery\\\\Struct\\\\ShippingLocation\\:\\:createFromAddress\\(\\) expects Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Aggregate\\\\CustomerAddress\\\\CustomerAddressEntity, Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Aggregate\\\\CustomerAddress\\\\CustomerAddressEntity\\|null given\\.$#"
 			count: 1
 			path: src/Core/System/SalesChannel/Context/SalesChannelContextFactory.php
@@ -6497,16 +6472,6 @@ parameters:
 
 		-
 			message: "#^Parameter \\#1 \\$definition of class Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelEntityIdSearchResultLoadedEvent constructor expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInterface given\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Entity/SalesChannelRepository.php
-
-		-
-			message: "#^Offset 'definition' does not exist on array\\('criteria' \\=\\> mixed, 'definition' \\=\\> Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInterface\\)\\|null\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Entity/SalesChannelRepository.php
-
-		-
-			message: "#^Offset 'criteria' does not exist on array\\('criteria' \\=\\> mixed, 'definition' \\=\\> Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInterface\\)\\|null\\.$#"
 			count: 1
 			path: src/Core/System/SalesChannel/Entity/SalesChannelRepository.php
 

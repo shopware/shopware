@@ -333,4 +333,8 @@ EOD
 Console commands for the changelog workflow
 EOD
     ,
+    'Migration/Traits' => <<<'EOD'
+Traits for different migration operations
+EOD
+    ,
 ];

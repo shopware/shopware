@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Migration;
+namespace Shopware\Core\Migration\Test;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
@@ -75,6 +75,49 @@ class Migration1595422169ProductSortingTest extends TestCase
 
         static::assertEquals($sortings, $actual);
         static::assertJsonStringEqualsJsonString('{"_value": "name-asc"}', $defaultSorting);
+    }
+
+    public function testMigrationWithFranceAsDefault(): void
+    {
+        $connection = $this->getContainer()->get(Connection::class);
+
+        $connection->executeUpdate('DROP TABLE IF EXISTS `product_sorting_translation`');
+        $connection->executeUpdate('DROP TABLE IF EXISTS `product_sorting`');
+
+        $this->getContainer()->get(Connection::class)
+            ->executeUpdate(
+                'UPDATE `language` SET locale_id = :locale WHERE id = :id',
+                ['locale' => $this->getLocaleId('fr-FR'), 'id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]
+            );
+
+        $migration = new Migration1595422169AddProductSorting();
+        $migration->update($connection);
+
+        $this->getContainer()->get(Connection::class)
+            ->executeUpdate(
+                'UPDATE `language` SET locale_id = :locale WHERE id = :id',
+                ['locale' => $this->getLocaleId('en-GB'), 'id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]
+            );
+
+        $translations = $this->connection->fetchAll(
+            'SELECT label FROM product_sorting_translation WHERE language_id = :id',
+            ['id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]
+        );
+
+        $translations = array_column($translations, 'label');
+        sort($translations);
+
+        $expected = [
+            'Name A-Z',
+            'Name Z-A',
+            'Price ascending',
+            'Price descending',
+            'Top results',
+        ];
+
+        sort($expected);
+
+        static::assertEquals($expected, $translations);
     }
 
     private function migrationCases(): array
@@ -160,5 +203,11 @@ class Migration1595422169ProductSortingTest extends TestCase
             FROM `system_config`
             WHERE configuration_key = "core.listing.defaultSorting";
         ');
+    }
+
+    private function getLocaleId(string $code): string
+    {
+        return $this->getContainer()->get(Connection::class)
+            ->fetchColumn('SELECT id FROM locale WHERE code = :code', ['code' => $code]);
     }
 }

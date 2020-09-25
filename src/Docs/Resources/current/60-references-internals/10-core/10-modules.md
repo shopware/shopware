@@ -346,6 +346,14 @@ Validation
 
 Webhooks
 
+### Migration Bundle
+
+#### Traits 
+
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Migration/Traits)
+
+Traits for different migration operations
+
 ### System Bundle
 
 #### Annotation 

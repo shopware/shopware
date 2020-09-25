@@ -116,8 +116,9 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                 throw new MissingLineItemPriceException($lineItem->getId());
             }
 
+            $definition->setQuantity($lineItem->getQuantity());
+
             if ($behavior->hasPermission(self::SKIP_PRODUCT_STOCK_VALIDATION)) {
-                $definition->setQuantity($lineItem->getQuantity());
                 $lineItem->setPrice($this->calculator->calculate($definition, $context));
                 $toCalculate->add($lineItem);
 
@@ -134,14 +135,15 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                 continue;
             }
 
-            if ($lineItem->getQuantity() < $product->getMinPurchase()) {
-                $lineItem->setQuantity($product->getMinPurchase());
-                $definition->setQuantity($product->getMinPurchase());
+            $minPurchase = $product->getMinPurchase() ?? 1;
+            if ($lineItem->getQuantity() < $minPurchase) {
+                $lineItem->setQuantity($minPurchase);
+                $definition->setQuantity($minPurchase);
             }
 
             $available = $product->getCalculatedMaxPurchase() ?? $lineItem->getQuantity();
 
-            if ($available <= 0 || $available < $product->getMinPurchase()) {
+            if ($available <= 0 || $available < $minPurchase) {
                 $original->remove($lineItem->getId());
 
                 $toCalculate->addErrors(
@@ -161,7 +163,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                 );
             }
 
-            $fixedQuantity = $this->fixQuantity($product->getMinPurchase() ?? 1, $lineItem->getQuantity(), $product->getPurchaseSteps() ?? 1);
+            $fixedQuantity = $this->fixQuantity($minPurchase, $lineItem->getQuantity(), $product->getPurchaseSteps() ?? 1);
             if ($lineItem->getQuantity() !== $fixedQuantity) {
                 $lineItem->setQuantity($fixedQuantity);
                 $definition->setQuantity($fixedQuantity);

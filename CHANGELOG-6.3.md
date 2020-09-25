@@ -20,10 +20,8 @@ Table of contents
 
 #### Administration
 * Added ACL permissions to countries module in settings
-* Added property `disabled` to `sw-settings-country-list` component
-* Added property `disabled` to `sw-settings-country-detail` component
-* Added property `disabled` to `sw-country-state-detail` component
-* Added property `disabled` to `sw-one-to-many-grid` component
+* Added property `allowDelete` to `sw-one-to-many-grid` component
+* Added property `tooltipDelete` to `sw-one-to-many-grid` component
 * Added ACL permissions to settings rule
 * Added property `disabled` to `sw-arrow-field` component
 * Added property `disabled` to `sw-condition-base` component
@@ -51,7 +49,13 @@ Table of contents
 * Added ACL privileges to the `manufacturer` module
 * Added ACL privileges to the shopping experiences module for listing
 * Added a tooltip which shows the taxes detail for credit items and promotion items in create order and edit order page
-
+    * Added method `tooltipTaxDetail` in `module/sw-order/component/sw-order-line-items-grid/index.js` in order to generate tooltip message for tax detail of line item
+    * Added method `tooltipTaxDetail` in `module/sw-order/component/sw-order-line-items-grid-sales-channel/index.js` in order to generate tooltip message for tax detail of line item
+    * Added method `hasMultipleTaxes` in `module/sw-order/component/sw-order-line-items-grid/index.js` in order to check if line item has multiple taxes
+    * Added method `hasMultipleTaxes` in `module/sw-order/component/sw-order-line-items-grid-sales-channel/index.js` in order to check if line item has multiple taxes
+    * Added `{% block sw_order_line_items_grid_sales_channel_grid_columns_tax_content_tooltip %}` in `sw-order-line-items-grid-sales-channel.html.twig`
+    * Added `{% block sw_order_line_items_grid_grid_columns_tax_content_tooltip %}` in `sw-order-line-items-grid.html.twig`
+    
 #### Core
 * Changed order address from customer to billing address in documents
 * Added `sendMail` parameter to change state routes, which allows to skip the mail delivery. Affected routes:

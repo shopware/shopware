@@ -204,7 +204,7 @@ export default function conditionService() {
             'services',
             'properties',
             'searchKeywords',
-            'categoriesRo',
+            'categories',
             'canonicalUrl',
             'purchaseSteps',
             'options',

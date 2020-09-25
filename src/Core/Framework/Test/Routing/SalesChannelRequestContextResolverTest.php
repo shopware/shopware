@@ -8,15 +8,17 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Event\SalesChannelContextResolvedEvent;
 use Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
-use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 
 class SalesChannelRequestContextResolverTest extends TestCase
@@ -28,8 +30,6 @@ class SalesChannelRequestContextResolverTest extends TestCase
      * @var TestDataCollection
      */
     private $ids;
-
-    private $salesChannel;
 
     /**
      * @var EntityRepositoryInterface
@@ -54,17 +54,30 @@ class SalesChannelRequestContextResolverTest extends TestCase
     {
         $resolver = $this->getContainer()->get(SalesChannelRequestContextResolver::class);
 
-        $currencyId = Uuid::randomHex();
-
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
-        $dispatcher->addListener(SalesChannelContextResolvedEvent::class, function (SalesChannelContextResolvedEvent $event) use ($currencyId): void {
-            static::assertSame($currencyId, $event->getSalesChannelContext()->getCurrency()->getId());
-        });
+        $phpunit = $this;
+        $currencyId = $this->getCurrencyId('USD');
 
         $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, $this->ids->get('sales-channel'));
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID, $currencyId);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, new RouteScope(['scopes' => ['storefront']]));
+
+        /** @var EventDispatcher $dispatcher */
+        $dispatcher = $this->getContainer()->get('event_dispatcher');
+
+        $eventDidRun = false;
+        $listenerContextEventClosure = function (SalesChannelContextResolvedEvent $event) use (&$eventDidRun, $phpunit, $currencyId): void {
+            $eventDidRun = true;
+            $phpunit->assertSame($currencyId, $event->getSalesChannelContext()->getContext()->getCurrencyId());
+        };
+
+        $dispatcher->addListener(SalesChannelContextResolvedEvent::class, $listenerContextEventClosure);
 
         $resolver->resolve($request);
+
+        $dispatcher->removeListener(SalesChannelContextResolvedEvent::class, $listenerContextEventClosure);
+
+        static::assertTrue($eventDidRun, 'The "' . SalesChannelContextResolvedEvent::class . '" Event did not run');
     }
 
     /**
@@ -75,9 +88,9 @@ class SalesChannelRequestContextResolverTest extends TestCase
         $currencyId = $this->getCurrencyId($currencyCode);
         $expectedCurrencyId = $expectedCode !== $currencyCode ? $this->getCurrencyId($expectedCode) : $currencyId;
 
-        $context = $this->contextService->get($this->ids->get('sales-channel'), $this->ids->get('token'), null, $currencyId);
+        $context = $this->contextService->get($this->ids->get('sales-channel'), $this->ids->get('token'), Defaults::LANGUAGE_SYSTEM, $currencyId);
 
-        static::assertSame($expectedCurrencyId, $context->getCurrency()->getId());
+        static::assertSame($expectedCurrencyId, $context->getContext()->getCurrencyId());
     }
 
     public function domainData(): array

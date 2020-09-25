@@ -1,6 +1,7 @@
 {# @deprecated tag:v6.4.0 -  Will be handled by generic "layout/breadcrumb.html.twig" template #}
 {% block component_listing_breadcrumb %}
     {% set breadcrumb = sw_breadcrumb(category) %}
+    {% set breadcrumbKeys = breadcrumb|keys %}
 
     {% for key, item in breadcrumb %}
         <div class="breadcrumb-container">
@@ -13,7 +14,7 @@
                 </a>
             {% endblock %}
             {% block component_listing_breadcrumb_placeholder %}
-                {% if item != breadcrumb|last %}
+                {% if key != breadcrumbKeys|last %}
                     <div class="breadcrumb-placeholder">
                         {% sw_icon 'arrow-medium-right' style { 'size': 'fluid', 'pack': 'solid'} %}
                     </div>

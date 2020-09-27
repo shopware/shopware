@@ -127,6 +127,14 @@
                     }
                 </script>
             {% endblock %}
+
+            {% block error_maintenance_script_reload %}
+                <script>
+                    setTimeout(function () {
+                        location.reload(true);
+                    }, 30000);
+                </script>
+            {% endblock %}
         {% endblock %}
     </body>
 {% endblock %}

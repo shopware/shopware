@@ -265,7 +265,10 @@ class StorefrontSubscriber implements EventSubscriberInterface
     {
         if ($this->maintenanceModeResolver->shouldRedirect($event->getRequest())) {
             $event->setResponse(
-                new RedirectResponse($this->router->generate('frontend.maintenance.page'))
+                new RedirectResponse(
+                    $this->router->generate('frontend.maintenance.page'),
+                    RedirectResponse::HTTP_TEMPORARY_REDIRECT
+                )
             );
         }
     }

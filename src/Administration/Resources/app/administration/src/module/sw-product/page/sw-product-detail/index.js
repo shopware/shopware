@@ -427,7 +427,7 @@ Component.register('sw-product-detail', {
                     message: this.$tc('sw-product.detail.errorMinMaxPurchase')
                 });
 
-                return;
+                return new Promise((res) => res());
             }
 
             if (!this.productId) {
@@ -640,7 +640,7 @@ Component.register('sw-product-detail', {
         },
 
         validateProductPurchase() {
-            if (this.product.minPurchase >= this.product.maxPurchase) {
+            if (this.product.maxPurchase && this.product.minPurchase > this.product.maxPurchase) {
                 return false;
             }
 

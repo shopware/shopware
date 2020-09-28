@@ -81,10 +81,10 @@
 
                                                         {% block sw_order_create_search_customer_slot_result_item_number %}
                                                         <sw-highlight-text
-                                                                v-if="highlightSearchTerm"
-                                                                :text="getKey(item, 'customerNumber') || getKey(item, `translated.customerNumber`)"
-                                                                :searchTerm="searchTerm"
-                                                                class="text-truncate">
+                                                            v-if="highlightSearchTerm"
+                                                            :text="getKey(item, 'customerNumber') || getKey(item, `translated.customerNumber`)"
+                                                            :searchTerm="searchTerm"
+                                                            class="text-truncate">
                                                         </sw-highlight-text>
                                                         {% endblock %}
 

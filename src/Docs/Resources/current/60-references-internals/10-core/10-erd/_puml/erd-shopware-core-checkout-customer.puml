@@ -38,7 +38,7 @@ Table(ShopwareCoreCheckoutCustomerCustomerDefinition, "customer\n(The sales chan
    not_null(lastName) string
    company string
    password password
-   not_null(email) string
+   not_null(email) email
    title string
    affiliateCode string
    campaignCode string

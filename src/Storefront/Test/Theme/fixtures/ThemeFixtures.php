@@ -265,6 +265,7 @@ class ThemeFixtures
                                             'helpText' => null,
                                             'type' => 'color',
                                             'custom' => null,
+                                            'fullWidth' => null,
                                         ],
                                         'sw-color-brand-secondary' => [
                                             'label' => [
@@ -274,6 +275,7 @@ class ThemeFixtures
                                             'helpText' => null,
                                             'type' => 'color',
                                             'custom' => null,
+                                            'fullWidth' => null,
                                         ],
                                         'sw-border-color' => [
                                             'label' => [
@@ -283,6 +285,7 @@ class ThemeFixtures
                                             'helpText' => null,
                                             'type' => 'color',
                                             'custom' => null,
+                                            'fullWidth' => null,
                                         ],
                                         'sw-background-color' => [
                                             'label' => [
@@ -292,6 +295,7 @@ class ThemeFixtures
                                             'helpText' => null,
                                             'type' => 'color',
                                             'custom' => null,
+                                            'fullWidth' => null,
                                         ],
                                     ],
                                 ],
@@ -311,6 +315,7 @@ class ThemeFixtures
                                             'helpText' => null,
                                             'type' => 'color',
                                             'custom' => null,
+                                            'fullWidth' => null,
                                         ],
                                         'sw-color-info' => [
                                             'label' => [
@@ -320,6 +325,7 @@ class ThemeFixtures
                                             'helpText' => null,
                                             'type' => 'color',
                                             'custom' => null,
+                                            'fullWidth' => null,
                                         ],
                                         'sw-color-warning' => [
                                             'label' => [
@@ -329,6 +335,7 @@ class ThemeFixtures
                                             'helpText' => null,
                                             'type' => 'color',
                                             'custom' => null,
+                                            'fullWidth' => null,
                                         ],
                                         'sw-color-danger' => [
                                             'label' => [
@@ -338,6 +345,7 @@ class ThemeFixtures
                                             'helpText' => null,
                                             'type' => 'color',
                                             'custom' => null,
+                                            'fullWidth' => null,
                                         ],
                                     ],
                                 ],
@@ -357,6 +365,7 @@ class ThemeFixtures
                                             'helpText' => null,
                                             'type' => 'fontFamily',
                                             'custom' => null,
+                                            'fullWidth' => null,
                                         ],
                                         'sw-text-color' => [
                                             'label' => [
@@ -366,6 +375,7 @@ class ThemeFixtures
                                             'helpText' => null,
                                             'type' => 'color',
                                             'custom' => null,
+                                            'fullWidth' => null,
                                         ],
                                         'sw-font-family-headline' => [
                                             'label' => [
@@ -375,6 +385,7 @@ class ThemeFixtures
                                             'helpText' => null,
                                             'type' => 'fontFamily',
                                             'custom' => null,
+                                            'fullWidth' => null,
                                         ],
                                         'sw-headline-color' => [
                                             'label' => [
@@ -384,6 +395,7 @@ class ThemeFixtures
                                             'helpText' => null,
                                             'type' => 'color',
                                             'custom' => null,
+                                            'fullWidth' => null,
                                         ],
                                     ],
                                 ],
@@ -403,6 +415,7 @@ class ThemeFixtures
                                             'helpText' => null,
                                             'type' => 'color',
                                             'custom' => null,
+                                            'fullWidth' => null,
                                         ],
                                         'sw-color-buy-button' => [
                                             'label' => [
@@ -412,6 +425,7 @@ class ThemeFixtures
                                             'helpText' => null,
                                             'type' => 'color',
                                             'custom' => null,
+                                            'fullWidth' => null,
                                         ],
                                         'sw-color-buy-button-text' => [
                                             'label' => [
@@ -421,6 +435,7 @@ class ThemeFixtures
                                             'helpText' => null,
                                             'type' => 'color',
                                             'custom' => null,
+                                            'fullWidth' => null,
                                         ],
                                     ],
                                 ],
@@ -443,6 +458,7 @@ class ThemeFixtures
                                             ],
                                             'type' => 'media',
                                             'custom' => null,
+                                            'fullWidth' => true,
                                         ],
                                         'sw-logo-tablet' => [
                                             'label' => [
@@ -455,6 +471,7 @@ class ThemeFixtures
                                             ],
                                             'type' => 'media',
                                             'custom' => null,
+                                            'fullWidth' => true,
                                         ],
                                         'sw-logo-mobile' => [
                                             'label' => [
@@ -467,6 +484,7 @@ class ThemeFixtures
                                             ],
                                             'type' => 'media',
                                             'custom' => null,
+                                            'fullWidth' => true,
                                         ],
                                         'sw-logo-share' => [
                                             'label' => [
@@ -476,6 +494,7 @@ class ThemeFixtures
                                             'helpText' => null,
                                             'type' => 'media',
                                             'custom' => null,
+                                            'fullWidth' => null,
                                         ],
                                         'sw-logo-favicon' => [
                                             'label' => [
@@ -485,6 +504,7 @@ class ThemeFixtures
                                             'helpText' => null,
                                             'type' => 'media',
                                             'custom' => null,
+                                            'fullWidth' => null,
                                         ],
                                     ],
                                 ],
@@ -1386,7 +1406,7 @@ class ThemeFixtures
                     'tab' => null,
                     'tabOrder' => null,
                     'scss' => null,
-                    'fullWidth' => null,
+                    'fullWidth' => true,
                 ],
                 'sw-logo-tablet' => [
                     'label' => [
@@ -1411,7 +1431,7 @@ class ThemeFixtures
                     'tab' => null,
                     'tabOrder' => null,
                     'scss' => null,
-                    'fullWidth' => null,
+                    'fullWidth' => true,
                 ],
                 'sw-logo-mobile' => [
                     'label' => [
@@ -1436,7 +1456,7 @@ class ThemeFixtures
                     'tab' => null,
                     'tabOrder' => null,
                     'scss' => null,
-                    'fullWidth' => null,
+                    'fullWidth' => true,
                 ],
                 'sw-logo-share' => [
                     'label' => [

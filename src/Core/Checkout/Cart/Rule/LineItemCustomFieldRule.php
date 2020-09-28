@@ -128,6 +128,9 @@ class LineItemCustomFieldRule extends Rule
         return $constraints;
     }
 
+    /**
+     * @return string|int|float|bool|null
+     */
     private function getValue(array $customFields, array $renderedField)
     {
         if (in_array($renderedField['type'], [CustomFieldTypes::BOOL, CustomFieldTypes::SWITCH], true)) {
@@ -145,6 +148,11 @@ class LineItemCustomFieldRule extends Rule
         return null;
     }
 
+    /**
+     * @param string|int|float|bool|null $renderedFieldValue
+     *
+     * @return string|int|float|bool|null
+     */
     private function getExpectedValue($renderedFieldValue, array $renderedField)
     {
         if (in_array($renderedField['type'], [CustomFieldTypes::BOOL, CustomFieldTypes::SWITCH], true)) {

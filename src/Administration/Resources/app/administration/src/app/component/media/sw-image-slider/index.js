@@ -1,7 +1,7 @@
 import template from './sw-image-slider.html.twig';
 import './sw-image-slider.scss';
 
-const { Component } = Shopware;
+const { Component, Filter } = Shopware;
 
 /**
  * @description Renders an image slider with possible image descriptions
@@ -15,9 +15,9 @@ const { Component } = Shopware;
  *                 description: 'This Image is awesome!'
  *             },
  *             'my/path/to/asset/test2.png',
- *             'my/path/to/asset/test3.png',
+ *             'http://external.path/to/asset/test3.png',
  *             {
- *                 src: 'my/path/to/asset/test4.png',
+ *                 src: 'http://external.path/to/asset/test4.png',
  *             }
  *         ]"
  *         :canvasWidth="600"
@@ -129,7 +129,15 @@ Component.register('sw-image-slider', {
         },
 
         getImage(image) {
-            return this.isImageObject(image) ? image.src : image;
+            const link = this.isImageObject(image) ? image.src : image;
+
+            try {
+                URL(link);
+            } catch (e) {
+                return Filter.getByName('asset')(link);
+            }
+
+            return link;
         },
 
         imageAlt(index) {

@@ -469,5 +469,14 @@
             <argument type="service" id="event_dispatcher"/>
             <tag name="kernel.event_subscriber"/>
         </service>
+
+        <service id="Shopware\Storefront\Event\CartMergedSubscriber">
+            <argument type="service" id="session"/>
+            <argument type="service" id="translator"/>
+
+            <tag name="kernel.event_subscriber"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_10058"/>
+        </service>
+
     </services>
 </container>

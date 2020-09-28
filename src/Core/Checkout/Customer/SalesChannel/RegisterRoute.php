@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Event\DataMappingEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -203,7 +204,8 @@ class RegisterRoute extends AbstractRegisterRoute
                     'customerId' => $customerEntity->getId(),
                     'billingAddressId' => null,
                     'shippingAddressId' => null,
-                ]
+                ],
+                Feature::isActive('FEATURE_NEXT_10058') ? $customerEntity->getId() : null
             );
 
             $event = new CustomerLoginEvent($context, $customerEntity, $newToken);

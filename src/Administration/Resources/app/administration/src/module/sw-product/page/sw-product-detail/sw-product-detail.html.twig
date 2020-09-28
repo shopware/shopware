@@ -45,7 +45,12 @@
                                     class="sw-product-detail__button-context-menu"
                                     square
                                     variant="primary"
-                                    :disabled="isLoading">
+                                    :disabled="isLoading || !acl.can('product.editor')"
+                                    v-tooltip.bottom="{
+                                        message: $tc('sw-privileges.tooltip.warning'),
+                                        disabled: acl.can('product.editor'),
+                                        showOnDisabledElements: true
+                                    }">
                                     <sw-icon name="small-arrow-medium-down" size="16"></sw-icon>
                                 </sw-button>
                             </template>

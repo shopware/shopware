@@ -278,6 +278,10 @@
             <argument type="service" id="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder"/>
         </service>
 
+        <service id="Shopware\Core\Content\Product\DataAbstractionLayer\ProductPurchasePriceDeprecationUpdater">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
             <argument type="service" id="product.repository"/>
@@ -292,7 +296,9 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater"/>
             <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\StockUpdater"/>
+            <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\ProductPurchasePriceDeprecationUpdater"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument>%shopware.deployment.blue_green%</argument>
             <tag name="shopware.entity_indexer" priority="100"/>
         </service>
 

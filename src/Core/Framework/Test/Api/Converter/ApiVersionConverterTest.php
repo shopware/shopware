@@ -15,8 +15,11 @@ use Shopware\Core\Framework\Api\Converter\Exceptions\QueryRemovedFieldException;
 use Shopware\Core\Framework\Api\Serializer\JsonApiEncoder;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\CompiledFieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
@@ -27,9 +30,11 @@ use Shopware\Core\Framework\Test\Api\Converter\fixtures\DeprecatedEntityDefiniti
 use Shopware\Core\Framework\Test\Api\Converter\fixtures\NewEntityDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\System\Tax\TaxEntity;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 class ApiVersionConverterTest extends TestCase
 {
@@ -58,7 +63,10 @@ class ApiVersionConverterTest extends TestCase
             $converter
         );
 
-        $this->apiVersionConverter = new ApiVersionConverter($this->converterRegistry);
+        $this->apiVersionConverter = new ApiVersionConverter(
+            $this->converterRegistry,
+            $this->getContainer()->get('request_stack')
+        );
     }
 
     public function testNewFieldIsNotInOldResponseForJsonApi(): void
@@ -147,6 +155,43 @@ class ApiVersionConverterTest extends TestCase
         static::assertArrayNotHasKey('price', $result);
         static::assertArrayNotHasKey('tax', $result);
         static::assertArrayNotHasKey('taxId', $result);
+    }
+
+    public function testCompatibilityHeaderIsChecked(): void
+    {
+        $registry = $this->createMock(ConverterRegistry::class);
+        $registry->method('isDeprecated')->willReturn(true);
+        $registry->method('isFromFuture')->willReturn(false);
+
+        $requestStack = new RequestStack();
+        $apiVersionConverter = new ApiVersionConverter($registry, $requestStack);
+
+        $request = new Request([], [], [], [], [], [], []);
+        $request->headers->set(PlatformRequest::HEADER_IGNORE_DEPRECATIONS, 'true');
+        $requestStack->push($request);
+
+        $isAllowed = $apiVersionConverter->isAllowed('foo', 'bar', 1);
+        static::assertTrue($isAllowed);
+
+        $definition = $this->createMock(EntityDefinition::class);
+
+        $class = new \ReflectionClass(EntityDefinition::class);
+        $property = $class->getProperty('fields');
+        $property->setAccessible(true);
+        $property->setValue(
+            $definition,
+            new CompiledFieldCollection(
+                $this->createMock(DefinitionInstanceRegistry::class),
+                [new StringField('bar', 'bar')]
+            )
+        );
+
+        $definition->method('getEntityName')->willReturn('foo');
+
+        $conversionException = new ApiConversionException();
+        $apiVersionConverter->convertPayload($definition, ['bar' => 'asdf'], 1, $conversionException);
+
+        static::assertSame([], \iterator_to_array($conversionException->getErrors()));
     }
 
     public function testTryingToWriteFieldFromFutureLeadsToException(): void

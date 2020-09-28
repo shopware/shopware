@@ -106,6 +106,7 @@
                                     :label="$tc('sw-category.base.products.productAssignmentTypeLabel')"
                                     :error="categoryProductAssignmentTypeError"
                                     :options="productAssignmentTypes"
+                                    :disabled="!acl.can('category.editor')"
                                     required>
                                 </sw-single-select>
                             {% endblock %}
@@ -129,6 +130,7 @@
                                 <sw-entity-single-select
                                     class="sw-category-detail__product-stream-select"
                                     entity="product_stream"
+                                    :disabled="!acl.can('category.editor')"
                                     :label="$tc('sw-category.base.products.productAssignmentTypeStreamLabel')"
                                     :placeholder="$tc('sw-category.base.products.productAssignmentTypeStreamPlaceholder')"
                                     :error="productStreamInvalidError || categoryProductStreamIdError"

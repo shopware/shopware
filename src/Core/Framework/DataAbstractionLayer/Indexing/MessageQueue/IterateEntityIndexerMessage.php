@@ -10,7 +10,7 @@ class IterateEntityIndexerMessage
     protected $indexer;
 
     /**
-     * @var null|mixed
+     * @var mixed|null
      */
     protected $offset;
 

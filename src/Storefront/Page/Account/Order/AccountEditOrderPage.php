@@ -35,7 +35,7 @@ class AccountEditOrderPage extends Page
     protected $paymentChangeable = true;
 
     /**
-     * @var null|string
+     * @var string|null
      */
     protected $errorCode;
 

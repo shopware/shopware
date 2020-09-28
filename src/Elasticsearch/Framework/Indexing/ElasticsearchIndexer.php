@@ -118,7 +118,7 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
     }
 
     /**
-     * @param null|IndexerOffset $offset
+     * @param IndexerOffset|null $offset
      */
     public function iterate($offset): ?EntityIndexingMessage
     {

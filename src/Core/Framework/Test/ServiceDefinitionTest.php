@@ -73,7 +73,8 @@ class ServiceDefinitionTest extends TestCase
         $command->setApplication(new Application(KernelLifecycleManager::getKernel()));
         $commandTester = new CommandTester($command);
 
-        set_error_handler(function (): void {/* ignore symfony deprecations */}, E_USER_DEPRECATED);
+        set_error_handler(function (): void {// ignore symfony deprecations
+        }, E_USER_DEPRECATED);
         $commandTester->execute([]);
         restore_error_handler();
 

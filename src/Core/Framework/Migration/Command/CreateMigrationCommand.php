@@ -67,8 +67,11 @@ class CreateMigrationCommand extends Command
 
         $pluginName = $input->getOption('plugin');
         if ($pluginName) {
+            if (\is_array($pluginName)) {
+                $pluginName = implode(' ', $pluginName);
+            }
             $pluginBundles = array_filter($this->kernelPluginCollection->all(), function (Plugin $value) use ($pluginName) {
-                return (int) (mb_strpos($value->getName(), $pluginName) === 0);
+                return (int) (mb_strpos($value->getName(), (string) $pluginName) === 0);
             });
 
             if (count($pluginBundles) === 0) {

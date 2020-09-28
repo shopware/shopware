@@ -51,6 +51,9 @@ class PluginListCommand extends Command
         $criteria = new Criteria();
         $filter = $input->getOption('filter');
         if ($filter) {
+            if (\is_array($filter)) {
+                $filter = implode(' ', $filter);
+            }
             $io->comment(sprintf('Filtering for: %s', $filter));
 
             $criteria->addFilter(new MultiFilter(

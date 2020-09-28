@@ -67,11 +67,14 @@ $this->productRepository->create(
             'stock' => 213,
             'productNumber' => 'swag-5642-0001',
             'price' => [
-                "currencyId" => "b7d2554b0ce847cd82f3ac9bd1c0dfca",
-                "gross"=>317.0,
-                "linked"=>true,
-                "listPrice"=>null,
-                "extensions"=>[]
+                [
+                    'currencyId' => 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+                    'gross' => 317.0,
+                    'net' => 266.39,
+                    'linked' => true,
+                    'listPrice' => null,
+                    'extensions'=>[]
+                ]
             ]
         ],
         [
@@ -81,11 +84,14 @@ $this->productRepository->create(
             'stock' => 49,
             'productNumber' => 'swag-5642-0002',
             'price' => [
-                "currencyId" => "b7d2554b0ce847cd82f3ac9bd1c0dfca",
-                "gross"=>317.0,
-                "linked"=>true,
-                "listPrice"=>null,
-                "extensions"=>[]
+               [
+                   'currencyId' => 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+                   'gross' => 317.0,
+                   'net' => 266.39,
+                   'linked' => true,
+                   'listPrice' => null,
+                   'extensions'=>[]
+               ]
             ]
         ]
     ],

@@ -43,6 +43,7 @@ Module.register('sw-review', {
         path: 'sw.review.index',
         icon: 'default-symbol-products',
         parent: 'sw-catalogue',
-        position: 20
+        position: 20,
+        privilege: 'review.viewer'
     }]
 });

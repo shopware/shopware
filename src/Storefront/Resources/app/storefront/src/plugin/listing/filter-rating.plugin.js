@@ -100,7 +100,7 @@ export default class FilterRatingPlugin extends FilterBasePlugin {
                 label: `${this.options.snippets.filterRatingActiveLabelStart} 
                         ${currentRating} 
                         ${endSnippet}`,
-                id: 'rating'
+                id: this.options.name
             });
         } else {
             labels = [];
@@ -114,7 +114,7 @@ export default class FilterRatingPlugin extends FilterBasePlugin {
      * @public
      */
     reset(id) {
-        if (id !== 'rating') {
+        if (id !== this.options.name) {
             return;
         }
 

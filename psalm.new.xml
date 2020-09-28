@@ -1,0 +1,177 @@
+<?xml version="1.0"?>
+<!-- TODO - Remove once Psalm is updated to 3.16.0 -->
+<psalm
+    cacheDirectory="var/cache/psalm"
+    ensureArrayStringOffsetsExist="true"
+    findUnusedVariablesAndParams="true"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="https://getpsalm.org/schema/config"
+    xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
+>
+    <projectFiles>
+        <directory name="platform/src"/>
+        <directory name="src"/>
+        <ignoreFiles>
+            <directory name="vendor"/>
+            <directory name="platform/src/Recovery"/>
+            <directory name="platform/src/Docs/Resources"/>
+        </ignoreFiles>
+    </projectFiles>
+
+    <issueHandlers>
+        <!-- Shopware related issues which are ignored -->
+        <UnusedMethodCall>
+            <errorLevel type="info">
+                <referencedMethod name="Symfony\Component\Config\Definition\Builder\NodeBuilder::end"/>
+            </errorLevel>
+        </UnusedMethodCall>
+        <UnusedFunctionCall>
+            <errorLevel type="info">
+                <referencedFunction name="iterator_to_array"/>
+            </errorLevel>
+        </UnusedFunctionCall>
+        <InvalidCast>
+            <errorLevel type="info">
+                <file name="platform/src/Core/Profiling/Twig/DoctrineExtension.php"/>
+            </errorLevel>
+        </InvalidCast>
+        <UndefinedConstant>
+            <errorLevel type="info">
+                <file name="platform/src/Core/Framework/Test/Plugin/Util/PluginFinderTest.php"/>
+                <file name="platform/src/Core/Framework/Test/TestCaseBase/KernelLifecycleManagerTest.php"/>
+                <file name="platform/src/Core/Framework/Test/Plugin/KernelPluginLoader/DbalKernelPluginLoaderTest.php"/>
+                <file name="platform/src/Core/Framework/Test/Plugin/KernelPluginLoader/StaticKernelPluginLoaderTest.php"/>
+                <file name="platform/src/Core/Framework/Test/Plugin/KernelPluginIntegrationTest.php"/>
+            </errorLevel>
+        </UndefinedConstant>
+        <UnusedParam>
+            <errorLevel type="info">
+                <file name="platform/src/Core/Framework/DataAbstractionLayer/Doctrine/RetryableQuery.php"/>
+            </errorLevel>
+        </UnusedParam>
+        <InvalidCatch>
+            <errorLevel type="info">
+                <file name="platform/src/Core/Framework/DataAbstractionLayer/Doctrine/RetryableQuery.php"/>
+            </errorLevel>
+        </InvalidCatch>
+        <InaccessibleMethod>
+            <errorLevel type="info">
+                <file name="platform/src/Core/Framework/Test/Update/UpdateControllerTest.php"/>
+            </errorLevel>
+        </InaccessibleMethod>
+        <UnusedVariable>
+            <errorLevel type="info">
+                <file name="platform/src/Storefront/Test/Theme/ThemeTest.php"/>
+            </errorLevel>
+        </UnusedVariable>
+
+        <LessSpecificImplementedReturnType errorLevel="info"/>
+
+        <UnusedMethodCall>
+            <errorLevel type="info">
+                <referencedMethod name="Symfony\Component\Config\Definition\Builder\NodeDefinition::end"/>
+                <referencedMethod name="Symfony\Component\Config\Definition\Builder\NodeBuilder::end"/>
+            </errorLevel>
+        </UnusedMethodCall>
+
+        <ParamNameMismatch errorLevel="info"/>
+        <UnsafeInstantiation errorLevel="info"/>
+
+        <!-- Issue in Psalm https://github.com/vimeo/psalm/issues/2706 -->
+        <InaccessibleProperty>
+            <errorLevel type="info">
+                <file name="platform/src/Core/Framework/Api/Controller/CacheController.php"/>
+            </errorLevel>
+        </InaccessibleProperty>
+
+        <!-- level 3 issues - slightly lazy code writing, but provably low false-negatives -->
+
+        <DeprecatedMethod errorLevel="info"/>
+        <DeprecatedProperty errorLevel="info"/>
+        <DeprecatedClass errorLevel="info"/>
+        <DeprecatedConstant errorLevel="info"/>
+        <DeprecatedFunction errorLevel="info"/>
+        <DeprecatedInterface errorLevel="info"/>
+        <DeprecatedTrait errorLevel="info"/>
+
+        <InternalMethod errorLevel="info"/>
+        <InternalProperty errorLevel="info"/>
+        <InternalClass errorLevel="info"/>
+
+        <MissingClosureReturnType errorLevel="info"/>
+        <MissingReturnType errorLevel="info"/>
+        <MissingPropertyType errorLevel="info"/>
+        <InvalidDocblock errorLevel="info"/>
+
+        <PropertyNotSetInConstructor errorLevel="info"/>
+        <MissingConstructor errorLevel="info"/>
+        <MissingClosureParamType errorLevel="info"/>
+        <MissingParamType errorLevel="info"/>
+
+        <RedundantCondition errorLevel="info"/>
+
+        <DocblockTypeContradiction errorLevel="info"/>
+        <RedundantConditionGivenDocblockType errorLevel="info"/>
+
+        <UnresolvableInclude errorLevel="info"/>
+
+        <RawObjectIteration errorLevel="info"/>
+
+        <InvalidStringClass errorLevel="info"/>
+
+        <!-- level 4 issues - points to possible deficiencies in logic, higher false-positives -->
+
+        <MoreSpecificReturnType errorLevel="info"/>
+        <LessSpecificReturnStatement errorLevel="info"/>
+        <TypeCoercion errorLevel="info"/>
+
+        <PossiblyFalseReference errorLevel="info"/>
+        <PossiblyInvalidArrayAccess errorLevel="info"/>
+        <PossiblyInvalidArrayAssignment errorLevel="info"/>
+        <PossiblyInvalidCast errorLevel="info"/>
+        <PossiblyInvalidFunctionCall errorLevel="info"/>
+        <PossiblyInvalidIterator errorLevel="info"/>
+        <PossiblyInvalidMethodCall errorLevel="info"/>
+        <PossiblyNullArrayAccess errorLevel="info"/>
+        <PossiblyNullArrayAssignment errorLevel="info"/>
+        <PossiblyNullArrayOffset errorLevel="info"/>
+        <PossiblyNullIterator errorLevel="info"/>
+        <PossiblyNullPropertyFetch errorLevel="info"/>
+        <PossiblyNullReference errorLevel="info"/>
+        <PossiblyUndefinedVariable errorLevel="info"/>
+        <PossiblyUndefinedArrayOffset errorLevel="info"/>
+        <PossiblyUndefinedMethod errorLevel="info"/>
+
+        <!-- level 5 issues - should be avoided at mosts costs... -->
+
+        <ImplicitToStringCast errorLevel="info"/>
+        <InvalidScalarArgument errorLevel="info"/>
+        <InvalidOperand errorLevel="info"/>
+        <TooManyArguments errorLevel="info"/>
+        <TypeDoesNotContainType errorLevel="info"/>
+        <ImplementedReturnTypeMismatch errorLevel="info"/>
+
+        <!-- level 6 issues - really bad things -->
+
+        <InvalidNullableReturnType errorLevel="info"/>
+        <NullableReturnStatement errorLevel="info"/>
+        <InvalidFalsableReturnType errorLevel="info"/>
+        <FalsableReturnStatement errorLevel="info"/>
+
+        <MoreSpecificImplementedParamType errorLevel="info"/>
+
+        <InvalidReturnStatement errorLevel="info"/>
+        <InvalidReturnType errorLevel="info"/>
+        <UndefinedInterfaceMethod errorLevel="info"/>
+
+        <!-- level 7 issues - even worse -->
+
+        <UndefinedPropertyAssignment errorLevel="info"/>
+        <UndefinedThisPropertyFetch errorLevel="info"/>
+        <UndefinedPropertyFetch errorLevel="info"/>
+
+        <InvalidArgument errorLevel="info"/>
+        <InvalidPropertyAssignmentValue errorLevel="info"/>
+        <InvalidArrayOffset errorLevel="info"/>
+    </issueHandlers>
+</psalm>

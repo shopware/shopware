@@ -161,6 +161,9 @@ class DocumentServiceTest extends TestCase
         static::assertSame($storno->getOrderVersionId(), $invoice->getOrderVersionId());
     }
 
+    /**
+     * @group slow
+     */
     public function testCreateFileIsWrittenInFs(): void
     {
         /** @var FilesystemInterface $fileSystem */

@@ -21,6 +21,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
+/**
+ * @group slow
+ */
 class CrossSellingRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

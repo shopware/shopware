@@ -25,6 +25,9 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMa
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\Transition;
 
+/**
+ * @group slow
+ */
 class ProductStockIndexerTest extends TestCase
 {
     use IntegrationTestBehaviour;

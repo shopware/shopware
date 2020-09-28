@@ -64,6 +64,7 @@ class CheckoutControllerTest extends TestCase
 
     /**
      * @dataProvider customerComments
+     * @group slow
      *
      * @param string|float|int|bool|null $customerComment
      */

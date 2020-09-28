@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Kernel;
 use Symfony\Component\Finder\Finder;
 
+/**
+ * @group slow
+ */
 class DeprecatedTagTest extends TestCase
 {
     use IntegrationTestBehaviour;

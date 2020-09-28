@@ -20,6 +20,9 @@ use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @group slow
+ */
 class SalesChannelCheckoutControllerTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;

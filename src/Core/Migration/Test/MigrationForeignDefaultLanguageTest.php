@@ -12,6 +12,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\Migration1536233560BasicData;
 
+/**
+ * @group slow
+ */
 class MigrationForeignDefaultLanguageTest extends TestCase
 {
     use KernelTestBehaviour;

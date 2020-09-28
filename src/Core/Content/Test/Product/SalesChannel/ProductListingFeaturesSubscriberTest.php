@@ -181,6 +181,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
 
     /**
      * @dataProvider searchSortingProvider
+     * @group slow
      */
     public function testSearchSorting(array $expectedFields, Request $request): void
     {

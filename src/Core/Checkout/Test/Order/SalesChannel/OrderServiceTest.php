@@ -32,6 +32,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
+/**
+ * @group slow
+ */
 class OrderServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;

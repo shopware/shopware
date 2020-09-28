@@ -11,7 +11,7 @@ class Migration1600349343AddDeliveryStateTransitions extends MigrationStep
 {
     public function getCreationTimestamp(): int
     {
-        return 1600349342;
+        return 1600349343;
     }
 
     public function update(Connection $connection): void

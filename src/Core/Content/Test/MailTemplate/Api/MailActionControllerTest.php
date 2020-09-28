@@ -24,6 +24,7 @@ class MailActionControllerTest extends TestCase
 
     public function setUp(): void
     {
+        static::markTestSkipped('to heavy memory usage - if you changed something for mails, run this');
         parent::setUp();
     }
 

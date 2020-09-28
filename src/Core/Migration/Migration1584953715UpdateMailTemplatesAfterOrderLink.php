@@ -248,6 +248,20 @@ class Migration1584953715UpdateMailTemplatesAfterOrderLink extends MigrationStep
                     $getPlainTemplateDe
                 );
             }
+
+            $ids = Uuid::fromBytesToHexList(
+                array_filter([$deLangId, $enLangId])
+            );
+
+            if (!in_array(Defaults::LANGUAGE_SYSTEM, $ids, true)) {
+                $this->updateMailTemplateTranslation(
+                    $connection,
+                    $templateId,
+                    Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
+                    $getHtmlTemplateEn,
+                    $getPlainTemplateEn
+                );
+            }
         }
     }
 

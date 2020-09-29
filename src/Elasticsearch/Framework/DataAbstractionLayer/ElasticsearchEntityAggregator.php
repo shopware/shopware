@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
+use Shopware\Elasticsearch\Framework\DataAbstractionLayer\Event\ElasticsearchEntityAggregatorBeforeSearchEvent;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\Event\ElasticsearchEntityAggregatorSearchEvent;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -59,6 +60,14 @@ class ElasticsearchEntityAggregator implements EntityAggregatorInterface
         if (!$this->helper->allowSearch($definition, $context)) {
             return $this->decorated->aggregate($definition, $criteria, $context);
         }
+
+        $this->eventDispatcher->dispatch(
+            new ElasticsearchEntityAggregatorBeforeSearchEvent(
+                $definition,
+                $criteria,
+                $context
+            )
+        );
 
         $search = $this->createSearch($definition, $criteria, $context);
 

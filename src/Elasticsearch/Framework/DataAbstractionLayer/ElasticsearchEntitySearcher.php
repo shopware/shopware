@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Elasticsearch\Framework\DataAbstractionLayer\Event\ElasticsearchEntitySearcherBeforeSearchEvent;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\Event\ElasticsearchEntitySearcherSearchEvent;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -73,6 +74,14 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
         if (!$this->helper->allowSearch($definition, $context)) {
             return $this->decorated->search($definition, $criteria, $context);
         }
+
+        $this->eventDispatcher->dispatch(
+            new ElasticsearchEntitySearcherBeforeSearchEvent(
+                $definition,
+                $criteria,
+                $context
+            )
+        );
 
         $search = $this->createSearch($criteria, $definition, $context);
 

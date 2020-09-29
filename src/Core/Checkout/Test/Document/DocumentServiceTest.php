@@ -22,7 +22,6 @@ use Shopware\Core\Checkout\Document\DocumentGenerator\DeliveryNoteGenerator;
 use Shopware\Core\Checkout\Document\DocumentGenerator\InvoiceGenerator;
 use Shopware\Core\Checkout\Document\DocumentGenerator\StornoGenerator;
 use Shopware\Core\Checkout\Document\DocumentService;
-use Shopware\Core\Checkout\Document\Exception\InvalidDocumentException;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Content\Media\MediaType\BinaryType;
 use Shopware\Core\Content\Media\Pathname\UrlGenerator;
@@ -34,7 +33,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\RuleTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
@@ -42,7 +40,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Smalot\PdfParser\Parser;
 
 class DocumentServiceTest extends TestCase
 {
@@ -251,54 +248,6 @@ class DocumentServiceTest extends TestCase
         $generatedDocument = $documentService->getDocument($document, $this->context);
 
         static::assertEquals('test123', $generatedDocument->getFileBlob());
-    }
-
-    public function testGetInvoicePdfDocumentById(): void
-    {
-        /** @var DocumentService $documentService */
-        $documentService = $this->getContainer()->get(DocumentService::class);
-
-        $cart = $this->generateDemoCart(2);
-        $orderId = $this->persistCart($cart);
-
-        $document = $documentService->create(
-            $orderId,
-            InvoiceGenerator::INVOICE,
-            FileTypes::PDF,
-            new DocumentConfiguration(),
-            $this->context
-        );
-
-        $documentId = $document->getId();
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND, [
-            new EqualsFilter('id', $document->getId()),
-            new EqualsFilter('deepLinkCode', $document->getDeepLinkCode()),
-        ]));
-        $criteria->addAssociation('documentType');
-
-        /** @var EntityRepositoryInterface $documentRepository */
-        $documentRepository = $this->getContainer()->get('document.repository');
-
-        $document = $documentRepository->search($criteria, $this->context)->first();
-
-        if (!$document) {
-            throw new InvalidDocumentException($documentId);
-        }
-
-        $renderedDocument = $documentService->getDocument($document, $this->context);
-
-        $parser = new Parser();
-        $parsedDocument = $parser->parseContent($renderedDocument->getFileBlob());
-
-        if ($cart->getLineItems()->count() <= 0) {
-            static::fail('No line items found');
-        }
-
-        foreach ($cart->getLineItems() as $lineItem) {
-            static::assertStringContainsString($lineItem->getLabel(), $parsedDocument->getText());
-        }
     }
 
     public function testConfigurationWithSalesChannelOverride(): void

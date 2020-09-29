@@ -172,20 +172,6 @@ Component.register('sw-users-permissions-user-listing', {
 
         onCloseDeleteModal() {
             this.itemToDelete = null;
-        },
-
-        // @deprecated tag:v6.4.0 use loginService.verifyUserToken() instead
-        verifyUserToken() {
-            let verifiedToken;
-            try {
-                verifiedToken = this.loginService.verifyUserToken(this.confirmPassword);
-            } catch (e) {
-                this.createNotificationError({
-                    title: this.$tc('sw-settings-user.user-detail.passwordConfirmation.notificationPasswordErrorTitle'),
-                    message: this.$tc('sw-settings-user.user-detail.passwordConfirmation.notificationPasswordErrorMessage')
-                });
-            }
-            return verifiedToken;
         }
     }
 });

@@ -28,6 +28,7 @@ describe('CMS: Visual tests', () => {
         }).as('saveCategory');
 
         // Take snapshot for visual testing
+        cy.get('.sw-cms-list-item--0').should('be.visible');
         cy.takeSnapshot('CMS listing - Layouts', '.sw-cms-list');
 
         cy.get('.sw-cms-list-item--0').click();

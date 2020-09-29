@@ -121,6 +121,19 @@ class AppRegistrationServiceTest extends TestCase
         $this->registrator->registerApp($manifest, '', '', Context::createDefaultContext());
     }
 
+    public function testRegistrationFailsIfRegistrationRequestIsNotHTTP200(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/minimal/manifest.xml');
+
+        $appSecret = 'dont_tell';
+        $appResponseBody = $this->buildAppResponse($manifest, $appSecret);
+
+        $this->appendNewResponse(new Response(500, [], $appResponseBody));
+
+        static::expectException(AppRegistrationException::class);
+        $this->registrator->registerApp($manifest, '', '', Context::createDefaultContext());
+    }
+
     public function testRegistrationFailsIfAppUrlChangeWasDetected(): void
     {
         $id = Uuid::randomHex();

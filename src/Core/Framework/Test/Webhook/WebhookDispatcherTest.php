@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Test\Webhook;
 
 use Doctrine\DBAL\Connection;
 use GuzzleHttp\Client;
-use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
@@ -27,7 +26,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Event\BusinessEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Shopware\Core\Framework\Webhook\WebhookDispatcher;
@@ -39,12 +38,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class WebhookDispatcherTest extends TestCase
 {
-    use IntegrationTestBehaviour;
-
-    /**
-     * @var MockHandler
-     */
-    private $appServerMock;
+    use GuzzleTestClientBehaviour;
 
     /**
      * @var EntityRepositoryInterface
@@ -64,8 +58,6 @@ class WebhookDispatcherTest extends TestCase
     public function setUp(): void
     {
         Feature::skipTestIfInActive('FEATURE_NEXT_10286', $this);
-        $this->appServerMock = $this->getContainer()->get(MockHandler::class);
-        $this->appServerMock->reset();
         $this->webhookRepository = $this->getContainer()->get('webhook.repository');
         $this->shopUrl = $_ENV['APP_URL'];
         $this->shopIdProvider = $this->getContainer()->get(ShopIdProvider::class);
@@ -81,7 +73,7 @@ class WebhookDispatcherTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $this->appServerMock->append(new Response(200));
+        $this->appendNewResponse(new Response(200));
 
         $event = new CustomerBeforeLoginEvent(
             $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL),
@@ -94,7 +86,7 @@ class WebhookDispatcherTest extends TestCase
         static::assertInstanceOf(CustomerBeforeLoginEvent::class, $event);
 
         /** @var Request $request */
-        $request = $this->appServerMock->getLastRequest();
+        $request = $this->getLastRequest();
 
         static::assertEquals('POST', $request->getMethod());
         $body = $request->getBody()->getContents();
@@ -124,7 +116,7 @@ class WebhookDispatcherTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $this->appServerMock->append(new Response(200));
+        $this->appendNewResponse(new Response(200));
 
         $id = Uuid::randomHex();
 
@@ -155,7 +147,7 @@ class WebhookDispatcherTest extends TestCase
         ], Context::createDefaultContext());
 
         /** @var Request $request */
-        $request = $this->appServerMock->getLastRequest();
+        $request = $this->getLastRequest();
 
         static::assertEquals('POST', $request->getMethod());
         $body = $request->getBody()->getContents();
@@ -330,7 +322,7 @@ class WebhookDispatcherTest extends TestCase
             ],
         ]], Context::createDefaultContext());
 
-        $this->appServerMock->append(new Response(200));
+        $this->appendNewResponse(new Response(200));
 
         $event = new CustomerBeforeLoginEvent(
             $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL),
@@ -342,7 +334,7 @@ class WebhookDispatcherTest extends TestCase
         $eventDispatcher->dispatch($event);
 
         /** @var Request $request */
-        $request = $this->appServerMock->getLastRequest();
+        $request = $this->getLastRequest();
 
         static::assertEquals('POST', $request->getMethod());
         $body = $request->getBody()->getContents();
@@ -408,7 +400,7 @@ class WebhookDispatcherTest extends TestCase
 
         $permissionPersister->updatePrivileges($permissions, $aclRoleId);
 
-        $this->appServerMock->append(new Response(200));
+        $this->appendNewResponse(new Response(200));
 
         $event = new CustomerLoginEvent(
             $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL),
@@ -461,7 +453,7 @@ class WebhookDispatcherTest extends TestCase
             ],
         ]], Context::createDefaultContext());
 
-        $this->appServerMock->append(new Response(200));
+        $this->appendNewResponse(new Response(200));
 
         $event = new CustomerLoginEvent(
             $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL),
@@ -526,7 +518,7 @@ class WebhookDispatcherTest extends TestCase
 
         $permissionPersister->updatePrivileges($permissions, $aclRoleId);
 
-        $this->appServerMock->append(new Response(200));
+        $this->appendNewResponse(new Response(200));
 
         $event = new CustomerLoginEvent(
             $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL),
@@ -539,7 +531,7 @@ class WebhookDispatcherTest extends TestCase
         $eventDispatcher->dispatch($event);
 
         /** @var Request $request */
-        $request = $this->appServerMock->getLastRequest();
+        $request = $this->getLastRequest();
 
         static::assertEquals('POST', $request->getMethod());
         $body = $request->getBody()->getContents();
@@ -669,7 +661,7 @@ class WebhookDispatcherTest extends TestCase
             ],
         ]], Context::createDefaultContext());
 
-        $this->appServerMock->append(new Response(200));
+        $this->appendNewResponse(new Response(200));
 
         $event = $this->getEntityWrittenEvent(Uuid::randomHex());
 
@@ -731,7 +723,7 @@ class WebhookDispatcherTest extends TestCase
 
         $permissionPersister->updatePrivileges($permissions, $aclRoleId);
 
-        $this->appServerMock->append(new Response(200));
+        $this->appendNewResponse(new Response(200));
 
         $entityId = Uuid::randomHex();
         $event = $this->getEntityWrittenEvent($entityId);
@@ -741,7 +733,7 @@ class WebhookDispatcherTest extends TestCase
         $eventDispatcher->dispatch($event);
 
         /** @var Request $request */
-        $request = $this->appServerMock->getLastRequest();
+        $request = $this->getLastRequest();
 
         static::assertEquals('POST', $request->getMethod());
         $body = $request->getBody()->getContents();
@@ -805,7 +797,7 @@ class WebhookDispatcherTest extends TestCase
             ],
         ]], Context::createDefaultContext());
 
-        $this->appServerMock->append(new Response(200));
+        $this->appendNewResponse(new Response(200));
 
         // Deleted app is another app then the one subscriped to the deleted event
         $event = new AppDeletedEvent(Uuid::randomHex(), Context::createDefaultContext());
@@ -860,7 +852,7 @@ class WebhookDispatcherTest extends TestCase
             ],
         ]], Context::createDefaultContext());
 
-        $this->appServerMock->append(new Response(200));
+        $this->appendNewResponse(new Response(200));
 
         $event = new AppDeletedEvent($appId, Context::createDefaultContext());
 
@@ -869,7 +861,7 @@ class WebhookDispatcherTest extends TestCase
         $eventDispatcher->dispatch($event);
 
         /** @var Request $request */
-        $request = $this->appServerMock->getLastRequest();
+        $request = $this->getLastRequest();
 
         static::assertEquals('POST', $request->getMethod());
         $body = $request->getBody()->getContents();

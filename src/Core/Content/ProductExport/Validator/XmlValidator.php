@@ -14,13 +14,14 @@ class XmlValidator implements ValidatorInterface
             return;
         }
 
-        $internalErrorsState = libxml_use_internal_errors();
-        libxml_use_internal_errors(true);
+        $backup_errors = libxml_use_internal_errors(true);
+        $backup = libxml_disable_entity_loader(true);
 
         if (!simplexml_load_string($productExportContent)) {
             $errors->add(new XmlValidationError($productExportEntity->getId(), libxml_get_errors()));
         }
 
-        libxml_use_internal_errors($internalErrorsState);
+        libxml_disable_entity_loader($backup);
+        libxml_use_internal_errors($backup_errors);
     }
 }

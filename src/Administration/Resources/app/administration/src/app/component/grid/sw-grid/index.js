@@ -75,6 +75,12 @@ Component.register('sw-grid', {
             type: Boolean,
             required: false,
             default: false
+        },
+
+        allowInlineEdit: {
+            type: Boolean,
+            required: false,
+            default: true
         }
     },
 

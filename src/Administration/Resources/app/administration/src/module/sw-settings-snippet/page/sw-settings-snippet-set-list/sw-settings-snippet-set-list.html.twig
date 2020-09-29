@@ -51,7 +51,8 @@
                                                 <sw-button class="sw-settings-snippet-set-list__edit-set-action"
                                                            size="small"
                                                            variant="primary"
-                                                           :disabled="!snippetsEditable"
+                                                           :disabled="!acl.can('snippet.editor') || !snippetsEditable"
+                                                           v-tooltip="getNoPermissionsTooltip('snippet.editor')"
                                                            @click="onEditSnippetSets">
                                                     {{ $tc('sw-settings-snippet.setList.buttonEditSet') }}
                                                 </sw-button>
@@ -59,24 +60,28 @@
 
                                             {% block sw_settings_snippet_set_list_card_list_container_header_btn_split %}
                                                 <sw-button-group class="sw-settings-snippet-set-list__action-split"
-                                                                 splitButton>
+                                                                 splitButton
+                                                                 v-tooltip="getNoPermissionsTooltip('snippet.creator', false)">
                                                     {% block sw_settings_snippet_set_list_card_list_container_header_btn_add_set %}
                                                         <sw-button class="sw-settings-snippet-set-list__action-add"
                                                                    size="small"
                                                                    variant="ghost"
+                                                                   :disabled="!acl.can('snippet.creator')"
                                                                    @click="onAddSnippetSet">
                                                             {{ $tc('sw-settings-snippet.setList.buttonAddSet') }}
                                                         </sw-button>
                                                     {% endblock %}
 
                                                     {% block sw_settings_snippet_set_list_card_list_btn_copy_split %}
-                                                        <sw-context-button headline="hi">
+                                                        <sw-context-button headline="hi"
+                                                            :disabled="!acl.can('snippet.creator')">
 
                                                             {% block sw_settings_snippet_set_list_card_btn_copy %}
                                                                 <sw-button slot="button"
                                                                            class="sw-settings-snippet-set-list__action-context-menu"
                                                                            size="small"
                                                                            variant="ghost"
+                                                                           :disabled="!acl.can('snippet.creator')"
                                                                            square>
                                                                     {% block sw_settings_snippet_set_list_card_btn_copy_icon %}
                                                                         <sw-icon name="small-arrow-medium-down" size="16"></sw-icon>
@@ -122,6 +127,8 @@
                                      @sw-grid-select-item="onSelectionChanged"
                                      @sw-grid-select-all="onSelectionChanged"
                                      @sort-column="onSortColumn"
+                                     :selectable="acl.can('snippet.editor')"
+                                     :allowInlineEdit="acl.can('snippet.editor')"
                                      table>
                                 {% block sw_settings_snippet_set_list_card_list_grid_template %}
                                     <template slot="columns" slot-scope="{ item }">
@@ -190,20 +197,25 @@
                                                 {% block sw_settings_snippet_set_list_card_list_grid_column_base_action_buttons %}
                                                     <sw-context-button>
                                                         {% block sw_settings_snippet_set_list_card_list_grid_column_base_action_btn_edit %}
-                                                            <sw-context-menu-item class="sw-setting-snippet-set-list__edit-action" :routerLink="{ name: 'sw.settings.snippet.list', query: { ids: [item.id] } }">
-                                                                {{ $tc('sw-settings-snippet.setList.contextMenuEdit') }}
+                                                            <sw-context-menu-item class="sw-setting-snippet-set-list__edit-action"
+                                                                :routerLink="{ name: 'sw.settings.snippet.list', query: { ids: [item.id] } }">
+                                                                {{ contextMenuEditSnippet }}
                                                             </sw-context-menu-item>
                                                         {% endblock %}
 
                                                         {% block sw_settings_snippet_set_list_card_list_grid_column_base_action_btn_clone %}
-                                                            <sw-context-menu-item @click="onClone(item.id)">
+                                                            <sw-context-menu-item @click="onClone(item.id)"
+                                                                :disabled="!acl.can('snippet.creator')"
+                                                                v-tooltip.left="getNoPermissionsTooltip('snippet.editor')">
                                                                 {{ $tc('sw-settings-snippet.setList.contextMenuClone') }}
                                                             </sw-context-menu-item>
                                                         {% endblock %}
 
                                                         {% block sw_settings_snippet_set_list_card_list_grid_column_base_action_btn_delete %}
                                                             <sw-context-menu-item variant="danger"
-                                                                                  @click="onDeleteSet(item.id)">
+                                                                @click="onDeleteSet(item.id)"
+                                                                :disabled="!acl.can('snippet.deleter')"
+                                                                v-tooltip.left="getNoPermissionsTooltip('snippet.deleter')">
                                                                 {{ $tc('sw-settings-snippet.setList.contextMenuDelete') }}
                                                             </sw-context-menu-item>
                                                         {% endblock %}

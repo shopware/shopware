@@ -4,7 +4,6 @@ import './sw-users-permissions-user-listing.scss';
 // @deprecated tag:v6.4.0.0 for StateDeprecated
 const { Component, Data, Mixin, State, StateDeprecated } = Shopware;
 const { Criteria } = Data;
-const types = Shopware.Utils.types;
 
 Component.register('sw-users-permissions-user-listing', {
     template,
@@ -142,7 +141,17 @@ Component.register('sw-users-permissions-user-listing', {
                 return;
             }
 
-            const verifiedToken = await this.verifyUserToken();
+            let verifiedToken;
+            try {
+                verifiedToken = await this.loginService.verifyUserToken(this.confirmPassword);
+            } catch (e) {
+                this.createNotificationError({
+                    title: this.$tc('sw-settings-user.user-detail.passwordConfirmation.notificationPasswordErrorTitle'),
+                    message: this.$tc('sw-settings-user.user-detail.passwordConfirmation.notificationPasswordErrorMessage')
+                });
+            } finally {
+                this.confirmPassword = '';
+            }
 
             if (!verifiedToken) {
                 return;
@@ -171,26 +180,18 @@ Component.register('sw-users-permissions-user-listing', {
             this.itemToDelete = null;
         },
 
+        // @deprecated tag:v6.4.0 use loginService.verifyUserToken() instead
         verifyUserToken() {
-            const { username } = State.get('session').currentUser;
-
-            return this.loginService.verifyUserByUsername(username, this.confirmPassword).then(({ access }) => {
-                this.confirmPassword = '';
-
-                if (types.isString(access)) {
-                    return access;
-                }
-
-                return false;
-            }).catch(() => {
-                this.confirmPassword = '';
+            let verifiedToken;
+            try {
+                verifiedToken = this.loginService.verifyUserToken(this.confirmPassword);
+            } catch (e) {
                 this.createNotificationError({
                     title: this.$tc('sw-settings-user.user-detail.passwordConfirmation.notificationPasswordErrorTitle'),
                     message: this.$tc('sw-settings-user.user-detail.passwordConfirmation.notificationPasswordErrorMessage')
                 });
-
-                return false;
-            });
+            }
+            return verifiedToken;
         }
     }
 });

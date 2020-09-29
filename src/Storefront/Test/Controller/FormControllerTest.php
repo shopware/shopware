@@ -5,12 +5,16 @@ namespace Shopware\Storefront\Test\Controller;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Storefront\Controller\FormController;
+use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 
 class FormControllerTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use SalesChannelFunctionalTestBehaviour;
     use StorefrontControllerTestBehaviour;
 
     public function testHandleNewsletter(): void
@@ -56,6 +60,22 @@ class FormControllerTest extends TestCase
         static::assertInstanceOf(JsonResponse::class, $response);
         static::assertSame(200, $response->getStatusCode());
         static::assertEmpty($content);
+    }
+
+    public function testHandleNewsletterUsesProperSalesChannelUrl(): void
+    {
+        $formController = $this->getContainer()->get(FormController::class);
+
+        $request = new Request();
+        $request->attributes->set('sw-sales-channel-absolute-base-url', 'wrong.test');
+        $request->attributes->set(RequestTransformer::STOREFRONT_URL, 'correct.test');
+
+        $requestDataBag = new RequestDataBag();
+        $requestDataBag->set('option', FormController::SUBSCRIBE);
+
+        $formController->handleNewsletter($request, $requestDataBag, $this->createSalesChannelContext());
+
+        static::assertSame('correct.test', $requestDataBag->get('storefrontUrl'));
     }
 
     public function testSendContactForm(): void

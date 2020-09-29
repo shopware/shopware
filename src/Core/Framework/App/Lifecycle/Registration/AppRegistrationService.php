@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\App\Lifecycle\Registration;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
@@ -78,7 +79,12 @@ class AppRegistrationService
         $handshake = $this->handshakeFactory->create($manifest);
 
         $request = $handshake->assembleRequest();
-        $response = $this->httpClient->send($request);
+
+        try {
+            $response = $this->httpClient->send($request);
+        } catch (GuzzleException $e) {
+            throw new AppRegistrationException($e->getMessage(), 0, $e);
+        }
 
         return $this->parseResponse($handshake, $response);
     }

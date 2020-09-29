@@ -49,7 +49,19 @@ Component.register('sw-order-line-items-grid-sales-channel', {
         },
 
         cartLineItems() {
-            return this.cart.lineItems.filter(item => (item.label || '').toLowerCase().includes(this.searchTerm));
+            if (!this.searchTerm) {
+                return this.cart.lineItems;
+            }
+
+            // Filter based on the product label is not blank and contains the search term or not
+            const keyWords = this.searchTerm.split(/[\W_]+/ig);
+            return this.cart.lineItems.filter(item => {
+                if (!item.label) {
+                    return false;
+                }
+
+                return keyWords.every(key => item.label.toLowerCase().includes(key.toLowerCase()));
+            });
         },
 
         lineItemTypes() {

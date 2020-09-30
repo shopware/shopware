@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Storefront\Framework\Cache\CacheResponseSubscriber;
 use Shopware\Storefront\Framework\Cache\CacheStore;
@@ -16,9 +16,48 @@ use Symfony\Component\HttpKernel\HttpCache\HttpCache;
 
 class HttpCacheIntegrationTest extends TestCase
 {
-    use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
     use CacheTestBehaviour;
+
+    private static $originalHttpCacheValue;
+
+    public static function setUpBeforeClass(): void
+    {
+        self::$originalHttpCacheValue = $_SERVER['SHOPWARE_HTTP_CACHE_ENABLED'];
+        $_ENV['SHOPWARE_HTTP_CACHE_ENABLED'] = $_SERVER['SHOPWARE_HTTP_CACHE_ENABLED'] = '1';
+    }
+
+    public static function tearDownAfterClass(): void
+    {
+        $_ENV['SHOPWARE_HTTP_CACHE_ENABLED'] = $_SERVER['SHOPWARE_HTTP_CACHE_ENABLED'] = self::$originalHttpCacheValue;
+    }
+
+    public function setUp(): void
+    {
+        KernelLifecycleManager::bootKernel();
+
+        $this->getContainer()
+            ->get(Connection::class)
+            ->beginTransaction();
+    }
+
+    public function tearDown(): void
+    {
+        /** @var Connection $connection */
+        $connection = $this->getContainer()
+            ->get(Connection::class);
+
+        static::assertEquals(
+            1,
+            $connection->getTransactionNestingLevel(),
+            'Too many Nesting Levels.
+            Probably one transaction was not closed properly.
+            This may affect following Tests in an unpredictable manner!
+            Current nesting level: "' . $connection->getTransactionNestingLevel() . '".'
+        );
+
+        $connection->rollBack();
+    }
 
     public function testCacheHit(): void
     {

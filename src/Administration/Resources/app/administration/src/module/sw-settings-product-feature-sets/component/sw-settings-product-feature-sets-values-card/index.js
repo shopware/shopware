@@ -24,6 +24,11 @@ Component.register('sw-settings-product-feature-sets-values-card', {
             type: Boolean,
             required: false,
             default: false
+        },
+        allowEdit: {
+            type: Boolean,
+            required: false,
+            default: true
         }
     },
 

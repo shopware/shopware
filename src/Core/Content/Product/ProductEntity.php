@@ -447,6 +447,11 @@ class ProductEntity extends Entity
      */
     protected $customFieldSetSelectionActive;
 
+    /**
+     * @var string[]|null
+     */
+    protected $productSearchKeywords;
+
     public function __construct()
     {
         $this->prices = new ProductPriceCollection();
@@ -1317,5 +1322,15 @@ class ProductEntity extends Entity
     public function setCustomFieldSetSelectionActive(?bool $customFieldSetSelectionActive): void
     {
         $this->customFieldSetSelectionActive = $customFieldSetSelectionActive;
+    }
+
+    public function getProductSearchKeywords(): ?array
+    {
+        return $this->productSearchKeywords;
+    }
+
+    public function setProductSearchKeywords(?array $productSearchKeywords): void
+    {
+        $this->productSearchKeywords = $productSearchKeywords;
     }
 }

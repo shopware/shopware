@@ -5,6 +5,6 @@ author: Marcel Sotiropoulos
 author_email: marcel.sotiropoulos@soti-it.at
 ---
 # API
-*  Changed the check for Content-Type in MediaService.php in function fetchFile(...) to  
+*  Changed the content type check in `\Shopware\Core\Content\Media\MediaService::fetchFile()` to allow additional information
 ```strpos($contentType, 'application/json') !== false``` instead of  
 ```$contentType === 'application/json'```

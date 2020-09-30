@@ -62,6 +62,14 @@ Component.register('sw-cms-el-config-product-listing', {
         allProductSortingsCriteria() {
             const criteria = new Criteria();
 
+            criteria.addFilter(Criteria.equals('locked', false));
+
+            return criteria;
+        },
+
+        excludedDefaultSortingCriteria() {
+            const criteria = new Criteria();
+
             if (this.defaultSorting.id) {
                 criteria.addFilter(Criteria.not(
                     'AND',
@@ -158,6 +166,10 @@ Component.register('sw-cms-el-config-product-listing', {
             }
 
             this.defaultSorting = defaultSorting;
+        },
+
+        isDefaultSorting(productSorting) {
+            return this.defaultSorting.key === productSorting.key;
         }
     }
 });

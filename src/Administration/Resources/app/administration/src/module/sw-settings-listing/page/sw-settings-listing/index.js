@@ -83,7 +83,8 @@ Component.register('sw-settings-listing', {
                 },
                 {
                     property: 'criteria',
-                    label: this.$tc('sw-settings-listing.index.productSorting.grid.header.criteria')
+                    label: this.$tc('sw-settings-listing.index.productSorting.grid.header.criteria'),
+                    multiLine: true
                 },
                 {
                     property: 'priority',
@@ -143,6 +144,9 @@ Component.register('sw-settings-listing', {
             this.isLoading = true;
 
             const saveSalesChannelConfig = await this.$refs.systemConfig.saveAll();
+
+            this.setDefaultSortingActive();
+
             const saveProductSortingOptions = await this.saveProductSortingOptions();
 
             Promise.all([saveSalesChannelConfig, saveProductSortingOptions])
@@ -279,6 +283,18 @@ Component.register('sw-settings-listing', {
 
         onChangeLanguage() {
             this.fetchProductSortingOptions();
+        },
+
+        setDefaultSortingActive() {
+            const defaultSortingKey = this.$refs.systemConfig.actualConfigData.null['core.listing.defaultSorting'];
+
+            if (defaultSortingKey) {
+                Object.entries(this.productSortingOptions).forEach(([, productSorting]) => {
+                    if (productSorting.key === defaultSortingKey) {
+                        productSorting.active = true;
+                    }
+                });
+            }
         },
 
         isItemDefaultSorting(sortingKey) {

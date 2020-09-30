@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-settings-listing-option-base', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'systemConfigApiService'],
 
     mixins: [
         Mixin.getByName('notification')
@@ -18,7 +18,8 @@ Component.register('sw-settings-listing-option-base', {
             productSortingEntity: null,
             toBeDeletedCriteria: null,
             customFieldOptions: [],
-            customFields: []
+            customFields: [],
+            defaultSortingKey: null
         };
     },
 
@@ -51,6 +52,10 @@ Component.register('sw-settings-listing-option-base', {
 
         isSaveButtonDisabled() {
             return !this.productSortingEntity || this.productSortingEntity.fields.length <= 0;
+        },
+
+        isDefaultSorting() {
+            return this.defaultSortingKey === this.productSortingEntity.key;
         }
     },
 
@@ -60,7 +65,11 @@ Component.register('sw-settings-listing-option-base', {
 
     methods: {
         createdComponent() {
-            Promise.all([this.fetchProductSortingEntity(), this.fetchCustomFields()]);
+            Promise.all([
+                this.fetchProductSortingEntity(),
+                this.fetchCustomFields(),
+                this.fetchDefaultSorting()
+            ]);
         },
 
         fetchProductSortingEntity() {
@@ -79,6 +88,13 @@ Component.register('sw-settings-listing-option-base', {
             this.customFieldRepository.search(this.customFieldCriteria, Shopware.Context.api).then(response => {
                 this.customFields = response;
             });
+        },
+
+        fetchDefaultSorting() {
+            this.systemConfigApiService.getValues('core.listing')
+                .then(response => {
+                    this.defaultSortingKey = response['core.listing.defaultSorting'];
+                });
         },
 
         getProductSortingEntityId() {

@@ -28,7 +28,7 @@
         {% endblock %}
 
         {% block sw_select_selection_list_load_more %}
-            <li v-if="invisibleCount > 0"
+            <li v-if="invisibleCount > 0 && !hideLabels"
                 class="sw-select-selection-list__load-more">
                 <slot name="invisible-count" v-bind="{ invisibleCount, onClickInvisibleCount }">
                     {% block sw_select_selection_list_load_more_item_button %}

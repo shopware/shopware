@@ -1,7 +1,7 @@
 <div class="sw-cms-el-config-product-listing-config-sorting-grid">
 
     <sw-data-grid class="sw-cms-el-config-product-listing-config-sorting-grid__grid"
-        :dataSource="productSortings"
+        :dataSource="visibleProductSortings"
         :columns="gridColumns"
         :compactMode="false"
         :allowInlineEdit="true"
@@ -23,11 +23,14 @@
         </template>
 
         <template #pagination>
-            <sw-pagination :page="paginationPage"
-                :limit="paginationLimit"
-                :total="paginationTotal"
-                :steps="paginationSteps"
-                :autoHide="false">
+            <sw-pagination
+                v-if="paginationVisible"
+                :page="page"
+                :limit="limit"
+                :total="total"
+                :steps="steps"
+                :autoHide="false"
+                @page-change="onPageChange">
             </sw-pagination>
         </template>
     </sw-data-grid>

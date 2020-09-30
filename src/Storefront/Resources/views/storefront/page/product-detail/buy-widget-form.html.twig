@@ -22,23 +22,16 @@
                     {% block page_product_detail_buy_quantity_container %}
                         <div class="col-4">
                             {% block page_product_detail_buy_quantity %}
-                                <select name="lineItems[{{ product.id }}][quantity]"
-                                        class="custom-select product-detail-quantity-select">
-                                    {% for quantity in range(product.minPurchase, product.calculatedMaxPurchase, product.purchaseSteps) %}
-                                        <option value="{{ quantity }}">
-                                            {{ quantity }}
-                                            {% if quantity == 1 %}
-                                                {% if product.translated.packUnit %} {{ product.translated.packUnit }}{% endif %}
-                                            {% else %}
-                                                {% if product.translated.packUnitPlural %}
-                                                    {{ product.translated.packUnitPlural }}
-                                                {% elseif product.translated.packUnit %}
-                                                    {{ product.translated.packUnit }}
-                                                {% endif %}
-                                            {% endif %}
-                                        </option>
-                                    {% endfor %}
-                                </select>
+                                {% sw_include '@Storefront/storefront/utilities/quantity-selection.html.twig' with {
+                                    name: 'lineItems[' ~ product.id ~ '][quantity]',
+                                    class: 'product-detail-quantity-select',
+                                    currentValue: product.minPurchase,
+                                    min: product.minPurchase,
+                                    max: product.calculatedMaxPurchase,
+                                    steps: product.purchaseSteps,
+                                    packUnit: product.translated.packUnit,
+                                    packUnitPlural: product.translated.packUnitPlural
+                                } %}
                             {% endblock %}
                         </div>
                     {% endblock %}

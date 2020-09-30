@@ -127,15 +127,14 @@
                                                             {% endif %}
 
                                                             {% block component_offcanvas_product_buy_quantity %}
-                                                                <select name="quantity"
-                                                                        class="custom-select quantity-select-{{ id }} js-offcanvas-cart-change-quantity">
-                                                                    {% for quantityItem in range(quantityInformation.minPurchase, maxQuantity, quantityInformation.purchaseSteps) %}
-                                                                        <option value="{{ quantityItem }}"
-                                                                            {% if quantityItem == quantity %} selected="selected"{% endif %}>
-                                                                            {{ quantityItem }}
-                                                                        </option>
-                                                                    {% endfor %}
-                                                                </select>
+                                                                {% sw_include '@Storefront/storefront/utilities/quantity-selection.html.twig' with {
+                                                                    name: 'quantity',
+                                                                    class: 'quantity-select-' ~ id ~ ' js-offcanvas-cart-change-quantity',
+                                                                    currentValue: quantity,
+                                                                    min: quantityInformation.minPurchase,
+                                                                    max: maxQuantity,
+                                                                    steps: quantityInformation.purchaseSteps
+                                                                } %}
                                                             {% endblock %}
                                                         </form>
                                                     {% endif %}

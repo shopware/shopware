@@ -1,0 +1,39 @@
+{% block utilities_quantity_selection %}
+    {% set quantityList = range(min, max, steps) %}
+
+    {% if quantityList|length > shopware.config.core.cart.maxSelectFieldOptions %}
+        {% block utilities_quantity_selection_input %}
+            <input type="number"
+                   name="{{ name }}"
+                   class="form-control {{ class }}"
+                   value="{{ currentValue }}"
+                   step="{{ steps }}"
+                   min="{{ min }}"
+                   max="{{ max }}"
+                   title="{% if packUnitPlural %}
+                              {{ packUnitPlural }}
+                          {% elseif packUnit %}
+                              {{ packUnit }}
+                          {% endif %}">
+        {% endblock %}
+    {% else %}
+        {% block utilities_quantity_selection_select %}
+            <select name="{{ name }}" class="custom-select {{ class }}">
+                {% for quantity in quantityList %}
+                    <option value="{{ quantity }}" {% if quantity == currentValue %} selected="selected"{% endif %}>
+                        {{ quantity }}
+                        {% if quantity == 1 %}
+                            {% if packUnit %} {{ packUnit }}{% endif %}
+                        {% else %}
+                            {% if packUnitPlural %}
+                                {{ packUnitPlural }}
+                            {% elseif packUnit %}
+                                {{ packUnit }}
+                            {% endif %}
+                        {% endif %}
+                    </option>
+                {% endfor %}
+            </select>
+        {% endblock %}
+    {% endif %}
+{% endblock %}

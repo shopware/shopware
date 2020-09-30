@@ -11,6 +11,16 @@
             <label lang="de-DE">Maximale Auswahlmenge</label>
         </input-field>
 
+        <input-field type="int">
+            <name>maxSelectFieldOptions</name>
+            <label>Maximum options in the select field up to the display of the input field</label>
+            <label lang="de-DE">Maximale Optionen im Auswahlfeld bis zur Darstellung des Eingabefeldes</label>
+            <helpText>As soon as the amount of the selection of the order amount exceeds this value, an input field is displayed instead of a selection field.
+                This increases the performance for the visitors. The default is 100.</helpText>
+            <helpText lang="de-DE">Sobald die Menge der Auswahl der Bestellmenge diesen Wert überschreitet, wird ein Eingabefeld, anstelle eines Auswahlfeldes angezeigt.
+            Dies erhöht die Performance für die Besucher. Standard beträgt 100.</helpText>
+        </input-field>
+
         <input-field type="bool">
             <name>showDeliveryTime</name>
             <label>Show delivery time in cart</label>

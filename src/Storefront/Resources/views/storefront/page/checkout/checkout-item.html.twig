@@ -187,15 +187,14 @@
                                                 {% endif %}
 
                                                 {% block page_product_detail_buy_quantity %}
-                                                    <select name="quantity"
-                                                            class="custom-select quantity-select">
-                                                        {% for quantity in range(lineItem.quantityInformation.minPurchase, maxQuantity, lineItem.quantityInformation.purchaseSteps) %}
-                                                            <option value="{{ quantity }}"
-                                                                {% if quantity == lineItem.quantity %} selected="selected"{% endif %}>
-                                                                {{ quantity }}
-                                                            </option>
-                                                        {% endfor %}
-                                                    </select>
+                                                    {% sw_include '@Storefront/storefront/utilities/quantity-selection.html.twig' with {
+                                                        name: 'quantity',
+                                                        class: 'quantity-select',
+                                                        currentValue: lineItem.quantity,
+                                                        min: lineItem.quantityInformation.minPurchase,
+                                                        max: maxQuantity,
+                                                        steps: lineItem.quantityInformation.purchaseSteps
+                                                    } %}
                                                 {% endblock %}
                                             </form>
                                         {% else %}

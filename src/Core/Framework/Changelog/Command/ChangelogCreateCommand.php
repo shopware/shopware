@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Changelog\Command;
 
 use Shopware\Core\Framework\Changelog\ChangelogDefinition;
-use Shopware\Core\Framework\Changelog\ChangelogGenerator;
+use Shopware\Core\Framework\Changelog\Processor\ChangelogGenerator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -14,10 +14,14 @@ use Symfony\Component\Process\Process;
 
 class ChangelogCreateCommand extends Command
 {
-    /** @var string */
+    /**
+     * @var string
+     */
     protected static $defaultName = 'changelog:create';
 
-    /** @var ChangelogGenerator */
+    /**
+     * @var ChangelogGenerator
+     */
     private $generator;
 
     public function __construct(ChangelogGenerator $generator)

@@ -1,54 +1,78 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Changelog;
+namespace Shopware\Core\Framework\Changelog\Processor;
 
+use Shopware\Core\Framework\Changelog\ChangelogFile;
+use Shopware\Core\Framework\Changelog\ChangelogFileCollection;
+use Shopware\Core\Framework\Changelog\ChangelogParser;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-trait ChangelogReleaseTrait
+class ChangelogProcessor
 {
-    /** @var ChangelogParser */
-    private $parser;
+    /**
+     * @var Filesystem
+     */
+    protected $filesystem;
 
-    /** @var Filesystem */
-    private $filesystem;
+    /**
+     * @var string
+     */
+    protected $changelogDir;
 
-    /** @var string */
-    private $changelogDir;
+    /**
+     * @var string
+     */
+    protected $unreleasedDir;
 
-    /** @var string */
-    private $unreleasedDir;
+    /**
+     * @var string
+     */
+    protected $changelogGlobal;
 
-    /** @var string */
-    private $changelogGlobal;
+    /**
+     * @var string
+     */
+    protected $upgradeDir;
 
-    /** @var string */
-    private $upgradeDir;
+    /**
+     * @var ChangelogParser
+     */
+    protected $parser;
 
-    private function initialize(string $projectDir): void
+    /**
+     * @var ValidatorInterface
+     */
+    protected $validator;
+
+    public function __construct(ChangelogParser $parser, ValidatorInterface $validator, Filesystem $filesystem, string $projectDir)
     {
         $this->changelogDir = $projectDir . '/platform/changelog';
         $this->unreleasedDir = $this->changelogDir . '/_unreleased';
         $this->changelogGlobal = $projectDir . '/platform/CHANGELOG.md';
         $this->upgradeDir = $projectDir . '/platform';
+        $this->parser = $parser;
+        $this->validator = $validator;
+        $this->filesystem = $filesystem;
     }
 
-    private function existedRelease(string $version): bool
+    protected function existedRelease(string $version): bool
     {
         return $this->filesystem->exists($this->getTargetReleaseDir($version));
     }
 
-    private function getTargetReleaseDir(string $version, bool $realPath = true): string
+    protected function getTargetReleaseDir(string $version, bool $realPath = true): string
     {
         return ($realPath ? $this->changelogDir . '/' : '') . 'release-' . str_replace('.', '-', $version);
     }
 
-    private function getMajorVersion(string $version): string
+    protected function getMajorVersion(string $version): string
     {
         return substr($version, 0, (int) strpos($version, '.', strpos($version, '.') + strlen('.')));
     }
 
-    private function getTargetUpgradeFile(string $version, bool $realPath = true): string
+    protected function getTargetUpgradeFile(string $version, bool $realPath = true): string
     {
         return ($realPath ? $this->upgradeDir . '/' : '') . sprintf('UPGRADE-%s.md', $this->getMajorVersion($version));
     }
@@ -56,7 +80,7 @@ trait ChangelogReleaseTrait
     /**
      * Prepare the list of changelog files which need to process
      */
-    private function prepareChangelogFiles(?string $version = null, bool $includeFeatureFlags = false): ChangelogFileCollection
+    protected function prepareChangelogFiles(?string $version = null, bool $includeFeatureFlags = false): ChangelogFileCollection
     {
         $entries = new ChangelogFileCollection();
 
@@ -65,7 +89,7 @@ trait ChangelogReleaseTrait
         if ($finder->hasResults()) {
             foreach ($finder as $file) {
                 $definition = $this->parser->parse($file->getContents());
-                if (!$definition->isValid()) {
+                if (count($this->validator->validate($definition))) {
                     throw new \InvalidArgumentException('Bad syntax FOUND in ' . $file->getRealPath());
                 }
                 if (!$includeFeatureFlags && $definition->getFlag()) {

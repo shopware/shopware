@@ -1,43 +1,55 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Changelog;
+namespace Shopware\Core\Framework\Changelog\Processor;
 
-use Symfony\Component\Filesystem\Filesystem;
+use Shopware\Core\Framework\Changelog\ChangelogFileCollection;
 
-class ChangelogReleaseExporter
+class ChangelogReleaseExporter extends ChangelogProcessor
 {
-    use ChangelogReleaseTrait;
-
-    public function __construct(ChangelogParser $parser, Filesystem $filesystem, string $projectDir)
-    {
-        $this->parser = $parser;
-        $this->filesystem = $filesystem;
-        $this->initialize($projectDir);
-    }
-
     /**
      * Export Changelog content by a given requested sections
      */
-    public function export(array $requested, ?string $version = null, bool $includeFeatureFlags = false): array
+    public function export(array $requested, ?string $version = null, bool $includeFeatureFlags = false, bool $keysOnly = false): array
     {
-        $output = [];
-        $changelogFiles = $this->prepareChangelogFiles($version, $includeFeatureFlags);
-        if (!$changelogFiles->count()) {
-            $output[] = $version ? 'There are not any changelog files in this release version: ' . $version
-                : 'There are not any unreleased changelog files at this moment';
-
-            return $output;
+        if ($version && !$this->existedRelease($version)) {
+            return ['A given version did not released yet. Please specify another one.'];
         }
 
-        $output[] = $version ? 'All changes made in the version ' . $version : 'All unreleased changes made at this moment';
-        $output[] = '===';
+        $changelogFiles = $this->prepareChangelogFiles($version, $includeFeatureFlags);
+        if (!$changelogFiles->count()) {
+            return [
+                $version ? 'There are not any changelog files in this release version: ' . $version
+                    : 'There are not any unreleased changelog files at this moment',
+            ];
+        }
+
+        $output = [];
         foreach ($requested as $section => $enabled) {
             if ($enabled) {
-                $this->exportByRequestedSection($output, $changelogFiles, $section);
+                if ($keysOnly) {
+                    $this->exportKeysByRequestedSection($output, $changelogFiles);
+                } else {
+                    $this->exportByRequestedSection($output, $changelogFiles, $section);
+                }
             }
         }
 
+        if ($keysOnly) {
+            $output = [implode(', ', $output)];
+        }
+        array_unshift($output, $version ? 'All changes made in the version ' . $version : 'All unreleased changes made at this moment', '===');
+
         return $output;
+    }
+
+    private function exportKeysByRequestedSection(array &$output, ChangelogFileCollection $collection): void
+    {
+        foreach ($collection as $changelog) {
+            $content = $changelog->getDefinition()->getIssue();
+            if (!isset($output[$content])) {
+                $output[] = $content;
+            }
+        }
     }
 
     private function exportByRequestedSection(array &$output, ChangelogFileCollection $collection, string $section): void

@@ -23,6 +23,12 @@ All blocks of this template are available in the template which renders this tem
                 {% endif %}
                 {{ billingAddress.salutation.letterName }} {{ billingAddress.firstName }} {{ billingAddress.lastName }}<br>
                 {{ billingAddress.street }}<br>
+                {% if billingAddress.additionalAddressLine1 %}
+                    {{ billingAddress.additionalAddressLine1 }}<br>
+                {% endif %}
+                {% if billingAddress.additionalAddressLine2 %}
+                    {{ billingAddress.additionalAddressLine2 }}<br>
+                {% endif %}
                 {{ billingAddress.zipcode }} {{ billingAddress.city }}<br>
                 {{ billingAddress.country.name }}<br>
             {% endblock %}

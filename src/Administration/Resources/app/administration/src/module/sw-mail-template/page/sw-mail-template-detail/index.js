@@ -270,7 +270,8 @@ Component.register('sw-mail-template-detail', {
                 this.isLoading = false;
 
                 if (error.response.data.errors.length > 0) {
-                    errormsg = `<br/> ${this.$tc('sw-mail-template.detail.textErrorMessage')}: "${error.response.data.errors[0].detail}"`;
+                    const errorDetailMsg = error.response.data.errors[0].detail;
+                    errormsg = `<br/> ${this.$tc('sw-mail-template.detail.textErrorMessage')}: "${errorDetailMsg}"`;
                 }
 
                 this.createNotificationError({

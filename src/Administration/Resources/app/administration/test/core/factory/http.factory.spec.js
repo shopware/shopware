@@ -363,7 +363,8 @@ describe('core/factory/http.factory.js', () => {
                         status: '409',
                         code: 'FRAMEWORK__DELETE_RESTRICTED',
                         title: 'Conflict',
-                        detail: 'The delete request for tax was denied due to a conflict. The entity is currently in use by: tax_rule (27)',
+                        detail: 'The delete request for tax was denied due to a conflict.' +
+                                'The entity is currently in use by: tax_rule (27)',
                         meta: {
                             parameters: {
                                 entity: 'tax',

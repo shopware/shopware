@@ -94,7 +94,11 @@ function createWrapper(privileges = []) {
         },
         stubs: {
             'sw-page': {
-                template: '<div class="sw-page"><slot name="smart-bar-actions"></slot><slot name="content"></slot><slot></slot></div>'
+                template: '<div class="sw-page">' +
+                                '<slot name="smart-bar-actions"></slot>' +
+                                '<slot name="content"></slot>' +
+                                '<slot></slot>' +
+                            '</div>'
             },
             'sw-context-menu-item': true,
             'sw-button': true,

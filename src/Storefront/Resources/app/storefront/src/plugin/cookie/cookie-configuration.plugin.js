@@ -17,7 +17,7 @@
  *
  */
 
-/* global PluginManager, window */
+/* global PluginManager */
 
 import Plugin from 'src/plugin-system/plugin.class';
 import CookieStorage from 'src/helper/storage/cookie-storage.helper';

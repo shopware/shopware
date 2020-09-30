@@ -81,7 +81,7 @@ export default class GoogleAnalyticsPlugin extends Plugin
     handleCookies(cookieUpdateEvent) {
         const updatedCookies = cookieUpdateEvent.detail;
 
-        if (!updatedCookies.hasOwnProperty(this.cookieEnabledName)) {
+        if (!Object.prototype.hasOwnProperty.call(updatedCookies, this.cookieEnabledName)) {
             return;
         }
 

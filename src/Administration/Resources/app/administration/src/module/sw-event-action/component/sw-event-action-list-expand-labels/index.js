@@ -37,7 +37,7 @@ Shopware.Component.register('sw-event-action-list-expand-labels', {
             if (this.disabled) {
                 return;
             }
-            this.limit = this.limit + this.increaseBy;
+            this.limit += this.increaseBy;
         }
     },
 

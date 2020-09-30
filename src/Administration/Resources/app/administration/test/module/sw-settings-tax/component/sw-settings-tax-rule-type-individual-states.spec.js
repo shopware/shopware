@@ -128,7 +128,7 @@ describe('module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-
             'country-state',
             Shopware.Context.api,
             new Shopware.Data.Criteria(),
-            states,
+            states
         ));
 
         expect(wrapper.vm.individualStates).toEqual(expect.arrayContaining(states));

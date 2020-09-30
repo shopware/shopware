@@ -269,7 +269,7 @@ class ProductDefinition extends EntityDefinition
 
         if (Feature::isActive('FEATURE_NEXT_10075')) {
             $collection->add(
-                (new TranslatedField('productSearchKeywords'))
+                (new TranslatedField('customSearchKeywords'))
                     ->addFlags(new Inherited(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING))
             );
         }

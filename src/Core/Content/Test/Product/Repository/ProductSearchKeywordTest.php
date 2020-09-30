@@ -45,8 +45,8 @@ class ProductSearchKeywordTest extends TestCase
             ->search(new Criteria([$id]), $this->context)
             ->get($id);
 
-        static::assertContains('YTN', $product->getProductSearchKeywords());
-        static::assertContains('Search Keyword', $product->getProductSearchKeywords());
+        static::assertContains('YTN', $product->getCustomSearchKeywords());
+        static::assertContains('Search Keyword', $product->getCustomSearchKeywords());
     }
 
     public function testEditProductWithSearchKeyword(): void
@@ -62,11 +62,11 @@ class ProductSearchKeywordTest extends TestCase
             ->search(new Criteria([$id]), $this->context)
             ->get($id);
 
-        static::assertContains('YTN', $product->getProductSearchKeywords());
+        static::assertContains('YTN', $product->getCustomSearchKeywords());
 
         $update = [
             'id' => $id,
-            'productSearchKeywords' => ['YTN', 'Search Keyword Update'],
+            'customSearchKeywords' => ['YTN', 'Search Keyword Update'],
         ];
 
         $this->repository->update([$update], $this->context);
@@ -76,8 +76,8 @@ class ProductSearchKeywordTest extends TestCase
             ->search(new Criteria([$id]), $this->context)
             ->get($id);
 
-        static::assertContains('YTN', $product->getProductSearchKeywords());
-        static::assertContains('Search Keyword Update', $product->getProductSearchKeywords());
+        static::assertContains('YTN', $product->getCustomSearchKeywords());
+        static::assertContains('Search Keyword Update', $product->getCustomSearchKeywords());
     }
 
     private function createProduct(string $id, array $searchKeyword): void
@@ -92,7 +92,7 @@ class ProductSearchKeywordTest extends TestCase
             ],
             'manufacturer' => ['id' => '98432def39fc4624b33213a56b8c944d', 'name' => 'test'],
             'tax' => ['id' => '98432def39fc4624b33213a56b8c944d', 'name' => 'test', 'taxRate' => 15],
-            'productSearchKeywords' => $searchKeyword,
+            'customSearchKeywords' => $searchKeyword,
         ];
 
         $this->repository->create([$data], $this->context);

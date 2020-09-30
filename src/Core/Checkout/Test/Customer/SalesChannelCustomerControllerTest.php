@@ -206,6 +206,9 @@ class SalesChannelCustomerControllerTest extends TestCase
 
     public function testLogout(): void
     {
+        $systemConfig = $this->getContainer()->get(SystemConfigService::class);
+        $systemConfig->set('core.loginRegistration.invalidateSessionOnLogOut', true);
+
         $this->createCustomerAndLogin();
         $this->browser->request('POST', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/customer/logout');
         $response = $this->browser->getResponse();

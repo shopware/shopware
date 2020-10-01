@@ -86,7 +86,6 @@ class RatingMatrixTest extends TestCase
         static::assertEquals($expectedRatingScore, $matrix->getAverageRating());
         static::assertEquals($expectedReviewCounts, $matrix->getTotalReviewCount());
         static::assertEquals($expectedTotal, $matrix->getPointSum());
-        static::assertEquals($expectedTotal, $matrix->getTotalPoints());
     }
 
     /**
@@ -173,7 +172,6 @@ class RatingMatrixTest extends TestCase
         static::assertEquals(2.4, round($matrix->getAverageRating(), 1));
         static::assertEquals(9, $matrix->getTotalReviewCount());
         static::assertEquals(21.6, $matrix->getPointSum());
-        static::assertEquals(21, $matrix->getTotalPoints());
     }
 
     /**

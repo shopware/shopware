@@ -249,6 +249,44 @@ describe('src/module/sw-users-permissions/components/sw-users-permissions-permis
         expect(productViewer.find('.sw-field--checkbox').props().value).toBe(true);
     });
 
+    it('should have selected the viewer role directly', async () => {
+        const wrapper = createWrapper({
+            rolePrivileges: ['product.viewer'],
+            privilegesMappings: [
+                {
+                    category: 'permissions',
+                    key: 'product',
+                    parent: null,
+                    roles: {
+                        viewer: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        editor: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        creator: {
+                            dependencies: [],
+                            privileges: []
+                        },
+                        deleter: {
+                            dependencies: [],
+                            privileges: []
+                        }
+                    }
+                }
+            ]
+        });
+
+        const productRow = wrapper.find('.sw-users-permissions-permissions-grid__entry_product');
+        const productViewer = productRow.find('.sw-users-permissions-permissions-grid__role_viewer');
+        const productEditor = productRow.find('.sw-users-permissions-permissions-grid__role_editor');
+
+        expect(productViewer.find('.sw-field--checkbox').props().value).toBe(true);
+        expect(productEditor.find('.sw-field--checkbox').props().value).toBe(false);
+    });
+
     it('should select the creator role', async () => {
         const wrapper = createWrapper({
             privilegesMappings: [

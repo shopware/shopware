@@ -13,7 +13,7 @@ Component.extend('sw-users-permissions-user-create', 'sw-users-permissions-user-
 
             return new Promise((resolve) => {
                 this.user = this.userRepository.create(this.context);
-                this.user.admin = true;
+                this.user.admin = false;
                 resolve();
             });
         },

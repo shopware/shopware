@@ -72,6 +72,9 @@ function createWrapper(privileges = []) {
                 params: {
                     id: '1a2b3c4d'
                 }
+            },
+            $device: {
+                getSystemKey: () => {}
             }
         },
         stubs: {
@@ -113,7 +116,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-create', (
 
     it('should create a new user', async () => {
         expect(wrapper.vm.user).toStrictEqual({
-            admin: true,
+            admin: false,
             localeId: '',
             username: '',
             firstName: '',
@@ -130,5 +133,12 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-create', (
         await fieldPassword.setValue('Passw0rd!');
 
         expect(wrapper.vm.user.password).toBe('Passw0rd!');
+    });
+
+    it('should not be an admin by default', async () => {
+        const adminSwitch = wrapper.find('.sw-settings-user-detail__grid-is-admin');
+
+        expect(adminSwitch.attributes().value).toBeUndefined();
+        expect(wrapper.vm.user.admin).toBe(false);
     });
 });

@@ -2,20 +2,24 @@
 
 namespace Shopware\Core\System\Integration;
 
+use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\App\AppDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deprecated;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PasswordField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\System\Integration\Aggregate\IntegrationRole\IntegrationRoleDefinition;
 
 class IntegrationDefinition extends EntityDefinition
 {
@@ -36,6 +40,13 @@ class IntegrationDefinition extends EntityDefinition
         return IntegrationEntity::class;
     }
 
+    public function getDefaults(): array
+    {
+        return [
+            'admin' => true,
+        ];
+    }
+
     protected function defineFields(): FieldCollection
     {
         $collection = new FieldCollection([
@@ -45,6 +56,7 @@ class IntegrationDefinition extends EntityDefinition
             (new PasswordField('secret_access_key', 'secretAccessKey'))->addFlags(new Required()),
             new BoolField('write_access', 'writeAccess'),
             new DateTimeField('last_usage_at', 'lastUsageAt'),
+            new BoolField('admin', 'admin'),
             new CustomFields(),
         ]);
 
@@ -52,6 +64,15 @@ class IntegrationDefinition extends EntityDefinition
             $collection->add(
                 (new OneToOneAssociationField('app', 'id', 'integration_id', AppDefinition::class, false))
                     ->addFlags(new CascadeDelete())
+            );
+        }
+
+        if (Feature::isActive('FEATURE_NEXT_3722')) {
+            $collection->add(
+                (new BoolField('write_access', 'writeAccess'))->addFlags(new Deprecated('v3', 'v4'))
+            );
+            $collection->add(
+                new ManyToManyAssociationField('roles', AclRoleDefinition::class, IntegrationRoleDefinition::class, 'integration_id', 'acl_role_id')
             );
         }
 

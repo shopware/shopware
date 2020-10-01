@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Api\Acl\Role;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\System\Integration\IntegrationCollection;
 use Shopware\Core\System\User\UserCollection;
 
 class AclRoleEntity extends Entity
@@ -35,6 +36,11 @@ class AclRoleEntity extends Entity
      * @var AppEntity|null
      */
     protected $app;
+
+    /**
+     * @var IntegrationCollection|null
+     */
+    protected $integrations;
 
     public function getName(): string
     {
@@ -84,5 +90,15 @@ class AclRoleEntity extends Entity
     public function setApp(?AppEntity $app): void
     {
         $this->app = $app;
+    }
+
+    public function getIntegrations(): ?IntegrationCollection
+    {
+        return $this->integrations;
+    }
+
+    public function setIntegrations(IntegrationCollection $integrations): void
+    {
+        $this->integrations = $integrations;
     }
 }

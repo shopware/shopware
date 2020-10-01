@@ -5357,7 +5357,7 @@ parameters:
 
 		-
 			message: "#^Cannot call method fetchAll\\(\\) on Doctrine\\\\DBAL\\\\Driver\\\\Statement\\|int\\.$#"
-			count: 2
+			count: 3
 			path: src/Core/Framework/Routing/ApiRequestContextResolver.php
 
 		-

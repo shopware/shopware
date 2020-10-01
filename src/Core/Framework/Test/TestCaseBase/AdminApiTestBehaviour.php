@@ -206,11 +206,16 @@ trait AdminApiTestBehaviour
      * @throws \RuntimeException
      * @throws DBALException
      */
-    public function authorizeBrowserWithIntegration(KernelBrowser $browser): void
+    public function authorizeBrowserWithIntegration(KernelBrowser $browser, ?string $id = null): void
     {
         $accessKey = AccessKeyHelper::generateAccessKey('integration');
         $secretAccessKey = AccessKeyHelper::generateSecretAccessKey();
-        $id = Uuid::randomBytes();
+
+        if (!$id) {
+            $id = Uuid::randomBytes();
+        } else {
+            $id = Uuid::fromHexToBytes($id);
+        }
 
         /** @var Connection $connection */
         $connection = $browser->getContainer()->get(Connection::class);
@@ -243,6 +248,7 @@ trait AdminApiTestBehaviour
         }
 
         $browser->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['access_token']));
+        $browser->setServerParameter('_integration_id', $id);
     }
 
     abstract protected function getKernel(): KernelInterface;
@@ -266,7 +272,7 @@ trait AdminApiTestBehaviour
         $this->kernelBrowser = null;
     }
 
-    protected function getBrowserAuthenticatedWithIntegration(): KernelBrowser
+    protected function getBrowserAuthenticatedWithIntegration(?string $id = null): KernelBrowser
     {
         if ($this->integrationBrowser) {
             return $this->integrationBrowser;
@@ -280,7 +286,7 @@ trait AdminApiTestBehaviour
             'HTTP_ACCEPT' => ['application/vnd.api+json,application/json'],
         ]);
 
-        $this->authorizeBrowserWithIntegration($apiBrowser);
+        $this->authorizeBrowserWithIntegration($apiBrowser, $id);
 
         return $this->integrationBrowser = $apiBrowser;
     }

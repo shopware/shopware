@@ -29,19 +29,12 @@ describe('Media: Dissolve folder', () => {
         // Upload image in folder
         cy.get(page.elements.smartBarHeader).contains('A thing to fold about');
 
-        if (Cypress.isBrowser({ family: 'chromium' })) {
-            page.uploadImageUsingFileUpload('img/sw-login-background.png', 'sw-login-background.png');
-            page.dissolve('sw-login-background.png');
-        }
-
-        if (Cypress.isBrowser('firefox')) {
-            // Upload medium
-            cy.clickContextMenuItem(
-                '.sw-media-upload-v2__button-url-upload',
-                '.sw-media-upload-v2__button-context-menu'
-            );
-            page.uploadImageUsingUrl('http://assets.shopware.com/sw_logo_white.png');
-            page.dissolve('sw_logo_white.png');
-        }
+        // Upload medium
+        cy.clickContextMenuItem(
+            '.sw-media-upload-v2__button-url-upload',
+            '.sw-media-upload-v2__button-context-menu'
+        );
+        page.uploadImageUsingUrl('http://assets.shopware.com/sw_logo_white.png');
+        page.dissolve('sw_logo_white.png');
     });
 });

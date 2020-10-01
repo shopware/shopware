@@ -94,7 +94,6 @@ describe('Promotion: Test promotion with individual codes', () => {
         cy.get('#addPromotionOffcanvasCartInput').type('code-0');
         cy.get('#addPromotionOffcanvasCart').click();
         cy.get('.alert-success .icon-checkmark-circle').should('be.visible');
-        cy.contains('Gift code added successfully.');
         cy.get('.cart-item-promotion .cart-item-label').contains('Thunder Tuesday');
     });
 });

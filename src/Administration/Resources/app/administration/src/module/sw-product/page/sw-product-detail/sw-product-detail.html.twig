@@ -23,7 +23,12 @@
 
                 <sw-button-group
                     class="sw-product-detail__save-button-group"
-                    :splitButton="true">
+                    :splitButton="true"
+                    v-tooltip.bottom="{
+                        message: $tc('sw-privileges.tooltip.warning'),
+                        disabled: acl.can('product.editor'),
+                        showOnDisabledElements: true
+                    }">
                     {% block sw_product_detail_actions_save %}
                         <sw-button-process
                             class="sw-product-detail__save-action"
@@ -45,12 +50,7 @@
                                     class="sw-product-detail__button-context-menu"
                                     square
                                     variant="primary"
-                                    :disabled="isLoading || !acl.can('product.editor')"
-                                    v-tooltip.bottom="{
-                                        message: $tc('sw-privileges.tooltip.warning'),
-                                        disabled: acl.can('product.editor'),
-                                        showOnDisabledElements: true
-                                    }">
+                                    :disabled="isLoading || !acl.can('product.editor')">
                                     <sw-icon name="small-arrow-medium-down" size="16"></sw-icon>
                                 </sw-button>
                             </template>

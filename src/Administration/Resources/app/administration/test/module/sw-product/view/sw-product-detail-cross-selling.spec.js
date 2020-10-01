@@ -17,10 +17,11 @@ const store = new Vuex.Store({
     }
 });
 
-function createWrapper() {
+function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.use(Vuex);
     localVue.filter('asset', () => {});
+    localVue.directive('tooltip', {});
 
     return shallowMount(Shopware.Component.build('sw-product-detail-cross-selling'), {
         localVue,
@@ -39,6 +40,15 @@ function createWrapper() {
         provide: {
             repositoryFactory: {
                 create: () => ({ search: () => Promise.resolve('bar') })
+            },
+            acl: {
+                can: (identifier) => {
+                    if (!identifier) {
+                        return true;
+                    }
+
+                    return privileges.includes(identifier);
+                }
             }
         }
     });

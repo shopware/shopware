@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerPasswordMatches;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -116,12 +117,16 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
     {
         $validation = new DataValidationDefinition('customer.email.update');
 
+        $options = Feature::isActive('FEATURE_NEXT_10555')
+            ? ['context' => $context->getContext(), 'salesChannelContext' => $context]
+            : ['context' => $context->getContext()];
+
         $validation
             ->add(
                 'email',
                 new Email(),
                 new EqualTo(['propertyPath' => 'emailConfirmation']),
-                new CustomerEmailUnique(['context' => $context->getContext()])
+                new CustomerEmailUnique($options)
             )
             ->add('password', new CustomerPasswordMatches(['context' => $context]));
 

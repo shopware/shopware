@@ -20,6 +20,18 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class StoreApiProxyController
 {
+    public const INHERIT_ATTRIBUTES = [
+        SalesChannelRequest::ATTRIBUTE_DOMAIN_LOCALE,
+        SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID,
+        SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID,
+        SalesChannelRequest::ATTRIBUTE_DOMAIN_ID,
+        SalesChannelRequest::ATTRIBUTE_THEME_ID,
+        SalesChannelRequest::ATTRIBUTE_THEME_NAME,
+        SalesChannelRequest::ATTRIBUTE_THEME_BASE_NAME,
+        PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT,
+        PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT,
+    ];
+
     /**
      * @var KernelInterface
      */
@@ -70,11 +82,16 @@ class StoreApiProxyController
 
         $subRequest->headers->set(PlatformRequest::HEADER_ACCESS_KEY, $context->getSalesChannel()->getAccessKey());
         $subRequest->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $context->getToken());
+
         $subRequest->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, $context->getSalesChannel()->getAccessKey());
+
+        foreach (self::INHERIT_ATTRIBUTES as $inheritAttribute) {
+            if ($request->attributes->has($inheritAttribute)) {
+                $subRequest->attributes->set($inheritAttribute, $request->attributes->get($inheritAttribute));
+            }
+        }
+
         $subRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST, true);
-        $subRequest->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
-        $subRequest->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context->getContext());
-        $subRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID, $context->getCurrency()->getId());
 
         if ($request->hasSession()) {
             $subRequest->setSession($request->getSession());

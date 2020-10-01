@@ -27,6 +27,7 @@ describe('Import/Export - Profiles:  Visual tests', () => {
         }).as('saveData');
 
         // Take snapshot for visual testing
+        cy.get('.sw-data-grid__skeleton').should('not.exist');
         cy.takeSnapshot('Import export - Profiles overview',
             '.sw-import-export-view-profiles__listing'
         );

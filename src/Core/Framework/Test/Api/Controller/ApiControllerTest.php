@@ -119,9 +119,6 @@ EOF;
 
     public function testInsertAuthenticatedWithIntegration(): void
     {
-        if (Feature::isActive('FEATURE_NEXT_3722')) {
-            static::markTestSkipped('Reactivate if Integrations can have their own acls or delete if integrations are finally removed');
-        }
         $id = Uuid::randomHex();
 
         $data = [

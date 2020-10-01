@@ -72,7 +72,7 @@ class IntegrationDefinition extends EntityDefinition
                 (new BoolField('write_access', 'writeAccess'))->addFlags(new Deprecated('v3', 'v4'))
             );
             $collection->add(
-                new ManyToManyAssociationField('roles', AclRoleDefinition::class, IntegrationRoleDefinition::class, 'integration_id', 'acl_role_id')
+                new ManyToManyAssociationField('aclRoles', AclRoleDefinition::class, IntegrationRoleDefinition::class, 'integration_id', 'acl_role_id')
             );
         }
 

@@ -191,7 +191,7 @@ class ApiRequestContextResolverTest extends TestCase
 
         static::assertArrayHasKey('errors', $response);
         $errors = $response['errors'];
-        static::assertEquals('Missing privilege currency:read', $errors[0]['detail']);
+        static::assertEquals('{"message":"Missing privilege","missingPrivileges":["currency:read"]}', $errors[0]['detail']);
     }
 
     public function testIntegrationWithPrivileges(): void

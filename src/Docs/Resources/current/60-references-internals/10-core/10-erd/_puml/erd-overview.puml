@@ -108,6 +108,7 @@ Table(ShopwareCoreSystemUser, "Shopware\Core\System\User\n(Admin Accounts)") {
 }
 Table(ShopwareCoreSystemIntegration, "Shopware\Core\System\Integration\n(O-Auth integrations)") {
    integration Table
+   integration_role Table
 }
 Table(ShopwareCoreSystemStateMachine, "Shopware\Core\System\StateMachine\n(State machine)") {
    state_machine Table
@@ -366,6 +367,8 @@ ShopwareCoreContentMedia --> ShopwareCoreSystemUser
 ShopwareCoreSystemUser --> ShopwareCoreSystemUser
 ShopwareCoreSystemStateMachine --> ShopwareCoreSystemUser
 ShopwareCoreContentImportExport --> ShopwareCoreSystemUser
+ShopwareCoreSystemIntegration --> ShopwareCoreSystemIntegration
+ShopwareCoreSystemIntegration --> ShopwareCoreFrameworkApi
 ShopwareCoreSystemStateMachine --> ShopwareCoreSystemStateMachine
 ShopwareCoreCheckoutOrder --> ShopwareCoreSystemStateMachine
 ShopwareCoreSystemNumberRange --> ShopwareCoreSystemNumberRange

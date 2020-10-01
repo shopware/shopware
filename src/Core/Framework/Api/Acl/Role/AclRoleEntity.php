@@ -38,6 +38,8 @@ class AclRoleEntity extends Entity
     protected $app;
 
     /**
+     * @internal (flag:FEATURE_NEXT_3722)
+     *
      * @var IntegrationCollection|null
      */
     protected $integrations;
@@ -92,11 +94,17 @@ class AclRoleEntity extends Entity
         $this->app = $app;
     }
 
+    /**
+     * @internal (flag:FEATURE_NEXT_3722)
+     */
     public function getIntegrations(): ?IntegrationCollection
     {
         return $this->integrations;
     }
 
+    /**
+     * @internal (flag:FEATURE_NEXT_3722)
+     */
     public function setIntegrations(IntegrationCollection $integrations): void
     {
         $this->integrations = $integrations;

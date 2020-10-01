@@ -27,6 +27,8 @@ class IntegrationEntity extends Entity
     protected $secretAccessKey;
 
     /**
+     * @internal (flag:FEATURE_NEXT_3722)
+     *
      * @var bool
      */
     protected $admin;
@@ -54,9 +56,11 @@ class IntegrationEntity extends Entity
     protected $app;
 
     /**
+     * @internal (flag:FEATURE_NEXT_3722)
+     *
      * @var AclRoleCollection|null
      */
-    protected $roles;
+    protected $aclRoles;
 
     public function getLabel(): string
     {
@@ -134,21 +138,33 @@ class IntegrationEntity extends Entity
         $this->app = $app;
     }
 
-    public function getRoles(): ?AclRoleCollection
+    /**
+     * @internal (flag:FEATURE_NEXT_3722)
+     */
+    public function getAclRoles(): ?AclRoleCollection
     {
-        return $this->roles;
+        return $this->aclRoles;
     }
 
-    public function setRoles(AclRoleCollection $roles): void
+    /**
+     * @internal (flag:FEATURE_NEXT_3722)
+     */
+    public function setAclRoles(AclRoleCollection $aclRoles): void
     {
-        $this->roles = $roles;
+        $this->aclRoles = $aclRoles;
     }
 
+    /**
+     * @internal (flag:FEATURE_NEXT_3722)
+     */
     public function getAdmin(): bool
     {
         return $this->admin;
     }
 
+    /**
+     * @internal (flag:FEATURE_NEXT_3722)
+     */
     public function setAdmin(bool $admin): void
     {
         $this->admin = $admin;

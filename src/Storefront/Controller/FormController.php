@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Captcha\Annotation\Captcha;
+use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -105,7 +106,7 @@ class FormController extends StorefrontController
     private function handleSubscribe(Request $request, RequestDataBag $data, SalesChannelContext $context): array
     {
         try {
-            $data->set('storefrontUrl', $request->attributes->get('sw-sales-channel-absolute-base-url'));
+            $data->set('storefrontUrl', $request->attributes->get(RequestTransformer::STOREFRONT_URL));
 
             $this->subscribeRoute->subscribe($data, $context, false);
             $response[] = [

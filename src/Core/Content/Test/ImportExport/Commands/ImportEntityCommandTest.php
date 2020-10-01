@@ -95,4 +95,28 @@ class ImportEntityCommandTest extends TestCase
 
         static::assertCount(2, $result->getIds());
     }
+
+    public function testImportWithProfile(): void
+    {
+        $num = 67;
+
+        $commandTester = new CommandTester($this->importEntityCommand);
+        $args = [
+            'file' => self::TEST_IMPORT_FILE_PATH,
+            'expireDate' => date('d.m.Y'),
+            'profile' => self::DEFAULT_CATEGORY_IMPORT_PROFILE,
+        ];
+        $commandTester->execute($args);
+
+        $message = $commandTester->getDisplay();
+        static::assertRegExp(sprintf('/\[OK\] Successfully imported %s records in \d+ seconds/', $num), $message);
+
+        $firstId = '017de84fb11a4e318fd3231317d7def4';
+        $lastId = 'fd98f6a0f00f4b05b40e63da076dfd7d';
+
+        $repository = $this->getContainer()->get('category.repository');
+        $result = $repository->searchIds(new Criteria([$firstId, $lastId]), Context::createDefaultContext());
+
+        static::assertCount(2, $result->getIds());
+    }
 }

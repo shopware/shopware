@@ -12,12 +12,6 @@ author_github: J-Rahe
     `src/Administration/Resources/app/administration/src/app/component/utils/sw-verify-user-modal/index.js`,
     `src/Administration/Resources/app/administration/src/module/sw-profile/page/sw-profile-index/index.js`,
     `src/Administration/Resources/app/administration/src/module/sw-users-permissions/components/sw-users-permissions-user-listing/index.js`
-*   Deprecated `const types` in 
-    `src/Administration/Resources/app/administration/src/module/sw-users-permissions/components/sw-users-permissions-user-listing/index.js`
-    `src/Administration/Resources/app/administration/src/app/component/utils/sw-verify-user-modal/index.js`
-*   Deprecated `const { State }` in 
-    `src/Administration/Resources/app/administration/src/app/component/utils/sw-verify-user-modal/index.js`
-    `src/Administration/Resources/app/administration/src/module/sw-profile/page/sw-profile-index/index.js`
 ___
 # Upgrade Information
 ## verifyUserToken() method

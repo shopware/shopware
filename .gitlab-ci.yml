@@ -107,6 +107,8 @@ PHP Unit:
             alias: elasticsearch
             command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
     rules:
+      - if: '$CI_MERGE_REQUEST_LABELS =~ /.*unit::skip.*/'
+        when: never
       - if: '$CI_PIPELINE_SOURCE == "schedule"'
       - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
         changes:
@@ -335,6 +337,8 @@ E2E:
         reports:
             junit: development/build/artifacts/e2e/*.xml
     rules:
+        -   if: '$CI_MERGE_REQUEST_LABELS =~ /.*E2E::skip.*/ || ($cypress_grep == null && $CI_MERGE_REQUEST_LABELS =~ /.*E2E::only_base.*/)'
+            when: never
         -   if: '$cypress_grep == null && $CI_PIPELINE_SOURCE == "schedule"'
         -   if: '$cypress_grep && $CI_PIPELINE_SOURCE == "schedule"'
             when: never
@@ -342,7 +346,14 @@ E2E:
             changes:
                 - "Migration*.php"
                 - "**/Migration*.php"
-        -   if: '$cypress_grep == null &&$CI_MERGE_REQUEST_LABELS =~ /.*E2E::all.*/'
+        -   if: '$cypress_grep && $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_LABELS !~ /.*E2E::only_base.*/'
+            changes:
+                - "Migration*.php"
+                - "**/Migration*.php"
+            when: never
+        -   if: '$cypress_grep == null && $CI_MERGE_REQUEST_LABELS =~ /.*E2E::all.*/'
+        -   if: '$cypress_grep && $CI_MERGE_REQUEST_LABELS =~ /.*E2E::all.*/'
+            when: never
         -   if: '$cypress_grep && ($CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH =~ "^(master|6\..+)$")'
         -   if: '$cypress_grep == null && $CI_PIPELINE_SOURCE == "merge_request_event"'
             when: manual
@@ -359,14 +370,10 @@ E2E:
             -   cypress_grep: '@base'
                 SECTION: 'Administration'
                 TEST_DIRECTORY:
-                    - "cypress/integration/content/**/*"
-                    - "cypress/integration/catalogue/**/*"
-                    - "cypress/integration/customer/**/*"
-                    - "cypress/integration/media-marketing/**/*"
-                    - "cypress/integration/general/**/*"
-                    - "cypress/integration/order/**/*"
-                    - "cypress/integration/rule-product-stream/**/*"
-                    - "cypress/integration/settings/**/*"
+                    - "cypress/integration/content/**/* cypress/integration/catalogue/**/*"
+                    - "cypress/integration/customer/**/* cypress/integration/media-marketing/**/*"
+                    - "cypress/integration/general/**/* cypress/integration/order/**/*"
+                    - "cypress/integration/rule-product-stream/**/* cypress/integration/settings/**/*"
                 FEATURE_ALL: "false" # ["false", "true"]
                 BROWSER: 'chrome'
                 CYPRESS_PARAMS: "--config numTestsKeptInMemory=0"

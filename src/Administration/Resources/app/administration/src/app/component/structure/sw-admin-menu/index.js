@@ -13,6 +13,7 @@ Component.register('sw-admin-menu', {
 
     mixins: [
         Mixin.getByName('notification'),
+        // @deprecated tag:v6.4.0.0
         Mixin.getByName('salutation')
     ],
 
@@ -56,6 +57,14 @@ Component.register('sw-admin-menu', {
                 return this.$tc('global.sw-admin-menu.administrator');
             }
 
+            if (this.currentUser.title && this.currentUser.title.length > 0) {
+                return this.currentUser.title;
+            }
+
+            if (this.currentUser.aclRoles && this.currentUser.aclRoles.length > 0) {
+                return this.currentUser.aclRoles[0].name;
+            }
+
             return this.currentUser.title;
         },
 
@@ -91,7 +100,11 @@ Component.register('sw-admin-menu', {
         },
 
         userName() {
-            return this.salutation(this.currentUser);
+            if (!this.currentUser) {
+                return '';
+            }
+
+            return `${this.currentUser.firstName} ${this.currentUser.lastName}`;
         },
 
         avatarUrl() {
@@ -126,7 +139,7 @@ Component.register('sw-admin-menu', {
 
     methods: {
         createdComponent() {
-            Shopware.Service('loginService').notifyOnLoginListener();
+            this.loginService.notifyOnLoginListener();
 
             this.collapseMenuOnSmallViewports();
             this.getUser();

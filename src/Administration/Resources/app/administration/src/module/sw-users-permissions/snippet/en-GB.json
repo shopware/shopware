@@ -112,8 +112,6 @@
         "labelButtonCancel": "Cancel",
         "labelButtonChangePassword": "Change",
         "labelButtonSave": "Save",
-        "writeAccess": "Write",
-        "readAccess": "Read",
         "contextMenuEdit": "Edit",
         "contextMenuDelete": "Delete",
         "textChangePassword": "Pressing the change button will immediately save the new password!",
@@ -135,9 +133,6 @@
           "idFieldLabel": "Access key ID",
           "secretFieldLabel": "Secret access key",
           "secretHelpText": "Please copy your access key now. For safety reasons it will be no longer visible after saving.",
-          "permissions": "Permissions",
-          "readAccessFieldLabel": "Read (default)",
-          "writeAccessFieldLabel": "Write (optional)",
           "messageSaveSuccess": "Integration has been saved.",
           "messageSaveError": "Integration could not be saved.",
           "messageCreateNewError": "Integration could not be saved."

@@ -65,7 +65,7 @@ describe('Product: Test crud operations', () => {
         cy.window().then((win) => {
             cy.get('#sw-purchase-price-field-gross').type('1');
             cy.wait('@calculatePrice').then(() => {
-                cy.get('#sw-purchase-price-field-net').should('have.value', '0.84');
+                cy.get('#sw-purchase-price-field-net').should('have.value', '0.8403361344537815');
             });
         });
 

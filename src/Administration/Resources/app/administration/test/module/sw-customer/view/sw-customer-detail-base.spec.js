@@ -62,6 +62,9 @@ function createWrapper() {
                         search: () => Promise.resolve(customFields)
                     };
                 }
+            },
+            feature: {
+                isActive: () => true
             }
         },
 

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/master/src/Core/System/SystemConfig/Schema/config.xsd">
+    <card>
+        <title>General (all sales channels)</title>
+        <title lang="de-DE">Allgemein (alle Verkaufskanäle)</title>
+
+        <input-field type="bool">
+            <name>isCustomerBoundToSalesChannel</name>
+            <label>Bind customers to Sales Channel</label>
+            <label lang="de-DE">Kunden an Sales Channel binden</label>
+            <helpText>If the setting is activated, customers can register separately for each Saleschannel. Existing customers are not affected by this setting.</helpText>
+            <helpText lang="de-DE">Wenn die Einstellung aktiviert ist, können sich Kunden separat für jeden Saleschannel registrieren. Bestehende Kunden sind von dieser Einstellung nicht betroffen.</helpText>
+            <flag>FEATURE_NEXT_10555</flag>
+        </input-field>
+    </card>
+</config>

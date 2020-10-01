@@ -61,6 +61,8 @@
       "columnActions": "Aktion(en)",
       "columnAffiliateCode": "Affiliate-Code",
       "columnCampaignCode": "Kampagnen-Code",
+      "columnBoundSalesChannel": "Gebunden an Sales Channel",
+      "emptyBoundSalesChannel": "Nein",
       "contextMenuView": "Anzeigen",
       "contextMenuDuplicate": "Duplizieren",
       "contextMenuDelete": "Löschen",
@@ -118,7 +120,9 @@
       "labelCampaignCode": "Kampagnen-Code",
       "contentActive": "Aktiv | Inaktiv",
       "emptyTextLogin": "Noch keine Anmeldung",
-      "emptyTextBirthday": "keine Angabe"
+      "emptyTextBirthday": "keine Angabe",
+      "labelBoundSalesChannel": "Gebunden an Sales Channel",
+      "emptyBoundSalesChannel": "Nein"
     },
     "detailBase": {
       "labelAccountCard": "Konto",

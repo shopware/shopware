@@ -49,11 +49,22 @@
         {% block sw_settings_login_registration_content %}
             <template slot="content">
                 <sw-card-view>
-                    <sw-system-config
+                    {% block sw_setting_login_registration_system_config %}
+                        <sw-system-config
                             ref="systemConfig"
                             salesChannelSwitchable
                             domain="core.loginRegistration">
-                    </sw-system-config>
+                        </sw-system-config>
+                    {% endblock %}
+
+                    {% block sw_setting_login_registration_system_wide %}
+                        <sw-system-config
+                            v-if="feature.isActive('FEATURE_NEXT_10555')"
+                            ref="systemConfig"
+                            :salesChannelSwitchable="false"
+                            domain="core.systemWideLoginRegistration">
+                        </sw-system-config>
+                    {% endblock %}
                 </sw-card-view>
             </template>
         {% endblock %}

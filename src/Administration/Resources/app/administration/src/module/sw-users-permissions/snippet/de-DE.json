@@ -6,7 +6,7 @@
     "permissions": {},
     "roles": {
       "general": {
-        "labelCreateNewRole": "Neue Regel",
+        "labelCreateNewRole": "Neue Rolle",
         "cardLabel": "Rollen"
       },
       "role-grid": {

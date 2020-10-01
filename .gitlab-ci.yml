@@ -550,5 +550,24 @@ Create Major MR:
     before_script: []
     script:
         - >
-            DATA='{ "source_branch": "master", "target_branch": "major", "title": "[CI] Update major", "description": "This MR was automatically created by this scheduled pipeline '"$CI_PIPELINE_URL"'", "labels": [ "workflow::review" ], "assignee_ids": [83, 12, 41, 11] }';
-            curl -v --header "Private-Token: $CREATE_MR_TOKEN" --header "Content-Type: application/json" --data "$DATA" "$CI_API_V4_URL/projects/$CI_PROJECT_ID/merge_requests"
+            CI_NEW_MASTER_MAJOR_BRANCH=master-for-major-$(echo $CI_COMMIT_TIMESTAMP | grep -oE '(^[^:]*)');
+            X_TOTAL=$(curl -I --header "Private-Token: $CREATE_MR_TOKEN" "$CI_API_V4_URL/projects/$CI_PROJECT_ID/merge_requests/?state=opened&labels=Update%20Major" | grep 'x-total:');
+            if [ "$X_TOTAL" == "x-total: 0" ]; then
+                echo "There is no open merge request to major branch. Will create one";
+                echo "Create the new Branch:"$CI_NEW_MASTER_MAJOR_BRANCH;
+                curl -X POST --header "Private-Token: $CREATE_MR_TOKEN" --header "Content-Type: application/json" "$CI_API_V4_URL/projects/$CI_PROJECT_ID/repository/branches?branch=$CI_NEW_MASTER_MAJOR_BRANCH&ref=master";
+                echo "Create MR with Data:";
+                DATA='{ "source_branch": "'$CI_NEW_MASTER_MAJOR_BRANCH'", "target_branch": "major", "title": "[CI] Update major", "description": "This MR was automatically created by this scheduled pipeline '"$CI_PIPELINE_URL"'", "labels": [ "workflow::review", "Update Major" ], "assignee_ids": [83, 12, 41, 11] }';
+                echo $DATA;
+                curl --header "Private-Token: $CREATE_MR_TOKEN" --header "Content-Type: application/json" --data "$DATA" "$CI_API_V4_URL/projects/$CI_PROJECT_ID/merge_requests";
+                echo "MR Created";
+            else
+                echo "There is already an open merge request for master to major:"$X_TOTAL;
+                echo "Create the new Branch:"$CI_NEW_MASTER_MAJOR_BRANCH;
+                curl -X POST --header "Private-Token: $CREATE_MR_TOKEN" --header "Content-Type: application/json" "$CI_API_V4_URL/projects/$CI_PROJECT_ID/repository/branches?branch=$CI_NEW_MASTER_MAJOR_BRANCH&ref=master";
+                echo "Create MR in development with Data:";
+                DATA='{ "source_branch": "'$CI_NEW_MASTER_MAJOR_BRANCH'", "target_branch": "major", "title": "WIP: [CI] Update major - '$CI_COMMIT_TIMESTAMP'", "description": "This MR was automatically created by this scheduled pipeline '"$CI_PIPELINE_URL"'", "labels": [ "workflow::development", "Update Major" ], "assignee_ids": [83, 12, 41, 11] }';
+                echo $DATA;
+                curl --header "Private-Token: $CREATE_MR_TOKEN" --header "Content-Type: application/json" --data "$DATA" "$CI_API_V4_URL/projects/$CI_PROJECT_ID/merge_requests";
+                echo "MR Created";
+            fi

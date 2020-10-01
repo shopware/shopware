@@ -65,5 +65,12 @@
         "referencePrice": "Unit price"
       }
     }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "product_feature_sets": {
+        "label": "Essential characteristics"
+      }
+    }
   }
 }

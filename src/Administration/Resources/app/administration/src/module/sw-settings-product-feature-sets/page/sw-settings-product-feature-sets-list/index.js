@@ -8,7 +8,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-settings-product-feature-sets-list', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('listing'),

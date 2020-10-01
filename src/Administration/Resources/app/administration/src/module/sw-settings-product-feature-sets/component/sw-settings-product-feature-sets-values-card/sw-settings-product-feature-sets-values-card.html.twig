@@ -16,12 +16,16 @@
                                     <sw-simple-search-field size="small"
                                                             variant="form"
                                                             v-model="term"
+                                                            :disabled="!allowEdit"
                                                             @search-term-change="onSearch">
                                     </sw-simple-search-field>
                                 {% endblock %}
 
                                 {% block sw_product_feature_set_toolbar_delete %}
-                                    <sw-button :disabled="deleteButtonDisabled" @click="onDeleteFields" square size="small"
+                                    <sw-button :disabled="deleteButtonDisabled || !allowEdit"
+                                               @click="onDeleteFields"
+                                               square
+                                               size="small"
                                                class="sw-product-feature-set__delete-button">
                                         <sw-icon name="default-action-trash" small/>
                                     </sw-button>
@@ -29,7 +33,7 @@
 
                                 {% block sw_product_feature_set_toolbar_add %}
                                     <sw-container>
-                                        <sw-button :disabled="isLoading"
+                                        <sw-button :disabled="isLoading || !allowEdit"
                                                    @click="onAddField"
                                                    variant="ghost"
                                                    size="small"
@@ -48,7 +52,7 @@
                 {% block sw_product_feature_set_card_grid %}
                     <sw-data-grid :dataSource="values"
                                   :columns="getColumns()"
-                                  :showSelection="true"
+                                  :showSelection="allowEdit"
                                   :showActions="false"
                                   :isLoading="isLoading"
                                   identifier="sw-product-feature-set-grid"
@@ -72,6 +76,7 @@
                                                               v-model="values"
                                                               :showValue="false"
                                                               :item="item"
+                                                              :disabled="!allowEdit"
                                                               @position-changed="onPositionChange">
                                 </sw-data-grid-column-position>
                             </template>

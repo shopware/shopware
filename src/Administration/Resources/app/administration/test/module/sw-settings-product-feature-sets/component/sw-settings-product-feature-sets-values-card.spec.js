@@ -6,6 +6,9 @@ import 'src/app/component/base/sw-button';
 import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/data-grid/sw-data-grid-column-position';
 
+const swDataGrid = Shopware.Component.build('sw-data-grid');
+const swDataGridColumnPosition = Shopware.Component.build('sw-data-grid-column-position');
+
 describe('src/module/sw-settings-product-feature-sets/component/sw-settings-product-feature-sets-values-card', () => {
     let wrapper;
 
@@ -47,10 +50,10 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
                 'sw-simple-search-field': true,
                 'sw-button': Shopware.Component.build('sw-button'),
                 'sw-icon': true,
-                'sw-data-grid': Shopware.Component.build('sw-data-grid'),
+                'sw-data-grid': swDataGrid,
                 'sw-loader': true,
                 'sw-checkbox-field': true,
-                'sw-data-grid-column-position': Shopware.Component.build('sw-data-grid-column-position'),
+                'sw-data-grid-column-position': swDataGridColumnPosition,
                 'sw-button-group': true,
                 i18n: true
             },
@@ -183,5 +186,53 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
         // Same check for DOM
         expect(secondRow.get(`.${classes.valueListCellName}`).text()).toEqual(text.labelReferencePrice);
         expect(firstRow.get(`.${classes.valueListCellName}`).text()).toEqual(text.labelDescription);
+    });
+
+    it('all fields are enabled', async () => {
+        const searchField = wrapper.find('sw-simple-search-field-stub');
+        const deleteButton = wrapper.find('.sw-product-feature-set__delete-button');
+        const addButton = wrapper.find('.sw-product-feature-set__add-button');
+        const dataGrid = wrapper.findComponent(swDataGrid);
+        const columnPositions = wrapper.findAllComponents(swDataGridColumnPosition);
+
+        expect(searchField.exists()).toBeTruthy();
+        expect(deleteButton.exists()).toBeTruthy();
+        expect(addButton.exists()).toBeTruthy();
+        expect(dataGrid.exists()).toBeTruthy();
+
+        expect(searchField.attributes().disabled).toBeUndefined();
+        expect(deleteButton.attributes().disabled).toBe('disabled');
+        expect(addButton.attributes().disabled).toBeUndefined();
+        expect(dataGrid.props().showSelection).toBe(true);
+
+        columnPositions.wrappers.forEach(columnPosition => {
+            expect(columnPosition.props().disabled).toBe(false);
+        });
+    });
+
+    it('all fields are disabled when prop allowEdit is false', async () => {
+        await wrapper.setProps({
+            allowEdit: false
+        });
+
+        const searchField = wrapper.find('sw-simple-search-field-stub');
+        const deleteButton = wrapper.find('.sw-product-feature-set__delete-button');
+        const addButton = wrapper.find('.sw-product-feature-set__add-button');
+        const dataGrid = wrapper.findComponent(swDataGrid);
+        const columnPositions = wrapper.findAllComponents(swDataGridColumnPosition);
+
+        expect(searchField.exists()).toBeTruthy();
+        expect(deleteButton.exists()).toBeTruthy();
+        expect(addButton.exists()).toBeTruthy();
+        expect(dataGrid.exists()).toBeTruthy();
+
+        expect(searchField.attributes().disabled).toBe('true');
+        expect(deleteButton.attributes().disabled).toBe('disabled');
+        expect(addButton.attributes().disabled).toBe('disabled');
+        expect(dataGrid.props().showSelection).toBe(false);
+
+        columnPositions.wrappers.forEach(columnPosition => {
+            expect(columnPosition.props().disabled).toBe(true);
+        });
     });
 });

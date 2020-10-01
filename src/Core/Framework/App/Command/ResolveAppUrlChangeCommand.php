@@ -12,6 +12,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class ResolveAppUrlChangeCommand extends Command
 {
+    protected static $defaultName = 'app:url-change:resolve';
+
     /**
      * @var Resolver
      */
@@ -26,8 +28,7 @@ class ResolveAppUrlChangeCommand extends Command
 
     protected function configure(): void
     {
-        $this->setName('app:url-change:resolve')
-            ->setDescription('Resolve changes in the app url and how the app system should handle it.')
+        $this->setDescription('Resolve changes in the app url and how the app system should handle it.')
             ->addArgument('strategy', InputArgument::OPTIONAL, 'The strategy that should be applied');
     }
 

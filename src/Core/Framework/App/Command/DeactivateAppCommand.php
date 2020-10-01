@@ -10,6 +10,8 @@ class DeactivateAppCommand extends AbstractAppActivationCommand
 {
     private const ACTION = 'deactivate';
 
+    protected static $defaultName = 'app:deactivate';
+
     /**
      * @var AppStateService
      */

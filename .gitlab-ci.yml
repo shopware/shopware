@@ -537,9 +537,8 @@ Upload Component Library:
 Create Major MR:
     stage: Deploy
     image: curlimages/curl:7.72.0
-    only:
-        refs:
-            - schedules
+    rules:
+    -   if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_BRANCH == "master"'
     allow_failure: true
     variables:
         GIT_STRATEGY: none

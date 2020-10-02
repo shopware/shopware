@@ -210,11 +210,7 @@ class CheckoutController extends StorefrontController
         if (Feature::isActive('FEATURE_NEXT_10058')) {
             if ($request->cookies->get('sf_redirect') === null) {
                 $cart = $page->getCart();
-                if ($cart->getErrors()->count() > 0) {
-                    $this->addCartErrorsToFlashBag($cart->getErrors()->getNotices(), 'info');
-                    $this->addCartErrorsToFlashBag($cart->getErrors()->getWarnings(), 'warning');
-                    $this->addCartErrorsToFlashBag($cart->getErrors()->getErrors(), 'danger');
-                }
+                $this->addCartErrors($cart);
                 $cart->getErrors()->clear();
             }
         }
@@ -229,23 +225,6 @@ class CheckoutController extends StorefrontController
         if ($affiliateCode !== null && $campaignCode !== null) {
             $dataBag->set(AffiliateTrackingListener::AFFILIATE_CODE_KEY, $affiliateCode);
             $dataBag->set(AffiliateTrackingListener::CAMPAIGN_CODE_KEY, $campaignCode);
-        }
-    }
-
-    /**
-     * @param Error[] $errors
-     */
-    private function addCartErrorsToFlashBag(array $errors, string $type): void
-    {
-        foreach ($errors as $error) {
-            $parameters = [];
-            foreach ($error->getParameters() as $key => $value) {
-                $parameters['%' . $key . '%'] = $value;
-            }
-
-            $message = $this->trans('checkout.' . $error->getMessageKey(), $parameters);
-
-            $this->addFlash($type, $message);
         }
     }
 }

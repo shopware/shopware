@@ -5,8 +5,12 @@ describe('module/sw-first-run-wizard/sw-first-run-wizard-mailer-smtp', () => {
     const CreateFirstRunWizardMailerSmtp = function CreateFirstRunWizardMailerSmtp() {
         return shallowMount(Shopware.Component.build('sw-first-run-wizard-mailer-smtp'), {
             stubs: {
-                'sw-settings-mailer-smtp': '<div />',
-                'sw-loader': '<div />'
+                'sw-settings-mailer-smtp': {
+                    template: '<div />'
+                },
+                'sw-loader': {
+                    template: '<div />'
+                }
             },
             mocks: {
                 $tc: (translationPath) => translationPath
@@ -31,13 +35,13 @@ describe('module/sw-first-run-wizard/sw-first-run-wizard-mailer-smtp', () => {
         });
     };
 
-    it('should be a vue js component', () => {
+    it('should be a vue js component', async () => {
         const frwMailerSmtp = new CreateFirstRunWizardMailerSmtp();
 
-        expect(frwMailerSmtp.isVueInstance()).toBeTruthy();
+        expect(frwMailerSmtp.vm).toBeTruthy();
     });
 
-    it('should emit the button config and the title on creation', () => {
+    it('should emit the button config and the title on creation', async () => {
         const frwMailerSmtp = new CreateFirstRunWizardMailerSmtp();
         const buttonConfig = frwMailerSmtp.vm.buttonConfig;
         const title = 'sw-first-run-wizard.mailerSelection.modalTitle';

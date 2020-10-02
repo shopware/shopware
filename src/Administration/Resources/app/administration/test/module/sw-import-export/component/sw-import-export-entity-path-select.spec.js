@@ -136,7 +136,9 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
                 'sw-select-base': Shopware.Component.build('sw-select-base'),
                 'sw-block-field': Shopware.Component.build('sw-block-field'),
                 'sw-base-field': Shopware.Component.build('sw-base-field'),
-                'sw-icon': '<div></div>',
+                'sw-icon': {
+                    template: '<div></div>'
+                },
                 'sw-field-error': Shopware.Component.build('sw-field-error'),
                 'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
                 'sw-popover': Shopware.Component.build('sw-popover'),
@@ -155,20 +157,20 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should return array when calling `actualPathParts` computed property', () => {
-        wrapper.setProps({
+    it('should return array when calling `actualPathParts` computed property', async () => {
+        await wrapper.setProps({
             value: 'media.id.'
         });
 
         expect(wrapper.vm.actualPathParts).toEqual(['media', 'id']);
     });
 
-    it('should return valid price properties on `getPriceProperties` with given currencies', () => {
-        wrapper.setProps({
+    it('should return valid price properties on `getPriceProperties` with given currencies', async () => {
+        await wrapper.setProps({
             currencies: [
                 { isoCode: 'EUR' },
                 { isoCode: 'USD' }
@@ -192,8 +194,8 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         expect(actual).toEqual(expected);
     });
 
-    it('should return valid price properties on `getPriceProperties` with given currencies and path set', () => {
-        wrapper.setProps({
+    it('should return valid price properties on `getPriceProperties` with given currencies and path set', async () => {
+        await wrapper.setProps({
             currencies: [
                 { isoCode: 'EUR' },
                 { isoCode: 'USD' }
@@ -217,7 +219,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         expect(actual).toEqual(expected);
     });
 
-    it('should return valid price properties when getting price properties without given currencies', () => {
+    it('should return valid price properties when getting price properties without given currencies', async () => {
         const actual = wrapper.vm.getPriceProperties('');
         const expected = [
             { label: 'price.DEFAULT.net', value: 'price.DEFAULT.net' },
@@ -230,7 +232,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         expect(actual).toEqual(expected);
     });
 
-    it('should return valid visibility properties on `getVisibilityProperties` with given visibilities', () => {
+    it('should return valid visibility properties on `getVisibilityProperties` with given visibilities', async () => {
         const actual = wrapper.vm.getVisibilityProperties('');
         const expected = [
             { label: 'visibilities.all', value: 'visibilities.all' },
@@ -241,14 +243,14 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         expect(actual).toEqual(expected);
     });
 
-    it('should return valid translation properties on `getTranslationProperties', () => {
+    it('should return valid translation properties on `getTranslationProperties', async () => {
         const mockProperties = [
             'metaDescription',
             'keywords',
             'description'
         ];
 
-        wrapper.setProps({
+        await wrapper.setProps({
             languages: [
                 { locale: { code: 'en-GB' } },
                 { locale: { code: 'de-DE' } },
@@ -273,8 +275,8 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         expect(actual).toEqual(expected);
     });
 
-    it('should return media properties for product cover media value', () => {
-        wrapper.setProps({
+    it('should return media properties for product cover media value', async () => {
+        await wrapper.setProps({
             value: 'cover.media.',
             languages: [
                 { locale: { code: 'en-GB' } },
@@ -307,8 +309,8 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         expect(actual).toEqual(expected);
     });
 
-    it('should return product translation properties for product parent parent translation value', () => {
-        wrapper.setProps({
+    it('should return product translation properties for product parent parent translation value', async () => {
+        await wrapper.setProps({
             value: 'parent.parent.translations.name',
             languages: [
                 { locale: { code: 'en-GB' } },
@@ -337,8 +339,8 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         expect(actual).toEqual(expect.arrayContaining(expected));
     });
 
-    it('should return filtered product properties when searching', () => {
-        wrapper.setProps({
+    it('should return filtered product properties when searching', async () => {
+        await wrapper.setProps({
             value: 'parent.parent.',
             languages: [
                 { locale: { code: 'DEFAULT' } }
@@ -374,8 +376,8 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         expect(actual).toEqual(expected);
     });
 
-    it('should process translations, prices visibilities and remove property from properties array', () => {
-        wrapper.setProps({
+    it('should process translations, prices visibilities and remove property from properties array', async () => {
+        await wrapper.setProps({
             value: '',
             languages: [
                 { locale: { code: 'DEFAULT' } }
@@ -429,7 +431,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         ]);
     });
 
-    it('should sort options', () => {
+    it('should sort options', async () => {
         const options = [
             { label: 'name', value: 'name' },
             { label: 'media', value: 'media' },

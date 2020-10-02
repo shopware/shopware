@@ -1,10 +1,21 @@
+@import "~scss/variables";
+
 .sw-product-stream-detail {
     .sw-product-stream-detail__condition_container .sw-card__content {
         padding: 0;
     }
 
+    &__condition_alert.sw-alert {
+        margin-top: 75px;
+        max-width: 1330px;
+    }
+
     .sw-product-stream-detail__open_modal_preview {
         display: flex;
         margin: auto auto 20px auto;
+    }
+
+    .sw-card.is--disabled .sw-card__content {
+        background-color: $color-gray-100;
     }
 }

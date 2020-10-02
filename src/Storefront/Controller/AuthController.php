@@ -97,6 +97,8 @@ class AuthController extends StorefrontController
         $redirect = $request->get('redirectTo', 'frontend.account.home.page');
 
         if ($context->getCustomer()) {
+            $request->request->set('redirectTo', $redirect);
+
             return $this->createActionResponse($request);
         }
 

@@ -38,7 +38,7 @@ describe('Minimal auto update', () => {
         cy.route({ url: '/api/v*/_action/update/download-latest-update*', method: 'get' }).as('downloadLatestUpdate');
         cy.route({ url: '/api/v*/_action/update/deactivate-plugins*', method: 'get' }).as('deactivatePlugins');
         cy.route({ url: '/api/v*/_action/update/unpack*', method: 'get' }).as('unpack');
-        cy.route({url: '*applyMigrations*', method: 'get'}).as('applyMigrations');
+        cy.route({ url: '*applyMigrations*', method: 'get' }).as('applyMigrations');
 
         cy.get('.sw-settings-shopware-updates-check__start-update-actions > .sw-button--primary')
             .should('be.enabled')
@@ -61,6 +61,9 @@ describe('Minimal auto update', () => {
         cy.get('.navigation--list .is--active .navigation--link').contains('Datenbank-Migration');
         cy.get('.content--main h2').contains('Datenbank-Update durchführen');
 
+        // Take snapshot for visual testing
+        cy.takeSnapshot('Migration');
+
         cy.wait('@applyMigrations', { responseTimeout: 300000, timeout: 310000 })
             .then((xhr) => {
                 expect(xhr).to.have.property('status', 200);
@@ -69,11 +72,22 @@ describe('Minimal auto update', () => {
         cy.get('[name="cleanupForm"]', { timeout: 120000 }).should('be.visible');
         cy.get('.is--active > .navigation--link', { timeout: 1000 }).contains('Aufräumen');
         cy.get('.content--main h2').contains('Aufräumen');
+
+        // Take snapshot for visual testing
+         cy.changeElementStyling(
+             '[name="cleanupForm"] table',
+             'display: none'
+         );
+        cy.takeSnapshot('Cleanup');
         cy.get('.btn.btn-primary').contains('Weiter').click();
 
         cy.get('.alert-hero-title').should('be.visible');
         cy.get('.navigation--list .is--active .navigation--link').contains('Fertig');
         cy.get('.alert-hero-title').contains('Das Update war erfolgreich!');
+
+        // Take snapshot for visual testing
+        cy.takeSnapshot('Finish');
+
         cy.get('.btn.btn-primary').contains('Update abschließen').click();
 
         cy.getCookie('bearerAuth')
@@ -87,6 +101,6 @@ describe('Minimal auto update', () => {
                 }
             })
 
-        cy.get('.sw-version__info').contains(tag).should('be.visible');
+        cy.get('.sw-version__info').should('be.visible');
     });
 });

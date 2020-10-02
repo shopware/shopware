@@ -217,7 +217,7 @@ class PaymentServiceTest extends TestCase
         $transactionEntity = $this->orderTransactionRepository->search($criteria, $this->context)->first();
 
         static::assertSame(
-            OrderTransactionStates::STATE_FAILED,
+            OrderTransactionStates::STATE_CANCELLED,
             $transactionEntity->getStateMachineState()->getTechnicalName()
         );
 
@@ -232,11 +232,11 @@ class PaymentServiceTest extends TestCase
         $transactionEntity = $this->orderTransactionRepository->search($criteria, $this->context)->first();
 
         static::assertSame(
-            OrderTransactionStates::STATE_FAILED,
+            OrderTransactionStates::STATE_CANCELLED,
             $transactionEntity->getStateMachineState()->getTechnicalName()
         );
 
-        //can success after fail
+        //can success after cancelled
         $request->query->set('cancel', false);
         $this->paymentService->finalizeTransaction($token, $request, $this->getSalesChannelContext($paymentMethodId));
 
@@ -298,6 +298,7 @@ class PaymentServiceTest extends TestCase
 
         $order = [
             'id' => $orderId,
+            'orderNumber' => Uuid::randomHex(),
             'orderDateTime' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             'price' => new CartPrice(10, 10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET),
             'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),

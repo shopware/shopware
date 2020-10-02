@@ -118,6 +118,7 @@ class DocumentService
         $documentConfiguration = $this->getConfiguration(
             $context,
             $documentType->getId(),
+            $orderId,
             $config->jsonSerialize()
         );
 
@@ -213,6 +214,7 @@ class DocumentService
         $documentConfiguration = $this->getConfiguration(
             $context,
             $documentType->getId(),
+            $orderId,
             $config->jsonSerialize()
         );
 
@@ -329,15 +331,28 @@ class DocumentService
     private function getConfiguration(
         Context $context,
         string $documentTypeId,
+        string $orderId,
         ?array $specificConfiguration
     ): DocumentConfiguration {
+        $specificConfiguration = $specificConfiguration ?? [];
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('documentTypeId', $documentTypeId));
         $criteria->addAssociation('logo');
-        /** @var DocumentBaseConfigEntity $typeConfig */
-        $typeConfig = $this->documentConfigRepository->search($criteria, $context)->first();
+        $criteria->addFilter(new EqualsFilter('global', true));
 
-        return DocumentConfigurationFactory::createConfiguration($specificConfiguration, $typeConfig);
+        /** @var DocumentBaseConfigEntity $globalConfig */
+        $globalConfig = $this->documentConfigRepository->search($criteria, $context)->first();
+
+        $order = $this->getOrderById($orderId, Defaults::LIVE_VERSION, $context);
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('documentTypeId', $documentTypeId));
+        $criteria->addAssociation('logo');
+        $criteria->addFilter(new EqualsFilter('salesChannels.salesChannelId', $order->getSalesChannelId()));
+        $criteria->addFilter(new EqualsFilter('salesChannels.documentTypeId', $documentTypeId));
+
+        $salesChannelConfig = $this->documentConfigRepository->search($criteria, $context)->first();
+
+        return DocumentConfigurationFactory::createConfiguration($specificConfiguration, $globalConfig, $salesChannelConfig);
     }
 
     /**

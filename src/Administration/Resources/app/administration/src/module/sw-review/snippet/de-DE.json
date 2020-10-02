@@ -17,12 +17,11 @@
       "columnTitle": "Titel",
       "placeholderSearchBar": "Durchsuche alle Bewertungen...",
       "messageEmpty": "Noch keine Bewertungen",
-      "messageEmptySubline": "Verwalte Bewertungen hier"
+      "messageEmptySubline": "Verwalte Bewertungen hier",
+      "titleSidebarItemRefresh": "Aktualisieren"
     },
     "detail": {
       "textHeadline": "Bewertung",
-      "buttonCancel": "Abbrechen",
-      "buttonSave": "Speichern",
       "cardTitleReviewInfo": "Bewertung",
       "cardTitleReviewProperties": "Eigenschaften",
       "labelTitle": "Titel",
@@ -40,7 +39,6 @@
       "labelComment": "Kommentar",
       "labelCustomer": "Kunde",
       "titleCardComment": "Kommentar",
-      "messageSaveSuccess": "Die Bewertung \"{name}\" wurde erfolgreich gespeichert.",
       "placeholderComment": "Kommentar eingeben ...",
       "review1PointRatingText": "Unbefriedigend",
       "review2PointRatingText": "Akzeptierbar",

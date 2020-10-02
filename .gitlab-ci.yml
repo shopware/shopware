@@ -6,10 +6,11 @@ variables:
     WEB_DOCUMENT_ROOT: $CI_PROJECT_DIR/development/public
     GIT_STRATEGY: clone
     LOG_STDOUT: $CI_PROJECT_DIR/stdout.log
-    CYPRESS_PERCY_USAGE: $CYPRESS_PERCY_USAGE
-    PERCY_TOKEN: $PERCY_TOKEN
     PERCY_BRANCH: $CI_DEV_BRANCH
     PERCY_TARGET_BRANCH: $CI_TARGET_BRANCH_NAME
+    DEV_IMAGE: shopware/development:latest
+    MYSQL_IMAGE: mysql:5.7
+    MYSQL_CMD: mysqld
 
 stages:
     - unit
@@ -54,12 +55,97 @@ default:
         - /entrypoint supervisord > /dev/null 2>&1 &
     interruptible: true
 
+# stage: unit
+
+.phpunit_base:
+    stage: unit
+    variables:
+        TEST_SUITES: "administration storefront checkout content framework profiling migration system elasticsearch docs"
+    timeout: 1h 00m
+    script:
+        - echo matrix config
+        - echo EACH_MR $EACH_MR
+        - echo Mysql $MYSQL_IMAGE
+        - echo Mysql cmd $MYSQL_CMD
+        - echo Dev template $DEV_IMAGE
+        - echo Features $FEATURE_ALL
+        - ./psh.phar init
+        - if [[ ! -h vendor/shopware/platform ]]; then echo 'vendor/shopware/platform should be a symlink'; exit 1; fi
+        - mkdir -p build/artifacts/
+        - echo -e
+            "<?xml version="1.0" encoding="UTF-8"?>
+            <testsuites>
+            " > build/artifacts/phpunit.junit.xml
+        - >
+            for TEST_SUITE in $TEST_SUITES; do
+                log_unit_file=build/artifacts/$TEST_SUITE.junit.xml
+                set -x
+                php vendor/bin/phpunit --configuration vendor/shopware/platform/phpunit.xml.dist --log-junit "$log_unit_file" --colors=never --testsuite "$TEST_SUITE"
+                set +x
+                tail -n +3 "$log_unit_file" | head -n -1 >> build/artifacts/phpunit.junit.xml
+            done
+        - echo -e "</testsuites>" >> "build/artifacts/phpunit.junit.xml"
+    coverage: '/^\s*Lines:\s*(\d+(?:\.\d+)?%)/'
+    artifacts:
+        when: always
+        paths:
+            - development/build/artifacts/
+            - development/var/log/*
+            - $CI_PROJECT_DIR/stdout.log
+        reports:
+            junit: development/build/artifacts/phpunit.junit.xml
+
+PHP Unit:
+    extends: .phpunit_base
+    image: $DEV_IMAGE
+    stage: unit
+    services:
+        -   name: $MYSQL_IMAGE
+            alias: mysql
+            entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL_CMD" ]
+        -   name: elastic/elasticsearch:7.1.1
+            alias: elasticsearch
+            command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
+    rules:
+      - if: '$CI_MERGE_REQUEST_LABELS =~ /.*unit::skip.*/'
+        when: never
+      - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+        changes:
+          - "Migration*.php"
+          - "**/Migration*.php"
+      - if: '($CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH =~ "^(master|6\..+)$") && $EACH_MR == "true"'
+      - if: '$CI_MERGE_REQUEST_LABELS =~ /.*unit::all.*/'
+      - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+        when: manual
+        allow_failure: true
+    parallel:
+        matrix:
+            -   EACH_MR: 'true'
+                FEATURE_ALL: ["false", "true"]
+            # mysql 5.7 with php 7.3 and 7.4
+            -   DEV_IMAGE:
+                    - shopware/development:7.3
+                    - shopware/development:7.4
+                FEATURE_ALL: ["false", "true"]
+            # php 7.2 with mysql 5.7 and mariadb 10.4
+            -   MYSQL_IMAGE:
+                    - mysql:5.7
+                    - mariadb:10.3
+                    - mariadb:10.4
+                FEATURE_ALL: ["false", "true"]
+            -   MYSQL_IMAGE:
+                    - mysql:8.0.19
+                FEATURE_ALL: ["false", "true"]
+                MYSQL_CMD: 'mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON'
+
 Javascript analysis:
     only:
         refs:
             - merge_requests
             - master
             - /^6\..*$/
+            - schedules
     stage: unit
     timeout: 1h 00m
     before_script: []
@@ -104,6 +190,7 @@ PHP analysis:
         - php dev-ops/analyze/phpstan-config-generator.php
         - php dev-ops/analyze/vendor/bin/phpstan analyze --autoload-file=dev-ops/analyze/vendor/autoload.php --configuration platform/phpstan.neon --error-format gitlab | tee phpstan-report.json
         - php dev-ops/analyze/vendor/bin/psalm --config=platform/psalm.xml --threads=$(nproc) --diff --diff-methods --show-info=false
+        - php bin/console changelog:check
     artifacts:
         reports:
             codequality: development/phpstan-report.json
@@ -141,228 +228,7 @@ Check generated Docs:
                 exit 0;
             fi
 
-# stage: unit
-
-.phpunit_base:
-    stage: unit
-    services:
-        -   name: mariadb:10.3
-            alias: mysql
-        -   name: elastic/elasticsearch:7.1.1
-            alias: elasticsearch
-            command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
-    variables:
-        TEST_SUITES: "administration storefront checkout content framework profiling migration system elasticsearch docs"
-    timeout: 1h 00m
-    script:
-        - ./psh.phar init
-        - if [[ ! -h vendor/shopware/platform ]]; then echo 'vendor/shopware/platform should be a symlink'; exit 1; fi
-        - mkdir -p build/artifacts/
-        - echo -e
-            "<?xml version="1.0" encoding="UTF-8"?>
-            <testsuites>
-            " > build/artifacts/phpunit.junit.xml
-        - >
-            for TEST_SUITE in $TEST_SUITES; do
-                log_unit_file=build/artifacts/$TEST_SUITE.junit.xml
-                set -x
-                php vendor/bin/phpunit --configuration vendor/shopware/platform/phpunit.xml.dist --log-junit "$log_unit_file" --colors=never --testsuite "$TEST_SUITE"
-                set +x
-                tail -n +3 "$log_unit_file" | head -n -1 >> build/artifacts/phpunit.junit.xml
-            done
-        - echo -e "</testsuites>" >> "build/artifacts/phpunit.junit.xml"
-
-
-    coverage: '/^\s*Lines:\s*(\d+(?:\.\d+)?%)/'
-    artifacts:
-        when: always
-        paths:
-            - development/build/artifacts/
-            - development/var/log/*
-            - $CI_PROJECT_DIR/stdout.log
-        reports:
-            junit: development/build/artifacts/phpunit.junit.xml
-
-PHP 7.2:
-    only:
-        refs:
-            - merge_requests
-            - master
-            - /^6\..*$/
-    extends: .phpunit_base
-    image: shopware/development:7.2
-    stage: unit
-    timeout: 1h 00m
-    services:
-        -   name: mariadb:10.3
-            alias: mysql
-        -   name: elastic/elasticsearch:7.1.1
-            alias: elasticsearch
-            command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
-
-PHP 7.3:
-    only:
-        refs:
-            - merge_requests
-            - master
-            - /^6\..*$/
-    except:
-        - schedules
-    extends: .phpunit_base
-    image: shopware/development:7.3
-    stage: unit
-    when: manual
-    timeout: 1h 00m
-    services:
-        -   name: mysql:5.7
-            alias: mysql
-        -   name: elastic/elasticsearch:7.1.1
-            alias: elasticsearch
-            command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
-
-PHP 7.3 (Schedule):
-    only:
-        - schedules
-    extends: .phpunit_base
-    image: shopware/development:7.3
-    stage: unit
-    services:
-        -   name: mysql:5.7
-            alias: mysql
-        -   name: elastic/elasticsearch:7.1.1
-            alias: elasticsearch
-            command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
-
-PHP 7.4:
-    only:
-        refs:
-            - merge_requests
-            - master
-            - /^6\..*$/
-    except:
-        - schedules
-    extends: .phpunit_base
-    image: shopware/development:7.4
-    stage: unit
-    when: manual
-    timeout: 1h 00m
-    services:
-        -   name: mysql:5.7
-            alias: mysql
-        -   name: elastic/elasticsearch:7.1.1
-            alias: elasticsearch
-            command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
-
-PHP 7.4 (Schedule):
-    only:
-        - schedules
-    extends: .phpunit_base
-    image: shopware/development:7.4
-    stage: unit
-    services:
-        -   name: mysql:5.7
-            alias: mysql
-        -   name: elastic/elasticsearch:7.1.1
-            alias: elasticsearch
-            command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
-
-MySQL 5.7:
-    only:
-        refs:
-            - merge_requests
-            - master
-            - /^6\..*$/
-    except:
-        - schedules
-    extends: .phpunit_base
-    stage: unit
-    when: manual
-    timeout: 1h 00m
-    services:
-        -   name: mysql:5.7
-            alias: mysql
-        -   name: elastic/elasticsearch:7.1.1
-            alias: elasticsearch
-            command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
-
-MySQL 5.7 (Schedule):
-    only:
-        - schedules
-    extends: .phpunit_base
-    stage: unit
-    services:
-        -   name: mysql:5.7
-            alias: mysql
-        -   name: elastic/elasticsearch:7.1.1
-            alias: elasticsearch
-            command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
-
-MySQL 8.0:
-    only:
-        refs:
-            - merge_requests
-            - master
-            - /^6\..*$/
-    except:
-        - schedules
-    extends: .phpunit_base
-    stage: unit
-    when: manual
-    timeout: 1h 00m
-    services:
-        -   name: mysql:8.0.19
-            alias: mysql
-            command: ["mysqld", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci", "--default-authentication-plugin=mysql_native_password", "--sql-require-primary-key=ON"]
-        -   name: elastic/elasticsearch:7.1.1
-            alias: elasticsearch
-            command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
-
-MySQL 8.0 (Schedule):
-    only:
-        - schedules
-    extends: .phpunit_base
-    allow_failure: true
-    stage: unit
-    services:
-        -   name: mysql:8.0.19
-            alias: mysql
-            command: ["mysqld", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci", "--default-authentication-plugin=mysql_native_password", "--sql-require-primary-key=ON"]
-        -   name: elastic/elasticsearch:7.1.1
-            alias: elasticsearch
-            command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
-
-MariaDB 10.4:
-    only:
-        refs:
-            - merge_requests
-            - master
-            - /^6\..*$/
-    except:
-        - schedules
-    extends: .phpunit_base
-    stage: unit
-    when: manual
-    timeout: 1h 00m
-    services:
-        -   name: mariadb:10.4
-            alias: mysql
-        -   name: elastic/elasticsearch:7.1.1
-            alias: elasticsearch
-            command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
-
-MariaDB 10.4 (Schedule):
-    only:
-        - schedules
-    extends: .phpunit_base
-    stage: unit
-    allow_failure: true
-    services:
-        -   name: mariadb:10.4
-            alias: mysql
-        -   name: elastic/elasticsearch:7.1.1
-            alias: elasticsearch
-            command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
-
+# jest
 Administration (Jest):
     only:
         refs:
@@ -405,6 +271,8 @@ Storefront (Jest):
         reports:
             junit: development/build/artifacts/storefront.junit.xml
 
+# snippets
+
 Validate snippets:
     only:
         refs:
@@ -424,14 +292,42 @@ Validate snippets:
 
 # Stage: E2E
 
-.job_template: &e2e_definition
+E2E:
+    timeout: 2h 00m
     stage: E2E
+    needs: [Javascript analysis]
     services:
         -   name: docker:18.09.7-dind
             alias: docker
         -   name: mariadb:10.3
             alias: mysql
-    dependencies: []
+    script:
+        - echo matrix config
+        - echo cypress_grep $cypress_grep
+        - echo SECTION $SECTION
+        - echo TEST_DIRECTORY $TEST_DIRECTORY
+        - mkdir -p config/packages/
+        - cp platform/src/Core/Framework/Resources/config/packages/shopware_e2e.yaml config/packages/shopware.yaml
+        - echo FEATURE_ALL $FEATURE_ALL
+        - echo BROWSER $BROWSER
+        - echo cypress_usePercy $cypress_usePercy
+        - ./psh.phar init --APP_ENV="prod"
+        - ./psh.phar administration:init --APP_ENV="prod"
+        - ./psh.phar storefront:init --APP_ENV="prod" --DB_NAME="shopware_e2e"
+        - ./psh.phar e2e:dump-db --APP_ENV="prod"
+        - E2E_BASE_PATH=vendor/shopware/platform/src/${SECTION}/Resources/app/$(echo ${SECTION} | tr '[:upper:]' '[:lower:]')/test/e2e
+        - npm i @shopware-ag/e2e-testsuite-platform@1.3.0-beta.3 --prefix $E2E_BASE_PATH
+        - forever start ${E2E_BASE_PATH}/node_modules/@shopware-ag/e2e-testsuite-platform/routes/cypress.js
+        - chown -R 1000:1000 .
+        - CYPRESS_CMD="cypress run"
+        - if [[ $cypress_usePercy = "true" ]]; then export CYPRESS_CMD="npx percy exec -- cypress run"; npm install --save-dev @percy/cypress; fi
+        - FULL_CYPRESS_CMD="npm install --production --prefix /e2e && export PERCY_TOKEN=$PERCY_TOKEN && $CYPRESS_CMD --browser chrome --headless --project /e2e --config baseUrl=http://docker.vm:8000 $CYPRESS_PARAMS --spec $TEST_DIRECTORY"
+        - echo $FULL_CYPRESS_CMD
+        - docker run --shm-size=2g --name cypress --add-host="docker.vm:$(hostname -I)" -e cypress_grep -e cypress_usePercy -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/${E2E_BASE_PATH}:/e2e -v $(pwd):/app -w /e2e --entrypoint "sh" cypress/included:4.10.0 -c "$FULL_CYPRESS_CMD"
+    after_script:
+        - npx mochawesome-merge development/build/artifacts/e2e/mochawesome/single-reports/mochawesome*.json > development/build/artifacts/e2e/mochawesome/report-final.json
+        - npx mochawesome-report-generator development/build/artifacts/e2e/mochawesome/report-final.json --cdn true --reportDir development/build/artifacts/e2e/mochawesome
+        - docker rm -f cypress
     artifacts:
         when: always
         paths:
@@ -440,262 +336,65 @@ Validate snippets:
             - $CI_PROJECT_DIR/stdout.log
         reports:
             junit: development/build/artifacts/e2e/*.xml
-
-.mixed_script:
-    script: &mixed_definition
-        - ./psh.phar init --APP_ENV="prod"
-        - ./psh.phar administration:init --APP_ENV="prod"
-        - ./psh.phar storefront:init --APP_ENV="prod" --DB_NAME="shopware_e2e"
-        - ./psh.phar e2e:dump-db --APP_ENV="prod"
-        - E2E_BASE_PATH=vendor/shopware/platform/src/${SECTION}/Resources/app/$(echo ${SECTION} | tr '[:upper:]' '[:lower:]')/test/e2e
-        - npm i @shopware-ag/e2e-testsuite-platform@1.3.0-beta.3 --prefix $E2E_BASE_PATH
-        - forever start ${E2E_BASE_PATH}/node_modules/@shopware-ag/e2e-testsuite-platform/routes/cypress.js
-        - chown -R 1000:1000 .
-        - docker run --shm-size=2g --name cypress --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/${E2E_BASE_PATH}:/e2e -v $(pwd):/app -w /e2e --entrypoint "sh" cypress/included:4.10.0 -c "npm install --production --prefix /e2e && cypress run --project /e2e --browser $BROWSER --headless --config baseUrl=http://docker.vm:8000 --config numTestsKeptInMemory=0 --env grep=@base --spec $TEST_DIRECTORY"
-
-.scheduled_script:
-    script: &scheduled_definition
-        - ./psh.phar init --APP_ENV="prod"
-        - ./psh.phar administration:init --APP_ENV="prod"
-        - ./psh.phar storefront:init --APP_ENV="prod" --DB_NAME="shopware_e2e"
-        - ./psh.phar e2e:dump-db --APP_ENV="prod"
-        - E2E_BASE_PATH=vendor/shopware/platform/src/${SECTION}/Resources/app/$(echo ${SECTION} | tr '[:upper:]' '[:lower:]')/test/e2e
-        - npm i @shopware-ag/e2e-testsuite-platform@1.3.0-beta.3 --prefix $E2E_BASE_PATH
-        - forever start ${E2E_BASE_PATH}/node_modules/@shopware-ag/e2e-testsuite-platform/routes/cypress.js
-        - chown -R 1000:1000 .
-        - docker run --shm-size=2g --name cypress --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/${E2E_BASE_PATH}:/e2e -v $(pwd):/app -w /e2e --entrypoint "sh" cypress/included:4.10.0 -c "npm install --production --prefix /e2e && cypress run --project /e2e --browser $BROWSER --headless --config baseUrl=http://docker.vm:8000 --spec $TEST_DIRECTORY"
-
-.generate_mochawesome_reports:
-    after_script: &mochawesome_report_definition
-        - npx mochawesome-merge development/build/artifacts/e2e/mochawesome/single-reports/mochawesome*.json > development/build/artifacts/e2e/mochawesome/report-final.json
-        - npx mochawesome-report-generator development/build/artifacts/e2e/mochawesome/report-final.json --cdn true --reportDir development/build/artifacts/e2e/mochawesome
-        - docker rm -f cypress
-
-.percy_script:
-    script: &percy_definition
-        - ./psh.phar init --APP_ENV="prod"
-        - ./psh.phar administration:init --APP_ENV="prod"
-        - ./psh.phar storefront:init --APP_ENV="prod" --DB_NAME="shopware_e2e"
-        - ./psh.phar e2e:dump-db --APP_ENV="prod"
-        - E2E_BASE_PATH=vendor/shopware/platform/src/${SECTION}/Resources/app/$(echo ${SECTION} | tr '[:upper:]' '[:lower:]')/test/e2e
-        - npm i @shopware-ag/e2e-testsuite-platform@1.3.0-beta.3 --prefix $E2E_BASE_PATH
-        - npm install --save-dev @percy/cypress
-        - forever start ${E2E_BASE_PATH}/node_modules/@shopware-ag/e2e-testsuite-platform/routes/cypress.js
-        - chown -R 1000:1000 .
-        - docker run --shm-size=2g --name cypress --add-host="docker.vm:$(hostname -I)" -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/${E2E_BASE_PATH}:/e2e -v $(pwd):/app -w /e2e --entrypoint "sh" cypress/included:4.10.0 -c "npm install --production --prefix /e2e && export PERCY_TOKEN=$PERCY_TOKEN && npx percy exec -- cypress run --browser chrome --headless --project /e2e --env usePercy=$CYPRESS_PERCY_USAGE --config baseUrl=http://docker.vm:8000 --spec $TEST_DIRECTORY"
-
-General (Storefront):
-    only:
-        - merge_requests
-        - master
-        - /^6\..*$/
-    except:
-        - schedules
-    <<: *e2e_definition
-    needs: [Storefront (Jest)]
-    script: *mixed_definition
-    after_script: *mochawesome_report_definition
-    timeout: 1h 00m
-    variables:
-        BROWSER: 'chrome'
-        SECTION: 'Storefront'
-        TEST_DIRECTORY: "cypress/integration/**/*"
-
-Content (Mixed):
-    only:
-        - merge_requests
-        - master
-        - /^6\..*$/
-    except:
-        - schedules
-    <<: *e2e_definition
-    needs: [Administration (Jest)]
-    timeout: 1h 00m
-    script: *mixed_definition
-    after_script: *mochawesome_report_definition
-    variables:
-        BROWSER: 'chrome'
-        SECTION: 'Administration'
-        TEST_DIRECTORY: "cypress/integration/content/**/*"
-
-Catalogues (Mixed):
-    only:
-        - merge_requests
-        - master
-        - /^6\..*$/
-    except:
-        - schedules
-    <<: *e2e_definition
-    needs: [Administration (Jest)]
-    timeout: 1h 00m
-    script: *mixed_definition
-    after_script: *mochawesome_report_definition
-    variables:
-        BROWSER: 'chrome'
-        SECTION: 'Administration'
-        TEST_DIRECTORY: "cypress/integration/catalogue/**/*"
-
-Customers (Mixed):
-    only:
-        - merge_requests
-        - master
-        - /^6\..*$/
-    except:
-        - schedules
-    <<: *e2e_definition
-    needs: [Administration (Jest)]
-    timeout: 1h 00m
-    script: *mixed_definition
-    after_script: *mochawesome_report_definition
-    variables:
-        BROWSER: 'chrome'
-        SECTION: 'Administration'
-        TEST_DIRECTORY: "cypress/integration/customer/**/*"
-
-Media and Marketing (Mixed):
-    only:
-        - merge_requests
-        - master
-        - /^6\..*$/
-    except:
-        - schedules
-    <<: *e2e_definition
-    needs: [Administration (Jest)]
-    script: *mixed_definition
-    timeout: 1h 00m
-    after_script: *mochawesome_report_definition
-    variables:
-        BROWSER: 'chrome'
-        SECTION: 'Administration'
-        TEST_DIRECTORY: "cypress/integration/media-marketing/**/*"
-
-General (Administration):
-    only:
-        - merge_requests
-        - master
-        - /^6\..*$/
-    except:
-        - schedules
-    <<: *e2e_definition
-    needs: [Administration (Jest)]
-    timeout: 1h 00m
-    script: *mixed_definition
-    after_script: *mochawesome_report_definition
-    variables:
-        BROWSER: 'chrome'
-        SECTION: 'Administration'
-        TEST_DIRECTORY: "cypress/integration/general/**/*"
-
-Orders (Administration):
-    only:
-        - merge_requests
-        - master
-        - /^6\..*$/
-    except:
-        - schedules
-    <<: *e2e_definition
-    needs: [Administration (Jest)]
-    timeout: 1h 00m
-    script: *mixed_definition
-    after_script: *mochawesome_report_definition
-    variables:
-        BROWSER: 'chrome'
-        SECTION: 'Administration'
-        TEST_DIRECTORY: "cypress/integration/order/**/*"
-
-Rules and Product Groups (Administration):
-    only:
-        - merge_requests
-        - master
-        - /^6\..*$/
-    except:
-        - schedules
-    <<: *e2e_definition
-    needs: [Administration (Jest)]
-    timeout: 1h 00m
-    script: *mixed_definition
-    after_script: *mochawesome_report_definition
-    variables:
-        BROWSER: 'chrome'
-        SECTION: 'Administration'
-        TEST_DIRECTORY: "cypress/integration/rule-product-stream/**/*"
-
-Settings (Administration):
-    only:
-        - merge_requests
-        - master
-        - /^6\..*$/
-    except:
-        - schedules
-    <<: *e2e_definition
-    needs: [Administration (Jest)]
-    timeout: 1h 00m
-    script: *mixed_definition
-    after_script: *mochawesome_report_definition
-    variables:
-        BROWSER: 'chrome'
-        SECTION: 'Administration'
-        TEST_DIRECTORY: "cypress/integration/settings/**/*"
-
-Admin on FF (Total):
-    only:
-        - schedules
-    <<: *e2e_definition
-    timeout: 2h 00m
-    script: *scheduled_definition
-    after_script: *mochawesome_report_definition
-    variables:
-        BROWSER: 'firefox'
-        SECTION: 'Administration'
-        TEST_DIRECTORY: "cypress/integration/!\\(visual\\)/**/*"
-
-Storefront on FF (Total):
-    only:
-        - schedules
-    <<: *e2e_definition
-    timeout: 2h 00m
-    script: *scheduled_definition
-    after_script: *mochawesome_report_definition
-    variables:
-        BROWSER: 'firefox'
-        SECTION: 'Storefront'
-        TEST_DIRECTORY: "cypress/integration/**/**/*"
-
-Admin on Chrome (Total):
-    only:
-        - schedules
-    <<: *e2e_definition
-    timeout: 2h 00m
-    script: *scheduled_definition
-    after_script: *mochawesome_report_definition
-    variables:
-        BROWSER: 'chrome'
-        SECTION: 'Administration'
-        TEST_DIRECTORY: "cypress/integration/!\\(visual\\)/**/*"
-
-Storefront on Chrome (Total):
-    only:
-        - schedules
-    <<: *e2e_definition
-    timeout: 2h 00m
-    script: *scheduled_definition
-    after_script: *mochawesome_report_definition
-    variables:
-        BROWSER: 'chrome'
-        SECTION: 'Storefront'
-        TEST_DIRECTORY: "cypress/integration/**/**/*"
-
-Visual Tests:
-    only:
-        - schedules
-    <<: *e2e_definition
-    timeout: 2h 00m
-    script: *percy_definition
-    after_script: *mochawesome_report_definition
-    variables:
-        SECTION: 'Administration'
-        TEST_DIRECTORY: "cypress/integration/visual/**/*"
-
+    rules:
+        -   if: '$CI_MERGE_REQUEST_LABELS =~ /.*E2E::skip.*/ || ($cypress_grep == null && $CI_MERGE_REQUEST_LABELS =~ /.*E2E::only_base.*/)'
+            when: never
+        -   if: '$cypress_grep == null && $CI_PIPELINE_SOURCE == "schedule"'
+        -   if: '$cypress_grep && $CI_PIPELINE_SOURCE == "schedule"'
+            when: never
+        -   if: '$cypress_grep == null && $CI_PIPELINE_SOURCE == "merge_request_event"'
+            changes:
+                - "Migration*.php"
+                - "**/Migration*.php"
+        -   if: '$cypress_grep && $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_LABELS !~ /.*E2E::only_base.*/'
+            changes:
+                - "Migration*.php"
+                - "**/Migration*.php"
+            when: never
+        -   if: '$cypress_grep == null && $CI_MERGE_REQUEST_LABELS =~ /.*E2E::all.*/'
+        -   if: '$cypress_grep && $CI_MERGE_REQUEST_LABELS =~ /.*E2E::all.*/'
+            when: never
+        -   if: '$cypress_grep && ($CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH =~ "^(master|6\..+)$")'
+        -   if: '$cypress_grep == null && $CI_PIPELINE_SOURCE == "merge_request_event"'
+            when: manual
+            allow_failure: true
+    parallel:
+        matrix:
+            -   cypress_grep: '@base'
+                SECTION: 'Storefront'
+                TEST_DIRECTORY:  "cypress/integration/**/*"
+                FEATURE_ALL: ["false", "true"]
+                BROWSER: 'chrome'
+                CYPRESS_PARAMS: "--config numTestsKeptInMemory=0"
+                cypress_usePercy: 'false'
+            -   cypress_grep: '@base'
+                SECTION: 'Administration'
+                TEST_DIRECTORY:
+                    - "cypress/integration/content/**/* cypress/integration/catalogue/**/*"
+                    - "cypress/integration/customer/**/* cypress/integration/media-marketing/**/*"
+                    - "cypress/integration/general/**/* cypress/integration/order/**/*"
+                    - "cypress/integration/rule-product-stream/**/* cypress/integration/settings/**/*"
+                FEATURE_ALL: "false" # ["false", "true"]
+                BROWSER: 'chrome'
+                CYPRESS_PARAMS: "--config numTestsKeptInMemory=0"
+                cypress_usePercy: 'false'
+            -   SECTION: 'Storefront'
+                TEST_DIRECTORY: "cypress/integration/**/**/*"
+                BROWSER: ['firefox', 'chrome']
+                FEATURE_ALL: ["false", "true"]
+                cypress_usePercy: 'false'
+            -   SECTION: 'Administration'
+                TEST_DIRECTORY:
+                    - "cypress/integration/content/**/* cypress/integration/catalogue/**/* cypress/integration/customer/**/* cypress/integration/media-marketing/**/*"
+                    - "cypress/integration/general/**/* cypress/integration/order/**/* cypress/integration/rule-product-stream/**/* cypress/integration/settings/**/*"
+                BROWSER: ['firefox', 'chrome']
+                FEATURE_ALL: ["false", "true"]
+                cypress_usePercy: 'false'
+            -   SECTION: 'Administration'
+                TEST_DIRECTORY: "cypress/integration/visual/**/*"
+                BROWSER: 'chrome'
+                FEATURE_ALL: "false"
+                cypress_usePercy: $CYPRESS_PERCY_USAGE
 
 # Stage: build
 
@@ -768,6 +467,12 @@ RIPS security:
 
 Symfony security check:
     stage: Security
+    only:
+        refs:
+            - merge_requests
+            - master
+            - /^6\..*$/
+            - schedules
     image: shopware/development:latest
     before_script: []
     allow_failure: true
@@ -780,6 +485,12 @@ Symfony security check:
 
 NPM security check:
     stage: Security
+    only:
+        refs:
+            - merge_requests
+            - master
+            - /^6\..*$/
+            - schedules
     image: shopware/development:latest
     before_script: []
     allow_failure: true
@@ -833,3 +544,37 @@ Upload Component Library:
         - aws s3 sync --delete --acl public-read . s3://shopware-ui-component-library-docs/
         - aws cloudfront create-invalidation --distribution-id E18U17118IAC82 --paths "/*"
     interruptible: false
+
+Create Major MR:
+    stage: Deploy
+    image: curlimages/curl:7.72.0
+    only:
+        refs:
+            - schedules
+    allow_failure: true
+    variables:
+        GIT_STRATEGY: none
+    before_script: []
+    script:
+        - >
+            CI_NEW_MASTER_MAJOR_BRANCH=master-for-major-$(echo $CI_COMMIT_TIMESTAMP | grep -oE '(^[^:]*)');
+            X_TOTAL=$(curl -I --header "Private-Token: $CREATE_MR_TOKEN" "$CI_API_V4_URL/projects/$CI_PROJECT_ID/merge_requests/?state=opened&labels=Update%20Major" | grep 'x-total:');
+            if [ "$X_TOTAL" == "x-total: 0" ]; then
+                echo "There is no open merge request to major branch. Will create one";
+                echo "Create the new Branch:"$CI_NEW_MASTER_MAJOR_BRANCH;
+                curl -X POST --header "Private-Token: $CREATE_MR_TOKEN" --header "Content-Type: application/json" "$CI_API_V4_URL/projects/$CI_PROJECT_ID/repository/branches?branch=$CI_NEW_MASTER_MAJOR_BRANCH&ref=master";
+                echo "Create MR with Data:";
+                DATA='{ "source_branch": "'$CI_NEW_MASTER_MAJOR_BRANCH'", "target_branch": "major", "title": "[CI] Update major", "description": "This MR was automatically created by this scheduled pipeline '"$CI_PIPELINE_URL"'", "labels": [ "workflow::review", "Update Major" ], "assignee_ids": [83, 12, 41, 11] }';
+                echo $DATA;
+                curl --header "Private-Token: $CREATE_MR_TOKEN" --header "Content-Type: application/json" --data "$DATA" "$CI_API_V4_URL/projects/$CI_PROJECT_ID/merge_requests";
+                echo "MR Created";
+            else
+                echo "There is already an open merge request for master to major:"$X_TOTAL;
+                echo "Create the new Branch:"$CI_NEW_MASTER_MAJOR_BRANCH;
+                curl -X POST --header "Private-Token: $CREATE_MR_TOKEN" --header "Content-Type: application/json" "$CI_API_V4_URL/projects/$CI_PROJECT_ID/repository/branches?branch=$CI_NEW_MASTER_MAJOR_BRANCH&ref=master";
+                echo "Create MR in development with Data:";
+                DATA='{ "source_branch": "'$CI_NEW_MASTER_MAJOR_BRANCH'", "target_branch": "major", "title": "WIP: [CI] Update major - '$CI_COMMIT_TIMESTAMP'", "description": "This MR was automatically created by this scheduled pipeline '"$CI_PIPELINE_URL"'", "labels": [ "workflow::development", "Update Major" ], "assignee_ids": [83, 12, 41, 11] }';
+                echo $DATA;
+                curl --header "Private-Token: $CREATE_MR_TOKEN" --header "Content-Type: application/json" --data "$DATA" "$CI_API_V4_URL/projects/$CI_PROJECT_ID/merge_requests";
+                echo "MR Created";
+            fi

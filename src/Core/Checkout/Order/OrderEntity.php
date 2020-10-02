@@ -189,6 +189,11 @@ class OrderEntity extends Entity
     protected $customerComment;
 
     /**
+     * @var string[]|null
+     */
+    protected $ruleIds = [];
+
+    /**
      * @var CashRoundingConfig|null
      */
     protected $itemRounding;
@@ -478,7 +483,7 @@ class OrderEntity extends Entity
         $this->documents = $documents;
     }
 
-    public function getOrderNumber(): string
+    public function getOrderNumber(): ?string
     {
         return $this->orderNumber;
     }
@@ -542,6 +547,16 @@ class OrderEntity extends Entity
     public function setCustomerComment(?string $customerComment): void
     {
         $this->customerComment = $customerComment;
+    }
+
+    public function getRuleIds(): ?array
+    {
+        return $this->ruleIds;
+    }
+
+    public function setRuleIds(?array $ruleIds): void
+    {
+        $this->ruleIds = $ruleIds;
     }
 
     public function getItemRounding(): ?CashRoundingConfig

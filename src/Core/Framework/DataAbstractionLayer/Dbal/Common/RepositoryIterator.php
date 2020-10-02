@@ -29,6 +29,9 @@ class RepositoryIterator
         if ($criteria === null) {
             $criteria = new Criteria();
             $criteria->setOffset(0);
+        }
+
+        if ($criteria->getLimit() === null || $criteria->getLimit() < 1) {
             $criteria->setLimit(50);
         }
 

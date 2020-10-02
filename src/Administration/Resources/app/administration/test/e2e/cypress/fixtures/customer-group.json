@@ -1,3 +1,5 @@
 {
-  "name": "Chuck-Testers"
+  "name": "Chuck-Testers",
+  "displayGross": true,
+  "registrationActive": false
 }

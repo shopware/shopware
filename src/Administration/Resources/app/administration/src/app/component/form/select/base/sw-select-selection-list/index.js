@@ -61,6 +61,17 @@ Component.register('sw-select-selection-list', {
             type: Boolean,
             required: false,
             default: false
+        },
+        hideLabels: {
+            type: Boolean,
+            required: false,
+            default: false
+        }
+    },
+
+    computed: {
+        showPlaceholder() {
+            return (this.selections.length > 0 && !this.hideLabels) ? '' : this.placeholder;
         }
     },
 

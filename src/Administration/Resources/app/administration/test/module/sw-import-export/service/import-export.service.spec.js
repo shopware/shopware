@@ -24,7 +24,7 @@ const importExportServiceFactory = () => {
 };
 
 describe('core/service/login.service.js', () => {
-    it('should contain all public functions', () => {
+    it('should contain all public functions', async () => {
         const { importExportService } = importExportServiceFactory();
 
         expect(importExportService).toHaveProperty('export');

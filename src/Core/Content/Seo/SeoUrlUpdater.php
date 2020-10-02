@@ -86,7 +86,7 @@ class SeoUrlUpdater
         foreach ($templates as $config) {
             $salesChannelId = $config['salesChannelId'];
             $languageId = $config['languageId'];
-            $template = $config['template'];
+            $template = $config['template'] ?? '';
 
             $chain = $languageChains[$languageId];
             $context = new Context(new SystemSource(), [], Defaults::CURRENCY, $chain);

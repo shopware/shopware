@@ -63,7 +63,7 @@
                     </sw-card>
                 {% endblock %}
 
-                <template v-if="hasOrderToday">
+                <template v-if="hasOrderToday && acl.can('order.viewer')">
                     {% block sw_dashboard_index_content_intro_stats_headline %}
                         <div class="sw-dashboard-index__card-headline">
                             {% block sw_dashboard_index_content_intro_stats_headline_title %}
@@ -170,7 +170,7 @@
                     </sw-card>
                 </template>
 
-                <template v-if="hasOrderInMonth">
+                <template v-if="hasOrderInMonth && acl.can('order.viewer')">
                     {% block sw_dashboard_index_content_statistics_headline %}
                         <div class="sw-dashboard-index__card-headline">
                             {% block sw_dashboard_index_content_statistics_headline_title %}
@@ -188,7 +188,7 @@
                     {% endblock %}
 
                     {% block sw_dashboard_index_content_statistics_count %}
-                        <sw-card>
+                        <sw-card class="sw-dashboard-index__statistics-count">
                             {% block sw_dashboard_index_content_statistics_count_chart_count %}
                                 <sw-chart type="line"
                                           :series="orderCountMonthSeries"
@@ -201,7 +201,7 @@
                     {% endblock %}
 
                     {% block sw_dashboard_index_content_statistics_sum %}
-                        <sw-card>
+                        <sw-card class="sw-dashboard-index__statistics-sum">
                             {% block sw_dashboard_index_content_statistics_count_chart_sum %}
                                 <sw-chart type="line"
                                           :series="orderSumMonthSeries"

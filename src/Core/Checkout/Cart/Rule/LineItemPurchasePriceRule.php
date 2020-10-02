@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Cart\Rule;
 
 use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
@@ -27,8 +26,6 @@ class LineItemPurchasePriceRule extends Rule
     protected $operator;
 
     /**
-     * @internal (flag:FEATURE_NEXT_9825)
-     *
      * @var bool
      */
     protected $isNet;
@@ -68,27 +65,8 @@ class LineItemPurchasePriceRule extends Rule
 
     public function getConstraints(): array
     {
-        if (Feature::isActive('FEATURE_NEXT_9825')) {
-            return [
-                'isNet' => [new NotNull(), new Type('bool')],
-                'amount' => [new NotBlank(), new Type('numeric')],
-                'operator' => [
-                    new NotBlank(),
-                    new Choice(
-                        [
-                            self::OPERATOR_NEQ,
-                            self::OPERATOR_GTE,
-                            self::OPERATOR_LTE,
-                            self::OPERATOR_EQ,
-                            self::OPERATOR_GT,
-                            self::OPERATOR_LT,
-                        ]
-                    ),
-                ],
-            ];
-        }
-
         return [
+            'isNet' => [new NotNull(), new Type('bool')],
             'amount' => [new NotBlank(), new Type('numeric')],
             'operator' => [
                 new NotBlank(),
@@ -113,6 +91,12 @@ class LineItemPurchasePriceRule extends Rule
     private function matchPurchasePriceCondition(LineItem $lineItem): bool
     {
         $purchasePriceAmount = $this->getPurchasePriceAmount($lineItem);
+
+        //@deprecated tag:v6.4.0 - Check for purchasePrice will be removed in 6.4.0 use purchasePrices instead
+        if (!$purchasePriceAmount) {
+            $purchasePriceAmount = $lineItem->getPayloadValue('purchasePrice');
+        }
+
         if (!$purchasePriceAmount) {
             return false;
         }
@@ -146,29 +130,23 @@ class LineItemPurchasePriceRule extends Rule
 
     private function getPurchasePriceAmount(LineItem $lineItem): ?float
     {
-        if (Feature::isActive('FEATURE_NEXT_9825')) {
-            $purchasePricePayload = $lineItem->getPayloadValue('purchasePrices');
-            if (!$purchasePricePayload) {
-                return null;
-            }
-            $purchasePrice = json_decode($purchasePricePayload);
-            if (!$purchasePrice) {
-                return null;
-            }
-
-            if ($this->isNet && property_exists($purchasePrice, 'net')) {
-                return $purchasePrice->net;
-            }
-
-            if (property_exists($purchasePrice, 'gross')) {
-                return $purchasePrice->gross;
-            }
-
+        $purchasePricePayload = $lineItem->getPayloadValue('purchasePrices');
+        if (!$purchasePricePayload) {
+            return null;
+        }
+        $purchasePrice = json_decode($purchasePricePayload);
+        if (!$purchasePrice) {
             return null;
         }
 
-        $purchasePricePayload = $lineItem->getPayloadValue('purchasePrice');
+        if ($this->isNet && property_exists($purchasePrice, 'net')) {
+            return $purchasePrice->net;
+        }
 
-        return $purchasePricePayload;
+        if (property_exists($purchasePrice, 'gross')) {
+            return $purchasePrice->gross;
+        }
+
+        return null;
     }
 }

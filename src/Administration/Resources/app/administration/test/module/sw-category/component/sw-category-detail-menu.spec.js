@@ -36,13 +36,13 @@ function createWrapper(privileges = []) {
 }
 
 describe('src/module/sw-category/component/sw-category-detail-menu', () => {
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should enable the visibility switch field when the acl privilege is missing', () => {
+    it('should enable the visibility switch field when the acl privilege is missing', async () => {
         const wrapper = createWrapper([
             'category.editor'
         ]);
@@ -51,14 +51,14 @@ describe('src/module/sw-category/component/sw-category-detail-menu', () => {
 
         expect(switchField.attributes().disabled).toBeUndefined();
     });
-    it('should disable the visibility switch field when the acl privilege is missing', () => {
+    it('should disable the visibility switch field when the acl privilege is missing', async () => {
         const wrapper = createWrapper();
 
         const switchField = wrapper.find('sw-switch-field-stub');
 
         expect(switchField.attributes().disabled).toBe('true');
     });
-    it('should enable the media upload', () => {
+    it('should enable the media upload', async () => {
         const wrapper = createWrapper([
             'category.editor'
         ]);
@@ -67,14 +67,14 @@ describe('src/module/sw-category/component/sw-category-detail-menu', () => {
 
         expect(mediaUpload.attributes().disabled).toBeUndefined();
     });
-    it('should disable the media upload', () => {
+    it('should disable the media upload', async () => {
         const wrapper = createWrapper();
 
         const mediaUpload = wrapper.find('sw-media-upload-v2-stub');
 
         expect(mediaUpload.attributes().disabled).toBe('true');
     });
-    it('should enable the text editor for the description', () => {
+    it('should enable the text editor for the description', async () => {
         const wrapper = createWrapper([
             'category.editor'
         ]);
@@ -83,7 +83,7 @@ describe('src/module/sw-category/component/sw-category-detail-menu', () => {
 
         expect(textEditor.attributes().disabled).toBeUndefined();
     });
-    it('should disable the text editor for the description', () => {
+    it('should disable the text editor for the description', async () => {
         const wrapper = createWrapper();
 
         const textEditor = wrapper.find('sw-text-editor-stub');

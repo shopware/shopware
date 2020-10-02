@@ -1,5 +1,6 @@
 import Sanitizer from 'src/core/helper/sanitizer.helper';
 import template from './sw-settings-snippet-list.html.twig';
+import './sw-settings-snippet-list.scss';
 
 const { Component, Mixin, Data: { Criteria } } = Shopware;
 
@@ -10,7 +11,8 @@ Component.register('sw-settings-snippet-list', {
         'snippetSetService',
         'snippetService',
         'userService',
-        'repositoryFactory'
+        'repositoryFactory',
+        'acl'
     ],
 
     mixins: [
@@ -116,6 +118,12 @@ Component.register('sw-settings-snippet-list', {
             }
 
             return filter;
+        },
+
+        contextMenuEditSnippet() {
+            return this.acl.can('snippet.editor') ?
+                this.$tc('global.default.edit') :
+                this.$tc('global.default.view');
         }
     },
 
@@ -187,7 +195,6 @@ Component.register('sw-settings-snippet-list', {
             this.snippetSetService.getCustomList(this.page, this.limit, this.filter, sort).then((response) => {
                 this.metaId = this.queryIds[0];
                 this.total = response.total;
-
                 this.grid = this.prepareGrid(response.data);
                 this.isLoading = false;
             });
@@ -299,7 +306,6 @@ Component.register('sw-settings-snippet-list', {
             this.$router.push({ name: 'sw.settings.snippet.index' });
 
             this.createNotificationError({
-                title: this.$tc('global.default.error'),
                 message: this.$tc('sw-settings-snippet.general.errorBackRoutingMessage')
             });
         },
@@ -427,8 +433,7 @@ Component.register('sw-settings-snippet-list', {
                 'sw-settings-snippet.list.resetSuccessMessage',
                 !item.isCustomSnippet,
                 {
-                    key: item.value,
-                    value: item.origin
+                    key: item.value
                 }
             );
 
@@ -524,6 +529,16 @@ Component.register('sw-settings-snippet-list', {
             }, {
                 ids: this.$route.query.ids
             });
+        },
+
+        getNoPermissionsTooltip(role, showOnDisabledElements = true) {
+            return {
+                showDelay: 300,
+                appearance: 'dark',
+                showOnDisabledElements,
+                disabled: this.acl.can(role),
+                message: this.$tc('sw-privileges.tooltip.warning')
+            };
         }
     }
 });

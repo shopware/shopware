@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Product\SalesChannel;
 
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceDefinitionBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CalculatedListingPrice;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelEntityLoadedEvent;
@@ -56,7 +57,40 @@ class SalesChannelProductSubscriber implements EventSubscriberInterface
             );
 
             $this->markAsNew($event->getSalesChannelContext(), $product);
+
+            $product->setGrouped(
+                $this->isGrouped($product)
+            );
         }
+    }
+
+    private function isGrouped(ProductEntity $product): bool
+    {
+        if ($product->getMainVariantId() !== null) {
+            return false;
+        }
+
+        // get all configured expanded groups
+        $groups = array_filter(
+            (array) $product->getConfiguratorGroupConfig(),
+            static function (array $config) {
+                return $config['expressionForListings'] ?? false;
+            }
+        );
+
+        // get ids of groups for later usage
+        $groups = array_column($groups, 'id');
+
+        // expanded group count matches option count? All variants are displayed
+        if ($product->getOptionIds() !== null && \count($groups) === \count($product->getOptionIds())) {
+            return false;
+        }
+
+        if ($product->getParentId()) {
+            return true;
+        }
+
+        return false;
     }
 
     private function calculatePrices(SalesChannelContext $context, SalesChannelProductEntity $product): void
@@ -87,12 +121,12 @@ class SalesChannelProductSubscriber implements EventSubscriberInterface
 
     private function calculateMaxPurchase(SalesChannelProductEntity $product, string $salesChannelId): int
     {
-        $fallback = (int) $this->systemConfigService->get('core.cart.maxQuantity', $salesChannelId);
+        $fallback = $this->systemConfigService->getInt('core.cart.maxQuantity', $salesChannelId);
 
         $max = $product->getMaxPurchase() ?? $fallback;
 
         if ($product->getIsCloseout() && $product->getAvailableStock() < $max) {
-            $max = $product->getAvailableStock();
+            $max = (int) $product->getAvailableStock();
         }
 
         return max($max, 0);

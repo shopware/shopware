@@ -58,5 +58,11 @@ shopware:
             - FEATURE_NEXT_3722
             - FEATURE_NEXT_5983
             - FEATURE_NEXT_10286
+            - FEATURE_NEXT_9351
+            - FEATURE_NEXT_10058
+            - FEATURE_NEXT_10077
+            - FEATURE_NEXT_10555
+            - FEATURE_NEXT_10537
+            - FEATURE_NEXT_10075
             - FEATURE_NEXT_9825
             - FEATURE_NEXT_6059

@@ -41,9 +41,16 @@
         {% block sw_settings_customer_group_list_actions %}
             <template slot="smart-bar-actions">
                 {% block sw_settings_customer_group_list_actions_create %}
-                    <sw-button class="sw-settings-customer-group-list__create"
-                               variant="primary"
-                               :routerLink="{ name: 'sw.settings.customer.group.create' }">
+                    <sw-button
+                        v-tooltip.bottom="{
+                            message: $tc('sw-privileges.tooltip.warning'),
+                            disabled: acl.can('customer_groups.creator'),
+                            showOnDisabledElements: true
+                        }"
+                        class="sw-settings-customer-group-list__create"
+                        variant="primary"
+                        :disabled="!acl.can('customer_groups.creator')"
+                        :routerLink="{ name: 'sw.settings.customer.group.create' }">
                         {{ $tc('sw-settings-customer-group.general.buttonCreate') }}
                     </sw-button>
                 {% endblock %}
@@ -61,30 +68,44 @@
                                     <sw-entity-listing
                                             ref="listing"
                                             class="sw-settings-customer-group-list-grid"
+                                            identifier="sw-settings-customer-group-list"
+                                            detailRoute="sw.settings.customer.group.detail"
                                             :repository="customerGroupRepository"
                                             :isLoading="isLoading"
                                             :items="customerGroups"
                                             :columns="columns"
-                                            identifier="sw-settings-customer-group-list"
                                             :sortBy="sortBy"
                                             :sortDirection="sortDirection"
                                             :fullPage="false"
-                                            detailRoute="sw.settings.customer.group.detail">
+                                            :allowView="acl.can('customer_groups.viewer')"
+                                            :allowEdit="acl.can('customer_groups.editor')"
+                                            :allowInlineEdit="acl.can('customer_groups.editor')"
+                                            :allowDelete="acl.can('customer_groups.deleter')"
+                                            :showSelection="acl.can('customer_groups.deleter')">
 
                                         <template #bulk-modal-delete-items>
-                                            <sw-button @click="deleteCustomerGroups" variant="primary" size="small">
+                                            <sw-button @click="deleteCustomerGroups" variant="danger" size="small">
                                                 {{ $tc('global.default.delete') }}
                                             </sw-button>
                                         </template>
 
                                         <template #delete-action="{ item }">
-                                            <sw-context-menu-item @click="onContextMenuDelete(item)" variant="danger">
+                                            <sw-context-menu-item
+                                                v-tooltip.bottom="{
+                                                    message: $tc('sw-privileges.tooltip.warning'),
+                                                    disabled: acl.can('customer_groups.deleter'),
+                                                    showOnDisabledElements: true
+                                                }"
+                                                class="sw-settings-customer-group-list-grid__delete-action"
+                                                variant="danger"
+                                                :disabled="!acl.can('customer_groups.deleter')"
+                                                @click="onContextMenuDelete(item)">
                                                 {{ $tc('global.default.delete') }}
                                             </sw-context-menu-item>
                                         </template>
-                                        
+
                                         <template #delete-modal-delete-item="{ item }">
-                                            <sw-button @click="deleteCustomerGroup(item)" variant="primary" size="small">
+                                            <sw-button @click="deleteCustomerGroup(item)" variant="danger" size="small">
                                                 {{ $tc('global.default.delete') }}
                                             </sw-button>
                                         </template>

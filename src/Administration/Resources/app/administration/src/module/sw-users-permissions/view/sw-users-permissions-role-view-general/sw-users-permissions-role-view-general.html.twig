@@ -1,0 +1,38 @@
+<div class="sw-users-permissions-role-view-general">
+    {% block sw_users_permissions_role_role_view_general_card_view_basic_information %}
+        <sw-card :title="$tc('sw-users-permissions.roles.detail.basicInformation')">
+            {% block sw_users_permissions_role_role_view_general_card_view_basic_information_name %}
+                <sw-field
+                    type="text"
+                    v-model="role.name"
+                    :error="roleNameError"
+                    :disabled="!acl.can('users_and_permissions.editor')"
+                    :label="$tc('sw-users-permissions.roles.detail.labelName')"
+                    required>
+                </sw-field>
+            {% endblock %}
+
+            {% block sw_users_permissions_role_role_view_general_card_view_basic_information_description %}
+                <sw-field
+                    type="textarea"
+                    v-model="role.description"
+                    :error="roleDescriptionError"
+                    :disabled="!acl.can('users_and_permissions.editor')"
+                    :label="$tc('sw-users-permissions.roles.detail.labelDescription')">
+                </sw-field>
+            {% endblock %}
+        </sw-card>
+    {% endblock %}
+
+    {% block sw_users_permissions_role_role_view_general_card_view_permissions %}
+        <sw-users-permissions-permissions-grid :role="role"
+                                               :disabled="!acl.can('users_and_permissions.editor')">
+        </sw-users-permissions-permissions-grid>
+    {% endblock %}
+
+    {% block sw_users_permissions_role_role_view_general_card_view_additional_permissions %}
+        <sw-users-permissions-additional-permissions :role="role"
+                                                     :disabled="!acl.can('users_and_permissions.editor')">
+        </sw-users-permissions-additional-permissions>
+    {% endblock %}
+</div>

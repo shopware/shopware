@@ -17,20 +17,24 @@
         {% block sw_settings_number_range_detail_actions %}
             <template slot="smart-bar-actions">
                 {% block sw_settings_number_range_detail_actions_abort %}
-                    <sw-button :disabled="numberRange.isLoading" v-tooltip.bottom="tooltipCancel" @click="onCancel">
+                    <sw-button
+                        v-tooltip.bottom="tooltipCancel"
+                        :disabled="isLoading || !this.acl.can('number_ranges.editor')"
+                        @click="onCancel">
                         {{ $tc('sw-settings-number-range.detail.buttonCancel') }}
                     </sw-button>
                 {% endblock %}
 
                 {% block sw_settings_number_range_detail_actions_save %}
-                    <sw-button-process class="sw-settings-number-range-detail__save-action"
-                                       :isLoading="isLoading"
-                                       :processSuccess="isSaveSuccessful"
-                                       :disabled="numberRange.isLoading"
-                                       variant="primary"
-                                       @process-finish="saveFinish"
-                                       v-tooltip.bottom="tooltipSave"
-                                       @click.prevent="onSave">
+                    <sw-button-process
+                        v-tooltip.bottom="tooltipSave"
+                        class="sw-settings-number-range-detail__save-action"
+                        variant="primary"
+                        :isLoading="isLoading"
+                        :processSuccess="isSaveSuccessful"
+                        :disabled="!this.acl.can('number_ranges.editor')"
+                        @process-finish="saveFinish"
+                        @click.prevent="onSave">
                         {{ $tc('sw-settings-number-range.detail.buttonSave') }}
                     </sw-button-process>
                 {% endblock %}
@@ -54,6 +58,7 @@
                                           :placeholder="placeholder(numberRange,'name', $tc('sw-settings-number-range.detail.placeholderName'))"
                                           validation="required"
                                           required
+                                          :disabled="!this.acl.can('number_ranges.editor')"
                                           v-model="numberRange.name">
                                 </sw-field>
                             {% endblock %}
@@ -62,6 +67,7 @@
                                 <sw-field type="text"
                                           :label="$tc('sw-settings-number-range.detail.labelDescription')"
                                           :placeholder="placeholder(numberRange,'description', $tc('sw-settings-number-range.detail.placeholderDescription'))"
+                                          :disabled="!this.acl.can('number_ranges.editor')"
                                           v-model="numberRange.description">
                                 </sw-field>
                             {% endblock %}
@@ -70,7 +76,7 @@
                         <sw-container columns="repeat(auto-fit, minmax(200px, 1fr))" gap="0px 30px">
                             {% block sw_settings_number_range_detail_content_field_prefix %}
                                 <sw-field type="text"
-                                          :disabled="advanced"
+                                          :disabled="advanced || !this.acl.can('number_ranges.editor')"
                                           @input="onChangePattern()"
                                           :label="$tc('sw-settings-number-range.detail.labelPrefix')"
                                           :placeholder="advanced?$tc('sw-settings-number-range.detail.placeholderSimpleModeImpossible'):$tc('sw-settings-number-range.detail.placeholderPrefix')"
@@ -82,6 +88,7 @@
                                 <sw-field type="number"
                                           numberType="int"
                                           @change="onChangePattern()"
+                                          :disabled="!this.acl.can('number_ranges.editor')"
                                           :label="$tc('sw-settings-number-range.detail.labelStart')"
                                           :placeholder="$tc('sw-settings-number-range.detail.placeholderStart')"
                                           v-model="numberRange.start"
@@ -92,7 +99,7 @@
 
                             {% block sw_settings_number_range_detail_content_field_suffix %}
                                 <sw-field type="text"
-                                          :disabled="advanced"
+                                          :disabled="advanced || !this.acl.can('number_ranges.editor')"
                                           @input="onChangePattern()"
                                           :label="$tc('sw-settings-number-range.detail.labelSuffix')"
                                           :placeholder="advanced?$tc('sw-settings-number-range.detail.placeholderSimpleModeImpossible'):$tc('sw-settings-number-range.detail.placeholderSuffix')"
@@ -107,6 +114,7 @@
                                     <sw-field type="switch"
                                               bordered
                                               v-model="advanced"
+                                              :disabled="!this.acl.can('number_ranges.editor')"
                                               :label="$tc('sw-settings-number-range.detail.labelAdvanced')">
                                     </sw-field>
                                     <sw-help-text :width="380" :text="$t('sw-settings-number-range.detail.helpTextAdvancedField')"></sw-help-text>
@@ -119,6 +127,7 @@
                                           @input="onChangePattern()"
                                           :label="$tc('sw-settings-number-range.detail.labelPattern')"
                                           :placeholder="$tc('sw-settings-number-range.detail.placeholderPattern')"
+                                          :disabled="!this.acl.can('number_ranges.editor')"
                                           v-model="numberRange.pattern">
                                 </sw-field>
                                 <div v-if="!advanced"></div>
@@ -159,7 +168,8 @@
                                                 numberRange.type !== null &&
                                                 numberRange.numberRangeSalesChannels &&
                                                 numberRange.numberRangeSalesChannels.length > 0
-                                            )"
+                                            ) ||
+                                            !this.acl.can('number_ranges.editor')"
                                     :label="$tc('sw-settings-number-range.detail.labelType')"
                                     id="numberRangeTypes"
                                     @change="onChangeType"
@@ -175,7 +185,7 @@
                                     v-if="numberRange && (!numberRange.global || numberRange.global === false)"
                                     class="sw-number-range-detail__select-type"
                                     :label="$tc('sw-settings-number-range.detail.labelSalesChannel')"
-                                    :disabled="!numberRange.typeId"
+                                    :disabled="!numberRange.typeId || !this.acl.can('number_ranges.editor')"
                                     required
                                     :value="selectedNumberRangeSalesChannels"
                                     @item-add="addSalesChannel"

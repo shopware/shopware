@@ -40,7 +40,7 @@ class ProductReviewRoute extends AbstractProductReviewRoute
      *      path="/product/{productId}/reviews",
      *      description="",
      *      operationId="readProductReviews",
-     *      tags={"Store API","Language"},
+     *      tags={"Store API","Product"},
      *      @OA\Response(
      *          response="200",
      *          description="Found reviews",
@@ -52,14 +52,15 @@ class ProductReviewRoute extends AbstractProductReviewRoute
     public function load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductReviewRouteResponse
     {
         $active = new MultiFilter(MultiFilter::CONNECTION_OR, [new EqualsFilter('status', true)]);
-        if ($customer = $context->getCustomer()) {
-            $active->addQuery(new EqualsFilter('customerId', $customer->getId()));
-        }
+        // ToDo NEXT-10590 - Reimplement check to let users see their own, not published reviews, if display works again
 
         $criteria->addFilter(
-            new MultiFilter(MultiFilter::CONNECTION_OR, [
-                new EqualsFilter('product.id', $productId),
-                new EqualsFilter('product.parentId', $productId),
+            new MultiFilter(MultiFilter::CONNECTION_AND, [
+                $active,
+                new MultiFilter(MultiFilter::CONNECTION_OR, [
+                    new EqualsFilter('product.id', $productId),
+                    new EqualsFilter('product.parentId', $productId),
+                ]),
             ])
         );
 

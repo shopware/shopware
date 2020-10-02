@@ -67,3 +67,18 @@ POST /store-api/v3/account/login
 ```
 
 After receiving the new token, you should provide the new token, otherwise your session data will be lost.
+
+## Usage in the Twig Storefront
+
+Use the proxy controller to call the Store-API in the Twig Storefront directly. It takes care about the correct context and sales channel.
+Use the HTTP client in your Javascript for calls of the Store-API.
+
+Example usage:
+
+```javascript
+import StoreApiClient from 'src/service/store-api-client.service';
+const client = new StoreApiClient;
+client.get('/store-api/v2/country', function(response) {
+  console.log(response)
+});
+```

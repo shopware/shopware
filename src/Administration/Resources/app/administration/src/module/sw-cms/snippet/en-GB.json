@@ -239,7 +239,30 @@
         }
       },
       "productListing": {
-        "label": "Product listing"
+        "label": "Product listing",
+        "config": {
+          "tab": {
+            "sorting": "Sorting"
+          },
+          "sorting": {
+            "labelShowSorting": "Show product sorting",
+            "labelUseCustomSortings": "Use custom sortings",
+            "labelDefaultSorting": "Default sorting",
+            "labelProductSortings": "Product sortings",
+            "placeHolderProductSortings": "Add or remove product sortings",
+            "helpTextUseCustomSortings": "You're able to define custom product sortings for the product listing. To create an individual sorting for this listing enable this switch.",
+            "helpTextDefaultSorting": "Default sorting for the listing, if no other sorting is provided.",
+            "gridHeaderName": "Name",
+            "gridHeaderFields": "Criteria",
+            "gridHeaderPriority": "Priority",
+            "deleteModal": {
+              "heading": "Deleting \"{productSortingName}\".",
+              "body": "Are you sure you want to delete \"{productSortingName}\"?"
+            },
+            "defaultSortingInUse": "This product sorting is already selected as default sorting.",
+            "defaultSortingCantBeDisabled": "This sorting is the default sorting. It has to be active to cause no problems with your product listing."
+          }
+        }
       },
       "productSlider": {
         "label": "Product slider",
@@ -324,7 +347,9 @@
             "showTitle": "Show video title",
             "advancedPrivacy": "Advanced privacy mode",
             "start": "Start video at",
-            "end": "End video at"
+            "end": "End video at",
+            "needsConfirmation": "Load video only after confirmation by the user",
+            "previewImage": "Preview image"
           },
           "placeholder": {
             "videoId": "Enter a video link..."

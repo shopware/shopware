@@ -10,15 +10,24 @@
             <div v-if="variant == 'compact'" class="sw-media-upload-v2__content">
                 <sw-button-group splitButton>
                     {% block sw_media_upload_v2_compact_button_file_upload %}
-                        <sw-button class="sw-media-upload-v2__button-compact-upload" variant="primary" @click="onClickUpload">
+                        <sw-button
+                            :disabled="disabled"
+                            class="sw-media-upload-v2__button-compact-upload"
+                            variant="primary"
+                            @click="onClickUpload">
                             {{ $tc('global.sw-media-upload-v2.buttonFileUpload') }}
                         </sw-button>
                     {% endblock %}
 
                     {% block sw_media_upload_v2_compact_button_context_menu %}
-                        <sw-context-button v-if="uploadUrlFeatureEnabled">
+                        <sw-context-button
+                            v-if="uploadUrlFeatureEnabled"
+                            :disabled="disabled">
                             <template slot="button">
-                                <sw-button square variant="primary" class="sw-media-upload-v2__button-context-menu">
+                                <sw-button
+                                    :disabled="disabled"
+                                    square variant="primary"
+                                    class="sw-media-upload-v2__button-context-menu">
                                     <sw-icon name="small-arrow-medium-down" size="16"></sw-icon>
                                 </sw-button>
                             </template>
@@ -92,17 +101,21 @@
                                 {% block sw_media_upload_v2_regular_actions_add %}
                                     <template v-if="!showUrlInput">
                                         {% block sw_media_upload_v2_regular_upload_button %}
-                                            <sw-button class="sw-media-upload-v2__button upload"
-                                                       variant="ghost"
-                                                       size="small"
-                                                       @click="onClickUpload">
+                                            <sw-button
+                                                class="sw-media-upload-v2__button upload"
+                                                :disabled="disabled"
+                                                variant="ghost"
+                                                size="small"
+                                                @click="onClickUpload">
                                                 {{ $tc('global.sw-media-upload-v2.buttonFileUpload') }}
                                             </sw-button>
                                         {% endblock %}
 
-                                        <sw-button variant="primary"
-                                                   class="sw-media-compact-upload-v2__browse-button"
-                                                   @click="mediaModalIsOpen = true">
+                                        <sw-button
+                                            variant="primary"
+                                            :disabled="disabled"
+                                            class="sw-media-compact-upload-v2__browse-button"
+                                            @click="mediaModalIsOpen = true">
                                             <sw-icon class="sw-media-compact-upload-v2__browse-icon"
                                                      name="default-object-image"></sw-icon>
                                         </sw-button>

@@ -7,18 +7,18 @@ function createWrapper(customOptions = {}) {
 
 
 describe('src/app/component/rule/sw-arrow-field', () => {
-    it('should be a Vue.JS component', () => {
+    it('should be a Vue.JS component', async () => {
         const wrapper = createWrapper();
-        expect(wrapper.isVueInstance()).toBe(true);
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should have enabled links', () => {
+    it('should have enabled links', async () => {
         const wrapper = createWrapper();
 
         expect(wrapper.classes()).not.toContain('is--disabled');
     });
 
-    it('should have disabled links', () => {
+    it('should have disabled links', async () => {
         const wrapper = createWrapper({
             propsData: {
                 disabled: true

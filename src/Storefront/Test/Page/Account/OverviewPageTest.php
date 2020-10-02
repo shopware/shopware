@@ -35,6 +35,31 @@ class OverviewPageTest extends TestCase
         self::assertPageEvent(AccountOverviewPageLoadedEvent::class, $event, $context, $request, $page);
     }
 
+    public function testSalesChannelRestriction(): void
+    {
+        $request = new Request();
+        $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
+        $testContext = $this->createSalesChannelContext();
+
+        $order = $this->placeRandomOrder($context);
+        $this->getContainer()->get('order.repository')->update([
+            [
+                'id' => $order,
+                'salesChannelId' => $testContext->getSalesChannel()->getId(),
+            ],
+        ], $context->getContext());
+
+        /** @var AccountOverviewPageLoadedEvent $event */
+        $event = null;
+        $this->catchEvent(AccountOverviewPageLoadedEvent::class, $event);
+
+        $page = $this->getPageLoader()->load($request, $context);
+
+        static::assertInstanceOf(AccountOverviewPage::class, $page);
+        static::assertNull($page->getNewestOrder());
+        self::assertPageEvent(AccountOverviewPageLoadedEvent::class, $event, $context, $request, $page);
+    }
+
     /**
      * @return AccountOverviewPageLoader
      */

@@ -39,7 +39,7 @@
             <name>tosPage</name>
             <entity>cms_page</entity>
             <pageType>page</pageType>
-            <label>Layout for ToS pages</label>
+            <label>Layout for GTC pages</label>
             <label lang="de-DE">Shopseiten-Layout für AGB-Seiten</label>
             <placeholder>Assign layout...</placeholder>
             <placeholder lang="de-DE">Layout zuweisen ...</placeholder>

@@ -29,6 +29,7 @@ class PropertyGroupDefinition extends EntityDefinition
 
     public const DISPLAY_TYPE_COLOR = 'color';
 
+    /** @deprecated tag:v6.4.0 - SORTING_TYPE_NUMERIC will be removed in 6.4.0 */
     public const SORTING_TYPE_NUMERIC = 'numeric';
 
     public const SORTING_TYPE_ALPHANUMERIC = 'alphanumeric';

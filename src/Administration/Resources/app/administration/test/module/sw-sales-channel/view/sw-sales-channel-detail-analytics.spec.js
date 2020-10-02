@@ -32,13 +32,13 @@ function createWrapper(privileges = []) {
 }
 
 describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-analytics', () => {
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should have fields disabled when the user has no privileges', () => {
+    it('should have fields disabled when the user has no privileges', async () => {
         const wrapper = createWrapper();
 
         const fields = wrapper.findAll('sw-field-stub');
@@ -48,7 +48,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-analytics', (
         });
     });
 
-    it('should have fields enabled when the user has privileges', () => {
+    it('should have fields enabled when the user has privileges', async () => {
         const wrapper = createWrapper([
             'sales_channel.editor'
         ]);

@@ -1,7 +1,7 @@
 Shopware.Service('privileges')
     .addPrivilegeMappingEntry({
         category: 'permissions',
-        parent: null,
+        parent: 'catalogues',
         key: 'product_manufacturer',
         roles: {
             viewer: {
@@ -10,15 +10,14 @@ Shopware.Service('privileges')
                     'custom_field_set:read',
                     'custom_field:read',
                     'custom_field_set_relation:read',
-                    'media_default_folder:read'
+                    Shopware.Service('privileges').getPrivileges('media.viewer')
                 ],
                 dependencies: []
             },
             editor: {
                 privileges: [
                     'product_manufacturer:update',
-                    'media_folder:read',
-                    'media:read'
+                    Shopware.Service('privileges').getPrivileges('media.creator')
                 ],
                 dependencies: [
                     'product_manufacturer.viewer'

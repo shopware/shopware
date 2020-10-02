@@ -1,6 +1,8 @@
 [titleEn]: <>(SalesChannel-API authentication)
 [hash]: <>(article:api_sales_channel)
 
+**The Sales Channel API is deprecated and will be removed with 6.4.0.0. Consider using the Store-API**
+
 The SalesChannel-API is part of our API family. It allows access to all sales channel operations, such as creating new customers, customer login
 and logout, various cart operations and a lot more. 
 

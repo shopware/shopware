@@ -21,7 +21,7 @@
                             class="sw-settings-language-detail__save-action"
                             :isLoading="isLoading"
                             v-model="isSaveSuccessful"
-                            :disabled="isLoading"
+                            :disabled="isLoading || !allowSave"
                             variant="primary"
                             v-tooltip.bottom="tooltipSave"
                             @click.prevent="onSave">
@@ -55,6 +55,7 @@
 
                                 {% block sw_settings_language_detail_content_field_name %}
                                     <sw-field type="text"
+                                              :disabled="!acl.can('language.editor')"
                                               :label="$tc('sw-settings-language.detail.labelName')"
                                               :placeholder="$tc('sw-settings-language.detail.placeholderName')"
                                               validation="required"
@@ -68,7 +69,7 @@
                                             id="inherit"
                                             class="sw-settings-language-detail__select-parent"
                                             :criteria="parentLanguageCriteria"
-                                            :disabled="isSystemDefaultLanguageId"
+                                            :disabled="!acl.can('language.editor') || isSystemDefaultLanguageId"
                                             :label="$tc('sw-settings-language.detail.labelParent')"
                                             :placeholder="$tc('sw-settings-language.detail.placeholderPleaseSelect')"
                                             :helpText="inheritanceTooltipText"
@@ -102,6 +103,7 @@
                                     <sw-entity-single-select
                                             id="iso-codes"
                                             class="sw-settings-language-detail__select-iso-code"
+                                            :disabled="!acl.can('language.editor')"
                                             :label="$tc('sw-settings-language.detail.labelIsoCode')"
                                             :required="isIsoCodeRequired"
                                             labelProperty="code"
@@ -137,6 +139,7 @@
                                             id="locales"
                                             required
                                             class="sw-settings-language-detail__select-locale"
+                                            :disabled="!acl.can('language.editor')"
                                             :label="$tc('sw-settings-language.detail.labelLocale')"
                                             entity="locale"
                                             :placeholder="$tc('sw-settings-language.detail.placeholderPleaseSelect')"

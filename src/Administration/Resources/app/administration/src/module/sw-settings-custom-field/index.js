@@ -12,6 +12,7 @@ import './component/sw-custom-field-type-number';
 import './component/sw-custom-field-type-date';
 import './component/sw-custom-field-type-checkbox';
 import './component/sw-custom-field-type-text-editor';
+import './acl';
 
 const { Module } = Shopware;
 
@@ -30,21 +31,24 @@ Module.register('sw-settings-custom-field', {
             component: 'sw-settings-custom-field-set-list',
             path: 'index',
             meta: {
-                parentPath: 'sw.settings.index'
+                parentPath: 'sw.settings.index',
+                privilege: 'custom_field.viewer'
             }
         },
         detail: {
             component: 'sw-settings-custom-field-set-detail',
             path: 'detail/:id',
             meta: {
-                parentPath: 'sw.settings.custom.field.index'
+                parentPath: 'sw.settings.custom.field.index',
+                privilege: 'custom_field.viewer'
             }
         },
         create: {
             component: 'sw-settings-custom-field-set-create',
             path: 'create',
             meta: {
-                parentPath: 'sw.settings.custom.field.index'
+                parentPath: 'sw.settings.custom.field.index',
+                privilege: 'custom_field.creator'
             }
         }
     },
@@ -52,6 +56,7 @@ Module.register('sw-settings-custom-field', {
     settingsItem: {
         group: 'system',
         to: 'sw.settings.custom.field.index',
-        icon: 'default-basic-stack-block'
+        icon: 'default-basic-stack-block',
+        privilege: 'custom_field.viewer'
     }
 });

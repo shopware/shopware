@@ -11,12 +11,12 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class Migration1571990395UpdateDefaultStatusMailTemplates extends MigrationStep
 {
     /**
-     * @var string
+     * @var string|null
      */
-    private $enLangId;
+    private $defaultLangId;
 
     /**
-     * @var string
+     * @var string|null
      */
     private $deLangId;
 
@@ -260,19 +260,26 @@ class Migration1571990395UpdateDefaultStatusMailTemplates extends MigrationStep
     private function changeMailTemplateNameForType(Connection $connection, string $mailTemplateType): void
     {
         $connection->executeUpdate(
-            'UPDATE `mail_template_type` SET `technical_name` = REPLACE(`technical_name`, \'state_enter.\', \'\') 
+            'UPDATE `mail_template_type` SET `technical_name` = REPLACE(`technical_name`, \'state_enter.\', \'\')
             WHERE `technical_name` = :type',
             ['type' => $mailTemplateType]
         );
     }
 
-    private function fetchLanguageId(string $code, Connection $connection): string
+    private function fetchLanguageId(string $code, Connection $connection): ?string
     {
         $langId = (string) $connection->fetchColumn(
-            'SELECT `language`.`id` FROM `language` INNER JOIN `locale` ON `language`.`locale_id` = `locale`.`id` 
+            'SELECT `language`.`id` FROM `language` INNER JOIN `locale` ON `language`.`locale_id` = `locale`.`id`
             WHERE `code` = :code LIMIT 1',
             ['code' => $code]
         );
+        if (!$langId && $code !== 'en-GB') {
+            return null;
+        }
+
+        if (!$langId) {
+            return Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
+        }
 
         return $langId;
     }
@@ -289,8 +296,8 @@ class Migration1571990395UpdateDefaultStatusMailTemplates extends MigrationStep
         string $senderNameDe,
         string $subjectDe
     ): void {
-        if (!$this->enLangId) {
-            $this->enLangId = $this->fetchLanguageId('en-GB', $connection);
+        if (!$this->defaultLangId) {
+            $this->defaultLangId = $this->fetchLanguageId('en-GB', $connection);
         }
         if (!$this->deLangId) {
             $this->deLangId = $this->fetchLanguageId('de-DE', $connection);
@@ -310,12 +317,6 @@ class Migration1571990395UpdateDefaultStatusMailTemplates extends MigrationStep
 
         $descriptionEn = 'Shopware Default Template';
         $descriptionDe = 'Shopware Basis Template';
-
-        $sqlString = '';
-        $sqlParams = [
-            'templateId' => $templateId,
-            'langId' => $this->enLangId,
-        ];
 
         $newTemplateId = false;
 
@@ -337,84 +338,99 @@ class Migration1571990395UpdateDefaultStatusMailTemplates extends MigrationStep
             );
         }
 
-        $sqlString .= '`content_html` = :contentHtml ';
-        $sqlParams['contentHtml'] = $contentHtmlEn;
+        if ($this->defaultLangId !== $this->deLangId) {
+            $sqlString = '';
+            $sqlParams = [
+                'templateId' => $templateId,
+                'langId' => $this->defaultLangId,
+            ];
 
-        $sqlString .= ', `content_plain` = :contentPlain ';
-        $sqlParams['contentPlain'] = $contentPlainEn;
+            $sqlString .= '`content_html` = :contentHtml ';
+            $sqlParams['contentHtml'] = $contentHtmlEn;
 
-        $sqlString .= ', `sender_name` = :senderName ';
-        $sqlParams['senderName'] = $senderNameEn;
+            $sqlString .= ', `content_plain` = :contentPlain ';
+            $sqlParams['contentPlain'] = $contentPlainEn;
 
-        $sqlString .= ', `subject` = :subject ';
-        $sqlParams['subject'] = $subjectEn;
+            $sqlString .= ', `sender_name` = :senderName ';
+            $sqlParams['senderName'] = $senderNameEn;
 
-        $sqlString .= ', `description` = :description ';
-        $sqlParams['description'] = $descriptionEn;
+            $sqlString .= ', `subject` = :subject ';
+            $sqlParams['subject'] = $subjectEn;
 
-        if ($newTemplateId) {
-            $connection->insert(
-                'mail_template_translation',
-                [
-                    'mail_template_id' => $newTemplateId,
-                    'language_id' => $this->enLangId,
-                    'subject' => $subjectEn,
-                    'description' => $descriptionEn,
-                    'sender_name' => '{{ salesChannel.name }}',
-                    'content_html' => $contentHtmlEn,
-                    'content_plain' => $contentPlainEn,
-                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                ]
-            );
-        } else {
-            $sqlString = 'UPDATE `mail_template_translation` SET ' . $sqlString
-                . 'WHERE `mail_template_id`= :templateId AND `language_id` = :langId';
-            $connection->executeUpdate($sqlString, $sqlParams);
+            $sqlString .= ', `description` = :description ';
+            $sqlParams['description'] = $descriptionEn;
+
+            if ($newTemplateId) {
+                $connection->insert(
+                    'mail_template_translation',
+                    [
+                        'mail_template_id' => $newTemplateId,
+                        'language_id' => $this->defaultLangId,
+                        'subject' => $subjectEn,
+                        'description' => $descriptionEn,
+                        'sender_name' => '{{ salesChannel.name }}',
+                        'content_html' => $contentHtmlEn,
+                        'content_plain' => $contentPlainEn,
+                        'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    ]
+                );
+            } else {
+                $sqlString = 'UPDATE `mail_template_translation` SET ' . $sqlString
+                    . 'WHERE `mail_template_id`= :templateId AND `language_id` = :langId';
+                $connection->executeUpdate($sqlString, $sqlParams);
+            }
         }
 
-        $sqlParams = [
-            'templateId' => $templateId,
-            'langId' => $this->deLangId,
-        ];
+        if ($this->deLangId) {
+            $sqlString = '';
+            $sqlParams = [
+                'templateId' => $templateId,
+                'langId' => $this->deLangId,
+            ];
 
-        $sqlString .= '`content_html` = :contentHtml ';
-        $sqlParams['contentHtml'] = $contentHtmlDe;
+            $sqlString .= '`content_html` = :contentHtml ';
+            $sqlParams['contentHtml'] = $contentHtmlDe;
 
-        $sqlString .= ', `content_plain` = :contentPlain ';
-        $sqlParams['contentPlain'] = $contentPlainDe;
+            $sqlString .= ', `content_plain` = :contentPlain ';
+            $sqlParams['contentPlain'] = $contentPlainDe;
 
-        $sqlString .= ', `sender_name` = :senderName ';
-        $sqlParams['senderName'] = $senderNameDe;
+            $sqlString .= ', `sender_name` = :senderName ';
+            $sqlParams['senderName'] = $senderNameDe;
 
-        $sqlString .= ', `subject` = :subject ';
-        $sqlParams['subject'] = $subjectDe;
+            $sqlString .= ', `subject` = :subject ';
+            $sqlParams['subject'] = $subjectDe;
 
-        $sqlString .= ', `description` = :description ';
-        $sqlParams['description'] = $descriptionDe;
+            $sqlString .= ', `description` = :description ';
+            $sqlParams['description'] = $descriptionDe;
 
-        $templateTranslationDeId = $connection->executeQuery(
-            'SELECT `mail_template_id` from `mail_template_translation` WHERE `mail_template_id` = :templateId',
-            ['templateId' => $templateId]
-        )->fetchColumn();
-
-        if ($newTemplateId || !$templateTranslationDeId) {
-            $connection->insert(
-                'mail_template_translation',
+            $templateTranslationDeId = $connection->executeQuery(
+                'SELECT `mail_template_id` from `mail_template_translation`
+                    WHERE `mail_template_id` = :templateId AND language_id = :languageId',
                 [
-                    'mail_template_id' => $newTemplateId ?: $templateId,
-                    'language_id' => $this->deLangId,
-                    'subject' => $subjectDe,
-                    'sender_name' => '{{ salesChannel.name }}',
-                    'description' => $descriptionDe,
-                    'content_html' => $contentHtmlDe,
-                    'content_plain' => $contentPlainDe,
-                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    'templateId' => $templateId,
+                    'languageId' => $this->deLangId,
                 ]
-            );
-        } else {
-            $sqlString = 'UPDATE `mail_template_translation` SET ' . $sqlString
-                . 'WHERE `mail_template_id`= :templateId AND `language_id` = :langId';
-            $connection->executeUpdate($sqlString, $sqlParams);
+            )->fetchColumn();
+
+            if ($newTemplateId || !$templateTranslationDeId) {
+                $connection->insert(
+                    'mail_template_translation',
+                    [
+                        'mail_template_id' => $newTemplateId ?: $templateId,
+                        'language_id' => $this->deLangId,
+                        'subject' => $subjectDe,
+                        'sender_name' => '{{ salesChannel.name }}',
+                        'description' => $descriptionDe,
+                        'content_html' => $contentHtmlDe,
+                        'content_plain' => $contentPlainDe,
+                        'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    ]
+                );
+            } else {
+                $sqlString = 'UPDATE `mail_template_translation` SET ' . $sqlString
+                    . 'WHERE `mail_template_id`= :templateId AND `language_id` = :langId';
+                $connection->executeUpdate($sqlString, $sqlParams);
+            }
         }
     }
 
@@ -440,11 +456,11 @@ EOT;
         return <<<EOT
 
         {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
-        
+
         the status of your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
         The new status is as follows: {{order.stateMachineState.name}}.
-        
-        You can check the current status of your order on our website under "My account" - "My orders" anytime. 
+
+        You can check the current status of your order on our website under "My account" - "My orders" anytime.
         But in case you have purchased without a registration or a customer account, you do not have this option.
 EOT;
     }
@@ -471,11 +487,11 @@ EOT;
         return <<<EOT
 
         {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
-        
+
         der Bestellstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
         Die Bestellung hat jetzt den Bestellstatus: {{order.stateMachineState.name}}.
-        
-        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen. 
+
+        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen.
         Sollten Sie allerdings den Kauf ohne Registrierung, also ohne Anlage eines Kundenkontos, gewählt haben, steht Ihnen diese Möglichkeit nicht zur Verfügung.
 EOT;
     }
@@ -502,11 +518,11 @@ EOT;
         return <<<EOT
 
         {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
-        
+
         the status of your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}  has changed.
         The new status is as follows: {{order.transactions.first.stateMachineState.name}}.
-        
-        You can check the current status of your order on our website under "My account" - "My orders" anytime. 
+
+        You can check the current status of your order on our website under "My account" - "My orders" anytime.
         But in case you have purchased without a registration or a customer account, you do not have this option.
 EOT;
     }
@@ -533,11 +549,11 @@ EOT;
         return <<<EOT
 
         {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
-        
+
         der Zahlungsstatus für Ihre Bestellung bei {{ salesChannel.name }} (Number: {{order.orderNumber}}) vom {{ order.orderDateTime|date }} hat sich geändert!
         Die Bestellung hat jetzt den Zahlungsstatus: {{order.transactions.first.stateMachineState.name}}.
-        
-        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen. 
+
+        Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen.
         Sollten Sie allerdings den Kauf ohne Registrierung, also ohne Anlage eines Kundenkontos, gewählt haben, steht Ihnen diese Möglichkeit nicht zur Verfügung.
 EOT;
     }

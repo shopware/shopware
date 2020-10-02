@@ -1,4 +1,5 @@
 import './page/sw-integration-list';
+import './acl';
 
 const { Module } = Shopware;
 
@@ -19,7 +20,8 @@ Module.register('sw-integration', {
             component: 'sw-integration-list',
             path: 'index',
             meta: {
-                parentPath: 'sw.settings.index'
+                parentPath: 'sw.settings.index',
+                privilege: 'integration.viewer'
             }
         }
     },
@@ -27,6 +29,7 @@ Module.register('sw-integration', {
     settingsItem: {
         group: 'system',
         to: 'sw.integration.index',
-        icon: 'default-action-settings'
+        icon: 'default-action-settings',
+        privilege: 'integration.viewer'
     }
 });

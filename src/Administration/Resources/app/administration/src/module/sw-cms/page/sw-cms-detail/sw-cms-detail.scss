@@ -64,6 +64,14 @@
             &.is--active {
                 color: $color-shopware-blue;
             }
+
+            &.is--disabled {
+                cursor: not-allowed;
+
+                &:hover {
+                    color: $color-steam-cloud;
+                }
+            }
         }
     }
 

@@ -32,7 +32,11 @@
         {% block sw_product_stream_list_smart_bar_actions %}
             <template slot="smart-bar-actions">
                 {% block sw_product_stream_list_smart_bar_actions_add %}
-                    <sw-button class="sw-product-stream-list__create-action" :routerLink="{ name: 'sw.product.stream.create' }" variant="primary">
+                    <sw-button class="sw-product-stream-list__create-action"
+                        :disabled="!acl.can('product_stream.creator')"
+                        :routerLink="{ name: 'sw.product.stream.create' }"
+                        variant="primary"
+                        v-tooltip.bottom="getNoPermissionsTooltip('product_stream.creator')">
                         {{ $tc('sw-product-stream.list.buttonAddProductStream') }}
                     </sw-button>
                 {% endblock %}
@@ -44,8 +48,10 @@
         {% endblock %}
 
         <template slot="content">
+
             {% block sw_product_stream_list_content %}
                 <div class="sw-product-stream-list__content">
+
                     {% block sw_product_stream_list_grid %}
                         <sw-entity-listing ref="swProductStreamGrid"
                             v-if="productStreams"
@@ -54,28 +60,54 @@
                             :columns="getProductStreamColumns()"
                             :repository="productStreamRepository"
                             detailRoute="sw.product.stream.detail"
-                            :showSelection="true"
+                            :showSelection="acl.can('product_stream.deleter')"
                             :isLoading="isLoading"
+                            :allowInlineEdit="acl.can('product_stream.editor')"
                             @inline-edit-save="onInlineEditSave"
                             @items-delete-finish="getList">
 
-                            <template #column-invalid="{item}">
-                                <template v-if="item.invalid">
-                                    {{ $tc('sw-product-stream.list.status.invalid') }}
+                            {% block sw_product_stream_list_grid_bulk %}
+                                <template #bulk>
+                                    <span v-if="!acl.can('product_stream.deleter')"></span>
                                 </template>
-                                <template v-else>
-                                    {{ $tc('sw-product-stream.list.status.valid') }}
-                                </template>
-                            </template>
+                            {% endblock %}
 
-                            <template #column-updatedAt="{item}">
-                                <template v-if="item.updatedAt">
-                                    {{ item.updatedAt|date }}
+                            {% block sw_product_stream_list_grid_column_invalid %}
+                                <template #column-invalid="{item}">
+                                    <template v-if="item.invalid">
+                                        {{ $tc('sw-product-stream.list.status.invalid') }}
+                                    </template>
+
+                                    <template v-else>
+                                        {{ $tc('sw-product-stream.list.status.valid') }}
+                                    </template>
                                 </template>
-                                <template v-else>
-                                    {{ item.createdAt|date }}
+                            {% endblock %}
+
+                            {% block sw_product_stream_list_grid_colum_updated_at %}
+                                <template #column-updatedAt="{item}">
+                                    <template v-if="item.updatedAt">
+                                        {{ item.updatedAt|date }}
+                                    </template>
+
+                                    <template v-else>
+                                        {{ item.createdAt|date }}
+                                    </template>
                                 </template>
-                            </template>
+                            {% endblock %}
+
+                            {% block sw_product_stream_list_grid_delete_action %}
+                                <template #delete-action="{item, showDelete, allowDelete}">
+
+                                    <sw-context-menu-item @click="showDelete(item.id)"
+                                        :disabled="!acl.can('product_stream.deleter') || !allowDelete"
+                                        class="sw-entity-listing__context-menu-edit-delete"
+                                        v-tooltip="getNoPermissionsTooltip('product_stream.deleter')"
+                                        variant="danger">
+                                        {{ $tc('global.default.delete') }}
+                                    </sw-context-menu-item>
+                                </template>
+                            {% endblock %}
                         </sw-entity-listing>
                     {% endblock %}
 
@@ -92,6 +124,7 @@
 
         {% block sw_product_stream_list_sidebar %}
             <sw-sidebar slot="sidebar">
+
                 {% block sw_product_stream_list_sidebar_refresh %}
                     <sw-sidebar-item
                             icon="default-arrow-360-left"

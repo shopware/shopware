@@ -6,7 +6,11 @@ const { Component, Mixin, Data: { Criteria } } = Shopware;
 Component.register('sw-settings-number-range-detail', {
     template,
 
-    inject: ['numberRangeService', 'repositoryFactory'],
+    inject: [
+        'numberRangeService',
+        'repositoryFactory',
+        'acl'
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -132,6 +136,14 @@ Component.register('sw-settings-number-range-detail', {
         },
 
         tooltipSave() {
+            if (!this.acl.can('number_ranges.editor')) {
+                return {
+                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    disabled: this.acl.can('number_ranges.editor'),
+                    showOnDisabledElements: true
+                };
+            }
+
             const systemKey = this.$device.getSystemKey();
 
             return {
@@ -242,7 +254,6 @@ Component.register('sw-settings-number-range-detail', {
             if (this.noSalesChannelSelected()) {
                 this.createNotificationError(
                     {
-                        title: this.$tc('global.default.error'),
                         message: this.$tc('sw-settings-number-range.detail.errorSalesChannelNeededMessage')
                     }
                 );
@@ -252,7 +263,6 @@ Component.register('sw-settings-number-range-detail', {
             if (!this.numberRange.pattern) {
                 this.createNotificationError(
                     {
-                        title: this.$tc('global.default.error'),
                         message: this.$tc('sw-settings-number-range.detail.errorPatternNeededMessage')
                     }
                 );
@@ -267,7 +277,6 @@ Component.register('sw-settings-number-range-detail', {
                 .catch((exception) => {
                     this.isLoading = false;
                     this.createNotificationError({
-                        title: this.$tc('global.default.error'),
                         message: this.$tc(
                             'sw-settings-number-range.detail.messageSaveError', 0, { name: numberRangeName }
                         )

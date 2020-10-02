@@ -35,16 +35,25 @@ Component.register('sw-settings-store', {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
+            this.trimHost();
+
             this.$refs.systemConfig.saveAll().then(() => {
                 this.isLoading = false;
                 this.isSaveSuccessful = true;
             }).catch((err) => {
                 this.isLoading = false;
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
                     message: err
                 });
             });
+        },
+
+        trimHost() {
+            const actualConfigData = this.$refs.systemConfig.actualConfigData;
+
+            if (actualConfigData.null && actualConfigData.null['core.store.licenseHost']) {
+                actualConfigData.null['core.store.licenseHost'] = actualConfigData.null['core.store.licenseHost'].trim();
+            }
         }
     }
 });

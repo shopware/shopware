@@ -23,6 +23,7 @@ Add notes on your change right now in the documentation files in /src/Docs/Resou
 
 - [ ] I have written tests and verified that they fail without my change
 - [ ] I have squashed any insignificant commits
+- [ ] I have created a [changelog file](https://github.com/shopware/platform/blob/master/adr/2020-08-03-Implement-New-Changelog.md) with all necessary information about my changes
 - [ ] I have written or adjusted the documentation according to my changes
 - [ ] This change has comments for package types, values, functions, and non-obvious lines of code
 - [ ] I have read the contribution requirements and fulfil them.

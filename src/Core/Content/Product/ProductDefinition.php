@@ -102,6 +102,7 @@ class ProductDefinition extends EntityDefinition
             'purchaseSteps' => 1,
             'shippingFree' => false,
             'restockTime' => 3,
+            'active' => true,
         ];
     }
 
@@ -132,7 +133,7 @@ class ProductDefinition extends EntityDefinition
             (new IntField('stock', 'stock'))->addFlags(new Required()),
             (new IntField('restock_time', 'restockTime'))->addFlags(new Inherited()),
             (new IntField('auto_increment', 'autoIncrement'))->addFlags(new WriteProtected()),
-            new BoolField('active', 'active'),
+            (new BoolField('active', 'active'))->addFlags(new Inherited()),
             (new IntField('available_stock', 'availableStock'))->addFlags(new WriteProtected()),
             (new BoolField('available', 'available'))->addFlags(new WriteProtected()),
             (new BoolField('is_closeout', 'isCloseout'))->addFlags(new Inherited()),
@@ -149,7 +150,7 @@ class ProductDefinition extends EntityDefinition
             (new FloatField('purchase_unit', 'purchaseUnit'))->addFlags(new Inherited()),
             (new FloatField('reference_unit', 'referenceUnit'))->addFlags(new Inherited()),
             (new BoolField('shipping_free', 'shippingFree'))->addFlags(new Inherited()),
-            (new FloatField('purchase_price', 'purchasePrice'))->addFlags(new Inherited(), new Deprecated('v3', 'v4')),
+            (new FloatField('purchase_price', 'purchasePrice'))->addFlags(new Inherited(), new Deprecated('v4', 'v4')),
             (new BoolField('mark_as_topseller', 'markAsTopseller'))->addFlags(new Inherited()),
             (new FloatField('weight', 'weight'))->addFlags(new Inherited()),
             (new FloatField('width', 'width'))->addFlags(new Inherited()),
@@ -262,9 +263,14 @@ class ProductDefinition extends EntityDefinition
                 ->addFlags(new Inherited())
         );
 
-        if (Feature::isActive('FEATURE_NEXT_9825')) {
+        $collection->add(
+            (new PriceField('purchase_prices', 'purchasePrices'))->addFlags(new Inherited())
+        );
+
+        if (Feature::isActive('FEATURE_NEXT_10075')) {
             $collection->add(
-                (new PriceField('purchase_prices', 'purchasePrices'))->addFlags(new Inherited())
+                (new TranslatedField('productSearchKeywords'))
+                    ->addFlags(new Inherited(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING))
             );
         }
 

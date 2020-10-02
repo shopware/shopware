@@ -20,10 +20,11 @@ The blocks from the templates in the /includes folder can be overwritten directl
     </h1>
 {% endblock %}
 
-{% block document_recipient %}
     {% set firstDelivery = order.deliveries|first %}
     {% set deliveryAddressId = firstDelivery.shippingOrderAddressId %}
     {% set deliveryAddress = order.addresses.get(deliveryAddressId) %}
+
+{% block document_recipient %}
     <span class="sender-address-small">
         {% block document_recipient_sender %}
             {{ config.companyAddress }}<br><br>
@@ -34,6 +35,12 @@ The blocks from the templates in the /includes folder can be overwritten directl
     {% endif %}
     {{ deliveryAddress.firstName }} {{ deliveryAddress.lastName }}<br>
     {{ deliveryAddress.street }}<br>
+    {% if deliveryAddress.additionalAddressLine1 %}
+        {{ deliveryAddress.additionalAddressLine1 }}<br>
+    {% endif %}
+    {% if deliveryAddress.additionalAddressLine2 %}
+        {{ deliveryAddress.additionalAddressLine2 }}<br>
+    {% endif %}
     {{ deliveryAddress.zipcode }} {{ deliveryAddress.city }}<br>
     {{ deliveryAddress.country.name }}<br>
 {% endblock %}
@@ -44,6 +51,8 @@ The blocks from the templates in the /includes folder can be overwritten directl
 {% endblock %}
 
 {% block document_line_item_table_shipping %}
+    {% if deliveryAddress.additionalAddressLine1 %}<br>{% endif %}
+    {% if deliveryAddress.additionalAddressLine2 %}<br>{% endif %}
 {% endblock %}
 
 {% block document_sum %}

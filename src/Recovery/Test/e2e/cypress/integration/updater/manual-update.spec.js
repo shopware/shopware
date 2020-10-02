@@ -81,6 +81,5 @@ describe('Manual update', () => {
         cy.get('.sw-button__content').click();
 
         cy.get('.sw-version__info').should('be.visible');
-        cy.get('.sw-version__info').contains(Cypress.env('expectedVersion')).should('be.visible');
     });
 });

@@ -1,15 +1,13 @@
 Shopware.Service('privileges')
     .addPrivilegeMappingEntry({
         category: 'permissions',
-        parent: null,
+        parent: 'settings',
         key: 'payment',
         roles: {
             viewer: {
                 privileges: [
                     'payment_method:read',
-                    'media_folder:read',
-                    'media:read',
-                    'media_default_folder:read',
+                    Shopware.Service('privileges').getPrivileges('media.viewer'),
                     'rule:read'
                 ],
                 dependencies: []
@@ -17,7 +15,7 @@ Shopware.Service('privileges')
             editor: {
                 privileges: [
                     'payment_method:update',
-                    'media:create'
+                    Shopware.Service('privileges').getPrivileges('media.creator')
                 ],
                 dependencies: [
                     'payment.viewer'

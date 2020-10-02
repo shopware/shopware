@@ -31,18 +31,18 @@ describe('src/app/component/media/sw-media-compact-upload-v2', () => {
         });
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should contain the default accept value', () => {
+    it('should contain the default accept value', async () => {
         const fileInput = wrapper.find('.sw-media-upload-v2__file-input');
 
         expect(fileInput.attributes().accept).toBe('image/*');
     });
 
-    it('should contain "application/pdf" value', () => {
-        wrapper.setProps({
+    it('should contain "application/pdf" value', async () => {
+        await wrapper.setProps({
             fileAccept: 'application/pdf'
         });
         const fileInput = wrapper.find('.sw-media-upload-v2__file-input');

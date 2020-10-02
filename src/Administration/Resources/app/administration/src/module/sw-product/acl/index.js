@@ -1,7 +1,7 @@
 Shopware.Service('privileges')
     .addPrivilegeMappingEntry({
         category: 'permissions',
-        parent: null,
+        parent: 'catalogues',
         key: 'product',
         roles: {
             viewer: {
@@ -28,9 +28,7 @@ Shopware.Service('privileges')
                     'custom_field_set:read',
                     'custom_field:read',
                     'custom_field_set_relation:read',
-                    'media_folder:read',
-                    'media:read',
-                    'media_default_folder:read',
+                    Shopware.Service('privileges').getPrivileges('media.viewer'),
                     'sales_channel_type:read',
                     'rule:read',
                     'property_group:read',
@@ -75,7 +73,7 @@ Shopware.Service('privileges')
                     'product_property:delete',
                     'product_category:create',
                     'product_category:delete',
-                    'media:create',
+                    Shopware.Service('privileges').getPrivileges('media.creator'),
                     'product_media:create',
                     'product_media:delete',
                     'product_tag:create',

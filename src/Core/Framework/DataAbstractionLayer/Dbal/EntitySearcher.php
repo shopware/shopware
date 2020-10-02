@@ -88,7 +88,7 @@ class EntitySearcher implements EntitySearcherInterface
         $query = $this->buildQueryByCriteria($query, $definition, $criteria, $context);
 
         if (!empty($criteria->getIds())) {
-            $this->addIdCondition($criteria, $definition, $query);
+            $this->queryHelper->addIdCondition($criteria, $definition, $query);
         }
 
         $this->addGroupBy($definition, $criteria, $context, $query, $table);

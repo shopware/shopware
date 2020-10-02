@@ -16,8 +16,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
@@ -49,18 +51,25 @@ class AccountService
      */
     private $switchDefaultAddressRoute;
 
+    /**
+     * @var SalesChannelContextRestorer|null
+     */
+    private $contextRestorer;
+
     public function __construct(
         EntityRepositoryInterface $customerRepository,
         SalesChannelContextPersister $contextPersister,
         EventDispatcherInterface $eventDispatcher,
         LegacyPasswordVerifier $legacyPasswordVerifier,
-        AbstractSwitchDefaultAddressRoute $switchDefaultAddressRoute
+        AbstractSwitchDefaultAddressRoute $switchDefaultAddressRoute,
+        ?SalesChannelContextRestorer $contextRestorer
     ) {
         $this->customerRepository = $customerRepository;
         $this->contextPersister = $contextPersister;
         $this->eventDispatcher = $eventDispatcher;
         $this->legacyPasswordVerifier = $legacyPasswordVerifier;
         $this->switchDefaultAddressRoute = $switchDefaultAddressRoute;
+        $this->contextRestorer = $contextRestorer;
     }
 
     /**
@@ -102,15 +111,21 @@ class AccountService
             throw new UnauthorizedHttpException('json', $exception->getMessage());
         }
 
-        $newToken = $this->contextPersister->replace($context->getToken(), $context);
-        $this->contextPersister->save(
-            $newToken,
-            [
-                'customerId' => $customer->getId(),
-                'billingAddressId' => null,
-                'shippingAddressId' => null,
-            ]
-        );
+        if (Feature::isActive('FEATURE_NEXT_10058') && $this->contextRestorer) {
+            $context = $this->contextRestorer->restore($customer->getId(), $context);
+            $newToken = $context->getToken();
+        } else {
+            $newToken = $this->contextPersister->replace($context->getToken(), $context);
+
+            $this->contextPersister->save(
+                $newToken,
+                [
+                    'customerId' => $customer->getId(),
+                    'billingAddressId' => null,
+                    'shippingAddressId' => null,
+                ]
+            );
+        }
 
         $event = new CustomerLoginEvent($context, $customer, $newToken);
         $this->eventDispatcher->dispatch($event);

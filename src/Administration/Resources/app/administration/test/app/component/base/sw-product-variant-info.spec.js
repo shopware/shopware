@@ -21,15 +21,15 @@ describe('components/base/sw-product-variant-info', () => {
         });
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should display the main text from its slot', () => {
+    it('should display the main text from its slot', async () => {
         expect(wrapper.find('.sw-product-variant-info').text()).toContain('Product name from slot');
     });
 
-    it('should display a specification', () => {
+    it('should display a specification', async () => {
         console.log('wrapper', wrapper.html());
         expect(wrapper.find('.sw-product-variant-info__specification').text()).toContain('Size: M');
     });

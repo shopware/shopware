@@ -114,7 +114,7 @@ describe('Customer group: Test crud operations', () => {
         cy.get('.sw-modal__body').should('be.visible');
         cy.get('.sw-modal__body')
             .contains('Are you sure you want to delete this item?');
-        cy.get(`${page.elements.modal}__footer button${page.elements.primaryButton}`).click();
+        cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
         cy.get(page.elements.modal).should('not.exist');
 
         // Verify deletion
@@ -143,7 +143,7 @@ describe('Customer group: Test crud operations', () => {
         cy.get('.sw-modal__body').should('be.visible');
         cy.get('.sw-modal__body')
             .contains('Are you sure you want to delete this item?');
-        cy.get(`${page.elements.modal}__footer button${page.elements.primaryButton}`).click();
+        cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
         cy.get(page.elements.modal).should('not.exist');
 
         // Verify that notification is visible to user

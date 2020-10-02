@@ -148,9 +148,9 @@ Component.register('sw-order-line-items-grid-sales-channel', {
             };
             item.price = {
                 taxRules: [{ taxRate: 0 }],
-                unitPrice: 0,
+                unitPrice: '...',
                 quantity: 1,
-                totalPrice: 0
+                totalPrice: '...'
             };
             item.quantity = 1;
             item.unitPrice = 0;

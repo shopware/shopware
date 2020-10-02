@@ -146,6 +146,7 @@
                         <sw-password-field
                             class="sw-settings-user-detail__confirm-password"
                             v-model="confirmPassword"
+                            @keypress.enter="onSubmitConfirmPassword"
                             required
                             name="sw-field--confirm-password"
                             :passwordToggleAble="true"

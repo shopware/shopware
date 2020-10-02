@@ -97,5 +97,12 @@
       "labelButtonCancel": "Cancel",
       "labelButtonSaveSelection": "Add media"
     }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "media": {
+        "label": "Media"
+      }
+    }
   }
 }

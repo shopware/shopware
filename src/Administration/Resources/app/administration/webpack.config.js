@@ -65,7 +65,7 @@ const pluginEntries = (() => {
     const pluginDefinition = JSON.parse(fs.readFileSync(pluginFile, 'utf8'));
 
     return Object.entries(pluginDefinition)
-        .filter(([name, definition]) => !!definition.administration.entryFilePath)
+        .filter(([name, definition]) => !!definition.administration && !!definition.administration.entryFilePath)
         .map(([name, definition]) => {
             console.log(chalk.green(`# Plugin "${name}": Injected successfully`));
 
@@ -85,7 +85,7 @@ console.log();
 
 const webpackConfig = {
     mode: isDev ? 'development' : 'production',
-
+    bail: isDev ? false : true,
     stats: {
         all: false,
         colors: true,

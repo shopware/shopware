@@ -4,14 +4,15 @@ namespace Shopware\Storefront\Framework\Routing;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
+use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
 use Shopware\Core\Content\Seo\HreflangLoaderInterface;
 use Shopware\Core\Content\Seo\HreflangLoaderParameter;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\PlatformRequest;
@@ -122,7 +123,10 @@ class StorefrontSubscriber implements EventSubscriberInterface
                 ['preventPageLoadingFromXmlHttpRequest', KernelListenerPriorities::KERNEL_CONTROLLER_EVENT_SCOPE_VALIDATE],
             ],
             CustomerLoginEvent::class => [
-                'updateSession',
+                'updateSessionAfterLogin',
+            ],
+            CustomerLogoutEvent::class => [
+                'updateSessionAfterLogout',
             ],
             BeforeSendResponseEvent::class => [
                 ['replaceCsrfToken'],
@@ -170,7 +174,25 @@ class StorefrontSubscriber implements EventSubscriberInterface
         );
     }
 
-    public function updateSession(CustomerLoginEvent $event): void
+    public function updateSessionAfterLogin(CustomerLoginEvent $event): void
+    {
+        $token = $event->getContextToken();
+
+        $this->updateSession($token);
+    }
+
+    public function updateSessionAfterLogout(CustomerLogoutEvent $event): void
+    {
+        if (!Feature::isActive('FEATURE_NEXT_10058')) {
+            return;
+        }
+
+        $newToken = $event->getSalesChannelContext()->getToken();
+
+        $this->updateSession($newToken);
+    }
+
+    public function updateSession(string $token): void
     {
         $master = $this->requestStack->getMasterRequest();
         if (!$master) {
@@ -188,7 +210,6 @@ class StorefrontSubscriber implements EventSubscriberInterface
         $session->migrate();
         $session->set('sessionId', $session->getId());
 
-        $token = $event->getContextToken();
         $session->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $token);
         $master->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $token);
     }
@@ -252,7 +273,9 @@ class StorefrontSubscriber implements EventSubscriberInterface
             return;
         }
 
-        if (!$event->getRequest()->attributes->has(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST)) {
+        /** @var RouteScope $scope */
+        $scope = $event->getRequest()->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, new RouteScope(['scopes' => []]));
+        if (!$scope->hasScope(StorefrontRouteScope::ID)) {
             return;
         }
 
@@ -339,7 +362,8 @@ class StorefrontSubscriber implements EventSubscriberInterface
         $context = $this->contextService->get(
             $salesChannelId,
             $contextToken,
-            $event->getRequest()->headers->get(PlatformRequest::HEADER_LANGUAGE_ID)
+            $event->getRequest()->headers->get(PlatformRequest::HEADER_LANGUAGE_ID),
+            $event->getRequest()->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID)
         );
         $event->getRequest()->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
     }

@@ -8,7 +8,8 @@ Component.register('sw-product-stream-list', {
     template,
 
     inject: [
-        'repositoryFactory'
+        'repositoryFactory',
+        'acl'
     ],
 
     mixins: [
@@ -42,13 +43,11 @@ Component.register('sw-product-stream-list', {
         onInlineEditSave(promise, productStream) {
             return promise.then(() => {
                 this.createNotificationSuccess({
-                    title: this.$tc('global.default.success'),
                     message: this.$tc('sw-product-stream.detail.messageSaveSuccess', 0, { name: productStream.name })
                 });
             }).catch(() => {
                 this.getList();
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-product-stream.detail.messageSaveError')
                 });
             });
@@ -101,6 +100,16 @@ Component.register('sw-product-stream-list', {
                 label: 'sw-product-stream.list.columnStatus',
                 allowResize: true
             }];
+        },
+
+        getNoPermissionsTooltip(role, showOnDisabledElements = true) {
+            return {
+                showDelay: 300,
+                message: this.$tc('sw-privileges.tooltip.warning'),
+                appearance: 'dark',
+                showOnDisabledElements,
+                disabled: this.acl.can(role) || this.allowDelete
+            };
         }
     }
 });

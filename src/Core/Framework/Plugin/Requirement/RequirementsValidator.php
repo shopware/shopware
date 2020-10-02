@@ -6,6 +6,7 @@ use Composer\Composer;
 use Composer\Package\Link;
 use Composer\Repository\PlatformRepository;
 use Composer\Semver\Constraint\Constraint;
+use Composer\Semver\Constraint\ConstraintInterface;
 use Composer\Semver\VersionParser;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -148,21 +149,21 @@ class RequirementsValidator
             $pluginRequirements = $this->checkRequirement(
                 $pluginRequirements,
                 $package->getName(),
-                $package->getVersion(),
+                new Constraint('==', $package->getVersion()),
                 $exceptionStack
             );
 
             foreach ($package->getReplaces() as $replace) {
-                $replaceVersion = $replace->getPrettyConstraint();
+                $replaceConstraint = $replace->getConstraint();
 
-                if ($replaceVersion === 'self.version') {
-                    $replaceVersion = $package->getVersion();
+                if ($replace->getPrettyConstraint() === 'self.version') {
+                    $replaceConstraint = new Constraint('==', $package->getVersion());
                 }
 
                 $pluginRequirements = $this->checkRequirement(
                     $pluginRequirements,
                     $replace->getTarget(),
-                    $replaceVersion,
+                    $replaceConstraint,
                     $exceptionStack
                 );
             }
@@ -186,7 +187,7 @@ class RequirementsValidator
             $pluginRequirements = $this->checkRequirement(
                 $pluginRequirements,
                 $pluginEntity->getComposerName(),
-                $parser->normalize($pluginEntity->getVersion()),
+                new Constraint('==', $parser->normalize($pluginEntity->getVersion())),
                 $exceptionStack
             );
         }
@@ -213,18 +214,18 @@ class RequirementsValidator
     private function checkRequirement(
         array $pluginRequirements,
         string $installedName,
-        string $installedVersion,
+        ?ConstraintInterface $installedVersion,
         RequirementExceptionStack $exceptionStack
     ): array {
         if (isset($pluginRequirements[$installedName])) {
             $constraint = $pluginRequirements[$installedName]->getConstraint();
-            if ($constraint === null) {
+            if ($constraint === null || $installedVersion === null) {
                 return $pluginRequirements;
             }
 
-            if ($constraint->matches(new Constraint('==', $installedVersion)) === false) {
+            if ($constraint->matches($installedVersion) === false) {
                 $exceptionStack->add(
-                    new VersionMismatchException($installedName, $constraint->getPrettyString(), $installedVersion)
+                    new VersionMismatchException($installedName, $constraint->getPrettyString(), $installedVersion->getPrettyString())
                 );
             }
 

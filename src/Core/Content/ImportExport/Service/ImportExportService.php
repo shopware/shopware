@@ -166,7 +166,7 @@ class ImportExportService
             return 'text/csv';
         }
 
-        return $file->getClientMimeType();
+        return (string) $file->getClientMimeType();
     }
 
     private function findLog(Context $context, string $logId): ?ImportExportLogEntity
@@ -196,7 +196,7 @@ class ImportExportService
      * @throws FileNotReadableException
      * @throws \League\Flysystem\FileNotFoundException
      */
-    private function storeFile(Context $context, \DateTimeInterface $expireDate, ?string $sourcePath, string $originalFileName, string $activity, ?string $path = null): ImportExportFileEntity
+    private function storeFile(Context $context, \DateTimeInterface $expireDate, ?string $sourcePath, ?string $originalFileName, string $activity, ?string $path = null): ImportExportFileEntity
     {
         $id = Uuid::randomHex();
         $path = $path ?? $activity . '/' . ImportExportFileEntity::buildPath($id);

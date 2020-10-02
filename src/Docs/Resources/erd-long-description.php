@@ -705,6 +705,8 @@ Provides functionality to define sorting groups to sort products by.
 EOD
     ,
     Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingTranslationDefinition::class => '',
+    Shopware\Core\Framework\Event\EventAction\Aggregate\EventActionRule\EventActionRuleDefinition::class => '',
+    Shopware\Core\Framework\Event\EventAction\Aggregate\EventActionSalesChannel\EventActionSalesChannelDefinition::class => '',
     Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCountryRoundingDefinition::class => <<<'EOD'
 With this entity the cash rounding configuration can be controlled per country. As in the currency entity, the cash rounding for the line items and the total can be configured individually
 EOD

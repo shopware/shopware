@@ -17,6 +17,13 @@ Component.extend('sw-url-field', 'sw-text-field', {
     template,
     inheritAttrs: false,
 
+    props: {
+        error: {
+            type: Object,
+            required: false
+        }
+    },
+
     data() {
         return {
             sslActive: true,
@@ -49,6 +56,10 @@ Component.extend('sw-url-field', 'sw-text-field', {
             }
 
             return `${this.urlPrefix}${trimmedValue}`;
+        },
+
+        combinedError() {
+            return this.errorUrl || this.error;
         }
     },
 

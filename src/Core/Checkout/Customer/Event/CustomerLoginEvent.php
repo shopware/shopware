@@ -9,10 +9,11 @@ use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
+use Shopware\Core\Framework\Event\SalesChannelAware;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class CustomerLoginEvent extends Event implements BusinessEventInterface
+class CustomerLoginEvent extends Event implements BusinessEventInterface, SalesChannelAware
 {
     public const EVENT_NAME = 'checkout.customer.login';
 
@@ -61,6 +62,11 @@ class CustomerLoginEvent extends Event implements BusinessEventInterface
     public function getContextToken(): string
     {
         return $this->contextToken;
+    }
+
+    public function getSalesChannelId(): string
+    {
+        return $this->salesChannelContext->getSalesChannel()->getId();
     }
 
     public static function getAvailableData(): EventDataCollection

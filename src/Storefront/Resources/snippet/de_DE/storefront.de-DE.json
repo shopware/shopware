@@ -67,9 +67,12 @@
     "product-not-found": "Das Produkt wurde nicht gefunden.",
     "message-403-ajax": "Die Sitzung ist abgelaufen. Bitte laden Sie die Seite neu und versuchen Sie es erneut.",
     "message-403": "Die Sitzung ist abgelaufen. Bitte kehren Sie zur letzten Seite zurück neu und versuchen Sie  es erneut.",
-    "product-out-of-stock": "%name% ist momentan nicht verfügbar."
+    "product-out-of-stock": "%name% ist momentan nicht verfügbar.",
+    "auto-promotion-not-found": "Promotion \"%name%\" was no longer valid!"
   },
   "account": {
+    "externalPaymentCanceled": "Wir haben Ihre Bestellung erhalten, aber die Zahlung wurde abgebrochen. Bitte ändern Sie Ihre Zahlungsmethode oder versuchen Sie es erneut",
+    "externalPaymentFailure": "Wir haben Ihre Bestellung erhalten, aber wir konnten Ihre Zahlung nicht bearbeiten, bitte ändern Sie die Zahlungsmethode oder versuchen Sie es erneut",
     "confirmationIsAlreadyDone": "Die Bestätigung ist bereits erfolgt oder die URL ist ungültig.",
     "doubleOptInMailConfirmationSuccessfully": "Vielen Dank für die Bestätigung Ihrer E-Mail-Adresse! Sie können Ihre Bestellung nun abschließen.",
     "doubleOptInRegistrationSuccessfully": "Vielen Dank für Ihre Anmeldung! Ihr Account wurde erfolgreich freigeschaltet.",
@@ -208,7 +211,7 @@
     "orderHeadline": "Bestellung:",
     "orderStatus": "Status:",
     "orderStatusActionRequired": "Bearbeitung notwendig",
-    "orderNumber": "Bestellnummer:",
+    "orderStatusActionCompletePayment": "Zahlung abschließen",
     "orderShippingStatus": "Lieferstatus",
     "orderPaymentStatus": "Zahlungsstatus",
     "orderPaymentMethod": "Zahlungsart",
@@ -217,7 +220,7 @@
     "orderContextMenuReorder": "Bestellung wiederholen",
     "orderContextMenuCancel": "Bestellung stornieren",
     "editOrder": "Bestellung bearbeiten",
-    "editOrderUpdateButton": "Änderungen bestätigen",
+    "editOrderUpdateButton": "Zahlung abschließen",
     "editOrderBackToAccountButton": "Zurück zum Account",
     "editOrderBackToOrderButton": "Zurück zur Bestellung",
     "editOrderCancelOrderButton": "Bestellung stornieren",
@@ -343,6 +346,7 @@
     "confirmTermsHeader": "AGB und Widerrufsbelehrung",
     "confirmRevocationNotice": "Bitte beachten Sie die Widerrufsbelehrung.",
     "confirmTerms": "Ich habe die <a data-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"AGB\">AGB</a> gelesen und bin mit ihnen einverstanden.",
+    "confirmTermsReminder": "Sie haben bereits die <a data-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"AGB\">AGB</a> akzeptiert.",
     "finishInfoPayment": "Zahlungsart:",
     "finishInfoShipping": "Versandart:",
     "finishHeader": "Vielen Dank für Ihre Bestellung bei %shop%!",
@@ -362,6 +366,7 @@
     "shippingMethod": "Versandart",
     "product-stock-reached": "Das Produkt %name% ist nur noch %quantity% mal verfügbar",
     "product-out-of-stock": "Das Produkt %name% ist nicht mehr verfügbar",
+    "purchase-steps-quantity": "Your input quantity does not match with the setup of the %name%. The quantity was changed to %quantity%",
     "shipping-method-blocked": "Die Versandart %name% ist für Ihren aktuellen Warenkorb gesperrt.",
     "payment-method-blocked": "Die Zahlungsart %name% ist für Ihren aktuellen Warenkorb gesperrt.",
     "lineItemDeliveryDate": "Lieferzeitraum: %earliest% - %latest%",
@@ -369,10 +374,12 @@
     "promotion-discount-added": "Rabatt \"%name%\" wurde dem Warenkorb hinzugefügt",
     "promotion-not-found": "Der Gutschein-Code \"%code%\" existiert nicht.",
     "promotion-not-eligible": "Der Gutschein-Code wurde gespeichert, aber nicht auf den Warenkorb angewendet, da die Voraussetzungen dafür nicht zutreffen. Sobald die Voraussetzungen zutreffen, wird er automatisch hinzugefügt.",
+    "auto-promotion-not-found": "Promotion \"%name%\" was no longer valid!",
     "shipping-address-blocked": "Lieferungen an die gewählte Lieferadresse sind nicht möglich.",
     "customerCommentHeader": "Zusätzliche Informationen",
     "customerCommentLabel": "Möchten Sie uns etwas über Ihre Bestellung mitteilen?",
-    "customerCommentPlaceholder": "Kommentieren Sie hier ..."
+    "customerCommentPlaceholder": "Kommentieren Sie hier ...",
+    "cart-merged-hint": "Der aktuelle Warenkorb enthält u.U. zusätzliche Produkte, die noch von einem früheren Besuch gespeichert waren."
   },
   "listing": {
     "filterTitleText": "Filter",
@@ -543,6 +550,12 @@
           "true": "Ja",
           "false": "Nein"
         }
+      }
+    },
+    "cms": {
+      "vimeo": {
+        "privacyNotice": "Mit dem Aufruf des Videos erklärst Du Dich einverstanden, dass Deine Daten an %platform% übermittelt werden und das Du die <a data-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"Datenschutzbestimmungen\">Datenschutzbestimmungen</a> gelesen hast.",
+        "acceptButtonLabel": "Akzeptieren"
       }
     }
   }

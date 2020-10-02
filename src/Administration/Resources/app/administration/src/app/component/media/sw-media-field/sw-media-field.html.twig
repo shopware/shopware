@@ -21,7 +21,7 @@
                 {% endblock %}
 
                 {% block sw_media_field_toggle_button %}
-                    <sw-button class="sw-media-field__toggle-button" square @click="onTogglePicker">
+                    <sw-button class="sw-media-field__toggle-button" square :disabled="disabled" @click="onTogglePicker">
                         {% block sw_media_field_media_icon %}
                             <sw-icon name="default-object-image"></sw-icon>
                         {% endblock %}
@@ -61,7 +61,8 @@
                             v-if="showUploadField"
                             variant="regular"
                             :allowMultiSelect="false"
-                            :uploadTag="uploadTag">
+                            :uploadTag="uploadTag"
+                            :disabled="disabled">
                         </sw-media-upload-v2>
                     {% endblock %}
 

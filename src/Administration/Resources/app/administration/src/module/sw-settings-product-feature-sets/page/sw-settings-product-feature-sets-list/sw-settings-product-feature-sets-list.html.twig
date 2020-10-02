@@ -28,7 +28,10 @@
             {% block sw_settings_product_feature_set_list_smart_bar_actions %}
                 <template slot="smart-bar-actions">
                     {% block sw_settings_product_feature_set_list_smart_bar_actions_add %}
-                        <sw-button :routerLink="{ name: 'sw.settings.product.feature.sets.create' }" variant="primary">
+                        <sw-button :routerLink="{ name: 'sw.settings.product.feature.sets.create' }"
+                                   :disabled="!acl.can('product_feature_sets.creator')"
+                                   class="sw-settings-product-feature-sets-list-grid__create-button"
+                                   variant="primary">
                             {{ $tc('sw-settings-product-feature-sets.list.buttonAddEssentialCharacteristics') }}
                         </sw-button>
                     {% endblock %}
@@ -53,6 +56,10 @@
                                            :repository="productFeatureSetsRepository"
                                            detailRoute="sw.settings.product.feature.sets.detail"
                                            @inline-edit-save="onInlineEditSave"
+                                           :allowInlineEdit="acl.can('product_feature_sets.editor')"
+                                           :allowEdit="acl.can('product_feature_sets.editor')"
+                                           :allowView="acl.can('product_feature_sets.viewer')"
+                                           :allowDelete="acl.can('product_feature_sets.deleter')"
                                            :isLoading="isLoading">
 
                             <template #column-features="{ item }">
@@ -66,13 +73,17 @@
 
                                     {% block sw_settings_product_feature_set_list_grid_columns_actions_edit %}
                                         <sw-context-menu-item :routerLink="{ name: 'sw.settings.product.feature.sets.detail', params: { id: item.id, edit: 'edit' }}"
+                                                              :disabled="!acl.can('product_feature_sets.editor')"
                                                               class="sw-product-feature-sets-list__edit-action">
                                             {{ $tc('sw-settings-product-feature-sets.list.contextMenuEdit') }}
                                         </sw-context-menu-item>
                                     {% endblock %}
 
                                     {% block sw_settings_product_feature_set_list_grid_columns_actions_delete %}
-                                        <sw-context-menu-item :disabled="item.isSystemDefault" variant="danger" @click="onDelete(item.id)">
+                                        <sw-context-menu-item :disabled="item.isSystemDefault || !acl.can('product_feature_sets.deleter')"
+                                                              variant="danger"
+                                                              class="sw-product-feature-sets-list__delete-action"
+                                                              @click="onDelete(item.id)">
                                             {{ $tc('sw-settings-product-feature-sets.list.contextMenuDelete') }}
                                         </sw-context-menu-item>
                                     {% endblock %}

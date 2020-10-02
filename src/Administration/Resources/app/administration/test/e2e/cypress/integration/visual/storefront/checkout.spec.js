@@ -44,6 +44,8 @@ describe('Checkout: Visual tests', () => {
         cy.get('.product-detail-buy .btn-buy').click();
 
         // Off canvas
+        cy.get('.offcanvas').should('be.visible');
+        cy.get('.cart-item-price').contains('64');
 
         // Take snapshot for visual testing on desktop
         cy.takeSnapshot(`Checkout - Offcanvas`,

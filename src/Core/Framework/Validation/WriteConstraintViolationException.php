@@ -19,15 +19,21 @@ class WriteConstraintViolationException extends ShopwareHttpException implements
      */
     private $constraintViolationList;
 
-    public function __construct(ConstraintViolationList $constraintViolationList, string $path = '')
+    /**
+     * @var int
+     */
+    private $statusCode;
+
+    public function __construct(ConstraintViolationList $constraintViolationList, string $path = '', int $statusCode = Response::HTTP_BAD_REQUEST)
     {
+        $this->path = $path;
+        $this->constraintViolationList = $constraintViolationList;
+        $this->statusCode = $statusCode;
+
         parent::__construct(
             'Caught {{ count }} constraint violation errors.',
             ['count' => $constraintViolationList->count()]
         );
-
-        $this->path = $path;
-        $this->constraintViolationList = $constraintViolationList;
     }
 
     public function getErrorCode(): string
@@ -37,7 +43,7 @@ class WriteConstraintViolationException extends ShopwareHttpException implements
 
     public function getStatusCode(): int
     {
-        return Response::HTTP_BAD_REQUEST;
+        return $this->statusCode;
     }
 
     public function getViolations(): ConstraintViolationList

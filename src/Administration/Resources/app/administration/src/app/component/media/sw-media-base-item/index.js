@@ -60,6 +60,18 @@ Shopware.Component.register('sw-media-base-item', {
             type: Boolean,
             required: false,
             default: false
+        },
+
+        allowEdit: {
+            type: Boolean,
+            required: false,
+            default: true
+        },
+
+        allowDelete: {
+            type: Boolean,
+            required: false,
+            default: true
         }
     },
 
@@ -144,7 +156,7 @@ Shopware.Component.register('sw-media-base-item', {
         },
 
         startInlineEdit() {
-            if (this.editable) {
+            if (this.editable && this.allowEdit) {
                 this.isInlineEdit = true;
             }
         },

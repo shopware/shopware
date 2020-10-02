@@ -29,6 +29,10 @@ class AppLoader extends AbstractAppLoader
      */
     public function load(): array
     {
+        if (!file_exists($this->appDir)) {
+            return [];
+        }
+
         $finder = new Finder();
         $finder->in($this->appDir)
             ->name('manifest.xml');

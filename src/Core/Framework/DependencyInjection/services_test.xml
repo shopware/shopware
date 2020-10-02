@@ -109,6 +109,7 @@
             <argument>%test.client.parameters%</argument>
             <argument type="service" id="test.client.history" />
             <argument type="service" id="test.client.cookiejar" />
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Framework\Test\Logging\Monolog\DiscardHandler">

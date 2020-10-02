@@ -1,5 +1,5 @@
 {# Set variable to "true" to enable HMR (hot page reloading) mode #}
-{% set isHMRMode = app.request.headers.get('hot-reload-mode') %}
+{% set isHMRMode = app.request.headers.get('hot-reload-mode') and app.environment == 'dev' %}
 
 {% block base_doctype %}
 <!DOCTYPE html>
@@ -132,7 +132,9 @@
                     'frontend.account.addressbook': '{{ path('frontend.account.addressbook') }}',
                     'frontend.csrf.generateToken': '{{ path('frontend.csrf.generateToken') }}',
                     'frontend.country.country-data': '{{ path('frontend.country.country.data') }}',
+                    'frontend.store-api.proxy': '{{ path('frontend.store-api.proxy') }}',
                 };
+                window.storeApiProxyToken = '{{ sw_csrf("frontend.store-api.proxy", {"mode": "token"}) }}';
             </script>
         {% endblock %}
 

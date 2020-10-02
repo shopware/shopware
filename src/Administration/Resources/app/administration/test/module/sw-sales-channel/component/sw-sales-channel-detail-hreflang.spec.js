@@ -21,13 +21,13 @@ function createWrapper(customProps = {}) {
 }
 
 describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-hreflang', () => {
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should enable the sw-switch-field', () => {
+    it('should enable the sw-switch-field', async () => {
         const wrapper = createWrapper();
 
         const switchField = wrapper.find('sw-switch-field-stub');
@@ -35,7 +35,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-hreflang
         expect(switchField.attributes().disabled).toBeUndefined();
     });
 
-    it('should disable the sw-switch-field', () => {
+    it('should disable the sw-switch-field', async () => {
         const wrapper = createWrapper({
             disabled: true
         });
@@ -45,7 +45,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-hreflang
         expect(switchField.attributes().disabled).toBe('true');
     });
 
-    it('should enable the sw-entity-single-select', () => {
+    it('should enable the sw-entity-single-select', async () => {
         const wrapper = createWrapper();
 
         const entitySingleSelect = wrapper.find('sw-entity-single-select-stub');
@@ -53,7 +53,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-hreflang
         expect(entitySingleSelect.attributes().disabled).toBeUndefined();
     });
 
-    it('should disable the sw-entity-single-select', () => {
+    it('should disable the sw-entity-single-select', async () => {
         const wrapper = createWrapper({
             disabled: true
         });

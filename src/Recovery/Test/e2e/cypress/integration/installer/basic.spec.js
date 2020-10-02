@@ -16,8 +16,11 @@ describe('Minimal install', () => {
         cy.get('section.content--main').should('be.visible');
         cy.get('.navigation--list .navigation--entry span').contains('Start');
         cy.get('option:checked').contains('English');
-        cy.get('.btn.btn-primary').contains('Next').click();
 
+        // Take snapshot for visual testing
+        cy.takeSnapshot(`Start`, 'section.content--main');
+
+        cy.get('.btn.btn-primary').contains('Next').click();
 
         // @install: requirements
         cy.get('section.content--main').should('be.visible');
@@ -25,6 +28,9 @@ describe('Minimal install', () => {
         cy.get('.requirement-group').should('have.class', 'success');
         cy.get('#permissions').should('be.hidden');
         cy.get('#systemchecks').should('be.hidden');
+
+        // Take snapshot for visual testing
+        cy.takeSnapshot( `Requirement`, 'section.content--main');
 
         cy.get('.requirement-group[data-target="#permissions"]').click();
         cy.get('#permissions').should('be.visible');
@@ -46,21 +52,26 @@ describe('Minimal install', () => {
 
         cy.get('.btn.btn-primary').contains('Next').click();
 
-
         // @install: GTC
         cy.get('section.content--main').should('be.visible');
         cy.get('.navigation--list .navigation--entry span').contains('GTC');
         cy.url().should('contains', '/license');
         cy.get('.btn.btn-primary').contains('Next').click();
         cy.url().should('contains', '/license');
+
+        // Take snapshot for visual testing
+        cy.takeSnapshot(`GTC`, 'section.content--main');
+
         cy.get('.custom-checkbox').click();
         cy.get('.btn.btn-primary').contains('Next').click();
-
 
         // @install: database config
         cy.url().should('contains', '/database-configuration');
         cy.get('section.content--main').should('be.visible');
         cy.get('.navigation--list .navigation--entry span').contains('Database configuration');
+
+        // Take snapshot for visual testing
+        cy.takeSnapshot(`Database configuration`, 'section.content--main');
 
         cy.get('#c_database_host').clear().type(Cypress.env('dbHost'));
         cy.get('#c_database_user').clear().type(Cypress.env('dbUser'));
@@ -71,18 +82,22 @@ describe('Minimal install', () => {
         cy.get('#c_database_schema_new').clear().type(Cypress.env('dbName'));
         cy.get('.btn.btn-primary').contains('Start installation').click();
 
-
         // @install: installation
         cy.get('section.content--main').should('be.visible');
         cy.get('.navigation--list .navigation--entry span').contains('Installation');
         cy.get('.database-import-finish', { timeout: 120000 }).should('be.visible');
 
-        cy.get('.btn.btn-primary').contains('Next').click();
+        // Take snapshot for visual testing
+        cy.takeSnapshot(`Database migration finished`, 'section.content--main');
 
+        cy.get('.btn.btn-primary').contains('Next').click();
 
         // @install: configuration
         cy.get('section.content--main').should('be.visible');
         cy.get('.navigation--list .navigation--entry span').contains('Configuration');
+
+        // Take snapshot for visual testing
+        cy.takeSnapshot(`Configuration`, 'section.content--main');
 
         cy.get('#c_config_shopName').clear().type('E2E install test');
         cy.get('#c_config_mail').clear().type('e2e@example.com');
@@ -110,35 +125,56 @@ describe('Minimal install', () => {
 
         cy.get('.btn.btn-primary').contains('Next').click();
 
-        // @frw: welcome
+        // @frw in Administration: welcome
         cy.get('.sw-modal.sw-first-run-wizard-modal').should('be.visible');
 
         cy.location().should((loc) => {
             expect(loc.hash).to.eq('#/sw/first/run/wizard/index');
         });
+        // Take snapshot for visual testing
+        cy.changeElementStyling(
+            '.sw-version__info',
+            'visibility: hidden'
+        );
+        cy.get('.sw-first-run-wizard__welcome-image').should('be.visible');
+        cy.takeSnapshot('FRW - Welcome', '.sw-modal.sw-first-run-wizard-modal');
 
         cy.get('.sw-button span').contains('Next').click();
 
-
         // @frw: skip data-import
         cy.get('.sw-modal.sw-first-run-wizard-modal').should('be.visible');
+
         cy.location().should((loc) => {
             expect(loc.hash).to.eq('#/sw/first/run/wizard/index/data-import');
         });
         cy.get('.sw-step-display').should('be.visible');
         cy.get('.sw-step-display .sw-step-item.sw-step-item--active span').contains('Data import');
-        cy.get('.sw-button span').contains('Next').click();
 
+        // Take snapshot for visual testing
+        cy.changeElementStyling(
+            '.sw-version__info',
+            'visibility: hidden'
+        );
+        cy.takeSnapshot('FRW - Data', '.sw-modal.sw-first-run-wizard-modal');
+        cy.get('.sw-button span').contains('Next').click();
 
         // @frw: skip mail configuration
         cy.get('.sw-modal.sw-first-run-wizard-modal').should('be.visible');
+
+
         cy.location().should((loc) => {
             expect(loc.hash).to.eq('#/sw/first/run/wizard/index/mailer/selection');
         });
         cy.get('.sw-step-display').should('be.visible');
         cy.get('.sw-step-display .sw-step-item.sw-step-item--active span').contains('Mailer configuration');
-        cy.get('.sw-button span').contains('Configure later').click();
 
+        // Take snapshot for visual testing
+        cy.changeElementStyling(
+            '.sw-version__info',
+            'visibility: hidden'
+        );
+        cy.takeSnapshot('FRW - Mail', '.sw-modal.sw-first-run-wizard-modal');
+        cy.get('.sw-button span').contains('Configure later').click();
 
         // @frw: skip paypal
         cy.get('.sw-modal.sw-first-run-wizard-modal').should('be.visible');
@@ -146,9 +182,15 @@ describe('Minimal install', () => {
             expect(loc.hash).to.eq('#/sw/first/run/wizard/index/paypal/info');
         });
         cy.get('.sw-step-display').should('be.visible');
-        cy.get('.sw-step-display .sw-step-item.sw-step-item--active span').contains('Setup PayPal');
-        cy.get('.sw-button span').contains('Skip').click();
+        cy.get('.sw-step-display .sw-step-item.sw-step-item--active span').contains('PayPal setup');
 
+        // Take snapshot for visual testing
+        cy.changeElementStyling(
+            '.sw-version__info',
+            'visibility: hidden'
+        );
+        cy.takeSnapshot('FRW - PayPal', '.sw-modal.sw-first-run-wizard-modal');
+        cy.get('.sw-button span').contains('Skip').click();
 
         // @frw: plugins
         cy.get('.sw-modal.sw-first-run-wizard-modal').should('be.visible');
@@ -159,7 +201,6 @@ describe('Minimal install', () => {
         cy.get('.sw-step-display .sw-step-item.sw-step-item--active span').contains('Plugins');
         cy.get('.sw-button span').contains('Next').click();
 
-
         // @frw: skip account login
         cy.get('.sw-modal.sw-first-run-wizard-modal').should('be.visible');
         cy.location().should((loc) => {
@@ -168,7 +209,6 @@ describe('Minimal install', () => {
         cy.get('.sw-step-display').should('be.visible');
         cy.get('.sw-step-display .sw-step-item.sw-step-item--disabled span').contains('Shopware');
         cy.get('.sw-button span').contains('Skip').click();
-
 
         // @frw: finish
         cy.get('.sw-modal.sw-first-run-wizard-modal').should('be.visible');

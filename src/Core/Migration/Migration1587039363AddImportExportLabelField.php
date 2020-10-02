@@ -30,7 +30,7 @@ class Migration1587039363AddImportExportLabelField extends MigrationStep
                     REFERENCES `import_export_profile` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
                 CONSTRAINT `fk.import_export_profile_translation.language_id` FOREIGN KEY (`language_id`)
                     REFERENCES `language` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;        
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
         $translationsPresent = $connection->fetchColumn('SELECT 1 FROM `import_export_profile_translation` LIMIT 1;');
@@ -76,7 +76,7 @@ class Migration1587039363AddImportExportLabelField extends MigrationStep
 
         if (!in_array($defaultLanguageId, [$englishLanguageId, $germanLanguageId], true)) {
             $insertNamesAsLabelsStatement->execute([
-                'languageId' => Defaults::LANGUAGE_SYSTEM,
+                'languageId' => $defaultLanguageId,
             ]);
         }
 

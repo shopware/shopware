@@ -45,15 +45,15 @@ function createWrapper(privileges = []) {
 }
 
 describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => {
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should have the select template field disabled', () => {
+    it('should have the select template field disabled', async () => {
         const wrapper = createWrapper();
-        wrapper.setProps({
+        await wrapper.setProps({
             salesChannel: {
                 typeId: PRODUCT_COMPARISON_TYPE_ID
             }
@@ -66,12 +66,12 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(selectField.attributes().disabled).toBe('true');
     });
 
-    it('should have the select template field enabled', () => {
+    it('should have the select template field enabled', async () => {
         const wrapper = createWrapper([
             'sales_channel.editor'
         ]);
 
-        wrapper.setProps({
+        await wrapper.setProps({
             salesChannel: {
                 typeId: PRODUCT_COMPARISON_TYPE_ID
             }
@@ -84,9 +84,9 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(selectField.attributes().disabled).toBeUndefined();
     });
 
-    it('should have the name field disabled', () => {
+    it('should have the name field disabled', async () => {
         const wrapper = createWrapper();
-        wrapper.setProps({
+        await wrapper.setProps({
             salesChannel: {
                 typeId: PRODUCT_COMPARISON_TYPE_ID
             }
@@ -99,12 +99,12 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBe('true');
     });
 
-    it('should have the name field enabled', () => {
+    it('should have the name field enabled', async () => {
         const wrapper = createWrapper([
             'sales_channel.editor'
         ]);
 
-        wrapper.setProps({
+        await wrapper.setProps({
             salesChannel: {
                 typeId: PRODUCT_COMPARISON_TYPE_ID
             }
@@ -117,7 +117,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBeUndefined();
     });
 
-    it('should have the navigation category id field disabled', () => {
+    it('should have the navigation category id field disabled', async () => {
         const wrapper = createWrapper();
 
         const field = wrapper.find(
@@ -127,7 +127,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBe('true');
     });
 
-    it('should have the navigation category id field enabled', () => {
+    it('should have the navigation category id field enabled', async () => {
         const wrapper = createWrapper([
             'sales_channel.editor'
         ]);
@@ -139,7 +139,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBeUndefined();
     });
 
-    it('should have the navigation category depth field disabled', () => {
+    it('should have the navigation category depth field disabled', async () => {
         const wrapper = createWrapper();
 
         const field = wrapper.find(
@@ -149,7 +149,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBe('true');
     });
 
-    it('should have the navigation category depth field enabled', () => {
+    it('should have the navigation category depth field enabled', async () => {
         const wrapper = createWrapper([
             'sales_channel.editor'
         ]);
@@ -161,7 +161,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBeUndefined();
     });
 
-    it('should have the service category id field disabled', () => {
+    it('should have the service category id field disabled', async () => {
         const wrapper = createWrapper();
 
         const field = wrapper.find(
@@ -171,7 +171,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBe('true');
     });
 
-    it('should have the service category id field enabled', () => {
+    it('should have the service category id field enabled', async () => {
         const wrapper = createWrapper([
             'sales_channel.editor'
         ]);
@@ -183,7 +183,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBeUndefined();
     });
 
-    it('should have the customer group id field disabled', () => {
+    it('should have the customer group id field disabled', async () => {
         const wrapper = createWrapper();
 
         const field = wrapper.find(
@@ -193,7 +193,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBe('true');
     });
 
-    it('should have the customer group id field enabled', () => {
+    it('should have the customer group id field enabled', async () => {
         const wrapper = createWrapper([
             'sales_channel.editor'
         ]);
@@ -205,7 +205,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBeUndefined();
     });
 
-    it('should have the sales channel defaults select for countries field disabled', () => {
+    it('should have the sales channel defaults select for countries field disabled', async () => {
         const wrapper = createWrapper();
 
         const field = wrapper.find(
@@ -215,7 +215,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBe('true');
     });
 
-    it('should have the sales channel defaults select for countries field enabled', () => {
+    it('should have the sales channel defaults select for countries field enabled', async () => {
         const wrapper = createWrapper([
             'sales_channel.editor'
         ]);
@@ -227,7 +227,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBeUndefined();
     });
 
-    it('should have the sales channel defaults select for languages field disabled', () => {
+    it('should have the sales channel defaults select for languages field disabled', async () => {
         const wrapper = createWrapper();
 
         const field = wrapper.find(
@@ -237,7 +237,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBe('true');
     });
 
-    it('should have the sales channel defaults select for languages field enabled', () => {
+    it('should have the sales channel defaults select for languages field enabled', async () => {
         const wrapper = createWrapper([
             'sales_channel.editor'
         ]);
@@ -249,7 +249,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBeUndefined();
     });
 
-    it('should have the sales channel defaults select for paymentMethods field disabled', () => {
+    it('should have the sales channel defaults select for paymentMethods field disabled', async () => {
         const wrapper = createWrapper();
 
         const field = wrapper.find(
@@ -259,7 +259,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBe('true');
     });
 
-    it('should have the sales channel defaults select for paymentMethods field enabled', () => {
+    it('should have the sales channel defaults select for paymentMethods field enabled', async () => {
         const wrapper = createWrapper([
             'sales_channel.editor'
         ]);
@@ -271,7 +271,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBeUndefined();
     });
 
-    it('should have the sales channel defaults select for shippingMethods field disabled', () => {
+    it('should have the sales channel defaults select for shippingMethods field disabled', async () => {
         const wrapper = createWrapper();
 
         const field = wrapper.find(
@@ -281,7 +281,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBe('true');
     });
 
-    it('should have the sales channel defaults select for shippingMethods field enabled', () => {
+    it('should have the sales channel defaults select for shippingMethods field enabled', async () => {
         const wrapper = createWrapper([
             'sales_channel.editor'
         ]);
@@ -293,7 +293,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBeUndefined();
     });
 
-    it('should have the sales channel defaults select for currencies field disabled', () => {
+    it('should have the sales channel defaults select for currencies field disabled', async () => {
         const wrapper = createWrapper();
 
         const field = wrapper.find(
@@ -303,7 +303,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBe('true');
     });
 
-    it('should have the sales channel defaults select for currencies field enabled', () => {
+    it('should have the sales channel defaults select for currencies field enabled', async () => {
         const wrapper = createWrapper([
             'sales_channel.editor'
         ]);
@@ -315,7 +315,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBeUndefined();
     });
 
-    it('should have the radio select field for taxCalculationType disabled', () => {
+    it('should have the radio select field for taxCalculationType disabled', async () => {
         const wrapper = createWrapper();
 
         const field = wrapper.find(
@@ -325,7 +325,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBe('true');
     });
 
-    it('should have the radio select field for taxCalculationType enabled', () => {
+    it('should have the radio select field for taxCalculationType enabled', async () => {
         const wrapper = createWrapper([
             'sales_channel.editor'
         ]);
@@ -337,10 +337,10 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBeUndefined();
     });
 
-    it('should have the sales-channel-detail-hreflang component disabled', () => {
+    it('should have the sales-channel-detail-hreflang component disabled', async () => {
         const wrapper = createWrapper();
 
-        wrapper.setProps({
+        await wrapper.setProps({
             salesChannel: {
                 typeId: STOREFRONT_SALES_CHANNEL_TYPE_ID
             }
@@ -353,12 +353,12 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBe('true');
     });
 
-    it('should have the sales-channel-detail-hreflang component enabled', () => {
+    it('should have the sales-channel-detail-hreflang component enabled', async () => {
         const wrapper = createWrapper([
             'sales_channel.editor'
         ]);
 
-        wrapper.setProps({
+        await wrapper.setProps({
             salesChannel: {
                 typeId: STOREFRONT_SALES_CHANNEL_TYPE_ID
             }
@@ -371,10 +371,10 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBeUndefined();
     });
 
-    it('should have the sales-channel-detail-domains component disabled', () => {
+    it('should have the sales-channel-detail-domains component disabled', async () => {
         const wrapper = createWrapper();
 
-        wrapper.setProps({
+        await wrapper.setProps({
             salesChannel: {
                 typeId: STOREFRONT_SALES_CHANNEL_TYPE_ID
             }
@@ -387,12 +387,12 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disableedit).toBe('true');
     });
 
-    it('should have the sales-channel-detail-domains component enabled', () => {
+    it('should have the sales-channel-detail-domains component enabled', async () => {
         const wrapper = createWrapper([
             'sales_channel.editor'
         ]);
 
-        wrapper.setProps({
+        await wrapper.setProps({
             salesChannel: {
                 typeId: STOREFRONT_SALES_CHANNEL_TYPE_ID
             }
@@ -405,10 +405,10 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disableedit).toBeUndefined();
     });
 
-    it('should have the select field for product export storefront sales channel id disabled', () => {
+    it('should have the select field for product export storefront sales channel id disabled', async () => {
         const wrapper = createWrapper();
 
-        wrapper.setProps({
+        await wrapper.setProps({
             salesChannel: {
                 typeId: PRODUCT_COMPARISON_TYPE_ID
             }
@@ -421,12 +421,12 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBe('true');
     });
 
-    it('should have the select field for product export storefront sales channel id enabled', () => {
+    it('should have the select field for product export storefront sales channel id enabled', async () => {
         const wrapper = createWrapper([
             'sales_channel.editor'
         ]);
 
-        wrapper.setProps({
+        await wrapper.setProps({
             salesChannel: {
                 typeId: PRODUCT_COMPARISON_TYPE_ID
             }
@@ -439,10 +439,10 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBeUndefined();
     });
 
-    it('should have the select field for product export sales channel domain id disabled', () => {
+    it('should have the select field for product export sales channel domain id disabled', async () => {
         const wrapper = createWrapper();
 
-        wrapper.setProps({
+        await wrapper.setProps({
             salesChannel: {
                 typeId: PRODUCT_COMPARISON_TYPE_ID
             },
@@ -459,12 +459,12 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBe('true');
     });
 
-    it('should have the select field for product export sales channel domain id enabled', () => {
+    it('should have the select field for product export sales channel domain id enabled', async () => {
         const wrapper = createWrapper([
             'sales_channel.editor'
         ]);
 
-        wrapper.setProps({
+        await wrapper.setProps({
             salesChannel: {
                 typeId: PRODUCT_COMPARISON_TYPE_ID
             },
@@ -481,10 +481,10 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBeUndefined();
     });
 
-    it('should have the select field for product export currency id disabled', () => {
+    it('should have the select field for product export currency id disabled', async () => {
         const wrapper = createWrapper();
 
-        wrapper.setProps({
+        await wrapper.setProps({
             salesChannel: {
                 typeId: PRODUCT_COMPARISON_TYPE_ID
             },
@@ -500,12 +500,12 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBe('true');
     });
 
-    it('should have the select field for product export currency id enabled', () => {
+    it('should have the select field for product export currency id enabled', async () => {
         const wrapper = createWrapper([
             'sales_channel.editor'
         ]);
 
-        wrapper.setProps({
+        await wrapper.setProps({
             salesChannel: {
                 typeId: PRODUCT_COMPARISON_TYPE_ID
             },
@@ -521,10 +521,10 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBeUndefined();
     });
 
-    it('should have the select field for product export sales channel domain language id disabled', () => {
+    it('should have the select field for product export sales channel domain language id disabled', async () => {
         const wrapper = createWrapper();
 
-        wrapper.setProps({
+        await wrapper.setProps({
             salesChannel: {
                 typeId: PRODUCT_COMPARISON_TYPE_ID
             },
@@ -540,12 +540,12 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBe('true');
     });
 
-    it('should have the select field for product export sales channel domain language id disabled', () => {
+    it('should have the select field for product export sales channel domain language id disabled', async () => {
         const wrapper = createWrapper([
             'sales_channel.editor'
         ]);
 
-        wrapper.setProps({
+        await wrapper.setProps({
             salesChannel: {
                 typeId: PRODUCT_COMPARISON_TYPE_ID
             },
@@ -561,10 +561,10 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBe('true');
     });
 
-    it('should have the select field for product export sales channel customer group id disabled', () => {
+    it('should have the select field for product export sales channel customer group id disabled', async () => {
         const wrapper = createWrapper();
 
-        wrapper.setProps({
+        await wrapper.setProps({
             salesChannel: {
                 typeId: PRODUCT_COMPARISON_TYPE_ID
             },
@@ -580,12 +580,12 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBe('true');
     });
 
-    it('should have the select field for product export sales channel customer group id disabled', () => {
+    it('should have the select field for product export sales channel customer group id disabled', async () => {
         const wrapper = createWrapper([
             'sales_channel.editor'
         ]);
 
-        wrapper.setProps({
+        await wrapper.setProps({
             salesChannel: {
                 typeId: PRODUCT_COMPARISON_TYPE_ID
             },
@@ -601,10 +601,10 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBe('true');
     });
 
-    it('should have the field for product export file name disabled', () => {
+    it('should have the field for product export file name disabled', async () => {
         const wrapper = createWrapper();
 
-        wrapper.setProps({
+        await wrapper.setProps({
             salesChannel: {
                 typeId: PRODUCT_COMPARISON_TYPE_ID
             }
@@ -617,12 +617,12 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBe('true');
     });
 
-    it('should have the field for product export file name enabled', () => {
+    it('should have the field for product export file name enabled', async () => {
         const wrapper = createWrapper([
             'sales_channel.editor'
         ]);
 
-        wrapper.setProps({
+        await wrapper.setProps({
             salesChannel: {
                 typeId: PRODUCT_COMPARISON_TYPE_ID
             }
@@ -635,10 +635,10 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBeUndefined();
     });
 
-    it('should have the select field for product export encoding disabled', () => {
+    it('should have the select field for product export encoding disabled', async () => {
         const wrapper = createWrapper();
 
-        wrapper.setProps({
+        await wrapper.setProps({
             salesChannel: {
                 typeId: PRODUCT_COMPARISON_TYPE_ID
             }
@@ -651,12 +651,12 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBe('true');
     });
 
-    it('should have the select field for product export encoding enabled', () => {
+    it('should have the select field for product export encoding enabled', async () => {
         const wrapper = createWrapper([
             'sales_channel.editor'
         ]);
 
-        wrapper.setProps({
+        await wrapper.setProps({
             salesChannel: {
                 typeId: PRODUCT_COMPARISON_TYPE_ID
             }
@@ -669,10 +669,10 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBeUndefined();
     });
 
-    it('should have the select field for product export file format disabled', () => {
+    it('should have the select field for product export file format disabled', async () => {
         const wrapper = createWrapper();
 
-        wrapper.setProps({
+        await wrapper.setProps({
             salesChannel: {
                 typeId: PRODUCT_COMPARISON_TYPE_ID
             }
@@ -685,12 +685,12 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBe('true');
     });
 
-    it('should have the select field for product export file format enabled', () => {
+    it('should have the select field for product export file format enabled', async () => {
         const wrapper = createWrapper([
             'sales_channel.editor'
         ]);
 
-        wrapper.setProps({
+        await wrapper.setProps({
             salesChannel: {
                 typeId: PRODUCT_COMPARISON_TYPE_ID
             }
@@ -703,10 +703,10 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBeUndefined();
     });
 
-    it('should have the field for product export includeVariants disabled', () => {
+    it('should have the field for product export includeVariants disabled', async () => {
         const wrapper = createWrapper();
 
-        wrapper.setProps({
+        await wrapper.setProps({
             salesChannel: {
                 typeId: PRODUCT_COMPARISON_TYPE_ID
             }
@@ -719,12 +719,12 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBe('true');
     });
 
-    it('should have the field for product export includeVariants enabled', () => {
+    it('should have the field for product export includeVariants enabled', async () => {
         const wrapper = createWrapper([
             'sales_channel.editor'
         ]);
 
-        wrapper.setProps({
+        await wrapper.setProps({
             salesChannel: {
                 typeId: PRODUCT_COMPARISON_TYPE_ID
             }
@@ -737,10 +737,10 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBeUndefined();
     });
 
-    it('should have the select number field for product export interval disabled', () => {
+    it('should have the select number field for product export interval disabled', async () => {
         const wrapper = createWrapper();
 
-        wrapper.setProps({
+        await wrapper.setProps({
             salesChannel: {
                 typeId: PRODUCT_COMPARISON_TYPE_ID
             }
@@ -753,12 +753,12 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBe('true');
     });
 
-    it('should have the select number field for product export interval enabled', () => {
+    it('should have the select number field for product export interval enabled', async () => {
         const wrapper = createWrapper([
             'sales_channel.editor'
         ]);
 
-        wrapper.setProps({
+        await wrapper.setProps({
             salesChannel: {
                 typeId: PRODUCT_COMPARISON_TYPE_ID
             }
@@ -771,10 +771,10 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBeUndefined();
     });
 
-    it('should have the switch field for product export generateByCronjob disabled', () => {
+    it('should have the switch field for product export generateByCronjob disabled', async () => {
         const wrapper = createWrapper();
 
-        wrapper.setProps({
+        await wrapper.setProps({
             salesChannel: {
                 typeId: PRODUCT_COMPARISON_TYPE_ID
             }
@@ -787,12 +787,12 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBe('true');
     });
 
-    it('should have the switch field for product export generateByCronjob enabled', () => {
+    it('should have the switch field for product export generateByCronjob enabled', async () => {
         const wrapper = createWrapper([
             'sales_channel.editor'
         ]);
 
-        wrapper.setProps({
+        await wrapper.setProps({
             salesChannel: {
                 typeId: PRODUCT_COMPARISON_TYPE_ID
             }
@@ -805,10 +805,10 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBeUndefined();
     });
 
-    it('should have the entity single field for product export productStreamId disabled', () => {
+    it('should have the entity single field for product export productStreamId disabled', async () => {
         const wrapper = createWrapper();
 
-        wrapper.setProps({
+        await wrapper.setProps({
             salesChannel: {
                 typeId: PRODUCT_COMPARISON_TYPE_ID
             }
@@ -821,12 +821,12 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBe('true');
     });
 
-    it('should have the entity single field for product export productStreamId enabled', () => {
+    it('should have the entity single field for product export productStreamId enabled', async () => {
         const wrapper = createWrapper([
             'sales_channel.editor'
         ]);
 
-        wrapper.setProps({
+        await wrapper.setProps({
             salesChannel: {
                 typeId: PRODUCT_COMPARISON_TYPE_ID
             }
@@ -839,10 +839,10 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBeUndefined();
     });
 
-    it('should have the field for salesChannel accessKey disabled', () => {
+    it('should have the field for salesChannel accessKey disabled', async () => {
         const wrapper = createWrapper();
 
-        wrapper.setProps({
+        await wrapper.setProps({
             salesChannel: {}
         });
 
@@ -853,12 +853,12 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBe('true');
     });
 
-    it('should have the field for salesChannel accessKey disabled', () => {
+    it('should have the field for salesChannel accessKey disabled', async () => {
         const wrapper = createWrapper([
             'sales_channel.editor'
         ]);
 
-        wrapper.setProps({
+        await wrapper.setProps({
             salesChannel: {}
         });
 
@@ -869,10 +869,10 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBe('true');
     });
 
-    it('should have the button for generate keys disabled', () => {
+    it('should have the button for generate keys disabled', async () => {
         const wrapper = createWrapper();
 
-        wrapper.setProps({
+        await wrapper.setProps({
             salesChannel: {}
         });
 
@@ -883,12 +883,12 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBe('true');
     });
 
-    it('should have the button for generate keys enabled', () => {
+    it('should have the button for generate keys enabled', async () => {
         const wrapper = createWrapper([
             'sales_channel.editor'
         ]);
 
-        wrapper.setProps({
+        await wrapper.setProps({
             salesChannel: {}
         });
 
@@ -899,10 +899,10 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBeUndefined();
     });
 
-    it('should have the field for productExport accesKey disabled', () => {
+    it('should have the field for productExport accesKey disabled', async () => {
         const wrapper = createWrapper();
 
-        wrapper.setProps({
+        await wrapper.setProps({
             salesChannel: {
                 typeId: PRODUCT_COMPARISON_TYPE_ID
             }
@@ -915,12 +915,12 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBe('true');
     });
 
-    it('should have the field for productExport accesKey disabled', () => {
+    it('should have the field for productExport accesKey disabled', async () => {
         const wrapper = createWrapper([
             'sales_channel.editor'
         ]);
 
-        wrapper.setProps({
+        await wrapper.setProps({
             salesChannel: {
                 typeId: PRODUCT_COMPARISON_TYPE_ID
             }
@@ -933,10 +933,10 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBe('true');
     });
 
-    it('should have the field for productExport accesUrl disabled', () => {
+    it('should have the field for productExport accesUrl disabled', async () => {
         const wrapper = createWrapper();
 
-        wrapper.setProps({
+        await wrapper.setProps({
             salesChannel: {
                 typeId: PRODUCT_COMPARISON_TYPE_ID
             },
@@ -952,12 +952,12 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBe('true');
     });
 
-    it('should have the field for productExport accesUrl disabled', () => {
+    it('should have the field for productExport accesUrl disabled', async () => {
         const wrapper = createWrapper([
             'sales_channel.editor'
         ]);
 
-        wrapper.setProps({
+        await wrapper.setProps({
             salesChannel: {
                 typeId: PRODUCT_COMPARISON_TYPE_ID
             },
@@ -973,7 +973,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBe('true');
     });
 
-    it('should have the button for generating the keys disabled', () => {
+    it('should have the button for generating the keys disabled', async () => {
         const wrapper = createWrapper();
 
         const field = wrapper.find(
@@ -983,7 +983,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBe('true');
     });
 
-    it('should have the button for generating the keys enabled', () => {
+    it('should have the button for generating the keys enabled', async () => {
         const wrapper = createWrapper([
             'sales_channel.editor'
         ]);
@@ -995,7 +995,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBeUndefined();
     });
 
-    it('should have the switch field for salesChannel active disabled', () => {
+    it('should have the switch field for salesChannel active disabled', async () => {
         const wrapper = createWrapper();
 
         const field = wrapper.find(
@@ -1005,7 +1005,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBe('true');
     });
 
-    it('should have the switch field for salesChannel active enabled', () => {
+    it('should have the switch field for salesChannel active enabled', async () => {
         const wrapper = createWrapper([
             'sales_channel.editor'
         ]);
@@ -1017,7 +1017,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBeUndefined();
     });
 
-    it('should have the switch field for salesChannel maintenance disabled', () => {
+    it('should have the switch field for salesChannel maintenance disabled', async () => {
         const wrapper = createWrapper();
 
         const field = wrapper.find(
@@ -1027,7 +1027,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBe('true');
     });
 
-    it('should have the switch field for salesChannel maintenance enabled', () => {
+    it('should have the switch field for salesChannel maintenance enabled', async () => {
         const wrapper = createWrapper([
             'sales_channel.editor'
         ]);
@@ -1039,7 +1039,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBeUndefined();
     });
 
-    it('should have the field multi tag ip select for maintenanceIpWhitelist disabled', () => {
+    it('should have the field multi tag ip select for maintenanceIpWhitelist disabled', async () => {
         const wrapper = createWrapper();
 
         const field = wrapper.find(
@@ -1049,7 +1049,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-base', () => 
         expect(field.attributes().disabled).toBe('true');
     });
 
-    it('should have the field multi tag ip select for maintenanceIpWhitelist enabled', () => {
+    it('should have the field multi tag ip select for maintenanceIpWhitelist enabled', async () => {
         const wrapper = createWrapper([
             'sales_channel.editor'
         ]);

@@ -286,6 +286,14 @@
             <tag name="shopware.cms.data_resolver" />
         </service>
 
+        <service id="Shopware\Core\Content\Media\Cms\YoutubeVideoCmsElementResolver">
+            <tag name="shopware.cms.data_resolver" />
+        </service>
+
+        <service id="Shopware\Core\Content\Media\Cms\VimeoVideoCmsElementResolver">
+            <tag name="shopware.cms.data_resolver" />
+        </service>
+
         <service id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaIndexer">
             <tag name="shopware.entity_indexer"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>

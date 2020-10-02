@@ -11,7 +11,6 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemPurchasePriceRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -45,11 +44,12 @@ class LineItemPurchasePriceRuleTest extends TestCase
     }
 
     /**
+     * @deprecated tag:v6.4.0 - purchasePrice will be removed in 6.4.0 use purchasePrices
+     *
      * @dataProvider getMatchingRuleTestData
      */
     public function testIfMatchesCorrectWithLineItem(string $operator, float $amount, float $lineItemAmount, bool $expected): void
     {
-        Feature::skipTestIfActive('FEATURE_NEXT_9825', $this);
         $this->rule->assign([
             'amount' => $amount,
             'operator' => $operator,
@@ -68,7 +68,6 @@ class LineItemPurchasePriceRuleTest extends TestCase
      */
     public function testIfMatchesCorrectWithLineItemPurchasePriceGross(string $operator, float $amount, float $lineItemPurchasePriceGross, bool $expected): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_9825', $this);
         $this->rule->assign([
             'isNet' => false,
             'amount' => $amount,
@@ -88,7 +87,6 @@ class LineItemPurchasePriceRuleTest extends TestCase
      */
     public function testIfMatchesCorrectWithLineItemPurchasePriceNet(string $operator, float $amount, float $lineItemPurchasePriceNet, bool $expected): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_9825', $this);
         $this->rule->assign([
             'isNet' => true,
             'amount' => $amount,
@@ -132,11 +130,12 @@ class LineItemPurchasePriceRuleTest extends TestCase
     }
 
     /**
+     * @deprecated tag:v6.4.0 - purchasePrice will be removed in 6.4.0 use purchasePrices
+     *
      * @dataProvider getCartRuleScopeTestData
      */
     public function testIfMatchesCorrectWithCartRuleScope(string $operator, float $amount, float $lineItemAmount1, float $lineItemAmount2, bool $expected): void
     {
-        Feature::skipTestIfActive('FEATURE_NEXT_9825', $this);
         $this->rule->assign([
             'amount' => $amount,
             'operator' => $operator,
@@ -163,7 +162,6 @@ class LineItemPurchasePriceRuleTest extends TestCase
      */
     public function testIfMatchesCorrectWithCartRuleScopePurchasePrice(string $operator, float $amount, float $lineItemPurchasePrice1, float $lineItemPurchasePrice2, bool $expected): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_9825', $this);
         $this->rule->assign([
             'isNet' => true,
             'amount' => $amount,
@@ -227,6 +225,9 @@ class LineItemPurchasePriceRuleTest extends TestCase
         static::assertFalse($match);
     }
 
+    /**
+     * @deprecated tag:v6.4.0 - purchasePrice will be removed in 6.4.0 use purchasePrices
+     */
     private function createLineItem(float $purchasePrice): LineItem
     {
         return (new LineItem(Uuid::randomHex(), 'product', null, 3))

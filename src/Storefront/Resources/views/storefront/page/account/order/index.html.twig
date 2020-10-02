@@ -7,9 +7,33 @@
 {% set orderState = page.order.stateMachineState.technicalName %}
 
 {% block page_checkout_confirm_header %}
+    {% if feature('FEATURE_NEXT_9351') %}
+        {% if page.errorCode == 'CHECKOUT__CUSTOMER_CANCELED_EXTERNAL_PAYMENT' %}
+            {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+                type: 'danger',
+                content: 'account.externalPaymentCanceled'|trans|sw_sanitize
+            } %}
+        {% elseif page.errorCode is not null %}
+            {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+                type: 'danger',
+                content: 'account.externalPaymentFailure'|trans|sw_sanitize
+            } %}
+        {% endif %}
+    {% endif %}
+
     <h1 class="confirm-main-header">
         {{ "account.editOrder"|trans|sw_sanitize }}
     </h1>
+{% endblock %}
+
+{% block page_checkout_confirm_tos_control %}
+    {% if feature('FEATURE_NEXT_9351') %}
+        {{ "checkout.confirmTermsReminder"|trans({
+            '%url%': path('frontend.cms.page', { id: shopware.config.core.basicInformation.tosPage })
+        })|raw }}
+    {% else %}
+        {{ parent() }}
+    {% endif %}
 {% endblock %}
 
 {% block page_checkout_confirm_address %}

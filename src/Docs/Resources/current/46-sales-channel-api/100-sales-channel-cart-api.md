@@ -1,6 +1,8 @@
 [titleEn]: <>(SalesChannel-API cart endpoint)
 [hash]: <>(article:api_sales_channel_cart)
 
+**The Sales Channel API is deprecated and will be removed with 6.4.0.0. Consider using the Store-API**
+
 The cart endpoint is used for various cart operations like adding line items to the cart, removing them,
 change their quantity and placing an order.
 

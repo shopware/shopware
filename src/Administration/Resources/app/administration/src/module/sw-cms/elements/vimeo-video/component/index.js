@@ -19,7 +19,10 @@ Component.register('sw-cms-el-vimeo-video', {
             return this.element.config.videoID.value;
         },
 
-        /** @deprecated tag:v6.4.0 - This computed prop will be removed because videos should never have autoplay in the administration */
+        /**
+         * @deprecated tag:v6.4.0 - This computed prop will be removed because videos should never have autoplay
+         * in the administration
+         */
         autoplay() {
             if (!this.element.config.autoplay.value) {
                 return '';
@@ -108,6 +111,7 @@ Component.register('sw-cms-el-vimeo-video', {
     methods: {
         createdComponent() {
             this.initElementConfig('vimeo-video');
+            this.initElementData('vimeo-video');
         }
     }
 });

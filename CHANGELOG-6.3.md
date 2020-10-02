@@ -1,32 +1,27 @@
+<!--- @deprecated tag:v6.4.0 -->
+
 CHANGELOG for 6.3.x
 ===================
+This file is **deprecated** and no longer in use. You will find the changelog in the [main changelog file](CHANGELOG.md).
 
-This changelog references the relevant changes (bug and security fixes) done
-in 6.3 minor versions.
-
-To get the diff for a specific change, go to https://github.com/shopware/platform/commit/XXX where XXX is the change hash
-To get the diff between two versions, go to https://github.com/shopware/platform/compare/6.2...master
+If you want to learn more about writing or using the changelog, have a look [here](/adr/2020-08-03-Implement-New-Changelog.md). 
 
 Table of contents
 ----------------
-* [Table of contents](#table-of-contents)
-* [NEXT](#NEXT)
-* [6.3.1.0](#6310)
+* [6.3.2.0](#6320)
 * [6.3.0.2](#6302)
 * [6.3.0.0](#6300)
   - [Administration](#administration)
   - [Core](#core)
   - [Storefront](#storefront)
   
-NEXT
-----------------
+
+## 6.3.2.0
 
 #### Administration
 * Added ACL permissions to countries module in settings
-* Added property `disabled` to `sw-settings-country-list` component
-* Added property `disabled` to `sw-settings-country-detail` component
-* Added property `disabled` to `sw-country-state-detail` component
-* Added property `disabled` to `sw-one-to-many-grid` component
+* Added property `allowDelete` to `sw-one-to-many-grid` component
+* Added property `tooltipDelete` to `sw-one-to-many-grid` component
 * Added ACL permissions to settings rule
 * Added property `disabled` to `sw-arrow-field` component
 * Added property `disabled` to `sw-condition-base` component
@@ -54,7 +49,13 @@ NEXT
 * Added ACL privileges to the `manufacturer` module
 * Added ACL privileges to the shopping experiences module for listing
 * Added a tooltip which shows the taxes detail for credit items and promotion items in create order and edit order page
-
+    * Added method `tooltipTaxDetail` in `module/sw-order/component/sw-order-line-items-grid/index.js` in order to generate tooltip message for tax detail of line item
+    * Added method `tooltipTaxDetail` in `module/sw-order/component/sw-order-line-items-grid-sales-channel/index.js` in order to generate tooltip message for tax detail of line item
+    * Added method `hasMultipleTaxes` in `module/sw-order/component/sw-order-line-items-grid/index.js` in order to check if line item has multiple taxes
+    * Added method `hasMultipleTaxes` in `module/sw-order/component/sw-order-line-items-grid-sales-channel/index.js` in order to check if line item has multiple taxes
+    * Added `{% block sw_order_line_items_grid_sales_channel_grid_columns_tax_content_tooltip %}` in `sw-order-line-items-grid-sales-channel.html.twig`
+    * Added `{% block sw_order_line_items_grid_grid_columns_tax_content_tooltip %}` in `sw-order-line-items-grid.html.twig`
+    
 #### Core
 * Changed order address from customer to billing address in documents
 * Added `sendMail` parameter to change state routes, which allows to skip the mail delivery. Affected routes:
@@ -73,11 +74,13 @@ NEXT
 	* `ProductCrossSellingRoute`	(/store-api/v{version}/product/{productId}/cross-selling)
 	* `ProductReviewRoute` 			(/store-api/v{version}/product/{productId}/reviews)
 	* `ProductReviewSaveRoute` 		(/store-api/v{version}/product/{productId}/review)
+	* `SitemapRoute` 		        (/store-api/v{version}/sitemap)
 * Added new structs:
 	* `\Shopware\Core\Content\Product\SalesChannel\CrossSelling\CrossSellingElementCollection`
 	* `\Shopware\Core\Content\Product\SalesChannel\CrossSelling\CrossSellingElement`
 	* `\Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationResult`
 	* `\Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilter`
+	* `\Shopware\Core\Content\Sitemap\Struct\SitemapCollection`
 * Added new `Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader` service
 * Added new `MultiFilter::addQuery` function:
 * Added and deprecated `\Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity::$configurator`, only used for backward compatibility
@@ -100,13 +103,6 @@ NEXT
 * Deprecated `\Shopware\Storefront\Page\Product\ProductLoader` use `Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute` instead
 * Changed `\Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateDefinition`, the `template`-property is not required anymore
 * Added `\Shopware\Core\Migration\Migration1598280548NullableSeoUrlTemplate` to mark `seo_url_template.template` nullable
-* Implemented individual sortings
-  * Added new `Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingEntity` to handle individual sortings stored in database
-  * Added new `\Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingTranslationEntity` to handle translated labels
-  * Deprecated `Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingSortingRegistry` for v6.4.0. 
-    Sortings are now stored in database, rather than declaring them as services
-  * Deprecated `Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingSorting` for v6.4.0.
-    Use `\Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingEntity` instead
 * Changed `\Shopware\Core\Content\Sitemap\Provider\CategoryUrlProvider` to list only categories associated to the current sales channels
 
 #### Storefront
@@ -293,6 +289,7 @@ NEXT
 * Deprecated `purchasePrice` in `Shopware\Core\Content\Product` use `purchasePrices` instead
 * Deprecated `payload.purchasePrice` in `Shopware\Core\Checkout\Cart\LineItem\LineItem` use `payload.purchasePrices` instead
 * Fixed a bug concering case insensetive IP comparsion in maintanence mode
+* Fixed a bug that manual shipping cost won't be recalculated if the cart is empty
 
 #### Storefront
 
@@ -1282,6 +1279,7 @@ Refactored `src/module/sw-plugin/snippet/en-GB.json`:
     * API version v1 is removed
     * API version v2 will be removed with next major version
 * Added `ProductCartProcessor::ALLOW_PRODUCT_LABEL_OVERWRITES`
+* Added `ProductCartProcessor::SKIP_PRODUCT_STOCK_VALIDATION`
 * Added `user:change-password` command to set the password of an administration user
 * Added `HttpCacheGenerateKeyEvent` to allow changing the hash
 * It is now possible to override the generic API routes with a `config/routes_overwrite.xml` in the bundle or plugin
@@ -1342,5 +1340,4 @@ Refactored `src/module/sw-plugin/snippet/en-GB.json`:
 * Added an additional class to the cart offcanvas called `cart-offcanvas`
 * Added all language flags according to language packs
 * Deprecated global `apiAccessUrl`
-* Deprecated `StoreApiClient`, use storefront controller instead
 * Deprecated `Shopware\Storefront\Controller\CsrfController::getApiAccess`, use storefront controller instead

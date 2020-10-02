@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
+use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -15,7 +16,6 @@ use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -31,6 +31,7 @@ class ProductCartProcessorTest extends TestCase
     public const TEST_LANGUAGE_ID = 'cc72c24b82684d72a4ce91054da264bf';
     public const TEST_LOCALE_ID = 'cf735c44dc7b4428bb3870fe4ffea2df';
     public const CUSTOM_FIELD_ID = '24c8b3e8cacc4bf2a743b8c5a7522a33';
+    public const PURCHASE_STEP_QUANTITY_ERROR_KEY = 'purchase-steps-quantity';
 
     /**
      * @var TestDataCollection
@@ -42,12 +43,18 @@ class ProductCartProcessorTest extends TestCase
      */
     private $cartService;
 
+    /**
+     * @var QuantityPriceCalculator
+     */
+    private $calculator;
+
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->ids = new TestDataCollection(Context::createDefaultContext());
         $this->cartService = $this->getContainer()->get(CartService::class);
+        $this->calculator = $this->getContainer()->get(QuantityPriceCalculator::class);
     }
 
     public function testDeliveryInformation(): void
@@ -139,7 +146,6 @@ class ProductCartProcessorTest extends TestCase
 
     public function testLineItemPropertiesPurchasePrice(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_9825', $this);
         $this->createProduct();
 
         $token = $this->ids->create('token');
@@ -417,6 +423,91 @@ class ProductCartProcessorTest extends TestCase
         ];
     }
 
+    public function testProcessCartShouldSkipProductStockValidation(): void
+    {
+        $this->createProduct();
+        $service = $this->getContainer()->get(CartService::class);
+        $token = $this->ids->create('token');
+        $options = [
+            SalesChannelContextService::PERMISSIONS => [ProductCartProcessor::SKIP_PRODUCT_STOCK_VALIDATION => true],
+        ];
+
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+            ->create($token, Defaults::SALES_CHANNEL, $options);
+
+        $product = $this->getContainer()->get(ProductLineItemFactory::class)
+            ->create($this->ids->get('product'));
+
+        $product->setLabel('My special product');
+
+        /** @var Cart $cart */
+        $cart = $service->getCart($token, $context);
+        $service->add($cart, $product, $context);
+
+        $actualProduct = $cart->get($product->getId());
+        static::assertEquals($product->getQuantity(), $actualProduct->getQuantity());
+        static::assertEquals($product->getPrice(), $this->calculator->calculate($product->getPriceDefinition(), $context));
+        static::assertEquals($product, $actualProduct);
+    }
+
+    /**
+     * @dataProvider productDeliverabilityProvider
+     */
+    public function testProcessCartShouldReturnFixedQuantity(int $minPurchase, int $purchaseSteps, int $maxPurchase, int $quantity, int $quantityExpected, bool $isCheckMessage): void
+    {
+        $additionalData = [
+            'maxPurchase' => $maxPurchase,
+            'minPurchase' => $minPurchase,
+            'purchaseSteps' => $purchaseSteps,
+        ];
+        $this->createProduct($additionalData);
+        $service = $this->getContainer()->get(CartService::class);
+        $token = $this->ids->create('token');
+        $options = [
+            SalesChannelContextService::PERMISSIONS => [ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES => true],
+        ];
+
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+            ->create($token, Defaults::SALES_CHANNEL, $options);
+
+        $config = [
+            'quantity' => $quantity,
+        ];
+        $product = $this->getContainer()->get(ProductLineItemFactory::class)
+            ->create($this->ids->get('product'), $config);
+
+        $product->setLabel('My special product');
+
+        /** @var Cart $cart */
+        $cart = $service->getCart($token, $context);
+        $service->add($cart, $product, $context);
+
+        $actualProduct = $cart->get($product->getId());
+        static::assertEquals($quantityExpected, $actualProduct->getQuantity());
+        if ($isCheckMessage) {
+            static::assertEquals(self::PURCHASE_STEP_QUANTITY_ERROR_KEY, $service->getCart($token, $context)->getErrors()->first()->getMessageKey());
+        }
+    }
+
+    public function productDeliverabilityProvider()
+    {
+        return [
+            'fixed quantity should be return 2' => [2, 2, 20, 3, 2, true],
+            'fixed quantity should be return 4' => [2, 2, 20, 5, 4, true],
+            'fixed quantity should be return 3' => [1, 2, 20, 4, 3, true],
+            'fixed quantity should be return 9' => [1, 2, 20, 10, 9, true],
+            'fixed quantity should be return 5, actual quantity is 6' => [5, 5, 20, 6, 5, true],
+            'fixed quantity should be return 5, actual quantity is 7' => [5, 5, 20, 7, 5, true],
+            'fixed quantity should be return 5, actual quantity is 8' => [5, 5, 20, 8, 5, true],
+            'fixed quantity should be return 5, actual quantity is 9' => [5, 5, 20, 9, 5, true],
+            'fixed quantity should be return equal max purchase' => [2, 2, 20, 22, 20, false],
+            'fixed quantity should be return equal min purchase' => [2, 2, 20, 1, 2, false],
+            'fixed quantity should be return 1' => [1, 3, 5, 2, 1, true],
+            'fixed quantity should be return 10 with error message' => [10, 3, 12, 11, 10, true],
+            'fixed quantity should be return 10, without error message' => [10, 2, 20, 2, 10, false],
+        ];
+    }
+
     private function getProductCart(): Cart
     {
         $product = $this->getContainer()->get(ProductLineItemFactory::class)
@@ -443,6 +534,10 @@ class ProductCartProcessorTest extends TestCase
                 ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
             ],
             'purchasePrice' => 7.5,
+            'purchasePrices' => [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => 7.5, 'net' => 5, 'linked' => false],
+                ['currencyId' => Uuid::randomHex(), 'gross' => 150, 'net' => 100, 'linked' => false],
+            ],
             'active' => true,
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'weight' => 100,
@@ -458,12 +553,7 @@ class ProductCartProcessorTest extends TestCase
                 ],
             ],
         ];
-        if (Feature::isActive('FEATURE_NEXT_9825')) {
-            $data['purchasePrices'] = [
-                ['currencyId' => Defaults::CURRENCY, 'gross' => 7.5, 'net' => 5, 'linked' => false],
-                ['currencyId' => Uuid::randomHex(), 'gross' => 150, 'net' => 100, 'linked' => false],
-            ];
-        }
+
         $data = array_merge($data, $additionalData);
 
         $this->getContainer()->get('product.repository')

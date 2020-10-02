@@ -90,6 +90,20 @@ class ProductIndexer extends EntityIndexer
      */
     private $eventDispatcher;
 
+    /**
+     * @deprecated tag:v6.4.0 - property $productPurchasePriceDeprecationUpdater will be removed in 6.4.0
+     *
+     * @var ProductPurchasePriceDeprecationUpdater
+     */
+    private $productPurchasePriceDeprecationUpdater;
+
+    /**
+     * @deprecated tag:v6.4.0 - property $blueGreenEnabled will be removed in 6.4.0
+     *
+     * @var bool
+     */
+    private $blueGreenEnabled;
+
     public function __construct(
         IteratorFactory $iteratorFactory,
         EntityRepositoryInterface $repository,
@@ -104,7 +118,9 @@ class ProductIndexer extends EntityIndexer
         ChildCountUpdater $childCountUpdater,
         ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater,
         StockUpdater $stockUpdater,
-        EventDispatcherInterface $eventDispatcher
+        ProductPurchasePriceDeprecationUpdater $productPurchasePriceDeprecationUpdater,
+        EventDispatcherInterface $eventDispatcher,
+        bool $blueGreenEnabled
     ) {
         $this->iteratorFactory = $iteratorFactory;
         $this->repository = $repository;
@@ -120,6 +136,8 @@ class ProductIndexer extends EntityIndexer
         $this->manyToManyIdFieldUpdater = $manyToManyIdFieldUpdater;
         $this->stockUpdater = $stockUpdater;
         $this->eventDispatcher = $eventDispatcher;
+        $this->productPurchasePriceDeprecationUpdater = $productPurchasePriceDeprecationUpdater;
+        $this->blueGreenEnabled = $blueGreenEnabled;
     }
 
     public function getName(): string
@@ -148,6 +166,11 @@ class ProductIndexer extends EntityIndexer
             return null;
         }
 
+        $productEvent = $event->getEventByEntityName(ProductDefinition::ENTITY_NAME);
+        if (!$this->blueGreenEnabled && $productEvent) {
+            $this->productPurchasePriceDeprecationUpdater->updateByEvent($productEvent);
+        }
+
         $this->inheritanceUpdater->update(ProductDefinition::ENTITY_NAME, $updates, $event->getContext());
 
         $this->stockUpdater->update($updates, $event->getContext());
@@ -162,6 +185,10 @@ class ProductIndexer extends EntityIndexer
 
         if (empty($ids)) {
             return;
+        }
+
+        if (!$this->blueGreenEnabled) {
+            $this->productPurchasePriceDeprecationUpdater->updateByProductId($ids);
         }
 
         $parentIds = $this->getParentIds($ids);

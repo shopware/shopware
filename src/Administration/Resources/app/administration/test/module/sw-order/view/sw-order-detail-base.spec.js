@@ -112,19 +112,19 @@ function createWrapper(privileges = []) {
 describe('src/module/sw-order/view/sw-order-detail-base', () => {
     let wrapper;
 
-    beforeEach(() => {
-        wrapper = createWrapper();
+    beforeEach(async () => {
+        wrapper = await createWrapper();
     });
 
-    afterEach(() => {
-        wrapper.destroy();
+    afterEach(async () => {
+        await wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should have an disabled payment state', () => {
+    it('should have an disabled payment state', async () => {
         const paymentState = wrapper.find('.sw-order-state-select__payment-state');
 
         expect(paymentState.attributes().disabled).toBe('true');
@@ -133,12 +133,13 @@ describe('src/module/sw-order/view/sw-order-detail-base', () => {
     it('should not have an disabled payment state', async () => {
         await wrapper.destroy();
         wrapper = await createWrapper(['order.editor']);
+        await wrapper.vm.$nextTick();
 
         const paymentState = wrapper.find('.sw-order-state-select__payment-state');
         expect(paymentState.attributes().disabled).toBeUndefined();
     });
 
-    it('should have an disabled delivery state', () => {
+    it('should have an disabled delivery state', async () => {
         const deliveryState = wrapper.find('.sw-order-state-select__delivery-state');
 
         expect(deliveryState.attributes().disabled).toBe('true');
@@ -147,12 +148,13 @@ describe('src/module/sw-order/view/sw-order-detail-base', () => {
     it('should not have an disabled delivery state', async () => {
         await wrapper.destroy();
         wrapper = await createWrapper(['order.editor']);
+        await wrapper.vm.$nextTick();
 
         const deliveryState = wrapper.find('.sw-order-state-select__delivery-state');
         expect(deliveryState.attributes().disabled).toBeUndefined();
     });
 
-    it('should have an disabled order state', () => {
+    it('should have an disabled order state', async () => {
         const orderState = wrapper.find('.sw-order-state-select__order-state');
 
         expect(orderState.attributes().disabled).toBe('true');
@@ -161,6 +163,7 @@ describe('src/module/sw-order/view/sw-order-detail-base', () => {
     it('should not have an disabled order state', async () => {
         await wrapper.destroy();
         wrapper = await createWrapper(['order.editor']);
+        await wrapper.vm.$nextTick();
 
         const orderState = wrapper.find('.sw-order-state-select__order-state');
         expect(orderState.attributes().disabled).toBeUndefined();

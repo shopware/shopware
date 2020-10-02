@@ -82,6 +82,7 @@ Table(ShopwareCoreContentProductProductDefinition, "product\n(Product)") {
    customFields translated
    variation list
    featureSetId foreignKey
+   purchasePrices price
    not_null(createdAt) createdAt
    updatedAt updatedAt
    translated json

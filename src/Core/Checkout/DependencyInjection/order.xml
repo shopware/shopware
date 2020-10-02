@@ -112,9 +112,11 @@
             <argument type="service" id="order_transaction.repository"/>
             <argument type="service" id="order_delivery.repository"/>
             <argument type="service" id="event_dispatcher"/>
-            <tag name="kernel.event_listener" event="state_machine.order.state_changed" method="onOrderStateChange"/>
-            <tag name="kernel.event_listener" event="state_machine.order_delivery.state_changed" method="onOrderDeliveryStateChange"/>
-            <tag name="kernel.event_listener" event="state_machine.order_transaction.state_changed" method="onOrderTransactionStateChange"/>
+            <tag name="kernel.event_subscriber"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter"/>
+            <argument type="service" id="Shopware\Core\Framework\Event\BusinessEventCollector"/>
+            <argument type="service" id="state_machine_state.repository"/>
+            <argument type="service" id="payment_method.repository"/>
         </service>
     </services>
 </container>

@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Test\Product\Api;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -21,7 +20,6 @@ class ProductApiConverterTest extends TestCase
 
     public function testPurchasePriceConverter(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_9825', $this);
         $ids = new TestDataCollection(Context::createDefaultContext());
 
         $data = [

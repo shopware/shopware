@@ -9,9 +9,15 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 class Migration1575021466AddCurrencies extends MigrationStep
 {
+    /**
+     * @var string|null
+     */
     private $deLanguage = null;
 
-    private $enLanguage = null;
+    /**
+     * @var string|null
+     */
+    private $defaultLanguage = null;
 
     public function getCreationTimestamp(): int
     {
@@ -63,12 +69,17 @@ class Migration1575021466AddCurrencies extends MigrationStep
 
         if (!$langId) {
             $connection->insert('currency', ['id' => $id, 'iso_code' => $isoCode, 'factor' => $factor, 'symbol' => $symbol, 'position' => 1, 'decimal_precision' => 2, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
-            $connection->insert('currency_translation', ['currency_id' => $id, 'language_id' => $languageEN, 'short_name' => $shortNameEn, 'name' => $nameEn, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
-            $connection->insert('currency_translation', ['currency_id' => $id, 'language_id' => $languageDE, 'short_name' => $shortNameDe, 'name' => $nameDe, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
+            if ($languageEN !== $languageDE) {
+                $connection->insert('currency_translation', ['currency_id' => $id, 'language_id' => $languageEN, 'short_name' => $shortNameEn, 'name' => $nameEn, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
+            }
+
+            if ($languageDE) {
+                $connection->insert('currency_translation', ['currency_id' => $id, 'language_id' => $languageDE, 'short_name' => $shortNameDe, 'name' => $nameDe, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
+            }
         }
     }
 
-    private function getDeLanguageId(Connection $connection)
+    private function getDeLanguageId(Connection $connection): ?string
     {
         if (!$this->deLanguage) {
             $this->deLanguage = $this->fetchLanguageId('de-DE', $connection);
@@ -77,20 +88,28 @@ class Migration1575021466AddCurrencies extends MigrationStep
         return $this->deLanguage;
     }
 
-    private function getEnLanguageId(Connection $connection)
+    private function getEnLanguageId(Connection $connection): ?string
     {
-        if (!$this->enLanguage) {
-            $this->enLanguage = $this->fetchLanguageId('en-GB', $connection);
+        if (!$this->defaultLanguage) {
+            $this->defaultLanguage = $this->fetchLanguageId('en-GB', $connection);
         }
 
-        return $this->enLanguage;
+        return $this->defaultLanguage;
     }
 
-    private function fetchLanguageId(string $code, Connection $connection)
+    private function fetchLanguageId(string $code, Connection $connection): ?string
     {
         $langId = $connection->fetchColumn('
         SELECT `language`.`id` FROM `language` INNER JOIN `locale` ON `language`.`translation_code_id` = `locale`.`id` WHERE `code` = :code LIMIT 1
         ', ['code' => $code]);
+
+        if (!$langId && $code !== 'en-GB') {
+            return null;
+        }
+
+        if (!$langId) {
+            return Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
+        }
 
         return $langId;
     }

@@ -26,16 +26,22 @@ export default class ShippingMethodPageObject {
     }
 
     createShippingMethodPriceRule() {
-        cy.get('.sw-settings-shipping-price-matrices__actions').scrollIntoView();
-        cy.get('.sw-settings-shipping-price-matrices__actions .sw-button').click();
+        cy.get('.sw-settings-shipping-price-matrices').then(($el) => {
+            if ($el.find('.sw-settings-shipping-price-matrix').length <= 0) {
+                cy.get('.sw-settings-shipping-price-matrices__actions').scrollIntoView();
+                cy.get('.sw-settings-shipping-price-matrices__actions .sw-button').click();
 
-        cy.get('.sw-settings-shipping-price-matrices').scrollIntoView();
-        cy.get('.sw-settings-shipping-price-matrix__empty--select-property').typeSingleSelect(
-            'Product quantity',
-            '.sw-settings-shipping-price-matrix__empty--select-property'
-        );
+                cy.get('.sw-settings-shipping-price-matrices').scrollIntoView();
+                cy.get('.sw-settings-shipping-price-matrix__empty--select-property').typeSingleSelect(
+                    'Product quantity',
+                    '.sw-settings-shipping-price-matrix__empty--select-property'
+                );
 
-        cy.get('.sw-settings-shipping-price-matrix__empty--select-property').should('not.exist');
+                cy.get('.sw-settings-shipping-price-matrix__empty--select-property').should('not.exist');
+            }
+        });
+
+
         cy.get(`${this.elements.dataGridRow}--0 .sw-data-grid__cell--quantityStart input`).type('0');
         cy.get(`${this.elements.dataGridRow}--0 .sw-data-grid__cell--quantityEnd input`).type('12');
 

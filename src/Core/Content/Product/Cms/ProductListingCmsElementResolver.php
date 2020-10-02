@@ -45,8 +45,10 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
         $context = $resolverContext->getSalesChannelContext();
 
         if (Feature::isActive('FEATURE_NEXT_5983')) {
-            $this->addDefaultSorting($request, $slot);
-            $this->restrictSortings($request, $slot);
+            if ($this->isCustomSorting($slot)) {
+                $this->restrictSortings($request, $slot);
+                $this->addDefaultSorting($request, $slot);
+            }
         }
 
         $navigationId = $this->getNavigationId($request, $context);
@@ -76,6 +78,17 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
         return $salesChannelContext->getSalesChannel()->getNavigationCategoryId();
     }
 
+    private function isCustomSorting(CmsSlotEntity $slot): bool
+    {
+        $config = $slot->getTranslation('config');
+
+        if ($config && isset($config['useCustomSorting']) && isset($config['useCustomSorting']['value'])) {
+            return $config['useCustomSorting']['value'];
+        }
+
+        return false;
+    }
+
     private function addDefaultSorting(Request $request, CmsSlotEntity $slot): void
     {
         if ($request->get('order')) {
@@ -84,8 +97,18 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
 
         $config = $slot->getTranslation('config');
 
-        if ($config && isset($config['defaultSorting'])) {
-            $request->request->set('order', $config['defaultSorting']);
+        if ($config && isset($config['defaultSorting']) && isset($config['defaultSorting']['value']) && $config['defaultSorting']['value']) {
+            $request->request->set('order', $config['defaultSorting']['value']);
+
+            return;
+        }
+
+        // if we have no specific order given at this point, set the order to be the highest's priority available sorting
+        if ($request->get('availableSortings')) {
+            $availableSortings = $request->get('availableSortings');
+            arsort($availableSortings, SORT_DESC | SORT_NUMERIC);
+
+            $request->request->set('order', \array_key_first($availableSortings));
         }
     }
 

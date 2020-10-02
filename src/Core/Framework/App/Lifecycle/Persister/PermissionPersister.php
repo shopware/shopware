@@ -27,13 +27,26 @@ class PermissionPersister
     }
 
     /**
-     * @internal only for use by the spp-system
+     * @internal only for use by the app-system
      */
     public function updatePrivileges(?Permissions $permissions, string $roleId): void
     {
         $privileges = $this->generatePrivileges($permissions ? $permissions->getPermissions() : []);
 
         $this->addPrivileges($privileges, $roleId);
+    }
+
+    /**
+     * @internal only for use by the app-system
+     */
+    public function removeRole(string $roleId): void
+    {
+        $this->connection->executeUpdate(
+            'DELETE FROM `acl_role` WHERE id = :id',
+            [
+                'id' => Uuid::fromHexToBytes($roleId),
+            ]
+        );
     }
 
     private function addPrivileges(array $privileges, string $roleId): void

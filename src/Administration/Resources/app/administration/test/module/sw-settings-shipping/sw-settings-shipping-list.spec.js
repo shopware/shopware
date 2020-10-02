@@ -39,7 +39,9 @@ function createWrapper(privileges = []) {
             }
         },
         stubs: {
-            'sw-page': '<div><slot name="content"></slot><slot name="smart-bar-actions"></slot></div>',
+            'sw-page': {
+                template: '<div><slot name="content"></slot><slot name="smart-bar-actions"></slot></div>'
+            },
             'sw-button': true,
             'sw-entity-listing': true,
             'sw-empty-state': true
@@ -48,13 +50,13 @@ function createWrapper(privileges = []) {
 }
 
 describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
-    it('should be a vue js component', () => {
+    it('should be a vue js component', async () => {
         const wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should have all fields disabled', () => {
+    it('should have all fields disabled', async () => {
         const wrapper = createWrapper();
 
         const entityListing = wrapper.find('sw-entity-listing-stub');
@@ -66,7 +68,7 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
         expect(button.attributes().disabled).toBe('true');
     });
 
-    it('should have edit fields enabled', () => {
+    it('should have edit fields enabled', async () => {
         const wrapper = createWrapper([
             'shipping.editor'
         ]);
@@ -81,7 +83,7 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
         expect(button.attributes().disabled).toBe('true');
     });
 
-    it('should have delete fields enabled', () => {
+    it('should have delete fields enabled', async () => {
         const wrapper = createWrapper([
             'shipping.editor',
             'shipping.deleter'
@@ -96,7 +98,7 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
         expect(button.attributes().disabled).toBe('true');
     });
 
-    it('should have creator fields enabled', () => {
+    it('should have creator fields enabled', async () => {
         const wrapper = createWrapper([
             'shipping.editor',
             'shipping.deleter',

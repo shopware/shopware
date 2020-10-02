@@ -74,7 +74,8 @@
         "labelMultiSelect": "Mehrfachauswahl",
         "tooltipCustomFieldPosition": "Steuert die Position des Zusatzfeldes auf den Detailseiten.",
         "tooltipRequired": "Macht dieses Zusatzfeld zu einem Pflichtfeld auf Detailseiten.",
-        "placeholderCustomFieldType": "Wähle aus ..."
+        "placeholderCustomFieldType": "Wähle aus ...",
+        "infoText": "Wenn Du ein Zusatzfeld erstellst, wird ein entsprechender Textbaustein in allen Deinen Textbaustein-Sets erstellt. Du findest den Textbaustein unter dem Namen \"customField.{name}\"."
       },
       "list": {
         "labelCustomFieldLabel": "Label",
@@ -99,6 +100,13 @@
       "string": "Text",
       "int": "Zahl",
       "colorpicker": "Farbauswahl"
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "custom_field": {
+        "label": "Zusatzfelder"
+      }
     }
   }
 }

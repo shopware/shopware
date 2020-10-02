@@ -59,6 +59,8 @@ class MailTemplateEntity extends Entity
     protected $customFields;
 
     /**
+     * @feature-deprecated (flag:FEATURE_NEXT_9351) tag:v6.4.0 - Will be removed, sales channel specific templates will be handled by business events
+     *
      * @var MailTemplateSalesChannelCollection|null
      */
     protected $salesChannels;
@@ -143,11 +145,17 @@ class MailTemplateEntity extends Entity
         $this->contentPlain = $contentPlain;
     }
 
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_9351) tag:v6.4.0 - Will be removed, sales channel specific templates will be handled by business events
+     */
     public function getSalesChannels(): ?MailTemplateSalesChannelCollection
     {
         return $this->salesChannels;
     }
 
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_9351) tag:v6.4.0 - Will be removed, sales channel specific templates will be handled by business events
+     */
     public function setSalesChannels(MailTemplateSalesChannelCollection $salesChannels): void
     {
         $this->salesChannels = $salesChannels;

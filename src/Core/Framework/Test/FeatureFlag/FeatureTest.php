@@ -13,6 +13,8 @@ class FeatureTest extends TestCase
 {
     use KernelTestBehaviour;
 
+    public static $featureAllValue;
+
     private $indicator;
 
     private $fixtureFlags = [
@@ -20,8 +22,19 @@ class FeatureTest extends TestCase
         'FEATURE_NEXT_102',
     ];
 
+    public static function setUpBeforeClass(): void
+    {
+        self::$featureAllValue = $_SERVER['FEATURE_ALL'] ?? 'false';
+    }
+
+    public static function tearDownAfterClass(): void
+    {
+        $_ENV['FEATURE_ALL'] = $_SERVER['FEATURE_ALL'] = self::$featureAllValue;
+    }
+
     protected function setUp(): void
     {
+        $_ENV['FEATURE_ALL'] = $_SERVER['FEATURE_ALL'] = 'false';
         $_SERVER['APP_ENV'] = 'test';
         Feature::setRegisteredFeatures(
             $this->getContainer()->getParameter('shopware.feature.flags'),

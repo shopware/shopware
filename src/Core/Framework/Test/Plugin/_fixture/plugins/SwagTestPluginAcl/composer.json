@@ -1,0 +1,47 @@
+{
+  "name": "swag/test-plugin-acl",
+  "description": "Test description",
+  "version": "v1.0.2",
+  "type": "shopware-platform-plugin",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "shopware AG",
+      "role": "Manufacturer"
+    },
+    {
+      "name": "John Doe",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "shopware/core": ">=6.0"
+  },
+  "extra": {
+    "shopware-plugin-class": "SwagTestPluginAcl\\SwagTestPluginAcl",
+    "plugin-icon": "src/Resources/public/plugin.png",
+    "copyright": "(c) by shopware AG",
+    "label": {
+      "de-DE": "Deutscher Pluginname",
+      "de-CH": "Schweizerdeutsch Pluginname",
+      "en-GB": "English plugin name"
+    },
+    "description": {
+      "de-DE": "Deutsche Beschreibung",
+      "en-GB": "English description"
+    },
+    "manufacturerLink": {
+      "de-DE": "https://www.example.com/de/",
+      "en-GB": "https://www.example.com/"
+    },
+    "supportLink": {
+      "de-DE": "https://www.example.com/de/support",
+      "en-GB": "https://www.example.com/support"
+    }
+  },
+  "autoload": {
+    "psr-4": {
+      "SwagTestPluginAcl\\": "src"
+    }
+  }
+}

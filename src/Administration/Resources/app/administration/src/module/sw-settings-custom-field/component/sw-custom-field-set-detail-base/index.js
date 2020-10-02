@@ -5,7 +5,7 @@ const { Component } = Shopware;
 Component.register('sw-custom-field-set-detail-base', {
     template,
 
-    inject: ['customFieldDataProviderService'],
+    inject: ['customFieldDataProviderService', 'acl'],
 
     props: {
         set: {

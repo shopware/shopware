@@ -29,5 +29,12 @@
       "placeholderNewSalutation": "New salutation...",
       "notificationErrorMessage": "An error occured while saving your salutation."
     }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "salutation": {
+        "label": "Salutations"
+      }
+    }
   }
 }

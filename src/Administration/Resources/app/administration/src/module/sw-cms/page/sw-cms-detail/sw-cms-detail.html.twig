@@ -7,6 +7,7 @@
                         {% block sw_cms_detail_toolbar_language_switch %}
                             <sw-language-switch slot="language-switch"
                                                 :disabled="isLoading || page.locked"
+                                                :allowEdit="acl.can('cms.editor')"
                                                 @on-change="onChangeLanguage"
                                                 :saveChangesFunction="saveOnLanguageChange"
                                                 :abortChangeFunction="abortOnLanguageChange">
@@ -56,7 +57,7 @@
 
                                 {% block sw_cms_detail_toolbar_device_actions_form %}
                                     <sw-icon name="default-basic-stack-block"
-                                             :class="{ 'is--active': currentDeviceView === 'form' }"
+                                             :class="{ 'is--active': currentDeviceView === 'form', 'is--disabled': !acl.can('cms.editor') }"
                                              @click="onDeviceViewChange('form')">
                                     </sw-icon>
                                 {% endblock %}
@@ -71,7 +72,7 @@
                                             class="sw-cms-detail__save-action"
                                             :isLoading="isLoading"
                                             :processSuccess="isSaveSuccessful"
-                                            :disabled="isLoading || page.locked"
+                                            :disabled="isLoading || page.locked || !acl.can('cms.editor')"
                                             variant="primary"
                                             @process-finish="saveFinish"
                                             v-tooltip.bottom="tooltipSave"
@@ -121,6 +122,7 @@
                                                 <h2 class="sw-cms-detail__empty-stage-headline">{{ $tc('sw-cms.detail.label.headlineEmptyState') }}</h2>
                                                 <p class="sw-cms-detail__empty-stage-claim">{{ $tc('sw-cms.detail.label.claimEmptyState') }}</p>
                                                 <sw-cms-stage-add-section :key="0"
+                                                                          :disabled="!acl.can('cms.editor')"
                                                                           :forceChoose="true"
                                                                           @stage-section-add="onAddSection($event, 0)">
                                                 </sw-cms-stage-add-section>
@@ -137,6 +139,7 @@
 
                                         {% block sw_cms_detail_stage_add_first_section %}
                                             <sw-cms-stage-add-section :key="0"
+                                                                      :disabled="!acl.can('cms.editor')"
                                                                       @stage-section-add="onAddSection($event, 0)">
                                             </sw-cms-stage-add-section>
                                         {% endblock %}
@@ -152,6 +155,7 @@
                                                                         :active="selectedSection !== null && selectedSection.id === section.id"
                                                                         @page-config-open="pageConfigOpen"
                                                                         @block-duplicate="onBlockDuplicate"
+                                                                        :disabled="!acl.can('cms.editor')"
                                                                         :key="section.id">
                                                         </sw-cms-section>
                                                     {% endblock %}
@@ -161,6 +165,7 @@
 
                                         {% block sw_cms_detail_stage_add_last_section %}
                                             <sw-cms-stage-add-section :key="page.sections.length + 1"
+                                                                      :disabled="!acl.can('cms.editor')"
                                                                       @stage-section-add="onAddSection($event, page.sections.length)">
                                             </sw-cms-stage-add-section>
                                         {% endblock %}
@@ -174,6 +179,7 @@
                                             :page="page"
                                             :demoEntity="currentMappingEntity"
                                             :demoEntityIdProp="demoEntityId"
+                                            :disabled="!acl.can('cms.editor')"
                                             @demo-entity-change="onDemoEntityChange"
                                             @block-duplicate="onBlockDuplicate"
                                             @section-duplicate="onSectionDuplicate"

@@ -164,6 +164,7 @@ class ProductConfiguratorLoader
                         return strnatcmp($a->getTranslation('name'), $b->getTranslation('name'));
                     }
 
+                    /* @deprecated tag:v6.4.0 - SORTING_TYPE_NUMERIC will be removed in 6.4.0 */
                     if ($group->getSortingType() === PropertyGroupDefinition::SORTING_TYPE_NUMERIC) {
                         return $a->getTranslation('name') <=> $b->getTranslation('name');
                     }

@@ -75,7 +75,7 @@ Component.register('sw-condition-type-select', {
             if (this.disabled) {
                 return {
                     primary: '#d1d9e0',
-                    secondary: 'transparent'
+                    secondary: '#d1d9e0'
                 };
             }
 

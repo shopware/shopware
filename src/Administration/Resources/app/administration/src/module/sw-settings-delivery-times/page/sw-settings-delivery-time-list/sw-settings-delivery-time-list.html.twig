@@ -68,6 +68,7 @@
                                             :columns="deliveryTimeColumns()"
                                             :repository="deliveryTimeRepository"
                                             detailRoute="sw.settings.delivery.time.detail"
+                                            :allowView="acl.can('delivery_times.viewer')"
                                             :allowEdit="acl.can('delivery_times.editor')"
                                             :allowDelete="acl.can('delivery_times.deleter')"
                                             :allowColumnEdit="false"

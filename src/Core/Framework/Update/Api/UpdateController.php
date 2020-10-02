@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Update\Api;
 
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
+use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceUserException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -221,7 +222,7 @@ class UpdateController extends AbstractController
             $this->systemConfig->set(self::UPDATE_TOKEN_KEY, $updateToken);
 
             return new JsonResponse([
-                'redirectTo' => $request->getBaseUrl() . '/api/v' . PlatformRequest::API_VERSION . ' /_action/update/finish/' . $this->systemConfig->get(self::UPDATE_TOKEN_KEY),
+                'redirectTo' => $request->getBaseUrl() . '/api/v' . PlatformRequest::API_VERSION . ' /_action/update/finish/' . $updateToken,
             ]);
         }
 
@@ -302,7 +303,7 @@ class UpdateController extends AbstractController
     public function finish(string $token, Request $request, Context $context): Response
     {
         $offset = $request->query->getInt('offset');
-        $oldVersion = (string) $this->systemConfig->get(self::UPDATE_PREVIOUS_VERSION_KEY);
+        $oldVersion = $this->systemConfig->getString(self::UPDATE_PREVIOUS_VERSION_KEY);
         if ($offset === 0) {
             if (!$token) {
                 return $this->redirectToRoute('administration.index');
@@ -328,11 +329,15 @@ class UpdateController extends AbstractController
 
     private function getUpdateLocale(Context $context): string
     {
-        if (!$context->getSource() instanceof AdminApiSource) {
-            throw new InvalidContextSourceException(AdminApiSource::class, \get_class($context->getSource()));
+        $contextSource = $context->getSource();
+        if (!($contextSource instanceof AdminApiSource)) {
+            throw new InvalidContextSourceException(AdminApiSource::class, \get_class($contextSource));
         }
 
-        $userId = $context->getSource()->getUserId();
+        $userId = $contextSource->getUserId();
+        if ($userId === null) {
+            throw new InvalidContextSourceUserException(\get_class($contextSource));
+        }
 
         $criteria = new Criteria([$userId]);
         $criteria->getAssociation('locale');

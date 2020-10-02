@@ -17,6 +17,8 @@ import {
     getArrayChanges,
     cloneDeep,
     merge,
+    mergeWith,
+    deepMergeObject,
     get,
     set,
     pick
@@ -36,6 +38,8 @@ export const object = {
     getArrayChanges: getArrayChanges,
     cloneDeep: cloneDeep,
     merge: merge,
+    mergeWith: mergeWith,
+    deepMergeObject: deepMergeObject,
     get: get,
     set: set,
     pick: pick

@@ -257,7 +257,6 @@ Component.register('sw-promotion-detail', {
             } catch (error) {
                 this.isLoading = false;
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
                     message: this.$tc(
                         'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'
                     )
@@ -294,7 +293,6 @@ Component.register('sw-promotion-detail', {
                         .catch((error) => {
                             this.isLoading = false;
                             this.createNotificationError({
-                                title: this.$tc('global.default.error'),
                                 message: this.$tc(
                                     'global.notification.unspecifiedSaveErrorMessage',
                                     0,

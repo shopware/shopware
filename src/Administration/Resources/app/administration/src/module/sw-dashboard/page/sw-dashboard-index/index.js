@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-dashboard-index', {
     template,
 
-    inject: ['repositoryFactory', 'stateStyleDataProviderService'],
+    inject: ['repositoryFactory', 'stateStyleDataProviderService', 'acl'],
 
     metaInfo() {
         return {
@@ -153,6 +153,10 @@ Component.register('sw-dashboard-index', {
 
     methods: {
         createdComponent() {
+            if (!this.acl.can('order.viewer')) {
+                return;
+            }
+
             this.fetchHistoryOrderData().then((response) => {
                 if (response.aggregations) {
                     this.historyOrderData = response.aggregations.order_count_month;

@@ -2,16 +2,25 @@
 
 namespace Shopware\Core\Checkout\Test\Customer\SalesChannel;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class LoginRouteTest extends TestCase
 {
@@ -97,6 +106,81 @@ class LoginRouteTest extends TestCase
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('contextToken', $response);
+    }
+
+    public function testLoginSuccessRestoreCustomerContext(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_10058', $this);
+
+        $email = Uuid::randomHex() . '@example.com';
+        $password = 'shopware';
+        $customerId = $this->createCustomer($password, $email);
+        $contextToken = Uuid::randomHex();
+
+        $this->createCart($contextToken);
+
+        $salesChannelContext = $this->createSalesChannelContext($contextToken, [], $customerId);
+
+        /** @var LoginRoute $loginRoute */
+        $loginRoute = $this->getContainer()->get(LoginRoute::class);
+
+        $request = new RequestDataBag(['email' => $email, 'password' => $password]);
+
+        $response = $loginRoute->login($request, $salesChannelContext);
+
+        // Token is replace as there're no customer token in the database
+        static::assertNotEquals($contextToken, $oldToken = $response->getToken());
+
+        $salesChannelContext = $this->createSalesChannelContext('123456789', [], $customerId);
+
+        $response = $loginRoute->login($request, $salesChannelContext);
+
+        // Previous token is restored
+        static::assertEquals($oldToken, $response->getToken());
+
+        // Previous Cart is restored
+        $salesChannelContext = $this->createSalesChannelContext($oldToken, [], $customerId);
+        $oldCartExists = $this->getContainer()->get(CartService::class)->getCart($oldToken, $salesChannelContext);
+
+        static::assertInstanceOf(Cart::class, $oldCartExists);
+        static::assertEquals($oldToken, $oldCartExists->getToken());
+    }
+
+    private function createCart(string $contextToken): void
+    {
+        $connection = $this->getContainer()->get(Connection::class);
+
+        $countryStatement = $connection->executeQuery('SELECT id FROM country WHERE active = 1 ORDER BY `position`');
+        $defaultCountry = $countryStatement->fetchColumn();
+        $defaultPaymentMethod = $connection->executeQuery('SELECT id FROM payment_method WHERE active = 1 ORDER BY `position`')->fetchColumn();
+        $defaultShippingMethod = $connection->executeQuery('SELECT id FROM shipping_method WHERE active = 1')->fetchColumn();
+
+        $connection->insert('cart', [
+            'token' => $contextToken,
+            'name' => 'test',
+            'cart' => serialize(new Cart('test', $contextToken)),
+            'line_item_count' => 1,
+            'currency_id' => Uuid::fromHexToBytes(Defaults::CURRENCY),
+            'country_id' => $defaultCountry,
+            'price' => 1,
+            'payment_method_id' => $defaultPaymentMethod,
+            'shipping_method_id' => $defaultShippingMethod,
+            'sales_channel_id' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+    }
+
+    private function createSalesChannelContext(string $contextToken, array $salesChannelData, ?string $customerId): SalesChannelContext
+    {
+        if ($customerId) {
+            $salesChannelData[SalesChannelContextService::CUSTOMER_ID] = $customerId;
+        }
+
+        return $this->getContainer()->get(SalesChannelContextFactory::class)->create(
+            $contextToken,
+            Defaults::SALES_CHANNEL,
+            $salesChannelData
+        );
     }
 
     private function createCustomer(string $password, ?string $email = null): string

@@ -102,7 +102,6 @@ Component.register('sw-sales-channel-detail-product-comparison', {
     methods: {
         validateTemplate() {
             const notificationValidateSuccess = {
-                title: this.$tc('sw-sales-channel.detail.productComparison.notificationTitleValidateSuccessful'),
                 message: this.$tc('sw-sales-channel.detail.productComparison.notificationMessageValidateSuccessful')
             };
 
@@ -123,7 +122,6 @@ Component.register('sw-sales-channel-detail-product-comparison', {
                     this.isValidateSuccessful = true;
                 }).catch((exception) => {
                     this.createNotificationError({
-                        title: this.$tc('sw-sales-channel.detail.productComparison.notificationTitleValidateError'),
                         message: exception.response.data.errors[0].detail
                     });
                     warn(this._name, exception.message, exception.response);
@@ -150,7 +148,6 @@ Component.register('sw-sales-channel-detail-product-comparison', {
                     this.isPreviewSuccessful = true;
                 }).catch((exception) => {
                     this.createNotificationError({
-                        title: this.$tc('sw-sales-channel.detail.productComparison.notificationTitlePreviewError'),
                         message: exception.response.data.errors[0].detail
                     });
                     warn(this._name, exception.message, exception.response);

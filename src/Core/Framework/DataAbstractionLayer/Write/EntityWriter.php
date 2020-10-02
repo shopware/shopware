@@ -377,14 +377,7 @@ class EntityWriter implements EntityWriterInterface
         if ($definition instanceof MappingEntityDefinition) {
             return;
         }
-        $cascades = [];
-
-        $cascadeDeletes = $this->foreignKeyResolver->getAffectedDeletes($definition, $resolved, $writeContext->getContext());
-
-        $cascadeDeletes = array_column($cascadeDeletes, 'restrictions');
-        foreach ($cascadeDeletes as $cascadeDelete) {
-            $cascades = array_merge_recursive($cascades, $cascadeDelete);
-        }
+        $cascades = $this->foreignKeyResolver->getAffectedDeletes($definition, $resolved, $writeContext->getContext());
 
         foreach ($cascades as $affectedDefinitionClass => $keys) {
             $affectedDefinition = $this->registry->getByEntityName($affectedDefinitionClass);
@@ -409,31 +402,23 @@ class EntityWriter implements EntityWriterInterface
             return;
         }
 
-        $setNulls = [];
-        $setNullsPerPk = $this->foreignKeyResolver->getAffectedSetNulls($definition, $resolved, $writeContext->getContext());
-
-        $setNullsPerPk = array_column($setNullsPerPk, 'restrictions');
-        foreach ($setNullsPerPk as $setNull) {
-            $setNulls = array_merge_recursive($setNulls, $setNull);
-        }
+        $setNulls = $this->foreignKeyResolver->getAffectedSetNulls($definition, $resolved, $writeContext->getContext());
 
         foreach ($setNulls as $affectedDefinitionClass => $restrictions) {
-            $affectedDefinition = $this->registry->getByEntityName($affectedDefinitionClass);
+            [$entity, $field] = explode('.', $affectedDefinitionClass);
 
-            foreach ($restrictions as $key => $fkFields) {
-                $primaryKey = ['id' => $key];
-                $payload = ['id' => Uuid::fromHexToBytes($key)];
+            $affectedDefinition = $this->registry->getByEntityName($entity);
 
-                $primary = EntityHydrator::encodePrimaryKey($affectedDefinition, $primaryKey, $writeContext->getContext());
+            foreach ($restrictions as $key) {
+                $payload = ['id' => Uuid::fromHexToBytes($key), $field => null];
+
+                $primary = EntityHydrator::encodePrimaryKey($affectedDefinition, ['id' => $key], $writeContext->getContext());
+
                 $existence = new EntityExistence($affectedDefinition->getEntityName(), $primary, true, false, false, []);
 
-                foreach ($fkFields as $fkField) {
-                    $payload[$fkField] = null;
-
-                    if ($definition->isVersionAware()) {
-                        $versionField = str_replace('_id', '_version_id', $fkField);
-                        $payload[$versionField] = null;
-                    }
+                if ($definition->isVersionAware()) {
+                    $versionField = str_replace('_id', '_version_id', $field);
+                    $payload[$versionField] = null;
                 }
 
                 $queue->add($affectedDefinition, new SetNullOnDeleteCommand($affectedDefinition, $payload, $primary, $existence, ''));
@@ -526,11 +511,7 @@ class EntityWriter implements EntityWriterInterface
             $restrictions = $this->foreignKeyResolver->getAffectedDeleteRestrictions($definition, $resolved, $writeContext->getContext());
 
             if (!empty($restrictions)) {
-                $restrictions = array_map(function ($restriction) {
-                    return new RestrictDeleteViolation($restriction['pk'], $restriction['restrictions']);
-                }, $restrictions);
-
-                throw new RestrictDeleteViolationException($definition, $restrictions);
+                throw new RestrictDeleteViolationException($definition, [new RestrictDeleteViolation(Uuid::randomHex(), $restrictions)]);
             }
         }
 

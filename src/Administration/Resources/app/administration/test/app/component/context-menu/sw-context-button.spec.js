@@ -19,24 +19,24 @@ function createWrapper(customOptions = {}) {
 }
 
 describe('src/app/component/context-menu/sw-context-button', () => {
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should open the context menu on click', () => {
+    it('should open the context menu on click', async () => {
         const wrapper = createWrapper();
 
         expect(wrapper.find('.sw-context-menu').exists()).toBeFalsy();
 
-        wrapper.trigger('click');
+        await wrapper.trigger('click');
 
         expect(wrapper.find('.sw-context-menu').exists()).toBeTruthy();
         expect(wrapper.find('.sw-context-menu').isVisible()).toBeTruthy();
     });
 
-    it('should not open the context menu on click', () => {
+    it('should not open the context menu on click', async () => {
         const wrapper = createWrapper({
             propsData: {
                 disabled: true
@@ -45,7 +45,7 @@ describe('src/app/component/context-menu/sw-context-button', () => {
 
         expect(wrapper.find('.sw-context-menu').exists()).toBeFalsy();
 
-        wrapper.trigger('click');
+        await wrapper.trigger('click');
 
         expect(wrapper.find('.sw-context-menu').exists()).toBeFalsy();
     });

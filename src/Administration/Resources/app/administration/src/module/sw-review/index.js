@@ -7,6 +7,7 @@ const { Module } = Shopware;
 Module.register('sw-review', {
     type: 'core',
     name: 'Reviews',
+    title: 'sw-review.general.mainMenuItemGeneral',
     description: 'sw-review.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',
@@ -42,6 +43,7 @@ Module.register('sw-review', {
         path: 'sw.review.index',
         icon: 'default-symbol-products',
         parent: 'sw-catalogue',
-        position: 20
+        position: 20,
+        privilege: 'review.viewer'
     }]
 });

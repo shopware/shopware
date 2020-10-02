@@ -11,7 +11,7 @@ const set = {
 const localVue = createLocalVue();
 localVue.directive('tooltip', {});
 
-function createWrapper() {
+function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-settings-custom-field-set-detail'), {
         localVue,
         mocks: {
@@ -39,6 +39,13 @@ function createWrapper() {
                         }
                     };
                 }
+            },
+            acl: {
+                can: (identifier) => {
+                    if (!identifier) { return true; }
+
+                    return privileges.includes(identifier);
+                }
             }
         },
         stubs: {
@@ -61,7 +68,7 @@ describe('src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-
         wrapper = createWrapper();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBe(true);
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 });

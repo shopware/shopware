@@ -26,18 +26,18 @@ describe('src/module/sw-order/component/sw-order-state-select', () => {
         wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should have an enabled sw-field', () => {
+    it('should have an enabled sw-field', async () => {
         const swField = wrapper.find('sw-field-stub');
 
         expect(swField.attributes().disabled).toBeUndefined();
     });
 
-    it('should have an disabled sw-field', () => {
-        wrapper.setProps({ disabled: true });
+    it('should have an disabled sw-field', async () => {
+        await wrapper.setProps({ disabled: true });
         const swField = wrapper.find('sw-field-stub');
 
         expect(swField.attributes().disabled).toBe('true');

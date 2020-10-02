@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
 use Shopware\Core\System\SystemConfig\Exception\InvalidDomainException;
 use Shopware\Core\System\SystemConfig\Exception\InvalidKeyException;
+use Shopware\Core\System\SystemConfig\Exception\InvalidSettingValueException;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Symfony\Component\Config\Util\XmlUtils;
 
@@ -52,6 +53,9 @@ class SystemConfigService
         $this->configReader = $configReader;
     }
 
+    /**
+     * @return array|bool|float|int|null|string
+     */
     public function get(string $key, ?string $salesChannelId = null)
     {
         $config = $this->load($salesChannelId);
@@ -75,6 +79,41 @@ class SystemConfigService
         }
 
         return $pointer;
+    }
+
+    public function getString(string $key, ?string $salesChannelId = null): string
+    {
+        $value = $this->get($key, $salesChannelId);
+        if (!\is_array($value)) {
+            return (string) $value;
+        }
+
+        throw new InvalidSettingValueException($key, 'string', \gettype($value));
+    }
+
+    public function getInt(string $key, ?string $salesChannelId = null): int
+    {
+        $value = $this->get($key, $salesChannelId);
+        if (!\is_array($value)) {
+            return (int) $value;
+        }
+
+        throw new InvalidSettingValueException($key, 'int', \gettype($value));
+    }
+
+    public function getFloat(string $key, ?string $salesChannelId = null): float
+    {
+        $value = $this->get($key, $salesChannelId);
+        if (!\is_array($value)) {
+            return (float) $value;
+        }
+
+        throw new InvalidSettingValueException($key, 'float', \gettype($value));
+    }
+
+    public function getBool(string $key, ?string $salesChannelId = null): bool
+    {
+        return (bool) $this->get($key, $salesChannelId);
     }
 
     /**

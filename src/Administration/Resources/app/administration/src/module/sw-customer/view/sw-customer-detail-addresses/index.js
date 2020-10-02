@@ -187,7 +187,6 @@ Component.register('sw-customer-detail-addresses', {
 
             if (!this.isValidAddress(this.currentAddress)) {
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-customer.notification.requiredFields')
                 });
                 return;

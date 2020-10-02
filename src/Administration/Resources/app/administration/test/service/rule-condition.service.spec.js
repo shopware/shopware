@@ -4,7 +4,7 @@ describe('app/service/rule-condition.service.js', () => {
     const service = new RuleConditionService();
 
 
-    it('should have the correct operators for date', () => {
+    it('should have the correct operators for date', async () => {
         const expected = [
             {
                 identifier: '=',

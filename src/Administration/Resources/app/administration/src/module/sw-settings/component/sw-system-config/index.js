@@ -126,7 +126,6 @@ Component.register('sw-system-config', {
             message += '</ul>';
 
             this.createNotificationError({
-                title: this.$tc('global.default.error'),
                 message: message,
                 autoClose: false
             });

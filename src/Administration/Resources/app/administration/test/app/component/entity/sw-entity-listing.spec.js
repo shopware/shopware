@@ -61,12 +61,12 @@ function createWrapper(propsData = {}) {
 }
 
 describe('src/app/component/entity/sw-entity-listing', () => {
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should enable the context menu edit item', () => {
+    it('should enable the context menu edit item', async () => {
         const wrapper = createWrapper();
 
         const firstRow = wrapper.find('.sw-data-grid__row--1');
@@ -77,10 +77,10 @@ describe('src/app/component/entity/sw-entity-listing', () => {
         expect(firstRowActionEdit.attributes().disabled).toBeFalsy();
     });
 
-    it('should disable the context menu edit item', () => {
+    it('should disable the context menu edit item', async () => {
         const wrapper = createWrapper();
 
-        wrapper.setProps({
+        await wrapper.setProps({
             allowEdit: false
         });
 
@@ -92,7 +92,7 @@ describe('src/app/component/entity/sw-entity-listing', () => {
         expect(firstRowActionEdit.attributes().disabled).toBeTruthy();
     });
 
-    it('should enable the context menu delete item', () => {
+    it('should enable the context menu delete item', async () => {
         const wrapper = createWrapper();
 
         const firstRow = wrapper.find('.sw-data-grid__row--1');
@@ -103,10 +103,10 @@ describe('src/app/component/entity/sw-entity-listing', () => {
         expect(firstRowActionDelete.attributes().disabled).toBeFalsy();
     });
 
-    it('should disable the context menu delete item', () => {
+    it('should disable the context menu delete item', async () => {
         const wrapper = createWrapper();
 
-        wrapper.setProps({
+        await wrapper.setProps({
             allowDelete: false
         });
 
@@ -118,7 +118,7 @@ describe('src/app/component/entity/sw-entity-listing', () => {
         expect(firstRowActionDelete.attributes().disabled).toBeTruthy();
     });
 
-    it('should have context menu with edit entry', () => {
+    it('should have context menu with edit entry', async () => {
         const wrapper = createWrapper({
             allowEdit: true,
             items: new EntityCollection(null, null, null, new Criteria(), [
@@ -135,7 +135,7 @@ describe('src/app/component/entity/sw-entity-listing', () => {
         expect(elements.wrappers.length).toBe(3);
     });
 
-    it('should have context menu with view entry', () => {
+    it('should have context menu with view entry', async () => {
         const wrapper = createWrapper({
             allowEdit: false,
             allowView: true,
@@ -153,7 +153,7 @@ describe('src/app/component/entity/sw-entity-listing', () => {
         expect(elements.wrappers.length).toBe(3);
     });
 
-    it('should have context menu with disabled edit entry', () => {
+    it('should have context menu with disabled edit entry', async () => {
         const wrapper = createWrapper({
             allowEdit: false,
             allowView: false,

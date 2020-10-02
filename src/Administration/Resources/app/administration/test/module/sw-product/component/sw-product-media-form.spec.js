@@ -56,13 +56,13 @@ describe('module/sw-product/component/sw-product-media-form', () => {
         });
     });
 
-    it('should be a Vue.JS component', () => {
+    it('should be a Vue.JS component', async () => {
         const wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBe(true);
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should show the sw-media-upload-v2 component', () => {
+    it('should show the sw-media-upload-v2 component', async () => {
         const wrapper = createWrapper([
             'product.editor'
         ]);
@@ -70,7 +70,7 @@ describe('module/sw-product/component/sw-product-media-form', () => {
         expect(wrapper.find('sw-media-upload-v2-stub').exists()).toBeTruthy();
     });
 
-    it('should not show the sw-media-upload-v2 component', () => {
+    it('should not show the sw-media-upload-v2 component', async () => {
         const wrapper = createWrapper();
 
         expect(wrapper.find('sw-media-upload-v2-stub').exists()).toBeFalsy();

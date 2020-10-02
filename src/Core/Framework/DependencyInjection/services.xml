@@ -188,6 +188,10 @@ base-uri 'self';
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Routing\CanonicalRedirectService" public="true">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+        </service>
+
         <!-- Translation -->
         <service id="Shopware\Core\Framework\Adapter\Translation\Translator"
                  decorates="translator">
@@ -456,6 +460,57 @@ base-uri 'self';
             <argument type="service" id="media.repository"/>
 
             <tag name="messenger.message_handler"/>
+        </service>
+
+        <!-- Changelog -->
+        <service id="Shopware\Core\Framework\Changelog\Processor\ChangelogGenerator" public="false">
+            <argument type="service" id="Shopware\Core\Framework\Changelog\ChangelogParser"/>
+            <argument type="service" id="validator"/>
+            <argument type="service" id="filesystem"/>
+            <argument>%kernel.project_dir%</argument>
+        </service>
+
+        <service id="Shopware\Core\Framework\Changelog\Processor\ChangelogReleaseCreator">
+            <argument type="service" id="Shopware\Core\Framework\Changelog\ChangelogParser"/>
+            <argument type="service" id="validator"/>
+            <argument type="service" id="filesystem"/>
+            <argument>%kernel.project_dir%</argument>
+        </service>
+
+        <service id="Shopware\Core\Framework\Changelog\Processor\ChangelogReleaseExporter">
+            <argument type="service" id="Shopware\Core\Framework\Changelog\ChangelogParser"/>
+            <argument type="service" id="validator"/>
+            <argument type="service" id="filesystem"/>
+            <argument>%kernel.project_dir%</argument>
+        </service>
+
+        <service id="Shopware\Core\Framework\Changelog\Processor\ChangelogValidator">
+            <argument type="service" id="Shopware\Core\Framework\Changelog\ChangelogParser"/>
+            <argument type="service" id="validator"/>
+            <argument type="service" id="filesystem"/>
+            <argument>%kernel.project_dir%</argument>
+        </service>
+
+        <service id="Shopware\Core\Framework\Changelog\ChangelogParser" public="false" />
+
+        <service id="Shopware\Core\Framework\Changelog\Command\ChangelogCreateCommand">
+            <argument type="service" id="Shopware\Core\Framework\Changelog\Processor\ChangelogGenerator"/>
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Changelog\Command\ChangelogReleaseCommand">
+            <argument type="service" id="Shopware\Core\Framework\Changelog\Processor\ChangelogReleaseCreator"/>
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Changelog\Command\ChangelogChangeCommand">
+            <argument type="service" id="Shopware\Core\Framework\Changelog\Processor\ChangelogReleaseExporter"/>
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Changelog\Command\ChangelogCheckCommand">
+            <argument type="service" id="Shopware\Core\Framework\Changelog\Processor\ChangelogValidator"/>
+            <tag name="console.command"/>
         </service>
 
         <!-- Util -->

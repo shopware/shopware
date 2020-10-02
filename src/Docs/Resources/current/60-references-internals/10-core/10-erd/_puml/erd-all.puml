@@ -78,8 +78,17 @@ Table(ShopwareCoreFrameworkEventEventActionEventActionDefinition, "event_action\
    not_null(eventName) string
    not_null(actionName) string
    config json
+   active bool
    not_null(createdAt) createdAt
    updatedAt updatedAt
+}
+Table(ShopwareCoreFrameworkEventEventActionAggregateEventActionRuleEventActionRuleDefinition, "event_action_rule\n(M:N Mapping)") {
+   primary_key(eventActionId) foreignKey
+   primary_key(ruleId) foreignKey
+}
+Table(ShopwareCoreFrameworkEventEventActionAggregateEventActionSalesChannelEventActionSalesChannelDefinition, "event_action_sales_channel\n(M:N Mapping)") {
+   primary_key(eventActionId) foreignKey
+   primary_key(salesChannelId) foreignKey
 }
 Table(ShopwareCoreFrameworkMessageQueueDeadMessageDeadMessageDefinition, "dead_message\n(Failing messages)") {
    primary_key(id) id
@@ -870,6 +879,7 @@ Table(ShopwareCoreContentProductProductDefinition, "product\n(Product)") {
    customFields translated
    variation list
    featureSetId foreignKey
+   purchasePrices price
    not_null(createdAt) createdAt
    updatedAt updatedAt
    translated json
@@ -1987,6 +1997,10 @@ ShopwareCoreSystemUserUserDefinition --> ShopwareCoreFrameworkApiAclRoleAclUserR
 ShopwareCoreSystemCustomFieldAggregateCustomFieldSetCustomFieldSetDefinition --> ShopwareCoreSystemCustomFieldCustomFieldDefinition
 ShopwareCoreSystemCustomFieldAggregateCustomFieldSetRelationCustomFieldSetRelationDefinition --> ShopwareCoreSystemCustomFieldAggregateCustomFieldSetCustomFieldSetDefinition
 ShopwareCoreContentProductAggregateProductCustomFieldSetProductCustomFieldSetDefinition --> ShopwareCoreSystemCustomFieldAggregateCustomFieldSetCustomFieldSetDefinition
+ShopwareCoreFrameworkEventEventActionAggregateEventActionRuleEventActionRuleDefinition --> ShopwareCoreFrameworkEventEventActionEventActionDefinition
+ShopwareCoreFrameworkEventEventActionAggregateEventActionRuleEventActionRuleDefinition --> ShopwareCoreContentRuleRuleDefinition
+ShopwareCoreFrameworkEventEventActionAggregateEventActionSalesChannelEventActionSalesChannelDefinition --> ShopwareCoreFrameworkEventEventActionEventActionDefinition
+ShopwareCoreFrameworkEventEventActionAggregateEventActionSalesChannelEventActionSalesChannelDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareCoreFrameworkMessageQueueScheduledTaskScheduledTaskDefinition --> ShopwareCoreFrameworkMessageQueueDeadMessageDeadMessageDefinition
 ShopwareCoreFrameworkPluginAggregatePluginTranslationPluginTranslationDefinition --> ShopwareCoreFrameworkPluginPluginDefinition
 ShopwareCoreCheckoutPaymentPaymentMethodDefinition --> ShopwareCoreFrameworkPluginPluginDefinition

@@ -17,7 +17,6 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceDefinitionBuilderInterface;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorInterface
@@ -29,6 +28,8 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
     public const ALLOW_PRODUCT_LABEL_OVERWRITES = 'allowProductLabelOverwrites';
 
     public const SKIP_PRODUCT_RECALCULATION = 'skipProductRecalculation';
+
+    public const SKIP_PRODUCT_STOCK_VALIDATION = 'skipProductStockValidation';
 
     /**
      * @var ProductGatewayInterface
@@ -115,7 +116,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                 throw new MissingLineItemPriceException($lineItem->getId());
             }
 
-            if ($behavior->hasPermission(self::ALLOW_PRODUCT_PRICE_OVERWRITES)) {
+            if ($behavior->hasPermission(self::SKIP_PRODUCT_STOCK_VALIDATION)) {
                 $definition->setQuantity($lineItem->getQuantity());
                 $lineItem->setPrice($this->calculator->calculate($definition, $context));
                 $toCalculate->add($lineItem);
@@ -143,7 +144,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             if ($available <= 0 || $available < $product->getMinPurchase()) {
                 $original->remove($lineItem->getId());
 
-                $original->addErrors(
+                $toCalculate->addErrors(
                     new ProductOutOfStockError($product->getId(), (string) $product->getTranslation('name'))
                 );
 
@@ -157,6 +158,15 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
                 $toCalculate->addErrors(
                     new ProductStockReachedError($product->getId(), (string) $product->getTranslation('name'), $available)
+                );
+            }
+
+            $fixedQuantity = $this->fixQuantity($product->getMinPurchase() ?? 1, $lineItem->getQuantity(), $product->getPurchaseSteps() ?? 1);
+            if ($lineItem->getQuantity() !== $fixedQuantity) {
+                $lineItem->setQuantity($fixedQuantity);
+                $definition->setQuantity($fixedQuantity);
+                $toCalculate->addErrors(
+                    new PurchaseStepsError($product->getId(), (string) $product->getTranslation('name'), $fixedQuantity)
                 );
             }
 
@@ -246,8 +256,9 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         $lineItem->setQuantityInformation($quantityInformation);
 
         $purchasePrices = null;
-        if (Feature::isActive('FEATURE_NEXT_9825') && $product->getPurchasePrices()) {
-            $purchasePrices = $product->getPurchasePrices()->getCurrencyPrice(Defaults::CURRENCY);
+        $purchasePricesCollection = $product->getPurchasePrices();
+        if ($purchasePricesCollection !== null) {
+            $purchasePrices = $purchasePricesCollection->getCurrencyPrice(Defaults::CURRENCY);
         }
 
         $payload = [
@@ -259,6 +270,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             'markAsTopseller' => $product->getMarkAsTopseller(),
             // @deprecated tag:v6.4.0 - purchasePrice Will be removed in 6.4.0
             'purchasePrice' => $purchasePrices ? $purchasePrices->getGross() : null,
+            'purchasePrices' => $purchasePrices ? json_encode($purchasePrices) : null,
             'productNumber' => $product->getProductNumber(),
             'manufacturerId' => $product->getManufacturerId(),
             'taxId' => $product->getTaxId(),
@@ -268,12 +280,6 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             'optionIds' => $product->getOptionIds(),
             'options' => $this->getOptions($product),
         ];
-
-        if (Feature::isActive('FEATURE_NEXT_9825')) {
-            $payload = [
-                'purchasePrices' => $purchasePrices ? json_encode($purchasePrices) : null,
-            ];
-        }
 
         $payload['options'] = $product->getVariation();
 
@@ -359,5 +365,10 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         }
 
         return $options;
+    }
+
+    private function fixQuantity(int $min, int $current, int $steps): int
+    {
+        return (int) (floor(($current - $min) / $steps) * $steps + $min);
     }
 }

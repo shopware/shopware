@@ -46,7 +46,7 @@
         {% endblock %}
 
         {% block sw_media_media_item_context_menu %}
-            <template #context-menu="{ item, startInlineEdit }">
+            <template #context-menu="{ item, startInlineEdit, allowEdit, allowDelete }">
                 <slot>
                     {% block sw_media_media_item_additional_context_menu_slot %}{% endblock %}
                 </slot>
@@ -54,31 +54,43 @@
                 {% block sw_media_media_item_context_group_quick_actions %}
                     <div :class="defaultContextMenuClass">
                         {% block sw_media_media_item_context_item_rename_item %}
-                            <sw-context-menu-item :disabled="!item.hasFile || item.private" @click="startInlineEdit">
+                            <sw-context-menu-item
+                                :disabled="!item.hasFile || item.private || !allowEdit"
+                                @click="startInlineEdit">
                                 {{ $tc('global.sw-media-media-item.labelContextMenuRename') }}
                             </sw-context-menu-item>
                         {% endblock %}
 
                         {% block sw_media_media_item_context_item_copy_item_link %}
-                            <sw-context-menu-item v-if="item.hasFile" @click="copyItemLink(item)">
+                            <sw-context-menu-item v-if="item.hasFile"
+                                @click="copyItemLink(item)">
                                 {{ $tc('global.sw-media-media-item.labelContextMenuCopyLink') }}
                             </sw-context-menu-item>
                         {% endblock %}
 
                         {% block sw_media_media_item_context_item_replace %}
-                            <sw-context-menu-item :disabled="item.private" class="sw-media-context-item__replace-media-action"  @click="openModalReplace">
+                            <sw-context-menu-item
+                                :disabled="item.private || !allowEdit"
+                                class="sw-media-context-item__replace-media-action"
+                                @click="openModalReplace">
                                 {{ $tc('global.sw-media-media-item.labelContextMenuReplace') }}
                             </sw-context-menu-item>
                         {% endblock %}
 
                         {% block sw_media_media_item_context_item_move %}
-                            <sw-context-menu-item class="sw-media-context-item__move-media-action"  @click="openModalMove">
+                            <sw-context-menu-item
+                                :disabled="!allowEdit"
+                                class="sw-media-context-item__move-media-action"
+                                @click="openModalMove">
                                 {{ $tc('global.sw-media-media-item.labelContextMenuMove') }}
                             </sw-context-menu-item>
                         {% endblock %}
 
                         {% block sw_media_media_item_context_item_delete %}
-                            <sw-context-menu-item :disabled="item.private" @click="openModalDelete" variant="danger">
+                            <sw-context-menu-item
+                                :disabled="item.private || !allowDelete"
+                                @click="openModalDelete"
+                                variant="danger">
                                 {{ $tc('global.default.delete') }}
                             </sw-context-menu-item>
                         {% endblock %}
@@ -88,10 +100,10 @@
             </template>
         {% endblock %}
 
-        <template #modal-windows="{ item }">
+        <template #modal-windows="{ item, allowEdit, allowDelete }">
             {% block sw_media_media_item_modal_replace %}
                 <sw-media-modal-replace
-                    v-if="showModalReplace"
+                    v-if="showModalReplace && allowEdit"
                     :itemToReplace="item"
                     @media-replace-modal-item-replaced="emitRefreshMediaLibrary"
                     @media-replace-modal-close="closeModalReplace">
@@ -100,7 +112,7 @@
 
             {% block sw_media_media_item_delete_modal %}
                 <sw-media-modal-delete
-                    v-if="showModalDelete"
+                    v-if="showModalDelete && allowDelete"
                     :itemsToDelete="[item]"
                     @media-delete-modal-items-delete="emitItemDeleted"
                     @media-delete-modal-close="closeModalDelete">
@@ -109,7 +121,7 @@
 
             {% block sw_media_media_item_move_modal %}
                 <sw-media-modal-move
-                    v-if="showModalMove"
+                    v-if="showModalMove && allowEdit"
                     :itemsToMove="[item]"
                     @media-move-modal-close="closeModalMove"
                     @media-move-modal-items-move="onMediaItemMoved">

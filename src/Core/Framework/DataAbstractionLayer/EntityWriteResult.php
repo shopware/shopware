@@ -75,6 +75,14 @@ class EntityWriteResult
         return $this->payload;
     }
 
+    /**
+     * @return mixed|null
+     */
+    public function getProperty(string $property)
+    {
+        return $this->payload[$property] ?? null;
+    }
+
     public function getExistence(): ?EntityExistence
     {
         return $this->existence;

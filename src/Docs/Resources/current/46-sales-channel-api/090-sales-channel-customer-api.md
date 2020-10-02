@@ -1,6 +1,8 @@
 [titleEn]: <>(SalesChannel-API customer endpoint)
 [hash]: <>(article:api_sales_channel_customer)
 
+**The Sales Channel API is deprecated and will be removed with 6.4.0.0. Consider using the Store-API**
+
 The customer endpoint is used to register and log in customers. It can also be used to change and receive customer related information.
 
 ## Register a customer

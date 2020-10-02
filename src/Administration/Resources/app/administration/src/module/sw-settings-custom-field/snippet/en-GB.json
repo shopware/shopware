@@ -73,7 +73,8 @@
         "labelCustomFieldPosition": "Position",
         "labelMultiSelect": "Multi select",
         "tooltipCustomFieldPosition": "Controls this custom field's position on detail pages.",
-        "tooltipRequired": "Makes this custom field required on detail pages."
+        "tooltipRequired": "Makes this custom field required on detail pages.",
+        "infoText": "If a custom field is created, the according snippet for all of your snippet sets will be created as well. The snippet will be named \"customField.{name}\"."
       },
       "list": {
         "labelCustomFieldLabel": "Label",
@@ -98,6 +99,13 @@
       "string": "Text",
       "int": "Number",
       "colorpicker": "Colour picker"
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "custom_field": {
+        "label": "Custom fields"
+      }
     }
   }
 }

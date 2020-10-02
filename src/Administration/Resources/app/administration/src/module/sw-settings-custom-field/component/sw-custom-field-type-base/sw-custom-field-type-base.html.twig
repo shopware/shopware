@@ -3,9 +3,10 @@
         {% block sw_custom_field_type_base_content %}
             {% block sw_custom_field_type_base_labels %}
                 <sw-custom-field-translated-labels
-                        v-model="currentCustomField.config"
-                        :propertyNames="propertyNames"
-                        :locales="locales">
+                    :disabled="!acl.can('custom_field.editor')"
+                    v-model="currentCustomField.config"
+                    :propertyNames="propertyNames"
+                    :locales="locales">
                 </sw-custom-field-translated-labels>
             {% endblock %}
         {% endblock %}

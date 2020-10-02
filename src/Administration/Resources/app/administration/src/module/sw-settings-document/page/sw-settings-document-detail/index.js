@@ -7,7 +7,7 @@ const { Criteria, EntityCollection } = Shopware.Data;
 Component.register('sw-settings-document-detail', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -255,7 +255,7 @@ Component.register('sw-settings-document-detail', {
 
     computed: {
         identifier() {
-            return this.documentConfig.name;
+            return this.documentConfig ? this.documentConfig.name : '';
         },
 
         documentBaseConfigCriteria() {
@@ -286,11 +286,16 @@ Component.register('sw-settings-document-detail', {
         },
 
         tooltipSave() {
-            const systemKey = this.$device.getSystemKey();
-
+            if (this.acl.can('document.editor')) {
+                return {
+                    message: `${this.$device.getSystemKey()} + S`,
+                    appearance: 'light'
+                };
+            }
             return {
-                message: `${systemKey} + S`,
-                appearance: 'light'
+                message: this.$tc('sw-privileges.tooltip.warning'),
+                disabled: this.acl.can('order.editor'),
+                showOnDisabledElements: true
             };
         },
 
@@ -329,7 +334,7 @@ Component.register('sw-settings-document-detail', {
             );
 
             if (this.documentConfig.config === null) {
-                this.documentConfig.config = [];
+                this.documentConfig.config = {};
             }
             await this.onChangeType(this.documentConfig.documentType);
 

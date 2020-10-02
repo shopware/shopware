@@ -9,9 +9,15 @@ function createWrapper(customPropsData = {}) {
 
     return shallowMount(Shopware.Component.build('sw-many-to-many-assignment-card'), {
         stubs: {
-            'sw-card': '<div><slot></slot><slot name="grid"></slot></div>',
-            'sw-select-base': '<div class="sw-select-base"></div>',
-            'sw-data-grid': '<div><slot name="actions"></slot></div>',
+            'sw-card': {
+                template: '<div><slot></slot><slot name="grid"></slot></div>'
+            },
+            'sw-select-base': {
+                template: '<div class="sw-select-base"></div>'
+            },
+            'sw-data-grid': {
+                template: '<div><slot name="actions"></slot></div>'
+            },
             'sw-context-menu': true,
             'sw-context-menu-item': true
         },
@@ -31,13 +37,13 @@ function createWrapper(customPropsData = {}) {
 }
 
 describe('src/app/component/entity/sw-many-to-many-assignment-card', () => {
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should have an enabled sw-select-base', () => {
+    it('should have an enabled sw-select-base', async () => {
         const wrapper = createWrapper();
 
         const selectBase = wrapper.find('.sw-select-base');
@@ -45,7 +51,7 @@ describe('src/app/component/entity/sw-many-to-many-assignment-card', () => {
         expect(selectBase.attributes().disabled).not.toBeDefined();
     });
 
-    it('should have an disabled sw-select-base', () => {
+    it('should have an disabled sw-select-base', async () => {
         const wrapper = createWrapper({ disabled: true });
 
         const selectBase = wrapper.find('.sw-select-base');
@@ -53,7 +59,7 @@ describe('src/app/component/entity/sw-many-to-many-assignment-card', () => {
         expect(selectBase.attributes().disabled).toBeDefined();
     });
 
-    it('should have an enabled context menu item', () => {
+    it('should have an enabled context menu item', async () => {
         const wrapper = createWrapper();
 
         const selectBase = wrapper.find('sw-context-menu-item-stub');
@@ -61,7 +67,7 @@ describe('src/app/component/entity/sw-many-to-many-assignment-card', () => {
         expect(selectBase.attributes().disabled).not.toBeDefined();
     });
 
-    it('should have an disabled context menu item', () => {
+    it('should have an disabled context menu item', async () => {
         const wrapper = createWrapper({ disabled: true });
 
         const selectBase = wrapper.find('sw-context-menu-item-stub');

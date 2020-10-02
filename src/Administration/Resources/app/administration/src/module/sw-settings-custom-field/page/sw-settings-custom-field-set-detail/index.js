@@ -13,12 +13,18 @@ Component.register('sw-settings-custom-field-set-detail', {
     ],
 
     shortcuts: {
-        'SYSTEMKEY+S': 'onSave',
+        'SYSTEMKEY+S': {
+            active() {
+                return this.acl.can('custom_field.editor');
+            },
+            method: 'onSave'
+        },
         ESCAPE: 'onCancel'
     },
 
     inject: [
-        'repositoryFactory'
+        'repositoryFactory',
+        'acl'
     ],
 
     data() {
@@ -67,6 +73,14 @@ Component.register('sw-settings-custom-field-set-detail', {
         },
 
         tooltipSave() {
+            if (!this.acl.can('custom_field.editor')) {
+                return {
+                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    disabled: this.acl.can('custom_field.editor'),
+                    showOnDisabledElements: true
+                };
+            }
+
             const systemKey = this.$device.getSystemKey();
 
             return {
@@ -140,7 +154,6 @@ Component.register('sw-settings-custom-field-set-detail', {
                 const errorMessage = Shopware.Utils.get(error, 'response.data.errors[0].detail', 'Error');
 
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
                     message: errorMessage
                 });
             }).finally(() => {

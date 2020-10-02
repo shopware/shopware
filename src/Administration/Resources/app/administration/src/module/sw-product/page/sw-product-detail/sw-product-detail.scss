@@ -4,4 +4,9 @@
     .sw-product-detail__save-action {
         margin-right: 0;
     }
+    .sw-product-category-form__search-keyword-field {
+        .sw-select-selection-list__input {
+            min-width: 250px;
+        }
+    }
 }

@@ -148,6 +148,12 @@ Component.register('sw-data-grid', {
             default() {
                 return true;
             }
+        },
+
+        itemIdentifierProperty: {
+            type: String,
+            required: false,
+            default: 'id'
         }
     },
 
@@ -336,11 +342,13 @@ Component.register('sw-data-grid', {
         },
 
         getHeaderCellClasses(column, index) {
-            return [{
-                'sw-data-grid__cell--sortable': column.dataIndex,
-                'sw-data-grid__cell--icon-label': column.iconLabel
-            },
-            `sw-data-grid__cell--${index}`
+            return [
+                {
+                    'sw-data-grid__cell--sortable': column.dataIndex,
+                    'sw-data-grid__cell--icon-label': column.iconLabel
+                },
+                `sw-data-grid__cell--${index}`,
+                `sw-data-grid__cell--align-${column.align}`
             ];
         },
 
@@ -400,7 +408,7 @@ Component.register('sw-data-grid', {
         },
 
         isInlineEdit(item) {
-            return this.isInlineEditActive && this.currentInlineEditId === item.id;
+            return this.isInlineEditActive && this.currentInlineEditId === item[this.itemIdentifierProperty];
         },
 
         disableInlineEdit() {
@@ -433,8 +441,8 @@ Component.register('sw-data-grid', {
         selectAll(selected) {
             this.$delete(this.selection);
 
-            this.records.forEach((item) => {
-                if (this.isSelected(item.id) !== selected) {
+            this.records.forEach(item => {
+                if (this.isSelected(item[this.itemIdentifierProperty]) !== selected) {
                     this.selectItem(selected, item);
                 }
             });
@@ -449,10 +457,10 @@ Component.register('sw-data-grid', {
 
             const selection = this.selection;
 
-            if (selected === true) {
-                this.$set(this.selection, item.id, item);
-            } else if (!selected && selection[item.id]) {
-                this.$delete(this.selection, item.id);
+            if (selected) {
+                this.$set(this.selection, item[this.itemIdentifierProperty], item);
+            } else if (!selected && selection[item[this.itemIdentifierProperty]]) {
+                this.$delete(this.selection, item[this.itemIdentifierProperty]);
             }
 
             this.$emit('select-item', this.selection, item, selected);
@@ -485,7 +493,7 @@ Component.register('sw-data-grid', {
             }
 
             this.enableInlineEdit();
-            this.currentInlineEditId = record.id;
+            this.currentInlineEditId = record[this.itemIdentifierProperty];
         },
 
         onClickHeaderCell(event, column) {

@@ -1,3 +1,4 @@
+
 {% block page_product_detail_buy_inner %}
     <div class="product-detail-buy js-magnifier-zoom-image-container">
         {% block page_product_detail_rich_snippets %}
@@ -127,8 +128,9 @@
                     } %}
 
                     {% block page_product_detail_reviews %}
-                        {% if page.product.ratingAverage > 0 and shopware.config.core.listing.showReview %}
-                            <p class="product-detail-reviews">
+                        {% if page.product.ratingAverage > 0 and page.reviews.totalReviews > 0 and shopware.config.core.listing.showReview %}
+                            <div class="product-detail-reviews">
+
                                 {% sw_include '@Storefront/storefront/component/review/rating.html.twig' with {
                                     points: page.product.ratingAverage,
                                     style: 'text-primary'
@@ -143,7 +145,7 @@
                                     {{ page.reviews.totalReviews }}
                                     {{ "detail.reviewLinkText"|trans({'%count%': page.reviews.totalReviews})|sw_sanitize }}
                                 </a>
-                            </p>
+                            </div>
                         {% endif %}
                     {% endblock %}
 

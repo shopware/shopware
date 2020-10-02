@@ -19,7 +19,7 @@ function wrapperFactory({ propsData, privileges = [] }) {
 }
 
 describe('app/component/utils/sw-shortcut-overview-item', () => {
-    it('should show the shortcout overview item', () => {
+    it('should show the shortcout overview item', async () => {
         const wrapper = wrapperFactory({
             propsData: {
                 title: 'Clear cache',
@@ -35,7 +35,7 @@ describe('app/component/utils/sw-shortcut-overview-item', () => {
         expect(title.text()).toBe('Clear cache');
     });
 
-    it('should split the key combinations into multiple kbd´s', () => {
+    it('should split the key combinations into multiple kbd´s', async () => {
         const wrapper = wrapperFactory({
             propsData: {
                 title: 'Clear cache',
@@ -49,7 +49,7 @@ describe('app/component/utils/sw-shortcut-overview-item', () => {
         expect(shortcut.at(1).text()).toBe('C');
     });
 
-    it('should not show the item because the privilege does not exists', () => {
+    it('should not show the item because the privilege does not exists', async () => {
         const wrapper = wrapperFactory({
             propsData: {
                 title: 'Clear cache',
@@ -63,7 +63,7 @@ describe('app/component/utils/sw-shortcut-overview-item', () => {
         expect(item.exists()).toBeFalsy();
     });
 
-    it('should show the item because the privilege does exists', () => {
+    it('should show the item because the privilege does exists', async () => {
         const wrapper = wrapperFactory({
             propsData: {
                 title: 'Clear cache',

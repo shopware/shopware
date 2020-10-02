@@ -21,7 +21,9 @@
             "yes": "Yes",
             "no": "No",
             "confirm": "Confirm",
-            "view": "View"
+            "view": "View",
+            "ascending": "Ascending",
+            "descending": "Descending"
         },
         "notification": {
             "notificationSaveErrorMessage": "An error occurred while saving the entity \"{entityName}\".",
@@ -803,6 +805,9 @@
         "de-DE": "German",
         "en-GB": "English"
     },
+    "sw-image-slider": {
+        "imageAlt": "Image {index} / {total}"
+    },
     "sw-rule-modal": {
         "modalTitleNew": "Create new global rule",
         "modalTitleModify": "Modify global rule",
@@ -922,5 +927,8 @@
         "placeholderCustomFieldSetSelect": "Select custom field sets...",
         "labelCustomFieldSetSelect": "Custom field sets",
         "messagePluginSets": "Plugin custom field sets (Can't be removed)"
+    },
+    "sw-rating-stars": {
+        "ratingTooltipText": "{actual} of {max} stars"
     }
 }

@@ -44,12 +44,15 @@ class ProductListingCMSElementResolverTest extends TestCase
     {
         Feature::skipTestIfInActive('FEATURE_NEXT_5983', $this);
 
-        $slotConfig = ['availableSortings' => [
-            'value' => [
-                'price-desc' => 1,
-                'name-asc' => 0,
+        $slotConfig = [
+            'availableSortings' => [
+                'value' => [
+                    'price-desc' => 1,
+                    'name-asc' => 0,
+                ],
             ],
-        ]];
+            'useCustomSorting' => ['value' => true],
+        ];
 
         $availableSortings = $slotConfig['availableSortings']['value'];
 
@@ -86,12 +89,15 @@ class ProductListingCMSElementResolverTest extends TestCase
     {
         Feature::skipTestIfInActive('FEATURE_NEXT_5983', $this);
 
-        $slotConfig = ['availableSortings' => [
-            'value' => [
-                'price-desc' => 1,
-                'name-asc' => 0,
+        $slotConfig = [
+            'availableSortings' => [
+                'value' => [
+                    'price-desc' => 1,
+                    'name-asc' => 0,
+                ],
             ],
-        ]];
+            'useCustomSorting' => ['value' => true],
+        ];
 
         $result = new ElementDataCollection();
 
@@ -114,12 +120,15 @@ class ProductListingCMSElementResolverTest extends TestCase
     {
         Feature::skipTestIfInActive('FEATURE_NEXT_5983', $this);
 
-        $slotConfig = ['availableSortings' => [
-            'value' => [
-                'price-desc' => 1,
-                'price-asc' => 0,
+        $slotConfig = [
+            'availableSortings' => [
+                'value' => [
+                    'price-desc' => 1,
+                    'price-asc' => 0,
+                ],
             ],
-        ]];
+            'useCustomSorting' => ['value' => true],
+        ];
 
         $availableSortings = $slotConfig['availableSortings']['value'];
 
@@ -162,13 +171,16 @@ class ProductListingCMSElementResolverTest extends TestCase
     {
         Feature::skipTestIfInActive('FEATURE_NEXT_5983', $this);
 
-        $slotConfig = ['availableSortings' => [
-            'value' => [
-                'price-desc' => 1,
-                'price-asc' => 100,
-                'name-asc' => 77,
+        $slotConfig = [
+            'availableSortings' => [
+                'value' => [
+                    'price-desc' => 1,
+                    'price-asc' => 100,
+                    'name-asc' => 77,
+                ],
             ],
-        ]];
+            'useCustomSorting' => ['value' => true],
+        ];
 
         $availableSortings = $slotConfig['availableSortings']['value'];
 
@@ -202,6 +214,46 @@ class ProductListingCMSElementResolverTest extends TestCase
         $availableSortings = \array_keys($availableSortings);
 
         static::assertEquals($availableSortings, $actualSortings);
+    }
+
+    public function testHighestPrioritySortingIsDefaultSorting(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_5983', $this);
+
+        $slotConfig = [
+            'availableSortings' => [
+                'value' => [
+                    'price-desc' => 1,
+                    'price-asc' => 100,
+                    'name-asc' => 77,
+                ],
+            ],
+            'useCustomSorting' => ['value' => true],
+        ];
+
+        $result = new ElementDataCollection();
+
+        $resolverContext = new ResolverContext(
+            $this->salesChannelContext,
+            new Request()
+        );
+
+        $slot = new CmsSlotEntity();
+        $slot->setUniqueIdentifier('id');
+        $slot->setType('product-listing');
+        $slot->addTranslated('config', $slotConfig);
+
+        $this->productListingCMSElementResolver->enrich($slot, $resolverContext, $result);
+
+        /** @var ProductListingStruct $data */
+        $data = $slot->getData();
+
+        /** @var ProductListingResult $listing */
+        $listing = $data->getListing();
+
+        $sorting = $listing->getSorting();
+
+        static::assertEquals($sorting, 'price-asc');
     }
 
     private function createSalesChannelContext(): SalesChannelContext

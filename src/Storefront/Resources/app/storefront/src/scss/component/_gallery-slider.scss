@@ -14,6 +14,11 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
 .gallery-slider-row {
     margin-bottom: $spacer;
 
+    &.is-loading {
+        height: 430px;
+        overflow: hidden;
+    }
+
     &.is-single-image {
         justify-content: center;
     }

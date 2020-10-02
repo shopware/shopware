@@ -12,6 +12,11 @@ Component.register('sw-users-permissions-role-listing', {
         Mixin.getByName('notification')
     ],
 
+    inject: [
+        'repositoryFactory',
+        'acl'
+    ],
+
     data() {
         return {
             roles: [],
@@ -35,7 +40,7 @@ Component.register('sw-users-permissions-role-listing', {
         },
 
         roleRepository() {
-            return Shopware.Service('repositoryFactory').create('acl_role');
+            return this.repositoryFactory.create('acl_role');
         },
 
         roleCriteria() {

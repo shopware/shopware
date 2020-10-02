@@ -1,5 +1,6 @@
 {% block sw_users_permissions_role_listing %}
-    <sw-card class="sw-users-permissions-role-listing">
+    <sw-card class="sw-users-permissions-role-listing"
+            :title="$tc('sw-users-permissions.roles.general.cardLabel')">
 
         {% block sw_users_permissions_role_listing_toolbar %}
             <div class="sw-users-permissions-role-listing__toolbar">
@@ -18,6 +19,7 @@
                             :routerLink="{ name: 'sw.users.permissions.role.detail' }"
                             variant="ghost"
                             size="small"
+                            :disabled="!acl.can('users_and_permissions.creator')"
                             class="sw-users-permissions-role-listing__add-role-button">
                                 {{ $tc('sw-users-permissions.roles.general.labelCreateNewRole') }}
                         </sw-button>
@@ -45,13 +47,18 @@
                 {% block sw_users_permissions_role_listing_grid_actions %}
                     <template #actions="{ item }">
                         {% block sw_users_permissions_role_listing_grid_actions_edit %}
-                            <sw-context-menu-item :routerLink="{ name: 'sw.users.permissions.role.detail', params: { id: item.id } }">
+                            <sw-context-menu-item :routerLink="{ name: 'sw.users.permissions.role.detail', params: { id: item.id } }"
+                                                  class="sw-users-permissions-role-listing__context-menu-edit"
+                                                  :disabled="!acl.can('users_and_permissions.editor')">
                                 {{ $tc('sw-users-permissions.roles.role-grid.contextMenuEdit') }}
                             </sw-context-menu-item>
                         {% endblock %}
 
                         {% block sw_users_permissions_role_listing_grid_actions_delete %}
-                            <sw-context-menu-item variant="danger" @click="onDelete(item)">
+                            <sw-context-menu-item variant="danger"
+                                                  @click="onDelete(item)"
+                                                  class="sw-users-permissions-role-listing__context-menu-delete"
+                                                  :disabled="!acl.can('users_and_permissions.deleter')">
                                 {{ $tc('sw-users-permissions.roles.role-grid.contextMenuDelete') }}
                             </sw-context-menu-item>
                         {% endblock %}

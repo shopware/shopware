@@ -135,10 +135,10 @@ class SyncService implements SyncServiceInterface
         $repository = $this->definitionRegistry->getRepository($operation->getEntity());
 
         switch (mb_strtolower($operation->getAction())) {
-            case 'upsert':
+            case SyncOperation::ACTION_UPSERT:
                 return $this->upsertRecords($operation, $context, $repository);
 
-            case 'delete':
+            case SyncOperation::ACTION_DELETE:
                 return $this->deleteRecords($operation, $context, $repository);
 
             default:

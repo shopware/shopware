@@ -98,7 +98,8 @@ abstract class StorefrontController extends AbstractController
         $attributes = array_merge(
             $this->get(RequestTransformerInterface::class)->extractInheritableAttributes($request),
             $route,
-            $attributes
+            $attributes,
+            ['_route_params' => $routeParameters]
         );
 
         return $this->forward($route['_controller'], $attributes, $routeParameters);

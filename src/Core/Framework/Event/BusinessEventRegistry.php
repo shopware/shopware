@@ -18,26 +18,43 @@ class BusinessEventRegistry
      */
     private $definitionRegistry;
 
+    /**
+     * @var string[]
+     */
+    private $classes = [];
+
     public function __construct(DefinitionInstanceRegistry $definitionRegistry)
     {
         $this->definitionRegistry = $definitionRegistry;
     }
 
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_9351) tag:v6.4.0 - use `\Shopware\Core\Framework\Event\BusinessEventCollector::collect` instead
+     */
     public function getEvents(): array
     {
         return $this->events;
     }
 
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_9351) tag:v6.4.0 - use `\Shopware\Core\Framework\Event\BusinessEventCollector::collect` instead
+     */
     public function getEventNames(): array
     {
         return array_keys($this->events);
     }
 
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_9351) tag:v6.4.0 - use `\Shopware\Core\Framework\Event\BusinessEventCollector::collect` instead
+     */
     public function getAvailableDataByEvent(string $eventName): array
     {
         return $this->events[$eventName] ?? [];
     }
 
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_9351) tag:v6.4.0 - use `addClasses` instead
+     */
     public function add(string $event, array $availableData): void
     {
         $this->rawEventData[$event] = $availableData;
@@ -45,6 +62,19 @@ class BusinessEventRegistry
         $this->compile();
     }
 
+    public function addClasses(array $classes): void
+    {
+        $this->classes = array_unique(array_merge($this->classes, $classes));
+    }
+
+    public function getClasses(): array
+    {
+        return $this->classes;
+    }
+
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_9351) tag:v6.4.0 - use `addClasses` instead
+     */
     public function addMultiple(array $events): void
     {
         foreach ($events as $event => $data) {
@@ -54,6 +84,9 @@ class BusinessEventRegistry
         $this->compile();
     }
 
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_9351) tag:v6.4.0 - will be removed
+     */
     private function compile(): void
     {
         foreach ($this->rawEventData as $eventName => $eventData) {

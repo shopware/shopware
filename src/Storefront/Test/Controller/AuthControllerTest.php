@@ -8,12 +8,15 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class AuthControllerTest extends TestCase
 {
@@ -77,11 +80,90 @@ class AuthControllerTest extends TestCase
 
         $session = $browser->getRequest()->getSession();
 
+        Feature::skipTestIfActive('FEATURE_NEXT_10058', $this);
+
         $newContextToken = $session->get('sw-context-token');
         static::assertSame($contextToken, $newContextToken);
 
         $newSessionId = $session->getId();
         static::assertSame($sessionId, $newSessionId);
+    }
+
+    public function testRedirectToAccountPageAfterLogin(): void
+    {
+        $browser = $this->login();
+
+        $browser->request('GET', '/account/login', []);
+        $response = $browser->getResponse();
+
+        static::assertSame(302, $response->getStatusCode(), $response->getContent());
+        static::assertInstanceOf(RedirectResponse::class, $response);
+        static::assertSame('/account', $response->getTargetUrl());
+    }
+
+    public function testSessionIsMigratedOnLogOut(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_10058', $this);
+        $browser = $this->login();
+
+        $session = $browser->getRequest()->getSession();
+        $contextToken = $session->get('sw-context-token');
+        $sessionId = $session->getId();
+
+        $browser->request('GET', '/account/logout', []);
+        $response = $browser->getResponse();
+        static::assertSame(302, $response->getStatusCode(), $response->getContent());
+
+        $browser->request('GET', '/', []);
+        $response = $browser->getResponse();
+        static::assertSame(200, $response->getStatusCode(), $response->getContent());
+
+        $session = $browser->getRequest()->getSession();
+
+        $newContextToken = $session->get('sw-context-token');
+        static::assertNotEquals($contextToken, $newContextToken);
+
+        $newSessionId = $session->getId();
+        static::assertNotEquals($sessionId, $newSessionId);
+    }
+
+    public function testOneUserUseOneContextAcrossSessions(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_10058', $this);
+
+        $browser = $this->login();
+
+        $systemConfig = $this->getContainer()->get(SystemConfigService::class);
+        $systemConfig->set('core.loginRegistration.invalidateSessionOnLogOut', false);
+
+        $firstTimeLogin = $browser->getRequest()->getSession();
+        $firstTimeLoginSessionId = $firstTimeLogin->getId();
+        $firstTimeLoginContextToken = $firstTimeLogin->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+
+        $browser->request('GET', '/account/logout', []);
+
+        $response = $browser->getResponse();
+        static::assertSame(302, $response->getStatusCode(), $response->getContent());
+
+        $browser->request('GET', '/', []);
+        $response = $browser->getResponse();
+        static::assertSame(200, $response->getStatusCode(), $response->getContent());
+
+        $browser->request(
+            'POST',
+            $_SERVER['APP_URL'] . '/account/login',
+            $this->tokenize('frontend.account.login', [
+                'username' => 'test@example.com',
+                'password' => 'test',
+            ])
+        );
+
+        $secondTimeLogin = $browser->getRequest()->getSession();
+        $secondTimeLoginSessionId = $secondTimeLogin->getId();
+        $secondTimeLoginContextToken = $secondTimeLogin->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+
+        static::assertNotEquals($firstTimeLoginSessionId, $secondTimeLoginSessionId);
+        static::assertEquals($firstTimeLoginContextToken, $secondTimeLoginContextToken);
     }
 
     private function login(): KernelBrowser

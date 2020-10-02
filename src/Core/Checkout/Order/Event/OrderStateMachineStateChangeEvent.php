@@ -10,9 +10,10 @@ use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\MailActionInterface;
+use Shopware\Core\Framework\Event\SalesChannelAware;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class OrderStateMachineStateChangeEvent extends Event implements MailActionInterface
+class OrderStateMachineStateChangeEvent extends Event implements MailActionInterface, SalesChannelAware
 {
     /**
      * @var OrderEntity
@@ -20,6 +21,8 @@ class OrderStateMachineStateChangeEvent extends Event implements MailActionInter
     private $order;
 
     /**
+     * @feature-deprecated (flag:FEATURE_NEXT_9351) tag:v6.4.0 - will be removed
+     *
      * @var string|null
      */
     private $salesChannelId;
@@ -39,6 +42,9 @@ class OrderStateMachineStateChangeEvent extends Event implements MailActionInter
      */
     private $mailRecipientStruct;
 
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_9351) tag:v6.4.0 - parameter $salesChannelId will be removed
+     */
     public function __construct(string $eventName, OrderEntity $order, ?string $salesChannelId, Context $context)
     {
         $this->order = $order;
@@ -73,9 +79,9 @@ class OrderStateMachineStateChangeEvent extends Event implements MailActionInter
         return $this->mailRecipientStruct;
     }
 
-    public function getSalesChannelId(): ?string
+    public function getSalesChannelId(): string
     {
-        return $this->salesChannelId;
+        return $this->order->getSalesChannelId();
     }
 
     public function getContext(): Context
@@ -85,6 +91,6 @@ class OrderStateMachineStateChangeEvent extends Event implements MailActionInter
 
     public function getName(): string
     {
-        return $this->name;
+        return (string) $this->name;
     }
 }

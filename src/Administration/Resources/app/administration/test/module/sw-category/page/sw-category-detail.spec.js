@@ -10,11 +10,13 @@ function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-category-detail'), {
         localVue,
         stubs: {
-            'sw-page': `
-<div>
-    <slot name="smart-bar-actions"></slot>
-    <slot name="side-content"></slot>
-</div>`,
+            'sw-page': {
+                template: `
+    <div>
+        <slot name="smart-bar-actions"></slot>
+        <slot name="side-content"></slot>
+    </div>`
+            },
             'sw-category-tree': true,
             'sw-button': true,
             'sw-button-process': true
@@ -54,17 +56,19 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
         });
     });
 
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
         wrapper.destroy();
     });
 
-    it('should disable the save button', () => {
+    it('should disable the save button', async () => {
         const wrapper = createWrapper();
         Shopware.State.commit('swCategoryDetail/setActiveCategory', { category: {} });
-        wrapper.vm.isLoading = false;
+        await wrapper.setData({
+            isLoading: false
+        });
 
         const saveButton = wrapper.find('.sw-category-detail__save-action');
 
@@ -72,7 +76,7 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
         wrapper.destroy();
     });
 
-    it('should enable the save button', () => {
+    it('should enable the save button', async () => {
         const wrapper = createWrapper([
             'category.editor'
         ]);
@@ -80,7 +84,9 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
             slotConfig: ''
         } });
 
-        wrapper.vm.isLoading = false;
+        await wrapper.setData({
+            isLoading: false
+        });
 
         const saveButton = wrapper.find('.sw-category-detail__save-action');
 
@@ -88,7 +94,7 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
         wrapper.destroy();
     });
 
-    it('should not allow to edit', () => {
+    it('should not allow to edit', async () => {
         const wrapper = createWrapper([]);
         Shopware.State.commit('swCategoryDetail/setActiveCategory', {
             category: {
@@ -96,7 +102,9 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
             }
         });
 
-        wrapper.vm.isLoading = false;
+        await wrapper.setData({
+            isLoading: false
+        });
 
         const categoryTree = wrapper.find('sw-category-tree-stub');
 
@@ -104,7 +112,7 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
         wrapper.destroy();
     });
 
-    it('should allow to edit', () => {
+    it('should allow to edit', async () => {
         const wrapper = createWrapper([
             'category.editor'
         ]);
@@ -114,7 +122,9 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
             }
         });
 
-        wrapper.vm.isLoading = false;
+        await wrapper.setData({
+            isLoading: false
+        });
 
         const categoryTree = wrapper.find('sw-category-tree-stub');
 
@@ -122,7 +132,7 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
         wrapper.destroy();
     });
 
-    it('should not allow to create', () => {
+    it('should not allow to create', async () => {
         const wrapper = createWrapper([]);
         Shopware.State.commit('swCategoryDetail/setActiveCategory', {
             category: {
@@ -130,7 +140,9 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
             }
         });
 
-        wrapper.vm.isLoading = false;
+        await wrapper.setData({
+            isLoading: false
+        });
 
         const categoryTree = wrapper.find('sw-category-tree-stub');
 
@@ -138,7 +150,7 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
         wrapper.destroy();
     });
 
-    it('should allow to create', () => {
+    it('should allow to create', async () => {
         const wrapper = createWrapper([
             'category.creator'
         ]);
@@ -148,7 +160,9 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
             }
         });
 
-        wrapper.vm.isLoading = false;
+        await wrapper.setData({
+            isLoading: false
+        });
 
         const categoryTree = wrapper.find('sw-category-tree-stub');
 
@@ -156,7 +170,7 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
         wrapper.destroy();
     });
 
-    it('should not allow to delete', () => {
+    it('should not allow to delete', async () => {
         const wrapper = createWrapper([]);
         Shopware.State.commit('swCategoryDetail/setActiveCategory', {
             category: {
@@ -164,7 +178,9 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
             }
         });
 
-        wrapper.vm.isLoading = false;
+        await wrapper.setData({
+            isLoading: false
+        });
 
         const categoryTree = wrapper.find('sw-category-tree-stub');
 
@@ -172,7 +188,7 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
         wrapper.destroy();
     });
 
-    it('should allow to delete', () => {
+    it('should allow to delete', async () => {
         const wrapper = createWrapper([
             'category.deleter'
         ]);
@@ -182,7 +198,9 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
             }
         });
 
-        wrapper.vm.isLoading = false;
+        await wrapper.setData({
+            isLoading: false
+        });
 
         const categoryTree = wrapper.find('sw-category-tree-stub');
 

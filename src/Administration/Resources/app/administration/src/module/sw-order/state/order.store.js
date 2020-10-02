@@ -89,6 +89,10 @@ export default {
 
         invalidPromotionCodes(state) {
             return state.promotionCodes.filter(item => item.isInvalid);
+        },
+
+        cartErrors(state) {
+            return get(state, 'cart.errors', null);
         }
     },
 

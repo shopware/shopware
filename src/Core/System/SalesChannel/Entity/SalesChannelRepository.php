@@ -194,11 +194,10 @@ class SalesChannelRepository implements SalesChannelRepositoryInterface
 
         // process all associations breadth-first
         while (!empty($queue) && --$maxCount > 0) {
+            /** @var array{'definition': EntityDefinition, 'criteria': Criteria} $cur */
             $cur = array_shift($queue);
 
-            /** @var EntityDefinition $definition */
             $definition = $cur['definition'];
-            /** @var Criteria $criteria */
             $criteria = $cur['criteria'];
 
             if (isset($processed[get_class($definition)])) {

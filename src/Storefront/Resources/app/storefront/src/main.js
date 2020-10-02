@@ -77,6 +77,7 @@ import GoogleAnalyticsPlugin from 'src/plugin/google-analytics/google-analytics.
 import SwagBlockLink from 'src/helper/block-link.helper';
 import StoreApiClient from 'src/service/store-api-client.service';
 import ClearInputPlugin from 'src/plugin/clear-input-button/clear-input.plugin';
+import CmsGdprVideoElement from 'src/plugin/cms-gdpr-video-element/cms-gdpr-video-element.plugin';
 
 window.eventEmitter = new NativeEventEmitter();
 
@@ -140,7 +141,8 @@ PluginManager.register('FormCmsHandler', FormCmsHandlerPlugin, '.cms-element-for
 PluginManager.register('CountryStateSelect', CountryStateSelectPlugin, '[data-country-state-select]');
 PluginManager.register('Ellipsis', EllipsisPlugin, '[data-ellipsis]');
 PluginManager.register('SwagBlockLink', SwagBlockLink, '[href="#not-found"]');
-PluginManager.register('ClearInput', ClearInputPlugin, '[data-clear-input]')
+PluginManager.register('ClearInput', ClearInputPlugin, '[data-clear-input]');
+PluginManager.register('CmsGdprVideoElement', CmsGdprVideoElement, '[data-cms-gdpr-video-element]');
 
 if (window.csrf.enabled && window.csrf.mode === 'ajax') {
     PluginManager.register('FormCsrfHandler', FormCsrfHandlerPlugin, '[data-form-csrf-handler]');
@@ -151,9 +153,6 @@ if (window.gtagActive) {
     PluginManager.register('GoogleAnalytics', GoogleAnalyticsPlugin);
 }
 
-/**
- * @deprecated tag:v6.4.0 use storefront controller instead
- */
 window.storeApiClient = StoreApiClient;
 
 window.Feature = Feature;

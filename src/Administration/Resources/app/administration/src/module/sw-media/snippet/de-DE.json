@@ -97,5 +97,12 @@
       "labelButtonCancel": "Abbrechen",
       "labelButtonSaveSelection": "Medien hinzufügen"
     }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "media": {
+        "label": "Medien"
+      }
+    }
   }
 }

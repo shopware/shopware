@@ -147,7 +147,6 @@ Component.register('sw-sales-channel-defaults-select', {
                 const domain = this.getDomainUsingValue(removed);
                 if (domain !== null) {
                     this.createNotificationError({
-                        title: this.$tc('global.default.error'),
                         message: this.$tc(
                             'sw-sales-channel.sw-sales-channel-defaults-select.messageError',
                             0,

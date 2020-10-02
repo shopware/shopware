@@ -1,0 +1,94 @@
+@import "~scss/variables";
+
+.sw-image-slider {
+    &__image-container {
+        position: relative;
+
+        &-scrollable {
+            display: flex;
+            transform: translateX(0px);
+            transition: transform 0.3s ease-out;
+            clear: both;
+        }
+
+        &-element {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            overflow: hidden;
+            border-radius: $border-radius-default;
+
+            &-wrapper {
+                flex-direction: column;
+                align-self: flex-start;
+
+                border: 1px solid #ccc;
+                border-radius: calc(#{$border-radius-default} + 2px);
+            }
+
+            &-description {
+                padding: 24px 12px;
+            }
+
+            &-image {
+                border-radius: $border-radius-default;
+                user-select: none;
+            }
+        }
+    }
+
+    &__buttons {
+        text-align: center;
+
+        &-element {
+            width: 12px;
+            height: 12px;
+            margin: 12px 6px;
+            border: 0 none;
+            border-radius: 100%;
+
+            background: $color-gray-500;
+            transition: background 0.3s ease-out;
+            outline: none;
+            cursor: pointer;
+            text-indent: -9999px;
+
+            &.is--active {
+                background: $color-darkgray-100;
+            }
+        }
+    }
+
+    &__arrow {
+        position: absolute;
+        width: 56px;
+        top: 0;
+        background-color: rgba(255, 255, 255, 0);
+        transition: background-color 0.3s ease-out;
+        cursor: pointer;
+
+        &:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        & > span {
+            position: absolute;
+            top: 50%;
+            margin: 0 16px;
+            transform: translateY(-50%);
+        }
+
+        &.arrow-left {
+            left: 0;
+        }
+
+        &.arrow-right {
+            right: 0;
+
+            & > span {
+                right: 0;
+            }
+        }
+    }
+}

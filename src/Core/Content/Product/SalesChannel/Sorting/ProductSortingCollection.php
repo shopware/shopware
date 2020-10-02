@@ -20,8 +20,8 @@ class ProductSortingCollection extends EntityCollection
         $sorted = [];
 
         foreach ($keys as $key) {
-            if ($this->hasKey($key)) {
-                $sorting = $this->getByKey($key);
+            $sorting = $this->getByKey($key);
+            if ($sorting !== null) {
                 $sorted[$sorting->getId()] = $this->elements[$sorting->getId()];
             }
         }
@@ -32,11 +32,6 @@ class ProductSortingCollection extends EntityCollection
     public function getByKey(string $key): ?ProductSortingEntity
     {
         return $this->filterByProperty('key', $key)->first();
-    }
-
-    public function hasKey(?string $key): bool
-    {
-        return $this->filterByProperty('key', $key)->count() > 0;
     }
 
     public function getApiAlias(): string

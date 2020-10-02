@@ -8,8 +8,12 @@ function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-promotion-order-condition-form'), {
         localVue,
         stubs: {
-            'sw-card': '<div class="sw-card"><slot></slot></div>',
-            'sw-promotion-rule-select': '<div class="sw-promotion-rule-select"><slot></slot></div>'
+            'sw-card': {
+                template: '<div class="sw-card"><slot></slot></div>'
+            },
+            'sw-promotion-rule-select': {
+                template: '<div class="sw-promotion-rule-select"><slot></slot></div>'
+            }
         },
         provide: {
             acl: {
@@ -95,11 +99,11 @@ describe('src/module/sw-promotion/component/sw-promotion-order-condition-form', 
         });
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should have disabled form fields', () => {
+    it('should have disabled form fields', async () => {
         expect(wrapper.vm.isEditingDisabled).toBe(true);
 
         const elements = wrapper.findAll('.sw-promotion-rule-select');
@@ -107,7 +111,7 @@ describe('src/module/sw-promotion/component/sw-promotion-order-condition-form', 
         elements.wrappers.forEach(el => expect(el.attributes().disabled).toBe('disabled'));
     });
 
-    it('should not have disabled form fields', () => {
+    it('should not have disabled form fields', async () => {
         wrapper = createWrapper([
             'promotion.editor'
         ]);

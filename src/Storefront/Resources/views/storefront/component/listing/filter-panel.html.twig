@@ -19,8 +19,10 @@
                         {# @var manufacturers \Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\EntityResult #}
                         {% set manufacturers = listing.aggregations.get('manufacturer') %}
                         {% if not manufacturers.entities is empty %}
+                            {% set manufacturersSorted = manufacturers.entities|sort((a, b) => a.translated.name|lower > b.translated.name|lower) %}
+
                             {% sw_include '@Storefront/storefront/component/listing/filter/filter-multi-select.html.twig' with {
-                                elements: manufacturers.entities,
+                                elements: manufacturersSorted,
                                 sidebar: sidebar,
                                 name: 'manufacturer',
                                 displayName: 'listing.filterManufacturerDisplayName'|trans|sw_sanitize

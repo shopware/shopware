@@ -33,13 +33,13 @@ function createWrapper(privileges = []) {
 }
 
 describe('src/module/sw-category/component/sw-category-layout-card', () => {
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should have an enabled cms list item', () => {
+    it('should have an enabled cms list item', async () => {
         const wrapper = createWrapper([
             'category.editor'
         ]);
@@ -49,7 +49,7 @@ describe('src/module/sw-category/component/sw-category-layout-card', () => {
         expect(cmsListItem.attributes().disabled).toBeUndefined();
     });
 
-    it('should have an disabled cms list item', () => {
+    it('should have an disabled cms list item', async () => {
         const wrapper = createWrapper();
 
         const cmsListItem = wrapper.find('sw-cms-list-item-stub');
@@ -57,7 +57,7 @@ describe('src/module/sw-category/component/sw-category-layout-card', () => {
         expect(cmsListItem.attributes().disabled).toBe('true');
     });
 
-    it('should have an enabled button for changing the layout', () => {
+    it('should have an enabled button for changing the layout', async () => {
         const wrapper = createWrapper([
             'category.editor'
         ]);
@@ -67,7 +67,7 @@ describe('src/module/sw-category/component/sw-category-layout-card', () => {
         expect(changeLayoutButton.attributes().disabled).toBeUndefined();
     });
 
-    it('should have an disabled button for changing the layout', () => {
+    it('should have an disabled button for changing the layout', async () => {
         const wrapper = createWrapper();
 
         const changeLayoutButton = wrapper.find('.sw-category-detail-layout__change-layout-action');
@@ -75,7 +75,7 @@ describe('src/module/sw-category/component/sw-category-layout-card', () => {
         expect(changeLayoutButton.attributes().disabled).toBe('true');
     });
 
-    it('should have an enabled button for open the page builder', () => {
+    it('should have an enabled button for open the page builder', async () => {
         const wrapper = createWrapper([
             'category.editor'
         ]);
@@ -85,7 +85,7 @@ describe('src/module/sw-category/component/sw-category-layout-card', () => {
         expect(pageBuilderButton.attributes().disabled).toBeUndefined();
     });
 
-    it('should have an disabled button for open the page builder', () => {
+    it('should have an disabled button for open the page builder', async () => {
         const wrapper = createWrapper();
 
         const pageBuilderButton = wrapper.find('.sw-category-detail-layout__open-in-pagebuilder');
@@ -93,12 +93,12 @@ describe('src/module/sw-category/component/sw-category-layout-card', () => {
         expect(pageBuilderButton.attributes().disabled).toBe('true');
     });
 
-    it('should have an enabled button for resetting the layout', () => {
+    it('should have an enabled button for resetting the layout', async () => {
         const wrapper = createWrapper([
             'category.editor'
         ]);
 
-        wrapper.setProps({
+        await wrapper.setProps({
             cmsPage: {}
         });
 
@@ -107,10 +107,10 @@ describe('src/module/sw-category/component/sw-category-layout-card', () => {
         expect(resetLayoutButton.attributes().disabled).toBeUndefined();
     });
 
-    it('should have an disabled button for resetting the layout', () => {
+    it('should have an disabled button for resetting the layout', async () => {
         const wrapper = createWrapper();
 
-        wrapper.setProps({
+        await wrapper.setProps({
             cmsPage: {}
         });
 
@@ -119,12 +119,12 @@ describe('src/module/sw-category/component/sw-category-layout-card', () => {
         expect(resetLayoutButton.attributes().disabled).toBe('true');
     });
 
-    it('should show the router link', () => {
+    it('should show the router link', async () => {
         const wrapper = createWrapper([
             'category.editor'
         ]);
 
-        wrapper.setProps({
+        await wrapper.setProps({
             cmsPage: {}
         });
 
@@ -133,10 +133,10 @@ describe('src/module/sw-category/component/sw-category-layout-card', () => {
         expect(routerLink.exists()).toBeTruthy();
     });
 
-    it('should hide the router link', () => {
+    it('should hide the router link', async () => {
         const wrapper = createWrapper([]);
 
-        wrapper.setProps({
+        await wrapper.setProps({
             cmsPage: {}
         });
 

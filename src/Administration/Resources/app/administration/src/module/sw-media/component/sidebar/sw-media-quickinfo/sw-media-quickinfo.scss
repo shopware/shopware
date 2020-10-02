@@ -13,6 +13,11 @@ $sw-media-quickinfo-border-radius-preview: $border-radius-default;
         text-decoration: none;
     }
 
+    .sw-media-sidebar__quickaction--disabled {
+        opacity: 0.5;
+        pointer-events: none;
+    }
+
     .sw-media-quickinfo__media-preview {
         position: relative;
         border: 1px solid $sw-media-quickinfo-border-color-preview;

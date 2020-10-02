@@ -1,8 +1,8 @@
 {% block sw_cms_slot %}
-    <div class="sw-cms-slot">
+    <div class="sw-cms-slot" :class="componentClasses">
 
         {% block sw_cms_slot_component %}
-            <component :is="elementConfig.component" v-model="element"></component>
+            <component :is="elementConfig.component" v-model="element" :disabled="disabled"></component>
         {% endblock %}
 
         {% block sw_cms_slot_preview_overlay %}

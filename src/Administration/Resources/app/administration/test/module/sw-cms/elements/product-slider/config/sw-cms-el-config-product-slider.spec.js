@@ -39,7 +39,9 @@ function createWrapper(customCmsElementConfig) {
             defaultConfig: {}
         },
         stubs: {
-            'sw-tabs': '<div class="sw-tabs"><slot></slot><slot name="content" active="content"></slot></div>',
+            'sw-tabs': {
+                template: '<div class="sw-tabs"><slot></slot><slot name="content" active="content"></slot></div>'
+            },
             'sw-tabs-item': true,
             'sw-container': true,
             'sw-field': true,
@@ -80,20 +82,20 @@ function createWrapper(customCmsElementConfig) {
 }
 
 describe('module/sw-cms/elements/product-slider/config', () => {
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should render product assignment type select', () => {
+    it('should render product assignment type select', async () => {
         const wrapper = createWrapper();
 
         expect(wrapper.find('.sw-cms-el-config-product-slider__product-assignment-type-select')
             .exists()).toBeTruthy();
     });
 
-    it('should render manual product assignment by default', () => {
+    it('should render manual product assignment by default', async () => {
         const wrapper = createWrapper();
 
         expect(wrapper.find('.sw-cms-el-config-product-slider__products').exists()).toBeTruthy();
@@ -208,7 +210,7 @@ describe('module/sw-cms/elements/product-slider/config', () => {
         expect(wrapper.vm.element.config.products.value).toEqual([]);
     });
 
-    it('should build correct sorting criteria for stream preview including selected sorting option', () => {
+    it('should build correct sorting criteria for stream preview including selected sorting option', async () => {
         const wrapper = createWrapper({
             products: {
                 value: 'de8de156da134dabac24257f81ff282f',
@@ -231,7 +233,7 @@ describe('module/sw-cms/elements/product-slider/config', () => {
 
         await wrapper.vm.$nextTick();
 
-        wrapper.setData({
+        await wrapper.setData({
             showProductStreamPreview: true
         });
 

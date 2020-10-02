@@ -137,11 +137,6 @@
             </call>
         </service>
 
-        <service id="Shopware\Core\Content\Product\Api\ProductPurchasePriceApiConverter" public="true" >
-            <tag name="shopware.api.converter"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_9825"/>
-        </service>
-
         <service id="Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition">
             <tag name="shopware.entity.definition"/>
         </service>
@@ -283,6 +278,10 @@
             <argument type="service" id="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder"/>
         </service>
 
+        <service id="Shopware\Core\Content\Product\DataAbstractionLayer\ProductPurchasePriceDeprecationUpdater">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
         <service id="Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
             <argument type="service" id="product.repository"/>
@@ -297,7 +296,9 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater"/>
             <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\StockUpdater"/>
+            <argument type="service" id="Shopware\Core\Content\Product\DataAbstractionLayer\ProductPurchasePriceDeprecationUpdater"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument>%shopware.deployment.blue_green%</argument>
             <tag name="shopware.entity_indexer" priority="100"/>
         </service>
 
@@ -364,12 +365,17 @@
             <argument type="service" id="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder"/>
             <argument type="service" id="sales_channel.product.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewSaveRoute" public="true">
             <argument type="service" id="product_review.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\SalesChannel\ProductListListRoute" public="true">
+            <argument type="service" id="sales_channel.product.repository"/>
         </service>
     </services>
 </container>

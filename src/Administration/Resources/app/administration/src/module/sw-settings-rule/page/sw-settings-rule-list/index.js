@@ -74,13 +74,11 @@ Component.register('sw-settings-rule-list', {
                 this.isLoading = false;
 
                 this.createNotificationSuccess({
-                    title: this.$tc('global.default.success'),
                     message: this.$tc('sw-settings-rule.detail.messageSaveSuccess', 0, { name: rule.name })
                 });
             }).catch(() => {
                 this.getList();
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-settings-rule.detail.messageSaveError')
                 });
             });

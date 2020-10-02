@@ -116,6 +116,7 @@ class SeoUrlPersister
             $insert['route_name'] = $routeName;
             $insert['is_canonical'] = ($seoUrl['isCanonical'] ?? true) ? 1 : null;
             $insert['is_modified'] = ($seoUrl['isModified'] ?? false) ? 1 : 0;
+            $insert['is_deleted'] = ($seoUrl['isDeleted'] ?? true) ? 1 : 0;
 
             $insert['created_at'] = $dateTime;
 
@@ -132,7 +133,10 @@ class SeoUrlPersister
             });
 
             $deletedIds = array_diff($foreignKeys, $updatedFks);
-            $this->markAsDeleted($deletedIds, $dateTime, $salesChannelId);
+            $notDeletedIds = array_unique(array_intersect($foreignKeys, $updatedFks));
+
+            $this->markAsDeleted(true, $deletedIds, $dateTime, $salesChannelId);
+            $this->markAsDeleted(false, $notDeletedIds, $dateTime, $salesChannelId);
 
             if (!$this->connection->isRollbackOnly()) {
                 $this->connection->commit();
@@ -215,15 +219,16 @@ class SeoUrlPersister
             ->execute();
     }
 
-    private function markAsDeleted(array $ids, string $dateTime, ?string $salesChannelId): void
+    private function markAsDeleted(bool $deleted, array $ids, string $dateTime, ?string $salesChannelId): void
     {
         if (empty($ids)) {
             return;
         }
+
         $ids = Uuid::fromHexToBytesList($ids);
         $query = $this->connection->createQueryBuilder()
             ->update('seo_url')
-            ->set('is_deleted', '1')
+            ->set('is_deleted', $deleted ? '1' : '0')
             ->set('updated_at', ':dateTime')
             ->where('foreign_key IN (:fks)')
             ->setParameter('dateTime', $dateTime)
@@ -231,7 +236,7 @@ class SeoUrlPersister
 
         if ($salesChannelId) {
             $query->andWhere('sales_channel_id = :salesChannelId');
-            $query->setParameter('salesChannelId', $salesChannelId);
+            $query->setParameter('salesChannelId', Uuid::fromHexToBytes($salesChannelId));
         }
 
         RetryableQuery::retryable(function () use ($query): void {

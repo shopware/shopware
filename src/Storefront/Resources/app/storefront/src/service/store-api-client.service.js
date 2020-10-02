@@ -1,49 +1,67 @@
 import HttpClient from './http-client.service';
 
-/** 
- * @deprecated tag:v6.4.0 use storefront controller instead
- */
 export default class StoreApiClient extends HttpClient {
 
     constructor() {
         super();
-        // init internal cache
-        this.keys = null;
+        this._proxyUrl = window.router['frontend.store-api.proxy'];
     }
 
     /**
-     * @param callback
+     * @private
+     * Returns a new and configured XMLHttpRequest object
+     *
+     * @param {'GET'|'POST'|'DELETE'|'PATCH'} type
+     * @param {string} url
+     * @param {string} contentType
+     *
+     * @returns {XMLHttpRequest}
      */
-    _fetchAccessKey(callback) {
-        // keys already fetched? prevent unnecessary ajax request
-        if (this.keys !== null) {
-            callback(this.keys);
-            return;
+    _createPreparedRequest(type, url, contentType) {
+        this._request = new XMLHttpRequest();
+
+        if (url === this._generateUrl) {
+            this._request.open(type, url);
+        } else {
+            this._request.open(type, this._proxyUrl + '?path=' + encodeURIComponent(url));
+        }
+        this._request.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+
+        if (contentType) {
+            this._request.setRequestHeader('Content-type', contentType);
         }
 
-        const request = new XMLHttpRequest();
-
-        request.open('GET', window.apiAccessUrl);
-        request.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-        request.setRequestHeader('Content-type', 'application/json');
-        request.send();
-
-        // fetch api access (accessKey and context token) to add possibility to send store-api request
-        request.addEventListener('loadend', () => {
-            this.keys = JSON.parse(request.responseText);
-            callback(this.keys);
-        });
+        return this._request;
     }
 
-    _sendRequest(request, data, callback) {
-        this._registerOnLoaded(request, callback);
+    /**
+     * Request POST
+     *
+     * @param {string} url
+     * @param {object|null} data
+     * @param {function} callback
+     * @param {string} contentType
+     * @param {boolean} csrfProtected
+     *
+     * @returns {XMLHttpRequest}
+     */
+    post(
+        url,
+        data,
+        callback,
+        contentType = 'application/json',
+        csrfProtected = true
+    ) {
+        if (csrfProtected && this._csrfEnabled && this._csrfMode !== 'ajax') {
+            if (data instanceof FormData) {
+                data.append('_csrf_token', window.storeApiProxyToken);
+            } else {
+                data = JSON.parse(data);
+                data['_csrf_token'] = window.storeApiProxyToken;
+                data = JSON.stringify(data);
+            }
+        }
 
-        this._fetchAccessKey((keys) => {
-            request.setRequestHeader('sw-access-key', keys.accessKey);
-            request.setRequestHeader('sw-context-token', keys.token);
-            request.send(data);
-        });
-
-        return request;
+        return super.post(url, data, callback, contentType, csrfProtected);
     }
 }

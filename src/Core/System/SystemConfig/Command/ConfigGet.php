@@ -39,7 +39,11 @@ class ConfigGet extends Command
             $input->getOption('salesChannelId')
         );
 
-        $output->writeln($value);
+        if (\is_array($value)) {
+            $output->writeln($value);
+        } else {
+            $output->writeln((string) $value);
+        }
 
         return 0;
     }

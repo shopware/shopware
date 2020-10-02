@@ -35,6 +35,12 @@ Component.register('sw-cms-sidebar', {
             type: String,
             required: false,
             default: null
+        },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 

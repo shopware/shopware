@@ -6,7 +6,7 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 Component.register('sw-settings-product-feature-sets-detail', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -50,6 +50,14 @@ Component.register('sw-settings-product-feature-sets-detail', {
         },
 
         tooltipSave() {
+            if (!this.acl.can('product_feature_sets.editor')) {
+                return {
+                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    disabled: this.acl.can('product_feature_sets.editor'),
+                    showOnDisabledElements: true
+                };
+            }
+
             const systemKey = this.$device.getSystemKey();
 
             return {
@@ -117,22 +125,27 @@ Component.register('sw-settings-product-feature-sets-detail', {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            return this.productFeatureSetsRepository.save(this.productFeatureSet, Shopware.Context.api).then(() => {
-                this.isSaveSuccessful = true;
-                if (!this.productFeatureSetId) {
-                    this.$router.push({
-                        name: 'sw.settings.product.feature.sets.detail',
-                        params: { id: this.productFeatureSet.id }
+            return this.productFeatureSetsRepository.save(this.productFeatureSet, Shopware.Context.api)
+                .then(() => {
+                    this.isSaveSuccessful = true;
+                    if (!this.productFeatureSetId) {
+                        this.$router.push({
+                            name: 'sw.settings.product.feature.sets.detail',
+                            params: { id: this.productFeatureSet.id }
+                        });
+                    }
+                })
+                .then(() => {
+                    this.loadEntityData();
+                })
+                .catch(() => {
+                    this.createNotificationError({
+                        message: this.$tc('sw-settings-product-feature-sets.detail.notificationErrorMessage')
                     });
-                }
-            }).catch(() => {
-                this.createNotificationError({
-                    title: this.$tc('global.default.error'),
-                    message: this.$tc('sw-settings-product-feature-sets.detail.notificationErrorMessage')
+                })
+                .finally(() => {
+                    this.isLoading = false;
                 });
-            }).finally(() => {
-                this.isLoading = false;
-            });
         },
 
         onCancel() {

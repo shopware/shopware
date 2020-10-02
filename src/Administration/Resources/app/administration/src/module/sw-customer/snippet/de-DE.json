@@ -20,7 +20,7 @@
       "declineMessage": "Antrag wurde abgelehnt",
       "errorMessage": "Anfrage kann nicht verarbeitet werden",
       "notification": {
-        "title": "Händlerstatus Anfrage",
+        "title": "Händlerstatus-Anfrage",
         "message": "Kunde \"{name}\" möchte in Kundengruppe \"{groupName}\" aufgenommen werden.",
         "openCustomer": "Kunden öffnen"
       }

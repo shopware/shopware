@@ -57,6 +57,11 @@ class ProductTranslationEntity extends TranslationEntity
      */
     protected $customFields;
 
+    /**
+     * @var string[]|null
+     */
+    protected $productSearchKeywords;
+
     public function getProductId(): string
     {
         return $this->productId;
@@ -155,5 +160,15 @@ class ProductTranslationEntity extends TranslationEntity
     public function setMetaDescription(?string $metaDescription): void
     {
         $this->metaDescription = $metaDescription;
+    }
+
+    public function getProductSearchKeywords(): ?array
+    {
+        return $this->productSearchKeywords;
+    }
+
+    public function setProductSearchKeywords(?array $productSearchKeywords): void
+    {
+        $this->productSearchKeywords = $productSearchKeywords;
     }
 }

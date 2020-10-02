@@ -24,11 +24,14 @@ class SalesChannelContextServiceProfiler implements SalesChannelContextServiceIn
         $this->stopwatch = $stopwatch;
     }
 
-    public function get(string $salesChannelId, string $token, ?string $languageId): SalesChannelContext
+    /**
+     * @deprecated tag:v6.4.0 - Parameter $currencyId will be mandatory in future implementation
+     */
+    public function get(string $salesChannelId, string $token, ?string $languageId/*, ?string $currencyId */): SalesChannelContext
     {
         $this->stopwatch->start('context-generation');
 
-        $context = $this->decorated->get($salesChannelId, $token, $languageId);
+        $context = $this->decorated->get($salesChannelId, $token, $languageId, func_num_args() >= 4 ? func_get_arg(3) : null);
 
         $this->stopwatch->stop('context-generation');
 

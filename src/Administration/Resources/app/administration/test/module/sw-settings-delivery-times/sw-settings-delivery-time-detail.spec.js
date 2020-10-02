@@ -66,12 +66,14 @@ function createWrapper(privileges = []) {
             }
         },
         stubs: {
-            'sw-page': `
-                <div class="sw-page">
-                    <slot name="smart-bar-actions"></slot>
-                    <slot name="content"></slot>
-                    <slot></slot>
-                </div>`,
+            'sw-page': {
+                template: `
+                    <div class="sw-page">
+                        <slot name="smart-bar-actions"></slot>
+                        <slot name="content"></slot>
+                        <slot></slot>
+                    </div>`
+            },
             'sw-button': true,
             'sw-button-process': true,
             'sw-language-switch': true,
@@ -147,7 +149,7 @@ describe('src/module/sw-settings-delivery-times/page/sw-settings-delivery-time-d
         await wrapper.vm.$nextTick();
 
         // Assume that user navigate to sw-setting-delivery-time-create page
-        wrapper.setData({ deliveryTime: wrapper.vm.deliveryTimeRepository.create() });
+        await wrapper.setData({ deliveryTime: wrapper.vm.deliveryTimeRepository.create() });
 
         await wrapper.vm.$nextTick();
 

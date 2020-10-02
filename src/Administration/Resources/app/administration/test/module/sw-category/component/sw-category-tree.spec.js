@@ -44,16 +44,16 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
         Shopware.State.registerModule('swCategoryDetail', {});
     });
 
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should be able to sort the items', async () => {
         const wrapper = createWrapper();
 
-        wrapper.setData({
+        await wrapper.setData({
             isLoadingInitialData: false
         });
 
@@ -66,11 +66,11 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
     it('should not be able to sort the items', async () => {
         const wrapper = createWrapper();
 
-        wrapper.setData({
+        await wrapper.setData({
             isLoadingInitialData: false
         });
 
-        wrapper.setProps({
+        await wrapper.setProps({
             allowEdit: false
         });
 
@@ -83,7 +83,7 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
     it('should be able to delete the items in sw-tree', async () => {
         const wrapper = createWrapper();
 
-        wrapper.setData({
+        await wrapper.setData({
             isLoadingInitialData: false
         });
 
@@ -96,11 +96,11 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
     it('should not be able to delete the items in sw-tree', async () => {
         const wrapper = createWrapper();
 
-        wrapper.setData({
+        await wrapper.setData({
             isLoadingInitialData: false
         });
 
-        wrapper.setProps({
+        await wrapper.setProps({
             allowDelete: false
         });
 
@@ -113,7 +113,7 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
     it('should be able to create new categories in sw-tree-item', async () => {
         const wrapper = createWrapper();
 
-        wrapper.setData({
+        await wrapper.setData({
             isLoadingInitialData: false
         });
 
@@ -126,11 +126,11 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
     it('should not be able to create new categories in sw-tree-item', async () => {
         const wrapper = createWrapper();
 
-        wrapper.setData({
+        await wrapper.setData({
             isLoadingInitialData: false
         });
 
-        wrapper.setProps({
+        await wrapper.setProps({
             allowCreate: false
         });
 
@@ -143,7 +143,7 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
     it('should be able to delete categories in sw-tree-item', async () => {
         const wrapper = createWrapper();
 
-        wrapper.setData({
+        await wrapper.setData({
             isLoadingInitialData: false
         });
 
@@ -156,11 +156,11 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
     it('should not be able to delete categories in sw-tree-item', async () => {
         const wrapper = createWrapper();
 
-        wrapper.setData({
+        await wrapper.setData({
             isLoadingInitialData: false
         });
 
-        wrapper.setProps({
+        await wrapper.setProps({
             allowDelete: false
         });
 
@@ -173,7 +173,7 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
     it('should show the checkbox in sw-tree-item', async () => {
         const wrapper = createWrapper();
 
-        wrapper.setData({
+        await wrapper.setData({
             isLoadingInitialData: false
         });
 
@@ -186,11 +186,11 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
     it('should not show the checkbox in sw-tree-item', async () => {
         const wrapper = createWrapper();
 
-        wrapper.setData({
+        await wrapper.setData({
             isLoadingInitialData: false
         });
 
-        wrapper.setProps({
+        await wrapper.setProps({
             allowEdit: false
         });
 
@@ -203,11 +203,11 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
     it('should show the custom tooltip text in sw-tree-item', async () => {
         const wrapper = createWrapper();
 
-        wrapper.setData({
+        await wrapper.setData({
             isLoadingInitialData: false
         });
 
-        wrapper.setProps({
+        await wrapper.setProps({
             allowEdit: false
         });
 
@@ -220,7 +220,7 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
     it('should not show the custom tooltip text in sw-tree-item', async () => {
         const wrapper = createWrapper();
 
-        wrapper.setData({
+        await wrapper.setData({
             isLoadingInitialData: false
         });
 

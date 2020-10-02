@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Store\Api;
 
 use GuzzleHttp\Exception\ClientException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
-use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -12,12 +11,9 @@ use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Store\Exception\StoreApiException;
 use Shopware\Core\Framework\Store\Exception\StoreInvalidCredentialsException;
-use Shopware\Core\Framework\Store\Exception\StoreTokenMissingException;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardClient;
 use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\System\User\UserEntity;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -25,7 +21,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @RouteScope(scopes={"api"})
  */
-class FirstRunWizardController extends AbstractController
+class FirstRunWizardController extends AbstractStoreController
 {
     /**
      * @var FirstRunWizardClient
@@ -37,16 +33,14 @@ class FirstRunWizardController extends AbstractController
      */
     private $pluginRepo;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $userRepository;
-
-    public function __construct(FirstRunWizardClient $frwClient, EntityRepositoryInterface $pluginRepo, EntityRepositoryInterface $userRepository)
-    {
+    public function __construct(
+        FirstRunWizardClient $frwClient,
+        EntityRepositoryInterface $pluginRepo,
+        EntityRepositoryInterface $userRepository
+    ) {
         $this->frwClient = $frwClient;
         $this->pluginRepo = $pluginRepo;
-        $this->userRepository = $userRepository;
+        parent::__construct($userRepository);
     }
 
     /**
@@ -81,7 +75,7 @@ class FirstRunWizardController extends AbstractController
 
         return new JsonResponse([
             'items' => $languagePlugins,
-            'total' => count($languagePlugins),
+            'total' => \count($languagePlugins),
         ]);
     }
 
@@ -103,7 +97,7 @@ class FirstRunWizardController extends AbstractController
 
         return new JsonResponse([
             'items' => $languagePlugins,
-            'total' => count($languagePlugins),
+            'total' => \count($languagePlugins),
         ]);
     }
 
@@ -122,7 +116,7 @@ class FirstRunWizardController extends AbstractController
 
         return new JsonResponse([
             'items' => $recommendationRegions,
-            'total' => count($recommendationRegions),
+            'total' => \count($recommendationRegions),
         ]);
     }
 
@@ -146,7 +140,7 @@ class FirstRunWizardController extends AbstractController
 
         return new JsonResponse([
             'items' => $recommendations,
-            'total' => count($recommendations),
+            'total' => \count($recommendations),
         ]);
     }
 
@@ -163,12 +157,10 @@ class FirstRunWizardController extends AbstractController
             throw new StoreInvalidCredentialsException();
         }
 
-        if (!$context->getSource() instanceof AdminApiSource) {
-            throw new InvalidContextSourceException(AdminApiSource::class, \get_class($context->getSource()));
-        }
+        $contextSource = $this->ensureAdminApiSource($context);
 
         try {
-            $accessTokenStruct = $this->frwClient->frwLogin($shopwareId, $password, $language, $context->getSource()->getUserId());
+            $accessTokenStruct = $this->frwClient->frwLogin($shopwareId, $password, $language, $contextSource->getUserId());
         } catch (ClientException $exception) {
             throw new StoreApiException($exception);
         }
@@ -198,7 +190,7 @@ class FirstRunWizardController extends AbstractController
 
         return new JsonResponse([
             'items' => $domains,
-            'total' => count($domains),
+            'total' => \count($domains),
         ]);
     }
 
@@ -230,17 +222,19 @@ class FirstRunWizardController extends AbstractController
         $failed = $params->getBoolean('failed');
         $this->frwClient->finishFrw($failed, $context);
 
-        $userId = null;
         $newStoreToken = '';
 
         try {
-            $userId = $context->getSource() instanceof AdminApiSource ? $context->getSource()->getUserId() : null;
             $storeToken = $this->getUserStoreToken($context);
             $accessToken = $this->frwClient->upgradeAccessToken($storeToken, $language);
-            $newStoreToken = $accessToken->getShopUserToken()->getToken();
+            if ($accessToken !== null) {
+                $newStoreToken = $accessToken->getShopUserToken()->getToken();
+            }
         } catch (\Exception $e) {
         }
 
+        $contextSource = $context->getSource();
+        $userId = $contextSource instanceof AdminApiSource ? $contextSource->getUserId() : null;
         if ($userId) {
             $context->scope(Context::SYSTEM_SCOPE, function ($context) use ($userId, $newStoreToken): void {
                 $this->userRepository->update([['id' => $userId, 'storeToken' => $newStoreToken]], $context);
@@ -248,23 +242,5 @@ class FirstRunWizardController extends AbstractController
         }
 
         return new JsonResponse();
-    }
-
-    private function getUserStoreToken(Context $context): string
-    {
-        if (!$context->getSource() instanceof AdminApiSource) {
-            throw new InvalidContextSourceException(AdminApiSource::class, \get_class($context->getSource()));
-        }
-
-        $userId = $context->getSource()->getUserId();
-
-        /** @var UserEntity|null $user */
-        $user = $this->userRepository->search(new Criteria([$userId]), $context)->first();
-
-        if ($user->getStoreToken() === null) {
-            throw new StoreTokenMissingException();
-        }
-
-        return $user->getStoreToken();
     }
 }

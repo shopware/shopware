@@ -1,7 +1,7 @@
 Shopware.Service('privileges')
     .addPrivilegeMappingEntry({
         category: 'permissions',
-        parent: null,
+        parent: 'settings',
         key: 'shipping',
         roles: {
             viewer: {
@@ -13,8 +13,7 @@ Shopware.Service('privileges')
                     'currency:read',
                     'delivery_time:read',
                     'media_folder:read',
-                    'media_default_folder:read',
-                    'media:read'
+                    Shopware.Service('privileges').getPrivileges('media.viewer')
                 ],
                 dependencies: []
             },
@@ -22,6 +21,7 @@ Shopware.Service('privileges')
                 privileges: [
                     'shipping_method:update',
                     'tag:create',
+                    Shopware.Service('privileges').getPrivileges('media.creator'),
                     'shipping_method_price:create',
                     'shipping_method_price:update',
                     'shipping_method_price:delete',

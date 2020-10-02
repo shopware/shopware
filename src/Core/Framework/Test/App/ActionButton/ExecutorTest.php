@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Test\App\ActionButton;
 
-use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use Opis\JsonSchema\Schema;
@@ -13,20 +12,15 @@ use Shopware\Core\Framework\App\ActionButton\AppAction;
 use Shopware\Core\Framework\App\ActionButton\Executor;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 class ExecutorTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use GuzzleTestClientBehaviour;
 
     public const SCHEMA_LOCATION = __DIR__ . '/../../../App/ActionButton/appActionEndpointSchema.json';
-
-    /**
-     * @var MockHandler
-     */
-    private $appServerMock;
 
     /**
      * @var Executor
@@ -36,7 +30,6 @@ class ExecutorTest extends TestCase
     public function setUp(): void
     {
         Feature::skipTestIfInActive('FEATURE_NEXT_10286', $this);
-        $this->appServerMock = $this->getContainer()->get(MockHandler::class);
         $this->executor = $this->getContainer()->get(Executor::class);
     }
 
@@ -53,11 +46,11 @@ class ExecutorTest extends TestCase
             Random::getAlphanumericString(12)
         );
 
-        $this->appServerMock->append(new Response(200));
+        $this->appendNewResponse(new Response(200));
         $this->executor->execute($action, Context::createDefaultContext());
 
         /** @var Request $request */
-        $request = $this->appServerMock->getLastRequest();
+        $request = $this->getLastRequest();
 
         static::assertEquals('POST', $request->getMethod());
         $body = $request->getBody()->getContents();
@@ -88,11 +81,11 @@ class ExecutorTest extends TestCase
             Random::getAlphanumericString(12)
         );
 
-        $this->appServerMock->append(new Response(500));
+        $this->appendNewResponse(new Response(500));
         $this->executor->execute($action, Context::createDefaultContext());
 
         /** @var Request $request */
-        $request = $this->appServerMock->getLastRequest();
+        $request = $this->getLastRequest();
 
         static::assertNotNull($request);
     }
@@ -111,11 +104,11 @@ class ExecutorTest extends TestCase
             Random::getAlphanumericString(12)
         );
 
-        $this->appServerMock->append(new Response(200));
+        $this->appendNewResponse(new Response(200));
         $this->executor->execute($action, Context::createDefaultContext());
 
         /** @var Request $request */
-        $request = $this->appServerMock->getLastRequest();
+        $request = $this->getLastRequest();
 
         static::assertEquals($targetUrl, (string) $request->getUri());
 
@@ -149,11 +142,11 @@ class ExecutorTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $this->appServerMock->append(new Response(200));
+        $this->appendNewResponse(new Response(200));
         $this->executor->execute($action, $context);
 
         /** @var Request $request */
-        $request = $this->appServerMock->getLastRequest();
+        $request = $this->getLastRequest();
 
         static::assertEquals('POST', $request->getMethod());
         $body = $request->getBody()->getContents();

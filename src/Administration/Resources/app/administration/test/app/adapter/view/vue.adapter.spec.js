@@ -1,7 +1,7 @@
 import VueAdapter from 'src/app/adapter/view/vue.adapter';
 import ViewAdapter from 'src/core/adapter/view.adapter';
 
-jest.mock('vue-i18n', () => function MockI18n() {});
+jest.mock('vue-i18n', () => (function MockI18n() {}));
 Shopware.Service().register('localeHelper', () => {
     return {
         setLocaleWithId: jest.fn()
@@ -24,17 +24,17 @@ describe('app/adapter/view/vue.adapter.js', () => {
         Shopware.Service('localeHelper').setLocaleWithId.mockReset();
     });
 
-    it('should be an class', () => {
+    it('should be an class', async () => {
         const type = typeof VueAdapter;
         expect(type).toEqual('function');
     });
 
-    it('should extends the view adapter', () => {
+    it('should extends the view adapter', async () => {
         const isInstanceOfViewAdapter = VueAdapter.prototype instanceof ViewAdapter;
         expect(isInstanceOfViewAdapter).toBeTruthy();
     });
 
-    it('initLocales should call setLocaleFromuser', () => {
+    it('initLocales should call setLocaleFromuser', async () => {
         // Mock function
         vueAdapter.setLocaleFromUser = jest.fn();
 
@@ -47,7 +47,7 @@ describe('app/adapter/view/vue.adapter.js', () => {
         expect(vueAdapter.setLocaleFromUser).toHaveBeenCalled();
     });
 
-    it('setLocaleFromUser should not set the user when user does not exists', () => {
+    it('setLocaleFromUser should not set the user when user does not exists', async () => {
         vueAdapter.setLocaleFromUser({
             state: { session: { currentUser: null } }
         });
@@ -55,7 +55,7 @@ describe('app/adapter/view/vue.adapter.js', () => {
         expect(Shopware.Service('localeHelper').setLocaleWithId).not.toHaveBeenCalled();
     });
 
-    it('setLocaleFromUser should set the user when user does not exists', () => {
+    it('setLocaleFromUser should set the user when user does not exists', async () => {
         vueAdapter.setLocaleFromUser({
             state: { session: { currentUser: { localeId: '12345' } } }
         });
@@ -63,7 +63,7 @@ describe('app/adapter/view/vue.adapter.js', () => {
         expect(Shopware.Service('localeHelper').setLocaleWithId).toHaveBeenCalled();
     });
 
-    it('setLocaleFromUser should call the service with the user id from the store', () => {
+    it('setLocaleFromUser should call the service with the user id from the store', async () => {
         const expectedId = '12345678';
 
         vueAdapter.setLocaleFromUser({

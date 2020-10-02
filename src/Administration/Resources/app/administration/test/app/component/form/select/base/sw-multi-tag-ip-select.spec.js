@@ -8,12 +8,6 @@ import 'src/app/component/form/field-base/sw-field-error';
 import 'src/app/component/form/select/base/sw-select-selection-list';
 import 'src/app/component/utils/sw-popover';
 
-const selector = {
-    multiDataIpSelect: {
-        input: '.sw-select-selection-list__input'
-    }
-};
-
 const createMultiDataIpSelect = (customOptions) => {
     const localVue = createLocalVue();
     localVue.directive('popover', {});
@@ -27,7 +21,9 @@ const createMultiDataIpSelect = (customOptions) => {
             'sw-field-error': Shopware.Component.build('sw-field-error'),
             'sw-select-selection-list': Shopware.Component.build('sw-select-selection-list'),
             'sw-popover': Shopware.Component.build('sw-popover'),
-            'sw-icon': '<div></div>'
+            'sw-icon': {
+                template: '<div></div>'
+            }
         },
         mocks: { $tc: key => key },
         propsData: {
@@ -42,35 +38,33 @@ const createMultiDataIpSelect = (customOptions) => {
 };
 
 describe('components/sw-multi-tag-ip-select', () => {
-    it('should be a Vue.js component', () => {
-        expect(createMultiDataIpSelect().isVueInstance()).toBeTruthy();
+    it('should be a Vue.js component', async () => {
+        expect(createMultiDataIpSelect().vm).toBeTruthy();
     });
 
-    it('should validate IPs correctly', () => {
-        const testCases = new Map([
-            ['a676344c-c0dd-49e5-8fbb-5f570c27762c', false],
-            ['::', true],
-            ['10.0.0.1', true],
-            ['aabb::', true],
-            ['127.0.0.1abcd', false]
-        ]);
+    [
+        ['a676344c-c0dd-49e5-8fbb-5f570c27762c', false],
+        ['::', true],
+        ['10.0.0.1', true],
+        ['aabb::', true],
+        ['127.0.0.1abcd', false]
+    ].forEach(([value, shouldBeValid]) => {
+        it(`should validate IPs correctly: ${value} should be ${shouldBeValid}`, async () => {
+            const multiDataIpSelect = await createMultiDataIpSelect();
+            const input = multiDataIpSelect.find('.sw-select-selection-list__input');
 
-        const multiDataIpSelect = createMultiDataIpSelect();
-        const input = multiDataIpSelect.find(selector.multiDataIpSelect.input);
+            expect(multiDataIpSelect.vm.inputIsValid).toBeFalsy();
+            expect(multiDataIpSelect.vm.errorObject).toBeNull();
 
-        expect(multiDataIpSelect.vm.inputIsValid).toBeFalsy();
-        expect(multiDataIpSelect.vm.errorObject).toBeNull();
-
-        testCases.forEach((shouldBeValid, value) => {
-            input.setValue(value);
+            await input.setValue(value);
 
             expect(multiDataIpSelect.vm.searchTerm).toBe(value.toString());
             expect(multiDataIpSelect.vm.inputIsValid).toBe(shouldBeValid);
+
+            await input.setValue('');
+
+            expect(multiDataIpSelect.vm.inputIsValid).toBeFalsy();
+            expect(multiDataIpSelect.vm.errorObject).toBeNull();
         });
-
-        input.setValue('');
-
-        expect(multiDataIpSelect.vm.inputIsValid).toBeFalsy();
-        expect(multiDataIpSelect.vm.errorObject).toBeNull();
     });
 });

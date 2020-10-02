@@ -62,9 +62,9 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
         });
     };
 
-    it('should be able to instantiate', () => {
+    it('should be able to instantiate', async () => {
         const wrapper = createWrapper();
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should show inherited state when product is a variant', async () => {

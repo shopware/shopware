@@ -7,7 +7,10 @@ use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\BusinessEventRegistry;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Kernel;
 use Shopware\Core\PlatformRequest;
@@ -59,12 +62,18 @@ class InfoController extends AbstractController
      */
     private $cspTemplates;
 
+    /**
+     * @var BusinessEventCollector
+     */
+    private $eventCollector;
+
     public function __construct(
         DefinitionService $definitionService,
         ParameterBagInterface $params,
         BusinessEventRegistry $actionEventRegistry,
         Kernel $kernel,
         Packages $packages,
+        BusinessEventCollector $eventCollector,
         bool $enableUrlFeature = true,
         array $cspTemplates = []
     ) {
@@ -75,6 +84,7 @@ class InfoController extends AbstractController
         $this->kernel = $kernel;
         $this->enableUrlFeature = $enableUrlFeature;
         $this->cspTemplates = $cspTemplates;
+        $this->eventCollector = $eventCollector;
     }
 
     /**
@@ -107,6 +117,20 @@ class InfoController extends AbstractController
         $data = $this->definitionService->getSchema(EntitySchemaGenerator::FORMAT, DefinitionService::API, $version);
 
         return $this->json($data);
+    }
+
+    /**
+     * @Route("/api/v{version}/_info/events.json", name="api.info.business-events", methods={"GET"})
+     */
+    public function businessEvents(Context $context): JsonResponse
+    {
+        if (!Feature::isActive('FEATURE_NEXT_9351')) {
+            throw new Feature\FeatureNotActiveException('FEATURE_NEXT_9351');
+        }
+
+        $events = $this->eventCollector->collect($context);
+
+        return $this->json($events);
     }
 
     /**
@@ -155,6 +179,8 @@ class InfoController extends AbstractController
     }
 
     /**
+     * @feature-deprecated (flag:FEATURE_NEXT_9351) tag:v6.4.0 - use `\Shopware\Core\Framework\Api\Controller\InfoController::businessEvents` instead
+     *
      * @Route("/api/v{version}/_info/business-events.json", name="api.info.events", methods={"GET"})
      */
     public function events(): JsonResponse

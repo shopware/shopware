@@ -36,6 +36,7 @@
 
         <service id="Shopware\Core\Checkout\Cart\CartPersister">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\SalesChannel\CartService" public="true">
@@ -262,9 +263,13 @@
         <service id="Shopware\Core\Checkout\Cart\CartRuleLoader">
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartPersister"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Processor"/>
-            <argument type="service" id="rule.repository"/>
             <argument type="service" id="logger"/>
             <argument type="service" id="cache.object"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\RuleLoader"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\RuleLoader">
+            <argument type="service" id="rule.repository"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\LineItem\LineItemQuantitySplitter">

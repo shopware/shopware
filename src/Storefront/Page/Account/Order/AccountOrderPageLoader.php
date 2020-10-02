@@ -118,11 +118,16 @@ class AccountOrderPageLoader
             ->addAssociation('lineItems')
             ->addAssociation('lineItems.cover')
             ->addAssociation('addresses')
+            ->addAssociation('currency')
             ->setLimit($limit)
             ->setOffset(($page - 1) * $limit)
             ->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NEXT_PAGES);
 
-        $criteria->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
+        $criteria
+            ->getAssociation('transactions')
+            ->addSorting(new FieldSorting('createdAt'));
+
+        $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::DESCENDING));
 
         if ($request->get('deepLinkCode')) {
             $criteria->addFilter(new EqualsFilter('deepLinkCode', $request->get('deepLinkCode')));

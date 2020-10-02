@@ -75,7 +75,7 @@ class DeactivatePluginsStep
         foreach ($plugins as $plugin) {
             ++$offset;
             $this->pluginLifecycleService->deactivatePlugin($plugin, $this->context);
-            $deactivatedPlugins = $this->systemConfigService->get(self::UPDATE_DEACTIVATED_PLUGINS) ?: [];
+            $deactivatedPlugins = (array) $this->systemConfigService->get(self::UPDATE_DEACTIVATED_PLUGINS) ?: [];
             $deactivatedPlugins[] = $plugin->getId();
             $this->systemConfigService->set(self::UPDATE_DEACTIVATED_PLUGINS, $deactivatedPlugins);
 

@@ -126,7 +126,7 @@ $box-image-height-img: 332px;
 
 .product-price {
     color: $headings-color;
-    height: 20px;
+    min-height: 20px;
     margin-top: 10px;
     margin-bottom: 0;
     font-size: 18px;

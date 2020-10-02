@@ -64,14 +64,24 @@ function createWrapper(privileges = []) {
 
     return shallowMount(Shopware.Component.build('sw-settings-index'), {
         stubs: {
-            'sw-page': '<div><slot name="content"></slot></div>',
-            'sw-card-view': '<div class="sw-card-view"><slot></slot></div>',
+            'sw-page': {
+                template: '<div><slot name="content"></slot></div>'
+            },
+            'sw-card-view': {
+                template: '<div class="sw-card-view"><slot></slot></div>'
+            },
             'sw-tabs': Shopware.Component.build('sw-tabs'),
             'sw-tabs-item': Shopware.Component.build('sw-tabs-item'),
-            'sw-card': '<div class="sw-card"><slot></slot></div>',
+            'sw-card': {
+                template: '<div class="sw-card"><slot></slot></div>'
+            },
             'sw-settings-item': Shopware.Component.build('sw-settings-item'),
-            'router-link': '<a></a>',
-            'sw-icon': '<span></span>'
+            'router-link': {
+                template: '<a><slot></slot></a>'
+            },
+            'sw-icon': {
+                template: '<span></span>'
+            }
         },
         provide: {
             acl: {
@@ -94,17 +104,17 @@ describe('module/sw-settings/page/sw-settings-index', () => {
         Shopware.State.get('settingsItems').settingsGroups = {};
     });
 
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should contain any settings items', () => {
+    it('should contain any settings items', async () => {
         const wrapper = createWrapper();
         expect(wrapper.vm.settingsGroups).not.toEqual({});
     });
 
-    it('should return settings items alphabetically sorted', () => {
+    it('should return settings items alphabetically sorted', async () => {
         const wrapper = createWrapper();
         const settingsGroups = Object.entries(wrapper.vm.settingsGroups);
 
@@ -123,12 +133,12 @@ describe('module/sw-settings/page/sw-settings-index', () => {
         });
     });
 
-    it('should render correctly', () => {
+    it('should render correctly', async () => {
         const wrapper = createWrapper();
         expect(wrapper.element).toMatchSnapshot();
     });
 
-    it('should render settings items in alphabetical order', () => {
+    it('should render settings items in alphabetical order', async () => {
         const wrapper = createWrapper();
         const settingsGroups = Object.entries(wrapper.vm.settingsGroups);
 
@@ -146,7 +156,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
         });
     });
 
-    it('should render settings items in alphabetical order with updated items', () => {
+    it('should render settings items in alphabetical order with updated items', async () => {
         const settingsItemToAdd = {
             group: 'shop',
             to: 'sw.bar.index',
@@ -173,7 +183,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
         });
     });
 
-    it('should add the setting to the settingsGroups in store', () => {
+    it('should add the setting to the settingsGroups in store', async () => {
         const settingsItemToAdd = {
             group: 'shop',
             to: 'sw.bar.index',
@@ -193,7 +203,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
         expect(barSetting).toBeDefined();
     });
 
-    it('should show the setting with the privileges', () => {
+    it('should show the setting with the privileges', async () => {
         const settingsItemToAdd = {
             privilege: 'system.foo_bar',
             group: 'shop',
@@ -214,7 +224,7 @@ describe('module/sw-settings/page/sw-settings-index', () => {
         expect(barSetting).toBeDefined();
     });
 
-    it('should not show the setting with the privileges', () => {
+    it('should not show the setting with the privileges', async () => {
         const settingsItemToAdd = {
             privilege: 'system.foo_bar',
             group: 'shop',
@@ -233,5 +243,38 @@ describe('module/sw-settings/page/sw-settings-index', () => {
         const barSetting = settingsGroups.find(setting => setting.id === 'sw-settings-bar');
 
         expect(barSetting).toBeUndefined();
+    });
+
+    it('should hide icon background when backgroundEnabled is false', async () => {
+        const settingsItemToAdd = {
+            group: 'shop',
+            to: 'sw.bar.index',
+            icon: 'bar',
+            id: 'settings-background-disabled',
+            name: 'settings-background-disabled',
+            label: 'b',
+            backgroundEnabled: false
+        };
+
+        Shopware.State.commit('settingsItems/addItem', settingsItemToAdd);
+
+        const wrapper = createWrapper();
+
+        const settingsGroups = Object.entries(wrapper.vm.settingsGroups);
+
+        settingsGroups.forEach(([settingsGroup, settingsItems]) => {
+            const settingsGroupWrapper = wrapper.find(`#sw-settings__content-grid-${settingsGroup}`);
+            const settingsItemsWrappers = settingsGroupWrapper.findAll('.sw-settings-item');
+
+            settingsItemsWrappers.wrappers.forEach((settingsItemsWrapper, index) => {
+                const iconClasses = settingsItemsWrapper.find('.sw-settings-item__icon').attributes().class;
+
+                if (settingsItems[index].backgroundEnabled === false) {
+                    expect(iconClasses).not.toContain('background--enabled');
+                } else {
+                    expect(iconClasses).toContain('background--enabled');
+                }
+            });
+        });
     });
 });

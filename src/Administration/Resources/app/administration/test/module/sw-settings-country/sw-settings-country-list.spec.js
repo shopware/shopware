@@ -93,11 +93,16 @@ function createWrapper(privileges = []) {
                 `
             },
             'sw-entity-listing': {
-                props: ['items'],
+                props: ['items', 'detailPageLinkText'],
                 template: `
                     <div>
                         <template v-for="item in items">
-                            <slot name="actions" v-bind="{ item }"></slot>
+                            <slot name="actions" v-bind="{ item }">
+                                <sw-context-menu-item
+                                    class="sw-country-list__edit-action">
+                                    {{ detailPageLinkText }}
+                                </sw-context-menu-item>
+                            </slot>
                         </template>
                     </div>
                 `
@@ -116,7 +121,19 @@ describe('module/sw-settings-country/page/sw-settings-country-list', () => {
         const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.isVueInstance()).toBe(true);
+        expect(wrapper.vm).toBeTruthy();
+    });
+
+    it('should be able to view a country', async () => {
+        const wrapper = createWrapper([
+            'country.viewer'
+        ]);
+        await wrapper.vm.$nextTick();
+
+        const elementItemAction = wrapper.find('.sw-country-list__edit-action');
+
+        expect(elementItemAction.attributes().disabled).toBeFalsy();
+        expect(elementItemAction.text()).toBe('global.default.view');
     });
 
     it('should be able to create a new country', async () => {
@@ -139,14 +156,17 @@ describe('module/sw-settings-country/page/sw-settings-country-list', () => {
         expect(createButton.attributes().disabled).toBeTruthy();
     });
 
+
     it('should be able to edit a country', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'country.editor'
         ]);
         await wrapper.vm.$nextTick();
 
-        const editMenuItem = wrapper.find('.sw-country-list__edit-action');
-        expect(editMenuItem.attributes().disabled).toBeFalsy();
+        const elementItemAction = wrapper.find('.sw-country-list__edit-action');
+
+        expect(elementItemAction.attributes().disabled).toBeFalsy();
+        expect(elementItemAction.text()).toBe('global.default.edit');
     });
 
     it('should not be able to edit a country', async () => {

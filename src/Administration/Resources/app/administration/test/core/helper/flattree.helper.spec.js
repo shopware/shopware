@@ -10,7 +10,7 @@ describe('core/helper/flattree.helper.js', () => {
         flatTree = new FlatTree();
     });
 
-    it('should register new nodes', () => {
+    it('should register new nodes', async () => {
         flatTree.add({
             label: 'Foobar',
             path: 'sw.foo.bar'
@@ -24,7 +24,7 @@ describe('core/helper/flattree.helper.js', () => {
 
     it(
         'should not be possible to register different nodes with the same path',
-        () => {
+        async () => {
             flatTree.add({
                 label: 'Foobar',
                 path: 'sw.foo.bar'
@@ -37,7 +37,7 @@ describe('core/helper/flattree.helper.js', () => {
         }
     );
 
-    it('should be possible to remove nodes from the tree', () => {
+    it('should be possible to remove nodes from the tree', async () => {
         flatTree.add({
             label: 'Foobar',
             path: 'sw.foo.bar'
@@ -48,7 +48,7 @@ describe('core/helper/flattree.helper.js', () => {
 
     it(
         'should not remove a node when the node identifier does not match',
-        () => {
+        async () => {
             flatTree.add({
                 label: 'Foobar',
                 path: 'sw.foo.bar'
@@ -58,13 +58,13 @@ describe('core/helper/flattree.helper.js', () => {
         }
     );
 
-    it('should be possible to get all registered nodes', () => {
+    it('should be possible to get all registered nodes', async () => {
         expect(flatTree.getRegisteredNodes()).toBeInstanceOf(Map);
     });
 
     it(
         'should be possible to nest child nodes infinitely (10 levels here)',
-        () => {
+        async () => {
             flatTree
                 .add({
                     path: 'sw.a'
@@ -110,7 +110,7 @@ describe('core/helper/flattree.helper.js', () => {
         }
     );
 
-    it('should create a tree hierarchy', () => {
+    it('should create a tree hierarchy', async () => {
         flatTree
             .add({
                 path: 'sw.a'

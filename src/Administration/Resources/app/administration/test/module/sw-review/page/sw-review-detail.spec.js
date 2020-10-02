@@ -1,5 +1,7 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-review/page/sw-review-detail';
+import 'src/app/mixin/placeholder.mixin';
+import 'src/app/mixin/salutation.mixin';
 
 function createWrapper(privileges = []) {
     const localVue = createLocalVue();
@@ -22,7 +24,9 @@ function createWrapper(privileges = []) {
                 replace: () => {
                 }
             },
-            date: () => {}
+            date: () => {},
+            placeholder: () => {},
+            salutation: () => {}
         },
         provide: {
             repositoryFactory: {
@@ -64,18 +68,23 @@ function createWrapper(privileges = []) {
             }
         },
         stubs: {
-            'sw-page': `
-                <div class="sw-page">
-                    <slot name="smart-bar-actions"></slot>
-                    <slot name="content">CONTENT</slot>
-                    <slot></slot>
-                </div>`,
+            'sw-page': {
+                template: `
+                    <div class="sw-page">
+                        <slot name="smart-bar-actions"></slot>
+                        <slot name="content">CONTENT</slot>
+                        <slot></slot>
+                    </div>`
+            },
             'sw-button': true,
+            'sw-button-process': true,
             'sw-icon': true,
             'sw-search-bar': true,
             'sw-description-list': true,
             'sw-card-view': true,
-            'sw-card': '<div><slot></slot></div>',
+            'sw-card': {
+                template: '<div><slot></slot></div>'
+            },
             'sw-container': true,
             'sw-loader': true,
             'sw-card-section': true,
@@ -92,10 +101,10 @@ describe('module/sw-review/page/sw-review-detail', () => {
         const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.isVueInstance()).toBe(true);
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should not be able to save the review', () => {
+    it('should not be able to save the review', async () => {
         const wrapper = createWrapper();
 
         const saveButton = wrapper.find('.sw-review-detail__save-action');
@@ -107,7 +116,7 @@ describe('module/sw-review/page/sw-review-detail', () => {
         const wrapper = createWrapper([
             'review.editor'
         ]);
-        wrapper.setData({
+        await wrapper.setData({
             isLoading: false
         });
         await wrapper.vm.$nextTick();
@@ -117,7 +126,7 @@ describe('module/sw-review/page/sw-review-detail', () => {
         expect(saveButton.attributes().disabled).toBeFalsy();
     });
 
-    it('should not be able to edit review fields', () => {
+    it('should not be able to edit review fields', async () => {
         const wrapper = createWrapper();
 
         const languageField = wrapper.find('.sw-review__language-select');
@@ -129,7 +138,7 @@ describe('module/sw-review/page/sw-review-detail', () => {
         expect(commentField.attributes().disabled).toBeTruthy();
     });
 
-    it('should be able to edit review fields', () => {
+    it('should be able to edit review fields', async () => {
         const wrapper = createWrapper([
             'review.editor'
         ]);

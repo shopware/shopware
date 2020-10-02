@@ -1,7 +1,8 @@
 {% block sw_select_selection_list %}
     <ul class="sw-select-selection-list">
         {% block sw_select_selection_list_item %}
-            <li v-for="(selection, index) in selections"
+            <li v-if="!hideLabels"
+                v-for="(selection, index) in selections"
                 class="sw-select-selection-list__item-holder"
                 :class="'sw-select-selection-list__item-holder--' + index"
                 :key="selection[valueProperty]"
@@ -27,7 +28,7 @@
         {% endblock %}
 
         {% block sw_select_selection_list_load_more %}
-            <li v-if="invisibleCount > 0"
+            <li v-if="invisibleCount > 0 && !hideLabels"
                 class="sw-select-selection-list__load-more">
                 <slot name="invisible-count" v-bind="{ invisibleCount, onClickInvisibleCount }">
                     {% block sw_select_selection_list_load_more_item_button %}
@@ -46,8 +47,9 @@
                     <input ref="swSelectInput"
                            class="sw-select-selection-list__input"
                            type="text"
+                           :disabled="disabled"
                            :readonly="!enableSearch"
-                           :placeholder="selections.length > 0 ? '' : placeholder"
+                           :placeholder="showPlaceholder"
                            :value="searchTerm"
                            @input="onSearchTermChange"
                            @keydown.delete="onKeyDownDelete">

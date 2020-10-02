@@ -108,6 +108,10 @@ class StockUpdater implements EventSubscriberInterface
         $ids = [];
 
         foreach ($event->getWriteResults() as $result) {
+            if ($result->hasPayload('referencedId') && $result->getProperty('type') === LineItem::PRODUCT_LINE_ITEM_TYPE) {
+                $ids[] = $result->getProperty('referencedId');
+            }
+
             if ($result->getOperation() === EntityWriteResult::OPERATION_INSERT) {
                 continue;
             }

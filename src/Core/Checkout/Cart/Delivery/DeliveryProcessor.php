@@ -7,12 +7,15 @@ use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartDataCollectorInterface;
 use Shopware\Core\Checkout\Cart\CartProcessorInterface;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInterface
 {
+    public const MANUAL_SHIPPING_COSTS = 'manualShippingCosts';
+
     public const SKIP_DELIVERY_PRICE_RECALCULATION = 'skipDeliveryPriceRecalculation';
 
     public const SKIP_DELIVERY_TAX_RECALCULATION = 'skipDeliveryTaxRecalculation';
@@ -102,6 +105,12 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
         }
 
         $deliveries = $this->builder->build($calculated, $data, $context, $behavior);
+
+        $delivery = $deliveries->first();
+        $manualShippingCosts = $original->getExtension(self::MANUAL_SHIPPING_COSTS);
+        if ($delivery !== null && $manualShippingCosts instanceof CalculatedPrice) {
+            $delivery->setShippingCosts($manualShippingCosts);
+        }
 
         $this->deliveryCalculator->calculate($data, $calculated, $deliveries, $context);
 

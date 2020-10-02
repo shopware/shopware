@@ -28,6 +28,7 @@
                                 columns="1fr 1fr" gap="32px">
                             {% block sw_media_modal_folder_settings_name_field %}
                                 <sw-field type="text"
+                                    :disabled="disabled"
                                     :label="$tc('global.sw-media-modal-folder-settings.labelFolderName')"
                                     v-model="folder.name">
                                 </sw-field>
@@ -35,6 +36,7 @@
 
                             {% block sw_media_modal_folder_settings_default_folder %}
                                 <sw-entity-single-select
+                                    :disabled="disabled"
                                     id="defaultFolder"
                                     entity="media_default_folder"
                                     :placeholder="$tc('global.sw-media-modal-folder-settings.placeholderDefaultFolder')"
@@ -51,9 +53,10 @@
                                             :selected="isSelected(item)"
                                             @item-select="setValue"
                                             v-bind="{ item, index }">
-                                            <sw-highlight-text v-if="highlightSearchTerm"
-                                                               :text="getItemName(item)"
-                                                               :searchTerm="searchTerm">
+                                            <sw-highlight-text
+                                                v-if="highlightSearchTerm"
+                                                :text="getItemName(item)"
+                                                :searchTerm="searchTerm">
                                             </sw-highlight-text>
                                             <template v-else>
                                                 {{ getItemName(item) }}
@@ -66,10 +69,11 @@
                     {% endblock %}
 
                     {% block sw_media_modal_folder_settings_tab_content_thumbnails %}
-                        <sw-container class="sw-media-modal-folder-settings__thumbnails-container"
-                                      v-if="active === 'thumbnails'"
-                                      columns="1fr 1fr"
-                                      gap="32px">
+                        <sw-container
+                            class="sw-media-modal-folder-settings__thumbnails-container"
+                            v-if="active === 'thumbnails'"
+                            columns="1fr 1fr"
+                            gap="32px">
 
                             {% block sw_media_modal_folder_settings_tab_content_thumbnails_left_container %}
                                 <div class="sw-media-modal-folder-settings__thumbnails-left-container">
@@ -83,10 +87,11 @@
                                     {% endblock %}
 
                                     {% block sw_media_modal_folder_settings_generate_thumbnails_field %}
-                                        <sw-field type="switch"
-                                                  :label="$tc('global.sw-media-modal-folder-settings.labelGenerateThumbnails')"
-                                                  v-model="configuration.createThumbnails"
-                                                  :disabled="folder.useParentConfiguration">
+                                        <sw-field
+                                            type="switch"
+                                            :label="$tc('global.sw-media-modal-folder-settings.labelGenerateThumbnails')"
+                                            v-model="configuration.createThumbnails"
+                                            :disabled="folder.useParentConfiguration || disabled">
                                         </sw-field>
                                     {% endblock %}
 
@@ -193,11 +198,17 @@
                 {% endblock %}
 
                 {% block sw_media_modal_folder_settings_confirm_button %}
-                    <sw-button class="sw-media-modal-folder-settings__confirm"
-                               @click="onClickSave"
-                               size="small"
-                               :disabled="isEditThumbnails"
-                               variant="primary">
+                    <sw-button
+                        class="sw-media-modal-folder-settings__confirm"
+                        @click="onClickSave"
+                        size="small"
+                        :disabled="disabled || isEditThumbnails"
+                        variant="primary"
+                            v-tooltip="{
+                            message: $tc('sw-privileges.tooltip.warning'),
+                            disabled: !disabled,
+                            showOnDisabledElements: true
+                        }">
                         {{ $tc('global.default.save') }}
                     </sw-button>
                 {% endblock %}

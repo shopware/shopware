@@ -12,7 +12,7 @@ describe('src/app/service/acl.service.js', () => {
         sessionStore.commit('removeCurrentUser');
     });
 
-    it('returns all user privileges', () => {
+    it('returns all user privileges', async () => {
         sessionStore.commit('setCurrentUser', {
             aclRoles: [
                 {

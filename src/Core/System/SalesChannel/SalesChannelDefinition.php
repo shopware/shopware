@@ -42,6 +42,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Event\EventAction\Aggregate\EventActionSalesChannel\EventActionSalesChannelDefinition;
+use Shopware\Core\Framework\Event\EventAction\EventActionDefinition;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\Language\LanguageDefinition;
@@ -87,7 +90,7 @@ class SalesChannelDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([
+        $fields = new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new FkField('type_id', 'typeId', SalesChannelTypeDefinition::class))->addFlags(new Required()),
             (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new Required()),
@@ -168,5 +171,14 @@ class SalesChannelDefinition extends EntityDefinition
             (new OneToOneAssociationField('analytics', 'analytics_id', 'id', SalesChannelAnalyticsDefinition::class, true))->addFlags(new CascadeDelete()),
             new ManyToManyAssociationField('customerGroupsRegistrations', CustomerGroupDefinition::class, CustomerGroupRegistrationSalesChannelDefinition::class, 'sales_channel_id', 'customer_group_id', 'id', 'id'),
         ]);
+
+        if (Feature::isActive('FEATURE_NEXT_9351')) {
+            $fields->add(
+                (new ManyToManyAssociationField('eventActions', EventActionDefinition::class, EventActionSalesChannelDefinition::class, 'sales_channel_id', 'event_action_id'))
+                    ->addFlags(new CascadeDelete(), new ReadProtected(SalesChannelApiSource::class))
+            );
+        }
+
+        return $fields;
     }
 }

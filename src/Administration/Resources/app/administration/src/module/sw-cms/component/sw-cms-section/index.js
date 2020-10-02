@@ -27,6 +27,12 @@ Component.register('sw-cms-section', {
             type: Boolean,
             required: false,
             default: false
+        },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -124,6 +130,10 @@ Component.register('sw-cms-section', {
         },
 
         openBlockBar() {
+            if (this.disabled) {
+                return;
+            }
+
             this.$emit('page-config-open', 'blocks');
         },
 

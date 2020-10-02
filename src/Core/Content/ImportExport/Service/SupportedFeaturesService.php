@@ -61,11 +61,10 @@ class SupportedFeaturesService
             $twoGiB, // 2 GiB as fallback, because file size is stored in MySQL INT column
         ];
 
-        $limits = array_filter($values, function (int $value) {
+        $limits = array_filter($values, static function (int $value) {
             return $value > 0;
         });
 
-        /** @var int|false $min */ // TODO - remove once PHPStan is updated to 0.12.46
         $min = min(...$limits);
         if ($min === false) {
             return $twoGiB;

@@ -116,5 +116,11 @@
             <helpText>When the setting is activated, the cart won't be saved and can't be restored after login</helpText>
             <helpText lang="de-DE">Wenn die Einstellung aktiviert ist, wird der Warenkorb nicht gespeichert und kann nach der Anmeldung nicht wiederhergestellt werden</helpText>
         </input-field>
+
+        <input-field type="bool">
+            <name>allowCustomerDeletion</name>
+            <label>Allow customer deletion</label>
+            <label lang="de-DE">Löschen des Kunden zulassen</label>
+        </input-field>
     </card>
 </config>

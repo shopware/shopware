@@ -42,9 +42,9 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
         if ($product->getEan()) {
             $keywords->add(new AnalyzedKeyword($product->getEan(), 500));
         }
-        if (Feature::isActive('FEATURE_NEXT_10075') && !empty($product->getProductSearchKeywords())) {
-            foreach ($product->getProductSearchKeywords() as $searchKeyword) {
-                $keywords->add(new AnalyzedKeyword($searchKeyword, 800));
+        if (Feature::isActive('FEATURE_NEXT_10075') && !empty($product->getCustomSearchKeywords())) {
+            foreach ($product->getCustomSearchKeywords() as $keyword) {
+                $keywords->add(new AnalyzedKeyword($keyword, 800));
             }
         }
 

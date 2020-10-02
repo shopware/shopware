@@ -450,7 +450,7 @@ class ProductEntity extends Entity
     /**
      * @var string[]|null
      */
-    protected $productSearchKeywords;
+    protected $customSearchKeywords;
 
     public function __construct()
     {
@@ -1324,13 +1324,13 @@ class ProductEntity extends Entity
         $this->customFieldSetSelectionActive = $customFieldSetSelectionActive;
     }
 
-    public function getProductSearchKeywords(): ?array
+    public function getCustomSearchKeywords(): ?array
     {
-        return $this->productSearchKeywords;
+        return $this->customSearchKeywords;
     }
 
-    public function setProductSearchKeywords(?array $productSearchKeywords): void
+    public function setCustomSearchKeywords(?array $customSearchKeywords): void
     {
-        $this->productSearchKeywords = $productSearchKeywords;
+        $this->customSearchKeywords = $customSearchKeywords;
     }
 }

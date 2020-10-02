@@ -58,7 +58,7 @@ class ProductTranslationDefinition extends EntityTranslationDefinition
 
         if (Feature::isActive('FEATURE_NEXT_10075')) {
             $collection->add(
-                new ListField('search_keywords', 'productSearchKeywords')
+                new ListField('custom_search_keywords', 'customSearchKeywords')
             );
         }
 

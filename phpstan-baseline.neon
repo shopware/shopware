@@ -221,26 +221,6 @@ parameters:
 			path: src/Core/Checkout/Cart/Order/Transformer/LineItemTransformer.php
 
 		-
-			message: "#^Parameter \\#1 \\$netPrice of method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Tax\\\\TaxCalculator\\:\\:calculateGross\\(\\) expects float, float\\|null given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Price/GrossPriceCalculator.php
-
-		-
-			message: "#^Parameter \\#1 \\$price of method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\PriceRoundingInterface\\:\\:round\\(\\) expects float, float\\|null given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Price/GrossPriceCalculator.php
-
-		-
-			message: "#^Parameter \\#1 \\$price of method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\PriceRoundingInterface\\:\\:round\\(\\) expects float, float\\|null given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Price/NetPriceCalculator.php
-
-		-
-			message: "#^Parameter \\#2 \\$listPrice of static method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\Struct\\\\ListPrice\\:\\:createFromUnitPrice\\(\\) expects float, float\\|null given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Price/NetPriceCalculator.php
-
-		-
 			message: "#^Cannot call method getPurchaseUnit\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\Struct\\\\ReferencePriceDefinition\\|null\\.$#"
 			count: 2
 			path: src/Core/Checkout/Cart/Price/ReferencePriceCalculator.php
@@ -2986,31 +2966,6 @@ parameters:
 			path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi/OpenApiDefinitionSchemaBuilder.php
 
 		-
-			message: "#^Cannot call method getPropertyName\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi/OpenApiDefinitionSchemaBuilder.php
-
-		-
-			message: "#^Parameter \\#1 \\$fieldClass of method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\OpenApi\\\\OpenApiDefinitionSchemaBuilder\\:\\:getPropertyByField\\(\\) expects string, class\\-string\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\>\\|false given\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi/OpenApiDefinitionSchemaBuilder.php
-
-		-
-			message: "#^Parameter \\#1 \\$object of function get_class expects object, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi/OpenApiDefinitionSchemaBuilder.php
-
-		-
-			message: "#^Parameter \\#1 \\$field of method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\OpenApi\\\\OpenApiDefinitionSchemaBuilder\\:\\:isWriteProtected\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi/OpenApiDefinitionSchemaBuilder.php
-
-		-
-			message: "#^Parameter \\#1 \\$field of method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\OpenApi\\\\OpenApiDefinitionSchemaBuilder\\:\\:isDeprecated\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi/OpenApiDefinitionSchemaBuilder.php
-
-		-
 			message: "#^Parameter \\#1 \\$argument of class ReflectionClass constructor expects class\\-string\\<T of object\\>\\|T of object, string\\|false given\\.$#"
 			count: 1
 			path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi/OpenApiLoader.php
@@ -4777,12 +4732,12 @@ parameters:
 
 		-
 			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\|Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\StorageAware\\:\\:getStorageName\\(\\)\\.$#"
-			count: 2
+			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/VersionManager.php
 
 		-
 			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\|Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\StorageAware\\:\\:getPropertyName\\(\\)\\.$#"
-			count: 5
+			count: 2
 			path: src/Core/Framework/DataAbstractionLayer/VersionManager.php
 
 		-
@@ -4847,12 +4802,12 @@ parameters:
 
 		-
 			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\|Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\StorageAware\\:\\:getStorageName\\(\\)\\.$#"
-			count: 4
+			count: 5
 			path: src/Core/Framework/DataAbstractionLayer/Write/EntityWriter.php
 
 		-
 			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\|Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\StorageAware\\:\\:getPropertyName\\(\\)\\.$#"
-			count: 2
+			count: 3
 			path: src/Core/Framework/DataAbstractionLayer/Write/EntityWriter.php
 
 		-
@@ -6382,7 +6337,7 @@ parameters:
 
 		-
 			message: "#^Cannot access offset 'sales_channel…' on array\\|false\\.$#"
-			count: 6
+			count: 5
 			path: src/Core/System/SalesChannel/Context/SalesChannelContextFactory.php
 
 		-
@@ -7212,7 +7167,7 @@ parameters:
 
 		-
 			message: "#^Parameter \\#2 \\$field of method Shopware\\\\Elasticsearch\\\\Framework\\\\Indexing\\\\EntityMapper\\:\\:mapField\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\|null given\\.$#"
-			count: 8
+			count: 1
 			path: src/Elasticsearch/Test/Product/ElasticsearchProductDefinitionExtension.php
 
 		-
@@ -7915,3 +7870,72 @@ parameters:
 			count: 1
 			path: src/Core/Checkout/Customer/SalesChannel/AbstractChangePasswordRoute.php
 
+		-
+			message: "#^Parameter \\#1 \\$itemRounding of method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelContext\\:\\:setItemRounding\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Pricing\\\\CashRoundingConfig, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Pricing\\\\CashRoundingConfig\\|null given\\.$#"
+			count: 1
+			path: src/Core/Checkout/Cart/Order/OrderConverter.php
+
+		-
+			message: "#^Parameter \\#1 \\$totalRounding of method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelContext\\:\\:setTotalRounding\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Pricing\\\\CashRoundingConfig, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Pricing\\\\CashRoundingConfig\\|null given\\.$#"
+			count: 1
+			path: src/Core/Checkout/Cart/Order/OrderConverter.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\Struct\\\\AbsolutePriceDefinition\\:\\:create\\(\\) has no return typehint specified\\.$#"
+			count: 1
+			path: src/Core/Checkout/Cart/Price/Struct/AbsolutePriceDefinition.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\Struct\\\\PercentagePriceDefinition\\:\\:create\\(\\) has no return typehint specified\\.$#"
+			count: 1
+			path: src/Core/Checkout/Cart/Price/Struct/PercentagePriceDefinition.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\Struct\\\\QuantityPriceDefinition\\:\\:create\\(\\) has no return typehint specified\\.$#"
+			count: 1
+			path: src/Core/Checkout/Cart/Price/Struct/QuantityPriceDefinition.php
+
+		-
+			message: "#^Parameter \\#1 \\$operations of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\EntityWriterInterface\\:\\:sync\\(\\) expects array, iterable\\<Shopware\\\\Core\\\\Framework\\\\Api\\\\Sync\\\\SyncOperation\\> given\\.$#"
+			count: 1
+			path: src/Core/Framework/Api/Sync/SyncService.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\FieldAccessorBuilder\\\\ListingPriceFieldAccessorBuilder\\:\\:getSelect\\(\\) has no return typehint specified\\.$#"
+			count: 1
+			path: src/Core/Framework/DataAbstractionLayer/Dbal/FieldAccessorBuilder/ListingPriceFieldAccessorBuilder.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\CashRoundingConfigFieldSerializer\\:\\:decode\\(\\) has no return typehint specified\\.$#"
+			count: 1
+			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/CashRoundingConfigFieldSerializer.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\CashRoundingConfigFieldSerializer\\:\\:decode\\(\\) has parameter \\$value with no typehint specified\\.$#"
+			count: 1
+			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/CashRoundingConfigFieldSerializer.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Routing\\\\ApiRequestContextResolver\\:\\:getCashRounding\\(\\) has parameter \\$currencyId with no typehint specified\\.$#"
+			count: 1
+			path: src/Core/Framework/Routing/ApiRequestContextResolver.php
+
+		-
+			message: "#^Cannot access offset 'decimal_precision' on array\\|false\\.$#"
+			count: 1
+			path: src/Core/Framework/Routing/ApiRequestContextResolver.php
+
+		-
+			message: "#^Cannot access offset 'item_rounding' on array\\|false\\.$#"
+			count: 1
+			path: src/Core/Framework/Routing/ApiRequestContextResolver.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Context\\\\SalesChannelContextFactory\\:\\:getCashRounding\\(\\) should return array\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Pricing\\\\CashRoundingConfig\\> but returns array\\<int, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Pricing\\\\CashRoundingConfig\\|null\\>\\.$#"
+			count: 1
+			path: src/Core/System/SalesChannel/Context/SalesChannelContextFactory.php
+
+		-
+			message: "#^Method Shopware\\\\Elasticsearch\\\\Product\\\\ElasticsearchProductDefinition\\:\\:getCurrencyPrice\\(\\) has no return typehint specified\\.$#"
+			count: 1
+			path: src/Elasticsearch/Product/ElasticsearchProductDefinition.php

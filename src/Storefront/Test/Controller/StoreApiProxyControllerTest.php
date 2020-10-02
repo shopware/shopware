@@ -51,7 +51,7 @@ class StoreApiProxyControllerTest extends TestCase
         $json = json_decode($response->getContent(), true);
 
         static::assertNotEmpty($json);
-        static::assertSame('salutation', $json[0]['apiAlias']);
+        static::assertSame('salutation', $json['elements'][0]['apiAlias']);
     }
 
     public function testSalutationWithPreviousRequestInStack(): void
@@ -64,7 +64,7 @@ class StoreApiProxyControllerTest extends TestCase
         $json = json_decode($response->getContent(), true);
 
         static::assertNotEmpty($json);
-        static::assertSame('salutation', $json[0]['apiAlias']);
+        static::assertSame('salutation', $json['elements'][0]['apiAlias']);
     }
 
     public function testSalutationLimitWorksInQuery(): void
@@ -75,7 +75,7 @@ class StoreApiProxyControllerTest extends TestCase
         $json = json_decode($response->getContent(), true);
 
         static::assertNotEmpty($json);
-        static::assertCount(1, $json);
+        static::assertCount(1, $json['elements']);
     }
 
     public function testSalutationLimitWorksInBody(): void
@@ -88,7 +88,7 @@ class StoreApiProxyControllerTest extends TestCase
         $json = json_decode($response->getContent(), true);
 
         static::assertNotEmpty($json);
-        static::assertCount(1, $json);
+        static::assertCount(1, $json['elements']);
     }
 
     public function test404WillBeForwarded(): void

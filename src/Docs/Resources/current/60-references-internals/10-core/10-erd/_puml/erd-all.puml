@@ -831,6 +831,7 @@ Table(ShopwareCoreContentProductProductDefinition, "product\n(Product)") {
    coverId foreignKey
    productMediaVersionId referenceVersion
    deliveryTimeId foreignKey
+   featureSetId foreignKey
    not_null(price) price
    not_null(productNumber) numberRange
    not_null(stock) int
@@ -840,6 +841,7 @@ Table(ShopwareCoreContentProductProductDefinition, "product\n(Product)") {
    availableStock int
    available bool
    isCloseout bool
+   variation list
    displayGroup string
    configuratorGroupConfig json
    mainVariantId foreignKey
@@ -853,6 +855,7 @@ Table(ShopwareCoreContentProductProductDefinition, "product\n(Product)") {
    referenceUnit float
    shippingFree bool
    purchasePrice float
+   purchasePrices price
    markAsTopseller bool
    weight float
    width float
@@ -877,9 +880,6 @@ Table(ShopwareCoreContentProductProductDefinition, "product\n(Product)") {
    packUnit translated
    packUnitPlural translated
    customFields translated
-   variation list
-   featureSetId foreignKey
-   purchasePrices price
    not_null(createdAt) createdAt
    updatedAt updatedAt
    translated json
@@ -2187,6 +2187,7 @@ ShopwareCoreContentProductProductDefinition --> ShopwareCoreContentProductProduc
 ShopwareCoreSystemDeliveryTimeDeliveryTimeDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentProductAggregateProductManufacturerProductManufacturerDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentProductAggregateProductMediaProductMediaDefinition --> ShopwareCoreContentProductProductDefinition
+ShopwareCoreContentProductAggregateProductFeatureSetProductFeatureSetDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentProductAggregateProductPriceProductPriceDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentProductAggregateProductCrossSellingProductCrossSellingDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentProductAggregateProductCrossSellingAssignedProductsProductCrossSellingAssignedProductsDefinition --> ShopwareCoreContentProductProductDefinition
@@ -2203,7 +2204,6 @@ ShopwareCoreContentProductAggregateProductCategoryTreeProductCategoryTreeDefinit
 ShopwareCoreContentProductAggregateProductTagProductTagDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentProductAggregateProductTranslationProductTranslationDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentProductAggregateProductCustomFieldSetProductCustomFieldSetDefinition --> ShopwareCoreContentProductProductDefinition
-ShopwareCoreContentProductAggregateProductFeatureSetProductFeatureSetDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentPropertyAggregatePropertyGroupOptionPropertyGroupOptionDefinition --> ShopwareCoreContentProductAggregateProductConfiguratorSettingProductConfiguratorSettingDefinition
 ShopwareCoreContentRuleRuleDefinition --> ShopwareCoreContentProductAggregateProductPriceProductPriceDefinition
 ShopwareCoreContentPropertyAggregatePropertyGroupOptionPropertyGroupOptionDefinition --> ShopwareCoreContentProductAggregateProductPropertyProductPropertyDefinition

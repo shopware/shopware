@@ -69,7 +69,7 @@ Additionally, two flags are added to the `IdField`.
 But what is a flag in the first place? One could describe them as 'additional information' of a field, such as defining a field
 as required or setting it as a primary key.
 And that's also the two flags, that were used on this field: `Required` and `PrimaryKey`
-The `Required` flag let's the data abstraction layer know, that this field is not optional and must always be set.
+The `Required` flag lets the data abstraction layer know, that this field is not optional and must always be set.
 Using the `PrimaryKey` flag is important, so the data abstraction layer knows which field to use when working with associations and foreign keys.
 
 The next two items are a `StringField` for the discount type and a `FloatField` for the actual discount, that will be applied to this bundle.

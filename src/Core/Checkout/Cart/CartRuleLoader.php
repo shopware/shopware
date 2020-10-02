@@ -20,7 +20,7 @@ class CartRuleLoader
     private $cartPersister;
 
     /**
-     * @var null|RuleCollection
+     * @var RuleCollection|null
      */
     private $rules;
 

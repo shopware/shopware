@@ -411,10 +411,12 @@ class SearchCriteriaBuilderTest extends TestCase
             'filter' => [
                 ['type' => 'bar'],
                 ['type' => 'equals', 'field' => 'foo', 'value' => ''],
-                ['type' => 'multi', 'queries' => [
-                    ['type' => 'foo'],
-                    ['type' => 'equalsAny', 'value' => 'wusel'],
-                ]],
+                [
+                    'type' => 'multi', 'queries' => [
+                        ['type' => 'foo'],
+                        ['type' => 'equalsAny', 'value' => 'wusel'],
+                    ],
+                ],
             ],
         ];
 

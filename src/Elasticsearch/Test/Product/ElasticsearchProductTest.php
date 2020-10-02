@@ -1358,60 +1358,78 @@ class ElasticsearchProductTest extends TestCase
     public function dateHistogramProvider()
     {
         return [
-            [new DateHistogramCase(DateHistogramAggregation::PER_MINUTE, [
-                '2019-01-01 10:11:00' => 1,
-                '2019-01-01 10:13:00' => 1,
-                '2019-06-15 13:00:00' => 1,
-                '2020-09-30 15:00:00' => 1,
-                '2021-12-10 11:59:00' => 2,
-            ])],
-            [new DateHistogramCase(DateHistogramAggregation::PER_HOUR, [
-                '2019-01-01 10:00:00' => 2,
-                '2019-06-15 13:00:00' => 1,
-                '2020-09-30 15:00:00' => 1,
-                '2021-12-10 11:00:00' => 2,
-            ])],
-            [new DateHistogramCase(DateHistogramAggregation::PER_DAY, [
-                '2019-01-01 00:00:00' => 2,
-                '2019-06-15 00:00:00' => 1,
-                '2020-09-30 00:00:00' => 1,
-                '2021-12-10 00:00:00' => 2,
-            ])],
-            [new DateHistogramCase(DateHistogramAggregation::PER_WEEK, [
-                '2018 01' => 2,
-                '2019 24' => 1,
-                '2020 40' => 1,
-                '2021 49' => 2,
-            ])],
-            [new DateHistogramCase(DateHistogramAggregation::PER_MONTH, [
-                '2019-01-01 00:00:00' => 2,
-                '2019-06-01 00:00:00' => 1,
-                '2020-09-01 00:00:00' => 1,
-                '2021-12-01 00:00:00' => 2,
-            ])],
-            [new DateHistogramCase(DateHistogramAggregation::PER_QUARTER, [
-                '2019 1' => 2,
-                '2019 2' => 1,
-                '2020 3' => 1,
-                '2021 4' => 2,
-            ])],
-            [new DateHistogramCase(DateHistogramAggregation::PER_YEAR, [
-                '2019-01-01 00:00:00' => 3,
-                '2020-01-01 00:00:00' => 1,
-                '2021-01-01 00:00:00' => 2,
-            ])],
-            [new DateHistogramCase(DateHistogramAggregation::PER_MONTH, [
-                '2019 January' => 2,
-                '2019 June' => 1,
-                '2020 September' => 1,
-                '2021 December' => 2,
-            ], 'Y F')],
-            [new DateHistogramCase(DateHistogramAggregation::PER_DAY, [
-                'Tuesday 01st Jan, 2019' => 2,
-                'Saturday 15th Jun, 2019' => 1,
-                'Wednesday 30th Sep, 2020' => 1,
-                'Friday 10th Dec, 2021' => 2,
-            ], 'l dS M, Y')],
+            [
+                new DateHistogramCase(DateHistogramAggregation::PER_MINUTE, [
+                    '2019-01-01 10:11:00' => 1,
+                    '2019-01-01 10:13:00' => 1,
+                    '2019-06-15 13:00:00' => 1,
+                    '2020-09-30 15:00:00' => 1,
+                    '2021-12-10 11:59:00' => 2,
+                ]),
+            ],
+            [
+                new DateHistogramCase(DateHistogramAggregation::PER_HOUR, [
+                    '2019-01-01 10:00:00' => 2,
+                    '2019-06-15 13:00:00' => 1,
+                    '2020-09-30 15:00:00' => 1,
+                    '2021-12-10 11:00:00' => 2,
+                ]),
+            ],
+            [
+                new DateHistogramCase(DateHistogramAggregation::PER_DAY, [
+                    '2019-01-01 00:00:00' => 2,
+                    '2019-06-15 00:00:00' => 1,
+                    '2020-09-30 00:00:00' => 1,
+                    '2021-12-10 00:00:00' => 2,
+                ]),
+            ],
+            [
+                new DateHistogramCase(DateHistogramAggregation::PER_WEEK, [
+                    '2018 01' => 2,
+                    '2019 24' => 1,
+                    '2020 40' => 1,
+                    '2021 49' => 2,
+                ]),
+            ],
+            [
+                new DateHistogramCase(DateHistogramAggregation::PER_MONTH, [
+                    '2019-01-01 00:00:00' => 2,
+                    '2019-06-01 00:00:00' => 1,
+                    '2020-09-01 00:00:00' => 1,
+                    '2021-12-01 00:00:00' => 2,
+                ]),
+            ],
+            [
+                new DateHistogramCase(DateHistogramAggregation::PER_QUARTER, [
+                    '2019 1' => 2,
+                    '2019 2' => 1,
+                    '2020 3' => 1,
+                    '2021 4' => 2,
+                ]),
+            ],
+            [
+                new DateHistogramCase(DateHistogramAggregation::PER_YEAR, [
+                    '2019-01-01 00:00:00' => 3,
+                    '2020-01-01 00:00:00' => 1,
+                    '2021-01-01 00:00:00' => 2,
+                ]),
+            ],
+            [
+                new DateHistogramCase(DateHistogramAggregation::PER_MONTH, [
+                    '2019 January' => 2,
+                    '2019 June' => 1,
+                    '2020 September' => 1,
+                    '2021 December' => 2,
+                ], 'Y F'),
+            ],
+            [
+                new DateHistogramCase(DateHistogramAggregation::PER_DAY, [
+                    'Tuesday 01st Jan, 2019' => 2,
+                    'Saturday 15th Jun, 2019' => 1,
+                    'Wednesday 30th Sep, 2020' => 1,
+                    'Friday 10th Dec, 2021' => 2,
+                ], 'l dS M, Y'),
+            ],
         ];
     }
 
@@ -1833,9 +1851,7 @@ class ElasticsearchProductTest extends TestCase
         $repo = $this->getContainer()->get('product.repository');
 
         $repo->create([
-            $this->createProduct('p1', 'Silk', 't1', 'm1', 50, '2019-01-01 10:11:00', 0, 2, ['c1', 'c2'], ['toOne' => [
-                'name' => 'test',
-            ]]),
+            $this->createProduct('p1', 'Silk', 't1', 'm1', 50, '2019-01-01 10:11:00', 0, 2, ['c1', 'c2'], ['toOne' => ['name' => 'test']]),
             $this->createProduct('p2', 'Rubber', 't1', 'm2', 100, '2019-01-01 10:13:00', 0, 10, ['c1']),
             $this->createProduct('p3', 'Stilk', 't2', 'm2', 150, '2019-06-15 13:00:00', 100, 100, ['c1', 'c3']),
             $this->createProduct('p4', 'Grouped 1', 't2', 'm2', 200, '2020-09-30 15:00:00', 100, 300, ['c3']),

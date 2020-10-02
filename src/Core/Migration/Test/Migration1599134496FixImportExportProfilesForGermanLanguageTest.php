@@ -338,8 +338,12 @@ SQL;
         $englishData = $this->getEnglishData();
 
         foreach ($englishData as &$data) {
-            $data['translations'][$polishId] = ['label' => 'PL' . $data['label']];
-            $data['translations'][$englishId] = ['label' => $data['label']];
+            $data['translations'][$polishId] = [
+                'label' => 'PL' . $data['label'],
+            ];
+            $data['translations'][$englishId] = [
+                'label' => $data['label'],
+            ];
             unset($data['label']);
         }
         unset($data);

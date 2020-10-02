@@ -120,17 +120,19 @@ class PriceFieldSerializer extends AbstractFieldSerializer
                     'gross' => [new NotBlank(), new Type(['numeric'])],
                     'net' => [new NotBlank(), new Type(['numeric'])],
                     'linked' => [new Type('boolean')],
-                    'listPrice' => [new Optional(
-                        new Collection([
-                            'allowExtraFields' => true,
-                            'allowMissingFields' => false,
-                            'fields' => [
-                                'gross' => [new NotBlank(), new Type(['numeric'])],
-                                'net' => [new NotBlank(), new Type('numeric')],
-                                'linked' => [new Type('boolean')],
-                            ],
-                        ])
-                    )],
+                    'listPrice' => [
+                        new Optional(
+                            new Collection([
+                                'allowExtraFields' => true,
+                                'allowMissingFields' => false,
+                                'fields' => [
+                                    'gross' => [new NotBlank(), new Type(['numeric'])],
+                                    'net' => [new NotBlank(), new Type('numeric')],
+                                    'linked' => [new Type('boolean')],
+                                ],
+                            ])
+                        ),
+                    ],
                 ],
             ]),
         ];

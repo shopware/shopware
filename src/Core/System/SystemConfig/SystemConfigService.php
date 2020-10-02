@@ -54,7 +54,7 @@ class SystemConfigService
     }
 
     /**
-     * @return array|bool|float|int|null|string
+     * @return array|bool|float|int|string|null
      */
     public function get(string $key, ?string $salesChannelId = null)
     {
@@ -183,7 +183,7 @@ class SystemConfigService
     }
 
     /**
-     * @param array|bool|float|int|null|string $value
+     * @param array|bool|float|int|string|null $value
      */
     public function set(string $key, $value, ?string $salesChannelId = null): void
     {

@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Migration\Exception\InvalidMigrationClassException;
 class MigrationCollection
 {
     /**
-     * @var null|MigrationStep[]
+     * @var MigrationStep[]|null
      */
     private $migrationSteps;
 

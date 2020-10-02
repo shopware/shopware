@@ -118,7 +118,7 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
     }
 
     /**
-     * @param null|IndexerOffset $offset
+     * @param IndexerOffset|null $offset
      */
     public function iterate($offset): ?EntityIndexingMessage
     {
@@ -267,7 +267,7 @@ class ElasticsearchIndexer extends AbstractEntityIndexer
 
         $this->cacheClearer->invalidateTags([$entity . '.id']);
 
-        if (isset($result['errors']) && $result['errors']) {
+        if (\is_array($result) && isset($result['errors']) && $result['errors']) {
             $errors = $this->parseErrors($result);
 
             throw new ElasticsearchIndexingException($errors);

@@ -64,8 +64,7 @@ class OrderServiceTest extends TestCase
         $this->salesChannelContext = $contextFactory->create(
             '',
             Defaults::SALES_CHANNEL,
-            [SalesChannelContextService::CUSTOMER_ID => $this->createCustomer('Jon', 'Doe'),
-            ]
+            [SalesChannelContextService::CUSTOMER_ID => $this->createCustomer('Jon', 'Doe')]
         );
     }
 

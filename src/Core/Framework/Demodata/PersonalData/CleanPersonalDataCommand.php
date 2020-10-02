@@ -106,7 +106,7 @@ class CleanPersonalDataCommand extends Command
 
         if ($all || $type === self::TYPE_CARTS) {
             $this->connection->executeUpdate(
-                'DELETE FROM cart 
+                'DELETE FROM cart
                 WHERE DATE(created_at) <= (DATE_SUB(CURDATE(), INTERVAL :days DAY))',
                 ['days' => $days]
             );

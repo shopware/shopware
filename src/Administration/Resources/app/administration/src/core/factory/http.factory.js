@@ -117,7 +117,54 @@ function getBasePath(version = Shopware.Context.api.apiVersion) {
  */
 function globalErrorHandlingInterceptor(client) {
     client.interceptors.response.use(response => response, error => {
+        // Get $tc for translations and bind the Vue component scope to make it working
+        const viewRoot = Shopware.Application.view.root;
+        const $tc = viewRoot.$tc.bind(viewRoot);
+
         const { response: { status, data: { errors } } } = error;
+
+        if (status === 403) {
+            // create a fallback if the backend structure does not match the convention
+            try {
+                const missingPrivilegeErrors = errors.filter(e => e.code === 'FRAMEWORK__MISSING_PRIVILEGE_ERROR');
+
+                missingPrivilegeErrors.forEach(missingPrivilegeError => {
+                    const detail = JSON.parse(missingPrivilegeError.detail);
+                    let missingPrivileges = detail.missingPrivileges;
+
+                    // check if response is an object and not an array. If yes, then convert it
+                    if (!Array.isArray(missingPrivileges) && typeof missingPrivileges === 'object') {
+                        missingPrivileges = Object.values(missingPrivileges);
+                    }
+
+                    const missingPrivilegesMessage = missingPrivileges.reduce((message, privilege) => {
+                        return `${message}<br>"${privilege}"`;
+                    }, '');
+
+                    Shopware.State.dispatch('notification/createNotification', {
+                        variant: 'error',
+                        system: true,
+                        autoClose: false,
+                        growl: true,
+                        title: $tc('global.error-codes.FRAMEWORK__MISSING_PRIVILEGE_ERROR'),
+                        message: `${$tc('sw-privileges.error.description')} <br> ${missingPrivilegesMessage}`
+                    });
+                });
+            } catch (e) {
+                Shopware.Utils.debug.error(e);
+
+                errors.forEach(singleError => {
+                    Shopware.State.dispatch('notification/createNotification', {
+                        variant: 'error',
+                        system: true,
+                        autoClose: false,
+                        growl: true,
+                        title: singleError.title,
+                        message: singleError.detail
+                    });
+                });
+            }
+        }
 
         if (status === 412) {
             const frameworkLanguageNotFound = errors.find((e) => e.code === 'FRAMEWORK__LANGUAGE_NOT_FOUND');

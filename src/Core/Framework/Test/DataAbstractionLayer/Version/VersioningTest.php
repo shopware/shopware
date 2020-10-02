@@ -52,6 +52,9 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Tax\TaxDefinition;
 
+/**
+ * @group slow
+ */
 class VersioningTest extends TestCase
 {
     use IntegrationTestBehaviour;

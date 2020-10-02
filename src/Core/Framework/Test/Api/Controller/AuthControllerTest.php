@@ -14,6 +14,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @group slow
+ */
 class AuthControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

@@ -48,6 +48,9 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @group slow
+ */
 class RecalculationServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;

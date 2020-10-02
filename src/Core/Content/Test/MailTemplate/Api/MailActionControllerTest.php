@@ -15,6 +15,9 @@ use Symfony\Bundle\SwiftmailerBundle\DataCollector\MessageDataCollector;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Profiler\Profiler;
 
+/**
+ * @group slow
+ */
 class MailActionControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

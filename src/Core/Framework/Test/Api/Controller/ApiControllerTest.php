@@ -29,6 +29,9 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @group slow
+ */
 class ApiControllerTest extends TestCase
 {
     use KernelTestBehaviour;

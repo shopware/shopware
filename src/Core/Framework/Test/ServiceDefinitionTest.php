@@ -10,6 +10,9 @@ use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Finder\Finder;
 
+/**
+ * @group slow
+ */
 class ServiceDefinitionTest extends TestCase
 {
     use KernelTestBehaviour;

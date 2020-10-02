@@ -21,6 +21,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @group slow
+ */
 class ProductListingTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -165,6 +168,9 @@ class ProductListingTest extends TestCase
         static::assertFalse($options->has($this->testData->getId('cotton')));
     }
 
+    /**
+     * @group slow
+     */
     public function testListingWithProductStream(): void
     {
         $this->createTestProductStreamEntity($this->categoryStreamId);

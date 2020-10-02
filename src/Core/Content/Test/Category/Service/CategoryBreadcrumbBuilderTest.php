@@ -113,6 +113,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
 
     /**
      * @dataProvider breadcrumbDataProvider
+     * @group slow
      */
     public function testIsWithoutEntrypoint(string $key, bool $withSalesChannel, bool $withCategoryId = false): void
     {

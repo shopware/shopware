@@ -17,6 +17,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @group slow
+ */
 class SearchCriteriaBuilderTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
@@ -293,6 +296,9 @@ class SearchCriteriaBuilderTest extends TestCase
         static::assertEquals('/page', $content['errors'][0]['source']['pointer']);
     }
 
+    /**
+     * @group slow
+     */
     public function testNonIntegerPage(): void
     {
         $this->getBrowser()->request('GET', $this->url . '/product', ['page' => 'foo']);

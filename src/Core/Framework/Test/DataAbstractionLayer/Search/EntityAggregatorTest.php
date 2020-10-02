@@ -39,6 +39,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\System\Tax\TaxDefinition;
 
+/**
+ * @group slow
+ */
 class EntityAggregatorTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -977,6 +980,7 @@ class EntityAggregatorTest extends TestCase
 
     /**
      * @dataProvider dateHistogramProvider
+     * @group slow
      */
     public function testDateHistogram(DateHistogramCase $case): void
     {

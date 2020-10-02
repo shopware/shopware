@@ -34,6 +34,9 @@ use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\System\Tax\TaxEntity;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @group slow
+ */
 class ProductRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -2674,6 +2677,7 @@ class ProductRepositoryTest extends TestCase
 
     /**
      * @dataProvider customFieldVariantsProvider
+     * @group slow
      */
     public function testVariantCustomFieldInheritance(array $translations, array $expected, Context $context): void
     {

@@ -15,6 +15,9 @@ class UserControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
 
+    /**
+     * @group slow
+     */
     public function testMe(): void
     {
         $url = sprintf('/api/v%s/_info/me', PlatformRequest::API_VERSION);

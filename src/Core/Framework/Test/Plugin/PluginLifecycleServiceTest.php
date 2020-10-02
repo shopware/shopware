@@ -36,6 +36,9 @@ use SwagTest\SwagTest;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
+/**
+ * @group slow
+ */
 class PluginLifecycleServiceTest extends TestCase
 {
     use PluginTestsHelper;

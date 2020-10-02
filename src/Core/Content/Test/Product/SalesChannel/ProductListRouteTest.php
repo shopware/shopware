@@ -56,6 +56,9 @@ class ProductListRouteTest extends TestCase
         static::assertSame('product', $response['elements'][0]['apiAlias']);
     }
 
+    /**
+     * @group slow
+     */
     public function testListingProductsLimit(): void
     {
         $this->browser->request(

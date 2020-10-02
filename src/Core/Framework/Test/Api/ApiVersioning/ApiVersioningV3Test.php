@@ -19,6 +19,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
+/**
+ * @group slow
+ */
 class ApiVersioningV3Test extends TestCase
 {
     use IntegrationTestBehaviour;

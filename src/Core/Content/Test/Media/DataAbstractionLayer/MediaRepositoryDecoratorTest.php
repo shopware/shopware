@@ -24,6 +24,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 
+/**
+ * @group slow
+ */
 class MediaRepositoryDecoratorTest extends TestCase
 {
     use IntegrationTestBehaviour;

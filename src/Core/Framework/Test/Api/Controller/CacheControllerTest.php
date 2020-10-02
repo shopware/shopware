@@ -25,6 +25,9 @@ class CacheControllerTest extends TestCase
         $this->cache = $this->getContainer()->get('cache.object');
     }
 
+    /**
+     * @group slow
+     */
     public function testClearCacheEndpoint(): void
     {
         $this->cache = $this->getContainer()->get('cache.object');

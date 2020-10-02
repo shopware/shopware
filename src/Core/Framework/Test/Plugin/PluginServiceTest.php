@@ -21,6 +21,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use SwagTest\SwagTest;
 use SwagTestNoDefaultLang\SwagTestNoDefaultLang;
 
+/**
+ * @group slow
+ */
 class PluginServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;

@@ -144,6 +144,9 @@ class ProductCartProcessorTest extends TestCase
         static::assertSame('test', $actualProduct->getLabel());
     }
 
+    /**
+     * @group slow
+     */
     public function testLineItemPropertiesPurchasePrice(): void
     {
         $this->createProduct();
@@ -188,6 +191,7 @@ class ProductCartProcessorTest extends TestCase
 
     /**
      * @dataProvider productFeatureProdiver
+     * @group slow
      */
     public function testProductFeaturesContainCorrectInformation(array $testedFeature, array $productData, array $expectedFeature): void
     {
@@ -452,6 +456,7 @@ class ProductCartProcessorTest extends TestCase
 
     /**
      * @dataProvider productDeliverabilityProvider
+     * @group slow
      */
     public function testProcessCartShouldReturnFixedQuantity(int $minPurchase, int $purchaseSteps, int $maxPurchase, int $quantity, int $quantityExpected, bool $isCheckMessage): void
     {

@@ -16,6 +16,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class UninstallAppCommand extends Command
 {
+    protected static $defaultName = 'app:uninstall';
+
     /**
      * @var AppLifecycle
      */
@@ -58,8 +60,7 @@ class UninstallAppCommand extends Command
 
     protected function configure(): void
     {
-        $this->setName('app:uninstall')
-            ->setDescription('Uninstalls the app')
+        $this->setDescription('Uninstalls the app')
             ->addArgument('name', InputArgument::REQUIRED, 'The name of the app');
     }
 

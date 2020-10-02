@@ -10,6 +10,8 @@ class ActivateAppCommand extends AbstractAppActivationCommand
 {
     private const ACTION = 'activate';
 
+    protected static $defaultName = 'app:activate';
+
     /**
      * @var AppStateService
      */

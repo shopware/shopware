@@ -106,7 +106,8 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
             provide: {
                 repositoryFactory: {
                     create: () => ({
-                        search: () => Promise.resolve(getSnippetSets())
+                        search: () => Promise.resolve(getSnippetSets()),
+                        create: () => Promise.resolve()
                     })
                 },
                 acl: {

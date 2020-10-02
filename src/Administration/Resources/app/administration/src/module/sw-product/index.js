@@ -53,7 +53,10 @@ Module.register('sw-product', {
             },
             path: 'index',
             meta: {
-                privilege: 'product.viewer'
+                privilege: 'product.viewer',
+                appSystem: {
+                    view: 'list'
+                }
             }
         },
 
@@ -88,7 +91,10 @@ Module.register('sw-product', {
                 name: 'sw.product.detail.base'
             },
             meta: {
-                privilege: 'product.viewer'
+                privilege: 'product.viewer',
+                appSystem: {
+                    view: 'detail'
+                }
             },
             children: {
                 base: {

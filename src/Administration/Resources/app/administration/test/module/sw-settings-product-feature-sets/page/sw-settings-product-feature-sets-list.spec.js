@@ -60,7 +60,9 @@ const listPage = (additionalOptions = {}, privileges = []) => {
             },
             $route: {
                 meta: {
-                    $module: {}
+                    $module: {
+                        routes: {}
+                    }
                 },
                 query: {}
             },
@@ -109,6 +111,9 @@ const listPage = (additionalOptions = {}, privileges = []) => {
                 create: () => ({
                     search: () => Promise.resolve()
                 })
+            },
+            feature: {
+                isActive: () => true
             },
             validationService: {},
             mixins: [

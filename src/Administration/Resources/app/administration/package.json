@@ -46,6 +46,7 @@
     "dompurify": "2.0.15",
     "eslint-friendly-formatter": "4.0.1",
     "flatpickr": "4.6.3",
+    "flush-promises": "1.0.2",
     "lodash": "4.17.15",
     "md5-es": "1.8.2",
     "mini-css-extract-plugin": "0.8.0",

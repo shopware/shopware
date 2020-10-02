@@ -91,6 +91,11 @@ class ProductEntity extends Entity
     protected $ean;
 
     /**
+     * @var int
+     */
+    protected $sales;
+
+    /**
      * @var string
      */
     protected $productNumber;
@@ -559,6 +564,16 @@ class ProductEntity extends Entity
     public function setEan(?string $ean): void
     {
         $this->ean = $ean;
+    }
+
+    public function getSales(): int
+    {
+        return $this->sales;
+    }
+
+    public function setSales(int $sales): void
+    {
+        $this->sales = $sales;
     }
 
     public function getStock(): int

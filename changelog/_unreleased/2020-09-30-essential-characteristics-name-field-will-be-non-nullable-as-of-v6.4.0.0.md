@@ -5,6 +5,8 @@ author: Philip Gatzka
 author_email: p.gatzka@shopware.com 
 author_github: @philipgatzka
 ---
+# Core
+
 # Upgrade Information
 
 ## `name` attribute of `ProductFeatureSetTranslationDefinition` will be non-nullable

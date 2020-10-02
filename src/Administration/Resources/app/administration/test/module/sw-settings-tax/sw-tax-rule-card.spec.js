@@ -115,7 +115,7 @@ describe('module/sw-settings-tax/component/sw-tax-rule-card', () => {
         });
 
         it('should be a Vue.JS component', () => {
-            expect(wrapper.isVueInstance()).toBe(true);
+            expect(wrapper.vm).toBeTruthy();
         });
 
         it('should be able to add a new country from data grid', () => {
@@ -149,7 +149,7 @@ describe('module/sw-settings-tax/component/sw-tax-rule-card', () => {
         });
 
         it('should be a Vue.JS component', () => {
-            expect(wrapper.isVueInstance()).toBe(true);
+            expect(wrapper.vm).toBeTruthy();
         });
 
         it('should not be able to add a new country from data grid', () => {
@@ -183,7 +183,7 @@ describe('module/sw-settings-tax/component/sw-tax-rule-card', () => {
         });
 
         it('should be a Vue.JS component', () => {
-            expect(wrapper.isVueInstance()).toBe(true);
+            expect(wrapper.vm).toBeTruthy();
         });
 
         it('should be able to add a new country from empty card', () => {
@@ -205,7 +205,7 @@ describe('module/sw-settings-tax/component/sw-tax-rule-card', () => {
         });
 
         it('should be a Vue.JS component', () => {
-            expect(wrapper.isVueInstance()).toBe(true);
+            expect(wrapper.vm).toBeTruthy();
         });
 
         it('should not be able to add a new country from empty card', () => {

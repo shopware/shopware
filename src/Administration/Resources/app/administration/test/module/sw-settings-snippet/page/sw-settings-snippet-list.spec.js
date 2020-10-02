@@ -135,7 +135,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-list', () => {
     it('should be a Vue.js component', () => {
         const wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBe(true);
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it.each([

@@ -7,8 +7,13 @@ use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Content\Seo\SeoUrlGenerator;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Context\SystemSource;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
+use Shopware\Core\Framework\Test\TestDataCollection;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
@@ -16,6 +21,7 @@ use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
 class SeoUrlGeneratorTest extends TestCase
 {
     use IntegrationTestBehaviour;
+    use SalesChannelApiTestBehaviour;
 
     /**
      * @var SalesChannelContext
@@ -32,12 +38,29 @@ class SeoUrlGeneratorTest extends TestCase
      */
     private $seoUrlRouteRegistry;
 
+    /**
+     * @var TestDataCollection
+     */
+    private $ids;
+
+    /**
+     * @var string
+     */
+    private $deLanguageId;
+
     protected function setUp(): void
     {
         parent::setUp();
+        $this->ids = new TestDataCollection();
+        $this->deLanguageId = $this->getDeDeLanguageId();
+
+        $this->createBreadcrumData();
+        $salesChannel = $this->createSalesChannel([
+            'navigationCategoryId' => $this->ids->get('rootCategory'),
+        ]);
 
         $contextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
-        $this->salesChannelContext = $contextFactory->create('', Defaults::SALES_CHANNEL);
+        $this->salesChannelContext = $contextFactory->create('', $salesChannel['id']);
 
         $this->seoUrlGenerator = new SeoUrlGenerator(
             $this->getContainer()->get(DefinitionInstanceRegistry::class),
@@ -55,7 +78,7 @@ class SeoUrlGeneratorTest extends TestCase
      *
      * @dataProvider templateDataProvider
      */
-    public function testGenerateUrlCount(string $id, ?string $template, int $count, ?string $pathInfo): void
+    public function testGenerateUrlCount(string $id, string $template, int $count, ?string $pathInfo): void
     {
         /** @var SeoUrlEntity[] $urls */
         $urls = $this->seoUrlGenerator->generate(
@@ -75,7 +98,7 @@ class SeoUrlGeneratorTest extends TestCase
      *
      * @dataProvider templateDataProvider
      */
-    public function testGenerateSeoPathInfo(string $id, ?string $template, int $count, ?string $pathInfo): void
+    public function testGenerateSeoPathInfo(string $id, string $template, int $count, ?string $pathInfo): void
     {
         /** @var SeoUrlEntity[] $urls */
         $urls = $this->seoUrlGenerator->generate(
@@ -91,6 +114,49 @@ class SeoUrlGeneratorTest extends TestCase
         foreach ($urls as $url) {
             static::assertStringEndsWith($pathInfo, $url->getSeoPathInfo());
         }
+    }
+
+    /**
+     * @dataProvider seoUrlContentDataProvider
+     */
+    public function testSeoBreadcrumb(string $output, bool $useDeLanguage): void
+    {
+        $language = $useDeLanguage ? $this->deLanguageId : Defaults::LANGUAGE_SYSTEM;
+        $context = new Context(
+            new SystemSource(),
+            [],
+            Defaults::CURRENCY,
+            [$language]
+        );
+
+        /** @var SeoUrlEntity[] $urls */
+        $urls = $this->seoUrlGenerator->generate(
+            [$this->ids->get('childCategory')],
+            NavigationPageSeoUrlRoute::DEFAULT_TEMPLATE,
+            $this->seoUrlRouteRegistry->findByRouteName(NavigationPageSeoUrlRoute::ROUTE_NAME),
+            $context,
+            $this->salesChannelContext->getSalesChannel()
+        );
+
+        static::assertIsIterable($urls);
+
+        foreach ($urls as $url) {
+            static::assertSame($output, $url->getSeoPathInfo());
+        }
+    }
+
+    public function seoUrlContentDataProvider(): array
+    {
+        return [
+            [
+                'EN-A/EN-B/',
+                false,
+            ],
+            [
+                'DE-A/DE-B/',
+                true,
+            ],
+        ];
     }
 
     public function templateDataProvider(): array
@@ -115,5 +181,36 @@ class SeoUrlGeneratorTest extends TestCase
                 'pathInfo' => '',
             ],
         ];
+    }
+
+    private function createBreadcrumData(): void
+    {
+        $this->getContainer()->get('category.repository')->create([
+            [
+                'id' => $this->ids->create('rootCategory'),
+                'translations' => [
+                    ['name' => 'EN-Entry', 'languageId' => Defaults::LANGUAGE_SYSTEM],
+                    ['name' => 'DE-Entry', 'languageId' => $this->deLanguageId],
+                ],
+                'children' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'translations' => [
+                            ['name' => 'EN-A', 'languageId' => Defaults::LANGUAGE_SYSTEM],
+                            ['name' => 'DE-A', 'languageId' => $this->deLanguageId],
+                        ],
+                        'children' => [
+                            [
+                                'id' => $this->ids->create('childCategory'),
+                                'translations' => [
+                                    ['name' => 'EN-B', 'languageId' => Defaults::LANGUAGE_SYSTEM],
+                                    ['name' => 'DE-B', 'languageId' => $this->deLanguageId],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ], $this->ids->getContext());
     }
 }

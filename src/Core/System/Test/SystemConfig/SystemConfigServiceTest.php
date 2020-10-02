@@ -4,11 +4,11 @@ namespace Shopware\Core\System\Test\SystemConfig;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\System\SystemConfig\Exception\InvalidDomainException;
 use Shopware\Core\System\SystemConfig\Exception\InvalidKeyException;
+use Shopware\Core\System\SystemConfig\Exception\InvalidSettingValueException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class SystemConfigServiceTest extends TestCase
@@ -20,17 +20,11 @@ class SystemConfigServiceTest extends TestCase
      */
     private $systemConfigService;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $systemConfigRepository;
-
     public function setUp(): void
     {
         parent::setUp();
 
         $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
-        $this->systemConfigRepository = $this->getContainer()->get('system_config.repository');
     }
 
     public function setGetDifferentTypesProvider(): array
@@ -49,13 +43,130 @@ class SystemConfigServiceTest extends TestCase
     }
 
     /**
-     * @param $expected mixed
+     * @param array|bool|int|float|string|null $expected
      * @dataProvider setGetDifferentTypesProvider
      */
     public function testSetGetDifferentTypes($expected): void
     {
         $this->systemConfigService->set('foo.bar', $expected);
         $actual = $this->systemConfigService->get('foo.bar');
+        static::assertSame($expected, $actual);
+    }
+
+    public function getStringProvider(): array
+    {
+        return [
+            [true, '1'],
+            [false, ''],
+            [null, ''],
+            [0, '0'],
+            [1234, '1234'],
+            [1243.42314, '1243.42314'],
+            ['', ''],
+            ['test', 'test'],
+            [['foo' => 'bar'], ''],
+        ];
+    }
+
+    /**
+     * @param array|bool|int|float|string|null $writtenValue
+     * @dataProvider getStringProvider
+     */
+    public function testGetString($writtenValue, string $expected): void
+    {
+        $this->systemConfigService->set('foo.bar', $writtenValue);
+        if (\is_array($writtenValue)) {
+            $this->expectException(InvalidSettingValueException::class);
+            $this->expectExceptionMessage("Invalid value for 'foo.bar'. Must be of type 'string'. But is of type 'array'");
+        }
+        $actual = $this->systemConfigService->getString('foo.bar');
+        static::assertSame($expected, $actual);
+    }
+
+    public function getIntProvider(): array
+    {
+        return [
+            [true, 1],
+            [false, 0],
+            [null, 0],
+            [0, 0],
+            [1234, 1234],
+            [1243.42314, 1243],
+            ['', 0],
+            ['test', 0],
+            [['foo' => 'bar'], 0],
+        ];
+    }
+
+    /**
+     * @param array|bool|int|float|string|null $writtenValue
+     * @dataProvider getIntProvider
+     */
+    public function testGetInt($writtenValue, int $expected): void
+    {
+        $this->systemConfigService->set('foo.bar', $writtenValue);
+        if (\is_array($writtenValue)) {
+            $this->expectException(InvalidSettingValueException::class);
+            $this->expectExceptionMessage("Invalid value for 'foo.bar'. Must be of type 'int'. But is of type 'array'");
+        }
+        $actual = $this->systemConfigService->getInt('foo.bar');
+        static::assertSame($expected, $actual);
+    }
+
+    public function getFloatProvider(): array
+    {
+        return [
+            [true, 1],
+            [false, 0],
+            [null, 0],
+            [0, 0],
+            [1234, 1234],
+            [1243.42314, 1243.42314],
+            ['', 0],
+            ['test', 0],
+            [['foo' => 'bar'], 0],
+        ];
+    }
+
+    /**
+     * @param array|bool|int|float|string|null $writtenValue
+     * @dataProvider getFloatProvider
+     */
+    public function testGetFloat($writtenValue, float $expected): void
+    {
+        $this->systemConfigService->set('foo.bar', $writtenValue);
+        if (\is_array($writtenValue)) {
+            $this->expectException(InvalidSettingValueException::class);
+            $this->expectExceptionMessage("Invalid value for 'foo.bar'. Must be of type 'float'. But is of type 'array'");
+        }
+        $actual = $this->systemConfigService->getFloat('foo.bar');
+        static::assertSame($expected, $actual);
+    }
+
+    public function getBoolProvider(): array
+    {
+        return [
+            [true, true],
+            [false, false],
+            [null, false],
+            [0, false],
+            [1234, true],
+            [1243.42314, true],
+            ['', false],
+            ['test', true],
+            [['foo' => 'bar'], true],
+            [[], false],
+        ];
+    }
+
+    /**
+     * @param array|bool|int|float|string|null $writtenValue
+     * @dataProvider getBoolProvider
+     */
+    public function testGetBool($writtenValue, bool $expected): void
+    {
+        $this->systemConfigService->set('foo.bar', $writtenValue);
+        $actual = $this->systemConfigService->getBool('foo.bar');
         static::assertSame($expected, $actual);
     }
 
@@ -97,13 +208,13 @@ class SystemConfigServiceTest extends TestCase
 
     public function testGetDomainNoData(): void
     {
-        $actual = $this->systemConfigService->getDomain('foo', null, false);
+        $actual = $this->systemConfigService->getDomain('foo');
         static::assertEquals([], $actual);
 
         $actual = $this->systemConfigService->getDomain('foo', null, true);
         static::assertEquals([], $actual);
 
-        $actual = $this->systemConfigService->getDomain('foo', Defaults::SALES_CHANNEL, false);
+        $actual = $this->systemConfigService->getDomain('foo', Defaults::SALES_CHANNEL);
         static::assertEquals([], $actual);
 
         $actual = $this->systemConfigService->getDomain('foo', Defaults::SALES_CHANNEL, true);
@@ -136,7 +247,7 @@ class SystemConfigServiceTest extends TestCase
         $expected = [
             'foo.c' => 'c override',
         ];
-        $actual = $this->systemConfigService->getDomain('foo', Defaults::SALES_CHANNEL, false);
+        $actual = $this->systemConfigService->getDomain('foo', Defaults::SALES_CHANNEL);
         static::assertEquals($expected, $actual);
     }
 
@@ -161,7 +272,7 @@ class SystemConfigServiceTest extends TestCase
 
     public function testDeleteNonExisting(): void
     {
-        $this->systemConfigService->delete('not.found', null);
+        $this->systemConfigService->delete('not.found');
         $this->systemConfigService->delete('not.found', Defaults::SALES_CHANNEL);
 
         // does not throw
@@ -170,11 +281,11 @@ class SystemConfigServiceTest extends TestCase
 
     public function testDelete(): void
     {
-        $this->systemConfigService->set('foo', 'bar', null);
+        $this->systemConfigService->set('foo', 'bar');
         $this->systemConfigService->set('foo', 'bar override', Defaults::SALES_CHANNEL);
 
-        $this->systemConfigService->delete('foo', null);
-        $actual = $this->systemConfigService->get('foo', null);
+        $this->systemConfigService->delete('foo');
+        $actual = $this->systemConfigService->get('foo');
         static::assertNull($actual);
         $actual = $this->systemConfigService->get('foo', Defaults::SALES_CHANNEL);
         static::assertEquals('bar override', $actual);

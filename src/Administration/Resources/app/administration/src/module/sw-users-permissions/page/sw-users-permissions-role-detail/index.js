@@ -2,7 +2,6 @@ import template from './sw-users-permissions-role-detail.html.twig';
 import './sw-users-permissions-role-detail.scss';
 
 const { Component, Mixin } = Shopware;
-const { mapPropertyErrors } = Component.getComponentHelper();
 
 Component.register('sw-users-permissions-role-detail', {
     template,
@@ -11,12 +10,14 @@ Component.register('sw-users-permissions-role-detail', {
         'repositoryFactory',
         'privileges',
         'userService',
-        'loginService'
+        'loginService',
+        'acl'
     ],
 
     mixins: [
         Mixin.getByName('notification')
     ],
+
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
@@ -28,7 +29,8 @@ Component.register('sw-users-permissions-role-detail', {
             isLoading: true,
             isSaveSuccessful: false,
             role: null,
-            confirmPasswordModal: false
+            confirmPasswordModal: false,
+            detailedPrivileges: []
         };
     },
 
@@ -39,11 +41,6 @@ Component.register('sw-users-permissions-role-detail', {
     },
 
     computed: {
-        ...mapPropertyErrors('role', [
-            'name',
-            'description'
-        ]),
-
         tooltipSave() {
             const systemKey = this.$device.getSystemKey();
 
@@ -111,7 +108,14 @@ Component.register('sw-users-permissions-role-detail', {
             this.roleRepository.get(this.roleId, Shopware.Context.api)
                 .then((role) => {
                     this.role = role;
-                    this.role.privileges = this.privileges.filterPrivilegesRoles(this.role.privileges);
+
+                    const filteredPrivileges = this.privileges.filterPrivilegesRoles(this.role.privileges);
+                    const allGeneralPrivileges = this.privileges.getPrivilegesForAdminPrivilegeKeys(filteredPrivileges);
+
+                    this.detailedPrivileges = this.role.privileges.filter(privilege => {
+                        return !allGeneralPrivileges.includes(privilege);
+                    });
+                    this.role.privileges = filteredPrivileges;
                 })
                 .finally(() => {
                     this.isLoading = false;
@@ -126,7 +130,10 @@ Component.register('sw-users-permissions-role-detail', {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            this.role.privileges = this.privileges.getPrivilegesForAdminPrivilegeKeys(this.role.privileges);
+            this.role.privileges = [
+                ...this.privileges.getPrivilegesForAdminPrivilegeKeys(this.role.privileges),
+                ...this.detailedPrivileges
+            ].sort();
 
             this.confirmPasswordModal = false;
 
@@ -143,7 +150,6 @@ Component.register('sw-users-permissions-role-detail', {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        title: this.$tc('global.default.error'),
                         message: this.$tc(
                             'global.notification.notificationSaveErrorMessage',
                             0,

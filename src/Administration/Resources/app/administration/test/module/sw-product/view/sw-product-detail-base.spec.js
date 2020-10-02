@@ -9,12 +9,14 @@ function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-product-detail-base'), {
         localVue,
         stubs: {
-            'sw-page': `
-                <div class="sw-page">
-                    <slot name="smart-bar-actions"></slot>
-                    <slot name="content">CONTENT</slot>
-                    <slot></slot>
-                </div>`,
+            'sw-page': {
+                template: `
+                    <div class="sw-page">
+                        <slot name="smart-bar-actions"></slot>
+                        <slot name="content">CONTENT</slot>
+                        <slot></slot>
+                    </div>`
+            },
             'sw-product-detail-base__review-card': true,
             'sw-data-grid': {
                 props: ['dataSource'],
@@ -35,7 +37,9 @@ function createWrapper(privileges = []) {
             'sw-product-feature-set-form': true,
             'sw-inherit-wrapper': true,
             'sw-empty-state': true,
-            'sw-card': '<div><slot></slot><slot name="grid"></slot></div>',
+            'sw-card': {
+                template: '<div><slot></slot><slot name="grid"></slot></div>'
+            },
             'sw-context-menu-item': true
         },
         mocks: {
@@ -104,15 +108,15 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         });
     });
 
-    it('should be a Vue.JS component', () => {
+    it('should be a Vue.JS component', async () => {
         wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBe(true);
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should not be able to delete', async () => {
         wrapper = createWrapper();
-        wrapper.setData({
+        await wrapper.setData({
             reviewItemData: mockReviews,
             total: 1
         });
@@ -126,7 +130,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         wrapper = createWrapper([
             'product.editor'
         ]);
-        wrapper.setData({
+        await wrapper.setData({
             reviewItemData: mockReviews,
             total: 1
         });
@@ -139,7 +143,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
 
     it('should not be able to edit', async () => {
         wrapper = createWrapper();
-        wrapper.setData({
+        await wrapper.setData({
             reviewItemData: mockReviews,
             total: 1
         });
@@ -153,7 +157,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         wrapper = createWrapper([
             'product.editor'
         ]);
-        wrapper.setData({
+        await wrapper.setData({
             reviewItemData: mockReviews,
             total: 1
         });

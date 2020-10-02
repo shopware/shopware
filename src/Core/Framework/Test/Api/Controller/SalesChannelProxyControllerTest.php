@@ -27,6 +27,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Response;
 
 class SalesChannelProxyControllerTest extends TestCase
@@ -95,7 +96,8 @@ class SalesChannelProxyControllerTest extends TestCase
         $this->context = Context::createDefaultContext();
         $this->customerRepository = $this->getContainer()->get('customer.repository');
         $this->connection = $this->getContainer()->get(Connection::class);
-        $this->contextPersister = new SalesChannelContextPersister($this->connection);
+        $eventDispatcher = new EventDispatcher();
+        $this->contextPersister = new SalesChannelContextPersister($this->connection, $eventDispatcher);
         $this->ids = new TestDataCollection($this->context);
     }
 
@@ -447,6 +449,202 @@ class SalesChannelProxyControllerTest extends TestCase
 
         static::assertArrayHasKey('totalPrice', $cart['deliveries'][0]['shippingCosts']);
         static::assertEquals(20, $cart['deliveries'][0]['shippingCosts']['totalPrice']);
+    }
+
+    public function testModifyShippingCostsManuallyInCaseCartIsEmpty(): void
+    {
+        $salesChannelContext = $this->createDefaultSalesChannelContext();
+
+        $salesChannelContext->setPermissions([ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES]);
+        $payload = $this->contextPersister->load($salesChannelContext->getToken());
+        $payload[SalesChannelContextService::PERMISSIONS][ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES] = true;
+        $this->contextPersister->save($salesChannelContext->getToken(), $payload);
+
+        $browser = $this->createCart(Defaults::SALES_CHANNEL);
+
+        $firstProductId = $this->ids->get('p1');
+        $secondProductId = $this->ids->get('p2');
+        $this->createTestFixtureProduct($firstProductId, 119, 19, $this->getContainer(), $salesChannelContext);
+        $this->createTestFixtureProduct($secondProductId, 200, 10, $this->getContainer(), $salesChannelContext);
+
+        $this->addSingleLineItem($browser, Defaults::SALES_CHANNEL, [
+            'id' => $firstProductId,
+            'label' => $firstProductId,
+            'referencedId' => $firstProductId,
+            'quantity' => 1,
+            'type' => LineItem::PRODUCT_LINE_ITEM_TYPE,
+            'priceDefinition' => [
+                'price' => 100,
+                'taxRules' => [[
+                    'taxRate' => 19,
+                    'percentage' => 100,
+                ]],
+                'type' => 'quantity',
+            ],
+        ], $salesChannelContext->getToken());
+
+        $this->addSingleLineItem($browser, Defaults::SALES_CHANNEL, [
+            'id' => $secondProductId,
+            'label' => $secondProductId,
+            'referencedId' => $firstProductId,
+            'quantity' => 1,
+            'type' => LineItem::PRODUCT_LINE_ITEM_TYPE,
+            'priceDefinition' => [
+                'price' => 100,
+                'taxRules' => [[
+                    'taxRate' => 10,
+                    'percentage' => 100,
+                ]],
+                'type' => 'quantity',
+            ],
+        ], $salesChannelContext->getToken());
+
+        $this->modifyShippingCostsManually($browser, 20, $salesChannelContext->getToken());
+
+        $cart = $this->getStoreApiCart($browser, Defaults::SALES_CHANNEL, $salesChannelContext->getToken());
+
+        $shippingCosts = $cart['deliveries'][0]['shippingCosts'];
+
+        //shipping costs are now based on manual value, tax rate will be mixed
+        static::assertArrayHasKey('unitPrice', $shippingCosts);
+        static::assertEquals(20, $shippingCosts['unitPrice']);
+
+        static::assertArrayHasKey('totalPrice', $shippingCosts);
+        static::assertEquals(20, $shippingCosts['totalPrice']);
+
+        static::assertCount(2, $shippingCosts['calculatedTaxes']);
+        static::assertEquals(19, $shippingCosts['calculatedTaxes'][0]['taxRate']);
+        static::assertEquals(10, $shippingCosts['calculatedTaxes'][1]['taxRate']);
+
+        //using store-api through proxy to remove all items in cart
+        $this->storeAPIRemoveLineItems($browser, [$firstProductId, $secondProductId], $salesChannelContext->getToken());
+
+        $cart = $this->getStoreApiCart($browser, Defaults::SALES_CHANNEL, $salesChannelContext->getToken());
+        static::assertEmpty($cart['deliveries']);
+
+        //adding a new product item to cart.
+        $this->addSingleLineItem($browser, Defaults::SALES_CHANNEL, [
+            'id' => $firstProductId,
+            'label' => $firstProductId,
+            'referencedId' => $firstProductId,
+            'quantity' => 1,
+            'type' => LineItem::PRODUCT_LINE_ITEM_TYPE,
+            'priceDefinition' => [
+                'price' => 100,
+                'taxRules' => [[
+                    'taxRate' => 19,
+                    'percentage' => 100,
+                ]],
+                'type' => 'quantity',
+            ],
+        ], $salesChannelContext->getToken());
+
+        $cart = $this->getStoreApiCart($browser, Defaults::SALES_CHANNEL, $salesChannelContext->getToken());
+
+        //shipping costs is now based on shipping method, there is one tax rate (shipping costs by manual value in cart is removed)
+        $shippingCosts = $cart['deliveries'][0]['shippingCosts'];
+        static::assertArrayHasKey('unitPrice', $shippingCosts);
+        static::assertEquals(0, $shippingCosts['unitPrice']);
+
+        static::assertArrayHasKey('totalPrice', $shippingCosts);
+        static::assertEquals(0, $shippingCosts['totalPrice']);
+
+        static::assertCount(1, $shippingCosts['calculatedTaxes']);
+        static::assertEquals(19, $shippingCosts['calculatedTaxes'][0]['taxRate']);
+    }
+
+    public function testModifyShippingCostsManuallyInCaseCartIsNotEmpty(): void
+    {
+        $salesChannelContext = $this->createDefaultSalesChannelContext();
+
+        $salesChannelContext->setPermissions([ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES]);
+        $payload = $this->contextPersister->load($salesChannelContext->getToken());
+        $payload[SalesChannelContextService::PERMISSIONS][ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES] = true;
+        $this->contextPersister->save($salesChannelContext->getToken(), $payload);
+
+        $browser = $this->createCart(Defaults::SALES_CHANNEL);
+
+        $firstProductId = $this->ids->get('p1');
+        $secondProductId = $this->ids->get('p2');
+        $this->createTestFixtureProduct($firstProductId, 119, 19, $this->getContainer(), $salesChannelContext);
+        $this->createTestFixtureProduct($secondProductId, 200, 10, $this->getContainer(), $salesChannelContext);
+
+        $this->addSingleLineItem($browser, Defaults::SALES_CHANNEL, [
+            'id' => $firstProductId,
+            'label' => $firstProductId,
+            'referencedId' => $firstProductId,
+            'quantity' => 1,
+            'type' => LineItem::PRODUCT_LINE_ITEM_TYPE,
+            'priceDefinition' => [
+                'price' => 100,
+                'taxRules' => [[
+                    'taxRate' => 19,
+                    'percentage' => 100,
+                ]],
+                'type' => 'quantity',
+            ],
+        ], $salesChannelContext->getToken());
+
+        $this->addSingleLineItem($browser, Defaults::SALES_CHANNEL, [
+            'id' => $secondProductId,
+            'label' => $secondProductId,
+            'referencedId' => $firstProductId,
+            'quantity' => 1,
+            'type' => LineItem::CREDIT_LINE_ITEM_TYPE,
+            'priceDefinition' => [
+                'price' => -100,
+                'type' => 'absolute',
+            ],
+        ], $salesChannelContext->getToken());
+
+        $this->modifyShippingCostsManually($browser, 20, $salesChannelContext->getToken());
+
+        $cart = $this->getStoreApiCart($browser, Defaults::SALES_CHANNEL, $salesChannelContext->getToken());
+
+        $shippingCosts = $cart['deliveries'][0]['shippingCosts'];
+
+        //shipping costs are now based on manual value, there is one tax rate
+        static::assertArrayHasKey('unitPrice', $shippingCosts);
+        static::assertEquals(20, $shippingCosts['unitPrice']);
+
+        static::assertArrayHasKey('totalPrice', $shippingCosts);
+        static::assertEquals(20, $shippingCosts['totalPrice']);
+
+        static::assertCount(1, $shippingCosts['calculatedTaxes']);
+        static::assertEquals(19, $shippingCosts['calculatedTaxes'][0]['taxRate']);
+
+        //using store-api through proxy to remove Product item in cart, keep Credit item.
+        $this->storeAPIRemoveLineItems($browser, [$firstProductId], $salesChannelContext->getToken());
+
+        //adding a new product item to cart.
+        $this->addSingleLineItem($browser, Defaults::SALES_CHANNEL, [
+            'id' => $firstProductId,
+            'label' => $firstProductId,
+            'referencedId' => $firstProductId,
+            'quantity' => 1,
+            'type' => LineItem::PRODUCT_LINE_ITEM_TYPE,
+            'priceDefinition' => [
+                'price' => 100,
+                'taxRules' => [[
+                    'taxRate' => 19,
+                    'percentage' => 100,
+                ]],
+                'type' => 'quantity',
+            ],
+        ], $salesChannelContext->getToken());
+
+        $cart = $this->getStoreApiCart($browser, Defaults::SALES_CHANNEL, $salesChannelContext->getToken());
+
+        //shipping costs is still based on manual value
+        $shippingCosts = $cart['deliveries'][0]['shippingCosts'];
+        static::assertArrayHasKey('unitPrice', $shippingCosts);
+        static::assertEquals(20, $shippingCosts['unitPrice']);
+
+        static::assertArrayHasKey('totalPrice', $shippingCosts);
+        static::assertEquals(20, $shippingCosts['totalPrice']);
+
+        static::assertCount(1, $shippingCosts['calculatedTaxes']);
+        static::assertEquals(19, $shippingCosts['calculatedTaxes'][0]['taxRate']);
     }
 
     public function testSwitchDeliveryMethodAndPriceWillBeCalculated(): void
@@ -856,6 +1054,40 @@ class SalesChannelProxyControllerTest extends TestCase
             'POST',
             $this->getStoreApiUrl($salesChannelId, 'checkout/cart/line-item'),
             ['items' => [$payload]],
+            [],
+            [
+                'HTTP_SW_CONTEXT_TOKEN' => $contextToken,
+            ]
+        );
+    }
+
+    private function modifyShippingCostsManually(KernelBrowser $browser, float $price, ?string $contextToken = null): void
+    {
+        $browser->request(
+            'PATCH',
+            $this->getRootProxyUrl('/modify-shipping-costs'),
+            [
+                'shippingCosts' => [
+                    'unitPrice' => $price,
+                    'totalPrice' => $price,
+                ],
+                'salesChannelId' => Defaults::SALES_CHANNEL,
+            ],
+            [],
+            [
+                'HTTP_SW_CONTEXT_TOKEN' => $contextToken,
+            ]
+        );
+    }
+
+    private function storeAPIRemoveLineItems(KernelBrowser $browser, array $ids, ?string $contextToken = null): void
+    {
+        $browser->request(
+            'DELETE',
+            $this->getStoreApiUrl(Defaults::SALES_CHANNEL, '/checkout/cart/line-item'),
+            [
+                'ids' => $ids,
+            ],
             [],
             [
                 'HTTP_SW_CONTEXT_TOKEN' => $contextToken,

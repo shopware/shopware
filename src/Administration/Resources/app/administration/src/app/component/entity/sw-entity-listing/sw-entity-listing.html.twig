@@ -50,7 +50,7 @@
 
     <slot name="more-actions" v-bind="{ item }"></slot>
 
-    <slot name="delete-action" v-bind="{ item, showDelete }">
+    <slot name="delete-action" v-bind="{ item, showDelete, allowDelete }">
         <sw-context-menu-item @click="showDelete(item.id)"
                               :disabled="!allowDelete"
                               class="sw-entity-listing__context-menu-edit-delete"

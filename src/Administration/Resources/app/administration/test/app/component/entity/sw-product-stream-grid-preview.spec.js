@@ -69,20 +69,21 @@ describe('components/entity/sw-product-stream-grid-preview.spec', () => {
         wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should render empty state when no filter is set', () => {
+    it('should render empty state when no filter is set', async () => {
         expect(wrapper.find('.sw-empty-state').exists()).toBeTruthy();
     });
 
     it('should load products with correct criteria when filters are being set', async () => {
-        wrapper.setProps({
+        const spyLoadProducts = jest.spyOn(wrapper.vm, 'loadProducts');
+
+        await wrapper.setProps({
             filters: mockFilter
         });
 
-        const spyLoadProducts = jest.spyOn(wrapper.vm, 'loadProducts');
         const displayGroupFilter = {
             operator: 'AND',
             queries: [{
@@ -105,7 +106,7 @@ describe('components/entity/sw-product-stream-grid-preview.spec', () => {
     });
 
     it('should render data grid when products were loaded', async () => {
-        wrapper.setProps({
+        await wrapper.setProps({
             filters: mockFilter
         });
 
@@ -116,7 +117,7 @@ describe('components/entity/sw-product-stream-grid-preview.spec', () => {
     });
 
     it('should render correct default columns for data grid', async () => {
-        wrapper.setProps({
+        await wrapper.setProps({
             filters: mockFilter
         });
 
@@ -146,7 +147,7 @@ describe('components/entity/sw-product-stream-grid-preview.spec', () => {
     });
 
     it('should render correct columns when using columns prop', async () => {
-        wrapper.setProps({
+        await wrapper.setProps({
             filters: mockFilter,
             columns: [
                 {
@@ -174,7 +175,7 @@ describe('components/entity/sw-product-stream-grid-preview.spec', () => {
     });
 
     it('should render a data grid row for each product', async () => {
-        wrapper.setProps({
+        await wrapper.setProps({
             filters: mockFilter
         });
 
@@ -184,11 +185,11 @@ describe('components/entity/sw-product-stream-grid-preview.spec', () => {
     });
 
     it('should send request with term when updating searchTern', async () => {
-        wrapper.setProps({
+        await wrapper.setProps({
             filters: mockFilter
         });
 
-        wrapper.setData({
+        await wrapper.setData({
             searchTerm: 'Desired product'
         });
 

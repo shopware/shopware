@@ -64,12 +64,23 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
         $this->cartService = $cartService;
     }
 
-    public function get(string $salesChannelId, string $token, ?string $languageId = null): SalesChannelContext
+    /**
+     * @deprecated tag:v6.4.0 - Parameter $currencyId will be mandatory in future implementation
+     */
+    public function get(string $salesChannelId, string $token, ?string $languageId = null/*, ?string $currencyId */): SalesChannelContext
     {
         $parameters = $this->contextPersister->load($token);
 
         if ($languageId) {
             $parameters[self::LANGUAGE_ID] = $languageId;
+        }
+
+        if (func_num_args() >= 4 && !array_key_exists(self::CURRENCY_ID, $parameters)) {
+            $currencyId = func_get_arg(3);
+
+            if ($currencyId !== null) {
+                $parameters[self::CURRENCY_ID] = $currencyId;
+            }
         }
 
         $context = $this->factory->create($token, $salesChannelId, $parameters);

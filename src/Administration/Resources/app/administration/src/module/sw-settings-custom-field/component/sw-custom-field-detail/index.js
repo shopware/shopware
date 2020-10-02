@@ -6,7 +6,7 @@ const { Component, Mixin } = Shopware;
 Component.register('sw-custom-field-detail', {
     template,
 
-    inject: ['customFieldDataProviderService', 'SwCustomFieldListIsCustomFieldNameUnique'],
+    inject: ['customFieldDataProviderService', 'SwCustomFieldListIsCustomFieldNameUnique', 'acl'],
 
     mixins: [
         Mixin.getByName('notification')

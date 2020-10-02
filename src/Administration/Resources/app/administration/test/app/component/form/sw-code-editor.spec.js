@@ -6,19 +6,19 @@ function createWrapper(options = {}) {
 }
 
 describe('components/form/sw-code-editor', () => {
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should not be read only when enabled', () => {
+    it('should not be read only when enabled', async () => {
         const wrapper = createWrapper();
 
         expect(wrapper.vm.aceConfig.readOnly).toBe(false);
     });
 
-    it('should be read only when disabled', () => {
+    it('should be read only when disabled', async () => {
         const wrapper = createWrapper({
             propsData: {
                 disabled: true

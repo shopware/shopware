@@ -120,13 +120,11 @@ Component.register('sw-product-list', {
 
             return promise.then(() => {
                 this.createNotificationSuccess({
-                    title: this.$tc('global.default.success'),
                     message: this.$tc('sw-product.list.messageSaveSuccess', 0, { name: productName })
                 });
             }).catch(() => {
                 this.getList();
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
                     message: this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid')
                 });
             });

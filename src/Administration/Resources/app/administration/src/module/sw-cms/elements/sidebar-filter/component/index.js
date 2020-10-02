@@ -12,6 +12,14 @@ Shopware.Component.register('sw-cms-el-sidebar-filter', {
         this.createdComponent();
     },
 
+    computed: {
+        componentClasses() {
+            return {
+                'is--disabled': this.disabled
+            };
+        }
+    },
+
     methods: {
         createdComponent() {
             this.initElementConfig('sidebar-filter');

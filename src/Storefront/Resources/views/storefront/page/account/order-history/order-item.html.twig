@@ -1,3 +1,9 @@
+{% set ORDER_TRANSACTION_STATE_OPEN = constant('Shopware\\Core\\Checkout\\Order\\Aggregate\\OrderTransaction\\OrderTransactionStates::STATE_OPEN') %}
+{% set ORDER_TRANSACTION_STATE_FAILED = constant('Shopware\\Core\\Checkout\\Order\\Aggregate\\OrderTransaction\\OrderTransactionStates::STATE_FAILED') %}
+{% set ORDER_TRANSACTION_STATE_REMINDED = constant('Shopware\\Core\\Checkout\\Order\\Aggregate\\OrderTransaction\\OrderTransactionStates::STATE_REMINDED') %}
+{% set ORDER_TRANSACTION_STATE_CANCELLED = constant('Shopware\\Core\\Checkout\\Order\\Aggregate\\OrderTransaction\\OrderTransactionStates::STATE_CANCELLED') %}
+{% set ORDER_STATE_CANCELLED = constant('Shopware\\Core\\Checkout\\Order\\OrderStates::STATE_CANCELLED') %}
+
 {% block page_account_order_item_overview %}
     <div class="order-wrapper">
         <div class="order-item-header">
@@ -52,28 +58,61 @@
                     {% endblock %}
                 {% endblock %}
 
+                {% set states = [
+                    ORDER_TRANSACTION_STATE_FAILED,
+                    ORDER_TRANSACTION_STATE_REMINDED,
+                    ORDER_TRANSACTION_STATE_CANCELLED
+                ] %}
+
+                {% set state = order.transactions.last.stateMachineState.technicalName %}
+
+                {% set isPaymentNeeded = state in states %}
+
                 <div class="row flex-wrap">
                     {% block page_account_order_item_heading %}
-                        <h3 class="col order-table-header-heading">{{ "account.orderHeadline"|trans|sw_sanitize }} {{ order.orderDateTime|format_date('short', locale=app.request.locale) }}</h3>
+                        <h3 class="{% if feature('FEATURE_NEXT_9351') %}col-auto{% else %}col{% endif %} order-table-header-heading">{{ "account.orderHeadline"|trans|sw_sanitize }} {{ order.orderDateTime|format_date('short', locale=app.request.locale) }}</h3>
                     {% endblock %}
 
                     {% block page_account_order_item_status_col %}
                         <div class="col-12 col-sm">
                             {% block page_account_order_item_status %}
-                                <h5 class="order-table-header-order-status">
-                                    {{ "account.orderStatus"|trans|sw_sanitize }}
-                                    {% if order.transactions.last.stateMachineState.technicalName == 'failed' or order.transactions.last.stateMachineState.technicalName == 'reminded' %}
-                                        {{ "account.orderStatusActionRequired"|trans|sw_sanitize }}
-                                        {% else %}
-                                        {{ order.stateMachineState.translated.name }}
+                                {% if feature('FEATURE_NEXT_9351') %}
+
+                                    {% if isPaymentNeeded %}
+                                        {% block page_account_order_item_status_badge_payment_process_needed %}
+                                            <a href="{{ path('frontend.account.edit-order.page', { 'orderId': order.id }) }}"
+                                               class="badge badge-lg order-item-status-badge badge-danger">
+                                                {{ "account.orderStatusActionCompletePayment"|trans|sw_sanitize }}
+                                                {% sw_icon 'arrow-medium-right' style { 'size': 'sm', 'pack': 'solid' } %}
+                                            </a>
+                                        {% endblock %}
+                                    {% else %}
+                                        {% block page_account_order_item_status_badge %}
+                                            <span class="badge badge-lg order-item-status-badge order-item-status-badge-{{ order.stateMachineState.technicalName}}">
+                                                {{ order.stateMachineState.translated.name }}
+                                            </span>
+                                        {% endblock %}
                                     {% endif %}
-                                </h5>
+                                {% else %}
+                                    <h5 class="order-table-header-order-status">
+                                        {{ "account.orderStatus"|trans|sw_sanitize }}
+                                        {% if order.transactions.last.stateMachineState.technicalName == ORDER_TRANSACTION_STATE_FAILED or order.transactions.last.stateMachineState.technicalName == ORDER_TRANSACTION_STATE_REMINDED %}
+                                            {{ "account.orderStatusActionRequired"|trans|sw_sanitize }}
+                                            {% else %}
+                                            {{ order.stateMachineState.translated.name }}
+                                        {% endif %}
+                                    </h5>
+                                {% endif %}
                             {% endblock %}
                         </div>
                     {% endblock %}
 
                     {% block page_account_order_item_context_menu_col %}
                         <div class="col-1 order-table-header-context-menu-wrapper">
+
+                            {% if feature('FEATURE_NEXT_9351') and isPaymentNeeded %}
+                                <span class="order-table-header-context-menu-indicator notification-dot notification-dot-danger"></span>
+                            {% endif %}
 
                             {% block page_account_order_item_context_menu %}
 
@@ -95,12 +134,19 @@
                                         {% set orderState = order.stateMachineState.technicalName %}
                                         {% set orderPaymentState = order.transactions.last.stateMachineState.technicalName %}
 
-                                        {% if orderState != 'cancelled' and (orderPaymentState == 'open' or orderPaymentState == 'failed' or orderPaymentState == 'reminded') %}
+                                        {% if orderState != ORDER_STATE_CANCELLED and (orderPaymentState == ORDER_TRANSACTION_STATE_OPEN or orderPaymentState == ORDER_TRANSACTION_STATE_FAILED or orderPaymentState == ORDER_TRANSACTION_STATE_REMINDED) %}
                                             {% block page_account_order_item_context_menu_content_change_payment_button %}
-                                                <a class="order-table-header-context-menu-content-link"
-                                                   href="{{ path('frontend.account.edit-order.page', { 'orderId': order.id }) }}">
-                                                    {{ "account.orderContextMenuChangePayment"|trans|sw_sanitize }}
-                                                </a>
+                                                {% if feature('FEATURE_NEXT_9351') and isPaymentNeeded %}
+                                                    <a class="order-table-header-context-menu-content-link"
+                                                       href="{{ path('frontend.account.edit-order.page', { 'orderId': order.id }) }}">
+                                                        <strong>{{ "account.orderStatusActionCompletePayment"|trans|sw_sanitize }}</strong>
+                                                    </a>
+                                                {% else %}
+                                                    <a class="order-table-header-context-menu-content-link"
+                                                       href="{{ path('frontend.account.edit-order.page', { 'orderId': order.id }) }}">
+                                                        {{ "account.orderContextMenuChangePayment"|trans|sw_sanitize }}
+                                                    </a>
+                                                {% endif %}
                                             {% endblock %}
                                         {% endif %}
 
@@ -161,7 +207,7 @@
                                         {% endblock %}
 
                                         {% block page_account_order_item_context_menu_cancel_order %}
-                                            {% if orderState != 'cancelled' and shopware.config.core.cart.enableOrderRefunds %}
+                                            {% if orderState != ORDER_STATE_CANCELLED and shopware.config.core.cart.enableOrderRefunds %}
                                                 <button type="button"
                                                         class="order-table-header-context-menu-content-link"
                                                         data-toggle="modal"
@@ -174,7 +220,7 @@
                                </div>
                             {% endblock %}
 
-                            {% if orderState != 'cancelled' %}
+                            {% if orderState != ORDER_STATE_CANCELLED %}
                                 <div class="tester">
                                     {% sw_include '@Storefront/storefront/page/account/order-history/cancel-order-modal.html.twig' %}
                                 </div>

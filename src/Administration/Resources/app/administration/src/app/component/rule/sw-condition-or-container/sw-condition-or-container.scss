@@ -44,6 +44,8 @@ $sw-condition-or-container-border: #788a9b;
     }
 
     .sw-condition-or-container__actions {
+        display: flex;
+        justify-content: space-between;
         margin-top: 20px;
 
         .sw-condition-or-container__actions--or {

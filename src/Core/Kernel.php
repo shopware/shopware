@@ -28,6 +28,11 @@ class Kernel extends HttpKernel
     public const SHOPWARE_FALLBACK_VERSION = '6.3.9999999.9999999-dev';
 
     /**
+     * @var string Regex pattern for validating Shopware versions
+     */
+    private const VALID_VERSION_PATTERN = '#^\d\.\d+\.\d+\.(\d+|x)(-\w+)?#';
+
+    /**
      * @var Connection|null
      */
     protected static $connection;
@@ -371,8 +376,11 @@ class Kernel extends HttpKernel
         $version = ltrim($version, 'v');
         $version = (string) str_replace('+', '-', $version);
 
-        // checks if the version is a valid version pattern
-        if (!preg_match('#\d+\.\d+\.\d+(-\w+)?#', $version)) {
+        /*
+         * checks if the version is a valid version pattern
+         * Shopware\Core\Framework\Test\KernelTest::testItCreatesShopwareVersion()
+         */
+        if (!preg_match(self::VALID_VERSION_PATTERN, $version)) {
             $version = self::SHOPWARE_FALLBACK_VERSION;
         }
 

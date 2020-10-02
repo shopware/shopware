@@ -107,29 +107,53 @@ function createWrapper() {
         stubs: {
             'sw-card': Shopware.Component.build('sw-card'),
             'sw-container': Shopware.Component.build('sw-container'),
-            'sw-button': '<div></div>',
-            'sw-simple-search-field': '<div></div>',
+            'sw-button': {
+                template: '<div></div>'
+            },
+            'sw-simple-search-field': {
+                template: '<div></div>'
+            },
             'sw-one-to-many-grid': Shopware.Component.build('sw-one-to-many-grid'),
-            'sw-pagination': '<div></div>',
-            'sw-checkbox-field': '<div></div>',
-            'sw-context-button': '<div></div>',
-            'sw-icon': '<div></div>',
+            'sw-pagination': {
+                template: '<div></div>'
+            },
+            'sw-checkbox-field': {
+                template: '<div></div>'
+            },
+            'sw-context-button': {
+                template: '<div></div>'
+            },
+            'sw-icon': {
+                template: '<div></div>'
+            },
             'sw-property-option-detail': Shopware.Component.build('sw-property-option-detail'),
-            'sw-modal': `
-                    <div class="sw-modal">
-                        <slot></slot>
+            'sw-modal': {
+                template: `
+                        <div class="sw-modal">
+                            <slot></slot>
 
-                        <div class="modal-footer">
-                            <slot name="modal-footer"></slot>
+                            <div class="modal-footer">
+                                <slot name="modal-footer"></slot>
+                            </div>
                         </div>
-                    </div>
-            `,
+                `
+            },
             'sw-colorpicker': Shopware.Component.build('sw-colorpicker'),
-            'sw-upload-listener': '<div></div>',
-            'sw-media-compact-upload-v2': '<div></div>',
-            'sw-number-field': '<div></div>',
-            'sw-text-field': '<div></div>',
-            'sw-contextual-field': '<div></div>'
+            'sw-upload-listener': {
+                template: '<div></div>'
+            },
+            'sw-media-compact-upload-v2': {
+                template: '<div></div>'
+            },
+            'sw-number-field': {
+                template: '<div></div>'
+            },
+            'sw-text-field': {
+                template: '<div></div>'
+            },
+            'sw-contextual-field': {
+                template: '<div></div>'
+            }
         }
     });
 }
@@ -141,8 +165,8 @@ describe('module/sw-property/component/sw-property-option-list', () => {
         wrapper = createWrapper();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBe(true);
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should get rid of color value', async () => {

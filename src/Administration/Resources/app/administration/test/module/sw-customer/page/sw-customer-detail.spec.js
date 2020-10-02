@@ -61,25 +61,37 @@ function createWrapper(privileges = []) {
             customer: {}
         },
         stubs: {
-            'sw-page': `
-                <div class="sw-page">
-                    <slot name="smart-bar-actions"></slot>
-                    <slot name="content">CONTENT</slot>
-                    <slot></slot>
-                </div>`,
+            'sw-page': {
+                template: `
+                    <div class="sw-page">
+                        <slot name="smart-bar-actions"></slot>
+                        <slot name="content">CONTENT</slot>
+                        <slot></slot>
+                    </div>`
+            },
             'sw-button': Shopware.Component.build('sw-button'),
             'sw-button-process': true,
             'sw-language-switch': true,
-            'sw-card-view': '<div><slot></slot></div>',
-            'sw-card': '<div><slot></slot></div>',
+            'sw-card-view': {
+                template: '<div><slot></slot></div>'
+            },
+            'sw-card': {
+                template: '<div><slot></slot></div>'
+            },
             'sw-container': true,
             'sw-field': true,
             'sw-language-info': true,
-            'sw-tabs': '<div><slot name="content"></slot></div>',
+            'sw-tabs': {
+                template: '<div><slot name="content"></slot></div>'
+            },
             'sw-tabs-item': true,
             'router-view': true,
-            'sw-alert': '<div><slot></slot></div>',
-            'sw-customer-card': '<div></div>',
+            'sw-alert': {
+                template: '<div><slot></slot></div>'
+            },
+            'sw-customer-card': {
+                template: '<div></div>'
+            },
             'sw-custom-field-set-renderer': Shopware.Component.build('sw-custom-field-set-renderer'),
             'sw-form-field-renderer': Shopware.Component.build('sw-form-field-renderer'),
             'sw-inherit-wrapper': Shopware.Component.build('sw-inherit-wrapper')
@@ -94,13 +106,13 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
         wrapper = createWrapper();
     });
 
-    it('should be a Vue.JS component', () => {
-        expect(wrapper.isVueInstance()).toBe(true);
+    it('should be a Vue.JS component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should not be able to edit the customer', async () => {
         const wrapperWithPrivileges = createWrapper();
-        wrapperWithPrivileges.setData({
+        await wrapperWithPrivileges.setData({
             isLoading: false
         });
 
@@ -116,7 +128,7 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
         const wrapperWithPrivileges = createWrapper([
             'customer.editor'
         ]);
-        wrapperWithPrivileges.setData({
+        await wrapperWithPrivileges.setData({
             isLoading: false
         });
         await wrapperWithPrivileges.vm.$nextTick();

@@ -22,7 +22,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingTranslationLanguageException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\AssertArraySubsetBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -481,20 +480,15 @@ class TranslationTest extends TestCase
             'weight' => 0,
             'minPurchase' => 1,
             'shippingFree' => false,
-        ];
-
-        if (Feature::isActive('FEATURE_NEXT_9825')) {
-            $data['purchasePrices'] = [
+            'purchasePrices' => [
                 [
                     'currencyId' => Defaults::CURRENCY,
                     'gross' => 0,
                     'net' => 0,
                     'linked' => true,
                 ],
-            ];
-        } else {
-            $data['purchasePrice'] = 0;
-        }
+            ],
+        ];
 
         $result = $this->productRepository->create([$data], $this->context);
 
@@ -607,20 +601,16 @@ sors capulus se Quies, mox qui Sentus dum confirmo do iam. Iunceus postulator in
             'weight' => 0,
             'minPurchase' => 1,
             'shippingFree' => false,
-        ];
-
-        if (Feature::isActive('FEATURE_NEXT_9825')) {
-            $data['purchasePrices'] = [
+            'purchasePrices' => [
                 [
                     'currencyId' => Defaults::CURRENCY,
                     'gross' => 0,
                     'net' => 0,
                     'linked' => true,
                 ],
-            ];
-        } else {
-            $data['purchasePrice'] = 0;
-        }
+            ],
+        ];
+
         $productRepo = $this->getContainer()->get('product.repository');
         $affected = $productRepo->upsert([$data], Context::createDefaultContext());
 

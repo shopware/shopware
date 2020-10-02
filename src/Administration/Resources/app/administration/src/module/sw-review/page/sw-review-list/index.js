@@ -19,6 +19,12 @@ Component.register('sw-review-list', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle()
+        };
+    },
+
     computed: {
         columns() {
             return [
@@ -71,6 +77,10 @@ Component.register('sw-review-list', {
 
     methods: {
         createdComponent() {
+            this.getList();
+        },
+
+        getList() {
             this.repository = this.repositoryFactory.create('product_review');
 
             this.criteria = new Criteria();
@@ -87,13 +97,11 @@ Component.register('sw-review-list', {
 
             const context = { ...Shopware.Context.api, inheritance: true };
 
-            this.repository
-                .search(this.criteria, context)
-                .then((result) => {
-                    this.total = result.total;
-                    this.items = result;
-                    this.isLoading = false;
-                });
+            return this.repository.search(this.criteria, context).then((result) => {
+                this.total = result.total;
+                this.items = result;
+                this.isLoading = false;
+            });
         },
 
         onSearch(term) {
@@ -105,12 +113,14 @@ Component.register('sw-review-list', {
         onDelete(option) {
             this.$refs.listing.deleteItem(option);
 
-            this.repository
-                .search(this.criteria, { ...Shopware.Context.api, inheritance: true })
-                .then((result) => {
-                    this.total = result.total;
-                    this.items = result;
-                });
+            this.repository.search(this.criteria, { ...Shopware.Context.api, inheritance: true }).then((result) => {
+                this.total = result.total;
+                this.items = result;
+            });
+        },
+
+        onRefresh() {
+            this.getList();
         }
     }
 });

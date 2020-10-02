@@ -37,7 +37,7 @@
           "title": "Category type",
           "page": "Category",
           "folder": "Structuring element",
-          "link": "Customizable link",
+          "link": "Customisable link",
           "help": "A structure category is not callable by itself, but is only used for outlining purposes."
         }
       },
@@ -81,7 +81,7 @@
         "defaultDesc": "Category page"
       },
       "link": {
-        "title": "Customizable link",
+        "title": "Customisable link",
         "example": "Example:",
         "internalExampleText": "/my-category",
         "externalDesc": "To set external links, insert the complete web address:",

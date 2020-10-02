@@ -79,24 +79,27 @@ class ExampleListingSubscriber implements EventSubscriberInterface {
 
     public function addMyCustomSortingToStorefront(ProductListingCriteriaEvent $event): void 
     {
-      /** @var ProductSortingCollection $availableSortings */
-      $availableSortings = $event->getCriteria()->getExtension('sortings');
-    
-      $myCustomSorting = new ProductSortingEntity();
-      $myCustomSorting->setActive(true);
-      $myCustomSorting->setLabel('My Custom Sorting');              // label shown in storefront
-      $myCustomSorting->setKey('my-custom-sort');                   // unique key, shown in url
-      $myCustomSorting->setPriority(100);                           // higher priority comes first
-      $myCustomSorting->setFields([
-          ['field' => 'product.listingPrices', 'order' => 'asc', 'priority' => 100, 'naturalSorting' => 0],
-          ['field' => 'product.name', 'order' => 'desc', 'priority' => 0, 'naturalSorting' => 1],
-          // you can define additonal parameters in here, but field, order and priority are mandatory parameters
-          // for the sorting to work correctly
-      ]);
-    
-      $availableSortings->add($myCustomSorting);
-
-      $event->getCriteria()->addExtension('sortings', $availableSortings);
+        /** @var ProductSortingCollection $availableSortings */
+        $availableSortings = $event->getCriteria()->getExtension('sortings') ?? new ProductSortingCollection();
+        
+        $myCustomSorting = new ProductSortingEntity();
+        $myCustomSorting->setId(Uuid::randomHex());
+        $myCustomSorting->setActive(true);
+        $myCustomSorting->setTranslated(['label' => 'My Custom Sorting']);
+        $myCustomSorting->setKey('my-custom-sort');
+        $myCustomSorting->setPriority(5);
+        $myCustomSorting->setFields([
+            [
+                'field' => 'product.name',
+                'order' => 'desc',
+                'priority' => 1,
+                'naturalSorting' => 0,
+            ],
+        ]);
+        
+        $availableSortings->add($myCustomSorting);
+        
+        $event->getCriteria()->addExtension('sortings', $availableSortings);
     }
 }
 ```

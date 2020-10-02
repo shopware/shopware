@@ -268,15 +268,17 @@ Component.register('sw-tree', {
             const newParentId = this.droppedItem.data.parentId;
 
             // item moved into other tree, update count
-            if (this.draggedItem.data.parentId !== this.droppedItem.data.parentId) {
-                if (this.draggedItem.data.parentId !== null) {
-                    const draggedParent = this.findById(this.draggedItem.parentId);
-                    draggedParent.childCount -= 1;
-                    draggedParent.data.childCount -= 1;
+            if (oldParentId !== newParentId) {
+                if (oldParentId !== null) {
+                    const draggedParent = this.findById(oldParentId);
+                    if (draggedParent) {
+                        draggedParent.childCount -= 1;
+                        draggedParent.data.childCount -= 1;
+                    }
                 }
 
-                if (this.droppedItem.data.parentId !== null) {
-                    const droppedParent = this.findById(this.droppedItem.parentId);
+                if (newParentId !== null) {
+                    const droppedParent = this.findById(newParentId);
                     droppedParent.childCount += 1;
                     droppedParent.data.childCount += 1;
                 }

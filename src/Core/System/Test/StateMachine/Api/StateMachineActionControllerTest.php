@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\System\Test\StateMachine\Api;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
@@ -113,7 +115,11 @@ class StateMachineActionControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse()->getContent();
         $response = json_decode($response, true);
 
-        static::assertEquals(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertEquals(
+            Response::HTTP_OK,
+            $this->getBrowser()->getResponse()->getStatusCode(),
+            $this->getBrowser()->getResponse()->getContent()
+        );
 
         $stateId = $response['data']['id'] ?? '';
         static::assertTrue(Uuid::isValid($stateId));
@@ -165,6 +171,7 @@ class StateMachineActionControllerTest extends TestCase
         $options = [
             SalesChannelContextService::LANGUAGE_ID => $this->getDeDeLanguageId(),
             SalesChannelContextService::CUSTOMER_ID => $customerId,
+            SalesChannelContextService::SHIPPING_METHOD_ID => $this->createShippingMethod(),
         ];
 
         /** @var SalesChannelContext $salesChannelContext */
@@ -230,6 +237,7 @@ class StateMachineActionControllerTest extends TestCase
         $options = [
             SalesChannelContextService::LANGUAGE_ID => Defaults::LANGUAGE_SYSTEM,
             SalesChannelContextService::CUSTOMER_ID => $customerId,
+            SalesChannelContextService::SHIPPING_METHOD_ID => $this->createShippingMethod(),
         ];
 
         /** @var SalesChannelContext $salesChannelContext */
@@ -284,6 +292,43 @@ class StateMachineActionControllerTest extends TestCase
         static::assertEquals($order->getLanguageId(), Defaults::LANGUAGE_SYSTEM);
     }
 
+    private function createShippingMethod()
+    {
+        $rule = [
+            'id' => Uuid::randomHex(),
+            'name' => 'test',
+            'priority' => 1,
+            'conditions' => [
+                ['type' => (new AlwaysValidRule())->getName()],
+            ],
+        ];
+
+        $this->getContainer()->get('rule.repository')
+            ->create([$rule], Context::createDefaultContext());
+
+        $shipping = [
+            'id' => Uuid::randomHex(),
+            'name' => 'test',
+            'prices' => [
+                [
+                    'ruleId' => null,
+                    'quantityStart' => 0,
+                    'currencyPrice' => [
+                        ['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 10, 'linked' => false],
+                    ],
+                ],
+            ],
+            'availabilityRuleId' => $rule['id'],
+            'deliveryTimeId' => $this->getContainer()->get(Connection::class)->fetchColumn('SELECT LOWER(HEX(id)) FROm delivery_time LIMIT 1'),
+            'salesChannels' => [['id' => Defaults::SALES_CHANNEL]],
+        ];
+
+        $this->getContainer()->get('shipping_method.repository')
+            ->create([$shipping], Context::createDefaultContext());
+
+        return $shipping['id'];
+    }
+
     private function createOrder(string $customerId, Context $context): string
     {
         $orderId = Uuid::randomHex();
@@ -292,6 +337,7 @@ class StateMachineActionControllerTest extends TestCase
 
         $order = [
             'id' => $orderId,
+            'orderNumber' => Uuid::randomHex(),
             'orderDateTime' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             'price' => new CartPrice(10, 10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET),
             'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
@@ -310,6 +356,7 @@ class StateMachineActionControllerTest extends TestCase
             'billingAddressId' => $billingAddressId,
             'addresses' => [
                 [
+                    'id' => $billingAddressId,
                     'salutationId' => $this->getValidSalutationId(),
                     'firstName' => 'Max',
                     'lastName' => 'Mustermann',

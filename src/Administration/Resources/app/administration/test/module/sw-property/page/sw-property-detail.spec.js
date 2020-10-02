@@ -26,7 +26,10 @@ function createWrapper(privileges = []) {
                     get: () => Promise.resolve({
                         id: '1a2b3c',
                         name: 'Test property',
-                        entity: 'property'
+                        entity: 'property',
+                        options: {
+                            entity: 'property_options_group'
+                        }
                     }),
                     search: () => Promise.resolve({})
                 })
@@ -40,7 +43,12 @@ function createWrapper(privileges = []) {
             }
         },
         stubs: {
-            'sw-page': true,
+            'sw-page': {
+                template: `
+<div class="sw-page">
+    <slot name="smart-bar-actions"></slot>
+</div>`
+            },
             'sw-button': true,
             'sw-button-process': true,
             'sw-language-switch': true,
@@ -54,15 +62,15 @@ function createWrapper(privileges = []) {
 }
 
 describe('module/sw-property/page/sw-property-detail', () => {
-    it('should be a Vue.JS component', () => {
-        const wrapper = createWrapper();
+    it('should be a Vue.JS component', async () => {
+        const wrapper = await createWrapper();
 
-        expect(wrapper.isVueInstance()).toBe(true);
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should not be able to save the property', () => {
+    it('should not be able to save the property', async () => {
         const wrapper = createWrapper();
-        wrapper.setData({
+        await wrapper.setData({
             isLoading: false
         });
 
@@ -72,13 +80,17 @@ describe('module/sw-property/page/sw-property-detail', () => {
         expect(saveButton.attributes().disabled).toBeTruthy();
     });
 
-    it('should be able to save the property', () => {
-        const wrapper = createWrapper([
+    it('should be able to save the property', async () => {
+        const wrapper = await createWrapper([
             'property.editor'
         ]);
-        wrapper.setData({
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+
+        await wrapper.setData({
             isLoading: false
         });
+        await wrapper.vm.$nextTick();
 
         const saveButton = wrapper.find('.sw-property-detail__save-action');
 

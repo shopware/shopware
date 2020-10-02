@@ -8,112 +8,121 @@ import 'src/app/component/data-grid/sw-data-grid';
 
 const { Mixin } = Shopware;
 
-describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-feature-sets-list', () => {
-    let wrapper;
+const classes = {
+    componentRoot: 'sw-settings-product-feature-sets-list',
+    featureSetList: 'sw-settings-product-feature-sets-list-grid',
+    featureSetListHeader: 'sw-data-grid__header',
+    featureSetListBody: 'sw-data-grid__body',
+    featureSetListRow: 'sw-data-grid__row ',
+    featureSetListCellContent: 'sw-data-grid__cell-content'
+};
 
-    const classes = {
-        componentRoot: 'sw-settings-product-feature-sets-list',
-        featureSetList: 'sw-settings-product-feature-sets-list-grid',
-        featureSetListHeader: 'sw-data-grid__header',
-        featureSetListBody: 'sw-data-grid__body',
-        featureSetListRow: 'sw-data-grid__row ',
-        featureSetListCellContent: 'sw-data-grid__cell-content'
-    };
+const text = {
+    columnLabelTemplate: 'sw-settings-product-feature-sets.list.columnTemplate',
+    columnLabelDescription: 'sw-settings-product-feature-sets.list.columnDescription',
+    columnLabelValues: 'sw-settings-product-feature-sets.list.columnValues',
+    featureSetDetailRouterLink: 'sw.settings.product.feature.sets.detail',
+    referencePriceLabel: 'sw-settings-product-feature-sets.modal.label.referencePrice',
+    featureSetName: '2c1c9361-88e2-48ab-b14d-973d080717af',
+    featureSetDescription: '71aa7417-717a-4f8d-ad37-7cff58f81f58'
+};
 
-    const text = {
-        columnLabelTemplate: 'sw-settings-product-feature-sets.list.columnTemplate',
-        columnLabelDescription: 'sw-settings-product-feature-sets.list.columnDescription',
-        columnLabelValues: 'sw-settings-product-feature-sets.list.columnValues',
-        featureSetDetailRouterLink: 'sw.settings.product.feature.sets.detail',
-        referencePriceLabel: 'sw-settings-product-feature-sets.modal.label.referencePrice',
-        featureSetName: '2c1c9361-88e2-48ab-b14d-973d080717af',
-        featureSetDescription: '71aa7417-717a-4f8d-ad37-7cff58f81f58'
-    };
+const listPage = (additionalOptions = {}, privileges = []) => {
+    const localVue = createLocalVue();
 
-    const listPage = (additionalOptions = {}) => {
-        const localVue = createLocalVue();
+    localVue.directive('tooltip', {});
 
-        localVue.directive('tooltip', {});
-
-        return shallowMount(Shopware.Component.build('sw-settings-product-feature-sets-list'), {
-            localVue,
-            stubs: {
-                'sw-page': Shopware.Component.build('sw-page'),
-                'sw-notification-center': true,
-                'sw-language-switch': true,
-                'sw-search-bar': true,
-                'sw-icon': true,
-                'sw-button': true,
-                'sw-entity-listing': Shopware.Component.build('sw-entity-listing'),
-                'sw-data-grid': Shopware.Component.build('sw-data-grid'),
-                'sw-checkbox-field': true,
-                'sw-context-button': true,
-                'sw-context-menu-item': true,
-                'sw-data-grid-settings': true,
-                'sw-pagination': true,
-                'router-link': true,
-                'sw-loader': true,
-                'sw-data-grid-skeleton': true,
-                i18n: true
+    return shallowMount(Shopware.Component.build('sw-settings-product-feature-sets-list'), {
+        localVue,
+        stubs: {
+            'sw-page': Shopware.Component.build('sw-page'),
+            'sw-notification-center': true,
+            'sw-language-switch': true,
+            'sw-search-bar': true,
+            'sw-icon': true,
+            'sw-button': true,
+            'sw-entity-listing': Shopware.Component.build('sw-entity-listing'),
+            'sw-data-grid': Shopware.Component.build('sw-data-grid'),
+            'sw-checkbox-field': true,
+            'sw-context-button': true,
+            'sw-context-menu-item': true,
+            'sw-data-grid-settings': true,
+            'sw-pagination': true,
+            'router-link': true,
+            'sw-loader': true,
+            'sw-data-grid-skeleton': true,
+            i18n: true
+        },
+        mocks: {
+            $tc: (translationPath) => translationPath,
+            $te: (translationPath) => translationPath,
+            $device: {
+                onResize: () => {},
+                getSystemKey: () => {}
             },
-            mocks: {
-                $tc: (translationPath) => translationPath,
-                $te: (translationPath) => translationPath,
-                $device: {
-                    onResize: () => {},
-                    getSystemKey: () => {}
+            $route: {
+                meta: {
+                    $module: {}
                 },
-                $route: {
-                    meta: {
-                        $module: {}
+                query: {}
+            },
+            $router: {
+                replace: () => {}
+            }
+        },
+        data() {
+            return {
+                productFeatureSets: new EntityCollection(
+                    null,
+                    'product_feature_set',
+                    Shopware.Context.api,
+                    {
+                        page: {}
                     },
-                    query: {}
-                },
-                $router: {
-                    replace: () => {}
+                    [
+                        {
+                            id: 'ecf55d8cbcf5496d8e42aa146ec4ba95',
+                            name: text.featureSetName,
+                            description: text.featureSetDescription,
+                            features: [
+                                {
+                                    type: 'referencePrice',
+                                    id: null,
+                                    name: null,
+                                    position: 0
+                                }
+                            ]
+                        }
+                    ]
+                )
+            };
+        },
+        provide: {
+            acl: {
+                can: (identifier) => {
+                    if (!identifier) {
+                        return true;
+                    }
+
+                    return privileges.includes(identifier);
                 }
             },
-            data() {
-                return {
-                    productFeatureSets: new EntityCollection(
-                        null,
-                        'product_feature_set',
-                        Shopware.Context.api,
-                        {
-                            page: {}
-                        },
-                        [
-                            {
-                                id: 'ecf55d8cbcf5496d8e42aa146ec4ba95',
-                                name: text.featureSetName,
-                                description: text.featureSetDescription,
-                                features: [
-                                    {
-                                        type: 'referencePrice',
-                                        id: null,
-                                        name: null,
-                                        position: 0
-                                    }
-                                ]
-                            }
-                        ]
-                    )
-                };
+            repositoryFactory: {
+                create: () => ({
+                    search: () => Promise.resolve()
+                })
             },
-            provide: {
-                repositoryFactory: {
-                    create: () => ({
-                        search: () => Promise.resolve()
-                    })
-                },
-                validationService: {},
-                mixins: [
-                    Mixin.getByName('listing')
-                ]
-            },
-            ...additionalOptions
-        });
-    };
+            validationService: {},
+            mixins: [
+                Mixin.getByName('listing')
+            ]
+        },
+        ...additionalOptions
+    });
+};
+
+describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-feature-sets-list', () => {
+    let wrapper;
 
     /*
      * Workaround, since the current vue-test-utils version doesn't support get()
@@ -138,15 +147,15 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
         wrapper.destroy();
     });
 
-    it('should be able to instantiate', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+    it('should be able to instantiate', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('has the correct class', () => {
+    it('has the correct class', async () => {
         expect(wrapper.classes()).toContain(classes.componentRoot);
     });
 
-    it('should show a list of featuresets', () => {
+    it('should show a list of featuresets', async () => {
         const root = findSecure(wrapper, `.${classes.componentRoot}`);
         const list = findSecure(root, `.${classes.featureSetList}`);
         const listBody = findSecure(root, `.${classes.featureSetListBody}`);
@@ -180,6 +189,88 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
             text.featureSetDescription,
             text.referencePriceLabel
         ]);
+    });
+
+    it('should disable all fields when acl privileges are missing', async () => {
+        const createButton = wrapper.find('.sw-settings-product-feature-sets-list-grid__create-button');
+
+        expect(createButton.attributes().disabled).toBe('true');
+
+        const entityListing = wrapper.find('.sw-settings-product-feature-sets-list-grid');
+        expect(entityListing.props().allowInlineEdit).toBe(false);
+        expect(entityListing.props().allowEdit).toBe(false);
+        expect(entityListing.props().allowView).toBe(false);
+        expect(entityListing.props().allowDelete).toBe(false);
+
+        const contextMenuItemEdit = wrapper.find('.sw-product-feature-sets-list__edit-action');
+        expect(contextMenuItemEdit.attributes().disabled).toBe('true');
+
+        const contextMenuItemDelete = wrapper.find('.sw-product-feature-sets-list__delete-action');
+        expect(contextMenuItemDelete.attributes().disabled).toBe('true');
+    });
+
+    it('should enable some fields when user has view and edit acl privileges', async () => {
+        wrapper = await listPage({}, [
+            'product_feature_sets.viewer',
+            'product_feature_sets.editor'
+        ]);
+
+        const createButton = wrapper.find('.sw-settings-product-feature-sets-list-grid__create-button');
+        expect(createButton.attributes().disabled).toBe('true');
+
+        const entityListing = wrapper.find('.sw-settings-product-feature-sets-list-grid');
+        expect(entityListing.props().allowInlineEdit).toBe(true);
+        expect(entityListing.props().allowEdit).toBe(true);
+        expect(entityListing.props().allowView).toBe(true);
+        expect(entityListing.props().allowDelete).toBe(false);
+
+        const contextMenuItemEdit = wrapper.find('.sw-product-feature-sets-list__edit-action');
+        expect(contextMenuItemEdit.attributes().disabled).toBeUndefined();
+
+        const contextMenuItemDelete = wrapper.find('.sw-product-feature-sets-list__delete-action');
+        expect(contextMenuItemDelete.attributes().disabled).toBe('true');
+    });
+
+    it('should enable some fields when user has create acl privileges', async () => {
+        wrapper = await listPage({}, [
+            'product_feature_sets.creator'
+        ]);
+        const createButton = wrapper.find('.sw-settings-product-feature-sets-list-grid__create-button');
+
+        expect(createButton.attributes().disabled).toBeUndefined();
+
+        const entityListing = wrapper.find('.sw-settings-product-feature-sets-list-grid');
+        expect(entityListing.props().allowInlineEdit).toBe(false);
+        expect(entityListing.props().allowEdit).toBe(false);
+        expect(entityListing.props().allowView).toBe(false);
+        expect(entityListing.props().allowDelete).toBe(false);
+
+        const contextMenuItemEdit = wrapper.find('.sw-product-feature-sets-list__edit-action');
+        expect(contextMenuItemEdit.attributes().disabled).toBe('true');
+
+        const contextMenuItemDelete = wrapper.find('.sw-product-feature-sets-list__delete-action');
+        expect(contextMenuItemDelete.attributes().disabled).toBe('true');
+    });
+
+    it('should enable some fields when user has delete acl privileges', async () => {
+        wrapper = await listPage({}, [
+            'product_feature_sets.deleter'
+        ]);
+        const createButton = wrapper.find('.sw-settings-product-feature-sets-list-grid__create-button');
+
+        expect(createButton.attributes().disabled).toBe('true');
+
+        const entityListing = wrapper.find('.sw-settings-product-feature-sets-list-grid');
+        expect(entityListing.props().allowInlineEdit).toBe(false);
+        expect(entityListing.props().allowEdit).toBe(false);
+        expect(entityListing.props().allowView).toBe(false);
+        expect(entityListing.props().allowDelete).toBe(true);
+
+        const contextMenuItemEdit = wrapper.find('.sw-product-feature-sets-list__edit-action');
+        expect(contextMenuItemEdit.attributes().disabled).toBe('true');
+
+        const contextMenuItemDelete = wrapper.find('.sw-product-feature-sets-list__delete-action');
+        expect(contextMenuItemDelete.attributes().disabled).toBeUndefined();
     });
 
     it('should throw an success notification after saving in inline editing', async () => {

@@ -78,8 +78,17 @@ Table(ShopwareCoreFrameworkEventEventActionEventActionDefinition, "event_action\
    not_null(eventName) string
    not_null(actionName) string
    config json
+   active bool
    not_null(createdAt) createdAt
    updatedAt updatedAt
+}
+Table(ShopwareCoreFrameworkEventEventActionAggregateEventActionRuleEventActionRuleDefinition, "event_action_rule\n(M:N Mapping)") {
+   primary_key(eventActionId) foreignKey
+   primary_key(ruleId) foreignKey
+}
+Table(ShopwareCoreFrameworkEventEventActionAggregateEventActionSalesChannelEventActionSalesChannelDefinition, "event_action_sales_channel\n(M:N Mapping)") {
+   primary_key(eventActionId) foreignKey
+   primary_key(salesChannelId) foreignKey
 }
 Table(ShopwareCoreFrameworkMessageQueueDeadMessageDeadMessageDefinition, "dead_message\n(Failing messages)") {
    primary_key(id) id
@@ -822,6 +831,7 @@ Table(ShopwareCoreContentProductProductDefinition, "product\n(Product)") {
    coverId foreignKey
    productMediaVersionId referenceVersion
    deliveryTimeId foreignKey
+   featureSetId foreignKey
    not_null(price) price
    not_null(productNumber) numberRange
    not_null(stock) int
@@ -831,6 +841,7 @@ Table(ShopwareCoreContentProductProductDefinition, "product\n(Product)") {
    availableStock int
    available bool
    isCloseout bool
+   variation list
    displayGroup string
    configuratorGroupConfig json
    mainVariantId foreignKey
@@ -844,6 +855,7 @@ Table(ShopwareCoreContentProductProductDefinition, "product\n(Product)") {
    referenceUnit float
    shippingFree bool
    purchasePrice float
+   purchasePrices price
    markAsTopseller bool
    weight float
    width float
@@ -868,8 +880,6 @@ Table(ShopwareCoreContentProductProductDefinition, "product\n(Product)") {
    packUnit translated
    packUnitPlural translated
    customFields translated
-   variation list
-   featureSetId foreignKey
    not_null(createdAt) createdAt
    updatedAt updatedAt
    translated json
@@ -1987,6 +1997,10 @@ ShopwareCoreSystemUserUserDefinition --> ShopwareCoreFrameworkApiAclRoleAclUserR
 ShopwareCoreSystemCustomFieldAggregateCustomFieldSetCustomFieldSetDefinition --> ShopwareCoreSystemCustomFieldCustomFieldDefinition
 ShopwareCoreSystemCustomFieldAggregateCustomFieldSetRelationCustomFieldSetRelationDefinition --> ShopwareCoreSystemCustomFieldAggregateCustomFieldSetCustomFieldSetDefinition
 ShopwareCoreContentProductAggregateProductCustomFieldSetProductCustomFieldSetDefinition --> ShopwareCoreSystemCustomFieldAggregateCustomFieldSetCustomFieldSetDefinition
+ShopwareCoreFrameworkEventEventActionAggregateEventActionRuleEventActionRuleDefinition --> ShopwareCoreFrameworkEventEventActionEventActionDefinition
+ShopwareCoreFrameworkEventEventActionAggregateEventActionRuleEventActionRuleDefinition --> ShopwareCoreContentRuleRuleDefinition
+ShopwareCoreFrameworkEventEventActionAggregateEventActionSalesChannelEventActionSalesChannelDefinition --> ShopwareCoreFrameworkEventEventActionEventActionDefinition
+ShopwareCoreFrameworkEventEventActionAggregateEventActionSalesChannelEventActionSalesChannelDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareCoreFrameworkMessageQueueScheduledTaskScheduledTaskDefinition --> ShopwareCoreFrameworkMessageQueueDeadMessageDeadMessageDefinition
 ShopwareCoreFrameworkPluginAggregatePluginTranslationPluginTranslationDefinition --> ShopwareCoreFrameworkPluginPluginDefinition
 ShopwareCoreCheckoutPaymentPaymentMethodDefinition --> ShopwareCoreFrameworkPluginPluginDefinition
@@ -2173,6 +2187,7 @@ ShopwareCoreContentProductProductDefinition --> ShopwareCoreContentProductProduc
 ShopwareCoreSystemDeliveryTimeDeliveryTimeDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentProductAggregateProductManufacturerProductManufacturerDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentProductAggregateProductMediaProductMediaDefinition --> ShopwareCoreContentProductProductDefinition
+ShopwareCoreContentProductAggregateProductFeatureSetProductFeatureSetDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentProductAggregateProductPriceProductPriceDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentProductAggregateProductCrossSellingProductCrossSellingDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentProductAggregateProductCrossSellingAssignedProductsProductCrossSellingAssignedProductsDefinition --> ShopwareCoreContentProductProductDefinition
@@ -2189,7 +2204,6 @@ ShopwareCoreContentProductAggregateProductCategoryTreeProductCategoryTreeDefinit
 ShopwareCoreContentProductAggregateProductTagProductTagDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentProductAggregateProductTranslationProductTranslationDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentProductAggregateProductCustomFieldSetProductCustomFieldSetDefinition --> ShopwareCoreContentProductProductDefinition
-ShopwareCoreContentProductAggregateProductFeatureSetProductFeatureSetDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreContentPropertyAggregatePropertyGroupOptionPropertyGroupOptionDefinition --> ShopwareCoreContentProductAggregateProductConfiguratorSettingProductConfiguratorSettingDefinition
 ShopwareCoreContentRuleRuleDefinition --> ShopwareCoreContentProductAggregateProductPriceProductPriceDefinition
 ShopwareCoreContentPropertyAggregatePropertyGroupOptionPropertyGroupOptionDefinition --> ShopwareCoreContentProductAggregateProductPropertyProductPropertyDefinition

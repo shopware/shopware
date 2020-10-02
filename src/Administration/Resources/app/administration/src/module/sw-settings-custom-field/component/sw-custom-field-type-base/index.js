@@ -5,6 +5,8 @@ const { Component } = Shopware;
 Component.register('sw-custom-field-type-base', {
     template,
 
+    inject: ['acl'],
+
     props: {
         currentCustomField: {
             type: Object,
@@ -13,6 +15,11 @@ Component.register('sw-custom-field-type-base', {
         set: {
             type: Object,
             required: true
+        },
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 

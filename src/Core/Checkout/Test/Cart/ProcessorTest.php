@@ -17,9 +17,11 @@ use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Promotion\Cart\Error\AutoPromotionNotFoundError;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
@@ -307,6 +309,61 @@ class ProcessorTest extends TestCase
         $error = $cart->getErrors()->first();
         static::assertEquals('persistent', $error->getId());
         static::assertEquals('persistent', $error->getMessageKey());
+    }
+
+    public function testCartHasErrorDataAddedFromPromotionProcessor(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_10058', $this);
+        $originalCart = new Cart(Uuid::randomHex(), Uuid::randomHex());
+
+        $id = Uuid::randomHex();
+        $tax = ['id' => Uuid::randomHex(), 'taxRate' => 19, 'name' => 'test'];
+
+        $product = $this->createDummyProduct($id, $tax);
+
+        $this->getContainer()->get('product.repository')
+            ->create([$product], Context::createDefaultContext());
+
+        $this->addTaxDataToSalesChannel($this->context, $tax);
+
+        $originalCart->add(
+            (new LineItem($id, LineItem::PRODUCT_LINE_ITEM_TYPE, $id, 1))
+                ->setStackable(true)
+                ->setRemovable(true)
+        );
+        $originalCart->add(
+            (new LineItem(Uuid::randomHex(), LineItem::PROMOTION_LINE_ITEM_TYPE, '', 1))
+            ->setLabel('Discount 15%')
+        );
+        $originalCart->add(
+            (new LineItem(Uuid::randomHex(), LineItem::PROMOTION_LINE_ITEM_TYPE, '', 1))
+                ->setLabel('Discount 10%')
+        );
+
+        $this->processor->process($originalCart, $this->context, new CartBehavior());
+        foreach ($originalCart->getErrors() as $error) {
+            static::assertInstanceOf(AutoPromotionNotFoundError::class, $error);
+        }
+    }
+
+    private function createDummyProduct(string $id, array $tax, int $stock = 10): array
+    {
+        return [
+            'id' => $id,
+            'name' => 'test',
+            'price' => [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => 119.99, 'net' => 99.99, 'linked' => false],
+            ],
+            'productNumber' => Uuid::randomHex(),
+            'manufacturer' => ['name' => 'test'],
+            'tax' => $tax,
+            'stock' => $stock,
+            'isCloseout' => true,
+            'active' => true,
+            'visibilities' => [
+                ['salesChannelId' => Defaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+            ],
+        ];
     }
 }
 

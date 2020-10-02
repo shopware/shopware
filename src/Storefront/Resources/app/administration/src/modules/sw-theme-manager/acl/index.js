@@ -1,16 +1,14 @@
 Shopware.Service('privileges')
     .addPrivilegeMappingEntry({
         category: 'permissions',
-        parent: null,
+        parent: 'content',
         key: 'theme',
         roles: {
             viewer: {
                 privileges: [
                     'theme:read',
-                    'media:read',
                     'sales_channel:read',
-                    'media_default_folder:read',
-                    'media_folder:read'
+                    Shopware.Service('privileges').getPrivileges('media.viewer')
                 ],
                 dependencies: []
             },
@@ -30,7 +28,8 @@ Shopware.Service('privileges')
                     'shipping_method:read',
                     'custom_field_set:read',
                     'custom_field:read',
-                    'custom_field_set_relation:read'
+                    'custom_field_set_relation:read',
+                    Shopware.Service('privileges').getPrivileges('media.creator')
                 ],
                 dependencies: [
                     'theme.viewer'

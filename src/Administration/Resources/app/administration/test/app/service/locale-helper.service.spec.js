@@ -12,7 +12,7 @@ describe('app/service/locale-helper.service.js', () => {
         });
     });
 
-    it('should be an class', () => {
+    it('should be an class', async () => {
         const type = typeof LocaleHelperService;
         expect(type).toEqual('function');
     });

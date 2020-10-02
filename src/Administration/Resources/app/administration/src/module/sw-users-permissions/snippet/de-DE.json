@@ -6,7 +6,8 @@
     "permissions": {},
     "roles": {
       "general": {
-        "labelCreateNewRole": "Neue Regel"
+        "labelCreateNewRole": "Neue Rolle",
+        "cardLabel": "Rollen"
       },
       "role-grid": {
         "labelName": "Name",
@@ -40,6 +41,15 @@
       },
       "additional-permissions": {
         "title": "Zusätzliche Berechtigungen"
+      },
+      "view": {
+        "detailed": {
+          "alertText": "In dieser Ansicht können Privilegien detailliert konfiguriert werden. Diese Konfiguration ist nur in Ausnahmesituationen notwendig. Sollten im System z. B. Erweiterungen eingesetzt werden die neue Datensätze hinzufügen jedoch keine Rechte hierfür vergeben haben, können diese hier konfiguriert werden. Alle deaktivierten Checkboxen sind Berechtigungen, die bereits im Tab “Allgemein” vergeben wurden."
+        }
+      },
+      "tabs": {
+        "general": "Allgemein",
+        "detailed": "Detaillierte Privilegien"
       }
     },
     "users": {
@@ -47,7 +57,8 @@
         "mainMenuItemGeneral": "Benutzer & Rechte",
         "placeholderSearchBar": "Finde Benutzer ...",
         "labelUserList": "Benutzer & Rechte",
-        "labelCreateNewUser": "Neuer Benutzer"
+        "labelCreateNewUser": "Neuer Benutzer",
+        "cardLabel": "Benutzer"
       },
       "user-grid": {
         "labelUsername": "Benutzername",
@@ -106,6 +117,7 @@
         "addAccessKey": "Neuer Zugangsschlüssel",
         "labelAccessKey": "Zugangsschlüssel",
         "labelPermissions": "Berechtigungen",
+        "disabledRoleSelectWarning": "Rollen sind nur für Benutzer verfügbar, die kein \"Administrator\" sind.",
         "modal": {
           "detailModalTitle": "Integration anlegen",
           "detailModalTitleEdit": "Bearbeiten",
@@ -147,6 +159,26 @@
       "editor": "Bearbeiten",
       "creator": "Erstellen",
       "deleter": "Löschen"
+    },
+    "permissionType": {
+      "read": "Lesen",
+      "update": "Schreiben",
+      "create": "Erstellen",
+      "delete": "Löschen"
+    },
+    "permissions": {
+      "parents": {
+        "catalogues": "Kataloge",
+        "content": "Inhalte",
+        "customers": "Kunden",
+        "marketing": "Marketing",
+        "other": "Andere",
+        "orders": "Bestellungen",
+        "settings": "Einstellungen"
+      },
+      "users_and_permissions": {
+        "label": "Benutzer & Rechte"
+      }
     },
     "additional_permissions": {
       "system": {

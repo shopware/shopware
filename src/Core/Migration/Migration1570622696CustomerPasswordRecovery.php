@@ -43,18 +43,22 @@ SQL;
         // implement update destructive
     }
 
-    private function getLanguageIdByLocale(Connection $connection, string $locale)
+    private function getLanguageIdByLocale(Connection $connection, string $locale): ?string
     {
         $sql = <<<SQL
-SELECT `language`.`id` 
-FROM `language` 
+SELECT `language`.`id`
+FROM `language`
 INNER JOIN `locale` ON `locale`.`id` = `language`.`locale_id`
 WHERE `locale`.`code` = :code
 SQL;
 
         $languageId = $connection->executeQuery($sql, ['code' => $locale])->fetchColumn();
+        if (!$languageId && $locale !== 'en-GB') {
+            return null;
+        }
+
         if (!$languageId) {
-            throw new \RuntimeException(sprintf('Language for locale "%s" not found.', $locale));
+            return Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
         }
 
         return $languageId;
@@ -64,6 +68,9 @@ SQL;
     {
         $mailTemplateTypeId = Uuid::randomHex();
 
+        $defaultLangId = $this->getLanguageIdByLocale($connection, 'en-GB');
+        $deLangId = $this->getLanguageIdByLocale($connection, 'de-DE');
+
         $connection->insert('mail_template_type', [
             'id' => Uuid::fromHexToBytes($mailTemplateTypeId),
             'technical_name' => 'customer.recovery.request',
@@ -71,19 +78,32 @@ SQL;
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
-        $connection->insert('mail_template_type_translation', [
-            'mail_template_type_id' => Uuid::fromHexToBytes($mailTemplateTypeId),
-            'language_id' => $this->getLanguageIdByLocale($connection, 'en-GB'),
-            'name' => 'Customer password recovery',
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ]);
+        if ($defaultLangId !== $deLangId) {
+            $connection->insert('mail_template_type_translation', [
+                'mail_template_type_id' => Uuid::fromHexToBytes($mailTemplateTypeId),
+                'language_id' => $defaultLangId,
+                'name' => 'Customer password recovery',
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ]);
+        }
 
-        $connection->insert('mail_template_type_translation', [
-            'mail_template_type_id' => Uuid::fromHexToBytes($mailTemplateTypeId),
-            'language_id' => $this->getLanguageIdByLocale($connection, 'de-DE'),
-            'name' => 'Benutzer Passwort Wiederherstellung',
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ]);
+        if ($defaultLangId !== Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)) {
+            $connection->insert('mail_template_type_translation', [
+                'mail_template_type_id' => Uuid::fromHexToBytes($mailTemplateTypeId),
+                'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
+                'name' => 'Customer password recovery',
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ]);
+        }
+
+        if ($deLangId) {
+            $connection->insert('mail_template_type_translation', [
+                'mail_template_type_id' => Uuid::fromHexToBytes($mailTemplateTypeId),
+                'language_id' => $deLangId,
+                'name' => 'Benutzer Passwort Wiederherstellung',
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ]);
+        }
 
         return $mailTemplateTypeId;
     }
@@ -92,6 +112,9 @@ SQL;
     {
         $mailTemplateId = Uuid::randomHex();
 
+        $defaultLangId = $this->getLanguageIdByLocale($connection, 'en-GB');
+        $deLangId = $this->getLanguageIdByLocale($connection, 'de-DE');
+
         $connection->insert('mail_template', [
             'id' => Uuid::fromHexToBytes($mailTemplateId),
             'mail_template_type_id' => Uuid::fromHexToBytes($mailTemplateTypeId),
@@ -99,27 +122,44 @@ SQL;
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
-        $connection->insert('mail_template_translation', [
-            'mail_template_id' => Uuid::fromHexToBytes($mailTemplateId),
-            'language_id' => $this->getLanguageIdByLocale($connection, 'de-DE'),
-            'sender_name' => '{{ shopName }}',
-            'subject' => 'Password Wiederherstellung',
-            'description' => '',
-            'content_html' => $this->getContentHtmlDe(),
-            'content_plain' => $this->getContentPlainDe(),
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ]);
+        if ($defaultLangId !== $deLangId) {
+            $connection->insert('mail_template_translation', [
+                'mail_template_id' => Uuid::fromHexToBytes($mailTemplateId),
+                'language_id' => $defaultLangId,
+                'sender_name' => '{{ shopName }}',
+                'subject' => 'Password recovery',
+                'description' => '',
+                'content_html' => $this->getContentHtmlEn(),
+                'content_plain' => $this->getContentPlainEn(),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ]);
+        }
 
-        $connection->insert('mail_template_translation', [
-            'mail_template_id' => Uuid::fromHexToBytes($mailTemplateId),
-            'language_id' => $this->getLanguageIdByLocale($connection, 'en-GB'),
-            'sender_name' => '{{ shopName }}',
-            'subject' => 'Password recovery',
-            'description' => '',
-            'content_html' => $this->getContentHtmlEn(),
-            'content_plain' => $this->getContentPlainEn(),
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ]);
+        if ($defaultLangId !== Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)) {
+            $connection->insert('mail_template_translation', [
+                'mail_template_id' => Uuid::fromHexToBytes($mailTemplateId),
+                'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
+                'sender_name' => '{{ shopName }}',
+                'subject' => 'Password recovery',
+                'description' => '',
+                'content_html' => $this->getContentHtmlEn(),
+                'content_plain' => $this->getContentPlainEn(),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ]);
+        }
+
+        if ($deLangId) {
+            $connection->insert('mail_template_translation', [
+                'mail_template_id' => Uuid::fromHexToBytes($mailTemplateId),
+                'language_id' => $this->getLanguageIdByLocale($connection, 'de-DE'),
+                'sender_name' => '{{ shopName }}',
+                'subject' => 'Password Wiederherstellung',
+                'description' => '',
+                'content_html' => $this->getContentHtmlDe(),
+                'content_plain' => $this->getContentPlainDe(),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ]);
+        }
 
         $this->addTemplateToSalesChannels($connection, $mailTemplateTypeId, $mailTemplateId);
     }
@@ -178,15 +218,15 @@ MAIL;
     {
         return <<<MAIL
         Hello {{ customerRecovery.customer.firstName }} {{ customerRecovery.customer.lastName }},
-        
+
         You have requested a new password for your {{ shopName }} account.
         Click on the following link to reset your password:
-        
+
         {{ resetUrl }}
-        
+
         This link is valid for the next 2 hours.
         If you don't want to reset your password, ignore this email and no changes will be made.
-        
+
         Yours sincerely
         Your {{ shopName }}-Team
 MAIL;
@@ -218,15 +258,15 @@ MAIL;
     {
         return <<<MAIL
         Hallo {{ customerRecovery.customer.firstName }} {{ customerRecovery.customer.lastName }},
-        
+
         Sie haben ein neues Passwort für Ihren {{ shopName }}-Account angefordert.
         Klicken Sie auf folgenden Link, um Ihr Passwort zurückzusetzen:
-        
+
         {{ resetUrl }}
-        
+
         Dieser Link ist für die nächsten 2 Stunden gültig.
         Falls Sie Ihr Passwort nicht zurücksetzen möchten, ignorieren Sie diese E-Mail - es wird dann keine Änderung vorgenommen.
-        
+
         Mit freundlichen Grüßen
         Ihr {{ shopName }}-Team
 MAIL;

@@ -12,10 +12,17 @@
                                             @sw-card-filter-term-change="onSearchTermChange">
                                 <template #filter>
                                     {% block sw_tax_rule_card_header_create_rule_button %}
-                                        <sw-button slot="button"
-                                                   size="small"
-                                                   class="sw-tax-rule-grid-button"
-                                                   @click="showModal = true">
+                                        <sw-button
+                                            v-tooltip.bottom="{
+                                                message: $tc('sw-privileges.tooltip.warning'),
+                                                disabled: acl.can('tax.editor'),
+                                                showOnDisabledElements: true
+                                            }"
+                                            class="sw-tax-rule-grid-button"
+                                            slot="button"
+                                            size="small"
+                                            :disabled="!acl.can('tax.editor')"
+                                            @click="showModal = true">
 
                                             {% block sw_tax_rule_card_header_create_document_button_label %}
                                                 {{ $tc('sw-settings-tax.taxRuleCard.labelCreateNew') }}
@@ -73,13 +80,30 @@
                         {% block sw_settings_tax_list_grid_columns_actions %}
                             <template #actions="{ item }">
                                 {% block sw_settings_tax_list_grid_columns_actions_edit %}
-                                    <sw-context-menu-item class="sw-tax-list__edit-action" @click="showRuleModal(item)">
+                                    <sw-context-menu-item
+                                        v-tooltip.top="{
+                                            message: $tc('sw-privileges.tooltip.warning'),
+                                            disabled: acl.can('tax.editor'),
+                                            showOnDisabledElements: true
+                                        }"
+                                        class="sw-tax-list__edit-action"
+                                        :disabled="!acl.can('tax.editor')"
+                                        @click="showRuleModal(item)">
                                         {{ $tc('sw-settings-tax.list.contextMenuEdit') }}
                                     </sw-context-menu-item>
                                 {% endblock %}
 
                                 {% block sw_settings_tax_list_grid_columns_actions_delete %}
-                                    <sw-context-menu-item variant="danger" @click="onDelete(item.id)">
+                                    <sw-context-menu-item
+                                        v-tooltip.bottom="{
+                                            message: $tc('sw-privileges.tooltip.warning'),
+                                            disabled: acl.can('tax.editor'),
+                                            showOnDisabledElements: true
+                                        }"
+                                        class="sw-tax-list__delete-action"
+                                        variant="danger"
+                                        :disabled="!acl.can('tax.editor')"
+                                        @click="onDelete(item.id)">
                                         {{ $tc('sw-settings-tax.list.contextMenuDelete') }}
                                     </sw-context-menu-item>
                                 {% endblock %}
@@ -146,7 +170,17 @@
                     {% endblock %}
 
                     {% block sw_tax_rule_card_empty_state_button %}
-                        <sw-button variant="ghost" size="small" @click="showModal = true" :disabled="disabled">
+                        <sw-button
+                            v-tooltip.bottom="{
+                                message: $tc('sw-privileges.tooltip.warning'),
+                                disabled: acl.can('tax.editor'),
+                                showOnDisabledElements: true
+                            }"
+                            class="sw-settings-tax-rule-card__empty-state--button"
+                            variant="ghost"
+                            size="small"
+                            :disabled="disabled || !acl.can('tax.editor')"
+                            @click="showModal = true">
                             {{ $tc('sw-settings-tax.taxRuleCard.labelCreateNew') }}
                         </sw-button>
                     {% endblock %}

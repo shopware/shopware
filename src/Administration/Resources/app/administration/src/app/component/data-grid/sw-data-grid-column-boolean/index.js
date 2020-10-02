@@ -14,6 +14,11 @@ Component.register('sw-data-grid-column-boolean', {
             required: false,
             default: false
         },
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
         value: {
             required: true
         }

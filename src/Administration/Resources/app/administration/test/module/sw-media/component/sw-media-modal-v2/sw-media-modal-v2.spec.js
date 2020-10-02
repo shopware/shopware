@@ -12,7 +12,9 @@ describe('src/module/sw-media/component/sw-media-modal-v2', () => {
             localVue,
             stubs: {
                 'sw-modal': true,
-                'sw-tabs': '<div><slot name="content" active="upload"></slot></div>',
+                'sw-tabs': {
+                    template: '<div><slot name="content" active="upload"></slot></div>'
+                },
                 'sw-media-sidebar': true,
                 'sw-button': true,
                 'sw-media-upload-v2': true,
@@ -33,18 +35,18 @@ describe('src/module/sw-media/component/sw-media-modal-v2', () => {
         });
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
 
-    it('should contain the default accept value', () => {
+    it('should contain the default accept value', async () => {
         const fileInput = wrapper.find('sw-media-upload-v2-stub');
         expect(fileInput.attributes().fileaccept).toBe('image/*');
     });
 
-    it('should contain "application/pdf" value', () => {
-        wrapper.setProps({
+    it('should contain "application/pdf" value', async () => {
+        await wrapper.setProps({
             fileAccept: 'application/pdf'
         });
         const fileInput = wrapper.find('sw-media-upload-v2-stub');

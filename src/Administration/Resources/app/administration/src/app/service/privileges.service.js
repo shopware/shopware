@@ -1,6 +1,7 @@
 import Vue from 'vue';
 
 const { warn, error } = Shopware.Utils.debug;
+const { object } = Shopware.Utils;
 
 export default class PrivilegesService {
     alreadyImportedAdminPrivileges = [];
@@ -214,6 +215,12 @@ export default class PrivilegesService {
         this.alreadyImportedAdminPrivileges = [];
 
         const allPrivileges = adminPrivileges.reduce((acc, adminPrivilegeKey) => {
+            const isAdminPrivilege = adminPrivilegeKey.match(/.+\..+/);
+
+            if (!isAdminPrivilege) {
+                return acc;
+            }
+
             const privileges = this._getPrivilegesWithDependencies(adminPrivilegeKey);
 
             return [...acc, adminPrivilegeKey, ...privileges];
@@ -257,8 +264,16 @@ export default class PrivilegesService {
         });
 
         if (existingCategoryKeyCombination) {
-            Object.entries(privilegeMapping.roles).forEach(([key, entry]) => {
-                Vue.set(existingCategoryKeyCombination.roles, key, entry);
+            Object.entries(privilegeMapping.roles).forEach(([role, entry]) => {
+                if (existingCategoryKeyCombination.roles.hasOwnProperty(role) === true) {
+                    Vue.set(
+                        existingCategoryKeyCombination.roles,
+                        role,
+                        object.deepMergeObject(existingCategoryKeyCombination.roles[role], entry)
+                    );
+                } else {
+                    Vue.set(existingCategoryKeyCombination.roles, role, entry);
+                }
             });
 
             return this;

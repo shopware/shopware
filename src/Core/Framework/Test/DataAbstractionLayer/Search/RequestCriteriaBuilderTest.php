@@ -122,4 +122,28 @@ class RequestCriteriaBuilderTest extends TestCase
 
         static::assertEquals($testArray, $criteriaArray);
     }
+
+    public function testManualScoreSorting(): void
+    {
+        $body = [
+            'sort' => [
+                [
+                    'field' => '_score',
+                ],
+            ],
+        ];
+        $request = new Request([], $body, [], [], []);
+        $request->setMethod(Request::METHOD_POST);
+
+        $criteria = $this->requestCriteriaBuilder->handleRequest(
+            $request,
+            new Criteria(),
+            $this->getContainer()->get(ProductDefinition::class),
+            Context::createDefaultContext()
+        );
+
+        $sorting = $criteria->getSorting();
+        static::assertCount(1, $sorting);
+        static::assertEquals('_score', $sorting[0]->getField());
+    }
 }

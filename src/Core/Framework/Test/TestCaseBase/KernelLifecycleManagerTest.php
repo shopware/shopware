@@ -7,7 +7,7 @@ use Shopware\Core\Kernel;
 
 class KernelLifecycleManagerTest extends TestCase
 {
-    public const BUILD_AGAINST_FILE_HASH = '8da372041290bb36d3e6f4c3bc56e8236e9794d1';
+    public const BUILD_AGAINST_FILE_HASH = '2b78d22677bc1498f2fd05f548f68f7ee0880a8a';
 
     public function testIfTheManagerNeedsAnUpdate(): void
     {

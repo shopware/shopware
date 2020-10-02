@@ -36,6 +36,32 @@ class OrderPageTest extends TestCase
         self::assertPageEvent(AccountOrderPageLoadedEvent::class, $event, $context, $request, $page);
     }
 
+    public function testSalesChannelRestriction(): void
+    {
+        $request = new Request();
+        $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
+        $testContext = $this->createSalesChannelContext();
+
+        $this->placeRandomOrder($context);
+        $order = $this->placeRandomOrder($context);
+        $this->getContainer()->get('order.repository')->update([
+            [
+                'id' => $order,
+                'salesChannelId' => $testContext->getSalesChannel()->getId(),
+            ],
+        ], $context->getContext());
+
+        /** @var AccountOrderPageLoadedEvent $event */
+        $event = null;
+        $this->catchEvent(AccountOrderPageLoadedEvent::class, $event);
+
+        $page = $this->getPageLoader()->load($request, $context);
+
+        static::assertInstanceOf(AccountOrderPage::class, $page);
+        static::assertSame(1, $page->getOrders()->count());
+        self::assertPageEvent(AccountOrderPageLoadedEvent::class, $event, $context, $request, $page);
+    }
+
     /**
      * @return AccountOrderPageLoader
      */

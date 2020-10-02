@@ -12,7 +12,18 @@
             </sw-media-display-options>
 
             {% block sw_media_index_create_folder %}
-                <sw-button v-if="editable" class="sw-media-index__create-folder-action" variant="ghost" size="small" @click="createFolder">
+                <sw-button
+                    v-if="editable"
+                    :disabled="!acl.can('media.creator')"
+                    class="sw-media-index__create-folder-action"
+                    variant="ghost"
+                    size="small"
+                    @click="createFolder"
+                    v-tooltip="{
+                        message: $tc('sw-privileges.tooltip.warning'),
+                        disabled: acl.can('media.creator'),
+                        showOnDisabledElements: true
+                    }">
                     {{ $tc('sw-media.index.buttonCreateFolder') }}
                 </sw-button>
             {% endblock %}
@@ -42,6 +53,8 @@
 
                             {% block sw_media_library_back_to_parent_item %}
                                 <sw-media-folder-item
+                                    :allowEdit="acl.can('media.editor')"
+                                    :allowDelete="acl.can('media.deleter')"
                                     v-if="parentFolder"
                                     class="sw-media-library__parent-folder"
                                     :item="parentFolder"
@@ -60,6 +73,8 @@
                                     :key="gridItem.getEntityName() + '_' + gridItem.id"
                                     :class="`sw-media-grid-item__item--${index}`"
                                     :item="gridItem"
+                                    :allowEdit="acl.can('media.editor')"
+                                    :allowDelete="acl.can('media.deleter')"
                                     :selected="showItemSelected(gridItem)"
                                     :showSelectionIndicator="isListSelect"
                                     :showContextMenuButton="editable"

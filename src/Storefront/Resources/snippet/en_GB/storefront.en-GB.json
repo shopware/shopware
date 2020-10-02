@@ -67,9 +67,12 @@
     "product-not-found": "The product could not be found.",
     "message-403-ajax": "Your session has expired. Please reload the page and try again.",
     "message-403": "Your session has expired. Please return to the last page and try again.",
-    "product-out-of-stock": "%name% is not available at the moment."
+    "product-out-of-stock": "%name% is not available at the moment.",
+    "auto-promotion-not-found": "Promotion \"%name%\" was no longer valid!"
   },
   "account": {
+    "externalPaymentCanceled": "We received your order, but the payment was aborted. Please change your payment method or try again",
+    "externalPaymentFailure": "We received your order, but we were not able to process your payment, please change the payment method or try again",
     "confirmationIsAlreadyDone": "Either the email address has already been confirmed or the URL is invalid.",
     "doubleOptInMailConfirmationSuccessfully": "Thank you for confirming your email address! You can now complete your order.",
     "doubleOptInRegistrationSuccessfully": "Thank you for signing up! Your account has been successfully unlocked.",
@@ -157,7 +160,6 @@
     "profileCurrentMail": "Email address:",
     "profilePasswordTitle": "Password",
     "profileUpdateSuccess": "Profile has been updated.",
-    "profileCredentialsTitle": "Email & password",
     "profileChangeEmail": "Change email address",
     "profileChangePassword": "Change password",
     "profileConfirmPassword": "Please enter your current password again to confirm changes.",
@@ -209,7 +211,7 @@
     "orderHeadline": "Order:",
     "orderStatus": "Status:",
     "orderStatusActionRequired": "Action required",
-    "orderNumber": "Order number:",
+    "orderStatusActionCompletePayment": "Complete payment",
     "orderShippingStatus": "Shipping status",
     "orderPaymentStatus": "Payment status",
     "orderPaymentMethod": "Payment method",
@@ -219,7 +221,7 @@
     "orderContextMenuReorder": "Repeat order",
     "orderContextMenuCancel": "Cancel order",
     "editOrder": "Edit order",
-    "editOrderUpdateButton": "Confirm changes",
+    "editOrderUpdateButton": "Complete payment",
     "editOrderBackToAccountButton": "Back to overview",
     "editOrderBackToOrderButton": "Back to order",
     "editOrderCancelOrderButton": "Cancel order",
@@ -229,7 +231,8 @@
     "editOrderCancelOrderModalFooterButton": "Cancel order",
     "editOrderCancelOrderModalFooterButtonBack": "Back",
     "editOrderPaymentNotChangeable": "Unable to change the current payment method! There is a rebate or similar promotional benefit tied to the payment method that would be lost on change. Please cancel your order and reorder.",
-    "orderItemColumnNumber": "Order number",
+    "orderNumber": "Order number:",
+    "orderItemColumnNumber": "Order number:",
     "orderItemColumnPaymentMethod": "Payment method",
     "orderItemColumnShippingMethod": "Shipping method",
     "orderItemColumnActions": "Actions",
@@ -343,6 +346,7 @@
     "confirmTermsHeader": "Terms and conditions and cancellation policy",
     "confirmRevocationNotice": "Please note our cancellation policy.",
     "confirmTerms": "I have read and accepted the <a data-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"general terms and conditions\">general terms and conditions</a>.",
+    "confirmTermsReminder": "You have already accepted the <a data-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"general terms and conditions\">general terms and conditions</a>.",
     "finishInfoPayment": "Payment method:",
     "finishInfoShipping": "Shipping method:",
     "finishHeader": "Thank you for your order with %shop%!",
@@ -362,17 +366,20 @@
     "shippingMethod": "Shipping method",
     "product-stock-reached": "The product %name% is only available %quantity% times",
     "product-out-of-stock": "The product %name% is not available any more",
+    "purchase-steps-quantity": "Your input quantity does not match with the setup of the %name%. The quantity was changed to %quantity%",
     "shipping-method-blocked": "The shipping method %name% is blocked for your current shopping cart.",
     "payment-method-blocked": "The payment method %name% is blocked for your current shopping cart.",
     "lineItemDeliveryDate": "Delivery period: %earliest% - %latest%",
     "promotion-discount-deleted": "Discount \"%name%\" has been removed",
     "promotion-discount-added": "Discount \"%name%\" has been added",
     "promotion-not-found": "Promotion with code \"%code%\" could not be found.",
+    "auto-promotion-not-found": "Promotion \"%name%\" was no longer valid!",
     "promotion-not-eligible": "Promotion code valid - however, not all conditions were met and the discount was not applied. Once all conditions are met, the discount will be applied automatically.",
     "shipping-address-blocked": "Shipping to the selected shipping address is currently not possible.",
     "customerCommentHeader": "Additional information",
     "customerCommentLabel": "Would you like to tell us anything about your order?",
-    "customerCommentPlaceholder": "Comment here..."
+    "customerCommentPlaceholder": "Comment here...",
+    "cart-merged-hint": "The current shopping cart might contain additional products that have been added and saved during a previous visit."
   },
   "listing": {
     "filterTitleText": "Filter",
@@ -543,6 +550,12 @@
           "true": "Yes",
           "false": "No"
         }
+      }
+    },
+    "cms": {
+      "vimeo": {
+        "privacyNotice": "By viewing the video you agree that your data will be transferred to %platform% and that you have read the <a data-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"Privacy policy\">Privacy policy</a>.",
+        "acceptButtonLabel": "Accept"
       }
     }
   }

@@ -214,6 +214,47 @@
     width: 50%;
 }
 
+.order-table-header-context-menu-indicator {
+    position: absolute;
+    top: -3px;
+    right: 7px;
+}
+
+.order-item-status-badge {
+
+    /*
+     * Set colors of the order status badge according to the order state.
+     * The stylelint rule `selector-class-pattern` is disabled.
+     * The technicalName of the order state includes underscores.
+     */
+    /* stylelint-disable selector-class-pattern */
+    &.order-item-status-badge-open,
+    &.order-item-status-badge-in_progress {
+        background-color: $info;
+        color: $white;
+    }
+
+    &.order-item-status-badge-completed {
+        background-color: $success;
+        color: $white;
+    }
+
+    &.order-item-status-badge-failed,
+    &.order-item-status-badge-cancelled {
+        background-color: $danger;
+        color: $white;
+    }
+    /* stylelint-enable selector-class-pattern */
+
+    .icon {
+        color: currentColor;
+
+        svg {
+            top: 5px;
+        }
+    }
+}
+
 @include media-breakpoint-up(md) {
     .order-table-header {
         display: block;
@@ -270,5 +311,10 @@
     .order-table-header-context-menu-wrapper {
         top: $spacer / 2;
         right: $spacer;
+    }
+
+    .order-table-header-context-menu-indicator {
+        top: -3px;
+        right: -3px;
     }
 }

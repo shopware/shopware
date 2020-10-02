@@ -47,7 +47,7 @@ class Feature
 
     public static function isActive(string $feature): bool
     {
-        $env = $_SERVER['APP_ENV'] ?? 'prod';
+        $env = $_ENV['APP_ENV'] ?? $_SERVER['APP_ENV'] ?? 'prod';
         $allEnabled = $_SERVER['FEATURE_ALL'] ?? false;
         if ($env !== 'prod' && $allEnabled && $allEnabled !== 'false' && $allEnabled !== '0' && $allEnabled !== '') {
             return true;
@@ -119,8 +119,9 @@ class Feature
 
     private static function dumpFeatures(string $dumpPath): void
     {
+        $env = $_ENV['APP_ENV'] ?? $_SERVER['APP_ENV'] ?? 'prod';
         // do not dump in prod
-        if (($_SERVER['APP_ENV'] ?? 'prod') === 'prod') {
+        if ($env === 'prod') {
             return;
         }
 

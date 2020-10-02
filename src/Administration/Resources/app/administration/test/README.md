@@ -143,7 +143,7 @@ describe('components/sw-multi-select', () => {
     });
 
     it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 });
 ```
@@ -222,7 +222,9 @@ describe('components/sw-multi-select', () => {
                 'sw-select-base': Shopware.Component.build('sw-select-base'),
                 'sw-block-field': Shopware.Component.build('sw-block-field'),
                 'sw-base-field': Shopware.Component.build('sw-base-field'),
-                'sw-icon': '<div></div>',
+                'sw-icon': {
+                    template: '<div></div>'
+                },
                 'sw-field-error': Shopware.Component.build('sw-field-error'),
                 'sw-select-selection-list': Shopware.Component.build('sw-select-selection-list'),
                 'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
@@ -240,7 +242,7 @@ describe('components/sw-multi-select', () => {
     });
 
     it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 });
 ```

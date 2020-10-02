@@ -12,7 +12,8 @@ Component.register('sw-order-line-items-grid', {
     data() {
         return {
             isLoading: false,
-            selectedItems: {}
+            selectedItems: {},
+            searchTerm: ''
         };
     },
     props: {
@@ -40,7 +41,19 @@ Component.register('sw-order-line-items-grid', {
         },
 
         orderLineItems() {
-            return this.order.lineItems;
+            if (!this.searchTerm) {
+                return this.order.lineItems;
+            }
+
+            // Filter based on the product label is not blank and contains the search term or not
+            const keyWords = this.searchTerm.split(/[\W_]+/ig);
+            return this.order.lineItems.filter(item => {
+                if (!item.label) {
+                    return false;
+                }
+
+                return keyWords.every(key => item.label.toLowerCase().includes(key.toLowerCase()));
+            });
         },
 
         lineItemTypes() {
@@ -166,8 +179,8 @@ Component.register('sw-order-line-items-grid', {
                 totalPrice: 0
             };
             item.quantity = 1;
-            item.unitPrice = 0;
-            item.totalPrice = 0;
+            item.unitPrice = '...';
+            item.totalPrice = '...';
             item.precision = 2;
             item.label = '';
 
@@ -214,6 +227,10 @@ Component.register('sw-order-line-items-grid', {
         itemCreatedFromProduct(id) {
             const item = this.orderLineItems.find((elem) => { return elem.id === id; });
             return item.isNew() && item.type === this.lineItemTypes.PRODUCT;
+        },
+
+        onSearchTermChange(searchTerm) {
+            this.searchTerm = searchTerm.toLowerCase();
         },
 
         /** @deprecated:v6.4.0 use isCreditItem instead */

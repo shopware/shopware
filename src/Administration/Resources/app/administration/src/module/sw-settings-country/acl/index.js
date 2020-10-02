@@ -1,6 +1,6 @@
 Shopware.Service('privileges').addPrivilegeMappingEntry({
     category: 'permissions',
-    parent: null,
+    parent: 'settings',
     key: 'country',
     roles: {
         viewer: {
@@ -13,7 +13,10 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
         editor: {
             privileges: [
                 'country:update',
-                'country_state:update'
+                'country_state:read',
+                'country_state:create',
+                'country_state:update',
+                'country_state:delete'
             ],
             dependencies: [
                 'country.viewer'
@@ -21,8 +24,7 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
         },
         creator: {
             privileges: [
-                'country:create',
-                'country_state:create'
+                'country:create'
             ],
             dependencies: [
                 'country.viewer',
@@ -31,8 +33,7 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
         },
         deleter: {
             privileges: [
-                'country:delete',
-                'country_state:delete'
+                'country:delete'
             ],
             dependencies: [
                 'country.viewer'

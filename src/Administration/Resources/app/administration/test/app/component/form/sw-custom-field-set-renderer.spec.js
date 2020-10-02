@@ -41,7 +41,9 @@ function createWrapper(props) {
             'sw-block-field': Shopware.Component.build('sw-block-field'),
             'sw-base-field': Shopware.Component.build('sw-base-field'),
             'sw-field-error': Shopware.Component.build('sw-field-error'),
-            'sw-icon': '<div class="sw-icon"></div>'
+            'sw-icon': {
+                template: '<div class="sw-icon"></div>'
+            }
         },
         provide: {
             repositoryFactory: {
@@ -64,15 +66,15 @@ function createWrapper(props) {
 }
 
 describe('src/app/component/form/sw-custom-field-set-renderer', () => {
-    it('should be a Vue.JS component', () => {
+    it('should be a Vue.JS component', async () => {
         const wrapper = createWrapper({
             entity: {},
             sets: []
         });
-        expect(wrapper.isVueInstance()).toBe(true);
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should inherit the value from parent entity', () => {
+    it('should inherit the value from parent entity', async () => {
         const props = {
             sets: createEntityCollection([{
                 id: 'example',
@@ -111,7 +113,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         expect(customFieldEl.element.value).toBe('inherit me');
     });
 
-    it('should not filter custom field sets when selection not active', () => {
+    it('should not filter custom field sets when selection not active', async () => {
         const props = {
             entity: {
                 customFields: {
@@ -158,7 +160,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         expect(tabs).toHaveLength(2);
     });
 
-    it('should not filter custom field sets when entity has no customFieldSets column', () => {
+    it('should not filter custom field sets when entity has no customFieldSets column', async () => {
         const props = {
             entity: {
                 customFields: {
@@ -201,7 +203,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         expect(tabs).toHaveLength(2);
     });
 
-    it('should not filter custom field sets when entity has no customFieldSetSelectionActive column', () => {
+    it('should not filter custom field sets when entity has no customFieldSetSelectionActive column', async () => {
         const props = {
             entity: {
                 customFields: {
@@ -244,7 +246,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         expect(tabs).toHaveLength(2);
     });
 
-    it('should not filter custom field sets when entity has no parent and customFieldSetSelectionActive not set', () => {
+    it('should not filter custom field sets when entity has no parent and customFieldSetSelectionActive not set', async () => {
         const props = {
             entity: {
                 customFields: {
@@ -288,7 +290,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         expect(tabs).toHaveLength(2);
     });
 
-    it('should not filter custom field sets when customFieldSetSelectionActive not set and parent has no selection', () => {
+    it('should not filter custom field sets when customFieldSetSelectionActive not set and parent has no selection', async () => {
         const props = {
             entity: {
                 customFields: {
@@ -335,7 +337,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         expect(tabs).toHaveLength(2);
     });
 
-    it('should filter custom field sets when selection active and customFields selected', () => {
+    it('should filter custom field sets when selection active and customFields selected', async () => {
         const props = {
             entity: {
                 customFields: {
@@ -384,7 +386,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         expect(tabs).toHaveLength(1);
     });
 
-    it('should filter custom field sets from parent when inherited', () => {
+    it('should filter custom field sets from parent when inherited', async () => {
         const props = {
             entity: {
                 customFields: {
@@ -438,7 +440,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         expect(tabs).toHaveLength(1);
     });
 
-    it('should sort sets by position', () => {
+    it('should sort sets by position', async () => {
         const props = {
             entity: {
                 customFieldSetSelectionActive: false

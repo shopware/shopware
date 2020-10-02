@@ -5,6 +5,7 @@
                 v-model="draft"
                 v-bind="$attrs"
                 :required="required"
+                :disabled="disabled"
                 validation="required"
                 @focus="onStartEditing"
                 @blur="onBlurField"
@@ -17,6 +18,7 @@
             <span v-show="isEditing" class="sw-confirm-field__button-list">
                 {% block sw_confirm_field_cancel_button %}
                     <sw-button
+                        :disabled="disabled"
                         class="sw-confirm-field__button sw-confirm-field__button--cancel"
                         square
                         size="x-small"
@@ -32,7 +34,7 @@
                 {% block sw_confirm_field_confirm_button %}
                     <sw-button
                         class="sw-confirm-field__button sw-confirm-field__button--submit"
-                        :disabled="preventEmptySubmit && !draft"
+                        :disabled="preventEmptySubmit && !draft || disabled"
                         square
                         size="x-small"
                         variant="primary"

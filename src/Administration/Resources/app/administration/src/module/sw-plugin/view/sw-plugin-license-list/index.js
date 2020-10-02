@@ -70,12 +70,10 @@ Component.register('sw-plugin-license-list', {
             this.storeService.downloadPlugin(pluginName).then(() => {
                 if (update) {
                     this.createNotificationSuccess({
-                        title: this.$tc('global.default.success'),
                         message: this.$tc('sw-plugin.updates.messageUpdateSuccess')
                     });
                 } else {
                     this.createNotificationSuccess({
-                        title: this.$tc('global.default.success'),
                         message: this.$tc('sw-plugin.general.messageDownloadSuccess')
                     });
                 }

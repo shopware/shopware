@@ -6,6 +6,14 @@
     align-items: center;
     flex-grow: var(--product-stream-value-grow);
 
+    .is--disabled {
+        background-color: $color-gray-100;
+    }
+
+    div.sw-product-stream-value__operator-select {
+        height: 100%;
+    }
+
     .sw-entity-single-select__selection {
         display: flex;
         align-items: center;

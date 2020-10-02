@@ -8,6 +8,7 @@ use Shopware\Core\Framework\App\AppStateService;
 use Shopware\Core\Framework\App\Event\AppDeletedEvent;
 use Shopware\Core\Framework\App\Event\AppInstalledEvent;
 use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
+use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ActionButtonPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\CustomFieldPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
@@ -175,7 +176,16 @@ class AppLifecycle extends AbstractAppLifecycle
         $this->permissionPersister->updatePrivileges($manifest->getPermissions(), $roleId);
 
         if ($install && $manifest->getSetup()) {
-            $this->registrationService->registerApp($manifest, $id, $secretAccessKey, $context);
+            try {
+                $this->registrationService->registerApp($manifest, $id, $secretAccessKey, $context);
+            } catch (AppRegistrationException $e) {
+                $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($id): void {
+                    $this->appRepository->delete([['id' => $id]], $context);
+                });
+                $this->permissionPersister->removeRole($roleId);
+
+                throw $e;
+            }
         }
 
         $app = $this->loadApp($id, $context);

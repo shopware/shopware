@@ -60,6 +60,7 @@ Component.register('sw-settings-tax-rule-type-individual-states', {
         },
 
         onChange(collection) {
+            this.individualStates = collection;
             this.taxRule.data.states = collection.getIds();
         }
     }

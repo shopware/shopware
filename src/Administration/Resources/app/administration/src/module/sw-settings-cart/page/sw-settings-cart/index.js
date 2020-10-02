@@ -28,7 +28,6 @@ Component.register('sw-settings-cart', {
             }).catch((err) => {
                 this.isLoading = false;
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
                     message: err
                 });
             });

@@ -24,6 +24,8 @@ final class SalesChannelRequest
 
     public const ATTRIBUTE_CANONICAL_LINK = 'sw-canonical-link';
 
+    public const ATTRIBUTE_CSRF_PROTECTED = 'csrf_protected';
+
     private function __construct()
     {
     }

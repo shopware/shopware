@@ -30,6 +30,12 @@
                             <sw-button @click="onClickSaveChanges"
                                        id="sw-language-switch-save-changes-button"
                                        variant="primary"
+                                       :disabled="!allowEdit"
+                                       v-tooltip="{
+                                            message: $tc('sw-privileges.tooltip.warning'),
+                                            disabled: allowEdit,
+                                            showOnDisabledElements: true
+                                        }"
                                        size="small">
                                 {{ $tc('global.default.save') }}
                             </sw-button>

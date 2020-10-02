@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
 use Shopware\Core\Checkout\Cart\Exception\MissingOrderRelationException;
 use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
+use Shopware\Core\Checkout\Cart\Exception\OrderInconsistentException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Order\Transformer\AddressTransformer;
 use Shopware\Core\Checkout\Cart\Order\Transformer\CartTransformer;
@@ -63,6 +64,7 @@ class OrderConverter
         DeliveryProcessor::SKIP_DELIVERY_PRICE_RECALCULATION => true,
         DeliveryProcessor::SKIP_DELIVERY_TAX_RECALCULATION => true,
         PromotionCollector::SKIP_PROMOTION => true,
+        ProductCartProcessor::SKIP_PRODUCT_STOCK_VALIDATION => true,
     ];
 
     /**
@@ -195,6 +197,10 @@ class OrderConverter
             );
         }
 
+        if (Feature::isActive('FEATURE_NEXT_9351')) {
+            $data['ruleIds'] = $context->getRuleIds();
+        }
+
         $event = new CartConvertedEvent($cart, $data, $context, $conversionContext);
         $this->eventDispatcher->dispatch($event);
 
@@ -221,7 +227,12 @@ class OrderConverter
         $cart = new Cart(self::CART_TYPE, Uuid::randomHex());
         $cart->setPrice($order->getPrice());
         $cart->addExtension(self::ORIGINAL_ID, new IdStruct($order->getId()));
-        $cart->addExtension(self::ORIGINAL_ORDER_NUMBER, new IdStruct($order->getOrderNumber()));
+        $orderNumber = $order->getOrderNumber();
+        if ($orderNumber === null) {
+            throw new OrderInconsistentException($order->getId(), 'orderNumber is required');
+        }
+
+        $cart->addExtension(self::ORIGINAL_ORDER_NUMBER, new IdStruct($orderNumber));
         /* NEXT-708 support:
             - transactions
         */
@@ -244,6 +255,13 @@ class OrderConverter
      */
     public function assembleSalesChannelContext(OrderEntity $order, Context $context): SalesChannelContext
     {
+        if ($order->getTransactions() === null) {
+            throw new MissingOrderRelationException('transactions');
+        }
+        if ($order->getOrderCustomer() === null) {
+            throw new MissingOrderRelationException('orderCustomer');
+        }
+
         $customerId = $order->getOrderCustomer()->getCustomerId();
         $customerGroupId = null;
 
@@ -267,7 +285,7 @@ class OrderConverter
         ];
 
         //get the first not paid transaction or, if all paid, the last transaction
-        if ($order->getTransactions()) {
+        if ($order->getTransactions() !== null) {
             foreach ($order->getTransactions() as $transaction) {
                 $options[SalesChannelContextService::PAYMENT_METHOD_ID] = $transaction->getPaymentMethodId();
                 if (
@@ -280,6 +298,7 @@ class OrderConverter
         }
 
         $salesChannelContext = $this->salesChannelContextFactory->create(Uuid::randomHex(), $order->getSalesChannelId(), $options);
+        $salesChannelContext->getContext()->addExtensions($context->getExtensions());
 
         if (Feature::isActive('FEATURE_NEXT_6059')) {
             $salesChannelContext->setItemRounding($order->getItemRounding());

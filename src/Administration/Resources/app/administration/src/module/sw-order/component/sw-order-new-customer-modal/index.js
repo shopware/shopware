@@ -103,7 +103,6 @@ Component.register('sw-order-new-customer-modal', {
                 this.onClose();
             }).catch(() => {
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-customer.detail.messageSaveError')
                 });
                 this.isLoading = false;

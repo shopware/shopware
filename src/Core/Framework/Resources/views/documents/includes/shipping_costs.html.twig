@@ -11,6 +11,9 @@ All blocks of this template are available in the template which renders this tem
 
 {% block shipping_costs %}
     {% block document_line_item_table_shipping %}
+        {% if billingAddress.additionalAddressLine1 %}<br>{% endif %}
+        {% if billingAddress.additionalAddressLine2 %}<br>{% endif %}
+
         <tr class="line-item">
             {% block document_line_item_table_shipping_position %}
                 {% if config.displayLineItemPosition %}

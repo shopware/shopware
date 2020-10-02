@@ -8,15 +8,33 @@ function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-promotion-discount-component'), {
         localVue,
         stubs: {
-            'sw-container': '<div class="sw-container"><slot></slot></div>',
-            'sw-select-field': '<div class="sw-select-field"></div>',
-            'sw-field': '<div class="sw-field"></div>',
-            'sw-icon': '<div class="sw-icon"></div>',
-            'sw-card': '<div class="sw-card"><slot></slot></div>',
-            'sw-context-button': '<div class="sw-context-button"><slot></slot></div>',
-            'sw-context-menu-item': '<div class="sw-context-menu-item"><slot></slot></div>',
-            'sw-modal': '<div class="sw-modal"><slot></slot><slot name="footer"></slot></div>',
-            'sw-one-to-many-grid': '<div class="sw-one-to-many-grid"></div>'
+            'sw-container': {
+                template: '<div class="sw-container"><slot></slot></div>'
+            },
+            'sw-select-field': {
+                template: '<div class="sw-select-field"></div>'
+            },
+            'sw-field': {
+                template: '<div class="sw-field"></div>'
+            },
+            'sw-icon': {
+                template: '<div class="sw-icon"></div>'
+            },
+            'sw-card': {
+                template: '<div class="sw-card"><slot></slot></div>'
+            },
+            'sw-context-button': {
+                template: '<div class="sw-context-button"><slot></slot></div>'
+            },
+            'sw-context-menu-item': {
+                template: '<div class="sw-context-menu-item"><slot></slot></div>'
+            },
+            'sw-modal': {
+                template: '<div class="sw-modal"><slot></slot><slot name="footer"></slot></div>'
+            },
+            'sw-one-to-many-grid': {
+                template: '<div class="sw-one-to-many-grid"></div>'
+            }
         },
         provide: {
             acl: {
@@ -125,11 +143,11 @@ describe('src/module/sw-promotion/component/sw-promotion-discount-component', ()
         });
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should have disabled form fields', () => {
+    it('should have disabled form fields', async () => {
         expect(wrapper.vm.isEditingDisabled).toBe(true);
 
         let elements = wrapper.findAll('.sw-field');
@@ -145,7 +163,7 @@ describe('src/module/sw-promotion/component/sw-promotion-discount-component', ()
         elements.wrappers.forEach(el => expect(el.attributes().disabled).toBe('disabled'));
     });
 
-    it('should not have disabled form fields', () => {
+    it('should not have disabled form fields', async () => {
         wrapper = createWrapper([
             'promotion.editor'
         ]);

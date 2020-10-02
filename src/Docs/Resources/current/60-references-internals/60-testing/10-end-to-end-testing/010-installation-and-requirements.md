@@ -77,7 +77,7 @@ As next step, please create a new file `e2e/cypress/plugins/index.js` with the f
 module.exports = require('@shopware/e2e-testsuite-platform/cypress/plugins');
 ```
 
-Finally, create a new file e2e/cypress/support/index.js with the the following line:
+Finally, create a new file e2e/cypress/support/index.js with the following line:
 ```javascript
 // Require test suite commands
 require('@shopware/e2e-testsuite-platform/cypress/support');

@@ -1,4 +1,4 @@
-import { shallowMount } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-custom-field/component/sw-custom-field-list';
 import 'src/app/component/grid/sw-grid';
 import 'src/app/component/grid/sw-pagination';
@@ -63,10 +63,13 @@ function mockCustomFieldRepository() {
     return new Repository();
 }
 
-function createWrapper() {
+function createWrapper(privileges = []) {
     customFields = mockCustomFieldData();
+    const localVue = createLocalVue();
+    localVue.directive('tooltip', {});
 
     return shallowMount(Shopware.Component.build('sw-custom-field-list'), {
+        localVue,
         mocks: {
             $tc: () => {},
             $device: {
@@ -82,19 +85,44 @@ function createWrapper() {
                 create() {
                     return mockCustomFieldRepository();
                 }
+            },
+            acl: {
+                can: (identifier) => {
+                    if (!identifier) { return true; }
+
+                    return privileges.includes(identifier);
+                }
             }
         },
         stubs: {
             'sw-button': true,
             'sw-card': true,
-            'sw-empty-state': '<div></div>',
-            'sw-simple-search-field': '<div></div>',
+            'sw-empty-state': {
+                template: '<div></div>'
+            },
+            'sw-simple-search-field': {
+                template: '<div></div>'
+            },
             'sw-container': true,
             'sw-grid': Shopware.Component.build('sw-grid'),
-            'sw-context-button': '<div></div>',
-            'sw-grid-column': '<div class="sw-grid-column"><slot></slot></div>',
-            'sw-grid-row': '<div class="sw-grid-row"><slot></slot></div>',
-            'sw-field': '<div></div>',
+            'sw-context-button': {
+                template: '<div class="sw-context-button"><slot></slot></div>'
+            },
+            'sw-context-menu-item': {
+                template: '<div class="sw-context-menu-item"><slot></slot></div>'
+            },
+            'sw-context-menu': {
+                template: '<div><slot></slot></div>'
+            },
+            'sw-grid-column': {
+                template: '<div class="sw-grid-column"><slot></slot></div>'
+            },
+            'sw-grid-row': {
+                template: '<div class="sw-grid-row"><slot></slot></div>'
+            },
+            'sw-field': {
+                template: '<div></div>'
+            },
             'sw-pagination': Shopware.Component.build('sw-pagination'),
             'sw-icon': true,
             'sw-loader': true,
@@ -104,9 +132,9 @@ function createWrapper() {
 }
 
 describe('src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-detail', () => {
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
-        expect(wrapper.isVueInstance()).toBe(true);
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should always have a pagination', async () => {
@@ -163,7 +191,7 @@ describe('src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-
             }
         };
 
-        wrapper.setData({
+        await wrapper.setData({
             deleteCustomField: deleteCustomField
         });
 
@@ -189,5 +217,23 @@ describe('src/module/sw-settings-custom-field/page/sw-settings-custom-field-set-
         expect(second.text()).toBe('2');
         expect(third.text()).toBe('3');
         expect(fourth.text()).toBe('4');
+    });
+
+    it('should not be able to edit', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
+        const editMenuItem = wrapper.find('.sw-custom-field-list__edit-action');
+        expect(editMenuItem.attributes().disabled).toBeTruthy();
+    });
+
+    it('should be able to edit', async () => {
+        const wrapper = createWrapper([
+            'custom_field.editor'
+        ]);
+        await wrapper.vm.$nextTick();
+
+        const editMenuItem = wrapper.find('.sw-custom-field-list__edit-action');
+        expect(editMenuItem.attributes().disabled).toBeFalsy();
     });
 });

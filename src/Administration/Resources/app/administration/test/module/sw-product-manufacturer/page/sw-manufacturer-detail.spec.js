@@ -23,15 +23,25 @@ function createWrapper(privileges = []) {
             };
         },
         stubs: {
-            'sw-page': '<div><slot name="smart-bar-actions"></slot><slot name="content">CONTENT</slot></div>',
+            'sw-page': {
+                template: '<div><slot name="smart-bar-actions"></slot><slot name="content">CONTENT</slot></div>'
+            },
             'sw-media-upload-v2': {
                 props: ['disabled'],
                 template: '<div></div>'
             },
-            'sw-text-editor': '<div class="sw-text-editor"/>',
-            'sw-card': '<div class="sw-card"><slot /></div>',
-            'sw-field': '<div class="sw-field"/>',
-            'sw-card-view': '<div><slot /></div>',
+            'sw-text-editor': {
+                template: '<div class="sw-text-editor"/>'
+            },
+            'sw-card': {
+                template: '<div class="sw-card"><slot /></div>'
+            },
+            'sw-field': {
+                template: '<div class="sw-field"/>'
+            },
+            'sw-card-view': {
+                template: '<div><slot /></div>'
+            },
             'sw-upload-listener': true,
             'sw-button-process': true,
             'sw-language-info': true,
@@ -71,10 +81,10 @@ function createWrapper(privileges = []) {
 }
 
 describe('src/module/sw-manufacturer/page/sw-manufacturer-detail', () => {
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should be able to save edit', async () => {

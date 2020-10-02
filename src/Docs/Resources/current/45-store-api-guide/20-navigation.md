@@ -4,6 +4,37 @@
 ## Navigation
 You can use our store-api to fetch all the categories you need. In the following example we will show you how you can fetch all sorts of navigations, how you can load cms pages with and without categories.
 
+### Fetching categories
+
+To get a list of categories you can use the route : `store-api.category.search`
+Additionally, you can use the api basic parameters (`filter`,  `aggregations`, etc.) for more information look [here](./../40-admin-api-guide/20-reading-entities.md).
+
+```
+POST /store-api/v3/category
+{
+    "includes": {
+        "category": ["id", "name"]
+    }
+}
+{
+  "total": 2,
+  "aggregations": [],
+  "elements": [
+    {
+      "id": "00a284072bcb42ed8fee31e26ea53b60",
+      "name": "Home",
+      "apiAlias": "category"
+    },
+    {
+      "id": "bd835e75afa14b09b7da156d095a9a30",
+      "name": "Outdoors",
+      "apiAlias": "category"
+    }
+  ],
+  "apiAlias": "dal_entity_search_result"
+}
+```
+
 ### Get the main navigation
 To get the main navigation of your Sales Channel you use the following route: `store-api.navigation`.
 

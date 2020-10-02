@@ -32,6 +32,7 @@ use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class DeliveryProcessorTest extends TestCase
 {
@@ -55,7 +56,8 @@ class DeliveryProcessorTest extends TestCase
     protected function setUp(): void
     {
         $this->connection = $this->getContainer()->get(Connection::class);
-        $this->contextPersister = new SalesChannelContextPersister($this->connection);
+        $eventDispatcher = new EventDispatcher();
+        $this->contextPersister = new SalesChannelContextPersister($this->connection, $eventDispatcher);
         $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
 
@@ -148,5 +150,68 @@ class DeliveryProcessorTest extends TestCase
 
         // Price was not recalculated
         static::assertSame(1.0, $calculatedCart->getDeliveries()->first()->getShippingCosts()->getTotalPrice());
+    }
+
+    public function testProcessShouldSetPriceByManualValue(): void
+    {
+        $deliveryProcessor = $this->getContainer()->get(DeliveryProcessor::class);
+
+        $cartDataCollection = new CartDataCollection();
+        $cartDataCollection->set(
+            DeliveryProcessor::buildKey($this->salesChannelContext->getShippingMethod()->getId()),
+            $this->salesChannelContext->getShippingMethod()
+        );
+        $originalCart = new Cart('original', 'original');
+        $originalCart->setDeliveries(new DeliveryCollection(
+            [
+                new Delivery(
+                    new DeliveryPositionCollection(),
+                    new DeliveryDate(new \DateTimeImmutable('now'), new \DateTimeImmutable('now')),
+                    new ShippingMethodEntity(),
+                    new ShippingLocation(new CountryEntity(), null, null),
+                    new CalculatedPrice(1.0, 1.0, new CalculatedTaxCollection(), new TaxRuleCollection())
+                ),
+            ]
+        ));
+
+        $originalCart->addExtension(
+            DeliveryProcessor::MANUAL_SHIPPING_COSTS,
+            new CalculatedPrice(99.0, 99.0, new CalculatedTaxCollection(), new TaxRuleCollection())
+        );
+
+        $calculatedCart = new Cart('calculated', 'calculated');
+
+        // Adding 2 line items to cart with a different tax rate (19 and 10)
+        $firstLineItem = new LineItem('first', LineItem::PRODUCT_LINE_ITEM_TYPE);
+        $firstLineItem->setDeliveryInformation(new DeliveryInformation(5, 0, false));
+        $firstLineItem->setPrice(new CalculatedPrice(5.0, 5.0, new CalculatedTaxCollection([
+            new CalculatedTax(5, 19, 5),
+        ]), new TaxRuleCollection()));
+
+        $secondLineItem = new LineItem('second', LineItem::PRODUCT_LINE_ITEM_TYPE);
+        $secondLineItem->setDeliveryInformation(new DeliveryInformation(5, 0, false));
+        $secondLineItem->setPrice(new CalculatedPrice(5.0, 5.0, new CalculatedTaxCollection([
+            new CalculatedTax(5, 10, 5),
+        ]), new TaxRuleCollection()));
+
+        $calculatedCart->setLineItems(new LineItemCollection([$firstLineItem, $secondLineItem]));
+
+        $cartBehavior = new CartBehavior([]);
+
+        static::assertCount(0, $calculatedCart->getDeliveries());
+
+        $deliveryProcessor->process($cartDataCollection, $originalCart, $calculatedCart, $this->salesChannelContext, $cartBehavior);
+
+        // Deliveries were built
+        static::assertCount(1, $calculatedCart->getDeliveries());
+
+        // Price is set by manual value
+        $shippingCosts = $calculatedCart->getDeliveries()->first()->getShippingCosts();
+        static::assertSame(99.0, $shippingCosts->getTotalPrice());
+
+        // Tax rate is now mixed
+        static::assertCount(2, $shippingCosts->getCalculatedTaxes());
+        static::assertEquals(19.0, $shippingCosts->getCalculatedTaxes()->first()->getTaxRate());
+        static::assertEquals(10.0, $shippingCosts->getCalculatedTaxes()->last()->getTaxRate());
     }
 }

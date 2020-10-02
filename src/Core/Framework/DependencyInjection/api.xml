@@ -133,6 +133,7 @@
 
         <service id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter">
             <argument type="service" id="Shopware\Core\Framework\Api\Converter\ConverterRegistry"/>
+            <argument type="service" id="request_stack"/>
         </service>
 
         <service id="Shopware\Core\Framework\Api\Converter\DefaultApiConverter">
@@ -194,6 +195,7 @@
             <argument type="service" id="Shopware\Core\Framework\Event\BusinessEventRegistry"/>
             <argument type="service" id="kernel" />
             <argument type="service" id="assets.packages" />
+            <argument type="service" id="Shopware\Core\Framework\Event\BusinessEventCollector" />
             <argument>%shopware.media.enable_url_upload_feature%</argument>
             <argument>%shopware.security.csp_templates%</argument>
             <call method="setContainer">

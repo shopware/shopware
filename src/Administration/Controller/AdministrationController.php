@@ -33,6 +33,9 @@ class AdministrationController extends AbstractController
      */
     private $snippetFinder;
 
+    /**
+     * @var array
+     */
     private $supportedApiVersions;
 
     /**
@@ -44,7 +47,7 @@ class AdministrationController extends AbstractController
         TemplateFinder $finder,
         FirstRunWizardClient $firstRunWizardClient,
         SnippetFinderInterface $snippetFinder,
-        $supportedApiVersions,
+        array $supportedApiVersions,
         KnownIpsCollectorInterface $knownIpsCollector
     ) {
         $this->finder = $finder;

@@ -1,10 +1,12 @@
 {% block sw_media_tag %}
     <div class="sw-media-tag">
-        <sw-media-collapse :title="$tc('global.sw-tag-field.title')"
-                           :expandOnLoading="true">
+        <sw-media-collapse
+            :title="$tc('global.sw-tag-field.title')"
+            :expandOnLoading="true">
             {% block sw_media_tag_input %}
                 <template slot="content">
                     <sw-entity-tag-select
+                        :disabled="disabled"
                         v-model="media.tags"
                         @change="handleChange"
                     ></sw-entity-tag-select>

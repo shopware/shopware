@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Api\Controller;
 
 use Shopware\Administration\Service\AdminOrderCartService;
-use Shopware\Core\Checkout\Cart\Delivery\DeliveryProcessor;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
@@ -25,6 +24,7 @@ use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
@@ -192,8 +192,6 @@ class SalesChannelProxyController extends AbstractController
 
         $this->fetchSalesChannel($salesChannelId, $context);
 
-        $this->adminOrderCartService->addPermission($this->getContextToken($request), DeliveryProcessor::SKIP_DELIVERY_PRICE_RECALCULATION);
-
         $salesChannelContext = $this->fetchSalesChannelContext($salesChannelId, $request);
 
         $calculatedPrice = $this->parseCalculatedPriceByRequest($request);
@@ -322,7 +320,8 @@ class SalesChannelProxyController extends AbstractController
         $salesChannelContext = $this->contextService->get(
             $salesChannelId,
             $contextToken,
-            $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID)
+            $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID),
+            $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID)
         );
 
         return $salesChannelContext;

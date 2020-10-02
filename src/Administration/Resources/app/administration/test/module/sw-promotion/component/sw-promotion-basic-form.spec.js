@@ -8,11 +8,21 @@ function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-promotion-basic-form'), {
         localVue,
         stubs: {
-            'sw-container': '<div class="sw-container"><slot></slot></div>',
-            'sw-field': '<div class="sw-field"></div>',
-            'sw-promotion-sales-channel-select': '<div class="sw-promotion-sales-channel-select"></div>',
-            'sw-datepicker': '<div class="sw-field-datepicker"></div>',
-            'sw-entity-multi-select': '<div class="sw-entity-multi-select"></div>'
+            'sw-container': {
+                template: '<div class="sw-container"><slot></slot></div>'
+            },
+            'sw-field': {
+                template: '<div class="sw-field"></div>'
+            },
+            'sw-promotion-sales-channel-select': {
+                template: '<div class="sw-promotion-sales-channel-select"></div>'
+            },
+            'sw-datepicker': {
+                template: '<div class="sw-field-datepicker"></div>'
+            },
+            'sw-entity-multi-select': {
+                template: '<div class="sw-entity-multi-select"></div>'
+            }
         },
         provide: {
             acl: {
@@ -88,11 +98,11 @@ describe('src/module/sw-promotion/component/sw-promotion-basic-form', () => {
         wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should have disabled form fields', () => {
+    it('should have disabled form fields', async () => {
         let elements = wrapper.findAll('.sw-field');
         expect(elements.wrappers.length).toBeGreaterThan(0);
         elements.wrappers.forEach(el => expect(el.attributes().disabled).toBe('disabled'));

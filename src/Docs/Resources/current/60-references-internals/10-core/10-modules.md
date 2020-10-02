@@ -197,7 +197,7 @@ Search engine optimization
 
 * [Entity relationship diagram](./10-erd/erd-shopware-core-content-seo.md)
 
-#### Sitemap <span class="tip is--primary">Maintenance</span> <span class="tip is--primary">Extension</span>
+#### Sitemap <span class="tip is--primary">Maintenance</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Extension</span>
 
 * [Sources](https://github.com/shopware/platform/tree/master/src/Core/Content/Sitemap)
 
@@ -227,6 +227,12 @@ Shopware app system
 
 * [User guide](./../../47-app-system-guide/__categoryInfo.md)
 
+#### Changelog <span class="tip is--primary">Maintenance</span> <span class="tip is--primary">Extension</span>
+
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Framework/Changelog)
+
+Console commands for the changelog workflow
+
 #### DataAbstractionLayer <span class="tip is--primary">Data store</span> <span class="tip is--primary">Maintenance</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Extension</span>
 
 * [Sources](https://github.com/shopware/platform/tree/master/src/Core/Framework/DataAbstractionLayer)
@@ -235,7 +241,7 @@ Data Abstraction Layer - the central component responsible for all storage acces
 
 * [user guide](./130-dal.md)
 
-#### Event <span class="tip is--primary">Data store</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Business Event Dispatcher</span> <span class="tip is--primary">Extension</span>
+#### Event <span class="tip is--primary">Data store</span> <span class="tip is--primary">Maintenance</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Business Event Dispatcher</span> <span class="tip is--primary">Extension</span>
 
 * [Sources](https://github.com/shopware/platform/tree/master/src/Core/Framework/Event)
 
@@ -304,7 +310,7 @@ Plugin services
 
 Rule matching
 
-#### Store <span class="tip is--primary">Maintenance</span> <span class="tip is--primary">Extension</span>
+#### Store <span class="tip is--primary">Maintenance</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Extension</span>
 
 * [Sources](https://github.com/shopware/platform/tree/master/src/Core/Framework/Store)
 
@@ -339,6 +345,14 @@ Validation
 * [Sources](https://github.com/shopware/platform/tree/master/src/Core/Framework/Webhook)
 
 Webhooks
+
+### Migration Bundle
+
+#### Traits 
+
+* [Sources](https://github.com/shopware/platform/tree/master/src/Core/Migration/Traits)
+
+Traits for different migration operations
 
 ### System Bundle
 

@@ -63,6 +63,9 @@ describe('Category: Visual tests', () => {
 
         // Take snapshot for visual testing
         cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-category-detail__save-action')
+            .should('have.css', 'background-color', 'rgb(24, 158, 255)');
+
         cy.takeSnapshot('Category - detail', '.sw-category-detail-base');
     });
 });

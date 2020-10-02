@@ -10,7 +10,11 @@ Component.register('sw-settings-snippet-set-list', {
         Mixin.getByName('sw-settings-list')
     ],
 
-    inject: ['snippetSetService', 'repositoryFactory'],
+    inject: [
+        'snippetSetService',
+        'repositoryFactory',
+        'acl'
+    ],
 
     data() {
         return {
@@ -47,10 +51,16 @@ Component.register('sw-settings-snippet-set-list', {
             );
 
             if (this.term) {
-                this.criteria.setTerm(this.term);
+                criteria.setTerm(this.term);
             }
 
             return criteria;
+        },
+
+        contextMenuEditSnippet() {
+            return this.acl.can('snippet.editor') ?
+                this.$tc('global.default.edit') :
+                this.$tc('global.default.view');
         }
     },
 
@@ -221,51 +231,54 @@ Component.register('sw-settings-snippet-set-list', {
 
         createDeleteSuccessNote() {
             this.createNotificationSuccess({
-                title: this.$tc('global.default.success'),
                 message: this.$tc('sw-settings-snippet.setList.deleteNoteSuccessMessage')
             });
         },
 
         createDeleteErrorNote() {
             this.createNotificationError({
-                title: this.$tc('global.default.error'),
                 message: this.$tc('sw-settings-snippet.setList.deleteNoteErrorMessage')
             });
         },
 
         createInlineSuccessNote(name) {
             this.createNotificationSuccess({
-                title: this.$tc('global.default.success'),
                 message: this.$tc('sw-settings-snippet.setList.inlineEditSuccessMessage', 0, { name })
             });
         },
 
         createInlineErrorNote(name) {
             this.createNotificationError({
-                title: this.$tc('global.default.error'),
                 message: this.$tc('sw-settings-snippet.setList.inlineEditErrorMessage', name !== null, { name })
             });
         },
 
         createCloneSuccessNote() {
             this.createNotificationSuccess({
-                title: this.$tc('global.default.success'),
                 message: this.$tc('sw-settings-snippet.setList.cloneSuccessMessage')
             });
         },
 
         createCloneErrorNote() {
             this.createNotificationError({
-                title: this.$tc('global.default.error'),
                 message: this.$tc('sw-settings-snippet.setList.cloneErrorMessage')
             });
         },
 
         createNotEditableErrorNote() {
             this.createNotificationError({
-                title: this.$tc('global.default.error'),
                 message: this.$tc('sw-settings-snippet.setList.notEditableNoteErrorMessage')
             });
+        },
+
+        getNoPermissionsTooltip(role, showOnDisabledElements = true) {
+            return {
+                showDelay: 300,
+                appearance: 'dark',
+                showOnDisabledElements,
+                disabled: this.acl.can(role),
+                message: this.$tc('sw-privileges.tooltip.warning')
+            };
         }
     }
 });

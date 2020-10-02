@@ -18,11 +18,11 @@ const {
 } = Shopware;
 
 describe('core/common.js', () => {
-    it('should contain the necessary methods for the module factory', () => {
+    it('should contain the necessary methods for the module factory', async () => {
         expect(Module).toHaveProperty('register');
     });
 
-    it('should contain the necessary methods for the component factory', () => {
+    it('should contain the necessary methods for the component factory', async () => {
         expect(Component).toHaveProperty('register');
         expect(Component).toHaveProperty('extend');
         expect(Component).toHaveProperty('override');
@@ -30,7 +30,7 @@ describe('core/common.js', () => {
         expect(Component).toHaveProperty('getTemplate');
     });
 
-    it('should contain the necessary methods for the template factory', () => {
+    it('should contain the necessary methods for the template factory', async () => {
         expect(Template).toHaveProperty('register');
         expect(Template).toHaveProperty('extend');
         expect(Template).toHaveProperty('override');
@@ -39,7 +39,7 @@ describe('core/common.js', () => {
         expect(Template).toHaveProperty('findOverride');
     });
 
-    it('should contain the necessary methods for the entity factory', () => {
+    it('should contain the necessary methods for the entity factory', async () => {
         expect(Entity).toHaveProperty('addDefinition');
         expect(Entity).toHaveProperty('getDefinition');
         expect(Entity).toHaveProperty('getDefinitionRegistry');
@@ -50,7 +50,7 @@ describe('core/common.js', () => {
         expect(Entity).toHaveProperty('getTranslatableProperties');
     });
 
-    it('should contain the necessary methods for the entity factory', () => {
+    it('should contain the necessary methods for the entity factory', async () => {
         expect(Entity).toHaveProperty('addDefinition');
         expect(Entity).toHaveProperty('getDefinition');
         expect(Entity).toHaveProperty('getDefinitionRegistry');
@@ -61,34 +61,34 @@ describe('core/common.js', () => {
         expect(Entity).toHaveProperty('getTranslatableProperties');
     });
 
-    it('should contain the necessary methods for the mixin factory', () => {
+    it('should contain the necessary methods for the mixin factory', async () => {
         expect(Mixin).toHaveProperty('register');
         expect(Mixin).toHaveProperty('getByName');
     });
 
-    it('should contain the necessary methods for the filter factory', () => {
+    it('should contain the necessary methods for the filter factory', async () => {
         expect(Filter).toHaveProperty('register');
         expect(Filter).toHaveProperty('getByName');
     });
 
-    it('should contain the necessary methods for the directive factory', () => {
+    it('should contain the necessary methods for the directive factory', async () => {
         expect(Directive).toHaveProperty('register');
         expect(Directive).toHaveProperty('getByName');
     });
 
-    it('should contain the necessary methods for the locale factory', () => {
+    it('should contain the necessary methods for the locale factory', async () => {
         expect(Locale).toHaveProperty('register');
         expect(Locale).toHaveProperty('extend');
         expect(Locale).toHaveProperty('getByName');
     });
 
-    it('should contain the necessary methods for the shortcut factory', () => {
+    it('should contain the necessary methods for the shortcut factory', async () => {
         expect(Shortcut).toHaveProperty('register');
         expect(Shortcut).toHaveProperty('getShortcutRegistry');
         expect(Shortcut).toHaveProperty('getPathByCombination');
     });
 
-    it('should contain the necessary methods for the utils', () => {
+    it('should contain the necessary methods for the utils', async () => {
         expect(Utils).toHaveProperty('throttle');
         expect(Utils).toHaveProperty('debounce');
         expect(Utils).toHaveProperty('get');
@@ -103,7 +103,7 @@ describe('core/common.js', () => {
         expect(Utils).toHaveProperty('array');
     });
 
-    it('should contain the necessary methods for the ApiService', () => {
+    it('should contain the necessary methods for the ApiService', async () => {
         expect(ApiService).toHaveProperty('register');
         expect(ApiService).toHaveProperty('getByName');
         expect(ApiService).toHaveProperty('getRegistry');
@@ -111,7 +111,7 @@ describe('core/common.js', () => {
         expect(ApiService).toHaveProperty('has');
     });
 
-    it('should contain the necessary methods for the EntityDefinition', () => {
+    it('should contain the necessary methods for the EntityDefinition', async () => {
         expect(EntityDefinition).toHaveProperty('getScalarTypes');
         expect(EntityDefinition).toHaveProperty('getJsonTypes');
         expect(EntityDefinition).toHaveProperty('getDefinitionRegistry');
@@ -123,7 +123,7 @@ describe('core/common.js', () => {
         expect(EntityDefinition).toHaveProperty('getRequiredFields');
     });
 
-    it('should contain the necessary methods for the WorkerNotification', () => {
+    it('should contain the necessary methods for the WorkerNotification', async () => {
         expect(WorkerNotification).toHaveProperty('register');
         expect(WorkerNotification).toHaveProperty('getRegistry');
         expect(WorkerNotification).toHaveProperty('override');
@@ -142,12 +142,12 @@ describe('core/common.js', () => {
         expect(Data).toHaveProperty('Repository');
     });
 
-    it('should contain the necessary methods for the Classes', () => {
+    it('should contain the necessary methods for the Classes', async () => {
         expect(Classes).toHaveProperty('ShopwareError');
         expect(Classes).toHaveProperty('ApiService');
     });
 
-    it('should contain the necessary methods for the Helper', () => {
+    it('should contain the necessary methods for the Helper', async () => {
         expect(Helper).toHaveProperty('FlatTreeHelper');
         expect(Helper).toHaveProperty('MiddlewareHelper');
     });

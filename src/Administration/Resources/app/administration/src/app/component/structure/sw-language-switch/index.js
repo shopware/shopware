@@ -40,6 +40,11 @@ Component.register('sw-language-switch', {
             type: Boolean,
             required: false,
             default: true
+        },
+        allowEdit: {
+            type: Boolean,
+            required: false,
+            default: true
         }
     },
 

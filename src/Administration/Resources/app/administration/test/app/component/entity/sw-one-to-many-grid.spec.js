@@ -65,13 +65,13 @@ function createWrapper() {
 }
 
 describe('app/component/entity/sw-one-to-many-grid', () => {
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should enable the context menu delete item', () => {
+    it('should enable the context menu delete item', async () => {
         const wrapper = createWrapper();
 
         const firstRow = wrapper.find('.sw-data-grid__row--1');
@@ -82,10 +82,10 @@ describe('app/component/entity/sw-one-to-many-grid', () => {
         expect(firstRowActionDelete.attributes().disabled).toBeFalsy();
     });
 
-    it('should disable the context menu delete item', () => {
+    it('should disable the context menu delete item', async () => {
         const wrapper = createWrapper();
 
-        wrapper.setProps({
+        await wrapper.setProps({
             allowDelete: false
         });
 

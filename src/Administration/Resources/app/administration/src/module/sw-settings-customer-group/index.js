@@ -1,6 +1,8 @@
 import './page/sw-settings-customer-group-list';
 import './page/sw-settings-customer-group-detail';
 
+import './acl';
+
 const { Module } = Shopware;
 
 Module.register('sw-settings-customer-group', {
@@ -20,14 +22,16 @@ Module.register('sw-settings-customer-group', {
             component: 'sw-settings-customer-group-list',
             path: 'index',
             meta: {
-                parentPath: 'sw.settings.index'
+                parentPath: 'sw.settings.index',
+                privilege: 'customer_groups.viewer'
             }
         },
         detail: {
             component: 'sw-settings-customer-group-detail',
             path: 'detail/:id',
             meta: {
-                parentPath: 'sw.settings.customer.group.index'
+                parentPath: 'sw.settings.customer.group.index',
+                privilege: 'customer_groups.viewer'
             },
             props: {
                 default(route) {
@@ -41,7 +45,8 @@ Module.register('sw-settings-customer-group', {
             component: 'sw-settings-customer-group-detail',
             path: 'create',
             meta: {
-                parentPath: 'sw.settings.customer.group.index'
+                parentPath: 'sw.settings.customer.group.index',
+                privilege: 'customer_groups.creator'
             }
         }
     },
@@ -49,6 +54,7 @@ Module.register('sw-settings-customer-group', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.customer.group.index',
-        icon: 'default-avatar-multiple'
+        icon: 'default-avatar-multiple',
+        privilege: 'customer_groups.viewer'
     }
 });

@@ -34,7 +34,10 @@
 
                             <div class="col-md-auto">
                                 {% block element_product_listing_sorting %}
-                                    {% sw_include '@Storefront/storefront/component/sorting.html.twig' with { current: searchResult.sorting, sortings: searchResult.availableSortings } %}
+                                    {% sw_include '@Storefront/storefront/component/sorting.html.twig' with {
+                                        current: searchResult.sorting,
+                                        sortings: searchResult.availableSortings
+                                    } %}
                                 {% endblock %}
                             </div>
                         </div>

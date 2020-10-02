@@ -11,9 +11,10 @@ use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\MailActionInterface;
+use Shopware\Core\Framework\Event\SalesChannelAware;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class CustomerGroupRegistrationDeclined extends Event implements MailActionInterface
+class CustomerGroupRegistrationDeclined extends Event implements MailActionInterface, SalesChannelAware
 {
     public const EVENT_NAME = 'customer.group.registration.declined';
 
@@ -70,9 +71,9 @@ class CustomerGroupRegistrationDeclined extends Event implements MailActionInter
         );
     }
 
-    public function getSalesChannelId(): ?string
+    public function getSalesChannelId(): string
     {
-        return null;
+        return $this->customer->getSalesChannelId();
     }
 
     public function getContext(): Context

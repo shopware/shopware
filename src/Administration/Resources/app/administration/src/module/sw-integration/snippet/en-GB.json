@@ -40,5 +40,12 @@
       "messageSaveError": "Integration could not be saved.",
       "messageCreateNewError": "Integration could not be saved."
     }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "integration": {
+        "label": "Integrations"
+      }
+    }
   }
 }

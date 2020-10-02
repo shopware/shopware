@@ -2,6 +2,8 @@
 [hash]: <>(article:admin_feature_flag_handling)
 
 This short guide will introduce you to the best practices when you need to make use of currently not released feature gated by a feature flag.
+For a complete overview about feature flags take a look [here](./../../60-references-internals/10-core/20-feature-flag-handling.md)
+
 ## Caution!
 **Everything gated by a feature flag is declared as Work in Progress**, do not rely on code gated by a feature flag and do not release plugins that make use of feature flags.
 Do not implement own feature flags, they will be broken!

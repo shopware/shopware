@@ -38,7 +38,9 @@ const createEntitySingleSelect = (customOptions) => {
             'sw-select-base': Shopware.Component.build('sw-select-base'),
             'sw-block-field': Shopware.Component.build('sw-block-field'),
             'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-icon': '<div></div>',
+            'sw-icon': {
+                template: '<div></div>'
+            },
             'sw-field-error': Shopware.Component.build('sw-field-error'),
             'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
             'sw-popover': Shopware.Component.build('sw-popover'),
@@ -69,13 +71,13 @@ const createEntitySingleSelect = (customOptions) => {
 };
 
 describe('components/sw-entity-single-select', () => {
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const swEntitySingleSelect = createEntitySingleSelect();
 
-        expect(swEntitySingleSelect.isVueInstance()).toBeTruthy();
+        expect(swEntitySingleSelect.vm).toBeTruthy();
     });
 
-    it('should have no reset option when it is not defined', () => {
+    it('should have no reset option when it is not defined', async () => {
         const swEntitySingleSelect = createEntitySingleSelect({
             propsData: {
                 value: null,
@@ -88,7 +90,7 @@ describe('components/sw-entity-single-select', () => {
         expect(singleSelection).toBeNull();
     });
 
-    it('should have a reset option when it is defined an the value is null', () => {
+    it('should have a reset option when it is defined an the value is null', async () => {
         const swEntitySingleSelect = createEntitySingleSelect({
             propsData: {
                 value: null,
@@ -104,7 +106,7 @@ describe('components/sw-entity-single-select', () => {
         expect(singleSelection.name).toEqual('reset');
     });
 
-    it('should have no reset option when it is defined but the value is not null', () => {
+    it('should have no reset option when it is defined but the value is not null', async () => {
         const swEntitySingleSelect = createEntitySingleSelect({
             propsData: {
                 value: 'uuid',
@@ -122,7 +124,7 @@ describe('components/sw-entity-single-select', () => {
         });
     });
 
-    it('should have prepend reset option to resultCollection when resetOption is given', () => {
+    it('should have prepend reset option to resultCollection when resetOption is given', async () => {
         const swEntitySingleSelect = createEntitySingleSelect({
             propsData: {
                 value: '',

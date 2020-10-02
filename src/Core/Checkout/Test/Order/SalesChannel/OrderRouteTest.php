@@ -21,7 +21,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
-use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
@@ -36,11 +35,6 @@ class OrderRouteTest extends TestCase
      * @var \Symfony\Bundle\FrameworkBundle\KernelBrowser
      */
     private $browser;
-
-    /**
-     * @var TestDataCollection
-     */
-    private $ids;
 
     /**
      * @var EntityRepositoryInterface
@@ -104,10 +98,8 @@ class OrderRouteTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->ids = new TestDataCollection(Context::createDefaultContext());
-
         $this->browser = $this->createCustomSalesChannelBrowser([
-            'id' => $this->ids->create('sales-channel'),
+            'id' => Defaults::SALES_CHANNEL,
         ]);
         $this->assignSalesChannelContext($this->browser);
 
@@ -252,6 +244,45 @@ class OrderRouteTest extends TestCase
         static::assertEquals('cancelled', $response['technicalName']);
     }
 
+    public function testOrderSalesChannelRestriction(): void
+    {
+        $testChannel = $this->createSalesChannel([
+            'domains' => [
+                [
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'currencyId' => Defaults::CURRENCY,
+                    'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                    'url' => 'http://foo.de',
+                ],
+            ],
+        ]);
+        $testOrder = $this->createOrder($this->customerId, $this->email, $this->password);
+
+        $this->getContainer()->get('order.repository')->update([
+            [
+                'id' => $testOrder,
+                'salesChannelId' => $testChannel['id'],
+            ],
+        ], Context::createDefaultContext());
+
+        $this->browser
+            ->request(
+                'GET',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/order',
+                $this->requestCriteriaBuilder->toArray(new Criteria())
+            );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertArrayHasKey('orders', $response);
+        static::assertArrayHasKey('elements', $response['orders']);
+        static::assertArrayHasKey(0, $response['orders']['elements']);
+        static::assertCount(1, $response['orders']['elements']);
+        static::assertArrayHasKey('id', $response['orders']['elements'][0]);
+        static::assertEquals($this->orderId, $response['orders']['elements'][0]['id']);
+        static::assertEquals(Defaults::SALES_CHANNEL, $response['orders']['elements'][0]['salesChannelId']);
+    }
+
     protected function getValidPaymentMethodId(): string
     {
         /** @var EntityRepositoryInterface $repository */
@@ -284,6 +315,7 @@ class OrderRouteTest extends TestCase
         $order = [
             [
                 'id' => $orderId,
+                'orderNumber' => Uuid::randomHex(),
                 'orderDateTime' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 'price' => new CartPrice(10, 10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET),
                 'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
@@ -331,7 +363,7 @@ class OrderRouteTest extends TestCase
                         'good' => true,
                     ],
                 ],
-                'deepLinkCode' => 'BwvdEInxOHBbwfRw6oHF1Q_orfYeo9RY',
+                'deepLinkCode' => Uuid::randomHex(),
                 'orderCustomer' => [
                     'email' => 'test@example.com',
                     'firstName' => 'Noe',

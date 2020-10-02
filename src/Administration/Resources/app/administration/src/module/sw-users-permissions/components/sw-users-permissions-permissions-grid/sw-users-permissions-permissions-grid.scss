@@ -21,6 +21,15 @@
         }
     }
 
+    .sw-users-permissions-permissions-grid__parent {
+        background-color: $color-gray-50;
+
+        .sw-users-permissions-permissions-grid__title {
+            font-weight: $font-weight-semi-bold;
+            padding-left: 10px;
+        }
+    }
+
     .sw-users-permissions-permissions-grid__entry-header {
         font-weight: bold;
     }
@@ -44,5 +53,6 @@
         margin-right: auto;
         width: auto;
         justify-content: left;
+        padding-left: 36px;
     }
 }

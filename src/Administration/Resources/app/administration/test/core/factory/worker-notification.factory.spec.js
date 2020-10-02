@@ -13,11 +13,11 @@ describe('core/factory/worker-notification.factory.js', () => {
         next();
     });
 
-    it('should return the registry', () => {
+    it('should return the registry', async () => {
         expect(WorkerNotificationFactory.getRegistry() instanceof Map).toBeTruthy();
     });
 
-    it('should initialize the middleware helper', () => {
+    it('should initialize the middleware helper', async () => {
         WorkerNotificationFactory.register('foo', {
             name: 'foo',
             fn: noop
@@ -30,7 +30,7 @@ describe('core/factory/worker-notification.factory.js', () => {
         expect(sameHelper).toBe(helper);
     });
 
-    it('should fire the registered worker notification middleware', (done) => {
+    it('should fire the registered worker notification middleware', async done => {
         const callback = jest.fn((next) => {
             expect(callback).toHaveBeenCalled();
             next();
@@ -57,7 +57,7 @@ describe('core/factory/worker-notification.factory.js', () => {
     });
 
     describe('register worker notification', () => {
-        it('should register using an unique name', () => {
+        it('should register using an unique name', async () => {
             const result = WorkerNotificationFactory.register('foo', {
                 name: 'foo',
                 fn: noop
@@ -66,7 +66,7 @@ describe('core/factory/worker-notification.factory.js', () => {
             expect(result).toBeTruthy();
         });
 
-        it('should reject the registration using the same name', () => {
+        it('should reject the registration using the same name', async () => {
             expect(WorkerNotificationFactory.register('foo', {
                 name: 'foo',
                 fn: noop
@@ -78,7 +78,7 @@ describe('core/factory/worker-notification.factory.js', () => {
             })).toBeFalsy();
         });
 
-        it('should reject the registration if the options object is not valid', () => {
+        it('should reject the registration if the options object is not valid', async () => {
             expect(WorkerNotificationFactory.register('', {})).toBeFalsy();
 
             expect(WorkerNotificationFactory.register('foo', {
@@ -102,7 +102,7 @@ describe('core/factory/worker-notification.factory.js', () => {
     });
 
     describe('override worker notification', () => {
-        it('should override an existing worker notification', () => {
+        it('should override an existing worker notification', async () => {
             WorkerNotificationFactory.register('foo', {
                 name: 'foo',
                 fn: noop
@@ -117,14 +117,14 @@ describe('core/factory/worker-notification.factory.js', () => {
             expect(registryEntry.name).toBe('bar');
         });
 
-        it('should reject the override if no worker notification with the same name is registered', () => {
+        it('should reject the override if no worker notification with the same name is registered', async () => {
             expect(WorkerNotificationFactory.override('foo', {
                 name: 'foo',
                 fn: noop
             })).toBeFalsy();
         });
 
-        it('should reject the override if the options are not valid', () => {
+        it('should reject the override if the options are not valid', async () => {
             expect(WorkerNotificationFactory.register('foo', {
                 name: 'foo',
                 fn: noop
@@ -144,7 +144,7 @@ describe('core/factory/worker-notification.factory.js', () => {
     });
 
     describe('remove worker notification', () => {
-        it('should remove an existing worker notification', () => {
+        it('should remove an existing worker notification', async () => {
             WorkerNotificationFactory.register('foo', {
                 name: 'foo',
                 fn: noop
@@ -153,12 +153,12 @@ describe('core/factory/worker-notification.factory.js', () => {
             expect(WorkerNotificationFactory.getRegistry().size).toBe(0);
         });
 
-        it('should reject the removal of an non existing worker notification', () => {
+        it('should reject the removal of an non existing worker notification', async () => {
             expect(WorkerNotificationFactory.remove('foo')).toBeFalsy();
             expect(WorkerNotificationFactory.getRegistry().size).toBe(0);
         });
 
-        it('should reject the removal if the options are not valid', () => {
+        it('should reject the removal if the options are not valid', async () => {
             expect(WorkerNotificationFactory.remove('')).toBeFalsy();
             expect(WorkerNotificationFactory.remove()).toBeFalsy();
         });

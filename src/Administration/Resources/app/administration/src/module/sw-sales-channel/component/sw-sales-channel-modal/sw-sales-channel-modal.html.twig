@@ -37,42 +37,40 @@
 
         {% block sw_sales_channel_modal_footer %}
             <template slot="modal-footer">
-                <template v-if="detailType">
-                    {% block sw_sales_channel_modal_footer_detail_actions %}
-                        {% block sw_sales_channel_modal_footer_back %}
-                            <sw-button size="small" @click.prevent="detailType = false">
-                                {{ $tc('sw-sales-channel.modal.buttonBack') }}
-                            </sw-button>
-                        {% endblock %}
 
-                        {% block sw_sales_channel_modal_footer_add_channel %}
-                            <sw-button
-                                class="sw-sales-channel-modal__add-sales-channel-action"
-                                variant="primary"
-                                size="small"
-                                @click="onAddChannel(detailType.id)"
-                                :isLoading="addChannelAction.loading(detailType.id)"
-                                :disabled="addChannelAction.disabled(detailType.id)"
-                                v-tooltip="{
-                                    message: $tc('sw-sales-channel.modal.messageNoProductStreams'),
-                                    showOnDisabledElements: true,
-                                    disabled: !addChannelAction.disabled(detailType.id)
-                                }">
-                                {{ $tc('sw-sales-channel.modal.buttonAddChannel') }}
-                            </sw-button>
-                        {% endblock %}
+                {% block sw_sales_channel_modal_footer_detail_actions %}
+                    {% block sw_sales_channel_modal_footer_back %}
+                        <sw-button v-if="detailType" size="small" @click.prevent="detailType = false">
+                            {{ $tc('sw-sales-channel.modal.buttonBack') }}
+                        </sw-button>
                     {% endblock %}
-                </template>
 
-                <template v-else>
-                    {% block sw_sales_channel_modal_footer_actions %}
-                        {% block sw_sales_channel_modal_footer_cancel %}
-                            <sw-button size="small" @click="onCloseModal">
-                                {{ $tc('sw-sales-channel.modal.buttonCancel') }}
-                            </sw-button>
-                        {% endblock %}
+                    {% block sw_sales_channel_modal_footer_add_channel %}
+                        <sw-button
+                            v-if="detailType"
+                            class="sw-sales-channel-modal__add-sales-channel-action"
+                            variant="primary"
+                            size="small"
+                            @click="onAddChannel(detailType.id)"
+                            :isLoading="addChannelAction.loading(detailType.id)"
+                            :disabled="addChannelAction.disabled(detailType.id)"
+                            v-tooltip="{
+                                message: $tc('sw-sales-channel.modal.messageNoProductStreams'),
+                                showOnDisabledElements: true,
+                                disabled: !addChannelAction.disabled(detailType.id)
+                             }">
+                            {{ $tc('sw-sales-channel.modal.buttonAddChannel') }}
+                        </sw-button>
                     {% endblock %}
-                </template>
+                {% endblock %}
+
+                {% block sw_sales_channel_modal_footer_actions %}
+                    {% block sw_sales_channel_modal_footer_cancel %}
+                        <sw-button v-if="!detailType" size="small" @click="onCloseModal">
+                            {{ $tc('sw-sales-channel.modal.buttonCancel') }}
+                        </sw-button>
+                    {% endblock %}
+                {% endblock %}
             </template>
         {% endblock %}
     </sw-modal>

@@ -29,7 +29,7 @@ describe('core/service/login.service.js', () => {
         window.localStorage.removeItem('redirectFromLogin');
     });
 
-    it('should contain all public functions', () => {
+    it('should contain all public functions', async () => {
         const { loginService } = loginServiceFactory();
 
         expect(loginService).toHaveProperty('loginByUsername');
@@ -45,7 +45,7 @@ describe('core/service/login.service.js', () => {
         expect(loginService).toHaveProperty('notifyOnLoginListener');
     });
 
-    it('should set the bearer authentication with the right expiry', () => {
+    it('should set the bearer authentication with the right expiry', async () => {
         const { loginService } = loginServiceFactory();
 
         const auth = loginService.setBearerAuthentication({

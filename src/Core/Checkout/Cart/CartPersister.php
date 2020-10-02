@@ -4,12 +4,14 @@ namespace Shopware\Core\Checkout\Cart;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
+use Shopware\Core\Checkout\Cart\Event\CartSavedEvent;
 use Shopware\Core\Checkout\Cart\Exception\CartDeserializeFailedException;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class CartPersister implements CartPersisterInterface
 {
@@ -18,9 +20,15 @@ class CartPersister implements CartPersisterInterface
      */
     private $connection;
 
-    public function __construct(Connection $connection)
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    public function __construct(Connection $connection, EventDispatcherInterface $eventDispatcher)
     {
         $this->connection = $connection;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function load(string $token, SalesChannelContext $context): Cart
@@ -77,6 +85,8 @@ class CartPersister implements CartPersisterInterface
         ];
 
         $this->connection->insert('cart', $data);
+
+        $this->eventDispatcher->dispatch(new CartSavedEvent($context, $cart));
     }
 
     public function delete(string $token, SalesChannelContext $context): void

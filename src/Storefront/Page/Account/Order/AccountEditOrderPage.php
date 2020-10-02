@@ -34,6 +34,11 @@ class AccountEditOrderPage extends Page
      */
     protected $paymentChangeable = true;
 
+    /**
+     * @var null|string
+     */
+    protected $errorCode;
+
     public function getOrder(): OrderEntity
     {
         return $this->order;
@@ -82,5 +87,15 @@ class AccountEditOrderPage extends Page
     public function setPaymentChangeable(bool $paymentChangeable): void
     {
         $this->paymentChangeable = $paymentChangeable;
+    }
+
+    public function getErrorCode(): ?string
+    {
+        return $this->errorCode;
+    }
+
+    public function setErrorCode(?string $errorCode): void
+    {
+        $this->errorCode = $errorCode;
     }
 }

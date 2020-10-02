@@ -32,12 +32,12 @@ describe('components/form/sw-password-field', () => {
         wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('Should display placeholder as text', () => {
-        wrapper.setProps({
+    it('Should display placeholder as text', async () => {
+        await wrapper.setProps({
             placeholder: 'Enter your password'
         });
 
@@ -45,8 +45,8 @@ describe('components/form/sw-password-field', () => {
         expect(wrapper.find('input').attributes().placeholder).toBe('Enter your password');
     });
 
-    it('Should display placeholder as password', () => {
-        wrapper.setProps({
+    it('Should display placeholder as password', async () => {
+        await wrapper.setProps({
             placeholder: 'ThirteenChars',
             placeholderIsPassword: true
         });
@@ -55,24 +55,24 @@ describe('components/form/sw-password-field', () => {
         expect(wrapper.find('input').attributes().placeholder).toBe('*************');
     });
 
-    it('Should display placeholder as password without given placeholder prop', () => {
-        wrapper.setProps({
+    it('Should display placeholder as password without given placeholder prop', async () => {
+        await wrapper.setProps({
             placeholderIsPassword: true
         });
 
         expect(wrapper.find('input').attributes().placeholder).toBe('******');
     });
 
-    it('Should display entered password by switching type to text', () => {
+    it('Should display entered password by switching type to text', async () => {
         const input = wrapper.find('input');
 
         expect(input.attributes().type).toBe('password');
 
-        wrapper.setData({
+        await wrapper.setData({
             showPassword: true
         });
 
-        input.setValue('Very secret password');
+        await input.setValue('Very secret password');
 
         expect(input.attributes().type).toBe('text');
         expect(input.element.value).toBe('Very secret password');

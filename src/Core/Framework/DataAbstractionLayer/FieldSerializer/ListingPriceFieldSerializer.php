@@ -64,10 +64,10 @@ class ListingPriceFieldSerializer extends AbstractFieldSerializer
 
             foreach ($rows as $row) {
                 $from = clone $this->price;
-                $from->assign($row['from']);
+                $from->assign($this->normalizePrices($row['from']));
 
                 $to = clone $this->price;
-                $to->assign($row['to']);
+                $to->assign($this->normalizePrices($row['to']));
 
                 $price = clone $this->listPrice;
                 $price->assign([
@@ -82,5 +82,13 @@ class ListingPriceFieldSerializer extends AbstractFieldSerializer
         }
 
         return new ListingPriceCollection($structs);
+    }
+
+    private function normalizePrices(array $price): array
+    {
+        $price['net'] = (float) $price['net'];
+        $price['gross'] = (float) $price['gross'];
+
+        return $price;
     }
 }

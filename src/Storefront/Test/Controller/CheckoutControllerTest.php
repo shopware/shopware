@@ -13,20 +13,31 @@ use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;
 use Shopware\Core\Checkout\Order\Exception\PaymentMethodNotAvailableException;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
+use Shopware\Core\Checkout\Payment\Cart\Error\PaymentMethodBlockedError;
+use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotFoundError;
+use Shopware\Core\Checkout\Shipping\Cart\Error\ShippingMethodBlockedError;
 use Shopware\Core\Checkout\Test\Payment\Handler\SyncTestFailedPaymentHandler;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\Cart\ProductOutOfStockError;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\PlatformRequest;
+use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Controller\CheckoutController;
 use Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener;
+use Shopware\Storefront\Framework\Routing\RequestTransformer;
+use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -34,12 +45,17 @@ use Symfony\Component\HttpFoundation\Response;
 class CheckoutControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
+    use StorefrontSalesChannelTestHelper;
 
     private const UUID_LENGTH = 32;
     private const PRODUCT_PRICE = 15.99;
     private const CUSTOMER_NAME = 'Tester';
     private const TEST_AFFILIATE_CODE = 'testAffiliateCode';
     private const TEST_CAMPAIGN_CODE = 'testCampaignCode';
+    private const SHIPPING_METHOD_BLOCKED_ERROR_CONTENT = 'The shipping method Standard is blocked for your current shopping cart.';
+    private const PAYMENT_METHOD_BLOCKED_ERROR_CONTENT = 'The payment method Cash On Delivery is blocked for your current shopping cart.';
+    private const PROMOTION_NOT_FOUND_ERROR_CONTENT = 'Promotion with code "tn-08" could not be found.';
+    private const PRODUCT_STOCK_REACHED_ERROR_CONTENT = 'The product Car is not available any more';
 
     /**
      * @var string
@@ -105,9 +121,13 @@ class CheckoutControllerTest extends TestCase
 
         static::assertInstanceOf(RedirectResponse::class, $response);
 
-        static::assertStringContainsString('/checkout/finish', $response->getTargetUrl(), 'Target Url does not point to /checkout/finish');
-        static::assertStringContainsString('paymentFailed=1', $response->getTargetUrl(), 'Target Url does not contain paymentFailed=1 as query parameter');
-        static::assertStringContainsString('changedPayment=0', $response->getTargetUrl(), 'Target Url does not contain changedPayment=0 as query parameter');
+        if (Feature::isActive('FEATURE_NEXT_9351')) {
+            static::assertStringContainsString('/account/order/edit', $response->getTargetUrl(), 'Target Url does not point to /checkout/finish');
+        } else {
+            static::assertStringContainsString('/checkout/finish', $response->getTargetUrl(), 'Target Url does not point to /checkout/finish');
+            static::assertStringContainsString('paymentFailed=1', $response->getTargetUrl(), 'Target Url does not contain paymentFailed=1 as query parameter');
+            static::assertStringContainsString('changedPayment=0', $response->getTargetUrl(), 'Target Url does not contain changedPayment=0 as query parameter');
+        }
     }
 
     public function testAffiliateOrder(): void
@@ -120,6 +140,140 @@ class CheckoutControllerTest extends TestCase
 
         static::assertSame(self::TEST_AFFILIATE_CODE, $order->getAffiliateCode());
         static::assertSame(self::TEST_CAMPAIGN_CODE, $order->getCampaignCode());
+    }
+
+    public function testOrderWithEmptyCartDoesNotResultIn400StatusCode(): void
+    {
+        $browser = $this->getBrowserWithLoggedInCustomer();
+
+        $browser->request(
+            'POST',
+            $_SERVER['APP_URL'] . '/checkout/order',
+            [
+                'tos' => 'on',
+            ]
+        );
+
+        $response = $browser->getResponse();
+        static::assertLessThan(400, $response->getStatusCode(), $response->getContent());
+    }
+
+    /**
+     * @dataProvider errorDataProvider
+     */
+    public function testOffCanvasWithErrorsFlash($errorTypes, $errorKeys): void
+    {
+        static::markTestSkipped('snippet not working');
+        Feature::skipTestIfInActive('FEATURE_NEXT_10058', $this);
+        $contextToken = Uuid::randomHex();
+        $productId = Uuid::randomHex();
+        /** @var CartService $cartService */
+        $cartService = $this->getContainer()->get(CartService::class);
+        $this->createProductOnDatabase($productId, 'test.123');
+
+        $salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
+            $contextToken,
+            Defaults::SALES_CHANNEL
+        );
+        $this->updateSalesChannel(Defaults::SALES_CHANNEL);
+        $request = $this->createRequest();
+        $request->attributes->add([
+            '_route' => 'frontend.cart.offcanvas',
+            SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
+            PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT => $salesChannelContext,
+            RequestTransformer::STOREFRONT_URL => 'http://test.de',
+        ]);
+        $this->getContainer()->get('request_stack')->push($request);
+        $cartLineItem = $cartService->getCart($contextToken, $salesChannelContext);
+        foreach ($errorTypes as $errorType) {
+            $cartLineItem->addErrors(
+                $errorType
+            );
+        }
+        $response = $this->getContainer()->get(CheckoutController::class)->offcanvas($request, $salesChannelContext);
+        $contentReturn = $response->getContent();
+        $crawler = new Crawler();
+        $crawler->addHtmlContent($contentReturn);
+        $errorContent = $crawler->filterXPath('//div[@class="alert-content"]')->text();
+        foreach ($errorKeys as $errorKey) {
+            static::assertStringContainsString($errorKey, $errorContent);
+        }
+    }
+
+    public function errorDataProvider(): array
+    {
+        return [
+            [[new ShippingMethodBlockedError('Standard'), new PaymentMethodBlockedError('Cash On Delivery')], [self::SHIPPING_METHOD_BLOCKED_ERROR_CONTENT, self::PAYMENT_METHOD_BLOCKED_ERROR_CONTENT]],
+            [[new PaymentMethodBlockedError('Cash On Delivery')], [self::PAYMENT_METHOD_BLOCKED_ERROR_CONTENT]],
+            [[new PromotionNotFoundError('tn-08')], [self::PROMOTION_NOT_FOUND_ERROR_CONTENT]],
+            [[new ProductOutOfStockError('product id', 'Car')], [self::PRODUCT_STOCK_REACHED_ERROR_CONTENT]],
+        ];
+    }
+
+    private function updateSalesChannel(string $salesChannelId): void
+    {
+        $data = [
+            'id' => $salesChannelId,
+            'name' => 'test',
+            'typeId' => Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
+            'accessKey' => AccessKeyHelper::generateAccessKey('sales-channel'),
+            'languageId' => Defaults::LANGUAGE_SYSTEM,
+            'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+            'currencyId' => Defaults::CURRENCY,
+            'currencyVersionId' => Defaults::LIVE_VERSION,
+            'paymentMethodId' => $this->getValidPaymentMethodId(),
+            'paymentMethodVersionId' => Defaults::LIVE_VERSION,
+            'shippingMethodId' => $this->getValidShippingMethodId(),
+            'shippingMethodVersionId' => Defaults::LIVE_VERSION,
+            'countryId' => $this->getValidCountryId(),
+            'countryVersionId' => Defaults::LIVE_VERSION,
+            'navigationCategoryVersionId' => Defaults::LIVE_VERSION,
+            'serviceCategoryVersionId' => Defaults::LIVE_VERSION,
+            'footerCategoryVersionId' => Defaults::LIVE_VERSION,
+            'currencies' => [['id' => Defaults::CURRENCY]],
+            'languages' => [['id' => Defaults::LANGUAGE_SYSTEM]],
+            'paymentMethods' => [['id' => $this->getValidPaymentMethodId()]],
+            'shippingMethods' => [['id' => $this->getValidShippingMethodId()]],
+            'countries' => [['id' => $this->getValidCountryId()]],
+            'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+            'domains' => [
+                [
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                    'currencyId' => Defaults::CURRENCY,
+                    'url' => 'http://test.123',
+                ],
+            ],
+        ];
+        $this->getContainer()->get('sales_channel.repository')->update([$data], Context::createDefaultContext());
+    }
+
+    private function createProductOnDatabase(string $productId, string $productNumber): void
+    {
+        $taxId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+
+        $product = [
+            'id' => $productId,
+            'name' => 'Test product',
+            'productNumber' => $productNumber,
+            'stock' => 1,
+            'price' => [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => 15.99, 'net' => 10, 'linked' => false],
+            ],
+            'tax' => ['id' => $taxId, 'name' => 'testTaxRate', 'taxRate' => 15],
+            'categories' => [
+                ['id' => $productId, 'name' => 'Test category'],
+            ],
+            'visibilities' => [
+                [
+                    'id' => $productId,
+                    'salesChannelId' => Defaults::SALES_CHANNEL,
+                    'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
+                ],
+            ],
+        ];
+        $this->getContainer()->get('product.repository')->create([$product], $context);
     }
 
     /**

@@ -10,7 +10,8 @@ Component.register('sw-product-stream-value', {
     inject: [
         'repositoryFactory',
         'conditionDataProviderService',
-        'productCustomFields'
+        'productCustomFields',
+        'acl'
     ],
 
     props: {
@@ -28,6 +29,12 @@ Component.register('sw-product-stream-value', {
         definition: {
             type: Object,
             required: true
+        },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -45,7 +52,8 @@ Component.register('sw-product-stream-value', {
 
         componentClasses() {
             return [
-                this.growthClass
+                this.growthClass,
+                this.disabledClass
             ];
         },
 
@@ -55,6 +63,10 @@ Component.register('sw-product-stream-value', {
             }
 
             return `sw-product-stream-value--grow-${this.childComponents.length}`;
+        },
+
+        disabledClass() {
+            return this.disabled ? 'is--disabled' : null;
         },
 
         actualCondition() {

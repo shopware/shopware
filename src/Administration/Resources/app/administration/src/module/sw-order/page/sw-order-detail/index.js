@@ -92,7 +92,6 @@ Component.register('sw-order-detail', {
             }
 
             this.createNotificationError({
-                title: this.$tc('global.default.error'),
                 message: this.$tc('sw-order.detail.messageRecalculationError') + errorDetails
             });
         }

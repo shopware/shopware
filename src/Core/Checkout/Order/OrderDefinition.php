@@ -27,6 +27,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
@@ -115,6 +116,10 @@ class OrderDefinition extends EntityDefinition
             new OneToManyAssociationField('documents', DocumentDefinition::class, 'order_id'),
             (new ManyToManyAssociationField('tags', TagDefinition::class, OrderTagDefinition::class, 'order_id', 'tag_id'))->addFlags(new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
         ]);
+
+        if (Feature::isActive('FEATURE_NEXT_9351')) {
+            $fields->add(new ListField('rule_ids', 'ruleIds', StringField::class));
+        }
 
         if (Feature::isActive('FEATURE_NEXT_6059')) {
             $fields->add(

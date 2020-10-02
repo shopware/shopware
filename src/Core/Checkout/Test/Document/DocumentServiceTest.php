@@ -13,14 +13,15 @@ use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\Order\OrderPersister;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
+use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentGenerator\DeliveryNoteGenerator;
 use Shopware\Core\Checkout\Document\DocumentGenerator\InvoiceGenerator;
 use Shopware\Core\Checkout\Document\DocumentGenerator\StornoGenerator;
 use Shopware\Core\Checkout\Document\DocumentService;
-use Shopware\Core\Checkout\Document\Exception\InvalidDocumentException;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Content\Media\MediaType\BinaryType;
 use Shopware\Core\Content\Media\Pathname\UrlGenerator;
@@ -32,7 +33,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\RuleTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
@@ -40,7 +40,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Smalot\PdfParser\Parser;
 
 class DocumentServiceTest extends TestCase
 {
@@ -251,7 +250,7 @@ class DocumentServiceTest extends TestCase
         static::assertEquals('test123', $generatedDocument->getFileBlob());
     }
 
-    public function testGetInvoicePdfDocumentById(): void
+    public function testConfigurationWithSalesChannelOverride(): void
     {
         /** @var DocumentService $documentService */
         $documentService = $this->getContainer()->get(DocumentService::class);
@@ -259,7 +258,19 @@ class DocumentServiceTest extends TestCase
         $cart = $this->generateDemoCart(2);
         $orderId = $this->persistCart($cart);
 
-        $document = $documentService->create(
+        $base = $this->getBaseConfig(InvoiceGenerator::INVOICE);
+        $globalConfig = $base === null ? [] : $base->getConfig();
+        $globalConfig['companyName'] = 'Test corp.';
+        $globalConfig['displayCompanyAddress'] = true;
+        $this->upsertBaseConfig($globalConfig, InvoiceGenerator::INVOICE);
+
+        $salesChannelConfig = [
+            'companyName' => 'Custom corp.',
+            'displayCompanyAddress' => false,
+        ];
+        $this->upsertBaseConfig($salesChannelConfig, InvoiceGenerator::INVOICE, $this->salesChannelContext->getSalesChannel()->getId());
+
+        $documentId = $documentService->create(
             $orderId,
             InvoiceGenerator::INVOICE,
             FileTypes::PDF,
@@ -267,36 +278,132 @@ class DocumentServiceTest extends TestCase
             $this->context
         );
 
-        $documentId = $document->getId();
+        /** @var EntityRepositoryInterface $documentRepository */
+        $documentRepository = $this->getContainer()->get('document.repository');
+        /** @var DocumentEntity $document */
+        $document = $documentRepository->search(new Criteria([$documentId->getId()]), Context::createDefaultContext())->first();
 
-        $criteria = new Criteria();
-        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND, [
-            new EqualsFilter('id', $document->getId()),
-            new EqualsFilter('deepLinkCode', $document->getDeepLinkCode()),
-        ]));
-        $criteria->addAssociation('documentType');
+        $expectedConfig = array_merge($globalConfig, $salesChannelConfig);
+
+        $actualConfig = $document->getConfig();
+        foreach ($expectedConfig as $key => $value) {
+            static::assertArrayHasKey($key, $actualConfig);
+            static::assertSame($actualConfig[$key], $value);
+        }
+    }
+
+    public function testConfigurationWithOverrides(): void
+    {
+        /** @var DocumentService $documentService */
+        $documentService = $this->getContainer()->get(DocumentService::class);
+
+        $cart = $this->generateDemoCart(2);
+        $orderId = $this->persistCart($cart);
+
+        $base = $this->getBaseConfig(InvoiceGenerator::INVOICE);
+        $globalConfig = $base === null ? [] : $base->getConfig();
+        $globalConfig['companyName'] = 'Test corp.';
+        $globalConfig['displayCompanyAddress'] = true;
+        $this->upsertBaseConfig($globalConfig, InvoiceGenerator::INVOICE);
+
+        $salesChannelConfig = [
+            'companyName' => 'Custom corp.',
+            'displayCompanyAddress' => false,
+            'pageSize' => 'a5',
+        ];
+        $this->upsertBaseConfig($salesChannelConfig, InvoiceGenerator::INVOICE, $this->salesChannelContext->getSalesChannel()->getId());
+
+        $overrides = [
+            'companyName' => 'Override corp.',
+            'displayCompanyAddress' => true,
+        ];
+        $overridesConfig = DocumentConfigurationFactory::createConfiguration($overrides);
+
+        $documentIdWithOverride = $documentService->create(
+            $orderId,
+            InvoiceGenerator::INVOICE,
+            FileTypes::PDF,
+            $overridesConfig,
+            $this->context
+        );
 
         /** @var EntityRepositoryInterface $documentRepository */
         $documentRepository = $this->getContainer()->get('document.repository');
+        /** @var DocumentEntity $document */
+        $document = $documentRepository->search(new Criteria([$documentIdWithOverride->getId()]), Context::createDefaultContext())->first();
 
-        $document = $documentRepository->search($criteria, $this->context)->first();
+        $expectedConfig = array_merge($globalConfig, $salesChannelConfig, $overrides);
 
-        if (!$document) {
-            throw new InvalidDocumentException($documentId);
+        $actualConfig = $document->getConfig();
+        foreach ($expectedConfig as $key => $value) {
+            static::assertArrayHasKey($key, $actualConfig);
+            static::assertSame($actualConfig[$key], $value);
+        }
+    }
+
+    private function getBaseConfig(string $documentType, ?string $salesChannelId = null): ?DocumentBaseConfigEntity
+    {
+        /** @var EntityRepositoryInterface $documentTypeRepository */
+        $documentTypeRepository = $this->getContainer()->get('document_type.repository');
+        $documentTypeId = $documentTypeRepository->searchIds(
+            (new Criteria())->addFilter(new EqualsFilter('technicalName', $documentType)),
+            Context::createDefaultContext()
+        )->firstId();
+
+        /** @var EntityRepositoryInterface $documentBaseConfigRepository */
+        $documentBaseConfigRepository = $this->getContainer()->get('document_base_config.repository');
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('documentTypeId', $documentTypeId));
+        $criteria->addFilter(new EqualsFilter('global', true));
+
+        if ($salesChannelId !== null) {
+            $criteria->addFilter(new EqualsFilter('salesChannels.salesChannelId', $salesChannelId));
+            $criteria->addFilter(new EqualsFilter('salesChannels.documentTypeId', $documentTypeId));
         }
 
-        $renderedDocument = $documentService->getDocument($document, $this->context);
+        return $documentBaseConfigRepository->search($criteria, Context::createDefaultContext())->first();
+    }
 
-        $parser = new Parser();
-        $parsedDocument = $parser->parseContent($renderedDocument->getFileBlob());
+    private function upsertBaseConfig($config, string $documentType, ?string $salesChannelId = null): void
+    {
+        $baseConfig = $this->getBaseConfig($documentType, $salesChannelId);
 
-        if ($cart->getLineItems()->count() <= 0) {
-            static::fail('No line items found');
+        /** @var EntityRepositoryInterface $documentTypeRepository */
+        $documentTypeRepository = $this->getContainer()->get('document_type.repository');
+        $documentTypeId = $documentTypeRepository->searchIds(
+            (new Criteria())->addFilter(new EqualsFilter('technicalName', $documentType)),
+            Context::createDefaultContext()
+        )->firstId();
+
+        if ($baseConfig === null) {
+            $documentConfigId = Uuid::randomHex();
+        } else {
+            $documentConfigId = $baseConfig->getId();
         }
 
-        foreach ($cart->getLineItems() as $lineItem) {
-            static::assertStringContainsString($lineItem->getLabel(), $parsedDocument->getText());
+        $data = [
+            'id' => $documentConfigId,
+            'typeId' => $documentTypeId,
+            'documentTypeId' => $documentTypeId,
+            'config' => $config,
+        ];
+        if ($baseConfig === null) {
+            $data['name'] = $documentConfigId;
         }
+        if ($salesChannelId !== null) {
+            $data['salesChannels'] = [
+                [
+                    'documentBaseConfigId' => $documentConfigId,
+                    'documentTypeId' => $documentTypeId,
+                    'salesChannelId' => $salesChannelId,
+                ],
+            ];
+        }
+
+        /** @var EntityRepositoryInterface $documentBaseConfigRepository */
+        $documentBaseConfigRepository = $this->getContainer()->get('document_base_config.repository');
+        $documentBaseConfigRepository->upsert([$data], Context::createDefaultContext());
     }
 
     /**

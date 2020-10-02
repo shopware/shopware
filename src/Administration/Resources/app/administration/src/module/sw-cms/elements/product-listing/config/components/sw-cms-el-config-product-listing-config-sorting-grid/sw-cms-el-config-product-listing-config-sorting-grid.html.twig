@@ -1,0 +1,37 @@
+<div class="sw-cms-el-config-product-listing-config-sorting-grid">
+
+    <sw-data-grid class="sw-cms-el-config-product-listing-config-sorting-grid__grid"
+        :dataSource="visibleProductSortings"
+        :columns="gridColumns"
+        :compactMode="false"
+        :allowInlineEdit="true"
+        :showSelection="false"
+        plainAppearance>
+
+        <template #actions="{ item }">
+            <sw-context-menu-item v-if="!item.locked"
+                @click="onDelete(item)"
+                :class="'sw-cms-el-config-product-listing-config-sorting-grid__grid_item_' + item.id"
+                variant="danger"
+                :disabled="isDefaultSorting(item)">
+                {{ $tc('global.default.delete') }}
+            </sw-context-menu-item>
+        </template>
+
+        <template #column-fields="{ item }">
+            {{ formatProductSortingFields(item.fields) }}
+        </template>
+
+        <template #pagination>
+            <sw-pagination
+                v-if="paginationVisible"
+                :page="page"
+                :limit="limit"
+                :total="total"
+                :steps="steps"
+                :autoHide="false"
+                @page-change="onPageChange">
+            </sw-pagination>
+        </template>
+    </sw-data-grid>
+</div>

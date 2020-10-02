@@ -9,12 +9,15 @@ use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\DriverManager;
 use PackageVersions\Versions;
 use Shopware\Core\Framework\Adapter\Cache\CacheIdLoader;
+use Shopware\Core\Framework\Event\BeforeSendRedirectResponseEvent;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
+use Shopware\Core\Framework\Routing\CanonicalRedirectService;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\Profiling\Doctrine\DebugStack;
 use Shopware\Storefront\Framework\Cache\CacheStore;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpCache\HttpCache;
@@ -138,6 +141,17 @@ class HttpKernel
         $transformed = $container
             ->get(RequestTransformerInterface::class)
             ->transform($request);
+
+        $redirect = $container
+            ->get(CanonicalRedirectService::class)
+            ->getRedirect($transformed);
+
+        if ($redirect instanceof RedirectResponse) {
+            $event = new BeforeSendRedirectResponseEvent($transformed, $redirect);
+            $container->get('event_dispatcher')->dispatch($event);
+
+            return new HttpKernelResult($transformed, $event->getResponse());
+        }
 
         // check for http caching
         $enabled = $container->hasParameter('shopware.http.cache.enabled')

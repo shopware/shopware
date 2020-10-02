@@ -9,7 +9,7 @@ const utils = Shopware.Utils;
 Component.register('sw-settings-salutation-detail', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -26,7 +26,13 @@ Component.register('sw-settings-salutation-detail', {
     },
 
     shortcuts: {
-        'SYSTEMKEY+S': 'onSave',
+        'SYSTEMKEY+S': {
+            active() {
+                return this.allowSave;
+            },
+            method: 'onSave'
+        },
+
         ESCAPE: 'onCancel'
     },
 
@@ -71,7 +77,21 @@ Component.register('sw-settings-salutation-detail', {
             return null;
         },
 
+        allowSave() {
+            return this.salutation && this.salutation.isNew()
+                ? this.acl.can('salutation.creator')
+                : this.acl.can('salutation.editor');
+        },
+
         tooltipSave() {
+            if (!this.allowSave) {
+                return {
+                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    disabled: this.allowSave,
+                    showOnDisabledElements: true
+                };
+            }
+
             const systemKey = this.$device.getSystemKey();
 
             return {

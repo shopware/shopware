@@ -88,14 +88,14 @@ class GrossPriceCalculator
 
     private function calculateListPrice(float $unitPrice, QuantityPriceDefinition $definition, CashRoundingConfig $config): ?ListPrice
     {
-        if (!$definition->getListPrice()) {
+        $price = $definition->getListPrice();
+        if (!$price) {
             return null;
         }
 
-        $price = $definition->getListPrice();
         if (!$definition->isCalculated()) {
             $price = $this->taxCalculator->calculateGross(
-                $definition->getListPrice(),
+                $price,
                 $definition->getTaxRules()
             );
         }

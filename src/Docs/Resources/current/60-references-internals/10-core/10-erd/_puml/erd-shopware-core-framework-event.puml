@@ -27,11 +27,27 @@ Table(ShopwareCoreFrameworkEventEventActionEventActionDefinition, "event_action\
    not_null(eventName) string
    not_null(actionName) string
    config json
+   active bool
    not_null(createdAt) createdAt
    updatedAt updatedAt
+}
+Table(ShopwareCoreFrameworkEventEventActionAggregateEventActionRuleEventActionRuleDefinition, "event_action_rule\n(M:N Mapping)") {
+   primary_key(eventActionId) foreignKey
+   primary_key(ruleId) foreignKey
+}
+Table(ShopwareCoreFrameworkEventEventActionAggregateEventActionSalesChannelEventActionSalesChannelDefinition, "event_action_sales_channel\n(M:N Mapping)") {
+   primary_key(eventActionId) foreignKey
+   primary_key(salesChannelId) foreignKey
+}
+ForeignTable(ShopwareCoreContentRuleRuleDefinition, "rule") {
+}
+ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
 }
 
 ' relationshipd
 
-
+ShopwareCoreFrameworkEventEventActionAggregateEventActionRuleEventActionRuleDefinition --> ShopwareCoreFrameworkEventEventActionEventActionDefinition
+ShopwareCoreFrameworkEventEventActionAggregateEventActionRuleEventActionRuleDefinition --> ShopwareCoreContentRuleRuleDefinition
+ShopwareCoreFrameworkEventEventActionAggregateEventActionSalesChannelEventActionSalesChannelDefinition --> ShopwareCoreFrameworkEventEventActionEventActionDefinition
+ShopwareCoreFrameworkEventEventActionAggregateEventActionSalesChannelEventActionSalesChannelDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 @enduml

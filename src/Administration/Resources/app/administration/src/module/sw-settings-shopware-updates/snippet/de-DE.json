@@ -42,8 +42,8 @@
         "mysqlVersion": "Erforderliche MySQL-Version: {minVersion}. Installierte MySQL-Version: {currentVersion}.",
         "writeableCheckValid": "Die folgenden Verzeichnisse und Dateien sind beschreibbar:<br/>{checkedDirectories}",
         "writeableCheckFailed": "Die folgenden Verzeichnisse und Dateien sind nicht beschreibbar:<br>{failedDirectories}",
-        "validShopwareLicense": "Deine Shopware-Version ist veraltet. Du solltest ein Update in Betracht ziehen.",
-        "invalidShopwareLicense": "Für die eingesetzte Shopware-Version konnte keine aktive Software-Subscription ermittelt werden.<br>Das automatische Update kann aktuell so nicht durchgeführt werden.<br>Eine gültige Shopware-Subscription kannst Du über den <a href=\"https://account.shopware.com\" target=\"_blank\">Shopware Account buchen.</a>"
+        "validShopwareLicense": "Gültige Shopware-Subscription gefunden. Das Update kann nun durchgeführt werden.",
+        "invalidShopwareLicense": "Für Deine Shopware-Version konnte keine aktive Subscription ermittelt werden.<br>Das automatische Update kann somit nicht durchgeführt werden.<br>Eine gültige Shopware-Subscription kannst Du aber jederzeit über den <a href=\"https://account.shopware.com\" target=\"_blank\">Shopware Account buchen.</a>"
       },
       "ready": "Bereit",
       "notReady": "Nicht bereit"

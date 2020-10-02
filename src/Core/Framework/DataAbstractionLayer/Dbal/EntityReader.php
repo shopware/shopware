@@ -288,7 +288,7 @@ class EntityReader implements EntityReaderInterface
         $this->joinBasic($definition, $context, $table, $query, $fields, $criteria);
 
         if (!empty($criteria->getIds())) {
-            $this->addIdCondition($criteria, $definition, $query);
+            $this->queryHelper->addIdCondition($criteria, $definition, $query);
         }
 
         if ($criteria->getTitle()) {

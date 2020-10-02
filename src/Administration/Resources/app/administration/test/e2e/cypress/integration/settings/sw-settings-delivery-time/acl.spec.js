@@ -1,4 +1,4 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
 
 import SettingsPageObject from '../../../support/pages/module/sw-settings.page-object';
 
@@ -105,6 +105,8 @@ describe('Delivery time: Test acl privileges', () => {
             cy.get('.sw-settings-delivery-time-list').should('be.visible');
             cy.get(`${page.elements.dataGridRow}--0`).should('be.visible')
                 .contains('Standard');
+            cy.get(`${page.elements.dataGridRow}--0 ${page.elements.deliveryTimeColumnUnit}`).should('be.visible')
+                .contains('Day');
         });
     });
 
@@ -120,6 +122,10 @@ describe('Delivery time: Test acl privileges', () => {
                 {
                     key: 'delivery_times',
                     role: 'viewer'
+                },
+                {
+                    key: 'delivery_times',
+                    role: 'editor'
                 },
                 {
                     key: 'delivery_times',
@@ -155,6 +161,7 @@ describe('Delivery time: Test acl privileges', () => {
             });
 
             cy.get(page.elements.smartBarBack).click();
+            cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Normal');
             cy.get('.sw-settings-delivery-time-list').should('be.visible');
             cy.get(`${page.elements.dataGridRow}--0 ${page.elements.deliveryTimeColumnName}`).contains('Normal');
         });
@@ -186,11 +193,11 @@ describe('Delivery time: Test acl privileges', () => {
                 method: 'delete'
             }).as('deleteDeliveryTime');
 
-            // go to currency module
+            // go to delivery times module
             cy.get('.sw-admin-menu__item--sw-settings').click();
             cy.get('#sw-settings-delivery-time').click();
 
-            // filter currency via search bar
+            // filter delivery time via search bar
             cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Express');
 
             // Delete delivery time

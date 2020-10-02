@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Adapter\Filesystem\PrefixFilesystem;
 use Shopware\Core\Framework\Event\BusinessEventRegistry;
 use Shopware\Core\Framework\Migration\MigrationSource;
 use Shopware\Core\Kernel;
+use Symfony\Component\Cache\DependencyInjection\CacheCollectorPass;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\DelegatingLoader;
 use Symfony\Component\Config\Loader\LoaderResolver;
@@ -32,6 +33,20 @@ abstract class Bundle extends SymfonyBundle
         $this->registerFilesystem($container, 'private');
         $this->registerFilesystem($container, 'public');
         $this->registerEvents($container);
+
+        // Can be removed when 4.4.14 is released and required in composer.json
+        $removingPasses = $container->getCompilerPassConfig()->getBeforeRemovingPasses();
+        $newPasses = [];
+
+        foreach ($removingPasses as $removingPass) {
+            if ($removingPass instanceof CacheCollectorPass) {
+                $newPasses[] = new Adapter\Cache\CacheCollectorPass();
+            } else {
+                $newPasses[] = $removingPass;
+            }
+        }
+
+        $container->getCompilerPassConfig()->setBeforeRemovingPasses($newPasses);
     }
 
     public function boot(): void
@@ -85,7 +100,20 @@ abstract class Bundle extends SymfonyBundle
         }
     }
 
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_9351) tag:v6.4.0 - Implement `getActionEventClasses` instead
+     */
     protected function getActionEvents(): array
+    {
+        return [];
+    }
+
+    /**
+     * Returns a list of all action event class references of this bundle. The events will be registered inside the `\Shopware\Core\Framework\Event\BusinessEventRegistry`.
+     *
+     * @return string[]
+     */
+    protected function getActionEventClasses(): array
     {
         return [];
     }
@@ -131,6 +159,7 @@ abstract class Bundle extends SymfonyBundle
     {
         $definition = $container->getDefinition(BusinessEventRegistry::class);
         $definition->addMethodCall('addMultiple', [$this->getActionEvents()]);
+        $definition->addMethodCall('addClasses', [$this->getActionEventClasses()]);
     }
 
     /**

@@ -11,7 +11,8 @@ Component.register('sw-settings-snippet-detail', {
     inject: [
         'snippetSetService',
         'userService',
-        'repositoryFactory'
+        'repositoryFactory',
+        'acl'
     ],
 
     mixins: [
@@ -123,6 +124,7 @@ Component.register('sw-settings-snippet-detail', {
                     this.isAddedSnippet = true;
                     return;
                 }
+
                 this.applySnippetsToDummies(response.data[this.translationKey]);
             });
         },
@@ -338,6 +340,16 @@ Component.register('sw-settings-snippet-detail', {
             });
 
             return count > 0;
+        },
+
+        getNoPermissionsTooltip(role, showOnDisabledElements = true) {
+            return {
+                showDelay: 300,
+                appearance: 'dark',
+                showOnDisabledElements,
+                disabled: this.acl.can(role),
+                message: this.$tc('sw-privileges.tooltip.warning')
+            };
         }
     }
 });

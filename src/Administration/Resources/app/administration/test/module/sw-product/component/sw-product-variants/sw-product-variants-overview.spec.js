@@ -75,13 +75,13 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         });
     });
 
-    it('should be a Vue.JS component', () => {
+    it('should be a Vue.JS component', async () => {
         const wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBe(true);
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should have an disabled generate variants button', () => {
+    it('should have an disabled generate variants button', async () => {
         const wrapper = createWrapper();
         const generateVariantsButton = wrapper.find('.sw-product-variants__generate-action');
 
@@ -89,7 +89,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         expect(generateVariantsButton.attributes().disabled).toBeTruthy();
     });
 
-    it('should have an enabled generate variants button', () => {
+    it('should have an enabled generate variants button', async () => {
         const wrapper = createWrapper([
             'product.creator'
         ]);
@@ -99,7 +99,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         expect(generateVariantsButton.attributes().disabled).toBeFalsy();
     });
 
-    it('should allow inline editing', () => {
+    it('should allow inline editing', async () => {
         const wrapper = createWrapper([
             'product.editor'
         ]);
@@ -108,7 +108,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         expect(dataGrid.attributes().allowinlineedit).toBeTruthy();
     });
 
-    it('should disallow inline editing', () => {
+    it('should disallow inline editing', async () => {
         const wrapper = createWrapper();
 
         const dataGrid = wrapper.find('.sw-product-variants-overview__data-grid');

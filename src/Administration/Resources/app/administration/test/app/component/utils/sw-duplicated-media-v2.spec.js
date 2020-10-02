@@ -44,8 +44,8 @@ describe('components/utils/sw-duplicated-media-v2', () => {
         wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should upload the renamed file', async () => {

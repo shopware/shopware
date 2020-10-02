@@ -1,6 +1,7 @@
 {% set config = { sorting: current } %}
+{% set showSorting = (slot.config.showSorting.value is defined) ? slot.config.showSorting.value : true %}
 
-{% if sortings|length > 1 %}
+{% if showSorting and sortings|length > 1 %}
     <div class="sorting" data-listing-sorting="true" data-listing-sorting-options='{{ config|json_encode }}'>
         <select class="sorting custom-select" aria-label="{{ 'general.sortingLabel'|trans|striptags }}">
             {% for sorting in sortings %}

@@ -106,6 +106,16 @@ $sw-field-color-inherited: $color-purple;
                 color: $color-shopware-blue;
             }
         }
+
+        &.is--disabled {
+            .sw-field__checkbox input[type="checkbox"]:not(:checked) ~ .sw-field__checkbox-state {
+                border: 1px solid $color-steam-cloud;
+
+                .sw-icon {
+                    color: $color-steam-cloud;
+                }
+            }
+        }
     }
 
     &.has--error {

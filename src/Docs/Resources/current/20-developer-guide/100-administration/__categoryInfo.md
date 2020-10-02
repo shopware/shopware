@@ -6,7 +6,7 @@ to learn more about the framework itself.
 
 Of course any Shopware 6 specific code will be explained, don't worry about that.
 
-## Setting up the the administration
+## Setting up the administration
 
 Each plugin has a main entry point to add custom javascript code to the administration. By default, Shopware 6 is looking for a 
 `main.js` file inside a `src/Resources/app/administration/src` directory in your plugin.

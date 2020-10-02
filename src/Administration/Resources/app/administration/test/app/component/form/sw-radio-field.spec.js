@@ -31,23 +31,25 @@ const createWrapper = () => {
         stubs: {
             'sw-radio-field': Shopware.Component.build('sw-radio-field'),
             'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-field-error': '<div></div>'
+            'sw-field-error': {
+                template: '<div></div>'
+            }
         }
     });
 };
 
 describe('components/form/sw-radio-field', () => {
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should renders correctly with children slot', () => {
+    it('should renders correctly with children slot', async () => {
         const wrapper = createWrapper();
         expect(wrapper.element).toMatchSnapshot();
     });
 
-    it('should render number of children equal to option props', () => {
+    it('should render number of children equal to option props', async () => {
         const wrapper = createWrapper();
 
         const radioInputs = wrapper.findAll('.sw-field__radio-option');
@@ -58,12 +60,12 @@ describe('components/form/sw-radio-field', () => {
         const wrapper = createWrapper();
         const customSlot = wrapper.find('#custom-slot');
 
-        wrapper.setData({ currentValue: 1 });
+        await wrapper.setData({ currentValue: 1 });
         await wrapper.vm.$nextTick();
 
         expect(customSlot.attributes('disabled')).toBeUndefined();
 
-        wrapper.setData({ currentValue: 2 });
+        await wrapper.setData({ currentValue: 2 });
         await wrapper.vm.$nextTick();
 
         expect(customSlot.attributes('disabled')).toBe('disabled');
@@ -75,7 +77,7 @@ describe('components/form/sw-radio-field', () => {
         let description = wrapper.find('.sw-field__radio-description');
         expect(description.exists()).toBe(false);
 
-        wrapper.setData({ description: 'Lorem ipsum' });
+        await wrapper.setData({ description: 'Lorem ipsum' });
 
         description = wrapper.find('.sw-field__radio-description');
         expect(description.exists()).toBe(true);
@@ -87,7 +89,7 @@ describe('components/form/sw-radio-field', () => {
         let optionDescription = wrapper.find('.sw-field__radio-option-description');
         expect(optionDescription.exists()).toBe(false);
 
-        wrapper.setData({
+        await wrapper.setData({
             options: [
                 { value: 1, name: 'option 1', description: 'option 1' },
                 { value: 2, name: 'option 2', description: 'option 2' },

@@ -18,7 +18,7 @@
                     <div class="col">
                         {{ "checkout.cartHeader"|trans|sw_sanitize }}
                     </div>
-                    
+
                     {% set checkoutItemCounter = page.cart.lineItems|length %}
 
                     {% block component_offcanvas_cart_header_item_counter %}

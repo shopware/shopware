@@ -62,7 +62,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
      *      path="/product/{productId}",
      *      description="This route is used to load a single product with the corresponding details. In addition to loading the data, the best variant of the product is determined when a parent id is passed.",
      *      operationId="readProductDetail",
-     *      tags={"Store API","Language"},
+     *      tags={"Store API","Product"},
      *      @OA\Response(
      *          response="200",
      *          description="Found product",

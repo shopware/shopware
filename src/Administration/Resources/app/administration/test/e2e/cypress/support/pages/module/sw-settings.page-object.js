@@ -19,6 +19,7 @@ export default class SettingsPageObject {
 
                 deliveryTimeSaveAction: '.sw-settings-delivery-time-detail__save',
                 deliveryTimeColumnName: '.sw-data-grid__cell--name',
+                deliveryTimeColumnUnit: '.sw-data-grid__cell--unit',
 
                 languageSaveAction: '.sw-settings-language-detail__save-action',
                 languageColumnName: '.sw-language-list__column-name',
@@ -26,7 +27,16 @@ export default class SettingsPageObject {
                 taxSaveAction: '.sw-settings-tax-detail__save-action',
                 taxColumnName: '.sw-data-grid__cell--name',
 
-                customerGroupSaveAction: '.sw-settings-customer-group-detail__save'
+                customerGroupSaveAction: '.sw-settings-customer-group-detail__save',
+                customerGroupColumnName: '.sw-data-grid__cell--name',
+                customerGroupColumnTaxDisplay: '.sw-data-grid__cell--displayGross',
+
+                salutationListContent: '.sw-settings-salutation-list-grid',
+
+                numberRangeSaveAction: '.sw-settings-number-range-detail__save-action',
+                numberRangeColumnName: '.sw-data-grid__cell--name',
+
+                integrationListConent: '.sw-integration-list'
             }
         };
     }

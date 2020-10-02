@@ -159,6 +159,7 @@ function createWrapper({ privileges = [] }) {
             'sw-button-group': true,
             'sw-context-button': true,
             'sw-context-menu-item': true,
+            'sw-card-filter': true,
             'sw-data-grid': Shopware.Component.build('sw-data-grid')
         },
         mocks: {
@@ -191,7 +192,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         });
     });
 
-    it('the create discounts button should not be disabled', () => {
+    it('the create discounts button should not be disabled', async () => {
         const wrapper = createWrapper({
             privileges: ['orders.create_discounts']
         });
@@ -200,7 +201,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         expect(button.attributes()).not.toHaveProperty('disabled');
     });
 
-    it('the create discounts button should not be disabled', () => {
+    it('the create discounts button should not be disabled', async () => {
         const wrapper = createWrapper({});
 
         const button = wrapper.find('.sw-order-line-items-grid__can-create-discounts-button');
@@ -210,7 +211,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     it('only product item should have redirect link', async () => {
         const wrapper = createWrapper({});
 
-        wrapper.setProps({
+        await wrapper.setProps({
             order: {
                 ...wrapper.props().order,
                 lineItems: [...mockItems]
@@ -245,7 +246,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     it('should not show tooltip if only items which have single tax', async () => {
         const wrapper = createWrapper({});
 
-        wrapper.setProps({
+        await wrapper.setProps({
             order: {
                 ...wrapper.props().order,
                 lineItems: [...mockItems]
@@ -264,7 +265,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     it('should show tooltip if item has multiple taxes', async () => {
         const wrapper = createWrapper({});
 
-        wrapper.setProps({
+        await wrapper.setProps({
             order: {
                 ...wrapper.props().order,
                 lineItems: [{ ...mockMultipleTaxesItem }]
@@ -282,7 +283,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     it('should show tooltip if item has multiple taxes', async () => {
         const wrapper = createWrapper({});
 
-        wrapper.setProps({
+        await wrapper.setProps({
             order: {
                 ...wrapper.props().order,
                 lineItems: [{ ...mockMultipleTaxesItem }]
@@ -300,7 +301,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     it('should show tooltip message correctly with item detail', async () => {
         const wrapper = createWrapper({});
 
-        wrapper.setProps({
+        await wrapper.setProps({
             order: {
                 ...wrapper.props().order,
                 lineItems: [{ ...mockMultipleTaxesItem }]
@@ -311,6 +312,28 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
 
         const taxDetailTooltip = wrapper.find('.sw-order-line-items-grid__item-tax-tooltip');
 
-        expect(taxDetailTooltip.attributes()['tooltip-message']).toBe('sw-order.detailBase.tax<br>10%: -€3.33<br>20%: -€13.33');
+        expect(taxDetailTooltip.attributes()['tooltip-message'])
+            .toBe('sw-order.detailBase.tax<br>10%: -€3.33<br>20%: -€13.33');
+    });
+
+    it('should show items correctly when search by search tearm', async () => {
+        const wrapper = createWrapper({});
+
+        wrapper.setProps({
+            order: {
+                ...wrapper.props().order,
+                lineItems: [...mockItems]
+            }
+        });
+
+        wrapper.setData({
+            searchTerm: 'item product'
+        });
+
+        await wrapper.vm.$nextTick();
+
+        const firstRow = wrapper.find('.sw-data-grid__row--0');
+
+        expect(firstRow.contains('Product item'));
     });
 });

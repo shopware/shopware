@@ -1,18 +1,109 @@
 {% block sw_cms_element_product_listing_config %}
     <div class="sw-cms-el-config-product-listing">
 
-        {% block sw_cms_element_product_listing_config_layout_select %}
-            <sw-select-field :label="$tc('sw-cms.elements.productBox.config.label.layoutType')" v-model="element.config.boxLayout.value">
-                {% block sw_cms_element_product_listing_config_layout_select_options %}
-                    <option value="standard">{{ $tc('sw-cms.elements.productBox.config.label.layoutTypeStandard') }}</option>
-                    <option value="image">{{ $tc('sw-cms.elements.productBox.config.label.layoutTypeImage') }}</option>
-                    <option value="minimal">{{ $tc('sw-cms.elements.productBox.config.label.layoutTypeMinimal') }}</option>
-                {% endblock %}
-            </sw-select-field>
-        {% endblock %}
+        <sw-tabs defaultItem="content">
+            <template slot-scope="{ active }">
+                <sw-tabs-item name="content" :activeTab="active">
+                    {{ $tc('sw-cms.elements.general.config.tab.content') }}
+                </sw-tabs-item>
 
-        {% block sw_cms_element_product_listing_config_info %}
-            <sw-alert variant="info">{{ $tc('sw-cms.elements.general.config.infoText.listingElement') }}</sw-alert>
-        {% endblock %}
+                <sw-tabs-item name="sorting" :activeTab="active" v-if="feature.isActive('FEATURE_NEXT_5983')">
+                    {{ $tc('sw-cms.elements.productListing.config.tab.sorting') }}
+                </sw-tabs-item>
+            </template>
+
+            <template slot="content" slot-scope="{ active }">
+                <template v-if="active === 'content'">
+
+                    {% block sw_cms_element_product_listing_config_layout_select %}
+                        <sw-select-field v-model="element.config.boxLayout.value"
+                            :label="$tc('sw-cms.elements.productBox.config.label.layoutType')">
+                            {% block sw_cms_element_product_listing_config_layout_select_options %}
+                                <option value="standard">{{ $tc('sw-cms.elements.productBox.config.label.layoutTypeStandard') }}</option>
+                                <option value="image">{{ $tc('sw-cms.elements.productBox.config.label.layoutTypeImage') }}</option>
+                                <option value="minimal">{{ $tc('sw-cms.elements.productBox.config.label.layoutTypeMinimal') }}</option>
+                            {% endblock %}
+                        </sw-select-field>
+                    {% endblock %}
+
+                    {% block sw_cms_element_product_listing_config_info %}
+                        <sw-alert variant="info">{{ $tc('sw-cms.elements.general.config.infoText.listingElement') }}</sw-alert>
+                    {% endblock %}
+                </template>
+
+                <template v-if="active === 'sorting'">
+                    {% block sw_cms_element_product_listing_config_show_sorting %}
+                        <sw-switch-field v-model="element.config.showSorting.value"
+                            :label="$tc('sw-cms.elements.productListing.config.sorting.labelShowSorting')">
+                        </sw-switch-field>
+                    {% endblock %}
+
+                    {% block sw_cms_element_product_listing_config_use_default_sorting %}
+                        <sw-switch-field v-model="element.config.useCustomSorting.value"
+                            :label="$tc('sw-cms.elements.productListing.config.sorting.labelUseCustomSortings')"
+                            :helpText="$tc('sw-cms.elements.productListing.config.sorting.helpTextUseCustomSortings')"
+                            class="sw-cms-el-config-product-listing-custom-sortings">
+                        </sw-switch-field>
+                    {% endblock %}
+
+                    {% block sw_cms_element_product_listing_config_default_sorting %}
+                        <sw-entity-single-select v-if="showSortingGrid"
+                            :value="defaultSorting.id"
+                            entity="product_sorting"
+                            :label="$tc('sw-cms.elements.productListing.config.sorting.labelDefaultSorting')"
+                            :helpText="$tc('sw-cms.elements.productListing.config.sorting.helpTextDefaultSorting')"
+                            :criteria="allProductSortingsCriteria"
+                            labelProperty="label"
+                            @option-select="onDefaultSortingChange">
+                        </sw-entity-single-select>
+                    {% endblock %}
+
+                    {% block sw_cms_element_product_listing_config_available_sortings %}
+                        <sw-entity-multi-select v-if="showSortingGrid"
+                            class="sw-cms-el-config-product-listing-config-sorting-grid__select"
+                            :label="$tc('sw-cms.elements.productListing.config.sorting.labelProductSortings')"
+                            labelProperty="label"
+                            :criteria="allProductSortingsCriteria"
+                            v-model="productSortings"
+                            :hideLabels="true"
+                            :placeholder="$tc('sw-cms.elements.productListing.config.sorting.placeHolderProductSortings')">
+                            <template #result-item="{ item, index, labelProperty, valueProperty, searchTerm, highlightSearchTerm, isSelected, addItem, getKey }">
+                                <slot name="result-item" v-bind="{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, isSelected, addItem, getKey }">
+                                    <li is="sw-select-result"
+                                        :selected="isSelected(item)"
+                                        :disabled="isDefaultSorting(item)"
+                                        @item-select="addItem"
+                                        v-bind="{ item, index }"
+                                        v-tooltip="{
+                                            showDelay: 300,
+                                            message: $tc('sw-cms.elements.productListing.config.sorting.defaultSortingInUse'),
+                                            disabled: !isDefaultSorting(item)
+                                        }">
+                                        {% block sw_entity_multi_select_base_results_list_result_label %}
+                                        <slot name="result-label-property" v-bind="{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, getKey }">
+                                            <sw-highlight-text v-if="highlightSearchTerm"
+                                                               :text="getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`)"
+                                                               :searchTerm="searchTerm">
+                                            </sw-highlight-text>
+                                            <template v-else>
+                                                {{ getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`) }}
+                                            </template>
+                                        </slot>
+                                        {% endblock %}
+                                    </li>
+                                </slot>
+                            </template>
+                        </sw-entity-multi-select>
+                    {% endblock %}
+
+                    {% block sw_cms_element_product_listing_config_sorting_grid %}
+                        <sw-cms-el-config-product-listing-config-sorting-grid v-if="showSortingGrid"
+                            :productSortings="productSortings"
+                            :defaultSorting="defaultSorting">
+                        </sw-cms-el-config-product-listing-config-sorting-grid>
+                    {% endblock %}
+                </template>
+            </template>
+        </sw-tabs>
     </div>
 {% endblock %}

@@ -76,5 +76,28 @@
                 </template>
             </sw-inherit-wrapper>
         {% endblock %}
+
+        {% block sw_product_category_form_search_keyword_field %}
+            <sw-inherit-wrapper v-if="feature.isActive('FEATURE_NEXT_10075')"
+                                v-model="product.productSearchKeywords"
+                                :helpText="$tc('sw-product.categoryForm.helpTextSearchKeyword')"
+                                :inheritedValue="parentProduct.productSearchKeywords"
+                                :label="$tc('sw-product.categoryForm.labelSearchKeyword')">
+                <template #content="{ currentValue, isInherited, updateCurrentValue }">
+                    <sw-multi-tag-select
+                        class="sw-product-category-form__search-keyword-field"
+                        :value="currentValue ? currentValue : []"
+                        :placeholder="$tc('sw-product.categoryForm.placeholderSearchKeywords')"
+                        @change="updateCurrentValue">
+                        <template #message-add-data>
+                            <span>{{ $tc('sw-product.categoryForm.textAddSearchKeyword') }}</span>
+                        </template>
+                        <template #message-enter-valid-data>
+                            <span>{{ $tc('sw-product.categoryForm.textEnterValidSearchKeyword') }}</span>
+                        </template>
+                    </sw-multi-tag-select>
+                </template>
+            </sw-inherit-wrapper>
+        {% endblock %}
     </div>
 {% endblock %}

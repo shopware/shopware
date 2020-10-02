@@ -4,6 +4,7 @@ import './page/sw-settings-snippet-detail';
 import './page/sw-settings-snippet-create';
 import './component/sidebar/sw-settings-snippet-sidebar';
 import './component/sidebar/sw-settings-snippet-filter-switch';
+import './acl';
 
 const { Module } = Shopware;
 
@@ -24,28 +25,32 @@ Module.register('sw-settings-snippet', {
             component: 'sw-settings-snippet-set-list',
             path: 'index',
             meta: {
-                parentPath: 'sw.settings.index'
+                parentPath: 'sw.settings.index',
+                privilege: 'snippet.viewer'
             }
         },
         list: {
             component: 'sw-settings-snippet-list',
             path: 'list',
             meta: {
-                parentPath: 'sw.settings.snippet.index'
+                parentPath: 'sw.settings.snippet.index',
+                privilege: 'snippet.viewer'
             }
         },
         detail: {
             component: 'sw-settings-snippet-detail',
             path: 'detail/:key',
             meta: {
-                parentPath: 'sw.settings.snippet.list'
+                parentPath: 'sw.settings.snippet.list',
+                privilege: 'snippet.viewer'
             }
         },
         create: {
             component: 'sw-settings-snippet-create',
             path: 'create',
             meta: {
-                parentPath: 'sw.settings.snippet.list'
+                parentPath: 'sw.settings.snippet.list',
+                privilege: 'snippet.viewer'
             }
         }
     },
@@ -53,6 +58,7 @@ Module.register('sw-settings-snippet', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.snippet.index',
-        icon: 'default-object-globe'
+        icon: 'default-object-globe',
+        privilege: 'snippet.viewer'
     }
 });

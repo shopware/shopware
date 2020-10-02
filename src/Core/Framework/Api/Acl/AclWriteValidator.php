@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValida
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -65,7 +66,7 @@ class AclWriteValidator implements EventSubscriberInterface
     private function tryToThrow(ConstraintViolationList $violations): void
     {
         if ($violations->count() > 0) {
-            throw new WriteConstraintViolationException($violations);
+            throw new WriteConstraintViolationException($violations, '', Response::HTTP_FORBIDDEN);
         }
     }
 

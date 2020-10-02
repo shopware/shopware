@@ -297,6 +297,12 @@
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
         </service>
 
+        <service id="Shopware\Storefront\Page\Account\Order\AccountOrderDetailPageLoader">
+            <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderRoute"/>
+        </service>
+
         <service id="Shopware\Storefront\Page\Account\Order\AccountEditOrderPageLoader">
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="event_dispatcher"/>
@@ -367,10 +373,7 @@
 
         <service id="Shopware\Storefront\Page\Sitemap\SitemapPageLoader">
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Content\Sitemap\Service\SitemapLister"/>
-            <argument type="service" id="Shopware\Core\Content\Sitemap\Service\SitemapExporter"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="session"/>
+            <argument type="service" id="Shopware\Core\Content\Sitemap\SalesChannel\SitemapRoute"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Cache\ObjectCacheKeyFinder" public="true">
@@ -392,6 +395,7 @@
         <service id="Shopware\Storefront\Framework\Cache\CacheResponseSubscriber">
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService" />
             <argument>%shopware.http.cache.default_ttl%</argument>
+            <argument>%shopware.http.cache.enabled%</argument>
 
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -466,5 +470,14 @@
             <argument type="service" id="event_dispatcher"/>
             <tag name="kernel.event_subscriber"/>
         </service>
+
+        <service id="Shopware\Storefront\Event\CartMergedSubscriber">
+            <argument type="service" id="session"/>
+            <argument type="service" id="translator"/>
+
+            <tag name="kernel.event_subscriber"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_10058"/>
+        </service>
+
     </services>
 </container>

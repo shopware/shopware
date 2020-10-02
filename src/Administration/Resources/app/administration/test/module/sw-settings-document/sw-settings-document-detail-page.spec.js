@@ -73,7 +73,7 @@ const repositoryMockFactory = (entity) => {
     return false;
 };
 
-const createWrapper = (customOptions) => {
+const createWrapper = (customOptions, privileges = []) => {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
@@ -82,15 +82,15 @@ const createWrapper = (customOptions) => {
         stubs: {
             'sw-page': true,
             'sw-entity-single-select': true,
-            'sw-field': true,
+            'sw-field': { template: '<div class="sw-field"/>', props: ['disabled'] },
             'sw-button': true,
             'sw-button-process': true,
             'sw-card-view': true,
             'sw-icon': true,
             'sw-card': true,
             'sw-container': true,
-            'sw-media-field': true,
-            'sw-multi-select': true
+            'sw-media-field': { template: '<div id="sw-media-field"/>', props: ['disabled'] },
+            'sw-multi-select': { template: '<div id="documentSalesChannel"/>', props: ['disabled'] }
         },
         mocks: {
             $tc: snippetPath => snippetPath,
@@ -99,6 +99,9 @@ const createWrapper = (customOptions) => {
         provide: {
             repositoryFactory: {
                 create: (entity) => repositoryMockFactory(entity)
+            },
+            acl: {
+                can: key => (key ? privileges.includes(key) : true)
             }
         }
     };
@@ -114,9 +117,9 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         documentBaseConfigSalesChannelsRepositoryMock.counter = 1;
     });
 
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should create an array with sales channel ids from the document config sales channels association', async () => {
@@ -193,5 +196,32 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         });
 
         expect(wrapper.vm.documentConfigSalesChannels).toEqual([]);
+    });
+
+    it('should be able to edit', async () => {
+        const wrapper = createWrapper(
+            { propsData: { documentConfigId: 'documentConfigWithDocumentTypeAndSalesChannels' } },
+            ['document.editor']
+        );
+
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('.sw-settings-document-detail__save-action').attributes().disabled).toBeUndefined();
+        expect(wrapper.find('#sw-media-field').props().disabled).toEqual(false);
+        expect(wrapper.findAll('.sw-field').wrappers.every(field => !field.props().disabled)).toEqual(true);
+        expect(wrapper.find('#documentSalesChannel').props().disabled).toEqual(false);
+    });
+
+    it('should not be able to edit', async () => {
+        const wrapper = createWrapper({ propsData: { documentConfigId: 'documentConfigWithDocumentTypeAndSalesChannels' } });
+
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('.sw-settings-document-detail__save-action').attributes().disabled).toBe('true');
+        expect(wrapper.find('#sw-media-field').props().disabled).toEqual(true);
+        expect(wrapper.findAll('.sw-field').wrappers.every(field => field.props().disabled)).toEqual(true);
+        expect(wrapper.find('#documentSalesChannel').props().disabled).toEqual(true);
     });
 });

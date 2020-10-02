@@ -171,7 +171,7 @@
                                                         {% block sw_data_grid_select_item_checkbox %}
                                                             <sw-checkbox-field
                                                                 :disabled="!isRecordSelectable(item)"
-                                                                :value="isSelected(item.id)"
+                                                                :value="isSelected(item[itemIdentifierProperty])"
                                                                 @change="selectItem($event, item)">
                                                             </sw-checkbox-field>
                                                         {% endblock %}
@@ -253,7 +253,7 @@
                                                     <div class="sw-data-grid__cell-content">
 
                                                         {% block sw_data_grid_inline_edit_actions %}
-                                                            <template v-if="isInlineEditActive && currentInlineEditId === item.id">
+                                                            <template v-if="isInlineEditActive && currentInlineEditId === item[itemIdentifierProperty]">
 
                                                                 {% block sw_data_grid_inline_edit_actions_cancel %}
                                                                     <sw-button @click="onClickCancelInlineEdit(item)"
@@ -290,6 +290,7 @@
                                                                     {% block sw_data_grid_slot_actions %}{% endblock %}
                                                                 </slot>
                                                             </sw-context-button>
+                                                            </slot>
                                                         {% endblock %}
 
                                                         {% block sw_data_grid_body_cell_action_modals %}

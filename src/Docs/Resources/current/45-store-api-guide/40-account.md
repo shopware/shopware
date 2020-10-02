@@ -311,6 +311,16 @@ POST /store-api/v3/account/change-payment-method/da4aa20cd7b9417094a0eb51426f091
 }
 ```
 
+
+### Delete profile
+You can delete your customer profile with this route: `store-api.account.customer.delete`
+
+**Note** that you need the `sw-context-token` header for this route, which contains the context token of the login route response.
+
+```
+DELETE /store-api/v3/account/customer
+```
+
 ### Order overview
 You can view an order of the customer with the `store-api.order` route.
 

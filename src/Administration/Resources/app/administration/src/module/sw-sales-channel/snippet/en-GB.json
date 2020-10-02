@@ -19,7 +19,7 @@
       "messageNoProductStreams": "In order to use product comparisons a dynamic product group has to be created first."
     },
     "detail": {
-      "messageSaveSuccess": "Sales Channel \"{name}\" has been saved.",
+      "messageSaveSuccess": "Sales Channel \"{name}\" saved.",
       "messageSaveError": "The Sales Channel \"{name}\" could not be saved. Please check your entries.",
       "messageActivateWithoutThemeError": "Sales Channel \"{name}\" could not be activated. Active Sales Channels need to have a theme associated.",
       "activateDisable": "Please assign a theme before activating and saving the Sales Channel.",
@@ -78,7 +78,7 @@
       "navigation": "Navigation",
       "navigationCategoryId": "Entry point main navigation",
       "navigationCategoryDepth": "Navigation levels",
-      "navigationCategoryHelpText": "For this entry point, you can not select categories of the type \"customizable link\" or \"structuring element\".",
+      "navigationCategoryHelpText": "For this entry point, you can not select categories of the type \"customisable link\" or \"structuring element\".",
       "footerCategory": "Entry point footer navigation",
       "serviceCategory": "Entry point service navigation",
       "titleOptionsApiKey": "API access",
@@ -135,10 +135,7 @@
         "includeVariants": "Export variants as discrete products",
         "interval": "Interval",
         "generateByCronjob": "Generate via scheduler",
-        "notificationTitleValidateSuccessful": "Success",
         "notificationMessageValidateSuccessful": "No errors occurred.",
-        "notificationTitleValidateError": "Validation failed",
-        "notificationTitlePreviewError": "Preview failed",
         "intervalLabels": {
           "0": "Live",
           "120": "2 minutes",

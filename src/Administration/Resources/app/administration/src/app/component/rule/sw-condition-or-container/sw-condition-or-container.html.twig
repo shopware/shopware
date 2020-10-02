@@ -20,19 +20,22 @@
             <div class="sw-condition-or-container__actions">
                 <sw-button class="sw-condition-or-container__actions--or"
                            @click="onAddPlaceholder"
-                           :disabled="disabled">
+                           :disabled="disabled"
+                            v-tooltip.top="getNoPermissionsTooltip('product_stream.editor')">
                     {{ $tc('global.sw-condition.condition.or') }}
                 </sw-button>
 
                 <sw-button v-if="level !== 0" class="sw-condition-or-container__actions--sub"
                            @click="onAddAndContainer"
-                           :disabled="disabled">
+                           :disabled="disabled"
+                           v-tooltip.top="getNoPermissionsTooltip('product_stream.editor')">
                     {{ $tc('global.sw-condition.condition.subCondition') }}
                 </sw-button>
 
                 <sw-button class="sw-condition-or-container__actions--delete"
                            :disabled="disabled"
-                           @click="onDeleteAll">
+                           @click="onDeleteAll"
+                           v-tooltip.top="getNoPermissionsTooltip('product_stream.editor')">
                     <span v-if="level !== 0">{{ $tc('global.sw-condition.condition.deleteConditions') }}</span>
                     <span v-else>{{ $tc('global.sw-condition.condition.deleteAllConditions') }}</span>
                 </sw-button>

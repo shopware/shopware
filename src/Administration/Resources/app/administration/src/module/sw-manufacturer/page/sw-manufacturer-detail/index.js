@@ -94,7 +94,9 @@ Component.register('sw-manufacturer-detail', {
                     appearance: 'light'
                 };
             }
+
             return {
+                showDelay: 300,
                 message: this.$tc('sw-privileges.tooltip.warning'),
                 disabled: this.acl.can('order.editor'),
                 showOnDisabledElements: true
@@ -194,7 +196,6 @@ Component.register('sw-manufacturer-detail', {
             }).catch((exception) => {
                 this.isLoading = false;
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
                     message: this.$tc(
                         'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'
                     )

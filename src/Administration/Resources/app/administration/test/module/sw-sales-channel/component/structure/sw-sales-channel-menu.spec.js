@@ -32,12 +32,12 @@ function createWrapper(privileges = []) {
 describe('module/sw-sales-channel/component/structure/sw-admin-menu-extension', () => {
     beforeAll(() => {});
 
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should be able to create sales channels when user has the privilege', () => {
+    it('should be able to create sales channels when user has the privilege', async () => {
         const wrapper = createWrapper([
             'sales_channel.creator'
         ]);
@@ -46,7 +46,7 @@ describe('module/sw-sales-channel/component/structure/sw-admin-menu-extension', 
         expect(buttonCreateSalesChannel.exists()).toBeTruthy();
     });
 
-    it('should not be able to create sales channels when user has not the privilege', () => {
+    it('should not be able to create sales channels when user has not the privilege', async () => {
         const wrapper = createWrapper();
 
         const buttonCreateSalesChannel = wrapper.find('.sw-admin-menu__headline-action');

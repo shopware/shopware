@@ -19,6 +19,7 @@
                 <sw-button-process
                         class="sw-product-stream-detail__save-action"
                         :isLoading="isLoading"
+                        :disabled="!acl.can('product_stream.editor')"
                         variant="primary"
                         v-tooltip.bottom="tooltipSave"
                         v-model="isSaveSuccessful"
@@ -59,23 +60,30 @@
                                     :required="isSystemLanguage"
                                     :placeholder="placeholder(productStream, 'name', $tc('sw-product-stream.detail.placeholderName'))"
                                     v-model="productStream.name"
-                                    :error="productStreamNameError">
+                                    :error="productStreamNameError"
+                                    v-tooltip.bottom="getNoPermissionsTooltip('product_stream.editor')"
+                                    :disabled="!acl.can('product_stream.editor')">
                                 </sw-text-field>
                             {% endblock %}
 
                             {% block sw_product_basic_form_description_field %}
                                 <sw-textarea-field
                                     v-if="productStream"
+                                    v-model="productStream.description"
                                     :label="$tc('sw-product-stream.detail.labelDescription')"
                                     :placeholder="placeholder(productStream, 'description', $tc('sw-product-stream.detail.placeholderDescription'))"
-                                    v-model="productStream.description">
+                                    v-tooltip.bottom="getNoPermissionsTooltip('product_stream.editor')"
+                                    :disabled="!acl.can('product_stream.editor')">
                                 </sw-textarea-field>
                             {% endblock %}
                         </sw-card>
                     {% endblock %}
 
                     {% block sw_product_stream_detail_filter %}
-                        <sw-card :large="true" class="sw-product-stream-detail__condition_container" :title="$tc('sw-product-stream.detail.titleFilter')">
+                        <sw-card :large="true"
+                                 class="sw-product-stream-detail__condition_container"
+                                 :class="{ 'is--disabled': !acl.can('product_stream.editor') }"
+                                 :title="$tc('sw-product-stream.detail.titleFilter')">
                             {% block sw_product_stream_detail_filter %}
                                 <sw-condition-tree
                                     v-if="productStream"
@@ -86,12 +94,15 @@
                                     associationField="productStreamId"
                                     :associationValue="productStream.id"
                                     :rootCondition="null"
-                                    @conditions-changed="updateFilterTree">
+                                    @conditions-changed="updateFilterTree"
+                                    :disabled="!acl.can('product_stream.editor')">
                                 </sw-condition-tree>
                             {% endblock %}
 
                             {% block sw_product_stream_detail_filter_preview_button %}
-                                <sw-button class="sw-product-stream-detail__open_modal_preview" :disabled="isLoading" @click.prevent="openModalPreview">
+                                <sw-button class="sw-product-stream-detail__open_modal_preview"
+                                           :disabled="isLoading"
+                                           @click.prevent="openModalPreview">
                                     {{ $tc('sw-product-stream.detail.buttonOpenPreview') }}
                                 </sw-button>
                             {% endblock %}

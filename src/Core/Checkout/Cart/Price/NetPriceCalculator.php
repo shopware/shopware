@@ -76,13 +76,13 @@ class NetPriceCalculator
 
     private function calculateListPrice(float $unitPrice, QuantityPriceDefinition $definition, CashRoundingConfig $config): ?ListPrice
     {
-        if (!$definition->getListPrice()) {
+        $listPrice = $definition->getListPrice();
+        if (!$listPrice) {
             return null;
         }
 
-        $listPrice = $definition->getListPrice();
         if (!$definition->isCalculated()) {
-            $listPrice = $this->round($definition->getListPrice(), $config);
+            $listPrice = $this->round($listPrice, $config);
         }
 
         return ListPrice::createFromUnitPrice($unitPrice, $listPrice);

@@ -175,7 +175,8 @@ class ProductExportPartialGenerationHandler extends AbstractMessageHandler
         $context = $this->salesChannelContextService->get(
             $productExport->getStorefrontSalesChannelId(),
             $contextToken,
-            $productExport->getSalesChannelDomain()->getLanguageId()
+            $productExport->getSalesChannelDomain()->getLanguageId(),
+            $productExport->getSalesChannelDomain()->getCurrencyId()
         );
 
         $this->translator->injectSettings(

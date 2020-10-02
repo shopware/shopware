@@ -11,6 +11,7 @@ issue: NEXT-10272
     * `\Shopware\Core\System\Language\SalesChannel\LanguageRouteResponse`
     * `\Shopware\Core\System\Salutation\SalesChannel\SalutationRouteResponse`
     * `\Shopware\Core\System\Currency\SalesChannel\CurrencyRouteResponse`
+___
 # API
 
 *  Changed the response from following routes to return a search result instead a collection

@@ -79,15 +79,15 @@ describe('module/sw-settings-payment/page/sw-settings-payment-detail', () => {
     };
     mockPaymentMethod.getEntityName = () => { return 'payment_method'; };
 
-    it('should be a Vue.JS component', () => {
+    it('should be a Vue.JS component', async () => {
         const wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBe(true);
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should not be able to save the settings-payment', async () => {
         const wrapper = createWrapper();
-        wrapper.setData({
+        await wrapper.setData({
             paymentMethod: mockPaymentMethod,
             isLoading: false
         });
@@ -98,10 +98,10 @@ describe('module/sw-settings-payment/page/sw-settings-payment-detail', () => {
     });
 
     it('should be able to save the settings-payment', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'payment.editor'
         ]);
-        wrapper.setData({
+        await wrapper.setData({
             paymentMethod: mockPaymentMethod,
             isLoading: false
         });
@@ -112,13 +112,12 @@ describe('module/sw-settings-payment/page/sw-settings-payment-detail', () => {
     });
 
     it('should not be able to edit payment fields', async () => {
-        const wrapper = createWrapper();
-        wrapper.setData({
+        const wrapper = await createWrapper();
+        await wrapper.setData({
             paymentMethod: mockPaymentMethod,
             isLoading: false
         });
         await wrapper.vm.$nextTick();
-        console.log(wrapper.vm.paymentMethod);
 
         const nameField = wrapper.find('.sw-settings-payment-detail__field-name');
         const positionField = wrapper.find('.sw-settings-payment-detail__field-position');
@@ -140,10 +139,10 @@ describe('module/sw-settings-payment/page/sw-settings-payment-detail', () => {
     });
 
     it('should be able to edit payment fields', async () => {
-        const wrapper = createWrapper([
+        const wrapper = await createWrapper([
             'payment.editor'
         ]);
-        wrapper.setData({
+        await wrapper.setData({
             paymentMethod: mockPaymentMethod,
             isLoading: false
         });

@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -143,7 +144,10 @@ class ProductReviewLoader
         if (is_array($points) && count($points) > 0) {
             $pointFilter = [];
             foreach ($points as $point) {
-                $pointFilter[] = new EqualsFilter('points', $point);
+                $pointFilter[] = new RangeFilter('points', [
+                    'gte' => $point - 0.5,
+                    'lt' => $point + 0.5,
+                ]);
             }
 
             $criteria->addPostFilter(new MultiFilter(MultiFilter::CONNECTION_OR, $pointFilter));

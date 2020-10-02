@@ -16,7 +16,16 @@
 
         <template slot="smart-bar-actions">
             {% block sw_integration_list_smart_bar_actions %}
-                <sw-button @click="onCreateIntegration" variant="primary" class="sw-integration-list__add-integration-action">
+                <sw-button
+                    v-tooltip.bottom="{
+                        message: $tc('sw-privileges.tooltip.warning'),
+                        disabled: acl.can('integration.creator'),
+                        showOnDisabledElements: true
+                    }"
+                    class="sw-integration-list__add-integration-action"
+                    variant="primary"
+                    :disabled="!acl.can('integration.creator')"
+                    @click="onCreateIntegration">
                     {{ $tc('sw-integration.general.buttonCreateIntegration') }}
                 </sw-button>
             {% endblock %}
@@ -45,8 +54,10 @@
                                     {% block sw_integration_list_detail_modal_inner %}
 
                                         {% block sw_integration_list_detail_modal_inner_field_label %}
-                                            <sw-field :label="$tc('sw-integration.detail.labelFieldLabel')"
-                                                      v-model="currentIntegration.label">
+                                            <sw-field
+                                                :label="$tc('sw-integration.detail.labelFieldLabel')"
+                                                :disabled="!acl.can('integration.editor')"
+                                                v-model="currentIntegration.label">
                                             </sw-field>
                                         {% endblock %}
 
@@ -64,8 +75,9 @@
 
                                                 {% block sw_integration_list_detail_modal_inner_field_writeaccess %}
                                                 <sw-field :label="$tc('sw-integration.detail.writeAccessFieldLabel')"
-                                                          type="checkbox"
-                                                          v-model="currentIntegration.writeAccess">
+                                                           type="checkbox"
+                                                           :disabled="!acl.can('integration.editor')"
+                                                           v-model="currentIntegration.writeAccess">
                                                 </sw-field>
                                                 {% endblock %}
                                             </sw-container>
@@ -96,6 +108,7 @@
                                             <sw-button v-if="!showSecretAccessKey"
                                                        @click="onGenerateKeys"
                                                        variant="danger"
+                                                       :disabled="!acl.can('integration.editor')"
                                                        :block="true">
                                                 {{ $tc('sw-integration.detail.buttonCreateNewApiKeys') }}
                                             </sw-button>
@@ -126,7 +139,7 @@
                                                 {% block sw_integration_list_detail_modal_inner_footer_apply %}
                                                     <sw-button size="small"
                                                                class="sw-integration-detail-modal__save-action"
-                                                               :disabled="isModalLoading && !!currentIntegration.label"
+                                                               :disabled="(isModalLoading && !!currentIntegration.label) || !acl.can('integration.editor')"
                                                                variant="primary"
                                                                @click="onSaveIntegration">
                                                         {{ showSecretAccessKey ? $tc('sw-integration.detail.buttonApply') : $tc('sw-integration.detail.buttonApplyEdit') }}
@@ -148,6 +161,7 @@
                                     :allowColumnEdit="false"
                                     :showSelection="false"
                                     :showSettings="false"
+                                    :allowView="acl.can('integration.viewer')"
                                     :isLoading="isLoading">
 
                                     {% block sw_integration_list_grid_inner_slot_columns_label %}
@@ -171,15 +185,29 @@
                                     <template #actions="{ item }">
                                         {% block sw_integration_list_grid_inner_slot_columns_actions_edit %}
                                             <sw-context-menu-item
-                                                    class="sw_integration_list__edit-action"
-                                                    @click="onShowDetailModal(item)">
+                                                v-tooltip="{
+                                                    message: $tc('sw-privileges.tooltip.warning'),
+                                                    disabled: acl.can('integration.editor'),
+                                                    showOnDisabledElements: true
+                                                }"
+                                                class="sw_integration_list__edit-action"
+                                                :disabled="!acl.can('integration.editor')"
+                                                @click="onShowDetailModal(item)">
                                                 {{ $tc('sw-integration.list.contextMenuEdit') }}
                                             </sw-context-menu-item>
                                         {% endblock %}
 
                                         {% block sw_integration_list_grid_inner_slot_columns_actions_delete %}
-                                            <sw-context-menu-item variant="danger"
-                                                                  @click="showDeleteModal = item.id">
+                                            <sw-context-menu-item
+                                                v-tooltip.bottom="{
+                                                    message: $tc('sw-privileges.tooltip.warning'),
+                                                    disabled: acl.can('integration.deleter'),
+                                                    showOnDisabledElements: true
+                                                }"
+                                                class="sw_integration_list__delete-action"
+                                                variant="danger"
+                                                :disabled="!acl.can('integration.deleter')"
+                                                @click="showDeleteModal = item.id">
                                                 {{ $tc('sw-integration.list.contextMenuDelete') }}
                                             </sw-context-menu-item>
                                         {% endblock %}

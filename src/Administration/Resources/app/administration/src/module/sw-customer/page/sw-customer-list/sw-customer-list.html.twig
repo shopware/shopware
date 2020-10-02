@@ -38,7 +38,7 @@
                         :routerLink="{ name: 'sw.customer.create' }"
                         v-tooltip="{
                             message: $tc('sw-privileges.tooltip.warning'),
-                            disabled: acl.can('property.creator'),
+                            disabled: acl.can('customer.creator'),
                             showOnDisabledElements: true
                         }">
                         {{ $tc('sw-customer.list.buttonAddCustomer') }}

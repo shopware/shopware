@@ -196,7 +196,7 @@ EOF;
         $data = ['id' => $id, 'name' => $id];
         $browser = $this->getBrowser();
         $connection = $this->getBrowser()->getContainer()->get(Connection::class);
-        $user = TestUser::createNewTestUser($connection, ['country:create', 'country:detail']);
+        $user = TestUser::createNewTestUser($connection, ['country:create', 'country:read']);
         $admin = TestUser::getAdmin();
 
         $user->authorizeBrowser($browser);
@@ -240,7 +240,7 @@ EOF;
 
         $browser = $this->getBrowser();
         $connection = $this->getBrowser()->getContainer()->get(Connection::class);
-        $user = TestUser::createNewTestUser($connection, ['country:update', 'country:detail']);
+        $user = TestUser::createNewTestUser($connection, ['country:update', 'country:read']);
 
         $user->authorizeBrowser($browser);
 
@@ -306,7 +306,7 @@ EOF;
 
         $browser = $this->getBrowser();
         $connection = $this->getBrowser()->getContainer()->get(Connection::class);
-        $user = TestUser::createNewTestUser($connection, ['country:create', 'country:detail']);
+        $user = TestUser::createNewTestUser($connection, ['country:create', 'country:read']);
 
         $user->authorizeBrowser($browser);
 
@@ -387,7 +387,7 @@ EOF;
 
         $browser = $this->getBrowser();
         $connection = $this->getBrowser()->getContainer()->get(Connection::class);
-        $user = TestUser::createNewTestUser($connection, ['product:create', 'product:detail']);
+        $user = TestUser::createNewTestUser($connection, ['product:create', 'product:read']);
         $admin = TestUser::getAdmin();
 
         $browser->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', $data);
@@ -485,7 +485,7 @@ EOF;
         $connection = $this->getBrowser()->getContainer()->get(Connection::class);
         $user = TestUser::createNewTestUser(
             $connection,
-            ['product:create', 'product:detail', 'tax:create', 'tax:detail', 'product_manufacturer:create', 'product_manufacturer:detail', 'product_price:create', 'product_price:detail', 'version_commit_data:create', ':version_commitcreate']
+            ['product:create', 'product:read', 'tax:create', 'tax:read', 'product_manufacturer:create', 'product_manufacturer:read', 'product_price:create', 'product_price:read', 'version_commit_data:create', ':version_commitcreate']
         );
         $admin = TestUser::getAdmin();
 
@@ -645,7 +645,7 @@ EOF;
 
         TestUser::createNewTestUser(
             $browser->getContainer()->get(Connection::class),
-            ['tax:detail', 'tax:create']
+            ['tax:read', 'tax:create']
         )->authorizeBrowser($browser);
 
         $browser->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/tax', [], [], [], json_encode($data));
@@ -707,7 +707,7 @@ EOF;
 
         TestUser::createNewTestUser(
             $browser->getContainer()->get(Connection::class),
-            ['country_state:create', 'country_state:detail', 'country:create', 'country:detail']
+            ['country_state:create', 'country_state:read', 'country:create', 'country:read']
         )->authorizeBrowser($browser);
 
         $browser->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/country', $data);
@@ -829,7 +829,7 @@ EOF;
 
         TestUser::createNewTestUser(
             $browser->getContainer()->get(Connection::class),
-            ['product:detail', 'category:detail']
+            ['product:read', 'category:read']
         )->authorizeBrowser($browser);
 
         $browser->request('DELETE', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id . '/categories/' . $category);
@@ -1936,7 +1936,7 @@ EOF;
         $connection = $browser->getContainer()->get(Connection::class);
         TestUser::createNewTestUser(
             $connection,
-            ['tax:detail']
+            ['tax:read']
         )->authorizeBrowser($browser);
 
         $browser->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/tax/' . $id);
@@ -1965,7 +1965,7 @@ EOF;
         $browser = $this->getBrowser();
         TestUser::createNewTestUser(
             $browser->getContainer()->get(Connection::class),
-            ['tax:detail', 'tax:create']
+            ['tax:read', 'tax:create']
         )->authorizeBrowser($browser);
 
         $browser->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/tax', [], [], [], json_encode($data));

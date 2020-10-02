@@ -25,6 +25,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
+ * @deprecated tag:v6.4.0.0 - Use Shopware\Core\Content\ProductExport\SalesChannel\ExportController instead
  * @RouteScope(scopes={"storefront"})
  */
 class ProductExportController extends StorefrontController

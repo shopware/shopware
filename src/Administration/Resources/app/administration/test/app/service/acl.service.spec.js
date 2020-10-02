@@ -16,7 +16,7 @@ describe('src/app/service/acl.service.js', () => {
         Shopware.Application.view.root.$router.match = () => ({});
     });
 
-    it('should be an admin', () => {
+    it('should be an admin', async () => {
         const aclService = new AclService({
             get: () => ({ currentUser: { admin: true } })
         });
@@ -24,7 +24,7 @@ describe('src/app/service/acl.service.js', () => {
         expect(aclService.isAdmin()).toBeTruthy();
     });
 
-    it('should not be an admin', () => {
+    it('should not be an admin', async () => {
         const aclService = new AclService({
             get: () => ({ currentUser: { admin: false } })
         });
@@ -32,7 +32,7 @@ describe('src/app/service/acl.service.js', () => {
         expect(aclService.isAdmin()).toBeFalsy();
     });
 
-    it('should allow every privilege as an admin', () => {
+    it('should allow every privilege as an admin', async () => {
         const aclService = new AclService({
             get: () => ({ currentUser: { admin: true } }),
             getters: {
@@ -43,7 +43,7 @@ describe('src/app/service/acl.service.js', () => {
         expect(aclService.can('system.clear_cache')).toBeTruthy();
     });
 
-    it('should disallow when privilege does not exists', () => {
+    it('should disallow when privilege does not exists', async () => {
         const aclService = new AclService({
             get: () => ({ currentUser: { admin: false } }),
             getters: {
@@ -54,7 +54,7 @@ describe('src/app/service/acl.service.js', () => {
         expect(aclService.can('system.clear_cache')).toBeFalsy();
     });
 
-    it('should allow when privilege exists', () => {
+    it('should allow when privilege exists', async () => {
         const aclService = new AclService({
             get: () => ({ currentUser: { admin: false } }),
             getters: {
@@ -65,7 +65,7 @@ describe('src/app/service/acl.service.js', () => {
         expect(aclService.can('system.clear_cache')).toBeTruthy();
     });
 
-    it('should return all privileges', () => {
+    it('should return all privileges', async () => {
         const aclService = new AclService({
             get: () => ({ currentUser: { admin: false } }),
             getters: {
@@ -80,7 +80,7 @@ describe('src/app/service/acl.service.js', () => {
         expect(aclService.privileges).toContain('orders.create_discounts');
     });
 
-    it('should return true if router is undefined', () => {
+    it('should return true if router is undefined', async () => {
         Shopware.Application.view.root.$router = null;
 
         const aclService = new AclService({
@@ -95,7 +95,7 @@ describe('src/app/service/acl.service.js', () => {
         expect(aclService.hasAccessToRoute('sw.product.index')).toBeTruthy();
     });
 
-    it('should have access to the route when no privilege exists', () => {
+    it('should have access to the route when no privilege exists', async () => {
         Shopware.Application.view.root.$router.match = () => ({});
 
         const aclService = new AclService({
@@ -110,7 +110,7 @@ describe('src/app/service/acl.service.js', () => {
         expect(aclService.hasAccessToRoute('sw.product.index')).toBeTruthy();
     });
 
-    it('should not have access to the route when privilege not matches', () => {
+    it('should not have access to the route when privilege not matches', async () => {
         Shopware.Application.view.root.$router.match = () => ({
             meta: {
                 privilege: 'category.viewer'
@@ -129,7 +129,7 @@ describe('src/app/service/acl.service.js', () => {
         expect(aclService.hasAccessToRoute('sw.product.index')).toBeFalsy();
     });
 
-    it('should have access to the route when privilege matches', () => {
+    it('should have access to the route when privilege matches', async () => {
         Shopware.Application.view.root.$router.match = () => ({
             meta: {
                 privilege: 'product.viewer'

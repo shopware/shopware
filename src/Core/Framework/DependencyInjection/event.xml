@@ -25,5 +25,23 @@
             <argument type="service" id="Shopware\Core\Framework\Event\NestedEventDispatcher.inner"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Event\BusinessEventCollector">
+
+            <argument type="service" id="Shopware\Core\Framework\Event\BusinessEventRegistry"/>
+            <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Event\Command\DebugDumpBusinessEventsCommand">
+            <argument type="service" id="Shopware\Core\Framework\Event\BusinessEventCollector"/>
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Event\EventAction\Aggregate\EventActionRule\EventActionRuleDefinition">
+            <tag name="shopware.entity.definition" entity="event_action_rule" flag="FEATURE_NEXT_9351"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Event\EventAction\Aggregate\EventActionSalesChannel\EventActionSalesChannelDefinition">
+            <tag name="shopware.entity.definition" entity="event_action_sales_channel" flag="FEATURE_NEXT_9351"/>
+        </service>
     </services>
 </container>

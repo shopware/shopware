@@ -374,7 +374,6 @@ Component.register('sw-category-detail', {
                 this.isLoading = false;
 
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
                     message: this.$tc(
                         'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'
                     )

@@ -13,7 +13,9 @@ describe('modules/sw-users-permissions/page/sw-users-permissions', () => {
             },
             mocks: {},
             stubs: {
-                'sw-page': '<div><slot name="content"></slot></div>',
+                'sw-page': {
+                    template: '<div><slot name="content"></slot></div>'
+                },
                 'sw-card-view': true,
                 'sw-settings-user-list': true,
                 'sw-users-permissions-role-listing': true
@@ -25,11 +27,11 @@ describe('modules/sw-users-permissions/page/sw-users-permissions', () => {
         wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should contain the user list', () => {
+    it('should contain the user list', async () => {
         const userListComponent = wrapper.find('sw-settings-user-list-stub');
 
         expect(userListComponent.exists()).toBeTruthy();

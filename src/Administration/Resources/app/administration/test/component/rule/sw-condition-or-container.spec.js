@@ -16,7 +16,10 @@ function createWrapper(customProps = {}) {
             insertNodeTree: {},
             insertNodeIntoTree: () => {},
             removeNodeFromTree: {},
-            childAssociationField: 'test'
+            childAssociationField: 'test',
+            acl: {
+                can: () => true
+            }
         },
         mocks: {
             $tc: v => v
@@ -35,12 +38,12 @@ function createWrapper(customProps = {}) {
 }
 
 describe('src/app/component/rule/sw-condition-or-container', () => {
-    it('should be a Vue.JS component', () => {
+    it('should be a Vue.JS component', async () => {
         const wrapper = createWrapper();
-        expect(wrapper.isVueInstance()).toBe(true);
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should have enabled fields', () => {
+    it('should have enabled fields', async () => {
         const wrapper = createWrapper();
 
         const conditionTreeNode = wrapper.find('sw-condition-tree-node-stub');
@@ -52,7 +55,7 @@ describe('src/app/component/rule/sw-condition-or-container', () => {
         });
     });
 
-    it('should have disabled fields', () => {
+    it('should have disabled fields', async () => {
         const wrapper = createWrapper({
             disabled: true
         });

@@ -11,6 +11,12 @@ Component.register('sw-cms-stage-add-section', {
             type: Boolean,
             required: false,
             default: false
+        },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -20,10 +26,25 @@ Component.register('sw-cms-stage-add-section', {
         };
     },
 
+    computed: {
+        componentClasses() {
+            return {
+                'is--disabled': this.disabled
+            };
+        }
+    },
+
     methods: {
         onAddSection(type) {
             this.$emit('stage-section-add', type);
             this.showSelection = false;
+        },
+
+        toggleSelection() {
+            if (this.disabled) {
+                return;
+            }
+            this.showSelection = !this.showSelection;
         }
     }
 });

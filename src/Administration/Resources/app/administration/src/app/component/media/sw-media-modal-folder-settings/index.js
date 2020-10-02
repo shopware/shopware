@@ -23,6 +23,11 @@ Component.register('sw-media-modal-folder-settings', {
             validator(value) {
                 return value.getEntityName() === 'media_folder';
             }
+        },
+        disabled: {
+            required: false,
+            type: Boolean,
+            default: false
         }
     },
 
@@ -54,7 +59,9 @@ Component.register('sw-media-modal-folder-settings', {
             return this.repositoryFactory.create('media_folder_configuration');
         },
         notEditable() {
-            return this.folder.useParentConfiguration || !this.configuration.createThumbnails;
+            return this.folder.useParentConfiguration
+                || !this.configuration.createThumbnails
+                || this.disabled;
         },
 
         thumbnailListClass() {

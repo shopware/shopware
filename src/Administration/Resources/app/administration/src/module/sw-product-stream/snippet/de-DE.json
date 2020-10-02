@@ -5,6 +5,10 @@
       "placeholderSearchBar": "Durchsuche alle dynamischen Produktgruppen ...",
       "descriptionTextModule": "Verwalte hier Deine dynamischen Produktgruppen."
     },
+    "acl": {
+      "conditionsAlertHeading": "Keine ausreichenden Rechte",
+      "conditionsAlertDescription": "Du hast nicht genug Rechte um alle Aktionen in der \"Bedingungen\"-Sektion auszuführen."
+    },
     "list": {
       "textProductStreamOverview": "Dynamische Produktgruppen",
       "columnName": "Name",
@@ -42,6 +46,7 @@
         "allowNotification": "Benachrichtigung erlauben",
         "customFields": "Freitextfelder",
         "categories": "Kategorien",
+        "categoriesRo": "Kategorien",
         "choose": "Auswahl",
         "description": "Beschreibung",
         "descriptionLong": "Langbeschreibung",
@@ -113,6 +118,13 @@
       "title": "Vorschau",
       "empty": "Es wurden keine Produkte gefunden.",
       "close": "Schließen"
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "product_stream": {
+        "label": "Dynamische Produktgruppen"
+      }
     }
   }
 }

@@ -36,7 +36,8 @@
             <template slot="smart-bar-actions">
                 {% block sw_settings_snippet_list_smart_bar_actions_add %}
                     <sw-button :routerLink="{ name: 'sw.settings.snippet.create', query: { ids: queryIds, limit, page } }"
-                               :disabled="isLoading"
+                               :disabled="isLoading || !acl.can('snippet.creator')"
+                               v-tooltip.bottom="getNoPermissionsTooltip('snippet.creator')"
                                variant="primary">
                         {{ $tc('sw-settings-snippet.list.buttonAdd') }}
                     </sw-button>
@@ -57,7 +58,7 @@
                                       :skeletonItemAmount="skeletonItemAmount"
                                       :sortBy="sortBy"
                                       :sortDirection="sortDirection"
-                                      :allowInlineEdit="true"
+                                      :allowInlineEdit="acl.can('snippet.editor')"
                                       :allowColumnEdit="true"
                                       :showSettings="true"
                                       :showSelection="false"
@@ -116,12 +117,16 @@
                                                                         params: { key: item[metaId].translationKey, origin: item[metaId].translationKey },
                                                                         query: { ids: queryIds, limit, page }
                                                                   }">
-                                                {{ $tc('sw-settings-snippet.list.contextMenuEdit') }}
+                                                {{ contextMenuEditSnippet }}
                                             </sw-context-menu-item>
                                         {% endblock %}
 
                                         {% block sw_settings_snippet_list_grid_column_actions_delete %}
-                                            <sw-context-menu-item class="sw-settings-snippet-list__delete-action" @click="onReset(item)" variant="danger">
+                                            <sw-context-menu-item class="sw-settings-snippet-list__delete-action"
+                                                                  @click="onReset(item)"
+                                                                  variant="danger"
+                                                                  :disabled="!acl.can('snippet.deleter')"
+                                                                  v-tooltip.left="getNoPermissionsTooltip('snippet.deleter')">
                                                 {{ $tc('sw-settings-snippet.list.contextMenuDelete', item.isCustomSnippet) }}
                                             </sw-context-menu-item>
                                         {% endblock %}
@@ -199,7 +204,7 @@
                                                         {% block sw_settings_snippet_list_delete_modal_confirm %}
                                                             <sw-button @click="onConfirmReset(item)"
                                                                        :disabled="hasResetableItems && !item.isCustomSnippet && resetItems.length !== 1"
-                                                                       variant="primary"
+                                                                       variant="danger"
                                                                        size="small">
                                                                 {{ $tc('sw-settings-snippet.list.contextMenuDelete', item.isCustomSnippet) }}
                                                             </sw-button>

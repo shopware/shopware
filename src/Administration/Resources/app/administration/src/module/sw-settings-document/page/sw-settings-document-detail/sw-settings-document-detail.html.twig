@@ -21,7 +21,7 @@
                             class="sw-settings-document-detail__save-action"
                             :isLoading="isLoading"
                             :processSuccess="isSaveSuccessful"
-                            :disabled="documentConfig.isLoading"
+                            :disabled="documentConfig.isLoading || !acl.can('document.editor')"
                             variant="primary"
                             @process-finish="saveFinish"
                             v-tooltip.bottom="tooltipSave"
@@ -44,6 +44,7 @@
                                     <sw-field type="text"
                                               :label="$tc('sw-settings-document.detail.labelName')"
                                               :placeholder="$tc('sw-settings-document.detail.placeholderName')"
+                                              :disabled="!acl.can('document.editor')"
                                               validation="required"
                                               required
                                               v-model="documentConfig.name">
@@ -53,6 +54,7 @@
                             {% block sw_settings_document_detail_content_field_media %}
                                 <div flex="250px" align="stretch"  class="media-column">
                                     <sw-media-field v-model="documentConfig.logoId"
+                                                    :disabled="!acl.can('document.editor')"
                                                     :label="$tc('sw-settings-document.detail.labelOptionMedia')">
                                     </sw-media-field>
                                 </div>
@@ -60,6 +62,7 @@
                             {% block sw_settings_document_detail_content_field_file_name_prefix %}
                             <div class="sw-settings-document-detail__field_file_name_prefix">
                                 <sw-field type="text"
+                                         :disabled="!acl.can('document.editor')"
                                           :label="$tc('sw-settings-document.detail.labelFileNamePrefix')"
                                           v-model="documentConfig.filenamePrefix">
                                 </sw-field>
@@ -68,6 +71,7 @@
                             {% block sw_settings_document_detail_content_field_file_name_suffix %}
                             <div class="sw-settings-document-detail__field_file_name_suffix">
                                 <sw-field type="text"
+                                          :disabled="!acl.can('document.editor')"
                                           :label="$tc('sw-settings-document.detail.labelFileNameSuffix')"
                                           v-model="documentConfig.filenameSuffix">
                                 </sw-field>
@@ -77,6 +81,7 @@
                                 <template v-if="documentConfig.config" v-for="formField in generalFormFields">
                                     {% block sw_settings_document_detail_content_form_field_renderer %}
                                         <sw-form-field-renderer
+                                            :disabled="!acl.can('document.editor')"
                                             class="sw-settings-document-detail__form-field-renderer"
                                             v-bind="formField"
                                             v-model="documentConfig.config[formField.name]">
@@ -98,6 +103,7 @@
                                     <template v-for="formField in companyFormFields">
                                         {% block sw_settings_document_detail_company_form_field_renderer %}
                                             <sw-form-field-renderer
+                                                    :disabled="!acl.can('document.editor')"
                                                     v-bind="formField"
                                                     v-model="documentConfig.config[formField.name]">
                                             </sw-form-field-renderer>
@@ -122,11 +128,11 @@
                                     id="documentConfigTypes"
                                     :label="$tc('sw-settings-document.detail.labelType')"
                                     class="sw-settings-document-detail__select-type"
-                                    :disabled="documentConfig.global"
+                                    :disabled="documentConfig.global || !acl.can('document.editor')"
                                     v-tooltip="{
                                         showDelay: 300,
                                         message: $tc('sw-settings-document.detail.disabledTypeSelect'),
-                                        disabled: !documentConfig.global
+                                        disabled: !documentConfig.global || !acl.can('document.editor')
                                     }"
                                     @change="(id, type) => onChangeType(type)"
                                     >
@@ -141,7 +147,7 @@
                                     v-model="documentConfigSalesChannels"
                                     :options="documentConfigSalesChannelOptionsCollection"
                                     :label="$tc('sw-settings-document.detail.labelSalesChannel')"
-                                    :disabled="!documentConfig.documentType"
+                                    :disabled="!documentConfig.documentType || !acl.can('document.editor')"
                                     v-tooltip="{
                                         showDelay: 300,
                                         message: $tc('sw-settings-document.detail.disabledSalesChannelSelect'),

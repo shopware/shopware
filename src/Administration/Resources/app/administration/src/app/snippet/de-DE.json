@@ -21,7 +21,9 @@
       "yes": "Ja",
       "no": "Nein",
       "confirm": "Bestätigen",
-      "view": "Anzeigen"
+      "view": "Anzeigen",
+      "ascending": "Aufsteigend",
+      "descending": "Absteigend"
     },
     "notification": {
       "notificationSaveErrorMessage": "Beim Speichern der Entität \"{entityName}\" ist ein Fehler aufgetreten.",
@@ -803,6 +805,9 @@
     "de-DE": "Deutsch",
     "en-GB": "Englisch"
   },
+  "sw-image-slider": {
+    "imageAlt": "Bild {index} / {total}"
+  },
   "sw-rule-modal": {
     "modalTitleNew": "Neue globale Regel erstellen",
     "labelDescription": "Beschreibung",
@@ -922,5 +927,8 @@
     "placeholderCustomFieldSetSelect": "Wähle Zusatzfeld-Sets aus...",
     "labelCustomFieldSetSelect": "Zusatzfeld-Sets",
     "messagePluginSets": "Plugin Zusatzfeld-Sets (Können nicht entfernt werden)"
+  },
+  "sw-rating-stars": {
+    "ratingTooltipText": "{actual} von {max} Sternen"
   }
 }

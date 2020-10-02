@@ -5,7 +5,9 @@ describe('src/module/sw-settings-basic-information/component/sw-settings-captcha
     function CaptchaSelect() {
         return shallowMount(Shopware.Component.build('sw-settings-captcha-select'), {
             stubs: {
-                'sw-multi-select': '<div></div>'
+                'sw-multi-select': {
+                    template: '<div></div>'
+                }
             },
             mocks: {
                 $tc: (translationPath) => translationPath,
@@ -29,8 +31,8 @@ describe('src/module/sw-settings-basic-information/component/sw-settings-captcha
         captchaSelect = new CaptchaSelect();
     });
 
-    it('should be a vue js component', () => {
-        expect(captchaSelect.isVueInstance()).toBeTruthy();
+    it('should be a vue js component', async () => {
+        expect(captchaSelect.vm).toBeTruthy();
     });
 
     it('should load a list of options when mounted', async () => {
@@ -41,7 +43,7 @@ describe('src/module/sw-settings-basic-information/component/sw-settings-captcha
         expect(spyList).toHaveBeenCalled();
     });
 
-    it('should render options when setCaptchaOptions is called', () => {
+    it('should render options when setCaptchaOptions is called', async () => {
         const spyRenderCaptchaOption = jest.spyOn(captchaSelect.vm, 'renderCaptchaOption');
 
         captchaSelect.vm.setCaptchaOptions(['dolor-sit-amet']);
@@ -49,7 +51,7 @@ describe('src/module/sw-settings-basic-information/component/sw-settings-captcha
         expect(spyRenderCaptchaOption).toHaveBeenCalled();
     });
 
-    it('should set options when setCaptchaOptions is called', () => {
+    it('should set options when setCaptchaOptions is called', async () => {
         expect(captchaSelect.vm.availableCaptchas.length).toBeLessThan(1);
 
         captchaSelect.vm.setCaptchaOptions(['dolor-sit-amet']);
@@ -57,7 +59,7 @@ describe('src/module/sw-settings-basic-information/component/sw-settings-captcha
         expect(captchaSelect.vm.availableCaptchas.length).toBeGreaterThan(0);
     });
 
-    it('should render options correctly', () => {
+    it('should render options correctly', async () => {
         const technicalName = 'consectetur';
         const expected = {
             label: `sw-settings-basic-information.captcha.label.${technicalName}`,
@@ -69,7 +71,7 @@ describe('src/module/sw-settings-basic-information/component/sw-settings-captcha
         expect(option).toMatchObject(expected);
     });
 
-    it('should read translations correctly', () => {
+    it('should read translations correctly', async () => {
         const expected = {
             label: 'label',
             placeholder: 'placeholder'

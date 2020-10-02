@@ -7,9 +7,13 @@ use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Migration\Traits\ImportTranslationsTrait;
+use Shopware\Core\Migration\Traits\Translations;
 
 class Migration1595422169AddProductSorting extends MigrationStep
 {
+    use ImportTranslationsTrait;
+
     public function getCreationTimestamp(): int
     {
         return 1595422169;
@@ -37,19 +41,12 @@ class Migration1595422169AddProductSorting extends MigrationStep
 
             $connection->insert(ProductSortingDefinition::ENTITY_NAME, $sorting);
 
-            $languages = array_unique(array_filter([
-                $this->getLanguageId('en-GB', $connection),
-                Defaults::LANGUAGE_SYSTEM,
-            ]));
+            $translations = new Translations(
+                ['product_sorting_id' => $sorting['id'], 'label' => $translations['de-DE']],
+                ['product_sorting_id' => $sorting['id'], 'label' => $translations['en-GB']]
+            );
 
-            foreach ($languages as $language) {
-                $this->insertTranslation($sorting['id'], $translations['en-GB'], $language, $connection);
-            }
-
-            $languages = array_filter([$this->getLanguageId('de-DE', $connection)]);
-            foreach ($languages as $language) {
-                $this->insertTranslation($sorting['id'], $translations['de-DE'], $language, $connection);
-            }
+            $this->importTranslation('product_sorting_translation', $translations, $connection);
         }
     }
 
@@ -169,32 +166,5 @@ class Migration1595422169AddProductSorting extends MigrationStep
                 ],
             ],
         ];
-    }
-
-    private function getLanguageId(string $locale, Connection $connection)
-    {
-        return $connection->fetchColumn('
-            SELECT LOWER(HEX(`language`.id))
-            FROM `language`
-            INNER JOIN locale
-                ON locale.id = `language`.translation_code_id
-                AND locale.code = :locale
-        ', ['locale' => $locale]);
-    }
-
-    private function insertTranslation(string $productSortingId, string $label, string $languageId, Connection $connection): void
-    {
-        $connection->executeUpdate(
-            'REPLACE INTO product_sorting_translation
-             (`language_id`, `product_sorting_id`, `label`, `created_at`)
-             VALUES
-             (:language_id, :product_sorting_id, :label, :created_at)',
-            [
-                'language_id' => Uuid::fromHexToBytes($languageId),
-                'product_sorting_id' => $productSortingId,
-                'label' => $label,
-                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-            ]
-        );
     }
 }

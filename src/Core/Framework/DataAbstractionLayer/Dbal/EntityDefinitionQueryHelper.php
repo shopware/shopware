@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
@@ -13,11 +14,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -535,6 +538,84 @@ class EntityDefinitionQueryHelper
         }
 
         return $chain;
+    }
+
+    public function addIdCondition(Criteria $criteria, EntityDefinition $definition, QueryBuilder $query): void
+    {
+        $primaryKeys = $criteria->getIds();
+
+        $primaryKeys = array_values($primaryKeys);
+
+        if (empty($primaryKeys)) {
+            return;
+        }
+
+        if (!\is_array($primaryKeys[0]) || \count($primaryKeys[0]) === 1) {
+            $primaryKeyField = $definition->getPrimaryKeys()->first();
+            if ($primaryKeyField instanceof IdField) {
+                $primaryKeys = array_map(function ($id) {
+                    if (\is_array($id)) {
+                        /** @var string $shiftedId */
+                        $shiftedId = array_shift($id);
+
+                        return Uuid::fromHexToBytes($shiftedId);
+                    }
+
+                    return Uuid::fromHexToBytes($id);
+                }, $primaryKeys);
+            }
+
+            if (!$primaryKeyField instanceof StorageAware) {
+                throw new \RuntimeException('Primary key fields has to be an instance of StorageAware');
+            }
+
+            $query->andWhere(sprintf(
+                '%s.%s IN (:ids)',
+                EntityDefinitionQueryHelper::escape($definition->getEntityName()),
+                EntityDefinitionQueryHelper::escape($primaryKeyField->getStorageName())
+            ));
+
+            $query->setParameter('ids', array_values($primaryKeys), Connection::PARAM_STR_ARRAY);
+
+            return;
+        }
+
+        $this->addIdConditionWithOr($criteria, $definition, $query);
+    }
+
+    private function addIdConditionWithOr(Criteria $criteria, EntityDefinition $definition, QueryBuilder $query): void
+    {
+        $wheres = [];
+
+        foreach ($criteria->getIds() as $primaryKey) {
+            if (!is_array($primaryKey)) {
+                $primaryKey = ['id' => $primaryKey];
+            }
+
+            $where = [];
+
+            foreach ($primaryKey as $storageName => $value) {
+                $field = $definition->getFields()->getByStorageName($storageName);
+
+                if ($field instanceof IdField || $field instanceof FkField) {
+                    $value = Uuid::fromHexToBytes($value);
+                }
+
+                $key = 'pk' . Uuid::randomHex();
+
+                $accessor = EntityDefinitionQueryHelper::escape($definition->getEntityName()) . '.' . EntityDefinitionQueryHelper::escape($storageName);
+
+                $where[] = $accessor . ' = :' . $key;
+
+                $query->setParameter($key, $value);
+            }
+
+            $wheres[] = '(' . implode(' AND ', $where) . ')';
+        }
+
+        $wheres = implode(' OR ', $wheres);
+
+        $query->andWhere($wheres);
     }
 
     private function getAssociations(string $fieldName, EntityDefinition $definition, string $root): array

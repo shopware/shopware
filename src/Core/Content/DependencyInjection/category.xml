@@ -41,6 +41,10 @@
             <argument type="service" id="Shopware\Core\Content\Category\SalesChannel\SalesChannelCategoryDefinition"/>
         </service>
 
+        <service id="Shopware\Core\Content\Category\SalesChannel\CategoryListRoute" public="true">
+            <argument type="service" id="sales_channel.category.repository"/>
+        </service>
+
         <service id="Shopware\Core\Content\Category\DataAbstractionLayer\CategoryIndexer">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
@@ -63,5 +67,7 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
+
+        <service id="Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder"/>
     </services>
 </container>

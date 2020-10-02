@@ -4,7 +4,7 @@
          @click="handleItemClick">
 
         {% block sw_media_base_item_selected_indicator %}
-            <div v-if="!isList"
+            <div v-if="!isList && allowEdit"
                  class="sw-media-base-item__selected-indicator"
                  :class="selectionIndicatorClasses"
                  @click="onClickedItem">
@@ -42,7 +42,7 @@
         {% block sw_media_base_item_context_menu %}
             <sw-context-button v-if="showContextMenuButton && !isLoading" ref="swContextButton">
                 {% block sw_media_base_item_context_items%}
-                    <slot name="context-menu" v-bind="{ item, startInlineEdit }">
+                    <slot name="context-menu" v-bind="{ item, startInlineEdit, allowEdit, allowDelete }">
                         {% block sw_media_base_item_slot_media_item_context_menu %}{% endblock %}
                     </slot>
                 {% endblock %}
@@ -70,6 +70,6 @@
             </sw-icon>
         {% endblock %}
 
-        <slot name="modal-windows" v-bind="{ item }"></slot>
+        <slot name="modal-windows" v-bind="{ item, allowEdit, allowDelete }"></slot>
     </div>
 {% endblock %}

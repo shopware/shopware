@@ -190,26 +190,64 @@ function createWrapper() {
             }
         },
         stubs: {
-            'sw-page': '<div><slot name="content"></slot></div>',
+            'sw-page': {
+                template: '<div><slot name="content"></slot></div>'
+            },
             'sw-entity-listing': Shopware.Component.build('sw-entity-listing'),
-            'sw-context-button': '<div></div>',
-            'sw-context-menu-item': '<div></div>',
-            'sw-data-grid-settings': '<div></div>',
-            'sw-empty-state': '<div></div>',
-            'sw-pagination': '<div></div>',
-            'sw-icon': '<div></div>',
-            'sw-button': '<div></div>',
-            'sw-sidebar': '<div></div>',
-            'sw-sidebar-item': '<div></div>',
-            'router-link': '<div></div>',
-            'sw-language-switch': '<div></div>',
-            'sw-notification-center': '<div></div>',
-            'sw-search-bar': '<div></div>',
-            'sw-loader': '<div></div>',
-            'sw-data-grid-skeleton': '<div class="sw-data-grid-skeleton"></div>',
-            'sw-checkbox-field': '<div></div>',
-            'sw-media-preview-v2': '<div></div>',
-            'sw-color-badge': '<div></div>'
+            'sw-context-button': {
+                template: '<div></div>'
+            },
+            'sw-context-menu-item': {
+                template: '<div></div>'
+            },
+            'sw-data-grid-settings': {
+                template: '<div></div>'
+            },
+            'sw-empty-state': {
+                template: '<div></div>'
+            },
+            'sw-pagination': {
+                template: '<div></div>'
+            },
+            'sw-icon': {
+                template: '<div></div>'
+            },
+            'sw-button': {
+                template: '<div></div>'
+            },
+            'sw-sidebar': {
+                template: '<div></div>'
+            },
+            'sw-sidebar-item': {
+                template: '<div></div>'
+            },
+            'router-link': {
+                template: '<div></div>'
+            },
+            'sw-language-switch': {
+                template: '<div></div>'
+            },
+            'sw-notification-center': {
+                template: '<div></div>'
+            },
+            'sw-search-bar': {
+                template: '<div></div>'
+            },
+            'sw-loader': {
+                template: '<div></div>'
+            },
+            'sw-data-grid-skeleton': {
+                template: '<div class="sw-data-grid-skeleton"></div>'
+            },
+            'sw-checkbox-field': {
+                template: '<div></div>'
+            },
+            'sw-media-preview-v2': {
+                template: '<div></div>'
+            },
+            'sw-color-badge': {
+                template: '<div></div>'
+            }
         }
     });
 }
@@ -225,8 +263,8 @@ describe('module/sw-product/page/sw-product-list', () => {
         wrapper.destroy();
     });
 
-    it('should be a Vue.JS component', () => {
-        expect(wrapper.isVueInstance()).toBe(true);
+    it('should be a Vue.JS component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should sort grid when sorting for price', async () => {
@@ -246,6 +284,7 @@ describe('module/sw-product/page/sw-product-list', () => {
 
         // sort grid after price
         await currencyColumnHeader.trigger('click');
+        await wrapper.vm.$nextTick();
 
         const sortedPriceCells = wrapper.findAll('.sw-data-grid__cell--price-EUR');
         const firstSortedPriceCell = sortedPriceCells.at(0);
@@ -278,7 +317,7 @@ describe('module/sw-product/page/sw-product-list', () => {
         const columnHeaders = wrapper.findAll('.sw-data-grid__cell.sw-data-grid__cell--header');
         const poundColumn = columnHeaders.at(6);
 
-        poundColumn.trigger('click');
+        await poundColumn.trigger('click');
 
         await wrapper.vm.$nextTick();
 
@@ -289,7 +328,7 @@ describe('module/sw-product/page/sw-product-list', () => {
         expect(secondSortedPoundCell.text()).toBe('400');
     });
 
-    it('should return price when given currency id', () => {
+    it('should return price when given currency id', async () => {
         const currencyId = 'b7d2554b0ce847cd82f3ac9bd1c0dfca';
         const prices = mockPrices();
 
@@ -304,7 +343,7 @@ describe('module/sw-product/page/sw-product-list', () => {
         expect(foundPriceData).toEqual(expectedPriceData);
     });
 
-    it('should return fallback when no price was found', () => {
+    it('should return fallback when no price was found', async () => {
         const currencyId = 'no-valid-id';
         const prices = mockPrices();
 

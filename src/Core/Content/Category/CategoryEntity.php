@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Category;
 
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationCollection;
+use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -12,6 +13,7 @@ use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\Tag\TagCollection;
 
 class CategoryEntity extends Entity
@@ -505,12 +507,31 @@ class CategoryEntity extends Entity
 
     public function getBreadcrumb(): array
     {
-        return array_values($this->getBreadcrumbMapping());
+        return array_values($this->getPlainBreadcrumb());
     }
 
     public function getPlainBreadcrumb(): array
     {
-        return $this->getBreadcrumbMapping();
+        $breadcrumb = $this->getTranslation('breadcrumb');
+        if ($breadcrumb === null) {
+            return [];
+        }
+        if ($this->path === null) {
+            return $breadcrumb;
+        }
+
+        $parts = array_slice(explode('|', $this->path), 1, -1);
+
+        $filtered = [];
+        foreach ($parts as $id) {
+            if (isset($breadcrumb[$id])) {
+                $filtered[$id] = $breadcrumb[$id];
+            }
+        }
+
+        $filtered[$this->getId()] = $breadcrumb[$this->getId()];
+
+        return $filtered;
     }
 
     public function setBreadcrumb(?array $breadcrumb): void
@@ -518,30 +539,14 @@ class CategoryEntity extends Entity
         $this->breadcrumb = $breadcrumb;
     }
 
-    public function buildSeoBreadcrumb(?string $navigationCategoryId): ?array
+    /**
+     * @deprecated tag:v6.4.0.0 - Use CategoryBreadcrumbBuilder instead
+     */
+    public function buildSeoBreadcrumb(?string $navigationCategoryId = null, ?SalesChannelEntity $salesChannel = null): ?array
     {
-        $categoryBreadcrumb = $this->getBreadcrumbMapping();
+        $builder = new CategoryBreadcrumbBuilder();
 
-        // If the current SalesChannel is null ( which refers to the default template SalesChannel) or
-        // this category has no root, we return the full breadcrumb
-        if ($navigationCategoryId === null) {
-            return $categoryBreadcrumb;
-        }
-
-        // Root case
-        if (count($categoryBreadcrumb) < 2) {
-            return null;
-        }
-
-        // Check where this category is located in relation to the navigation entry point of the sales channel
-        $salesChannelPos = array_search($navigationCategoryId, array_keys($categoryBreadcrumb), true);
-
-        if ($salesChannelPos !== false) {
-            // Remove all breadcrumbs preceding the navigation category
-            return array_slice($categoryBreadcrumb, $salesChannelPos + 1);
-        }
-
-        return $categoryBreadcrumb;
+        return $builder->build($this, $salesChannel, $navigationCategoryId);
     }
 
     public function jsonSerialize(): array
@@ -611,27 +616,5 @@ class CategoryEntity extends Entity
     public function setProductAssignmentType(string $productAssignmentType): void
     {
         $this->productAssignmentType = $productAssignmentType;
-    }
-
-    private function getBreadcrumbMapping(): array
-    {
-        $breadcrumb = $this->getTranslation('breadcrumb');
-        if ($breadcrumb === null) {
-            return [];
-        }
-        if ($this->path === null) {
-            return $breadcrumb;
-        }
-
-        $parts = array_slice(explode('|', $this->path), 1, -1);
-
-        $filtered = [];
-        foreach ($parts as $id) {
-            $filtered[$id] = $breadcrumb[$id];
-        }
-
-        $filtered[$this->getId()] = $breadcrumb[$this->getId()];
-
-        return $filtered;
     }
 }

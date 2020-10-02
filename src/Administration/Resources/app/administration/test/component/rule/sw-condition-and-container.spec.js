@@ -3,6 +3,7 @@ import 'src/app/component/rule/sw-condition-and-container';
 
 function createWrapper(customProps = {}) {
     const localVue = createLocalVue();
+    localVue.directive('tooltip', {});
 
     return shallowMount(Shopware.Component.build('sw-condition-and-container'), {
         localVue,
@@ -18,7 +19,10 @@ function createWrapper(customProps = {}) {
             insertNodeTree: {},
             insertNodeIntoTree: () => {},
             removeNodeFromTree: {},
-            childAssociationField: 'test'
+            childAssociationField: 'test',
+            acl: {
+                can: () => true
+            }
         },
         mocks: {
             $tc: v => v
@@ -37,12 +41,12 @@ function createWrapper(customProps = {}) {
 }
 
 describe('src/app/component/rule/sw-condition-and-container', () => {
-    it('should be a Vue.JS component', () => {
+    it('should be a Vue.JS component', async () => {
         const wrapper = createWrapper();
-        expect(wrapper.isVueInstance()).toBe(true);
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should have enabled condition tree', () => {
+    it('should have enabled condition tree', async () => {
         const wrapper = createWrapper();
 
         const conditionTreeNode = wrapper.find('sw-condition-tree-node-stub');
@@ -50,7 +54,7 @@ describe('src/app/component/rule/sw-condition-and-container', () => {
         expect(conditionTreeNode.attributes().disabled).toBeUndefined();
     });
 
-    it('should have disabled condition tree', () => {
+    it('should have disabled condition tree', async () => {
         const wrapper = createWrapper({
             disabled: true
         });
@@ -60,7 +64,7 @@ describe('src/app/component/rule/sw-condition-and-container', () => {
         expect(conditionTreeNode.attributes().disabled).toBe('true');
     });
 
-    it('should have enabled buttons', () => {
+    it('should have enabled buttons', async () => {
         const wrapper = createWrapper();
 
         const buttons = wrapper.findAll('sw-button-stub');
@@ -70,7 +74,7 @@ describe('src/app/component/rule/sw-condition-and-container', () => {
         });
     });
 
-    it('should have enabled buttons', () => {
+    it('should have enabled buttons', async () => {
         const wrapper = createWrapper({
             disabled: true
         });

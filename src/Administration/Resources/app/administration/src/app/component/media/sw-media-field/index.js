@@ -22,6 +22,12 @@ Component.register('sw-media-field', {
     },
 
     props: {
+        disabled: {
+            type: Boolean,
+            default: false,
+            required: false
+        },
+
         mediaId: {
             type: String,
             required: false

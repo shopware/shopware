@@ -26,19 +26,21 @@ const createWrapper = () => {
         stubs: {
             'sw-switch-field': Shopware.Component.build('sw-switch-field'),
             'sw-base-field': Shopware.Component.build('sw-base-field'),
-            'sw-field-error': '<div></div>'
+            'sw-field-error': {
+                template: '<div></div>'
+            }
         }
     });
 };
 
 describe('app/component/form/sw-switch-field', () => {
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should render three switch fields', () => {
+    it('should render three switch fields', async () => {
         const wrapper = createWrapper();
 
         const switchFields = wrapper.findAll('.sw-field--switch');
@@ -46,7 +48,7 @@ describe('app/component/form/sw-switch-field', () => {
         expect(switchFields).toHaveLength(3);
     });
 
-    it('should render all labels', () => {
+    it('should render all labels', async () => {
         const wrapper = createWrapper();
 
         const switchFieldLabels = wrapper.findAll('.sw-field__label label');
@@ -58,7 +60,7 @@ describe('app/component/form/sw-switch-field', () => {
         expect(switchFieldLabels.at(2).text()).toContain('CheckThree');
     });
 
-    it('each label should refer to the matching input field', () => {
+    it('each label should refer to the matching input field', async () => {
         const wrapper = createWrapper();
 
         const switchFieldLabels = wrapper.findAll('.sw-field__label label');
@@ -76,51 +78,51 @@ describe('app/component/form/sw-switch-field', () => {
         expect(thirdSwitchInputId).toMatch(thirdLabelFor);
     });
 
-    it('the first label was clicked and the corresponding data updates', () => {
+    it('the first label was clicked and the corresponding data updates', async () => {
         const wrapper = createWrapper();
 
         expect(wrapper.vm.checkOne).toBeFalsy();
-        wrapper.findAll('.sw-field__label label').at(0).trigger('click');
+        await wrapper.findAll('.sw-field__label label').at(0).trigger('click');
         expect(wrapper.vm.checkOne).toBeTruthy();
     });
 
-    it('the first input was clicked and the corresponding data updates', () => {
+    it('the first input was clicked and the corresponding data updates', async () => {
         const wrapper = createWrapper();
 
         expect(wrapper.vm.checkOne).toBeFalsy();
-        wrapper.find('input[name="sw-field--checkOne"]').trigger('click');
+        await wrapper.find('input[name="sw-field--checkOne"]').trigger('click');
         expect(wrapper.vm.checkOne).toBeTruthy();
     });
 
-    it('the second label was clicked and the corresponding data updates', () => {
+    it('the second label was clicked and the corresponding data updates', async () => {
         const wrapper = createWrapper();
 
         expect(wrapper.vm.checkTwo).toBeFalsy();
-        wrapper.findAll('.sw-field__label label').at(1).trigger('click');
+        await wrapper.findAll('.sw-field__label label').at(1).trigger('click');
         expect(wrapper.vm.checkTwo).toBeTruthy();
     });
 
-    it('the second input was clicked and the corresponding data updates', () => {
+    it('the second input was clicked and the corresponding data updates', async () => {
         const wrapper = createWrapper();
 
         expect(wrapper.vm.checkTwo).toBeFalsy();
-        wrapper.find('input[name="sw-field--checkTwo"]').trigger('click');
+        await wrapper.find('input[name="sw-field--checkTwo"]').trigger('click');
         expect(wrapper.vm.checkTwo).toBeTruthy();
     });
 
-    it('the third label was clicked and the corresponding data updates', () => {
+    it('the third label was clicked and the corresponding data updates', async () => {
         const wrapper = createWrapper();
 
         expect(wrapper.vm.checkThree).toBeFalsy();
-        wrapper.findAll('.sw-field__label label').at(2).trigger('click');
+        await wrapper.findAll('.sw-field__label label').at(2).trigger('click');
         expect(wrapper.vm.checkThree).toBeTruthy();
     });
 
-    it('the third input was clicked and the corresponding data updates', () => {
+    it('the third input was clicked and the corresponding data updates', async () => {
         const wrapper = createWrapper();
 
         expect(wrapper.vm.checkThree).toBeFalsy();
-        wrapper.find('input[name="sw-field--checkThree"]').trigger('click');
+        await wrapper.find('input[name="sw-field--checkThree"]').trigger('click');
         expect(wrapper.vm.checkThree).toBeTruthy();
     });
 });

@@ -32,7 +32,7 @@ class PromotionCartAddedInformationError extends Error
 
     public function isPersistent(): bool
     {
-        return false;
+        return true;
     }
 
     public function getMessageKey(): string

@@ -27,7 +27,7 @@ describe('src/component/grid/sw-pagination', () => {
         return positionOfActivePageButton;
     }
 
-    function checkNextPage(currentPage, direction, arrowButton) {
+    async function checkNextPage(currentPage, direction, arrowButton) {
         expect(getActivePage().text()).toBe(currentPage.toString());
 
         if (currentPage >= wrapper.vm.maxPage) {
@@ -38,10 +38,10 @@ describe('src/component/grid/sw-pagination', () => {
             const nextPageButton = getButtonAtPosition(getPositionOfActiveButton() + 1);
 
             // visit next page
-            nextPageButton.trigger('click');
+            await nextPageButton.trigger('click');
         } else {
             // visit next page
-            arrowButton.trigger('click');
+            await arrowButton.trigger('click');
         }
 
         if (direction === 'right') {
@@ -65,8 +65,12 @@ describe('src/component/grid/sw-pagination', () => {
                 $tc: key => key
             },
             stubs: {
-                'sw-icon': '<div class="icon"></div>',
-                'sw-field': '<div class="field"></div>'
+                'sw-icon': {
+                    template: '<div class="icon"></div>'
+                },
+                'sw-field': {
+                    template: '<div class="field"></div>'
+                }
             }
         });
     }
@@ -75,11 +79,11 @@ describe('src/component/grid/sw-pagination', () => {
         wrapper = createWrapper();
     });
 
-    it('should be a Vue.JS component', () => {
-        expect(wrapper.isVueInstance()).toBe(true);
+    it('should be a Vue.JS component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should have two arrow icons', () => {
+    it('should have two arrow icons', async () => {
         const [leftArrow, rightArrow] = wrapper.findAll('div.icon').wrappers;
 
         expect(leftArrow.exists()).toBe(true);
@@ -89,7 +93,7 @@ describe('src/component/grid/sw-pagination', () => {
         expect(rightArrow.attributes('name')).toBe('small-arrow-medium-right');
     });
 
-    it('should have the right amount of elements', () => {
+    it('should have the right amount of elements', async () => {
         const pageButtons = wrapper.findAll('button.sw-pagination__list-button');
         expect(pageButtons.length).toBe(6);
 
@@ -100,8 +104,8 @@ describe('src/component/grid/sw-pagination', () => {
         expect(activeButton.length).toBe(1);
     });
 
-    it('should have right amount of elements when on fourth page', () => {
-        wrapper.vm.changePageByPageNumber(3);
+    it('should have right amount of elements when on fourth page', async () => {
+        await wrapper.vm.changePageByPageNumber(3);
 
         const allPageButtons = wrapper.findAll('.sw-pagination__list-button');
         expect(allPageButtons.length).toBe(7);
@@ -113,8 +117,8 @@ describe('src/component/grid/sw-pagination', () => {
         expect(activePageButton.exists()).toBe(true);
     });
 
-    it('should have right amount of elements when on ninth page', () => {
-        wrapper.vm.changePageByPageNumber(9);
+    it('should have right amount of elements when on ninth page', async () => {
+        await wrapper.vm.changePageByPageNumber(9);
 
         const allPageButtons = wrapper.findAll('.sw-pagination__list-button');
         expect(allPageButtons.length).toBe(7);
@@ -126,24 +130,24 @@ describe('src/component/grid/sw-pagination', () => {
         expect(activePageButton.exists()).toBe(true);
     });
 
-    it('should navigate to another page via arrows', () => {
+    it('should navigate to another page via arrows', async () => {
         const [leftArrow, rightArrow] = wrapper.findAll('div.icon').wrappers;
 
         expect(getActivePage().text()).toBe('1');
 
-        rightArrow.trigger('click');
+        await rightArrow.trigger('click');
 
         expect(getActivePage().text()).toBe('2');
 
-        leftArrow.trigger('click');
+        await leftArrow.trigger('click');
 
         expect(getActivePage().text()).toBe('1');
     });
 
-    it('should emit event when clicking on an arrow', () => {
+    it('should emit event when clicking on an arrow', async () => {
         const rightArrow = wrapper.find('div.icon[name="small-arrow-medium-right"]');
 
-        rightArrow.trigger('click');
+        await rightArrow.trigger('click');
 
         const pageChangeEvents = wrapper.emitted()['page-change'];
         expect(pageChangeEvents.length).toBe(1);
@@ -152,20 +156,20 @@ describe('src/component/grid/sw-pagination', () => {
         expect(eventObject).toEqual({ limit: 25, page: 2 });
     });
 
-    it('should navigate to another page via page button', () => {
+    it('should navigate to another page via page button', async () => {
         expect(getActivePage().text()).toBe('1');
 
         const secondPageButton = wrapper.find('button.sw-pagination__list-button:not(.is-active)');
 
-        secondPageButton.trigger('click');
+        await secondPageButton.trigger('click');
 
         expect(getActivePage().text()).toBe('2');
     });
 
-    it('should emit event when clicking on a page button', () => {
+    it('should emit event when clicking on a page button', async () => {
         const secondPageButton = wrapper.find('button.sw-pagination__list-button:not(.is-active)');
 
-        secondPageButton.trigger('click');
+        await secondPageButton.trigger('click');
 
         const pageChangeEvents = wrapper.emitted()['page-change'];
         expect(pageChangeEvents.length).toBe(1);
@@ -174,9 +178,9 @@ describe('src/component/grid/sw-pagination', () => {
         expect(eventObject).toEqual({ limit: 25, page: 2 });
     });
 
-    it('should navigate to fourth page via a page button', () => {
+    it('should navigate to fourth page via a page button', async () => {
         // set starting point to three
-        wrapper.vm.changePageByPageNumber(3);
+        await wrapper.vm.changePageByPageNumber(3);
 
         expect(getActivePage().text()).toBe('3');
 
@@ -184,9 +188,9 @@ describe('src/component/grid/sw-pagination', () => {
         expect(fourthPageButton.text()).toBe('4');
     });
 
-    it('should navigate to eight page via a page button', () => {
+    it('should navigate to eight page via a page button', async () => {
         // set starting point to nine
-        wrapper.vm.changePageByPageNumber(9);
+        await wrapper.vm.changePageByPageNumber(9);
 
         expect(getActivePage().text()).toBe('9');
 
@@ -194,13 +198,13 @@ describe('src/component/grid/sw-pagination', () => {
         expect(fourthPageButton.text()).toBe('8');
     });
 
-    it('should navigate through complete pagination only with page button', () => {
+    it('should navigate through complete pagination only with page button', async () => {
         const startingPoint = wrapper.vm.currentPage;
 
         checkNextPage(startingPoint, 'right');
     });
 
-    it('should navigate through complete pagination only with arrows', () => {
+    it('should navigate through complete pagination only with arrows', async () => {
         const startingPoint = wrapper.vm.currentPage;
         const [leftArrow, rightArrow] = wrapper.findAll('div.icon').wrappers;
 
@@ -208,7 +212,7 @@ describe('src/component/grid/sw-pagination', () => {
         checkNextPage(11, 'left', leftArrow);
     });
 
-    it('should jump to first page', () => {
+    it('should jump to first page', async () => {
         wrapper.vm.changePageByPageNumber(2);
 
         expect(wrapper.vm.currentPage).toBe(2);
@@ -219,7 +223,7 @@ describe('src/component/grid/sw-pagination', () => {
         expect(wrapper.vm.currentPage).toBe(1);
     });
 
-    it('should jump to last page', () => {
+    it('should jump to last page', async () => {
         expect(wrapper.vm.currentPage).toBe(1);
 
         // go to last page
@@ -229,7 +233,7 @@ describe('src/component/grid/sw-pagination', () => {
         expect(wrapper.vm.currentPage).toBe(lastPage);
     });
 
-    it('should jump to correct page by number', () => {
+    it('should jump to correct page by number', async () => {
         expect(wrapper.vm.currentPage).toBe(1);
 
         // jump to eight page
@@ -238,17 +242,17 @@ describe('src/component/grid/sw-pagination', () => {
         expect(wrapper.vm.currentPage).toBe(8);
     });
 
-    it('should return correct last page number', () => {
+    it('should return correct last page number', async () => {
         expect(wrapper.vm.maxPage).toBe(11);
     });
 
-    it('should return correct range', () => {
+    it('should return correct range', async () => {
         const range = wrapper.vm.range(1, 3);
 
         expect(range).toEqual([1, 2, 3]);
     });
 
-    it('should be visisble when autoHide is set to false', () => {
+    it('should be visisble when autoHide is set to false', async () => {
         expect(wrapper.props('autoHide')).toBe(false);
         expect(wrapper.exists()).toBe(true);
     });

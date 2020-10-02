@@ -4,7 +4,10 @@
         {% block sw_users_permissions_role_detail_smart_bar_header %}
             <template #smart-bar-header>
                 {% block sw_users_permissions_role_detail_smart_bar_header_title %}
-                    <h2 v-if="role">{{ role.name }}</h2>
+                    <h2 v-if="role && role.isNew() && role.name.length <= 0">
+                        {{ $tc('sw-users-permissions.roles.general.labelCreateNewRole') }}
+                    </h2>
+                    <h2 v-else-if="role">{{ role.name }}</h2>
                     <h2 v-else>{{ $tc('sw-users-permissions.roles.detail.role') }}</h2>
                 {% endblock %}
             </template>
@@ -24,7 +27,7 @@
                         class="sw-users-permissions-role-detail__button-save"
                         :isLoading="isLoading"
                         :processSuccess="isSaveSuccessful"
-                        :disabled="isLoading"
+                        :disabled="isLoading || !acl.can('users_and_permissions.editor')"
                         variant="primary"
                         @process-finish="saveFinish"
                         v-tooltip.bottom="tooltipSave"
@@ -39,36 +42,25 @@
             <template #content>
                 {% block sw_users_permissions_role_detail_content_card_view %}
                     <sw-card-view v-if="!isLoading">
-                        {% block sw_users_permissions_role_detail_content_card_view_basic_information %}
-                            <sw-card :title="$tc('sw-users-permissions.roles.detail.basicInformation')">
-                                {% block sw_users_permissions_role_detail_content_card_view_basic_information_name %}
-                                    <sw-field
-                                        type="text"
-                                        v-model="role.name"
-                                        :error="roleNameError"
-                                        :label="$tc('sw-users-permissions.roles.detail.labelName')"
-                                        required>
-                                    </sw-field>
-                                {% endblock %}
+                        {% block sw_users_permissions_role_detail_content_card_view_tabs %}
+                            <sw-tabs defaultItem="general">
+                                <template slot-scope="{ active }">
+                                    <sw-tabs-item :route="{ name: 'sw.users.permissions.role.detail.general', params: { id: $route.params.id } }"
+                                                  :title="$tc('sw-users-permissions.roles.tabs.general')">
+                                        {{ $tc('sw-users-permissions.roles.tabs.general') }}
+                                    </sw-tabs-item>
 
-                                {% block sw_users_permissions_role_detail_content_card_view_basic_information_description %}
-                                    <sw-field
-                                        type="textarea"
-                                        v-model="role.description"
-                                        :error="roleDescriptionError"
-                                        :label="$tc('sw-users-permissions.roles.detail.labelDescription')">
-                                    </sw-field>
-                                {% endblock %}
-                            </sw-card>
+                                    <sw-tabs-item :route="{ name: 'sw.users.permissions.role.detail.detailed-privileges', params: { id: $route.params.id } }"
+                                                  :title="$tc('sw-users-permissions.roles.tabs.detailed')">
+                                        {{ $tc('sw-users-permissions.roles.tabs.detailed') }}
+                                    </sw-tabs-item>
+                                </template>
+                            </sw-tabs>
                         {% endblock %}
 
-                        {% block sw_users_permissions_role_detail_content_card_view_permissions %}
-                            <sw-users-permissions-permissions-grid :role="role" />
-                        {% endblock %}
-
-                        {% block sw_users_permissions_role_detail_content_card_view_additional_permissions %}
-                            <sw-users-permissions-additional-permissions :role="role" />
-                        {% endblock %}
+                        <router-view :role="role"
+                                     :detailedPrivileges="detailedPrivileges">
+                        </router-view>
                     </sw-card-view>
                 {% endblock %}
 

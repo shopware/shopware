@@ -174,6 +174,10 @@ class OrderService
             throw new StateMachineStateNotFoundException('order_transaction', $transition);
         }
 
+        if (Feature::isActive('FEATURE_NEXT_9351')) {
+            return $toPlace;
+        }
+
         $orderCriteria = new Criteria([$orderId]);
         if ($customerId !== null) {
             $orderCriteria->addFilter(
@@ -224,6 +228,10 @@ class OrderService
             throw new StateMachineStateNotFoundException('order_transaction', $transition);
         }
 
+        if (Feature::isActive('FEATURE_NEXT_9351')) {
+            return $toPlace;
+        }
+
         //We need to get the order twice to get it in the correct context
         $orderCriteria = new Criteria();
         $orderCriteria->addFilter(new EqualsFilter('transactions.id', $orderTransactionId));
@@ -269,6 +277,10 @@ class OrderService
 
         if (!$toPlace) {
             throw new StateMachineStateNotFoundException('order_transaction', $transition);
+        }
+
+        if (Feature::isActive('FEATURE_NEXT_9351')) {
+            return $toPlace;
         }
 
         //We need to get the order twice to get it in the correct context

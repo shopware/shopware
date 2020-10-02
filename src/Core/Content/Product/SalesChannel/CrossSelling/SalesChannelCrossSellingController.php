@@ -21,6 +21,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
+ * @deprecated tag:v6.4.0 - Use Store-API instead
  * @RouteScope(scopes={"sales-channel-api"})
  */
 class SalesChannelCrossSellingController extends AbstractController

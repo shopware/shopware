@@ -8,7 +8,8 @@ Component.register('sw-tax-rule-card', {
     template,
 
     inject: [
-        'repositoryFactory'
+        'repositoryFactory',
+        'acl'
     ],
 
     props: {

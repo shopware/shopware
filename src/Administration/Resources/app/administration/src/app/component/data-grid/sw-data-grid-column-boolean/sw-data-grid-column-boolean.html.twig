@@ -2,7 +2,7 @@
     <div>
         <template>
             <template v-if="isInlineEdit">
-                <sw-checkbox-field v-model="currentValue"></sw-checkbox-field>
+                <sw-checkbox-field v-model="currentValue" :disabled="disabled"></sw-checkbox-field>
             </template>
 
             <template v-else>

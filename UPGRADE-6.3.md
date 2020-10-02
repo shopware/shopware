@@ -1,14 +1,100 @@
 UPGRADE FROM 6.2.x to 6.3
 =======================
 
-Table of contents
-----------------
+# 6.3.2.0
+## Deprecation of the Sales Channel API
 
-* [API](#api)
-* [Core](#core)
-* [Administration](#administration)
-* [Storefront](#storefront)
-* [Refactorings](#refactorings)
+As we finished with the implementation of our new Store API, we are deprecating the old Sales Channel API. 
+The removal is planned for the 6.4.0.0 release. Projects are using the current Sales Channel API can migrate on api route base.
+
+## HTTP Client for Store API
+Use the HTTP client in your Javascript for calls to the Store API.
+
+Example usage:
+```javascript
+import StoreApiClient from 'src/service/store-api-client.service';
+const client = new StoreApiClient;
+client.get('/store-api/v2/country', function(response) {
+  console.log(response)
+});
+```
+## Entity Foreign Key Resolver
+There are currently systems that have performance problems with the `\Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityForeignKeyResolver`.
+We have now created a solution for this, but we have to change the format of the return value of the different functions as follow:
+
+### getAffectedDeleteRestrictions & getAffectedDeletes
+* `EntityForeignKeyResolver::getAffectedDeleteRestrictions`
+* `EntityForeignKeyResolver::getAffectedDeletes`
+
+**before**
+```
+[
+    [
+        'pk' => '43c6baad756140d8aabbbca533a8284f'
+        restrictions => [
+            "order_customer" => array:2 [
+                "cace68bdbca140b6ac43a083fb19f82b",
+                "50330f5531ed485fbd72ba016b20ea2a",
+            ]
+            "order_address" => array:4 [
+                "29d6334b01e64be28c89a5f1757fd661",
+                "484ef1124595434fa9b14d6d2cc1e9f8",
+                "601133b1173f4ca3aeda5ef64ad38355",
+                "9fd6c61cf9844a8984a45f4e5b55a59c",
+            ]
+        ]
+    ]
+]
+```
+
+**after** 
+```
+[
+    "order_customer" => array:2 [
+        "cace68bdbca140b6ac43a083fb19f82b",
+        "50330f5531ed485fbd72ba016b20ea2a",
+    ]
+    "order_address" => array:4 [
+        "29d6334b01e64be28c89a5f1757fd661",
+        "484ef1124595434fa9b14d6d2cc1e9f8",
+        "601133b1173f4ca3aeda5ef64ad38355",
+        "9fd6c61cf9844a8984a45f4e5b55a59c",
+    ]
+]
+```
+
+### getAffectedSetNulls
+* `EntityForeignKeyResolver::getAffectedSetNulls`
+
+**before**
+```
+[
+    [
+        'pk' => '43c6baad756140d8aabbbca533a8284f'
+        restrictions => [
+            'Shopware\Core\Content\Product\ProductDefinition' => [
+                '1ffd7ea958c643558256927aae8efb07' => ['category_id'],
+                '1ffd7ea958c643558256927aae8efb07' => ['category_id', 'main_category_id']
+            ]
+        ]
+    ]
+]
+```               
+
+**after**
+```
+[
+    'product.manufacturer_id' => [
+        '1ffd7ea958c643558256927aae8efb07',
+        '1ffd7ea958c643558256927aae8efb07'
+    ],
+    'product.cover_id' => [
+        '1ffd7ea958c643558256927aae8efb07'
+        '1ffd7ea958c643558256927aae8efb07'
+    ]
+]
+```
+# 6.3
 
 API
 ----
@@ -165,27 +251,7 @@ After that you are able to delete your implementation of the `SnippetFileInterfa
     </service>
     ```
     * Now it is possible to store custom sortings in the database `product_sorting` and its translatable label in `product_sorting_translation`
-    * Or you can subscribe to `ProductListingCriteriaEvent` for listing results and `ProductSearchCriteriaEvent` for search results to add available sortings to the storefront on the fly:
-    ```php
-      public function addMyCustomSortingToStorefront(\Shopware\Core\Content\Product\Events\ProductListingCriteriaEvent $event): void {
-          /** @var \Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingCollection $availableSortings */
-          $availableSortings = $event->getCriteria()->getExtension('sortings');
-  
-          $mySuperShinyCustomSorting = new \Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingEntity();
-          $mySuperShinyCustomSorting->setActive(true);
-          $mySuperShinyCustomSorting->setLabel('Super Shiny Custom Sorting');     // label shown in storefront
-          $mySuperShinyCustomSorting->setKey('my-custom-sort');                   // unique key, shown in url
-          $mySuperShinyCustomSorting->setPriority(100);                           // higher priority comes first
-          $mySuperShinyCustomSorting->setFields([
-              ['field' => 'product.listingPrices', 'order' => 'asc', 'priority' => 100, 'naturalSorting' => 0],
-              ['field' => 'product.name', 'order' => 'desc', 'priority' => 0, 'naturalSorting' => 1],
-              ...
-          );
-  
-          $availableSortings->add($mySuperShinyCustomSorting);
-          $event->getCriteria()->addExtension('sortings', $availableSortings);
-      }
-    ```
+* Added validation deliverability in case purchase steps
 
 * Deprecated providing an until timestamp as the last argument when running the `database:migrate` or `database:migrate-destructive` commands, use the --until option instead.
     * Before:
@@ -289,12 +355,11 @@ For comparability reason they inherit from the `public` filesytem. So after the 
 All file system configuration have now an `url` config option, this url will be used for url generation to the files.
 
 ## Usage of the Symfony asset
-
 To unify the URL generation, we create a Symfony asset for each public filesystem adapter. This will build the correct URL with a version cache busting.
-These assets are prefixed in dependency injection with `shopware.asset.{ADAPTER_NAME}`
-    * `shopware.asset.public`
-    * `shopware.asset.theme`
-    * `shopware.asset.asset`
+These assets are prefixed in dependency injection with `shopware.asset.{ADAPTER_NAME}`:  
+*  `shopware.asset.public`
+*  `shopware.asset.theme`
+*  `shopware.asset.asset`
 
 Example in PHP:
 ```php

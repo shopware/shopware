@@ -3,6 +3,7 @@
 namespace Shopware\Administration\Service;
 
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\Delivery\DeliveryProcessor;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
@@ -31,11 +32,7 @@ class AdminOrderCartService
     {
         $cart = $this->cartService->getCart($context->getToken(), $context);
 
-        $delivery = $cart->getDeliveries()->first();
-
-        if ($delivery) {
-            $delivery->setShippingCosts($calculatedPrice);
-        }
+        $cart->addExtension(DeliveryProcessor::MANUAL_SHIPPING_COSTS, $calculatedPrice);
 
         return $this->cartService->recalculate($cart, $context);
     }

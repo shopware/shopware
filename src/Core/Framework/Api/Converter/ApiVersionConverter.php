@@ -19,6 +19,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\PlatformRequest;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 class ApiVersionConverter
 {
@@ -37,9 +39,15 @@ class ApiVersionConverter
      */
     private $fromFuture;
 
-    public function __construct(ConverterRegistry $converterRegistry)
+    /**
+     * @var RequestStack
+     */
+    private $requestStack;
+
+    public function __construct(ConverterRegistry $converterRegistry, RequestStack $requestStack)
     {
         $this->converterRegistry = $converterRegistry;
+        $this->requestStack = $requestStack;
     }
 
     public function isAllowed(string $entityName, ?string $fieldName, int $apiVersion): bool
@@ -144,6 +152,16 @@ class ApiVersionConverter
         foreach ($criteria->getAllFields() as $field) {
             $this->validateQueryField($definition, $field, $apiVersion, $searchException);
         }
+    }
+
+    protected function ignoreDeprecations(): bool
+    {
+        // We don't have a request
+        if ($this->requestStack->getMasterRequest() === null) {
+            return false;
+        }
+
+        return $this->requestStack->getMasterRequest()->headers->get(PlatformRequest::HEADER_IGNORE_DEPRECATIONS) === 'true';
     }
 
     private function validateFields(EntityDefinition $definition, array $payload, int $apiVersion, ApiConversionException $conversionException, string $pointer): array
@@ -263,7 +281,9 @@ class ApiVersionConverter
     private function isDeprecated(string $entityName, ?string $fieldName, int $apiVersion): bool
     {
         if (!isset($this->deprecations[$apiVersion][$entityName][$fieldName])) {
-            $this->deprecations[$apiVersion][$entityName][$fieldName] = $this->converterRegistry->isDeprecated($apiVersion, $entityName, $fieldName);
+            $isDeprecated = !$this->ignoreDeprecations()
+                && $this->converterRegistry->isDeprecated($apiVersion, $entityName, $fieldName);
+            $this->deprecations[$apiVersion][$entityName][$fieldName] = $isDeprecated;
         }
 
         return $this->deprecations[$apiVersion][$entityName][$fieldName];

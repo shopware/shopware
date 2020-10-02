@@ -36,7 +36,12 @@
     "categoryForm": {
       "labelCategory": "Kategorie",
       "placeholderCategory": "Weise Kategorien zu ...",
-      "placeholderTags": "Gib Tags ein ..."
+      "placeholderTags": "Gib Tags ein ...",
+      "labelSearchKeyword": "Such Schlagwörter",
+      "placeholderSearchKeywords": "Gib Schlagwörter ein, die diese Produkt finden ...",
+      "textAddSearchKeyword": "Hier klicken, um Schlagwörter hinzuzufügen",
+      "textEnterValidSearchKeyword": "Suchbare Schlagwörter",
+      "helpTextSearchKeyword": "Das Produkt in der Storefront wird ebenfalls über diese Begriffe gefunden."
     },
     "priceForm": {
       "labelTaxRate": "Steuersatz",
@@ -204,7 +209,6 @@
       "coverSubline": "Cover"
     },
     "advancedPrices": {
-      "deletionNotPossibleTitle": "Fehler",
       "deletionNotPossibleMessage": "Es muss immer mindestens eine Preisstaffel vorhanden sein. Versuche alternativ, die gesamte Preisregel zu löschen.",
       "newRuleWarning": "Um eine neue Preisregel anzulegen, musst du erst eine Bedingungs-Regel auswählen.",
       "advancedPricesNotExisting": "Für dieses Produkt existieren noch keine erweiterten Preise.",
@@ -232,7 +236,7 @@
     "variations": {
       "emptyStateDescription": "Dieses Produkt hat noch keine Varianten.",
       "emptyStateButton": "Varianten-Generator starten",
-      "generateVariationsButton": "Varianten generieren!",
+      "generateVariationsButton": "Varianten generieren",
       "deleteVariationsButton": "Alle Produktvarianten löschen",
       "cancelVariationsButton": "Abbrechen",
       "configuratorCardTitle": "Varianten generieren",

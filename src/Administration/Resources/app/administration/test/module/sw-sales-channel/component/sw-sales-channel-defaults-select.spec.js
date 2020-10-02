@@ -23,13 +23,13 @@ function createWrapper(customProps = {}) {
 }
 
 describe('src/module/sw-sales-channel/component/sw-sales-channel-defaults-select', () => {
-    it('should be a Vue.js component', () => {
+    it('should be a Vue.js component', async () => {
         const wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should have selects enabled', () => {
+    it('should have selects enabled', async () => {
         const wrapper = createWrapper();
 
         const multiSelect = wrapper.find('sw-entity-multi-select-stub');
@@ -39,7 +39,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-defaults-select
         expect(singleSelect.attributes().disabled).toBeUndefined();
     });
 
-    it('should have selects disabled', () => {
+    it('should have selects disabled', async () => {
         const wrapper = createWrapper({
             disabled: true
         });

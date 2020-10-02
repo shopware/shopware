@@ -11,7 +11,7 @@ const domainPlaceholderId = '124c71d524604ccbad6042edce3ac799';
 Component.register('sw-settings-customer-group-detail', {
     template,
 
-    inject: ['repositoryFactory', 'feature'],
+    inject: ['repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -28,7 +28,13 @@ Component.register('sw-settings-customer-group-detail', {
     },
 
     shortcuts: {
-        'SYSTEMKEY+S': 'onSave',
+        'SYSTEMKEY+S': {
+            active() {
+                return this.allowSave;
+            },
+            method: 'onSave'
+        },
+
         ESCAPE: 'onCancel'
     },
 
@@ -71,6 +77,14 @@ Component.register('sw-settings-customer-group-detail', {
         },
 
         tooltipSave() {
+            if (!this.allowSave) {
+                return {
+                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    disabled: this.allowSave,
+                    showOnDisabledElements: true
+                };
+            }
+
             const systemKey = this.$device.getSystemKey();
 
             return {
@@ -103,7 +117,13 @@ Component.register('sw-settings-customer-group-detail', {
             return `${domainPlaceholderId}/customer-group-registration/${this.customerGroupId}#`;
         },
 
-        ...mapPropertyErrors('customerGroup', ['name'])
+        ...mapPropertyErrors('customerGroup', ['name']),
+
+        allowSave() {
+            return this.customerGroup && this.customerGroup.isNew()
+                ? this.acl.can('customer_groups.creator')
+                : this.acl.can('customer_groups.editor');
+        }
     },
 
     watch: {
@@ -129,10 +149,11 @@ Component.register('sw-settings-customer-group-detail', {
                 const criteria = new Criteria();
                 criteria.addAssociation('registrationSalesChannels');
 
-                this.customerGroupRepository.get(this.customerGroupId, Shopware.Context.api, criteria).then((customerGroup) => {
-                    this.customerGroup = customerGroup;
-                    this.isLoading = false;
-                });
+                this.customerGroupRepository.get(this.customerGroupId, Shopware.Context.api, criteria)
+                    .then((customerGroup) => {
+                        this.customerGroup = customerGroup;
+                        this.isLoading = false;
+                    });
                 return;
             }
 
@@ -207,7 +228,6 @@ Component.register('sw-settings-customer-group-detail', {
                 this.customerGroup = await this.createdComponent();
             } catch (err) {
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-settings-customer-group.detail.notificationErrorMessage')
                 });
             }

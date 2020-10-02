@@ -17,7 +17,7 @@ const store = new Vuex.Store({
     }
 });
 
-function createWrapper(privileges = []) {
+function createWrapper() {
     const localVue = createLocalVue();
     localVue.use(Vuex);
     localVue.filter('asset', () => {});
@@ -41,15 +41,7 @@ function createWrapper(privileges = []) {
             repositoryFactory: {
                 create: () => ({ search: () => Promise.resolve('bar') })
             },
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) {
-                        return true;
-                    }
-
-                    return privileges.includes(identifier);
-                }
-            }
+            acl: { can: () => true }
         }
     });
 }

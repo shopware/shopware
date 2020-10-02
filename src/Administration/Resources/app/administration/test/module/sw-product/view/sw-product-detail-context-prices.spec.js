@@ -15,7 +15,7 @@ import Vuex from 'vuex';
 describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
     Shopware.State.registerModule('swProductDetail', productStore);
 
-    const createWrapper = (privileges = []) => {
+    const createWrapper = () => {
         const localVue = createLocalVue();
 
         localVue.use(VueRouter);
@@ -59,15 +59,7 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
                         return {};
                     }
                 },
-                acl: {
-                    can: (identifier) => {
-                        if (!identifier) {
-                            return true;
-                        }
-
-                        return privileges.includes(identifier);
-                    }
-                }
+                acl: { can: () => true }
             }
         });
     };

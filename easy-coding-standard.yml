@@ -36,11 +36,11 @@ services:
 
 parameters:
     sets:
-        - 'psr12'
         - 'symfony'
         - 'array'
         - 'control-structures'
         - 'strict'
+        - 'psr12'
     cache_directory: 'var/cache/cs_fixer'
     cache_namespace: 'platform'
     skip:

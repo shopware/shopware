@@ -54,3 +54,31 @@
 .confirm-method-tooltip {
     margin-left: $spacer-xs;
 }
+
+
+.payment-method-label,
+.shipping-method-label {
+    width: 100%;
+
+    .payment-method-description,
+    .shipping-method-description {
+        width: 66%;
+    }
+}
+
+.confirm-checkout-collapse-trigger {
+    text-underline: $link-color;
+
+    &:hover {
+        cursor: pointer;
+    }
+
+    .icon-confirm-checkout-chevron {
+        height: 1.375rem;
+
+        > svg {
+            color: $link-color;
+            transition: transform 0.2s ease-in-out;
+        }
+    }
+}

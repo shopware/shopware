@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Media\Thumbnail;
 
 use League\Flysystem\FilesystemInterface;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderConfigurationEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
@@ -51,13 +52,19 @@ class ThumbnailService
      */
     private $mediaFolderRepository;
 
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
     public function __construct(
         EntityRepositoryInterface $mediaRepository,
         EntityRepositoryInterface $thumbnailRepository,
         FilesystemInterface $fileSystemPublic,
         FilesystemInterface $fileSystemPrivate,
         UrlGeneratorInterface $urlGenerator,
-        EntityRepositoryInterface $mediaFolderRepository
+        EntityRepositoryInterface $mediaFolderRepository,
+        LoggerInterface $logger
     ) {
         $this->mediaRepository = $mediaRepository;
         $this->thumbnailRepository = $thumbnailRepository;
@@ -65,6 +72,7 @@ class ThumbnailService
         $this->filesystemPrivate = $fileSystemPrivate;
         $this->urlGenerator = $urlGenerator;
         $this->mediaFolderRepository = $mediaFolderRepository;
+        $this->logger = $logger;
     }
 
     /**
@@ -158,7 +166,18 @@ class ThumbnailService
             return 0;
         }
 
-        $mediaImage = $this->getImageResource($media);
+        try {
+            $mediaImage = $this->getImageResource($media);
+        } catch (\Exception $e) {
+            $this->logger->error('Thumbnail generation error: ', [
+                [
+                    'message' => $e->getMessage(),
+                ],
+            ]);
+
+            return 0;
+        }
+
         $originalImageSize = $this->getOriginalImageSize($mediaImage);
         $originalUrl = $this->urlGenerator->getRelativeMediaUrl($media);
 

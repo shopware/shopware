@@ -264,6 +264,7 @@
             <argument type="service" id="shopware.filesystem.private"/>
             <argument type="service" id="Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface"/>
             <argument type="service" id="media_folder.repository"/>
+            <argument type="service" id="logger"/>
         </service>
 
         <service id="Shopware\Core\Content\Media\MediaService">

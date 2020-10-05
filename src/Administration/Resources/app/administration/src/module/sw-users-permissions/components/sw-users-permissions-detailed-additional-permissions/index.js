@@ -51,9 +51,9 @@ Component.register('sw-users-permissions-detailed-additional-permissions', {
         },
 
         setDetailedAdditionalPermissions() {
-            this.aclApiService.routePrivileges().then((routePrivileges) => {
+            this.aclApiService.additionalPrivileges().then((additionalPrivileges) => {
                 const roles = {};
-                routePrivileges.forEach((privilege) => {
+                additionalPrivileges.forEach((privilege) => {
                     roles[privilege] = {
                         privileges: [privilege],
                         dependencies: []

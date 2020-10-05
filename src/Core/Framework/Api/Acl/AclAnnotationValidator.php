@@ -39,13 +39,13 @@ class AclAnnotationValidator implements EventSubscriberInterface
 
         $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
         if ($context === null) {
-            throw new MissingPrivilegeException('');
+            throw new MissingPrivilegeException([]);
         }
 
         /* @var Context $context */
         foreach ($privileges as $privilege) {
             if (!$context->isAllowed($privilege)) {
-                throw new MissingPrivilegeException($privilege);
+                throw new MissingPrivilegeException([$privilege]);
             }
         }
     }

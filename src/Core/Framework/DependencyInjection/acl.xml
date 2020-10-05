@@ -28,6 +28,7 @@
 
         <service id="Shopware\Core\Framework\Api\Controller\AclController" public="true">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
     </services>

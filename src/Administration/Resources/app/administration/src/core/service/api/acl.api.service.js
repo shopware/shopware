@@ -5,9 +5,9 @@ class AclApiService {
         this.name = 'aclApiService';
     }
 
-    routePrivileges() {
+    additionalPrivileges() {
         const headers = this.getHeaders();
-        return this.httpClient.get('/_action/acl/route_privileges', { headers }).then((response) => {
+        return this.httpClient.get('/_action/acl/additional_privileges', { headers }).then((response) => {
             return Object.values(response.data);
         });
     }

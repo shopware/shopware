@@ -3,17 +3,21 @@
 namespace Shopware\Core\Framework\Api\Controller;
 
 use Doctrine\Common\Annotations\AnnotationReader;
+use Shopware\Core\Framework\Api\Acl\Event\AclGetAdditionalPrivilegesEvent;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Routing\Annotation\Acl;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Storefront\Framework\Cache\Annotation\HttpCache;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @RouteScope(scopes={"api"})
+ *
  * @internal (flag:FEATURE_NEXT_3722)
  */
 class AclController extends AbstractController
@@ -23,10 +27,17 @@ class AclController extends AbstractController
      */
     private $definitionInstanceRegistry;
 
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
     public function __construct(
-        DefinitionInstanceRegistry $definitionInstanceRegistry
+        DefinitionInstanceRegistry $definitionInstanceRegistry,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->definitionInstanceRegistry = $definitionInstanceRegistry;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -44,14 +55,19 @@ class AclController extends AbstractController
     }
 
     /**
-     * @Route("/api/v{version}/_action/acl/route_privileges", name="api.acl.privileges.route.get", methods={"GET"}, defaults={"auth_required"=true,"acl_required"=true})
-     * @Acl({"api_acl_privileges_route_get"})
+     * @Route("/api/v{version}/_action/acl/additional_privileges", name="api.acl.privileges.additional.get", methods={"GET"}, defaults={"auth_required"=true,"acl_required"=true})
+     * @Acl({"api_acl_privileges_additional_get"})
      */
-    public function getRoutePrivileges(): JsonResponse
+    public function getAdditionalPrivileges(Context $context): JsonResponse
     {
         $privileges = $this->getFromAnnotations();
         $definitionPrivileges = $this->getFromDefinitions();
         $privileges = array_diff(array_unique($privileges), $definitionPrivileges);
+
+        $event = new AclGetAdditionalPrivilegesEvent($context, $privileges);
+        $this->eventDispatcher->dispatch($event);
+
+        $privileges = $event->getPrivileges();
 
         return new JsonResponse($privileges);
     }

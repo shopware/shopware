@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="20px" height="24px" viewBox="0 0 20 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icons/solid/shield</title>
+    <g id="2.-Detail-new" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Icon" transform="translate(-2.000000, 0.000000)" fill="#758CA3">
+            <path d="M22,2 L22,12.8347555 C22,15.4452659 20.7263122,17.8915815 18.5876988,19.3886109 L12.5734623,23.5985764 C12.2291422,23.8396005 11.7708578,23.8396005 11.4265377,23.5985764 L5.41230125,19.3886109 C3.27368782,17.8915815 2,15.4452659 2,12.8347555 L2,2 C8.41941345,-0.567765381 15.5805865,-0.567765381 22,2 Z"></path>
+        </g>
+    </g>
+</svg>

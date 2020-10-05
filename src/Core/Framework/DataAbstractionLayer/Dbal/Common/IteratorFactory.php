@@ -27,6 +27,10 @@ class IteratorFactory
         $query->from($escaped);
         $query->setMaxResults(50);
 
+        if ($definition->getFields()->has('active')) {
+            $query->andWhere($escaped . '.active = 1');
+        }
+
         if ($definition->getFields()->has('autoIncrement')) {
             $query->select([$escaped . '.auto_increment', 'LOWER(HEX(' . $escaped . '.id))']);
             $query->andWhere($escaped . '.auto_increment > :lastId');

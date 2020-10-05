@@ -57,21 +57,24 @@ Module.register('sw-customer', {
                     component: 'sw-customer-detail-base',
                     path: 'base',
                     meta: {
-                        parentPath: 'sw.customer.index'
+                        parentPath: 'sw.customer.index',
+                        privilege: 'customer.viewer'
                     }
                 },
                 addresses: {
                     component: 'sw-customer-detail-addresses',
                     path: 'addresses',
                     meta: {
-                        parentPath: 'sw.customer.index'
+                        parentPath: 'sw.customer.index',
+                        privilege: 'customer.viewer'
                     }
                 },
                 order: {
                     component: 'sw-customer-detail-order',
                     path: 'order',
                     meta: {
-                        parentPath: 'sw.customer.index'
+                        parentPath: 'sw.customer.index',
+                        privilege: 'customer.viewer'
                     }
                 }
             },

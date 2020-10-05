@@ -21,6 +21,7 @@ function createWrapper() {
     const localVue = createLocalVue();
     localVue.use(Vuex);
     localVue.filter('asset', () => {});
+    localVue.directive('tooltip', {});
 
     return shallowMount(Shopware.Component.build('sw-product-detail-cross-selling'), {
         localVue,
@@ -39,7 +40,8 @@ function createWrapper() {
         provide: {
             repositoryFactory: {
                 create: () => ({ search: () => Promise.resolve('bar') })
-            }
+            },
+            acl: { can: () => true }
         }
     });
 }

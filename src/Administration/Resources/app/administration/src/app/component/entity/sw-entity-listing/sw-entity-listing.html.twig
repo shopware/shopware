@@ -38,11 +38,6 @@
         <sw-context-menu-item class="sw-entity-listing__context-menu-edit-action"
                               v-if="detailRoute"
                               :disabled="!allowEdit && !allowView"
-                              v-tooltip="{
-                                message: $tc('sw-privileges.tooltip.warning'),
-                                disabled: allowEdit || allowView,
-                                showOnDisabledElements: true
-                           }"
                               :routerLink="{ name: detailRoute, params: { id: item.id } }">
             {{ detailPageLinkText }}
         </sw-context-menu-item>
@@ -54,11 +49,6 @@
         <sw-context-menu-item @click="showDelete(item.id)"
                               :disabled="!allowDelete"
                               class="sw-entity-listing__context-menu-edit-delete"
-                              v-tooltip.bottom="{
-                                    message: $tc('sw-privileges.tooltip.warning'),
-                                    disabled: allowDelete,
-                                    showOnDisabledElements: true
-                               }"
                               variant="danger">
             {{ $tc('global.default.delete') }}
         </sw-context-menu-item>

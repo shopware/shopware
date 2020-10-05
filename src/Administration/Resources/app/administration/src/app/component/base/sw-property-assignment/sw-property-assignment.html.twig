@@ -9,7 +9,6 @@
                 :disabled="disabled"
                 :options="properties"
                 @option-select="onSelectOption">
-
             </sw-property-search>
         {% endblock %}
 
@@ -34,7 +33,9 @@
                             <sw-grid-column dataIndex="options" :label="$tc('sw-property-assignment.columnOptions')" flex="minmax(100px, 1fr)" class="sw-property-assignment__grid_option_column">
                                 {% block sw_property_assignment_grid_columns_options_loop %}
                                     <div v-for="(option, index) in item.options" :key="option.id" class="sw-property-assignment__grid_option_item">
-                                        <sw-label @dismiss="deleteOption(option)">
+                                        <sw-label
+                                            :dismissable="!disabled"
+                                            @dismiss="deleteOption(option)">
                                             <span class="sw-property-assignment__label-content">{{ option.translated.name }}</span>
                                         </sw-label>
                                     </div>

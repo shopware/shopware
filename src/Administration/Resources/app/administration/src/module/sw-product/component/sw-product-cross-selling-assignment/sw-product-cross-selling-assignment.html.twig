@@ -9,6 +9,7 @@
                     :criteria="searchCriteria"
                     :context="searchContext"
                     disableAutoClose
+                    :disabled="!allowEdit"
                     @change="onToggleProduct">
 
                     <template #result-item="{ item, index }">
@@ -39,7 +40,10 @@
                     :showSelection="false">
 
                     <template #actions="{ item }">
-                        <sw-context-menu-item variant="danger" @click="removeItem(item)">
+                        <sw-context-menu-item
+                            :disabled="!allowEdit"
+                            variant="danger"
+                            @click="removeItem(item)">
                             {{ $tc('global.default.delete') }}
                         </sw-context-menu-item>
                     </template>

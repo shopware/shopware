@@ -129,11 +129,6 @@
                                             <sw-context-menu-item
                                                 class="sw-product-list-grid__duplicate-action"
                                                 :disabled="item.parentId != null || !acl.can('product.creator')"
-                                                v-tooltip="{
-                                                        message: $tc('sw-privileges.tooltip.warning'),
-                                                        disabled: acl.can('product.creator'),
-                                                        showOnDisabledElements: true
-                                                   }"
                                                 @click="onDuplicate(item)">
                                                 {{ $tc('sw-product.list.buttonDuplicate') }}
                                             </sw-context-menu-item>

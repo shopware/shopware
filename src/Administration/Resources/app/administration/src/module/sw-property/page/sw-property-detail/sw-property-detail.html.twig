@@ -57,11 +57,21 @@
                 {% endblock %}
 
                 {% block sw_property_detail_content_detail_base %}
-                <sw-property-detail-base v-if="propertyGroup" :propertyGroup="propertyGroup" :isLoading="isLoading"></sw-property-detail-base>
+                <sw-property-detail-base
+                    v-if="propertyGroup" :propertyGroup="propertyGroup"
+                    :allowEdit="acl.can('property.editor')"
+                    :isLoading="isLoading">
+                </sw-property-detail-base>
                 {% endblock %}
 
                 {% block sw_property_detail_content_option_list %}
-                <sw-property-option-list :optionRepository="optionRepository" v-if="propertyGroup" :propertyGroup="propertyGroup" ref="optionListing" :isLoading="isLoading"></sw-property-option-list>
+                <sw-property-option-list
+                    v-if="propertyGroup"
+                    :optionRepository="optionRepository"
+                    :propertyGroup="propertyGroup"
+                    ref="optionListing"
+                    :isLoading="isLoading">
+                    </sw-property-option-list>
                 {% endblock %}
             </sw-card-view>
         {% endblock %}

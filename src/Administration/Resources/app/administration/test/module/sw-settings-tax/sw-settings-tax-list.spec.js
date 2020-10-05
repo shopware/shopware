@@ -99,7 +99,7 @@ describe('module/sw-settings-tax/page/sw-settings-tax-list', () => {
         const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.isVueInstance()).toBe(true);
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should be able to create a new tax', async () => {

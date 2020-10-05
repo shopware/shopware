@@ -2056,11 +2056,6 @@ parameters:
 			path: src/Core/Content/Product/Aggregate/ProductReview/ProductReviewEntity.php
 
 		-
-			message: "#^Parameter \\#1 \\$quantity of method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\Struct\\\\QuantityPriceDefinition\\:\\:setQuantity\\(\\) expects int, int\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Cart/ProductCartProcessor.php
-
-		-
 			message: "#^Cannot call method getMedia\\(\\) on Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductMedia\\\\ProductMediaEntity\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/Product/Cart/ProductCartProcessor.php

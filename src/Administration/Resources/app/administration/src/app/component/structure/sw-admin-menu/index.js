@@ -11,8 +11,7 @@ Component.register('sw-admin-menu', {
     template,
 
     mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('salutation')
+        Mixin.getByName('notification')
     ],
 
     inject: ['menuService', 'loginService', 'userService', 'feature'],
@@ -85,7 +84,11 @@ Component.register('sw-admin-menu', {
         },
 
         userName() {
-            return this.salutation(this.currentUser);
+            if (!this.currentUser) {
+                return '';
+            }
+
+            return `${this.currentUser.firstName} ${this.currentUser.lastName}`;
         },
 
         avatarUrl() {

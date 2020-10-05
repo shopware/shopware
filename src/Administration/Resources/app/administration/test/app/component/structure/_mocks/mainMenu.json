@@ -1,0 +1,202 @@
+[
+  {
+    "id": "sw-dashboard",
+    "label": "sw-dashboard.general.mainMenuItemGeneral",
+    "color": "#6AD6F0",
+    "icon": "default-device-dashboard",
+    "path": "sw.dashboard.index",
+    "position": 10,
+    "children": []
+  },
+  {
+    "id": "sw-catalogue",
+    "label": "global.sw-admin-menu.navigation.mainMenuItemCatalogue",
+    "color": "#57D9A3",
+    "icon": "default-symbol-products",
+    "position": 20,
+    "children": [
+      {
+        "id": "sw-product",
+        "label": "sw-product.general.mainMenuItemGeneral",
+        "color": "#57D9A3",
+        "path": "sw.product.index",
+        "icon": "default-symbol-products",
+        "parent": "sw-catalogue",
+        "privilege": "product.viewer",
+        "position": 10,
+        "children": []
+      },
+      {
+        "id": "sw-review",
+        "label": "sw-review.general.mainMenuItemList",
+        "color": "#57D9A3",
+        "path": "sw.review.index",
+        "icon": "default-symbol-products",
+        "parent": "sw-catalogue",
+        "position": 20,
+        "privilege": "review.viewer",
+        "children": []
+      },
+      {
+        "id": "sw-category",
+        "path": "sw.category.index",
+        "label": "sw-category.general.mainMenuItemIndex",
+        "parent": "sw-catalogue",
+        "privilege": "category.viewer",
+        "position": 20,
+        "children": []
+      },
+      {
+        "path": "sw.product.stream.index",
+        "label": "sw-product-stream.general.mainMenuItemGeneral",
+        "id": "sw-product-stream",
+        "privilege": "product_stream.viewer",
+        "parent": "sw-catalogue",
+        "color": "#57D9A3",
+        "position": 30,
+        "children": []
+      },
+      {
+        "id": "sw-property",
+        "label": "sw-property.general.mainMenuItemGeneral",
+        "parent": "sw-catalogue",
+        "path": "sw.property.index",
+        "position": 40,
+        "privilege": "property.viewer",
+        "children": []
+      },
+      {
+        "path": "sw.manufacturer.index",
+        "privilege": "product_manufacturer.viewer",
+        "label": "sw-manufacturer.general.mainMenuItemList",
+        "id": "sw-manufacturer",
+        "parent": "sw-catalogue",
+        "color": "#57D9A3",
+        "position": 50,
+        "children": []
+      }
+    ]
+  },
+  {
+    "id": "sw-order",
+    "label": "sw-order.general.mainMenuItemGeneral",
+    "color": "#A092F0",
+    "path": "sw.order.index",
+    "icon": "default-shopping-paper-bag",
+    "position": 30,
+    "privilege": "order.viewer",
+    "children": [
+      {
+        "path": "sw.order.index",
+        "label": "sw-order.general.mainMenuItemList",
+        "parent": "sw-order",
+        "privilege": "order.viewer",
+        "position": 1000,
+        "children": []
+      }
+    ]
+  },
+  {
+    "id": "sw-customer",
+    "label": "sw-customer.general.mainMenuItemGeneral",
+    "color": "#F88962",
+    "path": "sw.customer.index",
+    "icon": "default-avatar-multiple",
+    "position": 40,
+    "privilege": "customer.viewer",
+    "children": [
+      {
+        "path": "sw.customer.index",
+        "label": "sw-customer.general.mainMenuItemList",
+        "color": "#F88962",
+        "icon": "default-avatar-multiple",
+        "parent": "sw-customer",
+        "privilege": "customer.viewer",
+        "position": 1000,
+        "children": []
+      }
+    ]
+  },
+  {
+    "id": "sw-content",
+    "label": "global.sw-admin-menu.navigation.mainMenuItemContent",
+    "color": "#ff68b4",
+    "icon": "default-symbol-content",
+    "position": 50,
+    "children": [
+      {
+        "id": "sw-cms",
+        "label": "sw-cms.general.mainMenuItemGeneral",
+        "color": "#ff68b4",
+        "path": "sw.cms.index",
+        "icon": "default-symbol-content",
+        "position": 10,
+        "parent": "sw-content",
+        "privilege": "cms.viewer",
+        "children": []
+      },
+      {
+        "id": "sw-media",
+        "label": "sw-media.general.mainMenuItemGeneral",
+        "color": "#ff68b4",
+        "icon": "default-object-image",
+        "path": "sw.media.index",
+        "position": 20,
+        "parent": "sw-content",
+        "privilege": "media.viewer",
+        "children": []
+      },
+      {
+        "id": "sw-theme-manager",
+        "label": "sw-theme-manager.general.mainMenuItemGeneral",
+        "color": "#ff68b4",
+        "icon": "default-object-image",
+        "path": "sw.theme.manager.index",
+        "privilege": "theme.viewer",
+        "position": 80,
+        "parent": "sw-content",
+        "children": []
+      }
+    ]
+  },
+  {
+    "id": "sw-marketing",
+    "label": "global.sw-admin-menu.navigation.mainMenuItemMarketing",
+    "color": "#FFD700",
+    "icon": "default-object-marketing",
+    "position": 70,
+    "privilege": "promotion.viewer",
+    "children": [
+      {
+        "id": "sw-promotion",
+        "path": "sw.promotion.index",
+        "label": "sw-promotion.general.mainMenuItemGeneral",
+        "color": "#FFD700",
+        "icon": "default-package-gift",
+        "position": 100,
+        "parent": "sw-marketing",
+        "privilege": "promotion.viewer",
+        "children": []
+      },
+      {
+        "id": "sw-newsletter-recipient",
+        "icon": "default-object-marketing",
+        "color": "#FFD700",
+        "path": "sw.newsletter.recipient.index",
+        "label": "sw-newsletter-recipient.general.mainMenuItemGeneral",
+        "parent": "sw-marketing",
+        "position": 1000,
+        "children": []
+      }
+    ]
+  },
+  {
+    "id": "sw-settings",
+    "label": "sw-settings.general.mainMenuItemGeneral",
+    "color": "#9AA8B5",
+    "icon": "default-action-settings",
+    "path": "sw.settings.index",
+    "position": 80,
+    "children": []
+  }
+]

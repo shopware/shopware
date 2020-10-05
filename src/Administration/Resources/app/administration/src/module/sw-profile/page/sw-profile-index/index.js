@@ -234,19 +234,9 @@ Component.register('sw-profile-index', {
             });
         },
 
-        // @deprecated tag:v6.4.0 use loginService.verifyUserToken() instead
-        verifyUserToken() {
-            // eslint-disable-next-line no-unused-vars
-            return this.loginService.verifyUserToken(this.confirmPassword).catch(e => {
-                this.createErrorMessage(this.$tc('sw-profile.index.notificationOldPasswordErrorMessage'));
-                return false;
-            }).finally(() => {
-                this.confirmPassword = '';
-            });
-        },
-
         createErrorMessage(errorMessage) {
             this.createNotificationError({
+                title: this.$tc('sw-profile.index.notificationPasswordErrorTitle'),
                 message: errorMessage
             });
         },
@@ -331,6 +321,7 @@ Component.register('sw-profile-index', {
 
         handleUserSaveError() {
             this.createNotificationError({
+                title: this.$tc('sw-profile.index.notificationPasswordErrorTitle'),
                 message: this.$tc('sw-profile.index.notificationSaveErrorMessage')
             });
             this.isLoading = false;

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\Api\Controller;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Acl\Event\AclGetAdditionalPrivilegesEvent;
+use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\PlatformRequest;
@@ -65,6 +66,7 @@ class AclControllerTest extends TestCase
             $response = $this->getBrowser()->getResponse();
 
             static::assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode(), $response->getContent());
+            static::assertEquals(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, json_decode($response->getContent(), true)['errors'][0]['code'], $response->getContent());
         } finally {
             $this->resetBrowser();
         }

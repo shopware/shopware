@@ -10,6 +10,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\Migration1595422169AddProductSorting;
+use Shopware\Core\Migration\Migration1600338271AddTopsellerSorting;
 
 class Migration1595422169ProductSortingTest extends TestCase
 {
@@ -37,6 +38,7 @@ class Migration1595422169ProductSortingTest extends TestCase
         $connection->executeUpdate('DELETE FROM `product_sorting`');
 
         (new Migration1595422169AddProductSorting())->createDefaultSortingsWithTranslations($connection);
+        (new Migration1600338271AddTopsellerSorting())->createDefaultSortingsWithTranslations($connection);
     }
 
     /**
@@ -50,6 +52,9 @@ class Migration1595422169ProductSortingTest extends TestCase
         $connection->executeUpdate('DROP TABLE IF EXISTS `product_sorting`');
 
         $migration = new Migration1595422169AddProductSorting();
+        $migration->update($connection);
+
+        $migration = new Migration1600338271AddTopsellerSorting();
         $migration->update($connection);
     }
 

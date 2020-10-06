@@ -174,15 +174,23 @@ class NavigationLoaderTest extends TestCase
         $categories = [
             [
                 'id' => $data->create('root'), 'name' => 'root', 'children' => [
-                    ['id' => $data->create('a'), 'name' => 'a', 'children' => [
-                        ['id' => $data->create('b'), 'name' => 'b', 'children' => [
-                            ['id' => $data->create('c'), 'name' => 'c', 'children' => [
-                                ['id' => $data->create('d'), 'name' => 'd', 'children' => [
-                                    ['id' => $data->create('e'), 'name' => 'e'],
-                                ]],
-                            ]],
-                        ]],
-                    ]],
+                    [
+                        'id' => $data->create('a'), 'name' => 'a', 'children' => [
+                            [
+                                'id' => $data->create('b'), 'name' => 'b', 'children' => [
+                                    [
+                                        'id' => $data->create('c'), 'name' => 'c', 'children' => [
+                                            [
+                                                'id' => $data->create('d'), 'name' => 'd', 'children' => [
+                                                    ['id' => $data->create('e'), 'name' => 'e'],
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                 ],
             ],
         ];

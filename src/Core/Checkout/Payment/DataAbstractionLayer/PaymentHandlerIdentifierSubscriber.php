@@ -25,20 +25,27 @@ class PaymentHandlerIdentifierSubscriber implements EventSubscriberInterface
             $explodedHandlerIdentifier = explode('\\', $entity->getHandlerIdentifier());
 
             if (Feature::isActive('FEATURE_NEXT_9351')) {
-                $last = $explodedHandlerIdentifier[count($explodedHandlerIdentifier) - 1];
+                $last = $explodedHandlerIdentifier[\count($explodedHandlerIdentifier) - 1];
                 $entity->setShortName((new CamelCaseToSnakeCaseNameConverter())->normalize((string) $last));
             }
 
-            if (count($explodedHandlerIdentifier) < 2) {
+            if (\count($explodedHandlerIdentifier) < 2) {
                 $entity->setFormattedHandlerIdentifier($entity->getHandlerIdentifier());
 
                 continue;
             }
 
+            /** @var string|null $firstHandlerIdentifier */
+            $firstHandlerIdentifier = array_shift($explodedHandlerIdentifier);
+            $lastHandlerIdentifier = array_pop($explodedHandlerIdentifier);
+            if ($firstHandlerIdentifier === null || $lastHandlerIdentifier === null) {
+                continue;
+            }
+
             $formattedHandlerIdentifier = 'handler_'
-                . mb_strtolower(array_shift($explodedHandlerIdentifier))
+                . mb_strtolower($firstHandlerIdentifier)
                 . '_'
-                . mb_strtolower(array_pop($explodedHandlerIdentifier));
+                . mb_strtolower($lastHandlerIdentifier);
 
             $entity->setFormattedHandlerIdentifier($formattedHandlerIdentifier);
         }

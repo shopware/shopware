@@ -20,7 +20,8 @@ class ImageMetadataLoader implements MetadataLoaderInterface
 
     public function extractMetadata(string $filePath): ?array
     {
-        if ($metadata = $this->fastImage->getImageSize($filePath)) {
+        $metadata = $this->fastImage->getImageSize($filePath);
+        if (\is_array($metadata)) {
             return $metadata;
         }
 

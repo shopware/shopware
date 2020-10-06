@@ -36,6 +36,9 @@ use SwagTest\SwagTest;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
+/**
+ * @group slow
+ */
 class PluginLifecycleServiceTest extends TestCase
 {
     use PluginTestsHelper;
@@ -645,7 +648,7 @@ class PluginLifecycleServiceTest extends TestCase
         static::assertNotNull($exception, 'Expected exception to be thrown');
     }
 
-    private function addLanguage(String $iso, $id = 0): string
+    private function addLanguage(string $iso, $id = 0): string
     {
         if ($id === 0) {
             $id = Uuid::randomHex();
@@ -679,7 +682,8 @@ class PluginLifecycleServiceTest extends TestCase
         $localeId = $this->getIsoId($iso);
         $languageRepository->update(
             [
-                ['id' => $this->systemLanguageId, 'name' => $iso, 'localeId' => $localeId,
+                [
+                    'id' => $this->systemLanguageId, 'name' => $iso, 'localeId' => $localeId,
                     'translationCode' => [
                         'id' => $localeId,
                         'code' => $iso,
@@ -695,7 +699,7 @@ class PluginLifecycleServiceTest extends TestCase
         $this->setNewSystemLanguage('en-GB');
     }
 
-    private function getIsoId(String $iso)
+    private function getIsoId(string $iso)
     {
         $result = $this->connection->executeQuery('SELECT LOWER(HEX(id)) FROM locale WHERE code = ?', [$iso]);
 

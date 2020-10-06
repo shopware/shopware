@@ -37,7 +37,7 @@ describe('Integration: Test acl privileges', () => {
             cy.get('#sw-integration').click();
 
             // assert that there is an available list of integration
-            cy.get(`${page.elements.integrationListConent}`).should('be.visible');
+            cy.get(`${page.elements.integrationListContent}`).should('be.visible');
         });
     });
 

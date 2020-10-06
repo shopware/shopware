@@ -131,7 +131,7 @@ class JsonFieldSerializer extends AbstractFieldSerializer
         if (\count($keyDiff)) {
             foreach ($keyDiff as $fieldName) {
                 $parameters->getContext()->getExceptions()->add(
-                    new UnexpectedFieldException($fieldPath . '/' . $fieldName, $fieldName)
+                    new UnexpectedFieldException($fieldPath . '/' . $fieldName, (string) $fieldName)
                 );
             }
         }

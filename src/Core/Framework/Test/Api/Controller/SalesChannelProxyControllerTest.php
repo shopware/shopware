@@ -30,6 +30,9 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @group slow
+ */
 class SalesChannelProxyControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

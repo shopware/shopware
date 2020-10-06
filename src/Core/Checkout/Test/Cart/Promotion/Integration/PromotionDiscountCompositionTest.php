@@ -157,6 +157,9 @@ class PromotionDiscountCompositionTest extends TestCase
         static::assertEquals(100 * 0.25, $composition[1]['discount']);
     }
 
+    /**
+     * @group slow
+     */
     public function testPromotionRedemption(): void
     {
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)

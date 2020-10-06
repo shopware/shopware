@@ -9,6 +9,8 @@ Component.register('sw-mail-template-index', {
         Mixin.getByName('listing')
     ],
 
+    inject: ['acl'],
+
     metaInfo() {
         return {
             title: this.$createTitle()

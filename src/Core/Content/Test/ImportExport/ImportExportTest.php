@@ -494,6 +494,9 @@ class ImportExportTest extends TestCase
         static::assertCount(1, $property);
     }
 
+    /**
+     * @group slow
+     */
     public function testProductsCsv(): void
     {
         $context = Context::createDefaultContext();

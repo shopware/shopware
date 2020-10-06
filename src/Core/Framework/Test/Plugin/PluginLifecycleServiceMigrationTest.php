@@ -26,6 +26,9 @@ use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ * @group slow
+ */
 class PluginLifecycleServiceMigrationTest extends TestCase
 {
     use KernelTestBehaviour;

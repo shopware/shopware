@@ -29,8 +29,10 @@ class Migration1599570560FixSlovakiaDisplayedAsSloveniaTest extends TestCase
     private $migration;
 
     //no transaction since only this data will be changed and later reset
-    private $resetData = ['SlovakiaAvailable' => true, 'languageEnAvailable' => true, 'languageDeAvailable' => true,
-        'EnTranslation' => 'Slovakia', 'DeTranslation' => 'Slowakei', ];
+    private $resetData = [
+        'SlovakiaAvailable' => true, 'languageEnAvailable' => true, 'languageDeAvailable' => true,
+        'EnTranslation' => 'Slovakia', 'DeTranslation' => 'Slowakei',
+    ];
 
     protected function setUp(): void
     {

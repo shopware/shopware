@@ -173,7 +173,7 @@ class StockUpdater implements EventSubscriberInterface
 
             $ids = array_column($products, 'referenced_id');
 
-            $this->updateAvailableStock($ids, $event->getContext());
+            $this->updateAvailableStockAndSales($ids, $event->getContext());
 
             $this->updateAvailableFlag($ids, $event->getContext());
 
@@ -189,7 +189,7 @@ class StockUpdater implements EventSubscriberInterface
             return;
         }
 
-        $this->updateAvailableStock($ids, $context);
+        $this->updateAvailableStockAndSales($ids, $context);
 
         $this->updateAvailableFlag($ids, $context);
     }
@@ -217,7 +217,7 @@ class StockUpdater implements EventSubscriberInterface
 
         $this->updateStock($products, +1);
 
-        $this->updateAvailableStock($ids, $event->getContext());
+        $this->updateAvailableStockAndSales($ids, $event->getContext());
 
         $this->updateAvailableFlag($ids, $event->getContext());
 
@@ -232,14 +232,14 @@ class StockUpdater implements EventSubscriberInterface
 
         $this->updateStock($products, -1);
 
-        $this->updateAvailableStock($ids, $event->getContext());
+        $this->updateAvailableStockAndSales($ids, $event->getContext());
 
         $this->updateAvailableFlag($ids, $event->getContext());
 
         $this->clearCache($ids);
     }
 
-    private function updateAvailableStock(array $ids, Context $context): void
+    private function updateAvailableStockAndSales(array $ids, Context $context): void
     {
         $ids = array_filter(array_keys(array_flip($ids)));
 
@@ -247,42 +247,70 @@ class StockUpdater implements EventSubscriberInterface
             return;
         }
 
-        $bytes = Uuid::fromHexToBytesList($ids);
-
         $sql = '
-UPDATE product SET available_stock = stock - (
-    SELECT IFNULL(SUM(order_line_item.quantity), 0)
+SELECT LOWER(HEX(order_line_item.product_id)) as product_id,
+    IFNULL(
+        SUM(IF(state_machine_state.technical_name = :completed_state, 0, order_line_item.quantity)),
+        0
+    ) as open_quantity,
 
-    FROM order_line_item
-        INNER JOIN `order`
-            ON `order`.id = order_line_item.order_id
-            AND `order`.version_id = order_line_item.order_version_id
-        INNER JOIN state_machine_state
-            ON state_machine_state.id = `order`.state_id
-            AND state_machine_state.technical_name NOT IN (:states)
+    IFNULL(
+        SUM(IF(state_machine_state.technical_name = :completed_state, order_line_item.quantity, 0)),
+        0
+    ) as sales_quantity
 
-    WHERE LOWER(order_line_item.referenced_id) = LOWER(HEX(product.id))
+FROM order_line_item
+    INNER JOIN `order`
+        ON `order`.id = order_line_item.order_id
+        AND `order`.version_id = order_line_item.order_version_id
+    INNER JOIN state_machine_state
+        ON state_machine_state.id = `order`.state_id
+        AND state_machine_state.technical_name <> :cancelled_state
+
+WHERE LOWER(order_line_item.referenced_id) IN (:ids)
     AND order_line_item.type = :type
     AND order_line_item.version_id = :version
-)
-WHERE product.id IN (:ids) AND product.version_id = :version;
+    AND order_line_item.product_id IS NOT NULL
+GROUP BY product_id;
         ';
 
-        RetryableQuery::retryable(function () use ($sql, $bytes, $context): void {
-            $this->connection->executeUpdate(
-                $sql,
-                [
-                    'type' => LineItem::PRODUCT_LINE_ITEM_TYPE,
-                    'version' => Uuid::fromHexToBytes($context->getVersionId()),
-                    'states' => [OrderStates::STATE_COMPLETED, OrderStates::STATE_CANCELLED],
-                    'ids' => $bytes,
-                ],
-                [
-                    'ids' => Connection::PARAM_STR_ARRAY,
-                    'states' => Connection::PARAM_STR_ARRAY,
-                ]
-            );
-        });
+        $rows = $this->connection->fetchAll(
+            $sql,
+            [
+                'type' => LineItem::PRODUCT_LINE_ITEM_TYPE,
+                'version' => Uuid::fromHexToBytes($context->getVersionId()),
+                'completed_state' => OrderStates::STATE_COMPLETED,
+                'cancelled_state' => OrderStates::STATE_CANCELLED,
+                'ids' => $ids,
+            ],
+            [
+                'ids' => Connection::PARAM_STR_ARRAY,
+            ]
+        );
+
+        $fallback = array_column($rows, 'product_id');
+
+        $fallback = array_diff($ids, $fallback);
+
+        $update = new RetryableQuery(
+            $this->connection->prepare('UPDATE product SET available_stock = stock - :open_quantity, sales = :sales_quantity WHERE id = :id')
+        );
+
+        foreach ($fallback as $id) {
+            $update->execute([
+                'id' => Uuid::fromHexToBytes((string) $id),
+                'open_quantity' => 0,
+                'sales_quantity' => 0,
+            ]);
+        }
+
+        foreach ($rows as $row) {
+            $update->execute([
+                'id' => Uuid::fromHexToBytes($row['product_id']),
+                'open_quantity' => $row['open_quantity'],
+                'sales_quantity' => $row['sales_quantity'],
+            ]);
+        }
     }
 
     private function updateAvailableFlag(array $ids, Context $context): void

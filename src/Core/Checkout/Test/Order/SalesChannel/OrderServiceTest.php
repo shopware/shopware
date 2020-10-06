@@ -32,6 +32,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
+/**
+ * @group slow
+ */
 class OrderServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -64,8 +67,7 @@ class OrderServiceTest extends TestCase
         $this->salesChannelContext = $contextFactory->create(
             '',
             Defaults::SALES_CHANNEL,
-            [SalesChannelContextService::CUSTOMER_ID => $this->createCustomer('Jon', 'Doe'),
-            ]
+            [SalesChannelContextService::CUSTOMER_ID => $this->createCustomer('Jon', 'Doe')]
         );
     }
 

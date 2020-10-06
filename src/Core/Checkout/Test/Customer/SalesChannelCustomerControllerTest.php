@@ -26,6 +26,9 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Serializer;
 
+/**
+ * @group slow
+ */
 class SalesChannelCustomerControllerTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;

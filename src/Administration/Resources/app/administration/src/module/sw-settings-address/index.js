@@ -19,7 +19,8 @@ Module.register('sw-settings-address', {
             component: 'sw-settings-address',
             path: 'index',
             meta: {
-                parentPath: 'sw.settings.index'
+                parentPath: 'sw.settings.index',
+                privilege: 'system.system_config'
             }
         }
     },
@@ -27,6 +28,7 @@ Module.register('sw-settings-address', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.address.index',
-        icon: 'default-object-address'
+        icon: 'default-object-address',
+        privilege: 'system.system_config'
     }
 });

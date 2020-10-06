@@ -23,7 +23,8 @@ Module.register('sw-settings-listing', {
             component: 'sw-settings-listing',
             path: 'index',
             meta: {
-                parentPath: 'sw.settings.index'
+                parentPath: 'sw.settings.index',
+                privilege: 'system.system_config'
             }
         },
 
@@ -31,7 +32,8 @@ Module.register('sw-settings-listing', {
             component: 'sw-settings-listing-option-base',
             path: 'edit/:id',
             meta: {
-                parentPath: 'sw.settings.listing.index'
+                parentPath: 'sw.settings.listing.index',
+                privilege: 'system.system_config'
             }
         },
 
@@ -39,7 +41,8 @@ Module.register('sw-settings-listing', {
             component: 'sw-settings-listing-option-create',
             path: 'create',
             meta: {
-                parentPath: 'sw.settings.listing.index'
+                parentPath: 'sw.settings.listing.index',
+                privilege: 'system.system_config'
             }
         }
     },
@@ -47,6 +50,7 @@ Module.register('sw-settings-listing', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.listing.index',
-        icon: 'default-symbol-products'
+        icon: 'default-symbol-products',
+        privilege: 'system.system_config'
     }
 });

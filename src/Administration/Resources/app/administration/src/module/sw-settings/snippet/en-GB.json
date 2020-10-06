@@ -13,5 +13,12 @@
       "labelSalesChannelSelect": "Sales Channel",
       "inherited": "Inherited"
     }
+  },
+  "sw-privileges": {
+    "additional_permissions": {
+      "system": {
+        "system_config": "Basic configuration"
+      }
+    }
   }
 }

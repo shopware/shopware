@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Test\SystemConfig;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -13,6 +14,7 @@ use Shopware\Core\System\SystemConfig\Exception\InvalidDomainException;
 use Shopware\Core\System\SystemConfig\Exception\InvalidKeyException;
 use Shopware\Core\System\SystemConfig\Exception\InvalidSettingValueException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 
 class SystemConfigServiceTest extends TestCase
 {
@@ -27,7 +29,11 @@ class SystemConfigServiceTest extends TestCase
     {
         parent::setUp();
 
-        $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        $this->systemConfigService = new SystemConfigService(
+            $this->getContainer()->get(Connection::class),
+            $this->getContainer()->get('system_config.repository'),
+            $this->getContainer()->get(ConfigReader::class)
+        );
     }
 
     public function setGetDifferentTypesProvider(): array

@@ -4,8 +4,11 @@ namespace Shopware\Core\System\Test\SystemConfig;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\Exception\InvalidDomainException;
 use Shopware\Core\System\SystemConfig\Exception\InvalidKeyException;
 use Shopware\Core\System\SystemConfig\Exception\InvalidSettingValueException;
@@ -323,5 +326,31 @@ class SystemConfigServiceTest extends TestCase
     {
         $this->expectException(InvalidUuidException::class);
         $this->systemConfigService->set('foo.bar', 'test', 'invalid uuid');
+    }
+
+    /**
+     * @group slow
+     *
+     * This was trigger when fetching more that ~1000 rows on mariadb:10.3.17 due to some unknown limitation.
+     */
+    public function test1000EntitiesDoNotFail(): void
+    {
+        $values = [];
+        for ($i = 1; $i <= 1000; ++$i) {
+            $values[] = [
+                'id' => Uuid::randomHex(),
+                'configurationKey' => (string) $i,
+                'configurationValue' => $i,
+                'salesChannelId' => null,
+            ];
+        }
+
+        /** @var EntityRepositoryInterface $systemConfigRepository */
+        $systemConfigRepository = $this->getContainer()->get('system_config.repository');
+        $systemConfigRepository->create($values, Context::createDefaultContext());
+
+        static::assertNotNull($this->systemConfigService->get('1'));
+        static::assertNotNull($this->systemConfigService->get('500'));
+        static::assertNotNull($this->systemConfigService->get('1000'));
     }
 }

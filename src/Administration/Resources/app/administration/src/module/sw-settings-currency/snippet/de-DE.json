@@ -44,7 +44,7 @@
   "sw-privileges": {
     "permissions": {
       "currencies": {
-        "label": "Currencies"
+        "label": "Währungen"
       }
     }
   }

@@ -72,7 +72,7 @@ Component.register('sw-users-permissions-role-listing', {
 
     methods: {
         createdComponent() {
-            this.getList();
+            this.$emit('get-list');
         },
 
         getList() {
@@ -88,7 +88,7 @@ Component.register('sw-users-permissions-role-listing', {
 
         onSearch(searchTerm) {
             this.term = searchTerm;
-            this.getList();
+            this.$emit('get-list');
         },
 
         getItemToDelete(item) {
@@ -126,7 +126,7 @@ Component.register('sw-users-permissions-role-listing', {
                         { name: role.name })
                 });
 
-                this.getList();
+                this.$emit('get-list');
             }).catch(() => {
                 this.createNotificationError({
                     message: this.$tc('sw-users-permissions.roles.role-grid.notification.deleteError.message',

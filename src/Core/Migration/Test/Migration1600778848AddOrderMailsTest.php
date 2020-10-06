@@ -400,7 +400,6 @@ class Migration1600778848AddOrderMailsTest extends TestCase
         $this->getContainer()->get(Connection::class)
             ->insert('mail_template', $data);
 
-        dump($mail);
         foreach ($mail['translations'] as $language => $translation) {
             $translation = [
                 'mail_template_id' => Uuid::fromHexToBytes($id),

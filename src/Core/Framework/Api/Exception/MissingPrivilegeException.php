@@ -6,8 +6,24 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class MissingPrivilegeException extends AccessDeniedHttpException
 {
-    public function __construct(string $privilege)
+    public const MISSING_PRIVILEGE_ERROR = 'FRAMEWORK__MISSING_PRIVILEGE_ERROR';
+
+    public function __construct(array $privilege = [])
     {
-        parent::__construct(sprintf('Missing privilege %s', $privilege));
+        $errorMessage = json_encode([
+            'message' => 'Missing privilege',
+            'missingPrivileges' => $privilege,
+        ]);
+
+        if ($errorMessage === false) {
+            $errorMessage = null;
+        }
+
+        parent::__construct($errorMessage);
+    }
+
+    public function getErrorCode(): string
+    {
+        return self::MISSING_PRIVILEGE_ERROR;
     }
 }

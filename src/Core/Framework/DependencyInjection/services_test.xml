@@ -161,6 +161,8 @@
 
         <service id="Shopware\Core\Framework\Test\App\GuzzleHistoryCollector" public="true">
         </service>
+
+        <service id="Shopware\Core\Framework\Test\Api\Acl\fixtures\AclTestController" public="true"/>
     </services>
 
 </container>

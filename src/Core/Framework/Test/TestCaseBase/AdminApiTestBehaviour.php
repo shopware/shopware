@@ -124,7 +124,7 @@ trait AdminApiTestBehaviour
      * @throws \RuntimeException
      * @throws DBALException
      */
-    public function authorizeBrowser(KernelBrowser $browser, array $scopes = []): void
+    public function authorizeBrowser(KernelBrowser $browser, array $scopes = [], ?array $aclPermissions = null): void
     {
         $username = Uuid::randomHex();
         $password = Uuid::randomHex();
@@ -133,18 +133,41 @@ trait AdminApiTestBehaviour
         $connection = $browser->getContainer()->get(Connection::class);
         $userId = Uuid::randomBytes();
 
-        $connection->insert('user', [
+        $user = [
             'id' => $userId,
             'first_name' => $username,
             'last_name' => '',
-            'email' => 'admin@example.com',
             'username' => $username,
             'password' => password_hash($password, PASSWORD_BCRYPT),
             'locale_id' => $this->getLocaleOfSystemLanguage($connection),
             'active' => 1,
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-            'admin' => 1,
-        ]);
+        ];
+
+        if ($aclPermissions !== null) {
+            $aclRoleId = Uuid::randomBytes();
+            $user['admin'] = 0;
+            $user['email'] = md5(json_encode($aclPermissions)) . '@example.com';
+            $aclRole = [
+                'id' => $aclRoleId,
+                'name' => 'testPermissions',
+                'privileges' => json_encode($aclPermissions),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ];
+            $connection->insert('acl_role', $aclRole);
+            $connection->insert('user', $user);
+            $connection->insert('acl_user_role', [
+                'user_id' => $userId,
+                'acl_role_id' => $aclRoleId,
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ]);
+        } else {
+            $user['admin'] = 1;
+            $user['email'] = 'admin@example.com';
+            if ($connection->fetchColumn('SELECT email FROM user WHERE email = "admin@example.com"', [], 0) !== 'admin@example.com') {
+                $connection->insert('user', $user);
+            }
+        }
 
         $this->apiUsernames[] = $username;
 
@@ -236,6 +259,11 @@ trait AdminApiTestBehaviour
             $authorized,
             $scopes
         );
+    }
+
+    protected function resetBrowser(): void
+    {
+        $this->kernelBrowser = null;
     }
 
     protected function getBrowserAuthenticatedWithIntegration(): KernelBrowser

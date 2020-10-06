@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Routing\Annotation\Acl;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\User\UserDefinition;
@@ -113,6 +114,7 @@ class UserController extends AbstractController
 
     /**
      * @Route("/api/v{version}/user/{userId}", name="api.user.delete", defaults={"auth_required"=true}, methods={"DELETE"})
+     * @Acl({"user:delete"})
      */
     public function deleteUser(string $userId, Request $request, Context $context, ResponseFactoryInterface $factory): Response
     {
@@ -129,6 +131,7 @@ class UserController extends AbstractController
 
     /**
      * @Route("/api/v{version}/user/{userId}/access-keys/{id}", name="api.user_access_keys.delete", defaults={"auth_required"=true}, methods={"DELETE"})
+     * @Acl({"user_access_key:delete"})
      */
     public function deleteUserAccessKey(string $id, Request $request, Context $context, ResponseFactoryInterface $factory): Response
     {
@@ -145,7 +148,7 @@ class UserController extends AbstractController
 
     /**
      * @Route("/api/v{version}/user", name="api.user.create", defaults={"auth_required"=true}, methods={"POST"})
-     * @Route("/api/v{version}/user/{userId}", name="api.user.update", defaults={"auth_required"=true}, methods={"PATCH"})
+     * @Acl({"user:create"})
      */
     public function upsertUser(?string $userId, Request $request, Context $context, ResponseFactoryInterface $factory): Response
     {
@@ -172,8 +175,19 @@ class UserController extends AbstractController
     }
 
     /**
+     * @Route("/api/v{version}/user/{userId}", name="api.user.update", defaults={"auth_required"=true}, methods={"PATCH"})
+     * @Acl({"user:update"})
+     *
+     * @internal (flag:FEATURE_NEXT_3722)
+     */
+    public function updateUser(?string $userId, Request $request, Context $context, ResponseFactoryInterface $factory): Response
+    {
+        return $this->upsertUser($userId, $request, $context, $factory);
+    }
+
+    /**
      * @Route("/api/v{version}/acl-role", name="api.acl_role.create", defaults={"auth_required"=true}, methods={"POST"})
-     * @Route("/api/v{version}/acl-role/{roleId}", name="api.acl_role.update", defaults={"auth_required"=true}, methods={"PATCH"})
+     * @Acl({"acl_role:create"})
      */
     public function upsertRole(?string $roleId, Request $request, Context $context, ResponseFactoryInterface $factory): Response
     {
@@ -200,7 +214,17 @@ class UserController extends AbstractController
     }
 
     /**
+     * @Route("/api/v{version}/acl-role/{roleId}", name="api.acl_role.update", defaults={"auth_required"=true}, methods={"PATCH"})
+     * @Acl({"acl_role:update"})
+     */
+    public function updateRole(?string $roleId, Request $request, Context $context, ResponseFactoryInterface $factory): Response
+    {
+        return $this->upsertRole($roleId, $request, $context, $factory);
+    }
+
+    /**
      * @Route("/api/v{version}/user/{userId}/acl-roles/{roleId}", name="api.user_role.delete", defaults={"auth_required"=true}, methods={"DELETE"})
+     * @Acl({"acl_user_role:delete"})
      */
     public function deleteUserRole(string $userId, string $roleId, Request $request, Context $context, ResponseFactoryInterface $factory): Response
     {
@@ -217,6 +241,7 @@ class UserController extends AbstractController
 
     /**
      * @Route("/api/v{version}/acl-role/{roleId}", name="api.acl_role.delete", defaults={"auth_required"=true}, methods={"DELETE"})
+     * @Acl({"acl_role:delete"})
      */
     public function deleteRole(string $roleId, Request $request, Context $context, ResponseFactoryInterface $factory): Response
     {

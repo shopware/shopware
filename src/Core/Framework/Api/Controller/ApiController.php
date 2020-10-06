@@ -219,7 +219,7 @@ class ApiController extends AbstractController
         $definition = $this->definitionRegistry->getByEntityName($entity);
         $missing = $this->validateAclPermissions($context, $definition, AclRoleDefinition::PRIVILEGE_CREATE);
         if ($missing) {
-            throw new MissingPrivilegeException($missing);
+            throw new MissingPrivilegeException([$missing]);
         }
 
         $eventContainer = $context->scope(Context::CRUD_API_SCOPE, function (Context $context) use ($definition, $id, $behavior): EntityWrittenContainerEvent {
@@ -388,7 +388,7 @@ class ApiController extends AbstractController
         $permissions = array_unique(array_filter(array_merge($permissions, $missing)));
 
         if (!empty($permissions)) {
-            throw new MissingPrivilegeException(implode(', ', $permissions));
+            throw new MissingPrivilegeException($permissions);
         }
 
         $entity = $context->scope(Context::CRUD_API_SCOPE, function (Context $context) use ($repository, $criteria, $id): ?Entity {
@@ -586,7 +586,7 @@ class ApiController extends AbstractController
             $permissions = array_unique(array_filter(array_merge($permissions, $nested)));
 
             if (!empty($permissions)) {
-                throw new MissingPrivilegeException(implode(', ', $permissions));
+                throw new MissingPrivilegeException($permissions);
             }
 
             return [$criteria, $repository];
@@ -711,7 +711,7 @@ class ApiController extends AbstractController
         $permissions = array_unique(array_filter(array_merge($permissions, $nested)));
 
         if (!empty($permissions)) {
-            throw new MissingPrivilegeException(implode(', ', $permissions));
+            throw new MissingPrivilegeException($permissions);
         }
 
         return [$criteria, $repository];

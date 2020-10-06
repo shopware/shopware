@@ -45,12 +45,13 @@
                     <sw-card :isLoading="isLoading" class="sw-integration-list__overview">
                         {% block sw_integration_list_overview_inner %}
                             {% block sw_integration_list_detail_modal %}
-                                <sw-modal v-if="currentIntegration"
-                                          size="550px"
-                                          class="sw-integration-list__detail"
-                                          :isLoading="isModalLoading"
-                                          :title="showSecretAccessKey ? $tc('sw-integration.detail.detailModalTitle') : $tc('sw-integration.detail.detailModalTitleEdit') + ' ' + currentIntegration.label"
-                                          @modal-close="onCloseDetailModal">
+                                <sw-modal
+                                    v-if="currentIntegration"
+                                    size="550px"
+                                    class="sw-integration-list__detail"
+                                    :isLoading="isModalLoading"
+                                    :title="showSecretAccessKey ? $tc('sw-integration.detail.detailModalTitle') : $tc('sw-integration.detail.detailModalTitleEdit') + ' ' + currentIntegration.label"
+                                    @modal-close="onCloseDetailModal">
                                     {% block sw_integration_list_detail_modal_inner %}
 
                                         {% block sw_integration_list_detail_modal_inner_field_label %}
@@ -185,11 +186,6 @@
                                     <template #actions="{ item }">
                                         {% block sw_integration_list_grid_inner_slot_columns_actions_edit %}
                                             <sw-context-menu-item
-                                                v-tooltip="{
-                                                    message: $tc('sw-privileges.tooltip.warning'),
-                                                    disabled: acl.can('integration.editor'),
-                                                    showOnDisabledElements: true
-                                                }"
                                                 class="sw_integration_list__edit-action"
                                                 :disabled="!acl.can('integration.editor')"
                                                 @click="onShowDetailModal(item)">
@@ -199,11 +195,6 @@
 
                                         {% block sw_integration_list_grid_inner_slot_columns_actions_delete %}
                                             <sw-context-menu-item
-                                                v-tooltip.bottom="{
-                                                    message: $tc('sw-privileges.tooltip.warning'),
-                                                    disabled: acl.can('integration.deleter'),
-                                                    showOnDisabledElements: true
-                                                }"
                                                 class="sw_integration_list__delete-action"
                                                 variant="danger"
                                                 :disabled="!acl.can('integration.deleter')"

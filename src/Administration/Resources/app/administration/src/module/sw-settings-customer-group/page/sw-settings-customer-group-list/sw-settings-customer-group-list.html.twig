@@ -91,11 +91,6 @@
 
                                         <template #delete-action="{ item }">
                                             <sw-context-menu-item
-                                                v-tooltip.bottom="{
-                                                    message: $tc('sw-privileges.tooltip.warning'),
-                                                    disabled: acl.can('customer_groups.deleter'),
-                                                    showOnDisabledElements: true
-                                                }"
                                                 class="sw-settings-customer-group-list-grid__delete-action"
                                                 variant="danger"
                                                 :disabled="!acl.can('customer_groups.deleter')"

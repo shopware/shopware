@@ -72,7 +72,7 @@ class AppTemplateIteratorTest extends TestCase
 
         $templateIterator = $this->getContainer()->get(AppTemplateIterator::class);
 
-        $templates = iterator_to_array($templateIterator);
+        $templates = \iterator_to_array($templateIterator);
 
         static::assertContains('storefront/test/base.html.twig', $templates);
         static::assertContains('storefront/test/active.html.twig', $templates);

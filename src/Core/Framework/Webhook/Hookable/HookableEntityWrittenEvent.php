@@ -53,7 +53,7 @@ class HookableEntityWrittenEvent implements Hookable
             ];
 
             if (!$event instanceof EntityDeletedEvent) {
-                $result['updatedFields'] = array_keys($writeResult->getPayload());
+                $result['updatedFields'] = \array_keys($writeResult->getPayload());
             }
 
             $payload[] = $result;

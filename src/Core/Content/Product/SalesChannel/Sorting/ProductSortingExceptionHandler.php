@@ -19,7 +19,7 @@ class ProductSortingExceptionHandler implements ExceptionHandlerInterface
             return null;
         }
 
-        if (preg_match('/SQLSTATE\[23000\]:.*1062 Duplicate.*uniq.product_sorting.url_key\'/', $e->getMessage())) {
+        if (\preg_match('/SQLSTATE\[23000\]:.*1062 Duplicate.*uniq.product_sorting.url_key\'/', $e->getMessage())) {
             $payload = $command->getPayload();
 
             return new DuplicateProductSortingKeyException($payload['url_key'] ?? '', $e);

@@ -61,7 +61,7 @@ class HookableBusinessEvent implements Hookable
 
     private function checkPermissionsForDataType(array $dataType, AclPrivilegeCollection $permissions): bool
     {
-        if ($dataType['type'] === ObjectType::TYPE && is_array($dataType['data']) && !empty($dataType['data'])) {
+        if ($dataType['type'] === ObjectType::TYPE && \is_array($dataType['data']) && !empty($dataType['data'])) {
             foreach ($dataType['data'] as $nested) {
                 if (!$this->checkPermissionsForDataType($nested, $permissions)) {
                     return false;

@@ -26,7 +26,7 @@ class Migration1599822061MigrateOrderMails extends MigrationStep
 
         $mapping = [];
         foreach ($events as $event) {
-            $config = json_decode($event['config'], true);
+            $config = \json_decode($event['config'], true);
             if (!isset($config['mail_template_type_id'])) {
                 continue;
             }
@@ -34,7 +34,7 @@ class Migration1599822061MigrateOrderMails extends MigrationStep
             $mapping[] = ['event_name' => $event['event_name'], 'typeId' => $config['mail_template_type_id']];
         }
 
-        $mails = $this->fetchMails($connection, array_column($mapping, 'typeId'));
+        $mails = $this->fetchMails($connection, \array_column($mapping, 'typeId'));
 
         $mails = $this->map($mapping, $mails);
 
@@ -127,7 +127,7 @@ class Migration1599822061MigrateOrderMails extends MigrationStep
             ['names' => Connection::PARAM_STR_ARRAY]
         );
 
-        return array_column($ids, 'id');
+        return \array_column($ids, 'id');
     }
 
     private function insertMails(Connection $connection, array $mails): void
@@ -138,7 +138,7 @@ class Migration1599822061MigrateOrderMails extends MigrationStep
             $insert = [
                 'id' => $id,
                 'action_name' => MailSendSubscriber::ACTION_NAME,
-                'config' => json_encode([
+                'config' => \json_encode([
                     'mail_template_id' => $mail['mail_template_id'],
 
                     // blue green deployment => mail send subscriber expects in blue state a type id without isset() condition
@@ -177,7 +177,7 @@ class Migration1599822061MigrateOrderMails extends MigrationStep
         foreach ($events as $event) {
             $typeId = $event['typeId'];
 
-            $typeMails = array_filter($mails, function ($mail) use ($typeId) {
+            $typeMails = \array_filter($mails, function ($mail) use ($typeId) {
                 return $mail['mail_template_type_id'] === $typeId;
             });
 
@@ -185,7 +185,7 @@ class Migration1599822061MigrateOrderMails extends MigrationStep
                 $mail['technical_name'] = $event['event_name'];
             }
 
-            $exploded = array_filter(array_merge($exploded, $typeMails));
+            $exploded = \array_filter(\array_merge($exploded, $typeMails));
         }
 
         return $exploded;

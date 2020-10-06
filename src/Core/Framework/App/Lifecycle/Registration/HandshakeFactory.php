@@ -39,7 +39,7 @@ final class HandshakeFactory
 
         if (!$setup) {
             throw new AppRegistrationException(
-                sprintf('No setup for registration provided in manifest for app "%s".', $metadata->getName())
+                \sprintf('No setup for registration provided in manifest for app "%s".', $metadata->getName())
             );
         }
 

@@ -83,7 +83,7 @@ class JsonSalesChannelApiEncoderTest extends TestCase
         $encoder = $this->getContainer()->get(JsonApiEncoder::class);
         $actual = $encoder->encode(new Criteria(), $definition, $fixture->getInput(), SerializationFixture::SALES_CHANNEL_API_BASE_URL, SerializationFixture::API_VERSION);
 
-        $actual = json_decode($actual, true);
+        $actual = \json_decode($actual, true);
 
         // remove extensions from test
         $actual = $this->arrayRemove($actual, 'extensions');
@@ -113,7 +113,7 @@ class JsonSalesChannelApiEncoderTest extends TestCase
         static::assertStringNotContainsString('"links":[]', $actual);
         static::assertStringContainsString('"links":{}', $actual);
 
-        $this->assertValues($fixture->getSalesChannelJsonApiFixtures(), json_decode($actual, true));
+        $this->assertValues($fixture->getSalesChannelJsonApiFixtures(), \json_decode($actual, true));
     }
 
     /**
@@ -140,13 +140,13 @@ class JsonSalesChannelApiEncoderTest extends TestCase
         static::assertStringNotContainsString('"attributes":[]', $actual);
         static::assertStringContainsString('"attributes":{}', $actual);
 
-        $this->assertValues($fixture->getSalesChannelJsonApiFixtures(), json_decode($actual, true));
+        $this->assertValues($fixture->getSalesChannelJsonApiFixtures(), \json_decode($actual, true));
     }
 
     private function arrayRemove($haystack, string $keyToRemove): array
     {
         foreach ($haystack as $key => $value) {
-            if (is_array($value)) {
+            if (\is_array($value)) {
                 $haystack[$key] = $this->arrayRemove($haystack[$key], $keyToRemove);
             }
 

@@ -152,7 +152,7 @@ class AccountService
             return $customer;
         }
 
-        if (!password_verify($password, $customer->getPassword())) {
+        if (!\password_verify($password, $customer->getPassword())) {
             throw new BadCredentialsException();
         }
 

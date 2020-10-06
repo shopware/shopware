@@ -110,7 +110,7 @@ class QueryStringParserTest extends TestCase
 
         $expectedValue = $filter['value'];
         if (\is_string($expectedValue)) {
-            $expectedValue = array_filter(explode('|', $expectedValue));
+            $expectedValue = \array_filter(\explode('|', $expectedValue));
         }
 
         if (!\is_array($expectedValue)) {

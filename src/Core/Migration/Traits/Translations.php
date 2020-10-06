@@ -32,6 +32,6 @@ class Translations
 
     public function getColumns(): array
     {
-        return array_keys($this->english);
+        return \array_keys($this->english);
     }
 }

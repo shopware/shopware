@@ -85,7 +85,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         ];
 
         $runtimeParams = $this->getRuntimeParameters($request);
-        $params = array_replace_recursive($params, $runtimeParams);
+        $params = \array_replace_recursive($params, $runtimeParams);
 
         return $params;
     }
@@ -282,11 +282,11 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
 
         $list = [];
         foreach ($permissions as $privileges) {
-            $privileges = json_decode((string) $privileges, true);
-            $list = array_merge($list, $privileges);
+            $privileges = \json_decode((string) $privileges, true);
+            $list = \array_merge($list, $privileges);
         }
 
-        return array_unique(array_filter($list));
+        return \array_unique(\array_filter($list));
     }
 
     private function fetchPermissionsIntegrationByApp(?string $integrationId): ?array
@@ -306,6 +306,6 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             return null;
         }
 
-        return json_decode($privileges, true);
+        return \json_decode($privileges, true);
     }
 }

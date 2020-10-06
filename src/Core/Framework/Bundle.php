@@ -63,13 +63,13 @@ abstract class Bundle extends SymfonyBundle
 
     public function getMigrationPath(): string
     {
-        $migrationSuffix = str_replace(
+        $migrationSuffix = \str_replace(
             $this->getNamespace(),
             '',
             $this->getMigrationNamespace()
         );
 
-        return $this->getPath() . str_replace('\\', '/', $migrationSuffix);
+        return $this->getPath() . \str_replace('\\', '/', $migrationSuffix);
     }
 
     final public function getContainerPrefix(): string
@@ -122,7 +122,7 @@ abstract class Bundle extends SymfonyBundle
     {
         $migrationPath = $this->getMigrationPath();
 
-        if (!is_dir($migrationPath)) {
+        if (!\is_dir($migrationPath)) {
             return;
         }
 
@@ -141,8 +141,8 @@ abstract class Bundle extends SymfonyBundle
     private function registerFilesystem(ContainerBuilder $container, string $key): void
     {
         $containerPrefix = $this->getContainerPrefix();
-        $parameterKey = sprintf('shopware.filesystem.%s', $key);
-        $serviceId = sprintf('%s.filesystem.%s', $containerPrefix, $key);
+        $parameterKey = \sprintf('shopware.filesystem.%s', $key);
+        $serviceId = \sprintf('%s.filesystem.%s', $containerPrefix, $key);
 
         $filesystem = new Definition(
             PrefixFilesystem::class,
@@ -176,7 +176,7 @@ abstract class Bundle extends SymfonyBundle
         ]);
         $delegatingLoader = new DelegatingLoader($loaderResolver);
 
-        foreach (glob($this->getPath() . '/Resources/config/services.*') as $path) {
+        foreach (\glob($this->getPath() . '/Resources/config/services.*') as $path) {
             $delegatingLoader->load($path);
         }
     }

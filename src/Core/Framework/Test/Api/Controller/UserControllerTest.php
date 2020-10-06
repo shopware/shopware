@@ -21,13 +21,13 @@ class UserControllerTest extends TestCase
      */
     public function testMe(): void
     {
-        $url = sprintf('/api/v%s/_info/me', PlatformRequest::API_VERSION);
+        $url = \sprintf('/api/v%s/_info/me', PlatformRequest::API_VERSION);
         $client = $this->getBrowser();
         $client->request('GET', $url);
 
         static::assertSame(200, $client->getResponse()->getStatusCode());
 
-        $content = json_decode($client->getResponse()->getContent(), true);
+        $content = \json_decode($client->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('attributes', $content['data']);
         static::assertSame('user', $content['data']['type']);
@@ -52,7 +52,7 @@ class UserControllerTest extends TestCase
         $response = $client->getResponse();
         static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode());
 
-        $content = json_decode($response->getContent(), true);
+        $content = \json_decode($response->getContent(), true);
         static::assertArrayHasKey('errors', $content);
         static::assertEquals('This access token does not have the scope "user-verified" to process this Request', $content['errors'][0]['detail']);
 
@@ -92,8 +92,8 @@ class UserControllerTest extends TestCase
         $client->request('DELETE', '/api/v' . PlatformRequest::API_VERSION . '/user/' . $ids->get('user') . '/acl-roles/' . $ids->get('role-1'));
 
         $response = $client->getResponse();
-        $content = json_decode($response->getContent(), true);
-        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r($content, true));
+        $content = \json_decode($response->getContent(), true);
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), \print_r($content, true));
 
         $assigned = $this->getContainer()->get(Connection::class)
             ->fetchAll(
@@ -101,8 +101,8 @@ class UserControllerTest extends TestCase
                 ['id' => Uuid::fromHexToBytes($ids->get('user'))]
             );
 
-        $assigned = array_column($assigned, 'id');
-        static::assertEquals(array_values($ids->getList(['role-2'])), $assigned);
+        $assigned = \array_column($assigned, 'id');
+        static::assertEquals(\array_values($ids->getList(['role-2'])), $assigned);
     }
 
     public function testDeleteUser(): void
@@ -127,7 +127,7 @@ class UserControllerTest extends TestCase
         $response = $client->getResponse();
         static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode());
 
-        $content = json_decode($response->getContent(), true);
+        $content = \json_decode($response->getContent(), true);
         static::assertArrayHasKey('errors', $content);
         static::assertEquals('This access token does not have the scope "user-verified" to process this Request', $content['errors'][0]['detail']);
 
@@ -139,7 +139,7 @@ class UserControllerTest extends TestCase
         $client->request('DELETE', '/api/v' . PlatformRequest::API_VERSION . '/user/' . $id);
 
         $response = $client->getResponse();
-        $content = json_decode($response->getContent(), true);
-        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r($content, true));
+        $content = \json_decode($response->getContent(), true);
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), \print_r($content, true));
     }
 }

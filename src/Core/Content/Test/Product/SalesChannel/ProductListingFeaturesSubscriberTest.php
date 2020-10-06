@@ -171,7 +171,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
 
         $sortings = $criteria->getSorting();
 
-        static::assertCount(count($expectedFields), $sortings);
+        static::assertCount(\count($expectedFields), $sortings);
 
         foreach ($sortings as $sorting) {
             static::assertArrayHasKey($sorting->getField(), $expectedFields);
@@ -191,7 +191,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
 
         $sortings = $criteria->getSorting();
 
-        static::assertCount(count($expectedFields), $sortings);
+        static::assertCount(\count($expectedFields), $sortings);
 
         foreach ($sortings as $sorting) {
             static::assertArrayHasKey($sorting->getField(), $expectedFields);
@@ -397,7 +397,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                     'colors' => [$this->optionIds['red'], $this->optionIds['green']],
                 ],
                 new Request([
-                    'properties' => implode('|', [
+                    'properties' => \implode('|', [
                         $this->optionIds['red'],
                         $this->optionIds['green'],
                     ]),
@@ -412,7 +412,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                     'sizes' => [$this->optionIds['small'], $this->optionIds['large']],
                 ],
                 new Request([
-                    'properties' => implode('|', [
+                    'properties' => \implode('|', [
                         $this->optionIds['red'],
                         $this->optionIds['green'],
                         $this->optionIds['small'],

@@ -91,10 +91,10 @@ class SitemapGenerateCommand extends Command
 
             if ($salesChannels->count() === 0) {
                 if (\is_array($salesChannelId)) {
-                    $salesChannelId = implode(', ', $salesChannelId);
+                    $salesChannelId = \implode(', ', $salesChannelId);
                 }
 
-                throw new \RuntimeException(sprintf('Could not found a sales channel with id %s', (string) $salesChannelId));
+                throw new \RuntimeException(\sprintf('Could not found a sales channel with id %s', (string) $salesChannelId));
             }
         } else {
             $criteria = new Criteria();
@@ -106,7 +106,7 @@ class SitemapGenerateCommand extends Command
         /** @var SalesChannelEntity $salesChannel */
         foreach ($salesChannels as $salesChannel) {
             if ($salesChannel->getType()->getId() === Defaults::SALES_CHANNEL_TYPE_API) {
-                $output->writeln(sprintf('ignored headless sales channel %s (%s)', $salesChannel->getId(), $salesChannel->getName()));
+                $output->writeln(\sprintf('ignored headless sales channel %s (%s)', $salesChannel->getId(), $salesChannel->getName()));
 
                 continue;
             }
@@ -121,12 +121,12 @@ class SitemapGenerateCommand extends Command
 
             foreach ($languageIds as $languageId) {
                 $salesChannelContext = $this->salesChannelContextFactory->create('', $salesChannel->getId(), [SalesChannelContextService::LANGUAGE_ID => $languageId]);
-                $output->writeln(sprintf('Generating sitemaps for sales channel %s (%s) and language %s...', $salesChannel->getId(), $salesChannel->getName(), $languageId));
+                $output->writeln(\sprintf('Generating sitemaps for sales channel %s (%s) and language %s...', $salesChannel->getId(), $salesChannel->getName(), $languageId));
 
                 try {
                     $this->generateSitemap($salesChannelContext, $input->getOption('force'));
                 } catch (AlreadyLockedException $exception) {
-                    $output->writeln(sprintf('ERROR: %s', $exception->getMessage()));
+                    $output->writeln(\sprintf('ERROR: %s', $exception->getMessage()));
                 }
             }
         }

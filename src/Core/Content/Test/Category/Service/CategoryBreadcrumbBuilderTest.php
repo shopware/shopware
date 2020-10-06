@@ -138,8 +138,8 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         $result3 = $builder->build($category3, $salesChannel, $categoryId);
 
         static::assertCount(0, $result1);
-        static::assertSame(['EN-A'], array_values($result2));
-        static::assertSame(['EN-A', 'EN-B'], array_values($result3));
+        static::assertSame(['EN-A'], \array_values($result2));
+        static::assertSame(['EN-A', 'EN-B'], \array_values($result3));
 
         /** @var CategoryCollection $categories */
         $categories = $this->repository->search(new Criteria($this->ids->prefixed($key)), new Context(
@@ -158,8 +158,8 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         $result3 = $builder->build($category3, $salesChannel, $categoryId);
 
         static::assertCount(0, $result1);
-        static::assertSame(['DE-A'], array_values($result2));
-        static::assertSame(['DE-A', 'DE-B'], array_values($result3));
+        static::assertSame(['DE-A'], \array_values($result2));
+        static::assertSame(['DE-A', 'DE-B'], \array_values($result3));
     }
 
     private function createTestData(string $key): string

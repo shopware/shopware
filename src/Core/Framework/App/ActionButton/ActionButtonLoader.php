@@ -42,7 +42,7 @@ class ActionButtonLoader
 
     private function formatCollection(ActionButtonCollection $actionButtons): array
     {
-        return array_values(array_map(function (ActionButtonEntity $button): array {
+        return \array_values(\array_map(function (ActionButtonEntity $button): array {
             return [
                 'app' => $button->getApp()->getName(),
                 'id' => $button->getId(),

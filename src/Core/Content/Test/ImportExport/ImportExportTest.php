@@ -126,7 +126,7 @@ class ImportExportTest extends TestCase
         static::assertSame($filesystem->getSize($logEntity->getFile()->getPath()), $file->getSize());
 
         $this->productRepository->delete([['id' => $productId]], Context::createDefaultContext());
-        $exportFileTmp = tempnam(sys_get_temp_dir(), '');
+        $exportFileTmp = \tempnam(\sys_get_temp_dir(), '');
         \file_put_contents($exportFileTmp, $filesystem->read($logEntity->getFile()->getPath()));
 
         $uploadedFile = new UploadedFile($exportFileTmp, 'test.csv', $logEntity->getProfile()->getFileType());
@@ -209,7 +209,7 @@ class ImportExportTest extends TestCase
 
         $categoryRepository->delete([['id' => $childId], ['id' => $betweenId], ['id' => $rootId]], Context::createDefaultContext());
 
-        $exportFileTmp = tempnam(sys_get_temp_dir(), '');
+        $exportFileTmp = \tempnam(\sys_get_temp_dir(), '');
 
         \file_put_contents($exportFileTmp, $filesystem->read($logEntity->getFile()->getPath()));
         $file = new UploadedFile($exportFileTmp, 'test.csv', $logEntity->getProfile()->getFileType());
@@ -287,7 +287,7 @@ class ImportExportTest extends TestCase
 
         $repo->delete([['id' => $testData['id']]], Context::createDefaultContext());
 
-        $exportFileTmp = tempnam(sys_get_temp_dir(), '');
+        $exportFileTmp = \tempnam(\sys_get_temp_dir(), '');
         \file_put_contents($exportFileTmp, $filesystem->read($logEntity->getFile()->getPath()));
 
         $uploadedFile = new UploadedFile($exportFileTmp, 'test.csv', $logEntity->getProfile()->getFileType());
@@ -366,7 +366,7 @@ class ImportExportTest extends TestCase
         static::assertSame(Progress::STATE_SUCCEEDED, $progress->getState());
         static::assertGreaterThan(0, $filesystem->getSize($logEntity->getFile()->getPath()));
 
-        $exportFileTmp = tempnam(sys_get_temp_dir(), '');
+        $exportFileTmp = \tempnam(\sys_get_temp_dir(), '');
         \file_put_contents($exportFileTmp, $filesystem->read($logEntity->getFile()->getPath()));
 
         $expireDate = new \DateTimeImmutable('2099-01-01');
@@ -389,16 +389,16 @@ class ImportExportTest extends TestCase
             $progress = $importExport->import($context, $progress->getOffset());
         } while (!$progress->isFinished());
 
-        $ids = array_column($groups, 'id');
+        $ids = \array_column($groups, 'id');
         $actual = $repository->searchIds(new Criteria($ids), Context::createDefaultContext());
-        static::assertCount(count($ids), $actual->getIds());
+        static::assertCount(\count($ids), $actual->getIds());
 
         /** @var EntityRepositoryInterface $optionRepository */
         $optionRepository = $this->getContainer()->get('property_group_option.repository');
         foreach ($groups as $group) {
-            $ids = array_column($group['options'], 'id');
+            $ids = \array_column($group['options'], 'id');
             $actual = $optionRepository->searchIds(new Criteria($ids), Context::createDefaultContext());
-            static::assertCount(count($ids), $actual->getIds());
+            static::assertCount(\count($ids), $actual->getIds());
         }
     }
 
@@ -569,7 +569,7 @@ class ImportExportTest extends TestCase
         $reader = new CsvReader();
         $filesystem = $this->getContainer()->get('shopware.filesystem.private');
         $resource = $filesystem->readStream($logEntity->getFile()->getPath() . '_invalid');
-        $invalid = iterator_to_array($reader->read($config, $resource, 0));
+        $invalid = \iterator_to_array($reader->read($config, $resource, 0));
 
         static::assertCount(2, $invalid);
 
@@ -763,10 +763,10 @@ class ImportExportTest extends TestCase
             ['id' => $taxId, 'name' => 'test', 'taxRate' => 15],
         ], Context::createDefaultContext());
 
-        $tempFile = tempnam(sys_get_temp_dir(), '');
-        copy(self::TEST_IMAGE, $tempFile);
+        $tempFile = \tempnam(\sys_get_temp_dir(), '');
+        \copy(self::TEST_IMAGE, $tempFile);
 
-        $fileSize = filesize($tempFile);
+        $fileSize = \filesize($tempFile);
         $mediaFile = new MediaFile($tempFile, 'image/png', 'png', $fileSize);
 
         $mediaId = Uuid::randomHex();
@@ -790,8 +790,8 @@ class ImportExportTest extends TestCase
                 $context
             );
         } finally {
-            if (file_exists($tempFile)) {
-                unlink($tempFile);
+            if (\file_exists($tempFile)) {
+                \unlink($tempFile);
             }
         }
 

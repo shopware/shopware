@@ -45,7 +45,7 @@ class EntityPipeTest extends TestCase
         ]);
         $product->setUniqueIdentifier($id);
 
-        $result = iterator_to_array($entityPipe->in($config, $product));
+        $result = \iterator_to_array($entityPipe->in($config, $product));
 
         static::assertSame($product->getId(), $result['id']);
         static::assertSame($product->getTranslations()->first()->getName(), $result['translations']['DEFAULT']['name']);
@@ -53,7 +53,7 @@ class EntityPipeTest extends TestCase
         static::assertSame($product->getProductNumber(), $result['productNumber']);
         static::assertSame('1', $result['active']);
 
-        $result = iterator_to_array($entityPipe->out($config, $result));
+        $result = \iterator_to_array($entityPipe->out($config, $result));
 
         static::assertSame($product->getId(), $result['id']);
         static::assertSame($product->getTranslations()->first()->getName(), $result['translations'][Defaults::LANGUAGE_SYSTEM]['name']);

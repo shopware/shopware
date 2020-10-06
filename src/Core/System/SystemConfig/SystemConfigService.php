@@ -61,7 +61,7 @@ class SystemConfigService
     {
         $config = $this->load($salesChannelId);
 
-        $parts = explode('.', $key);
+        $parts = \explode('.', $key);
 
         $pointer = $config;
 
@@ -132,7 +132,7 @@ class SystemConfigService
      */
     public function getDomain(string $domain, ?string $salesChannelId = null, bool $inherit = false): array
     {
-        $domain = trim($domain);
+        $domain = \trim($domain);
         if ($domain === '') {
             throw new InvalidDomainException('Empty domain');
         }
@@ -149,8 +149,8 @@ class SystemConfigService
             $queryBuilder->where('sales_channel_id = :salesChannelId');
         }
 
-        $domain = rtrim($domain, '.') . '.';
-        $escapedDomain = str_replace('%', '\\%', $domain);
+        $domain = \rtrim($domain, '.') . '.';
+        $escapedDomain = \str_replace('%', '\\%', $domain);
 
         $salesChannelId = $salesChannelId ? Uuid::fromHexToBytes($salesChannelId) : null;
 
@@ -175,7 +175,7 @@ class SystemConfigService
         $merged = [];
         foreach ($collection as $cur) {
             // use the last one with the same key. entities with sales_channel_id === null are sorted before the others
-            if (!array_key_exists($cur->getConfigurationKey(), $merged) || !empty($cur->getConfigurationValue())) {
+            if (!\array_key_exists($cur->getConfigurationKey(), $merged) || !empty($cur->getConfigurationValue())) {
                 $merged[$cur->getConfigurationKey()] = $cur->getConfigurationValue();
             }
         }
@@ -191,7 +191,7 @@ class SystemConfigService
         // reset internal cache
         $this->configs = [];
 
-        $key = trim($key);
+        $key = \trim($key);
         $this->validate($key, $salesChannelId);
 
         $id = $this->getId($key, $salesChannelId);
@@ -310,7 +310,7 @@ class SystemConfigService
         $configValues = [];
 
         foreach ($systemConfigs as $systemConfig) {
-            $keys = explode('.', $systemConfig->getConfigurationKey());
+            $keys = \explode('.', $systemConfig->getConfigurationKey());
 
             $configValues = $this->getSubArray($configValues, $keys, $systemConfig->getConfigurationValue());
         }
@@ -320,7 +320,7 @@ class SystemConfigService
 
     private function getSubArray(array $configValues, array $keys, $value): array
     {
-        $key = array_shift($keys);
+        $key = \array_shift($keys);
 
         if (empty($keys)) {
             $configValues[$key] = $value;
@@ -341,7 +341,7 @@ class SystemConfigService
      */
     private function validate(string $key, ?string $salesChannelId): void
     {
-        $key = trim($key);
+        $key = \trim($key);
         if ($key === '') {
             throw new InvalidKeyException('key may not be empty');
         }
@@ -360,6 +360,6 @@ class SystemConfigService
 
         $ids = $this->systemConfigRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
 
-        return array_shift($ids);
+        return \array_shift($ids);
     }
 }

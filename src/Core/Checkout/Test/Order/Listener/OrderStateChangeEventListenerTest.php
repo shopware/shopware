@@ -291,6 +291,6 @@ class RuleValidator extends CallableClass
 
     public function __invoke(): void
     {
-        $this->event = func_get_arg(0);
+        $this->event = \func_get_arg(0);
     }
 }

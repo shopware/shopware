@@ -138,7 +138,7 @@ class SwSanitizeTwigFilter extends AbstractExtension
     {
         $options = $options ?? [];
 
-        $hash = md5(json_encode($options));
+        $hash = \md5(\json_encode($options));
 
         if ($override) {
             $hash .= '-override';
@@ -185,8 +185,8 @@ class SwSanitizeTwigFilter extends AbstractExtension
         }
 
         if (!$override) {
-            $allowedElements = array_merge($this->allowedElements, $allowedElements);
-            $allowedAttributes = array_merge($this->allowedAttributes, $allowedAttributes);
+            $allowedElements = \array_merge($this->allowedElements, $allowedElements);
+            $allowedAttributes = \array_merge($this->allowedAttributes, $allowedAttributes);
         }
 
         $config->set('HTML.AllowedElements', $allowedElements);

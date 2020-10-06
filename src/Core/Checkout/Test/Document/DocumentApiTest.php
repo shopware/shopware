@@ -114,10 +114,10 @@ class DocumentApiTest extends TestCase
             [],
             [],
             [],
-            json_encode($document)
+            \json_encode($document)
         );
 
-        $response = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $response = \json_decode($this->getBrowser()->getResponse()->getContent(), true);
 
         $filename = 'invoice';
         $expectedFileContent = 'simple invoice';
@@ -128,11 +128,11 @@ class DocumentApiTest extends TestCase
             $baseResource . '_action/document/' . $response['documentId'] . '/upload?fileName=' . $filename . '&extension=txt',
             [],
             [],
-            ['HTTP_CONTENT_TYPE' => $expectedContentType, 'HTTP_CONTENT_LENGTH' => mb_strlen($expectedFileContent)],
+            ['HTTP_CONTENT_TYPE' => $expectedContentType, 'HTTP_CONTENT_LENGTH' => \mb_strlen($expectedFileContent)],
             $expectedFileContent
         );
 
-        $response = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $response = \json_decode($this->getBrowser()->getResponse()->getContent(), true);
 
         $this->getBrowser()->request('GET', $baseResource . '_action/document/' . $response['documentId'] . '/' . $response['documentDeepLink']);
         $response = $this->getBrowser()->getResponse();
@@ -161,10 +161,10 @@ class DocumentApiTest extends TestCase
         for ($i = 0; $i < $lineItemCount; ++$i) {
             $id = Uuid::randomHex();
 
-            $price = random_int(100, 200000) / 100.0;
+            $price = \random_int(100, 200000) / 100.0;
 
-            shuffle($keywords);
-            $name = ucfirst(implode(' ', $keywords) . ' product');
+            \shuffle($keywords);
+            $name = \ucfirst(\implode(' ', $keywords) . ' product');
 
             $products[] = [
                 'id' => $id,
@@ -183,7 +183,7 @@ class DocumentApiTest extends TestCase
             ];
 
             $cart->add($factory->create($id));
-            $this->addTaxDataToSalesChannel($this->salesChannelContext, end($products)['tax']);
+            $this->addTaxDataToSalesChannel($this->salesChannelContext, \end($products)['tax']);
         }
 
         $this->getContainer()->get('product.repository')

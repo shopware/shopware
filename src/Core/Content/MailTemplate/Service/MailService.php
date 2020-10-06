@@ -161,7 +161,7 @@ class MailService implements MailServiceInterface
                     . 'Template source:'
                     . $template . "\n"
                     . "Template data: \n"
-                    . json_encode($templateData) . "\n"
+                    . \json_encode($templateData) . "\n"
                 );
 
                 return null;
@@ -185,9 +185,9 @@ class MailService implements MailServiceInterface
             $this->logger->error(
                 "message is null:\n"
                 . 'Data:'
-                . json_encode($data) . "\n"
+                . \json_encode($data) . "\n"
                 . "Template data: \n"
-                . json_encode($templateData) . "\n"
+                . \json_encode($templateData) . "\n"
             );
 
             return null;
@@ -213,15 +213,15 @@ class MailService implements MailServiceInterface
     {
         $senderEmail = $data['senderEmail'] ?? null;
 
-        if ($senderEmail === null || trim($senderEmail) === '') {
+        if ($senderEmail === null || \trim($senderEmail) === '') {
             $senderEmail = $this->systemConfigService->get('core.basicInformation.email', $salesChannelId);
         }
 
-        if ($senderEmail === null || trim($senderEmail) === '') {
+        if ($senderEmail === null || \trim($senderEmail) === '') {
             $senderEmail = $this->systemConfigService->get('core.mailerSettings.senderAddress', $salesChannelId);
         }
 
-        if ($senderEmail === null || trim($senderEmail) === '') {
+        if ($senderEmail === null || \trim($senderEmail) === '') {
             $this->logger->error('senderMail not configured for salesChannel: ' . $salesChannelId . '. Please check system_config \'core.basicInformation.email\'');
 
             return null;

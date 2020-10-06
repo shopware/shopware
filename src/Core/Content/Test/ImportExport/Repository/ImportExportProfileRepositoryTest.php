@@ -47,7 +47,7 @@ class ImportExportProfileRepositoryTest extends TestCase
     {
         $data = $this->prepareImportExportProfileTestData();
 
-        $id = array_key_first($data);
+        $id = \array_key_first($data);
 
         $this->repository->create([$data[$id]], $this->context);
 
@@ -71,22 +71,22 @@ class ImportExportProfileRepositoryTest extends TestCase
         static::assertEquals($expect['fileType'], $record['file_type']);
         static::assertEquals($expect['delimiter'], $record['delimiter']);
         static::assertEquals($expect['enclosure'], $record['enclosure']);
-        static::assertEquals(json_encode($expect['mapping']), $record['mapping']);
+        static::assertEquals(\json_encode($expect['mapping']), $record['mapping']);
     }
 
     public function testImportExportProfileSingleCreateMissingRequired(): void
     {
         $requiredProperties = ['sourceEntity', 'fileType'];
-        $num = count($requiredProperties);
+        $num = \count($requiredProperties);
         $data = $this->prepareImportExportProfileTestData($num);
 
         foreach ($requiredProperties as $property) {
-            $entry = array_shift($data);
+            $entry = \array_shift($data);
             unset($entry[$property]);
 
             try {
                 $this->repository->create([$entry], $this->context);
-                static::fail(sprintf("Create without required property '%s'", $property));
+                static::fail(\sprintf("Create without required property '%s'", $property));
             } catch (\Exception $e) {
                 static::assertInstanceOf(WriteException::class, $e);
             }
@@ -98,14 +98,14 @@ class ImportExportProfileRepositoryTest extends TestCase
         $num = 5;
         $data = $this->prepareImportExportProfileTestData($num);
 
-        $this->repository->create(array_values($data), $this->context);
+        $this->repository->create(\array_values($data), $this->context);
 
         $records = $this->connection->fetchAll(
             'SELECT * FROM import_export_profile'
         );
         $translationRecords = $this->getTranslationRecords();
 
-        static::assertEquals($num, count($records));
+        static::assertEquals($num, \count($records));
 
         foreach ($records as $record) {
             $expect = $data[$record['id']];
@@ -116,7 +116,7 @@ class ImportExportProfileRepositoryTest extends TestCase
             static::assertEquals($expect['fileType'], $record['file_type']);
             static::assertEquals($expect['delimiter'], $record['delimiter']);
             static::assertEquals($expect['enclosure'], $record['enclosure']);
-            static::assertEquals(json_encode($expect['mapping']), $record['mapping']);
+            static::assertEquals(\json_encode($expect['mapping']), $record['mapping']);
             unset($data[$record['id']]);
         }
     }
@@ -126,19 +126,19 @@ class ImportExportProfileRepositoryTest extends TestCase
         $data = $this->prepareImportExportProfileTestData(2);
 
         $requiredProperties = ['sourceEntity', 'fileType'];
-        $incompleteData = $this->prepareImportExportProfileTestData(count($requiredProperties));
+        $incompleteData = $this->prepareImportExportProfileTestData(\count($requiredProperties));
 
         foreach ($requiredProperties as $property) {
-            $entry = array_shift($incompleteData);
+            $entry = \array_shift($incompleteData);
             unset($entry[$property]);
-            array_push($data, $entry);
+            \array_push($data, $entry);
         }
 
         try {
-            $this->repository->create(array_values($data), $this->context);
+            $this->repository->create(\array_values($data), $this->context);
             static::fail('Create without required properties');
         } catch (WriteException $e) {
-            static::assertCount(count($requiredProperties), $e->getExceptions());
+            static::assertCount(\count($requiredProperties), $e->getExceptions());
             $foundViolations = [];
 
             /** @var WriteConstraintViolationException $violations */
@@ -148,7 +148,7 @@ class ImportExportProfileRepositoryTest extends TestCase
                 }
             }
 
-            $missingPropertyPaths = array_map(function ($property) {
+            $missingPropertyPaths = \array_map(function ($property) {
                 return '/' . $property;
             }, $requiredProperties);
 
@@ -161,7 +161,7 @@ class ImportExportProfileRepositoryTest extends TestCase
         $num = 5;
         $data = $this->prepareImportExportProfileTestData($num);
 
-        $this->repository->create(array_values($data), $this->context);
+        $this->repository->create(\array_values($data), $this->context);
 
         foreach ($data as $expect) {
             $id = $expect['id'];
@@ -183,7 +183,7 @@ class ImportExportProfileRepositoryTest extends TestCase
         $num = 3;
         $data = $this->prepareImportExportProfileTestData($num);
 
-        $this->repository->create(array_values($data), $this->context);
+        $this->repository->create(\array_values($data), $this->context);
 
         $result = $this->repository->search(new Criteria([Uuid::randomHex()]), $this->context);
         static::assertEquals(0, $result->count());
@@ -194,23 +194,23 @@ class ImportExportProfileRepositoryTest extends TestCase
         $num = 5;
         $data = $this->prepareImportExportProfileTestData($num);
 
-        $this->repository->create(array_values($data), $this->context);
+        $this->repository->create(\array_values($data), $this->context);
 
-        $new_data = array_values($this->prepareImportExportProfileTestData($num, 'xxx'));
+        $new_data = \array_values($this->prepareImportExportProfileTestData($num, 'xxx'));
         foreach ($data as $id => $value) {
-            $new_value = array_pop($new_data);
+            $new_value = \array_pop($new_data);
             $new_value['id'] = $value['id'];
             $data[$id] = $new_value;
         }
 
-        $this->repository->upsert(array_values($data), $this->context);
+        $this->repository->upsert(\array_values($data), $this->context);
 
         $records = $this->connection->fetchAll(
             'SELECT * FROM import_export_profile'
         );
         $translationRecords = $this->getTranslationRecords();
 
-        static::assertEquals($num, count($records));
+        static::assertEquals($num, \count($records));
 
         foreach ($records as $record) {
             $expect = $data[$record['id']];
@@ -221,7 +221,7 @@ class ImportExportProfileRepositoryTest extends TestCase
             static::assertEquals($expect['fileType'], $record['file_type']);
             static::assertEquals($expect['delimiter'], $record['delimiter']);
             static::assertEquals($expect['enclosure'], $record['enclosure']);
-            static::assertEquals(json_encode($expect['mapping']), $record['mapping']);
+            static::assertEquals(\json_encode($expect['mapping']), $record['mapping']);
             unset($data[$record['id']]);
         }
     }
@@ -229,34 +229,34 @@ class ImportExportProfileRepositoryTest extends TestCase
     public function testImportExportProfileUpdatePartial(): void
     {
         $data = $this->prepareImportExportProfileTestData();
-        $properties = array_keys(array_pop($data));
+        $properties = \array_keys(\array_pop($data));
 
-        $num = count($properties);
+        $num = \count($properties);
         $data = $this->prepareImportExportProfileTestData($num);
 
-        $this->repository->create(array_values($data), $this->context);
+        $this->repository->create(\array_values($data), $this->context);
 
-        $new_data = array_values($this->prepareImportExportProfileTestData($num, 'xxx'));
+        $new_data = \array_values($this->prepareImportExportProfileTestData($num, 'xxx'));
         foreach ($data as $id => $value) {
-            $new_value = array_pop($new_data);
+            $new_value = \array_pop($new_data);
             $new_value['id'] = $value['id'];
             $data[$id] = $new_value;
             $upsertData = $data;
 
             // Remove property before write
-            $property = array_pop($properties);
+            $property = \array_pop($properties);
             if ($property === 'id') {
                 continue;
             }
             unset($upsertData[$id][$property]);
         }
 
-        $this->repository->upsert(array_values($upsertData), $this->context);
+        $this->repository->upsert(\array_values($upsertData), $this->context);
 
         $records = $this->connection->fetchAll('SELECT * FROM import_export_profile');
         $translationRecords = $this->getTranslationRecords();
 
-        static::assertEquals($num, count($records));
+        static::assertEquals($num, \count($records));
 
         foreach ($records as $record) {
             $expect = $data[$record['id']];
@@ -267,7 +267,7 @@ class ImportExportProfileRepositoryTest extends TestCase
             static::assertEquals($expect['fileType'], $record['file_type']);
             static::assertEquals($expect['delimiter'], $record['delimiter']);
             static::assertEquals($expect['enclosure'], $record['enclosure']);
-            static::assertEquals(json_encode($expect['mapping']), $record['mapping']);
+            static::assertEquals(\json_encode($expect['mapping']), $record['mapping']);
             unset($data[$record['id']]);
         }
     }
@@ -277,10 +277,10 @@ class ImportExportProfileRepositoryTest extends TestCase
         $num = 2;
         $data = $this->prepareImportExportProfileTestData($num);
 
-        $this->repository->create(array_values($data), $this->context);
+        $this->repository->create(\array_values($data), $this->context);
 
         $deleted = 0;
-        foreach (array_column($data, 'id') as $id) {
+        foreach (\array_column($data, 'id') as $id) {
             if (!$data[Uuid::fromHexToBytes($id)]['systemDefault']) {
                 $this->repository->delete([['id' => $id]], $this->context);
                 ++$deleted;
@@ -289,16 +289,16 @@ class ImportExportProfileRepositoryTest extends TestCase
 
         $records = $this->connection->fetchAll('SELECT * FROM import_export_profile');
 
-        static::assertEquals($num - $deleted, count($records));
+        static::assertEquals($num - $deleted, \count($records));
     }
 
     public function testImportExportProfileDeleteSystemDefault(): void
     {
         $num = 2;
         $data = $this->prepareImportExportProfileTestData($num);
-        $this->repository->create(array_values($data), $this->context);
+        $this->repository->create(\array_values($data), $this->context);
 
-        foreach (array_column($data, 'id') as $id) {
+        foreach (\array_column($data, 'id') as $id) {
             if ($data[Uuid::fromHexToBytes($id)]['systemDefault']) {
                 try {
                     $this->repository->delete([['id' => $id]], $this->context);
@@ -312,14 +312,14 @@ class ImportExportProfileRepositoryTest extends TestCase
 
         $records = $this->connection->fetchAll('SELECT * FROM import_export_profile');
 
-        static::assertEquals($num, count($records));
+        static::assertEquals($num, \count($records));
     }
 
     public function testImportExportProfileDeleteUnknown(): void
     {
         $num = 5;
         $data = $this->prepareImportExportProfileTestData($num);
-        $this->repository->create(array_values($data), $this->context);
+        $this->repository->create(\array_values($data), $this->context);
 
         $ids = [];
         for ($i = 0; $i <= $num; ++$i) {
@@ -330,7 +330,7 @@ class ImportExportProfileRepositoryTest extends TestCase
 
         $records = $this->connection->fetchAll('SELECT * FROM import_export_profile');
 
-        static::assertEquals($num, count($records));
+        static::assertEquals($num, \count($records));
     }
 
     /**
@@ -344,13 +344,13 @@ class ImportExportProfileRepositoryTest extends TestCase
 
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
-                'name' => sprintf('Test name %d %s', $i, $add),
-                'label' => sprintf('Test label %d %s', $i, $add),
+                'name' => \sprintf('Test name %d %s', $i, $add),
+                'label' => \sprintf('Test label %d %s', $i, $add),
                 'systemDefault' => ($i % 2 === 0),
-                'sourceEntity' => sprintf('Test entity %d %s', $i, $add),
-                'fileType' => sprintf('Test file type %d %s', $i, $add),
-                'delimiter' => sprintf('Test delimiter %d %s', $i, $add),
-                'enclosure' => sprintf('Test enclosure %d %s', $i, $add),
+                'sourceEntity' => \sprintf('Test entity %d %s', $i, $add),
+                'fileType' => \sprintf('Test file type %d %s', $i, $add),
+                'delimiter' => \sprintf('Test delimiter %d %s', $i, $add),
+                'enclosure' => \sprintf('Test enclosure %d %s', $i, $add),
                 'mapping' => ['Mapping ' . $i => 'Value ' . $i . $add],
             ];
         }
@@ -363,7 +363,7 @@ class ImportExportProfileRepositoryTest extends TestCase
      */
     protected function getTranslationRecords(): array
     {
-        return array_reduce(
+        return \array_reduce(
             $this->connection->fetchAll('SELECT * FROM import_export_profile_translation'),
             static function ($carry, $translationRecord) {
                 $carry[$translationRecord['import_export_profile_id']] = $translationRecord;

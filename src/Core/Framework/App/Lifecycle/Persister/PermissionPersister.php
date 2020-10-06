@@ -54,7 +54,7 @@ class PermissionPersister
         $this->connection->executeUpdate(
             'UPDATE `acl_role` SET `privileges` = :privileges WHERE id = :id',
             [
-                'privileges' => json_encode($privileges),
+                'privileges' => \json_encode($privileges),
                 'id' => Uuid::fromHexToBytes($roleId),
             ]
         );
@@ -62,24 +62,24 @@ class PermissionPersister
 
     private function generatePrivileges(array $permissions): array
     {
-        $grantedPrivileges = array_map(static function (array $privileges): array {
+        $grantedPrivileges = \array_map(static function (array $privileges): array {
             $grantedPrivileges = [];
 
             foreach ($privileges as $privilege) {
                 $grantedPrivileges[] = $privilege;
-                $grantedPrivileges = array_merge($grantedPrivileges, self::PRIVILEGE_DEPENDENCE[$privilege]);
+                $grantedPrivileges = \array_merge($grantedPrivileges, self::PRIVILEGE_DEPENDENCE[$privilege]);
             }
 
-            return array_unique($grantedPrivileges);
+            return \array_unique($grantedPrivileges);
         }, $permissions);
 
         $privilegeValues = [];
         foreach ($grantedPrivileges as $resource => $privileges) {
-            $newPrivileges = array_map(static function (string $privilege) use ($resource): string {
+            $newPrivileges = \array_map(static function (string $privilege) use ($resource): string {
                 return $resource . ':' . $privilege;
             }, $privileges);
 
-            $privilegeValues = array_merge($privilegeValues, $newPrivileges);
+            $privilegeValues = \array_merge($privilegeValues, $newPrivileges);
         }
 
         return $privilegeValues;

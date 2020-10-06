@@ -52,7 +52,7 @@ class AclCriteriaValidator
                 $reference = $association->getToManyReferenceDefinition()->getEntityName();
             }
 
-            $missing = array_merge($missing, $this->validate($reference, $nested, $context));
+            $missing = \array_merge($missing, $this->validate($reference, $nested, $context));
         }
 
         foreach ($criteria->getAllFields() as $accessor) {
@@ -76,6 +76,6 @@ class AclCriteriaValidator
             }
         }
 
-        return array_unique(array_filter($missing));
+        return \array_unique(\array_filter($missing));
     }
 }

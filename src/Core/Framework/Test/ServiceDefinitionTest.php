@@ -45,7 +45,7 @@ class ServiceDefinitionTest extends TestCase
             }
         }
 
-        static::assertCount(0, $errors, 'Found invalid services: ' . print_r($errors, true));
+        static::assertCount(0, $errors, 'Found invalid services: ' . \print_r($errors, true));
     }
 
     public function testServiceDefinitionNaming(): void
@@ -61,11 +61,11 @@ class ServiceDefinitionTest extends TestCase
             $parameterErrors = $this->checkServiceParameterOrder($content);
             $argumentErrors = $this->checkArgumentOrder($content);
 
-            $errors[$file->getRelativePathname()] = array_merge($parameterErrors, $argumentErrors);
+            $errors[$file->getRelativePathname()] = \array_merge($parameterErrors, $argumentErrors);
         }
 
-        $errors = array_filter($errors);
-        $errorMessage = 'Found some issues in the following files:' . PHP_EOL . PHP_EOL . print_r($errors, true);
+        $errors = \array_filter($errors);
+        $errorMessage = 'Found some issues in the following files:' . PHP_EOL . PHP_EOL . \print_r($errors, true);
 
         static::assertCount(0, $errors, $errorMessage);
     }
@@ -76,10 +76,10 @@ class ServiceDefinitionTest extends TestCase
         $command->setApplication(new Application(KernelLifecycleManager::getKernel()));
         $commandTester = new CommandTester($command);
 
-        set_error_handler(function (): void {// ignore symfony deprecations
+        \set_error_handler(function (): void {// ignore symfony deprecations
         }, E_USER_DEPRECATED);
         $commandTester->execute([]);
-        restore_error_handler();
+        \restore_error_handler();
 
         static::assertEquals(
             0,
@@ -91,7 +91,7 @@ class ServiceDefinitionTest extends TestCase
     private function checkArgumentOrder(string $content): array
     {
         $matches = [];
-        $result = preg_match_all(
+        $result = \preg_match_all(
             '/<argument (?!type="[^"]+").*id="(?<id>[^"]+)".*>/',
             $content,
             $matches,
@@ -106,7 +106,7 @@ class ServiceDefinitionTest extends TestCase
         foreach ($matches as $match) {
             $fullMatch = $match[0];
 
-            $errors[] = sprintf(
+            $errors[] = \sprintf(
                 '%s:%s - invalid order (type should be first)',
                 $match['id'][0] ?? $fullMatch[0],
                 $this->getLineNumber($content, $fullMatch[1])
@@ -119,7 +119,7 @@ class ServiceDefinitionTest extends TestCase
     private function checkServiceParameterOrder(string $content): array
     {
         $matches = [];
-        $result = preg_match_all(
+        $result = \preg_match_all(
             '<service\s+(?=.*class="(?<class>[^"]+)")(?=.*id="\k{class}").*>',
             $content,
             $matches,
@@ -134,7 +134,7 @@ class ServiceDefinitionTest extends TestCase
         $errors = [];
         foreach ($matches as $match) {
             $fullMatch = $match[0];
-            $errors[] = sprintf(
+            $errors[] = \sprintf(
                 '%s:%s - parameter class and id are identical. class parameter should be removed',
                 $match['class'][0] ?? $fullMatch[0],
                 $this->getLineNumber($content, $fullMatch[1])
@@ -146,8 +146,8 @@ class ServiceDefinitionTest extends TestCase
 
     private function getLineNumber(string $content, int $position): int
     {
-        list($before) = str_split($content, $position);
+        list($before) = \str_split($content, $position);
 
-        return mb_strlen($before) - mb_strlen(str_replace(PHP_EOL, '', $before)) + 1;
+        return \mb_strlen($before) - \mb_strlen(\str_replace(PHP_EOL, '', $before)) + 1;
     }
 }

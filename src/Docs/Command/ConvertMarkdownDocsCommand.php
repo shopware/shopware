@@ -31,7 +31,7 @@ class ConvertMarkdownDocsCommand extends Command
     public function __construct(?string $name = null)
     {
         parent::__construct($name);
-        $this->environment = getenv('APP_ENV');
+        $this->environment = \getenv('APP_ENV');
     }
 
     protected function configure(): void
@@ -53,8 +53,8 @@ class ConvertMarkdownDocsCommand extends Command
 
         $blacklist = [];
         $blacklistFile = $inPath . self::BLACKLIST;
-        if (is_file($blacklistFile)) {
-            $blacklist = file($blacklistFile);
+        if (\is_file($blacklistFile)) {
+            $blacklist = \file($blacklistFile);
         }
 
         $output->writeln('Scanning \"' . $inPath . '" for .md files ...');
@@ -68,7 +68,7 @@ class ConvertMarkdownDocsCommand extends Command
         $fs = new Filesystem();
 
         /** @var Document $document */
-        foreach (array_merge($tree->getAll(), [$tree->getRoot()]) as $document) {
+        foreach (\array_merge($tree->getAll(), [$tree->getRoot()]) as $document) {
             $path = $outPath . '/' . $document->getFile()->getRelativePath();
 
             $htmlFile = $path . '/' . $document->getFile()->getBasename('.md') . '.html';
@@ -76,7 +76,7 @@ class ConvertMarkdownDocsCommand extends Command
 
             $fs->mkdir($outPath);
             $fs->dumpFile($htmlFile, $document->getHtml()->render($tree)->getContents());
-            $fs->dumpFile($phpFile, '<?php return ' . var_export($document->getMetadata()->toArray($tree), true) . ';');
+            $fs->dumpFile($phpFile, '<?php return ' . \var_export($document->getMetadata()->toArray($tree), true) . ';');
         }
 
         $credentialsService = new CredentialsService();
@@ -108,8 +108,8 @@ class ConvertMarkdownDocsCommand extends Command
         /** @var SplFileInfo $file */
         foreach ($files as $file) {
             foreach ($blacklist as $blacklistedFile) {
-                $blacklistedFile = trim($blacklistedFile);
-                if (mb_strpos($file->getRelativePathname(), $blacklistedFile) === 0) {
+                $blacklistedFile = \trim($blacklistedFile);
+                if (\mb_strpos($file->getRelativePathname(), $blacklistedFile) === 0) {
                     echo 'Blacklisted ' . $file->getRelativePathname() . "\n";
 
                     continue 2;
@@ -137,8 +137,8 @@ class ConvertMarkdownDocsCommand extends Command
             $tree->add($document);
 
             $hash = $document->getMetadata()->getHash();
-            if (array_key_exists($hash, $hashes)) {
-                throw new DuplicateHashException(sprintf('Hash \'%s\' is duplicated in files \'%s\' and \'%s\'.', $hash, $document->getFile()->getFileInfo(), $hashes[$hash]));
+            if (\array_key_exists($hash, $hashes)) {
+                throw new DuplicateHashException(\sprintf('Hash \'%s\' is duplicated in files \'%s\' and \'%s\'.', $hash, $document->getFile()->getFileInfo(), $hashes[$hash]));
             }
             $hashes[$hash] = $document->getFile()->getFileInfo();
 

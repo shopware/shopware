@@ -286,7 +286,7 @@ class DocumentServiceTest extends TestCase
         /** @var DocumentEntity $document */
         $document = $documentRepository->search(new Criteria([$documentId->getId()]), Context::createDefaultContext())->first();
 
-        $expectedConfig = array_merge($globalConfig, $salesChannelConfig);
+        $expectedConfig = \array_merge($globalConfig, $salesChannelConfig);
 
         $actualConfig = $document->getConfig();
         foreach ($expectedConfig as $key => $value) {
@@ -335,7 +335,7 @@ class DocumentServiceTest extends TestCase
         /** @var DocumentEntity $document */
         $document = $documentRepository->search(new Criteria([$documentIdWithOverride->getId()]), Context::createDefaultContext())->first();
 
-        $expectedConfig = array_merge($globalConfig, $salesChannelConfig, $overrides);
+        $expectedConfig = \array_merge($globalConfig, $salesChannelConfig, $overrides);
 
         $actualConfig = $document->getConfig();
         foreach ($expectedConfig as $key => $value) {
@@ -428,10 +428,10 @@ class DocumentServiceTest extends TestCase
         for ($i = 0; $i < $lineItemCount; ++$i) {
             $id = Uuid::randomHex();
 
-            $price = random_int(100, 200000) / 100.0;
+            $price = \random_int(100, 200000) / 100.0;
 
-            shuffle($keywords);
-            $name = ucfirst(implode(' ', $keywords) . ' product');
+            \shuffle($keywords);
+            $name = \ucfirst(\implode(' ', $keywords) . ' product');
 
             $products[] = [
                 'id' => $id,
@@ -450,7 +450,7 @@ class DocumentServiceTest extends TestCase
             ];
 
             $cart->add($factory->create($id));
-            $this->addTaxDataToSalesChannel($this->salesChannelContext, end($products)['tax']);
+            $this->addTaxDataToSalesChannel($this->salesChannelContext, \end($products)['tax']);
         }
 
         $this->getContainer()->get('product.repository')

@@ -43,7 +43,7 @@ class ProductDetailRouteTest extends TestCase
     {
         $this->browser->request('POST', $this->getUrl());
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame('product_detail', $response['apiAlias']);
         static::assertArrayHasKey('product', $response);
@@ -61,17 +61,17 @@ class ProductDetailRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame('product_detail', $response['apiAlias']);
         static::assertArrayHasKey('product', $response);
 
         $product = $response['product'];
-        $properties = array_keys($product);
+        $properties = \array_keys($product);
 
         $expected = ['id', 'name', 'apiAlias'];
-        sort($expected);
-        sort($properties);
+        \sort($expected);
+        \sort($properties);
 
         static::assertEquals($expected, $properties);
     }
@@ -91,7 +91,7 @@ class ProductDetailRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame('product_detail', $response['apiAlias']);
         static::assertArrayHasKey('product', $response);

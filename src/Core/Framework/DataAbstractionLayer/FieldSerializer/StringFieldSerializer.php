@@ -33,7 +33,7 @@ class StringFieldSerializer extends AbstractFieldSerializer
         $this->validateIfNeeded($field, $existence, $data, $parameters);
 
         if ($data->getValue() !== null && !$field->is(AllowHtml::class)) {
-            $data->setValue(strip_tags((string) $data->getValue()));
+            $data->setValue(\strip_tags((string) $data->getValue()));
         }
 
         $this->validateIfNeeded($field, $existence, $data, $parameters);

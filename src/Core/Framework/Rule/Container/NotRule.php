@@ -18,7 +18,7 @@ class NotRule extends Container
 
     public function setRules(array $rules): void
     {
-        parent::setRules(array_values($rules));
+        parent::setRules(\array_values($rules));
         $this->checkRules();
     }
 
@@ -26,7 +26,7 @@ class NotRule extends Container
     {
         $rules = $this->rules;
 
-        $rule = array_shift($rules);
+        $rule = \array_shift($rules);
 
         return !$rule->match($scope);
     }

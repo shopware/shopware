@@ -161,7 +161,7 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
 
         $this->dispatchEvent($event->getStateEventName(), $order, $context);
 
-        $name = implode('.', [
+        $name = \implode('.', [
             $event->getTransitionSide(),
             $event->getStateMachine()->getTechnicalName(),
             $orderTransaction->getPaymentMethod()->getShortName(),
@@ -217,7 +217,7 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
                     continue;
                 }
 
-                $name = implode('.', [
+                $name = \implode('.', [
                     $side,
                     $machine->getTechnicalName(),
                     $state->getTechnicalName(),
@@ -237,7 +237,7 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
 
                 /** @var PaymentMethodEntity $payment */
                 foreach ($payments as $payment) {
-                    $name = implode('.', [
+                    $name = \implode('.', [
                         $side,
                         $machine->getTechnicalName(),
                         $payment->getShortName(),

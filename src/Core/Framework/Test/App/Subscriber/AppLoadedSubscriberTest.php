@@ -43,7 +43,7 @@ class AppLoadedSubscriberTest extends TestCase
                 'version' => '0.0.1',
                 'label' => 'test App',
                 'accessToken' => 'test',
-                'iconRaw' => file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/icon.png'),
+                'iconRaw' => \file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/icon.png'),
                 'integration' => [
                     'label' => 'App1',
                     'writeAccess' => false,
@@ -60,7 +60,7 @@ class AppLoadedSubscriberTest extends TestCase
         $app = $appRepository->search(new Criteria([$id]), Context::createDefaultContext())->get($id);
         static::assertNotNull($app);
         static::assertEquals(
-            base64_encode(file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/icon.png')),
+            \base64_encode(\file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/icon.png')),
             $app->getIcon()
         );
     }

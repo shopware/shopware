@@ -55,7 +55,7 @@ abstract class AbstractAppActivationCommand extends Command
 
         $this->runAction($id, $context);
 
-        $io->success(sprintf('App %sd successfully.', $this->action));
+        $io->success(\sprintf('App %sd successfully.', $this->action));
 
         return 0;
     }

@@ -76,7 +76,7 @@ class GenerateThumbnailsCommandTest extends TestCase
 
         $string = $output->fetch();
         static::assertRegExp('/.*Generated\s*2.*/', $string);
-        static::assertRegExp('/.*Skipped\s*' . count($this->initialMediaIds) . '.*/', $string);
+        static::assertRegExp('/.*Skipped\s*' . \count($this->initialMediaIds) . '.*/', $string);
 
         $mediaResult = $this->getNewMediaEntities();
         /** @var MediaEntity $updatedMedia */
@@ -104,7 +104,7 @@ class GenerateThumbnailsCommandTest extends TestCase
 
         $string = $output->fetch();
         static::assertRegExp('/.*Generated\s*2.*/', $string);
-        static::assertRegExp('/.*Skipped\s*' . count($this->initialMediaIds) . '.*/', $string);
+        static::assertRegExp('/.*Skipped\s*' . \count($this->initialMediaIds) . '.*/', $string);
 
         $mediaResult = $this->getNewMediaEntities();
         /** @var MediaEntity $updatedMedia */
@@ -132,12 +132,12 @@ class GenerateThumbnailsCommandTest extends TestCase
 
         $string = $output->fetch();
         static::assertRegExp('/.*Generated\s*1.*/', $string);
-        static::assertRegExp('/.*Skipped\s*' . (count($this->initialMediaIds) + 1) . '.*/', $string);
+        static::assertRegExp('/.*Skipped\s*' . (\count($this->initialMediaIds) + 1) . '.*/', $string);
 
         $mediaResult = $this->getNewMediaEntities();
         /** @var MediaEntity $updatedMedia */
         foreach ($mediaResult->getEntities() as $updatedMedia) {
-            if (mb_strpos($updatedMedia->getMimeType(), 'image') === 0) {
+            if (\mb_strpos($updatedMedia->getMimeType(), 'image') === 0) {
                 $thumbnails = $updatedMedia->getThumbnails();
                 static::assertEquals(
                     2,
@@ -232,13 +232,13 @@ class GenerateThumbnailsCommandTest extends TestCase
         $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaPng);
         $this->getPublicFilesystem()->putStream(
             $filePath,
-            fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb')
+            \fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb')
         );
 
         $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaJpg);
         $this->getPublicFilesystem()->putStream(
             $filePath,
-            fopen(__DIR__ . '/../fixtures/shopware.jpg', 'rb')
+            \fopen(__DIR__ . '/../fixtures/shopware.jpg', 'rb')
         );
     }
 
@@ -258,11 +258,11 @@ class GenerateThumbnailsCommandTest extends TestCase
         $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaPdf);
         $this->getPublicFilesystem()->putStream(
             $filePath,
-            fopen(__DIR__ . '/../fixtures/Shopware_5_3_Broschuere.pdf', 'rb')
+            \fopen(__DIR__ . '/../fixtures/Shopware_5_3_Broschuere.pdf', 'rb')
         );
 
         $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaJpg);
-        $this->getPublicFilesystem()->putStream($filePath, fopen(__DIR__ . '/../fixtures/shopware.jpg', 'rb'));
+        $this->getPublicFilesystem()->putStream($filePath, \fopen(__DIR__ . '/../fixtures/shopware.jpg', 'rb'));
     }
 
     private function getNewMediaEntities()
@@ -270,7 +270,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsAnyFilter('id', $this->initialMediaIds));
         $result = $this->mediaRepository->searchIds($criteria, $this->context);
-        static::assertEquals(count($this->initialMediaIds), $result->getTotal());
+        static::assertEquals(\count($this->initialMediaIds), $result->getTotal());
 
         $criteria = new Criteria();
         $criteria->addAssociation('thumbnails');

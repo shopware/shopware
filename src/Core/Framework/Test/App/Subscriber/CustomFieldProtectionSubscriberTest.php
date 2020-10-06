@@ -141,7 +141,7 @@ class CustomFieldProtectionSubscriberTest extends TestCase
         $connection->update('integration', [
             'write_access' => true,
             'access_key' => $accessKey,
-            'secret_access_key' => password_hash($secretAccessKey, PASSWORD_BCRYPT),
+            'secret_access_key' => \password_hash($secretAccessKey, PASSWORD_BCRYPT),
         ], ['id' => $id]);
 
         $this->apiIntegrations[] = $id;
@@ -154,14 +154,14 @@ class CustomFieldProtectionSubscriberTest extends TestCase
 
         $browser->request('POST', '/api/oauth/token', $authPayload);
 
-        $data = json_decode($browser->getResponse()->getContent(), true);
+        $data = \json_decode($browser->getResponse()->getContent(), true);
 
-        if (!array_key_exists('access_token', $data)) {
+        if (!\array_key_exists('access_token', $data)) {
             throw new \RuntimeException(
-                'No token returned from API: ' . ($data['errors'][0]['detail'] ?? 'unknown error' . print_r($data, true))
+                'No token returned from API: ' . ($data['errors'][0]['detail'] ?? 'unknown error' . \print_r($data, true))
             );
         }
 
-        $browser->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['access_token']));
+        $browser->setServerParameter('HTTP_Authorization', \sprintf('Bearer %s', $data['access_token']));
     }
 }

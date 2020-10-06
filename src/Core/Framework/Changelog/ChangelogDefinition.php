@@ -80,32 +80,32 @@ class ChangelogDefinition
                 ->addViolation();
         }
 
-        if ($this->api && preg_match('/\n+#\s+(\w+)/', $this->api, $matches)) {
-            $context->buildViolation(sprintf('You should use "___" to separate API and %s section', $matches[1]))
+        if ($this->api && \preg_match('/\n+#\s+(\w+)/', $this->api, $matches)) {
+            $context->buildViolation(\sprintf('You should use "___" to separate API and %s section', $matches[1]))
                 ->atPath('api')
                 ->addViolation();
         }
 
-        if ($this->storefront && preg_match('/\n+#\s+(\w+)/', $this->storefront, $matches)) {
-            $context->buildViolation(sprintf('You should use "___" to separate Storefront and %s section', $matches[1]))
+        if ($this->storefront && \preg_match('/\n+#\s+(\w+)/', $this->storefront, $matches)) {
+            $context->buildViolation(\sprintf('You should use "___" to separate Storefront and %s section', $matches[1]))
                 ->atPath('storefront')
                 ->addViolation();
         }
 
-        if ($this->administration && preg_match('/\n+#\s+(\w+)/', $this->administration, $matches)) {
-            $context->buildViolation(sprintf('You should use "___" to separate Administration and %s section', $matches[1]))
+        if ($this->administration && \preg_match('/\n+#\s+(\w+)/', $this->administration, $matches)) {
+            $context->buildViolation(\sprintf('You should use "___" to separate Administration and %s section', $matches[1]))
                 ->atPath('administration')
                 ->addViolation();
         }
 
-        if ($this->core && preg_match('/\n+#\s+(\w+)/', $this->core, $matches)) {
-            $context->buildViolation(sprintf('You should use "___" to separate Core and %s section', $matches[1]))
+        if ($this->core && \preg_match('/\n+#\s+(\w+)/', $this->core, $matches)) {
+            $context->buildViolation(\sprintf('You should use "___" to separate Core and %s section', $matches[1]))
                 ->atPath('core')
                 ->addViolation();
         }
 
-        if ($this->upgrade && preg_match('/\n+#\s+(\w+)/', $this->upgrade, $matches)) {
-            $context->buildViolation(sprintf('You should use "___" to separate Upgrade Information and %s section ', $matches[1]))
+        if ($this->upgrade && \preg_match('/\n+#\s+(\w+)/', $this->upgrade, $matches)) {
+            $context->buildViolation(\sprintf('You should use "___" to separate Upgrade Information and %s section ', $matches[1]))
                 ->atPath('upgrade')
                 ->addViolation();
         }
@@ -272,12 +272,12 @@ ___
 ### Topic 1b
 ## Topic 2
 EOD;
-        $template = str_replace('%FEATURE_FLAG%', ($this->flag ? 'flag: ' . $this->flag : ''), $template);
-        $template = str_replace('%AUTHOR%', ($this->author ? 'author: ' . $this->author : ''), $template);
-        $template = str_replace('%AUTHOR_EMAIL%', ($this->authorEmail ? 'author_email: ' . $this->authorEmail : ''), $template);
-        $template = str_replace('%AUTHOR_GITHUB%', ($this->authorGitHub ? 'author_github: ' . $this->authorGitHub : ''), $template);
-        $template = str_replace("\n\n", "\n", $template);
+        $template = \str_replace('%FEATURE_FLAG%', ($this->flag ? 'flag: ' . $this->flag : ''), $template);
+        $template = \str_replace('%AUTHOR%', ($this->author ? 'author: ' . $this->author : ''), $template);
+        $template = \str_replace('%AUTHOR_EMAIL%', ($this->authorEmail ? 'author_email: ' . $this->authorEmail : ''), $template);
+        $template = \str_replace('%AUTHOR_GITHUB%', ($this->authorGitHub ? 'author_github: ' . $this->authorGitHub : ''), $template);
+        $template = \str_replace("\n\n", "\n", $template);
 
-        return trim($template);
+        return \trim($template);
     }
 }

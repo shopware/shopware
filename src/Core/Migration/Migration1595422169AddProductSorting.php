@@ -106,7 +106,7 @@ class Migration1595422169AddProductSorting extends MigrationStep
                 'priority' => 4,
                 'active' => 1,
                 'locked' => 0,
-                'fields' => json_encode([['field' => 'product.name', 'order' => 'asc', 'priority' => 1, 'naturalSorting' => 0]]),
+                'fields' => \json_encode([['field' => 'product.name', 'order' => 'asc', 'priority' => 1, 'naturalSorting' => 0]]),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 'translations' => [
                     'de-DE' => 'Name A-Z',
@@ -119,7 +119,7 @@ class Migration1595422169AddProductSorting extends MigrationStep
                 'priority' => 3,
                 'active' => 1,
                 'locked' => 0,
-                'fields' => json_encode([['field' => 'product.name', 'order' => 'desc', 'priority' => 1, 'naturalSorting' => 0]]),
+                'fields' => \json_encode([['field' => 'product.name', 'order' => 'desc', 'priority' => 1, 'naturalSorting' => 0]]),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 'translations' => [
                     'de-DE' => 'Name Z-A',
@@ -132,7 +132,7 @@ class Migration1595422169AddProductSorting extends MigrationStep
                 'priority' => 2,
                 'active' => 1,
                 'locked' => 0,
-                'fields' => json_encode([['field' => 'product.listingPrices', 'order' => 'asc', 'priority' => 1, 'naturalSorting' => 0]]),
+                'fields' => \json_encode([['field' => 'product.listingPrices', 'order' => 'asc', 'priority' => 1, 'naturalSorting' => 0]]),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 'translations' => [
                     'de-DE' => 'Preis aufsteigend',
@@ -145,7 +145,7 @@ class Migration1595422169AddProductSorting extends MigrationStep
                 'priority' => 1,
                 'active' => 1,
                 'locked' => 0,
-                'fields' => json_encode([['field' => 'product.listingPrices', 'order' => 'desc', 'priority' => 1, 'naturalSorting' => 0]]),
+                'fields' => \json_encode([['field' => 'product.listingPrices', 'order' => 'desc', 'priority' => 1, 'naturalSorting' => 0]]),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 'translations' => [
                     'de-DE' => 'Preis absteigend',
@@ -158,7 +158,7 @@ class Migration1595422169AddProductSorting extends MigrationStep
                 'priority' => 0,
                 'active' => 1,
                 'locked' => 1,
-                'fields' => json_encode([['field' => '_score', 'order' => 'desc', 'priority' => 1, 'naturalSorting' => 0]]),
+                'fields' => \json_encode([['field' => '_score', 'order' => 'desc', 'priority' => 1, 'naturalSorting' => 0]]),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 'translations' => [
                     'de-DE' => 'Beste Ergebnisse',

@@ -224,7 +224,7 @@ class ErrorResponseFactoryTest extends TestCase
 
         $factory = new ErrorResponseFactory();
         $response = $factory->getResponseFromException($exception);
-        $json = json_decode($response->getContent(), true);
+        $json = \json_decode($response->getContent(), true);
 
         static::assertArrayHasKey('errors', $json);
         static::assertArrayHasKey(0, $json['errors']);

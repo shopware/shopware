@@ -62,7 +62,7 @@ class CachedEntitySearcher implements EntitySearcherInterface
             return $this->decorated->search($definition, $criteria, $context);
         }
 
-        if (in_array($definition->getClass(), self::BLACKLIST, true)) {
+        if (\in_array($definition->getClass(), self::BLACKLIST, true)) {
             return $this->decorated->search($definition, $criteria, $context);
         }
 
@@ -79,7 +79,7 @@ class CachedEntitySearcher implements EntitySearcherInterface
 
         $tags = $this->cacheKeyGenerator->getSearchTags($definition, $criteria);
         if (!$item instanceof CacheItem) {
-            throw new \RuntimeException(sprintf('Cache adapter has to return instance of %s', CacheItem::class));
+            throw new \RuntimeException(\sprintf('Cache adapter has to return instance of %s', CacheItem::class));
         }
 
         /* @var CacheItem $item */

@@ -435,7 +435,7 @@ class WriterTest extends TestCase
         $productManufacturerTranslation = $this->connection->fetchAssoc('SELECT * FROM product_manufacturer_translation WHERE product_manufacturer_id=:id', ['id' => Uuid::fromHexToBytes($productManufacturerId)]);
         $productTranslation = $this->connection->fetchAssoc('SELECT * FROM product_translation WHERE product_id=:id', ['id' => $this->idBytes]);
 
-        static::assertSame('_THE_TITLE_', $productTranslation['name'], print_r($productTranslation, true));
+        static::assertSame('_THE_TITLE_', $productTranslation['name'], \print_r($productTranslation, true));
         static::assertSame('<p>html</p>', $productTranslation['description']);
         static::assertSame('Another Company', $productManufacturerTranslation['name']);
         static::assertSame('http://www.shopware.com', $productManufacturer['link']);
@@ -611,9 +611,9 @@ class WriterTest extends TestCase
 
         static::assertNotEmpty($product);
 
-        static::assertCount(2, $productTranslations, print_r($productTranslations, true));
+        static::assertCount(2, $productTranslations, \print_r($productTranslations, true));
 
-        $productTranslations = array_map(function ($a) {
+        $productTranslations = \array_map(function ($a) {
             $a['language_id'] = Uuid::fromBytesToHex($a['language_id']);
 
             return $a;

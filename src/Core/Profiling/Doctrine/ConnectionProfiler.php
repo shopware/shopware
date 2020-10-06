@@ -65,7 +65,7 @@ class ConnectionProfiler implements DataCollectorInterface
 
     public function getQueryCount()
     {
-        return count($this->data['queries']);
+        return \count($this->data['queries']);
     }
 
     public function getQueries()
@@ -143,9 +143,9 @@ class ConnectionProfiler implements DataCollectorInterface
         if (\is_object($var)) {
             $className = \get_class($var);
 
-            return method_exists($var, '__toString')
-                ? [sprintf('/* Object(%s): */"%s"', $className, $var->__toString()), false]
-                : [sprintf('/* Object(%s) */', $className), false];
+            return \method_exists($var, '__toString')
+                ? [\sprintf('/* Object(%s): */"%s"', $className, $var->__toString()), false]
+                : [\sprintf('/* Object(%s) */', $className), false];
         }
 
         if (\is_array($var)) {
@@ -161,7 +161,7 @@ class ConnectionProfiler implements DataCollectorInterface
         }
 
         if (\is_resource($var)) {
-            return [sprintf('/* Resource(%s) */', get_resource_type($var)), false];
+            return [\sprintf('/* Resource(%s) */', \get_resource_type($var)), false];
         }
 
         return [$var, true];

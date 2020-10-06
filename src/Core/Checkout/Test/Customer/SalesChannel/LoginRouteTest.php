@@ -65,7 +65,7 @@ class LoginRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertSame('Unauthorized', $response['errors'][0]['title']);
@@ -81,7 +81,7 @@ class LoginRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertSame('CHECKOUT__CUSTOMER_AUTH_BAD_CREDENTIALS', $response['errors'][0]['code']);
@@ -103,7 +103,7 @@ class LoginRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('contextToken', $response);
     }
@@ -158,7 +158,7 @@ class LoginRouteTest extends TestCase
         $connection->insert('cart', [
             'token' => $contextToken,
             'name' => 'test',
-            'cart' => serialize(new Cart('test', $contextToken)),
+            'cart' => \serialize(new Cart('test', $contextToken)),
             'line_item_count' => 1,
             'currency_id' => Uuid::fromHexToBytes(Defaults::CURRENCY),
             'country_id' => $defaultCountry,

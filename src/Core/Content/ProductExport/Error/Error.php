@@ -25,7 +25,7 @@ abstract class Error extends \Exception implements \JsonSerializable
 
     public function jsonSerialize(): array
     {
-        $data = get_object_vars($this);
+        $data = \get_object_vars($this);
         $data['key'] = $this->getId();
         $data['message'] = $this->getMessage();
         $data['messageKey'] = $this->getMessageKey();

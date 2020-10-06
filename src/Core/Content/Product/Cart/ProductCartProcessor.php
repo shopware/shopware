@@ -205,7 +205,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             return;
         }
 
-        $label = trim($lineItem->getLabel() ?? '');
+        $label = \trim($lineItem->getLabel() ?? '');
         // set the label if its empty or the context does not have the permission to overwrite it
         if ($label === '' || !$behavior->hasPermission(self::ALLOW_PRODUCT_LABEL_OVERWRITES)) {
             $lineItem->setLabel($product->getTranslation('name'));
@@ -272,7 +272,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             'markAsTopseller' => $product->getMarkAsTopseller(),
             // @deprecated tag:v6.4.0 - purchasePrice Will be removed in 6.4.0
             'purchasePrice' => $purchasePrices ? $purchasePrices->getGross() : null,
-            'purchasePrices' => $purchasePrices ? json_encode($purchasePrices) : null,
+            'purchasePrices' => $purchasePrices ? \json_encode($purchasePrices) : null,
             'productNumber' => $product->getProductNumber(),
             'manufacturerId' => $product->getManufacturerId(),
             'taxId' => $product->getTaxId(),
@@ -371,6 +371,6 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
     private function fixQuantity(int $min, int $current, int $steps): int
     {
-        return (int) (floor(($current - $min) / $steps) * $steps + $min);
+        return (int) (\floor(($current - $min) / $steps) * $steps + $min);
     }
 }

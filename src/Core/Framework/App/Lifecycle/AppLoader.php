@@ -29,7 +29,7 @@ class AppLoader extends AbstractAppLoader
      */
     public function load(): array
     {
-        if (!file_exists($this->appDir)) {
+        if (!\file_exists($this->appDir)) {
             return [];
         }
 
@@ -55,8 +55,8 @@ class AppLoader extends AbstractAppLoader
             return null;
         }
 
-        $iconPath = sprintf('%s/%s', $app->getPath(), $app->getMetadata()->getIcon() ?: '');
-        $icon = @file_get_contents($iconPath);
+        $iconPath = \sprintf('%s/%s', $app->getPath(), $app->getMetadata()->getIcon() ?: '');
+        $icon = @\file_get_contents($iconPath);
 
         if (!$icon) {
             return null;

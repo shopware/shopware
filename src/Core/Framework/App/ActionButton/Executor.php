@@ -40,7 +40,7 @@ class Executor
                 $action->getTargetUrl(),
                 [
                     'headers' => [
-                        'shopware-shop-signature' => hash_hmac(
+                        'shopware-shop-signature' => \hash_hmac(
                             'sha256',
                             (string) \json_encode($payload),
                             $action->getAppSecret()
@@ -50,7 +50,7 @@ class Executor
                 ]
             );
         } catch (ServerException $e) {
-            $this->logger->notice(sprintf('ActionButton execution failed to target url "%s".', $action->getTargetUrl()), [
+            $this->logger->notice(\sprintf('ActionButton execution failed to target url "%s".', $action->getTargetUrl()), [
                 'exceptionMessage' => $e->getMessage(),
                 'statusCode' => $e->getResponse()->getStatusCode(),
                 'response' => $e->getResponse()->getBody(),

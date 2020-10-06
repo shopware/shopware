@@ -89,7 +89,7 @@ class ProductStreamBuilderTest extends TestCase
     {
         $connection = $this->getContainer()->get(Connection::class);
 
-        $randomProductIds = implode('|', array_slice(array_column($this->createProducts(), 'id'), 0, 2));
+        $randomProductIds = \implode('|', \array_slice(\array_column($this->createProducts(), 'id'), 0, 2));
 
         $connection->exec(
             "
@@ -153,7 +153,7 @@ class ProductStreamBuilderTest extends TestCase
         }
 
         $productRepository->create($products, $this->context);
-        $this->addTaxDataToSalesChannel($this->salesChannelContext, end($products)['tax']);
+        $this->addTaxDataToSalesChannel($this->salesChannelContext, \end($products)['tax']);
 
         return $products;
     }

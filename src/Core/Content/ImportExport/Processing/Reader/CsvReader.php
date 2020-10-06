@@ -48,7 +48,7 @@ class CsvReader extends AbstractReader
 
     public function read(Config $config, $resource, int $offset): iterable
     {
-        if (!is_resource($resource)) {
+        if (!\is_resource($resource)) {
             throw new \InvalidArgumentException('Argument $resource is not a resource');
         }
 
@@ -56,14 +56,14 @@ class CsvReader extends AbstractReader
 
         $this->setOffset($offset);
 
-        while (!feof($resource)) {
+        while (!\feof($resource)) {
             // if we start at a non-zero offset, we need to re-parse the header and then continue at offset
             if ($this->offset > 0 && $this->withHeader && $this->header === []) {
                 $this->readSingleRecord($resource, 0);
             }
 
             $record = $this->readSingleRecord($resource, $this->offset);
-            $this->setOffset(ftell($resource));
+            $this->setOffset(\ftell($resource));
 
             if ($record !== null) {
                 yield $record;
@@ -86,12 +86,12 @@ class CsvReader extends AbstractReader
 
     private function handleBom($resource): void
     {
-        $offset = ftell($resource);
+        $offset = \ftell($resource);
         if ($offset !== 0) {
             return;
         }
 
-        $bytes = fread($resource, 3);
+        $bytes = \fread($resource, 3);
 
         if ($bytes === self::BOM_UTF8) {
             return;
@@ -107,22 +107,22 @@ class CsvReader extends AbstractReader
     {
         $this->seek($resource, $offset);
 
-        while (!feof($resource)) {
+        while (!\feof($resource)) {
             $this->handleBom($resource);
-            $record = fgetcsv($resource, 0, $this->delimiter, $this->enclosure, $this->escape);
+            $record = \fgetcsv($resource, 0, $this->delimiter, $this->enclosure, $this->escape);
             if ($record === null) {
                 throw new \RuntimeException('resource invalid');
             }
 
             // skip if it's an empty line
-            if ($record === false || (count($record) === 1 && $record[0] === null)) {
+            if ($record === false || (\count($record) === 1 && $record[0] === null)) {
                 continue;
             }
 
             $record = $this->mapRecord($record);
 
             // skip empty
-            if ($record === null || array_filter($record) === []) {
+            if ($record === null || \array_filter($record) === []) {
                 continue;
             }
 
@@ -155,9 +155,9 @@ class CsvReader extends AbstractReader
 
     private function seek($resource, int $offset): void
     {
-        $currentOffset = ftell($resource);
+        $currentOffset = \ftell($resource);
         if ($currentOffset !== $offset) {
-            fseek($resource, $offset);
+            \fseek($resource, $offset);
         }
     }
 

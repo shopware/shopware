@@ -33,7 +33,7 @@ class CurrencyFilter extends AbstractExtension
      */
     public function formatCurrency($twigContext, $price, $currencyIsoCode = null, $languageId = null)
     {
-        if (!array_key_exists('context', $twigContext)
+        if (!\array_key_exists('context', $twigContext)
             || (
                 !$twigContext['context'] instanceof Context
                 && !$twigContext['context'] instanceof SalesChannelContext

@@ -48,7 +48,7 @@ class Migration1599134496FixImportExportProfilesForGermanLanguageTest extends Te
         $translations = $this->connection->fetchAll('SELECT * FROM import_export_profile_translation');
         static::assertCount(12, $translations);
 
-        $labels = array_column($translations, 'label');
+        $labels = \array_column($translations, 'label');
         static::assertContains('Standardprofil Variantenkonfiguration', $labels);
     }
 
@@ -62,7 +62,7 @@ class Migration1599134496FixImportExportProfilesForGermanLanguageTest extends Te
         $translations = $this->connection->fetchAll('SELECT * FROM import_export_profile_translation');
         static::assertCount(12, $translations);
 
-        $labels = array_column($translations, 'label');
+        $labels = \array_column($translations, 'label');
         static::assertContains('Standardprofil Variantenkonfiguration', $labels);
     }
 
@@ -81,7 +81,7 @@ class Migration1599134496FixImportExportProfilesForGermanLanguageTest extends Te
         $translations = $this->connection->fetchAll('SELECT * FROM import_export_profile_translation');
         static::assertCount(18, $translations);
 
-        $labels = array_column($translations, 'label');
+        $labels = \array_column($translations, 'label');
         static::assertContains('Standardprofil Variantenkonfiguration', $labels);
     }
 
@@ -98,7 +98,7 @@ class Migration1599134496FixImportExportProfilesForGermanLanguageTest extends Te
         $translations = $this->connection->fetchAll('SELECT * FROM import_export_profile_translation');
         static::assertCount(12, $translations);
 
-        $labels = array_column($translations, 'label');
+        $labels = \array_column($translations, 'label');
         static::assertContains('Standardprofil Variantenkonfiguration', $labels);
     }
 
@@ -124,7 +124,7 @@ class Migration1599134496FixImportExportProfilesForGermanLanguageTest extends Te
         $translations = $this->connection->fetchAll('SELECT * FROM import_export_profile_translation');
         static::assertCount(13, $translations);
 
-        $labels = array_column($translations, 'label');
+        $labels = \array_column($translations, 'label');
         static::assertContains('Standardprofil Variantenkonfiguration', $labels);
     }
 

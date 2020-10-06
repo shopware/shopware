@@ -32,13 +32,13 @@ class WriteCommandQueue
     {
         $primaryKey = $command->getPrimaryKey();
 
-        sort($primaryKey);
+        \sort($primaryKey);
 
-        $primaryKey = array_map(static function ($id) {
+        $primaryKey = \array_map(static function ($id) {
             return Uuid::fromBytesToHex($id);
         }, $primaryKey);
 
-        $hash = $senderIdentification->getClass() . ':' . md5(json_encode($primaryKey));
+        $hash = $senderIdentification->getClass() . ':' . \md5(\json_encode($primaryKey));
 
         $this->commands[$senderIdentification->getClass()][] = $command;
 
@@ -53,7 +53,7 @@ class WriteCommandQueue
      */
     public function getCommandsInOrder(): array
     {
-        $commands = array_filter($this->commands);
+        $commands = \array_filter($this->commands);
 
         $order = [];
 
@@ -63,7 +63,7 @@ class WriteCommandQueue
             ++$counter;
 
             if ($counter === 50) {
-                throw new ImpossibleWriteOrderException(array_keys($commands));
+                throw new ImpossibleWriteOrderException(\array_keys($commands));
             }
 
             foreach ($commands as $definition => $defCommands) {
@@ -108,13 +108,13 @@ class WriteCommandQueue
 
     public function getCommandsForEntity(EntityDefinition $definition, array $primaryKey): array
     {
-        $primaryKey = array_map(static function ($id) {
+        $primaryKey = \array_map(static function ($id) {
             return Uuid::fromBytesToHex($id);
         }, $primaryKey);
 
-        sort($primaryKey);
+        \sort($primaryKey);
 
-        $hash = $definition->getClass() . ':' . md5(json_encode($primaryKey));
+        $hash = $definition->getClass() . ':' . \md5(\json_encode($primaryKey));
 
         return $this->entityCommands[$hash] ?? [];
     }
@@ -142,7 +142,7 @@ class WriteCommandQueue
                 return $field->getReferenceDefinition()->getClass();
             });
 
-        $toManyDefinitions = array_flip($toManyDefinitions);
+        $toManyDefinitions = \array_flip($toManyDefinitions);
 
         $dependencies = [];
 

@@ -123,7 +123,7 @@ class CustomFieldProtectionSubscriber implements EventSubscriberInterface
         ?string $code = null
     ): ConstraintViolationInterface {
         return new ConstraintViolation(
-            str_replace(array_keys($parameters), array_values($parameters), $messageTemplate),
+            \str_replace(\array_keys($parameters), \array_values($parameters), $messageTemplate),
             $messageTemplate,
             $parameters,
             null,

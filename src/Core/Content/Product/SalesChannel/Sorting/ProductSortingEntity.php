@@ -51,7 +51,7 @@ class ProductSortingEntity extends Entity
 
         $fields = $this->fields;
 
-        usort($fields, function ($a, $b) {
+        \usort($fields, function ($a, $b) {
             return $b['priority'] <=> $a['priority'];
         });
 

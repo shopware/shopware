@@ -19,7 +19,7 @@ class LineItemTransformer
         $output = [];
         $position = 1;
         foreach ($lineItems as $lineItem) {
-            $output = array_replace($output, self::transform($lineItem, $parentId, $position));
+            $output = \array_replace($output, self::transform($lineItem, $parentId, $position));
             ++$position;
         }
 
@@ -62,12 +62,12 @@ class LineItemTransformer
             'payload' => $lineItem->getPayload(),
         ];
 
-        $output[$lineItem->getId()] = array_filter($data, function ($value) {
+        $output[$lineItem->getId()] = \array_filter($data, function ($value) {
             return $value !== null;
         });
 
         if ($lineItem->hasChildren()) {
-            $output = array_merge($output, self::transformCollection($lineItem->getChildren(), $id));
+            $output = \array_merge($output, self::transformCollection($lineItem->getChildren(), $id));
         }
 
         return $output;
@@ -80,7 +80,7 @@ class LineItemTransformer
         $root = new LineItemCollection();
 
         foreach ($lineItems as $id => $lineItem) {
-            if (!array_key_exists($id, $index)) {
+            if (!\array_key_exists($id, $index)) {
                 $index[$id] = new LineItem($lineItem->getIdentifier(), self::LINE_ITEM_PLACEHOLDER);
             }
 
@@ -94,7 +94,7 @@ class LineItemTransformer
                 continue;
             }
 
-            if (!array_key_exists($lineItem->getParentId(), $index)) {
+            if (!\array_key_exists($lineItem->getParentId(), $index)) {
                 $index[$lineItem->getParentId()] = new LineItem($lineItem->getParentId(), self::LINE_ITEM_PLACEHOLDER);
             }
 

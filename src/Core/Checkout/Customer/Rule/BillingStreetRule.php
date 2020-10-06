@@ -43,10 +43,10 @@ class BillingStreetRule extends Rule
 
         switch ($this->operator) {
             case self::OPERATOR_EQ:
-                return strcasecmp($this->streetName, $street) === 0;
+                return \strcasecmp($this->streetName, $street) === 0;
 
             case self::OPERATOR_NEQ:
-                return strcasecmp($this->streetName, $street) !== 0;
+                return \strcasecmp($this->streetName, $street) !== 0;
 
             default:
                 throw new UnsupportedOperatorException($this->operator, self::class);

@@ -42,7 +42,7 @@ class WriteResultMerger
             $mergedWriteResults[] = $writeResult;
         }
 
-        $mergedWriteResults = array_filter($mergedWriteResults);
+        $mergedWriteResults = \array_filter($mergedWriteResults);
 
         if (empty($mergedWriteResults)) {
             return null;
@@ -67,7 +67,7 @@ class WriteResultMerger
 
         $payload = $writeResult->getPayload();
         foreach ($translationResults as $translationResult) {
-            $payload = array_merge($payload, $this->getMergeableTranslationPayload($translationResult));
+            $payload = \array_merge($payload, $this->getMergeableTranslationPayload($translationResult));
         }
 
         if (empty($payload)) {
@@ -92,14 +92,14 @@ class WriteResultMerger
      */
     private function findWriteResultByPrimaryKey(array $writeResults, $entityKey): array
     {
-        return array_filter($writeResults, static function (EntityWriteResult $result) use ($entityKey): bool {
+        return \array_filter($writeResults, static function (EntityWriteResult $result) use ($entityKey): bool {
             $primaryKey = $result->getPrimaryKey();
 
-            if (is_array($primaryKey)) {
+            if (\is_array($primaryKey)) {
                 unset($primaryKey['languageId']);
 
-                if (count($primaryKey) === 1) {
-                    $primaryKey = array_shift($primaryKey);
+                if (\count($primaryKey) === 1) {
+                    $primaryKey = \array_shift($primaryKey);
                 }
             }
 
@@ -115,9 +115,9 @@ class WriteResultMerger
             ->getPrimaryKeys()
             ->getKeys();
 
-        return array_diff_key(
+        return \array_diff_key(
             $translationResult->getPayload(),
-            array_flip($pks)
+            \array_flip($pks)
         );
     }
 }

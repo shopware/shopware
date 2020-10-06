@@ -26,13 +26,13 @@ class ReadProtected extends Flag
 
     public function getProtectedSources(): array
     {
-        return array_keys($this->protectedSources);
+        return \array_keys($this->protectedSources);
     }
 
     public function isBaseUrlAllowed(string $baseUrl): bool
     {
         foreach ($this->protectedSources as $url) {
-            if (mb_strpos($baseUrl, $url) !== false) {
+            if (\mb_strpos($baseUrl, $url) !== false) {
                 return false;
             }
         }
@@ -48,7 +48,7 @@ class ReadProtected extends Flag
     public function parse(): \Generator
     {
         yield 'read_protected' => [
-            array_keys($this->protectedSources),
+            \array_keys($this->protectedSources),
         ];
     }
 }

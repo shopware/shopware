@@ -114,7 +114,7 @@ class EntityHydrator
         $fields = $definition->getFields();
 
         $identifier = self::buildUniqueIdentifier($definition, $row, $root);
-        $identifier = implode('-', $identifier);
+        $identifier = \implode('-', $identifier);
 
         $entity->setUniqueIdentifier($identifier);
         $entity->internalSetEntityName($definition->getEntityName());
@@ -176,7 +176,7 @@ class EntityHydrator
             }
 
             /* @var StorageAware $field */
-            if (!array_key_exists($originalKey, $row)) {
+            if (!\array_key_exists($originalKey, $row)) {
                 continue;
             }
 
@@ -202,7 +202,7 @@ class EntityHydrator
                 $chain = EntityDefinitionQueryHelper::buildTranslationChain($root, $context, $inherited);
 
                 // assign translated value of the first language
-                $key = array_shift($chain) . '.' . $propertyName;
+                $key = \array_shift($chain) . '.' . $propertyName;
 
                 $decoded = $typedField->getSerializer()->decode($typedField, $row[$key]);
                 $entity->assign([$propertyName => $decoded]);
@@ -232,15 +232,15 @@ class EntityHydrator
         $accessor = $root . '.' . $field->getPropertyName() . '.id_mapping';
 
         //many to many isn't loaded in case of limited association criterias
-        if (!array_key_exists($accessor, $row)) {
+        if (!\array_key_exists($accessor, $row)) {
             return null;
         }
 
         //explode hexed ids
-        $ids = explode('||', (string) $row[$accessor]);
+        $ids = \explode('||', (string) $row[$accessor]);
 
         //sql do not cast to lower
-        return array_map('strtolower', array_filter($ids));
+        return \array_map('strtolower', \array_filter($ids));
     }
 
     private function hydrateManyToOne(array $row, string $root, Context $context, AssociationField $field): ?Entity
@@ -348,7 +348,7 @@ class EntityHydrator
     {
         $merged = [];
         foreach ($jsonStrings as $string) {
-            $decoded = json_decode((string) $string, true);
+            $decoded = \json_decode((string) $string, true);
 
             if (!$decoded) {
                 continue;
@@ -363,6 +363,6 @@ class EntityHydrator
             }
         }
 
-        return json_encode($merged, JSON_PRESERVE_ZERO_FRACTION);
+        return \json_encode($merged, JSON_PRESERVE_ZERO_FRACTION);
     }
 }

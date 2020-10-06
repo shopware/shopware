@@ -51,7 +51,7 @@ class ChangelogReleaseCommand extends Command
 
                 return $version;
             });
-        if (!preg_match("/^\d+(\.\d+){3}$/", $version)) {
+        if (!\preg_match("/^\d+(\.\d+){3}$/", $version)) {
             throw new \RuntimeException('Invalid version of release. It should be 4-digits type');
         }
 

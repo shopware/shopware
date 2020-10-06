@@ -154,7 +154,7 @@ class RuleValidator implements EventSubscriberInterface
     private function getConditionType(?RuleConditionEntity $condition, array $payload): ?string
     {
         $type = $condition !== null ? $condition->getType() : null;
-        if (array_key_exists('type', $payload)) {
+        if (\array_key_exists('type', $payload)) {
             $type = $payload['type'];
         }
 
@@ -165,7 +165,7 @@ class RuleValidator implements EventSubscriberInterface
     {
         $value = $condition !== null ? $condition->getValue() : [];
         if (isset($payload['value']) && $payload['value'] !== null) {
-            $value = json_decode($payload['value'], true);
+            $value = \json_decode($payload['value'], true);
         }
 
         return $value ?? [];
@@ -183,7 +183,7 @@ class RuleValidator implements EventSubscriberInterface
         }
 
         foreach ($payload as $fieldName => $_value) {
-            if (!array_key_exists($fieldName, $fieldValidations) && $fieldName !== '_name') {
+            if (!\array_key_exists($fieldName, $fieldValidations) && $fieldName !== '_name') {
                 $violationList->add(
                     $this->buildViolation(
                         'The property "{{ fieldName }}" is not allowed.',
@@ -213,7 +213,7 @@ class RuleValidator implements EventSubscriberInterface
 
     private function getSavedConditions(array $commandQueue, Context $context): EntityCollection
     {
-        $ids = array_map(function ($command) {
+        $ids = \array_map(function ($command) {
             $uuidBytes = $command->getPrimaryKey()['id'];
 
             return Uuid::fromBytesToHex($uuidBytes);
@@ -234,7 +234,7 @@ class RuleValidator implements EventSubscriberInterface
         ?string $code = null
     ): ConstraintViolationInterface {
         return new ConstraintViolation(
-            str_replace(array_keys($parameters), array_values($parameters), $messageTemplate),
+            \str_replace(\array_keys($parameters), \array_values($parameters), $messageTemplate),
             $messageTemplate,
             $parameters,
             $root,

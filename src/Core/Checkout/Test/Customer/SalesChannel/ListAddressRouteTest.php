@@ -53,7 +53,7 @@ class ListAddressRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $response['contextToken']);
     }
@@ -68,7 +68,7 @@ class ListAddressRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame(1, $response['total']);
         static::assertNotEmpty($response['elements']);
@@ -95,7 +95,7 @@ class ListAddressRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame(1, $response['total']);
         static::assertNotEmpty($response['elements']);

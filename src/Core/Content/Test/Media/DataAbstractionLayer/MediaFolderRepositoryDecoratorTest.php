@@ -119,7 +119,7 @@ class MediaFolderRepositoryDecoratorTest extends TestCase
 
         $mediaPath = $this->getContainer()->get(UrlGeneratorInterface::class)->getRelativeMediaUrl($media);
 
-        $this->getPublicFilesystem()->putStream($mediaPath, fopen(self::FIXTURE_FILE, 'rb'));
+        $this->getPublicFilesystem()->putStream($mediaPath, \fopen(self::FIXTURE_FILE, 'rb'));
 
         $this->folderRepository->delete([['id' => $folderId]], $this->context);
 
@@ -178,8 +178,8 @@ class MediaFolderRepositoryDecoratorTest extends TestCase
         $childMediaPath = $this->getContainer()->get(UrlGeneratorInterface::class)->getRelativeMediaUrl($media->get($childMediaId));
         $parentMediaPath = $this->getContainer()->get(UrlGeneratorInterface::class)->getRelativeMediaUrl($media->get($parentMediaId));
 
-        $this->getPublicFilesystem()->putStream($childMediaPath, fopen(self::FIXTURE_FILE, 'rb'));
-        $this->getPublicFilesystem()->putStream($parentMediaPath, fopen(self::FIXTURE_FILE, 'rb'));
+        $this->getPublicFilesystem()->putStream($childMediaPath, \fopen(self::FIXTURE_FILE, 'rb'));
+        $this->getPublicFilesystem()->putStream($parentMediaPath, \fopen(self::FIXTURE_FILE, 'rb'));
 
         $this->folderRepository->delete([['id' => $parentFolderId]], $this->context);
 
@@ -239,8 +239,8 @@ class MediaFolderRepositoryDecoratorTest extends TestCase
         $childMediaPath = $this->getContainer()->get(UrlGeneratorInterface::class)->getRelativeMediaUrl($media->get($childMediaId));
         $parentMediaPath = $this->getContainer()->get(UrlGeneratorInterface::class)->getRelativeMediaUrl($media->get($parentMediaId));
 
-        $this->getPublicFilesystem()->putStream($childMediaPath, fopen(self::FIXTURE_FILE, 'rb'));
-        $this->getPublicFilesystem()->putStream($parentMediaPath, fopen(self::FIXTURE_FILE, 'rb'));
+        $this->getPublicFilesystem()->putStream($childMediaPath, \fopen(self::FIXTURE_FILE, 'rb'));
+        $this->getPublicFilesystem()->putStream($parentMediaPath, \fopen(self::FIXTURE_FILE, 'rb'));
 
         $this->folderRepository->delete([['id' => $childFolderId]], $this->context);
 
@@ -300,8 +300,8 @@ class MediaFolderRepositoryDecoratorTest extends TestCase
         $childMediaPath = $this->getContainer()->get(UrlGeneratorInterface::class)->getRelativeMediaUrl($media->get($childMediaId));
         $parentMediaPath = $this->getContainer()->get(UrlGeneratorInterface::class)->getRelativeMediaUrl($media->get($parentMediaId));
 
-        $this->getPublicFilesystem()->putStream($childMediaPath, fopen(self::FIXTURE_FILE, 'rb'));
-        $this->getPublicFilesystem()->putStream($parentMediaPath, fopen(self::FIXTURE_FILE, 'rb'));
+        $this->getPublicFilesystem()->putStream($childMediaPath, \fopen(self::FIXTURE_FILE, 'rb'));
+        $this->getPublicFilesystem()->putStream($parentMediaPath, \fopen(self::FIXTURE_FILE, 'rb'));
 
         $this->folderRepository->delete([['id' => $parentFolderId], ['id' => $childFolderId]], $this->context);
 
@@ -361,8 +361,8 @@ class MediaFolderRepositoryDecoratorTest extends TestCase
         $childMediaPath = $this->getContainer()->get(UrlGeneratorInterface::class)->getRelativeMediaUrl($media->get($childMediaId));
         $parentMediaPath = $this->getContainer()->get(UrlGeneratorInterface::class)->getRelativeMediaUrl($media->get($parentMediaId));
 
-        $this->getPublicFilesystem()->putStream($childMediaPath, fopen(self::FIXTURE_FILE, 'rb'));
-        $this->getPublicFilesystem()->putStream($parentMediaPath, fopen(self::FIXTURE_FILE, 'rb'));
+        $this->getPublicFilesystem()->putStream($childMediaPath, \fopen(self::FIXTURE_FILE, 'rb'));
+        $this->getPublicFilesystem()->putStream($parentMediaPath, \fopen(self::FIXTURE_FILE, 'rb'));
 
         $this->folderRepository->delete([['id' => $childFolderId], ['id' => $parentFolderId]], $this->context);
 

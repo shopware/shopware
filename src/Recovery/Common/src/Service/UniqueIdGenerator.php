@@ -19,8 +19,8 @@ class UniqueIdGenerator
 
     public function getUniqueId(): string
     {
-        if (file_exists($this->cacheFilePath)) {
-            return file_get_contents($this->cacheFilePath);
+        if (\file_exists($this->cacheFilePath)) {
+            return \file_get_contents($this->cacheFilePath);
         }
 
         $uniqueId = $this->generateUniqueId();
@@ -39,9 +39,9 @@ class UniqueIdGenerator
     public function generateUniqueId($length = 32, $keyspace = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ')
     {
         $str = '';
-        $max = mb_strlen($keyspace, '8bit') - 1;
+        $max = \mb_strlen($keyspace, '8bit') - 1;
         for ($i = 0; $i < $length; ++$i) {
-            $str .= $keyspace[random_int(0, $max)];
+            $str .= $keyspace[\random_int(0, $max)];
         }
 
         return $str;
@@ -52,6 +52,6 @@ class UniqueIdGenerator
      */
     private function saveUniqueId($uniqueId): void
     {
-        file_put_contents($this->cacheFilePath, $uniqueId);
+        \file_put_contents($this->cacheFilePath, $uniqueId);
     }
 }

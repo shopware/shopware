@@ -37,7 +37,7 @@ class ConfigurationService
      */
     public function getConfiguration(string $domain): array
     {
-        $validDomain = preg_match('/^([\w-]+)\.?([\w-]*)$/', $domain, $match);
+        $validDomain = \preg_match('/^([\w-]+)\.?([\w-]*)$/', $domain, $match);
 
         if (!$validDomain) {
             throw new \InvalidArgumentException('Expected domain');
@@ -54,7 +54,7 @@ class ConfigurationService
 
         $config = $this->configReader->getConfigFromBundle($bundle, $configName);
 
-        $domain = rtrim($domain, '.') . '.';
+        $domain = \rtrim($domain, '.') . '.';
 
         foreach ($config as $i => $card) {
             foreach ($card['elements'] as $j => $field) {
@@ -70,7 +70,7 @@ class ConfigurationService
                     }
                 }
 
-                if (array_key_exists('type', $field)) {
+                if (\array_key_exists('type', $field)) {
                     $newField['type'] = $field['type'];
                 }
 
@@ -100,7 +100,7 @@ class ConfigurationService
 
     private function getBundle(string $bundleName): ?BundleInterface
     {
-        $class = array_slice(explode('\\', $bundleName), -1)[0];
+        $class = \array_slice(\explode('\\', $bundleName), -1)[0];
         foreach ($this->bundles as $bundle) {
             if ($bundle->getName() === $class) {
                 return $bundle;

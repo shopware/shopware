@@ -187,14 +187,14 @@ class ProcessorTest extends TestCase
 
         static::assertCount(2, $creditCalculatedTaxes = $creditLineItem->getPrice()->getCalculatedTaxes()->getElements());
 
-        $calculatedTaxForCustomItem = array_filter($creditCalculatedTaxes, function (CalculatedTax $tax) use ($taxForCustomItem) {
+        $calculatedTaxForCustomItem = \array_filter($creditCalculatedTaxes, function (CalculatedTax $tax) use ($taxForCustomItem) {
             return (int) $tax->getTaxRate() === $taxForCustomItem;
         });
 
         static::assertNotEmpty($calculatedTaxForCustomItem);
         static::assertCount(1, $calculatedTaxForCustomItem);
 
-        $calculatedTaxForProductItem = array_filter($creditCalculatedTaxes, function (CalculatedTax $tax) use ($taxForProductItem) {
+        $calculatedTaxForProductItem = \array_filter($creditCalculatedTaxes, function (CalculatedTax $tax) use ($taxForProductItem) {
             return (int) $tax->getTaxRate() === $taxForProductItem;
         });
 
@@ -279,14 +279,14 @@ class ProcessorTest extends TestCase
 
         static::assertCount(2, $shippingCalculatedTaxes = $delivery->getShippingCosts()->getCalculatedTaxes()->getElements());
 
-        $calculatedTaxForCustomItem = array_filter($shippingCalculatedTaxes, function (CalculatedTax $tax) use ($taxForCustomItem) {
+        $calculatedTaxForCustomItem = \array_filter($shippingCalculatedTaxes, function (CalculatedTax $tax) use ($taxForCustomItem) {
             return (int) $tax->getTaxRate() === $taxForCustomItem;
         });
 
         static::assertNotEmpty($calculatedTaxForCustomItem);
         static::assertCount(1, $calculatedTaxForCustomItem);
 
-        $calculatedTaxForProductItem = array_filter($shippingCalculatedTaxes, function (CalculatedTax $tax) use ($taxForProductItem) {
+        $calculatedTaxForProductItem = \array_filter($shippingCalculatedTaxes, function (CalculatedTax $tax) use ($taxForProductItem) {
             return (int) $tax->getTaxRate() === $taxForProductItem;
         });
 

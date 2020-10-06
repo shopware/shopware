@@ -275,7 +275,7 @@ class CrossSellingRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertCount(1, $response);
         static::assertArrayHasKey('crossSelling', $response[0]);
@@ -284,17 +284,17 @@ class CrossSellingRouteTest extends TestCase
         static::assertEquals('Test Cross Selling', $response[0]['crossSelling']['name']);
 
         $expected = ['id', 'name', 'apiAlias'];
-        sort($expected);
+        \sort($expected);
 
-        $properties = array_keys($response[0]['crossSelling']);
-        sort($properties);
+        $properties = \array_keys($response[0]['crossSelling']);
+        \sort($properties);
         static::assertEquals($expected, $properties);
 
         static::assertArrayHasKey('products', $response[0]);
         static::assertCount(5, $response[0]['products']);
 
-        $properties = array_keys($response[0]['products'][0]);
-        sort($properties);
+        $properties = \array_keys($response[0]['products'][0]);
+        \sort($properties);
         static::assertEquals($expected, $properties);
     }
 
@@ -433,7 +433,7 @@ class CrossSellingRouteTest extends TestCase
         /** @var EntityRepositoryInterface $streamRepository */
         $streamRepository = $this->getContainer()->get('product_stream.repository');
         $id = Uuid::randomHex();
-        $randomProductIds = implode('|', array_column($this->createProducts($includesIsCloseoutProducts, $noStock), 'id'));
+        $randomProductIds = \implode('|', \array_column($this->createProducts($includesIsCloseoutProducts, $noStock), 'id'));
 
         $streamRepository->create([
             [
@@ -455,7 +455,7 @@ class CrossSellingRouteTest extends TestCase
     private function createAssignedProducts(?bool $includesIsCloseoutProducts = false, ?bool $noStock = false): array
     {
         $assignedProducts = [];
-        $randomProductIds = array_column($this->createProducts($includesIsCloseoutProducts, $noStock), 'id');
+        $randomProductIds = \array_column($this->createProducts($includesIsCloseoutProducts, $noStock), 'id');
 
         foreach ($randomProductIds as $index => $productId) {
             $assignedProducts[] = [
@@ -490,14 +490,14 @@ class CrossSellingRouteTest extends TestCase
         }
 
         $this->productRepository->create($products, $this->salesChannelContext->getContext());
-        $this->addTaxDataToSalesChannel($this->salesChannelContext, end($products)['tax']);
+        $this->addTaxDataToSalesChannel($this->salesChannelContext, \end($products)['tax']);
 
         return $products;
     }
 
     private function getProductData(?string $id = null, ?string $manufacturerId = null, ?string $taxId = null, ?int $stock = 1, ?bool $isCloseout = false): array
     {
-        $price = random_int(0, 10);
+        $price = \random_int(0, 10);
 
         $product = [
             'id' => $id ?? Uuid::randomHex(),

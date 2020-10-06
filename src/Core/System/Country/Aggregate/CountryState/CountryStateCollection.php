@@ -31,13 +31,13 @@ class CountryStateCollection extends EntityCollection
 
     public function sortByPositionAndName(): void
     {
-        uasort($this->elements, function (CountryStateEntity $a, CountryStateEntity $b) {
+        \uasort($this->elements, function (CountryStateEntity $a, CountryStateEntity $b) {
             if ($a->getPosition() !== $b->getPosition()) {
                 return $a->getPosition() <=> $b->getPosition();
             }
 
             if ($a->getTranslation('name') !== $b->getTranslation('name')) {
-                return strnatcasecmp($a->getTranslation('name'), $b->getTranslation('name'));
+                return \strnatcasecmp($a->getTranslation('name'), $b->getTranslation('name'));
             }
 
             return 0;

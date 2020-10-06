@@ -54,7 +54,7 @@ class Migration1575293069OrderMailTemplates extends MigrationStep
         SELECT `id` from `mail_template` WHERE `mail_template_type_id` = :typeId AND `system_default` = 1 AND `updated_at` IS NULL
         ', ['typeId' => $templateTypeId])->fetchColumn();
 
-        if ($templateId === false || !is_string($templateId)) {
+        if ($templateId === false || !\is_string($templateId)) {
             return null;
         }
 

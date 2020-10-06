@@ -125,7 +125,7 @@ class PriceFieldSerializerTest extends TestCase
             new WriteCommandQueue()
         );
 
-        $data = iterator_to_array($this->serializer->encode($field, $existence, $keyPair, $bag), true);
+        $data = \iterator_to_array($this->serializer->encode($field, $existence, $keyPair, $bag), true);
 
         return $data['test'];
     }

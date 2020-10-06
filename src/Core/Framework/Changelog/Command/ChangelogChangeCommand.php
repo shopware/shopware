@@ -50,7 +50,7 @@ class ChangelogChangeCommand extends Command
 
         /** @var string $version */
         $version = $input->getArgument('version');
-        if (!empty($version) && !preg_match("/^\d+(\.\d+){3}$/", $version)) {
+        if (!empty($version) && !\preg_match("/^\d+(\.\d+){3}$/", $version)) {
             throw new \RuntimeException('Invalid version of release. It should be 4-digits type');
         }
 
@@ -65,7 +65,7 @@ class ChangelogChangeCommand extends Command
         /** @var string $path */
         $path = $input->getOption('path') ?: '';
         if (!empty($path)) {
-            file_put_contents($path, implode("\n", $output));
+            \file_put_contents($path, \implode("\n", $output));
             $IOHelper->writeln('* Pushed all changelogs into ' . $path);
         } else {
             $IOHelper->writeln($output);
@@ -87,6 +87,6 @@ class ChangelogChangeCommand extends Command
             'upgrade' => $input->getOption('upgrade'),
         ];
 
-        return in_array(true, array_values($requested), true) ? $requested : array_fill_keys(array_keys($requested), true);
+        return \in_array(true, \array_values($requested), true) ? $requested : \array_fill_keys(\array_keys($requested), true);
     }
 }

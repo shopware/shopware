@@ -47,6 +47,6 @@ class MessageFailedHandler implements EventSubscriberInterface
      */
     private function getMessageName($message): string
     {
-        return $message instanceof Envelope ? get_class($message->getMessage()) : get_class($message);
+        return $message instanceof Envelope ? \get_class($message->getMessage()) : \get_class($message);
     }
 }

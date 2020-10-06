@@ -83,8 +83,8 @@ class CleanPersonalDataCommandTest extends TestCase
 
     public function testCommandRemovesOnlyGuestsByDays(): void
     {
-        $numberOfGuests = random_int(2, 6);
-        $numberOfNoGuests = random_int(1, $numberOfGuests);
+        $numberOfGuests = \random_int(2, 6);
+        $numberOfNoGuests = \random_int(1, $numberOfGuests);
 
         for ($i = 0; $i < $numberOfGuests; ++$i) {
             $this->createGuest();
@@ -125,7 +125,7 @@ class CleanPersonalDataCommandTest extends TestCase
 
     public function testCommandRemovesMultipleGuests(): void
     {
-        $numberOfGuests = random_int(2, 5);
+        $numberOfGuests = \random_int(2, 5);
 
         for ($i = 0; $i < $numberOfGuests; ++$i) {
             $this->createGuest();
@@ -180,7 +180,7 @@ class CleanPersonalDataCommandTest extends TestCase
 
     public function testCommandRemovesMultipleCarts(): void
     {
-        $numberOfCarts = random_int(2, 5);
+        $numberOfCarts = \random_int(2, 5);
 
         for ($i = 0; $i < $numberOfCarts; ++$i) {
             $this->createCartWithCreatedAtDateTime(new \Datetime());

@@ -31,15 +31,15 @@ class ReadProtectedFlagTest extends TestCase
 
         $repository->create([$data], Context::createDefaultContext());
 
-        $url = sprintf(
+        $url = \sprintf(
             '/api/v%s/media',
             PlatformRequest::API_VERSION
         );
 
         $this->getBrowser()->request('GET', $url);
 
-        $data = json_decode($this->getBrowser()->getResponse()->getContent(), true);
-        static::assertArrayHasKey('data', $data, print_r($data, true));
+        $data = \json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        static::assertArrayHasKey('data', $data, \print_r($data, true));
 
         $data = $data['data'];
         static::assertArrayNotHasKey('thumbnailsRo', $data[0]['attributes']);
@@ -60,7 +60,7 @@ class ReadProtectedFlagTest extends TestCase
 
         $repository->create([$data], Context::createDefaultContext());
 
-        $url = sprintf(
+        $url = \sprintf(
             '/api/v%s/media',
             PlatformRequest::API_VERSION
         );
@@ -69,8 +69,8 @@ class ReadProtectedFlagTest extends TestCase
         $browser->setServerParameter('HTTP_ACCEPT', 'application/json');
         $browser->request('GET', $url);
 
-        $data = json_decode($browser->getResponse()->getContent(), true);
-        static::assertArrayHasKey('data', $data, print_r($data, true));
+        $data = \json_decode($browser->getResponse()->getContent(), true);
+        static::assertArrayHasKey('data', $data, \print_r($data, true));
 
         $data = $data['data'];
         static::assertArrayNotHasKey('thumbnailsRo', $data[0]);
@@ -115,17 +115,17 @@ class ReadProtectedFlagTest extends TestCase
 
         $repository->create([$data], Context::createDefaultContext());
 
-        $url = sprintf(
+        $url = \sprintf(
             '/sales-channel-api/v%s/product?associations[cover][]',
             PlatformRequest::API_VERSION
         );
 
         $browser->request('GET', $url);
-        $data = json_decode($browser->getResponse()->getContent(), true);
-        static::assertArrayHasKey('included', $data, print_r($data, true));
+        $data = \json_decode($browser->getResponse()->getContent(), true);
+        static::assertArrayHasKey('included', $data, \print_r($data, true));
 
         foreach ($data['included'] as $included) {
-            if (!array_key_exists('type', $included) || $included['type'] !== 'media') {
+            if (!\array_key_exists('type', $included) || $included['type'] !== 'media') {
                 continue;
             }
             static::assertArrayNotHasKey('thumbnailsRo', $included['attributes']);
@@ -174,14 +174,14 @@ class ReadProtectedFlagTest extends TestCase
 
         $repository->create([$data], Context::createDefaultContext());
 
-        $url = sprintf(
+        $url = \sprintf(
             '/sales-channel-api/v%s/product?associations[cover][]',
             PlatformRequest::API_VERSION
         );
 
         $browser->request('GET', $url);
-        $data = json_decode($browser->getResponse()->getContent(), true);
-        static::assertArrayHasKey('data', $data, print_r($data, true));
+        $data = \json_decode($browser->getResponse()->getContent(), true);
+        static::assertArrayHasKey('data', $data, \print_r($data, true));
         $data = $data['data'];
 
         $product = $data[0];

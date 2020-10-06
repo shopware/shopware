@@ -24,17 +24,17 @@ class MigrationForeignDefaultLanguageTest extends TestCase
 
     public function setUp(): void
     {
-        $this->databaseName = substr(parse_url($_SERVER['DATABASE_URL'])['path'], 1) . '_no_migrations';
+        $this->databaseName = \substr(\parse_url($_SERVER['DATABASE_URL'])['path'], 1) . '_no_migrations';
         $testDb = ($_SERVER['DATABASE_URL'] ?? '') . '_no_migrations';
-        putenv('DATABASE_URL=' . $testDb);
+        \putenv('DATABASE_URL=' . $testDb);
         $_ENV['DATABASE_URL'] = $testDb;
         $_SERVER['DATABASE_URL'] = $testDb;
     }
 
     public function tearDown(): void
     {
-        $testDb = str_replace('_no_migrations', '', $_SERVER['DATABASE_URL']);
-        putenv('DATABASE_URL=' . $testDb);
+        $testDb = \str_replace('_no_migrations', '', $_SERVER['DATABASE_URL']);
+        \putenv('DATABASE_URL=' . $testDb);
         $_ENV['DATABASE_URL'] = $testDb;
         $_SERVER['DATABASE_URL'] = $testDb;
     }
@@ -289,7 +289,7 @@ class MigrationForeignDefaultLanguageTest extends TestCase
         $orgConnection->exec('CREATE DATABASE `' . $this->databaseName . '` DEFAULT CHARACTER SET utf8mb4 DEFAULT COLLATE utf8mb4_unicode_ci');
 
         $connection = new Connection(
-            array_merge(
+            \array_merge(
                 $orgConnection->getParams(),
                 [
                     'url' => $_SERVER['DATABASE_URL'],
@@ -301,8 +301,8 @@ class MigrationForeignDefaultLanguageTest extends TestCase
             $orgConnection->getEventManager()
         );
 
-        if (file_exists(__DIR__ . '/../../schema.sql')) {
-            $dumpFile = file_get_contents(__DIR__ . '/../../schema.sql');
+        if (\file_exists(__DIR__ . '/../../schema.sql')) {
+            $dumpFile = \file_get_contents(__DIR__ . '/../../schema.sql');
         } else {
             static::fail('schema.sql not found in ' . __DIR__ . '/../../schema.sql');
         }

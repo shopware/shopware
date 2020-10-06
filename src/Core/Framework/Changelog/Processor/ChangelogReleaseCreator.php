@@ -61,12 +61,12 @@ class ChangelogReleaseCreator extends ChangelogProcessor
     private function releaseChangelogGlobal(array &$output, string $version, ChangelogFileCollection $collection, bool $dryRun = false): void
     {
         $append = [];
-        $append[] = sprintf('## %s', $version);
+        $append[] = \sprintf('## %s', $version);
 
         $releaseDir = $this->getTargetReleaseDir($version, false);
 
         foreach ($collection as $changelog) {
-            $log = sprintf(
+            $log = \sprintf(
                 '*  [%s - %s](/changelog/%s)',
                 $changelog->getDefinition()->getIssue(),
                 $changelog->getDefinition()->getTitle(),
@@ -76,31 +76,31 @@ class ChangelogReleaseCreator extends ChangelogProcessor
             $author = $changelog->getDefinition()->getAuthor() ?? '';
             $authorEmail = $changelog->getDefinition()->getAuthorEmail() ?? '';
             $github = $changelog->getDefinition()->getAuthorGitHub() ?? '';
-            if (!empty($author) && !empty($github) && !empty($authorEmail) && strpos($authorEmail, '@shopware.com') === false) {
-                $log .= sprintf(' ([%s](https://github.com/%s))', $author, str_replace('@', '', $github));
+            if (!empty($author) && !empty($github) && !empty($authorEmail) && \strpos($authorEmail, '@shopware.com') === false) {
+                $log .= \sprintf(' ([%s](https://github.com/%s))', $author, \str_replace('@', '', $github));
             }
 
             $append[] = $log;
         }
 
         if (!$dryRun) {
-            $content = file_get_contents($this->changelogGlobal) ?: '';
+            $content = \file_get_contents($this->changelogGlobal) ?: '';
 
-            $posLatestRelease = strpos($content, '## ');
+            $posLatestRelease = \strpos($content, '## ');
             $posLatestRelease = $posLatestRelease ?: 0;
 
             $content
-                = substr($content, 0, $posLatestRelease)
-                . implode("\n", $append) . "\n\n"
-                . substr($content, $posLatestRelease);
-            file_put_contents($this->changelogGlobal, $content);
+                = \substr($content, 0, $posLatestRelease)
+                . \implode("\n", $append) . "\n\n"
+                . \substr($content, $posLatestRelease);
+            \file_put_contents($this->changelogGlobal, $content);
 
             $output[] = '* Update the CHANGELOG.md file';
         } else {
             $output[] = '---';
             $output[] = 'Update the CHANGELOG.md file';
             $output[] = '---';
-            $output[] = implode("\n", $append);
+            $output[] = \implode("\n", $append);
         }
     }
 
@@ -115,11 +115,11 @@ class ChangelogReleaseCreator extends ChangelogProcessor
                 $append[] = $upgrade;
             }
         }
-        if (!count($append)) {
+        if (!\count($append)) {
             return;
         }
 
-        array_unshift($append, sprintf('# %s', $version));
+        \array_unshift($append, \sprintf('# %s', $version));
 
         $upgradeFile = $this->getTargetUpgradeFile($version);
         if (!$dryRun) {
@@ -127,23 +127,23 @@ class ChangelogReleaseCreator extends ChangelogProcessor
                 $this->filesystem->touch($upgradeFile);
             }
 
-            $content = file_get_contents($upgradeFile) ?: '';
+            $content = \file_get_contents($upgradeFile) ?: '';
 
-            $posLatestRelease = strpos($content, '# ');
+            $posLatestRelease = \strpos($content, '# ');
             $posLatestRelease = $posLatestRelease ?: 0;
 
             $content
-                = substr($content, 0, $posLatestRelease)
-                . implode("\n", $append) . "\n\n"
-                . substr($content, $posLatestRelease);
-            file_put_contents($upgradeFile, $content);
+                = \substr($content, 0, $posLatestRelease)
+                . \implode("\n", $append) . "\n\n"
+                . \substr($content, $posLatestRelease);
+            \file_put_contents($upgradeFile, $content);
 
             $output[] = '* Update the Upgrade Information in: ' . $this->getTargetUpgradeFile($version, false);
         } else {
             $output[] = '---';
             $output[] = 'Update the Upgrade Information in: ' . $this->getTargetUpgradeFile($version, false);
             $output[] = '---';
-            $output[] = implode("\n", $append);
+            $output[] = \implode("\n", $append);
         }
     }
 }

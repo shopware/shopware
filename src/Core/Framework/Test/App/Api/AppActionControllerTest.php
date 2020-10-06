@@ -33,7 +33,7 @@ class AppActionControllerTest extends TestCase
     {
         $url = '/api/v' . PlatformRequest::API_VERSION . '/app-system/action-button/product/index';
         $this->getBrowser()->request('GET', $url);
-        $response = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $response = \json_decode($this->getBrowser()->getResponse()->getContent(), true);
 
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertArrayHasKey('actions', $response);
@@ -48,7 +48,7 @@ class AppActionControllerTest extends TestCase
 
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
 
-        $result = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $result = \json_decode($this->getBrowser()->getResponse()->getContent(), true);
         static::assertArrayHasKey('actions', $result);
 
         $result = $result['actions'];
@@ -66,7 +66,7 @@ class AppActionControllerTest extends TestCase
                 'action' => 'viewOrder',
                 'url' => 'https://swag-test.com/your-order',
                 'openNewTab' => true,
-                'icon' => base64_encode(file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/icon.png')),
+                'icon' => \base64_encode(\file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/icon.png')),
             ],
         ], $result);
     }
@@ -94,7 +94,7 @@ class AppActionControllerTest extends TestCase
         ];
 
         $this->appendNewResponse(new Response(200));
-        $this->getBrowser()->request('POST', $url, [], [], [], json_encode($postData));
+        $this->getBrowser()->request('POST', $url, [], [], [], \json_encode($postData));
 
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
 
@@ -103,13 +103,13 @@ class AppActionControllerTest extends TestCase
         static::assertEquals('POST', $request->getMethod());
         $body = $request->getBody()->getContents();
         static::assertJson($body);
-        $data = json_decode($body, true);
+        $data = \json_decode($body, true);
 
         /** @var ShopIdProvider $shopIdProvider */
         $shopIdProvider = $this->getContainer()->get(ShopIdProvider::class);
 
         $expectedSource = [
-            'url' => getenv('APP_URL'),
+            'url' => \getenv('APP_URL'),
             'appVersion' => $action->getApp()->getVersion(),
             'shopId' => $shopIdProvider->getShopId(),
         ];
@@ -144,7 +144,7 @@ class AppActionControllerTest extends TestCase
         $postData = ['ids' => []];
 
         $this->appendNewResponse(new Response(200));
-        $this->getBrowser()->request('POST', $url, [], [], [], json_encode($postData));
+        $this->getBrowser()->request('POST', $url, [], [], [], \json_encode($postData));
 
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
 
@@ -153,7 +153,7 @@ class AppActionControllerTest extends TestCase
         static::assertEquals('POST', $request->getMethod());
         $body = $request->getBody()->getContents();
         static::assertJson($body);
-        $data = json_decode($body, true);
+        $data = \json_decode($body, true);
 
         $expectedData = [
             'ids' => [],
@@ -170,7 +170,7 @@ class AppActionControllerTest extends TestCase
 
         $postData = ['ids' => []];
 
-        $this->getBrowser()->request('POST', $url, [], [], [], json_encode($postData));
+        $this->getBrowser()->request('POST', $url, [], [], [], \json_encode($postData));
 
         static::assertEquals(404, $this->getBrowser()->getResponse()->getStatusCode());
     }
@@ -183,7 +183,7 @@ class AppActionControllerTest extends TestCase
 
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
 
-        $result = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $result = \json_decode($this->getBrowser()->getResponse()->getContent(), true);
 
         // the query strings of the sources contain non-deterministic values like timestamps
         // they are validated in `\Swag\SaasConnect\Test\Core\Content\App\Action\ModuleLoaderTest::validateSources`
@@ -215,7 +215,7 @@ class AppActionControllerTest extends TestCase
 
     private function removeQueryStringsFromResult(array $result): array
     {
-        $queryString = parse_url($result['modules'][0]['modules'][0]['source'], PHP_URL_QUERY);
+        $queryString = \parse_url($result['modules'][0]['modules'][0]['source'], PHP_URL_QUERY);
         $result['modules'][0]['modules'][0]['source'] = \str_replace(
             '?' . $queryString,
             '',

@@ -211,7 +211,7 @@ class WebhookDispatcher implements EventDispatcherInterface
             if ($webhook->getApp() && $webhook->getApp()->getAppSecret()) {
                 $request = $request->withHeader(
                     'shopware-shop-signature',
-                    hash_hmac('sha256', $jsonPayload, $webhook->getApp()->getAppSecret())
+                    \hash_hmac('sha256', $jsonPayload, $webhook->getApp()->getAppSecret())
                 );
             }
 
@@ -279,7 +279,7 @@ class WebhookDispatcher implements EventDispatcherInterface
 
         foreach ($roles as $privilege) {
             $this->privileges[$eventName][Uuid::fromBytesToHex($privilege['id'])]
-                = new AclPrivilegeCollection(json_decode($privilege['privileges'], true));
+                = new AclPrivilegeCollection(\json_decode($privilege['privileges'], true));
         }
     }
 

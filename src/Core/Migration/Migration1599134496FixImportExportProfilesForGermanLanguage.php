@@ -82,8 +82,8 @@ SQL;
 
     private function checkIfInGermanData(array $englishRow, array $germanData): bool
     {
-        $germanProfileIds = array_column($germanData, 'import_export_profile_id');
+        $germanProfileIds = \array_column($germanData, 'import_export_profile_id');
 
-        return in_array($englishRow['import_export_profile_id'], $germanProfileIds, true);
+        return \in_array($englishRow['import_export_profile_id'], $germanProfileIds, true);
     }
 }

@@ -94,10 +94,10 @@ class InstallAppCommand extends Command
     {
         /** @var string $name */
         $name = $input->getArgument('name');
-        $manifestPath = sprintf('%s/%s/manifest.xml', $this->appDir, $name);
-        if (!is_file($manifestPath)) {
+        $manifestPath = \sprintf('%s/%s/manifest.xml', $this->appDir, $name);
+        if (!\is_file($manifestPath)) {
             $io->error(
-                sprintf(
+                \sprintf(
                     'No app with name "%s" found.
                     Please make sure that a folder with that name exist in the custom/apps folder
                     and that it contains a manifest.xml file.',
@@ -117,7 +117,7 @@ class InstallAppCommand extends Command
             $this->appPrinter->printPermissions($manifest, $io, true);
 
             if (!$io->confirm(
-                sprintf('Do you want to grant these permissions for app "%s"?', $manifest->getMetadata()->getName()),
+                \sprintf('Do you want to grant these permissions for app "%s"?', $manifest->getMetadata()->getName()),
                 false
             )) {
                 throw new UserAbortedCommandException();

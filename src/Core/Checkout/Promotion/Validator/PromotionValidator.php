@@ -73,7 +73,7 @@ class PromotionValidator implements EventSubscriberInterface
                 continue;
             }
 
-            switch (get_class($command->getDefinition())) {
+            switch (\get_class($command->getDefinition())) {
                 case PromotionDefinition::class:
 
                     /** @var string $promotionId */
@@ -141,7 +141,7 @@ class PromotionValidator implements EventSubscriberInterface
                 continue;
             }
 
-            switch (get_class($command->getDefinition())) {
+            switch (\get_class($command->getDefinition())) {
                 case PromotionDefinition::class:
                     $promotionIds[] = $command->getPrimaryKey()['id'];
 
@@ -218,7 +218,7 @@ class PromotionValidator implements EventSubscriberInterface
             $pattern = '';
         }
 
-        $trimmedCode = trim($code);
+        $trimmedCode = \trim($code);
 
         // if we have both a date from and until, make sure that
         // the dateUntil is always in the future.
@@ -253,7 +253,7 @@ class PromotionValidator implements EventSubscriberInterface
 
             // if our code length is greater than the trimmed one,
             // this means we have leading or trailing whitespaces
-            if (mb_strlen($code) > mb_strlen($trimmedCode)) {
+            if (\mb_strlen($code) > \mb_strlen($trimmedCode)) {
                 $violationList->add($this->buildViolation(
                     'Code may not have any leading or ending whitespaces',
                     $code,
@@ -472,7 +472,7 @@ class PromotionValidator implements EventSubscriberInterface
                 ->setParameter(':promotion_id', $promotionId);
         }
 
-        $existingIndividual = count($query->execute()->fetchAll()) > 0;
+        $existingIndividual = \count($query->execute()->fetchAll()) > 0;
 
         if ($existingIndividual) {
             return true;
@@ -494,6 +494,6 @@ class PromotionValidator implements EventSubscriberInterface
                 ->setParameter(':id', $promotionId);
         }
 
-        return count($query->execute()->fetchAll()) > 0;
+        return \count($query->execute()->fetchAll()) > 0;
     }
 }

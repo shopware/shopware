@@ -77,7 +77,7 @@ class AppPrinter
     public function printPermissions(Manifest $app, ShopwareStyle $io, bool $install): void
     {
         $io->caution(
-            sprintf(
+            \sprintf(
                 'App "%s" should be %s but requires following permissions:',
                 $app->getMetadata()->getName(),
                 $install ? 'installed' : 'updated'
@@ -105,7 +105,7 @@ class AppPrinter
         foreach ($permissions as $resource => $privileges) {
             $permissionTable[] = [
                 $resource,
-                implode(', ', array_unique($privileges)),
+                \implode(', ', \array_unique($privileges)),
             ];
         }
 

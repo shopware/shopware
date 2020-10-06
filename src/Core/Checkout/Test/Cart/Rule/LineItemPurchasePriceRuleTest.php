@@ -241,7 +241,7 @@ class LineItemPurchasePriceRuleTest extends TestCase
         $lineItemWithPurchasePrice = new LineItem(Uuid::randomHex(), 'product', null, 3);
         $lineItemWithPurchasePrice->setPayloadValue(
             'purchasePrices',
-            json_encode(new Price(
+            \json_encode(new Price(
                 Defaults::CURRENCY,
                 $purchasePriceNet,
                 $purchasePriceGross,

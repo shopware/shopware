@@ -27,8 +27,8 @@ class ListingPriceFieldSerializerTest extends TestCase
      */
     public function testDecode(array $array, $expected): void
     {
-        $result = $this->serializer->decode(new PriceField('test', 'test'), json_encode($array));
-        static::assertEquals($expected, json_decode(json_encode($result), true));
+        $result = $this->serializer->decode(new PriceField('test', 'test'), \json_encode($array));
+        static::assertEquals($expected, \json_decode(\json_encode($result), true));
     }
 
     public function decodeProvider(): iterable

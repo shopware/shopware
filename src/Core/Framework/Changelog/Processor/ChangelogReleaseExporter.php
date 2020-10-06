@@ -35,9 +35,9 @@ class ChangelogReleaseExporter extends ChangelogProcessor
         }
 
         if ($keysOnly) {
-            $output = [implode(', ', $output)];
+            $output = [\implode(', ', $output)];
         }
-        array_unshift($output, $version ? 'All changes made in the version ' . $version : 'All unreleased changes made at this moment', '===');
+        \array_unshift($output, $version ? 'All changes made in the version ' . $version : 'All unreleased changes made at this moment', '===');
 
         return $output;
     }
@@ -91,8 +91,8 @@ class ChangelogReleaseExporter extends ChangelogProcessor
             }
         }
 
-        if (count($changes)) {
-            $output = array_merge($output, ['# ' . $title], $changes, ['---']);
+        if (\count($changes)) {
+            $output = \array_merge($output, ['# ' . $title], $changes, ['---']);
         }
     }
 }

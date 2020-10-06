@@ -20,7 +20,7 @@ class MailerTransportFactory implements MailerTransportFactoryInterface
             case 'local':
                 return new \Swift_SendmailTransport($this->getSendMailCommandLineArgument($configService));
             default:
-                throw new \RuntimeException(sprintf('Invalid mail agent given "%s"', $emailAgent));
+                throw new \RuntimeException(\sprintf('Invalid mail agent given "%s"', $emailAgent));
         }
     }
 
@@ -84,7 +84,7 @@ class MailerTransportFactory implements MailerTransportFactoryInterface
         }
 
         if ($option !== '-bs' && $option !== '-t') {
-            throw new \RuntimeException(sprintf('Given sendmail option "%s" is invalid', $option));
+            throw new \RuntimeException(\sprintf('Given sendmail option "%s" is invalid', $option));
         }
 
         return $command . $option;

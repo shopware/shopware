@@ -101,7 +101,7 @@ class WebhookDispatcherTest extends TestCase
             'source' => [
                 'url' => $this->shopUrl,
             ],
-        ], json_decode($body, true));
+        ], \json_decode($body, true));
 
         static::assertFalse($request->hasHeader('shopware-shop-signature'));
     }
@@ -153,7 +153,7 @@ class WebhookDispatcherTest extends TestCase
         $body = $request->getBody()->getContents();
         static::assertJson($body);
 
-        $payload = json_decode($body, true);
+        $payload = \json_decode($body, true);
         $actualUpdatedFields = $payload['data']['payload'][0]['updatedFields'];
         unset($payload['data']['payload'][0]['updatedFields']);
 
@@ -352,10 +352,10 @@ class WebhookDispatcherTest extends TestCase
                 'appVersion' => '0.0.1',
                 'shopId' => $this->shopIdProvider->getShopId(),
             ],
-        ], json_decode($body, true));
+        ], \json_decode($body, true));
 
         static::assertEquals(
-            hash_hmac('sha256', $body, 's3cr3t'),
+            \hash_hmac('sha256', $body, 's3cr3t'),
             $request->getHeaderLine('shopware-shop-signature')
         );
     }
@@ -537,7 +537,7 @@ class WebhookDispatcherTest extends TestCase
         $body = $request->getBody()->getContents();
         static::assertJson($body);
 
-        $data = json_decode($body, true);
+        $data = \json_decode($body, true);
         static::assertEquals('first', $data['data']['payload']['customer']['firstName']);
         static::assertEquals('last', $data['data']['payload']['customer']['lastName']);
         unset($data['data']['payload']['customer']);
@@ -556,7 +556,7 @@ class WebhookDispatcherTest extends TestCase
         ], $data);
 
         static::assertEquals(
-            hash_hmac('sha256', $body, 's3cr3t'),
+            \hash_hmac('sha256', $body, 's3cr3t'),
             $request->getHeaderLine('shopware-shop-signature')
         );
     }
@@ -739,7 +739,7 @@ class WebhookDispatcherTest extends TestCase
         $body = $request->getBody()->getContents();
         static::assertJson($body);
 
-        $data = json_decode($body, true);
+        $data = \json_decode($body, true);
 
         static::assertEquals([
             'data' => [
@@ -761,7 +761,7 @@ class WebhookDispatcherTest extends TestCase
         ], $data);
 
         static::assertEquals(
-            hash_hmac('sha256', $body, 's3cr3t'),
+            \hash_hmac('sha256', $body, 's3cr3t'),
             $request->getHeaderLine('shopware-shop-signature')
         );
     }
@@ -867,7 +867,7 @@ class WebhookDispatcherTest extends TestCase
         $body = $request->getBody()->getContents();
         static::assertJson($body);
 
-        $data = json_decode($body, true);
+        $data = \json_decode($body, true);
 
         static::assertEquals([
             'data' => [
@@ -882,7 +882,7 @@ class WebhookDispatcherTest extends TestCase
         ], $data);
 
         static::assertEquals(
-            hash_hmac('sha256', $body, 's3cr3t'),
+            \hash_hmac('sha256', $body, 's3cr3t'),
             $request->getHeaderLine('shopware-shop-signature')
         );
     }

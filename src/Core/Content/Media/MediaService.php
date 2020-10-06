@@ -116,7 +116,7 @@ class MediaService
     public function fetchFile(Request $request, ?string $tempFile = null): MediaFile
     {
         if ($tempFile === null) {
-            $tempFile = tempnam(sys_get_temp_dir(), '');
+            $tempFile = \tempnam(\sys_get_temp_dir(), '');
         }
 
         $contentType = $request->headers->get('content_type');

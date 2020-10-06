@@ -34,7 +34,7 @@ class CustomFieldSetActionController extends AbstractController
 
         $entityNames = [];
         foreach ($definitions as $definition) {
-            if (count($definition->getFields()->filterInstance(CustomFields::class)) === 0) {
+            if (\count($definition->getFields()->filterInstance(CustomFields::class)) === 0) {
                 continue;
             }
             if ($definition instanceof EntityTranslationDefinition) {
@@ -42,7 +42,7 @@ class CustomFieldSetActionController extends AbstractController
             }
             $entityNames[] = $definition->getEntityName();
         }
-        sort($entityNames);
+        \sort($entityNames);
 
         return new JsonResponse($entityNames);
     }

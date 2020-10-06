@@ -77,10 +77,10 @@ class StoreApiInfoController
         ));
 
         $cspTemplate = $this->cspTemplates['administration'] ?? '';
-        $cspTemplate = trim($cspTemplate);
+        $cspTemplate = \trim($cspTemplate);
         if ($cspTemplate !== '') {
-            $csp = str_replace('%nonce%', $nonce, $cspTemplate);
-            $csp = str_replace(["\n", "\r"], ' ', $csp);
+            $csp = \str_replace('%nonce%', $nonce, $cspTemplate);
+            $csp = \str_replace(["\n", "\r"], ' ', $csp);
             $response->headers->set('Content-Security-Policy', $csp);
         }
 

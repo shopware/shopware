@@ -144,7 +144,7 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
      */
     private function parseGrouping(array $groupings, EntityDefinition $definition, Context $context): array
     {
-        $grouping = array_shift($groupings);
+        $grouping = \array_shift($groupings);
 
         $accessor = $this->criteriaParser->buildAccessor($definition, $grouping->getField(), $context);
         if (empty($groupings)) {
@@ -164,8 +164,8 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
     {
         $groupings = $criteria->getGroupFields();
 
-        if (count($groupings) === 1) {
-            $first = array_shift($groupings);
+        if (\count($groupings) === 1) {
+            $first = \array_shift($groupings);
 
             $accessor = $this->criteriaParser->buildAccessor($definition, $first->getField(), $context);
 
@@ -179,7 +179,7 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
         foreach ($groupings as $grouping) {
             $accessor = $this->criteriaParser->buildAccessor($definition, $grouping->getField(), $context);
 
-            $fields[] = sprintf(
+            $fields[] = \sprintf(
                 "
                 if (doc['%s'].size()==0) {
                     value = value + 'empty';
@@ -194,7 +194,7 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
         $script = '
             def value = \'\';
 
-            ' . implode(' ', $fields) . '
+            ' . \implode(' ', $fields) . '
 
             return value;
         ';

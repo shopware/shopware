@@ -21,10 +21,10 @@ class SupportedFeaturesService
     {
         $this->entities = [];
         foreach ($entities as $entityName) {
-            if (!is_string($entityName)) {
-                throw new \InvalidArgumentException(sprintf(
+            if (!\is_string($entityName)) {
+                throw new \InvalidArgumentException(\sprintf(
                     'Supported entities should be collection of strings. %s given.',
-                    gettype($entityName)
+                    \gettype($entityName)
                 ));
             }
             $this->entities[] = $entityName;
@@ -32,10 +32,10 @@ class SupportedFeaturesService
 
         $this->fileTypes = [];
         foreach ($fileTypes as $fileType) {
-            if (!is_string($fileType)) {
-                throw new \InvalidArgumentException(sprintf(
+            if (!\is_string($fileType)) {
+                throw new \InvalidArgumentException(\sprintf(
                     'Supported file types should be collection of strings. %s given',
-                    gettype($fileType)
+                    \gettype($fileType)
                 ));
             }
             $this->fileTypes[] = $fileType;
@@ -56,16 +56,16 @@ class SupportedFeaturesService
     {
         $twoGiB = 2 * 1024 * 1024 * 1024;
         $values = [
-            self::toBytes(ini_get('upload_max_filesize')),
-            self::toBytes(ini_get('post_max_size')),
+            self::toBytes(\ini_get('upload_max_filesize')),
+            self::toBytes(\ini_get('post_max_size')),
             $twoGiB, // 2 GiB as fallback, because file size is stored in MySQL INT column
         ];
 
-        $limits = array_filter($values, static function (int $value) {
+        $limits = \array_filter($values, static function (int $value) {
             return $value > 0;
         });
 
-        $min = min(...$limits);
+        $min = \min(...$limits);
         if ($min === false) {
             return $twoGiB;
         }
@@ -75,12 +75,12 @@ class SupportedFeaturesService
 
     private static function toBytes(string $value): int
     {
-        if (is_numeric($value)) {
+        if (\is_numeric($value)) {
             return (int) $value;
         }
-        $length = mb_strlen($value);
-        $qty = (int) mb_substr($value, 0, $length - 1);
-        $unit = mb_strtolower(mb_substr($value, $length - 1));
+        $length = \mb_strlen($value);
+        $qty = (int) \mb_substr($value, 0, $length - 1);
+        $unit = \mb_strtolower(\mb_substr($value, $length - 1));
         switch ($unit) {
             case 'k':
                 $qty *= 1024;

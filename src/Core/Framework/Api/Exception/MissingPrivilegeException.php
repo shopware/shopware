@@ -11,7 +11,7 @@ class MissingPrivilegeException extends ShopwareHttpException
 
     public function __construct(array $privilege = [])
     {
-        $errorMessage = json_encode([
+        $errorMessage = \json_encode([
             'message' => 'Missing privilege',
             'missingPrivileges' => $privilege,
         ]);

@@ -64,7 +64,7 @@ class SwitchDefaultAddressRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $response['contextToken']);
 
@@ -80,7 +80,7 @@ class SwitchDefaultAddressRouteTest extends TestCase
                 []
             );
 
-        $oldBillingId = json_decode($this->browser->getResponse()->getContent(), true)['defaultBillingAddressId'];
+        $oldBillingId = \json_decode($this->browser->getResponse()->getContent(), true)['defaultBillingAddressId'];
         static::assertNotSame($oldBillingId, $this->newAddressId);
 
         $this->browser
@@ -97,7 +97,7 @@ class SwitchDefaultAddressRouteTest extends TestCase
                 []
             );
 
-        $newBillingId = json_decode($this->browser->getResponse()->getContent(), true)['defaultBillingAddressId'];
+        $newBillingId = \json_decode($this->browser->getResponse()->getContent(), true)['defaultBillingAddressId'];
         static::assertSame($newBillingId, $this->newAddressId);
     }
 
@@ -110,7 +110,7 @@ class SwitchDefaultAddressRouteTest extends TestCase
                 []
             );
 
-        $oldShippingId = json_decode($this->browser->getResponse()->getContent(), true)['defaultShippingAddressId'];
+        $oldShippingId = \json_decode($this->browser->getResponse()->getContent(), true)['defaultShippingAddressId'];
         static::assertNotSame($oldShippingId, $this->newAddressId);
 
         $this->browser
@@ -127,7 +127,7 @@ class SwitchDefaultAddressRouteTest extends TestCase
                 []
             );
 
-        $newShippingId = json_decode($this->browser->getResponse()->getContent(), true)['defaultShippingAddressId'];
+        $newShippingId = \json_decode($this->browser->getResponse()->getContent(), true)['defaultShippingAddressId'];
         static::assertSame($newShippingId, $this->newAddressId);
     }
 
@@ -151,6 +151,6 @@ class SwitchDefaultAddressRouteTest extends TestCase
                 $data
             );
 
-        return json_decode($this->browser->getResponse()->getContent(), true)['id'];
+        return \json_decode($this->browser->getResponse()->getContent(), true)['id'];
     }
 }

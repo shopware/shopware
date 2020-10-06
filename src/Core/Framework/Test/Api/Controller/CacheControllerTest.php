@@ -50,7 +50,7 @@ class CacheControllerTest extends TestCase
         /** @var JsonResponse $response */
         $response = $this->getBrowser()->getResponse();
 
-        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r($response->getContent(), true));
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), \print_r($response->getContent(), true));
 
         static::assertFalse($this->cache->getItem('foo')->isHit());
         static::assertFalse($this->cache->getItem('bar')->isHit());
@@ -78,7 +78,7 @@ class CacheControllerTest extends TestCase
         /** @var JsonResponse $response */
         $response = $this->getBrowser()->getResponse();
 
-        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r($response->getContent(), true));
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), \print_r($response->getContent(), true));
 
         static::assertTrue($this->cache->getItem('foo')->isHit());
         static::assertTrue($this->cache->getItem('bar')->isHit());
@@ -91,7 +91,7 @@ class CacheControllerTest extends TestCase
         /** @var JsonResponse $response */
         $response = $this->getBrowser()->getResponse();
 
-        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($response->getContent(), true));
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), \print_r($response->getContent(), true));
         static::assertSame('{"environment":"test","httpCache":false,"cacheAdapter":"CacheDecorator"}', $response->getContent());
     }
 
@@ -102,6 +102,6 @@ class CacheControllerTest extends TestCase
         /** @var JsonResponse $response */
         $response = $this->getBrowser()->getResponse();
 
-        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r($response->getContent(), true));
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), \print_r($response->getContent(), true));
     }
 }

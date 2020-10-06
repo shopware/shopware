@@ -27,7 +27,7 @@ class BucketResult extends AggregationResult
 
     public function sort(\Closure $closure): void
     {
-        usort($this->buckets, $closure);
+        \usort($this->buckets, $closure);
     }
 
     public function getKeys(): array

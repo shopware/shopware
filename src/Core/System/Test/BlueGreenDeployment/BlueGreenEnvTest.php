@@ -13,17 +13,17 @@ class BlueGreenEnvTest extends TestCase
 
     public function testHasCorrectDefaultValue(): void
     {
-        static::assertSame($this->DEFAULT_ENV_VALUE, getenv('BLUE_GREEN_DEPLOYMENT'));
+        static::assertSame($this->DEFAULT_ENV_VALUE, \getenv('BLUE_GREEN_DEPLOYMENT'));
     }
 
     public function testCanChangeValueOfEnvVariable(): void
     {
         // saving the initial value so it can be restored after the test
-        $initialValue = (int) getenv('BLUE_GREEN_DEPLOYMENT');
+        $initialValue = (int) \getenv('BLUE_GREEN_DEPLOYMENT');
 
-        putenv('BLUE_GREEN_DEPLOYMENT=0');
+        \putenv('BLUE_GREEN_DEPLOYMENT=0');
 
-        static::assertSame('0', getenv('BLUE_GREEN_DEPLOYMENT'));
-        putenv('BLUE_GREEN_DEPLOYMENT=' . $initialValue);
+        static::assertSame('0', \getenv('BLUE_GREEN_DEPLOYMENT'));
+        \putenv('BLUE_GREEN_DEPLOYMENT=' . $initialValue);
     }
 }

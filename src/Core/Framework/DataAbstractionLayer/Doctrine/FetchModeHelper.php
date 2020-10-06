@@ -9,16 +9,16 @@ class FetchModeHelper
      */
     public static function keyPair(array $result): array
     {
-        $firstRow = current($result);
+        $firstRow = \current($result);
         if (empty($firstRow)) {
             return $result;
         }
 
-        list($keyName, $valueName) = array_keys($firstRow);
+        list($keyName, $valueName) = \array_keys($firstRow);
 
-        return array_combine(
-            array_column($result, $keyName),
-            array_column($result, $valueName)
+        return \array_combine(
+            \array_column($result, $keyName),
+            \array_column($result, $valueName)
         );
     }
 
@@ -27,13 +27,13 @@ class FetchModeHelper
      */
     public static function group(array $result): array
     {
-        $firstRow = current($result);
+        $firstRow = \current($result);
         if (empty($firstRow)) {
             return $result;
         }
 
-        $dataKeys = array_keys($firstRow);
-        $groupKey = array_shift($dataKeys);
+        $dataKeys = \array_keys($firstRow);
+        $groupKey = \array_shift($dataKeys);
 
         $rows = [];
         foreach ($result as $row) {
@@ -51,13 +51,13 @@ class FetchModeHelper
      */
     public static function groupUnique(array $result): array
     {
-        $firstRow = current($result);
+        $firstRow = \current($result);
         if (empty($firstRow)) {
             return $result;
         }
 
-        $dataKeys = array_keys($firstRow);
-        $groupKey = array_shift($dataKeys);
+        $dataKeys = \array_keys($firstRow);
+        $groupKey = \array_shift($dataKeys);
 
         $rows = [];
         foreach ($result as $row) {

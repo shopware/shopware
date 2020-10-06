@@ -93,7 +93,7 @@ class ModuleLoader
 
             /** @var string $secret */
             $secret = $app->getAppSecret();
-            $signature = hash_hmac('sha256', $uri->getQuery(), $secret);
+            $signature = \hash_hmac('sha256', $uri->getQuery(), $secret);
 
             $module['source'] = Uri::withQueryValue(
                 $uri,

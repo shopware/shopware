@@ -811,7 +811,7 @@ class LanguageValidatorTest extends TestCase
 
         foreach ($actualViolations as $violation) {
             $actual = [$violation['code'], $violation['source']['pointer']];
-            static::assertContains($actual, $expectedCodePathPairs, 'Not found in :' . var_export($expectedCodePathPairs, true));
+            static::assertContains($actual, $expectedCodePathPairs, 'Not found in :' . \var_export($expectedCodePathPairs, true));
         }
 
         static::assertCount(\count($expectedCodePathPairs), $actualViolations);
@@ -860,7 +860,7 @@ class LanguageValidatorTest extends TestCase
 
     protected function addDefaultLocales(array $languages): array
     {
-        return array_map(function ($lang) {
+        return \array_map(function ($lang) {
             return $this->addDefaultLocale($lang);
         }, $languages);
     }
@@ -879,7 +879,7 @@ class LanguageValidatorTest extends TestCase
 
     protected function addDefaultTranslationCodes(array $languages)
     {
-        return array_map(function ($lang) {
+        return \array_map(function ($lang) {
             return $this->addDefaultTranslationCode($lang);
         }, $languages);
     }

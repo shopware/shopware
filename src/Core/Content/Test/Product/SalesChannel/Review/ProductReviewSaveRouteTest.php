@@ -50,7 +50,7 @@ class ProductReviewSaveRouteTest extends TestCase
 
         static::assertEquals(403, $response->getStatusCode());
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertEquals($response['errors'][0]['code'], 'CHECKOUT__CUSTOMER_NOT_LOGGED_IN');
     }
@@ -67,9 +67,9 @@ class ProductReviewSaveRouteTest extends TestCase
         ]);
 
         $response = $this->browser->getResponse();
-        $content = json_decode($this->browser->getResponse()->getContent(), true);
+        $content = \json_decode($this->browser->getResponse()->getContent(), true);
 
-        static::assertEquals(204, $response->getStatusCode(), print_r($content, true));
+        static::assertEquals(204, $response->getStatusCode(), \print_r($content, true));
 
         $this->assertReviewCount(1);
     }
@@ -88,9 +88,9 @@ class ProductReviewSaveRouteTest extends TestCase
         ]);
 
         $response = $this->browser->getResponse();
-        $content = json_decode($this->browser->getResponse()->getContent(), true);
+        $content = \json_decode($this->browser->getResponse()->getContent(), true);
 
-        static::assertEquals(204, $response->getStatusCode(), print_r($content, true));
+        static::assertEquals(204, $response->getStatusCode(), \print_r($content, true));
 
         $this->assertReviewCount(1);
 
@@ -112,7 +112,7 @@ class ProductReviewSaveRouteTest extends TestCase
 
         static::assertEquals(400, $response->getStatusCode());
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertEquals($response['errors'][0]['source']['pointer'], '/title');
         static::assertEquals($response['errors'][1]['source']['pointer'], '/content');
@@ -142,7 +142,7 @@ class ProductReviewSaveRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $response['contextToken']);
     }

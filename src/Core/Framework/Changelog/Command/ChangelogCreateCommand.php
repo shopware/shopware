@@ -68,7 +68,7 @@ class ChangelogCreateCommand extends Command
             });
         $date = $input->getOption('date')
             ?? $IOHelper->ask('The date in `YYYY-MM-DD` format which the change will be applied', $default['date'], function ($date) {
-                if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
+                if (!\preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
                     throw new \RuntimeException('The date has to follow the format: YYYY-MM-DD');
                 }
 
@@ -101,11 +101,11 @@ class ChangelogCreateCommand extends Command
     {
         $process = new Process(['git', 'config', 'user.name']);
         $process->run();
-        $gitUser = trim($process->getOutput());
+        $gitUser = \trim($process->getOutput());
 
         $process = new Process(['git', 'config', 'user.email']);
         $process->run();
-        $gitEmail = trim($process->getOutput());
+        $gitEmail = \trim($process->getOutput());
 
         return [
             'date' => (new \DateTime())->setTimezone(new \DateTimeZone('UTC'))->format('Y-m-d'),

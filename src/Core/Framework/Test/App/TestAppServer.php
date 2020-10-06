@@ -60,7 +60,7 @@ class TestAppServer
     private function isRegistration(RequestInterface $request): bool
     {
         $path = $request->getUri()->getPath();
-        $pathElems = explode('/', $path);
+        $pathElems = \explode('/', $path);
 
         return ($pathElems[2] ?? '') === 'registration';
     }
@@ -81,7 +81,7 @@ class TestAppServer
     private function getAppname(RequestInterface $request): string
     {
         $path = $request->getUri()->getPath();
-        $pathElems = explode('/', $path);
+        $pathElems = \explode('/', $path);
 
         return $pathElems[1] ?? '';
     }

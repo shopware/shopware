@@ -42,7 +42,7 @@ class OpenApiSchemaBuilder
 
         /** @var array|string $security */
         $security = $openApi->security;
-        $openApi->security = [array_merge(is_array($security) ? $security : [], $this->createSecurity($api))];
+        $openApi->security = [\array_merge(\is_array($security) ? $security : [], $this->createSecurity($api))];
 
         if (!$openApi->components instanceof Components) {
             $openApi->components = new Components([]);
@@ -59,7 +59,7 @@ class OpenApiSchemaBuilder
         $url = $_SERVER['APP_URL'] ?? '';
 
         return [
-            new Server(['url' => rtrim($url, '/') . sprintf(self::API[$api]['url'], $version)]),
+            new Server(['url' => \rtrim($url, '/') . \sprintf(self::API[$api]['url'], $version)]),
         ];
     }
 

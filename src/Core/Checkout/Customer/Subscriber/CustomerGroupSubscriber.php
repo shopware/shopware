@@ -77,7 +77,7 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
             $ids[] = $writeResult->getPrimaryKey()['customerGroupId'];
         }
 
-        if (count($ids) === 0) {
+        if (\count($ids) === 0) {
             return;
         }
 
@@ -94,7 +94,7 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
             }
         }
 
-        if (count($ids) === 0) {
+        if (\count($ids) === 0) {
             return;
         }
 
@@ -109,7 +109,7 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
             $ids[] = $writeResult->getPrimaryKey()['customerGroupId'];
         }
 
-        if (count($ids) === 0) {
+        if (\count($ids) === 0) {
             return;
         }
 
@@ -117,13 +117,13 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
         $criteria->addFilter(new EqualsAnyFilter('foreignKey', $ids));
         $criteria->addFilter(new EqualsFilter('routeName', self::ROUTE_NAME));
 
-        $ids = array_values($this->seoUrlRepository->searchIds($criteria, $event->getContext())->getIds());
+        $ids = \array_values($this->seoUrlRepository->searchIds($criteria, $event->getContext())->getIds());
 
-        if (count($ids) === 0) {
+        if (\count($ids) === 0) {
             return;
         }
 
-        $this->seoUrlRepository->delete(array_map(function (string $id) {
+        $this->seoUrlRepository->delete(\array_map(function (string $id) {
             return ['id' => $id];
         }, $ids), $event->getContext());
     }
@@ -168,7 +168,7 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
                 [$languageId]
             );
 
-            $this->persister->updateSeoUrls($context, self::ROUTE_NAME, array_column($urls, 'foreignKey'), $urls);
+            $this->persister->updateSeoUrls($context, self::ROUTE_NAME, \array_column($urls, 'foreignKey'), $urls);
         }
     }
 

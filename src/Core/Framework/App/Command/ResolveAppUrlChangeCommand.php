@@ -40,7 +40,7 @@ class ResolveAppUrlChangeCommand extends Command
         /** @var string|null $strategy */
         $strategy = $input->getArgument('strategy');
 
-        if ($strategy === null || !array_key_exists($strategy, $availableStrategies)) {
+        if ($strategy === null || !\array_key_exists($strategy, $availableStrategies)) {
             if ($strategy !== null) {
                 $io->note('Strategy with name: "' . $strategy . '" not found.');
             }

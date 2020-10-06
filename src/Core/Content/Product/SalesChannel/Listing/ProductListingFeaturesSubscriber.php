@@ -272,7 +272,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         $grouped = FetchModeHelper::group($grouped);
 
         foreach ($grouped as $options) {
-            $options = array_column($options, 'id');
+            $options = \array_column($options, 'id');
 
             $criteria->addPostFilter(
                 new MultiFilter(
@@ -432,7 +432,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         $options = $options ? $options->getKeys() : [];
         $properties = $properties ? $properties->getKeys() : [];
 
-        return array_unique(array_filter(array_merge($options, $properties)));
+        return \array_unique(\array_filter(\array_merge($options, $properties)));
     }
 
     private function setGroupedFlag(ProductListingResultEvent $event): void
@@ -456,7 +456,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         }
 
         // get all configured expanded groups
-        $groups = array_filter(
+        $groups = \array_filter(
             (array) $product->getConfiguratorGroupConfig(),
             static function (array $config) {
                 return $config['expressionForListings'] ?? false;
@@ -464,7 +464,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         );
 
         // get ids of groups for later usage
-        $groups = array_column($groups, 'id');
+        $groups = \array_column($groups, 'id');
 
         // expanded group count matches option count? All variants are displayed
         if ($product->getOptionIds() !== null && \count($groups) === \count($product->getOptionIds())) {
@@ -555,10 +555,10 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         }
 
         if (\is_string($ids)) {
-            $ids = explode('|', $ids);
+            $ids = \explode('|', $ids);
         }
 
-        return array_filter($ids);
+        return \array_filter($ids);
     }
 
     private function getPropertyIds(Request $request): array
@@ -569,10 +569,10 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         }
 
         if (\is_string($ids)) {
-            $ids = explode('|', $ids);
+            $ids = \explode('|', $ids);
         }
 
-        return array_filter($ids);
+        return \array_filter($ids);
     }
 
     private function getLimit(Request $request): int

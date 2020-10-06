@@ -94,7 +94,7 @@ class AppLifecycleTest extends TestCase
         static::assertCount(1, $apps);
         static::assertEquals('SwagApp', $apps->first()->getName());
         static::assertEquals(
-            base64_encode(file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/icon.png')),
+            \base64_encode(\file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/icon.png')),
             $apps->first()->getIcon()
         );
 
@@ -269,7 +269,7 @@ class AppLifecycleTest extends TestCase
         static::assertCount(1, $apps);
         static::assertEquals('SwagApp', $apps->first()->getName());
         static::assertEquals(
-            base64_encode(file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/icon.png')),
+            \base64_encode(\file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/icon.png')),
             $apps->first()->getIcon()
         );
         static::assertEquals('1.0.0', $apps->first()->getVersion());
@@ -396,7 +396,7 @@ class AppLifecycleTest extends TestCase
         static::assertCount(1, $apps);
         static::assertEquals('SwagApp', $apps->first()->getName());
         static::assertEquals(
-            base64_encode(file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/icon.png')),
+            \base64_encode(\file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/icon.png')),
             $apps->first()->getIcon()
         );
         static::assertEquals('1.0.0', $apps->first()->getVersion());
@@ -540,7 +540,7 @@ class AppLifecycleTest extends TestCase
     {
         $actionButtons = $this->actionButtonRepository->search(new Criteria(), $this->context)->getEntities();
         static::assertCount(2, $actionButtons);
-        $actionNames = array_map(function (ActionButtonEntity $actionButton) {
+        $actionNames = \array_map(function (ActionButtonEntity $actionButton) {
             return $actionButton->getAction();
         }, $actionButtons->getElements());
 
@@ -572,7 +572,7 @@ class AppLifecycleTest extends TestCase
             WHERE `id` = :aclRoleId
         ', ['aclRoleId' => Uuid::fromHexToBytes($roleId)]);
 
-        $privileges = json_decode($privileges, true);
+        $privileges = \json_decode($privileges, true);
 
         static::assertCount(14, $privileges);
 
@@ -610,7 +610,7 @@ class AppLifecycleTest extends TestCase
         static::assertEquals('custom_field_test', $customFieldSet->getName());
         static::assertCount(2, $customFieldSet->getRelations());
 
-        $relatedEntities = array_map(function (CustomFieldSetRelationEntity $relation) {
+        $relatedEntities = \array_map(function (CustomFieldSetRelationEntity $relation) {
             return $relation->getEntityName();
         }, $customFieldSet->getRelations()->getElements());
         static::assertContains('product', $relatedEntities);
@@ -637,7 +637,7 @@ class AppLifecycleTest extends TestCase
 
         static::assertCount(2, $webhooks);
 
-        usort($webhooks, static function (WebhookEntity $a, WebhookEntity $b): int {
+        \usort($webhooks, static function (WebhookEntity $a, WebhookEntity $b): int {
             return $a->getUrl() <=> $b->getUrl();
         });
 

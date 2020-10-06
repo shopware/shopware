@@ -29,7 +29,7 @@ class StoreHandshakeTest extends TestCase
         \parse_str($request->getUri()->getQuery(), $queryParams);
 
         static::assertArrayHasKey('shop-url', $queryParams);
-        static::assertEquals(urlencode($shopUrl), $queryParams['shop-url']);
+        static::assertEquals(\urlencode($shopUrl), $queryParams['shop-url']);
 
         static::assertArrayHasKey('shop-id', $queryParams);
         static::assertEquals($shopId, $queryParams['shop-id']);

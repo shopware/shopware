@@ -31,7 +31,7 @@ class PaymentMethodRepositoryDecorator implements EntityRepositoryInterface
      */
     public function delete(array $ids, Context $context): EntityWrittenContainerEvent
     {
-        $affectedPaymentMethods = $this->search(new Criteria(array_column($ids, 'id')), $context);
+        $affectedPaymentMethods = $this->search(new Criteria(\array_column($ids, 'id')), $context);
 
         if ($affectedPaymentMethods->count() === 0) {
             return $this->innerRepo->delete($ids, $context);

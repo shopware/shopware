@@ -23,7 +23,7 @@ class Migration1562933907ContactForm extends MigrationStep
             'id' => Uuid::randomHex(),
             'name' => 'Contact form',
             'nameDe' => 'Kontaktformular',
-            'availableEntities' => json_encode(['salesChannel' => 'sales_channel']),
+            'availableEntities' => \json_encode(['salesChannel' => 'sales_channel']),
         ];
 
         $mailTemplateTypeId = Uuid::fromHexToBytes($contactFormEmailTemplate['id']);
@@ -82,7 +82,7 @@ class Migration1562933907ContactForm extends MigrationStep
                 'id' => Uuid::randomBytes(),
                 'event_name' => ContactFormEvent::EVENT_NAME,
                 'action_name' => MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION,
-                'config' => json_encode(['mail_template_type_id' => $contactFormEmailTemplate['id']]),
+                'config' => \json_encode(['mail_template_type_id' => $contactFormEmailTemplate['id']]),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]
         );

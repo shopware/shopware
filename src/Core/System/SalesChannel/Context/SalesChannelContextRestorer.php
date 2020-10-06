@@ -71,7 +71,7 @@ class SalesChannelContextRestorer
             $restoredCart = $this->cartService->recalculate($customerCart, $customerContext);
         }
 
-        $restoredCart->addErrors(...array_values($guestCart->getErrors()->getPersistent()->getElements()));
+        $restoredCart->addErrors(...\array_values($guestCart->getErrors()->getPersistent()->getElements()));
 
         $this->deleteGuestContext($currentContext);
 

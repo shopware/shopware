@@ -105,11 +105,11 @@ trait MigrationTestBehaviour
         $assertState = static function (array $dbMigrations, $until, $key): void {
             foreach ($dbMigrations as $migration) {
                 if ($migration['creation_timestamp'] <= $until && $migration[$key] === null) {
-                    TestCase::fail('Too few migrations have "' . $key . '"' . print_r($dbMigrations, true));
+                    TestCase::fail('Too few migrations have "' . $key . '"' . \print_r($dbMigrations, true));
                 }
 
                 if ($migration['creation_timestamp'] > $until && $migration[$key] !== null) {
-                    TestCase::fail('Too many migrations have "' . $key . '"' . print_r($dbMigrations, true));
+                    TestCase::fail('Too many migrations have "' . $key . '"' . \print_r($dbMigrations, true));
                 }
             }
         };

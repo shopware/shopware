@@ -45,13 +45,13 @@ class MigrationSource
         $patterns = [];
 
         foreach ($this->sources as $namespace) {
-            $patterns[] = '^' . str_ireplace('\\', '\\\\', $namespace) . '\\\\' . self::PHP_CLASS_NAME_REGEX;
+            $patterns[] = '^' . \str_ireplace('\\', '\\\\', $namespace) . '\\\\' . self::PHP_CLASS_NAME_REGEX;
         }
 
-        if (count($patterns) === 1) {
+        if (\count($patterns) === 1) {
             return $patterns[0];
         }
 
-        return '(' . implode('|', $patterns) . ')';
+        return '(' . \implode('|', $patterns) . ')';
     }
 }

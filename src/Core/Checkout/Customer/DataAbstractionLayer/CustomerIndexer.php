@@ -69,7 +69,7 @@ class CustomerIndexer extends EntityIndexer
             return null;
         }
 
-        return new CustomerIndexingMessage(array_values($ids), $iterator->getOffset());
+        return new CustomerIndexingMessage(\array_values($ids), $iterator->getOffset());
     }
 
     public function update(EntityWrittenContainerEvent $event): ?EntityIndexingMessage
@@ -80,13 +80,13 @@ class CustomerIndexer extends EntityIndexer
             return null;
         }
 
-        return new CustomerIndexingMessage(array_values($updates), null, $event->getContext());
+        return new CustomerIndexingMessage(\array_values($updates), null, $event->getContext());
     }
 
     public function handle(EntityIndexingMessage $message): void
     {
         $ids = $message->getData();
-        $ids = array_unique(array_filter($ids));
+        $ids = \array_unique(\array_filter($ids));
 
         if (empty($ids)) {
             return;
@@ -99,7 +99,7 @@ class CustomerIndexer extends EntityIndexer
         $this->eventDispatcher->dispatch(new CustomerIndexerEvent($ids, $context));
 
         $this->cacheClearer->invalidateIds(
-            array_unique(array_merge($ids)),
+            \array_unique(\array_merge($ids)),
             CustomerDefinition::ENTITY_NAME
         );
     }

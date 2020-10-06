@@ -79,12 +79,12 @@ class CacheClearer extends AbstractMessageHandler
 
     public function invalidateIds(array $ids, string $entity): void
     {
-        $ids = array_filter($ids);
+        $ids = \array_filter($ids);
         if (empty($ids)) {
             return;
         }
 
-        $tags = array_map(function ($id) use ($entity) {
+        $tags = \array_map(function ($id) use ($entity) {
             return $this->cacheKeyGenerator->getEntityTag($id, $entity);
         }, $ids);
 
@@ -97,8 +97,8 @@ class CacheClearer extends AbstractMessageHandler
             $adapter->clear();
         }
 
-        if (!is_writable($this->cacheDir)) {
-            throw new \RuntimeException(sprintf('Unable to write in the "%s" directory', $this->cacheDir));
+        if (!\is_writable($this->cacheDir)) {
+            throw new \RuntimeException(\sprintf('Unable to write in the "%s" directory', $this->cacheDir));
         }
 
         $this->cacheClearer->clear($this->cacheDir);

@@ -124,7 +124,7 @@ class PromotionExtensionCodesTest extends TestCase
         $cart = $this->addPromotionCode($promotionCode, $cart, $this->cartService, $this->context);
 
         /** @var string $discountId */
-        $discountId = array_keys($cart->getLineItems()->getElements())[1];
+        $discountId = \array_keys($cart->getLineItems()->getElements())[1];
 
         $this->cartService->remove($cart, $discountId, $this->context);
 
@@ -159,7 +159,7 @@ class PromotionExtensionCodesTest extends TestCase
         $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $this->context);
 
         /** @var string $discountId */
-        $discountId = array_keys($cart->getLineItems()->getElements())[1];
+        $discountId = \array_keys($cart->getLineItems()->getElements())[1];
 
         $this->cartService->remove($cart, $discountId, $this->context);
 
@@ -198,7 +198,7 @@ class PromotionExtensionCodesTest extends TestCase
         $cart = $this->addPromotionCode($promotionCode, $cart, $this->cartService, $this->context);
 
         /** @var string $discountId */
-        $discountId = array_keys($cart->getLineItems()->getElements())[1];
+        $discountId = \array_keys($cart->getLineItems()->getElements())[1];
 
         $this->cartService->remove($cart, $discountId, $this->context);
 
@@ -248,7 +248,7 @@ class PromotionExtensionCodesTest extends TestCase
         static::assertNotEmpty($extension->getCodes());
 
         /** @var string $discountId */
-        $discountId = array_keys($cart->getLineItems()->getElements())[1];
+        $discountId = \array_keys($cart->getLineItems()->getElements())[1];
 
         $this->cartService->order($cart, $context);
 
@@ -300,7 +300,7 @@ class PromotionExtensionCodesTest extends TestCase
         $promotionItems = $cart->getLineItems()->filterType(PromotionProcessor::LINE_ITEM_TYPE);
 
         /** @var string $discountId */
-        $discountId = array_keys($promotionItems->getElements())[0];
+        $discountId = \array_keys($promotionItems->getElements())[0];
 
         $this->cartService->remove($cart, $discountId, $this->context);
 

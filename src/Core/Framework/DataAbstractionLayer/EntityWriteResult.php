@@ -54,10 +54,10 @@ class EntityWriteResult
         $this->existence = $existence;
 
         $this->entityName = $entityName;
-        $this->operation = mb_strtolower($operation);
+        $this->operation = \mb_strtolower($operation);
 
-        if (!in_array($this->operation, [self::OPERATION_DELETE, self::OPERATION_INSERT, self::OPERATION_UPDATE], true)) {
-            throw new \RuntimeException(sprintf('Unexpected write result operation %s', $operation));
+        if (!\in_array($this->operation, [self::OPERATION_DELETE, self::OPERATION_INSERT, self::OPERATION_UPDATE], true)) {
+            throw new \RuntimeException(\sprintf('Unexpected write result operation %s', $operation));
         }
         $this->changeSet = $changeSet;
     }
@@ -105,6 +105,6 @@ class EntityWriteResult
 
     public function hasPayload(string $property): bool
     {
-        return array_key_exists($property, $this->getPayload());
+        return \array_key_exists($property, $this->getPayload());
     }
 }

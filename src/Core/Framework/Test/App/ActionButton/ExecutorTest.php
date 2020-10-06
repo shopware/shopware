@@ -37,7 +37,7 @@ class ExecutorTest extends TestCase
     {
         $action = new AppAction(
             'https://test.com/my-action',
-            getenv('APP_URL'),
+            \getenv('APP_URL'),
             '1.0.0',
             'product',
             'detail',
@@ -63,7 +63,7 @@ class ExecutorTest extends TestCase
         static::assertTrue($result->isValid(), $message);
 
         static::assertEquals(
-            hash_hmac('sha256', $body, $action->getAppSecret()),
+            \hash_hmac('sha256', $body, $action->getAppSecret()),
             $request->getHeaderLine('shopware-shop-signature')
         );
     }
@@ -72,7 +72,7 @@ class ExecutorTest extends TestCase
     {
         $action = new AppAction(
             'https://brokenServer.com',
-            getenv('APP_URL'),
+            \getenv('APP_URL'),
             '1.0.0',
             'product',
             'detail',
@@ -95,7 +95,7 @@ class ExecutorTest extends TestCase
         $targetUrl = 'https://my-server.com';
         $action = new AppAction(
             $targetUrl,
-            getenv('APP_URL'),
+            \getenv('APP_URL'),
             '1.0.0',
             'product',
             'detail',
@@ -114,7 +114,7 @@ class ExecutorTest extends TestCase
 
         $body = $request->getBody()->getContents();
         static::assertEquals(
-            hash_hmac('sha256', $body, $action->getAppSecret()),
+            \hash_hmac('sha256', $body, $action->getAppSecret()),
             $request->getHeaderLine('shopware-shop-signature')
         );
     }
@@ -122,7 +122,7 @@ class ExecutorTest extends TestCase
     public function testContentIsCorrect(): void
     {
         $targetUrl = 'https://test.com/my-action';
-        $shopUrl = getenv('APP_URL');
+        $shopUrl = \getenv('APP_URL');
         $appVersion = '1.0.0';
         $entity = 'product';
         $actionName = 'detail';
@@ -151,7 +151,7 @@ class ExecutorTest extends TestCase
         static::assertEquals('POST', $request->getMethod());
         $body = $request->getBody()->getContents();
         static::assertJson($body);
-        $data = json_decode($body, true);
+        $data = \json_decode($body, true);
 
         $expectedSource = [
             'url' => $shopUrl,
@@ -171,7 +171,7 @@ class ExecutorTest extends TestCase
         static::assertEquals($context->getLanguageId(), $data['meta']['language']);
 
         static::assertEquals(
-            hash_hmac('sha256', $body, $action->getAppSecret()),
+            \hash_hmac('sha256', $body, $action->getAppSecret()),
             $request->getHeaderLine('shopware-shop-signature')
         );
     }
@@ -181,8 +181,8 @@ class ExecutorTest extends TestCase
         $message = '';
 
         foreach ($result->getErrors() as $validationError) {
-            $message .= sprintf("Validation error at '%s' : %s \n", implode(',', $validationError->dataPointer()), $validationError->keyword());
-            $message .= json_encode($validationError->keywordArgs(), JSON_PRETTY_PRINT);
+            $message .= \sprintf("Validation error at '%s' : %s \n", \implode(',', $validationError->dataPointer()), $validationError->keyword());
+            $message .= \json_encode($validationError->keywordArgs(), JSON_PRETTY_PRINT);
         }
 
         return $message;
@@ -191,7 +191,7 @@ class ExecutorTest extends TestCase
     private function validateRequestSchema(string $body): ValidationResult
     {
         $requestData = \json_decode($body);
-        $schema = Schema::fromJsonString(file_get_contents(self::SCHEMA_LOCATION));
+        $schema = Schema::fromJsonString(\file_get_contents(self::SCHEMA_LOCATION));
         $validator = new Validator();
 
         return $validator->schemaValidation($requestData, $schema);

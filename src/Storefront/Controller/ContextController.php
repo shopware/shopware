@@ -108,10 +108,10 @@ class ContextController extends StorefrontController
 
         $route = $request->request->get('redirectTo', 'frontend.home.page');
 
-        $params = $request->request->get('redirectParameters', json_encode([]));
+        $params = $request->request->get('redirectParameters', \json_encode([]));
 
         if (\is_string($params)) {
-            $params = json_decode($params, true);
+            $params = \json_decode($params, true);
         }
 
         /*
@@ -139,13 +139,13 @@ class ContextController extends StorefrontController
          * http://localhost:8080/fr
          * http://localhost:8080/de-DE
          */
-        $parsedUrl = parse_url($domain->getUrl());
+        $parsedUrl = \parse_url($domain->getUrl());
 
         $routerContext = $this->router->getContext();
         $routerContext->setHttpPort($parsedUrl['port'] ?? 80);
         $routerContext->setMethod('GET');
         $routerContext->setHost($parsedUrl['host']);
-        $routerContext->setBaseUrl(rtrim($parsedUrl['path'] ?? '', '/'));
+        $routerContext->setBaseUrl(\rtrim($parsedUrl['path'] ?? '', '/'));
 
         $this->requestStack->getMasterRequest()
             ->attributes->set(RequestTransformer::SALES_CHANNEL_BASE_URL, '');

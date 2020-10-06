@@ -116,7 +116,7 @@ class Metadata extends XmlElement
             }
 
             // translated
-            if (in_array($child->tagName, ['label', 'description'], true)) {
+            if (\in_array($child->tagName, ['label', 'description'], true)) {
                 $values = self::mapTranslatedTag($child, $values);
 
                 continue;

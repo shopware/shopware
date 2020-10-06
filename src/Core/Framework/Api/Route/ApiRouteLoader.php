@@ -57,14 +57,14 @@ class ApiRouteLoader extends Loader
         $class = SalesChannelApiController::class;
 
         $elements = $this->salesChannelDefinitionRegistry->getSalesChannelDefinitions();
-        usort($elements, function (EntityDefinition $a, EntityDefinition $b) {
+        \usort($elements, function (EntityDefinition $a, EntityDefinition $b) {
             return $a->getEntityName() <=> $b->getEntityName();
         });
 
         /** @var EntityDefinition $definition */
         foreach ($elements as $definition) {
             $entityName = $definition->getEntityName();
-            $resourceName = str_replace('_', '-', $definition->getEntityName());
+            $resourceName = \str_replace('_', '-', $definition->getEntityName());
 
             $route = new Route('/sales-channel-api/v{version}/' . $resourceName . '/{id}');
             $route->setMethods(['GET']);
@@ -100,13 +100,13 @@ class ApiRouteLoader extends Loader
         $listSuffix = '(\/[0-9a-f]{32}\/(extensions\/)?[a-zA-Z-]+)*\/?$';
 
         $elements = $this->definitionRegistry->getDefinitions();
-        usort($elements, function (EntityDefinition $a, EntityDefinition $b) {
+        \usort($elements, function (EntityDefinition $a, EntityDefinition $b) {
             return $a->getEntityName() <=> $b->getEntityName();
         });
 
         foreach ($elements as $definition) {
             $entityName = $definition->getEntityName();
-            $resourceName = str_replace('_', '-', $definition->getEntityName());
+            $resourceName = \str_replace('_', '-', $definition->getEntityName());
 
             // detail routes
             $route = new Route('/api/v{version}/' . $resourceName . '/{path}');

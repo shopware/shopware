@@ -43,7 +43,7 @@ class AntiJoinSearchTest extends TestCase
             $this->getTaggedProduct($blueId, 'blue', ['blue']),
         ];
 
-        $ids = array_column($products, 'id');
+        $ids = \array_column($products, 'id');
 
         /** @var EntityRepositoryInterface $productRepository */
         $productRepository = $this->getContainer()->get('product.repository');
@@ -99,7 +99,7 @@ class AntiJoinSearchTest extends TestCase
             $this->getTaggedProduct($blueId, 'blue', ['blue']),
         ];
 
-        $ids = array_column($products, 'id');
+        $ids = \array_column($products, 'id');
 
         /** @var EntityRepositoryInterface $productRepository */
         $productRepository = $this->getContainer()->get('product.repository');
@@ -395,7 +395,7 @@ class AntiJoinSearchTest extends TestCase
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
             'manufacturer' => ['name' => 'test'],
             'tax' => ['name' => 'test', 'taxRate' => 15],
-            'tags' => array_map(static function (string $tag) {
+            'tags' => \array_map(static function (string $tag) {
                 return ['name' => $tag];
             }, $tags),
         ];

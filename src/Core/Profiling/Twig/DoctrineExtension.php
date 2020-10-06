@@ -43,25 +43,25 @@ class DoctrineExtension extends AbstractExtension
 
         // Check if we can match the query against any of the major types
         switch (true) {
-            case mb_stripos($query, 'SELECT') !== false:
+            case \mb_stripos($query, 'SELECT') !== false:
                 $keywords = ['SELECT', 'FROM', 'WHERE', 'HAVING', 'ORDER BY', 'LIMIT'];
                 $required = 2;
 
                 break;
 
-            case mb_stripos($query, 'DELETE') !== false:
+            case \mb_stripos($query, 'DELETE') !== false:
                 $keywords = ['DELETE', 'FROM', 'WHERE', 'ORDER BY', 'LIMIT'];
                 $required = 2;
 
                 break;
 
-            case mb_stripos($query, 'UPDATE') !== false:
+            case \mb_stripos($query, 'UPDATE') !== false:
                 $keywords = ['UPDATE', 'SET', 'WHERE', 'ORDER BY', 'LIMIT'];
                 $required = 2;
 
                 break;
 
-            case mb_stripos($query, 'INSERT') !== false:
+            case \mb_stripos($query, 'INSERT') !== false:
                 $keywords = ['INSERT', 'INTO', 'VALUE', 'VALUES'];
                 $required = 2;
 
@@ -69,7 +69,7 @@ class DoctrineExtension extends AbstractExtension
 
             // If there's no match so far just truncate it to the maximum allowed by the interface
             default:
-                $result = mb_substr($query, 0, $this->maxCharWidth);
+                $result = \mb_substr($query, 0, $this->maxCharWidth);
         }
 
         // If we had a match then we should minify it
@@ -92,13 +92,13 @@ class DoctrineExtension extends AbstractExtension
 
         switch (true) {
             // Check if result is non-unicode string using PCRE_UTF8 modifier
-            case \is_string($result) && !preg_match('//u', $result):
-                $result = '0x' . mb_strtoupper(bin2hex($result));
+            case \is_string($result) && !\preg_match('//u', $result):
+                $result = '0x' . \mb_strtoupper(\bin2hex($result));
 
                 break;
 
             case \is_string($result):
-                $result = "'" . addslashes($result) . "'";
+                $result = "'" . \addslashes($result) . "'";
 
                 break;
 
@@ -107,12 +107,12 @@ class DoctrineExtension extends AbstractExtension
                     $value = self::escapeFunction($value);
                 }
 
-                $result = implode(', ', $result);
+                $result = \implode(', ', $result);
 
                 break;
 
             case \is_object($result):
-                $result = addslashes((string) $result);
+                $result = \addslashes((string) $result);
 
                 break;
 
@@ -149,10 +149,10 @@ class DoctrineExtension extends AbstractExtension
             $i = 1;
         }
 
-        return preg_replace_callback(
+        return \preg_replace_callback(
             '/\?|((?<!:):[a-z0-9_]+)/i',
             static function ($matches) use ($values, &$i) {
-                $key = mb_substr($matches[0], 1);
+                $key = \mb_substr($matches[0], 1);
                 if (!\array_key_exists($i, $values) && (!$key || !\array_key_exists($key, $values))) {
                     return $matches[0];
                 }
@@ -187,10 +187,10 @@ class DoctrineExtension extends AbstractExtension
 
         if ($highlightOnly) {
             $html = \SqlFormatter::highlight($sql);
-            $html = preg_replace('/<pre class=".*">([^"]*+)<\/pre>/Us', '\1', $html);
+            $html = \preg_replace('/<pre class=".*">([^"]*+)<\/pre>/Us', '\1', $html);
         } else {
             $html = \SqlFormatter::format($sql);
-            $html = preg_replace('/<pre class="(.*)">([^"]*+)<\/pre>/Us', '<div class="\1"><pre>\2</pre></div>', $html);
+            $html = \preg_replace('/<pre class="(.*)">([^"]*+)<\/pre>/Us', '<div class="\1"><pre>\2</pre></div>', $html);
         }
 
         return $html;
@@ -252,7 +252,7 @@ class DoctrineExtension extends AbstractExtension
      */
     private function shrinkParameters(array $parameters, array $combination): string
     {
-        array_shift($parameters);
+        \array_shift($parameters);
         $result = '';
 
         $maxLength = $this->maxCharWidth;
@@ -263,16 +263,16 @@ class DoctrineExtension extends AbstractExtension
             $isLarger = false;
 
             if (\mb_strlen($value) > $maxLength) {
-                $value = wordwrap($value, $maxLength, "\n", true);
-                $value = explode("\n", $value);
+                $value = \wordwrap($value, $maxLength, "\n", true);
+                $value = \explode("\n", $value);
                 $value = $value[0];
 
                 $isLarger = true;
             }
             $value = self::escapeFunction($value);
 
-            if (!is_numeric($value)) {
-                $value = mb_substr($value, 1, -1);
+            if (!\is_numeric($value)) {
+                $value = \mb_substr($value, 1, -1);
             }
 
             if ($isLarger) {
@@ -282,7 +282,7 @@ class DoctrineExtension extends AbstractExtension
             $result .= ' ' . $combination[$key] . ' ' . $value;
         }
 
-        return trim($result);
+        return \trim($result);
     }
 
     /**
@@ -291,38 +291,38 @@ class DoctrineExtension extends AbstractExtension
     private function composeMiniQuery(string $query, array $keywords, int $required): string
     {
         // Extract the mandatory keywords and consider the rest as optional keywords
-        $mandatoryKeywords = array_splice($keywords, 0, $required);
+        $mandatoryKeywords = \array_splice($keywords, 0, $required);
 
         $combinations = [];
         $combinationsCount = \count($keywords);
 
         // Compute all the possible combinations of keywords to match the query for
         while ($combinationsCount > 0) {
-            $combinations = array_merge($combinations, $this->getPossibleCombinations($keywords, $combinationsCount));
+            $combinations = \array_merge($combinations, $this->getPossibleCombinations($keywords, $combinationsCount));
             --$combinationsCount;
         }
 
         // Try and match the best case query pattern
         foreach ($combinations as $combination) {
-            $combination = array_merge($mandatoryKeywords, $combination);
+            $combination = \array_merge($mandatoryKeywords, $combination);
 
-            $regexp = implode('(.*) ', $combination) . ' (.*)';
+            $regexp = \implode('(.*) ', $combination) . ' (.*)';
             $regexp = '/^' . $regexp . '/is';
 
-            if (preg_match($regexp, $query, $matches)) {
+            if (\preg_match($regexp, $query, $matches)) {
                 return $this->shrinkParameters($matches, $combination);
             }
         }
 
         // Try and match the simplest query form that contains only the mandatory keywords
-        $regexp = implode(' (.*)', $mandatoryKeywords) . ' (.*)';
+        $regexp = \implode(' (.*)', $mandatoryKeywords) . ' (.*)';
         $regexp = '/^' . $regexp . '/is';
 
-        if (preg_match($regexp, $query, $matches)) {
+        if (\preg_match($regexp, $query, $matches)) {
             return $this->shrinkParameters($matches, $mandatoryKeywords);
         }
 
         // Fallback in case we didn't managed to find any good match (can we actually have that happen?!)
-        return mb_substr($query, 0, $this->maxCharWidth);
+        return \mb_substr($query, 0, $this->maxCharWidth);
     }
 }

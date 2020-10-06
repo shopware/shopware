@@ -222,8 +222,8 @@ class ProductSliderTypeDataResolverTest extends TestCase
         $collection = $this->sliderResolver->collect($slot, $resolverContext);
 
         static::assertCount(1, $collection->all());
-        static::assertEquals('Shopware\Core\Content\Product\ProductDefinition', key($collection->all()));
-        static::assertEquals('product-slider-entity-fallback_id', key($collection->getIterator()->current()));
+        static::assertEquals('Shopware\Core\Content\Product\ProductDefinition', \key($collection->all()));
+        static::assertEquals('product-slider-entity-fallback_id', \key($collection->getIterator()->current()));
 
         $expectedCriteria = new Criteria();
         $expectedCriteria->addSorting(new FieldSorting('name', FieldSorting::ASCENDING));
@@ -311,8 +311,8 @@ class ProductSliderTypeDataResolverTest extends TestCase
 
     private function createTestProductStreamEntity(): ProductStreamEntity
     {
-        $this->randomProductIds = array_column($this->createProducts(), 'id');
-        $randomProductIdsString = implode('|', $this->randomProductIds);
+        $this->randomProductIds = \array_column($this->createProducts(), 'id');
+        $randomProductIdsString = \implode('|', $this->randomProductIds);
 
         $stream = [
             'id' => $this->productStreamId,

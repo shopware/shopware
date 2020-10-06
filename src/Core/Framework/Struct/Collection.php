@@ -60,7 +60,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
 
     public function getKeys(): array
     {
-        return array_keys($this->elements);
+        return \array_keys($this->elements);
     }
 
     public function has($key): bool
@@ -70,22 +70,22 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
 
     public function map(\Closure $closure): array
     {
-        return array_map($closure, $this->elements);
+        return \array_map($closure, $this->elements);
     }
 
     public function reduce(\Closure $closure, $initial = null)
     {
-        return array_reduce($this->elements, $closure, $initial);
+        return \array_reduce($this->elements, $closure, $initial);
     }
 
     public function fmap(\Closure $closure): array
     {
-        return array_filter($this->map($closure));
+        return \array_filter($this->map($closure));
     }
 
     public function sort(\Closure $closure): void
     {
-        uasort($this->elements, $closure);
+        \uasort($this->elements, $closure);
     }
 
     /**
@@ -103,7 +103,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
      */
     public function filter(\Closure $closure)
     {
-        return $this->createNew(array_filter($this->elements, $closure));
+        return $this->createNew(\array_filter($this->elements, $closure));
     }
 
     /**
@@ -121,17 +121,17 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
 
     public function jsonSerialize(): array
     {
-        return array_values($this->elements);
+        return \array_values($this->elements);
     }
 
     public function first()
     {
-        return array_values($this->elements)[0] ?? null;
+        return \array_values($this->elements)[0] ?? null;
     }
 
     public function last()
     {
-        return array_values($this->elements)[\count($this->elements) - 1] ?? null;
+        return \array_values($this->elements)[\count($this->elements) - 1] ?? null;
     }
 
     /**
@@ -171,7 +171,7 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
             $elementClass = \get_class($element);
 
             throw new \InvalidArgumentException(
-                sprintf('Expected collection element of type %s got %s', $expectedClass, $elementClass)
+                \sprintf('Expected collection element of type %s got %s', $expectedClass, $elementClass)
             );
         }
     }

@@ -6,6 +6,6 @@ class AppNotFoundException extends \Exception
 {
     public function __construct(string $appId)
     {
-        parent::__construct(sprintf('App for ID: "%s" could not be found.', $appId));
+        parent::__construct(\sprintf('App for ID: "%s" could not be found.', $appId));
     }
 }

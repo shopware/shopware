@@ -6,7 +6,7 @@ class ChangelogParser
 {
     public function parse(string $content): ChangelogDefinition
     {
-        $content = trim($content);
+        $content = \trim($content);
 
         return (new ChangelogDefinition())
             ->setTitle($this->parseMetadata($content, 'title') ?: '')
@@ -27,9 +27,9 @@ class ChangelogParser
      */
     private function parseMetadata(string $content, string $meta): ?string
     {
-        preg_match('/^' . $meta . '\s*:([^\n]+)$/im', $content, $matches);
+        \preg_match('/^' . $meta . '\s*:([^\n]+)$/im', $content, $matches);
 
-        return isset($matches[1]) ? trim($matches[1]) : null;
+        return isset($matches[1]) ? \trim($matches[1]) : null;
     }
 
     /**
@@ -39,18 +39,18 @@ class ChangelogParser
      */
     private function parseSection(string $content, string $section): ?string
     {
-        $startPos = strpos($content, '# ' . $section);
+        $startPos = \strpos($content, '# ' . $section);
         if ($startPos === false) {
             return null;
         }
-        $endPos = strpos($content, '___', $startPos + strlen('# ' . $section)) ?: 0;
+        $endPos = \strpos($content, '___', $startPos + \strlen('# ' . $section)) ?: 0;
         if ($endPos) {
-            $length = $endPos - $startPos - strlen('# ' . $section);
-            $matches = substr($content, $startPos + strlen('# ' . $section), $length);
+            $length = $endPos - $startPos - \strlen('# ' . $section);
+            $matches = \substr($content, $startPos + \strlen('# ' . $section), $length);
         } else {
-            $matches = substr($content, $startPos + strlen('# ' . $section));
+            $matches = \substr($content, $startPos + \strlen('# ' . $section));
         }
 
-        return trim($matches);
+        return \trim($matches);
     }
 }

@@ -14,7 +14,7 @@ class HttpKernelTest extends TestCase
     {
         $kernel = $this->getHttpKernel();
 
-        $_ENV['DATABASE_URL'] = str_replace('3306', '1111', $_ENV['DATABASE_URL']);
+        $_ENV['DATABASE_URL'] = \str_replace('3306', '1111', $_ENV['DATABASE_URL']);
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Could not connect to the server as ****** with the password ****** with connection string ******');
 
@@ -38,9 +38,9 @@ class TestKernel extends Kernel
 {
     public function __construct()
     {
-        $urlParams = parse_url($_ENV['DATABASE_URL']);
+        $urlParams = \parse_url($_ENV['DATABASE_URL']);
 
-        throw new DBALException(vsprintf(
+        throw new DBALException(\vsprintf(
             'Could not connect to the server as %s with the password %s with connection string %s',
             [$urlParams['user'], $urlParams['pass'], $_ENV['DATABASE_URL']]
         ));

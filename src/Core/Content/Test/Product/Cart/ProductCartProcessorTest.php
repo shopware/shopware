@@ -174,7 +174,7 @@ class ProductCartProcessorTest extends TestCase
 
         $payload = $cart->get($product->getId())->getPayload();
         static::assertEquals(7.5, $payload['purchasePrice']);
-        $purchasePrices = json_decode($payload['purchasePrices']);
+        $purchasePrices = \json_decode($payload['purchasePrices']);
         static::assertSame(Defaults::CURRENCY, $purchasePrices->currencyId);
         static::assertSame(7.5, $purchasePrices->gross);
         static::assertSame(5, $purchasePrices->net);
@@ -203,7 +203,7 @@ class ProductCartProcessorTest extends TestCase
             $this->createCustomField([]);
         }
 
-        $this->createProduct(array_merge([
+        $this->createProduct(\array_merge([
             'featureSet' => $this->createFeatureSet([$testedFeature]),
         ], $productData));
 
@@ -211,7 +211,7 @@ class ProductCartProcessorTest extends TestCase
         $lineItem = $cart->get($this->ids->get('product'));
 
         $features = $lineItem->getPayload()['features'];
-        $feature = array_pop($features);
+        $feature = \array_pop($features);
 
         static::assertArrayHasKey('label', $feature);
         static::assertArrayHasKey('value', $feature);
@@ -597,7 +597,7 @@ class ProductCartProcessorTest extends TestCase
             ],
         ];
 
-        $data = array_merge($data, $additionalData);
+        $data = \array_merge($data, $additionalData);
 
         $this->getContainer()->get('product.repository')
             ->create([$data], Context::createDefaultContext());
@@ -605,7 +605,7 @@ class ProductCartProcessorTest extends TestCase
 
     private function createCustomField(?array $additionalData = []): void
     {
-        $data = array_merge([
+        $data = \array_merge([
             'id' => self::CUSTOM_FIELD_ID,
             'name' => 'lorem_ipsum',
             'type' => CustomFieldTypes::TEXT,
@@ -648,7 +648,7 @@ class ProductCartProcessorTest extends TestCase
             [
                 [
                     'id' => $id,
-                    'name' => sprintf('name-%s', $id),
+                    'name' => \sprintf('name-%s', $id),
                     'localeId' => $this->getLocaleIdOfSystemLanguage(),
                     'parentId' => $parentId,
                     'translationCode' => [

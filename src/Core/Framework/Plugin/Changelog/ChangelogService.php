@@ -36,13 +36,13 @@ class ChangelogService
 
     public function getLocaleFromChangelogFile($file): string
     {
-        $fileName = basename($file, '.md');
+        $fileName = \basename($file, '.md');
 
         if ($fileName === 'CHANGELOG') {
             return self::FALLBACK_LOCALE;
         }
 
-        return mb_substr($fileName, mb_strpos($fileName, '_') + 1, 5);
+        return \mb_substr($fileName, \mb_strpos($fileName, '_') + 1, 5);
     }
 
     /**

@@ -110,7 +110,7 @@ class PromotionDeliveryCalculator
 
             $promotionId = $discountItem->getPayloadValue('promotionId');
 
-            if (array_key_exists($promotionId, $exclusions)) {
+            if (\array_key_exists($promotionId, $exclusions)) {
                 $toCalculate->addErrors(new PromotionNotEligibleError($discountItem->getDescription()));
 
                 continue;
@@ -222,7 +222,7 @@ class PromotionDeliveryCalculator
 
             // Pricedefinition prices are always negative in discounts. To be compliant with
             // this
-            if (abs($priceDefA->getPrice()) < abs($priceDefB->getPrice())) {
+            if (\abs($priceDefA->getPrice()) < \abs($priceDefB->getPrice())) {
                 return -1;
             }
 
@@ -307,7 +307,7 @@ class PromotionDeliveryCalculator
     {
         $deliveryAdded = false;
         // get discount value
-        $reduceValue = abs($definition->getPrice());
+        $reduceValue = \abs($definition->getPrice());
         $precision = $definition->getPrecision();
         // get shipping costs
         $maxReducedPrice = $deliveries->getShippingCosts()->sum()->getTotalPrice();
@@ -363,7 +363,7 @@ class PromotionDeliveryCalculator
     private function calculatePercentage(DeliveryCollection $deliveries, PercentagePriceDefinition $definition, SalesChannelContext $context, string $maxValue): bool
     {
         $deliveryAdded = false;
-        $reduceValue = abs($definition->getPercentage());
+        $reduceValue = \abs($definition->getPercentage());
 
         // we may only discount the available shipping costs (these may be reduced by another discount before)
         $maxReducedPrice = $deliveries->getShippingCosts()->sum()->getTotalPrice();
@@ -403,7 +403,7 @@ class PromotionDeliveryCalculator
     private function calculateFixedDiscount(DeliveryCollection $deliveries, AbsolutePriceDefinition $definition, SalesChannelContext $context, float $notDiscountedShippingCosts): bool
     {
         $deliveryAdded = false;
-        $fixedPrice = abs($definition->getPrice());
+        $fixedPrice = \abs($definition->getPrice());
         $precision = $definition->getPrecision();
 
         // get shipping costs and set them as maximum value that may be discounted

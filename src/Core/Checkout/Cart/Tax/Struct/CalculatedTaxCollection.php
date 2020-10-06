@@ -61,7 +61,7 @@ class CalculatedTaxCollection extends Collection
             }
         );
 
-        return array_sum($amounts);
+        return \array_sum($amounts);
     }
 
     public function merge(self $taxCollection): self

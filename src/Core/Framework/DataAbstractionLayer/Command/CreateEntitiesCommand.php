@@ -44,16 +44,16 @@ class CreateEntitiesCommand extends Command
         $io = new ShopwareStyle($input, $output);
         $io->title('DAL generate schema');
 
-        if (!file_exists($this->dir)) {
-            mkdir($this->dir);
+        if (!\file_exists($this->dir)) {
+            \mkdir($this->dir);
         }
 
         $entities = $this->registry->getDefinitions();
         $classes = [];
 
         foreach ($entities as $entity) {
-            $domain = explode('_', $entity->getEntityName());
-            $domain = array_shift($domain);
+            $domain = \explode('_', $entity->getEntityName());
+            $domain = \array_shift($domain);
             $classes[$domain][] = $this->entityGenerator->generate($entity);
         }
 
@@ -65,12 +65,12 @@ class CreateEntitiesCommand extends Command
                     continue;
                 }
 
-                if (!file_exists($this->dir . '/' . $domain)) {
-                    mkdir($this->dir . '/' . $domain);
+                if (!\file_exists($this->dir . '/' . $domain)) {
+                    \mkdir($this->dir . '/' . $domain);
                 }
 
                 foreach ($entityClasses as $file => $content) {
-                    file_put_contents($this->dir . '/' . $domain . '/' . $file, $content);
+                    \file_put_contents($this->dir . '/' . $domain . '/' . $file, $content);
                 }
             }
         }

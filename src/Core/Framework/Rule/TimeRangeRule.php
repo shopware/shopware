@@ -70,7 +70,7 @@ class TimeRangeRule extends Rule
 
     private function extractTime(string $time): \DateTime
     {
-        [$hour, $minute] = explode(':', $time);
+        [$hour, $minute] = \explode(':', $time);
 
         return (new \DateTime())->setTime((int) $hour, (int) $minute);
     }

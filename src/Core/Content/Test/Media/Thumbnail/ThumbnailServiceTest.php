@@ -72,7 +72,7 @@ class ThumbnailServiceTest extends TestCase
         $media = $this->getPngWithFolder();
 
         $filePath = $this->urlGenerator->getRelativeMediaUrl($media);
-        $this->getPublicFilesystem()->putStream($filePath, fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb'));
+        $this->getPublicFilesystem()->putStream($filePath, \fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb'));
 
         $this->thumbnailService->updateThumbnails(
             $media,
@@ -162,7 +162,7 @@ class ThumbnailServiceTest extends TestCase
         $media->getMediaFolder()->getConfiguration()->setThumbnailQuality(100);
 
         $filePath = $this->urlGenerator->getRelativeMediaUrl($media);
-        $this->getPublicFilesystem()->putStream($filePath, fopen(__DIR__ . '/../fixtures/shopware_optimized.jpg', 'rb'));
+        $this->getPublicFilesystem()->putStream($filePath, \fopen(__DIR__ . '/../fixtures/shopware_optimized.jpg', 'rb'));
 
         $this->thumbnailService->updateThumbnails(
             $media,
@@ -198,7 +198,7 @@ class ThumbnailServiceTest extends TestCase
         $media = $this->getJpgWithFolderWithoutThumbnails();
 
         $filePath = $this->urlGenerator->getRelativeMediaUrl($media);
-        $this->getPublicFilesystem()->putStream($filePath, fopen(__DIR__ . '/../fixtures/shopware.jpg', 'rb'));
+        $this->getPublicFilesystem()->putStream($filePath, \fopen(__DIR__ . '/../fixtures/shopware.jpg', 'rb'));
 
         $this->thumbnailService->updateThumbnails(
             $media,
@@ -339,7 +339,7 @@ class ThumbnailServiceTest extends TestCase
 
         $this->getPublicFilesystem()->putStream(
             $this->urlGenerator->getRelativeMediaUrl($media),
-            fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb')
+            \fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb')
         );
 
         $this->thumbnailService->generateThumbnails($media, $this->context);
@@ -396,7 +396,7 @@ class ThumbnailServiceTest extends TestCase
 
         $this->getPublicFilesystem()->putStream(
             $this->urlGenerator->getRelativeMediaUrl($media),
-            fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb')
+            \fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb')
         );
 
         $this->thumbnailService->generateThumbnails($media, $this->context);
@@ -419,7 +419,7 @@ class ThumbnailServiceTest extends TestCase
             );
 
             $fileContents = $this->getPublicFilesystem()->read($path);
-            [ $width, $height ] = getimagesizefromstring($fileContents);
+            [ $width, $height ] = \getimagesizefromstring($fileContents);
             static::assertSame(499, $width);
             static::assertSame(266, $height);
         }

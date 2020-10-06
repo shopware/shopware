@@ -149,7 +149,7 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
             return null;
         }
 
-        return new \DateTime(sprintf(
+        return new \DateTime(\sprintf(
             '%s-%s-%s',
             $birthdayYear,
             $birthdayMonth,

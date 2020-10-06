@@ -36,14 +36,14 @@ abstract class AbstractFileWriter extends AbstractWriter
 
     public function flush(Config $config, string $targetPath): void
     {
-        rewind($this->buffer);
+        \rewind($this->buffer);
 
-        $bytesCopied = stream_copy_to_stream($this->buffer, $this->tempFile);
+        $bytesCopied = \stream_copy_to_stream($this->buffer, $this->tempFile);
         if ($bytesCopied === false) {
-            throw new \RuntimeException(sprintf('Could not copy stream to %s', $this->tempPath));
+            throw new \RuntimeException(\sprintf('Could not copy stream to %s', $this->tempPath));
         }
 
-        if (ftell($this->tempFile) > 0) {
+        if (\ftell($this->tempFile) > 0) {
             $this->filesystem->putStream($targetPath, $this->tempFile);
         }
 
@@ -54,23 +54,23 @@ abstract class AbstractFileWriter extends AbstractWriter
     {
         $this->flush($config, $targetPath);
 
-        fclose($this->tempFile);
-        unlink($this->tempPath);
+        \fclose($this->tempFile);
+        \unlink($this->tempPath);
 
         $this->initTempFile();
     }
 
     private function initTempFile(): void
     {
-        $this->tempPath = tempnam(sys_get_temp_dir(), '');
+        $this->tempPath = \tempnam(\sys_get_temp_dir(), '');
         $this->tempFile = \fopen($this->tempPath, 'a+b');
     }
 
     private function initBuffer(): void
     {
         if (\is_resource($this->buffer)) {
-            fclose($this->buffer);
+            \fclose($this->buffer);
         }
-        $this->buffer = fopen('php://memory', 'r+b');
+        $this->buffer = \fopen('php://memory', 'r+b');
     }
 }

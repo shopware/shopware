@@ -43,9 +43,9 @@ class ListingPriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
                 '#tax_mode#' => $taxMode,
             ];
 
-            $select[] = str_replace(
-                array_keys($parameters),
-                array_values($parameters),
+            $select[] = \str_replace(
+                \array_keys($parameters),
+                \array_values($parameters),
                 '(JSON_UNQUOTE(JSON_EXTRACT(`#root#`.`#field#`, "$.#rule_key#.#currency_key#.to.#tax_mode#")) + 0.0)'
             );
 
@@ -62,9 +62,9 @@ class ListingPriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
                 '#tax_mode#' => $taxMode,
             ];
 
-            $select[] = str_replace(
-                array_keys($parameters),
-                array_values($parameters),
+            $select[] = \str_replace(
+                \array_keys($parameters),
+                \array_values($parameters),
                 '(JSON_UNQUOTE(JSON_EXTRACT(`#root#`.`#field#`, "$.#rule_key#.#currency_key#.to.#tax_mode#")) * #factor#)'
             );
         }
@@ -72,6 +72,6 @@ class ListingPriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
         $select[] = $this->priceFieldAccessor
             ->buildAccessor($root, new PriceField('price', 'price'), $context, '');
 
-        return sprintf('COALESCE(%s)', implode(',', $select));
+        return \sprintf('COALESCE(%s)', \implode(',', $select));
     }
 }

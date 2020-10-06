@@ -64,7 +64,7 @@ class MigrationCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $identifiers = $input->getArgument('identifier');
-        if (!is_array($identifiers)) {
+        if (!\is_array($identifiers)) {
             $identifiers = [$identifiers];
         }
 
@@ -75,8 +75,8 @@ class MigrationCommand extends Command
         /*
          * @deprecated tag:v6.4.0 Providing a timestamp cap as argument is deprecated and will be removed in v6.4.0, use the --until option instead.
          */
-        if (!$until && is_numeric(end($identifiers))) {
-            $until = (int) array_pop($identifiers);
+        if (!$until && \is_numeric(\end($identifiers))) {
+            $until = (int) \array_pop($identifiers);
             $this->io->note('Providing a timestamp cap as argument is deprecated and will be removed in v6.4.0, use the --until option instead.');
         }
 
@@ -84,7 +84,7 @@ class MigrationCommand extends Command
             throw new \InvalidArgumentException('missing timestamp cap or --all option');
         }
 
-        if (count($identifiers) > 1 && (!$input->getOption('all') || $input->getOption('limit'))) {
+        if (\count($identifiers) > 1 && (!$input->getOption('all') || $input->getOption('limit'))) {
             throw new \InvalidArgumentException('Running migrations for mutliple identifiers without --all option or with --limit option is not supported.');
         }
 
@@ -123,12 +123,12 @@ class MigrationCommand extends Command
 
     private function runMigrationForIdentifier(string $identifier, int $limit, ?int $until): int
     {
-        $this->io->writeln(sprintf('Get collection for identifier: "%s"', $identifier));
+        $this->io->writeln(\sprintf('Get collection for identifier: "%s"', $identifier));
 
         try {
             $collection = $this->loader->collect($identifier);
         } catch (UnknownMigrationSourceException $e) {
-            $this->io->note(sprintf('No collection found for identifier: "%s", continuing', $identifier));
+            $this->io->note(\sprintf('No collection found for identifier: "%s", continuing', $identifier));
 
             return 0;
         }
@@ -153,7 +153,7 @@ class MigrationCommand extends Command
         }
 
         $this->finishProgress($migratedCounter, $migrationCount);
-        $this->io->writeln(sprintf('all migrations for identifier: "%s" executed', $identifier));
+        $this->io->writeln(\sprintf('all migrations for identifier: "%s" executed', $identifier));
 
         return $migrationCount;
     }

@@ -76,7 +76,7 @@ abstract class ScheduledTaskHandler extends AbstractMessageHandler
                 'id' => $task->getTaskId(),
                 'status' => ScheduledTaskDefinition::STATUS_SCHEDULED,
                 'lastExecutionTime' => $now,
-                'nextExecutionTime' => $now->modify(sprintf('+%d seconds', $taskEntity->getRunInterval())),
+                'nextExecutionTime' => $now->modify(\sprintf('+%d seconds', $taskEntity->getRunInterval())),
             ],
         ], Context::createDefaultContext());
     }

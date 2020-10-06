@@ -30,7 +30,7 @@ class ListingPriceUpdater
 
     public function update(array $ids, Context $context): void
     {
-        $ids = array_unique(array_filter($ids));
+        $ids = \array_unique(\array_filter($ids));
 
         if (empty($ids)) {
             return;
@@ -72,11 +72,11 @@ class ListingPriceUpdater
 
         // now calculate the price range for each "parent" product
         foreach ($prices as $productId => $productPrices) {
-            $ruleIds = array_unique(array_column($productPrices, 'rule_id'));
+            $ruleIds = \array_unique(\array_column($productPrices, 'rule_id'));
 
             $listingPrices = $this->calculateListingPrices($ruleIds, $productPrices, $currencies);
 
-            $encoded = json_encode($listingPrices);
+            $encoded = \json_encode($listingPrices);
 
             $query->execute([
                 'price' => $encoded,
@@ -115,7 +115,7 @@ class ListingPriceUpdater
 
         $grouped = [];
         foreach ($data as &$row) {
-            $row['price'] = json_decode($row['price'], true);
+            $row['price'] = \json_decode($row['price'], true);
             $grouped[$row['group_id']][] = $row;
         }
 
@@ -141,7 +141,7 @@ class ListingPriceUpdater
         $defaults = $query->execute()->fetchAll();
 
         foreach ($defaults as $row) {
-            $row['price'] = json_decode($row['price'], true);
+            $row['price'] = \json_decode($row['price'], true);
             $row['price'] = $this->normalizePrices($row['price']);
             $grouped[$row['group_id']][] = $row;
         }
@@ -160,7 +160,7 @@ class ListingPriceUpdater
 
         foreach ($ruleIds as $ruleId) {
             // check if the product contains prices for the currency rule
-            $rulePrices = array_filter($prices, function (array $price) use ($ruleId) {
+            $rulePrices = \array_filter($prices, function (array $price) use ($ruleId) {
                 return $price['rule_id'] === $ruleId;
             });
 
@@ -225,9 +225,9 @@ class ListingPriceUpdater
     {
         $requiredCurrencies = [];
         foreach ($prices as $price) {
-            $requiredCurrencies = array_merge($requiredCurrencies, array_column($price['price'], 'currencyId'));
+            $requiredCurrencies = \array_merge($requiredCurrencies, \array_column($price['price'], 'currencyId'));
         }
-        $requiredCurrencies = array_unique($requiredCurrencies);
+        $requiredCurrencies = \array_unique($requiredCurrencies);
 
         foreach ($requiredCurrencies as $currencyId) {
             $currency = $currencies[$currencyId];
@@ -245,7 +245,7 @@ class ListingPriceUpdater
                 // no default price? calculation not possible!
                 $default = 'c' . Defaults::CURRENCY;
                 if (!isset($price[$default])) {
-                    throw new \RuntimeException(sprintf('Missing default price'));
+                    throw new \RuntimeException(\sprintf('Missing default price'));
                 }
 
                 $price[$key] = $this->calculateCurrencyPrice($currency, $price[$default]);
@@ -259,7 +259,7 @@ class ListingPriceUpdater
 
     private function calculateCurrencyPrice(array $currency, array $default): array
     {
-        return array_replace(
+        return \array_replace(
             $default,
             [
                 'currencyId' => $currency['id'],
@@ -277,11 +277,11 @@ class ListingPriceUpdater
 
     private function addFallbackToRulePrices(array $ruleIds, array $prices): array
     {
-        $ids = array_column($prices, 'variant_id');
-        $ids = array_unique($ids);
+        $ids = \array_column($prices, 'variant_id');
+        $ids = \array_unique($ids);
 
         // filter null id for default price
-        $ruleIds = array_filter($ruleIds);
+        $ruleIds = \array_filter($ruleIds);
 
         foreach ($ruleIds as $ruleId) {
             foreach ($ids as $id) {
@@ -291,7 +291,7 @@ class ListingPriceUpdater
 
                 $default = $this->getDefaultPrice($id, $prices);
 
-                $prices[] = array_replace($default, ['rule_id' => $ruleId]);
+                $prices[] = \array_replace($default, ['rule_id' => $ruleId]);
             }
         }
 
@@ -317,7 +317,7 @@ class ListingPriceUpdater
             }
         }
 
-        throw new \RuntimeException(sprintf('Missing default price for variant %s', $id));
+        throw new \RuntimeException(\sprintf('Missing default price for variant %s', $id));
     }
 
     private function normalizePrices(array $prices): array

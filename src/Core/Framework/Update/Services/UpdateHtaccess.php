@@ -35,20 +35,20 @@ class UpdateHtaccess implements EventSubscriberInterface
 
     public function update(): void
     {
-        if (!file_exists($this->htaccessPath) || !file_exists($this->htaccessPath . '.dist')) {
+        if (!\file_exists($this->htaccessPath) || !\file_exists($this->htaccessPath . '.dist')) {
             return;
         }
 
-        if (in_array(md5_file($this->htaccessPath), self::OLD_FILES, true)) {
+        if (\in_array(\md5_file($this->htaccessPath), self::OLD_FILES, true)) {
             $this->replaceFile($this->htaccessPath);
 
             return;
         }
 
-        $content = file_get_contents($this->htaccessPath);
+        $content = \file_get_contents($this->htaccessPath);
 
         // User has deleted the markers. So we will ignore the update process
-        if (strpos($content, self::MARKER_START) === false || strpos($content, self::MARKER_STOP) === false) {
+        if (\strpos($content, self::MARKER_START) === false || \strpos($content, self::MARKER_STOP) === false) {
             return;
         }
 
@@ -62,15 +62,15 @@ class UpdateHtaccess implements EventSubscriberInterface
     {
         $dist = $path . '.dist';
 
-        if (!file_exists($dist)) {
+        if (!\file_exists($dist)) {
             return;
         }
 
-        $perms = fileperms($dist);
-        copy($dist, $path);
+        $perms = \fileperms($dist);
+        \copy($dist, $path);
 
         if ($perms) {
-            chmod($path, $perms | 0644);
+            \chmod($path, $perms | 0644);
         }
     }
 
@@ -79,34 +79,34 @@ class UpdateHtaccess implements EventSubscriberInterface
         [$pre, $_, $post] = $this->getLinesFromMarkedFile($path);
         [$_, $existing, $_] = $this->getLinesFromMarkedFile($path . '.dist');
 
-        if (!in_array(self::INSTRUCTIONS, $existing, true)) {
-            array_unshift($existing, self::INSTRUCTIONS);
+        if (!\in_array(self::INSTRUCTIONS, $existing, true)) {
+            \array_unshift($existing, self::INSTRUCTIONS);
         }
 
-        array_unshift($existing, self::MARKER_START);
+        \array_unshift($existing, self::MARKER_START);
         $existing[] = self::MARKER_STOP;
 
-        $newFile = implode("\n", array_merge($pre, $existing, $post));
+        $newFile = \implode("\n", \array_merge($pre, $existing, $post));
 
-        $perms = fileperms($path);
-        file_put_contents($path, $newFile);
+        $perms = \fileperms($path);
+        \file_put_contents($path, $newFile);
 
         if ($perms) {
-            chmod($path, $perms | 0644);
+            \chmod($path, $perms | 0644);
         }
     }
 
     private function getLinesFromMarkedFile(string $path): ?array
     {
-        $fp = fopen($path, 'rb+');
+        $fp = \fopen($path, 'rb+');
         if (!$fp) {
             return null;
         }
 
         $lines = [];
-        while (!feof($fp)) {
-            if ($line = fgets($fp)) {
-                $lines[] = rtrim($line, "\r\n");
+        while (!\feof($fp)) {
+            if ($line = \fgets($fp)) {
+                $lines[] = \rtrim($line, "\r\n");
             }
         }
 
@@ -117,13 +117,13 @@ class UpdateHtaccess implements EventSubscriberInterface
         $existingLines = [];
 
         foreach ($lines as $line) {
-            if (!$foundStart && strpos($line, self::MARKER_START) === 0) {
+            if (!$foundStart && \strpos($line, self::MARKER_START) === 0) {
                 $foundStart = true;
 
                 continue;
             }
 
-            if (!$foundStop && strpos($line, self::MARKER_STOP) === 0) {
+            if (!$foundStop && \strpos($line, self::MARKER_STOP) === 0) {
                 $foundStop = true;
 
                 continue;

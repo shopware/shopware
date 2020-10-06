@@ -39,7 +39,7 @@ class NewsletterRecipientTaskHandler extends ScheduledTaskHandler
             return;
         }
 
-        $emailRecipientIds = array_map(function ($id) {
+        $emailRecipientIds = \array_map(function ($id) {
             return ['id' => $id];
         }, $emailRecipient->getIds());
 

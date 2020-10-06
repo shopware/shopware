@@ -75,7 +75,7 @@ class ShippingMethodIndexer extends EntityIndexer
             return null;
         }
 
-        return new ShippingMethodIndexingMessage(array_values($ids), $iterator->getOffset());
+        return new ShippingMethodIndexingMessage(\array_values($ids), $iterator->getOffset());
     }
 
     /**
@@ -103,7 +103,7 @@ class ShippingMethodIndexer extends EntityIndexer
     public function handle(EntityIndexingMessage $message): void
     {
         $ids = $message->getData();
-        $ids = array_unique(array_filter($ids));
+        $ids = \array_unique(\array_filter($ids));
 
         if (empty($ids)) {
             return;

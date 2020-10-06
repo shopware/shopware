@@ -32,7 +32,7 @@ class SalesChannelContextPersister
         if (Feature::isActive('FEATURE_NEXT_10058')) {
             $existing = $this->load($token, $customerId);
 
-            $parameters = array_replace_recursive($existing, $parameters);
+            $parameters = \array_replace_recursive($existing, $parameters);
 
             unset($parameters['token']);
 
@@ -40,7 +40,7 @@ class SalesChannelContextPersister
                 'REPLACE INTO sales_channel_api_context (`token`, `payload`, `customer_id`) VALUES (:token, :payload, :customerId)',
                 [
                     'token' => $token,
-                    'payload' => json_encode($parameters),
+                    'payload' => \json_encode($parameters),
                     'customerId' => $customerId ? Uuid::fromHexToBytes($customerId) : null,
                 ]
             );
@@ -50,13 +50,13 @@ class SalesChannelContextPersister
 
         $existing = $this->load($token);
 
-        $parameters = array_replace_recursive($existing, $parameters);
+        $parameters = \array_replace_recursive($existing, $parameters);
 
         $this->connection->executeUpdate(
             'REPLACE INTO sales_channel_api_context (`token`, `payload`) VALUES (:token, :payload)',
             [
                 'token' => $token,
-                'payload' => json_encode($parameters),
+                'payload' => \json_encode($parameters),
             ]
         );
     }
@@ -88,7 +88,7 @@ class SalesChannelContextPersister
         if ($affected === 0) {
             $this->connection->insert('sales_channel_api_context', [
                 'token' => $newToken,
-                'payload' => json_encode([]),
+                'payload' => \json_encode([]),
             ]);
         }
 
@@ -103,8 +103,8 @@ class SalesChannelContextPersister
         );
 
         // @deprecated tag:v6.4.0.0 - $context will be required
-        if (func_num_args() === 2) {
-            $context = func_get_arg(1);
+        if (\func_num_args() === 2) {
+            $context = \func_get_arg(1);
             $context->assign(['token' => $newToken]);
             $this->eventDispatcher->dispatch(new SalesChannelContextTokenChangeEvent($context, $oldToken, $newToken));
         }
@@ -115,8 +115,8 @@ class SalesChannelContextPersister
     public function load(string $token/*, ?string $customerId* = null*/): array
     {
         if (Feature::isActive('FEATURE_NEXT_10058')) {
-            if (func_num_args() === 2) {
-                $customerId = func_get_arg(1);
+            if (\func_num_args() === 2) {
+                $customerId = \func_get_arg(1);
 
                 $data = $this->connection->fetchAll('SELECT * FROM sales_channel_api_context WHERE customer_id = :customerId OR token = :token LIMIT 2', [
                     'customerId' => $customerId ? Uuid::fromHexToBytes($customerId) : null,
@@ -129,9 +129,9 @@ class SalesChannelContextPersister
 
                 $customerContext = $customerId ? $this->getCustomerContext($data, $customerId) : null;
 
-                $context = $customerContext ?? array_shift($data);
+                $context = $customerContext ?? \array_shift($data);
 
-                $payload = array_filter(json_decode($context['payload'], true));
+                $payload = \array_filter(\json_decode($context['payload'], true));
                 $payload['token'] = $context['token'];
 
                 return $payload;
@@ -147,7 +147,7 @@ class SalesChannelContextPersister
             return [];
         }
 
-        return array_filter(json_decode($parameter, true));
+        return \array_filter(\json_decode($parameter, true));
     }
 
     public function revokeAllCustomerTokens(string $customerId, string ...$preserveTokens): void
@@ -163,7 +163,7 @@ class SalesChannelContextPersister
             ->update('sales_channel_api_context')
             ->set('payload', ':payload')
             ->where('JSON_EXTRACT(payload, :customerPath) = :customerId')
-            ->setParameter(':payload', json_encode($revokeParams))
+            ->setParameter(':payload', \json_encode($revokeParams))
             ->setParameter(':customerPath', '$.customerId')
             ->setParameter(':customerId', $customerId);
 

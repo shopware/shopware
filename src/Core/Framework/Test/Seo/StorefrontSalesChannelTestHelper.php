@@ -39,7 +39,7 @@ trait StorefrontSalesChannelTestHelper
             Context::createDefaultContext()
         )->first();
 
-        $header = 'HTTP_' . str_replace('-', '_', mb_strtoupper(PlatformRequest::HEADER_ACCESS_KEY));
+        $header = 'HTTP_' . \str_replace('-', '_', \mb_strtoupper(PlatformRequest::HEADER_ACCESS_KEY));
         $browser->setServerParameter($header, $salesChannel->getAccessKey());
         $browser->setServerParameter('test-sales-channel-id', $salesChannel->getId());
 
@@ -69,7 +69,7 @@ trait StorefrontSalesChannelTestHelper
         /** @var EntityRepositoryInterface $repo */
         $repo = $this->getContainer()->get('sales_channel.repository');
         $languageIds[] = $defaultLanguageId;
-        $languageIds = array_unique($languageIds);
+        $languageIds = \array_unique($languageIds);
 
         $domains = [];
         $languages = [];

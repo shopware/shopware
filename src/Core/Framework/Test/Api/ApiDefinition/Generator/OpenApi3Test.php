@@ -16,7 +16,7 @@ class OpenApi3Test extends TestCase
 
     public function apiVersionDataProvider(): array
     {
-        return array_map(static function ($v) {
+        return \array_map(static function ($v) {
             return [$v];
         }, $this->getContainer()->getParameter('kernel.supported_api_versions'));
     }
@@ -30,8 +30,8 @@ class OpenApi3Test extends TestCase
 
         $response = $this->getBrowser()->getResponse();
 
-        $content = json_decode($response->getContent(), true);
+        $content = \json_decode($response->getContent(), true);
 
-        static::assertSame(200, $response->getStatusCode(), print_r($content, true));
+        static::assertSame(200, $response->getStatusCode(), \print_r($content, true));
     }
 }

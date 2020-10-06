@@ -114,7 +114,7 @@ class AppAction
     {
         foreach ($ids as $id) {
             if (!Uuid::isValid($id)) {
-                throw new InvalidArgumentException(sprintf('%s is not a valid uuid', $id));
+                throw new InvalidArgumentException(\sprintf('%s is not a valid uuid', $id));
             }
         }
         $this->ids = $ids;
@@ -122,16 +122,16 @@ class AppAction
 
     private function setTargetUrl(string $targetUrl): void
     {
-        if (!filter_var($targetUrl, FILTER_VALIDATE_URL, [FILTER_FLAG_SCHEME_REQUIRED, FILTER_FLAG_HOST_REQUIRED])) {
-            throw new InvalidArgumentException(sprintf('%s is not a valid url', $targetUrl));
+        if (!\filter_var($targetUrl, FILTER_VALIDATE_URL, [FILTER_FLAG_SCHEME_REQUIRED, FILTER_FLAG_HOST_REQUIRED])) {
+            throw new InvalidArgumentException(\sprintf('%s is not a valid url', $targetUrl));
         }
         $this->targetUrl = $targetUrl;
     }
 
     private function setAppVersion(string $appVersion): void
     {
-        if (!preg_match(self::VERSION_VALIDATE_REGEX, $appVersion)) {
-            throw new InvalidArgumentException(sprintf('%s is not a valid version', $appVersion));
+        if (!\preg_match(self::VERSION_VALIDATE_REGEX, $appVersion)) {
+            throw new InvalidArgumentException(\sprintf('%s is not a valid version', $appVersion));
         }
         $this->appVersion = $appVersion;
     }
@@ -154,8 +154,8 @@ class AppAction
 
     private function setShopUrl(string $shopUrl): void
     {
-        if (!filter_var($shopUrl, FILTER_VALIDATE_URL, [FILTER_FLAG_SCHEME_REQUIRED, FILTER_FLAG_HOST_REQUIRED])) {
-            throw new InvalidArgumentException(sprintf('%s is not a valid url', $shopUrl));
+        if (!\filter_var($shopUrl, FILTER_VALIDATE_URL, [FILTER_FLAG_SCHEME_REQUIRED, FILTER_FLAG_HOST_REQUIRED])) {
+            throw new InvalidArgumentException(\sprintf('%s is not a valid url', $shopUrl));
         }
         $this->shopUrl = $shopUrl;
     }

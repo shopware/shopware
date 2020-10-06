@@ -167,7 +167,7 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
         }
 
         if ($sorting) {
-            $sorting = explode(':', $sorting);
+            $sorting = \explode(':', $sorting);
             $field = $sorting[0];
             $direction = $sorting[1];
 
@@ -188,10 +188,10 @@ class ProductSliderCmsElementResolver extends AbstractCmsElementResolver
             'tax.id',
             'cover.id',
         ];
-        shuffle($fields);
-        $fields = array_slice($fields, 0, 2);
+        \shuffle($fields);
+        $fields = \array_slice($fields, 0, 2);
         $direction = [FieldSorting::ASCENDING, FieldSorting::DESCENDING];
-        $direction = $direction[random_int(0, 1)];
+        $direction = $direction[\random_int(0, 1)];
         foreach ($fields as $field) {
             $criteria->addSorting(new FieldSorting($field, $direction));
         }

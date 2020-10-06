@@ -161,8 +161,8 @@ class PromotionSetGroupCalculationTest extends TestCase
 
         static::assertEquals($expectedTotal, $cart->getPrice()->getPositionPrice(), 'Position Total Price is wrong');
         static::assertEquals($expectedTotal, $cart->getPrice()->getTotalPrice(), 'Total Price is wrong');
-        static::assertEquals(round($expectedNetPrice, 2), $cart->getPrice()->getNetPrice(), 'Net Price is wrong');
-        static::assertEquals(round($expectedTaxes, 2), $cart->getPrice()->getCalculatedTaxes()->getAmount(), 'Taxes are wrong');
+        static::assertEquals(\round($expectedNetPrice, 2), $cart->getPrice()->getNetPrice(), 'Net Price is wrong');
+        static::assertEquals(\round($expectedTaxes, 2), $cart->getPrice()->getCalculatedTaxes()->getAmount(), 'Taxes are wrong');
     }
 
     /**
@@ -221,8 +221,8 @@ class PromotionSetGroupCalculationTest extends TestCase
 
         static::assertEquals($expectedTotal, $cart->getPrice()->getPositionPrice(), 'Position Total Price is wrong');
         static::assertEquals($expectedTotal, $cart->getPrice()->getTotalPrice(), 'Total Price is wrong');
-        static::assertEquals(round($expectedNetPrice, 2), $cart->getPrice()->getNetPrice(), 'Net Price is wrong');
-        static::assertEquals(round($expectedTaxes, 2), $cart->getPrice()->getCalculatedTaxes()->getAmount(), 'Taxes are wrong');
+        static::assertEquals(\round($expectedNetPrice, 2), $cart->getPrice()->getNetPrice(), 'Net Price is wrong');
+        static::assertEquals(\round($expectedTaxes, 2), $cart->getPrice()->getCalculatedTaxes()->getAmount(), 'Taxes are wrong');
     }
 
     /**
@@ -281,7 +281,7 @@ class PromotionSetGroupCalculationTest extends TestCase
 
         static::assertEquals($expectedTotal, $cart->getPrice()->getPositionPrice(), 'Position Total Price is wrong');
         static::assertEquals($expectedTotal, $cart->getPrice()->getTotalPrice(), 'Total Price is wrong');
-        static::assertEquals(round($expectedNetPrice, 2), $cart->getPrice()->getNetPrice(), 'Net Price is wrong');
-        static::assertEquals(round($expectedTaxes, 2), $cart->getPrice()->getCalculatedTaxes()->getAmount(), 'Taxes are wrong');
+        static::assertEquals(\round($expectedNetPrice, 2), $cart->getPrice()->getNetPrice(), 'Net Price is wrong');
+        static::assertEquals(\round($expectedTaxes, 2), $cart->getPrice()->getCalculatedTaxes()->getAmount(), 'Taxes are wrong');
     }
 }

@@ -103,7 +103,7 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
 
         $prices = $this->getFirstMatchingPriceRule($product->getPrices(), $context);
 
-        if (!$prices || count($prices) <= 0) {
+        if (!$prices || \count($prices) <= 0) {
             $price = $this->getProductCurrencyPrice($product, $context);
 
             $definition = new QuantityPriceDefinition($price, $taxRules, $currencyPrecision, 1, true, $this->buildReferencePriceDefinition($product));
@@ -181,7 +181,7 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
         foreach ($context->getRuleIds() as $ruleId) {
             $filtered = $this->filterByRuleId($rules->getElements(), $ruleId);
 
-            if (count($filtered) > 0) {
+            if (\count($filtered) > 0) {
                 return $filtered;
             }
         }
@@ -226,7 +226,7 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
 
     private function sortByQuantity(array $prices): array
     {
-        usort($prices, function (ProductPriceEntity $a, ProductPriceEntity $b) {
+        \usort($prices, function (ProductPriceEntity $a, ProductPriceEntity $b) {
             return $a->getQuantityStart() <=> $b->getQuantityStart();
         });
 

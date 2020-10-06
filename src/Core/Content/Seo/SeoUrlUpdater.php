@@ -80,7 +80,7 @@ class SeoUrlUpdater
 
         $route = $this->seoUrlRouteRegistry->findByRouteName($routeName);
         if (!$route) {
-            throw new \RuntimeException(sprintf('Route by name %s not found', $routeName));
+            throw new \RuntimeException(\sprintf('Route by name %s not found', $routeName));
         }
 
         foreach ($templates as $config) {
@@ -135,7 +135,7 @@ class SeoUrlUpdater
             $grouped[$template['sales_channel_id']][$template['route_name']] = $template['template'];
         }
 
-        if (!array_key_exists('', $grouped)) {
+        if (!\array_key_exists('', $grouped)) {
             throw new \RuntimeException('Default templates not configured');
         }
         $defaults = $grouped[''];

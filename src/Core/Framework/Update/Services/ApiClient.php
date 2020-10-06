@@ -76,11 +76,11 @@ final class ApiClient
         if ($testMode === true) {
             return VersionFactory::createTestVersion();
         }
-        $response = $this->client->get('/v1/release/update?' . http_build_query($this->getUpdateOptions()));
+        $response = $this->client->get('/v1/release/update?' . \http_build_query($this->getUpdateOptions()));
 
         $this->verifyResponseSignature($response);
 
-        $data = json_decode((string) $response->getBody(), true);
+        $data = \json_decode((string) $response->getBody(), true);
 
         $version = VersionFactory::create($data);
 
@@ -125,7 +125,7 @@ final class ApiClient
 
     private function getCacheKey(): string
     {
-        return 'swUpdateCheck' . md5(json_encode($this->getUpdateOptions())) . date('YmdH');
+        return 'swUpdateCheck' . \md5(\json_encode($this->getUpdateOptions())) . \date('YmdH');
     }
 
     private function verifyResponseSignature(ResponseInterface $response): void
@@ -133,13 +133,13 @@ final class ApiClient
         $signatureHeaderName = self::SHOPWARE_SIGNATURE_HEADER;
         $header = $response->getHeader($signatureHeaderName);
         if (!isset($header[0])) {
-            throw new UpdateApiSignatureValidationException(sprintf('Signature not found in header "%s"', $signatureHeaderName));
+            throw new UpdateApiSignatureValidationException(\sprintf('Signature not found in header "%s"', $signatureHeaderName));
         }
 
         $signature = $header[0];
 
         if (empty($signature)) {
-            throw new UpdateApiSignatureValidationException(sprintf('Signature not found in header "%s"', $signatureHeaderName));
+            throw new UpdateApiSignatureValidationException(\sprintf('Signature not found in header "%s"', $signatureHeaderName));
         }
 
         if (!$this->openSSLVerifier->isSystemSupported()) {

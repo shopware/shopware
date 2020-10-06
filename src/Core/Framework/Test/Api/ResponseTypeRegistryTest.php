@@ -49,7 +49,7 @@ class ResponseTypeRegistryTest extends TestCase
         $response = $this->getDetailResponse($context, $id, '/api/v' . PlatformRequest::API_VERSION . '/category/' . $id, 1, $accept, false);
 
         static::assertEquals($accept, $response->headers->get('content-type'));
-        $content = json_decode($response->getContent(), true);
+        $content = \json_decode($response->getContent(), true);
         static::assertEquals($id, $content['data']['name']);
     }
 
@@ -62,7 +62,7 @@ class ResponseTypeRegistryTest extends TestCase
         $response = $this->getDetailResponse($context, $id, $self, PlatformRequest::API_VERSION, $accept, false);
 
         static::assertEquals($accept, $response->headers->get('content-type'));
-        $content = json_decode($response->getContent(), true);
+        $content = \json_decode($response->getContent(), true);
 
         $this->assertDetailJsonApiStructure($content);
         static::assertEquals($id, $content['data']['attributes']['name']);
@@ -79,7 +79,7 @@ class ResponseTypeRegistryTest extends TestCase
         $response = $this->getDetailResponse($context, $id, $self, PlatformRequest::API_VERSION, $accept, false);
 
         static::assertEquals('application/vnd.api+json', $response->headers->get('content-type'));
-        $content = json_decode($response->getContent(), true);
+        $content = \json_decode($response->getContent(), true);
 
         $this->assertDetailJsonApiStructure($content);
         static::assertEquals($id, $content['data']['attributes']['name']);
@@ -105,7 +105,7 @@ class ResponseTypeRegistryTest extends TestCase
         $response = $this->getDetailResponse($context, $id, '/sales-channel-api/category/' . $id, null, $accept, false);
 
         static::assertEquals($accept, $response->headers->get('content-type'));
-        $content = json_decode($response->getContent(), true);
+        $content = \json_decode($response->getContent(), true);
         static::assertEquals($id, $content['data']['name']);
     }
 
@@ -118,7 +118,7 @@ class ResponseTypeRegistryTest extends TestCase
         $response = $this->getDetailResponse($context, $id, $self, null, $accept, false);
 
         static::assertEquals($accept, $response->headers->get('content-type'));
-        $content = json_decode($response->getContent(), true);
+        $content = \json_decode($response->getContent(), true);
 
         $this->assertDetailJsonApiStructure($content);
         static::assertEquals($id, $content['data']['attributes']['name']);
@@ -135,7 +135,7 @@ class ResponseTypeRegistryTest extends TestCase
         $response = $this->getDetailResponse($context, $id, $self, null, $accept, false);
 
         static::assertEquals('application/json', $response->headers->get('content-type'));
-        $content = json_decode($response->getContent(), true);
+        $content = \json_decode($response->getContent(), true);
         static::assertEquals($id, $content['data']['name']);
     }
 
@@ -158,7 +158,7 @@ class ResponseTypeRegistryTest extends TestCase
         $response = $this->getListResponse($context, $id, $self, null, $accept);
 
         static::assertEquals($accept, $response->headers->get('content-type'));
-        $content = json_decode($response->getContent(), true);
+        $content = \json_decode($response->getContent(), true);
 
         $this->assertDetailJsonApiStructure($content);
         static::assertNotEmpty($content['data']);
@@ -176,7 +176,7 @@ class ResponseTypeRegistryTest extends TestCase
         $response = $this->getListResponse($context, $id, $self, PlatformRequest::API_VERSION, $accept);
 
         static::assertEquals($accept, $response->headers->get('content-type'));
-        $content = json_decode($response->getContent(), true);
+        $content = \json_decode($response->getContent(), true);
 
         $this->assertDetailJsonApiStructure($content);
         static::assertNotEmpty($content['data']);

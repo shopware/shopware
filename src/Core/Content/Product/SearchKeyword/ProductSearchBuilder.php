@@ -27,13 +27,13 @@ class ProductSearchBuilder implements ProductSearchBuilderInterface
     {
         $search = $request->get('search');
 
-        if (is_array($search)) {
-            $term = implode(' ', $search);
+        if (\is_array($search)) {
+            $term = \implode(' ', $search);
         } else {
             $term = (string) $search;
         }
 
-        $term = trim($term);
+        $term = \trim($term);
         if (empty($term)) {
             throw new MissingRequestParameterException('search');
         }
@@ -57,7 +57,7 @@ class ProductSearchBuilder implements ProductSearchBuilderInterface
             )
         );
 
-        $criteria->addFilter(new EqualsAnyFilter('product.searchKeywords.keyword', array_values($pattern->getAllTerms())));
+        $criteria->addFilter(new EqualsAnyFilter('product.searchKeywords.keyword', \array_values($pattern->getAllTerms())));
         $criteria->addFilter(new EqualsFilter('product.searchKeywords.languageId', $context->getContext()->getLanguageId()));
     }
 }

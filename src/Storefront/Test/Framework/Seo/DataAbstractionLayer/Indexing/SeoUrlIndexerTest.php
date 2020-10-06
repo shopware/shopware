@@ -569,14 +569,14 @@ class SeoUrlIndexerTest extends TestCase
             $template->setTemplate('');
         }
 
-        $data = array_map(static function (string $templateId): array {
+        $data = \array_map(static function (string $templateId): array {
             return [
                 'id' => $templateId,
                 'template' => null,
             ];
         }, $templates->getIds());
 
-        $templateRepository->upsert(array_values($data), Context::createDefaultContext());
+        $templateRepository->upsert(\array_values($data), Context::createDefaultContext());
 
         $this->testIndex(0);
     }
@@ -603,7 +603,7 @@ class SeoUrlIndexerTest extends TestCase
             'entityName' => $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
             'routeName' => ProductPageSeoUrlRoute::ROUTE_NAME,
         ];
-        $seoUrlTemplate = array_merge($seoUrlTemplateDefaults, $data);
+        $seoUrlTemplate = \array_merge($seoUrlTemplateDefaults, $data);
         $this->templateRepository->upsert([$seoUrlTemplate], Context::createDefaultContext());
     }
 
@@ -619,7 +619,7 @@ class SeoUrlIndexerTest extends TestCase
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 12, 'linked' => false]],
             'stock' => 0,
         ];
-        $data = array_merge($defaults, $data);
+        $data = \array_merge($defaults, $data);
         $this->productRepository->upsert([$data], Context::createDefaultContext());
     }
 

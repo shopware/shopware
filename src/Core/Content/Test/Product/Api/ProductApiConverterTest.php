@@ -43,7 +43,7 @@ class ProductApiConverterTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
-        $products = json_decode($response->getContent(), true);
+        $products = \json_decode($response->getContent(), true);
 
         $product = $products['data'][0];
 

@@ -32,7 +32,7 @@ abstract class Plugin extends Bundle
         $this->active = $active;
         $this->basePath = $basePath;
 
-        if ($projectDir && mb_strpos($this->basePath, '/') !== 0) {
+        if ($projectDir && \mb_strpos($this->basePath, '/') !== 0) {
             $this->basePath = $projectDir . '/' . $this->basePath;
         }
 
@@ -103,11 +103,11 @@ abstract class Plugin extends Bundle
     final public function removeMigrations(): void
     {
         // namespace should not start with `shopware`
-        if (mb_stripos($this->getMigrationNamespace(), 'shopware') === 0) {
+        if (\mb_stripos($this->getMigrationNamespace(), 'shopware') === 0) {
             throw new \RuntimeException('Deleting Shopware migrations is not allowed');
         }
 
-        $class = addcslashes($this->getMigrationNamespace(), '\\_%') . '%';
+        $class = \addcslashes($this->getMigrationNamespace(), '\\_%') . '%';
         Kernel::getConnection()->executeUpdate('DELETE FROM migration WHERE class LIKE :class', ['class' => $class]);
     }
 
@@ -130,7 +130,7 @@ abstract class Plugin extends Bundle
         $roles = $aclRepository->search($criteria, Context::createDefaultContext());
 
         foreach ($roles as $role) {
-            $role->setPrivileges(array_merge($role->getPrivileges(), $privileges));
+            $role->setPrivileges(\array_merge($role->getPrivileges(), $privileges));
             $aclRepository->update(
                 [
                     [
@@ -159,7 +159,7 @@ abstract class Plugin extends Bundle
 
             /** @var AclRoleEntity $role */
             foreach ($roles as $role) {
-                $role->setPrivileges(array_diff($role->getPrivileges(), [$privilege]));
+                $role->setPrivileges(\array_diff($role->getPrivileges(), [$privilege]));
                 $aclRepository->update(
                     [
                         [
@@ -176,10 +176,10 @@ abstract class Plugin extends Bundle
     private function computePluginClassPath(): string
     {
         $canonicalizedPluginClassPath = parent::getPath();
-        $canonicalizedPluginPath = realpath($this->basePath);
+        $canonicalizedPluginPath = \realpath($this->basePath);
 
-        if ($canonicalizedPluginPath !== false && mb_strpos($canonicalizedPluginClassPath, $canonicalizedPluginPath) === 0) {
-            $relativePluginClassPath = mb_substr($canonicalizedPluginClassPath, mb_strlen($canonicalizedPluginPath));
+        if ($canonicalizedPluginPath !== false && \mb_strpos($canonicalizedPluginClassPath, $canonicalizedPluginPath) === 0) {
+            $relativePluginClassPath = \mb_substr($canonicalizedPluginClassPath, \mb_strlen($canonicalizedPluginPath));
 
             return $this->basePath . $relativePluginClassPath;
         }

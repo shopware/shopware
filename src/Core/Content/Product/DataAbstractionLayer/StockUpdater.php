@@ -135,7 +135,7 @@ class StockUpdater implements EventSubscriberInterface
             $ids[] = $changeSet->getAfter('referenced_id');
         }
 
-        $ids = array_filter(array_unique($ids));
+        $ids = \array_filter(\array_unique($ids));
 
         if (empty($ids)) {
             return;
@@ -171,7 +171,7 @@ class StockUpdater implements EventSubscriberInterface
         if ($event->getToPlace()->getTechnicalName() === OrderStates::STATE_CANCELLED || $event->getFromPlace()->getTechnicalName() === OrderStates::STATE_CANCELLED) {
             $products = $this->getProductsOfOrder($event->getEntityId());
 
-            $ids = array_column($products, 'referenced_id');
+            $ids = \array_column($products, 'referenced_id');
 
             $this->updateAvailableStockAndSales($ids, $event->getContext());
 
@@ -213,7 +213,7 @@ class StockUpdater implements EventSubscriberInterface
     {
         $products = $this->getProductsOfOrder($event->getEntityId());
 
-        $ids = array_column($products, 'referenced_id');
+        $ids = \array_column($products, 'referenced_id');
 
         $this->updateStock($products, +1);
 
@@ -228,7 +228,7 @@ class StockUpdater implements EventSubscriberInterface
     {
         $products = $this->getProductsOfOrder($event->getEntityId());
 
-        $ids = array_column($products, 'referenced_id');
+        $ids = \array_column($products, 'referenced_id');
 
         $this->updateStock($products, -1);
 
@@ -241,7 +241,7 @@ class StockUpdater implements EventSubscriberInterface
 
     private function updateAvailableStockAndSales(array $ids, Context $context): void
     {
-        $ids = array_filter(array_keys(array_flip($ids)));
+        $ids = \array_filter(\array_keys(\array_flip($ids)));
 
         if (empty($ids)) {
             return;
@@ -288,9 +288,9 @@ GROUP BY product_id;
             ]
         );
 
-        $fallback = array_column($rows, 'product_id');
+        $fallback = \array_column($rows, 'product_id');
 
-        $fallback = array_diff($ids, $fallback);
+        $fallback = \array_diff($ids, $fallback);
 
         $update = new RetryableQuery(
             $this->connection->prepare('UPDATE product SET available_stock = stock - :open_quantity, sales = :sales_quantity WHERE id = :id')
@@ -315,7 +315,7 @@ GROUP BY product_id;
 
     private function updateAvailableFlag(array $ids, Context $context): void
     {
-        $ids = array_filter(array_keys(array_flip($ids)));
+        $ids = \array_filter(\array_keys(\array_flip($ids)));
 
         if (empty($ids)) {
             return;

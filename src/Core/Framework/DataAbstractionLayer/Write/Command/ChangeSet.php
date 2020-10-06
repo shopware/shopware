@@ -26,7 +26,7 @@ class ChangeSet extends Struct
         $this->state = $state;
 
         // calculate changes
-        $changes = array_intersect_key($payload, $state);
+        $changes = \array_intersect_key($payload, $state);
 
         // validate data types
         foreach ($changes as $property => $after) {
@@ -66,7 +66,7 @@ class ChangeSet extends Struct
 
     public function hasChanged(string $property): bool
     {
-        return array_key_exists($property, $this->after) || $this->isDelete;
+        return \array_key_exists($property, $this->after) || $this->isDelete;
     }
 
     public function getApiAlias(): string

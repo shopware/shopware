@@ -33,7 +33,7 @@ class Feature
          * - FEATURE_NEXT_1234
          * - SAAS_321
          */
-        if (!preg_match('/(feature)?[-_ ]?([^-_ 0-9]*)[-_ ]?([0-9]+)/i', $name, $matches)) {
+        if (!\preg_match('/(feature)?[-_ ]?([^-_ 0-9]*)[-_ ]?([0-9]+)/i', $name, $matches)) {
             throw new \InvalidArgumentException('Invalid feature name "' . $name . '"');
         }
 
@@ -42,7 +42,7 @@ class Feature
             $project .= '_';
         }
 
-        return strtoupper('FEATURE_' . $project . $matches[3]);
+        return \strtoupper('FEATURE_' . $project . $matches[3]);
     }
 
     public static function isActive(string $feature): bool
@@ -59,14 +59,14 @@ class Feature
             && !isset(self::$registeredFeatures[$feature])
             && $env !== 'prod'
         ) {
-            trigger_error('Unknown feature "' . $feature . '"', E_USER_WARNING);
+            \trigger_error('Unknown feature "' . $feature . '"', E_USER_WARNING);
         }
 
         if (!isset($_SERVER[$feature])) {
             return false;
         }
 
-        $value = trim($_SERVER[$feature]);
+        $value = \trim($_SERVER[$feature]);
 
         return $value
             && $value !== 'false'
@@ -144,16 +144,16 @@ return static function(ContainerConfigurator $configurator) {
 };
 TEMPLATE;
 
-        $rendered = str_replace(
+        $rendered = \str_replace(
             ['%class%', '%features%'],
-            [self::class, var_export($values, true)],
+            [self::class, \var_export($values, true)],
             $template
         );
 
-        $current = file_exists($dumpPath) ? file_get_contents($dumpPath) : '';
+        $current = \file_exists($dumpPath) ? \file_get_contents($dumpPath) : '';
 
         if ($current !== $rendered) {
-            file_put_contents($dumpPath, $rendered);
+            \file_put_contents($dumpPath, $rendered);
         }
     }
 }

@@ -85,7 +85,7 @@ class FeatureTest extends TestCase
     public function testConfigGetAllReturnsAllAndTracksState(): void
     {
         $this->setUp();
-        $currentConfig = array_keys(Feature::getAll());
+        $currentConfig = \array_keys(Feature::getAll());
         $featureFlags = $this->getContainer()->getParameter('shopware.feature.flags');
 
         foreach ($featureFlags as &$flag) {
@@ -95,9 +95,9 @@ class FeatureTest extends TestCase
         static::assertEquals($featureFlags, $currentConfig);
 
         self::setUpFixtures();
-        $featureFlags = array_merge($featureFlags, $this->fixtureFlags);
+        $featureFlags = \array_merge($featureFlags, $this->fixtureFlags);
 
-        $configAfterRegistration = array_keys(Feature::getAll());
+        $configAfterRegistration = \array_keys(Feature::getAll());
         static::assertEquals($featureFlags, $configAfterRegistration);
     }
 
@@ -136,8 +136,8 @@ class FeatureTest extends TestCase
     private function setUpFixtures(): void
     {
         //init FeatureConfig
-        $registeredFlags = array_keys(Feature::getAll());
-        $registeredFlags = array_merge($registeredFlags, $this->fixtureFlags);
+        $registeredFlags = \array_keys(Feature::getAll());
+        $registeredFlags = \array_merge($registeredFlags, $this->fixtureFlags);
 
         Feature::setRegisteredFeatures(
             $registeredFlags,

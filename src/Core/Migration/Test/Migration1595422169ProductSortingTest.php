@@ -109,8 +109,8 @@ class Migration1595422169ProductSortingTest extends TestCase
             ['id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]
         );
 
-        $translations = array_column($translations, 'label');
-        sort($translations);
+        $translations = \array_column($translations, 'label');
+        \sort($translations);
 
         $expected = [
             'Name A-Z',
@@ -120,7 +120,7 @@ class Migration1595422169ProductSortingTest extends TestCase
             'Top results',
         ];
 
-        sort($expected);
+        \sort($expected);
 
         static::assertEquals($expected, $translations);
     }

@@ -27,7 +27,7 @@ class AppSnippetFileLoader
     public function loadSnippetFilesFromApp(string $author, string $appPath, bool $isAbsolutePath = false): array
     {
         $snippetDir = $this->getSnippetDir($appPath, $isAbsolutePath);
-        if (!is_dir($snippetDir)) {
+        if (!\is_dir($snippetDir)) {
             return [];
         }
 
@@ -36,7 +36,7 @@ class AppSnippetFileLoader
         $snippetFiles = [];
 
         foreach ($finder->getIterator() as $fileInfo) {
-            $nameParts = explode('.', $fileInfo->getFilenameWithoutExtension());
+            $nameParts = \explode('.', $fileInfo->getFilenameWithoutExtension());
 
             $snippetFile = $this->createSnippetFile($nameParts, $fileInfo, $author);
 
@@ -63,7 +63,7 @@ class AppSnippetFileLoader
      */
     private function createSnippetFile(array $nameParts, SplFileInfo $fileInfo, string $author): ?GenericSnippetFile
     {
-        switch (count($nameParts)) {
+        switch (\count($nameParts)) {
             case 2:
                 return $this->getSnippetFile($nameParts, $fileInfo, $author);
             case 3:
@@ -79,7 +79,7 @@ class AppSnippetFileLoader
     private function getSnippetFile(array $nameParts, SplFileInfo $fileInfo, string $author): GenericSnippetFile
     {
         return new GenericSnippetFile(
-            implode('.', $nameParts),
+            \implode('.', $nameParts),
             $fileInfo->getPathname(),
             $nameParts[1],
             $author,
@@ -93,7 +93,7 @@ class AppSnippetFileLoader
     private function getBaseSnippetFile(array $nameParts, SplFileInfo $fileInfo, string $author): GenericSnippetFile
     {
         return new GenericSnippetFile(
-            implode('.', [$nameParts[0], $nameParts[1]]),
+            \implode('.', [$nameParts[0], $nameParts[1]]),
             $fileInfo->getPathname(),
             $nameParts[1],
             $author,

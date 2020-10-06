@@ -44,7 +44,7 @@ class Migration1595489705PreventOldListingPricesTest extends TestCase
             'UPDATE product SET listing_prices = :prices WHERE id = :id',
             [
                 'id' => Uuid::fromHexToBytes($id),
-                'prices' => json_encode($update),
+                'prices' => \json_encode($update),
             ]
         );
 
@@ -53,8 +53,8 @@ class Migration1595489705PreventOldListingPricesTest extends TestCase
             ['id' => Uuid::fromHexToBytes($id)]
         );
 
-        if (is_string($row)) {
-            $row = json_decode($row, true);
+        if (\is_string($row)) {
+            $row = \json_decode($row, true);
         }
         static::assertEquals($expected, $row);
     }
@@ -63,7 +63,7 @@ class Migration1595489705PreventOldListingPricesTest extends TestCase
     {
         return [
             'write old structure' => [
-                ['structs' => serialize(new ListingPriceCollection()), 'formatted' => ['gross' => 1]],
+                ['structs' => \serialize(new ListingPriceCollection()), 'formatted' => ['gross' => 1]],
                 null,
             ],
             'write new structure' => [

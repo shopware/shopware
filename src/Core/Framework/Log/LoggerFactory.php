@@ -18,7 +18,7 @@ class LoggerFactory
 
     public function createRotating(string $filePrefix, ?int $fileRotationCount = null): LoggerInterface
     {
-        $filepath = sprintf($this->rotatingFilePathPattern, $filePrefix);
+        $filepath = \sprintf($this->rotatingFilePathPattern, $filePrefix);
 
         $result = new Logger($filePrefix);
         $result->pushHandler(new RotatingFileHandler($filepath, $fileRotationCount ?? 14));

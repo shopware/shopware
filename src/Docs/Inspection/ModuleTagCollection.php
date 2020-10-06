@@ -30,12 +30,12 @@ class ModuleTagCollection extends Collection
 
     public function getModuleName(): string
     {
-        return explode('/', $this->getModulePathName())[1];
+        return \explode('/', $this->getModulePathName())[1];
     }
 
     public function getBundleName(): string
     {
-        return explode('/', $this->getModulePathName())[0];
+        return \explode('/', $this->getModulePathName())[0];
     }
 
     public function merge(array $moduleTags): void

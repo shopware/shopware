@@ -85,6 +85,6 @@ class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
 
         $categories = $this->categoryRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
 
-        return array_shift($categories);
+        return \array_shift($categories);
     }
 }

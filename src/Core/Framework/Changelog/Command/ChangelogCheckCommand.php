@@ -41,17 +41,17 @@ class ChangelogCheckCommand extends Command
 
         /** @var string $path */
         $path = $input->getArgument('changelog') ?: '';
-        if (!empty($path) && !file_exists($path)) {
+        if (!empty($path) && !\file_exists($path)) {
             $IOHelper->error('The given file NOT found');
 
             return 1;
         }
 
         $output = $this->validator->check($path);
-        if (count($output)) {
+        if (\count($output)) {
             foreach ($output as $file => $violations) {
                 $IOHelper->writeln((string) $file);
-                $IOHelper->writeln(array_map(function ($message) {
+                $IOHelper->writeln(\array_map(function ($message) {
                     return '* ' . $message;
                 }, $violations));
                 $IOHelper->newLine();

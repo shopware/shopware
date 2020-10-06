@@ -103,7 +103,7 @@ class CompiledFieldCollection extends FieldCollection
 
     public function getMappedByStorageName()
     {
-        return array_keys($this->mappedByStorageName);
+        return \array_keys($this->mappedByStorageName);
     }
 
     public function getByStorageName(string $storageName): ?Field

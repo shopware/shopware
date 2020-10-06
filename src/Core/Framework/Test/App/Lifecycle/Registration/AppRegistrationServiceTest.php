@@ -96,7 +96,7 @@ class AppRegistrationServiceTest extends TestCase
         static::assertEquals($this->shopIdProvider->getShopId(), $postBody['shopId']);
 
         static::assertEquals(
-            hash_hmac('sha256', json_encode($postBody), $appSecret),
+            \hash_hmac('sha256', \json_encode($postBody), $appSecret),
             $confirmationReq->getHeaderLine('shopware-shop-signature')
         );
     }
@@ -249,7 +249,7 @@ class AppRegistrationServiceTest extends TestCase
     private function assertRequestIsSigned(RequestInterface $registrationRequest, string $secret): void
     {
         static::assertEquals(
-            hash_hmac('sha256', $registrationRequest->getUri()->getQuery(), $secret),
+            \hash_hmac('sha256', $registrationRequest->getUri()->getQuery(), $secret),
             $registrationRequest->getHeaderLine('shopware-app-signature')
         );
     }

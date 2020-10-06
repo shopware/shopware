@@ -64,7 +64,7 @@ class LogoutRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertSame('CHECKOUT__CUSTOMER_NOT_LOGGED_IN', $response['errors'][0]['code']);
@@ -86,7 +86,7 @@ class LogoutRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('contextToken', $response);
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $response['contextToken']);
@@ -115,7 +115,7 @@ class LogoutRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('errors', $response);
     }
@@ -141,7 +141,7 @@ class LogoutRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         $currentCustomerToken = $response['contextToken'];
 
@@ -192,7 +192,7 @@ class LogoutRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         $currentCustomerToken = $response['contextToken'];
 

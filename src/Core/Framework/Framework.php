@@ -134,7 +134,7 @@ class Framework extends Bundle
         $configLoader->load($confDir . '/{packages}/*' . Kernel::CONFIG_EXTS, 'glob');
         $configLoader->load($confDir . '/{packages}/' . $environment . '/*' . Kernel::CONFIG_EXTS, 'glob');
         $shopwareFeaturesPath = $container->getParameter('kernel.cache_dir') . '/shopware_features.php';
-        if (is_readable($shopwareFeaturesPath)) {
+        if (\is_readable($shopwareFeaturesPath)) {
             $configLoader->load($shopwareFeaturesPath, 'php');
         }
     }

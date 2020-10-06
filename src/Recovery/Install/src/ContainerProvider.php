@@ -39,18 +39,18 @@ class ContainerProvider implements ServiceProviderInterface
      */
     public function register(Container $container): void
     {
-        $recoveryRoot = dirname(__DIR__, 2);
+        $recoveryRoot = \dirname(__DIR__, 2);
         $container['config'] = $this->config;
         $container['install.language'] = '';
 
         $container['shopware.version'] = static function () {
             $version = null;
             $versionFile = SW_PATH . '/public/recovery/install/data/version';
-            if (is_readable($versionFile)) {
-                $version = file_get_contents($versionFile) ?: null;
+            if (\is_readable($versionFile)) {
+                $version = \file_get_contents($versionFile) ?: null;
             }
 
-            return trim($version ?? '9999999-dev');
+            return \trim($version ?? '9999999-dev');
         };
 
         $container['slim.app'] = static function ($c) {
@@ -78,7 +78,7 @@ class ContainerProvider implements ServiceProviderInterface
             $selectedLanguage = $c->offsetGet('install.language') ?: 'en';
             $selectedTranslation = require __DIR__ . "/../data/lang/$selectedLanguage.php";
 
-            return array_merge($fallbackTranslation, $selectedTranslation);
+            return \array_merge($fallbackTranslation, $selectedTranslation);
         };
 
         $container['translation.service'] = static function (Container $c) {
@@ -87,7 +87,7 @@ class ContainerProvider implements ServiceProviderInterface
 
         // dump class contains state so we define it as factory here
         $container['database.dump_iterator'] = $container->factory(static function () {
-            if (file_exists(SW_PATH . '/platform/src/Core/schema.sql')) {
+            if (\file_exists(SW_PATH . '/platform/src/Core/schema.sql')) {
                 $dumpFile = SW_PATH . '/platform/src/Core/schema.sql';
             } else {
                 $dumpFile = SW_PATH . '/vendor/shopware/core/schema.sql';
@@ -173,7 +173,7 @@ class ContainerProvider implements ServiceProviderInterface
 
         //& removed migration.paths
         $container['migration.source'] = static function () {
-            if (file_exists(SW_PATH . '/platform/src/Core/schema.sql')) {
+            if (\file_exists(SW_PATH . '/platform/src/Core/schema.sql')) {
                 $coreBundleMigrations = [
                     SW_PATH . '/platform/src/Core/Migration' => 'Shopware\\Core\\Migration',
                     SW_PATH . '/platform/src/Storefront/Migration' => 'Shopware\\Storefront\\Migration',

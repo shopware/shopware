@@ -58,7 +58,7 @@ class IdsCollection
     {
         $ids = [];
         foreach ($this->ids as $key => $id) {
-            if (mb_strpos($key, $prefix) === 0) {
+            if (\mb_strpos($key, $prefix) === 0) {
                 $ids[$key] = $id;
             }
         }

@@ -18,7 +18,7 @@ class InfoControllerTest extends TestCase
     {
         $expected = [
             'version' => Kernel::SHOPWARE_FALLBACK_VERSION,
-            'versionRevision' => str_repeat('0', 32),
+            'versionRevision' => \str_repeat('0', 32),
             'adminWorker' => [
                 'enableAdminWorker' => $this->getContainer()->getParameter('shopware.admin_worker.enable_admin_worker'),
                 'transports' => $this->getContainer()->getParameter('shopware.admin_worker.transports'),
@@ -29,32 +29,32 @@ class InfoControllerTest extends TestCase
             ],
         ];
 
-        $url = sprintf('/api/v%s/_info/config', PlatformRequest::API_VERSION);
+        $url = \sprintf('/api/v%s/_info/config', PlatformRequest::API_VERSION);
         $client = $this->getBrowser();
         $client->request('GET', $url);
 
         static::assertJson($client->getResponse()->getContent());
 
-        $decodedResponse = json_decode($client->getResponse()->getContent(), true);
+        $decodedResponse = \json_decode($client->getResponse()->getContent(), true);
 
         static::assertSame(200, $client->getResponse()->getStatusCode());
-        static::assertSame(array_keys($expected), array_keys($decodedResponse));
+        static::assertSame(\array_keys($expected), \array_keys($decodedResponse));
 
         unset($expected['settings']);
-        static::assertStringStartsWith(mb_substr(json_encode($expected), 0, -3), $client->getResponse()->getContent());
+        static::assertStringStartsWith(\mb_substr(\json_encode($expected), 0, -3), $client->getResponse()->getContent());
     }
 
     public function testBusinessEventRoute(): void
     {
         Feature::skipTestIfInActive('FEATURE_NEXT_9351', $this);
 
-        $url = sprintf('/api/v%s/_info/events.json', PlatformRequest::API_VERSION);
+        $url = \sprintf('/api/v%s/_info/events.json', PlatformRequest::API_VERSION);
         $client = $this->getBrowser();
         $client->request('GET', $url);
 
         static::assertJson($client->getResponse()->getContent());
 
-        $response = json_decode($client->getResponse()->getContent(), true);
+        $response = \json_decode($client->getResponse()->getContent(), true);
 
         static::assertSame(200, $client->getResponse()->getStatusCode());
 
@@ -121,7 +121,7 @@ class InfoControllerTest extends TestCase
         ];
 
         foreach ($expected as $event) {
-            $actualEvents = array_values(array_filter($response, function ($x) use ($event) {
+            $actualEvents = \array_values(\array_filter($response, function ($x) use ($event) {
                 return $x['name'] === $event['name'];
             }));
             static::assertNotEmpty($actualEvents, 'Event with name "' . $event['name'] . '" not found');

@@ -57,9 +57,9 @@ class WebhookPersister
         $ids = $toBeRemoved->getIds();
 
         if (!empty($ids)) {
-            $ids = array_map(static function (string $id): array {
+            $ids = \array_map(static function (string $id): array {
                 return ['id' => $id];
-            }, array_values($ids));
+            }, \array_values($ids));
 
             $this->webhookRepository->delete($ids, $context);
         }

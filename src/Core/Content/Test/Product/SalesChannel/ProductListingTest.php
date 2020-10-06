@@ -156,7 +156,7 @@ class ProductListingTest extends TestCase
 
         /** @var PropertyGroupCollection $options */
         $options = $result->getEntities();
-        $ids = array_keys($options->getOptionIdMap());
+        $ids = \array_keys($options->getOptionIdMap());
 
         static::assertContains($this->testData->getId('green'), $ids);
         static::assertContains($this->testData->getId('red'), $ids);
@@ -275,8 +275,8 @@ class ProductListingTest extends TestCase
     {
         foreach ($result->getEntities() as $product) {
             $productNumber = $product->getProductNumber();
-            $productShouldBeGroup = (bool) array_filter($pool, function ($item) use ($productNumber) {
-                return strpos($productNumber, $item) === 0;
+            $productShouldBeGroup = (bool) \array_filter($pool, function ($item) use ($productNumber) {
+                return \strpos($productNumber, $item) === 0;
             });
             if ($productShouldBeGroup) {
                 static::assertTrue($product->isGrouped());
@@ -292,8 +292,8 @@ class ProductListingTest extends TestCase
     {
         foreach ($result->getEntities() as $product) {
             $productNumber = $product->getProductNumber();
-            $productShouldNotBeGroup = (bool) array_filter($pool, function ($item) use ($productNumber) {
-                return strpos($productNumber, $item) === 0;
+            $productShouldNotBeGroup = (bool) \array_filter($pool, function ($item) use ($productNumber) {
+                return \strpos($productNumber, $item) === 0;
             });
 
             if ($productShouldNotBeGroup) {
@@ -390,7 +390,7 @@ class ProductListingTest extends TestCase
 
         if (!empty($options)) {
             foreach ($this->combos($options) as $index => $combination) {
-                $variantKey = $key . '-' . implode('-', $this->testData->getKeyList($combination));
+                $variantKey = $key . '-' . \implode('-', $this->testData->getKeyList($combination));
 
                 $data[] = [
                     'id' => $this->testData->createId($variantKey),
@@ -399,7 +399,7 @@ class ProductListingTest extends TestCase
                     'name' => $variantKey,
                     'active' => true,
                     'parentId' => $this->testData->getId($key),
-                    'options' => array_map(static function ($id) {
+                    'options' => \array_map(static function ($id) {
                         return ['id' => $id];
                     }, $combination),
                 ];
@@ -477,7 +477,7 @@ class ProductListingTest extends TestCase
     {
         $streamId = Uuid::randomHex();
 
-        $randomProductIds = implode('|', array_column($this->createProducts(), 'id'));
+        $randomProductIds = \implode('|', \array_column($this->createProducts(), 'id'));
 
         $stream = [
             'id' => $streamId,

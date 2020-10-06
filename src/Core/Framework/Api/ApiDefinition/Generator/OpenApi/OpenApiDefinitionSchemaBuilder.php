@@ -141,7 +141,7 @@ class OpenApiDefinitionSchemaBuilder
             }
         }
 
-        $attributes = array_merge([new Property(['property' => 'id', 'type' => 'string', 'format' => 'uuid'])], $attributes);
+        $attributes = \array_merge([new Property(['property' => 'id', 'type' => 'string', 'format' => 'uuid'])], $attributes);
 
         if (!$onlyFlat) {
             /* @var Schema[] $schema */
@@ -151,7 +151,7 @@ class OpenApiDefinitionSchemaBuilder
                     new Schema(['ref' => '#/components/schemas/resource']),
                     new Schema([
                         'type' => 'object',
-                        'required' => array_unique($requiredAttributes),
+                        'required' => \array_unique($requiredAttributes),
                         'properties' => $attributes,
                     ]),
                 ],
@@ -182,7 +182,7 @@ class OpenApiDefinitionSchemaBuilder
             'type' => 'object',
             'schema' => $schemaName . '_flat',
             'properties' => $attributes,
-            'required' => array_unique($requiredAttributes),
+            'required' => \array_unique($requiredAttributes),
         ]);
 
         return $schema;
@@ -192,7 +192,7 @@ class OpenApiDefinitionSchemaBuilder
     {
         if ($field->getPropertyName() === 'translations'
             || $field->getPropertyName() === 'id'
-            || preg_match('#translations$#i', $field->getPropertyName())) {
+            || \preg_match('#translations$#i', $field->getPropertyName())) {
             return false;
         }
 

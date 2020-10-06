@@ -57,7 +57,7 @@ class Migration1578042218DefaultPages extends MigrationStep
             $connection->insert('system_config', [
                 'id' => Uuid::randomBytes(),
                 'configuration_key' => $page['key'],
-                'configuration_value' => sprintf('{"_value": "%s"}', Uuid::fromBytesToHex($id)),
+                'configuration_value' => \sprintf('{"_value": "%s"}', Uuid::fromBytesToHex($id)),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]);
         }
@@ -146,7 +146,7 @@ class Migration1578042218DefaultPages extends MigrationStep
 
         $contentEn = [
             'content' => [
-                'value' => sprintf('<h2>%s</h2><hr><p>%s</p>', $titleEn, 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.'),
+                'value' => \sprintf('<h2>%s</h2><hr><p>%s</p>', $titleEn, 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.'),
                 'source' => 'static',
             ],
             'verticalAlign' => [
@@ -157,7 +157,7 @@ class Migration1578042218DefaultPages extends MigrationStep
 
         $contentDe = [
             'content' => [
-                'value' => sprintf('<h2>%s</h2><hr><p>%s</p>', $titleDe, 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.'),
+                'value' => \sprintf('<h2>%s</h2><hr><p>%s</p>', $titleDe, 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.'),
                 'source' => 'static',
             ],
             'verticalAlign' => [
@@ -171,7 +171,7 @@ class Migration1578042218DefaultPages extends MigrationStep
                 'cms_slot_id' => $slotId,
                 'cms_slot_version_id' => $versionId,
                 'language_id' => $languageIdDefault,
-                'config' => json_encode($contentEn),
+                'config' => \json_encode($contentEn),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]);
         }
@@ -181,7 +181,7 @@ class Migration1578042218DefaultPages extends MigrationStep
                 'cms_slot_id' => $slotId,
                 'cms_slot_version_id' => $versionId,
                 'language_id' => $languageIdDe,
-                'config' => json_encode($contentDe),
+                'config' => \json_encode($contentDe),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]);
         }
@@ -201,7 +201,7 @@ class Migration1578042218DefaultPages extends MigrationStep
             $connection->insert('system_config', [
                 'id' => Uuid::randomBytes(),
                 'configuration_key' => 'core.basicInformation.contactPage',
-                'configuration_value' => sprintf('{"_value": "%s"}', Uuid::fromBytesToHex($id)),
+                'configuration_value' => \sprintf('{"_value": "%s"}', Uuid::fromBytesToHex($id)),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]);
         }

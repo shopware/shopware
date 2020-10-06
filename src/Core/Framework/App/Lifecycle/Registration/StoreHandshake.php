@@ -82,7 +82,7 @@ class StoreHandshake implements AppHandshakeInterface
             return $this->storeClient->signPayloadWithAppSecret($payload, $this->appName);
         } catch (\Exception $e) {
             throw new AppRegistrationException(
-                sprintf('Could not sign payload with store secret for app: "%s"', $this->appName),
+                \sprintf('Could not sign payload with store secret for app: "%s"', $this->appName),
                 0,
                 $e
             );

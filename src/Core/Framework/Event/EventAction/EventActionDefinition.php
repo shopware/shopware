@@ -43,7 +43,7 @@ class EventActionDefinition extends EntityDefinition
     {
         $defaults = parent::getDefaults();
 
-        return array_merge($defaults, [
+        return \array_merge($defaults, [
             'active' => true,
         ]);
     }

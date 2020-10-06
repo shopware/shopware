@@ -36,9 +36,9 @@ class FeatureDumpCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        file_put_contents(
+        \file_put_contents(
             $this->kernel->getCacheDir() . '/../../config_js_features.json',
-            json_encode(Feature::getAll())
+            \json_encode(Feature::getAll())
         );
 
         $style = new ShopwareStyle($input, $output);

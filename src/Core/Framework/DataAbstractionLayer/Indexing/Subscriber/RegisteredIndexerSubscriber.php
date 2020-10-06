@@ -47,7 +47,7 @@ class RegisteredIndexerSubscriber implements EventSubscriberInterface
 
         $this->indexerQueuer->finishIndexer($queuedIndexers);
 
-        $indexer = array_filter($queuedIndexers, function ($indexer) {
+        $indexer = \array_filter($queuedIndexers, function ($indexer) {
             return $this->indexerRegistry->has($indexer);
         });
 

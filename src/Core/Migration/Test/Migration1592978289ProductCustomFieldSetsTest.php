@@ -63,8 +63,8 @@ class Migration1592978289ProductCustomFieldSetsTest extends TestCase
     {
         $actualColumns = $this->fetchTableInformation($table);
 
-        sort($actualColumns);
-        sort($expectedColumns);
+        \sort($actualColumns);
+        \sort($expectedColumns);
 
         static::assertEquals($expectedColumns, $actualColumns);
     }
@@ -99,7 +99,7 @@ class Migration1592978289ProductCustomFieldSetsTest extends TestCase
             ->listTableDetails($name)
             ->getColumns();
 
-        return array_map(static function (Column $column): array {
+        return \array_map(static function (Column $column): array {
             return self::getColumn(
                 $column->getName(),
                 $column->getType(),
@@ -110,7 +110,7 @@ class Migration1592978289ProductCustomFieldSetsTest extends TestCase
 
     private function hasCustomFieldSetColumn(Connection $connection, string $table): bool
     {
-        return count(array_filter(
+        return \count(\array_filter(
             $connection->getSchemaManager()->listTableColumns($table),
             static function (Column $column): bool {
                 return $column->getName() === 'customFieldSets';
@@ -120,7 +120,7 @@ class Migration1592978289ProductCustomFieldSetsTest extends TestCase
 
     private function hasGlobalColumn(Connection $connection, string $table): bool
     {
-        return count(array_filter(
+        return \count(\array_filter(
             $connection->getSchemaManager()->listTableColumns($table),
             static function (Column $column): bool {
                 return $column->getName() === 'global';

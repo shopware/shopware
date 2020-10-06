@@ -52,9 +52,9 @@ class PluginListCommand extends Command
         $filter = $input->getOption('filter');
         if ($filter) {
             if (\is_array($filter)) {
-                $filter = implode(' ', $filter);
+                $filter = \implode(' ', $filter);
             }
-            $io->comment(sprintf('Filtering for: %s', $filter));
+            $io->comment(\sprintf('Filtering for: %s', $filter));
 
             $criteria->addFilter(new MultiFilter(
                 MultiFilter::CONNECTION_OR,
@@ -104,7 +104,7 @@ class PluginListCommand extends Command
             $pluginTable
         );
         $io->text(
-            sprintf(
+            \sprintf(
                 '%d plugins, %d installed, %d active , %d upgradeable',
                 \count($plugins),
                 $installed,

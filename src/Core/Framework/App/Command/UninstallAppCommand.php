@@ -46,7 +46,7 @@ class UninstallAppCommand extends Command
         $app = $this->getAppByName($name, $context);
 
         if (!$app) {
-            $io->error(sprintf('No app with name "%s" installed.', $name));
+            $io->error(\sprintf('No app with name "%s" installed.', $name));
 
             return 1;
         }

@@ -31,7 +31,7 @@ class EntityCompilerPass implements CompilerPassInterface
         $repositoryNameMap = [];
         $services = $container->findTaggedServiceIds('shopware.entity.definition');
 
-        $ids = array_keys($services);
+        $ids = \array_keys($services);
 
         /** @var string $serviceId */
         foreach ($ids as $serviceId) {
@@ -80,7 +80,7 @@ class EntityCompilerPass implements CompilerPassInterface
 
     private function makeFieldSerializersPublic(ContainerBuilder $container): void
     {
-        $servicesIds = array_keys($container->findTaggedServiceIds('shopware.field_serializer'));
+        $servicesIds = \array_keys($container->findTaggedServiceIds('shopware.field_serializer'));
 
         foreach ($servicesIds as $servicesId) {
             $container->getDefinition($servicesId)->setPublic(true);
@@ -89,7 +89,7 @@ class EntityCompilerPass implements CompilerPassInterface
 
     private function makeFieldResolversPublic(ContainerBuilder $container): void
     {
-        $servicesIds = array_keys($container->findTaggedServiceIds('shopware.field_resolver'));
+        $servicesIds = \array_keys($container->findTaggedServiceIds('shopware.field_resolver'));
 
         foreach ($servicesIds as $servicesId) {
             $container->getDefinition($servicesId)->setPublic(true);
@@ -98,7 +98,7 @@ class EntityCompilerPass implements CompilerPassInterface
 
     private function makeFieldAccessorBuildersPublic(ContainerBuilder $container): void
     {
-        $servicesIds = array_keys($container->findTaggedServiceIds('shopware.field_accessor_builder'));
+        $servicesIds = \array_keys($container->findTaggedServiceIds('shopware.field_accessor_builder'));
 
         foreach ($servicesIds as $servicesId) {
             $container->getDefinition($servicesId)->setPublic(true);

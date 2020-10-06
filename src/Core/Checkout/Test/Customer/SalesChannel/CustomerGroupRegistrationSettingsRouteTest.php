@@ -44,7 +44,7 @@ class CustomerGroupRegistrationSettingsRouteTest extends TestCase
                 '/store-api/v' . PlatformRequest::API_VERSION . '/customer-group-registration/config/' . Defaults::LANGUAGE_SYSTEM
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
         static::assertSame(404, $this->browser->getResponse()->getStatusCode());
 
         static::assertArrayHasKey('errors', $response);
@@ -70,7 +70,7 @@ class CustomerGroupRegistrationSettingsRouteTest extends TestCase
                 '/store-api/v' . PlatformRequest::API_VERSION . '/customer-group-registration/config/' . $this->ids->get('group')
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
 
         static::assertSame($this->ids->get('group'), $response['id']);

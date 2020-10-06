@@ -23,16 +23,16 @@ class CleanupFilesFinder
     public function getCleanupFiles()
     {
         $cleanupFile = UPDATE_ASSET_PATH . '/cleanup.txt';
-        if (!is_file($cleanupFile)) {
+        if (!\is_file($cleanupFile)) {
             return [];
         }
 
-        $lines = file($cleanupFile, \FILE_IGNORE_NEW_LINES);
+        $lines = \file($cleanupFile, \FILE_IGNORE_NEW_LINES);
 
         $cleanupList = [];
         foreach ($lines as $path) {
             $realpath = $this->shopwarePath . '/' . $path;
-            if (file_exists($realpath)) {
+            if (\file_exists($realpath)) {
                 $cleanupList[] = $realpath;
             }
         }

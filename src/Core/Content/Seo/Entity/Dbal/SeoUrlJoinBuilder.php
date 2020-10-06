@@ -32,9 +32,9 @@ class SeoUrlJoinBuilder implements JoinBuilderInterface
             EntityDefinitionQueryHelper::escape($on),
             EntityDefinitionQueryHelper::escape($table),
             EntityDefinitionQueryHelper::escape($alias),
-            str_replace(
-                array_keys($parameters),
-                array_values($parameters),
+            \str_replace(
+                \array_keys($parameters),
+                \array_values($parameters),
                 '#alias#.#reference_column# = #root#.#source_column#
                  AND #alias#.route_name = :' . $routeParamKey . '
                  AND #alias#.is_deleted = 0'

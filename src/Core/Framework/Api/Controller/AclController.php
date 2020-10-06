@@ -48,8 +48,8 @@ class AclController extends AbstractController
     public function getPrivileges(): JsonResponse
     {
         $privileges = $this->getFromAnnotations();
-        $privileges = array_merge($privileges, $this->getFromDefinitions());
-        $privileges = array_unique($privileges);
+        $privileges = \array_merge($privileges, $this->getFromDefinitions());
+        $privileges = \array_unique($privileges);
 
         return new JsonResponse($privileges);
     }
@@ -62,7 +62,7 @@ class AclController extends AbstractController
     {
         $privileges = $this->getFromAnnotations();
         $definitionPrivileges = $this->getFromDefinitions();
-        $privileges = array_diff(array_unique($privileges), $definitionPrivileges);
+        $privileges = \array_diff(\array_unique($privileges), $definitionPrivileges);
 
         $event = new AclGetAdditionalPrivilegesEvent($context, $privileges);
         $this->eventDispatcher->dispatch($event);
@@ -82,16 +82,16 @@ class AclController extends AbstractController
             $defaults = $param->getDefaults();
 
             if (isset($defaults['_controller'])) {
-                list($controllerService, $controllerMethod) = explode('::', $defaults['_controller']);
+                list($controllerService, $controllerMethod) = \explode('::', $defaults['_controller']);
                 if ($this->container->has($controllerService)) {
-                    $reflectedMethod = new \ReflectionMethod(get_class($this->container->get($controllerService)), $controllerMethod);
+                    $reflectedMethod = new \ReflectionMethod(\get_class($this->container->get($controllerService)), $controllerMethod);
                     $annotations = $annotationReader->getMethodAnnotations($reflectedMethod);
                     /** @var Acl|null $aclAnnotation */
-                    $aclAnnotation = current(array_filter($annotations, static function ($annotation) {
+                    $aclAnnotation = \current(\array_filter($annotations, static function ($annotation) {
                         return $annotation instanceof Acl;
                     }));
                     if ($aclAnnotation instanceof Acl) {
-                        $privileges = array_merge($privileges, $aclAnnotation->getValue());
+                        $privileges = \array_merge($privileges, $aclAnnotation->getValue());
                     }
                 }
             }

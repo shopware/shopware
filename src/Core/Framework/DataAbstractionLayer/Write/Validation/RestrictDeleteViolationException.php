@@ -25,14 +25,14 @@ class RestrictDeleteViolationException extends ShopwareHttpException
         /** @var string[] $ids */
         foreach ($restriction->getRestrictions() as $entityName => $ids) {
             $name = $entityName;
-            $usages[] = sprintf('%s (%d)', $name, \count($ids));
+            $usages[] = \sprintf('%s (%d)', $name, \count($ids));
         }
 
         $this->restrictions = $restrictions;
 
         parent::__construct(
             'The delete request for {{ entity }} was denied due to a conflict. The entity is currently in use by: {{ usagesString }}',
-            ['entity' => $definition->getEntityName(), 'usagesString' => implode(', ', $usages), 'usages' => $usages]
+            ['entity' => $definition->getEntityName(), 'usagesString' => \implode(', ', $usages), 'usages' => $usages]
         );
     }
 

@@ -53,7 +53,7 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
 
     public function getConfig(): array
     {
-        return array_merge($this->generatePluginConfigs(), $this->generateAppConfigs());
+        return \array_merge($this->generatePluginConfigs(), $this->generateAppConfigs());
     }
 
     private function generatePluginConfigs(): array
@@ -77,20 +77,20 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
             }
 
             // dont include deactivated plugins
-            if ($bundle instanceof Plugin && !in_array($bundle->getName(), $activePlugins, true)) {
+            if ($bundle instanceof Plugin && !\in_array($bundle->getName(), $activePlugins, true)) {
                 continue;
             }
 
             $path = $bundle->getPath();
-            if (mb_strpos($bundle->getPath(), $this->projectDir) === 0) {
+            if (\mb_strpos($bundle->getPath(), $this->projectDir) === 0) {
                 // make relative
-                $path = ltrim(mb_substr($path, mb_strlen($this->projectDir)), '/');
+                $path = \ltrim(\mb_substr($path, \mb_strlen($this->projectDir)), '/');
             }
 
             $bundles[$bundle->getName()] = [
                 'basePath' => $path . '/',
                 'views' => ['Resources/views'],
-                'technicalName' => str_replace('_', '-', $bundle->getContainerPrefix()),
+                'technicalName' => \str_replace('_', '-', $bundle->getContainerPrefix()),
                 'administration' => [
                     'path' => 'Resources/app/administration/src',
                     'entryFilePath' => $this->getEntryFile($bundle->getPath(), 'Resources/app/administration/src'),
@@ -123,7 +123,7 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
             $configs[$app['name']] = [
                 'basePath' => $app['path'] . '/',
                 'views' => ['Resources/views'],
-                'technicalName' => str_replace('_', '-', $this->asSnakeCase($app['name'])),
+                'technicalName' => \str_replace('_', '-', $this->asSnakeCase($app['name'])),
                 'storefront' => [
                     'path' => 'Resources/app/storefront/src',
                     'entryFilePath' => $this->getEntryFile($absolutePath, 'Resources/app/storefront/src'),
@@ -138,20 +138,20 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
 
     private function getEntryFile(string $rootPath, string $componentPath): ?string
     {
-        $path = trim($componentPath, '/');
+        $path = \trim($componentPath, '/');
         $absolutePath = $rootPath . '/' . $path;
 
-        return file_exists($absolutePath . '/main.ts') ? $path . '/main.ts'
-            : (file_exists($absolutePath . '/main.js') ? $path . '/main.js'
+        return \file_exists($absolutePath . '/main.ts') ? $path . '/main.ts'
+            : (\file_exists($absolutePath . '/main.js') ? $path . '/main.js'
             : null);
     }
 
     private function getWebpackConfig(string $rootPath, string $componentPath): ?string
     {
-        $path = trim($componentPath, '/');
+        $path = \trim($componentPath, '/');
         $absolutePath = $rootPath . '/' . $path;
 
-        if (!file_exists($absolutePath . '/build/webpack.config.js')) {
+        if (!\file_exists($absolutePath . '/build/webpack.config.js')) {
             return null;
         }
 
@@ -172,7 +172,7 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
         }
 
         $path = $rootPath . DIRECTORY_SEPARATOR . 'Resources/app/storefront/src/scss';
-        if (is_dir($path)) {
+        if (\is_dir($path)) {
             $finder = new Finder();
             $finder->in($path)->files()->depth(0);
 

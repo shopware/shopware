@@ -119,7 +119,7 @@ class UserController extends AbstractController
     public function deleteUser(string $userId, Request $request, Context $context, ResponseFactoryInterface $factory): Response
     {
         if (!$this->hasScope($request, UserVerifiedScope::IDENTIFIER)) {
-            throw new AccessDeniedHttpException(sprintf('This access token does not have the scope "%s" to process this Request', UserVerifiedScope::IDENTIFIER));
+            throw new AccessDeniedHttpException(\sprintf('This access token does not have the scope "%s" to process this Request', UserVerifiedScope::IDENTIFIER));
         }
 
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($userId): void {
@@ -136,7 +136,7 @@ class UserController extends AbstractController
     public function deleteUserAccessKey(string $id, Request $request, Context $context, ResponseFactoryInterface $factory): Response
     {
         if (!$this->hasScope($request, UserVerifiedScope::IDENTIFIER)) {
-            throw new AccessDeniedHttpException(sprintf('This access token does not have the scope "%s" to process this Request', UserVerifiedScope::IDENTIFIER));
+            throw new AccessDeniedHttpException(\sprintf('This access token does not have the scope "%s" to process this Request', UserVerifiedScope::IDENTIFIER));
         }
 
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($id): void {
@@ -153,7 +153,7 @@ class UserController extends AbstractController
     public function upsertUser(?string $userId, Request $request, Context $context, ResponseFactoryInterface $factory): Response
     {
         if (!$this->hasScope($request, UserVerifiedScope::IDENTIFIER)) {
-            throw new AccessDeniedHttpException(sprintf('This access token does not have the scope "%s" to process this Request', UserVerifiedScope::IDENTIFIER));
+            throw new AccessDeniedHttpException(\sprintf('This access token does not have the scope "%s" to process this Request', UserVerifiedScope::IDENTIFIER));
         }
 
         $data = $request->request->all();
@@ -169,7 +169,7 @@ class UserController extends AbstractController
         $event = $events->getEventByEntityName(UserDefinition::ENTITY_NAME);
 
         $eventIds = $event->getIds();
-        $entityId = array_pop($eventIds);
+        $entityId = \array_pop($eventIds);
 
         return $factory->createRedirectResponse($this->userRepository->getDefinition(), $entityId, $request, $context);
     }
@@ -192,7 +192,7 @@ class UserController extends AbstractController
     public function upsertRole(?string $roleId, Request $request, Context $context, ResponseFactoryInterface $factory): Response
     {
         if (!$this->hasScope($request, UserVerifiedScope::IDENTIFIER)) {
-            throw new AccessDeniedHttpException(sprintf('This access token does not have the scope "%s" to process this Request', UserVerifiedScope::IDENTIFIER));
+            throw new AccessDeniedHttpException(\sprintf('This access token does not have the scope "%s" to process this Request', UserVerifiedScope::IDENTIFIER));
         }
 
         $data = $request->request->all();
@@ -208,7 +208,7 @@ class UserController extends AbstractController
         $event = $events->getEventByEntityName(AclRoleDefinition::ENTITY_NAME);
 
         $eventIds = $event->getIds();
-        $entityId = array_pop($eventIds);
+        $entityId = \array_pop($eventIds);
 
         return $factory->createRedirectResponse($this->roleRepository->getDefinition(), $entityId, $request, $context);
     }
@@ -229,7 +229,7 @@ class UserController extends AbstractController
     public function deleteUserRole(string $userId, string $roleId, Request $request, Context $context, ResponseFactoryInterface $factory): Response
     {
         if (!$this->hasScope($request, UserVerifiedScope::IDENTIFIER)) {
-            throw new AccessDeniedHttpException(sprintf('This access token does not have the scope "%s" to process this Request', UserVerifiedScope::IDENTIFIER));
+            throw new AccessDeniedHttpException(\sprintf('This access token does not have the scope "%s" to process this Request', UserVerifiedScope::IDENTIFIER));
         }
 
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($roleId, $userId): void {
@@ -246,7 +246,7 @@ class UserController extends AbstractController
     public function deleteRole(string $roleId, Request $request, Context $context, ResponseFactoryInterface $factory): Response
     {
         if (!$this->hasScope($request, UserVerifiedScope::IDENTIFIER)) {
-            throw new AccessDeniedHttpException(sprintf('This access token does not have the scope "%s" to process this Request', UserVerifiedScope::IDENTIFIER));
+            throw new AccessDeniedHttpException(\sprintf('This access token does not have the scope "%s" to process this Request', UserVerifiedScope::IDENTIFIER));
         }
 
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($roleId): void {
@@ -258,7 +258,7 @@ class UserController extends AbstractController
 
     private function hasScope(Request $request, string $scopeIdentifier): bool
     {
-        $scopes = array_flip($request->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_SCOPES));
+        $scopes = \array_flip($request->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_SCOPES));
 
         return isset($scopes[$scopeIdentifier]);
     }

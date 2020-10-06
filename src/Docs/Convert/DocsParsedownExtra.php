@@ -33,7 +33,7 @@ class DocsParsedownExtra extends \ParsedownExtra
     {
         $Block = parent::blockFencedCode($Line);
 
-        $parts = explode(':', $Line['body']);
+        $parts = \explode(':', $Line['body']);
 
         if ($Block && \count($parts) > 1) {
             $this->docsLoadIncludeData($parts);
@@ -66,15 +66,15 @@ class DocsParsedownExtra extends \ParsedownExtra
 
     protected function docsExtractFileAndNamespace(array $parts): array
     {
-        $includeParts = explode('#', $parts[1]);
+        $includeParts = \explode('#', $parts[1]);
 
-        $includeFile = \dirname($this->sourceFile->getRealPath()) . mb_substr($includeParts[0], 1);
+        $includeFile = \dirname($this->sourceFile->getRealPath()) . \mb_substr($includeParts[0], 1);
 
         $namespace = $includeParts[1];
 
-        if (!file_exists($includeFile)) {
+        if (!\file_exists($includeFile)) {
             throw new \RuntimeException(
-                sprintf(
+                \sprintf(
                     'Unable to load %s referenced in %s',
                     $includeFile,
                     $this->sourceFile->getRealPath()
@@ -90,24 +90,24 @@ class DocsParsedownExtra extends \ParsedownExtra
         $start = false;
         $stop = false;
 
-        $lines = file($includeFile);
+        $lines = \file($includeFile);
 
         foreach ($lines as $lineNumber => $line) {
-            if (mb_strpos($line, sprintf(self::START_MARK, $namespace)) === 0) {
+            if (\mb_strpos($line, \sprintf(self::START_MARK, $namespace)) === 0) {
                 $start = 1 + $lineNumber;
             }
 
-            if ($start !== false && $stop === false && mb_strpos($line, self::STOPMARK) === 0) {
+            if ($start !== false && $stop === false && \mb_strpos($line, self::STOPMARK) === 0) {
                 $stop = $lineNumber;
             }
         }
 
         if ($start === false) {
-            throw new \RuntimeException(sprintf('Unable to find the start of %s in %s', $namespace, $includeFile));
+            throw new \RuntimeException(\sprintf('Unable to find the start of %s in %s', $namespace, $includeFile));
         }
 
         if ($stop === false) {
-            throw new \RuntimeException(sprintf('Unable to find the stop of %s in %s', $namespace, $includeFile));
+            throw new \RuntimeException(\sprintf('Unable to find the stop of %s in %s', $namespace, $includeFile));
         }
 
         return \array_slice($lines, $start, $stop - $start);
@@ -115,11 +115,11 @@ class DocsParsedownExtra extends \ParsedownExtra
 
     protected function docsRenderIncludeContents(array $slicedLines): void
     {
-        $reIntendedLines = array_map(static function (string $line) {
-            return mb_substr($line, 4);
+        $reIntendedLines = \array_map(static function (string $line) {
+            return \mb_substr($line, 4);
         }, $slicedLines);
 
-        $implodedLines = implode('', $reIntendedLines);
+        $implodedLines = \implode('', $reIntendedLines);
 
         $this->content = PHP_EOL . '<?php declare(strict_types=1);' . PHP_EOL . $implodedLines;
     }

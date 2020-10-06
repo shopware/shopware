@@ -46,7 +46,7 @@ class DefaultMappingsTest extends TestCase
 
         $config = new Config($mapping, []);
         $mappingPipe = new KeyMappingPipe($mapping, true);
-        $mappedMedia = iterator_to_array($mappingPipe->in($config, $media));
+        $mappedMedia = \iterator_to_array($mappingPipe->in($config, $media));
 
         static::assertSame($media['id'], $mappedMedia['id']);
         static::assertSame($media['mediaFolderId'], $mappedMedia['folder_id']);
@@ -57,7 +57,7 @@ class DefaultMappingsTest extends TestCase
         static::assertSame($mediaTranslations['alt'], $mappedMedia['alt']);
         static::assertSame($mediaTranslations['title'], $mappedMedia['title']);
 
-        $unmappedMedia = iterator_to_array($mappingPipe->out($config, $mappedMedia));
+        $unmappedMedia = \iterator_to_array($mappingPipe->out($config, $mappedMedia));
         $unmappedMediaTranslations = $unmappedMedia['translations']['DEFAULT'];
 
         static::assertSame($media['id'], $unmappedMedia['id']);
@@ -130,7 +130,7 @@ class DefaultMappingsTest extends TestCase
 
         $config = new Config($mapping, []);
         $mappingPipe = new KeyMappingPipe($mapping, true);
-        $mappedProduct = iterator_to_array($mappingPipe->in($config, $product));
+        $mappedProduct = \iterator_to_array($mappingPipe->in($config, $product));
 
         static::assertSame($product['id'], $mappedProduct['id']);
         static::assertSame($product['parentId'], $mappedProduct['parent_id']);
@@ -159,7 +159,7 @@ class DefaultMappingsTest extends TestCase
         static::assertSame($product['categories'], $mappedProduct['categories']);
         static::assertSame($product['visibilities']['all'], $mappedProduct['sales_channel']);
 
-        $unmappedProduct = iterator_to_array($mappingPipe->out($config, $mappedProduct));
+        $unmappedProduct = \iterator_to_array($mappingPipe->out($config, $mappedProduct));
 
         static::assertSame($product['id'], $unmappedProduct['id']);
         static::assertSame($product['parentId'], $unmappedProduct['parentId']);
@@ -226,7 +226,7 @@ class DefaultMappingsTest extends TestCase
 
         $config = new Config($mapping, []);
         $mappingPipe = new KeyMappingPipe($mapping, true);
-        $mappedCategory = iterator_to_array($mappingPipe->in($config, $category));
+        $mappedCategory = \iterator_to_array($mappingPipe->in($config, $category));
 
         static::assertSame($category['id'], $mappedCategory['id']);
         static::assertSame($category['parentId'], $mappedCategory['parent_id']);
@@ -249,7 +249,7 @@ class DefaultMappingsTest extends TestCase
 
         static::assertSame($category['cmsPageId'], $mappedCategory['cms_page_id']);
 
-        $unmappedCategory = iterator_to_array($mappingPipe->out($config, $mappedCategory));
+        $unmappedCategory = \iterator_to_array($mappingPipe->out($config, $mappedCategory));
 
         static::assertSame($category['id'], $unmappedCategory['id']);
         static::assertSame($category['parentId'], $unmappedCategory['parentId']);
@@ -299,7 +299,7 @@ class DefaultMappingsTest extends TestCase
             ],
         ];
 
-        $mappedNewsletterRecipient = iterator_to_array($mappingPipe->in($config, $newsletterRecipient));
+        $mappedNewsletterRecipient = \iterator_to_array($mappingPipe->in($config, $newsletterRecipient));
 
         static::assertSame($newsletterRecipient['id'], $mappedNewsletterRecipient['id']);
         static::assertSame($newsletterRecipient['email'], $mappedNewsletterRecipient['email']);
@@ -314,7 +314,7 @@ class DefaultMappingsTest extends TestCase
         static::assertSame($newsletterRecipient['hash'], $mappedNewsletterRecipient['hash']);
         static::assertSame($newsletterRecipient['salesChannel']['id'], $mappedNewsletterRecipient['sales_channel_id']);
 
-        $unmappedNewsletterRecipient = iterator_to_array($mappingPipe->out($config, $mappedNewsletterRecipient));
+        $unmappedNewsletterRecipient = \iterator_to_array($mappingPipe->out($config, $mappedNewsletterRecipient));
 
         static::assertSame($newsletterRecipient['id'], $unmappedNewsletterRecipient['id']);
         static::assertSame($newsletterRecipient['email'], $unmappedNewsletterRecipient['email']);
@@ -362,7 +362,7 @@ class DefaultMappingsTest extends TestCase
             ],
         ];
 
-        $mappedSetting = iterator_to_array($mappingPipe->in($config, $setting));
+        $mappedSetting = \iterator_to_array($mappingPipe->in($config, $setting));
 
         static::assertSame($setting['id'], $mappedSetting['id']);
         static::assertSame($setting['productId'], $mappedSetting['product_id']);
@@ -379,7 +379,7 @@ class DefaultMappingsTest extends TestCase
         static::assertSame($setting['price']['DEFAULT']['net'], $mappedSetting['price_net']);
         static::assertSame($setting['price']['DEFAULT']['gross'], $mappedSetting['price_gross']);
 
-        $unmappedSetting = iterator_to_array($mappingPipe->out($config, $mappedSetting));
+        $unmappedSetting = \iterator_to_array($mappingPipe->out($config, $mappedSetting));
 
         static::assertSame($setting['id'], $unmappedSetting['id']);
         static::assertSame($setting['productId'], $unmappedSetting['productId']);

@@ -29,7 +29,7 @@ class Migration1593698606AddNetAndGrossPurchasePricesTest extends TestCase
         if ($_SERVER['BLUE_GREEN_DEPLOYMENT'] === '0' || $_SERVER['BLUE_GREEN_DEPLOYMENT'] === false) {
             static::markTestSkipped('BLUE_GREEN_DEPLOYMENT is false, so no triggers writeable');
         }
-        $databaseName = substr(parse_url($_SERVER['DATABASE_URL'])['path'], 1);
+        $databaseName = \substr(\parse_url($_SERVER['DATABASE_URL'])['path'], 1);
         /** @var Connection $conn */
         $conn = $this->getContainer()->get(Connection::class);
         $updateTrigger = $conn->fetchAll('SHOW TRIGGERS IN ' . $databaseName . ' WHERE `Trigger` = \'product_purchase_prices_update\'');

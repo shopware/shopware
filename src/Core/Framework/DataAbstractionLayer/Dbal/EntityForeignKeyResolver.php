@@ -140,7 +140,7 @@ class EntityForeignKeyResolver
 
             $affected = $this->fetchAssociation($ids, $definition, $association, $class, $context);
 
-            $result = array_merge($result, $affected);
+            $result = \array_merge($result, $affected);
         }
 
         return $result;
@@ -186,10 +186,10 @@ class EntityForeignKeyResolver
                 $template = 'LOWER(HEX(#root#.#field#)) as #property#';
             }
 
-            $accessor = str_replace(array_keys($vars), array_values($vars), $template);
+            $accessor = \str_replace(\array_keys($vars), \array_values($vars), $template);
             $query->addSelect($accessor);
 
-            $accessor = str_replace(array_keys($vars), array_values($vars), '#root#.#field#');
+            $accessor = \str_replace(\array_keys($vars), \array_values($vars), '#root#.#field#');
             $query->andWhere($accessor . ' IS NOT NULL');
         }
 
@@ -209,7 +209,7 @@ class EntityForeignKeyResolver
         // create flat list for single primary key entities
         if ($primaryKeys->count() === 1) {
             $property = $primaryKeys->first()->getPropertyName();
-            $affected = array_column($affected, $property);
+            $affected = \array_column($affected, $property);
         }
 
         // prevent circular reference for many to many
@@ -228,6 +228,6 @@ class EntityForeignKeyResolver
         // call recursion for nested cascades
         $nested = $this->fetch($association->getReferenceDefinition(), $affected, $class, $context);
 
-        return array_merge($formatted, $nested);
+        return \array_merge($formatted, $nested);
     }
 }

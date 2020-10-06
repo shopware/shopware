@@ -41,11 +41,11 @@ class CustomFieldSet extends XmlElement
 
     public function toEntityArray(string $appId): array
     {
-        $relations = array_map(static function (string $entity) {
+        $relations = \array_map(static function (string $entity) {
             return ['entityName' => $entity];
         }, $this->relatedEntities);
 
-        $customFields = array_map(static function (CustomFieldType $field) {
+        $customFields = \array_map(static function (CustomFieldType $field) {
             return $field->toEntityPayload();
         }, $this->fields);
 

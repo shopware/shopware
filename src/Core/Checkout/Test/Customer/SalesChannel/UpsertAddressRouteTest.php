@@ -61,7 +61,7 @@ class UpsertAddressRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $response['contextToken']);
     }
@@ -85,7 +85,7 @@ class UpsertAddressRouteTest extends TestCase
                 $data
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('id', $response);
 
@@ -111,7 +111,7 @@ class UpsertAddressRouteTest extends TestCase
                 []
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
         static::assertArrayHasKey('errors', $response);
         static::assertCount(7, $response['errors']);
     }
@@ -126,7 +126,7 @@ class UpsertAddressRouteTest extends TestCase
                 []
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
         $addressId = $response['defaultBillingAddressId'];
 
         $this->browser
@@ -137,7 +137,7 @@ class UpsertAddressRouteTest extends TestCase
                 ]
             );
 
-        $address = json_decode($this->browser->getResponse()->getContent(), true)['elements'][0];
+        $address = \json_decode($this->browser->getResponse()->getContent(), true)['elements'][0];
         $address['firstName'] = __FUNCTION__;
 
         // Update
@@ -160,7 +160,7 @@ class UpsertAddressRouteTest extends TestCase
                 ]
             );
 
-        $updatedAddress = json_decode($this->browser->getResponse()->getContent(), true)['elements'][0];
+        $updatedAddress = \json_decode($this->browser->getResponse()->getContent(), true)['elements'][0];
         unset($address['updatedAt'], $updatedAddress['updatedAt']);
 
         static::assertSame($address, $updatedAddress);

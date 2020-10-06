@@ -47,7 +47,7 @@ class ModuleLoaderTest extends TestCase
 
         $loadedModules = $this->moduleLoader->loadModules($this->context);
 
-        usort($loadedModules, function ($a, $b) {
+        \usort($loadedModules, function ($a, $b) {
             return $a['name'] <=> $b['name'];
         });
 
@@ -227,6 +227,6 @@ class ModuleLoaderTest extends TestCase
         $hmac = $query['shopware-shop-signature'];
         $content = \str_replace('&shopware-shop-signature=' . $hmac, '', $queryString);
 
-        static::assertEquals(hash_hmac('sha256', $content, $secret), $hmac);
+        static::assertEquals(\hash_hmac('sha256', $content, $secret), $hmac);
     }
 }

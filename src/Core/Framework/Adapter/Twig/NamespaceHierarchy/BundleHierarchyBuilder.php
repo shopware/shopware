@@ -43,13 +43,13 @@ class BundleHierarchyBuilder implements TemplateNamespaceHierarchyBuilderInterfa
 
             $directory = $bundlePath . '/Resources/views';
 
-            if (!file_exists($directory)) {
+            if (!\file_exists($directory)) {
                 continue;
             }
 
-            array_unshift($namespaceHierarchy, $bundle->getName());
+            \array_unshift($namespaceHierarchy, $bundle->getName());
 
-            $namespaceHierarchy = array_values(array_unique($namespaceHierarchy));
+            $namespaceHierarchy = \array_values(\array_unique($namespaceHierarchy));
         }
 
         // remove nullable prop and on-invalid=null behaviour in service config
@@ -58,7 +58,7 @@ class BundleHierarchyBuilder implements TemplateNamespaceHierarchyBuilderInterfa
             return $namespaceHierarchy;
         }
 
-        return array_unique(array_merge($this->getAppTemplateNamespaces(), $namespaceHierarchy));
+        return \array_unique(\array_merge($this->getAppTemplateNamespaces(), $namespaceHierarchy));
     }
 
     /**

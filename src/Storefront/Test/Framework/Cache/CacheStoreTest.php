@@ -28,12 +28,12 @@ class CacheStoreTest extends TestCase
         );
 
         $request = new Request([], ['data' => Uuid::randomHex()]);
-        $expectedHash = sha1($request->request->get('data'));
+        $expectedHash = \sha1($request->request->get('data'));
 
         $eventDispatcher->addListener(HttpCacheGenerateKeyEvent::class, function ($event) use ($request): void {
             $this->assertInstanceOf(HttpCacheGenerateKeyEvent::class, $event);
             $this->assertSame($request, $event->getRequest());
-            $event->setHash(sha1($request->request->get('data')));
+            $event->setHash(\sha1($request->request->get('data')));
         });
 
         $cache->expects(static::once())

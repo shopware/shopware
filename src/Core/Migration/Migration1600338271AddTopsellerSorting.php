@@ -55,7 +55,7 @@ class Migration1600338271AddTopsellerSorting extends MigrationStep
             'priority' => 0,
             'active' => 1,
             'locked' => 0,
-            'fields' => json_encode([['field' => 'product.sales', 'order' => 'desc', 'priority' => 1, 'naturalSorting' => 0]]),
+            'fields' => \json_encode([['field' => 'product.sales', 'order' => 'desc', 'priority' => 1, 'naturalSorting' => 0]]),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             'translations' => [
                 'de-DE' => 'Topseller',

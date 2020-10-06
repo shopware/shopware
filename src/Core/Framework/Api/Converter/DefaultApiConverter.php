@@ -69,7 +69,7 @@ class DefaultApiConverter
         }
 
         if ($fieldName === null) {
-            return array_key_exists($entityName, $this->getDeprecations($apiVersion)) && !is_array($this->getDeprecations($apiVersion)[$entityName]);
+            return \array_key_exists($entityName, $this->getDeprecations($apiVersion)) && !\is_array($this->getDeprecations($apiVersion)[$entityName]);
         }
 
         return \in_array($fieldName, $this->getDeprecations($apiVersion)[$entityName] ?? [], true);

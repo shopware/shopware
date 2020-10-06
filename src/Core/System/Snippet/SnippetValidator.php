@@ -38,16 +38,16 @@ class SnippetValidator implements SnippetValidatorInterface
         foreach ($files as $snippetFile) {
             $availableISOs[] = $snippetFile->getIso();
 
-            if (!array_key_exists($snippetFile->getIso(), $snippetFileMappings)) {
+            if (!\array_key_exists($snippetFile->getIso(), $snippetFileMappings)) {
                 $snippetFileMappings[$snippetFile->getIso()] = [];
             }
 
             $json = $this->snippetFileHandler->openJsonFile($snippetFile->getPath());
 
             foreach ($this->getRecursiveArrayKeys($json) as $keyValue) {
-                $snippetFileMappings[$snippetFile->getIso()][key($keyValue)] = [
-                    'path' => str_ireplace($this->projectDir, '', $snippetFile->getPath()),
-                    'availableValue' => array_shift($keyValue),
+                $snippetFileMappings[$snippetFile->getIso()][\key($keyValue)] = [
+                    'path' => \str_ireplace($this->projectDir, '', $snippetFile->getPath()),
+                    'availableValue' => \array_shift($keyValue),
                 ];
             }
         }
@@ -61,14 +61,14 @@ class SnippetValidator implements SnippetValidatorInterface
         $administrationFiles = $this->snippetFileHandler->findAdministrationSnippetFiles();
         $storefrontSnippetFiles = $this->snippetFileHandler->findStorefrontSnippetFiles();
 
-        return $this->hydrateFiles(array_merge($deprecatedFiles, $administrationFiles, $storefrontSnippetFiles));
+        return $this->hydrateFiles(\array_merge($deprecatedFiles, $administrationFiles, $storefrontSnippetFiles));
     }
 
     private function hydrateFiles(array $files): SnippetFileCollection
     {
         $snippetFileCollection = new SnippetFileCollection();
         foreach ($files as $filePath) {
-            $fileName = basename($filePath);
+            $fileName = \basename($filePath);
 
             $snippetFileCollection->add(new GenericSnippetFile(
                 $fileName,
@@ -84,7 +84,7 @@ class SnippetValidator implements SnippetValidatorInterface
 
     private function getLocaleFromFileName(string $fileName): string
     {
-        $return = preg_match('/([a-z]{2}-[A-Z]{2})(?:\.base)?\.json$/', $fileName, $matches);
+        $return = \preg_match('/([a-z]{2}-[A-Z]{2})(?:\.base)?\.json$/', $fileName, $matches);
 
         // Snippet file name not known, return 'en-GB' per default
         if (!$return) {
@@ -101,7 +101,7 @@ class SnippetValidator implements SnippetValidatorInterface
         foreach ($dataSet as $key => $data) {
             $key = $keyString . $key;
 
-            if (!is_array($data)) {
+            if (!\is_array($data)) {
                 $keyPaths[] = [
                     $key => $data,
                 ];
@@ -109,7 +109,7 @@ class SnippetValidator implements SnippetValidatorInterface
                 continue;
             }
 
-            $keyPaths = array_merge($keyPaths, $this->getRecursiveArrayKeys($data, $key . '.'));
+            $keyPaths = \array_merge($keyPaths, $this->getRecursiveArrayKeys($data, $key . '.'));
         }
 
         return $keyPaths;
@@ -117,7 +117,7 @@ class SnippetValidator implements SnippetValidatorInterface
 
     private function findMissingSnippets(array $snippetFileMappings, array $availableISOs): array
     {
-        $availableISOs = array_keys(array_flip($availableISOs));
+        $availableISOs = \array_keys(\array_flip($availableISOs));
 
         $missingSnippetsArray = [];
         foreach ($availableISOs as $isoKey => $availableISO) {
@@ -127,7 +127,7 @@ class SnippetValidator implements SnippetValidatorInterface
                 unset($tempISOs[$isoKey]);
 
                 foreach ($tempISOs as $tempISO) {
-                    if (!array_key_exists($snippetKeyPath, $snippetFileMappings[$tempISO])) {
+                    if (!\array_key_exists($snippetKeyPath, $snippetFileMappings[$tempISO])) {
                         $missingSnippetsArray[$tempISO][$snippetKeyPath] = [
                             'path' => $snippetFileMeta['path'],
                             'availableISO' => $availableISO,
@@ -144,6 +144,6 @@ class SnippetValidator implements SnippetValidatorInterface
 
     private function findDeprecatedSnippetFiles(): array
     {
-        return array_column($this->deprecatedSnippetFiles->toArray(), 'path');
+        return \array_column($this->deprecatedSnippetFiles->toArray(), 'path');
     }
 }

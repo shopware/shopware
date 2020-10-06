@@ -63,7 +63,7 @@ class SyncControllerTest extends TestCase
             ],
         ];
 
-        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/sync', [], [], [], json_encode($data));
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/sync', [], [], [], \json_encode($data));
         $response = $this->getBrowser()->getResponse();
 
         static::assertSame(200, $response->getStatusCode(), $response->getContent());
@@ -120,7 +120,7 @@ class SyncControllerTest extends TestCase
             ],
         ];
         $this->getBrowser()->setServerParameter('HTTP_fail-on-error', 'false');
-        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/sync', [], [], [], json_encode($data));
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/sync', [], [], [], \json_encode($data));
         $response = $this->getBrowser()->getResponse();
         $this->getBrowser()->setServerParameter('HTTP_fail-on-error', 'true');
         static::assertSame(200, $response->getStatusCode(), $response->getContent());
@@ -187,7 +187,7 @@ class SyncControllerTest extends TestCase
             ],
         ];
         $this->getBrowser()->setServerParameter('HTTP_fail-on-error', 'false');
-        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/sync', [], [], [], json_encode($data));
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/sync', [], [], [], \json_encode($data));
         $response = $this->getBrowser()->getResponse();
         $this->getBrowser()->setServerParameter('HTTP_fail-on-error', 'true');
 
@@ -241,13 +241,13 @@ class SyncControllerTest extends TestCase
             ],
         ];
 
-        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/sync', [], [], [], json_encode($data));
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/sync', [], [], [], \json_encode($data));
         static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode(), $this->getBrowser()->getResponse()->getContent());
 
         $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id);
         static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
 
-        $responseData = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $responseData = \json_decode($this->getBrowser()->getResponse()->getContent(), true);
         static::assertFalse($responseData['data']['attributes']['active']);
 
         $this->getBrowser()->request('DELETE', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id);
@@ -291,19 +291,19 @@ class SyncControllerTest extends TestCase
             ],
         ];
 
-        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/sync', [], [], [], json_encode($data));
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/sync', [], [], [], \json_encode($data));
 
         $response = $this->getBrowser()->getResponse();
         static::assertSame(200, $response->getStatusCode());
 
         $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $productId . '/categories');
-        $responseData = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $responseData = \json_decode($this->getBrowser()->getResponse()->getContent(), true);
 
         static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
-        $categories = array_column($responseData['data'], 'id');
+        $categories = \array_column($responseData['data'], 'id');
 
         static::assertContains($categoryId, $categories);
-        static::assertCount(1, $categories, 'Category Ids should not contain: ' . print_r(array_diff($categories, [$categoryId]), true));
+        static::assertCount(1, $categories, 'Category Ids should not contain: ' . \print_r(\array_diff($categories, [$categoryId]), true));
 
         $this->getBrowser()->request('DELETE', '/api/v' . PlatformRequest::API_VERSION . '/category/' . $categoryId);
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), $this->getBrowser()->getResponse()->getContent());
@@ -351,26 +351,26 @@ class SyncControllerTest extends TestCase
             ],
         ];
 
-        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/sync', [], [], [], json_encode($data));
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/sync', [], [], [], \json_encode($data));
 
         $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $product . '/categories');
-        $responseData = json_decode($this->getBrowser()->getResponse()->getContent(), true);
-        $categories = array_column($responseData['data'], 'id');
+        $responseData = \json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $categories = \array_column($responseData['data'], 'id');
         static::assertContains($category, $categories);
         static::assertCount(1, $categories);
 
         $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $product2 . '/categories');
-        $responseData = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $responseData = \json_decode($this->getBrowser()->getResponse()->getContent(), true);
 
-        $categories = array_column($responseData['data'], 'id');
+        $categories = \array_column($responseData['data'], 'id');
         static::assertContains($category, $categories);
         static::assertCount(1, $categories);
 
         $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/category/' . $category . '/products/');
-        $responseData = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $responseData = \json_decode($this->getBrowser()->getResponse()->getContent(), true);
         static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
 
-        $products = array_column($responseData['data'], 'id');
+        $products = \array_column($responseData['data'], 'id');
 
         static::assertContains($product, $products);
         static::assertContains($product2, $products);
@@ -408,7 +408,7 @@ class SyncControllerTest extends TestCase
             ],
         ];
 
-        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/sync', [], [], [], json_encode($data));
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/sync', [], [], [], \json_encode($data));
 
         $exists = $this->connection->fetchAll(
             'SELECT * FROM product WHERE id IN(:id)',
@@ -428,7 +428,7 @@ class SyncControllerTest extends TestCase
             ],
         ];
 
-        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/sync', [], [], [], json_encode($data));
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/sync', [], [], [], \json_encode($data));
 
         $exists = $this->connection->fetchAll(
             'SELECT * FROM product WHERE id IN (:id)',
@@ -467,7 +467,7 @@ class SyncControllerTest extends TestCase
             ],
         ];
 
-        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/sync', [], [], ['HTTP_Fail-On-Error' => 'true'], json_encode($data));
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/sync', [], [], ['HTTP_Fail-On-Error' => 'true'], \json_encode($data));
 
         $exists = $this->connection->fetchAll(
             'SELECT * FROM product WHERE id IN(:id)',
@@ -479,7 +479,7 @@ class SyncControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         static::assertEquals(400, $response->getStatusCode());
 
-        $content = json_decode($response->getContent(), true);
+        $content = \json_decode($response->getContent(), true);
 
         foreach ($content['data'][0]['result'] as $result) {
             static::assertEmpty($result['entities']);
@@ -507,7 +507,7 @@ class SyncControllerTest extends TestCase
             ],
         ];
 
-        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/sync', [], [], ['HTTP_Fail-On-Error' => 'false'], json_encode($data));
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/sync', [], [], ['HTTP_Fail-On-Error' => 'false'], \json_encode($data));
 
         $exists = $this->connection->fetchAll(
             'SELECT * FROM product WHERE id IN(:id)',
@@ -519,7 +519,7 @@ class SyncControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         static::assertEquals(200, $response->getStatusCode());
 
-        $content = json_decode($response->getContent(), true);
+        $content = \json_decode($response->getContent(), true);
 
         foreach ($content['data'][0]['result'] as $result) {
             static::assertEmpty($result['entities']);
@@ -551,7 +551,7 @@ class SyncControllerTest extends TestCase
         $this->connection->executeUpdate('DELETE FROM enqueue;');
         $this->connection->executeUpdate('DELETE FROM message_queue_stats;');
 
-        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/sync', [], [], ['HTTP_Fail-On-Error' => 'false', 'HTTP_indexing-behavior' => EntityIndexerRegistry::USE_INDEXING_QUEUE], json_encode($data));
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/sync', [], [], ['HTTP_Fail-On-Error' => 'false', 'HTTP_indexing-behavior' => EntityIndexerRegistry::USE_INDEXING_QUEUE], \json_encode($data));
 
         $exists = $this->connection->fetchAll(
             'SELECT * FROM product WHERE id IN(:id)',
@@ -594,7 +594,7 @@ class SyncControllerTest extends TestCase
         $this->connection->executeUpdate('DELETE FROM enqueue;');
         $this->connection->executeUpdate('DELETE FROM message_queue_stats;');
 
-        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/sync', [], [], ['HTTP_Fail-On-Error' => 'false'], json_encode($data));
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/sync', [], [], ['HTTP_Fail-On-Error' => 'false'], \json_encode($data));
 
         $exists = $this->connection->fetchAll(
             'SELECT * FROM product WHERE id IN(:id)',

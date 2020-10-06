@@ -12,7 +12,7 @@ class ChangelogGenerator extends ChangelogProcessor
         if ($dryRun) {
             echo $template->toTemplate();
         } else {
-            file_put_contents($target, $template->toTemplate());
+            \file_put_contents($target, $template->toTemplate());
         }
 
         return $target;
@@ -20,11 +20,11 @@ class ChangelogGenerator extends ChangelogProcessor
 
     private function getTemplateFile(ChangelogDefinition $template, string $date): string
     {
-        return sprintf(
+        return \sprintf(
             '%s/%s-%s.md',
             $this->unreleasedDir,
             $date,
-            str_replace(' ', '-', strtolower($template->getTitle()))
+            \str_replace(' ', '-', \strtolower($template->getTitle()))
         );
     }
 }

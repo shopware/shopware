@@ -62,7 +62,7 @@ class Processor
             $collector->collect($cart->getData(), $original, $context, $behavior);
         }
 
-        $cart->addErrors(...array_values($original->getErrors()->getPersistent()->getElements()));
+        $cart->addErrors(...\array_values($original->getErrors()->getPersistent()->getElements()));
 
         $cart->setExtensions($original->getExtensions());
 

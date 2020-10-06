@@ -65,7 +65,7 @@ class Migration1582011195FixCountryStateGermanTranslationTest extends TestCase
                 'state.id = state_translation.country_state_id AND state_translation.language_id = :germanLanguageId'
             )->where('state.short_code IN (:shortCodes)')
             ->setParameter(':germanLanguageId', $germanLanguageId)
-            ->setParameter(':shortCodes', array_keys($testTranslations), Connection::PARAM_STR_ARRAY);
+            ->setParameter(':shortCodes', \array_keys($testTranslations), Connection::PARAM_STR_ARRAY);
 
         $translations = $translationQuery->execute()->fetchAll();
 
@@ -86,7 +86,7 @@ class Migration1582011195FixCountryStateGermanTranslationTest extends TestCase
         $afterTranslations = $translationQuery->execute()->fetchAll();
 
         foreach ($afterTranslations as $afterTranslation) {
-            if (in_array($afterTranslation['short_code'], ['DE-SN', 'DE-SH', 'DE-ST'], true)) {
+            if (\in_array($afterTranslation['short_code'], ['DE-SN', 'DE-SH', 'DE-ST'], true)) {
                 static::assertSame($afterTranslation['name'], $testTranslations[$afterTranslation['short_code']]);
             } elseif ($afterTranslation['short_code'] === 'DE-TH') {
                 static::assertNotSame($afterTranslation['name'], $testTranslations['DE-TH']);

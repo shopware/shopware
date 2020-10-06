@@ -41,7 +41,7 @@ class PriceActionControllerTest extends TestCase
         $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/price/actions/calculate');
 
         $response = $this->getBrowser()->getResponse()->getContent();
-        $response = json_decode($response, true);
+        $response = \json_decode($response, true);
 
         static::assertArrayHasKey('errors', $response);
     }
@@ -52,7 +52,7 @@ class PriceActionControllerTest extends TestCase
 
         $response = $this->getBrowser()->getResponse()->getContent();
 
-        $response = json_decode($response, true);
+        $response = \json_decode($response, true);
 
         static::assertArrayHasKey('errors', $response);
     }
@@ -66,7 +66,7 @@ class PriceActionControllerTest extends TestCase
 
         $response = $this->getBrowser()->getResponse()->getContent();
 
-        $response = json_decode($response, true);
+        $response = \json_decode($response, true);
 
         static::assertArrayHasKey('errors', $response);
     }
@@ -217,7 +217,7 @@ class PriceActionControllerTest extends TestCase
 
     private function sendRequest(array $data): CalculatedPrice
     {
-        $url = sprintf(
+        $url = \sprintf(
             '/api/v%s/_action/calculate-price',
             PlatformRequest::API_VERSION
         );
@@ -225,7 +225,7 @@ class PriceActionControllerTest extends TestCase
 
         $response = $this->getBrowser()->getResponse()->getContent();
 
-        $response = json_decode($response, true);
+        $response = \json_decode($response, true);
 
         static::assertArrayHasKey('data', $response);
 
@@ -235,11 +235,11 @@ class PriceActionControllerTest extends TestCase
             $data['unitPrice'],
             $data['totalPrice'],
             new CalculatedTaxCollection(
-                array_map(function ($row) {
+                \array_map(function ($row) {
                     return new CalculatedTax($row['tax'], $row['taxRate'], $row['price']);
                 }, $data['calculatedTaxes'])
             ),
-            new TaxRuleCollection(array_map(function ($row) {
+            new TaxRuleCollection(\array_map(function ($row) {
                 return new TaxRule($row['taxRate'], $row['percentage']);
             }, $data['taxRules'])),
             $data['quantity']

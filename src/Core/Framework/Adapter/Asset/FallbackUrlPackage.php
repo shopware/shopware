@@ -10,7 +10,7 @@ class FallbackUrlPackage extends UrlPackage
 {
     public function __construct($baseUrls, VersionStrategyInterface $versionStrategy)
     {
-        $baseUrls = iterator_to_array($this->applyFallback($baseUrls), false);
+        $baseUrls = \iterator_to_array($this->applyFallback($baseUrls), false);
         parent::__construct($baseUrls, $versionStrategy, null);
     }
 
@@ -18,7 +18,7 @@ class FallbackUrlPackage extends UrlPackage
     {
         $request = Request::createFromGlobals();
         $basePath = $request->getSchemeAndHttpHost() . $request->getBasePath();
-        $requestUrl = rtrim($basePath, '/') . '/';
+        $requestUrl = \rtrim($basePath, '/') . '/';
 
         if ($request->getHost() === '' && isset($_SERVER['APP_URL'])) {
             $requestUrl = $_SERVER['APP_URL'];

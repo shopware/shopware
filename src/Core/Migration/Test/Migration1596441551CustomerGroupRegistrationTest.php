@@ -17,8 +17,8 @@ class Migration1596441551CustomerGroupRegistrationTest extends TestCase
 
     public function testTablesArePresent(): void
     {
-        $customerGroupColumns = array_column($this->getContainer()->get(Connection::class)->fetchAll('SHOW COLUMNS FROM customer_group'), 'Field');
-        $customerGroupTranslationColumns = array_column($this->getContainer()->get(Connection::class)->fetchAll('SHOW COLUMNS FROM customer_group_translation'), 'Field');
+        $customerGroupColumns = \array_column($this->getContainer()->get(Connection::class)->fetchAll('SHOW COLUMNS FROM customer_group'), 'Field');
+        $customerGroupTranslationColumns = \array_column($this->getContainer()->get(Connection::class)->fetchAll('SHOW COLUMNS FROM customer_group_translation'), 'Field');
 
         static::assertContains('registration_active', $customerGroupColumns);
         static::assertContains('registration_title', $customerGroupTranslationColumns);

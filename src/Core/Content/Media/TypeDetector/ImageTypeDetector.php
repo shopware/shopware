@@ -23,8 +23,8 @@ class ImageTypeDetector implements TypeDetectorInterface
 
     public function detect(MediaFile $mediaFile, ?MediaType $previouslyDetectedType): ?MediaType
     {
-        $fileExtension = mb_strtolower($mediaFile->getFileExtension());
-        if (!array_key_exists($fileExtension, self::SUPPORTED_FILE_EXTENSIONS)) {
+        $fileExtension = \mb_strtolower($mediaFile->getFileExtension());
+        if (!\array_key_exists($fileExtension, self::SUPPORTED_FILE_EXTENSIONS)) {
             return $previouslyDetectedType;
         }
 
@@ -40,7 +40,7 @@ class ImageTypeDetector implements TypeDetectorInterface
 
     private function addAnimatedFlag(MediaFile $mediaFile, MediaType $rootType): void
     {
-        $fileExtension = mb_strtolower($mediaFile->getFileExtension());
+        $fileExtension = \mb_strtolower($mediaFile->getFileExtension());
         if ($fileExtension === 'gif' && $this->isGifAnimated($mediaFile->getFileName())) {
             $rootType->addFlag(ImageType::ANIMATED);
         }
@@ -62,17 +62,17 @@ class ImageTypeDetector implements TypeDetectorInterface
      */
     private function isGifAnimated(string $filename): bool
     {
-        if (!($fh = @fopen($filename, 'rb'))) {
+        if (!($fh = @\fopen($filename, 'rb'))) {
             return false;
         }
         $count = 0;
 
-        while (!feof($fh) && $count < 2) {
-            $chunk = fread($fh, 1024 * 100); //read 100kb at a time
-            $count += preg_match_all('#\x00\x21\xF9\x04.{4}\x00(\x2C|\x21)#s', $chunk, $matches);
+        while (!\feof($fh) && $count < 2) {
+            $chunk = \fread($fh, 1024 * 100); //read 100kb at a time
+            $count += \preg_match_all('#\x00\x21\xF9\x04.{4}\x00(\x2C|\x21)#s', $chunk, $matches);
         }
 
-        fclose($fh);
+        \fclose($fh);
 
         return $count > 1;
     }
@@ -87,13 +87,13 @@ class ImageTypeDetector implements TypeDetectorInterface
     private function isWebpAnimated(string $filename): bool
     {
         $result = false;
-        $fh = fopen($filename, 'rb');
-        fread($fh, 12);
-        if (fread($fh, 4) === 'VP8X') {
-            $animationByte = fread($fh, 1);
-            $result = (ord($animationByte) >> 1) & 1 ? true : false;
+        $fh = \fopen($filename, 'rb');
+        \fread($fh, 12);
+        if (\fread($fh, 4) === 'VP8X') {
+            $animationByte = \fread($fh, 1);
+            $result = (\ord($animationByte) >> 1) & 1 ? true : false;
         }
-        fclose($fh);
+        \fclose($fh);
 
         return $result;
     }

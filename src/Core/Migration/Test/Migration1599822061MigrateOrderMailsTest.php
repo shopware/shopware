@@ -24,7 +24,7 @@ class Migration1599822061MigrateOrderMailsTest extends TestCase
         $migration->update($connection);
 
         $events = $connection->fetchAll('SELECT event_name FROM event_action');
-        $events = array_column($events, 'event_name');
+        $events = \array_column($events, 'event_name');
 
         $expected = [
             'state_enter.order_delivery.state.cancelled',
@@ -44,8 +44,8 @@ class Migration1599822061MigrateOrderMailsTest extends TestCase
             'state_enter.order.state.in_progress',
         ];
 
-        sort($expected);
-        sort($events);
+        \sort($expected);
+        \sort($events);
 
         static::assertEquals($expected, $events);
     }
@@ -61,7 +61,7 @@ class Migration1599822061MigrateOrderMailsTest extends TestCase
         $connection->insert('event_action', [
             'id' => Uuid::randomBytes(),
             'action_name' => MailSendSubscriber::ACTION_NAME,
-            'config' => json_encode([
+            'config' => \json_encode([
                 'mail_template_type_id' => $typeId,
             ]),
             'event_name' => 'test.event',
@@ -78,10 +78,10 @@ class Migration1599822061MigrateOrderMailsTest extends TestCase
         static::assertCount(2, $events);
 
         foreach ($events as $event) {
-            $config = json_decode($event['config'], true);
+            $config = \json_decode($event['config'], true);
             static::assertArrayHasKey('mail_template_type_id', $config);
 
-            if (array_key_exists('mail_template_id', $config)) {
+            if (\array_key_exists('mail_template_id', $config)) {
                 static::assertNotEquals($typeId, $config['mail_template_type_id']);
             } else {
                 static::assertEquals($typeId, $config['mail_template_type_id']);

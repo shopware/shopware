@@ -26,12 +26,12 @@ class Migration1590408550AclResources extends MigrationStep
         $roles = $this->getRoles($connection);
 
         foreach ($roles as $id => $privs) {
-            $list = array_column($privs, 'priv');
+            $list = \array_column($privs, 'priv');
 
             $connection->executeUpdate(
                 'UPDATE `acl_role` SET `privileges` = :privileges WHERE id = :id',
                 [
-                    'privileges' => json_encode($list),
+                    'privileges' => \json_encode($list),
                     'id' => Uuid::fromHexToBytes($id),
                 ]
             );

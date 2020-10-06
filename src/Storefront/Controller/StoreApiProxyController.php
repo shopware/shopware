@@ -66,7 +66,7 @@ class StoreApiProxyController
             throw new MissingRequestParameterException('path');
         }
 
-        $url = parse_url($request->query->get('path'));
+        $url = \parse_url($request->query->get('path'));
 
         if ($url === false) {
             throw new InvalidRequestParameterException('path');
@@ -74,10 +74,10 @@ class StoreApiProxyController
 
         $query = null;
         if (isset($url['query'])) {
-            parse_str($url['query'], $query);
+            \parse_str($url['query'], $query);
         }
 
-        $server = array_merge($request->server->all(), ['REQUEST_URI' => $url['path'] ?? '']);
+        $server = \array_merge($request->server->all(), ['REQUEST_URI' => $url['path'] ?? '']);
         $subRequest = $request->duplicate($query, null, [], null, null, $server);
 
         $subRequest->headers->set(PlatformRequest::HEADER_ACCESS_KEY, $context->getSalesChannel()->getAccessKey());

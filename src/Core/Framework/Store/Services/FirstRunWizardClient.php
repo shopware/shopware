@@ -106,7 +106,7 @@ final class FirstRunWizardClient
                 'query' => $this->storeService->getDefaultQueryParameters($language, false),
             ]
         );
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = \json_decode($response->getBody()->getContents(), true);
 
         $userToken = new ShopUserTokenStruct();
         $userToken->assign($data['firstRunWizardUserToken']);
@@ -130,7 +130,7 @@ final class FirstRunWizardClient
                 'headers' => $headers,
             ]
         );
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = \json_decode($response->getBody()->getContents(), true);
 
         $userToken = new ShopUserTokenStruct();
         $userToken->assign($data['shopUserToken']);
@@ -203,7 +203,7 @@ final class FirstRunWizardClient
             '/swplatform/firstrunwizard/localizations',
             ['query' => $this->storeService->getDefaultQueryParameters($language, false)]
         );
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = \json_decode($response->getBody()->getContents(), true);
 
         return $this->mapPluginData($data, $pluginCollection);
     }
@@ -218,7 +218,7 @@ final class FirstRunWizardClient
             '/swplatform/firstrunwizard/demodataplugins',
             ['query' => $query]
         );
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = \json_decode($response->getBody()->getContents(), true);
 
         return $this->mapPluginData($data, $pluginCollection);
     }
@@ -232,7 +232,7 @@ final class FirstRunWizardClient
             '/swplatform/firstrunwizard/categories',
             ['query' => $this->storeService->getDefaultQueryParameters($language, false)]
         );
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = \json_decode($response->getBody()->getContents(), true);
 
         $regions = new PluginRegionCollection();
         foreach ($data as $region) {
@@ -263,7 +263,7 @@ final class FirstRunWizardClient
             ['query' => $query]
         );
 
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = \json_decode($response->getBody()->getContents(), true);
 
         return new PluginRecommendationCollection($this->mapPluginData($data, $pluginCollection));
     }
@@ -281,13 +281,13 @@ final class FirstRunWizardClient
             ]
         );
 
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = \json_decode($response->getBody()->getContents(), true);
 
         $currentLicenseDomain = $this->configService->getString(StoreService::CONFIG_KEY_STORE_LICENSE_DOMAIN);
-        $currentLicenseDomain = $currentLicenseDomain ? idn_to_utf8($currentLicenseDomain) : null;
+        $currentLicenseDomain = $currentLicenseDomain ? \idn_to_utf8($currentLicenseDomain) : null;
 
-        $domains = array_map(static function ($data) use ($currentLicenseDomain) {
-            $domain = idn_to_utf8($data['domain']);
+        $domains = \array_map(static function ($data) use ($currentLicenseDomain) {
+            $domain = \idn_to_utf8($data['domain']);
 
             return (new LicenseDomainStruct())->assign([
                 'domain' => $domain,
@@ -375,7 +375,7 @@ final class FirstRunWizardClient
                 'headers' => $headers,
             ]
         );
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = \json_decode($response->getBody()->getContents(), true);
 
         return new DomainVerificationRequestStruct($data['content'], $data['fileName']);
     }

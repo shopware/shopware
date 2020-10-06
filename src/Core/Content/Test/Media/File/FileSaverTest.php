@@ -57,10 +57,10 @@ class FileSaverTest extends TestCase
 
     public function testPersistFileToMediaHappyPathForInitialUpload(): void
     {
-        $tempFile = tempnam(sys_get_temp_dir(), '');
-        copy(self::TEST_IMAGE, $tempFile);
+        $tempFile = \tempnam(\sys_get_temp_dir(), '');
+        \copy(self::TEST_IMAGE, $tempFile);
 
-        $fileSize = filesize($tempFile);
+        $fileSize = \filesize($tempFile);
         $mediaFile = new MediaFile($tempFile, 'image/png', 'png', $fileSize);
 
         $mediaId = Uuid::randomHex();
@@ -84,8 +84,8 @@ class FileSaverTest extends TestCase
                 $context
             );
         } finally {
-            if (file_exists($tempFile)) {
-                unlink($tempFile);
+            if (\file_exists($tempFile)) {
+                \unlink($tempFile);
             }
         }
 
@@ -96,10 +96,10 @@ class FileSaverTest extends TestCase
 
     public function testPersistFileWithUpperCaseExtension(): void
     {
-        $tempFile = tempnam(sys_get_temp_dir(), '');
-        copy(self::TEST_IMAGE, $tempFile);
+        $tempFile = \tempnam(\sys_get_temp_dir(), '');
+        \copy(self::TEST_IMAGE, $tempFile);
 
-        $fileSize = filesize($tempFile);
+        $fileSize = \filesize($tempFile);
         $mediaFile = new MediaFile($tempFile, 'image/png', 'PNG', $fileSize);
 
         $mediaId = Uuid::randomHex();
@@ -123,8 +123,8 @@ class FileSaverTest extends TestCase
                 $context
             );
         } finally {
-            if (file_exists($tempFile)) {
-                unlink($tempFile);
+            if (\file_exists($tempFile)) {
+                \unlink($tempFile);
             }
         }
 
@@ -135,10 +135,10 @@ class FileSaverTest extends TestCase
 
     public function testPersistFileToMediaRemovesOldFile(): void
     {
-        $tempFile = tempnam(sys_get_temp_dir(), '');
-        copy(self::TEST_IMAGE, $tempFile);
+        $tempFile = \tempnam(\sys_get_temp_dir(), '');
+        \copy(self::TEST_IMAGE, $tempFile);
 
-        $fileSize = filesize($tempFile);
+        $fileSize = \filesize($tempFile);
         $mediaFile = new MediaFile($tempFile, 'image/png', 'png', $fileSize);
 
         $context = Context::createDefaultContext();
@@ -157,8 +157,8 @@ class FileSaverTest extends TestCase
                 $context
             );
         } finally {
-            if (file_exists($tempFile)) {
-                unlink($tempFile);
+            if (\file_exists($tempFile)) {
+                \unlink($tempFile);
             }
         }
         $media = $this->mediaRepository->search(new Criteria([$media->getId()]), $context)->get($media->getId());
@@ -171,10 +171,10 @@ class FileSaverTest extends TestCase
 
     public function testPersistFileToMediaForMediaTypeWithoutThumbs(): void
     {
-        $tempFile = tempnam(sys_get_temp_dir(), '');
-        copy(__DIR__ . '/../fixtures/reader.doc', $tempFile);
+        $tempFile = \tempnam(\sys_get_temp_dir(), '');
+        \copy(__DIR__ . '/../fixtures/reader.doc', $tempFile);
 
-        $fileSize = filesize($tempFile);
+        $fileSize = \filesize($tempFile);
         $mediaFile = new MediaFile($tempFile, 'application/doc', 'doc', $fileSize);
 
         $mediaId = Uuid::randomHex();
@@ -198,8 +198,8 @@ class FileSaverTest extends TestCase
                 $context
             );
         } finally {
-            if (file_exists($tempFile)) {
-                unlink($tempFile);
+            if (\file_exists($tempFile)) {
+                \unlink($tempFile);
             }
         }
 
@@ -215,12 +215,12 @@ class FileSaverTest extends TestCase
         $this->setFixtureContext($context);
         $png = $this->getPng();
 
-        $tempFile = tempnam(sys_get_temp_dir(), '');
-        copy(self::TEST_IMAGE, $tempFile);
-        $mediaFile = new MediaFile($tempFile, 'image/png', 'png', filesize($tempFile));
+        $tempFile = \tempnam(\sys_get_temp_dir(), '');
+        \copy(self::TEST_IMAGE, $tempFile);
+        $mediaFile = new MediaFile($tempFile, 'image/png', 'png', \filesize($tempFile));
 
         $pathName = $this->urlGenerator->getRelativeMediaUrl($png);
-        $this->getPublicFilesystem()->putStream($pathName, fopen($tempFile, 'rb'));
+        $this->getPublicFilesystem()->putStream($pathName, \fopen($tempFile, 'rb'));
 
         try {
             $this->fileSaver->persistFileToMedia(
@@ -230,8 +230,8 @@ class FileSaverTest extends TestCase
                 $context
             );
         } finally {
-            if (file_exists($tempFile)) {
-                unlink($tempFile);
+            if (\file_exists($tempFile)) {
+                \unlink($tempFile);
             }
         }
 
@@ -249,9 +249,9 @@ class FileSaverTest extends TestCase
         $png = $this->getPng();
 
         $newMediaId = Uuid::randomHex();
-        $tempFile = tempnam(sys_get_temp_dir(), '');
-        copy(self::TEST_IMAGE, $tempFile);
-        $mediaFile = new MediaFile($tempFile, 'image/png', 'png', filesize($tempFile));
+        $tempFile = \tempnam(\sys_get_temp_dir(), '');
+        \copy(self::TEST_IMAGE, $tempFile);
+        $mediaFile = new MediaFile($tempFile, 'image/png', 'png', \filesize($tempFile));
 
         try {
             $this->mediaRepository->create(
@@ -270,8 +270,8 @@ class FileSaverTest extends TestCase
                 $context
             );
         } finally {
-            if (file_exists($tempFile)) {
-                unlink($tempFile);
+            if (\file_exists($tempFile)) {
+                \unlink($tempFile);
             }
         }
     }
@@ -284,9 +284,9 @@ class FileSaverTest extends TestCase
         $jpg = $this->getJpg();
 
         $newMediaId = Uuid::randomHex();
-        $tempFile = tempnam(sys_get_temp_dir(), '');
-        copy(self::TEST_IMAGE, $tempFile);
-        $mediaFile = new MediaFile($tempFile, 'image/png', 'png', filesize($tempFile));
+        $tempFile = \tempnam(\sys_get_temp_dir(), '');
+        \copy(self::TEST_IMAGE, $tempFile);
+        $mediaFile = new MediaFile($tempFile, 'image/png', 'png', \filesize($tempFile));
 
         try {
             $this->mediaRepository->create(
@@ -305,8 +305,8 @@ class FileSaverTest extends TestCase
                 $context
             );
         } finally {
-            if (file_exists($tempFile)) {
-                unlink($tempFile);
+            if (\file_exists($tempFile)) {
+                \unlink($tempFile);
             }
         }
 
@@ -318,7 +318,7 @@ class FileSaverTest extends TestCase
     public function testPersistFileToMediaWorksWithMoreThan255Characters(): void
     {
         $longFileName = '';
-        while (mb_strlen($longFileName) < 512) {
+        while (\mb_strlen($longFileName) < 512) {
             $longFileName .= 'Word';
         }
 
@@ -327,9 +327,9 @@ class FileSaverTest extends TestCase
         $this->setFixtureContext($context);
         $png = $this->getPng();
 
-        $tempFile = tempnam(sys_get_temp_dir(), '');
-        copy(self::TEST_IMAGE, $tempFile);
-        $mediaFile = new MediaFile($tempFile, 'image/png', 'png', filesize($tempFile));
+        $tempFile = \tempnam(\sys_get_temp_dir(), '');
+        \copy(self::TEST_IMAGE, $tempFile);
+        $mediaFile = new MediaFile($tempFile, 'image/png', 'png', \filesize($tempFile));
         $this->getPublicFilesystem()->put($this->urlGenerator->getRelativeMediaUrl($png), 'some content');
 
         try {
@@ -340,8 +340,8 @@ class FileSaverTest extends TestCase
                 $context
             );
         } finally {
-            if (file_exists($tempFile)) {
-                unlink($tempFile);
+            if (\file_exists($tempFile)) {
+                \unlink($tempFile);
             }
         }
 
@@ -496,10 +496,10 @@ class FileSaverTest extends TestCase
     {
         $this->expectException(FileTypeNotSupportedException::class);
 
-        $tempFile = tempnam(sys_get_temp_dir(), '');
-        copy(self::TEST_SCRIPT_FILE, $tempFile);
+        $tempFile = \tempnam(\sys_get_temp_dir(), '');
+        \copy(self::TEST_SCRIPT_FILE, $tempFile);
 
-        $fileSize = filesize($tempFile);
+        $fileSize = \filesize($tempFile);
         $mediaFile = new MediaFile($tempFile, 'text/plain', 'php', $fileSize);
 
         $mediaId = Uuid::randomHex();
@@ -523,8 +523,8 @@ class FileSaverTest extends TestCase
                 $context
             );
         } finally {
-            if (file_exists($tempFile)) {
-                unlink($tempFile);
+            if (\file_exists($tempFile)) {
+                \unlink($tempFile);
             }
         }
     }
@@ -541,10 +541,10 @@ class FileSaverTest extends TestCase
 
         $dispatcher->addListener(MediaFileExtensionWhitelistEvent::class, $listenerClosure);
 
-        $tempFile = tempnam(sys_get_temp_dir(), '');
-        copy(self::TEST_IMAGE, $tempFile);
+        $tempFile = \tempnam(\sys_get_temp_dir(), '');
+        \copy(self::TEST_IMAGE, $tempFile);
 
-        $fileSize = filesize($tempFile);
+        $fileSize = \filesize($tempFile);
         $mediaFile = new MediaFile($tempFile, 'image/png', 'png', $fileSize);
 
         $mediaId = Uuid::randomHex();
@@ -568,8 +568,8 @@ class FileSaverTest extends TestCase
                 $context
             );
         } finally {
-            if (file_exists($tempFile)) {
-                unlink($tempFile);
+            if (\file_exists($tempFile)) {
+                \unlink($tempFile);
             }
         }
 

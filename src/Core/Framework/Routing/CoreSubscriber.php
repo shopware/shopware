@@ -30,7 +30,7 @@ class CoreSubscriber implements EventSubscriberInterface
 
     public function initializeCspNonce(RequestEvent $event): void
     {
-        $nonce = base64_encode(random_bytes(8));
+        $nonce = \base64_encode(\random_bytes(8));
         $event->getRequest()->attributes->set(PlatformRequest::ATTRIBUTE_CSP_NONCE, $nonce);
     }
 
@@ -56,11 +56,11 @@ class CoreSubscriber implements EventSubscriberInterface
             }
         }
 
-        $cspTemplate = trim($cspTemplate);
+        $cspTemplate = \trim($cspTemplate);
         if ($cspTemplate !== '' && !$response->headers->has('Content-Security-Policy')) {
             $nonce = $event->getRequest()->attributes->get(PlatformRequest::ATTRIBUTE_CSP_NONCE);
-            $csp = str_replace('%nonce%', $nonce, $cspTemplate);
-            $csp = str_replace(["\n", "\r"], ' ', $csp);
+            $csp = \str_replace('%nonce%', $nonce, $cspTemplate);
+            $csp = \str_replace(["\n", "\r"], ' ', $csp);
             $response->headers->set('Content-Security-Policy', $csp);
         }
     }

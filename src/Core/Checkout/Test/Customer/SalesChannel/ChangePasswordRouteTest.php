@@ -70,7 +70,7 @@ class ChangePasswordRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         $this->contextToken = $response['contextToken'];
 
@@ -87,7 +87,7 @@ class ChangePasswordRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertSame('VIOLATION::IS_BLANK_ERROR', $response['errors'][0]['code']);
@@ -105,7 +105,7 @@ class ChangePasswordRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('errors', $response);
         static::assertSame('VIOLATION::CUSTOMER_PASSWORD_NOT_CORRECT', $response['errors'][0]['code']);
@@ -124,7 +124,7 @@ class ChangePasswordRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayNotHasKey('errors', $response);
 
@@ -142,7 +142,7 @@ class ChangePasswordRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayNotHasKey('errors', $response);
         static::assertArrayHasKey('contextToken', $response);
@@ -163,7 +163,7 @@ class ChangePasswordRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         $oldContextExists = $this->getContainer()->get(SalesChannelContextPersister::class)->load($this->contextToken);
 

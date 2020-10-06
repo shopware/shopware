@@ -44,7 +44,7 @@ class SitemapRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertCount(0, $response);
@@ -65,7 +65,7 @@ class SitemapRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertCount(1, $response);

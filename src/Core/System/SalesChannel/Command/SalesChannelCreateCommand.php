@@ -138,7 +138,7 @@ class SalesChannelCreateCommand extends Command
             'countries' => $this->getAllIdsOf('country', $context),
         ];
 
-        $data = array_replace_recursive($data, $this->getSalesChannelConfiguration($input, $output));
+        $data = \array_replace_recursive($data, $this->getSalesChannelConfiguration($input, $output));
 
         try {
             $this->salesChannelRepository->create([$data], Context::createDefaultContext());
@@ -240,7 +240,7 @@ class SalesChannelCreateCommand extends Command
             return $repository->searchIds(new Criteria(), $context);
         });
 
-        return array_map(
+        return \array_map(
             function (string $id) {
                 return ['id' => $id];
             },
@@ -257,6 +257,6 @@ class SalesChannelCreateCommand extends Command
 
         $categories = $this->categoryRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
 
-        return array_shift($categories);
+        return \array_shift($categories);
     }
 }

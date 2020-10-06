@@ -192,6 +192,6 @@ class StorefrontPluginConfiguration
 
     public function hasFilesToCompile(): bool
     {
-        return count($this->getStyleFiles()) !== 0 || count($this->getScriptFiles()) !== 0;
+        return \count($this->getStyleFiles()) !== 0 || \count($this->getScriptFiles()) !== 0;
     }
 }

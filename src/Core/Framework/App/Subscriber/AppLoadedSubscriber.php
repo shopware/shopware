@@ -22,7 +22,7 @@ class AppLoadedSubscriber implements EventSubscriberInterface
             $iconRaw = $app->getIconRaw();
 
             if ($iconRaw !== null) {
-                $app->setIcon(base64_encode($iconRaw));
+                $app->setIcon(\base64_encode($iconRaw));
             }
         }
     }

@@ -51,14 +51,14 @@ trait EntityFixturesBase
 
         $repository->create([$fixtureData[$fixtureName]], $this->entityFixtureContext);
 
-        if (array_key_exists('mediaType', $fixtureData[$fixtureName])) {
+        if (\array_key_exists('mediaType', $fixtureData[$fixtureName])) {
             $connection = KernelLifecycleManager::getKernel()
                 ->getContainer()
                 ->get(Connection::class);
             $connection->update(
                 'media',
                 [
-                    'media_type' => serialize($fixtureData[$fixtureName]['mediaType']),
+                    'media_type' => \serialize($fixtureData[$fixtureName]['mediaType']),
                 ],
                 ['id' => Uuid::fromHexToBytes($fixtureData[$fixtureName]['id'])]
             );

@@ -58,14 +58,14 @@ abstract class ShopwareHttpException extends HttpException implements ShopwareEx
     {
         $regex = [];
         foreach ($parameters as $key => $value) {
-            if (is_array($value)) {
+            if (\is_array($value)) {
                 continue;
             }
 
-            $key = preg_replace('/[^a-z]/i', '', $key);
-            $regex[sprintf('/\{\{(\s+)?(%s)(\s+)?\}\}/', $key)] = $value;
+            $key = \preg_replace('/[^a-z]/i', '', $key);
+            $regex[\sprintf('/\{\{(\s+)?(%s)(\s+)?\}\}/', $key)] = $value;
         }
 
-        return preg_replace(array_keys($regex), array_values($regex), $message);
+        return \preg_replace(\array_keys($regex), \array_values($regex), $message);
     }
 }

@@ -86,7 +86,7 @@ class DocumentMetadata
     public function isActive(): bool
     {
         try {
-            return filter_var($this->requireMetadata('isActive'), FILTER_VALIDATE_BOOLEAN);
+            return \filter_var($this->requireMetadata('isActive'), FILTER_VALIDATE_BOOLEAN);
         } catch (\InvalidArgumentException $e) {
             return true;
         }
@@ -146,7 +146,7 @@ class DocumentMetadata
             $urlParts[] = $sluggify->slugify($document->getUrlPart());
         }
 
-        return '/' . implode('/', $urlParts);
+        return '/' . \implode('/', $urlParts);
     }
 
     private function requireMetadata(string $key)
@@ -154,7 +154,7 @@ class DocumentMetadata
         $metadata = $this->document->loadRawMetadata();
 
         if (!isset($metadata[$key])) {
-            throw new \InvalidArgumentException(sprintf('Key %s on %s not found', $key, $this->document->getFile()->getRealPath()));
+            throw new \InvalidArgumentException(\sprintf('Key %s on %s not found', $key, $this->document->getFile()->getRealPath()));
         }
 
         return $metadata[$key];

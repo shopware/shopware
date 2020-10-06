@@ -19,7 +19,7 @@ class TemplateLoader extends AbstractTemplateLoader
     {
         $viewDirectory = $app->getPath() . '/Resources/views';
 
-        if (!is_dir($viewDirectory)) {
+        if (!\is_dir($viewDirectory)) {
             return [];
         }
 
@@ -30,10 +30,10 @@ class TemplateLoader extends AbstractTemplateLoader
             ->path(self::ALLOWED_TEMPLATE_DIRS)
             ->ignoreUnreadableDirs();
 
-        return array_values(array_map(static function (\SplFileInfo $file) use ($viewDirectory): string {
+        return \array_values(\array_map(static function (\SplFileInfo $file) use ($viewDirectory): string {
             // remove viewDirectory + any leading slashes from pathname
-            return ltrim(mb_substr($file->getPathname(), mb_strlen($viewDirectory)), '/');
-        }, iterator_to_array($finder)));
+            return \ltrim(\mb_substr($file->getPathname(), \mb_strlen($viewDirectory)), '/');
+        }, \iterator_to_array($finder)));
     }
 
     /**
@@ -41,10 +41,10 @@ class TemplateLoader extends AbstractTemplateLoader
      */
     public function getTemplateContent(string $path, Manifest $app): string
     {
-        $content = @file_get_contents($app->getPath() . '/Resources/views/' . $path);
+        $content = @\file_get_contents($app->getPath() . '/Resources/views/' . $path);
 
         if ($content === false) {
-            throw new \RuntimeException(sprintf('Unable to read file from: %s.', $app->getPath() . '/views/' . $path));
+            throw new \RuntimeException(\sprintf('Unable to read file from: %s.', $app->getPath() . '/views/' . $path));
         }
 
         return $content;

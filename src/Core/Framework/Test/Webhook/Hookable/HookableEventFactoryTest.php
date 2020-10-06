@@ -147,8 +147,8 @@ class HookableEventFactoryTest extends TestCase
             'id',
             'versionId',
         ];
-        sort($actualUpdatedFields);
-        sort($expectedUpdatedFields);
+        \sort($actualUpdatedFields);
+        \sort($expectedUpdatedFields);
 
         static::assertEquals($expectedUpdatedFields, $actualUpdatedFields);
     }

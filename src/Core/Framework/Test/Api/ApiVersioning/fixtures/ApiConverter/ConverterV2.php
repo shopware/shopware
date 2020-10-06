@@ -37,7 +37,7 @@ class ConverterV2 extends ApiConverter
     {
         return [
             '_test_bundle' => function (array $payload): array {
-                if (array_key_exists('discountType', $payload)) {
+                if (\array_key_exists('discountType', $payload)) {
                     $payload['isAbsolute'] = $payload['discountType'] === 'absolute';
 
                     unset($payload['discountType']);

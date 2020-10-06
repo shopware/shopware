@@ -12,9 +12,9 @@ class ChangelogValidator extends ChangelogProcessor
         $errors = [];
         $entries = !empty($path) ? [$path] : $this->getUnreleasedChangelogFiles();
         foreach ($entries as $entry) {
-            $changelog = $this->parser->parse((string) file_get_contents($entry));
+            $changelog = $this->parser->parse((string) \file_get_contents($entry));
             $violations = $this->validator->validate($changelog);
-            if (count($violations)) {
+            if (\count($violations)) {
                 $errors[$entry] = [];
                 /** @var ConstraintViolationInterface $violation */
                 foreach ($violations as $violation) {

@@ -16,12 +16,12 @@ class SearchControllerTest extends TestCase
     public function testSearchWithHtml(string $term): void
     {
         $browser = KernelLifecycleManager::createBrowser($this->getKernel());
-        $browser->request('GET', $_SERVER['APP_URL'] . '/search?search=' . urlencode($term));
+        $browser->request('GET', $_SERVER['APP_URL'] . '/search?search=' . \urlencode($term));
 
         $html = $browser->getResponse()->getContent();
 
         static::assertStringNotContainsString($term, $html);
-        static::assertStringContainsString(htmlentities($term), $html);
+        static::assertStringContainsString(\htmlentities($term), $html);
     }
 
     public function getProviderInvalidTerms(): iterable

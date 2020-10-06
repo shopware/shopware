@@ -45,7 +45,7 @@ class ProductReviewRouteTest extends TestCase
     {
         $this->browser->request('POST', $this->getUrl());
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('total', $response);
         static::assertEquals(5, $response['total']);
@@ -63,14 +63,14 @@ class ProductReviewRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
-        $first = array_shift($response['elements']);
-        $properties = array_keys($first);
+        $first = \array_shift($response['elements']);
+        $properties = \array_keys($first);
 
         $expected = ['title', 'content', 'points', 'apiAlias'];
-        sort($properties);
-        sort($expected);
+        \sort($properties);
+        \sort($expected);
 
         static::assertEquals($expected, $properties);
     }
@@ -91,7 +91,7 @@ class ProductReviewRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('aggregations', $response);
 
@@ -145,7 +145,7 @@ class ProductReviewRouteTest extends TestCase
                 'productId' => $this->ids->get('product'),
                 'title' => 'Test',
                 'content' => 'test',
-                'points' => min(5, $i + $i / 5),
+                'points' => \min(5, $i + $i / 5),
                 'status' => true,
             ];
         }

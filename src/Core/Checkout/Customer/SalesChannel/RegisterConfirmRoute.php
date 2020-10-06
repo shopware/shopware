@@ -104,7 +104,7 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
 
         $this->validator->validate(
             ['em' => $dataBag->get('em')],
-            $this->getBeforeConfirmValidation(hash('sha1', $customer->getEmail()))
+            $this->getBeforeConfirmValidation(\hash('sha1', $customer->getEmail()))
         );
 
         if ($customer->getActive()) {

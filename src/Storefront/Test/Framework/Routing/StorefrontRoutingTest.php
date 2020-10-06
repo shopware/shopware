@@ -104,10 +104,10 @@ class StorefrontRoutingTest extends TestCase
         $networkPath = $this->router->generate($case->route, [], Router::NETWORK_PATH);
         $pathInfo = $this->router->generate($case->route, [], Router::PATH_INFO);
 
-        static::assertSame($case->getAbsolutePath(), $absolutePath, var_export($case, true));
-        static::assertSame($case->getAbsoluteUrl(), $absoluteUrl, var_export($case, true));
-        static::assertSame($case->getNetworkPath(), $networkPath, var_export($case, true));
-        static::assertSame($case->getPathInfo(), $pathInfo, var_export($case, true));
+        static::assertSame($case->getAbsolutePath(), $absolutePath, \var_export($case, true));
+        static::assertSame($case->getAbsoluteUrl(), $absoluteUrl, \var_export($case, true));
+        static::assertSame($case->getNetworkPath(), $networkPath, \var_export($case, true));
+        static::assertSame($case->getPathInfo(), $pathInfo, \var_export($case, true));
 
         $matches = $this->router->matchRequest($transformedRequest);
         static::assertEquals($case->route, $matches['_route']);
@@ -139,9 +139,9 @@ class StorefrontRoutingTest extends TestCase
             'subDir' => ['', '/public', '/sw/public'],
             'salesChannel' => ['', '/de', '/de/premium', '/public'],
         ];
-        $cases = $this->generateCases(array_keys($config), $config);
+        $cases = $this->generateCases(\array_keys($config), $config);
 
-        return array_map(function ($params) {
+        return \array_map(function ($params) {
             return [$this->createCase($params['https'], $params['host'], $params['subDir'], $params['salesChannel'])];
         }, $cases);
     }
@@ -182,12 +182,12 @@ class StorefrontRoutingTest extends TestCase
         }
 
         $results = [];
-        $key = array_pop($keys);
+        $key = \array_pop($keys);
         foreach ($config[$key] as $value) {
             $childResults = $this->generateCases($keys, $config);
             $base = [$key => $value];
             foreach ($childResults as $childResult) {
-                $base = array_merge($base, $childResult);
+                $base = \array_merge($base, $childResult);
                 $results[] = $base;
             }
             if (empty($childResults)) {
@@ -223,7 +223,7 @@ class StorefrontRoutingTest extends TestCase
 
     private function createSalesChannels(array $salesChannels): SalesChannelContext
     {
-        $salesChannels = array_map(function ($salesChannelData) {
+        $salesChannels = \array_map(function ($salesChannelData) {
             $defaults = [
                 'typeId' => Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
                 'accessKey' => AccessKeyHelper::generateAccessKey('sales-channel'),
@@ -247,7 +247,7 @@ class StorefrontRoutingTest extends TestCase
                 'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
             ];
 
-            return array_merge_recursive($defaults, $salesChannelData);
+            return \array_merge_recursive($defaults, $salesChannelData);
         }, $salesChannels);
 
         /** @var EntityRepositoryInterface $salesChannelRepository */

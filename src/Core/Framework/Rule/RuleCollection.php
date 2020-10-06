@@ -45,7 +45,7 @@ class RuleCollection extends Collection
     public function filterInstance(string $class): RuleCollection
     {
         return new self(
-            array_filter(
+            \array_filter(
                 $this->flat,
                 function (Rule $rule) use ($class) {
                     return $rule instanceof $class;
@@ -56,7 +56,7 @@ class RuleCollection extends Collection
 
     public function has($class): bool
     {
-        return array_key_exists($class, $this->classes);
+        return \array_key_exists($class, $this->classes);
     }
 
     public function getApiAlias(): string

@@ -74,12 +74,12 @@ class Migration1595492054SeoUrlTemplateDataTest extends TestCase
         }
 
         $data = $connection->fetchAll('SELECT * FROM seo_url_template ORDER BY id');
-        $expectedHash = md5(serialize($data));
+        $expectedHash = \md5(\serialize($data));
 
         $migration->update($connection);
 
         $data = $connection->fetchAll('SELECT * FROM seo_url_template ORDER BY id');
-        $actualHash = md5(serialize($data));
+        $actualHash = \md5(\serialize($data));
 
         static::assertSame($expectedHash, $actualHash, 'The data has changed');
     }

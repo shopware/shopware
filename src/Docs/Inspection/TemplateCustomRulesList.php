@@ -53,19 +53,19 @@ EOD;
         /** @var ModuleTagCollection $tags */
         foreach ($ruleCollection as $tags) {
             $bundleName = $tags->getBundleName();
-            $markdown[$bundleName] = sprintf(self::TEMPLATE_BUNDLE_HEADLINE, $bundleName);
+            $markdown[$bundleName] = \sprintf(self::TEMPLATE_BUNDLE_HEADLINE, $bundleName);
 
             foreach ($tags as $tag) {
                 $rules = $tag->marker('rules');
-                usort($rules, function (SplFileInfo $ruleA, SplFileInfo $ruleB) {
-                    return strcmp($ruleA->getRelativePathname(), $ruleB->getRelativePathname());
+                \usort($rules, function (SplFileInfo $ruleA, SplFileInfo $ruleB) {
+                    return \strcmp($ruleA->getRelativePathname(), $ruleB->getRelativePathname());
                 });
                 foreach ($rules as $ruleFile) {
                     $className = $this->moduleInspector->getClassName($ruleFile);
 
                     $ruleDescriptions->ensure($className);
 
-                    $markdown[] = sprintf(
+                    $markdown[] = \sprintf(
                         self::TEMPLATE_RULE,
                         $className,
                         $className,
@@ -77,11 +77,11 @@ EOD;
 
         $ruleDescriptions->dump(true);
 
-        file_put_contents(
+        \file_put_contents(
             $this->ruleListPath,
-            sprintf(
+            \sprintf(
                 self::TEMPLATE_PAGE,
-                implode(PHP_EOL, $markdown)
+                \implode(PHP_EOL, $markdown)
             )
         );
     }

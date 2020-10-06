@@ -10,7 +10,7 @@ class XmlElement extends Struct
 
     public function toArray(): array
     {
-        $array = get_object_vars($this);
+        $array = \get_object_vars($this);
 
         unset($array['extensions']);
 
@@ -19,7 +19,7 @@ class XmlElement extends Struct
 
     protected static function mapTranslatedTag(\DOMElement $child, array $values): array
     {
-        if (!array_key_exists($child->tagName, $values)) {
+        if (!\array_key_exists($child->tagName, $values)) {
             $values[self::snakeCaseToCamelCase($child->tagName)] = [];
         }
 
@@ -48,7 +48,7 @@ class XmlElement extends Struct
 
     protected static function snakeCaseToCamelCase(string $string): string
     {
-        return lcfirst(str_replace('-', '', ucwords($string, '-')));
+        return \lcfirst(\str_replace('-', '', \ucwords($string, '-')));
     }
 
     private static function getLocaleCodeFromElement(\DOMElement $element): string

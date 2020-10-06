@@ -57,16 +57,16 @@ class Document
     public function getUrlPart(): string
     {
         if ($this->isCategory) {
-            $part = basename($this->getFile()->getRelativePath());
+            $part = \basename($this->getFile()->getRelativePath());
         } else {
             $part = $this->getFile()->getBasename('.md');
         }
 
-        $parts = explode('-', $part);
+        $parts = \explode('-', $part);
 
-        array_shift($parts);
+        \array_shift($parts);
 
-        return implode('-', $parts);
+        return \implode('-', $parts);
     }
 
     public function getBaseUrl(): string
@@ -100,20 +100,20 @@ class Document
         $metadata = [];
 
         $matches = [];
-        if (!preg_match_all(self::METATAG_REGEX, $fileContents, $matches, PREG_SET_ORDER)) {
-            throw new \InvalidArgumentException(sprintf('Missing metadata in %s', $this->file));
+        if (!\preg_match_all(self::METATAG_REGEX, $fileContents, $matches, PREG_SET_ORDER)) {
+            throw new \InvalidArgumentException(\sprintf('Missing metadata in %s', $this->file));
         }
 
         foreach ($matches as $match) {
             $metadata[$match[1]] = $match[2];
         }
 
-        $metadata = array_filter($metadata, static function (string $key): bool {
+        $metadata = \array_filter($metadata, static function (string $key): bool {
             return !\in_array($key, self::IGNORE_TAGS, true);
         }, ARRAY_FILTER_USE_KEY);
 
         if (!$metadata) {
-            throw new \InvalidArgumentException(sprintf('Missing metadata in %s', $this->file));
+            throw new \InvalidArgumentException(\sprintf('Missing metadata in %s', $this->file));
         }
 
         return $metadata;
@@ -155,15 +155,15 @@ class Document
 
         if ($this->isCategory()) {
             $path = \dirname($path);
-            $self = pathinfo(\dirname($this->getFile()->getRealPath()), PATHINFO_BASENAME);
+            $self = \pathinfo(\dirname($this->getFile()->getRealPath()), PATHINFO_BASENAME);
         }
 
         $files = [];
-        foreach (scandir($path, SCANDIR_SORT_ASCENDING) as $file) {
+        foreach (\scandir($path, SCANDIR_SORT_ASCENDING) as $file) {
             $files[] = $file;
         }
 
-        $index = array_search($self, $files, true);
+        $index = \array_search($self, $files, true);
 
         return \count($files) - $index;
     }
@@ -177,7 +177,7 @@ class Document
             $current = $current->getParent();
         } while ($current !== null);
 
-        return array_reverse($chain);
+        return \array_reverse($chain);
     }
 
     public function setCategoryId(int $id): void

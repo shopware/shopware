@@ -56,7 +56,7 @@ class PrivateHandshake implements AppHandshakeInterface
             'timestamp' => $date->getTimestamp(),
         ]);
 
-        $signature = hash_hmac('sha256', $uri->getQuery(), $this->secret);
+        $signature = \hash_hmac('sha256', $uri->getQuery(), $this->secret);
 
         return new Request(
             'GET',
@@ -69,6 +69,6 @@ class PrivateHandshake implements AppHandshakeInterface
 
     public function fetchAppProof(): string
     {
-        return hash_hmac('sha256', $this->shopId . $this->shopUrl . $this->appName, $this->secret);
+        return \hash_hmac('sha256', $this->shopId . $this->shopUrl . $this->appName, $this->secret);
     }
 }

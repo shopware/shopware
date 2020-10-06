@@ -47,15 +47,15 @@ class MailActionControllerTest extends TestCase
 
         // checks that an email was sent
         $messages = $mailCollector->getMessages();
-        static::assertGreaterThan(0, count($messages));
-        $message = array_pop($messages);
+        static::assertGreaterThan(0, \count($messages));
+        $message = \array_pop($messages);
 
         // Asserting email data
         static::assertInstanceOf(\Swift_Message::class, $message);
         static::assertSame('My precious subject', $message->getSubject());
-        static::assertSame('doNotReply@localhost', key($message->getFrom()));
-        static::assertSame('No Reply', current($message->getFrom()));
-        static::assertSame('recipient@example.com', key($message->getTo()));
+        static::assertSame('doNotReply@localhost', \key($message->getFrom()));
+        static::assertSame('No Reply', \current($message->getFrom()));
+        static::assertSame('recipient@example.com', \key($message->getTo()));
 
         $partsByType = [];
         foreach ($message->getChildren() as $contentPart) {
@@ -84,8 +84,8 @@ class MailActionControllerTest extends TestCase
 
         // checks that an email was sent
         $messages = $mailCollector->getMessages();
-        static::assertGreaterThan(0, count($messages));
-        $message = array_pop($messages);
+        static::assertGreaterThan(0, \count($messages));
+        $message = \array_pop($messages);
 
         // Asserting email data
         static::assertInstanceOf(\Swift_Message::class, $message);
@@ -98,7 +98,7 @@ class MailActionControllerTest extends TestCase
         static::assertArrayHasKey('application/pdf', $partsByType);
 
         // Use strcmp() for binary safety
-        static::assertSame(0, strcmp($partsByType['application/pdf'], file_get_contents(self::MEDIA_FIXTURE)));
+        static::assertSame(0, \strcmp($partsByType['application/pdf'], \file_get_contents(self::MEDIA_FIXTURE)));
     }
 
     public function testSendingMailWithFooterAndHeader(): void
@@ -117,8 +117,8 @@ class MailActionControllerTest extends TestCase
 
         // checks that an email was sent
         $messages = $mailCollector->getMessages();
-        static::assertGreaterThan(0, count($messages));
-        $message = array_pop($messages);
+        static::assertGreaterThan(0, \count($messages));
+        $message = \array_pop($messages);
 
         // Asserting email data
         static::assertInstanceOf(\Swift_Message::class, $message);
@@ -171,7 +171,7 @@ class MailActionControllerTest extends TestCase
 
         $this->getPublicFilesystem()->put(
             $urlGenerator->getRelativeMediaUrl($mediaFixture),
-            file_get_contents(self::MEDIA_FIXTURE)
+            \file_get_contents(self::MEDIA_FIXTURE)
         );
 
         return $mediaFixture;

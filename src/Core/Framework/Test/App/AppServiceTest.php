@@ -281,7 +281,7 @@ class AppServiceTest extends TestCase
     {
         $actionButtons = $this->actionButtonRepository->search(new Criteria(), $this->context)->getEntities();
         static::assertCount(2, $actionButtons);
-        $actionNames = array_map(function (ActionButtonEntity $actionButton) {
+        $actionNames = \array_map(function (ActionButtonEntity $actionButton) {
             return $actionButton->getAction();
         }, $actionButtons->getElements());
 

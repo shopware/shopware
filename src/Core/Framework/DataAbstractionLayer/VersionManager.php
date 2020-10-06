@@ -191,12 +191,12 @@ class VersionManager
         $updates = [];
 
         foreach ($deleted as $entity => $results) {
-            $updates[$entity] = array_filter($results, function (EntityWriteResult $result) {
+            $updates[$entity] = \array_filter($results, function (EntityWriteResult $result) {
                 return $result->getOperation() === EntityWriteResult::OPERATION_UPDATE;
             });
         }
 
-        $deleteEvent->addUpdated(array_filter($updates));
+        $deleteEvent->addUpdated(\array_filter($updates));
 
         return $deleteEvent;
     }
@@ -272,7 +272,7 @@ class VersionManager
                 ];
 
                 // deduplicate to prevent deletion errors
-                $entityKey = md5(JsonFieldSerializer::encodeJson($entity));
+                $entityKey = \md5(JsonFieldSerializer::encodeJson($entity));
                 $entities[$entityKey] = $entity;
 
                 if (empty($data->getPayload()) && $data->getAction() !== 'delete') {
@@ -293,7 +293,7 @@ class VersionManager
 
                         $events = $this->entityWriter->upsert($dataDefinition, [$payload], $liveContext);
 
-                        $writtenEvents = array_merge_recursive($writtenEvents, $events);
+                        $writtenEvents = \array_merge_recursive($writtenEvents, $events);
 
                         break;
 
@@ -310,7 +310,7 @@ class VersionManager
             $this->entityWriter->delete($this->versionCommitDefinition, [['id' => $commit->getId()]], $liveContext);
         }
 
-        $newData = array_map(function (VersionCommitDataEntity $data) {
+        $newData = \array_map(function (VersionCommitDataEntity $data) {
             $definition = $this->registry->getByEntityName($data->getEntityName());
 
             $id = $data->getEntityId();
@@ -387,17 +387,17 @@ class VersionManager
         $detail = $this->entityReader->read($definition, $criteria, $context->getContext())->first();
 
         if ($detail === null) {
-            throw new \RuntimeException(sprintf('Cannot create new version. %s by id (%s) not found.', $definition->getEntityName(), $id));
+            throw new \RuntimeException(\sprintf('Cannot create new version. %s by id (%s) not found.', $definition->getEntityName(), $id));
         }
 
-        $data = json_decode($this->serializer->serialize($detail, 'json'), true);
+        $data = \json_decode($this->serializer->serialize($detail, 'json'), true);
 
         $keepIds = $newId === $id;
 
         $data = $this->filterPropertiesForClone($definition, $data, $keepIds, $id, $definition, $context->getContext());
         $data['id'] = $newId;
 
-        $data = array_replace_recursive($data, $behavior->getOverwrites());
+        $data = \array_replace_recursive($data, $behavior->getOverwrites());
 
         $versionContext = $context->createWithVersionId($versionId);
         $result = null;
@@ -441,7 +441,7 @@ class VersionManager
                 $payloadCursor = &$extensions;
             }
 
-            if (!array_key_exists($field->getPropertyName(), $dataCursor)) {
+            if (!\array_key_exists($field->getPropertyName(), $dataCursor)) {
                 continue;
             }
 
@@ -492,7 +492,7 @@ class VersionManager
                     $nested[] = $nestedItem;
                 }
 
-                $nested = array_filter($nested);
+                $nested = \array_filter($nested);
                 if (empty($nested)) {
                     continue;
                 }
@@ -508,7 +508,7 @@ class VersionManager
                 foreach ($value as $item) {
                     $nested[] = ['id' => $item['id']];
                 }
-                $nested = array_filter($nested);
+                $nested = \array_filter($nested);
 
                 if (empty($nested)) {
                     continue;
@@ -574,7 +574,7 @@ class VersionManager
         $commands = [$insert];
 
         foreach ($writtenEvents as $items) {
-            if (count($items) === 0) {
+            if (\count($items) === 0) {
                 continue;
             }
 
@@ -585,7 +585,7 @@ class VersionManager
                 continue;
             }
 
-            if (mb_strpos('version', $entityName) === 0) {
+            if (\mb_strpos('version', $entityName) === 0) {
                 continue;
             }
 
@@ -663,7 +663,7 @@ class VersionManager
             if ($field instanceof TranslationsAssociationField && $pkField->getStorageName() === $field->getLanguageField()) {
                 continue;
             }
-            if (array_key_exists($pkField->getPropertyName(), $nestedItem)) {
+            if (\array_key_exists($pkField->getPropertyName(), $nestedItem)) {
                 unset($nestedItem[$pkField->getPropertyName()]);
             }
         }
@@ -729,7 +729,7 @@ class VersionManager
     private function addParentResults(array $writeResults, array $parents): array
     {
         foreach ($parents as $entity => $primaryKeys) {
-            $primaryKeys = array_unique($primaryKeys);
+            $primaryKeys = \array_unique($primaryKeys);
             if (!isset($writeResults[$entity])) {
                 $writeResults[$entity] = [];
             }
@@ -786,12 +786,12 @@ class VersionManager
 
         $fkField = $fkField->first();
         if (!$fkField instanceof FkField) {
-            throw new \RuntimeException(sprintf('Can not detect foreign key for parent definition %s', $parent->getClass()));
+            throw new \RuntimeException(\sprintf('Can not detect foreign key for parent definition %s', $parent->getClass()));
         }
 
         $primaryKeys = $this->getPrimaryKeysOfFkField($definition, $rawData, $fkField);
 
-        $mapped = array_map(function ($id) {
+        $mapped = \array_map(function ($id) {
             return ['id' => $id];
         }, $primaryKeys);
 
@@ -799,7 +799,7 @@ class VersionManager
 
         $entity = $parent->getEntityName();
 
-        $nested[$entity] = array_merge($nested[$entity] ?? [], $primaryKeys);
+        $nested[$entity] = \array_merge($nested[$entity] ?? [], $primaryKeys);
 
         return $nested;
     }
@@ -817,16 +817,16 @@ class VersionManager
             $primaryKeys = $this->getPrimaryKeysOfFkField($definition, $rawData, $fkField);
 
             $entity = $fkField->getReferenceDefinition()->getEntityName();
-            $mapping[$entity] = array_merge($mapping[$entity] ?? [], $primaryKeys);
+            $mapping[$entity] = \array_merge($mapping[$entity] ?? [], $primaryKeys);
 
-            $mapped = array_map(function ($id) {
+            $mapped = \array_map(function ($id) {
                 return ['id' => $id];
             }, $primaryKeys);
 
             $nested = $this->resolveParents($fkField->getReferenceDefinition(), $mapped) ?? [];
 
             foreach ($nested as $entity => $primaryKeys) {
-                $mapping[$entity] = array_merge($mapping[$entity] ?? [], $primaryKeys);
+                $mapping[$entity] = \array_merge($mapping[$entity] ?? [], $primaryKeys);
             }
         }
 
@@ -849,7 +849,7 @@ class VersionManager
             /** @var Field|StorageAware $primaryKey */
             if (!isset($rawData[$primaryKey->getPropertyName()])) {
                 throw new \RuntimeException(
-                    sprintf('Missing primary key %s for definition %s', $primaryKey->getPropertyName(), $definition->getClass())
+                    \sprintf('Missing primary key %s for definition %s', $primaryKey->getPropertyName(), $definition->getClass())
                 );
             }
             $key = 'primaryKey' . $index;
@@ -877,7 +877,7 @@ class VersionManager
         $referenceField = $parent->getFields()->getByStorageName($fkField->getReferenceField());
         if (!$referenceField) {
             throw new \RuntimeException(
-                sprintf(
+                \sprintf(
                     'Can not detect reference field with storage name %s in definition %s',
                     $fkField->getReferenceField(),
                     $parent->getClass()
@@ -887,7 +887,7 @@ class VersionManager
 
         $primaryKeys = [];
         foreach ($rawData as $row) {
-            if (array_key_exists($fkField->getPropertyName(), $row)) {
+            if (\array_key_exists($fkField->getPropertyName(), $row)) {
                 $fk = $row[$fkField->getPropertyName()];
             } else {
                 $fk = $this->fetchForeignKey($definition, $row, $fkField);
@@ -987,7 +987,7 @@ class VersionManager
                 continue;
             }
 
-            $ids = array_map(function (EntityWriteResult $result) {
+            $ids = \array_map(function (EntityWriteResult $result) {
                 return $result->getPrimaryKey();
             }, $result);
 
@@ -1005,7 +1005,7 @@ class VersionManager
             foreach ($fkFields as $field) {
                 $reference = $field->getReferenceDefinition()->getEntityName();
 
-                $parents[$reference] = array_merge($parents[$reference] ?? [], array_column($ids, $field->getPropertyName()));
+                $parents[$reference] = \array_merge($parents[$reference] ?? [], \array_column($ids, $field->getPropertyName()));
             }
         }
 

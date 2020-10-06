@@ -83,7 +83,7 @@ class ApiRequestContextResolverAppTest extends TestCase
         $response = $browser->getResponse();
 
         static::assertEquals(403, $response->getStatusCode(), $response->getContent());
-        $data = json_decode($response->getContent(), true);
+        $data = \json_decode($response->getContent(), true);
         static::assertEquals(AclWriteValidator::VIOLATION_NO_PERMISSION, $data['errors'][0]['code']);
     }
 
@@ -169,15 +169,15 @@ class ApiRequestContextResolverAppTest extends TestCase
 
         $browser->request('POST', '/api/oauth/token', $authPayload);
 
-        $data = json_decode($browser->getResponse()->getContent(), true);
+        $data = \json_decode($browser->getResponse()->getContent(), true);
 
-        if (!array_key_exists('access_token', $data)) {
+        if (!\array_key_exists('access_token', $data)) {
             throw new \RuntimeException(
-                'No token returned from API: ' . ($data['errors'][0]['detail'] ?? 'unknown error' . print_r($data, true))
+                'No token returned from API: ' . ($data['errors'][0]['detail'] ?? 'unknown error' . \print_r($data, true))
             );
         }
 
-        $browser->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['access_token']));
+        $browser->setServerParameter('HTTP_Authorization', \sprintf('Bearer %s', $data['access_token']));
     }
 
     private function getProductData(string $productId, Context $context)

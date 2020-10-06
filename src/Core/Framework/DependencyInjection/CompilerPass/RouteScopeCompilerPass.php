@@ -13,14 +13,14 @@ class RouteScopeCompilerPass implements CompilerPassInterface
         $routeScopeDefinitions = $container->findTaggedServiceIds('shopware.route_scope');
 
         $apiPrefixes = [];
-        foreach (array_keys($routeScopeDefinitions) as $definition) {
+        foreach (\array_keys($routeScopeDefinitions) as $definition) {
             $routeScope = $container->get($definition);
 
             if (!$routeScope instanceof AbstractRouteScope) {
                 continue;
             }
 
-            $apiPrefixes = array_merge($apiPrefixes, $routeScope->getRoutePrefixes());
+            $apiPrefixes = \array_merge($apiPrefixes, $routeScope->getRoutePrefixes());
         }
 
         $container->setParameter('shopware.routing.registered_api_prefixes', $apiPrefixes);

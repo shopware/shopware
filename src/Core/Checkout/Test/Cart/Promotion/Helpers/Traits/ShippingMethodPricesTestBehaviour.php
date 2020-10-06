@@ -25,13 +25,13 @@ trait ShippingMethodPricesTestBehaviour
         );
 
         foreach ($rows as $row) {
-            if (array_key_exists($row['id'], $this->oldValues)) {
+            if (\array_key_exists($row['id'], $this->oldValues)) {
                 continue;
             }
             $this->oldValues[$row['id']] = $row['currency_price'];
         }
 
-        $priceStruct = json_encode([
+        $priceStruct = \json_encode([
             'c' . Defaults::CURRENCY => [
                 'currencyId' => Defaults::CURRENCY,
                 'net' => $price,
@@ -42,7 +42,7 @@ trait ShippingMethodPricesTestBehaviour
 
         $conn->executeUpdate(
             'UPDATE shipping_method_price SET currency_price=:currencyPrice WHERE id in(:ids)',
-            ['currencyPrice' => $priceStruct, 'ids' => array_keys($this->oldValues)],
+            ['currencyPrice' => $priceStruct, 'ids' => \array_keys($this->oldValues)],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
     }

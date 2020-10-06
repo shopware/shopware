@@ -177,14 +177,14 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
 
         $crossSelling->getAssignedProducts()->sortByPosition();
 
-        $ids = array_values($crossSelling->getAssignedProducts()->getProductIds());
+        $ids = \array_values($crossSelling->getAssignedProducts()->getProductIds());
 
         $filter = new ProductAvailableFilter(
             $context->getSalesChannel()->getId(),
             ProductVisibilityDefinition::VISIBILITY_LINK
         );
 
-        if (!count($ids)) {
+        if (!\count($ids)) {
             return null;
         }
 

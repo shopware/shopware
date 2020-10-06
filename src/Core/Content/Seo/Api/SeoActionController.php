@@ -127,7 +127,7 @@ class SeoActionController extends AbstractController
         $seoUrlTemplate = $request->request->all();
 
         $previewCriteria = new Criteria();
-        if (array_key_exists('criteria', $seoUrlTemplate)) {
+        if (\array_key_exists('criteria', $seoUrlTemplate)) {
             /** @var SalesChannelDefinitionInterface|EntityDefinition $definition */
             $definition = $this->definitionInstanceRegistry->getByEntityName($seoUrlTemplate['entityName']);
 
@@ -217,7 +217,7 @@ class SeoActionController extends AbstractController
         }
         unset($seoUrlData);
 
-        $this->seoUrlPersister->updateSeoUrls($context, $urls[0]['routeName'], array_column($urls, 'foreignKey'), $urls);
+        $this->seoUrlPersister->updateSeoUrls($context, $urls[0]['routeName'], \array_column($urls, 'foreignKey'), $urls);
 
         return new Response('', Response::HTTP_NO_CONTENT);
     }
@@ -281,7 +281,7 @@ class SeoActionController extends AbstractController
 
         $result = $this->seoUrlGenerator->generate($ids, $template, $seoUrlRoute, $context, $salesChannel);
 
-        return iterator_to_array($result);
+        return \iterator_to_array($result);
     }
 
     private function getRepository(SeoUrlRouteConfig $config): EntityRepositoryInterface

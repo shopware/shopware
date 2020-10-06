@@ -49,7 +49,7 @@ class ProductListRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame(15, $response['total']);
         static::assertCount(15, $response['elements']);
@@ -68,7 +68,7 @@ class ProductListRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame(1, $response['total']);
         static::assertCount(1, $response['elements']);
@@ -87,7 +87,7 @@ class ProductListRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame(1, $response['total']);
         static::assertCount(1, $response['elements']);
@@ -106,7 +106,7 @@ class ProductListRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame(15, $response['total']);
         static::assertSame('product', $response['elements'][0]['apiAlias']);
@@ -129,7 +129,7 @@ class ProductListRouteTest extends TestCase
 
         $products = [];
         for ($i = 0; $i < 15; ++$i) {
-            $products[] = array_merge(
+            $products[] = \array_merge(
                 [
                     'id' => $this->ids->create('product' . $i),
                     'active' => true,

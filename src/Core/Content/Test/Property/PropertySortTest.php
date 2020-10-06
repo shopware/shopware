@@ -23,7 +23,7 @@ class PropertySortTest extends TestCase
     {
         $propertyGroup = $this->getPropertyGroupAlphaNumericOnlyNumbers();
         $propertyGroup->sortByConfig();
-        $propertyOptionsArray = json_decode(json_encode($propertyGroup->first()->getOptions()), true);
+        $propertyOptionsArray = \json_decode(\json_encode($propertyGroup->first()->getOptions()), true);
 
         $equalsArray = [];
         for ($x = 0; $x < 50; ++$x) {
@@ -32,7 +32,7 @@ class PropertySortTest extends TestCase
 
         static::assertEquals(
             $equalsArray,
-            array_column($propertyOptionsArray, 'name')
+            \array_column($propertyOptionsArray, 'name')
         );
     }
 
@@ -43,7 +43,7 @@ class PropertySortTest extends TestCase
     {
         $propertyGroup = $this->getPropertyGroupAlphaNumericOnlyLetters();
         $propertyGroup->sortByConfig();
-        $propertyOptionsArray = json_decode(json_encode($propertyGroup->first()->getOptions()), true);
+        $propertyOptionsArray = \json_decode(\json_encode($propertyGroup->first()->getOptions()), true);
 
         $equalsArray = [];
         $letterArray = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
@@ -53,7 +53,7 @@ class PropertySortTest extends TestCase
 
         static::assertEquals(
             $equalsArray,
-            array_column($propertyOptionsArray, 'name')
+            \array_column($propertyOptionsArray, 'name')
         );
     }
 
@@ -64,7 +64,7 @@ class PropertySortTest extends TestCase
     {
         $propertyGroup = $this->getPropertyGroupAlphaNumericNumbersFirstThenLetters();
         $propertyGroup->sortByConfig();
-        $propertyOptionsArray = json_decode(json_encode($propertyGroup->first()->getOptions()), true);
+        $propertyOptionsArray = \json_decode(\json_encode($propertyGroup->first()->getOptions()), true);
 
         $equalsArray = [];
         $letterArray = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
@@ -74,7 +74,7 @@ class PropertySortTest extends TestCase
 
         static::assertEquals(
             $equalsArray,
-            array_column($propertyOptionsArray, 'name')
+            \array_column($propertyOptionsArray, 'name')
         );
     }
 
@@ -85,7 +85,7 @@ class PropertySortTest extends TestCase
     {
         $propertyGroup = $this->getPropertyGroupPosition();
         $propertyGroup->sortByConfig();
-        $propertyOptionsArray = json_decode(json_encode($propertyGroup->first()->getOptions()), true);
+        $propertyOptionsArray = \json_decode(\json_encode($propertyGroup->first()->getOptions()), true);
 
         $equalsArray = [];
         for ($x = 10; $x < 500; ++$x) {
@@ -94,7 +94,7 @@ class PropertySortTest extends TestCase
 
         static::assertEquals(
             $equalsArray,
-            array_column($propertyOptionsArray, 'position')
+            \array_column($propertyOptionsArray, 'position')
         );
     }
 
@@ -105,11 +105,11 @@ class PropertySortTest extends TestCase
     {
         $propertyGroup = $this->getPropertyGroupPositionMixed();
         $propertyGroup->sortByConfig();
-        $propertyOptionsArray = json_decode(json_encode($propertyGroup->first()->getOptions()), true);
+        $propertyOptionsArray = \json_decode(\json_encode($propertyGroup->first()->getOptions()), true);
 
         static::assertEquals(
             self::$notShuffledPosition,
-            array_column($propertyOptionsArray, 'position')
+            \array_column($propertyOptionsArray, 'position')
         );
     }
 
@@ -120,11 +120,11 @@ class PropertySortTest extends TestCase
     {
         $propertyGroup = $this->getPropertyGroupAlphaNumericMixed();
         $propertyGroup->sortByConfig();
-        $propertyOptionsArray = json_decode(json_encode($propertyGroup->first()->getOptions()), true);
+        $propertyOptionsArray = \json_decode(\json_encode($propertyGroup->first()->getOptions()), true);
 
         static::assertEquals(
             self::$notShuffledName,
-            array_column($propertyOptionsArray, 'name')
+            \array_column($propertyOptionsArray, 'name')
         );
     }
 
@@ -137,7 +137,7 @@ class PropertySortTest extends TestCase
     {
         $propertyGroup = $this->getPropertyGroupNumericMixed();
         $propertyGroup->sortByConfig();
-        $propertyOptionsArray = json_decode(json_encode($propertyGroup->first()->getOptions()), true);
+        $propertyOptionsArray = \json_decode(\json_encode($propertyGroup->first()->getOptions()), true);
 
         $wrongNumericSorted = [
             '1a',
@@ -155,7 +155,7 @@ class PropertySortTest extends TestCase
 
         static::assertEquals(
             $wrongNumericSorted,
-            array_column($propertyOptionsArray, 'name')
+            \array_column($propertyOptionsArray, 'name')
         );
     }
 
@@ -168,7 +168,7 @@ class PropertySortTest extends TestCase
     {
         $propertyGroup = $this->getPropertyGroupNumericOnlyNumbers();
         $propertyGroup->sortByConfig();
-        $propertyOptionsArray = json_decode(json_encode($propertyGroup->first()->getOptions()), true);
+        $propertyOptionsArray = \json_decode(\json_encode($propertyGroup->first()->getOptions()), true);
 
         $equalsArray = [];
         for ($x = 0; $x < 50; ++$x) {
@@ -177,7 +177,7 @@ class PropertySortTest extends TestCase
 
         static::assertEquals(
             $equalsArray,
-            array_column($propertyOptionsArray, 'name')
+            \array_column($propertyOptionsArray, 'name')
         );
     }
 
@@ -307,7 +307,7 @@ class PropertySortTest extends TestCase
             ]);
             $propertyOptions[] = $propertyOption;
         }
-        shuffle($propertyOptions);
+        \shuffle($propertyOptions);
 
         return new PropertyGroupOptionCollection($propertyOptions);
     }
@@ -329,7 +329,7 @@ class PropertySortTest extends TestCase
             ]);
             $propertyOptions[] = $propertyOption;
         }
-        shuffle($propertyOptions);
+        \shuffle($propertyOptions);
 
         return new PropertyGroupOptionCollection($propertyOptions);
     }
@@ -351,7 +351,7 @@ class PropertySortTest extends TestCase
             ]);
             $propertyOptions[] = $propertyOption;
         }
-        shuffle($propertyOptions);
+        \shuffle($propertyOptions);
 
         return new PropertyGroupOptionCollection($propertyOptions);
     }
@@ -364,7 +364,7 @@ class PropertySortTest extends TestCase
             $propertyOption = new PropertyGroupOptionEntity();
             $propertyOption->setId(Uuid::randomHex());
             $propertyOption->setPosition((int) ($x / 10));
-            $name = $letterArray[array_rand($letterArray)];
+            $name = $letterArray[\array_rand($letterArray)];
             $propertyOption->setName($name);
             $propertyOption->setTranslated([
                 'name' => $name,
@@ -374,7 +374,7 @@ class PropertySortTest extends TestCase
             ]);
             $propertyOptions[] = $propertyOption;
         }
-        shuffle($propertyOptions);
+        \shuffle($propertyOptions);
 
         return new PropertyGroupOptionCollection($propertyOptions);
     }
@@ -398,8 +398,8 @@ class PropertySortTest extends TestCase
             $propertyOptions[] = $propertyOption;
         }
         self::$notShuffledName = ['1a', '2aa', '3-x$e', '3d', '3e', '20aa', '44f', '55g', 'h6', 'i7', 'j2'];
-        self::$notShuffledPosition = array_column(json_decode(json_encode($propertyOptions), true), 'position');
-        shuffle($propertyOptions);
+        self::$notShuffledPosition = \array_column(\json_decode(\json_encode($propertyOptions), true), 'position');
+        \shuffle($propertyOptions);
 
         return new PropertyGroupOptionCollection($propertyOptions);
     }

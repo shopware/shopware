@@ -29,7 +29,7 @@ class StorefrontMediaImageValidator implements StorefrontMediaValidatorInterface
 
         // additional mime type validation
         // we detect the mime type over the `getimagesize` extension
-        $imageSize = getimagesize($file->getPath() . '/' . $file->getFileName());
+        $imageSize = \getimagesize($file->getPath() . '/' . $file->getFileName());
         if ($imageSize['mime'] !== $file->getMimeType()) {
             throw new FileTypeNotAllowedException($file->getMimeType(), $this->getType());
         }

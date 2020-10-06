@@ -41,7 +41,7 @@ class ConverterV3 extends ApiConverter
     {
         return [
             '_test_bundle' => function (array $payload): array {
-                if (array_key_exists('description', $payload)) {
+                if (\array_key_exists('description', $payload)) {
                     $payload['translatedDescription'] = $payload['description'];
 
                     unset($payload['description']);

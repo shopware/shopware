@@ -63,7 +63,7 @@ class ThemeAppLifecycleHandlerTest extends TestCase
                 (new AppEntity())->assign([
                     'active' => false,
                     'name' => 'SwagTheme',
-                    'path' => str_replace(
+                    'path' => \str_replace(
                         $this->getContainer()->getParameter('kernel.project_dir') . '/',
                         '',
                         $manifest->getPath()

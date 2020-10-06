@@ -12,19 +12,19 @@ class UpdateHtaccessTest extends TestCase
      */
     public function testCombination(string $currentEnv, ?string $newEnv, string $expected): void
     {
-        $fs = sys_get_temp_dir() . '/' . uniqid(__METHOD__, true) . '/';
-        mkdir($fs);
+        $fs = \sys_get_temp_dir() . '/' . \uniqid(__METHOD__, true) . '/';
+        \mkdir($fs);
 
-        file_put_contents($fs . '.env', $currentEnv);
+        \file_put_contents($fs . '.env', $currentEnv);
 
         if ($newEnv) {
-            file_put_contents($fs . '.env.dist', $newEnv);
+            \file_put_contents($fs . '.env.dist', $newEnv);
         }
 
         $updater = new UpdateHtaccess($fs . '.env');
         $updater->update();
 
-        static::assertSame($expected, file_get_contents($fs . '.env'));
+        static::assertSame($expected, \file_get_contents($fs . '.env'));
     }
 
     public function getCombinations(): iterable

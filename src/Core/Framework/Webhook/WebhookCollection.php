@@ -26,7 +26,7 @@ class WebhookCollection extends EntityCollection
      */
     public function getAclRoleIdsAsBinary(): array
     {
-        return array_values($this->fmap(static function (WebhookEntity $webhook): ?string {
+        return \array_values($this->fmap(static function (WebhookEntity $webhook): ?string {
             if ($webhook->getApp()) {
                 return Uuid::fromHexToBytes($webhook->getApp()->getAclRoleId());
             }

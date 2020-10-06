@@ -37,8 +37,8 @@ class FileCollection extends Collection
         $resolveMappings = [];
         /** @var File $file */
         foreach ($this->elements as $file) {
-            if (count($file->getResolveMapping()) > 0) {
-                $resolveMappings = array_merge($resolveMappings, $file->getResolveMapping());
+            if (\count($file->getResolveMapping()) > 0) {
+                $resolveMappings = \array_merge($resolveMappings, $file->getResolveMapping());
             }
         }
 

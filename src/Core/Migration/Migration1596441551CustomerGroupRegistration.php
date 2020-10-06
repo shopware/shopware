@@ -48,7 +48,7 @@ class Migration1596441551CustomerGroupRegistration extends MigrationStep
             $connection->insert('mail_template_type', [
                 'id' => $typeId,
                 'technical_name' => $typeName,
-                'available_entities' => json_encode(['customer' => 'customer', 'customerGroup' => 'customer_group']),
+                'available_entities' => \json_encode(['customer' => 'customer', 'customerGroup' => 'customer_group']),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             ]);
 
@@ -77,7 +77,7 @@ class Migration1596441551CustomerGroupRegistration extends MigrationStep
             }
 
             // We don't have both en and de
-            if (!in_array(Defaults::LANGUAGE_SYSTEM, $languageIds, true)) {
+            if (!\in_array(Defaults::LANGUAGE_SYSTEM, $languageIds, true)) {
                 $connection->insert('mail_template_type_translation', [
                     'mail_template_type_id' => $typeId,
                     'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
@@ -182,7 +182,7 @@ ADD `registration_seo_meta_description` longtext NULL AFTER `registration_only_c
         }
 
         // We don't have both en and de
-        if (!in_array(Defaults::LANGUAGE_SYSTEM, $languageIds, true)) {
+        if (!\in_array(Defaults::LANGUAGE_SYSTEM, $languageIds, true)) {
             $connection->insert(
                 'mail_template_translation',
                 [
@@ -204,7 +204,7 @@ ADD `registration_seo_meta_description` longtext NULL AFTER `registration_only_c
                 'id' => Uuid::randomBytes(),
                 'event_name' => $typeName,
                 'action_name' => MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION,
-                'config' => json_encode([
+                'config' => \json_encode([
                     'mail_template_type_id' => Uuid::fromBytesToHex($typeId),
                 ]),
                 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),

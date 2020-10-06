@@ -44,7 +44,7 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface
         $template = $this->findDatabaseTemplate($name);
 
         if (!$template) {
-            throw new LoaderError(sprintf('Template "%s" is not defined.', $name));
+            throw new LoaderError(\sprintf('Template "%s" is not defined.', $name));
         }
 
         return new Source($template->getTemplate(), $name);
@@ -81,8 +81,8 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface
         $namespace = $templateName['namespace'];
         $path = $templateName['path'];
 
-        if (array_key_exists($path, $this->databaseTemplateCache)) {
-            if (array_key_exists($namespace, $this->databaseTemplateCache[$path])) {
+        if (\array_key_exists($path, $this->databaseTemplateCache)) {
+            if (\array_key_exists($namespace, $this->databaseTemplateCache[$path])) {
                 return $this->databaseTemplateCache[$path][$namespace];
             }
 
@@ -103,8 +103,8 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface
             $this->databaseTemplateCache[$path][$template->getApp()->getName()] = $template;
         }
 
-        if (array_key_exists($path, $this->databaseTemplateCache)
-            && array_key_exists($namespace, $this->databaseTemplateCache[$path])) {
+        if (\array_key_exists($path, $this->databaseTemplateCache)
+            && \array_key_exists($namespace, $this->databaseTemplateCache[$path])) {
             return $this->databaseTemplateCache[$path][$namespace];
         }
 
@@ -114,16 +114,16 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface
     private function splitTemplateName(string $template): array
     {
         // remove static template inheritance prefix
-        if (mb_strpos($template, '@') !== 0) {
+        if (\mb_strpos($template, '@') !== 0) {
             return ['path' => $template, 'namespace' => ''];
         }
 
         // remove "@"
-        $template = mb_substr($template, 1);
+        $template = \mb_substr($template, 1);
 
-        $template = explode('/', $template);
-        $namespace = array_shift($template);
-        $template = implode('/', $template);
+        $template = \explode('/', $template);
+        $namespace = \array_shift($template);
+        $template = \implode('/', $template);
 
         return ['path' => $template, 'namespace' => $namespace];
     }

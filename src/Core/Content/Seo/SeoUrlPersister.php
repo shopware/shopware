@@ -111,7 +111,7 @@ class SeoUrlPersister
             $insert['foreign_key'] = Uuid::fromHexToBytes($fk);
 
             $insert['path_info'] = $seoUrl['pathInfo'];
-            $insert['seo_path_info'] = ltrim($seoUrl['seoPathInfo'], '/');
+            $insert['seo_path_info'] = \ltrim($seoUrl['seoPathInfo'], '/');
 
             $insert['route_name'] = $routeName;
             $insert['is_canonical'] = ($seoUrl['isCanonical'] ?? true) ? 1 : null;
@@ -132,8 +132,8 @@ class SeoUrlPersister
                 $insertQuery->execute();
             });
 
-            $deletedIds = array_diff($foreignKeys, $updatedFks);
-            $notDeletedIds = array_unique(array_intersect($foreignKeys, $updatedFks));
+            $deletedIds = \array_diff($foreignKeys, $updatedFks);
+            $notDeletedIds = \array_unique(\array_intersect($foreignKeys, $updatedFks));
 
             $this->markAsDeleted(true, $deletedIds, $dateTime, $salesChannelId);
             $this->markAsDeleted(false, $notDeletedIds, $dateTime, $salesChannelId);
@@ -152,7 +152,7 @@ class SeoUrlPersister
 
     private function skipUpdate($existing, $seoUrl): bool
     {
-        if ($existing['isModified'] && !($seoUrl['isModified'] ?? false) && trim($seoUrl['seoPathInfo']) !== '') {
+        if ($existing['isModified'] && !($seoUrl['isModified'] ?? false) && \trim($seoUrl['seoPathInfo']) !== '') {
             return true;
         }
 

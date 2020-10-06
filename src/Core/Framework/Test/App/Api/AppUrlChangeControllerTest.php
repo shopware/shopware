@@ -29,7 +29,7 @@ class AppUrlChangeControllerTest extends TestCase
     {
         $url = '/api/v' . PlatformRequest::API_VERSION . '/app-system/app-url-change/strategies';
         $this->getBrowser()->request('GET', $url);
-        $response = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $response = \json_decode($this->getBrowser()->getResponse()->getContent(), true);
 
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
 
@@ -49,7 +49,7 @@ class AppUrlChangeControllerTest extends TestCase
             [],
             [],
             [],
-            json_encode(['strategy' => UninstallAppsStrategy::STRATEGY_NAME])
+            \json_encode(['strategy' => UninstallAppsStrategy::STRATEGY_NAME])
         );
         $response = $this->getBrowser()->getResponse()->getContent();
 
@@ -68,9 +68,9 @@ class AppUrlChangeControllerTest extends TestCase
             [],
             [],
             [],
-            json_encode(['strategy' => 'test'])
+            \json_encode(['strategy' => 'test'])
         );
-        $response = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $response = \json_decode($this->getBrowser()->getResponse()->getContent(), true);
 
         static::assertEquals(400, $this->getBrowser()->getResponse()->getStatusCode());
 
@@ -88,7 +88,7 @@ class AppUrlChangeControllerTest extends TestCase
             'POST',
             $url
         );
-        $response = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $response = \json_decode($this->getBrowser()->getResponse()->getContent(), true);
 
         static::assertEquals(400, $this->getBrowser()->getResponse()->getStatusCode());
 
@@ -109,7 +109,7 @@ class AppUrlChangeControllerTest extends TestCase
 
         $url = '/api/v' . PlatformRequest::API_VERSION . '/app-system/app-url-change/url-difference';
         $this->getBrowser()->request('GET', $url);
-        $response = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        $response = \json_decode($this->getBrowser()->getResponse()->getContent(), true);
 
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
         static::assertEquals(['oldUrl' => $oldUrl, 'newUrl' => $_SERVER['APP_URL']], $response);

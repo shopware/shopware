@@ -134,16 +134,16 @@ class LineItemPurchasePriceRule extends Rule
         if (!$purchasePricePayload) {
             return null;
         }
-        $purchasePrice = json_decode($purchasePricePayload);
+        $purchasePrice = \json_decode($purchasePricePayload);
         if (!$purchasePrice) {
             return null;
         }
 
-        if ($this->isNet && property_exists($purchasePrice, 'net')) {
+        if ($this->isNet && \property_exists($purchasePrice, 'net')) {
             return $purchasePrice->net;
         }
 
-        if (property_exists($purchasePrice, 'gross')) {
+        if (\property_exists($purchasePrice, 'gross')) {
             return $purchasePrice->gross;
         }
 

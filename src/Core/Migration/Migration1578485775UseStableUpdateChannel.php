@@ -20,7 +20,7 @@ class Migration1578485775UseStableUpdateChannel extends MigrationStep
              WHERE configuration_key = :key',
             [
                 'key' => 'core.update.channel',
-                'value' => json_encode(['_value' => 'stable']),
+                'value' => \json_encode(['_value' => 'stable']),
             ]
         );
     }

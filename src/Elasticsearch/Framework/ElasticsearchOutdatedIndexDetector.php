@@ -49,7 +49,7 @@ class ElasticsearchOutdatedIndexDetector
     public function get(): ?array
     {
         $allIndices = $this->client->indices()->get(
-            ['index' => implode(',', $this->getPrefixes())]
+            ['index' => \implode(',', $this->getPrefixes())]
         );
 
         if (empty($allIndices)) {
@@ -58,7 +58,7 @@ class ElasticsearchOutdatedIndexDetector
 
         $indicesToBeDeleted = [];
         foreach ($allIndices as $index) {
-            if (count($index['aliases']) > 0) {
+            if (\count($index['aliases']) > 0) {
                 continue;
             }
 
@@ -93,7 +93,7 @@ class ElasticsearchOutdatedIndexDetector
         $prefixes = [];
         foreach ($languages as $language) {
             foreach ($definitions as $definition) {
-                $prefixes[] = sprintf('%s_*', $this->helper->getIndexName($definition->getEntityDefinition(), $language->getId()));
+                $prefixes[] = \sprintf('%s_*', $this->helper->getIndexName($definition->getEntityDefinition(), $language->getId()));
             }
         }
 

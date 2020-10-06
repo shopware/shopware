@@ -64,7 +64,7 @@ class UserChangePasswordCommandTest extends TestCase
         /** @var UserEntity $user */
         $user = $this->userRepository->search(new Criteria([$userId]), $this->context)->first();
 
-        $passwordVerify = password_verify($newPassword, $user->getPassword());
+        $passwordVerify = \password_verify($newPassword, $user->getPassword());
         static::assertTrue($passwordVerify);
     }
 
@@ -78,9 +78,9 @@ class UserChangePasswordCommandTest extends TestCase
                 'localeId' => $this->getLocaleIdOfSystemLanguage(),
                 'username' => self::TEST_USERNAME,
                 'password' => self::TEST_PASSWORD,
-                'firstName' => sprintf('Foo%s', Uuid::randomHex()),
-                'lastName' => sprintf('Bar%s', Uuid::randomHex()),
-                'email' => sprintf('%s@foo.bar', $uuid),
+                'firstName' => \sprintf('Foo%s', Uuid::randomHex()),
+                'lastName' => \sprintf('Bar%s', Uuid::randomHex()),
+                'email' => \sprintf('%s@foo.bar', $uuid),
             ],
         ], $this->context);
 

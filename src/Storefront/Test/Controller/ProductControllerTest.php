@@ -64,7 +64,7 @@ class ProductControllerTest extends TestCase
             ],
         ];
 
-        $product = array_replace_recursive($product, $config);
+        $product = \array_replace_recursive($product, $config);
 
         $repository = $this->getContainer()->get('product.repository');
 

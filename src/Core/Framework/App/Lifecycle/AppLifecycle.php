@@ -167,7 +167,7 @@ class AppLifecycle extends AbstractAppLifecycle
         /** @var string $secretAccessKey */
         $secretAccessKey = $metadata['accessToken'] ?? '';
         unset($metadata['accessToken'], $metadata['icon']);
-        $metadata['path'] = str_replace($this->projectDir . '/', '', $manifest->getPath());
+        $metadata['path'] = \str_replace($this->projectDir . '/', '', $manifest->getPath());
         $metadata['id'] = $id;
         $metadata['modules'] = [];
         $metadata['iconRaw'] = $this->appLoader->getIcon($manifest);
@@ -247,7 +247,7 @@ class AppLifecycle extends AbstractAppLifecycle
 
         $payload = [
             'id' => $id,
-            'modules' => array_reduce(
+            'modules' => \array_reduce(
                 $manifest->getAdmin()->getModules(),
                 static function (array $modules, Module $module) {
                     $modules[] = $module->toArray();

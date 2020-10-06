@@ -58,14 +58,14 @@ class CategoryListRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame(3, $response['total']);
         static::assertCount(3, $response['elements']);
         static::assertSame('category', $response['elements'][0]['apiAlias']);
-        static::assertContains('Test', array_column($response['elements'], 'name'));
-        static::assertContains('Test2', array_column($response['elements'], 'name'));
-        static::assertContains('Test3', array_column($response['elements'], 'name'));
+        static::assertContains('Test', \array_column($response['elements'], 'name'));
+        static::assertContains('Test2', \array_column($response['elements'], 'name'));
+        static::assertContains('Test3', \array_column($response['elements'], 'name'));
     }
 
     public function testLimit(): void
@@ -77,7 +77,7 @@ class CategoryListRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame(1, $response['total']);
         static::assertCount(1, $response['elements']);
@@ -95,7 +95,7 @@ class CategoryListRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame(1, $response['total']);
         static::assertCount(1, $response['elements']);
@@ -114,7 +114,7 @@ class CategoryListRouteTest extends TestCase
             ]
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame(3, $response['total']);
         static::assertCount(3, $response['elements']);

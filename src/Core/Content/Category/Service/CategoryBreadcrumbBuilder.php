@@ -27,7 +27,7 @@ class CategoryBreadcrumbBuilder
             $entryPoints[] = $salesChannel->getFooterCategoryId();
         }
 
-        $keys = array_keys($categoryBreadcrumb);
+        $keys = \array_keys($categoryBreadcrumb);
 
         foreach ($entryPoints as $entryPoint) {
             if ($entryPoint === null) {
@@ -35,11 +35,11 @@ class CategoryBreadcrumbBuilder
             }
 
             // Check where this category is located in relation to the navigation entry point of the sales channel
-            $pos = array_search($entryPoint, $keys, true);
+            $pos = \array_search($entryPoint, $keys, true);
 
             if ($pos !== false) {
                 // Remove all breadcrumbs preceding the navigation category
-                return array_slice($categoryBreadcrumb, $pos + 1);
+                return \array_slice($categoryBreadcrumb, $pos + 1);
             }
         }
 

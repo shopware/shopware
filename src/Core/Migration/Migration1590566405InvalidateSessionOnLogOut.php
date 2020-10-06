@@ -20,7 +20,7 @@ class Migration1590566405InvalidateSessionOnLogOut extends MigrationStep
         $connection->insert('system_config', [
             'id' => Uuid::randomBytes(),
             'configuration_key' => 'core.loginRegistration.invalidateSessionOnLogOut',
-            'configuration_value' => json_encode(['_value' => Feature::isActive('FEATURE_NEXT_10058') ? false : true]),
+            'configuration_value' => \json_encode(['_value' => Feature::isActive('FEATURE_NEXT_10058') ? false : true]),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }

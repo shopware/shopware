@@ -85,7 +85,7 @@ class MailServiceTest extends TestCase
         $mailSender->expects(static::once())
             ->method('send')
             ->with(static::callback(function (\Swift_Message $message) use ($expected): bool {
-                $from = array_keys($message->getFrom());
+                $from = \array_keys($message->getFrom());
                 $this->assertCount(1, $from);
                 $this->assertSame($expected, $from[0]);
 

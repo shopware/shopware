@@ -20,14 +20,14 @@ class SnippetFixer
     {
         foreach ($missingSnippetCollection->getIterator() as $missingSnippetStruct) {
             // Replace e.g. en-GB to de-DE and en_GB to de_DE
-            $newPath = str_replace(
+            $newPath = \str_replace(
                 [
                     $missingSnippetStruct->getAvailableISO(),
-                    str_replace('-', '_', $missingSnippetStruct->getAvailableISO()),
+                    \str_replace('-', '_', $missingSnippetStruct->getAvailableISO()),
                 ],
                 [
                     $missingSnippetStruct->getMissingForISO(),
-                    str_replace('-', '_', $missingSnippetStruct->getMissingForISO()),
+                    \str_replace('-', '_', $missingSnippetStruct->getMissingForISO()),
                 ],
                 $missingSnippetStruct->getFilePath()
             );
@@ -45,11 +45,11 @@ class SnippetFixer
 
     private function addTranslationUsingSnippetKey(array $json, string $translation, string $key): array
     {
-        $keyParts = explode('.', $key);
+        $keyParts = \explode('.', $key);
 
         $currentJson = &$json;
-        $lastKey = end($keyParts);
-        reset($keyParts);
+        $lastKey = \end($keyParts);
+        \reset($keyParts);
         foreach ($keyParts as $keyPart) {
             if ($keyPart === $lastKey) {
                 $currentJson[$keyPart] = $translation;

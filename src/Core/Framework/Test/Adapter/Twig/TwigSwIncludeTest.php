@@ -121,7 +121,7 @@ class TwigSwIncludeTest extends TestCase
         $templateFinder = new TemplateFinder(
             $twig,
             $loader,
-            $this->getContainer()->getParameter('kernel.cache_dir') . '/' . microtime(),
+            $this->getContainer()->getParameter('kernel.cache_dir') . '/' . \microtime(),
             new NamespaceHierarchyBuilder([
                 new BundleHierarchyBuilder(
                     $kernel,

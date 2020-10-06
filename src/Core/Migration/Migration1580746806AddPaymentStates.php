@@ -69,13 +69,13 @@ class Migration1580746806AddPaymentStates extends MigrationStep
         $connection->insert('state_machine_state', ['id' => $stateInProgressId, 'state_machine_id' => $stateMachineId, 'technical_name' => OrderTransactionStates::STATE_IN_PROGRESS, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
 
         if ($defaultLangId !== $germanId) {
-            $connection->insert('state_machine_state_translation', array_merge($translationEN, ['state_machine_state_id' => $stateInProgressId, 'name' => 'In Progress']));
+            $connection->insert('state_machine_state_translation', \array_merge($translationEN, ['state_machine_state_id' => $stateInProgressId, 'name' => 'In Progress']));
         }
 
         if ($germanId) {
             $connection->insert(
                 'state_machine_state_translation',
-                array_merge(
+                \array_merge(
                     $translationDE,
                     ['state_machine_state_id' => $stateInProgressId, 'name' => 'In Bearbeitung']
                 )
@@ -84,13 +84,13 @@ class Migration1580746806AddPaymentStates extends MigrationStep
 
         $connection->insert('state_machine_state', ['id' => $stateFailedId, 'state_machine_id' => $stateMachineId, 'technical_name' => OrderTransactionStates::STATE_FAILED, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
         if ($defaultLangId !== $germanId) {
-            $connection->insert('state_machine_state_translation', array_merge($translationEN, ['state_machine_state_id' => $stateFailedId, 'name' => 'Failed']));
+            $connection->insert('state_machine_state_translation', \array_merge($translationEN, ['state_machine_state_id' => $stateFailedId, 'name' => 'Failed']));
         }
 
         if ($germanId) {
             $connection->insert(
                 'state_machine_state_translation',
-                array_merge($translationDE, ['state_machine_state_id' => $stateFailedId, 'name' => 'Fehlgeschlagen'])
+                \array_merge($translationDE, ['state_machine_state_id' => $stateFailedId, 'name' => 'Fehlgeschlagen'])
             );
         }
 

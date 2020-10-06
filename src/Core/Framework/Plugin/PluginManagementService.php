@@ -75,8 +75,8 @@ class PluginManagementService
 
     public function uploadPlugin(UploadedFile $file, Context $context): void
     {
-        $tempFileName = tempnam(sys_get_temp_dir(), (string) $file->getClientOriginalName());
-        $tempDirectory = \dirname(realpath($tempFileName));
+        $tempFileName = \tempnam(\sys_get_temp_dir(), (string) $file->getClientOriginalName());
+        $tempDirectory = \dirname(\realpath($tempFileName));
 
         $tempFile = $file->move($tempDirectory, $tempFileName);
 
@@ -87,7 +87,7 @@ class PluginManagementService
 
     public function downloadStorePlugin(string $location, Context $context): int
     {
-        $tempFileName = tempnam(sys_get_temp_dir(), 'store-plugin');
+        $tempFileName = \tempnam(\sys_get_temp_dir(), 'store-plugin');
 
         $statusCode = (new Client())->request('GET', $location, ['sink' => $tempFileName])->getStatusCode();
 

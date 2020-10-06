@@ -50,7 +50,7 @@ class StoreApiSeoResolverTest extends TestCase
             ]
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertNull($response['seoUrls']);
         static::assertNull($response['cmsPage']['sections'][0]['blocks'][0]['slots'][0]['data']['listing']['elements'][0]['seoUrls']);
@@ -68,7 +68,7 @@ class StoreApiSeoResolverTest extends TestCase
             []
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertIsArray($response['extensions']);
         static::assertArrayHasKey('seoUrls', $response);
@@ -90,7 +90,7 @@ class StoreApiSeoResolverTest extends TestCase
             []
         );
 
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $response = \json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertIsArray($response['extensions']);
         static::assertArrayHasKey('seoUrls', $response);
@@ -116,7 +116,7 @@ class StoreApiSeoResolverTest extends TestCase
 
         $products = [];
         for ($i = 0; $i < 5; ++$i) {
-            $products[] = array_merge(
+            $products[] = \array_merge(
                 [
                     'id' => $this->ids->create('product' . $i),
                     'manufacturer' => ['id' => $this->ids->create('manufacturer-' . $i), 'name' => 'test-' . $i],

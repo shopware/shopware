@@ -54,18 +54,18 @@ class DownloadService
                 'attachment',
                 $entity->getOriginalName(),
                 // only printable ascii
-                preg_replace('/[\x00-\x1F\x7F-\xFF]/', '', $entity->getOriginalName())
+                \preg_replace('/[\x00-\x1F\x7F-\xFF]/', '', $entity->getOriginalName())
             ),
             'Content-Length' => $this->filesystem->getSize($entity->getPath()),
             'Content-Type' => 'application/octet-stream',
         ];
         $stream = $this->filesystem->readStream($entity->getPath());
-        if (!is_resource($stream)) {
+        if (!\is_resource($stream)) {
             throw new FileNotFoundException($fileId);
         }
 
         return new StreamedResponse(function () use ($stream): void {
-            fpassthru($stream);
+            \fpassthru($stream);
         }, Response::HTTP_OK, $headers);
     }
 

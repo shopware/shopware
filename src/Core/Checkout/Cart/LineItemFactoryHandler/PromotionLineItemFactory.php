@@ -32,6 +32,6 @@ class PromotionLineItemFactory implements LineItemFactoryInterface
 
     public function update(LineItem $lineItem, array $data, SalesChannelContext $context): void
     {
-        throw new \RuntimeException(sprintf('You cannot update a line item of type "%s"', $lineItem->getType()));
+        throw new \RuntimeException(\sprintf('You cannot update a line item of type "%s"', $lineItem->getType()));
     }
 }

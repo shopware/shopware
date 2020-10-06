@@ -39,8 +39,8 @@ class Migration1600778848AddOrderMailsTest extends TestCase
 
             $mail = $mails[$key];
 
-            static::assertTrue(strpos($mail['content_html'], $updated) !== false);
-            static::assertTrue(strpos($mail['content_plain'], $updated) !== false);
+            static::assertTrue(\strpos($mail['content_html'], $updated) !== false);
+            static::assertTrue(\strpos($mail['content_plain'], $updated) !== false);
         }
     }
 
@@ -71,8 +71,8 @@ class Migration1600778848AddOrderMailsTest extends TestCase
 
             $mail = $mails[$key];
 
-            static::assertTrue(strpos($mail['content_html'], $updated) !== false);
-            static::assertTrue(strpos($mail['content_plain'], $updated) !== false);
+            static::assertTrue(\strpos($mail['content_html'], $updated) !== false);
+            static::assertTrue(\strpos($mail['content_plain'], $updated) !== false);
         }
     }
 
@@ -103,8 +103,8 @@ class Migration1600778848AddOrderMailsTest extends TestCase
 
             $mail = $mails[$key];
 
-            static::assertTrue(strpos($mail['content_html'], $updated) !== false);
-            static::assertTrue(strpos($mail['content_plain'], $updated) !== false);
+            static::assertTrue(\strpos($mail['content_html'], $updated) !== false);
+            static::assertTrue(\strpos($mail['content_plain'], $updated) !== false);
         }
     }
 
@@ -133,8 +133,8 @@ class Migration1600778848AddOrderMailsTest extends TestCase
 
             $mail = $mails[$key];
 
-            static::assertTrue(strpos($mail['content_html'], $updated) !== false);
-            static::assertTrue(strpos($mail['content_plain'], $updated) !== false);
+            static::assertTrue(\strpos($mail['content_html'], $updated) !== false);
+            static::assertTrue(\strpos($mail['content_plain'], $updated) !== false);
         }
     }
 
@@ -166,7 +166,7 @@ class Migration1600778848AddOrderMailsTest extends TestCase
             ];
 
             yield $key . ': default as updated_at' => [
-                array_replace_recursive($mail, [
+                \array_replace_recursive($mail, [
                     'translations' => [
                         Defaults::LANGUAGE_SYSTEM => ['content' => self::INITIAL, 'updated_at' => $date],
                     ],
@@ -178,7 +178,7 @@ class Migration1600778848AddOrderMailsTest extends TestCase
             ];
 
             yield $key . ': no update because no system default' => [
-                array_replace_recursive($mail, [
+                \array_replace_recursive($mail, [
                     'system_default' => 0,
                 ]),
                 [
@@ -188,7 +188,7 @@ class Migration1600778848AddOrderMailsTest extends TestCase
             ];
 
             yield $key . ': no update, because updated_at on mail_template' => [
-                array_replace_recursive($mail, [
+                \array_replace_recursive($mail, [
                     'updated_at' => $date,
                 ]),
                 [
@@ -223,7 +223,7 @@ class Migration1600778848AddOrderMailsTest extends TestCase
             ];
 
             yield $key . ': de has updated_at' => [
-                array_replace_recursive($mail, [
+                \array_replace_recursive($mail, [
                     'translations' => [
                         $ids->get('german') => ['content' => self::INITIAL, 'updated_at' => $date],
                     ],
@@ -237,7 +237,7 @@ class Migration1600778848AddOrderMailsTest extends TestCase
             ];
 
             yield $key . ': default as updated_at' => [
-                array_replace_recursive($mail, [
+                \array_replace_recursive($mail, [
                     'translations' => [
                         Defaults::LANGUAGE_SYSTEM => ['content' => self::INITIAL, 'updated_at' => $date],
                     ],
@@ -251,7 +251,7 @@ class Migration1600778848AddOrderMailsTest extends TestCase
             ];
 
             yield $key . ': en and en-2 has updated_at' => [
-                array_replace_recursive($mail, [
+                \array_replace_recursive($mail, [
                     'translations' => [
                         Defaults::LANGUAGE_SYSTEM => ['content' => self::INITIAL, 'updated_at' => $date],
                         $ids->get('en-2') => ['content' => self::INITIAL, 'updated_at' => $date],
@@ -266,7 +266,7 @@ class Migration1600778848AddOrderMailsTest extends TestCase
             ];
 
             yield $key . ': no update because no system default' => [
-                array_replace_recursive($mail, [
+                \array_replace_recursive($mail, [
                     'system_default' => 0,
                 ]),
                 [
@@ -278,7 +278,7 @@ class Migration1600778848AddOrderMailsTest extends TestCase
             ];
 
             yield $key . ': no update, because updated_at on mail_template' => [
-                array_replace_recursive($mail, [
+                \array_replace_recursive($mail, [
                     'updated_at' => $date,
                 ]),
                 [
@@ -315,7 +315,7 @@ class Migration1600778848AddOrderMailsTest extends TestCase
             ];
 
             yield $key . ': de has updated_at' => [
-                array_replace_recursive($mail, [
+                \array_replace_recursive($mail, [
                     'translations' => [
                         $ids->get('german') => ['content' => self::INITIAL, 'updated_at' => $date],
                     ],
@@ -329,7 +329,7 @@ class Migration1600778848AddOrderMailsTest extends TestCase
             ];
 
             yield $key . ': default as updated_at' => [
-                array_replace_recursive($mail, [
+                \array_replace_recursive($mail, [
                     'translations' => [
                         Defaults::LANGUAGE_SYSTEM => ['content' => self::INITIAL, 'updated_at' => $date],
                     ],
@@ -343,7 +343,7 @@ class Migration1600778848AddOrderMailsTest extends TestCase
             ];
 
             yield $key . ': en and en-2 has updated_at' => [
-                array_replace_recursive($mail, [
+                \array_replace_recursive($mail, [
                     'translations' => [
                         Defaults::LANGUAGE_SYSTEM => ['content' => self::INITIAL, 'updated_at' => $date],
                         $ids->get('en-2') => ['content' => self::INITIAL, 'updated_at' => $date],
@@ -358,7 +358,7 @@ class Migration1600778848AddOrderMailsTest extends TestCase
             ];
 
             yield $key . ': no update because no system default' => [
-                array_replace_recursive($mail, [
+                \array_replace_recursive($mail, [
                     'system_default' => 0,
                 ]),
                 [
@@ -370,7 +370,7 @@ class Migration1600778848AddOrderMailsTest extends TestCase
             ];
 
             yield $key . ': no update, because updated_at on mail_template' => [
-                array_replace_recursive($mail, [
+                \array_replace_recursive($mail, [
                     'updated_at' => $date,
                 ]),
                 [

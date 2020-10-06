@@ -134,11 +134,11 @@ class StoreApiSeoResolver implements EventSubscriberInterface
         foreach ($data->getEntities() as $definition) {
             $ids = $data->getIds($definition);
             $routes = $this->seoUrlRouteRegistry->findByDefinition($definition);
-            if (count($routes) === 0) {
+            if (\count($routes) === 0) {
                 continue;
             }
 
-            $routes = array_map(static function (SeoUrlRouteConfigRoute $seoUrlRoute) {
+            $routes = \array_map(static function (SeoUrlRouteConfigRoute $seoUrlRoute) {
                 return $seoUrlRoute->getConfig()->getRouteName();
             }, $routes);
 

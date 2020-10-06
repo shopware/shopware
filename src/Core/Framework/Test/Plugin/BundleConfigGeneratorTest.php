@@ -55,7 +55,7 @@ class BundleConfigGeneratorTest extends TestCase
             $appPath . 'Resources/app/storefront/src/scss/overrides.scss',
         ];
 
-        static::assertEquals([], array_diff($expectedStyles, $storefrontConfig['styleFiles']));
+        static::assertEquals([], \array_diff($expectedStyles, $storefrontConfig['styleFiles']));
     }
 
     public function testGenerateAppConfigIgnoresInactiveApps(): void

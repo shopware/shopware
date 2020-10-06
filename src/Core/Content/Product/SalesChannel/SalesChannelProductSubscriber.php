@@ -71,7 +71,7 @@ class SalesChannelProductSubscriber implements EventSubscriberInterface
         }
 
         // get all configured expanded groups
-        $groups = array_filter(
+        $groups = \array_filter(
             (array) $product->getConfiguratorGroupConfig(),
             static function (array $config) {
                 return $config['expressionForListings'] ?? false;
@@ -79,7 +79,7 @@ class SalesChannelProductSubscriber implements EventSubscriberInterface
         );
 
         // get ids of groups for later usage
-        $groups = array_column($groups, 'id');
+        $groups = \array_column($groups, 'id');
 
         // expanded group count matches option count? All variants are displayed
         if ($product->getOptionIds() !== null && \count($groups) === \count($product->getOptionIds())) {
@@ -129,7 +129,7 @@ class SalesChannelProductSubscriber implements EventSubscriberInterface
             $max = (int) $product->getAvailableStock();
         }
 
-        return max($max, 0);
+        return \max($max, 0);
     }
 
     private function markAsNew(SalesChannelContext $context, SalesChannelProductEntity $product): void

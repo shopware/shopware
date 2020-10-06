@@ -100,7 +100,7 @@ class EntitySearchResult extends EntityCollection
 
     public function jsonSerialize(): array
     {
-        $vars = get_object_vars($this);
+        $vars = \get_object_vars($this);
 
         unset($vars['criteria']);
         unset($vars['context']);

@@ -26,10 +26,10 @@ class MultiFilter extends Filter
 
     public function __construct(string $operator, array $queries = [])
     {
-        $this->operator = mb_strtoupper(trim($operator));
+        $this->operator = \mb_strtoupper(\trim($operator));
         $this->queries = $queries;
 
-        if (!in_array($this->operator, self::VALID_OPERATORS, true)) {
+        if (!\in_array($this->operator, self::VALID_OPERATORS, true)) {
             throw new \InvalidArgumentException('Operator ' . $this->operator . ' not allowed');
         }
     }
@@ -48,7 +48,7 @@ class MultiFilter extends Filter
 
     public function getOperator(): string
     {
-        if (!in_array($this->operator, self::VALID_OPERATORS, true)) {
+        if (!\in_array($this->operator, self::VALID_OPERATORS, true)) {
             throw new \InvalidArgumentException('Operator ' . $this->operator . ' not allowed');
         }
 

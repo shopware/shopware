@@ -52,7 +52,7 @@ class ChildCountUpdater
         $entity = $definition->getEntityName();
         $versionAware = $definition->isVersionAware();
 
-        $sql = sprintf(
+        $sql = \sprintf(
             'UPDATE #entity#  as parent
                 LEFT JOIN
                 (
@@ -68,7 +68,7 @@ class ChildCountUpdater
             $versionAware ? 'AND parent.version_id = :version' : ''
         );
 
-        $sql = str_replace(
+        $sql = \str_replace(
             ['#entity#'],
             [EntityDefinitionQueryHelper::escape($entity)],
             $sql
@@ -104,10 +104,10 @@ class ChildCountUpdater
         $query->groupBy('parent.parent_id');
         $totals = $query->execute()->fetchAll();
 
-        $sql = sprintf('UPDATE %s SET child_count = :count WHERE id = :id', EntityDefinitionQueryHelper::escape($entityName));
+        $sql = \sprintf('UPDATE %s SET child_count = :count WHERE id = :id', EntityDefinitionQueryHelper::escape($entityName));
         $params = [];
         if ($definition->isVersionAware()) {
-            $sql = sprintf('UPDATE %s SET child_count = :count WHERE id = :id AND version_id = :versionId', EntityDefinitionQueryHelper::escape($entityName));
+            $sql = \sprintf('UPDATE %s SET child_count = :count WHERE id = :id AND version_id = :versionId', EntityDefinitionQueryHelper::escape($entityName));
             $params = ['versionId' => Uuid::fromHexToBytes($context->getVersionId())];
         }
 
@@ -116,16 +116,16 @@ class ChildCountUpdater
         $totals = FetchModeHelper::keyPair($totals);
 
         foreach ($totals as $id => $total) {
-            $update->execute(array_merge($params, ['id' => Uuid::fromHexToBytes($id), 'count' => (int) $total]));
+            $update->execute(\array_merge($params, ['id' => Uuid::fromHexToBytes($id), 'count' => (int) $total]));
         }
 
-        $parentIds = array_flip($parentIds);
-        $without = array_diff_key($parentIds, $totals);
+        $parentIds = \array_flip($parentIds);
+        $without = \array_diff_key($parentIds, $totals);
 
-        $without = array_keys($without);
+        $without = \array_keys($without);
 
         foreach ($without as $id) {
-            $update->execute(array_merge($params, ['id' => Uuid::fromHexToBytes($id), 'count' => 0]));
+            $update->execute(\array_merge($params, ['id' => Uuid::fromHexToBytes($id), 'count' => 0]));
         }
     }
 }

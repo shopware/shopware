@@ -202,12 +202,12 @@ class Migration1599570560FixSlovakiaDisplayedAsSloveniaTest extends TestCase
     private function checksWithNoChangesExpected(): void
     {
         $dbData = $this->connection->fetchAll('SELECT * FROM country_translation ORDER BY country_id');
-        $expectedHash = md5(serialize($dbData));
+        $expectedHash = \md5(\serialize($dbData));
 
         $this->migration->update($this->connection);
 
         $dbData = $this->connection->fetchAll('SELECT * FROM country_translation ORDER BY country_id');
-        $actualHash = md5(serialize($dbData));
+        $actualHash = \md5(\serialize($dbData));
 
         static::assertSame($expectedHash, $actualHash, 'The data has changed');
     }
@@ -246,13 +246,13 @@ class Migration1599570560FixSlovakiaDisplayedAsSloveniaTest extends TestCase
             'SELECT * FROM country_translation WHERE language_id = ? AND country_id = ?',
             [$languageId, $this->countryIdSlovakia]
         );
-        $expectedHash = md5(serialize($dbData));
+        $expectedHash = \md5(\serialize($dbData));
         $this->migration->update($this->connection);
         $dbData = $this->connection->fetchColumn(
             'SELECT * FROM country_translation WHERE language_id = ? AND country_id = ?',
             [$languageId, $this->countryIdSlovakia]
         );
-        $actualHash = md5(serialize($dbData));
+        $actualHash = \md5(\serialize($dbData));
         //language not available just makes the migration not find the language. actual should be what has been set by data
         static::assertEquals(
             $expectedHash,

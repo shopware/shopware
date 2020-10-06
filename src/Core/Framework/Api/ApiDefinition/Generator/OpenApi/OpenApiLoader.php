@@ -32,7 +32,7 @@ class OpenApiLoader
 
     public function load(string $api): OpenApi
     {
-        $pathsToScan = array_unique(iterator_to_array($this->getApiRoutes(), false));
+        $pathsToScan = \array_unique(\iterator_to_array($this->getApiRoutes(), false));
         $openApi = scan($pathsToScan, ['analysis' => new DeactivateValidationAnalysis()]);
 
         $allUndefined = true;
@@ -41,7 +41,7 @@ class OpenApiLoader
             foreach (self::OPERATION_KEYS as $key) {
                 /** @var Operation $operation */
                 $operation = $pathItem->$key;
-                if ($operation instanceof Operation && !in_array(OpenApiSchemaBuilder::API[$api]['name'], $operation->tags, true)) {
+                if ($operation instanceof Operation && !\in_array(OpenApiSchemaBuilder::API[$api]['name'], $operation->tags, true)) {
                     $pathItem->$key = UNDEFINED;
                 }
 
@@ -52,7 +52,7 @@ class OpenApiLoader
                         }
                     }
 
-                    $operation->tags = array_values($operation->tags);
+                    $operation->tags = \array_values($operation->tags);
                 }
 
                 $allUndefined = $pathItem->$key === UNDEFINED && $allUndefined === true;
@@ -74,14 +74,14 @@ class OpenApiLoader
         foreach ($this->router->getRouteCollection() as $item) {
             $path = $item->getPath();
             if (
-                strpos($path, '/api/') !== 0
-                && strpos($path, '/sales-channel-api/') !== 0
-                && strpos($path, '/store-api/') !== 0
+                \strpos($path, '/api/') !== 0
+                && \strpos($path, '/sales-channel-api/') !== 0
+                && \strpos($path, '/store-api/') !== 0
             ) {
                 continue;
             }
 
-            $controllerClass = strtok($item->getDefault('_controller'), ':');
+            $controllerClass = \strtok($item->getDefault('_controller'), ':');
             $refClass = new \ReflectionClass($controllerClass);
             yield $refClass->getFileName();
         }
@@ -178,7 +178,7 @@ class OpenApiLoader
                             'schema' => new Schema(['type' => 'string']),
                         ]);
 
-                        array_unshift($operation->parameters, $page, $limit, $term, $filter, $postFilter, $associations, $aggregations, $query, $grouping);
+                        \array_unshift($operation->parameters, $page, $limit, $term, $filter, $postFilter, $associations, $aggregations, $query, $grouping);
                     }
                 }
             }

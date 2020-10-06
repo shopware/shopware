@@ -8,11 +8,11 @@ class SnippetFileHandler
 {
     public function openJsonFile(string $path): array
     {
-        $json = json_decode(file_get_contents($path), true);
+        $json = \json_decode(\file_get_contents($path), true);
 
-        $jsonError = json_last_error();
+        $jsonError = \json_last_error();
         if ($jsonError !== 0) {
-            throw new \RuntimeException(sprintf('Invalid JSON in snippet file at path \'%s\' with code \'%d\'', $path, $jsonError));
+            throw new \RuntimeException(\sprintf('Invalid JSON in snippet file at path \'%s\' with code \'%d\'', $path, $jsonError));
         }
 
         return $json;
@@ -20,9 +20,9 @@ class SnippetFileHandler
 
     public function writeJsonFile(string $path, array $content): void
     {
-        $json = json_encode($content, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        $json = \json_encode($content, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
-        file_put_contents($path, $json);
+        \file_put_contents($path, $json);
     }
 
     public function findAdministrationSnippetFiles(): array

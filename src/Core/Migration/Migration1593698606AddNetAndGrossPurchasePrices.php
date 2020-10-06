@@ -29,8 +29,8 @@ class Migration1593698606AddNetAndGrossPurchasePrices extends MigrationStep
     {
         $rows = $connection->fetchAll('SELECT id, value FROM rule_condition WHERE type = "cartLineItemPurchasePrice"');
         foreach ($rows as $row) {
-            $conditionValue = json_decode($row['value']);
-            if (property_exists($conditionValue, 'isNet')) {
+            $conditionValue = \json_decode($row['value']);
+            if (\property_exists($conditionValue, 'isNet')) {
                 continue;
             }
 
@@ -38,7 +38,7 @@ class Migration1593698606AddNetAndGrossPurchasePrices extends MigrationStep
             $connection->executeUpdate(
                 'UPDATE rule_condition SET value = :conditionValue WHERE id = :id',
                 [
-                    'conditionValue' => json_encode($conditionValue),
+                    'conditionValue' => \json_encode($conditionValue),
                     'id' => $row['id'],
                 ]
             );
@@ -68,7 +68,7 @@ class Migration1593698606AddNetAndGrossPurchasePrices extends MigrationStep
                 )
             );',
             [
-                'currencyKey' => sprintf('c%s', $defaultCurrencyId),
+                'currencyKey' => \sprintf('c%s', $defaultCurrencyId),
                 'currencyId' => $defaultCurrencyId,
             ]
         );
@@ -80,7 +80,7 @@ class Migration1593698606AddNetAndGrossPurchasePrices extends MigrationStep
      */
     private function addUpdateDatabaseTrigger(Connection $connection): void
     {
-        $query = sprintf(
+        $query = \sprintf(
             'CREATE TRIGGER product_purchase_prices_update BEFORE UPDATE ON product
                 FOR EACH ROW BEGIN
                     IF @TRIGGER_DISABLED IS NULL OR @TRIGGER_DISABLED = 0 THEN BEGIN
@@ -125,7 +125,7 @@ class Migration1593698606AddNetAndGrossPurchasePrices extends MigrationStep
      */
     private function addInsertDatabaseTrigger(Connection $connection): void
     {
-        $query = sprintf(
+        $query = \sprintf(
             'CREATE TRIGGER product_purchase_prices_insert BEFORE INSERT ON product
                 FOR EACH ROW BEGIN
                     IF @TRIGGER_DISABLED IS NULL OR @TRIGGER_DISABLED = 0 THEN BEGIN

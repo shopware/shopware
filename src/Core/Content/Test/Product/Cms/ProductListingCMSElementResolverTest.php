@@ -158,11 +158,11 @@ class ProductListingCMSElementResolverTest extends TestCase
 
         // TODO: remove following line, as soon feature flag FEATURE_NEXT_5983 can be removed
         // until then, this prevents duplicates from sorting registry + database sortings
-        $actualSortings = array_unique($actualSortings);
+        $actualSortings = \array_unique($actualSortings);
         $availableSortings = \array_keys($availableSortings);
 
-        sort($actualSortings);
-        sort($availableSortings);
+        \sort($actualSortings);
+        \sort($availableSortings);
 
         static::assertEquals($availableSortings, $actualSortings);
     }
@@ -210,7 +210,7 @@ class ProductListingCMSElementResolverTest extends TestCase
 
         $actualSortings = \array_values($actualSortings);
 
-        arsort($availableSortings, SORT_DESC | SORT_NUMERIC);
+        \arsort($availableSortings, SORT_DESC | SORT_NUMERIC);
         $availableSortings = \array_keys($availableSortings);
 
         static::assertEquals($availableSortings, $actualSortings);

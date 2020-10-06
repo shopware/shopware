@@ -47,8 +47,8 @@ trait UpdateMailTrait
 
     final private function updateEnMail(Connection $connection, MailUpdate $update): void
     {
-        $languages = array_merge([Defaults::LANGUAGE_SYSTEM], $this->getLanguageIds($connection, 'en-GB'));
-        $languages = array_unique(array_filter($languages));
+        $languages = \array_merge([Defaults::LANGUAGE_SYSTEM], $this->getLanguageIds($connection, 'en-GB'));
+        $languages = \array_unique(\array_filter($languages));
 
         if (empty($languages)) {
             return;

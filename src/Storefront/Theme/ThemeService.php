@@ -99,8 +99,8 @@ class ThemeService
             $data['parentThemeId'] = $parentThemeId;
         }
 
-        if (array_key_exists('configValues', $data) && $theme->getConfigValues()) {
-            $data['configValues'] = array_replace_recursive($theme->getConfigValues(), $data['configValues']);
+        if (\array_key_exists('configValues', $data) && $theme->getConfigValues()) {
+            $data['configValues'] = \array_replace_recursive($theme->getConfigValues(), $data['configValues']);
         }
 
         $this->themeRepository->update([$data], $context);
@@ -176,20 +176,20 @@ class ThemeService
 
         $configuredTheme = $this->mergeStaticConfig($theme);
 
-        $themeConfig = array_replace_recursive($baseThemeConfig, $configuredTheme);
+        $themeConfig = \array_replace_recursive($baseThemeConfig, $configuredTheme);
 
         foreach ($themeConfig['fields'] as $name => $item) {
             $configFields[$name] = $themeConfigFieldFactory->create($name, $item);
         }
 
-        $configFields = json_decode(json_encode($configFields), true);
+        $configFields = \json_decode(\json_encode($configFields), true);
 
-        $labels = array_replace_recursive($baseTheme->getLabels() ?? [], $theme->getLabels() ?? []);
+        $labels = \array_replace_recursive($baseTheme->getLabels() ?? [], $theme->getLabels() ?? []);
         if ($translate && !empty($labels)) {
             $configFields = $this->translateLabels($configFields, $labels);
         }
 
-        $helpTexts = array_replace_recursive($baseTheme->getHelpTexts() ?? [], $theme->getHelpTexts() ?? []);
+        $helpTexts = \array_replace_recursive($baseTheme->getHelpTexts() ?? [], $theme->getHelpTexts() ?? []);
         if ($translate && !empty($helpTexts)) {
             $configFields = $this->translateHelpTexts($configFields, $helpTexts);
         }
@@ -204,7 +204,7 @@ class ThemeService
         $config = $this->getThemeConfiguration($themeId, false, $context);
         $resolvedConfig = [];
         $mediaItems = [];
-        if (!array_key_exists('fields', $config)) {
+        if (!\array_key_exists('fields', $config)) {
             return [];
         }
 
@@ -216,7 +216,7 @@ class ThemeService
         }
 
         /** @var string[] $mediaIds */
-        $mediaIds = array_keys($mediaItems);
+        $mediaIds = \array_keys($mediaItems);
         $criteria = new Criteria($mediaIds);
         $criteria->setTitle('theme-service::resolve-media');
         $result = $this->mediaRepository->search($criteria, $context);
@@ -418,15 +418,15 @@ class ThemeService
         }
 
         if ($theme !== null && $theme->getBaseConfig() !== null) {
-            $configuredTheme = array_replace_recursive($configuredTheme, $theme->getBaseConfig());
+            $configuredTheme = \array_replace_recursive($configuredTheme, $theme->getBaseConfig());
         }
 
         if ($theme !== null && $theme->getConfigValues() !== null) {
             $configuredThemeFields = [];
-            if (array_key_exists('fields', $configuredTheme)) {
+            if (\array_key_exists('fields', $configuredTheme)) {
                 $configuredThemeFields = $configuredTheme['fields'];
             }
-            $configuredTheme['fields'] = array_replace_recursive($configuredThemeFields, $theme->getConfigValues());
+            $configuredTheme['fields'] = \array_replace_recursive($configuredThemeFields, $theme->getConfigValues());
         }
 
         return $configuredTheme;
@@ -522,13 +522,13 @@ class ThemeService
             $parentTheme = $this->themeRepository->search(new Criteria([$theme->getParentThemeId()]), $context)
                 ->get($theme->getParentThemeId());
             $parentTranslations = $parentTheme->getLabels() ?: [];
-            $translations = array_replace_recursive($parentTranslations, $translations);
+            $translations = \array_replace_recursive($parentTranslations, $translations);
         }
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', StorefrontPluginRegistry::BASE_THEME_NAME));
         $baseTheme = $this->themeRepository->search($criteria, $context)->first();
         $baseTranslations = $baseTheme->getLabels() ?: [];
-        $translations = array_replace_recursive($baseTranslations, $translations);
+        $translations = \array_replace_recursive($baseTranslations, $translations);
 
         return $translations;
     }

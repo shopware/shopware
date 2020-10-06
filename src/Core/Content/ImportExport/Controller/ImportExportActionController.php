@@ -128,7 +128,7 @@ class ImportExportActionController extends AbstractController
                 $params['config'] ?? []
             );
 
-            unlink($file->getPathname());
+            \unlink($file->getPathname());
         } else {
             $log = $this->importExportService->prepareExport(
                 $context,
@@ -153,7 +153,7 @@ class ImportExportActionController extends AbstractController
         $definition->add('offset', new NotBlank(), new Type('int'));
         $this->dataValidator->validate($params, $definition);
 
-        $logId = strtolower($params['logId']);
+        $logId = \strtolower($params['logId']);
         $offset = $params['offset'];
 
         $importExport = $this->importExportFactory->create($logId, 50, 50);

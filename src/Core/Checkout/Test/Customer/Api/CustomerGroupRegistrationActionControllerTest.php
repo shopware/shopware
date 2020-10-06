@@ -45,7 +45,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
         $browser = $this->createClient();
 
         $browser->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/customer-group-registration/accept/' . Defaults::CURRENCY);
-        $json = json_decode($browser->getResponse()->getContent(), true);
+        $json = \json_decode($browser->getResponse()->getContent(), true);
 
         static::assertSame('Cannot find Customer', $json['errors'][0]['detail']);
     }
@@ -56,7 +56,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
         $customer = $this->createCustomer();
 
         $browser->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/customer-group-registration/accept/' . $customer);
-        $json = json_decode($browser->getResponse()->getContent(), true);
+        $json = \json_decode($browser->getResponse()->getContent(), true);
 
         static::assertSame('User dont have approval', $json['errors'][0]['detail']);
     }
@@ -105,7 +105,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
         $addressId = Uuid::randomHex();
 
         $this->customerRepository->create([
-            array_merge([
+            \array_merge([
                 'id' => $customerId,
                 'salesChannelId' => Defaults::SALES_CHANNEL,
                 'defaultShippingAddress' => [

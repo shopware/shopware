@@ -150,7 +150,7 @@ abstract class EntityDefinition
                 }
 
                 if (!$this->hasAssociationWithStorageName($field->getStorageName(), $new)) {
-                    throw new \Exception(sprintf('FkField %s has no configured OneToOneAssociationField or ManyToOneAssociationField in entity %s', $field->getPropertyName(), $this->className));
+                    throw new \Exception(\sprintf('FkField %s has no configured OneToOneAssociationField or ManyToOneAssociationField in entity %s', $field->getPropertyName(), $this->className));
                 }
 
                 $fields->add($field);

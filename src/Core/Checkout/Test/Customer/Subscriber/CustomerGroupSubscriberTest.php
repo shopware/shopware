@@ -104,12 +104,12 @@ class CustomerGroupSubscriberTest extends TestCase
     {
         $s1 = $this->createSalesChannel()['id'];
 
-        $languageIds = array_values($this->getContainer()->get('language.repository')->search(new Criteria(), Context::createDefaultContext())->getIds());
+        $languageIds = \array_values($this->getContainer()->get('language.repository')->search(new Criteria(), Context::createDefaultContext())->getIds());
 
         $this->getContainer()->get('sales_channel.repository')->upsert([
             [
                 'id' => $s1,
-                'languages' => array_map(function (string $id) {
+                'languages' => \array_map(function (string $id) {
                     return ['id' => $id];
                 }, $languageIds),
             ],
@@ -129,7 +129,7 @@ class CustomerGroupSubscriberTest extends TestCase
 
         $urls = $this->getSeoUrlsById($id);
 
-        static::assertSame(count($languageIds), $urls->count());
+        static::assertSame(\count($languageIds), $urls->count());
 
         foreach ($languageIds as $languageId) {
             $foundUrl = false;
@@ -142,7 +142,7 @@ class CustomerGroupSubscriberTest extends TestCase
                 }
             }
 
-            static::assertTrue($foundUrl, sprintf('Cannot find url for language "%s"', $languageId));
+            static::assertTrue($foundUrl, \sprintf('Cannot find url for language "%s"', $languageId));
         }
     }
 
@@ -216,7 +216,7 @@ class CustomerGroupSubscriberTest extends TestCase
         /** @var EntityRepositoryInterface $salesChannelRepository */
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
         $paymentMethod = $this->getAvailablePaymentMethod();
-        $salesChannel = array_merge([
+        $salesChannel = \array_merge([
             'id' => Uuid::randomHex(),
             'typeId' => Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
             'name' => 'API Test case sales channel',

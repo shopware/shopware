@@ -26,7 +26,7 @@ class UnpackStep
     public function __construct(string $source, $destinationDir, bool $testMode = false)
     {
         $this->source = $source;
-        $this->destinationDir = rtrim($destinationDir, '/') . '/';
+        $this->destinationDir = \rtrim($destinationDir, '/') . '/';
         $this->testMode = $testMode;
     }
 
@@ -38,7 +38,7 @@ class UnpackStep
     public function run(int $offset)
     {
         $fs = new Filesystem();
-        $requestTime = time();
+        $requestTime = \time();
 
         // TestMode
         if ($this->testMode === true && $offset >= 90) {
@@ -55,9 +55,9 @@ class UnpackStep
             $count = $source->count();
             $source->seek($offset);
         } catch (\Exception $e) {
-            @unlink($this->source);
+            @\unlink($this->source);
 
-            throw new UpdateFailedException(sprintf('Could not open update package:<br>%s', $e->getMessage()), 0, $e);
+            throw new UpdateFailedException(\sprintf('Could not open update package:<br>%s', $e->getMessage()), 0, $e);
         }
 
         while (list($position, $entry) = $source->each()) {
@@ -68,7 +68,7 @@ class UnpackStep
                 $fs->dumpFile($targetName, $entry->getContents());
             }
 
-            if (time() - $requestTime >= 20 || ($position + 1) % 1000 === 0) {
+            if (\time() - $requestTime >= 20 || ($position + 1) % 1000 === 0) {
                 $source->close();
 
                 return new ValidResult($position + 1, $count);
@@ -76,7 +76,7 @@ class UnpackStep
         }
 
         $source->close();
-        unlink($this->source);
+        \unlink($this->source);
 
         return new FinishResult($count, $count);
     }

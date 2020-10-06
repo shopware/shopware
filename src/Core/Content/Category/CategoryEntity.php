@@ -507,7 +507,7 @@ class CategoryEntity extends Entity
 
     public function getBreadcrumb(): array
     {
-        return array_values($this->getPlainBreadcrumb());
+        return \array_values($this->getPlainBreadcrumb());
     }
 
     public function getPlainBreadcrumb(): array
@@ -520,7 +520,7 @@ class CategoryEntity extends Entity
             return $breadcrumb;
         }
 
-        $parts = array_slice(explode('|', $this->path), 1, -1);
+        $parts = \array_slice(\explode('|', $this->path), 1, -1);
 
         $filtered = [];
         foreach ($parts as $id) {

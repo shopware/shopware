@@ -235,7 +235,7 @@ class ApiController extends AbstractController
         }
 
         $ids = $event->getIds();
-        $newId = array_shift($ids);
+        $newId = \array_shift($ids);
 
         return new JsonResponse(['id' => $newId]);
     }
@@ -260,7 +260,7 @@ class ApiController extends AbstractController
             throw new InvalidUuidException($versionId);
         }
 
-        if ($versionName !== null && !ctype_alnum($versionName)) {
+        if ($versionName !== null && !\ctype_alnum($versionName)) {
             throw new InvalidVersionNameException();
         }
 
@@ -362,8 +362,8 @@ class ApiController extends AbstractController
 
         $definition = $this->definitionRegistry->getByEntityName($root);
 
-        $associations = array_column($pathSegments, 'entity');
-        array_shift($associations);
+        $associations = \array_column($pathSegments, 'entity');
+        \array_shift($associations);
 
         if (empty($associations)) {
             $repository = $this->definitionRegistry->getRepository($definition->getEntityName());
@@ -385,7 +385,7 @@ class ApiController extends AbstractController
 
         // trigger acl validation
         $missing = $this->criteriaValidator->validate($definition->getEntityName(), $criteria, $context);
-        $permissions = array_unique(array_filter(array_merge($permissions, $missing)));
+        $permissions = \array_unique(\array_filter(\array_merge($permissions, $missing)));
 
         if (!empty($permissions)) {
             throw new MissingPrivilegeException($permissions);
@@ -412,7 +412,7 @@ class ApiController extends AbstractController
 
         return new JsonResponse([
             'total' => $result->getTotal(),
-            'data' => array_values($result->getIds()),
+            'data' => \array_values($result->getIds()),
         ]);
     }
 
@@ -445,7 +445,7 @@ class ApiController extends AbstractController
     public function create(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
     {
         if (!$this->hasScope($request, WriteScope::IDENTIFIER)) {
-            throw new AccessDeniedHttpException(sprintf('This access token does not have the scope "%s" to process this Request', WriteScope::IDENTIFIER));
+            throw new AccessDeniedHttpException(\sprintf('This access token does not have the scope "%s" to process this Request', WriteScope::IDENTIFIER));
         }
 
         return $this->write($request, $context, $responseFactory, $entityName, $path, self::WRITE_CREATE);
@@ -454,7 +454,7 @@ class ApiController extends AbstractController
     public function update(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
     {
         if (!$this->hasScope($request, WriteScope::IDENTIFIER)) {
-            throw new AccessDeniedHttpException(sprintf('This access token does not have the scope "%s" to process this Request', WriteScope::IDENTIFIER));
+            throw new AccessDeniedHttpException(\sprintf('This access token does not have the scope "%s" to process this Request', WriteScope::IDENTIFIER));
         }
 
         return $this->write($request, $context, $responseFactory, $entityName, $path, self::WRITE_UPDATE);
@@ -463,7 +463,7 @@ class ApiController extends AbstractController
     public function delete(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
     {
         if (!$this->hasScope($request, WriteScope::IDENTIFIER)) {
-            throw new AccessDeniedHttpException(sprintf('This access token does not have the scope "%s" to process this Request', WriteScope::IDENTIFIER));
+            throw new AccessDeniedHttpException(\sprintf('This access token does not have the scope "%s" to process this Request', WriteScope::IDENTIFIER));
         }
 
         $pathSegments = $this->buildEntityPath($entityName, $path, $request->attributes->getInt('version'), $context, [WriteProtection::class]);
@@ -472,7 +472,7 @@ class ApiController extends AbstractController
 
         $id = $last['value'];
 
-        $first = array_shift($pathSegments);
+        $first = \array_shift($pathSegments);
 
         /* @var EntityDefinition $definition */
         if (\count($pathSegments) === 0) {
@@ -484,10 +484,10 @@ class ApiController extends AbstractController
             return $responseFactory->createRedirectResponse($definition, $id, $request, $context);
         }
 
-        $child = array_pop($pathSegments);
+        $child = \array_pop($pathSegments);
         $parent = $first;
         if (!empty($pathSegments)) {
-            $parent = array_pop($pathSegments);
+            $parent = \array_pop($pathSegments);
         }
 
         $definition = $child['definition'];
@@ -558,7 +558,7 @@ class ApiController extends AbstractController
             return $responseFactory->createRedirectResponse($definition, $id, $request, $context);
         }
 
-        throw new \RuntimeException(sprintf('Unsupported association for field %s', $association->getPropertyName()));
+        throw new \RuntimeException(\sprintf('Unsupported association for field %s', $association->getPropertyName()));
     }
 
     private function resolveSearch(Request $request, Context $context, string $entityName, string $path): array
@@ -566,7 +566,7 @@ class ApiController extends AbstractController
         $pathSegments = $this->buildEntityPath($entityName, $path, $request->attributes->getInt('version'), $context);
         $permissions = $this->validatePathSegments($context, $pathSegments, AclRoleDefinition::PRIVILEGE_READ);
 
-        $first = array_shift($pathSegments);
+        $first = \array_shift($pathSegments);
 
         /** @var EntityDefinition|string $definition */
         $definition = $first['definition'];
@@ -583,7 +583,7 @@ class ApiController extends AbstractController
 
             // trigger acl validation
             $nested = $this->criteriaValidator->validate($definition->getEntityName(), $criteria, $context);
-            $permissions = array_unique(array_filter(array_merge($permissions, $nested)));
+            $permissions = \array_unique(\array_filter(\array_merge($permissions, $nested)));
 
             if (!empty($permissions)) {
                 throw new MissingPrivilegeException($permissions);
@@ -592,11 +592,11 @@ class ApiController extends AbstractController
             return [$criteria, $repository];
         }
 
-        $child = array_pop($pathSegments);
+        $child = \array_pop($pathSegments);
         $parent = $first;
 
         if (!empty($pathSegments)) {
-            $parent = array_pop($pathSegments);
+            $parent = \array_pop($pathSegments);
         }
 
         $association = $child['field'];
@@ -624,7 +624,7 @@ class ApiController extends AbstractController
             /* @var ManyToManyAssociationField $reverse */
             $criteria->addFilter(
                 new EqualsFilter(
-                    sprintf('%s.%s.id', $definition->getEntityName(), $reverse->getPropertyName()),
+                    \sprintf('%s.%s.id', $definition->getEntityName(), $reverse->getPropertyName()),
                     $parent['value']
                 )
             );
@@ -633,7 +633,7 @@ class ApiController extends AbstractController
             if ($parentDefinition->isVersionAware()) {
                 $criteria->addFilter(
                     new EqualsFilter(
-                        sprintf('%s.%s.versionId', $definition->getEntityName(), $reverse->getPropertyName()),
+                        \sprintf('%s.%s.versionId', $definition->getEntityName(), $reverse->getPropertyName()),
                         $context->getVersionId()
                     )
                 );
@@ -676,7 +676,7 @@ class ApiController extends AbstractController
             $criteria->addFilter(
                 new EqualsFilter(
                 //filter inverse association to parent value:  manufacturer.products.id = SW1
-                    sprintf('%s.%s.id', $definition->getEntityName(), $reverse->getPropertyName()),
+                    \sprintf('%s.%s.id', $definition->getEntityName(), $reverse->getPropertyName()),
                     $parent['value']
                 )
             );
@@ -699,7 +699,7 @@ class ApiController extends AbstractController
             $criteria->addFilter(
                 new EqualsFilter(
                 //filter inverse association to parent value:  order_customer.order_id = xxxx
-                    sprintf('%s.%s.id', $definition->getEntityName(), $reverse->getPropertyName()),
+                    \sprintf('%s.%s.id', $definition->getEntityName(), $reverse->getPropertyName()),
                     $parent['value']
                 )
             );
@@ -708,7 +708,7 @@ class ApiController extends AbstractController
         $repository = $this->definitionRegistry->getRepository($definition->getEntityName());
 
         $nested = $this->criteriaValidator->validate($definition->getEntityName(), $criteria, $context);
-        $permissions = array_unique(array_filter(array_merge($permissions, $nested)));
+        $permissions = \array_unique(\array_filter(\array_merge($permissions, $nested)));
 
         if (!empty($permissions)) {
             throw new MissingPrivilegeException($permissions);
@@ -721,7 +721,7 @@ class ApiController extends AbstractController
     {
         $pathSegments = $this->buildEntityPath($entityName, $path, $request->attributes->getInt('version'), $context);
 
-        $first = array_shift($pathSegments);
+        $first = \array_shift($pathSegments);
 
         /** @var EntityDefinition|string $definition */
         $definition = $first['definition'];
@@ -730,7 +730,7 @@ class ApiController extends AbstractController
             return $definition;
         }
 
-        $child = array_pop($pathSegments);
+        $child = \array_pop($pathSegments);
 
         $association = $child['field'];
 
@@ -764,21 +764,21 @@ class ApiController extends AbstractController
         if ($type === self::WRITE_CREATE && !empty($last['value'])) {
             $methods = ['GET', 'PATCH', 'DELETE'];
 
-            throw new MethodNotAllowedHttpException($methods, sprintf('No route found for "%s %s": Method Not Allowed (Allow: %s)', $request->getMethod(), $request->getPathInfo(), implode(', ', $methods)));
+            throw new MethodNotAllowedHttpException($methods, \sprintf('No route found for "%s %s": Method Not Allowed (Allow: %s)', $request->getMethod(), $request->getPathInfo(), \implode(', ', $methods)));
         }
 
         if ($type === self::WRITE_UPDATE && isset($last['value'])) {
             $payload['id'] = $last['value'];
         }
 
-        $first = array_shift($pathSegments);
+        $first = \array_shift($pathSegments);
 
         if (\count($pathSegments) === 0) {
             $definition = $first['definition'];
             $events = $this->executeWriteOperation($definition, $payload, $context, $type, $request->attributes->getInt('version'));
             $event = $events->getEventByEntityName($definition->getEntityName());
             $eventIds = $event->getIds();
-            $entityId = array_pop($eventIds);
+            $entityId = \array_pop($eventIds);
 
             if ($noContent) {
                 return $responseFactory->createRedirectResponse($definition, $entityId, $request, $context);
@@ -791,11 +791,11 @@ class ApiController extends AbstractController
             return $responseFactory->createDetailResponse($criteria, $entities->first(), $definition, $request, $context, $appendLocationHeader);
         }
 
-        $child = array_pop($pathSegments);
+        $child = \array_pop($pathSegments);
 
         $parent = $first;
         if (!empty($pathSegments)) {
-            $parent = array_pop($pathSegments);
+            $parent = \array_pop($pathSegments);
         }
 
         /** @var EntityDefinition $definition */
@@ -833,7 +833,7 @@ class ApiController extends AbstractController
             $event = $events->getEventByEntityName($definition->getEntityName());
 
             $entityIds = $event->getIds();
-            $entityId = array_pop($entityIds);
+            $entityId = \array_pop($entityIds);
 
             $foreignKey = $parentDefinition->getFields()->getByStorageName($association->getStorageName());
 
@@ -862,12 +862,12 @@ class ApiController extends AbstractController
         $reference = $manyToManyAssociation->getToManyReferenceDefinition();
 
         // check if we need to create the entity first
-        if (\count($payload) > 1 || !array_key_exists('id', $payload)) {
+        if (\count($payload) > 1 || !\array_key_exists('id', $payload)) {
             $events = $this->executeWriteOperation($reference, $payload, $context, $type, $request->attributes->getInt('version'));
             $event = $events->getEventByEntityName($reference->getEntityName());
 
             $ids = $event->getIds();
-            $id = array_shift($ids);
+            $id = \array_shift($ids);
         } else {
             // only id provided - add assignment
             $id = $payload['id'];
@@ -940,7 +940,7 @@ class ApiController extends AbstractController
 
     private function getAssociation(FieldCollection $fields, array $keys): AssociationField
     {
-        $key = array_shift($keys);
+        $key = \array_shift($keys);
 
         /** @var AssociationField $field */
         $field = $fields->get($key);
@@ -962,8 +962,8 @@ class ApiController extends AbstractController
         Context $context,
         array $protections = [ReadProtection::class]
     ): array {
-        $pathInfo = str_replace('/extensions/', '/', $pathInfo);
-        $exploded = explode('/', $entityName . '/' . ltrim($pathInfo, '/'));
+        $pathInfo = \str_replace('/extensions/', '/', $pathInfo);
+        $exploded = \explode('/', $entityName . '/' . \ltrim($pathInfo, '/'));
 
         $parts = [];
         foreach ($exploded as $index => $part) {
@@ -989,8 +989,8 @@ class ApiController extends AbstractController
             ];
         }
 
-        $parts = array_filter($parts);
-        $first = array_shift($parts);
+        $parts = \array_filter($parts);
+        $first = \array_shift($parts);
 
         try {
             $root = $this->definitionRegistry->getByEntityName($first['entity']);
@@ -1011,9 +1011,9 @@ class ApiController extends AbstractController
             /** @var AssociationField|null $field */
             $field = $root->getFields()->get($part['entity']);
             if (!$field) {
-                $path = implode('.', array_column($entities, 'entity')) . '.' . $part['entity'];
+                $path = \implode('.', \array_column($entities, 'entity')) . '.' . $part['entity'];
 
-                throw new NotFoundHttpException(sprintf('Resource at path "%s" is not an existing relation.', $path));
+                throw new NotFoundHttpException(\sprintf('Resource at path "%s" is not an existing relation.', $path));
             }
 
             if ($field instanceof ManyToManyAssociationField) {
@@ -1040,15 +1040,15 @@ class ApiController extends AbstractController
 
     private function urlToSnakeCase(string $name): string
     {
-        return str_replace('-', '_', $name);
+        return \str_replace('-', '_', $name);
     }
 
     private function urlToCamelCase(string $name): string
     {
-        $parts = explode('-', $name);
-        $parts = array_map('ucfirst', $parts);
+        $parts = \explode('-', $name);
+        $parts = \array_map('ucfirst', $parts);
 
-        return lcfirst(implode('', $parts));
+        return \lcfirst(\implode('', $parts));
     }
 
     /**
@@ -1057,10 +1057,10 @@ class ApiController extends AbstractController
     private function getRequestBody(Request $request): array
     {
         $contentType = $request->headers->get('CONTENT_TYPE', '');
-        $semicolonPosition = mb_strpos($contentType, ';');
+        $semicolonPosition = \mb_strpos($contentType, ';');
 
         if ($semicolonPosition !== false) {
-            $contentType = mb_substr($contentType, 0, $semicolonPosition);
+            $contentType = \mb_substr($contentType, 0, $semicolonPosition);
         }
 
         try {
@@ -1074,17 +1074,17 @@ class ApiController extends AbstractController
             throw new BadRequestHttpException($exception->getMessage());
         }
 
-        throw new UnsupportedMediaTypeHttpException(sprintf('The Content-Type "%s" is unsupported.', $contentType));
+        throw new UnsupportedMediaTypeHttpException(\sprintf('The Content-Type "%s" is unsupported.', $contentType));
     }
 
     private function isCollection(array $array): bool
     {
-        return array_keys($array) === range(0, \count($array) - 1);
+        return \array_keys($array) === \range(0, \count($array) - 1);
     }
 
     private function hasScope(Request $request, string $scopeIdentifier): bool
     {
-        $scopes = array_flip($request->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_SCOPES));
+        $scopes = \array_flip($request->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_SCOPES));
 
         return isset($scopes[$scopeIdentifier]);
     }
@@ -1117,7 +1117,7 @@ class ApiController extends AbstractController
 
     private function validatePathSegments(Context $context, array $pathSegments, string $privilege): array
     {
-        $child = array_pop($pathSegments);
+        $child = \array_pop($pathSegments);
 
         $missing = [];
 
@@ -1132,7 +1132,7 @@ class ApiController extends AbstractController
 
         $missing[] = $this->validateAclPermissions($context, $this->getDefinitionForPathSegment($child), $privilege);
 
-        return array_unique(array_filter($missing));
+        return \array_unique(\array_filter($missing));
     }
 
     private function getDefinitionForPathSegment(array $segment): EntityDefinition

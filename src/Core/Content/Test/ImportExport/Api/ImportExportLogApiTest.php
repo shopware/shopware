@@ -73,7 +73,7 @@ class ImportExportLogApiTest extends TestCase
         foreach ([0, 5] as $num) {
             $data = $this->prepareImportExportLogTestData($num);
             if (!empty($data)) {
-                $this->logRepository->create(array_values($data), $this->context);
+                $this->logRepository->create(\array_values($data), $this->context);
             }
 
             $this->getBrowser()->request('GET', $this->prepareRoute(), [], [], [
@@ -83,10 +83,10 @@ class ImportExportLogApiTest extends TestCase
             $response = $this->getBrowser()->getResponse();
             static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
-            $content = json_decode($response->getContent());
+            $content = \json_decode($response->getContent());
 
             $expectData = [];
-            foreach (array_values($data) as $entry) {
+            foreach (\array_values($data) as $entry) {
                 $expectData[$entry['id']] = $entry;
             }
 
@@ -109,14 +109,14 @@ class ImportExportLogApiTest extends TestCase
     {
         $num = 3;
         $data = $this->prepareImportExportLogTestData($num);
-        $this->logRepository->create(array_values($data), $this->context);
+        $this->logRepository->create(\array_values($data), $this->context);
 
-        $ids = array_column($data, 'id');
+        $ids = \array_column($data, 'id');
         $updateData = $this->rotateTestdata($data);
 
         $expectData = [];
         foreach ($ids as $idx => $id) {
-            $expectData[$id] = array_values($data)[$idx];
+            $expectData[$id] = \array_values($data)[$idx];
             unset($updateData[$idx]['id']);
 
             $this->getBrowser()->request('PATCH', $this->prepareRoute() . $id, $updateData[$idx], [], [
@@ -132,7 +132,7 @@ class ImportExportLogApiTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
-        $content = json_decode($response->getContent());
+        $content = \json_decode($response->getContent());
 
         static::assertEquals($num, $content->total);
         for ($i = 0; $i < $num; ++$i) {
@@ -152,16 +152,16 @@ class ImportExportLogApiTest extends TestCase
     {
         $num = 2;
         $data = $this->prepareImportExportLogTestData($num);
-        $this->logRepository->create(array_values($data), $this->context);
+        $this->logRepository->create(\array_values($data), $this->context);
 
-        foreach (array_values($data) as $expect) {
+        foreach (\array_values($data) as $expect) {
             $this->getBrowser()->request('GET', $this->prepareRoute() . $expect['id'], [], [], [
                 'HTTP_ACCEPT' => 'application/json',
             ]);
             $response = $this->getBrowser()->getResponse();
             static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
 
-            $content = json_decode($response->getContent());
+            $content = \json_decode($response->getContent());
             static::assertEquals($expect['activity'], $content->data->activity);
             static::assertEquals($expect['state'], $content->data->state);
             static::assertEquals($expect['userId'], $content->data->userId);
@@ -185,10 +185,10 @@ class ImportExportLogApiTest extends TestCase
     {
         $data = $this->prepareImportExportLogTestData(2);
 
-        $invalidData = array_pop($data);
+        $invalidData = \array_pop($data);
 
-        $this->logRepository->create(array_values($data), $this->context);
-        $searchData = array_pop($data);
+        $this->logRepository->create(\array_values($data), $this->context);
+        $searchData = \array_pop($data);
         unset($searchData['config']);
 
         $filter = [];
@@ -199,7 +199,7 @@ class ImportExportLogApiTest extends TestCase
             ]);
             $response = $this->getBrowser()->getResponse();
             static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
-            $content = json_decode($response->getContent());
+            $content = \json_decode($response->getContent());
             static ::assertEquals(0, $content->total);
 
             $filter['filter'][$key] = $value;
@@ -208,7 +208,7 @@ class ImportExportLogApiTest extends TestCase
             ]);
             $response = $this->getBrowser()->getResponse();
             static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
-            $content = json_decode($response->getContent());
+            $content = \json_decode($response->getContent());
             static ::assertEquals(1, $content->total);
         }
     }
@@ -218,8 +218,8 @@ class ImportExportLogApiTest extends TestCase
         $num = 3;
         $data = $this->prepareImportExportLogTestData($num);
 
-        $this->logRepository->create(array_values($data), $this->context);
-        $deleteId = array_column($data, 'id')[0];
+        $this->logRepository->create(\array_values($data), $this->context);
+        $deleteId = \array_column($data, 'id')[0];
 
         $this->getBrowser()->request('DELETE', $this->prepareRoute() . Uuid::randomHex(), [], [], [
             'HTTP_ACCEPT' => 'application/json',
@@ -228,7 +228,7 @@ class ImportExportLogApiTest extends TestCase
         static::assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode());
 
         $records = $this->connection->fetchAll('SELECT * FROM import_export_log');
-        static::assertEquals($num, count($records));
+        static::assertEquals($num, \count($records));
 
         $this->getBrowser()->request('DELETE', $this->prepareRoute() . $deleteId, [], [], [
             'HTTP_ACCEPT' => 'application/json',
@@ -237,7 +237,7 @@ class ImportExportLogApiTest extends TestCase
         static::assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode());
 
         $records = $this->connection->fetchAll('SELECT * FROM import_export_log');
-        static::assertEquals($num, count($records));
+        static::assertEquals($num, \count($records));
     }
 
     protected function prepareRoute(bool $search = false): string
@@ -260,11 +260,11 @@ class ImportExportLogApiTest extends TestCase
         if ($num > 0) {
             // Dependencies
             $users = $this->prepareUsers(2);
-            $userIds = array_column($users, 'id');
+            $userIds = \array_column($users, 'id');
             $files = $this->prepareFiles(2);
-            $fileIds = array_column($files, 'id');
+            $fileIds = \array_column($files, 'id');
             $profiles = $this->prepareProfiles(2);
-            $profileIds = array_column($profiles, 'id');
+            $profileIds = \array_column($profiles, 'id');
             $activities = ['import', 'export'];
         }
 
@@ -275,7 +275,7 @@ class ImportExportLogApiTest extends TestCase
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
                 'activity' => $activities[$i % 2],
-                'state' => sprintf('state %s', $i),
+                'state' => \sprintf('state %s', $i),
                 'userId' => $userIds[$i % 2],
                 'profileId' => $profileIds[$i % 2],
                 'fileId' => $fileIds[$i % 2],
@@ -298,14 +298,14 @@ class ImportExportLogApiTest extends TestCase
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
                 'localeId' => $this->getLocaleIdOfSystemLanguage(),
-                'username' => sprintf('foobar%s', $i),
-                'password' => sprintf('pw%s', $i),
-                'firstName' => sprintf('Foo%s', $i),
-                'lastName' => sprintf('Bar%s', $i),
-                'email' => sprintf('fo%s@ob.ar', $i),
+                'username' => \sprintf('foobar%s', $i),
+                'password' => \sprintf('pw%s', $i),
+                'firstName' => \sprintf('Foo%s', $i),
+                'lastName' => \sprintf('Bar%s', $i),
+                'email' => \sprintf('fo%s@ob.ar', $i),
             ];
         }
-        $this->userRepository->create(array_values($data), $this->context);
+        $this->userRepository->create(\array_values($data), $this->context);
 
         return $data;
     }
@@ -318,13 +318,13 @@ class ImportExportLogApiTest extends TestCase
 
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
-                'originalName' => sprintf('file%s.xml', $i),
-                'path' => sprintf('/test/test%s', $i),
-                'expireDate' => sprintf('2011-01-01T15:03:%02d', $i),
+                'originalName' => \sprintf('file%s.xml', $i),
+                'path' => \sprintf('/test/test%s', $i),
+                'expireDate' => \sprintf('2011-01-01T15:03:%02d', $i),
                 'accessToken' => Random::getBase64UrlString(32),
             ];
         }
-        $this->fileRepository->create(array_values($data), $this->context);
+        $this->fileRepository->create(\array_values($data), $this->context);
 
         return $data;
     }
@@ -337,25 +337,25 @@ class ImportExportLogApiTest extends TestCase
 
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
-                'name' => sprintf('Test name %d', $i),
-                'label' => sprintf('Test label %d', $i),
+                'name' => \sprintf('Test name %d', $i),
+                'label' => \sprintf('Test label %d', $i),
                 'systemDefault' => ($i % 2 === 0),
-                'sourceEntity' => sprintf('Test entity %d', $i),
-                'fileType' => sprintf('Test file type %d', $i),
-                'delimiter' => sprintf('Test delimiter %d', $i),
-                'enclosure' => sprintf('Test enclosure %d', $i),
+                'sourceEntity' => \sprintf('Test entity %d', $i),
+                'fileType' => \sprintf('Test file type %d', $i),
+                'delimiter' => \sprintf('Test delimiter %d', $i),
+                'enclosure' => \sprintf('Test enclosure %d', $i),
                 'mapping' => ['Mapping ' . $i => 'Value ' . $i],
             ];
         }
-        $this->profileRepository->create(array_values($data), $this->context);
+        $this->profileRepository->create(\array_values($data), $this->context);
 
         return $data;
     }
 
     protected function rotateTestdata(array $data): array
     {
-        array_push($data, array_shift($data));
+        \array_push($data, \array_shift($data));
 
-        return array_values($data);
+        return \array_values($data);
     }
 }

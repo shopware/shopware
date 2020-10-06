@@ -40,7 +40,7 @@ class MailSendSubscriberTest extends TestCase
 
         static::assertNotEmpty($mailTemplateId);
 
-        $config = array_filter([
+        $config = \array_filter([
             'mail_template_id' => $mailTemplateId,
             'recipients' => $recipients,
         ]);

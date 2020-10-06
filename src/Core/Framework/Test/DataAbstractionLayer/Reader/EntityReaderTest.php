@@ -778,7 +778,7 @@ class EntityReaderTest extends TestCase
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
                 'group' => ['name' => 'test'],
                 'addresses' => [
-                    array_merge(['id' => $defaultAddressId], $address),
+                    \array_merge(['id' => $defaultAddressId], $address),
                     $address,
                     $address,
                     $address,
@@ -827,7 +827,7 @@ class EntityReaderTest extends TestCase
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
                 'group' => ['name' => 'test'],
                 'addresses' => [
-                    array_merge(['id' => $defaultAddressId], $address),
+                    \array_merge(['id' => $defaultAddressId], $address),
                     $address,
                     $address,
                     $address,
@@ -880,7 +880,7 @@ class EntityReaderTest extends TestCase
         ];
 
         $repository->upsert([
-            array_merge(
+            \array_merge(
                 $customer,
                 [
                     'id' => $id1,
@@ -888,14 +888,14 @@ class EntityReaderTest extends TestCase
                     'defaultShippingAddressId' => $defaultAddressId1,
                     'defaultBillingAddressId' => $defaultAddressId1,
                     'addresses' => [
-                        array_merge(['id' => $defaultAddressId1], $address),
-                        array_merge($address, ['zipcode' => 'B']),
-                        array_merge($address, ['zipcode' => 'B']),
-                        array_merge($address, ['zipcode' => 'X']),
+                        \array_merge(['id' => $defaultAddressId1], $address),
+                        \array_merge($address, ['zipcode' => 'B']),
+                        \array_merge($address, ['zipcode' => 'B']),
+                        \array_merge($address, ['zipcode' => 'X']),
                     ],
                 ]
             ),
-            array_merge(
+            \array_merge(
                 $customer,
                 [
                     'id' => $id2,
@@ -903,10 +903,10 @@ class EntityReaderTest extends TestCase
                     'defaultShippingAddressId' => $defaultAddressId2,
                     'defaultBillingAddressId' => $defaultAddressId2,
                     'addresses' => [
-                        array_merge(['id' => $defaultAddressId2], $address),
-                        array_merge($address, ['zipcode' => 'B']),
-                        array_merge($address, ['zipcode' => 'C']),
-                        array_merge($address, ['zipcode' => 'X']),
+                        \array_merge(['id' => $defaultAddressId2], $address),
+                        \array_merge($address, ['zipcode' => 'B']),
+                        \array_merge($address, ['zipcode' => 'C']),
+                        \array_merge($address, ['zipcode' => 'X']),
                     ],
                 ]
             ),
@@ -976,7 +976,7 @@ class EntityReaderTest extends TestCase
         ];
 
         $repository->upsert([
-            array_merge(
+            \array_merge(
                 $customer,
                 [
                     'id' => $id1,
@@ -984,13 +984,13 @@ class EntityReaderTest extends TestCase
                     'defaultShippingAddressId' => $addressId1,
                     'defaultBillingAddressId' => $addressId1,
                     'addresses' => [
-                        array_merge($address, ['id' => $addressId1, 'zipcode' => 'C']),
-                        array_merge($address, ['id' => $addressId2, 'zipcode' => 'B']),
-                        array_merge($address, ['id' => $addressId3, 'zipcode' => 'X']),
+                        \array_merge($address, ['id' => $addressId1, 'zipcode' => 'C']),
+                        \array_merge($address, ['id' => $addressId2, 'zipcode' => 'B']),
+                        \array_merge($address, ['id' => $addressId3, 'zipcode' => 'X']),
                     ],
                 ]
             ),
-            array_merge(
+            \array_merge(
                 $customer,
                 [
                     'id' => $id2,
@@ -998,9 +998,9 @@ class EntityReaderTest extends TestCase
                     'defaultShippingAddressId' => $addressId4,
                     'defaultBillingAddressId' => $addressId4,
                     'addresses' => [
-                        array_merge($address, ['id' => $addressId4, 'zipcode' => 'X']),
-                        array_merge($address, ['id' => $addressId5, 'zipcode' => 'B']),
-                        array_merge($address, ['id' => $addressId6, 'zipcode' => 'A']),
+                        \array_merge($address, ['id' => $addressId4, 'zipcode' => 'X']),
+                        \array_merge($address, ['id' => $addressId5, 'zipcode' => 'B']),
+                        \array_merge($address, ['id' => $addressId6, 'zipcode' => 'A']),
                     ],
                 ]
             ),
@@ -1030,14 +1030,14 @@ class EntityReaderTest extends TestCase
         static::assertCount(3, $customer1->getAddresses());
         static::assertEquals(
             [$addressId2, $addressId1, $addressId3],
-            array_values($customer1->getAddresses()->getIds())
+            \array_values($customer1->getAddresses()->getIds())
         );
 
         static::assertInstanceOf(CustomerAddressCollection::class, $customer1->getAddresses());
         static::assertCount(3, $customer2->getAddresses());
         static::assertEquals(
             [$addressId6, $addressId5, $addressId4],
-            array_values($customer2->getAddresses()->getIds())
+            \array_values($customer2->getAddresses()->getIds())
         );
 
         $criteria = new Criteria([$id1, $id2]);
@@ -1053,12 +1053,12 @@ class EntityReaderTest extends TestCase
 
         static::assertEquals(
             [$addressId3, $addressId1, $addressId2],
-            array_values($customer1->getAddresses()->getIds())
+            \array_values($customer1->getAddresses()->getIds())
         );
 
         static::assertEquals(
             [$addressId4, $addressId5, $addressId6],
-            array_values($customer2->getAddresses()->getIds())
+            \array_values($customer2->getAddresses()->getIds())
         );
     }
 
@@ -1096,11 +1096,11 @@ class EntityReaderTest extends TestCase
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
                 'group' => ['name' => 'test'],
                 'addresses' => [
-                    array_merge(['id' => $defaultAddressId], $address),
-                    array_merge($address, ['street' => 'B']),
-                    array_merge($address, ['street' => 'X']),
-                    array_merge($address, ['street' => 'E']),
-                    array_merge($address, ['street' => 'D']),
+                    \array_merge(['id' => $defaultAddressId], $address),
+                    \array_merge($address, ['street' => 'B']),
+                    \array_merge($address, ['street' => 'X']),
+                    \array_merge($address, ['street' => 'E']),
+                    \array_merge($address, ['street' => 'D']),
                 ],
             ],
         ], $context);
@@ -1117,7 +1117,7 @@ class EntityReaderTest extends TestCase
         $streets = $customer->getAddresses()->map(function (CustomerAddressEntity $e) {
             return $e->getStreet();
         });
-        static::assertEquals(['A', 'B', 'D'], array_values($streets));
+        static::assertEquals(['A', 'B', 'D'], \array_values($streets));
 
         $criteria = new Criteria([$id]);
         $criteria->getAssociation('addresses')->setLimit(3);
@@ -1131,7 +1131,7 @@ class EntityReaderTest extends TestCase
         $streets = $customer->getAddresses()->map(function (CustomerAddressEntity $e) {
             return $e->getStreet();
         });
-        static::assertEquals(['X', 'E', 'D'], array_values($streets));
+        static::assertEquals(['X', 'E', 'D'], \array_values($streets));
     }
 
     public function testLoadOneToManySupportsPagination(): void
@@ -1168,7 +1168,7 @@ class EntityReaderTest extends TestCase
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
                 'group' => ['name' => 'test'],
                 'addresses' => [
-                    array_merge(['id' => $defaultAddressId], $address),
+                    \array_merge(['id' => $defaultAddressId], $address),
                     $address,
                     $address,
                     $address,
@@ -1538,7 +1538,7 @@ class EntityReaderTest extends TestCase
 
         static::assertEquals(
             [$id1, $id3],
-            array_values($category1->getProducts()->getIds())
+            \array_values($category1->getProducts()->getIds())
         );
 
         static::assertInstanceOf(CategoryEntity::class, $category2);
@@ -1547,7 +1547,7 @@ class EntityReaderTest extends TestCase
 
         static::assertEquals(
             [$id2, $id3],
-            array_values($category2->getProducts()->getIds())
+            \array_values($category2->getProducts()->getIds())
         );
 
         $criteria = new Criteria([$id1, $id2]);
@@ -1563,12 +1563,12 @@ class EntityReaderTest extends TestCase
 
         static::assertEquals(
             [$id3, $id1],
-            array_values($category1->getProducts()->getIds())
+            \array_values($category1->getProducts()->getIds())
         );
 
         static::assertEquals(
             [$id3, $id2],
-            array_values($category2->getProducts()->getIds())
+            \array_values($category2->getProducts()->getIds())
         );
     }
 

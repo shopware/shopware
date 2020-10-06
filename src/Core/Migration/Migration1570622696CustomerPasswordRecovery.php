@@ -74,7 +74,7 @@ SQL;
         $connection->insert('mail_template_type', [
             'id' => Uuid::fromHexToBytes($mailTemplateTypeId),
             'technical_name' => 'customer.recovery.request',
-            'available_entities' => json_encode(['customerRecovery' => 'customer_recovery']),
+            'available_entities' => \json_encode(['customerRecovery' => 'customer_recovery']),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
@@ -187,7 +187,7 @@ SQL;
             'id' => Uuid::randomBytes(),
             'event_name' => 'customer.recovery.request',
             'action_name' => 'action.mail.send',
-            'config' => json_encode(['mail_template_type_id' => $mailTemplateTypeId]),
+            'config' => \json_encode(['mail_template_type_id' => $mailTemplateTypeId]),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }

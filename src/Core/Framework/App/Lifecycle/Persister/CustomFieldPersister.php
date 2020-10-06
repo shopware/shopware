@@ -40,7 +40,7 @@ class CustomFieldPersister
         $ids = $this->customFieldSetRepository->searchIds($criteria, $context)->getIds();
 
         if (!empty($ids)) {
-            $ids = array_map(static function (string $id): array {
+            $ids = \array_map(static function (string $id): array {
                 return ['id' => $id];
             }, $ids);
 

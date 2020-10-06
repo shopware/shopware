@@ -48,7 +48,7 @@ class UserChangePasswordCommand extends Command
 
         $userId = $this->getUserId($username, $context);
         if ($userId === null) {
-            $io->error(sprintf('The user "%s" does not exist.', $username));
+            $io->error(\sprintf('The user "%s" does not exist.', $username));
 
             return 1;
         }
@@ -68,7 +68,7 @@ class UserChangePasswordCommand extends Command
             ],
         ], $context);
 
-        $io->success(sprintf('The password of user "%s" has been changed successfully.', $username));
+        $io->success(\sprintf('The password of user "%s" has been changed successfully.', $username));
 
         return 0;
     }

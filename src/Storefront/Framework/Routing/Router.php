@@ -49,7 +49,7 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
             return $this->decorated->matchRequest($request);
         }
 
-        $server = array_merge(
+        $server = \array_merge(
             $request->server->all(),
             ['REQUEST_URI' => $request->attributes->get(RequestTransformer::SALES_CHANNEL_RESOLVED_URI)]
         );
@@ -108,7 +108,7 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
                 $generated = $this->decorated->generate($name, $parameters);
                 $pathInfo = $this->removePrefix($generated, $basePath);
 
-                $rewrite = $schemaAuthority . rtrim($basePath, '/') . rtrim($salesChannelBaseUrl, '/') . $pathInfo;
+                $rewrite = $schemaAuthority . \rtrim($basePath, '/') . \rtrim($salesChannelBaseUrl, '/') . $pathInfo;
 
                 break;
 
@@ -121,7 +121,7 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
 
                 // url contains the base path and the base url
                     // base url /shopware/public/de
-                $rewrite = ltrim($salesChannelBaseUrl, '/') . $generated;
+                $rewrite = \ltrim($salesChannelBaseUrl, '/') . $generated;
 
                 break;
 
@@ -132,7 +132,7 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
                     $basePath
                 );
 
-                $rewrite = $basePath . rtrim($salesChannelBaseUrl, '/') . $generated;
+                $rewrite = $basePath . \rtrim($salesChannelBaseUrl, '/') . $generated;
 
                 break;
         }
@@ -147,11 +147,11 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
 
     private function removePrefix(string $subject, string $prefix): string
     {
-        if (!$prefix || mb_strpos($subject, $prefix) !== 0) {
+        if (!$prefix || \mb_strpos($subject, $prefix) !== 0) {
             return $subject;
         }
 
-        return mb_substr($subject, mb_strlen($prefix));
+        return \mb_substr($subject, \mb_strlen($prefix));
     }
 
     private function getSalesChannelBaseUrl(): string
@@ -167,7 +167,7 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
             return $url;
         }
 
-        return '/' . trim($url, '/') . '/';
+        return '/' . \trim($url, '/') . '/';
     }
 
     private function getBasePath(): string
@@ -182,8 +182,8 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
 
     private function isStorefrontRoute(string $name): bool
     {
-        return strncmp($name, 'frontend.', 9) === 0
-            || strncmp($name, 'widgets.', 8) === 0
-            || strncmp($name, 'payment.', 8) === 0;
+        return \strncmp($name, 'frontend.', 9) === 0
+            || \strncmp($name, 'widgets.', 8) === 0
+            || \strncmp($name, 'payment.', 8) === 0;
     }
 }

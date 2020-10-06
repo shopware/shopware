@@ -19,7 +19,7 @@ class AclControllerTest extends TestCase
         Feature::skipTestIfInActive('FEATURE_NEXT_3722', $this);
         $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/_action/acl/privileges');
         $response = $this->getBrowser()->getResponse();
-        $privileges = json_decode($response->getContent(), true);
+        $privileges = \json_decode($response->getContent(), true);
 
         static::assertContains('unit:read', $privileges);
         static::assertContains('system:clear:cache', $privileges);
@@ -30,7 +30,7 @@ class AclControllerTest extends TestCase
         Feature::skipTestIfInActive('FEATURE_NEXT_3722', $this);
         $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/_action/acl/additional_privileges');
         $response = $this->getBrowser()->getResponse();
-        $privileges = json_decode($response->getContent(), true);
+        $privileges = \json_decode($response->getContent(), true);
 
         static::assertNotContains('unit:read', $privileges);
         static::assertContains('system:clear:cache', $privileges);
@@ -50,7 +50,7 @@ class AclControllerTest extends TestCase
 
         $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/_action/acl/additional_privileges');
         $response = $this->getBrowser()->getResponse();
-        $privileges = json_decode($response->getContent(), true);
+        $privileges = \json_decode($response->getContent(), true);
 
         static::assertNotContains('unit:read', $privileges);
         static::assertContains('system:clear:cache', $privileges);
@@ -67,7 +67,7 @@ class AclControllerTest extends TestCase
             $response = $this->getBrowser()->getResponse();
 
             static::assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode(), $response->getContent());
-            static::assertEquals(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, json_decode($response->getContent(), true)['errors'][0]['code'], $response->getContent());
+            static::assertEquals(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, \json_decode($response->getContent(), true)['errors'][0]['code'], $response->getContent());
         } finally {
             $this->resetBrowser();
         }

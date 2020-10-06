@@ -77,7 +77,7 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
 
             $snippetDir = $bundle->getPath() . '/Resources/snippet';
 
-            if (!is_dir($snippetDir)) {
+            if (!\is_dir($snippetDir)) {
                 continue;
             }
 
@@ -114,13 +114,13 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
         $snippetFiles = [];
 
         foreach ($finder->getIterator() as $fileInfo) {
-            $nameParts = explode('.', $fileInfo->getFilenameWithoutExtension());
+            $nameParts = \explode('.', $fileInfo->getFilenameWithoutExtension());
 
             $snippetFile = null;
-            switch (count($nameParts)) {
+            switch (\count($nameParts)) {
                 case 2:
                     $snippetFile = new GenericSnippetFile(
-                        implode('.', $nameParts),
+                        \implode('.', $nameParts),
                         $fileInfo->getPathname(),
                         $nameParts[1],
                         $this->getAuthorFromBundle($bundle),
@@ -130,7 +130,7 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
                     break;
                 case 3:
                     $snippetFile = new GenericSnippetFile(
-                        implode('.', [$nameParts[0], $nameParts[1]]),
+                        \implode('.', [$nameParts[0], $nameParts[1]]),
                         $fileInfo->getPathname(),
                         $nameParts[1],
                         $this->getAuthorFromBundle($bundle),
@@ -154,7 +154,7 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
             return 'Shopware';
         }
 
-        return $this->getPluginAuthors()[get_class($bundle)] ?? '';
+        return $this->getPluginAuthors()[\get_class($bundle)] ?? '';
     }
 
     private function getPluginAuthors(): array

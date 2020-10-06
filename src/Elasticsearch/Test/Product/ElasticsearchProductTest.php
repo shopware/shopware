@@ -277,7 +277,7 @@ class ElasticsearchProductTest extends TestCase
             // check simple search without any restrictions
             $criteria = new Criteria($data->prefixed('p'));
             $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
-            static::assertCount(count($data->prefixed('p')), $products->getIds());
+            static::assertCount(\count($data->prefixed('p')), $products->getIds());
         } catch (\Exception $e) {
             static::tearDown();
 
@@ -299,7 +299,7 @@ class ElasticsearchProductTest extends TestCase
 
             $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
             static::assertCount(1, $products->getIds());
-            static::assertSame(count($data->prefixed('p')), $products->getTotal());
+            static::assertSame(\count($data->prefixed('p')), $products->getTotal());
         } catch (\Exception $e) {
             static::tearDown();
 
@@ -433,9 +433,9 @@ class ElasticsearchProductTest extends TestCase
             static::assertContains($data->get('p2'), $products->getIds());
             static::assertContains($data->get('p3'), $products->getIds());
             static::assertTrue(
-                in_array($data->get('p4'), $products->getIds(), true)
-                || in_array($data->get('p5'), $products->getIds(), true)
-                || in_array($data->get('p6'), $products->getIds(), true)
+                \in_array($data->get('p4'), $products->getIds(), true)
+                || \in_array($data->get('p5'), $products->getIds(), true)
+                || \in_array($data->get('p6'), $products->getIds(), true)
             );
         } catch (\Exception $e) {
             static::tearDown();
@@ -465,8 +465,8 @@ class ElasticsearchProductTest extends TestCase
             static::assertContains($data->get('p6'), $products->getIds());
 
             static::assertTrue(
-                in_array($data->get('p4'), $products->getIds(), true)
-                || in_array($data->get('p5'), $products->getIds(), true)
+                \in_array($data->get('p4'), $products->getIds(), true)
+                || \in_array($data->get('p5'), $products->getIds(), true)
             );
         } catch (\Exception $e) {
             static::tearDown();
@@ -711,7 +711,7 @@ class ElasticsearchProductTest extends TestCase
             static::assertCount(3, $result->getBuckets());
 
             $ordered = $data->getList(['m3', 'm2', 'm1']);
-            static::assertEquals(array_values($ordered), $result->getKeys());
+            static::assertEquals(\array_values($ordered), $result->getKeys());
 
             // check simple search without any restrictions
             $criteria = new Criteria($data->prefixed('p'));
@@ -724,7 +724,7 @@ class ElasticsearchProductTest extends TestCase
             /** @var TermsResult $result */
             $result = $aggregations->get('manufacturer-ids');
             $ordered = $data->getList(['m1', 'm2', 'm3']);
-            static::assertEquals(array_values($ordered), $result->getKeys());
+            static::assertEquals(\array_values($ordered), $result->getKeys());
         } catch (\Exception $e) {
             static::tearDown();
 
@@ -1252,17 +1252,17 @@ class ElasticsearchProductTest extends TestCase
 
                 $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
 
-                static::assertEquals(1, $products->getTotal(), sprintf('Term "%s" do not match', $term));
+                static::assertEquals(1, $products->getTotal(), \sprintf('Term "%s" do not match', $term));
                 static::assertTrue($products->has($data->get('p6')));
 
-                $term = strtolower($term);
+                $term = \strtolower($term);
                 $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
-                static::assertEquals(1, $products->getTotal(), sprintf('Term "%s" do not match', $term));
+                static::assertEquals(1, $products->getTotal(), \sprintf('Term "%s" do not match', $term));
                 static::assertTrue($products->has($data->get('p6')));
 
-                $term = strtoupper($term);
+                $term = \strtoupper($term);
                 $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
-                static::assertEquals(1, $products->getTotal(), sprintf('Term "%s" do not match', $term));
+                static::assertEquals(1, $products->getTotal(), \sprintf('Term "%s" do not match', $term));
                 static::assertTrue($products->has($data->get('p6')));
             }
         } catch (\Exception $e) {
@@ -1341,7 +1341,7 @@ class ElasticsearchProductTest extends TestCase
             $histogram = $result->get('release-histogram');
             static::assertInstanceOf(DateHistogramResult::class, $histogram);
 
-            static::assertCount(count($case->getBuckets()), $histogram->getBuckets(), print_r($histogram->getBuckets(), true));
+            static::assertCount(\count($case->getBuckets()), $histogram->getBuckets(), \print_r($histogram->getBuckets(), true));
 
             foreach ($case->getBuckets() as $key => $count) {
                 static::assertTrue($histogram->has($key));
@@ -1773,7 +1773,7 @@ class ElasticsearchProductTest extends TestCase
             $ids = $searcher->search($this->productDefinition, $criteria, Context::createDefaultContext())->getIds();
 
             // 3 products per letter
-            $idList = array_chunk($ids, 3);
+            $idList = \array_chunk($ids, 3);
 
             // Cause the product names are lowercased: Aa, AA, aa is the same for elastic. We can't determine the right order
             // So we split the ids the first 3 should be one of aa products, last 3 should be some of Bb
@@ -1808,7 +1808,7 @@ class ElasticsearchProductTest extends TestCase
         array $categoryKeys,
         array $extensions = []
     ): array {
-        $categories = array_map(function ($categoryKey) {
+        $categories = \array_map(function ($categoryKey) {
             return ['id' => $this->ids->create($categoryKey), 'name' => $categoryKey];
         }, $categoryKeys);
 

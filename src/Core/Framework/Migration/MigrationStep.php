@@ -27,7 +27,7 @@ abstract class MigrationStep
     public function removeTrigger(Connection $connection, string $name): void
     {
         try {
-            $connection->executeUpdate(sprintf('DROP TRIGGER IF EXISTS %s', $name));
+            $connection->executeUpdate(\sprintf('DROP TRIGGER IF EXISTS %s', $name));
         } catch (DBALException $e) {
         }
     }
@@ -54,7 +54,7 @@ abstract class MigrationStep
 
     protected function addTrigger(Connection $connection, string $name, string $table, string $time, string $event, string $statements, string $condition): void
     {
-        $query = sprintf(
+        $query = \sprintf(
             'CREATE TRIGGER %s
             %s %s ON `%s` FOR EACH ROW
             thisTrigger: BEGIN
@@ -70,7 +70,7 @@ abstract class MigrationStep
             $time,
             $event,
             $table,
-            sprintf(self::MIGRATION_VARIABLE_FORMAT, $this->getCreationTimestamp()),
+            \sprintf(self::MIGRATION_VARIABLE_FORMAT, $this->getCreationTimestamp()),
             $condition,
             $statements
         );
@@ -84,7 +84,7 @@ abstract class MigrationStep
      */
     protected function createTrigger(Connection $connection, string $query, array $params = []): void
     {
-        $blueGreenDeployment = (int) getenv('BLUE_GREEN_DEPLOYMENT');
+        $blueGreenDeployment = (int) \getenv('BLUE_GREEN_DEPLOYMENT');
         if ($blueGreenDeployment === 0) {
             return;
         }

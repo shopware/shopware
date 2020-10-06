@@ -106,13 +106,13 @@ class MultiInsertQueryQueue
             $columns = $this->prepareColumns($rows);
             $data = $this->prepareValues($columns, $rows);
 
-            $chunks = array_chunk($data, $this->chunkSize);
+            $chunks = \array_chunk($data, $this->chunkSize);
             foreach ($chunks as $chunk) {
-                $queries[] = sprintf(
+                $queries[] = \sprintf(
                     $template,
                     $table,
-                    implode(', ', $columns),
-                    implode(', ', $chunk)
+                    \implode(', ', $columns),
+                    \implode(', ', $chunk)
                 );
             }
         }
@@ -129,15 +129,15 @@ class MultiInsertQueryQueue
             }
         }
 
-        return array_keys($columns);
+        return \array_keys($columns);
     }
 
     private function prepareValues(array $columns, array $rows): array
     {
         $stackedValues = [];
-        $defaults = array_combine(
+        $defaults = \array_combine(
             $columns,
-            array_fill(0, \count($columns), 'DEFAULT')
+            \array_fill(0, \count($columns), 'DEFAULT')
         );
         foreach ($rows as $row) {
             $data = $row['data'];
@@ -145,7 +145,7 @@ class MultiInsertQueryQueue
             foreach ($data as $key => $value) {
                 $values[$key] = $value;
             }
-            $stackedValues[] = '(' . implode(',', $values) . ')';
+            $stackedValues[] = '(' . \implode(',', $values) . ')';
         }
 
         return $stackedValues;

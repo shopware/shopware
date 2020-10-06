@@ -63,7 +63,7 @@ class BusinessEventEncoder
             case EntityCollectionType::TYPE:
                 return $this->encodeEntity($dataType, $property);
             case ObjectType::TYPE:
-                if (is_array($dataType['data']) && !empty($dataType['data'])) {
+                if (\is_array($dataType['data']) && !empty($dataType['data'])) {
                     return $this->encodeType($dataType['data'], $property);
                 }
 
@@ -80,27 +80,27 @@ class BusinessEventEncoder
      */
     private function getProperty(string $propertyName, $object)
     {
-        if (is_object($object)) {
-            $getter = 'get' . ucfirst($propertyName);
-            if (method_exists($object, $getter)) {
+        if (\is_object($object)) {
+            $getter = 'get' . \ucfirst($propertyName);
+            if (\method_exists($object, $getter)) {
                 return $object->$getter();
             }
 
-            $isser = 'is' . ucfirst($propertyName);
-            if (method_exists($object, $isser)) {
+            $isser = 'is' . \ucfirst($propertyName);
+            if (\method_exists($object, $isser)) {
                 return $object->$isser();
             }
         }
 
-        if (is_array($object) && array_key_exists($propertyName, $object)) {
+        if (\is_array($object) && \array_key_exists($propertyName, $object)) {
             return $object[$propertyName];
         }
 
         throw new \RuntimeException(
-            sprintf(
+            \sprintf(
                 'Invalid available DataMapping, could not get property "%s" on instance of %s',
                 $propertyName,
-                is_object($object) ? get_class($object) : 'array'
+                \is_object($object) ? \get_class($object) : 'array'
             )
         );
     }

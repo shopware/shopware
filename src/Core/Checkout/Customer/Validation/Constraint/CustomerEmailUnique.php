@@ -27,7 +27,7 @@ class CustomerEmailUnique extends Constraint
 
     public function __construct(array $options)
     {
-        $options = array_merge(
+        $options = \array_merge(
             ['context' => null],
             $options
         );
@@ -35,7 +35,7 @@ class CustomerEmailUnique extends Constraint
         parent::__construct($options);
 
         if ($this->context === null) {
-            throw new MissingOptionsException(sprintf('Option "context" must be given for constraint %s', self::class), ['context']);
+            throw new MissingOptionsException(\sprintf('Option "context" must be given for constraint %s', self::class), ['context']);
         }
     }
 

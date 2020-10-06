@@ -531,7 +531,7 @@ class PromotionEntity extends Entity
             // we use persona rules.
             // check if we have persona rules and add them
             // to our persona OR as a separate OR rule with all configured rules
-            if ($this->getPersonaRules() !== null && count($this->getPersonaRules()->getElements()) > 0) {
+            if ($this->getPersonaRules() !== null && \count($this->getPersonaRules()->getElements()) > 0) {
                 $personaRuleOR = new OrRule();
 
                 foreach ($this->getPersonaRules()->getElements() as $ruleEntity) {
@@ -542,7 +542,7 @@ class PromotionEntity extends Entity
             }
         }
 
-        if ($this->getCartRules() !== null && count($this->getCartRules()->getElements()) > 0) {
+        if ($this->getCartRules() !== null && \count($this->getCartRules()->getElements()) > 0) {
             $cartOR = new OrRule([]);
 
             foreach ($this->getCartRules()->getElements() as $ruleEntity) {
@@ -577,7 +577,7 @@ class PromotionEntity extends Entity
             $requirements->addRule($groupsRootRule);
         }
 
-        if ($this->getOrderRules() !== null && count($this->getOrderRules()->getElements()) > 0) {
+        if ($this->getOrderRules() !== null && \count($this->getOrderRules()->getElements()) > 0) {
             $orderOR = new OrRule([]);
 
             foreach ($this->getOrderRules()->getElements() as $ruleEntity) {
@@ -606,11 +606,11 @@ class PromotionEntity extends Entity
 
     public function isOrderCountPerCustomerCountValid(string $customerId): bool
     {
-        $customerId = mb_strtolower($customerId);
+        $customerId = \mb_strtolower($customerId);
 
         return $this->getMaxRedemptionsPerCustomer() <= 0
             || $this->getOrdersPerCustomerCount() === null
-            || !array_key_exists($customerId, $this->getOrdersPerCustomerCount())
+            || !\array_key_exists($customerId, $this->getOrdersPerCustomerCount())
             || $this->getOrdersPerCustomerCount()[$customerId] < $this->getMaxRedemptionsPerCustomer();
     }
 }

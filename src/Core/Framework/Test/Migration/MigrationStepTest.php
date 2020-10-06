@@ -128,12 +128,12 @@ class MigrationStepTest extends TestCase
         $connection = $this->getContainer()->get(Connection::class);
 
         $this->removeMigrationFromTable($migration);
-        $now = date('Y-m-d H:i:s');
+        $now = \date('Y-m-d H:i:s');
         $connection->executeUpdate(
             'INSERT `migration` (`class`, `creation_timestamp`, `update`, `update_destructive`) 
                 VALUES (:class, :creationTimestamp, :update, :updateDestructive);',
             [
-                'class' => get_class($migration),
+                'class' => \get_class($migration),
                 'creationTimestamp' => $migration->getCreationTimestamp(),
                 'update' => $now,
                 'updateDestructive' => $now,
@@ -146,20 +146,20 @@ class MigrationStepTest extends TestCase
         $connection = $this->getContainer()->get(Connection::class);
         $connection->executeUpdate(
             'DELETE FROM `migration` WHERE `class` = :class',
-            ['class' => get_class($migration)]
+            ['class' => \get_class($migration)]
         );
     }
 
     private function removeTrigger(string $name): void
     {
         $connection = $this->getContainer()->get(Connection::class);
-        $connection->executeUpdate(sprintf('DROP TRIGGER %s;', $name));
+        $connection->executeUpdate(\sprintf('DROP TRIGGER %s;', $name));
     }
 
     private function assertTriggerExists(string $name): void
     {
         $trigger = $this->getContainer()->get(Connection::class)->executeQuery(
-            sprintf('SHOW TRIGGERS WHERE `Trigger` =  \'%s\'', $name)
+            \sprintf('SHOW TRIGGERS WHERE `Trigger` =  \'%s\'', $name)
         )->fetch(FetchMode::COLUMN);
 
         static::assertEquals($name, $trigger);

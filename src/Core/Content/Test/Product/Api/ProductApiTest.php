@@ -185,7 +185,7 @@ class ProductApiTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
-        $product = json_decode($response->getContent(), true);
+        $product = \json_decode($response->getContent(), true);
 
         static::assertNotEmpty($product);
         static::assertArrayHasKey('data', $product);
@@ -220,7 +220,7 @@ class ProductApiTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
-        $products = json_decode($response->getContent(), true);
+        $products = \json_decode($response->getContent(), true);
 
         $product = $products['data'][0];
 
@@ -263,7 +263,7 @@ class ProductApiTest extends TestCase
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
-        $products = json_decode($response->getContent(), true);
+        $products = \json_decode($response->getContent(), true);
 
         $product = $products['data'][0];
 

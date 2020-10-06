@@ -58,7 +58,7 @@ class SalesChannelAuthenticationListener implements EventSubscriberInterface
         }
 
         if (!$request->headers->has(PlatformRequest::HEADER_ACCESS_KEY)) {
-            throw new UnauthorizedHttpException('header', sprintf('Header "%s" is required.', PlatformRequest::HEADER_ACCESS_KEY));
+            throw new UnauthorizedHttpException('header', \sprintf('Header "%s" is required.', PlatformRequest::HEADER_ACCESS_KEY));
         }
 
         $accessKey = $request->headers->get(PlatformRequest::HEADER_ACCESS_KEY);

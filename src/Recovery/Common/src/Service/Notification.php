@@ -50,11 +50,11 @@ class Notification
         ];
 
         try {
-            $response = $this->client->post($this->apiEndPoint . '/swplatform/tracking/events', json_encode($payload));
+            $response = $this->client->post($this->apiEndPoint . '/swplatform/tracking/events', \json_encode($payload));
         } catch (\Exception $ex) {
             return false;
         }
 
-        return json_decode($response->getBody(), true) ?: false;
+        return \json_decode($response->getBody(), true) ?: false;
     }
 }

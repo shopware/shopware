@@ -53,7 +53,7 @@ class AppActionLoaderTest extends TestCase
 
         $expected = [
             'source' => [
-                'url' => getenv('APP_URL'),
+                'url' => \getenv('APP_URL'),
                 'appVersion' => $action->getApp()->getVersion(),
                 'shopId' => $shopIdProvider->getShopId(),
             ],

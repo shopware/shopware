@@ -70,12 +70,12 @@ EOD;
         $renderedTags = $this->renderTags();
         $renderedModules = $this->renderCharacteristics($characteristics, $io);
 
-        file_put_contents(
+        \file_put_contents(
             $this->targetFile,
-            sprintf(
+            \sprintf(
                 self::TEMPLATE_MODULE_PAGE,
-                implode(PHP_EOL, $renderedTags),
-                implode(PHP_EOL, $renderedModules)
+                \implode(PHP_EOL, $renderedTags),
+                \implode(PHP_EOL, $renderedModules)
             )
         );
     }
@@ -89,28 +89,28 @@ EOD;
         /** @var ModuleTagCollection $tags */
         foreach ($characteristics as $tags) {
             $modulePathName = $tags->getModulePathName();
-            [$bundleName, $moduleName] = explode('/', $modulePathName);
+            [$bundleName, $moduleName] = \explode('/', $modulePathName);
 
-            $tagNames = array_map(static function (ModuleTag $tag) {
+            $tagNames = \array_map(static function (ModuleTag $tag) {
                 return $tag->name();
             }, $tags->getElements());
 
-            $renderedTags = array_map(static function (string $tagName) {
-                return sprintf(self::TEMPLATE_MODULE_TAG_ITEM, $tagName);
+            $renderedTags = \array_map(static function (string $tagName) {
+                return \sprintf(self::TEMPLATE_MODULE_TAG_ITEM, $tagName);
             }, $tagNames);
 
             $moduleDescriptions->ensure($modulePathName);
-            $markdown[$bundleName] = sprintf(self::TEMPLATE_MODULE_BUNDLE_NAME . PHP_EOL, $bundleName);
+            $markdown[$bundleName] = \sprintf(self::TEMPLATE_MODULE_BUNDLE_NAME . PHP_EOL, $bundleName);
 
-            $markdown[$modulePathName] = sprintf(
+            $markdown[$modulePathName] = \sprintf(
                 self::TEMPLATE_MODULE_MODULE,
                 $moduleName,
-                implode(' ', $renderedTags),
+                \implode(' ', $renderedTags),
                 $modulePathName,
                 $moduleDescriptions->get($modulePathName)
             );
 
-            $io->write(' * ' . $modulePathName . ': ' . implode(', ', $tagNames) . PHP_EOL);
+            $io->write(' * ' . $modulePathName . ': ' . \implode(', ', $tagNames) . PHP_EOL);
         }
 
         $moduleDescriptions->dump(true);
@@ -125,7 +125,7 @@ EOD;
         $markdown = [];
         foreach ($this->moduleInspector->getAllTags() as $tagName) {
             $tagDescriptions->ensure($tagName);
-            $markdown[$tagName] = sprintf(
+            $markdown[$tagName] = \sprintf(
                 self::TEMPLATE_MODULE_TAG,
                 $tagName,
                 $tagDescriptions->get($tagName)

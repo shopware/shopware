@@ -147,19 +147,19 @@ class GenerateMediaTypesCommandTest extends TestCase
         $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaPng);
         $this->getPublicFilesystem()->putStream(
             $filePath,
-            fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb')
+            \fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb')
         );
 
         $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaJpg);
         $this->getPublicFilesystem()->putStream(
             $filePath,
-            fopen(__DIR__ . '/../fixtures/shopware.jpg', 'rb')
+            \fopen(__DIR__ . '/../fixtures/shopware.jpg', 'rb')
         );
 
         $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaPdf);
         $this->getPublicFilesystem()->putStream(
             $filePath,
-            fopen(__DIR__ . '/../fixtures/Shopware_5_3_Broschuere.pdf', 'rb')
+            \fopen(__DIR__ . '/../fixtures/Shopware_5_3_Broschuere.pdf', 'rb')
         );
     }
 
@@ -168,7 +168,7 @@ class GenerateMediaTypesCommandTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsAnyFilter('id', $this->initialMediaIds));
         $result = $this->mediaRepository->searchIds($criteria, $this->context);
-        static::assertEquals(count($this->initialMediaIds), $result->getTotal());
+        static::assertEquals(\count($this->initialMediaIds), $result->getTotal());
 
         $criteria = new Criteria();
         $criteria->addFilter(new NotFilter(

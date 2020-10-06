@@ -11,7 +11,7 @@ class FileNameValidatorTest extends TestCase
 {
     public function restrictedCharacters()
     {
-        return array_map(
+        return \array_map(
             function ($value) {
                 return [$value];
             },
@@ -61,8 +61,8 @@ class FileNameValidatorTest extends TestCase
     {
         $c = [];
 
-        foreach (range(0, 31) as $value) {
-            $c[] = [chr($value)];
+        foreach (\range(0, 31) as $value) {
+            $c[] = [\chr($value)];
         }
 
         return $c;
@@ -133,9 +133,9 @@ class FileNameValidatorTest extends TestCase
     {
         $this->expectException(IllegalFileNameException::class);
         $this->expectExceptionMessage(
-            sprintf(
+            \sprintf(
                 'Filename must not contain character "%x"',
-                ord($input)
+                \ord($input)
             )
         );
 

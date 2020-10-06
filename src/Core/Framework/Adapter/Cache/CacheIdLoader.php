@@ -37,7 +37,7 @@ class CacheIdLoader
             $cacheId = null;
         }
 
-        if (is_string($cacheId)) {
+        if (\is_string($cacheId)) {
             return $cacheId;
         }
 
@@ -61,7 +61,7 @@ class CacheIdLoader
 
         if ($this->restartSignalCachePool) {
             $cacheItem = $this->restartSignalCachePool->getItem(StopWorkerOnRestartSignalListener::RESTART_REQUESTED_TIMESTAMP_KEY);
-            $cacheItem->set(microtime(true));
+            $cacheItem->set(\microtime(true));
             $this->restartSignalCachePool->save($cacheItem);
         }
     }

@@ -90,7 +90,7 @@ class Manifest
         $webhooks = $doc->getElementsByTagName('webhooks')->item(0);
         $webhooks = $webhooks === null ? null : Webhooks::fromXml($webhooks);
 
-        return new self(dirname($xmlFile), $metadata, $setup, $admin, $permissions, $customFields, $webhooks);
+        return new self(\dirname($xmlFile), $metadata, $setup, $admin, $permissions, $customFields, $webhooks);
     }
 
     public function getPath(): string

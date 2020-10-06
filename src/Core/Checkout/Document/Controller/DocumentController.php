@@ -85,7 +85,7 @@ class DocumentController extends AbstractController
         string $documentTypeName,
         Context $context
     ): Response {
-        $config = $request->query->has('config') ? json_decode($request->query->get('config'), true) : [];
+        $config = $request->query->has('config') ? \json_decode($request->query->get('config'), true) : [];
         $documentConfig = DocumentConfigurationFactory::createConfiguration($config);
 
         $fileType = $request->query->getAlnum('fileType', FileTypes::PDF);
@@ -116,7 +116,7 @@ class DocumentController extends AbstractController
             $forceDownload ? HeaderUtils::DISPOSITION_ATTACHMENT : HeaderUtils::DISPOSITION_INLINE,
             $filename,
             // only printable ascii
-            preg_replace('/[\x00-\x1F\x7F-\xFF]/', '_', $filename)
+            \preg_replace('/[\x00-\x1F\x7F-\xFF]/', '_', $filename)
         );
 
         $response->headers->set('Content-Type', $contentType);

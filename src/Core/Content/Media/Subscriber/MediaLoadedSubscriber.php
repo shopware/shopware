@@ -53,12 +53,12 @@ class MediaLoadedSubscriber implements EventSubscriberInterface
         /** @var MediaEntity $media */
         foreach ($event->getEntities() as $media) {
             if ($media->getMediaTypeRaw()) {
-                $media->setMediaType(unserialize($media->getMediaTypeRaw()));
+                $media->setMediaType(\unserialize($media->getMediaTypeRaw()));
             }
 
             if ($media->getThumbnails() === null) {
                 if ($media->getThumbnailsRo()) {
-                    $media->setThumbnails(unserialize($media->getThumbnailsRo()));
+                    $media->setThumbnails(\unserialize($media->getThumbnailsRo()));
                 } else {
                     $media->setThumbnails(new MediaThumbnailCollection());
                 }

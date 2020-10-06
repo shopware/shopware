@@ -59,6 +59,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

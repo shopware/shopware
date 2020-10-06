@@ -59,6 +59,7 @@ class AclControllerTest extends TestCase
     public function testGetAdditionalPrivilegesNoPermission(): void
     {
         Feature::skipTestIfInActive('FEATURE_NEXT_3722', $this);
+
         try {
             $this->authorizeBrowser($this->getBrowser(), [], []);
             $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/_action/acl/additional_privileges');

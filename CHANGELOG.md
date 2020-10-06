@@ -1,6 +1,9 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/2020-08-03-Implement-New-Changelog.md).
 
+## 6.3.2.1
+* [NEXT-10909 - Limit hot proxy integration to dev environment](./changelog/release-6-3-2-1/2020-09-25-limit-hot-proxy-integration-to-dev-environment.md)
+
 ## 6.3.2.0
 *  [NEXT-8278 - Move Product Export from Storefront to Store-API](/changelog/release-6-3-2-0/2020-09-02-move-product-export-to-store-api.md)
 *  [NEXT-8277 - Migrating Sitemap to Store-API](/changelog/release-6-3-2-0/2020-09-02-sitemap-store-api.md)

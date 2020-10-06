@@ -66,6 +66,11 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
      */
     private $sortingRegistry;
 
+    /**
+     * @var ProductSortingCollection|null
+     */
+    private $sortings;
+
     public function __construct(
         Connection $connection,
         EntityRepositoryInterface $optionRepository,
@@ -186,9 +191,9 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
 
         $result = $event->getResult();
 
-        /** @var ProductSortingCollection $sortings */
-        $sortings = $result->getCriteria()->getExtension('sortings');
+        $sortings = $this->sortings ?? new ProductSortingCollection();
         $currentSortingKey = $this->getCurrentSorting($sortings, $event->getRequest())->getKey();
+        $this->sortings = null;
 
         $result->setSorting($currentSortingKey);
         $result->setAvailableSortings($sortings);
@@ -351,8 +356,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
 
     private function handleSorting(Request $request, Criteria $criteria, SalesChannelContext $salesChannelContext): void
     {
-        /** @var ProductSortingCollection $sortings */
-        $sortings = $criteria->getExtension('sortings') ?? new ProductSortingCollection();
+        $sortings = $this->sortings ?? new ProductSortingCollection();
         $sortings->merge($this->getAvailableSortings($request, $salesChannelContext->getContext()));
 
         $currentSorting = $this->getCurrentSorting($sortings, $request);
@@ -361,7 +365,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
             ...$currentSorting->createDalSorting()
         );
 
-        $criteria->addExtension('sortings', $sortings);
+        $this->sortings = $sortings;
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace Shopware\Elasticsearch\Test;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -29,7 +30,7 @@ class IndexOffsetTest extends TestCase
         ]);
 
         $definitions = [
-            new ElasticsearchProductDefinition(new ProductDefinition(), new EntityMapper()),
+            new ElasticsearchProductDefinition(new ProductDefinition(), new EntityMapper(), new CashRounding()),
             new MockElasticsearchDefinition(new EntityMapper()),
         ];
 

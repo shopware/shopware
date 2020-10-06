@@ -45,10 +45,10 @@ class SalutationRouteTest extends TestCase
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
-        static::assertCount(3, $response);
-        static::assertArrayHasKey('salutationKey', $response[0]);
-        static::assertArrayHasKey('displayName', $response[0]);
-        static::assertArrayHasKey('letterName', $response[0]);
+        static::assertSame(3, $response['total']);
+        static::assertArrayHasKey('salutationKey', $response['elements'][0]);
+        static::assertArrayHasKey('displayName', $response['elements'][0]);
+        static::assertArrayHasKey('letterName', $response['elements'][0]);
     }
 
     public function testIncludes(): void
@@ -66,10 +66,10 @@ class SalutationRouteTest extends TestCase
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
-        static::assertCount(3, $response);
-        static::assertArrayHasKey('id', $response[0]);
-        static::assertArrayNotHasKey('displayName', $response[0]);
-        static::assertArrayNotHasKey('letterName', $response[0]);
+        static::assertSame(3, $response['total']);
+        static::assertArrayHasKey('id', $response['elements'][0]);
+        static::assertArrayNotHasKey('displayName', $response['elements'][0]);
+        static::assertArrayNotHasKey('letterName', $response['elements'][0]);
     }
 
     public function testLimit(): void
@@ -85,9 +85,9 @@ class SalutationRouteTest extends TestCase
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
-        static::assertCount(1, $response);
-        static::assertArrayHasKey('id', $response[0]);
-        static::assertArrayHasKey('displayName', $response[0]);
-        static::assertArrayHasKey('letterName', $response[0]);
+        static::assertSame(1, $response['total']);
+        static::assertArrayHasKey('id', $response['elements'][0]);
+        static::assertArrayHasKey('displayName', $response['elements'][0]);
+        static::assertArrayHasKey('letterName', $response['elements'][0]);
     }
 }

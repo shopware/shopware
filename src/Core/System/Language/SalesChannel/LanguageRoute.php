@@ -8,7 +8,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
-use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -56,9 +55,25 @@ class LanguageRoute extends AbstractLanguageRoute
      *      @OA\Parameter(name="Api-Basic-Parameters"),
      *      @OA\Response(
      *          response="200",
-     *          description="All available languages",
-     *          @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/language_flat"))
-     *     )
+     *          description="",
+     *          @OA\JsonContent(type="object",
+     *              @OA\Property(
+     *                  property="total",
+     *                  type="integer",
+     *                  description="Total amount"
+     *              ),
+     *              @OA\Property(
+     *                  property="aggregations",
+     *                  type="object",
+     *                  description="aggregation result"
+     *              ),
+     *              @OA\Property(
+     *                  property="elements",
+     *                  type="array",
+     *                  @OA\Items(ref="#/components/schemas/language_flat")
+     *              )
+     *          )
+     *      )
      * )
      * @Route("/store-api/v{version}/language", name="store-api.language", methods={"GET", "POST"})
      */
@@ -71,11 +86,6 @@ class LanguageRoute extends AbstractLanguageRoute
 
         $criteria->addAssociation('translationCode');
 
-        /** @var LanguageCollection $languages */
-        $languages = $this->languageRepository
-            ->search($criteria, $context)
-            ->getEntities();
-
-        return new LanguageRouteResponse($languages);
+        return new LanguageRouteResponse($this->languageRepository->search($criteria, $context));
     }
 }

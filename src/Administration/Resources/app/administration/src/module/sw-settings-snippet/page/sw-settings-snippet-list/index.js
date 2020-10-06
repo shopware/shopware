@@ -63,6 +63,10 @@ Component.register('sw-settings-snippet-list', {
             return this.getColumns();
         },
 
+        snippetRepository() {
+            return this.repositoryFactory.create('snippet');
+        },
+
         snippetSetRepository() {
             return this.repositoryFactory.create('snippet_set');
         },
@@ -243,9 +247,26 @@ Component.register('sw-settings-snippet-list', {
                 }
 
                 if (snippet.origin !== snippet.value) {
-                    responses.push(this.snippetService.save(snippet));
+                    const snippetEntity = this.snippetRepository.create(Shopware.Context.api);
+
+                    if (snippet.id) {
+                        snippetEntity._isNew = false;
+                    }
+
+                    snippetEntity.author = snippet.author;
+                    snippetEntity.id = snippet.id;
+                    snippetEntity.value = snippet.value;
+                    snippetEntity.origin = snippet.origin;
+                    snippetEntity.translationKey = snippet.translationKey;
+                    snippetEntity.setId = snippet.setId;
+
+                    responses.push(
+                        this.snippetRepository.save(snippetEntity, Shopware.Context.api)
+                    );
                 } else if (snippet.id !== null && !snippet.author.startsWith('user/')) {
-                    responses.push(this.snippetService.delete(snippet.id));
+                    responses.push(
+                        this.snippetRepository.delete(snippet.id, Shopware.Context.api)
+                    );
                 }
             });
 
@@ -387,11 +408,14 @@ Component.register('sw-settings-snippet-list', {
                     }
                     item.isCustomSnippet = fullSelection.isCustomSnippet;
                     this.isLoading = true;
-                    promises.push(this.snippetService.delete(item.id).then(() => {
-                        this.createSuccessMessage(item);
-                    }).catch(() => {
-                        this.createResetErrorNote(item);
-                    }));
+
+                    promises.push(
+                        this.snippetRepository.delete(item.id, Shopware.Context.api).then(() => {
+                            this.createSuccessMessage(item);
+                        }).catch(() => {
+                            this.createResetErrorNote(item);
+                        })
+                    );
                 });
                 Promise.all(promises).then(() => {
                     this.isLoading = false;

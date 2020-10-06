@@ -1,5 +1,5 @@
 import { createLocalVue, shallowMount, Wrapper } from '@vue/test-utils';
-import EntityCollection from 'src/core/data-new/entity-collection.data';
+import EntityCollection from 'src/core/data/entity-collection.data';
 
 import 'src/module/sw-settings-product-feature-sets/page/sw-settings-product-feature-sets-list';
 import 'src/app/component/structure/sw-page';
@@ -49,6 +49,8 @@ const listPage = (additionalOptions = {}, privileges = []) => {
             'sw-data-grid-settings': true,
             'sw-pagination': true,
             'router-link': true,
+            'sw-loader': true,
+            'sw-data-grid-skeleton': true,
             i18n: true
         },
         mocks: {
@@ -269,5 +271,35 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
 
         const contextMenuItemDelete = wrapper.find('.sw-product-feature-sets-list__delete-action');
         expect(contextMenuItemDelete.attributes().disabled).toBeUndefined();
+    });
+
+    it('should throw an success notification after saving in inline editing', async () => {
+        const entityListing = wrapper.find('.sw-settings-product-feature-sets-list-grid');
+        const successNotificationSpy = jest.spyOn(wrapper.vm, 'createNotificationSuccess');
+
+        expect(successNotificationSpy).not.toHaveBeenCalled();
+
+        await entityListing.vm.$emit('inline-edit-save', new Promise(resolve => {
+            resolve();
+        }), { name: 'fooBar' });
+
+        await wrapper.vm.$nextTick();
+
+        expect(successNotificationSpy).toHaveBeenCalled();
+    });
+
+    it('should throw an error notification after saving in inline editing', async () => {
+        const entityListing = wrapper.find('.sw-settings-product-feature-sets-list-grid');
+        const errorNotificationSpy = jest.spyOn(wrapper.vm, 'createNotificationError');
+
+        expect(errorNotificationSpy).not.toHaveBeenCalled();
+
+        await entityListing.vm.$emit('inline-edit-save', new Promise((resolve, reject) => {
+            reject();
+        }), { name: 'fooBar' });
+
+        await wrapper.vm.$nextTick();
+
+        expect(errorNotificationSpy).toHaveBeenCalled();
     });
 });

@@ -13,16 +13,6 @@
             {% block page_product_detail_inner %}
                 {% block page_product_detail_content %}
                     <div class="product-detail-content">
-                        {% block page_product_detail_breadcrumb %}
-                            {% deprecated '@deprecated tag:v6.4.0 - Breadcrumb will be handled by "base_breadcrumb" in "storefront/base.html.twig"' %}
-                            <div class="breadcrumb product-breadcrumb container">
-                                {% sw_include '@Storefront/storefront/component/product/breadcrumb.html.twig' with {
-                                    navigationTree: page.header.navigation.tree,
-                                    categoryTree: page.product.categoryTree|last,
-                                    product: page.product
-                                } only %}
-                            </div>
-                        {% endblock %}
                         {% block page_product_detail_headline %}
                             <div class="row align-items-center product-detail-headline">
                                 {% sw_include '@Storefront/storefront/page/product-detail/headline.html.twig' %}

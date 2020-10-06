@@ -71,9 +71,11 @@
                         {% block base_main_container %}
                             <div class="container-main">
                                 {% block base_breadcrumb %}
-                                    {% if breadcrumbList %}
-                                        {% sw_include '@Storefront/storefront/layout/breadcrumb.html.twig' %}
-                                    {% endif %}
+                                    {% sw_include '@Storefront/storefront/layout/breadcrumb.html.twig' with {
+                                        navigationTree: page.header.navigation.tree,
+                                        categoryTree: page.product.categoryTree|last,
+                                        product: page.product
+                                    } only %}
                                 {% endblock %}
 
                                 {% block base_content %}{% endblock %}

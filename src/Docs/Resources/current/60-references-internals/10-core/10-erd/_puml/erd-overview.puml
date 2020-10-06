@@ -77,6 +77,7 @@ Table(ShopwareCoreSystemCountry, "Shopware\Core\System\Country\n(Countries)") {
 }
 Table(ShopwareCoreSystemCurrency, "Shopware\Core\System\Currency\n(Currencies)") {
    currency Table
+   currency_country_rounding Table
    currency_translation Table
 }
 Table(ShopwareCoreSystemLocale, "Shopware\Core\System\Locale\n(Locales)") {

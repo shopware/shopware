@@ -105,10 +105,10 @@ class PriceActionControllerTest extends TestCase
 
         static::assertEquals(
             new CalculatedPrice(
-                10,
-                10,
+                10.002,
+                10.002,
                 new CalculatedTaxCollection([
-                    new CalculatedTax(1.9, 19, 10.0),
+                    new CalculatedTax(1.9003800000000002, 19, 10.002),
                 ]),
                 new TaxRuleCollection([
                     new TaxRule(19, 100),
@@ -180,7 +180,7 @@ class PriceActionControllerTest extends TestCase
                 10,
                 20,
                 new CalculatedTaxCollection([
-                    new CalculatedTax(3.19, 19, 20),
+                    new CalculatedTax(3.19327731092437, 19, 20),
                 ]),
                 new TaxRuleCollection([
                     new TaxRule(19, 100),
@@ -205,7 +205,7 @@ class PriceActionControllerTest extends TestCase
                 11.9,
                 11.9,
                 new CalculatedTaxCollection([
-                    new CalculatedTax(2.26, 19, 11.9),
+                    new CalculatedTax(2.261, 19, 11.9),
                 ]),
                 new TaxRuleCollection([
                     new TaxRule(19, 100),

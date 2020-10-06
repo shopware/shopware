@@ -283,7 +283,6 @@ class EntityHydratorTest extends TestCase
             [$rootLanguageId, Defaults::LANGUAGE_SYSTEM],
             Defaults::LIVE_VERSION,
             1.0,
-            2,
             $inheritance
         );
     }

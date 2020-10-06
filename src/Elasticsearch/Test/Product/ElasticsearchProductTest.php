@@ -5,13 +5,16 @@ namespace Shopware\Elasticsearch\Test\Product;
 use Doctrine\DBAL\Connection;
 use Elasticsearch\Client;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\DateHistogramAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
@@ -40,6 +43,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendedProductDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ProductExtension;
@@ -118,6 +122,11 @@ class ElasticsearchProductTest extends TestCase
      */
     private $navigationId;
 
+    /**
+     * @var string
+     */
+    private $currencyId = '0fa91ce3e96a4bc2be4bd9ce752c3425';
+
     protected function setUp(): void
     {
         $this->helper = $this->getContainer()->get(ElasticsearchHelper::class);
@@ -142,7 +151,8 @@ class ElasticsearchProductTest extends TestCase
 
         $extension = new ElasticsearchProductDefinitionExtension(
             $this->getContainer()->get(ProductDefinition::class),
-            $this->getContainer()->get(EntityMapper::class)
+            $this->getContainer()->get(EntityMapper::class),
+            $this->getContainer()->get(CashRounding::class)
         );
 
         $rulesProperty = ReflectionHelper::getProperty(ElasticsearchRegistry::class, 'definitions');
@@ -208,6 +218,21 @@ class ElasticsearchProductTest extends TestCase
             //Instead of indexing the test data in the set-up, we index it in the first test method. So this data does not have to be indexed again in each test.
             $this->ids = new TestDataCollection($context);
 
+            $currency = [
+                'id' => $this->currencyId,
+                'name' => 'test',
+                'factor' => 1,
+                'symbol' => 'A',
+                'decimalPrecision' => 2,
+                'shortName' => 'A',
+                'isoCode' => 'A',
+                'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.05, true)), true),
+            ];
+
+            $this->getContainer()
+                ->get('currency.repository')
+                ->upsert([$currency], Context::createDefaultContext());
+
             $this->createData();
 
             $this->indexElasticSearch();
@@ -246,7 +271,7 @@ class ElasticsearchProductTest extends TestCase
             $context = Context::createDefaultContext();
 
             $this->productRepository->upsert([
-                $this->createProduct('u7', 'update', 't3', 'm3', 300, '2021-12-10 11:59:00', 200, 300, []),
+                $this->createProduct('u7', 'update', 't3', 'm3', [Defaults::CURRENCY => 300], '2021-12-10 11:59:00', 200, 300, []),
             ], $context);
 
             $criteria = new Criteria();
@@ -1761,6 +1786,110 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
+    public function testPriceSorting(TestDataCollection $data): void
+    {
+        $searcher = $this->createEntitySearcher();
+
+        $expected = array_values($data->getList(['p1', 'p2', 'p3', 'p4', 'p5']));
+
+        // check simple equals filter
+        $criteria = new Criteria($expected);
+        $criteria->addSorting(new FieldSorting('price'));
+        $ids = $searcher->search($this->productDefinition, $criteria, Context::createDefaultContext());
+        static::assertEquals($expected, $ids->getIds());
+
+        $criteria = new Criteria($expected);
+        $criteria->addSorting(new FieldSorting('price', FieldSorting::DESCENDING));
+        $ids = $searcher->search($this->productDefinition, $criteria, Context::createDefaultContext());
+        static::assertEquals(array_reverse($expected), $ids->getIds());
+
+        $expected = array_values($data->getList(['p2', 'p1', 'p4', 'p5']));
+        $context = new Context(new SystemSource(), [], $this->currencyId);
+
+        $criteria = new Criteria($expected);
+        $criteria->addSorting(new FieldSorting('price', FieldSorting::DESCENDING));
+        $ids = $searcher->search($this->productDefinition, $criteria, $context);
+        static::assertEquals(array_reverse($expected), $ids->getIds());
+    }
+
+    /**
+     * @depends testIndexing
+     */
+    public function testPriceFilter(TestDataCollection $data): void
+    {
+        $searcher = $this->createEntitySearcher();
+
+        $expected = array_values($data->getList(['p3', 'p4', 'p5']));
+
+        // check simple equals filter
+        $criteria = new Criteria($data->all());
+        $criteria->addFilter(
+            new RangeFilter('price', [
+                RangeFilter::GTE => 150,
+                RangeFilter::LTE => 250,
+            ])
+        );
+
+        $ids = $searcher->search($this->productDefinition, $criteria, Context::createDefaultContext());
+
+        foreach ($expected as $id) {
+            static::assertTrue($ids->has($id));
+        }
+    }
+
+    /**
+     * @depends testIndexing
+     */
+    public function testPriceFilterWithCashRounding(TestDataCollection $data): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_6059', $this);
+
+        $searcher = $this->createEntitySearcher();
+
+        $expected = array_values($data->getList(['p1', 'p3', 'p4']));
+        $context = new Context(new SystemSource(), [], $this->currencyId);
+
+        // check simple equals filter
+        $criteria = new Criteria($data->all());
+        $criteria->addFilter(
+            new RangeFilter('price', [
+                RangeFilter::GTE => 19.95,
+                RangeFilter::LTE => 20.00,
+            ])
+        );
+
+        $ids = $searcher->search($this->productDefinition, $criteria, $context);
+        foreach ($expected as $id) {
+            static::assertTrue($ids->has($id));
+        }
+    }
+
+    /**
+     * @depends testIndexing
+     */
+    public function testPriceAggregationWithCashRounding(TestDataCollection $data): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_6059', $this);
+
+        $context = new Context(new SystemSource(), [], $this->currencyId);
+
+        $criteria = new Criteria($data->getList(['p1', 'p2', 'p3', 'p4']));
+        $criteria->addAggregation(new StatsAggregation('price', 'price'));
+
+        $aggregations = $this
+            ->createEntityAggregator()
+            ->aggregate($this->productDefinition, $criteria, $context);
+
+        $result = $aggregations->get('price');
+        static::assertInstanceOf(StatsResult::class, $result);
+
+        static::assertEquals(19.90, $result->getMin());
+        static::assertEquals(20.00, $result->getMax());
+    }
+
+    /**
+     * @depends testIndexing
+     */
     public function testSortingIsCaseInsensitive(TestDataCollection $data): void
     {
         try {
@@ -1801,7 +1930,7 @@ class ElasticsearchProductTest extends TestCase
         string $name,
         string $taxKey,
         string $manufacturerKey,
-        float $price,
+        array $prices,
         string $releaseDate,
         float $purchasePrice,
         int $stock,
@@ -1812,15 +1941,18 @@ class ElasticsearchProductTest extends TestCase
             return ['id' => $this->ids->create($categoryKey), 'name' => $categoryKey];
         }, $categoryKeys);
 
+        $mapped = [];
+        foreach ($prices as $currencyId => $price) {
+            $mapped[] = ['currencyId' => $currencyId, 'gross' => $price, 'net' => $price / 115 * 100, 'linked' => false];
+        }
+
         $data = [
             'id' => $this->ids->create($key),
             'productNumber' => $key,
             'name' => $name,
             'stock' => $stock,
             'purchasePrice' => $purchasePrice,
-            'price' => [
-                ['currencyId' => Defaults::CURRENCY, 'gross' => $price, 'net' => $price / 115 * 100, 'linked' => false],
-            ],
+            'price' => $mapped,
             'manufacturer' => ['id' => $this->ids->create($manufacturerKey), 'name' => $manufacturerKey],
             'tax' => ['id' => $this->ids->create($taxKey),  'name' => 'test', 'taxRate' => 15],
             'releaseDate' => $releaseDate,
@@ -1851,23 +1983,25 @@ class ElasticsearchProductTest extends TestCase
         $repo = $this->getContainer()->get('product.repository');
 
         $repo->create([
-            $this->createProduct('p1', 'Silk', 't1', 'm1', 50, '2019-01-01 10:11:00', 0, 2, ['c1', 'c2'], ['toOne' => ['name' => 'test']]),
-            $this->createProduct('p2', 'Rubber', 't1', 'm2', 100, '2019-01-01 10:13:00', 0, 10, ['c1']),
-            $this->createProduct('p3', 'Stilk', 't2', 'm2', 150, '2019-06-15 13:00:00', 100, 100, ['c1', 'c3']),
-            $this->createProduct('p4', 'Grouped 1', 't2', 'm2', 200, '2020-09-30 15:00:00', 100, 300, ['c3']),
-            $this->createProduct('p5', 'Grouped 2', 't3', 'm3', 250, '2021-12-10 11:59:00', 100, 300, []),
-            $this->createProduct('p6', 'Spachtelmasse of some company', 't3', 'm3', 300, '2021-12-10 11:59:00', 200, 300, []),
-            $this->createProduct('n7', 'Other product', 't3', 'm3', 300, '2021-12-10 11:59:00', 200, 300, []),
-            $this->createProduct('n8', 'Other product', 't3', 'm3', 300, '2021-12-10 11:59:00', 200, 300, []),
-            $this->createProduct('n9', 'Other product', 't3', 'm3', 300, '2021-12-10 11:59:00', 200, 300, []),
-            $this->createProduct('n10', 'Other product', 't3', 'm3', 300, '2021-12-10 11:59:00', 200, 300, []),
-            $this->createProduct('n11', 'Other product', 't3', 'm3', 300, '2021-12-10 11:59:00', 200, 300, []),
-            $this->createProduct('s1', 'aa', 't1', 'm2', 100, '2019-01-01 10:13:00', 0, 10, ['cs1']),
-            $this->createProduct('s2', 'Aa', 't1', 'm2', 100, '2019-01-01 10:13:00', 0, 10, ['cs1']),
-            $this->createProduct('s3', 'AA', 't1', 'm2', 100, '2019-01-01 10:13:00', 0, 10, ['cs1']),
-            $this->createProduct('s4', 'Ba', 't1', 'm2', 100, '2019-01-01 10:13:00', 0, 10, ['cs1']),
-            $this->createProduct('s5', 'BA', 't1', 'm2', 100, '2019-01-01 10:13:00', 0, 10, ['cs1']),
-            $this->createProduct('s6', 'BB', 't1', 'm2', 100, '2019-01-01 10:13:00', 0, 10, ['cs1']),
+            $this->createProduct('p1', 'Silk', 't1', 'm1', [Defaults::CURRENCY => 50, $this->currencyId => 19.96], '2019-01-01 10:11:00', 0, 2, ['c1', 'c2'], ['toOne' => [
+                'name' => 'test',
+            ]]),
+            $this->createProduct('p2', 'Rubber', 't1', 'm2', [Defaults::CURRENCY => 100, $this->currencyId => 19.91], '2019-01-01 10:13:00', 0, 10, ['c1']),
+            $this->createProduct('p3', 'Stilk', 't2', 'm2', [Defaults::CURRENCY => 150, $this->currencyId => 19.94], '2019-06-15 13:00:00', 100, 100, ['c1', 'c3']),
+            $this->createProduct('p4', 'Grouped 1', 't2', 'm2', [Defaults::CURRENCY => 200, $this->currencyId => 19.99], '2020-09-30 15:00:00', 100, 300, ['c3']),
+            $this->createProduct('p5', 'Grouped 2', 't3', 'm3', [Defaults::CURRENCY => 250], '2021-12-10 11:59:00', 100, 300, []),
+            $this->createProduct('p6', 'Spachtelmasse of some company', 't3', 'm3', [Defaults::CURRENCY => 300], '2021-12-10 11:59:00', 200, 300, []),
+            $this->createProduct('n7', 'Other product', 't3', 'm3', [Defaults::CURRENCY => 300], '2021-12-10 11:59:00', 200, 300, []),
+            $this->createProduct('n8', 'Other product', 't3', 'm3', [Defaults::CURRENCY => 300], '2021-12-10 11:59:00', 200, 300, []),
+            $this->createProduct('n9', 'Other product', 't3', 'm3', [Defaults::CURRENCY => 300], '2021-12-10 11:59:00', 200, 300, []),
+            $this->createProduct('n10', 'Other product', 't3', 'm3', [Defaults::CURRENCY => 300], '2021-12-10 11:59:00', 200, 300, []),
+            $this->createProduct('n11', 'Other product', 't3', 'm3', [Defaults::CURRENCY => 300], '2021-12-10 11:59:00', 200, 300, []),
+            $this->createProduct('s1', 'aa', 't1', 'm2', [Defaults::CURRENCY => 100], '2019-01-01 10:13:00', 0, 10, ['cs1']),
+            $this->createProduct('s2', 'Aa', 't1', 'm2', [Defaults::CURRENCY => 100], '2019-01-01 10:13:00', 0, 10, ['cs1']),
+            $this->createProduct('s3', 'AA', 't1', 'm2', [Defaults::CURRENCY => 100], '2019-01-01 10:13:00', 0, 10, ['cs1']),
+            $this->createProduct('s4', 'Ba', 't1', 'm2', [Defaults::CURRENCY => 100], '2019-01-01 10:13:00', 0, 10, ['cs1']),
+            $this->createProduct('s5', 'BA', 't1', 'm2', [Defaults::CURRENCY => 100], '2019-01-01 10:13:00', 0, 10, ['cs1']),
+            $this->createProduct('s6', 'BB', 't1', 'm2', [Defaults::CURRENCY => 100], '2019-01-01 10:13:00', 0, 10, ['cs1']),
         ], Context::createDefaultContext());
     }
 }

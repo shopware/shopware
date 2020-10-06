@@ -1,12 +1,15 @@
 import template from './sw-settings-currency-detail.html.twig';
+import './sw-settings-currency-detail.scss';
 
+const { cloneDeep } = Shopware.Utils.object;
 const { Component, Mixin } = Shopware;
+const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-settings-currency-detail', {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: ['repositoryFactory', 'acl', 'feature'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -35,7 +38,11 @@ Component.register('sw-settings-currency-detail', {
         return {
             currency: {},
             isLoading: false,
-            isSaveSuccessful: false
+            currencyCountryLoading: false,
+            isSaveSuccessful: false,
+            currentCurrencyCountry: null,
+            currencyCountryRoundings: null,
+            searchTerm: ''
         };
     },
 
@@ -52,6 +59,16 @@ Component.register('sw-settings-currency-detail', {
 
         currencyRepository() {
             return this.repositoryFactory.create('currency');
+        },
+
+        currencyCountryRoundingRepository() {
+            if (this.currency.countryRoundings) {
+                return this.repositoryFactory.create(
+                    this.currency.countryRoundings.entity,
+                    this.currency.countryRoundings.source
+                );
+            }
+            return null;
         },
 
         tooltipSave() {
@@ -81,7 +98,71 @@ Component.register('sw-settings-currency-detail', {
         ...mapPropertyErrors(
             'currency',
             ['name', 'isoCode', 'shortName', 'symbol', 'isDefault', 'decimalPrecision', 'factor']
-        )
+        ),
+
+        currencyCountryColumns() {
+            return [
+                {
+                    property: 'country',
+                    label: 'sw-settings-currency.detail.currencyCountry.countryColumn',
+                    sortable: true
+                },
+                {
+                    property: 'itemRounding.decimals',
+                    label: 'sw-settings-currency.detail.currencyCountry.itemDecimalsColumn',
+                    sortable: false
+                },
+                {
+                    property: 'itemRounding.interval',
+                    label: 'sw-settings-currency.detail.currencyCountry.itemIntervalColumn',
+                    sortable: false
+                },
+                {
+                    property: 'itemRounding.roundForNet',
+                    label: 'sw-settings-currency.detail.currencyCountry.itemNetRoundingColumn',
+                    sortable: false,
+                    visible: false
+                },
+                {
+                    property: 'totalRounding.decimals',
+                    label: 'sw-settings-currency.detail.currencyCountry.totalDecimalsColumn',
+                    sortable: false
+                },
+                {
+                    property: 'totalRounding.interval',
+                    label: 'sw-settings-currency.detail.currencyCountry.totalIntervalColumn',
+                    sortable: false
+                },
+                {
+                    property: 'totalRounding.roundForNet',
+                    label: 'sw-settings-currency.detail.currencyCountry.totalNetRoundingColumn',
+                    sortable: false,
+                    visible: false
+                }
+            ];
+        },
+
+        currencyCountryRoundingCriteria() {
+            const criteria = new Criteria();
+            criteria.addAssociation('country');
+            if (this.searchTerm) {
+                criteria.setTerm(this.searchTerm);
+            } else {
+                criteria.setTerm('');
+            }
+
+            criteria.addSorting(Criteria.sort('country.name'));
+
+            return criteria;
+        },
+
+        emptyStateText() {
+            if (this.currency.id && this.currency.isNew()) {
+                return this.$tc('sw-settings-currency.detail.emptyCountryRoundingsNewCurrency');
+            }
+
+            return this.$tc('sw-settings-currency.detail.emptyCountryRoundings');
+        }
     },
 
     watch: {
@@ -98,24 +179,56 @@ Component.register('sw-settings-currency-detail', {
 
     methods: {
         createdComponent() {
-            this.isLoading = true;
             if (this.currencyId) {
                 this.currencyId = this.$route.params.id;
-                this.currencyRepository.get(this.currencyId, Shopware.Context.api).then((currency) => {
-                    this.currency = currency;
-                    this.isLoading = false;
-                });
-                return;
+                return this.loadEntityData();
             }
 
             Shopware.State.commit('context/resetLanguageToDefault');
+            this.isLoading = true;
             this.currency = this.currencyRepository.create(Shopware.Context.api);
+            // defaults for rounding
+            this.currency.itemRounding = {
+                decimals: 2,
+                interval: 0.01,
+                roundForNet: true
+            };
+            this.currency.totalRounding = {
+                decimals: 2,
+                interval: 0.01,
+                roundForNet: true
+            };
+
             this.isLoading = false;
+            return Promise.resolve();
         },
 
         loadEntityData() {
-            this.currency = this.currencyRepository.get(this.currencyId, Shopware.Context.api).then((currency) => {
-                this.currency = currency;
+            this.isLoading = true;
+            return this.currencyRepository.get(this.currencyId, Shopware.Context.api)
+                .then((currency) => {
+                    this.currency = currency;
+                    if (!this.feature.isActive('FEATURE_NEXT_6059')) {
+                        return currency;
+                    }
+                    return this.loadCurrencyCountryRoundings().then((currencyCountryRoundings) => {
+                        return [currency, currencyCountryRoundings];
+                    });
+                }).finally(() => {
+                    this.isLoading = false;
+                });
+        },
+
+        loadCurrencyCountryRoundings() {
+            this.currencyCountryLoading = true;
+            return this.currencyCountryRoundingRepository.search(
+                this.currencyCountryRoundingCriteria,
+                Shopware.Context.api
+            ).then(res => {
+                this.currencyCountryRoundings = res;
+                return res;
+            }).finally(() => {
+                this.currencyCountryLoading = false;
             });
         },
 
@@ -159,6 +272,45 @@ Component.register('sw-settings-currency-detail', {
 
         onChangeLanguage() {
             this.loadEntityData();
+        },
+
+        onChangeCountrySearch(value) {
+            this.searchTerm = value;
+            this.loadCurrencyCountryRoundings();
+        },
+
+        onAddCountry() {
+            this.currentCurrencyCountry = this.currencyCountryRoundingRepository.create(Shopware.Context.api);
+            this.currentCurrencyCountry.itemRounding = cloneDeep(this.currency.itemRounding);
+            this.currentCurrencyCountry.totalRounding = cloneDeep(this.currency.totalRounding);
+            this.currentCurrencyCountry.currencyId = this.currency.id;
+        },
+
+        onCancelEditCountry() {
+            this.currentCurrencyCountry = null;
+        },
+
+        onClickEdit(item) {
+            this.currentCurrencyCountry = item;
+        },
+
+        onSaveCurrencyCountry() {
+            this.currencyCountryLoading = true;
+            this.currencyCountryRoundingRepository.save(this.currentCurrencyCountry, Shopware.Context.api).then(() => {
+                this.createNotificationSuccess({
+                    title: this.$tc('global.default.success'),
+                    message: this.$tc('sw-settings-currency.detail.notificationCountrySuccessMessage')
+                });
+                this.onCancelEditCountry();
+                this.loadCurrencyCountryRoundings();
+            }).catch(() => {
+                this.createNotificationError({
+                    title: this.$tc('global.default.error'),
+                    message: this.$tc('sw-settings-currency.detail.notificationCountryErrorMessage')
+                });
+            }).finally(() => {
+                this.currencyCountryLoading = false;
+            });
         }
     }
 });

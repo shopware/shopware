@@ -45,6 +45,8 @@ parameters:
         -
             message: '#PHPDoc tag @param references unknown parameter: \$criteria#'
             path: src/Core/**/SalesChannel/**Route.php
+        # For CashRounding BC
+        - '#Call to an undefined method Shopware\\Core\\Checkout\\Cart\\Price\\Struct\\PriceDefinitionInterface::setPrecision\(\)\.#'
         # For BC in Entity repository clone
         - '#Method .*EntityRepositoryInterface::clone\(\) invoked with 4 parameters, 2-3 required\.#'
         -

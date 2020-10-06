@@ -68,6 +68,14 @@ class CheckoutFinishPageLoader
             new CheckoutFinishPageLoadedEvent($page, $salesChannelContext, $request)
         );
 
+        if ($page->getOrder()->getItemRounding()) {
+            $salesChannelContext->setItemRounding($page->getOrder()->getItemRounding());
+            $salesChannelContext->getContext()->setRounding($page->getOrder()->getItemRounding());
+        }
+        if ($page->getOrder()->getTotalRounding()) {
+            $salesChannelContext->setTotalRounding($page->getOrder()->getTotalRounding());
+        }
+
         return $page;
     }
 

@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -191,6 +192,16 @@ class OrderEntity extends Entity
      * @var string[]|null
      */
     protected $ruleIds = [];
+
+    /**
+     * @var CashRoundingConfig|null
+     */
+    protected $itemRounding;
+
+    /**
+     * @var CashRoundingConfig|null
+     */
+    protected $totalRounding;
 
     public function getCurrencyId(): string
     {
@@ -546,6 +557,26 @@ class OrderEntity extends Entity
     public function setRuleIds(?array $ruleIds): void
     {
         $this->ruleIds = $ruleIds;
+    }
+
+    public function getItemRounding(): ?CashRoundingConfig
+    {
+        return $this->itemRounding;
+    }
+
+    public function setItemRounding(?CashRoundingConfig $itemRounding): void
+    {
+        $this->itemRounding = $itemRounding;
+    }
+
+    public function getTotalRounding(): ?CashRoundingConfig
+    {
+        return $this->totalRounding;
+    }
+
+    public function setTotalRounding(?CashRoundingConfig $totalRounding): void
+    {
+        $this->totalRounding = $totalRounding;
     }
 
     private function addChildren(OrderLineItemCollection $lineItems, OrderLineItemCollection $parents): void

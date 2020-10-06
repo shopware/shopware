@@ -276,7 +276,7 @@ class Kernel extends HttpKernel
                 'kernel.plugin_dir' => $pluginDir,
                 'kernel.active_plugins' => $activePluginMeta,
                 'kernel.plugin_infos' => $this->pluginLoader->getPluginInfos(),
-                'kernel.supported_api_versions' => [2, 3],
+                'kernel.supported_api_versions' => [2, 3, 4],
                 'defaults_bool_true' => true,
                 'defaults_bool_false' => false,
             ]

@@ -67,8 +67,24 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          description="All available shipping methods",
-     *          @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/shipping_method_flat"))
+     *          description="",
+     *          @OA\JsonContent(type="object",
+     *              @OA\Property(
+     *                  property="total",
+     *                  type="integer",
+     *                  description="Total amount"
+     *              ),
+     *              @OA\Property(
+     *                  property="aggregations",
+     *                  type="object",
+     *                  description="aggregation result"
+     *              ),
+     *              @OA\Property(
+     *                  property="elements",
+     *                  type="array",
+     *                  @OA\Items(ref="#/components/schemas/shipping_method_flat")
+     *              )
+     *          )
      *     )
      * )
      * @Route("/store-api/v{version}/shipping-method", name="store-api.shipping.method", methods={"GET", "POST"})
@@ -84,11 +100,12 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
             ->addFilter(new EqualsFilter('active', true))
             ->addAssociation('media');
 
-        /** @var ShippingMethodCollection $shippingMethods */
-        $shippingMethods = $this->shippingMethodRepository->search($criteria, $context)->getEntities();
+        $shippingMethods = $this->shippingMethodRepository->search($criteria, $context);
 
         if ($request->query->getBoolean('onlyAvailable', false)) {
-            $shippingMethods = $shippingMethods->filterByActiveRules($context);
+            /** @var ShippingMethodCollection $collection */
+            $collection = $shippingMethods->getEntities();
+            $shippingMethods->assign(['entities' => $collection->filterByActiveRules($context)]);
         }
 
         return new ShippingMethodRouteResponse($shippingMethods);

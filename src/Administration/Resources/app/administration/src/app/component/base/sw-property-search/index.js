@@ -1,12 +1,14 @@
 import template from './sw-property-search.html.twig';
 import './sw-property-search.scss';
 
-// @deprecated tag:v6.4.0.0 for StateDeprecated
-const { Component, StateDeprecated } = Shopware;
+const { Component } = Shopware;
+const { Criteria } = Shopware.Data;
 const utils = Shopware.Utils;
 
 Component.register('sw-property-search', {
     template,
+
+    inject: ['repositoryFactory'],
 
     props: {
         collapsible: {
@@ -54,14 +56,55 @@ Component.register('sw-property-search', {
             return { overlay: this.overlay };
         },
 
-        // @deprecated tag:v6.4.0.0
-        groupStore() {
-            return StateDeprecated.getStore('property_group');
+        propertyGroupRepository() {
+            return this.repositoryFactory.create('property_group');
         },
 
-        // @deprecated tag:v6.4.0.0
-        optionStore() {
-            return StateDeprecated.getStore('property_group_option');
+        propertyGroupCriteria() {
+            const criteria = new Criteria();
+
+            criteria.setPage(this.groupPage);
+            criteria.setLimit(10);
+            criteria.setTotalCountMode(1);
+
+            return criteria;
+        },
+
+        propertyGroupOptionRepository() {
+            const entity = this.currentGroup ? this.currentGroup.options.entity : 'property_group_option';
+            const source = this.currentGroup ? this.currentGroup.options.source : undefined;
+
+            return this.repositoryFactory.create(entity, source);
+        },
+
+        propertyGroupOptionCriteria() {
+            const criteria = new Criteria();
+
+            criteria.setPage(this.optionPage);
+            criteria.setLimit(10);
+            criteria.setTotalCountMode(1);
+            criteria.setTerm(this.searchTerm);
+            criteria.addAssociation('group');
+
+            return criteria;
+        },
+
+        propertyGroupOptionSearchCriteria() {
+            const criteria = new Criteria();
+
+            const terms = this.searchTerm.split(' ');
+            terms.forEach((term) => {
+                criteria.addQuery(Criteria.equals('property_group_option.name', term), 5000);
+                criteria.addQuery(Criteria.contains('property_group_option.name', term), 500);
+                criteria.addQuery(Criteria.equals('property_group_option.group.name', term), 100);
+            });
+
+            criteria.setPage(this.optionPage);
+            criteria.setLimit(10);
+            criteria.setTotalCountMode(1);
+            criteria.addAssociation('group');
+
+            return criteria;
         }
     },
 
@@ -171,56 +214,16 @@ Component.register('sw-property-search', {
         },
 
         showSearch() {
+            this.currentGroup = null;
             this.displaySearch = true;
             this.displayTree = false;
 
-            const queries = [];
-            const terms = this.searchTerm.split(' ');
-
-            terms.forEach((term) => {
-                queries.push({
-                    query: {
-                        type: 'equals',
-                        field: 'property_group_option.name',
-                        value: term
-                    },
-                    score: 5000
+            this.propertyGroupOptionRepository.search(this.propertyGroupOptionCriteria, Shopware.Context.api)
+                .then((groupOptions) => {
+                    this.groupOptions = groupOptions;
+                    this.optionTotal = groupOptions.total;
+                    this.selectOptions(this.$refs.optionSearchGrid);
                 });
-
-                queries.push({
-                    query: {
-                        type: 'contains',
-                        field: 'property_group_option.name',
-                        value: term
-                    },
-                    score: 500
-                });
-
-                queries.push({
-                    query: {
-                        type: 'contains',
-                        field: 'property_group_option.group.name',
-                        value: this.searchTerm
-                    },
-                    score: 100
-                });
-            });
-
-            const params = {
-                page: this.optionPage,
-                limit: 10,
-                queries: queries,
-                'total-count-mode': 1,
-                associations: {
-                    group: {}
-                }
-            };
-
-            this.optionStore.getList(params).then((response) => {
-                this.groupOptions = response.items;
-                this.optionTotal = response.total;
-                this.selectOptions(this.$refs.optionSearchGrid);
-            });
         },
 
         showTree() {
@@ -235,38 +238,20 @@ Component.register('sw-property-search', {
         },
 
         loadGroups() {
-            const params = {
-                page: this.groupPage,
-                limit: 10,
-                'total-count-mode': 1
-            };
-
-            this.groupOptions = [];
-            this.groupStore.getList(params).then((response) => {
-                this.groups = response.items;
-                this.groupTotal = response.total;
+            this.propertyGroupRepository.search(this.propertyGroupCriteria, Shopware.Context.api).then((groups) => {
+                this.groups = groups;
+                this.groupTotal = groups.total;
                 this.addOptionCount();
             });
         },
 
         loadOptions() {
-            const params = {
-                page: this.optionPage,
-                limit: 10,
-                'total-count-mode': 1
-            };
-
-            if (this.currentGroup.sortingType === 'position') {
-                params.sortBy = 'position';
-            } else {
-                params.sortBy = 'name';
-            }
-
-            this.currentGroup.getAssociation('options').getList(params).then((response) => {
-                this.groupOptions = response.items;
-                this.optionTotal = response.total;
-                this.selectOptions(this.$refs.optionGrid);
-            });
+            this.propertyGroupOptionRepository.search(this.propertyGroupOptionCriteria, Shopware.Context.api)
+                .then((groupOptions) => {
+                    this.groupOptions = groupOptions;
+                    this.optionTotal = groupOptions.total;
+                    this.selectOptions(this.$refs.optionGrid);
+                });
         },
 
         refreshSelection() {

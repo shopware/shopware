@@ -1,6 +1,6 @@
 import template from './sw-custom-field-detail-base.html.twig';
 
-const { Component, StateDeprecated } = Shopware;
+const { Component } = Shopware;
 
 Component.register('sw-custom-field-set-detail-base', {
     template,
@@ -32,11 +32,6 @@ Component.register('sw-custom-field-set-detail-base', {
             }
 
             return [this.$root.$i18n.fallbackLocale];
-        },
-
-        // @deprecated tag:v6.4.0.0
-        localeStore() {
-            return StateDeprecated.getStore('locale');
         },
 
         customFieldSetRelationRepository() {

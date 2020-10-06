@@ -1,41 +1,60 @@
 {% block layout_breadcrumb_inner %}
-    <nav aria-label="breadcrumb">
-        {% block layout_breadcrumb_list %}
-            <ol class="breadcrumb"
-                itemscope
-                itemtype="https://schema.org/BreadcrumbList">
-                {% for breadcrumb in breadcrumbList %}
-                    {% set name = breadcrumb.translated.name %}
-                    {% set link = breadcrumb.link %}
-                    {% block layout_breadcrumb_list_item %}
-                        <li class="breadcrumb-item{% if loop.last %} active{% endif %}"
-                            {% if loop.last %}aria-current="page"{% endif %}
-                            itemprop="itemListElement"
-                            itemscope
-                            itemtype="https://schema.org/ListItem">
-                            {% if link %}
-                                <a href="{{ link }}"
-                                   class="breadcrumb-link"
-                                   title="{{ name }}"
-                                   itemprop="item">
-                                    <link itemprop="url"
-                                          href="{{ link }}"/>
-                                    <span class="breadcrumb-title"
-                                          itemprop="name">{{ name }}</span>
-                                </a>
+    {% for item in navigationTree if not break %}
+        {% if category %}
+            {% set breadcrumb = category.buildSeoBreadcrumb(context.salesChannel.navigationCategoryId) %}
+            {% set break = true %}
+        {% else %}
+            {% set breadcrumb = item.category.getPlainBreadcrumb(item.category.id)|slice(1) %}
+        {% endif %}
+
+        {% if item.category.id == product.categoryTree|last or category %}
+            <nav aria-label="breadcrumb">
+                {% block layout_breadcrumb_list %}
+                <ol class="breadcrumb"
+                    itemscope
+                    itemtype="https://schema.org/BreadcrumbList">
+                    {% for key, item in breadcrumb %}
+                        {% block layout_breadcrumb_list_item %}
+                            {% if category %}
+                                {% set categoryId = category.id %}
                             {% else %}
-                                <span class="breadcrumb-link"
-                                      itemprop="item">
-                                <span class="breadcrumb-title"
-                                      itemprop="name">{{ breadcrumb.name }}</span>
-                            </span>
+                                {% set categoryId = product.categoryTree|last %}
                             {% endif %}
-                            <meta itemprop="position"
-                                  content="{{ loop.index }}"/>
-                        </li>
-                    {% endblock %}
-                {% endfor %}
-            </ol>
-        {% endblock %}
-    </nav>
+
+                            <li class="breadcrumb-item"
+                                {% if key is same as(categoryId) %}aria-current="page"{% endif %}
+                                itemprop="itemListElement"
+                                itemscope
+                                itemtype="https://schema.org/ListItem">
+                                <a href="{{ seoUrl('frontend.navigation.page', { navigationId: key }) }}"
+                                   class="breadcrumb-link {% if key is same as(categoryId) %} is-active{% endif %}"
+                                   title="{{ item }}"
+                                   itemprop="item">
+                                    <link itemprop="url" href="{{ seoUrl('frontend.navigation.page', { navigationId: key }) }}"/>
+                                    <span class="breadcrumb-title" itemprop="name">{{ item }}</span>
+                                </a>
+                                <meta itemprop="position" content="{{ key }}"/>
+                            </li>
+                        {% endblock %}
+
+                        {% block layout_breadcrumb_placeholder %}
+                            {% if item != breadcrumb|last %}
+                                <div class="breadcrumb-placeholder">
+                                    {% sw_icon 'arrow-medium-right' style { 'size': 'fluid', 'pack': 'solid'} %}
+                                </div>
+                            {% endif %}
+                        {% endblock %}
+                    {% endfor %}
+                </ol>
+                {% endblock %}
+            </nav>
+        {% else %}
+            {% if item.children|length %}
+                {% sw_include '@Storefront/storefront/layout/breadcrumb.html.twig' with {
+                    navigationTree: item.children,
+                    product: product
+                } only %}
+            {% endif %}
+        {% endif %}
+    {% endfor %}
 {% endblock %}

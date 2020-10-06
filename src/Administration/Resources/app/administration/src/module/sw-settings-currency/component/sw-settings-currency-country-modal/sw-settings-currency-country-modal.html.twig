@@ -1,0 +1,69 @@
+{% block sw_settings_currency_country_modal %}
+    <sw-modal
+        class="sw-settings-currency-country-modal"
+        :title="$tc('sw-settings-currency.currency-country-modal.titleNewCurrencyCountry')"
+        @modal-close="onCancel">
+        {% block sw_settings_currency_country_modal_country_select %}
+            <sw-entity-single-select
+                required
+                class="sw-settings-currency-country-modal__select-country"
+                :label="$tc('sw-settings-currency.currency-country-modal.labelCountrySelect')"
+                entity="country"
+                :criteria="countryCriteria"
+                :error="currencyCountryRoundingCountryIdError"
+                v-model="currencyCountryRounding.countryId">
+                <template #result-item="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }">
+                    <li is="sw-select-result"
+                        :selected="isSelected(item)"
+                        :disabled="shouldDisableCountry(item)"
+                        v-tooltip="{
+                            showDelay: 300,
+                            showOnDisabledElements: true,
+                            message: $tc('sw-settings-currency.currency-country-modal.countryAlreadyAssigned'),
+                            disabled: !shouldDisableCountry(item)
+                        }"
+                        @item-select="setValue"
+                        v-bind="{ item, index }">
+                        <slot name="result-label-property" v-bind="{ item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }">
+                            <sw-highlight-text
+                                v-if="highlightSearchTerm"
+                                :text="getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`)"
+                                :searchTerm="searchTerm">
+                            </sw-highlight-text>
+                            <template v-else>
+                                {{ getKey(item, labelProperty) || getKey(item, `translated.${labelProperty}`) }}
+                            </template>
+                        </slot>
+                    </li>
+                </template>
+            </sw-entity-single-select>
+        {% endblock %}
+
+        {% block sw_settings_currency_country_modal_price_rounding %}
+            <sw-settings-price-rounding
+                :itemRounding="currencyCountryRounding.itemRounding"
+                :totalRounding="currencyCountryRounding.totalRounding">
+            </sw-settings-price-rounding>
+        {% endblock %}
+
+        {% block sw_settings_currency_country_modal_footer %}
+            <template slot="modal-footer">
+                {% block sw_settings_currency_country_modal_footer_cancel %}
+                    <sw-button size="small"
+                               @click="onCancel">
+                        {{ $tc('global.default.cancel') }}
+                    </sw-button>
+                {% endblock %}
+
+                {% block sw_settings_currency_country_modal_footer_save %}
+                    <sw-button variant="primary"
+                               size="small"
+                               class="sw-settings-currency-country-modal__button-save"
+                               @click="onSave">
+                        {{ $tc('global.default.save') }}
+                    </sw-button>
+                {% endblock %}
+            </template>
+        {% endblock %}
+    </sw-modal>
+{% endblock %}

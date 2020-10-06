@@ -2,6 +2,38 @@
     font-weight: $font-weight-normal;
 }
 
+.checkout-aside-summary-list.display-rounded {
+    .checkout-aside-summary-total {
+        font-weight: $font-weight-normal;
+        font-size: $font-size-base;
+    }
+}
+
+.checkout-aside-summary-total {
+    font-size: $font-size-lg;
+    font-weight: $font-weight-bold;
+
+    padding-top: 13px;
+    border-top: 1px solid $border-color;
+    margin-top: 5px;
+}
+
+.checkout-aside-summary-total-rounded {
+    font-size: $font-size-lg;
+    font-weight: $font-weight-bold;
+}
+
+.checkout-aside-summary-label,
+.checkout-aside-summary-value {
+    &.summary-net {
+        margin-top: 10px;
+    }
+}
+
+.checkout-aside-summary-header {
+    margin-bottom: 20px;
+}
+
 .checkout-aside-summary-total {
     font-size: $font-size-lg;
     font-weight: $font-weight-bold;

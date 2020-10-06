@@ -1,9 +1,6 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-mail-template/page/sw-mail-template-detail';
-import EntityCollection from 'src/core/data-new/entity-collection.data';
-
-const { StateDeprecated, DataDeprecated } = Shopware;
-const LanguageStore = DataDeprecated.LanguageStore;
+import EntityCollection from 'src/core/data/entity-collection.data';
 
 const mailTemplateMock = {
     id: 'ed3866445dd744bb9e0f88f8f340141f',

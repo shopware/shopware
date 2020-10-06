@@ -315,6 +315,7 @@ class EntityWriter implements EntityWriterInterface
             return Uuid::fromBytesToHex($primaryKey[$field->getStorageName()]);
         }
 
+        /** @var StorageAware|Field $field */
         foreach ($fields as $field) {
             $data[$field->getPropertyName()] = Uuid::fromBytesToHex($primaryKey[$field->getStorageName()]);
         }
@@ -433,14 +434,14 @@ class EntityWriter implements EntityWriterInterface
         foreach ($ids as $raw) {
             $mapped = [];
 
-            /** @var Field $field */
             foreach ($fields as $field) {
+                $property = $field->getPropertyName();
                 if (!($field instanceof StorageAware)) {
                     continue;
                 }
 
-                if (\array_key_exists($field->getPropertyName(), $raw)) {
-                    $mapped[$field->getStorageName()] = $raw[$field->getPropertyName()];
+                if (\array_key_exists($property, $raw)) {
+                    $mapped[$field->getStorageName()] = $raw[$property];
 
                     continue;
                 }

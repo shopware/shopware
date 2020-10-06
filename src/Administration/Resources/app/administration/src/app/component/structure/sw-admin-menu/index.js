@@ -1,8 +1,7 @@
 import template from './sw-admin-menu.html.twig';
 import './sw-admin-menu.scss';
 
-// @deprecated tag:v6.4.0.0 for StateDeprecated
-const { Component, StateDeprecated, Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { dom } = Shopware.Utils;
 
 /**
@@ -12,9 +11,7 @@ Component.register('sw-admin-menu', {
     template,
 
     mixins: [
-        Mixin.getByName('notification'),
-        // @deprecated tag:v6.4.0.0
-        Mixin.getByName('salutation')
+        Mixin.getByName('notification')
     ],
 
     inject: ['menuService', 'loginService', 'userService', 'feature'],
@@ -41,11 +38,6 @@ Component.register('sw-admin-menu', {
 
         isExpanded() {
             return Shopware.State.get('adminMenu').isExpanded;
-        },
-
-        // @deprecated tag:v6.4.0.0
-        userStore() {
-            return StateDeprecated.getStore('user');
         },
 
         userTitle() {

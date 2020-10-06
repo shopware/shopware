@@ -14,4 +14,9 @@ Currencies allow source to target calculation of prices based on original curren
 A currency used to calculate and display prices.
 
 
+### Table `currency_country_rounding`
+
+With this entity the cash rounding configuration can be controlled per country. As in the currency entity, the cash rounding for the line items and the total can be configured individually
+
+
 [Back to modules](./../10-modules.md)

@@ -6,7 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupPackagerNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupSorterNotFoundException;
-use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroup;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupPackagerInterface;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupServiceRegistry;
@@ -20,14 +19,12 @@ use Shopware\Core\Checkout\Cart\LineItem\Group\Sorter\LineItemGroupPriceAscSorte
 use Shopware\Core\Checkout\Cart\LineItem\Group\Sorter\LineItemGroupPriceDescSorter;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemQuantitySplitter;
+use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\NetPriceCalculator;
-use Shopware\Core\Checkout\Cart\Price\PriceRounding;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
-use Shopware\Core\Checkout\Cart\Price\ReferencePriceCalculator;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
-use Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator;
 use Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Fakes\FakeLineItemGroupSorter;
 use Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Fakes\FakeLineItemGroupTakeAllPackager;
 use Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Fakes\FakeSequenceSupervisor;
@@ -36,6 +33,7 @@ use Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Traits\LineItemGroup
 use Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Traits\LineItemTestFixtureBehaviour;
 use Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Traits\RulesTestFixtureBehaviour;
 use Shopware\Core\Content\Rule\RuleCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class LineItemGroupBuilderTest extends TestCase
@@ -89,6 +87,7 @@ class LineItemGroupBuilderTest extends TestCase
         parent::setUp();
 
         $this->context = $this->getMockBuilder(SalesChannelContext::class)->disableOriginalConstructor()->getMock();
+        $this->context->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
 
         $this->fakeSequenceSupervisor = new FakeSequenceSupervisor();
         $this->fakeTakeAllPackager = new FakeLineItemGroupTakeAllPackager('FAKE-PACKAGER', $this->fakeSequenceSupervisor);
@@ -317,20 +316,14 @@ class LineItemGroupBuilderTest extends TestCase
         $detector->method('useGross')->willReturn(false);
         $detector->method('isNetDelivery')->willReturn(false);
 
-        $priceRounding = new PriceRounding();
-        $referencePriceCalculator = new ReferencePriceCalculator($priceRounding);
+        $priceRounding = new CashRounding();
 
-        $taxCalculator = new TaxCalculator(
-            new TaxRuleCalculator()
+        $taxCalculator = new TaxCalculator();
+
+        return new QuantityPriceCalculator(
+            new GrossPriceCalculator($taxCalculator, $priceRounding),
+            new NetPriceCalculator($taxCalculator, $priceRounding),
+            $detector
         );
-
-        $quantityPriceCalculator = new QuantityPriceCalculator(
-            new GrossPriceCalculator($taxCalculator, $priceRounding, $referencePriceCalculator),
-            new NetPriceCalculator($taxCalculator, $priceRounding, $referencePriceCalculator),
-            $detector,
-            $referencePriceCalculator
-        );
-
-        return $quantityPriceCalculator;
     }
 }

@@ -5,6 +5,9 @@ namespace Shopware\Core\Checkout\Test\Cart\Price;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\PriceRounding;
 
+/**
+ * @deprecated tag:v6.4.0 - PriceRounding class will be removed
+ */
 class PriceRoundingTest extends TestCase
 {
     /**

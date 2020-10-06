@@ -110,7 +110,7 @@ class OrderPersisterTest extends TestCase
         $cart = new Cart('A', 'a-b-c');
         $cart->add(
             (new LineItem('test', LineItem::CREDIT_LINE_ITEM_TYPE))
-                ->setPriceDefinition(new AbsolutePriceDefinition(1, 2))
+                ->setPriceDefinition(AbsolutePriceDefinition::create(1))
         );
 
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)

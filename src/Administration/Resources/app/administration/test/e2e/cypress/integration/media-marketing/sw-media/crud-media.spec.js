@@ -100,7 +100,7 @@ describe('Media: Test crud operations', () => {
             method: 'delete'
         }).as('deleteData');
 
-        if (Cypress.isBrowser({ family: 'chromium' })) {
+        if (Cypress.isBrowser({family: 'chromium'})) {
             page.uploadImageUsingFileUpload('img/sw-login-background.png', 'sw-login-background.png');
 
             cy.awaitAndCheckNotification('File has been saved.');

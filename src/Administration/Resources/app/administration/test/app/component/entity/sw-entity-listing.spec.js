@@ -2,8 +2,8 @@ import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/app/component/data-grid/sw-data-grid-settings';
 import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/entity/sw-entity-listing';
-import EntityCollection from 'src/core/data-new/entity-collection.data';
-import Criteria from 'src/core/data-new/criteria.data';
+import EntityCollection from 'src/core/data/entity-collection.data';
+import Criteria from 'src/core/data/criteria.data';
 
 function createWrapper(propsData = {}) {
     const localVue = createLocalVue();

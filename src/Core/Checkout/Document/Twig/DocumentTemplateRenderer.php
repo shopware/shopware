@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Document\Twig;
 
+use Shopware\Core\Checkout\Document\DocumentGenerator\Counter;
 use Shopware\Core\Checkout\Document\Event\DocumentTemplateRendererParameterEvent;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
@@ -75,6 +76,7 @@ class DocumentTemplateRenderer
         $this->eventDispatcher->dispatch($documentTemplateRendererParameterEvent);
         $parameters['extensions'] = $documentTemplateRendererParameterEvent->getExtensions();
 
+        $parameters['counter'] = new Counter();
         $rendered = $this->twig->render($view, $parameters);
 
         // If injected translator reject it

@@ -61,7 +61,6 @@ class OpenApiDefinitionSchemaBuilder
         $extensions = [];
         $extensionRelationships = [];
 
-        /** @var Field $field */
         foreach ($definition->getFields() as $field) {
             if (!$this->shouldFieldBeIncluded($definition, $field, $forSalesChannel, $version)) {
                 continue;

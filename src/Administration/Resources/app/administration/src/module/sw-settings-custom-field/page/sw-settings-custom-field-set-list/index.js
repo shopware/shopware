@@ -49,7 +49,7 @@ Component.register('sw-settings-custom-field-set-list', {
         listingCriteria() {
             const criteria = new Criteria();
 
-            const params = this.getListingParams();
+            const params = this.getMainListingParams();
 
             criteria.addFilter(Criteria.multi(
                 'OR',

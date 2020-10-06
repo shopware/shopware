@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CalculatedPriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CartPriceField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\CashRoundingConfigField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
@@ -118,6 +119,15 @@ class OrderDefinition extends EntityDefinition
 
         if (Feature::isActive('FEATURE_NEXT_9351')) {
             $fields->add(new ListField('rule_ids', 'ruleIds', StringField::class));
+        }
+
+        if (Feature::isActive('FEATURE_NEXT_6059')) {
+            $fields->add(
+                new CashRoundingConfigField('item_rounding', 'itemRounding')
+            );
+            $fields->add(
+                new CashRoundingConfigField('total_rounding', 'totalRounding')
+            );
         }
 
         return $fields;

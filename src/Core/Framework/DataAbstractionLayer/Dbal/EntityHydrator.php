@@ -57,7 +57,6 @@ class EntityHydrator
         $primaryKeyFields = $definition->getPrimaryKeys();
         $primaryKey = [];
 
-        /** @var Field $field */
         foreach ($primaryKeyFields as $field) {
             if ($field instanceof VersionField || $field instanceof ReferenceVersionField) {
                 continue;
@@ -80,7 +79,6 @@ class EntityHydrator
 
         $params = new WriteParameterBag($definition, WriteContext::createFromContext($context), '', new WriteCommandQueue());
 
-        /** @var Field $field */
         foreach ($fields as $field) {
             if ($field instanceof VersionField || $field instanceof ReferenceVersionField) {
                 $value = $context->getVersionId();
@@ -132,7 +130,6 @@ class EntityHydrator
         $foreignKeys = $this->createClass(ArrayStruct::class);
         $entity->addExtension(EntityReader::FOREIGN_KEYS, $foreignKeys);
 
-        /** @var Field $field */
         foreach ($fields as $field) {
             $propertyName = $field->getPropertyName();
 

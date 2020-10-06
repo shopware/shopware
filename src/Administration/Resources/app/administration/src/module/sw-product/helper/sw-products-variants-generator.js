@@ -1,7 +1,5 @@
-import EntityStore from 'src/core/data/EntityStore';
 import EventEmitter from 'events';
 
-const { StateDeprecated } = Shopware;
 const { deepCopyObject } = Shopware.Utils.object;
 const { md5 } = Shopware.Utils.format;
 
@@ -13,8 +11,6 @@ export default class VariantsGenerator extends EventEmitter {
 
         // set dependencies
         this.syncService = Shopware.Service('syncService');
-        this.EntityStore = EntityStore;
-        this.StateDeprecated = StateDeprecated;
         this.httpClient = this.syncService.httpClient;
 
         // local data
@@ -389,8 +385,7 @@ export default class VariantsGenerator extends EventEmitter {
         }];
 
         // Send the payload to the server
-        const header = this.EntityStore.getLanguageHeader(Shopware.Context.api.languageId);
-        header['single-operation'] = 1;
+        const header = { 'single-operation': 1 };
 
         this.syncService.sync(payload, {}, header).then(() => {
             this.processQueue(type, queue, offset + limit, limit, resolve);

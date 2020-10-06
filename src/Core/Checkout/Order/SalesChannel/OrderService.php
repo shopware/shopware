@@ -15,6 +15,7 @@ use Shopware\Core\Content\MailTemplate\Service\MailServiceInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
@@ -512,6 +513,12 @@ class OrderService
 
     private function getOrderContext(Context $context, OrderEntity $order): Context
     {
+        $rounding = new CashRoundingConfig($order->getCurrency()->getDecimalPrecision(), 0.01, true);
+
+        if (Feature::isActive('FEATURE_NEXT_6059')) {
+            $rounding = $order->getItemRounding();
+        }
+
         /*
          * we need a context with the correct settings for the order
          */
@@ -522,9 +529,9 @@ class OrderService
             $this->getLanguageIdChain($order),
             $context->getVersionId(),
             $order->getCurrencyFactor(),
-            $order->getCurrency()->getDecimalPrecision(),
             true,
-            $order->getTaxStatus()
+            $order->getTaxStatus(),
+            $rounding
         );
 
         return $orderContext;

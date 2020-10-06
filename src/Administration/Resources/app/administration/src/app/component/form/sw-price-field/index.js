@@ -275,7 +275,13 @@ Component.register('sw-price-field', {
                     price: this.priceForCurrency[outputType],
                     output: outputType
                 }).then(({ data }) => {
-                    resolve(data.calculatedTaxes[0].tax);
+                    let tax = 0;
+
+                    data.calculatedTaxes.forEach((item) => {
+                        tax += item.tax;
+                    });
+
+                    resolve(tax);
                     this.$emit('price-calculate', false);
                 });
                 return true;
@@ -283,9 +289,7 @@ Component.register('sw-price-field', {
         },
 
         convertPrice(value) {
-            const calculatedPrice = value * this.currency.factor;
-            const priceRounded = calculatedPrice.toFixed(this.currency.decimalPrecision);
-            return Number(priceRounded);
+            return value * this.currency.factor;
         },
 
         keymonitor(event) {

@@ -64,11 +64,7 @@ class AwesomeProductsCollector implements CartProcessorInterface
         $discountLineItem = $this->createDiscount('AWESOME_DISCOUNT');
 
         // declare price definition to define how this price is calculated
-        $definition = new PercentagePriceDefinition(
-            -10,
-            $context->getContext()->getCurrencyPrecision(),
-            new LineItemRule(LineItemRule::OPERATOR_EQ, $products->getKeys())
-        );
+        $definition = PercentagePriceDefinition::create(-10, new LineItemRule(LineItemRule::OPERATOR_EQ, $products->getKeys()));
 
         $discountLineItem->setPriceDefinition($definition);
 

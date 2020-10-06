@@ -255,7 +255,7 @@
 
         <service id="Shopware\Core\Checkout\Customer\DataAbstractionLayer\CustomerIndexer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
-            <argument type="service" id="product.repository"/>
+            <argument type="service" id="customer.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater"/>
             <argument type="service" id="event_dispatcher"/>

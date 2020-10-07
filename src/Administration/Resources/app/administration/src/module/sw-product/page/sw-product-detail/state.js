@@ -76,6 +76,14 @@ export default {
             }
 
             return state.taxes.find((tax) => {
+                if (!state.product.taxId) {
+                    if (!state.parentProduct.taxId) {
+                        return {};
+                    }
+
+                    return tax.id === state.parentProduct.taxId;
+                }
+
                 return tax.id === state.product.taxId;
             });
         },

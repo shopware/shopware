@@ -43,7 +43,9 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
      */
     private $salesChannelContext;
 
-    /** @var FilesystemInterface */
+    /**
+     * @var FilesystemInterface
+     */
     private $fileSystem;
 
     protected function setUp(): void
@@ -58,7 +60,8 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
 
     public function testRun(): void
     {
-        $this->createTestEntity();
+        $this->createProductStream();
+        $this->createTestEntity(new \DateTimeImmutable('now', new \DateTimeZone('UTC')));
         $this->clearQueue();
         $this->getTaskHandler()->run();
 
@@ -84,7 +87,8 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
 
     public function testSkipGenerateByCronjobFalseProductExports(): void
     {
-        $this->createTestEntity(false);
+        $this->createProductStream();
+        $this->createTestEntity(new \DateTimeImmutable('now', new \DateTimeZone('UTC')), 0, 'Testexport.csv', false);
         $this->clearQueue();
         $this->getTaskHandler()->run();
 
@@ -100,6 +104,50 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
 
         $filePath = sprintf('%s/Testexport.csv', $this->getContainer()->getParameter('product_export.directory'));
         static::assertFalse($this->fileSystem->has($filePath));
+    }
+
+    public function testGeneratedAtAndIntervalsAreRespected(): void
+    {
+        $this->createProductStream();
+        $this->clearProductExports();
+
+        $now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
+
+        // Create one ProductExport, last exported 30 days ago, to be exported every hour
+        $this->createTestEntity($now->sub(new \DateInterval('P30M')), 3600, 'Testexport.csv');
+
+        // Create a second ProductExport, last exported 30 minutes ago, to be exported every hour
+        $this->createTestEntity($now->sub(new \DateInterval('PT30M')), 3600, 'Testexport1.csv');
+
+        $this->clearQueue();
+        // Since clearing the queue doesn't seem to really work, check difference in message number
+        $messagesBefore = $this->getContainer()->get('messenger.bus.shopware')->getDispatchedMessages();
+        $this->getTaskHandler()->run();
+        $messagesAfter = $this->getContainer()->get('messenger.bus.shopware')->getDispatchedMessages();
+
+        static::assertCount(\count($messagesBefore) + 1, $messagesAfter);
+    }
+
+    public function testGeneratedAtIsNullWorks(): void
+    {
+        $this->createProductStream();
+        $this->clearProductExports();
+
+        $now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
+
+        // Create one ProductExport, last exported 30 days ago, to be exported every hour
+        $this->createTestEntity(null, 3600, 'Testexport.csv');
+
+        // Create a second ProductExport, last exported 30 minutes ago, to be exported every hour
+        $this->createTestEntity($now->sub(new \DateInterval('PT30M')), 3600, 'Testexport1.csv');
+
+        $this->clearQueue();
+        // Since clearing the queue doesn't seem to really work, check difference in message number
+        $messagesBefore = $this->getContainer()->get('messenger.bus.shopware')->getDispatchedMessages();
+        $this->getTaskHandler()->run();
+        $messagesAfter = $this->getContainer()->get('messenger.bus.shopware')->getDispatchedMessages();
+
+        static::assertCount(\count($messagesBefore) + 1, $messagesAfter);
     }
 
     private function getTaskHandler(): ProductExportGenerateTaskHandler
@@ -134,25 +182,24 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         return $this->getSalesChannelDomain()->getId();
     }
 
-    private function createTestEntity(bool $generateByCronjob = true): string
+    private function createTestEntity(?\DateTimeInterface $generatedAt = null, int $interval = 0, string $filename = 'Testexport.csv', bool $generateByCronjob = true): string
     {
-        $this->createProductStream();
-
         $id = Uuid::randomHex();
         $this->repository->upsert([
             [
                 'id' => $id,
-                'fileName' => 'Testexport.csv',
+                'fileName' => $filename,
                 'accessKey' => Uuid::randomHex(),
                 'encoding' => ProductExportEntity::ENCODING_UTF8,
                 'fileFormat' => ProductExportEntity::FILE_FORMAT_CSV,
-                'interval' => 0,
+                'interval' => $interval,
                 'headerTemplate' => 'name,url',
                 'bodyTemplate' => "{{ product.name }},{{ seoUrl('frontend.detail.page', {'productId': product.id}) }}",
                 'productStreamId' => '137b079935714281ba80b40f83f8d7eb',
                 'storefrontSalesChannelId' => $this->getSalesChannelDomain()->getSalesChannelId(),
                 'salesChannelId' => $this->getSalesChannelId(),
                 'salesChannelDomainId' => $this->getSalesChannelDomainId(),
+                'generatedAt' => $generatedAt,
                 'generateByCronjob' => $generateByCronjob,
                 'currencyId' => Defaults::CURRENCY,
             ],
@@ -214,5 +261,13 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         $productRepository->create($products, $this->context);
 
         return $products;
+    }
+
+    private function clearProductExports(): void
+    {
+        $this->repository->delete(
+            $this->repository->searchIds(new Criteria(), $this->context)->getIds(),
+            $this->context
+        );
     }
 }

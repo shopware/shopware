@@ -36,55 +36,6 @@ Component.register('sw-event-action-list', {
         };
     },
 
-    methods: {
-        getList() {
-            this.isLoading = true;
-
-            return this.eventActionRepository
-                .search(this.eventActionCriteria, Shopware.Context.api)
-                .then((response) => {
-                    this.items = response;
-                    this.total = response.total;
-                    this.isLoading = false;
-                });
-        },
-
-        fetchMailTemplates(eventActions) {
-            this.isLoading = true;
-
-            const mailTemplateIds = eventActions.map((item) => {
-                return item.config.mail_template_id;
-            });
-
-            this.mailTemplateCriteria.setIds(mailTemplateIds);
-
-            return this.mailTemplateRepository
-                .search(this.mailTemplateCriteria, Shopware.Context.api)
-                .then((mailTemplates) => {
-                    this.mailTemplates = mailTemplates;
-                    this.isLoading = false;
-                });
-        },
-
-        renderMailTemplate(eventAction) {
-            const id = eventAction.config.mail_template_id;
-
-            const mailTemplate = this.mailTemplates.find((item) => {
-                return item.id === id;
-            });
-
-            if (!mailTemplate) {
-                return '';
-            }
-
-            return mailTemplate;
-        },
-
-        snakeCaseEventName(value) {
-            return snakeCase(value);
-        }
-    },
-
     computed: {
         mailTemplateRepository() {
             return this.repositoryFactory.create('mail_template');
@@ -171,6 +122,55 @@ Component.register('sw-event-action-list', {
                 align: 'center',
                 allowResize: true
             }];
+        }
+    },
+
+    methods: {
+        getList() {
+            this.isLoading = true;
+
+            return this.eventActionRepository
+                .search(this.eventActionCriteria, Shopware.Context.api)
+                .then((response) => {
+                    this.items = response;
+                    this.total = response.total;
+                    this.isLoading = false;
+                });
+        },
+
+        fetchMailTemplates(eventActions) {
+            this.isLoading = true;
+
+            const mailTemplateIds = eventActions.map((item) => {
+                return item.config.mail_template_id;
+            });
+
+            this.mailTemplateCriteria.setIds(mailTemplateIds);
+
+            return this.mailTemplateRepository
+                .search(this.mailTemplateCriteria, Shopware.Context.api)
+                .then((mailTemplates) => {
+                    this.mailTemplates = mailTemplates;
+                    this.isLoading = false;
+                });
+        },
+
+        renderMailTemplate(eventAction) {
+            const id = eventAction.config.mail_template_id;
+
+            const mailTemplate = this.mailTemplates.find((item) => {
+                return item.id === id;
+            });
+
+            if (!mailTemplate) {
+                return '';
+            }
+
+            return mailTemplate;
+        },
+
+        snakeCaseEventName(value) {
+            return snakeCase(value);
         }
     }
 });

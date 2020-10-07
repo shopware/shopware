@@ -225,10 +225,10 @@ describe('src/module/sw-event-action/component/sw-event-action-detail-recipients
         await wrapper.vm.$nextTick();
 
         // Expect add button to be disabled
-        expect(wrapper.find('.sw-event-action-detail__recipients-action-add').attributes().disabled).toBeTruthy();
+        expect(wrapper.find('.sw-event-action-detail-recipients__action-add').attributes().disabled).toBeTruthy();
 
         // Expect data-grid edit actions to be disabled
-        expect(wrapper.find('.sw-event-action-detail__recipients-grid').props().allowInlineEdit).toBeFalsy();
+        expect(wrapper.find('.sw-event-action-detail-recipients__grid').props().allowInlineEdit).toBeFalsy();
 
         const contextMenuItems = wrapper.findAll('.sw-event-action-detail-recipients__grid-action-edit');
         contextMenuItems.wrappers.forEach((item) => {

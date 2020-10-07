@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Order\SalesChannel\AbstractCancelOrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\AbstractSetPaymentOrderRoute;
 use Shopware\Core\Checkout\Payment\Exception\PaymentProcessException;
 use Shopware\Core\Checkout\Payment\SalesChannel\AbstractHandlePaymentMethodRoute;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -200,11 +201,15 @@ class AccountOrderController extends StorefrontController
             'changedPayment' => true,
         ]);
 
-        $errorUrl = $this->generateUrl('frontend.checkout.finish.page', [
-            'orderId' => $orderId,
-            'changedPayment' => true,
-            'paymentFailed' => true,
-        ]);
+        if (Feature::isActive('FEATURE_NEXT_9351')) {
+            $errorUrl = $this->generateUrl('frontend.account.edit-order.page', ['orderId' => $orderId]);
+        } else {
+            $errorUrl = $this->generateUrl('frontend.checkout.finish.page', [
+                'orderId' => $orderId,
+                'changedPayment' => true,
+                'paymentFailed' => true,
+            ]);
+        }
 
         $setPaymentRequest = new Request();
         $setPaymentRequest->request->set('orderId', $orderId);

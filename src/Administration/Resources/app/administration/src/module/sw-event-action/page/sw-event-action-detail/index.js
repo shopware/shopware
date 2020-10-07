@@ -56,6 +56,75 @@ Component.register('sw-event-action-detail', {
         };
     },
 
+    computed: {
+        ...mapPropertyErrors('eventAction', [
+            'eventName'
+        ]),
+
+        eventActionMailTemplateError() {
+            if (this.eventAction.config.mail_template_id) {
+                return null;
+            }
+
+            return new ShopwareError({
+                code: 'EVENT_ACTION_DETAIL_MISSING_MAIL_TEMPLATE_ID',
+                detail: this.$tc('sw-event-action.detail.errorMailTemplateId')
+            });
+        },
+
+        eventActionRepository() {
+            return this.repositoryFactory.create('event_action');
+        },
+
+        eventActionCriteria() {
+            const criteria = new Criteria();
+            criteria.addAssociation('salesChannels');
+            criteria.addAssociation('rules');
+
+            return criteria;
+        },
+
+        mailTemplateCriteria() {
+            const criteria = new Criteria();
+            criteria.addAssociation('mailTemplateType');
+
+            return criteria;
+        },
+
+        identifier() {
+            if (this.eventAction && this.eventAction.eventName) {
+                return this.$tc(`global.businessEvents.${snakeCase(this.eventAction.eventName)}`);
+            }
+
+            return this.$tc('sw-event-action.detail.titleNewEntity');
+        },
+
+        tooltipCancel() {
+            return {
+                message: 'ESC',
+                appearance: 'light'
+            };
+        },
+
+        tooltipSave() {
+            if (this.acl.can('event_action.editor')) {
+                const systemKey = this.$device.getSystemKey();
+
+                return {
+                    message: `${systemKey} + S`,
+                    appearance: 'light'
+                };
+            }
+
+            return {
+                showDelay: 300,
+                message: this.$tc('sw-privileges.tooltip.warning'),
+                disabled: this.acl.can('event_action.editor'),
+                showOnDisabledElements: true
+            };
+        }
+    },
+
     created() {
         this.createdComponent();
     },
@@ -188,75 +257,6 @@ Component.register('sw-event-action-detail', {
 
         snakeCaseEventName(value) {
             return snakeCase(value);
-        }
-    },
-
-    computed: {
-        ...mapPropertyErrors('eventAction', [
-            'eventName'
-        ]),
-
-        eventActionMailTemplateError() {
-            if (this.eventAction.config.mail_template_id) {
-                return null;
-            }
-
-            return new ShopwareError({
-                code: 'EVENT_ACTION_DETAIL_MISSING_MAIL_TEMPLATE_ID',
-                detail: this.$tc('sw-event-action.detail.errorMailTemplateId')
-            });
-        },
-
-        eventActionRepository() {
-            return this.repositoryFactory.create('event_action');
-        },
-
-        eventActionCriteria() {
-            const criteria = new Criteria();
-            criteria.addAssociation('salesChannels');
-            criteria.addAssociation('rules');
-
-            return criteria;
-        },
-
-        mailTemplateCriteria() {
-            const criteria = new Criteria();
-            criteria.addAssociation('mailTemplateType');
-
-            return criteria;
-        },
-
-        identifier() {
-            if (this.eventAction && this.eventAction.eventName) {
-                return this.$tc(`global.businessEvents.${snakeCase(this.eventAction.eventName)}`);
-            }
-
-            return this.$tc('sw-event-action.detail.titleNewEntity');
-        },
-
-        tooltipCancel() {
-            return {
-                message: 'ESC',
-                appearance: 'light'
-            };
-        },
-
-        tooltipSave() {
-            if (this.acl.can('event_action.editor')) {
-                const systemKey = this.$device.getSystemKey();
-
-                return {
-                    message: `${systemKey} + S`,
-                    appearance: 'light'
-                };
-            }
-
-            return {
-                showDelay: 300,
-                message: this.$tc('sw-privileges.tooltip.warning'),
-                disabled: this.acl.can('event_action.editor'),
-                showOnDisabledElements: true
-            };
         }
     }
 });

@@ -226,6 +226,7 @@
     "orderContextMenuChangePayment": "Change payment method",
     "orderContextMenuReorder": "Repeat order",
     "orderContextMenuCancel": "Cancel order",
+    "completePayment": "Complete Payment",
     "editOrder": "Edit order",
     "editOrderUpdateButton": "Complete payment",
     "editOrderBackToAccountButton": "Back to overview",

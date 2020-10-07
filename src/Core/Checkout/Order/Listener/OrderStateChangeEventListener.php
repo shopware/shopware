@@ -33,11 +33,6 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
     /**
      * @var EntityRepositoryInterface
      */
-    private $paymentRepository;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
     private $orderRepository;
 
     /**
@@ -72,15 +67,13 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
         EventDispatcherInterface $eventDispatcher,
         OrderConverter $orderConverter,
         BusinessEventCollector $businessEventCollector,
-        EntityRepositoryInterface $stateRepository,
-        EntityRepositoryInterface $paymentRepository
+        EntityRepositoryInterface $stateRepository
     ) {
         $this->orderRepository = $orderRepository;
         $this->transactionRepository = $transactionRepository;
         $this->deliveryRepository = $deliveryRepository;
         $this->eventDispatcher = $eventDispatcher;
         $this->orderConverter = $orderConverter;
-        $this->paymentRepository = $paymentRepository;
         $this->stateRepository = $stateRepository;
         $this->businessEventCollector = $businessEventCollector;
     }

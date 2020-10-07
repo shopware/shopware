@@ -152,14 +152,14 @@
                             {% endblock %}
 
                             {% block sw_event_action_detail_rules_field %}
-                                <sw-entity-multi-select
-                                    v-if="eventAction"
-                                    class="sw-event-action-detail__rule-select"
-                                    :label="$tc('sw-event-action.detail.fieldLabelRules')"
-                                    :placeholder="$tc('sw-event-action.detail.placeholderRules')"
-                                    :disabled="!acl.can('event_action.editor')"
-                                    v-model="eventAction.rules">
-                                </sw-entity-multi-select>
+                                <sw-select-rule-create v-if="eventAction"
+                                                       :rules="eventAction.rules"
+                                                       :label="$tc('sw-event-action.detail.fieldLabelRules')"
+                                                       :placeholder="$tc('sw-event-action.detail.placeholderRules')"
+                                                       :disabled="!acl.can('event_action.editor')"
+                                                       class="sw-event-action-detail__rule-select">
+                                </sw-select-rule-create>
+
                             {% endblock %}
                         </sw-card>
                     {% endblock %}

@@ -103,7 +103,7 @@ class InfoControllerTest extends TestCase
                         'entityClass' => OrderDefinition::class,
                     ],
                 ],
-            ]
+            ],
         ];
 
         foreach ($expected as $event) {

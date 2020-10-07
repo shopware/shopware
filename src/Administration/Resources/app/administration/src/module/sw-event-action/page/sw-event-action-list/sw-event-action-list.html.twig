@@ -57,6 +57,7 @@
                         :sortDirection="sortDirection"
                         :isLoading="isLoading"
                         :allowInlineEdit="false"
+                        :allowView="acl.can('event_action.viewer')"
                         :allowEdit="acl.can('event_action.editor')"
                         :allowDelete="acl.can('event_action.deleter')"
                         detailRoute="sw.event.action.detail"

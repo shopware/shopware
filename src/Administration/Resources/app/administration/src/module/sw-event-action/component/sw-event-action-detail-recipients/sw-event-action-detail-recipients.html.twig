@@ -7,7 +7,7 @@
             <template #toolbar>
                 {% block sw_event_action_detail_recipients_action_add %}
                     <sw-button
-                        class="sw-event-action-detail__recipients-action-add"
+                        class="sw-event-action-detail-recipients__action-add"
                         variant="ghost"
                         size="small"
                         :disabled="!acl.can('event_action.editor')"
@@ -43,7 +43,7 @@
                     <sw-data-grid
                         v-if="recipients.length"
                         ref="recipientsGrid"
-                        class="sw-event-action-detail__recipients-grid"
+                        class="sw-event-action-detail-recipients__grid"
                         :dataSource="recipients"
                         :columns="recipientColumns"
                         :showSelection="false"

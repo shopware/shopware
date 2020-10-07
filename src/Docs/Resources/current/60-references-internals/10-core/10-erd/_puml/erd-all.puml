@@ -536,9 +536,14 @@ Table(ShopwareCoreSystemIntegrationIntegrationDefinition, "integration\n(O-Auth 
    not_null(secretAccessKey) password
    writeAccess bool
    lastUsageAt dateTime
+   admin bool
    customFields customFields
    not_null(createdAt) createdAt
    updatedAt updatedAt
+}
+Table(ShopwareCoreSystemIntegrationAggregateIntegrationRoleIntegrationRoleDefinition, "integration_role\n(M:N Mapping)") {
+   primary_key(integrationId) foreignKey
+   primary_key(aclRoleId) foreignKey
 }
 Table(ShopwareCoreSystemStateMachineStateMachineDefinition, "state_machine\n(State machine)") {
    primary_key(id) id
@@ -2119,6 +2124,8 @@ ShopwareCoreSystemUserAggregateUserAccessKeyUserAccessKeyDefinition --> Shopware
 ShopwareCoreSystemStateMachineAggregationStateMachineHistoryStateMachineHistoryDefinition --> ShopwareCoreSystemUserUserDefinition
 ShopwareCoreContentImportExportAggregateImportExportLogImportExportLogDefinition --> ShopwareCoreSystemUserUserDefinition
 ShopwareCoreSystemUserAggregateUserRecoveryUserRecoveryDefinition --> ShopwareCoreSystemUserUserDefinition
+ShopwareCoreSystemIntegrationAggregateIntegrationRoleIntegrationRoleDefinition --> ShopwareCoreSystemIntegrationIntegrationDefinition
+ShopwareCoreSystemIntegrationAggregateIntegrationRoleIntegrationRoleDefinition --> ShopwareCoreFrameworkApiAclRoleAclRoleDefinition
 ShopwareCoreSystemStateMachineAggregationStateMachineStateStateMachineStateDefinition --> ShopwareCoreSystemStateMachineStateMachineDefinition
 ShopwareCoreSystemStateMachineAggregationStateMachineTransitionStateMachineTransitionDefinition --> ShopwareCoreSystemStateMachineStateMachineDefinition
 ShopwareCoreSystemStateMachineStateMachineTranslationDefinition --> ShopwareCoreSystemStateMachineStateMachineDefinition

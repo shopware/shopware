@@ -60,20 +60,21 @@
                             {% block sw_settings_country_list_grid %}
                                 <template #grid>
                                     {% block sw_settings_country_list_grid %}
-                                        <sw-entity-listing ref="swSettingsCountryGrid"
-                                                           class="sw-settings-country-list-grid"
-                                                           :items="country"
-                                                           :columns="getCountryColumns()"
-                                                           :repository="countryRepository"
-                                                           :fullPage="false"
-                                                           detailRoute="sw.settings.country.detail"
-                                                           :showSelection="false"
-                                                           :isLoading="isLoading"
-                                                           :allowView="acl.can('country.viewer')"
-                                                           :allowEdit="acl.can('country.editor')"
-                                                           :allowInlineEdit="acl.can('country.editor')"
-                                                           :allowDelete="acl.can('country.deleter')"
-                                                           @inline-edit-save="onInlineEditSave">
+                                        <sw-entity-listing
+                                            ref="swSettingsCountryGrid"
+                                            class="sw-settings-country-list-grid"
+                                            :items="country"
+                                            :columns="getCountryColumns()"
+                                            :repository="countryRepository"
+                                            :fullPage="false"
+                                            detailRoute="sw.settings.country.detail"
+                                            :showSelection="false"
+                                            :isLoading="isLoading"
+                                            :allowView="acl.can('country.viewer')"
+                                            :allowEdit="acl.can('country.editor')"
+                                            :allowInlineEdit="acl.can('country.editor')"
+                                            :allowDelete="acl.can('country.deleter')"
+                                            @inline-edit-save="onInlineEditSave">
 
                                             <template #column-active="{ item, isInlineEdit }">
                                                     <template v-if="isInlineEdit">
@@ -95,11 +96,6 @@
                                                 <template #actions="{ item }">
                                                     {% block sw_settings_country_list_grid_columns_actions_edit %}
                                                         <sw-context-menu-item
-                                                            v-tooltip.top="{
-                                                                message: $tc('sw-privileges.tooltip.warning'),
-                                                                disabled: acl.can('country.editor') || acl.can('country.viewer'),
-                                                                showOnDisabledElements: true
-                                                            }"
                                                             :routerLink="{ name: 'sw.settings.country.detail', params: { id: item.id, edit: 'edit' }}"
                                                             :disabled="!acl.can('country.editor') && !acl.can('country.viewer')"
                                                             class="sw-country-list__edit-action">
@@ -109,11 +105,6 @@
 
                                                     {% block sw_settings_country_list_grid_columns_actions_delete %}
                                                         <sw-context-menu-item
-                                                            v-tooltip.bottom="{
-                                                                message: $tc('sw-privileges.tooltip.warning'),
-                                                                disabled: acl.can('country.deleter'),
-                                                                showOnDisabledElements: true
-                                                            }"
                                                             class="sw-country-list__delete-action"
                                                             variant="danger"
                                                             :disabled="!acl.can('country.deleter')"

@@ -72,13 +72,6 @@ parameters:
         -
             message: '#Cannot call method fetchAll\(\) on Doctrine\\DBAL\\Driver\\Statement\|int.#'
             path: src/Core/Migration/Migration1599822061MigrateOrderMails.php
-        # Filters contain mixed values
-        - '#Property Shopware\\Core\\Content\\Product\\SalesChannel\\Listing\\Filter::\$values has no typehint specified.#'
-        - '#Method Shopware\\Core\\Content\\Product\\SalesChannel\\Listing\\Filter::__construct\(\) has parameter \$values with no typehint specified.#'
-        - '#Method Shopware\\Core\\Content\\Product\\SalesChannel\\Listing\\Filter::getValues\(\) has no return typehint specified.#'
-        - '#Method Shopware\\Core\\Content\\Product\\SalesChannel\\Listing\\FilterCollection::set\(\) has parameter \$element with no typehint specified.#'
-        - '#Method Shopware\\Core\\Content\\Product\\SalesChannel\\Listing\\FilterCollection::set\(\) has parameter \$key with no typehint specified.#'
-        - '#Method Shopware\\Core\\Content\\Product\\SalesChannel\\Listing\\FilterCollection::add\(\) has parameter \$element with no typehint specified.#'
 
 services:
     -

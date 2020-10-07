@@ -40,7 +40,9 @@ abstract class MigrationStep
             return $install;
         }
 
-        return $_ENV[self::INSTALL_ENVIRONMENT_VARIABLE] ?? false;
+        return $_ENV[self::INSTALL_ENVIRONMENT_VARIABLE]
+            ?? $_SERVER[self::INSTALL_ENVIRONMENT_VARIABLE]
+            ?? false;
     }
 
     /**

@@ -2,7 +2,7 @@
 {% set paginationConfig = { page: currentPage }|json_encode %}
 
 {% if feature('FEATURE_NEXT_5993') %}
-    {% set disableEmptyFilter = shopware.config.core.listing.disableEmptyFilterOptions %}
+{% set disableEmptyFilter = shopware.config.core.listing.disableEmptyFilterOptions %}
 {% else %}
     {% set disableEmptyFilter = false %}
 {% endif %}

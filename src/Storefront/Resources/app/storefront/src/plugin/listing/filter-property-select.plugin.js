@@ -49,6 +49,7 @@ export default class FilterPropertySelectPlugin extends FilterMultiSelectPlugin 
         const entities = properties.entities;
 
         if (!entities) {
+            this.disableFilter();
             return;
         }
 
@@ -56,6 +57,7 @@ export default class FilterPropertySelectPlugin extends FilterMultiSelectPlugin 
         if (property) {
             activeItems.push(...property.options);
         } else {
+            this.disableFilter();
             return;
         }
 
@@ -63,6 +65,7 @@ export default class FilterPropertySelectPlugin extends FilterMultiSelectPlugin 
 
         if (activeItems.length < 1 && actualValues.properties.length === 0) {
             this.disableFilter()
+            return;
         } else {
             this.enableFilter();
         }

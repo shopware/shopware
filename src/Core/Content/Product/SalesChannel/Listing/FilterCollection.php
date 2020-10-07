@@ -13,6 +13,10 @@ use Shopware\Core\Framework\Struct\Collection;
  */
 class FilterCollection extends Collection
 {
+    /**
+     * @param string|int  $key
+     * @param Filter|null $element
+     */
     public function set($key, $element): void
     {
         if ($element === null) {
@@ -22,6 +26,9 @@ class FilterCollection extends Collection
         parent::set($key, $element);
     }
 
+    /**
+     * @param Filter $element
+     */
     public function add($element): void
     {
         $this->validateType($element);

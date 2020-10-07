@@ -29,7 +29,7 @@ class Filter extends Struct
     protected $filter;
 
     /**
-     * @var array
+     * @var int|float|string|bool|array|null
      */
     protected $values;
 
@@ -38,6 +38,9 @@ class Filter extends Struct
      */
     protected $exclude;
 
+    /**
+     * @param int|float|string|bool|array|null $values
+     */
     public function __construct(string $name, bool $filtered, array $aggregations, DALFilter $filter, $values, bool $exclude = true)
     {
         $this->name = $name;
@@ -71,6 +74,9 @@ class Filter extends Struct
         return $this->filter;
     }
 
+    /**
+     * @return int|float|string|bool|array|null
+     */
     public function getValues()
     {
         return $this->values;

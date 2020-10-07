@@ -123,21 +123,18 @@ export default class FilterRatingPlugin extends FilterBasePlugin {
      * @public
      */
     refreshDisabledState(filter) {
-        let maxRating = 0;
         const ratingFilter = filter[this.options.name];
+        const maxRating = ratingFilter.max;
 
-        if (ratingFilter.max) {
-            maxRating = filter.max;
-        }
-
-        if(maxRating > 0 ) {
+        if (maxRating && maxRating > 0 ) {
             this.enableFilter();
             this.setMaxRating(maxRating);
             this.ratingSystem.setMaxRating(maxRating);
             this._maxRating = maxRating;
-        } else {
-            this.disableFilter();
+            return;
         }
+
+        this.disableFilter();
     }
 
     /**

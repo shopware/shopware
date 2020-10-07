@@ -92,15 +92,9 @@ export default class FilterBooleanPlugin extends FilterBasePlugin {
      * @public
      */
     refreshDisabledState(filter) {
-        let value = 0;
-
         const booleanFilter = filter[this.options.name];
 
-        if (booleanFilter.max) {
-            value = booleanFilter.max;
-        }
-
-        if(value > 0) {
+        if (booleanFilter.max && booleanFilter.max > 0) {
             this.enableFilter();
         } else {
             this.disableFilter();
@@ -112,7 +106,7 @@ export default class FilterBooleanPlugin extends FilterBasePlugin {
      */
     enableFilter() {
         this.el.classList.remove('disabled');
-        this.el.removeAttribute('title', this.options.snippets.disabledFilterText);
+        this.el.removeAttribute('title');
         this.checkbox.removeAttribute('disabled');
     }
 

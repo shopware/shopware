@@ -92,7 +92,7 @@ export default class ListingPlugin extends Plugin {
 
         this._setFilterState(filterItem);
 
-        if(this.options.disableEmptyFilter) {
+        if (this.options.disableEmptyFilter) {
             this._allFiltersInitializedDebounce();
         }
     }

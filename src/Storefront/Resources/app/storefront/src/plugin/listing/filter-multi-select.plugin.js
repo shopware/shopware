@@ -146,22 +146,16 @@ export default class FilterMultiSelectPlugin extends FilterBasePlugin {
      * @public
      */
     refreshDisabledState(filter) {
-        const activeItems = [];
-
         const disabledFilter = filter[this.options.name];
 
-        if (disabledFilter.entities) {
-            activeItems.push(...disabledFilter.entities);
-        }
-
-        if (activeItems.length < 1) {
+        if (disabledFilter.entities && disabledFilter.entities.length < 1) {
             this.disableFilter();
             return;
-        } else {
-            this.enableFilter();
         }
 
-        this._disableInactiveFilterOptions(activeItems.map(entity => entity.id));
+        this.enableFilter();
+
+        this._disableInactiveFilterOptions(disabledFilter.entities.map(entity => entity.id));
     }
 
     /**

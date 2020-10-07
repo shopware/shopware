@@ -24,7 +24,6 @@ This filter item should only be used inside a filter panel.
     }
 
     &.disabled {
-        opacity: 1;
         cursor: default;
         background: $disabled-btn-bg;
         border-color: $disabled-btn-border-color;

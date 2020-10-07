@@ -484,7 +484,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
             }
 
             if ($filter instanceof MultiFilter) {
-                $matches = array_merge($matches, $this->getFiltersOfField($filter->getQueries()));
+                $matches = array_merge($matches, $this->getFiltersOfField($filter->getQueries(), $field));
             }
         }
 

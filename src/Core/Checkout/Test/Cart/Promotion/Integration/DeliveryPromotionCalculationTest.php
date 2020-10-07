@@ -687,7 +687,7 @@ class DeliveryPromotionCalculationTest extends TestCase
      */
     private function deletePromotions(): void
     {
-        $idSearchResult = $this->promotionRepository->searchIds(new Criteria([]), $this->context->getContext());
+        $idSearchResult = $this->promotionRepository->searchIds(new Criteria(), $this->context->getContext());
         $data = [];
         foreach ($idSearchResult->getIds() as $id) {
             $data[]['id'] = $id;

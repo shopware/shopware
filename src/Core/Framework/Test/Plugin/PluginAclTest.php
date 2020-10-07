@@ -115,7 +115,7 @@ class PluginAclTest extends TestCase
         $aclRole = null;
         $this->context->disableCache(function ($context) use ($aclRoleRepository, &$aclRole): void {
             /** @var AclRoleEntity $aclRole */
-            $aclRole = $aclRoleRepository->search(new Criteria([]), $context)->first();
+            $aclRole = $aclRoleRepository->search(new Criteria(), $context)->first();
         });
 
         static::assertNull($aclRole);
@@ -129,7 +129,7 @@ class PluginAclTest extends TestCase
         $aclRole = null;
         $this->context->disableCache(function ($context) use ($aclRoleRepository, &$aclRole): void {
             /** @var AclRoleEntity $aclRole */
-            $aclRole = $aclRoleRepository->search(new Criteria([]), $context)->first();
+            $aclRole = $aclRoleRepository->search(new Criteria(), $context)->first();
         });
         static::assertNull($aclRole);
 

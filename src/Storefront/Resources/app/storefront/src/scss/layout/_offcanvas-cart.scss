@@ -61,10 +61,24 @@ Extends the basic offcanvas component with additional cart styles.
         margin-bottom: $spacer;
     }
 
+    .cart-item-details-container {
+        .cart-item-details {
+            margin-right: 58px;
+        }
+    }
+
+    .cart-item-remove {
+        position: absolute;
+        right: 10px;
+    }
+
     .cart-quantity-price {
         justify-content: space-between;
         display: flex;
         align-items: center;
+
+        // add padding to promotion item and remove button
+        min-height: 50px;
     }
 
     .cart-item-price {

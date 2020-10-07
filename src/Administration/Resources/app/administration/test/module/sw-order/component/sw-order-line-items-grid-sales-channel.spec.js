@@ -279,4 +279,26 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
         expect(taxDetailTooltip.attributes()['tooltip-message'])
             .toBe('sw-order.createBase.tax<br>10%: -€3.33<br>20%: -€13.33');
     });
+
+    it('should show items correctly when search by search tearm', async () => {
+        const wrapper = createWrapper({});
+
+        wrapper.setProps({
+            cart: {
+                ...wrapper.props().order,
+                lineItems: [...mockItems]
+            }
+        });
+
+        wrapper.setData({
+            searchTerm: 'item product'
+        });
+
+        await wrapper.vm.$nextTick();
+
+        const productItem = wrapper.find('.sw-data-grid__row--0');
+        const productLabel = productItem.find('.sw-data-grid__cell--label');
+
+        expect(productLabel.text()).toEqual('Product item');
+    });
 });

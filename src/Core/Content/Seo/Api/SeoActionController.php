@@ -170,7 +170,7 @@ class SeoActionController extends AbstractController
 
         /** @var Entity|null $entity */
         $entity = $repository
-            ->search((new Criteria($fk ? [$fk] : []))->setLimit(1), $context)
+            ->search((new Criteria($fk ? [$fk] : null))->setLimit(1), $context)
             ->first();
 
         if (!$entity) {

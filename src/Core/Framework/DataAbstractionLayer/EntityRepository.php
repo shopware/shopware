@@ -95,6 +95,12 @@ class EntityRepository implements EntityRepositoryInterface
 
         $ids = $this->searchIds($criteria, $context);
 
+        if (empty($ids->getIds())) {
+            $collectionClass = $this->definition->getCollectionClass();
+
+            return new EntitySearchResult(0, new $collectionClass(), $aggregations, $criteria, $context);
+        }
+
         $readCriteria = $criteria->cloneForRead($ids->getIds());
 
         $entities = $this->read($readCriteria, $context);

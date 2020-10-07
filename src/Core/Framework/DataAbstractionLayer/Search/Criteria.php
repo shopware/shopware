@@ -109,13 +109,19 @@ class Criteria extends Struct
     protected $title;
 
     /**
-     * @param string[]|array<int, string[]> $ids
+     * @param string[]|array<int, string[]>|null $ids
      *
      * @throws InconsistentCriteriaIdsException
      */
-    public function __construct(array $ids = [])
+    public function __construct(?array $ids = null)
     {
-        if (\count($ids) > \count(array_filter($ids))) {
+        if ($ids === null) {
+            $this->ids = [];
+
+            return;
+        }
+
+        if (empty($ids) || \count($ids) > \count(array_filter($ids))) {
             throw new InconsistentCriteriaIdsException();
         }
 
@@ -467,10 +473,15 @@ class Criteria extends Struct
     }
 
     /**
-     * @param string[]|array<int, string[]> $ids
+     * @param string[]|array<int, string[]>|null $ids
      */
-    public function cloneForRead(array $ids = []): Criteria
+    public function cloneForRead(?array $ids = null): Criteria
     {
+        if (\is_array($ids)
+            && (\count($ids) === 0 || \count($ids) > \count(array_filter($ids)))) {
+            throw new InconsistentCriteriaIdsException();
+        }
+
         $self = new self($ids);
         $self->setTitle($this->getTitle());
 

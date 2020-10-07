@@ -240,7 +240,7 @@ class SalesChannelContextPersisterTest extends TestCase
             'city' => 'Schöppingen',
             'zipcode' => '12345',
             'salutationId' => $salutationId,
-            'country' => ['id' => Uuid::randomHex(), 'name' => 'Germany'],
+            'countryId' => $this->getValidCountryId(),
         ];
 
         $shippingAddress = [
@@ -250,7 +250,7 @@ class SalesChannelContextPersisterTest extends TestCase
             'city' => 'Schöppingen',
             'zipcode' => '12345',
             'salutationId' => $salutationId,
-            'country' => ['id' => Uuid::randomHex(), 'name' => 'Germany'],
+            'countryId' => $this->getValidCountryId(),
         ];
 
         $customer = [

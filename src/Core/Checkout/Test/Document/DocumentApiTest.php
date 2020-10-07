@@ -21,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\RuleTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
@@ -36,6 +37,7 @@ class DocumentApiTest extends TestCase
     use RuleTestBehaviour;
     use AdminApiTestBehaviour;
     use TaxAddToSalesChannelTestBehaviour;
+    use CountryAddToSalesChannelTestBehaviour;
 
     /**
      * @var SalesChannelContext
@@ -64,6 +66,8 @@ class DocumentApiTest extends TestCase
 
         $customerId = $this->createCustomer($paymentMethod->getId());
         $shippingMethod = $this->getAvailableShippingMethod();
+
+        $this->addCountriesToSalesChannel();
 
         $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
             Uuid::randomHex(),

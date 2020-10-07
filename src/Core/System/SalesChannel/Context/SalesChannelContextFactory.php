@@ -136,6 +136,7 @@ class SalesChannelContextFactory
 
         $criteria = new Criteria([$salesChannelId]);
         $criteria->setTitle('context-factory::sales-channel');
+        $criteria->addAssociation('countries');
         $criteria->addAssociation('currency');
         $criteria->addAssociation('domains');
 

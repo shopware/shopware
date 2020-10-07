@@ -453,6 +453,7 @@ class CheckoutControllerTest extends TestCase
 
     private function createSalesChannelContext(string $contextToken, ?bool $withFailedPaymentMethod = false): SalesChannelContext
     {
+        $this->updateSalesChannel(Defaults::SALES_CHANNEL);
         $salesChannelData = [
             SalesChannelContextService::CUSTOMER_ID => $this->createCustomer(),
         ];

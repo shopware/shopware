@@ -8,6 +8,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -18,6 +19,7 @@ class CartOrderRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
+    use CountryAddToSalesChannelTestBehaviour;
 
     /**
      * @var \Symfony\Bundle\FrameworkBundle\KernelBrowser
@@ -128,6 +130,8 @@ class CartOrderRouteTest extends TestCase
 
     private function createTestData(): void
     {
+        $this->addCountriesToSalesChannel();
+
         $this->productRepository->create([
             [
                 'id' => $this->ids->create('p1'),
@@ -182,10 +186,10 @@ class CartOrderRouteTest extends TestCase
                     'firstName' => 'Max',
                     'lastName' => 'Mustermann',
                     'street' => 'Musterstraße 1',
-                    'city' => 'Schoöppingen',
+                    'city' => 'Schöppingen',
                     'zipcode' => '12345',
                     'salutationId' => $this->getValidSalutationId(),
-                    'country' => ['name' => 'Germany'],
+                    'countryId' => $this->getValidCountryId(),
                 ],
                 'defaultBillingAddressId' => $addressId,
                 'defaultPaymentMethod' => [

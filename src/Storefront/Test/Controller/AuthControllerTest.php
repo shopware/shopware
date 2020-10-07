@@ -299,7 +299,7 @@ class AuthControllerTest extends TestCase
                     'city' => 'Schöppingen',
                     'zipcode' => '12345',
                     'salutationId' => $this->getValidSalutationId(),
-                    'country' => ['name' => 'Germany'],
+                    'countryId' => $this->getValidCountryId(),
                 ],
                 'defaultBillingAddressId' => $addressId,
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),

@@ -8,8 +8,6 @@ variables:
     LOG_STDOUT: $CI_PROJECT_DIR/stdout.log
     PERCY_BRANCH: $CI_DEV_BRANCH
     PERCY_TARGET_BRANCH: $CI_TARGET_BRANCH_NAME
-    DEV_IMAGE: shopware/development:latest
-    MYSQL_IMAGE: mysql:5.7
     MYSQL_CMD: mysqld
 
 stages:
@@ -110,6 +108,7 @@ PHP Unit:
       - if: '$CI_MERGE_REQUEST_LABELS =~ /.*unit::skip.*/'
         when: never
       - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      - if: '$CI_PIPELINE_SOURCE == "pipeline"'
       - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
         changes:
           - "Migration*.php"
@@ -122,20 +121,23 @@ PHP Unit:
     parallel:
         matrix:
             -   EACH_MR: 'true'
+                MYSQL_IMAGE: mysql:5.7
+                DEV_IMAGE: shopware/development:latest
                 FEATURE_ALL: ["false", "true"]
-            # mysql 5.7 with php 7.3 and 7.4
-            -   DEV_IMAGE:
+            -   MYSQL_IMAGE: mysql:5.7
+                DEV_IMAGE:
                     - shopware/development:7.3
                     - shopware/development:7.4
                 FEATURE_ALL: ["false", "true"]
-            # php 7.2 with mysql 5.7 and mariadb 10.4
             -   MYSQL_IMAGE:
                     - mysql:5.7
                     - mariadb:10.3
                     - mariadb:10.4
+                DEV_IMAGE: shopware/development:latest
                 FEATURE_ALL: ["false", "true"]
             -   MYSQL_IMAGE:
                     - mysql:8.0.19
+                DEV_IMAGE: shopware/development:latest
                 FEATURE_ALL: ["false", "true"]
                 MYSQL_CMD: 'mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON'
 
@@ -146,6 +148,7 @@ Javascript analysis:
             - master
             - /^6\..*$/
             - schedules
+            - pipelines
     stage: unit
     timeout: 1h 00m
     before_script: []
@@ -235,6 +238,7 @@ Administration (Jest):
             - merge_requests
             - master
             - /^6\..*$/
+            - pipelines
     stage: unit
     timeout: 1h 00m
     services:
@@ -255,6 +259,7 @@ Storefront (Jest):
             - merge_requests
             - master
             - /^6\..*$/
+            - pipelines
     stage: unit
     timeout: 1h 00m
     variables:
@@ -339,13 +344,17 @@ E2E:
     rules:
         -   if: '$CI_MERGE_REQUEST_LABELS =~ /.*E2E::skip.*/ || ($cypress_grep == null && $CI_MERGE_REQUEST_LABELS =~ /.*E2E::only_base.*/)'
             when: never
-        -   if: '$cypress_grep == null && $CI_PIPELINE_SOURCE == "schedule"'
-        -   if: '$cypress_grep && $CI_PIPELINE_SOURCE == "schedule"'
+            # run full tests if trigger by scheduled or another pipeline (production)
+        -   if: '$cypress_grep == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "pipeline")'
+            # skip @base jobs if trigger by scheduled or another pipeline (production)
+        -   if: '$cypress_grep && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "pipeline")'
             when: never
+            # run full tests if there are changes to migrations
         -   if: '$cypress_grep == null && $CI_PIPELINE_SOURCE == "merge_request_event"'
             changes:
                 - "Migration*.php"
                 - "**/Migration*.php"
+            # skip @base jobs if there are changes to migrations, because the full set runs
         -   if: '$cypress_grep && $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_LABELS !~ /.*E2E::only_base.*/'
             changes:
                 - "Migration*.php"
@@ -473,6 +482,7 @@ Symfony security check:
             - master
             - /^6\..*$/
             - schedules
+            - pipelines
     image: shopware/development:latest
     before_script: []
     allow_failure: true
@@ -491,6 +501,7 @@ NPM security check:
             - master
             - /^6\..*$/
             - schedules
+            - pipelines
     image: shopware/development:latest
     before_script: []
     allow_failure: true

@@ -6,7 +6,6 @@ use Shopware\Core\Content\Product\SalesChannel\Search\AbstractProductSearchRoute
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
-use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Cache\Annotation\HttpCache;
 use Shopware\Storefront\Page\Search\SearchPageLoader;
@@ -101,9 +100,10 @@ class SearchController extends StorefrontController
      *
      * @throws MissingRequestParameterException
      */
-    public function filter(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
+    public function filter(Request $request, SalesChannelContext $context): Response
     {
-        if (!$data->has('search')) {
+        $term = $request->get('search');
+        if (!$term) {
             throw new MissingRequestParameterException('search');
         }
 

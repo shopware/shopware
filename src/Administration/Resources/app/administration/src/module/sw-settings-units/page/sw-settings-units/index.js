@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-settings-units', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('notification')
@@ -44,6 +44,22 @@ Component.register('sw-settings-units', {
 
         isEmpty() {
             return this.unitList.length <= 0;
+        },
+
+        tooltipCreate() {
+            if (!this.acl.can('scale_unit.creator')) {
+                return {
+                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    disabled: this.acl.can('scale_unit.creator'),
+                    showOnDisabledElements: true
+                };
+            }
+
+            return {
+                showOnDisabledElements: true,
+                message: this.$tc('sw-settings-units.general.disableAddNewUnitMessage'),
+                disabled: !this.isAddingUnitsDisabled
+            };
         },
 
         isAddingUnitsDisabled() {

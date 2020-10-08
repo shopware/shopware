@@ -1,4 +1,5 @@
 import './page/sw-settings-units';
+import './acl';
 
 const { Module } = Shopware;
 
@@ -17,7 +18,8 @@ Module.register('sw-settings-units', {
             component: 'sw-settings-units',
             path: 'index',
             meta: {
-                parentPath: 'sw.settings.index'
+                parentPath: 'sw.settings.index',
+                privilege: 'scale_unit.viewer'
             }
         }
     },
@@ -25,6 +27,7 @@ Module.register('sw-settings-units', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.units.index',
-        icon: 'default-object-scale'
+        icon: 'default-object-scale',
+        privilege: 'scale_unit.viewer'
     }
 });

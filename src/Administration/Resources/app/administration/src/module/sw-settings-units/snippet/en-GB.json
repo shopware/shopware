@@ -21,9 +21,9 @@
     }
   },
   "sw-privileges": {
-    "additional_permissions": {
-      "system": {
-        "scale_unit": "Scale units"
+    "permissions": {
+      "scale_unit": {
+        "label": "Scale units"
       }
     }
   }

@@ -242,7 +242,7 @@ trait StorefrontPageTestBehaviour
                     'city' => 'Schöppingen',
                     'zipcode' => '12345',
                     'salutationId' => $this->getValidSalutationId(),
-                    'country' => ['name' => 'Germany'],
+                    'country' => ['id' => $this->getValidCountryId()],
                 ],
                 'defaultBillingAddressId' => $addressId,
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),

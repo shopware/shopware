@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -20,6 +21,7 @@ class RegisterRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
+    use CountryAddToSalesChannelTestBehaviour;
 
     /**
      * @var \Symfony\Bundle\FrameworkBundle\KernelBrowser
@@ -43,6 +45,9 @@ class RegisterRouteTest extends TestCase
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
         ]);
+
+        $this->addCountriesToSalesChannel([], $this->ids->get('sales-channel'));
+
         $this->assignSalesChannelContext($this->browser);
         $this->customerRepository = $this->getContainer()->get('customer.repository');
     }

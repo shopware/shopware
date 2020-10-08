@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -25,6 +26,7 @@ class ProductLineItemCommandValidatorTest extends TestCase
 {
     use TaxAddToSalesChannelTestBehaviour;
     use IntegrationTestBehaviour;
+    use CountryAddToSalesChannelTestBehaviour;
 
     /**
      * @var EntityRepositoryInterface
@@ -58,6 +60,7 @@ class ProductLineItemCommandValidatorTest extends TestCase
         $this->cartService = $this->getContainer()->get(CartService::class);
         $this->contextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $this->lineItemRepository = $this->getContainer()->get('order_line_item.repository');
+        $this->addCountriesToSalesChannel();
 
         $this->context = $this->contextFactory->create(
             Uuid::randomHex(),

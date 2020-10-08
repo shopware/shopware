@@ -22,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -39,6 +40,7 @@ class OrderServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use MailTemplateTestBehaviour;
+    use CountryAddToSalesChannelTestBehaviour;
 
     /**
      * @var SalesChannelContext
@@ -62,6 +64,8 @@ class OrderServiceTest extends TestCase
         $this->orderService = $this->getContainer()->get(OrderService::class);
 
         $this->orderRepository = $this->getContainer()->get('order.repository');
+
+        $this->addCountriesToSalesChannel();
 
         $contextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $this->salesChannelContext = $contextFactory->create(

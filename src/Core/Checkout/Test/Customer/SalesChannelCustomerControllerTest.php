@@ -102,6 +102,8 @@ class SalesChannelCustomerControllerTest extends TestCase
         $rulesProperty->setValue($ruleLoader, null);
 
         $this->browser = $this->createCustomSalesChannelBrowser(['id' => Defaults::SALES_CHANNEL]);
+        $this->addCountriesToSalesChannel();
+        $this->addCountriesToSalesChannel([], $this->browser->getServerParameter('test-sales-channel-id'));
         $this->assignSalesChannelContext($this->browser);
     }
 
@@ -645,7 +647,7 @@ class SalesChannelCustomerControllerTest extends TestCase
                     'city' => 'Schoöppingen',
                     'zipcode' => '12345',
                     'salutationId' => $this->getValidSalutationId(),
-                    'country' => ['name' => 'Germany'],
+                    'countryId' => $this->getValidCountryId(),
                 ],
                 'defaultBillingAddressId' => $addressId,
                 'defaultPaymentMethod' => [
@@ -698,7 +700,7 @@ class SalesChannelCustomerControllerTest extends TestCase
             'city' => 'Cologne',
             'zipcode' => '89563',
             'salutationId' => $this->getValidSalutationId(),
-            'country' => ['name' => 'Germany'],
+            'countryId' => $this->getValidCountryId(),
         ];
 
         $this->customerAddressRepository->upsert([$data], $this->context);

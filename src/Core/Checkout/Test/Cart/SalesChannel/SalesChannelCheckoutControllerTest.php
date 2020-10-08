@@ -68,6 +68,7 @@ class SalesChannelCheckoutControllerTest extends TestCase
         $this->currencyRepository = $this->getContainer()->get('currency.repository');
         $this->taxId = Uuid::randomHex();
         $this->manufacturerId = Uuid::randomHex();
+        $this->addCountriesToSalesChannel();
 
         // reset rules
         $ruleLoader = $this->getContainer()->get(CartRuleLoader::class);
@@ -680,7 +681,7 @@ class SalesChannelCheckoutControllerTest extends TestCase
                     'city' => 'not',
                     'zipcode' => 'not',
                     'salutationId' => $this->getValidSalutationId(),
-                    'country' => ['name' => 'not'],
+                    'countryId' => $this->getValidCountryId(),
                 ],
                 'defaultBillingAddressId' => $addressId,
                 'defaultPaymentMethodId' => $this->getAvailablePaymentMethod()->getId(),

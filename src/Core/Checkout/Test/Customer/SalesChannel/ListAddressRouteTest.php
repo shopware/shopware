@@ -75,9 +75,9 @@ class ListAddressRouteTest extends TestCase
         static::assertSame('Max', $response['elements'][0]['firstName']);
         static::assertSame('Mustermann', $response['elements'][0]['lastName']);
         static::assertSame('Musterstraße 1', $response['elements'][0]['street']);
-        static::assertSame('Schoöppingen', $response['elements'][0]['city']);
+        static::assertSame('Schöppingen', $response['elements'][0]['city']);
         static::assertSame('12345', $response['elements'][0]['zipcode']);
-        static::assertSame('Germany', $response['elements'][0]['country']['name']);
+        static::assertSame($this->getValidCountryId(), $response['elements'][0]['countryId']);
     }
 
     public function testListAddressesIncludes(): void

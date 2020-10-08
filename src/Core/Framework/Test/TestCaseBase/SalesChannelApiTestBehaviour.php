@@ -179,6 +179,7 @@ trait SalesChannelApiTestBehaviour
                     'url' => 'http://localhost',
                 ],
             ],
+            'countries' => [['id' => $this->getValidCountryId()]],
         ], $salesChannelOverride);
 
         $salesChannelRepository->upsert([$salesChannel], Context::createDefaultContext());

@@ -42,18 +42,20 @@
                     {% block sw_settings_user_list_content_grid_actions %}
                         <template #actions="{ item }">
                             {% block sw_settings_user_list_actions_edit %}
-                                <sw-context-menu-item class="sw-settings-user-list__user-view-action"
-                                                      :disabled="!acl.can('users_and_permissions.editor')"
-                                                      :routerLink="{ name: 'sw.users.permissions.user.detail', params: { id: item.id } }">
+                                <sw-context-menu-item
+                                    class="sw-settings-user-list__user-view-action"
+                                    :disabled="!acl.can('users_and_permissions.editor')"
+                                    :routerLink="{ name: 'sw.users.permissions.user.detail', params: { id: item.id } }">
                                     {{ $tc('sw-users-permissions.users.user-grid.contextMenuEdit') }}
                                 </sw-context-menu-item>
                             {% endblock %}
 
                             {% block sw_settings_user_list_actions_delete %}
-                                <sw-context-menu-item class="sw-settings-user-list__user-delete-action"
-                                                      variant="danger"
-                                                      :disabled="!acl.can('users_and_permissions.deleter')"
-                                                      @click="onDelete(item)">
+                                <sw-context-menu-item
+                                    class="sw-settings-user-list__user-delete-action"
+                                    variant="danger"
+                                    :disabled="!acl.can('users_and_permissions.deleter')"
+                                    @click="onDelete(item)">
                                     {{ $tc('sw-users-permissions.users.user-grid.contextMenuDelete') }}
                                 </sw-context-menu-item>
                             {% endblock %}
@@ -90,16 +92,20 @@
                                     {{ role.name }}<template v-if="index + 1 < item.aclRoles.length">,&nbsp;</template>
                                 </span>
                             </template>
+                            <span v-else-if="item.admin">
+                                {{ $tc('sw-users-permissions.users.user-detail.labelAdministrator') }}
+                            </span>
                             <span v-else> </span>
                         </template>
                     {% endblock %}
 
                     <template #action-modals="{ item }">
                         {% block sw_settings_user_list_delete_modal %}
-                            <sw-modal v-if="getItemToDelete(item)"
-                                      @modal-close="onCloseDeleteModal"
-                                      :title="$tc('global.default.warning')"
-                                      variant="small">
+                            <sw-modal
+                                v-if="getItemToDelete(item)"
+                                @modal-close="onCloseDeleteModal"
+                                :title="$tc('global.default.warning')"
+                                variant="small">
                                 {% block sw_settings_user_list_delete_modal_confirm_delete_text %}
                                     <p class="sw-settings-user-list__confirm-delete-text">
                                         {{ $tc('sw-users-permissions.users.user-grid.textModalDelete', 0, { name: salutation(item) }) }}

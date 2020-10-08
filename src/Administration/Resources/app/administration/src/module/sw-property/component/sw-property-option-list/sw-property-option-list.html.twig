@@ -73,11 +73,6 @@
                        <sw-field v-model="item.name" size="small"></sw-field>
                     </template>
 
-                    <div v-else-if="!acl.can('property.editor')"
-                         class="sw-settings-option-detail__link">
-                        {{ item.translated.name }}
-                    </div>
-
                     <a v-else class="sw-settings-option-detail__link"
                        @click="onOptionEdit(item)">
                         {{ item.translated.name }}
@@ -114,6 +109,7 @@
             <sw-property-option-detail
                 v-if="currentOption"
                 :currentOption="currentOption"
+                :allowEdit="acl.can('property.editor')"
                 @save-option-edit="onSaveOption"
                 @cancel-option-edit="onCancelOption">
             </sw-property-option-detail>

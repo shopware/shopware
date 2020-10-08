@@ -1983,7 +1983,9 @@ class ElasticsearchProductTest extends TestCase
         $repo = $this->getContainer()->get('product.repository');
 
         $repo->create([
-            $this->createProduct('p1', 'Silk', 't1', 'm1', [Defaults::CURRENCY => 50, $this->currencyId => 19.96], '2019-01-01 10:11:00', 0, 2, ['c1', 'c2'], ['toOne' => ['name' => 'test']]),
+            $this->createProduct('p1', 'Silk', 't1', 'm1', [Defaults::CURRENCY => 50, $this->currencyId => 19.96], '2019-01-01 10:11:00', 0, 2, ['c1', 'c2'], ['toOne' => [
+                'name' => 'test',
+            ]]),
             $this->createProduct('p2', 'Rubber', 't1', 'm2', [Defaults::CURRENCY => 100, $this->currencyId => 19.91], '2019-01-01 10:13:00', 0, 10, ['c1']),
             $this->createProduct('p3', 'Stilk', 't2', 'm2', [Defaults::CURRENCY => 150, $this->currencyId => 19.94], '2019-06-15 13:00:00', 100, 100, ['c1', 'c3']),
             $this->createProduct('p4', 'Grouped 1', 't2', 'm2', [Defaults::CURRENCY => 200, $this->currencyId => 19.99], '2020-09-30 15:00:00', 100, 300, ['c3']),

@@ -68,6 +68,12 @@ Component.register('sw-media-quickinfo-multiple', {
             return ['sw-media-sidebar__quickaction', {
                 'sw-media-sidebar__quickaction--disabled': disabled
             }];
+        },
+
+        quickActionClasses(disabled) {
+            return ['sw-media-sidebar__quickaction', {
+                'sw-media-sidebar__quickaction--disabled': disabled
+            }];
         }
     }
 });

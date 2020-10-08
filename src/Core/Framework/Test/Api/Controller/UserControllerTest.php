@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -64,6 +65,44 @@ class UserControllerTest extends TestCase
 
         $response = $client->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+    }
+
+    public function testRemoveRoleAssignment(): void
+    {
+        $ids = new IdsCollection();
+
+        $user = [
+            'id' => $ids->get('user'),
+            'email' => 'foo@bar.com',
+            'firstName' => 'Firstname',
+            'lastName' => 'Lastname',
+            'password' => 'password',
+            'username' => 'foobar',
+            'localeId' => $this->getContainer()->get(Connection::class)->fetchColumn('SELECT LOWER(HEX(id)) FROM locale LIMIT 1'),
+            'aclRoles' => [
+                ['id' => $ids->get('role-1'), 'name' => 'role-1'],
+                ['id' => $ids->get('role-2'), 'name' => 'role-2'],
+            ],
+        ];
+
+        $this->getContainer()->get('user.repository')
+            ->create([$user], Context::createDefaultContext());
+
+        $client = $this->getBrowser(true, [UserVerifiedScope::IDENTIFIER]);
+        $client->request('DELETE', '/api/v' . PlatformRequest::API_VERSION . '/user/' . $ids->get('user') . '/acl-roles/' . $ids->get('role-1'));
+
+        $response = $client->getResponse();
+        $content = json_decode($response->getContent(), true);
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r($content, true));
+
+        $assigned = $this->getContainer()->get(Connection::class)
+            ->fetchAll(
+                'SELECT LOWER(HEX(acl_role_id)) as id FROM acl_user_role WHERE user_id = :id',
+                ['id' => Uuid::fromHexToBytes($ids->get('user'))]
+            );
+
+        $assigned = array_column($assigned, 'id');
+        static::assertEquals(array_values($ids->getList(['role-2'])), $assigned);
     }
 
     public function testDeleteUser(): void

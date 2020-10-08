@@ -348,6 +348,13 @@ class SalesChannelEntity extends Entity
      */
     protected $eventActions;
 
+    /**
+     * @internal (flag:FEATURE_NEXT_10555)
+     *
+     * @var CustomerCollection|null
+     */
+    protected $boundCustomers;
+
     public function getMailHeaderFooter(): ?MailHeaderFooterEntity
     {
         return $this->mailHeaderFooter;
@@ -962,5 +969,15 @@ class SalesChannelEntity extends Entity
     public function setEventActions(EventActionCollection $eventActions): void
     {
         $this->eventActions = $eventActions;
+    }
+
+    public function getBoundCustomers(): ?CustomerCollection
+    {
+        return $this->boundCustomers;
+    }
+
+    public function setBoundCustomers(CustomerCollection $boundCustomers): void
+    {
+        $this->boundCustomers = $boundCustomers;
     }
 }

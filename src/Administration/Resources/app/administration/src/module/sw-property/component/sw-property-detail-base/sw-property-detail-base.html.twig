@@ -8,46 +8,63 @@
                 required
                 :error="propertyGroupNameError"
                 :label="$tc('sw-property.detail.labelName')"
-                :placeholder="placeholder(propertyGroup, 'name', $tc('sw-property.detail.placeholderName'))" />
+                :placeholder="placeholder(propertyGroup, 'name', $tc('sw-property.detail.placeholderName'))"
+                :disabled="!allowEdit"/>
         {% endblock %}
 
         {% block sw_property_detail_base_description %}
-            <sw-field v-model="propertyGroup.description"
-                      type="textarea"
-                      :label="$tc('sw-property.detail.labelDescription')"
-                      :placeholder="placeholder(propertyGroup, 'description', $tc('sw-property.detail.placeholderDescription'))" />
+            <sw-field
+                v-model="propertyGroup.description"
+                type="textarea"
+                :label="$tc('sw-property.detail.labelDescription')"
+                :placeholder="placeholder(propertyGroup, 'description', $tc('sw-property.detail.placeholderDescription'))"
+                :disabled="!allowEdit"/>
         {% endblock %}
 
         {% block sw_property_detail_base_filterable %}
             <sw-switch-field
-                    name="propertyGroupFilterable"
-                    class="sw-property-detail__filterable"
-                    :label="$tc('sw-property.detail.labelFilterable')"
-                    v-model="propertyGroup.filterable">
+                name="propertyGroupFilterable"
+                class="sw-property-detail__filterable"
+                :label="$tc('sw-property.detail.labelFilterable')"
+                :disabled="!allowEdit"
+                v-model="propertyGroup.filterable">
             </sw-switch-field>
         {% endblock %}
 
         {% block sw_property_detail_sorting_display_container %}
             <sw-container columns="repeat(3, 1fr)" gap="0px 30px">
                 {% block sw_property_detail_display_type %}
-                    <sw-field v-model="propertyGroup.displayType" validation="required" required type="select" :label="$tc('sw-property.detail.labelDisplayType')" >
+                    <sw-field
+                        type="select"
+                        v-model="propertyGroup.displayType"
+                        validation="required"
+                        required
+                        :label="$tc('sw-property.detail.labelDisplayType')"
+                        :disabled="!allowEdit">
                         <option slot="options" v-for="option in displayTypes" :key="option.value" :value="option.value">{{ option.label }}</option>
                     </sw-field>
                 {% endblock %}
 
                 {% block sw_property_detail_sorting_type %}
-                    <sw-field v-model="propertyGroup.sortingType" validation="required" required type="select" :label="$tc('sw-property.detail.labelSortingType')" >
+                    <sw-field
+                        type="select"
+                        v-model="propertyGroup.sortingType"
+                        validation="required"
+                        :disabled="!allowEdit"
+                        required
+                        :label="$tc('sw-property.detail.labelSortingType')" >
                         <option slot="options" v-for="option in sortingTypes" :key="option.value" :value="option.value">{{ option.label }}</option>
                     </sw-field>
                 {% endblock %}
 
                 {% block sw_property_detail_position %}
                     <sw-number-field
-                            v-model="propertyGroup.position"
-                            pattern="[0-9]"
-                            :step="1"
-                            :label="$tc('sw-property.detail.labelPosition')"
-                            :placeholder="$tc('sw-property.detail.placeholderPosition')">
+                        v-model="propertyGroup.position"
+                        pattern="[0-9]"
+                        :step="1"
+                        :label="$tc('sw-property.detail.labelPosition')"
+                        :disabled="!allowEdit"
+                        :placeholder="$tc('sw-property.detail.placeholderPosition')">
                     </sw-number-field>
                 {% endblock %}
             </sw-container>

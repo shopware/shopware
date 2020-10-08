@@ -8,7 +8,9 @@ use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
@@ -511,6 +513,42 @@ class ProductCartProcessorTest extends TestCase
             'fixed quantity should be return 10 with error message' => [10, 3, 12, 11, 10, true],
             'fixed quantity should be return 10, without error message' => [10, 2, 20, 2, 10, false],
         ];
+    }
+
+    public function testProcessCartShouldSetQuantityOfPriceDefinitionWhenAddingASimilarProduct(): void
+    {
+        $this->createProduct();
+        $token = $this->ids->create('token');
+        $options = [
+            SalesChannelContextService::PERMISSIONS => [
+                ProductCartProcessor::SKIP_PRODUCT_STOCK_VALIDATION => false,
+                ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES => true,
+            ],
+        ];
+
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+            ->create($token, Defaults::SALES_CHANNEL, $options);
+
+        $definition = new QuantityPriceDefinition(10, new TaxRuleCollection(), 1);
+
+        $product = $this->getContainer()->get(ProductLineItemFactory::class)
+            ->create($this->ids->get('product'));
+        $product->setPriceDefinition($definition);
+        $product->setLabel('My test product');
+        $product->setQuantity(5);
+        $product->setExtensions([
+            ProductCartProcessor::CUSTOM_PRICE => true,
+        ]);
+
+        $cart = $this->cartService->getCart($token, $context);
+        $this->cartService->add($cart, $product, $context);
+        $this->cartService->add($cart, $product, $context);
+
+        $actualProduct = $cart->get($product->getId());
+
+        static::assertEquals($product->getQuantity(), $actualProduct->getQuantity());
+        static::assertEquals($product->getPrice(), $this->calculator->calculate($product->getPriceDefinition(), $context));
+        static::assertEquals($product, $actualProduct);
     }
 
     private function getProductCart(): Cart

@@ -7,9 +7,11 @@
                         <div class="sw-product-detail-cross-selling__context-button">
                             <sw-context-button>
                                 {% block sw_product_cross_selling_form_context_button_delete %}
-                                    <sw-context-menu-item variant="danger"
-                                                          class="sw-product-cross_selling-context-item__delete-action"
-                                                          @click="onShowDeleteModal">
+                                    <sw-context-menu-item
+                                        variant="danger"
+                                        class="sw-product-cross_selling-context-item__delete-action"
+                                        @click="onShowDeleteModal"
+                                        :disabled="!allowEdit">
                                         {{ $tc('sw-product.crossselling.buttonDeleteCrossSelling') }}
                                     </sw-context-menu-item>
                                 {% endblock %}
@@ -24,7 +26,8 @@
                                 required
                                 :placeholder="$tc('sw-product.crossselling.inputCrossSellingTitlePlaceholder')"
                                 v-model="crossSelling.name"
-                                :error="crossSellingNameError">
+                                :error="crossSellingNameError"
+                                :disabled="!allowEdit">
                             </sw-text-field>
                         {% endblock %}
                         {% block sw_prduct_cross_selling_form_active_field %}
@@ -32,7 +35,8 @@
                                 type="switch"
                                 class="sw-product-detail-cross-selling__active-switch"
                                 :label="$tc('sw-product.crossselling.inputCrossSellingActive')"
-                                v-model="crossSelling.active">
+                                v-model="crossSelling.active"
+                                :disabled="!allowEdit">
                             </sw-field>
                         {% endblock %}
                     </sw-container>
@@ -43,7 +47,8 @@
                                 :label="$tc('sw-product.crossselling.inputCrossSellingType')"
                                 @change="onTypeChanged"
                                 :error="crossSellingTypeError"
-                                v-model="crossSelling.type">
+                                v-model="crossSelling.type"
+                                :disabled="!allowEdit">
                                 <option v-for="option in crossSellingTypes"
                                         :key="option.value"
                                         :value="option.value">
@@ -58,7 +63,8 @@
                                 :label="$tc('sw-product.crossselling.inputCrossSellingPosition')"
                                 :error="crossSellingPositionError"
                                 :placeholder="$tc('sw-product.crossselling.inputCrossSellingPositionPlaceholder')"
-                                v-model="crossSelling.position">
+                                v-model="crossSelling.position"
+                                :disabled="!allowEdit">
                             </sw-number-field>
                         {% endblock %}
                     </sw-container>
@@ -71,7 +77,8 @@
                                 id="sw-field--crossSelling-product-group"
                                 :label="$tc('sw-product.crossselling.inputCrossSellingProductStream')"
                                 :placeholder="$tc('sw-product.crossselling.inputCrossSellingProductStreamPlaceholder')"
-                                v-model="crossSelling.productStreamId">
+                                v-model="crossSelling.productStreamId"
+                                :disabled="!allowEdit">
                             </sw-entity-single-select>
                         {% endblock %}
 
@@ -80,7 +87,8 @@
                                 <sw-select-field
                                     :label="$tc('sw-product.crossselling.inputCrossSellingSorting')"
                                     :value="sortingConCat"
-                                    @change="onSortingChanged">
+                                    @change="onSortingChanged"
+                                    :disabled="!allowEdit">
                                     <option v-for="option in sortingTypes"
                                             :key="option.value"
                                             :value="option.value">
@@ -93,7 +101,8 @@
                                 <sw-number-field
                                     numberType="int"
                                     :label="$tc('sw-product.crossselling.inputCrossSellingLimit')"
-                                    v-model="crossSelling.limit">
+                                    v-model="crossSelling.limit"
+                                    :disabled="!allowEdit">
                                 </sw-number-field>
                             {% endblock %}
                         </sw-container>
@@ -118,7 +127,8 @@
                             v-else
                             :assignedProducts="crossSelling.assignedProducts"
                             :crossSellingId="crossSelling.id"
-                            :searchableFields="['name', 'productNumber']">
+                            :searchableFields="['name', 'productNumber']"
+                            :allowEdit="allowEdit">
                         </sw-product-cross-selling-assignment>
                     {% endblock %}
 

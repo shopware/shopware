@@ -40,7 +40,7 @@ describe('src/module/sw-product-stream/component/sw-product-stream-field-select'
     it('should be a Vue.js component', () => {
         const wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBe(true);
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should have a disabled prop', () => {

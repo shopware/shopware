@@ -11,6 +11,11 @@ Shopware.Component.register('sw-property-option-detail', {
             default() {
                 return {};
             }
+        },
+        allowEdit: {
+            type: Boolean,
+            required: false,
+            default: true
         }
     },
 

@@ -411,7 +411,8 @@
     "filterRangeActiveMaxLabel": "Preis bis",
     "filterRangeErrorMessage": "Der Mindestpreis darf nicht höher sein als der Höchstpreis.",
     "filterSubmitText": "Filter",
-    "defaultProductSortingLabel": "Name A-Z"
+    "defaultProductSortingLabel": "Name A-Z",
+    "disabledFilterTooltip": "Dieser Filter zeigt in Kombination mit den ausgewählten Filtern keine weiteren Ergebnisse an."
   },
   "newsletter": {
     "headline": "Newsletter abonnieren",

@@ -411,7 +411,8 @@
     "filterRangeActiveMaxLabel": "Price to",
     "filterRangeErrorMessage": "The minimum price cannot be higher than the maximum price.",
     "filterSubmitText": "Filter",
-    "defaultProductSortingLabel": "Name, ascending"
+    "defaultProductSortingLabel": "Name, ascending",
+    "disabledFilterTooltip": "This filter does not display any further results in combination with the selected filters."
   },
   "newsletter": {
     "headline": "Subscribe to newsletter",

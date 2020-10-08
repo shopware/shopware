@@ -6,7 +6,10 @@ export default class FilterBooleanPlugin extends FilterBasePlugin {
 
     static options = deepmerge(FilterBasePlugin.options, {
         checkboxSelector: '.filter-boolean-input',
-        activeClass: 'is-active'
+        activeClass: 'is-active',
+        snippets: {
+            disabledFilterText: 'Filter not active'
+        }
     });
 
     init() {
@@ -83,6 +86,37 @@ export default class FilterBooleanPlugin extends FilterBasePlugin {
         });
 
         return stateChanged;
+    }
+
+    /**
+     * @public
+     */
+    refreshDisabledState(filter) {
+        const booleanFilter = filter[this.options.name];
+
+        if (booleanFilter.max && booleanFilter.max > 0) {
+            this.enableFilter();
+        } else {
+            this.disableFilter();
+        }
+    }
+
+    /**
+     * @public
+     */
+    enableFilter() {
+        this.el.classList.remove('disabled');
+        this.el.removeAttribute('title');
+        this.checkbox.removeAttribute('disabled');
+    }
+
+    /**
+     * @public
+     */
+    disableFilter() {
+        this.el.classList.add('disabled');
+        this.el.setAttribute('title', this.options.snippets.disabledFilterText);
+        this.checkbox.disabled = true;
     }
 
     /**

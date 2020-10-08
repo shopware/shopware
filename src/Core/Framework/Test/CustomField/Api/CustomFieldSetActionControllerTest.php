@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\PlatformRequest;
 
+/**
+ * @group slow
+ */
 class CustomFieldSetActionControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

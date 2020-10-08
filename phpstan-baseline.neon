@@ -881,11 +881,6 @@ parameters:
 			path: src/Core/Checkout/Payment/Cart/Token/JWTFactoryV2.php
 
 		-
-			message: "#^Parameter \\#1 \\$str of function mb_strtolower expects string, string\\|null given\\.$#"
-			count: 2
-			path: src/Core/Checkout/Payment/DataAbstractionLayer/PaymentHandlerIdentifierSubscriber.php
-
-		-
 			message: "#^Parameter \\#1 \\$orderTransactionId of method Shopware\\\\Core\\\\Checkout\\\\Payment\\\\PaymentService\\:\\:getPaymentTransactionStruct\\(\\) expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Checkout/Payment/PaymentService.php
@@ -1696,11 +1691,6 @@ parameters:
 			path: src/Core/Content/Media/Api/MediaUploadController.php
 
 		-
-			message: "#^Cannot cast \\(array\\<string\\>\\)\\|string\\|true to int\\.$#"
-			count: 1
-			path: src/Core/Content/Media/Commands/GenerateMediaTypesCommand.php
-
-		-
 			message: "#^Parameter \\#2 \\$mimeType of class Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\MediaFile constructor expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Content/Media/Commands/GenerateMediaTypesCommand.php
@@ -1721,17 +1711,7 @@ parameters:
 			path: src/Core/Content/Media/Commands/GenerateThumbnailsCommand.php
 
 		-
-			message: "#^Cannot cast array\\<string\\>\\|bool\\|string\\|null to int\\.$#"
-			count: 1
-			path: src/Core/Content/Media/Commands/GenerateThumbnailsCommand.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\Commands\\\\GenerateThumbnailsCommand\\:\\:getFolderFilterFromInput\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Content/Media/Commands/GenerateThumbnailsCommand.php
-
-		-
-			message: "#^Parameter \\#2 \\.\\.\\.\\$args of function sprintf expects bool\\|float\\|int\\|string\\|null, \\(array\\<string\\>\\)\\|string\\|true given\\.$#"
 			count: 1
 			path: src/Core/Content/Media/Commands/GenerateThumbnailsCommand.php
 
@@ -1884,11 +1864,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Media\\\\Metadata\\\\MetadataLoader\\:\\:\\$metadataLoader \\(array\\<Shopware\\\\Core\\\\Content\\\\Media\\\\Metadata\\\\MetadataLoader\\\\MetadataLoaderInterface\\>\\) does not accept iterable\\.$#"
 			count: 1
 			path: src/Core/Content/Media/Metadata/MetadataLoader.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\Metadata\\\\MetadataLoader\\\\ImageMetadataLoader\\:\\:extractMetadata\\(\\) should return array\\|null but returns \\(array\\)\\|true\\.$#"
-			count: 1
-			path: src/Core/Content/Media/Metadata/MetadataLoader/ImageMetadataLoader.php
 
 		-
 			message: "#^Parameter \\#1 \\$fromValue of method Shopware\\\\Core\\\\Content\\\\Media\\\\Pathname\\\\PathnameStrategy\\\\AbstractPathNameStrategy\\:\\:generateMd5Path\\(\\) expects string, string\\|null given\\.$#"
@@ -4156,11 +4131,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/JsonFieldSerializer.php
 
 		-
-			message: "#^Parameter \\#2 \\$fieldName of class Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\FieldException\\\\UnexpectedFieldException constructor expects string, int\\|string given\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/JsonFieldSerializer.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\ListFieldSerializer\\:\\:decode\\(\\) has no return typehint specified\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/ListFieldSerializer.php
@@ -5081,16 +5051,6 @@ parameters:
 			path: src/Core/Framework/MessageQueue/Handler/EncryptedMessageHandler.php
 
 		-
-			message: "#^Parameter \\#1 \\$memoryLimit of method Shopware\\\\Core\\\\Framework\\\\MessageQueue\\\\ScheduledTask\\\\Command\\\\ScheduledTaskRunner\\:\\:convertToBytes\\(\\) expects string, \\(array\\<string\\>\\)\\|string\\|true given\\.$#"
-			count: 1
-			path: src/Core/Framework/MessageQueue/ScheduledTask/Command/ScheduledTaskRunner.php
-
-		-
-			message: "#^Parameter \\#2 \\.\\.\\.\\$args of function sprintf expects bool\\|float\\|int\\|string\\|null, array\\<string\\>\\|bool\\|string\\|null given\\.$#"
-			count: 2
-			path: src/Core/Framework/MessageQueue/ScheduledTask/Command/ScheduledTaskRunner.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\MessageQueue\\\\ScheduledTask\\\\MessageQueue\\\\RegisterScheduledTaskHandler\\:\\:handle\\(\\) has parameter \\$message with no typehint specified\\.$#"
 			count: 1
 			path: src/Core/Framework/MessageQueue/ScheduledTask/MessageQueue/RegisterScheduledTaskHandler.php
@@ -5118,16 +5078,6 @@ parameters:
 		-
 			message: "#^Parameter \\#3 \\$directory of method Shopware\\\\Core\\\\Framework\\\\Migration\\\\Command\\\\CreateMigrationCommand\\:\\:createMigrationFile\\(\\) expects string, string\\|false given\\.$#"
 			count: 1
-			path: src/Core/Framework/Migration/Command/CreateMigrationCommand.php
-
-		-
-			message: "#^Parameter \\#2 \\$needle of function mb_strpos expects string, \\(array\\<string\\>\\)\\|string\\|true given\\.$#"
-			count: 1
-			path: src/Core/Framework/Migration/Command/CreateMigrationCommand.php
-
-		-
-			message: "#^Parameter \\#2 \\.\\.\\.\\$args of function sprintf expects bool\\|float\\|int\\|string\\|null, \\(array\\<string\\>\\)\\|string\\|true given\\.$#"
-			count: 2
 			path: src/Core/Framework/Migration/Command/CreateMigrationCommand.php
 
 		-
@@ -5254,11 +5204,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Plugin\\\\Command\\\\PluginCreateCommand\\:\\:\\$configXmlTemplate has no typehint specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Plugin/Command/PluginCreateCommand.php
-
-		-
-			message: "#^Parameter \\#2 \\.\\.\\.\\$args of function sprintf expects bool\\|float\\|int\\|string\\|null, \\(array\\<string\\>\\)\\|string\\|true given\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/Command/PluginListCommand.php
 
 		-
 			message: "#^Parameter \\#1 \\$file of method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\PluginManagementService\\:\\:extractPluginZip\\(\\) expects string, array\\<string\\>\\|string\\|null given\\.$#"
@@ -6946,11 +6891,6 @@ parameters:
 			path: src/Docs/Convert/WikiApiService.php
 
 		-
-			message: "#^Parameter \\#1 \\$hash of method Shopware\\\\Docs\\\\Convert\\\\EntityHandler\\:\\:deleteEntityHash\\(\\) expects string, int\\|string given\\.$#"
-			count: 2
-			path: src/Docs/Convert/WikiApiService.php
-
-		-
 			message: "#^Property Shopware\\\\Docs\\\\Docs\\:\\:\\$name has no typehint specified\\.$#"
 			count: 1
 			path: src/Docs/Docs.php
@@ -7114,16 +7054,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$input of function array_keys expects array, array\\|\\(callable\\) given\\.$#"
 			count: 1
 			path: src/Elasticsearch/Framework/Indexing/CreateAliasTaskHandler.php
-
-		-
-			message: "#^Cannot access offset 'errors' on array\\|\\(callable\\(\\)\\: mixed\\)\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/Indexing/ElasticsearchIndexer.php
-
-		-
-			message: "#^Parameter \\#1 \\$result of method Shopware\\\\Elasticsearch\\\\Framework\\\\Indexing\\\\ElasticsearchIndexer\\:\\:parseErrors\\(\\) expects array, \\(array\\)\\|\\(callable\\) given\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/Indexing/ElasticsearchIndexer.php
 
 		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"

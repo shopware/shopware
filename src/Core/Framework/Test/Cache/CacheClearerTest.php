@@ -24,6 +24,9 @@ class CacheClearerTest extends TestCase
     use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
 
+    /**
+     * @group slow
+     */
     public function testCleanupOldKernelDirectories(): void
     {
         $classLoader = clone KernelLifecycleManager::getClassLoader();
@@ -68,6 +71,9 @@ class CacheClearerTest extends TestCase
         }
     }
 
+    /**
+     * @group slow
+     */
     public function testClearContainerCache(): void
     {
         $kernelClass = KernelLifecycleManager::getKernelClass();

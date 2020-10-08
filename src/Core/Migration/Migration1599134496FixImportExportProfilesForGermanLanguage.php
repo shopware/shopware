@@ -36,8 +36,12 @@ class Migration1599134496FixImportExportProfilesForGermanLanguage extends Migrat
             AND language_id = :languageId
 SQL;
 
-        $englishData = $connection->fetchAll($sql, [':languageId' => $englishLanguageId]);
-        $germanData = $connection->fetchAll($sql, [':languageId' => $germanLanguageId]);
+        $englishData = $connection->fetchAll($sql, [
+            ':languageId' => $englishLanguageId,
+        ]);
+        $germanData = $connection->fetchAll($sql, [
+            ':languageId' => $germanLanguageId,
+        ]);
         $germanTranslations = $this->getGermanTranslationData();
 
         $insertSql = <<<SQL

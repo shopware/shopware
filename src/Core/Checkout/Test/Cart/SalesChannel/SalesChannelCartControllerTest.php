@@ -18,6 +18,9 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\Routing\Router;
 
+/**
+ * @group slow
+ */
 class SalesChannelCartControllerTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;

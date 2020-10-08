@@ -19,6 +19,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 
+/**
+ * @group slow
+ */
 class SeoUrlTest extends TestCase
 {
     use IntegrationTestBehaviour;

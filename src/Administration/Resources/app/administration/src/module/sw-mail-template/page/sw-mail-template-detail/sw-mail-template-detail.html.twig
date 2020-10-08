@@ -12,13 +12,14 @@
             <template #smart-bar-actions>
                 {% block sw_mail_template_detail_actions_save %}
                     <sw-button-process
-                            class="sw-mail-template-detail__save-action"
-                            :isLoading="isLoading"
-                            :processSuccess="isSaveSuccessful"
-                            :disabled="isLoading"
-                            variant="primary"
-                            @process-finish="saveFinish"
-                            @click.prevent="onSave">
+                        v-tooltip.bottom="tooltipSave"
+                        class="sw-mail-template-detail__save-action"
+                        variant="primary"
+                        :isLoading="isLoading"
+                        :processSuccess="isSaveSuccessful"
+                        :disabled="!allowSave"
+                        @process-finish="saveFinish"
+                        @click.prevent="onSave">
                         {{ $tc('sw-mail-template.detail.buttonSave') }}
                     </sw-button-process>
                 {% endblock %}
@@ -47,33 +48,38 @@
                         <sw-card :title="$tc('sw-mail-template.detail.basic.titleCard')">
                             {% block sw_mail_template_basic_form_mail_type_field %}
                                 <sw-entity-single-select
+                                    v-model="mailTemplate.mailTemplateTypeId"
                                     id="mailTemplateTypes"
                                     entity="mail_template_type"
-                                    v-model="mailTemplate.mailTemplateTypeId"
+                                    required
                                     :label="$tc('sw-mail-template.detail.basic.labelMailType')"
                                     :placeholder="$tc('sw-mail-template.detail.basic.placeholderMailType')"
-                                    @change="onChangeType"
-                                    required>
+                                    :disabled="!acl.can('mail_templates.editor')"
+                                    :error="mailTemplateMailTemplateTypeIdError"
+                                    @change="onChangeType">
                                 </sw-entity-single-select>
                             {% endblock %}
 
                             {% block sw_mail_template_basic_form_sales_channels_field %}
                                 <sw-entity-multi-select
-                                    ref="mailTemplateSalesChannelSelect"
                                     v-model="mailTemplateSalesChannels"
                                     v-if="mailTemplateSalesChannels !== null"
+                                    class="sw-mail-template-detail__sales-channel"
+                                    ref="mailTemplateSalesChannelSelect"
                                     labelProperty="name"
                                     :criteria="salesChannelTypeCriteria"
                                     :label="$tc('sw-mail-template.detail.basic.labelSalesChannels')"
-                                    :placeholder="$tc('sw-mail-template.detail.basic.placeholderSalesChannels')">
+                                    :placeholder="$tc('sw-mail-template.detail.basic.placeholderSalesChannels')"
+                                    :disabled="!acl.can('mail_templates.editor')">
                                 </sw-entity-multi-select>
                             {% endblock %}
 
                             {% block sw_mail_template_basic_form_description_field %}
-                                <sw-field type="textarea"
+                                <sw-field v-model="mailTemplate.description"
+                                          type="textarea"
                                           :label="$tc('sw-mail-template.detail.basic.labelDescription')"
                                           :placeholder="$tc('sw-mail-template.detail.basic.placeholderDescription')"
-                                          v-model="mailTemplate.description">
+                                          :disabled="!acl.can('mail_templates.editor')">
                                 </sw-field>
                             {% endblock %}
                         </sw-card>
@@ -85,19 +91,23 @@
                                 <div class="sw-mail-template-detail__options-info-wrapper">
 
                                     {% block sw_mail_template_options_form_subject_field %}
-                                        <sw-field type="text"
+                                        <sw-field v-model="mailTemplate.subject"
+                                                  type="text"
+                                                  required
                                                   :label="$tc('sw-mail-template.detail.options.labelSubject')"
                                                   :placeholder="placeholder(mailTemplate, 'subject', $tc('sw-mail-template.detail.options.placeholderSubject'))"
-                                                  v-model="mailTemplate.subject">
+                                                  :disabled="!acl.can('mail_templates.editor')"
+                                                  :error="mailTemplateSubjectError">
                                         </sw-field>
                                     {% endblock %}
                                 </div>
 
                                 {% block sw_mail_template_options_form_sender_name_field %}
-                                    <sw-field type="text"
+                                    <sw-field v-model="mailTemplate.senderName"
+                                              type="text"
                                               :label="$tc('sw-mail-template.detail.options.labelSenderName')"
                                               :placeholder="placeholder(mailTemplate, 'senderName', $tc('sw-mail-template.detail.options.placeholderSenderName'))"
-                                              v-model="mailTemplate.senderName">
+                                              :disabled="!acl.can('mail_templates.editor')">
                                     </sw-field>
                                 {% endblock %}
                             </sw-container>
@@ -109,10 +119,9 @@
                             {% block sw_mail_template_detail_attachments_info_upload %}
                                 <sw-upload-listener
                                     v-if="mailTemplate.id"
-                                    :uploadTag="mailTemplate.id"
                                     autoUpload
-                                    @media-upload-finish="successfulUpload"
-                                >
+                                    :uploadTag="mailTemplate.id"
+                                    @media-upload-finish="successfulUpload">
                                 </sw-upload-listener>
 
                                 <sw-media-upload-v2
@@ -121,14 +130,15 @@
                                     defaultFolder="mail_template"
                                     :uploadTag="mailTemplate.id"
                                     :fileAccept="fileAccept"
+                                    :disabled="!acl.can('mail_templates.editor')"
                                     @media-drop="onMediaDrop"
                                     @media-upload-sidebar-open="openMediaSidebar">
                                 </sw-media-upload-v2>
                             {% endblock %}
 
                             {% block sw_mail_template_detail_attachments_info_grid %}
-                                <sw-data-grid class="sw-mail-template-detail__attachments-info-grid"
-                                              v-if="mailTemplateMedia && mailTemplateMedia.length > 0"
+                                <sw-data-grid v-if="mailTemplateMedia && mailTemplateMedia.length > 0"
+                                              class="sw-mail-template-detail__attachments-info-grid"
                                               :dataSource="mailTemplateMedia"
                                               :columns="mediaColumns"
                                               :fullPage="false"
@@ -136,6 +146,7 @@
                                               :allowColumnEdit="false"
                                               :allowInlineEdit="false"
                                               :compactMode="false"
+                                              :showSelection="acl.can('mail_templates.editor')"
                                               @selection-change="onSelectionChanged">
                                     <template #preview-fileName="{ item }">
                                         {% block sw_mail_template_detail_attachments_info_grid_preview %}
@@ -145,7 +156,15 @@
 
                                     <template #actions="{ item }">
                                         {% block sw_mail_template_detail_attachments_info_grid_actions %}
-                                            <sw-context-menu-item variant="danger" @click="onDeleteMedia(item.id)">
+                                            <sw-context-menu-item
+                                                v-tooltip.bottom="{
+                                                    message: $tc('sw-privileges.tooltip.warning'),
+                                                    disabled: acl.can('mail_templates.editor'),
+                                                    showOnDisabledElements: true
+                                                }"
+                                                variant="danger"
+                                                :disabled="!acl.can('mail_templates.editor')"
+                                                @click="onDeleteMedia(item.id)">
                                                 {{ $tc('global.default.delete') }}
                                             </sw-context-menu-item>
                                         {% endblock %}
@@ -167,29 +186,31 @@
                         <sw-card :title="$tc('sw-mail-template.detail.mailText.titleCard')">
                             {% block sw_mail_template_mail_text_form_content_plain_field %}
                                 <sw-code-editor
-                                    :label="$tc('sw-mail-template.detail.mailText.labelContentPlain')"
-                                    :placeholder="placeholder(mailTemplate, 'contentPlain', $tc('sw-mail-template.detail.mailText.placeholderPlain'))"
+                                    v-model="mailTemplate.contentPlain"
                                     name="content_plain"
-                                    :completerFunction="outerCompleterFunction"
-                                    :editorConfig="editorConfig"
                                     completionMode="entity"
                                     ref="plainEditor"
+                                    :label="$tc('sw-mail-template.detail.mailText.labelContentPlain')"
+                                    :placeholder="placeholder(mailTemplate, 'contentPlain', $tc('sw-mail-template.detail.mailText.placeholderPlain'))"
+                                    :completerFunction="outerCompleterFunction"
+                                    :editorConfig="editorConfig"
                                     :key="`${mailTemplate.mailTemplateTypeId}plain`"
-                                    v-model="mailTemplate.contentPlain">
+                                    :disabled="!acl.can('mail_templates.editor')">
                                 </sw-code-editor>
                             {% endblock %}
 
                             {% block sw_mail_template_mail_text_form_content_html_field %}
                                 <sw-code-editor
-                                        :label="$tc('sw-mail-template.detail.mailText.labelContentHtml')"
-                                        :placeholder="placeholder(mailTemplate, 'contentHtml', $tc('sw-mail-template.detail.mailText.placeholderHtml'))"
-                                        name="content_html"
-                                        :completerFunction="outerCompleterFunction"
-                                        :editorConfig="editorConfig"
-                                        completionMode="entity"
-                                        :key="`${mailTemplate.mailTemplateTypeId}html`"
-                                        ref="htmlEditor"
-                                        v-model="mailTemplate.contentHtml">
+                                    v-model="mailTemplate.contentHtml"
+                                    name="content_html"
+                                    completionMode="entity"
+                                    ref="htmlEditor"
+                                    :label="$tc('sw-mail-template.detail.mailText.labelContentHtml')"
+                                    :placeholder="placeholder(mailTemplate, 'contentHtml', $tc('sw-mail-template.detail.mailText.placeholderHtml'))"
+                                    :completerFunction="outerCompleterFunction"
+                                    :editorConfig="editorConfig"
+                                    :key="`${mailTemplate.mailTemplateTypeId}html`"
+                                    :disabled="!acl.can('mail_templates.editor')">
                                 </sw-code-editor>
                             {% endblock %}
                         </sw-card>
@@ -208,14 +229,16 @@
                             <div class="sw-mail-template-detail__test-mail-sidebar-container">
                                 {% block sw_mail_template_mail_text_form_test_mail_field %}
                                     <sw-text-field
-                                              :placeholder="$tc('sw-mail-template.detail.sidebar.placeholderTestMail')"
-                                              :label="$tc('sw-mail-template.detail.sidebar.labelTestMail')"
-                                              v-model="testerMail">
+                                        v-model="testerMail"
+                                        :placeholder="$tc('sw-mail-template.detail.sidebar.placeholderTestMail')"
+                                        :label="$tc('sw-mail-template.detail.sidebar.labelTestMail')"
+                                        :disabled="!acl.can('mail_templates.editor')">
                                     </sw-text-field>
                                 {% endblock %}
 
                                 {% block sw_mail_template_mail_text_form_test_mail_button %}
-                                    <sw-button :disabled="mailTemplate.isLoading || !testMailRequirementsMet"  @click="onClickTestMailTemplate" >
+                                    <sw-button :disabled="isLoading || !testMailRequirementsMet"
+                                               @click="onClickTestMailTemplate">
                                         {{ $tc('sw-mail-template.detail.sidebar.buttonTestMail') }}
                                     </sw-button>
                                 {% endblock %}
@@ -225,7 +248,9 @@
                         <sw-sidebar-media-item ref="mediaSidebarItem">
                             <template slot="context-menu-items" slot-scope="media">
                                 {% block sw_mail_template_detail_sidebar_add_attachment %}
-                                    <sw-context-menu-item @click="onAddItemToAttachment(media.mediaItem)">
+                                    <sw-context-menu-item
+                                        :disabled="!acl.can('mail_templates.editor')"
+                                        @click="onAddItemToAttachment(media.mediaItem)">
                                         {{ $tc('sw-mail-template.detail.sidebar.labelContextMenuAddToMailTemplate') }}
                                     </sw-context-menu-item>
                                 {% endblock %}

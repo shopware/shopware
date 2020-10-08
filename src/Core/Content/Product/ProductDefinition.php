@@ -172,6 +172,7 @@ class ProductDefinition extends EntityDefinition
             (new BlacklistRuleField())->addFlags(new ReadProtected(SalesChannelApiSource::class)),
             (new WhitelistRuleField())->addFlags(new ReadProtected(SalesChannelApiSource::class)),
             (new BoolField('custom_field_set_selection_active', 'customFieldSetSelectionActive'))->addFlags(new Inherited()),
+            (new IntField('sales', 'sales'))->addFlags(new WriteProtected()),
 
             (new TranslatedField('metaDescription'))->addFlags(new Inherited()),
             (new TranslatedField('name'))->addFlags(new Inherited(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
@@ -260,7 +261,7 @@ class ProductDefinition extends EntityDefinition
 
         if (Feature::isActive('FEATURE_NEXT_10075')) {
             $collection->add(
-                (new TranslatedField('productSearchKeywords'))
+                (new TranslatedField('customSearchKeywords'))
                     ->addFlags(new Inherited(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING))
             );
         }

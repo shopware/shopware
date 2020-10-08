@@ -54,17 +54,23 @@ class SupportedFeaturesService
 
     public function getUploadFileSizeLimit(): int
     {
+        $twoGiB = 2 * 1024 * 1024 * 1024;
         $values = [
             self::toBytes(ini_get('upload_max_filesize')),
             self::toBytes(ini_get('post_max_size')),
-            2 * 1024 * 1024 * 1024, // 2 GiB as fallback, because file size is stored in MySQL INT column
+            $twoGiB, // 2 GiB as fallback, because file size is stored in MySQL INT column
         ];
 
-        $limits = array_filter($values, function (int $value) {
+        $limits = array_filter($values, static function (int $value) {
             return $value > 0;
         });
 
-        return min(...$limits);
+        $min = min(...$limits);
+        if ($min === false) {
+            return $twoGiB;
+        }
+
+        return $min;
     }
 
     private static function toBytes(string $value): int

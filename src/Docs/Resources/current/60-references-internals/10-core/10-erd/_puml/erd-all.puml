@@ -872,6 +872,7 @@ Table(ShopwareCoreContentProductProductDefinition, "product\n(Product)") {
    blacklistIds blacklistRule
    whitelistIds whitelistRule
    customFieldSetSelectionActive bool
+   sales int
    metaDescription translated
    name translated
    keywords translated

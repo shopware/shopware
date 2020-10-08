@@ -18,6 +18,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
+/**
+ * @group slow
+ */
 class ProductListingLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -237,6 +240,7 @@ class ProductListingLoaderTest extends TestCase
 
     /**
      * @dataProvider groupedFlagProvider
+     * @group slow
      */
     public function testGroupedFlag(array $explode, bool $mainVariant, bool $grouped): void
     {

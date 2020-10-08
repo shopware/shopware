@@ -25,6 +25,9 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMa
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\Transition;
 
+/**
+ * @group slow
+ */
 class ProductStockIndexerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -211,7 +214,7 @@ class ProductStockIndexerTest extends TestCase
         static::assertSame($initialStock, $product->getAvailableStock());
     }
 
-    public function testStockUpdatedAfterOrderCompleted(): void
+    public function testStockAndSalesUpdatedAfterOrderCompleted(): void
     {
         $id = $this->createProduct();
 
@@ -220,6 +223,7 @@ class ProductStockIndexerTest extends TestCase
         $product = $this->productRepository->search(new Criteria([$id]), $context)->get($id);
 
         static::assertSame(5, $product->getStock());
+        static::assertSame(0, $product->getSales());
 
         $orderId = $this->orderProduct($id, 1);
 
@@ -229,6 +233,7 @@ class ProductStockIndexerTest extends TestCase
         static::assertTrue($product->getAvailable());
         static::assertSame(5, $product->getStock());
         static::assertSame(4, $product->getAvailableStock());
+        static::assertSame(0, $product->getSales());
 
         $this->transitionOrder($orderId, 'process');
         $this->transitionOrder($orderId, 'complete');
@@ -239,9 +244,10 @@ class ProductStockIndexerTest extends TestCase
         static::assertTrue($product->getAvailable());
         static::assertSame(4, $product->getStock());
         static::assertSame(4, $product->getAvailableStock());
+        static::assertSame(1, $product->getSales());
     }
 
-    public function testUpdateStockWithDifferentOrderVersions(): void
+    public function testUpdateStockAndSalesWithDifferentOrderVersions(): void
     {
         $id = $this->createProduct();
 
@@ -250,6 +256,7 @@ class ProductStockIndexerTest extends TestCase
         $product = $this->productRepository->search(new Criteria([$id]), $context)->get($id);
 
         static::assertSame(5, $product->getStock());
+        static::assertSame(0, $product->getSales());
 
         $orderId = $this->orderProduct($id, 1);
 
@@ -271,6 +278,7 @@ class ProductStockIndexerTest extends TestCase
         static::assertTrue($product->getAvailable());
         static::assertSame(5, $product->getStock());
         static::assertSame(4, $product->getAvailableStock());
+        static::assertSame(0, $product->getSales());
 
         $this->transitionOrder($orderId, 'process');
         $this->transitionOrder($orderId, 'complete');
@@ -281,6 +289,7 @@ class ProductStockIndexerTest extends TestCase
         static::assertTrue($product->getAvailable());
         static::assertSame(4, $product->getStock());
         static::assertSame(4, $product->getAvailableStock());
+        static::assertSame(1, $product->getSales());
     }
 
     public function testProductGoesOutOfStock(): void
@@ -501,6 +510,52 @@ class ProductStockIndexerTest extends TestCase
         static::assertSame(4, $newProduct->getAvailableStock());
     }
 
+    public function testSalesIsUpdatedIfProductOfOrderLineItemIsChanged(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $originalProductId = $this->createProduct([
+            'stock' => 5,
+        ]);
+        $newProductId = $this->createProduct([
+            'stock' => 5,
+        ]);
+
+        $orderId = $this->orderProduct($originalProductId, 1);
+
+        $this->transitionOrder($orderId, 'process');
+        $this->transitionOrder($orderId, 'complete');
+
+        /** @var ProductEntity $originalProduct */
+        $originalProduct = $this->productRepository->search(new Criteria([$originalProductId]), $context)->first();
+        /** @var ProductEntity $newProduct */
+        $newProduct = $this->productRepository->search(new Criteria([$newProductId]), $context)->first();
+
+        static::assertSame(1, $originalProduct->getSales());
+        static::assertSame(0, $newProduct->getSales());
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('orderId', $orderId));
+        /** @var OrderLineItemEntity $orderLineItem */
+        $orderLineItem = $this->orderLineItemRepository->search($criteria, $context)->first();
+        $this->orderLineItemRepository->update([
+            [
+                'id' => $orderLineItem->getId(),
+                'referencedId' => $newProduct->getId(),
+                'productId' => $newProduct->getId(),
+                'payload' => [
+                    'productNumber' => $newProduct->getProductNumber(),
+                ],
+            ],
+        ], $context);
+
+        $newProduct = $this->productRepository->search(new Criteria([$newProductId]), $context)->first();
+        $originalProduct = $this->productRepository->search(new Criteria([$originalProductId]), $context)->first();
+
+        static::assertSame(0, $originalProduct->getSales());
+        static::assertSame(1, $newProduct->getSales());
+    }
+
     public function testStockIsUpdatedIfQuantityOfOrderLineItemIsChanged(): void
     {
         $context = Context::createDefaultContext();
@@ -515,6 +570,7 @@ class ProductStockIndexerTest extends TestCase
         /** @var ProductEntity $product */
         $product = $this->productRepository->search(new Criteria([$productId]), $context)->first();
         static::assertSame(4, $product->getStock());
+        static::assertSame(1, $product->getSales());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('orderId', $orderId));
@@ -530,6 +586,7 @@ class ProductStockIndexerTest extends TestCase
         $product = $this->productRepository->search(new Criteria([$productId]), $context)->first();
         // only not completed orders are considered by the stock indexer
         static::assertSame(4, $product->getStock());
+        static::assertSame(2, $product->getSales());
     }
 
     public function testOrderCanceled(): void
@@ -556,6 +613,56 @@ class ProductStockIndexerTest extends TestCase
         $product = $this->productRepository->search(new Criteria([$productId]), $context)->first();
         static::assertSame(5, $product->getStock());
         static::assertSame(4, $product->getAvailableStock());
+    }
+
+    public function testSalesIsUpdatedWhenOrderCancelled(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $productId = $this->createProduct([
+            'stock' => 5,
+        ]);
+
+        $orderId = $this->orderProduct($productId, 1);
+
+        $this->transitionOrder($orderId, 'process');
+        $this->transitionOrder($orderId, 'complete');
+
+        /** @var ProductEntity $product */
+        $product = $this->productRepository->search(new Criteria([$productId]), $context)->first();
+
+        static::assertSame(1, $product->getSales());
+        $this->transitionOrder($orderId, 'cancel');
+
+        /** @var ProductEntity $product */
+        $product = $this->productRepository->search(new Criteria([$productId]), $context)->first();
+
+        static::assertSame(0, $product->getSales());
+    }
+
+    public function testSalesIsUpdatedWhenOrderReopened(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $productId = $this->createProduct([
+            'stock' => 5,
+        ]);
+
+        $orderId = $this->orderProduct($productId, 1);
+
+        $this->transitionOrder($orderId, 'process');
+        $this->transitionOrder($orderId, 'complete');
+
+        /** @var ProductEntity $product */
+        $product = $this->productRepository->search(new Criteria([$productId]), $context)->first();
+
+        static::assertSame(1, $product->getSales());
+        $this->transitionOrder($orderId, 'reopen');
+
+        /** @var ProductEntity $product */
+        $product = $this->productRepository->search(new Criteria([$productId]), $context)->first();
+
+        static::assertSame(0, $product->getSales());
     }
 
     public function testDeleteOrderedProduct(): void

@@ -79,9 +79,9 @@
 
         {% block sw_product_category_form_search_keyword_field %}
             <sw-inherit-wrapper v-if="feature.isActive('FEATURE_NEXT_10075')"
-                                v-model="product.productSearchKeywords"
+                                v-model="product.customSearchKeywords"
                                 :helpText="$tc('sw-product.categoryForm.helpTextSearchKeyword')"
-                                :inheritedValue="parentProduct.productSearchKeywords"
+                                :inheritedValue="parentProduct.customSearchKeywords"
                                 :label="$tc('sw-product.categoryForm.labelSearchKeyword')">
                 <template #content="{ currentValue, isInherited, updateCurrentValue }">
                     <sw-multi-tag-select

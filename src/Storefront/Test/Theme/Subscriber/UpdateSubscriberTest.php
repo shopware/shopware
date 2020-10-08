@@ -96,14 +96,16 @@ class UpdateSubscriberTest extends TestCase
         );
 
         foreach ($themes as $themeId => $salesChannelId) {
-            $this->createSalesChannel(['id' => $salesChannelId, 'domains' => [
-                [
-                    'languageId' => Defaults::LANGUAGE_SYSTEM,
-                    'currencyId' => Defaults::CURRENCY,
-                    'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
-                    'url' => 'http://localhost/' . $themeId,
+            $this->createSalesChannel([
+                'id' => $salesChannelId, 'domains' => [
+                    [
+                        'languageId' => Defaults::LANGUAGE_SYSTEM,
+                        'currencyId' => Defaults::CURRENCY,
+                        'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                        'url' => 'http://localhost/' . $themeId,
+                    ],
                 ],
-            ]]);
+            ]);
 
             $themeSalesChannelRepository->create([['themeId' => $themeId, 'salesChannelId' => $salesChannelId]], $context);
         }

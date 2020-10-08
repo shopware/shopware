@@ -12,6 +12,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\PlatformRequest;
 
+/**
+ * @group slow
+ */
 class ProductSuggestRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

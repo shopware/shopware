@@ -6,6 +6,8 @@ import './page/sw-mail-template-index';
 import './page/sw-mail-header-footer-detail';
 import './page/sw-mail-header-footer-create';
 
+import './acl';
+
 const { Module } = Shopware;
 
 Module.register('sw-mail-template', {
@@ -27,35 +29,40 @@ Module.register('sw-mail-template', {
             },
             path: 'index',
             meta: {
-                parentPath: 'sw.settings.index'
+                parentPath: 'sw.settings.index',
+                privilege: 'mail_templates.viewer'
             }
         },
         create: {
             component: 'sw-mail-template-create',
             path: 'create',
             meta: {
-                parentPath: 'sw.mail.template.index'
+                parentPath: 'sw.mail.template.index',
+                privilege: 'mail_templates.creator'
             }
         },
         detail: {
             component: 'sw-mail-template-detail',
             path: 'detail/:id',
             meta: {
-                parentPath: 'sw.mail.template.index'
+                parentPath: 'sw.mail.template.index',
+                privilege: 'mail_templates.viewer'
             }
         },
         create_head_foot: {
             component: 'sw-mail-header-footer-create',
             path: 'create-head-foot',
             meta: {
-                parentPath: 'sw.mail.template.index'
+                parentPath: 'sw.mail.template.index',
+                privilege: 'mail_templates.creator'
             }
         },
         detail_head_foot: {
             component: 'sw-mail-header-footer-detail',
             path: 'detail-head-foot/:id',
             meta: {
-                parentPath: 'sw.mail.template.index'
+                parentPath: 'sw.mail.template.index',
+                privilege: 'mail_templates.viewer'
             }
         }
     },
@@ -63,6 +70,7 @@ Module.register('sw-mail-template', {
     settingsItem: {
         group: 'shop',
         to: 'sw.mail.template.index',
-        icon: 'default-communication-envelope'
+        icon: 'default-communication-envelope',
+        privilege: 'mail_templates.viewer'
     }
 });

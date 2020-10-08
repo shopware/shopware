@@ -25,6 +25,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\RequestContext;
 
+/**
+ * @group slow
+ */
 class StorefrontRoutingTest extends TestCase
 {
     use IntegrationTestBehaviour;

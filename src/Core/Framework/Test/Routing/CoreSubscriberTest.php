@@ -43,6 +43,9 @@ class CoreSubscriberTest extends TestCase
         static::assertTrue($response->headers->has('Strict-Transport-Security'));
     }
 
+    /**
+     * @group slow
+     */
     public function testStorefrontNoCsp(): void
     {
         $browser = $this->getBrowser();

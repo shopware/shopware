@@ -30,8 +30,14 @@ Component.register('sw-order-product-select', {
             default() {
                 return true;
             }
-        }
+        },
 
+        taxStatus: {
+            type: String,
+            // @deprecated tag:v6.4.0 - taxStatus will become required: true
+            required: false,
+            default: ''
+        }
     },
 
     data() {
@@ -96,7 +102,9 @@ Component.register('sw-order-product-select', {
             this.productRepository.get(newProductId, this.contextWithInheritance).then((newProduct) => {
                 this.item.identifier = newProduct.id;
                 this.item.label = newProduct.name;
-                this.item.priceDefinition.price = newProduct.price[0].gross;
+                this.item.priceDefinition.price = this.taxStatus === 'gross'
+                    ? newProduct.price[0].gross
+                    : newProduct.price[0].net;
                 this.item.priceDefinition.type = this.lineItemPriceTypes.QUANTITY;
                 this.item.price.unitPrice = '...';
                 this.item.price.totalPrice = '...';

@@ -76,6 +76,10 @@ Component.register('sw-order-line-items-grid-sales-channel', {
             return !this.isCustomerActive || !this.isCartTokenAvailable || this.isLoading;
         },
 
+        taxStatus() {
+            return get(this.cart, 'price.taxStatus', '');
+        },
+
         getLineItemColumns() {
             const columnDefinitions = [{
                 property: 'label',

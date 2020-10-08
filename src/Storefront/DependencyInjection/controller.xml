@@ -230,6 +230,14 @@
             </call>
         </service>
 
+        <service id="Shopware\Storefront\Controller\DocumentController" public="true">
+            <argument type="service" id="Shopware\Storefront\Page\Account\Document\DocumentPageLoader"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_10537"/>
+        </service>
+
         <service id="Shopware\Storefront\Controller\StoreApiProxyController" public="true">
             <argument type="service" id="Symfony\Component\HttpKernel\KernelInterface"/>
             <argument type="service" id="Symfony\Component\HttpFoundation\RequestStack"/>

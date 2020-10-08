@@ -21,7 +21,8 @@ Module.register('sw-settings-seo', {
             component: 'sw-settings-seo',
             path: 'index',
             meta: {
-                parentPath: 'sw.settings.index'
+                parentPath: 'sw.settings.index',
+                privilege: 'system.system_config'
             }
         }
     },
@@ -29,6 +30,7 @@ Module.register('sw-settings-seo', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.seo.index',
-        icon: 'default-action-search'
+        icon: 'default-action-search',
+        privilege: 'system.system_config'
     }
 });

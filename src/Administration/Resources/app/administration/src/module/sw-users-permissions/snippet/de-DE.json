@@ -188,7 +188,7 @@
     },
     "additional_permissions": {
       "system": {
-        "label": "System"
+        "label": "Einstellungen"
       },
       "marketing": {
         "label": "Marketing"

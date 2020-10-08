@@ -2,6 +2,7 @@ import './component/sw-settings-item';
 import './component/sw-system-config';
 import './page/sw-settings-index';
 import './mixin/sw-settings-list.mixin';
+import './acl';
 
 const { Module } = Shopware;
 

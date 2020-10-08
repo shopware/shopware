@@ -213,6 +213,10 @@ Component.register('sw-order-create-base', {
             set(visibility) {
                 this.switchAutomaticPromotions(visibility);
             }
+        },
+
+        taxStatus() {
+            return get(this.cart, 'price.taxStatus', '');
         }
     },
 

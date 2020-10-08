@@ -160,7 +160,10 @@ function createWrapper({ privileges = [] }) {
             'sw-context-button': true,
             'sw-context-menu-item': true,
             'sw-card-filter': true,
-            'sw-data-grid': Shopware.Component.build('sw-data-grid')
+            'sw-data-grid': Shopware.Component.build('sw-data-grid'),
+            'sw-checkbox-field': true,
+            'sw-product-variant-info': true,
+            'router-link': true
         },
         mocks: {
             $tc: (t, count, value) => {
@@ -218,13 +221,11 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
             }
         });
 
-        await wrapper.vm.$nextTick();
-
         const productItem = wrapper.find('.sw-data-grid__row--0');
         const productLabel = productItem.find('.sw-data-grid__cell--label');
         const showProductButton1 = productItem.find('sw-context-menu-item-stub');
 
-        expect(productLabel.contains('router-link')).toBeTruthy();
+        expect(productLabel.find('router-link-stub').exists()).toBeTruthy();
         expect(showProductButton1.attributes().disabled).toBeUndefined();
 
 
@@ -232,14 +233,14 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         const customLabel = customItem.find('.sw-data-grid__cell--label');
         const showProductButton2 = customItem.find('sw-context-menu-item-stub');
 
-        expect(customLabel.contains('router-link')).toBeFalsy();
+        expect(customLabel.find('router-link-stub').exists()).toBeFalsy();
         expect(showProductButton2.attributes().disabled).toBeTruthy();
 
         const creditItem = wrapper.find('.sw-data-grid__row--2');
         const creditLabel = creditItem.find('.sw-data-grid__cell--label');
         const showProductButton3 = creditItem.find('sw-context-menu-item-stub');
 
-        expect(creditLabel.contains('router-link')).toBeFalsy();
+        expect(creditLabel.find('router-link-stub').exists()).toBeFalsy();
         expect(showProductButton3.attributes().disabled).toBeTruthy();
     });
 
@@ -252,8 +253,6 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
                 lineItems: [...mockItems]
             }
         });
-
-        await wrapper.vm.$nextTick();
 
         const creditItem = wrapper.find('.sw-data-grid__row--2');
 
@@ -272,8 +271,6 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
             }
         });
 
-        await wrapper.vm.$nextTick();
-
         const creditItem = wrapper.find('.sw-data-grid__row--0');
         const taxDetailTooltip = creditItem.find('.sw-order-line-items-grid__item-tax-tooltip');
 
@@ -289,8 +286,6 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
                 lineItems: [{ ...mockMultipleTaxesItem }]
             }
         });
-
-        await wrapper.vm.$nextTick();
 
         const creditItem = wrapper.find('.sw-data-grid__row--0');
         const taxDetailTooltip = creditItem.find('.sw-order-line-items-grid__item-tax-tooltip');
@@ -308,32 +303,29 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
             }
         });
 
-        await wrapper.vm.$nextTick();
-
         const taxDetailTooltip = wrapper.find('.sw-order-line-items-grid__item-tax-tooltip');
 
         expect(taxDetailTooltip.attributes()['tooltip-message'])
             .toBe('sw-order.detailBase.tax<br>10%: -€3.33<br>20%: -€13.33');
     });
 
-    it('should show items correctly when search by search tearm', async () => {
+    it('should show items correctly when search by search term', async () => {
         const wrapper = createWrapper({});
 
-        wrapper.setProps({
+        await wrapper.setProps({
             order: {
                 ...wrapper.props().order,
                 lineItems: [...mockItems]
             }
         });
 
-        wrapper.setData({
+        await wrapper.setData({
             searchTerm: 'item product'
         });
 
-        await wrapper.vm.$nextTick();
-
         const firstRow = wrapper.find('.sw-data-grid__row--0');
+        const productLabel = firstRow.find('.sw-data-grid__cell--label');
 
-        expect(firstRow.contains('Product item'));
+        expect(productLabel.text()).toEqual('Product item');
     });
 });

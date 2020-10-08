@@ -60,6 +60,10 @@ Component.register('sw-order-line-items-grid', {
             return Service('cartStoreService').getLineItemTypes();
         },
 
+        taxStatus() {
+            return get(this.order, 'taxStatus', '');
+        },
+
         getLineItemColumns() {
             const columnDefinitions = [{
                 property: 'label',

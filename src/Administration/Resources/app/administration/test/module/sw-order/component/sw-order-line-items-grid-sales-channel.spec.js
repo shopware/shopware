@@ -152,7 +152,8 @@ function createWrapper() {
             'sw-card-filter': true,
             'sw-data-grid': Shopware.Component.build('sw-data-grid'),
             'sw-product-variant-info': true,
-            'sw-order-product-select': true
+            'sw-order-product-select': true,
+            'router-link': true
         },
         mocks: {
             $tc: (t, count, value) => {
@@ -187,12 +188,11 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
     it('should show empty state when there is not item', async () => {
         const wrapper = createWrapper({});
 
-        const emtyState = wrapper.find('.sw-order-line-items-grid-sales-channel__empty-container');
-        const itemGrid = wrapper.find('.sw-order-line-items-grid-sales-channel__data-grid');
+        const emptyState = wrapper.find('.sw-order-line-items-grid-sales-channel__empty-container');
+        const itemGrid = wrapper.find('img');
 
-        expect(emtyState.exists()).toBeTruthy();
-        expect(emtyState.contains('img')).toBeTruthy();
-        expect(itemGrid.exists()).toBeFalsy();
+        expect(emptyState.exists()).toBeTruthy();
+        expect(itemGrid.exists()).toBeTruthy();
     });
 
     it('only product item should have redirect link', async () => {
@@ -204,13 +204,11 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
             }
         });
 
-        await wrapper.vm.$nextTick();
-
         const productItem = wrapper.find('.sw-data-grid__row--0');
         const productLabel = productItem.find('.sw-data-grid__cell--label');
         const showProductButton1 = productItem.find('sw-context-menu-item-stub');
 
-        expect(productLabel.contains('router-link')).toBeTruthy();
+        expect(productLabel.find('router-link-stub').exists()).toBeTruthy();
         expect(showProductButton1.attributes().disabled).toBeUndefined();
 
 
@@ -218,14 +216,14 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
         const customLabel = customItem.find('.sw-data-grid__cell--label');
         const showProductButton2 = customItem.find('sw-context-menu-item-stub');
 
-        expect(customLabel.contains('router-link')).toBeFalsy();
+        expect(customLabel.find('router-link-stub').exists()).toBeFalsy();
         expect(showProductButton2.attributes().disabled).toBeTruthy();
 
         const creditItem = wrapper.find('.sw-data-grid__row--2');
         const creditLabel = creditItem.find('.sw-data-grid__cell--label');
         const showProductButton3 = creditItem.find('sw-context-menu-item-stub');
 
-        expect(creditLabel.contains('router-link')).toBeFalsy();
+        expect(creditLabel.find('router-link-stub').exists()).toBeFalsy();
         expect(showProductButton3.attributes().disabled).toBeTruthy();
     });
 
@@ -237,8 +235,6 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
                 lineItems: [...mockItems]
             }
         });
-
-        await wrapper.vm.$nextTick();
 
         const creditTax = wrapper.find('.sw-data-grid__row--2').find('.sw-data-grid__cell--tax');
         const creditTaxTooltip = creditTax.find('.sw-order-line-items-grid-sales-channel__item-tax-tooltip');
@@ -255,8 +251,6 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
             }
         });
 
-        await wrapper.vm.$nextTick();
-
         const creditTax = wrapper.find('.sw-data-grid__row--0').find('.sw-data-grid__cell--tax');
         const taxDetailTooltip = creditTax.find('.sw-order-line-items-grid-sales-channel__item-tax-tooltip');
 
@@ -272,29 +266,24 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
             }
         });
 
-        await wrapper.vm.$nextTick();
-
         const taxDetailTooltip = wrapper.find('.sw-order-line-items-grid-sales-channel__item-tax-tooltip');
 
         expect(taxDetailTooltip.attributes()['tooltip-message'])
             .toBe('sw-order.createBase.tax<br>10%: -€3.33<br>20%: -€13.33');
     });
 
-    it('should show items correctly when search by search tearm', async () => {
+    it('should show items correctly when search by search term', async () => {
         const wrapper = createWrapper({});
 
-        wrapper.setProps({
+        await wrapper.setProps({
             cart: {
-                ...wrapper.props().order,
                 lineItems: [...mockItems]
             }
         });
 
-        wrapper.setData({
+        await wrapper.setData({
             searchTerm: 'item product'
         });
-
-        await wrapper.vm.$nextTick();
 
         const productItem = wrapper.find('.sw-data-grid__row--0');
         const productLabel = productItem.find('.sw-data-grid__cell--label');

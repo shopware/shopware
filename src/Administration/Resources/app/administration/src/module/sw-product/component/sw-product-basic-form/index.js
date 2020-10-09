@@ -11,6 +11,14 @@ Component.register('sw-product-basic-form', {
         Mixin.getByName('placeholder')
     ],
 
+    props: {
+        allowEdit: {
+            type: Boolean,
+            required: false,
+            default: true
+        }
+    },
+
     computed: {
         ...mapState('swProductDetail', [
             'product',

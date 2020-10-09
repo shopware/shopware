@@ -8,7 +8,15 @@ const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 Component.register('sw-product-detail-cross-selling', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
+
+    props: {
+        allowEdit: {
+            type: Boolean,
+            required: false,
+            default: true
+        }
+    },
 
     data() {
         return {

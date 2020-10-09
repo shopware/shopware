@@ -18,7 +18,9 @@ function createWrapper(privileges = []) {
             'sw-sales-channel-menu': true
         },
         provide: {
-            loginService: {},
+            loginService: {
+                notifyOnLoginListener: () => {}
+            },
             userService: {
                 getUser: () => Promise.resolve({})
             },
@@ -50,11 +52,6 @@ describe('module/sw-sales-channel/component/structure/sw-admin-menu-extension', 
     beforeAll(() => {
         Shopware.Feature.isActive = () => true;
         Shopware.State.get('session').currentUser = {};
-        Shopware.Service().register('loginService', () => {
-            return {
-                notifyOnLoginListener: () => {}
-            };
-        });
     });
 
     it('should be a Vue.js component', async () => {

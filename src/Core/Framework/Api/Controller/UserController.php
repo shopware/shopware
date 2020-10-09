@@ -37,6 +37,11 @@ class UserController extends AbstractController
     private $roleRepository;
 
     /**
+     * @var EntityRepositoryInterface
+     */
+    private $userRoleRepository;
+
+    /**
      * @var UserDefinition
      */
     private $userDefinition;
@@ -48,6 +53,7 @@ class UserController extends AbstractController
 
     public function __construct(
         EntityRepositoryInterface $userRepository,
+        EntityRepositoryInterface $userRoleRepository,
         EntityRepositoryInterface $roleRepository,
         EntityRepositoryInterface $keyRepository,
         UserDefinition $userDefinition
@@ -56,6 +62,7 @@ class UserController extends AbstractController
         $this->roleRepository = $roleRepository;
         $this->userDefinition = $userDefinition;
         $this->keyRepository = $keyRepository;
+        $this->userRoleRepository = $userRoleRepository;
     }
 
     /**
@@ -190,6 +197,22 @@ class UserController extends AbstractController
         $entityId = array_pop($eventIds);
 
         return $factory->createRedirectResponse($this->roleRepository->getDefinition(), $entityId, $request, $context);
+    }
+
+    /**
+     * @Route("/api/v{version}/user/{userId}/acl-roles/{roleId}", name="api.user_role.delete", defaults={"auth_required"=true}, methods={"DELETE"})
+     */
+    public function deleteUserRole(string $userId, string $roleId, Request $request, Context $context, ResponseFactoryInterface $factory): Response
+    {
+        if (!$this->hasScope($request, UserVerifiedScope::IDENTIFIER)) {
+            throw new AccessDeniedHttpException(sprintf('This access token does not have the scope "%s" to process this Request', UserVerifiedScope::IDENTIFIER));
+        }
+
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($roleId, $userId): void {
+            $this->userRoleRepository->delete([['userId' => $userId, 'aclRoleId' => $roleId]], $context);
+        });
+
+        return $factory->createRedirectResponse($this->userRoleRepository->getDefinition(), $roleId, $request, $context);
     }
 
     /**

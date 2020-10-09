@@ -14,6 +14,11 @@ Component.register('sw-product-cross-selling-form', {
         crossSelling: {
             type: Object,
             required: true
+        },
+        allowEdit: {
+            type: Boolean,
+            required: false,
+            default: true
         }
     },
 

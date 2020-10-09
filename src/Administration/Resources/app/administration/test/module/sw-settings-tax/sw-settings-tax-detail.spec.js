@@ -74,7 +74,7 @@ describe('module/sw-settings-tax/page/sw-settings-tax-detail', () => {
         const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.isVueInstance()).toBe(true);
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should be able to save the tax', async () => {

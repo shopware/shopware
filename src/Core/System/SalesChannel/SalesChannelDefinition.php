@@ -179,6 +179,13 @@ class SalesChannelDefinition extends EntityDefinition
             );
         }
 
+        if (Feature::isActive('FEATURE_NEXT_10555')) {
+            $fields->add(
+                (new OneToManyAssociationField('boundCustomers', CustomerDefinition::class, 'bound_sales_channel_id', 'id'))
+                    ->addFlags(new ReadProtected(SalesChannelApiSource::class))
+            );
+        }
+
         return $fields;
     }
 }

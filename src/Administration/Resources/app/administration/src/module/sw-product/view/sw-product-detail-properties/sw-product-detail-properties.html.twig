@@ -7,6 +7,7 @@
                 {% block sw_product_detail_properties_assignment_card_assignment %}
                     <sw-property-assignment
                         v-if="propertiesAvailable && product.properties"
+                        :disabled="!acl.can('product.editor')"
                         :propertyCollection="product.properties">
                     </sw-property-assignment>
                 {% endblock %}
@@ -84,15 +85,16 @@
                         {% block sw_product_detail_properties_assginment %}
                             <sw-property-assignment
                                 v-if="propertiesAvailable && product.properties"
-                                :disabled="isInherited"
+                                :disabled="isInherited || !acl.can('product.editor')"
                                 :propertyCollection="product.properties">
                             </sw-property-assignment>
                         {% endblock %}
 
                         {% block sw_product_detail_properties_empty %}
-                            <sw-empty-state v-else
-                                            :title="$tc('sw-product.properties.emptyStateNoOptionsTitle')"
-                                            :subline="$tc('sw-product.properties.emptyStateNoOptionsDescription')">
+                            <sw-empty-state
+                                v-else
+                                :title="$tc('sw-product.properties.emptyStateNoOptionsTitle')"
+                                :subline="$tc('sw-product.properties.emptyStateNoOptionsDescription')">
                             </sw-empty-state>
                         {% endblock %}
                     </div>

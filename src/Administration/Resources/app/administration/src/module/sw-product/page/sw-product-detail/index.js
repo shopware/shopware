@@ -176,14 +176,6 @@ Component.register('sw-product-detail', {
         },
 
         tooltipSave() {
-            if (!this.acl.can('product.editor')) {
-                return {
-                    message: this.$tc('sw-privileges.tooltip.warning'),
-                    disabled: this.acl.can('product.creator'),
-                    showOnDisabledElements: true
-                };
-            }
-
             const systemKey = this.$device.getSystemKey();
 
             return {

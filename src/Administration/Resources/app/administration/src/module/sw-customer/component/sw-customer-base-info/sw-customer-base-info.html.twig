@@ -176,6 +176,25 @@
                             {% endblock %}
                         </sw-description-list>
                     {% endblock %}
+
+                    {% block sw_customer_base_metadata_bound_sales_channel %}
+                        <sw-description-list v-if="feature.isActive('FEATURE_NEXT_10555')">
+                            {% block sw_customer_base_metadata_bound_sales_channel_label %}
+                                <dt class="sw-customer-base-info__label">{{ $tc('sw-customer.baseInfo.labelBoundSalesChannel') }}</dt>
+                            {% endblock %}
+
+                            {% block sw_customer_base_metadata_bound_saleschannel_content %}
+                                <dd class="sw-customer-base__label-bound-sales-channel">
+                                    <template v-if="customer.boundSalesChannelId">
+                                        {{ customer.salesChannel.translated.name }}
+                                    </template>
+                                    <template v-else>
+                                        {{ $tc('sw-customer.baseInfo.emptyBoundSalesChannel') }}
+                                    </template>
+                                </dd>
+                            {% endblock %}
+                        </sw-description-list>
+                    {% endblock %}
                 </div>
             {% endblock %}
         {% endblock %}

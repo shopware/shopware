@@ -47,15 +47,6 @@ Component.register('sw-review-detail', {
             return 0;
         },
 
-        /** @deprecated tag:v6.4.0 No need to calculate when using `sw-rating-stars` component instead */
-        missingStars() {
-            if (this.review.points >= 0) {
-                return 5 - this.review.points;
-            }
-
-            return 5;
-        },
-
         languageCriteria() {
             const criteria = new Criteria();
 

@@ -18,6 +18,7 @@
                 v-if="showPromotionModal"
                 :isLoading="isLoading"
                 :currency="currency"
+                :salesChannelId="customer.salesChannelId"
                 @close="onClosePromotionModal"
                 @save="onSavePromotionModal"
             >

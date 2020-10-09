@@ -219,6 +219,7 @@ class AuthControllerTest extends TestCase
                 'billingAddressId' => null,
                 'shippingAddressId' => null,
             ],
+            Defaults::SALES_CHANNEL,
             $customer->getId()
         );
 

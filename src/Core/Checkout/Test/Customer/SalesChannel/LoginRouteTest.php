@@ -177,7 +177,70 @@ class LoginRouteTest extends TestCase
         static::assertEquals($oldToken, $oldCartExists->getToken());
     }
 
-    private function createCart(string $contextToken): void
+    public function testCustomerHaveDifferentCartsOnEachSalesChannel(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_10058', $this);
+
+        $email = Uuid::randomHex() . '@example.com';
+        $password = 'shopware';
+        $customerId = $this->createCustomer($password, $email);
+
+        $this->createSalesChannel([
+            'id' => $this->ids->get('sales-channel-1'),
+            'domains' => [
+                [
+                    'url' => 'http://test.de',
+                    'currencyId' => Defaults::CURRENCY,
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'snippetSetId' => $this->getRandomId('snippet_set'),
+                ],
+            ],
+        ]);
+
+        $this->createSalesChannel([
+            'id' => $this->ids->get('sales-channel-2'),
+            'domains' => [
+                [
+                    'url' => 'http://test.en',
+                    'currencyId' => Defaults::CURRENCY,
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'snippetSetId' => $this->getRandomId('snippet_set'),
+                ],
+            ],
+        ]);
+
+        $salesChannelContext1 = $this->createSalesChannelContext($this->ids->get('context-1'), [], $customerId, $this->ids->get('sales-channel-1'));
+
+        $salesChannelContext2 = $this->createSalesChannelContext($this->ids->get('context-2'), [], $customerId, $this->ids->get('sales-channel-2'));
+
+        $this->createCart($this->ids->get('context-1'), 'cart-1');
+
+        $this->createCart($this->ids->get('context-2'), 'cart-2');
+
+        /** @var LoginRoute $loginRoute */
+        $loginRoute = $this->getContainer()->get(LoginRoute::class);
+
+        $request = new RequestDataBag(['email' => $email, 'password' => $password]);
+
+        $responseSalesChannel1 = $loginRoute->login($request, $salesChannelContext1);
+
+        $responseSalesChannel2 = $loginRoute->login($request, $salesChannelContext2);
+
+        static::assertNotEquals($responseSalesChannel1->getToken(), $responseSalesChannel2->getToken());
+
+        /** @var CartService $cartService */
+        $cartService = $this->getContainer()->get(CartService::class);
+
+        $cartFromSalesChannel1 = $cartService->getCart($responseSalesChannel1->getToken(), $salesChannelContext1, 'cart-1', false);
+        $cartFromSalesChannel2 = $cartService->getCart($responseSalesChannel2->getToken(), $salesChannelContext2, 'cart-2', false);
+
+        static::assertNotEquals($cartFromSalesChannel1->getToken(), $cartFromSalesChannel2->getToken());
+        static::assertNotEquals($cartFromSalesChannel1->getName(), $cartFromSalesChannel2->getName());
+        static::assertEquals('cart-1', $cartFromSalesChannel1->getName());
+        static::assertEquals('cart-2', $cartFromSalesChannel2->getName());
+    }
+
+    private function createCart(string $contextToken, ?string $cartName = CartService::SALES_CHANNEL): void
     {
         $connection = $this->getContainer()->get(Connection::class);
 
@@ -188,8 +251,8 @@ class LoginRouteTest extends TestCase
 
         $connection->insert('cart', [
             'token' => $contextToken,
-            'name' => 'test',
-            'cart' => serialize(new Cart('test', $contextToken)),
+            'name' => $cartName,
+            'cart' => serialize(new Cart($cartName, $contextToken)),
             'line_item_count' => 1,
             'currency_id' => Uuid::fromHexToBytes(Defaults::CURRENCY),
             'country_id' => $defaultCountry,
@@ -201,7 +264,7 @@ class LoginRouteTest extends TestCase
         ]);
     }
 
-    private function createSalesChannelContext(string $contextToken, array $salesChannelData, ?string $customerId): SalesChannelContext
+    private function createSalesChannelContext(string $contextToken, array $salesChannelData, ?string $customerId, ?string $salesChannelId = null): SalesChannelContext
     {
         if ($customerId) {
             $salesChannelData[SalesChannelContextService::CUSTOMER_ID] = $customerId;
@@ -209,7 +272,7 @@ class LoginRouteTest extends TestCase
 
         return $this->getContainer()->get(SalesChannelContextFactory::class)->create(
             $contextToken,
-            Defaults::SALES_CHANNEL,
+            $salesChannelId ?? Defaults::SALES_CHANNEL,
             $salesChannelData
         );
     }

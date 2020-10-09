@@ -71,11 +71,16 @@ class SalesChannelContextRestorer
             $restoredCart = $this->cartService->recalculate($customerCart, $customerContext);
         }
 
+        $restoredCart->addErrors(...array_values($guestCart->getErrors()->getPersistent()->getElements()));
+
         $this->deleteGuestContext($currentContext);
 
+        $errors = $restoredCart->getErrors();
         $result = $this->cartRuleLoader->loadByToken($customerContext, $restoredCart->getToken());
 
-        $this->cartService->setCart($result->getCart());
+        $cartWithErrors = $result->getCart();
+        $cartWithErrors->setErrors($errors);
+        $this->cartService->setCart($cartWithErrors);
 
         $this->eventDispatcher->dispatch(new SalesChannelContextRestoredEvent($customerContext));
 

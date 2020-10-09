@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
@@ -148,5 +149,27 @@ abstract class StorefrontController extends AbstractController
         }
 
         return $params;
+    }
+
+    protected function addCartErrors(Cart $cart): void
+    {
+        $groups = [
+            'info' => $cart->getErrors()->getNotices(),
+            'warning' => $cart->getErrors()->getWarnings(),
+            'danger' => $cart->getErrors()->getErrors(),
+        ];
+
+        foreach ($groups as $type => $errors) {
+            foreach ($errors as $error) {
+                $parameters = [];
+                foreach ($error->getParameters() as $key => $value) {
+                    $parameters['%' . $key . '%'] = $value;
+                }
+
+                $message = $this->trans('checkout.' . $error->getMessageKey(), $parameters);
+
+                $this->addFlash($type, $message);
+            }
+        }
     }
 }

@@ -42,7 +42,7 @@ With them you can customize a Shopware shop according to your needs. Typical ada
 * Completely new functions and pages are to be created (for example, a separate notepad function)
 * In the administration, interfaces are being extended or being created from scratch
 * Integration of merchandise management, payment and shipping service providers
- 
+
 All these extensions are basically possible with plugins as well as with apps. 
 
 ## Important differences concerning plugins

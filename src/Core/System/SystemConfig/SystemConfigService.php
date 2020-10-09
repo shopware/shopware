@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -269,10 +270,18 @@ class SystemConfigService
             );
         }
 
-        $criteria->addSorting(new FieldSorting('salesChannelId', FieldSorting::ASCENDING));
+        $criteria->addSorting(
+            new FieldSorting('salesChannelId', FieldSorting::ASCENDING),
+            new FieldSorting('id', FieldSorting::ASCENDING)
+        );
+        $criteria->setLimit(500);
 
-        /** @var SystemConfigCollection $systemConfigs */
-        $systemConfigs = $this->systemConfigRepository->search($criteria, Context::createDefaultContext())->getEntities();
+        $systemConfigs = new SystemConfigCollection();
+        $iterator = new RepositoryIterator($this->systemConfigRepository, Context::createDefaultContext(), $criteria);
+
+        while ($chunk = $iterator->fetch()) {
+            $systemConfigs->merge($chunk->getEntities());
+        }
 
         $this->configs[$key] = $this->buildSystemConfigArray($systemConfigs);
 

@@ -55,4 +55,53 @@ class CacheControllerTest extends TestCase
         static::assertFalse($this->cache->getItem('foo')->isHit());
         static::assertFalse($this->cache->getItem('bar')->isHit());
     }
+
+    public function testWarmupCacheEndpoint(): void
+    {
+        $this->cache = $this->getContainer()->get('cache.object');
+
+        $item = $this->cache->getItem('foo');
+        $item->set('bar');
+        $item->tag(['foo-tag']);
+        $this->cache->save($item);
+
+        $item = $this->cache->getItem('bar');
+        $item->set('foo');
+        $item->tag(['bar-tag']);
+        $this->cache->save($item);
+
+        static::assertTrue($this->cache->getItem('foo')->isHit());
+        static::assertTrue($this->cache->getItem('bar')->isHit());
+
+        $this->getBrowser()->request('DELETE', '/api/v' . PlatformRequest::API_VERSION . '/_action/cache_warmup');
+
+        /** @var JsonResponse $response */
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r($response->getContent(), true));
+
+        static::assertTrue($this->cache->getItem('foo')->isHit());
+        static::assertTrue($this->cache->getItem('bar')->isHit());
+    }
+
+    public function testCacheInfoEndpoint(): void
+    {
+        $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/_action/cache_info');
+
+        /** @var JsonResponse $response */
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($response->getContent(), true));
+        static::assertSame('{"environment":"test","httpCache":false,"cacheAdapter":"CacheDecorator"}', $response->getContent());
+    }
+
+    public function testCacheIndexEndpoint(): void
+    {
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/index');
+
+        /** @var JsonResponse $response */
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r($response->getContent(), true));
+    }
 }

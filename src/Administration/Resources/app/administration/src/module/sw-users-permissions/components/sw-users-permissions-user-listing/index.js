@@ -106,6 +106,8 @@ Component.register('sw-users-permissions-user-listing', {
             this.isLoading = true;
             this.user = [];
 
+            this.$emit('get-list');
+
             return this.userRepository.search(this.userCriteria, Shopware.Context.api).then((users) => {
                 this.user = users;
             }).finally(() => {

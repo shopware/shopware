@@ -142,13 +142,19 @@ Component.register('sw-users-permissions-user-detail', {
         },
 
         integrationColumns() {
-            return [{
+            const columns = [{
                 property: 'accessKey',
                 label: this.$tc('sw-users-permissions.users.user-detail.labelAccessKey')
-            }, {
-                property: 'writeAccess',
-                label: this.$tc('sw-users-permissions.users.user-detail.labelPermissions')
             }];
+
+            if (!this.feature.isActive('FEATURE_NEXT_3722')) {
+                columns.push({
+                    property: 'writeAccess',
+                    label: this.$tc('sw-users-permissions.users.user-detail.labelPermissions')
+                });
+            }
+
+            return columns;
         },
 
         secretAccessKeyFieldType() {

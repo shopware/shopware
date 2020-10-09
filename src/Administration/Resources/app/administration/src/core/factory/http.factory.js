@@ -87,7 +87,7 @@ function changeVersion(config) {
 }
 
 function checkVersionDeprecation(version) {
-    if (version >= Shopware.Context.api.apiVersion || Shopware.Context.api.apiVersion <= 1) {
+    if (version >= Shopware.Context.api.apiVersion) {
         return;
     }
 
@@ -99,12 +99,12 @@ function checkVersionDeprecation(version) {
 
 /**
  * Returns the base path of the version
- * @param version
+ * @param {number} version
  * @returns {string}
  */
 function getBasePath(version = Shopware.Context.api.apiVersion) {
     if (version <= 0) {
-        return `${Shopware.Context.api.apiPath}/v1`;
+        version = Shopware.Context.api.apiVersion;
     }
 
     return `${Shopware.Context.api.apiPath}/v${version}`;

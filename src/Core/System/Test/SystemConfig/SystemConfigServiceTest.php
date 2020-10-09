@@ -2,14 +2,19 @@
 
 namespace Shopware\Core\System\Test\SystemConfig;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\Exception\InvalidDomainException;
 use Shopware\Core\System\SystemConfig\Exception\InvalidKeyException;
 use Shopware\Core\System\SystemConfig\Exception\InvalidSettingValueException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 
 class SystemConfigServiceTest extends TestCase
 {
@@ -24,7 +29,11 @@ class SystemConfigServiceTest extends TestCase
     {
         parent::setUp();
 
-        $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        $this->systemConfigService = new SystemConfigService(
+            $this->getContainer()->get(Connection::class),
+            $this->getContainer()->get('system_config.repository'),
+            $this->getContainer()->get(ConfigReader::class)
+        );
     }
 
     public function setGetDifferentTypesProvider(): array
@@ -323,5 +332,31 @@ class SystemConfigServiceTest extends TestCase
     {
         $this->expectException(InvalidUuidException::class);
         $this->systemConfigService->set('foo.bar', 'test', 'invalid uuid');
+    }
+
+    /**
+     * @group slow
+     *
+     * This was trigger when fetching more that ~1000 rows on mariadb:10.3.17 due to some unknown limitation.
+     */
+    public function test1000EntitiesDoNotFail(): void
+    {
+        $values = [];
+        for ($i = 1; $i <= 1000; ++$i) {
+            $values[] = [
+                'id' => Uuid::randomHex(),
+                'configurationKey' => (string) $i,
+                'configurationValue' => $i,
+                'salesChannelId' => null,
+            ];
+        }
+
+        /** @var EntityRepositoryInterface $systemConfigRepository */
+        $systemConfigRepository = $this->getContainer()->get('system_config.repository');
+        $systemConfigRepository->create($values, Context::createDefaultContext());
+
+        static::assertNotNull($this->systemConfigService->get('1'));
+        static::assertNotNull($this->systemConfigService->get('500'));
+        static::assertNotNull($this->systemConfigService->get('1000'));
     }
 }

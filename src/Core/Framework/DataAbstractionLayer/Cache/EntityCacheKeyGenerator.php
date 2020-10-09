@@ -302,7 +302,6 @@ class EntityCacheKeyGenerator
             $criteria->getLimit(),
             $criteria->getOffset(),
             $criteria->getTotalCountMode(),
-            $criteria->getExtensions(),
             $criteria->getGroupFields(),
         ]));
     }
@@ -311,7 +310,6 @@ class EntityCacheKeyGenerator
     {
         return md5(json_encode([
             $criteria->getFilters(),
-            $criteria->getExtensions(),
         ]));
     }
 

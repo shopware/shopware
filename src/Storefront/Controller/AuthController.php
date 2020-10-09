@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Controller;
 
+use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByHashException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException;
@@ -17,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -70,6 +72,11 @@ class AuthController extends StorefrontController
      */
     private $systemConfig;
 
+    /**
+     * @var CartService
+     */
+    private $cartService;
+
     public function __construct(
         AccountLoginPageLoader $loginPageLoader,
         EntityRepositoryInterface $customerRecoveryRepository,
@@ -77,7 +84,8 @@ class AuthController extends StorefrontController
         AbstractResetPasswordRoute $resetPasswordRoute,
         AbstractLoginRoute $loginRoute,
         SystemConfigService $systemConfig,
-        AbstractLogoutRoute $logoutRoute
+        AbstractLogoutRoute $logoutRoute,
+        CartService $cartService
     ) {
         $this->loginPageLoader = $loginPageLoader;
         $this->customerRecoveryRepository = $customerRecoveryRepository;
@@ -86,6 +94,7 @@ class AuthController extends StorefrontController
         $this->loginRoute = $loginRoute;
         $this->logoutRoute = $logoutRoute;
         $this->systemConfig = $systemConfig;
+        $this->cartService = $cartService;
     }
 
     /**
@@ -152,6 +161,10 @@ class AuthController extends StorefrontController
         try {
             $token = $this->loginRoute->login($data, $context)->getToken();
             if (!empty($token)) {
+                if (Feature::isActive('FEATURE_NEXT_10058')) {
+                    $this->addCartErrors($this->cartService->getCart($token, $context));
+                }
+
                 return $this->createActionResponse($request);
             }
         } catch (BadCredentialsException | UnauthorizedHttpException | InactiveCustomerException $e) {

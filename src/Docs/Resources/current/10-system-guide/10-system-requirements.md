@@ -53,7 +53,7 @@ PHP
 
 SQL
 * MySQL 5.7.21 or higher
-* MariaDB 10.3 or higher
+* MariaDB 10.3.22 or higher
 
 JavaScript
 * Node.js 10.13.0 or higher

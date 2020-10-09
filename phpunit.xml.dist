@@ -66,14 +66,15 @@
 
     <filter>
         <whitelist>
-            <directory suffix=".php">./src/Administration</directory>
-            <directory suffix=".php">./src/Core</directory>
-            <directory suffix=".php">./src/Storefront</directory>
+            <directory suffix=".php">src</directory>
             <exclude>
-                <directory suffix=".php">./src/**/Test</directory>
-                <directory suffix=".php">./src/Core/**/Test</directory>
-                <directory suffix=".php">./src/Core/Migration</directory>
-                <directory suffix=".php">./src/Core/Flag</directory>
+                <directory suffix=".php">src/**/**/vendor</directory>
+                <directory suffix=".php">src/**/vendor</directory>
+                <directory suffix=".php">src/Docs</directory>
+                <directory suffix=".php">src/**/Test</directory>
+                <directory suffix=".php">src/Core/**/Test</directory>
+                <directory suffix=".php">src/Core/Migration</directory>
+                <directory suffix=".php">src/Core/Flag</directory>
             </exclude>
         </whitelist>
     </filter>

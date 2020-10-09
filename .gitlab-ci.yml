@@ -72,22 +72,7 @@ default:
         - ./psh.phar cache --APP_ENV=test
         - chown -R application:application .
         - curl http://docker.vm:8000/admin
-        - failed="0"
-        - echo -e
-            '<?xml version="1.0" encoding="UTF-8"?>
-            <testsuites>
-            ' > build/artifacts/phpunit.junit.xml
-        - >
-            for TEST_SUITE in $TEST_SUITES; do
-                log_unit_file=build/artifacts/$TEST_SUITE.junit.xml
-                set -x
-                php vendor/bin/phpunit --configuration vendor/shopware/platform/phpunit.xml.dist --log-junit "$log_unit_file" --colors=never --testsuite "$TEST_SUITE" || exit_code=$?
-                if [ $exit_code -ne "0" ]; then failed="1"; fi;
-                set +x
-                tail -n +3 "$log_unit_file" | head -n -1 >> build/artifacts/phpunit.junit.xml
-            done
-        - echo -e "</testsuites>" >> "build/artifacts/phpunit.junit.xml"
-        - if [ $failed -ne "0" ]; then exit 1; fi;
+        - ./psh.phar unit --APP_ENV=test
     coverage: '/^\s*Lines:\s*(\d+(?:\.\d+)?%)/'
     artifacts:
         when: always

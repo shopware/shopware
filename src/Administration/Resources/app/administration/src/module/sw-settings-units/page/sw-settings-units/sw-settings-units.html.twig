@@ -25,6 +25,7 @@
             <template slot="smart-bar-actions">
                 {% block sw_settings_units_actions_save %}
                     <sw-button
+                        class="sw-settings-units__create-action"
                         variant="primary"
                         :disabled="isAddingUnitsDisabled || !acl.can('scale_unit.creator')"
                         v-tooltip="tooltipCreate"
@@ -56,6 +57,7 @@
                     <template #grid>
                         {% block sw_settings_units_content_grid %}
                             <sw-data-grid v-show="!isEmpty"
+                                          class="sw-settings-units-grid"
                                           ref="swDataGrid"
                                           :isLoading="isLoading"
                                           :dataSource="unitList"
@@ -69,6 +71,7 @@
                                 <template slot="actions" slot-scope="{ item }">
                                     {% block sw_settings_units_content_grid_column_menu_delete %}
                                         <sw-context-menu-item
+                                            class="sw-settings-units__delete-action"
                                             @click="deleteUnit(item)"
                                             variant="danger"
                                             :disabled="!acl.can('scale_unit.deleter')">

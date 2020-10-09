@@ -97,10 +97,13 @@ class CartStoreService extends ApiService {
     }
 
     getPayloadForItem(item, salesChannelId, isNewProductItem, id) {
-        const dummyPrice = deepCopyObject(item.priceDefinition);
-        dummyPrice.taxRules = item.priceDefinition.taxRules;
-        dummyPrice.quantity = item.quantity;
-        dummyPrice.type = this.mapLineItemTypeToPriceType(item.type);
+        let dummyPrice = null;
+        if (!isNewProductItem && item.price.unitPrice !== item.priceDefinition.price) {
+            dummyPrice = deepCopyObject(item.priceDefinition);
+            dummyPrice.taxRules = item.priceDefinition.taxRules;
+            dummyPrice.quantity = item.quantity;
+            dummyPrice.type = this.mapLineItemTypeToPriceType(item.type);
+        }
 
         return {
             items: [

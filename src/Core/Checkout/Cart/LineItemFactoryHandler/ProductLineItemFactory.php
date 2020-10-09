@@ -34,8 +34,6 @@ class ProductLineItemFactory implements LineItemFactoryInterface
         $lineItem->setRemovable(true);
         $lineItem->setStackable(true);
 
-        $lineItem->addExtension(ProductCartProcessor::CUSTOM_PRICE, new ArrayEntity());
-
         $this->update($lineItem, $data, $context);
 
         return $lineItem;
@@ -60,6 +58,7 @@ class ProductLineItemFactory implements LineItemFactoryInterface
         }
 
         if (isset($data['priceDefinition'])) {
+            $lineItem->addExtension(ProductCartProcessor::CUSTOM_PRICE, new ArrayEntity());
             $lineItem->setPriceDefinition($this->priceDefinitionFactory->factory($context->getContext(), $data['priceDefinition'], $data['type']));
         }
     }

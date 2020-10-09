@@ -514,6 +514,14 @@
     "reviewAvgRate": "out of",
     "reviewAvgRateElements": "stars"
   },
+  "wishlist": {
+    "headline": "Your wish list",
+    "itemDeleteSuccess": "You have successfully removed the product from the wishlist.",
+    "currentlyNotAvailable": "Currently not available",
+    "manufacturerDisplayName": "Manufacturer",
+    "deliveryTimeAvailable": "Available, delivery time %name%",
+    "noLongerAvailableTooltip": "The product is no longer available."
+  },
   "footer": {
     "serviceHotlineHeadline": "Service hotline",
     "shopServiceHeadline": "Shop service",

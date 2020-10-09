@@ -514,6 +514,14 @@
     "reviewAvgRate": "von",
     "reviewAvgRateElements": "Sternen"
   },
+  "wishlist": {
+    "headline": "Ihr Merkzettel",
+    "itemDeleteSuccess": "Sie haben das Produkt erfolgreich vom Merkzettel entfernt.",
+    "currentlyNotAvailable": "Derzeit nicht verfügbar",
+    "manufacturerDisplayName": "Hersteller",
+    "deliveryTimeAvailable": "Sofort verfügbar, Lieferzeit %name%",
+    "noLongerAvailableTooltip": "Das Produkt ist nicht mehr verfügbar."
+  },
   "footer": {
     "serviceHotlineHeadline": "Service-Hotline",
     "shopServiceHeadline": "Shop-Service",

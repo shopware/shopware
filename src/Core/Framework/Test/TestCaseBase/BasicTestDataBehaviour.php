@@ -141,7 +141,10 @@ trait BasicTestDataBehaviour
         return $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0] ?? null;
     }
 
-    protected function getValidCountryId(): string
+    /**
+     * @param string|null $salesChannelId (null when no saleschannel filtering)
+     */
+    protected function getValidCountryId(?string $salesChannelId = Defaults::SALES_CHANNEL): string
     {
         /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('country.repository');
@@ -150,6 +153,10 @@ trait BasicTestDataBehaviour
             ->addFilter(new EqualsFilter('taxFree', 0))
             ->addFilter(new EqualsFilter('active', true))
             ->addFilter(new EqualsFilter('shippingAvailable', true));
+
+        if ($salesChannelId !== null) {
+            $criteria->addFilter(new EqualsFilter('salesChannels.id', $salesChannelId));
+        }
 
         return $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
     }

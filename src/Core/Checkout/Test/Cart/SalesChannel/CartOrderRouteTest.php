@@ -180,7 +180,7 @@ class CartOrderRouteTest extends TestCase
         $this->customerRepository->create([
             [
                 'id' => $customerId,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => $this->ids->get('sales-channel'),
                 'defaultShippingAddress' => [
                     'id' => $addressId,
                     'firstName' => 'Max',
@@ -189,7 +189,7 @@ class CartOrderRouteTest extends TestCase
                     'city' => 'Schöppingen',
                     'zipcode' => '12345',
                     'salutationId' => $this->getValidSalutationId(),
-                    'countryId' => $this->getValidCountryId(),
+                    'countryId' => $this->getValidCountryId($this->ids->get('sales-channel')),
                 ],
                 'defaultBillingAddressId' => $addressId,
                 'defaultPaymentMethod' => [

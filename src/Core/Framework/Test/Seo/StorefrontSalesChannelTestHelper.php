@@ -76,7 +76,7 @@ trait StorefrontSalesChannelTestHelper
 
         $paymentMethod = $this->getValidPaymentMethodId();
         $shippingMethod = $this->getValidShippingMethodId();
-        $country = $this->getValidCountryId();
+        $country = $this->getValidCountryId(null);
 
         foreach ($languageIds as $langId) {
             $languages[] = ['id' => $langId];

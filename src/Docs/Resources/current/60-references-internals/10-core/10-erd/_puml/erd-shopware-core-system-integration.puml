@@ -29,12 +29,20 @@ Table(ShopwareCoreSystemIntegrationIntegrationDefinition, "integration\n(O-Auth 
    not_null(secretAccessKey) password
    writeAccess bool
    lastUsageAt dateTime
+   admin bool
    customFields customFields
    not_null(createdAt) createdAt
    updatedAt updatedAt
 }
+Table(ShopwareCoreSystemIntegrationAggregateIntegrationRoleIntegrationRoleDefinition, "integration_role\n(M:N Mapping)") {
+   primary_key(integrationId) foreignKey
+   primary_key(aclRoleId) foreignKey
+}
+ForeignTable(ShopwareCoreFrameworkApiAclRoleAclRoleDefinition, "acl_role") {
+}
 
 ' relationshipd
 
-
+ShopwareCoreSystemIntegrationAggregateIntegrationRoleIntegrationRoleDefinition --> ShopwareCoreSystemIntegrationIntegrationDefinition
+ShopwareCoreSystemIntegrationAggregateIntegrationRoleIntegrationRoleDefinition --> ShopwareCoreFrameworkApiAclRoleAclRoleDefinition
 @enduml

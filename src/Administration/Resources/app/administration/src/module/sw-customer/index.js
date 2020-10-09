@@ -79,7 +79,7 @@ Module.register('sw-customer', {
                 }
             },
             meta: {
-                privilege: 'customer.editor'
+                privilege: 'customer.viewer'
             },
 
             props: {

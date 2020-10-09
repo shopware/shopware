@@ -64,19 +64,20 @@
                             {% block sw_settings_number_range_list_grid %}
                                 <template #grid>
                                     {% block sw_settings_number_range_list_grid %}
-                                        <sw-entity-listing ref="swSettingsNumberRangeGrid"
-                                                           class="sw-settings-number-range-list-grid"
-                                                           :items="numberRange"
-                                                           :columns="getNumberRangeColumns()"
-                                                           :repository="numberRangeRepository"
-                                                           :fullPage="false"
-                                                           detailRoute="sw.settings.number.range.detail"
-                                                           :showSelection="false"
-                                                           :isLoading="isLoading"
-                                                           :allowEdit="acl.can('number_ranges.editor')"
-                                                           :allowInlineEdit="acl.can('number_ranges.editor')"
-                                                           :allowDelete="acl.can('number_ranges.deleter')"
-                                                           :allowView="acl.can('number_ranges.viewer')">
+                                        <sw-entity-listing
+                                            ref="swSettingsNumberRangeGrid"
+                                            class="sw-settings-number-range-list-grid"
+                                            :items="numberRange"
+                                            :columns="getNumberRangeColumns()"
+                                            :repository="numberRangeRepository"
+                                            :fullPage="false"
+                                            detailRoute="sw.settings.number.range.detail"
+                                            :showSelection="false"
+                                            :isLoading="isLoading"
+                                            :allowEdit="acl.can('number_ranges.editor')"
+                                            :allowInlineEdit="acl.can('number_ranges.editor')"
+                                            :allowDelete="acl.can('number_ranges.deleter')"
+                                            :allowView="acl.can('number_ranges.viewer')">
                                             {% block sw_number_range_list_grid_columns_name %}
                                                 <template #column-global="{ item }">
                                                     <sw-label v-if="item.type.global || item.global"
@@ -100,11 +101,6 @@
                                                 <template #actions="{ item }">
                                                     {% block sw_settings_number_range_list_grid_columns_actions_edit %}
                                                         <sw-context-menu-item
-                                                            v-tooltip="{
-                                                                message: $tc('sw-privileges.tooltip.warning'),
-                                                                disabled: acl.can('number_ranges.editor'),
-                                                                showOnDisabledElements: true
-                                                            }"
                                                             class="sw-entity-listing__context-menu-edit-action"
                                                             :disabled="!acl.can('number_ranges.editor')"
                                                             :routerLink="{ name: 'sw.settings.number.range.detail', params: { id: item.id, edit: 'edit' }}">
@@ -114,11 +110,6 @@
 
                                                     {% block sw_settings_number_range_list_grid_columns_actions_delete %}
                                                         <sw-context-menu-item
-                                                            v-tooltip.bottom="{
-                                                                message: $tc('sw-privileges.tooltip.warning'),
-                                                                disabled: acl.can('number_ranges.deleter'),
-                                                                showOnDisabledElements: true
-                                                            }"
                                                             class="sw-entity-listing__context-menu-edit-delete"
                                                             variant="danger"
                                                             :disabled="!acl.can('number_ranges.deleter')"

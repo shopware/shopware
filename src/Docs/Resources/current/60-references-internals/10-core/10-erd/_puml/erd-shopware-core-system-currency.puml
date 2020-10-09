@@ -37,7 +37,7 @@ Table(ShopwareCoreSystemCurrencyCurrencyDefinition, "currency\n(Currency)") {
    updatedAt updatedAt
    translated json
 }
-Table(ShopwareCoreSystemCurrencyAggregateCurrencyCountryRoundingCurrencyCountryRoundingDefinition, "currency_country_rounding\n(Country cash rounding config)") {
+Table(ShopwareCoreSystemCurrencyAggregateCurrencyCountryRoundingCurrencyCountryRoundingDefinition, "currency_country_rounding\n(__EMPTY__)") {
    primary_key(id) id
    not_null(currencyId) foreignKey
    not_null(countryId) foreignKey

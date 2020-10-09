@@ -149,7 +149,6 @@ describe('module/sw-settings-units/page/sw-settings-units', () => {
     it('should not be able to delete a units', async () => {
         const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
-        console.log(wrapper.html());
 
         const deleteMenuItem = wrapper.find('.sw-settings-units__delete-action');
 

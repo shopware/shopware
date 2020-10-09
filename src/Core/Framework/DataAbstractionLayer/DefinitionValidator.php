@@ -42,6 +42,8 @@ class DefinitionValidator
         'customer.activeShippingAddress',
         'customer.activeBillingAddress',
         'product_configurator_setting.selected',
+        'sales_channel.wishlists',
+        'product.wishlists',
     ];
 
     private const PLURAL_EXCEPTIONS = [

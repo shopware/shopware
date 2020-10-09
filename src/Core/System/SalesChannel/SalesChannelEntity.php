@@ -4,6 +4,7 @@ namespace Shopware\Core\System\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist\CustomerWishlistCollection;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition;
 use Shopware\Core\Checkout\Order\OrderCollection;
@@ -354,6 +355,13 @@ class SalesChannelEntity extends Entity
      * @var CustomerCollection|null
      */
     protected $boundCustomers;
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10549)
+     *
+     * @var CustomerWishlistCollection|null
+     */
+    protected $wishlists;
 
     public function getMailHeaderFooter(): ?MailHeaderFooterEntity
     {
@@ -979,5 +987,21 @@ class SalesChannelEntity extends Entity
     public function setBoundCustomers(CustomerCollection $boundCustomers): void
     {
         $this->boundCustomers = $boundCustomers;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10549)
+     */
+    public function getWishlists(): ?CustomerWishlistCollection
+    {
+        return $this->wishlists;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10549)
+     */
+    public function setWishlists(CustomerWishlistCollection $wishlists): void
+    {
+        $this->wishlists = $wishlists;
     }
 }

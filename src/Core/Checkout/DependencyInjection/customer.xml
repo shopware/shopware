@@ -266,5 +266,42 @@
             <argument type="service" id="customer.repository"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist\CustomerWishlistDefinition">
+            <tag name="shopware.entity.definition"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_10549"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlistProduct\CustomerWishlistProductDefinition">
+            <tag name="shopware.entity.definition"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_10549"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\SalesChannel\LoadWishlistRoute" public="true">
+            <argument type="service" id="customer_wishlist.repository"/>
+            <argument type="service" id="sales_channel.product.repository"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_10549"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\SalesChannel\AddWishlistProductRoute" public="true">
+            <argument type="service" id="customer_wishlist.repository"/>
+            <argument type="service" id="sales_channel.product.repository"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_10549"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\SalesChannel\RemoveWishlistProductRoute" public="true">
+            <argument type="service" id="customer_wishlist.repository"/>
+            <argument type="service" id="customer_wishlist_product.repository"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_10549"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\DataAbstractionLayer\CustomerWishlistProductExceptionHandler">
+            <tag name="shopware.dal.exception_handler"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_10549"/>
+        </service>
     </services>
 </container>

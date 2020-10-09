@@ -8,7 +8,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -34,8 +33,6 @@ class ProductSearchKeywordTest extends TestCase
 
     public function testAddProductWithSearchKeyword(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10075', $this);
-
         $id = Uuid::randomHex();
 
         $this->createProduct($id, ['YTN', 'Search Keyword']);
@@ -51,8 +48,6 @@ class ProductSearchKeywordTest extends TestCase
 
     public function testEditProductWithSearchKeyword(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10075', $this);
-
         $id = Uuid::randomHex();
 
         $this->createProduct($id, ['YTN']);

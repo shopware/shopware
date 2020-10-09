@@ -1,7 +1,6 @@
 ---
 title:  Add search keyword for product
 issue:  NEXT-10195   
-flag:   FEATURE_NEXT_10075
 ---
 # Core
 * Added new field `custom_search_keywords` in table `product_translate`

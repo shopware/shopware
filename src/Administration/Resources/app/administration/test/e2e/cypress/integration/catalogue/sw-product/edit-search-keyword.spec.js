@@ -16,51 +16,45 @@ describe('Product: Search Keyword product', () => {
     });
 
     it('@catalogue: edit a product\'s search keyword', () => {
-        cy.window().then((win) => {
-            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_10075')) {
-                return;
-            }
+        cy.server();
+        cy.route({
+            url: `/api/v*/product/*`,
+            method: 'patch'
+        }).as('saveData');
+        cy.route({
+            url: '/api/v*/search/product',
+            method: 'post'
+        }).as('searchData');
 
-            cy.server();
-            cy.route({
-                url: `/api/v*/product/*`,
-                method: 'patch'
-            }).as('saveData');
-            cy.route({
-                url: '/api/v*/search/product',
-                method: 'post'
-            }).as('searchData');
+        cy.clickContextMenuItem(
+            '.sw-entity-listing__context-menu-edit-action',
+            page.elements.contextMenuButton,
+            `${page.elements.dataGridRow}--1`
+        );
 
-            cy.clickContextMenuItem(
-                '.sw-entity-listing__context-menu-edit-action',
-                page.elements.contextMenuButton,
-                `${page.elements.dataGridRow}--1`
-            );
+        // Create new search keyword
+        cy.get('.sw-product-category-form__search-keyword-field input').clear();
+        cy.get('.sw-product-category-form__search-keyword-field input').type('YTN');
+        cy.get('.sw-product-category-form__search-keyword-field input')
+            .type('{enter}');
 
-            // Create new search keyword
-            cy.get('.sw-product-category-form__search-keyword-field input').clear();
-            cy.get('.sw-product-category-form__search-keyword-field input').type('YTN');
-            cy.get('.sw-product-category-form__search-keyword-field input')
-                .type('{enter}');
+        // Save product with search keyword
+        cy.get(page.elements.productSaveAction).click();
 
-            // Save product with search keyword
-            cy.get(page.elements.productSaveAction).click();
+        // Verify updated product
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
+        });
+        cy.get(page.elements.successIcon).should('be.visible');
 
-            // Verify updated product
-            cy.wait('@saveData').then((xhr) => {
-                expect(xhr).to.have.property('status', 204);
-            });
-            cy.get(page.elements.successIcon).should('be.visible');
+        cy.get(page.elements.smartBarBack).click();
 
-            cy.get(page.elements.smartBarBack).click();
-
-            cy.get('input.sw-search-bar__input').type('YTN');
-            cy.wait('@searchData').then((xhr) => {
-                expect(xhr).to.have.property('status', 200);
-            })
-
-            cy.get('.sw-product-list-grid').should('be.visible');
-            cy.get(`${page.elements.dataGridRow}--0`).should('be.visible');
+        cy.get('input.sw-search-bar__input').type('YTN');
+        cy.wait('@searchData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         })
+
+        cy.get('.sw-product-list-grid').should('be.visible');
+        cy.get(`${page.elements.dataGridRow}--0`).should('be.visible');
     });
 });

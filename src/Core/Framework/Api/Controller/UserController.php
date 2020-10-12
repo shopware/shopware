@@ -91,6 +91,30 @@ class UserController extends AbstractController
     }
 
     /**
+     * @Route("/api/v{version}/_info/me", name="api.change.me", defaults={"auth_required"=true}, methods={"PATCH"})
+     * @Acl({"user_change_me"})
+     */
+    public function updateMe(Context $context, Request $request, ResponseFactoryInterface $responseFactory): Response
+    {
+        if (!$context->getSource() instanceof AdminApiSource) {
+            throw new InvalidContextSourceException(AdminApiSource::class, \get_class($context->getSource()));
+        }
+
+        $userId = $context->getSource()->getUserId();
+        if (!$userId) {
+            throw new ExpectedUserHttpException();
+        }
+
+        $allowedChanges = ['id', 'firstName', 'lastName', 'username', 'localeId', 'email', 'avatarMedia', 'avatarId', 'password'];
+
+        if (!empty(array_diff(array_keys($request->request->all()), $allowedChanges))) {
+            throw new ExpectedUserHttpException();
+        }
+
+        return $this->upsertUser($userId, $request, $context, $responseFactory);
+    }
+
+    /**
      * @Route("/api/v{version}/_info/ping", name="api.info.ping", methods={"GET"})
      */
     public function status(Context $context): Response

@@ -1,5 +1,6 @@
 import './extension/sw-admin-menu';
 import './page/sw-profile-index';
+import './acl';
 
 const { Module } = Shopware;
 

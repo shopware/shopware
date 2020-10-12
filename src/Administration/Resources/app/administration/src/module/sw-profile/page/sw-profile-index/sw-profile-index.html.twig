@@ -82,9 +82,11 @@
                     {% endblock %}
 
                     {% block sw_profile_index_image_card %}
-                        <sw-card class="sw-profile__card"
-                                 :title="$tc('sw-profile.index.titleImageCard')"
-                                 :isLoading="isUserLoading || !languageId">
+                        <sw-card
+                            v-if="acl.can('media.editor')"
+                            class="sw-profile__card"
+                            :title="$tc('sw-profile.index.titleImageCard')"
+                            :isLoading="isUserLoading || !languageId">
                             {% block sw_profile_index_image_card_image %}
                                 <sw-upload-listener
                                     :uploadTag="uploadTag"
@@ -138,50 +140,17 @@
             </sw-card-view>
 
             {% block sw_profile_index_content_confirm_password_modal %}
-                <sw-modal v-if="confirmPasswordModal"
-                      @modal-close="onCloseConfirmPasswordModal"
-                      :title="$tc('sw-profile.index.titleConfirmPasswordModal')"
-                      variant="small">
-                    {% block sw_profile_index_content_confirm_password_modal_input__confirm_password %}
-                        <sw-password-field
-                            class="sw-settings-user-detail__confirm-password"
-                            v-model="confirmPassword"
-                            @keypress.enter="onSubmitConfirmPassword"
-                            required
-                            name="sw-field--confirm-password"
-                            :passwordToggleAble="true"
-                            :copyAble="false"
-                            :label="$tc('sw-profile.index.labelConfirmPassword')"
-                            :placeholder="$tc('sw-profile.index.placeholderConfirmPassword')">
-                        </sw-password-field>
-                    {% endblock %}
-
-                    {% block sw_profile_index_content_confirm_password_modal_footer %}
-                        <template #modal-footer>
-                            {% block sw_profile_index_content_confirm_password_modal_actions_cancel %}
-                                <sw-button @click="onCloseConfirmPasswordModal"
-                                           size="small">
-                                    {{ $tc('sw-profile.index.labelButtonCancel') }}
-                                </sw-button>
-                            {% endblock %}
-
-                            {% block sw_profile_index_content_confirm_password_modal_actions_change %}
-                                <sw-button @click="onSubmitConfirmPassword"
-                                           variant="primary"
-                                           :disabled="!confirmPassword"
-                                           size="small">
-                                    {{ $tc('sw-profile.index.labelButtonConfirm') }}
-                                </sw-button>
-                            {% endblock %}
-                        </template>
-                    {% endblock %}
-                </sw-modal>
+                <sw-verify-user-modal
+                    v-if="confirmPasswordModal"
+                    @verified="saveUser"
+                    @close="onCloseConfirmPasswordModal">
+                </sw-verify-user-modal>
             {% endblock %}
         </template>
 
         {% block sw_profile_index_sidebar %}
             <template #sidebar>
-                <sw-sidebar :propagateWidth="true" >
+                <sw-sidebar v-if="acl.can('media.editor')" :propagateWidth="true" >
                     <sw-sidebar-media-item ref="mediaSidebarItem"
                                            :isParentLoading="isUserLoading"
                                            :additionalSearchCriteria="userMediaCriteria">

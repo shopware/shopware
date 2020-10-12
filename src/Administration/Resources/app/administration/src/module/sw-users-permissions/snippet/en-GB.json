@@ -190,6 +190,9 @@
       "system": {
         "label": "Settings"
       },
+      "user": {
+        "label": "User"
+      },
       "marketing": {
         "label": "Marketing"
       },

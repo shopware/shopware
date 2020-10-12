@@ -40,6 +40,7 @@ Component.register('sw-verify-user-modal', {
                 });
             }).finally(() => {
                 this.confirmPassword = '';
+                this.$emit('close');
             });
         },
 

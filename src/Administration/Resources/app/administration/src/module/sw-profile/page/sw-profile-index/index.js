@@ -10,7 +10,7 @@ const types = Shopware.Utils.types;
 Component.register('sw-profile-index', {
     template,
 
-    inject: ['userService', 'loginService', 'repositoryFactory'],
+    inject: ['userService', 'loginService', 'repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('notification')
@@ -175,10 +175,12 @@ Component.register('sw-profile-index', {
         async getUserData() {
             const routeUser = this.$route.params.user;
             if (routeUser) {
+                console.log('Shopware.Context.api', Shopware.Context.api);
                 return this.userRepository.get(routeUser.id, Shopware.Context.api);
             }
 
             const user = await this.userService.getUser();
+            console.log('Shopware.Context.api', Shopware.Context.api);
             return this.userRepository.get(user.data.id, Shopware.Context.api);
         },
 
@@ -251,34 +253,54 @@ Component.register('sw-profile-index', {
             });
         },
 
-        saveUser(authToken) {
-            const context = { ...Shopware.Context.api };
-            context.authToken.access = authToken;
+        saveUser(context) {
+            console.log('context', context);
 
-            this.userRepository.save(this.user, context).then(() => {
-                this.$refs.mediaSidebarItem.getList();
+            if (this.acl.can('user:editor')) {
+                this.userRepository.save(this.user, context).then(() => {
+                    this.$refs.mediaSidebarItem.getList();
 
-                Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId);
+                    Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId);
 
-                if (this.newPassword) {
-                    // re-issue a valid jwt token, as all user tokens were invalidated on password change
-                    this.loginService.loginByUsername(this.user.username, this.newPassword).then(() => {
+                    if (this.newPassword) {
+                        // re-issue a valid jwt token, as all user tokens were invalidated on password change
+                        this.loginService.loginByUsername(this.user.username, this.newPassword).then(() => {
+                            this.isLoading = false;
+                            this.isSaveSuccessful = true;
+                        }).catch(() => {
+                            this.handleUserSaveError();
+                        });
+                    } else {
                         this.isLoading = false;
                         this.isSaveSuccessful = true;
-                    }).catch(() => {
-                        this.handleUserSaveError();
-                    });
-                } else {
-                    this.isLoading = false;
-                    this.isSaveSuccessful = true;
-                }
+                    }
 
-                this.oldPassword = '';
-                this.newPassword = '';
-                this.newPasswordConfirm = '';
-            }).catch(() => {
-                this.handleUserSaveError();
-            });
+                    this.oldPassword = '';
+                    this.newPassword = '';
+                    this.newPasswordConfirm = '';
+                }).catch(() => {
+                    this.handleUserSaveError();
+                });
+            } else {
+                const changes = this.userRepository.getSyncChangeset([this.user]);
+
+                this.userService.updateUser(changes.changeset[0].changes, context).then(() => {
+                    if (this.newPassword) {
+                        // re-issue a valid jwt token, as all user tokens were invalidated on password change
+                        this.loginService.loginByUsername(this.user.username, this.newPassword).then(() => {
+                            this.isLoading = false;
+                            this.isSaveSuccessful = true;
+                        }).catch(() => {
+                            this.handleUserSaveError();
+                        });
+                    } else {
+                        this.isLoading = false;
+                        this.isSaveSuccessful = true;
+                    }
+
+                    Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId);
+                });
+            }
         },
 
         setMediaItem({ targetId }) {

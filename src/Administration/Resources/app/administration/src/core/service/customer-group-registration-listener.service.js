@@ -18,6 +18,10 @@ export default function addCustomerGroupRegistrationListener(loginService) {
     loginService.addOnLoginListener(checkForUpdates);
 
     async function checkForUpdates() {
+        if (!Shopware.Service('acl').can('customer.viewer')) {
+            return;
+        }
+
         const customerRepository = Service('repositoryFactory').create('customer');
         const criteria = new Criteria();
         criteria.addAssociation('requestedGroup');

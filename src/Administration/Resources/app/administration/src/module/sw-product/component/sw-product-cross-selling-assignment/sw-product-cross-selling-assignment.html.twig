@@ -75,6 +75,7 @@
                     v-if="!total && !isLoadingGrid"
                     class="sw-product-cross-selling-assignment__option-list-empty-state"
                     title=""
+                    :absolute="false"
                     :subline="$tc('sw-product.crossselling.assignEmptyStateDescription')">
                         <template #icon>
                             <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">

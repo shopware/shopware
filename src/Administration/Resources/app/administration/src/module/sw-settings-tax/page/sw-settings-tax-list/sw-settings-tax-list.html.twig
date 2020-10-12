@@ -54,20 +54,21 @@
                         <sw-card v-if="tax" :isLoading="isLoading">
                             <template #grid>
                                 {% block sw_settings_tax_list_grid %}
-                                    <sw-entity-listing ref="swSettingsTaxGrid"
-                                                       class="sw-settings-tax-list-grid"
-                                                       detailRoute="sw.settings.tax.detail"
-                                                       :items="tax"
-                                                       :columns="getTaxColumns()"
-                                                       :repository="taxRepository"
-                                                       :fullPage="false"
-                                                       :showSelection="false"
-                                                       :isLoading="isLoading"
-                                                       :allowView="acl.can('tax.viewer')"
-                                                       :allowEdit="acl.can('tax.editor')"
-                                                       :allowInlineEdit="acl.can('tax.editor')"
-                                                       :allowDelete="acl.can('tax.deleter')"
-                                                       @inline-edit-save="onInlineEditSave">
+                                    <sw-entity-listing
+                                        ref="swSettingsTaxGrid"
+                                        class="sw-settings-tax-list-grid"
+                                        detailRoute="sw.settings.tax.detail"
+                                        :items="tax"
+                                        :columns="getTaxColumns()"
+                                        :repository="taxRepository"
+                                        :fullPage="false"
+                                        :showSelection="false"
+                                        :isLoading="isLoading"
+                                        :allowView="acl.can('tax.viewer')"
+                                        :allowEdit="acl.can('tax.editor')"
+                                        :allowInlineEdit="acl.can('tax.editor')"
+                                        :allowDelete="acl.can('tax.deleter')"
+                                        @inline-edit-save="onInlineEditSave">
                                         {% block sw_settings_tax_list_grid_column_default_tax_rate %}
                                             <template #column-taxRate="{ item, isInlineEdit, compact }">
                                                 <template v-if="isInlineEdit">
@@ -89,11 +90,6 @@
                                             <template #actions="{ item }">
                                                 {% block sw_settings_tax_list_grid_columns_actions_edit %}
                                                     <sw-context-menu-item
-                                                        v-tooltip.top="{
-                                                            message: $tc('sw-privileges.tooltip.warning'),
-                                                            disabled: acl.can('tax.editor'),
-                                                            showOnDisabledElements: true
-                                                        }"
                                                         class="sw-tax-list__edit-action"
                                                         :disabled="!acl.can('tax.editor')"
                                                         :routerLink="{
@@ -106,11 +102,6 @@
 
                                                 {% block sw_settings_tax_list_grid_columns_actions_delete %}
                                                     <sw-context-menu-item
-                                                        v-tooltip.bottom="{
-                                                            message: $tc('sw-privileges.tooltip.warning'),
-                                                            disabled: acl.can('tax.deleter'),
-                                                            showOnDisabledElements: true
-                                                        }"
                                                         class="sw-tax-list__delete-action"
                                                         variant="danger"
                                                         :disabled="!acl.can('tax.deleter')"

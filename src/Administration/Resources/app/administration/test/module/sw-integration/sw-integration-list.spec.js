@@ -27,6 +27,9 @@ function createWrapper(privileges = []) {
         },
 
         provide: {
+            feature: {
+                isActive: () => true
+            },
             repositoryFactory: {
                 create: () => ({
                     search: () => {
@@ -105,6 +108,8 @@ function createWrapper(privileges = []) {
             'sw-checkbox-field': Shopware.Component.build('sw-checkbox-field'),
             'sw-field-error': true,
             'sw-field-copyable': true,
+            'sw-switch-field': true,
+            'sw-entity-multi-select': true,
             'sw-empty-state': {
                 template: '<div class="sw-empty-state"></div>'
             },
@@ -157,7 +162,6 @@ describe('when has privilege', () => {
             wrapper.find('.sw_integration_list__edit-action'),
             wrapper.find('.sw-integration-detail-modal__save-action'),
             wrapper.find('#sw-field--currentIntegration-label'),
-            wrapper.findAll('input[type="checkbox"]').at(1),
             wrapper.find('.sw-button--danger')
         ].forEach(element => {
             expect(element.attributes().disabled).toBeFalsy();
@@ -208,7 +212,6 @@ describe('when has not privilege', () => {
             wrapper.find('.sw_integration_list__edit-action'),
             wrapper.find('.sw-integration-detail-modal__save-action'),
             wrapper.find('#sw-field--currentIntegration-label'),
-            wrapper.findAll('input[type="checkbox"]').at(1),
             wrapper.find('.sw-button--danger')
         ].forEach(element => {
             expect(element.attributes().disabled).toBeTruthy();
@@ -229,7 +232,6 @@ describe('when has not privilege', () => {
             wrapper.find('.sw_integration_list__edit-action'),
             wrapper.find('.sw-integration-detail-modal__save-action'),
             wrapper.find('#sw-field--currentIntegration-label'),
-            wrapper.findAll('input[type="checkbox"]').at(1),
             wrapper.find('.sw-button--danger')
         ].forEach(element => {
             expect(element.attributes().disabled).toBeTruthy();

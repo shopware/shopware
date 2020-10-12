@@ -38,16 +38,17 @@
                 {% endblock %}
 
                 {% block sw_tax_rule_card_grid %}
-                    <sw-data-grid :dataSource="taxRules"
-                                  :columns="getColumns"
-                                  :fullPage="false"
-                                  :showSettings="true"
-                                  :showSelection="false"
-                                  :showActions="true"
-                                  :isLoading="isLoading"
-                                  :allowColumnEdit="false"
-                                  :allowInlineEdit="false"
-                                  identifier="sw-tax-rule-grid">
+                    <sw-data-grid
+                        :dataSource="taxRules"
+                        :columns="getColumns"
+                        :fullPage="false"
+                        :showSettings="true"
+                        :showSelection="false"
+                        :showActions="true"
+                        :isLoading="isLoading"
+                        :allowColumnEdit="false"
+                        :allowInlineEdit="false"
+                        identifier="sw-tax-rule-grid">
                         {% block sw_settings_tax_rule_grid_column_tax_rate %}
                             <template #column-taxRate="{ item, isInlineEdit }">
                                 <template v-if="isInlineEdit">
@@ -81,11 +82,6 @@
                             <template #actions="{ item }">
                                 {% block sw_settings_tax_list_grid_columns_actions_edit %}
                                     <sw-context-menu-item
-                                        v-tooltip.top="{
-                                            message: $tc('sw-privileges.tooltip.warning'),
-                                            disabled: acl.can('tax.editor'),
-                                            showOnDisabledElements: true
-                                        }"
                                         class="sw-tax-list__edit-action"
                                         :disabled="!acl.can('tax.editor')"
                                         @click="showRuleModal(item)">
@@ -95,11 +91,6 @@
 
                                 {% block sw_settings_tax_list_grid_columns_actions_delete %}
                                     <sw-context-menu-item
-                                        v-tooltip.bottom="{
-                                            message: $tc('sw-privileges.tooltip.warning'),
-                                            disabled: acl.can('tax.editor'),
-                                            showOnDisabledElements: true
-                                        }"
                                         class="sw-tax-list__delete-action"
                                         variant="danger"
                                         :disabled="!acl.can('tax.editor')"

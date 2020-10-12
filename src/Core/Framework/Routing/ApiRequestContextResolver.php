@@ -240,9 +240,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         $appPermissions = $this->fetchPermissionsIntegrationByApp($integrationId);
         if ($appPermissions !== null) {
             $source->setIsAdmin(false);
-            $source->setPermissions(
-                $appPermissions
-            );
+            $source->setPermissions($appPermissions);
 
             return $source;
         }
@@ -254,13 +252,17 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         }
 
         if ($userId !== null) {
-            $source->setPermissions(
-                $this->fetchPermissions($userId)
-            );
+            $source->setPermissions($this->fetchPermissions($userId));
+            $source->setIsAdmin($this->isAdmin($userId));
 
-            $source->setIsAdmin(
-                $this->isAdmin($userId)
-            );
+            return $source;
+        }
+
+        if ($integrationId !== null) {
+            $source->setIsAdmin($this->isAdminIntegration($integrationId));
+            $source->setPermissions($this->fetchIntegrationPermissions($integrationId));
+
+            return $source;
         }
 
         return $source;
@@ -271,6 +273,14 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         return (bool) $this->connection->fetchColumn(
             'SELECT admin FROM `user` WHERE id = :id',
             ['id' => Uuid::fromHexToBytes($userId)]
+        );
+    }
+
+    private function isAdminIntegration(string $integrationId): bool
+    {
+        return (bool) $this->connection->fetchColumn(
+            'SELECT admin FROM `integration` WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($integrationId)]
         );
     }
 
@@ -332,5 +342,25 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         }
 
         return json_decode($privileges, true);
+    }
+
+    private function fetchIntegrationPermissions(string $integrationId): array
+    {
+        $permissions = $this->connection->createQueryBuilder()
+            ->select(['role.privileges'])
+            ->from('integration_role', 'mapping')
+            ->innerJoin('mapping', 'acl_role', 'role', 'mapping.acl_role_id = role.id')
+            ->where('mapping.integration_id = :integrationId')
+            ->setParameter('integrationId', Uuid::fromHexToBytes($integrationId))
+            ->execute()
+            ->fetchAll(FetchMode::COLUMN);
+
+        $list = [];
+        foreach ($permissions as $privileges) {
+            $privileges = json_decode((string) $privileges, true);
+            $list = array_merge($list, $privileges);
+        }
+
+        return array_unique(array_filter($list));
     }
 }

@@ -41,11 +41,6 @@
                     <template #more-actions="{ item }">
                         {% block sw_mail_header_footer_list_grid_columns_actions_duplicate %}
                             <sw-context-menu-item
-                                v-tooltip.bottom="{
-                                    message: $tc('sw-privileges.tooltip.warning'),
-                                    disabled: acl.can('mail_templates.creator'),
-                                    showOnDisabledElements: true
-                                }"
                                 class="sw-mail-header-footer-list-grid__duplicate-action"
                                 :disabled="!acl.can('mail_templates.creator')"
                                 @click="onDuplicate(item.id)">

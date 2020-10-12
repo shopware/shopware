@@ -34,7 +34,8 @@ Shopware.Service('privileges')
                     'tag:create',
                     'customer_tag:create',
                     'customer_group:update',
-                    'custom_field:update'
+                    'custom_field:update',
+                    'system_config:read'
                 ],
                 dependencies: [
                     'customer.viewer'

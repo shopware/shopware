@@ -43,4 +43,8 @@ describe('src/app/service/acl.service.js', () => {
         expect(sessionStore.getters.userPrivileges).toContain('orders.create_discounts');
         expect(sessionStore.getters.userPrivileges).toContain('order:create:discount');
     });
+
+    it('returns an empty array if no user is set', async () => {
+        expect(sessionStore.getters.userPrivileges).toEqual([]);
+    });
 });

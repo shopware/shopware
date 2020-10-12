@@ -12,6 +12,7 @@
                             <template #default="{ active }">
                                 {% block sw_settings_content_tab_shop %}
                                     <sw-tabs-item class="sw-settings__tab-shop"
+                                                  v-if="shouldSettingGroupExist('shop')"
                                                   name="shop"
                                                   :activeTab="active"
                                                   :title="$tc('sw-settings.index.tabShop')">
@@ -21,6 +22,7 @@
 
                                 {% block sw_settings_content_tab_system %}
                                     <sw-tabs-item class="sw-settings__tab-system"
+                                                  v-if="shouldSettingGroupExist('system')"
                                                   name="system"
                                                   :activeTab="active"
                                                   :title="$tc('sw-settings.index.tabSystem')">
@@ -30,7 +32,7 @@
 
                                 {% block sw_settings_content_tab_plugins %}
                                     <sw-tabs-item class="sw-settings__tab-plugins"
-                                                  v-if="hasPluginConfig()"
+                                                  v-if="hasPluginConfig() && pluginSettingsGroupExist"
                                                   name="plugins"
                                                   :activeTab="active"
                                                   :title="$tc('sw-settings.index.tabPlugins')">

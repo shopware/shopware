@@ -12,7 +12,7 @@ export default class AclService {
      * @returns {boolean}
      */
     isAdmin() {
-        return !!this.state.get('session').currentUser.admin;
+        return !!this.state.get('session').currentUser && !!this.state.get('session').currentUser.admin;
     }
 
     /**

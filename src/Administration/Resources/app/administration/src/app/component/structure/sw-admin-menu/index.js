@@ -53,19 +53,23 @@ Component.register('sw-admin-menu', {
                 return 'Administrator';
             }
 
-            if (this.currentUser.admin) {
+            if (this.currentUser && this.currentUser.admin) {
                 return this.$tc('global.sw-admin-menu.administrator');
             }
 
-            if (this.currentUser.title && this.currentUser.title.length > 0) {
+            if (this.currentUser && this.currentUser.title && this.currentUser.title.length > 0) {
                 return this.currentUser.title;
             }
 
-            if (this.currentUser.aclRoles && this.currentUser.aclRoles.length > 0) {
+            if (this.currentUser && this.currentUser.aclRoles && this.currentUser.aclRoles.length > 0) {
                 return this.currentUser.aclRoles[0].name;
             }
 
-            return this.currentUser.title;
+            if (this.currentUser && this.currentUser.title) {
+                return this.currentUser.title;
+            }
+
+            return '';
         },
 
         currentLocale() {
@@ -305,7 +309,7 @@ Component.register('sw-admin-menu', {
 
         onLogoutUser() {
             this.loginService.logout();
-            Shopware.State.commit('session/removeCurrentUser');
+            Shopware.State.commit('removeCurrentUser');
             Shopware.State.commit('notification/setNotifications', {});
             Shopware.State.commit('notification/clearGrowlNotificationsForCurrentUser');
             Shopware.State.commit('notification/clearNotificationsForCurrentUser');

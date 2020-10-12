@@ -5,17 +5,20 @@
 {% endblock %}
 
 {% block sw_order_document_settings_modal_form_additional_content %}
-    <sw-select-field :label="$tc('sw-order.documentModal.labelInvoiceNumber')"
-                     v-model="documentConfig.custom.invoiceNumber"
-                     :placeholder="$tc('sw-order.documentModal.selectInvoiceNumber')">
+    <sw-select-field
+        v-model="documentConfig.custom.invoiceNumber"
+        required
+        :label="$tc('sw-order.documentModal.labelInvoiceNumber')"
+        :placeholder="$tc('sw-order.documentModal.selectInvoiceNumber')">
         <option v-for="number in invoiceNumbers" :value="number">
             {{ number }}
         </option>
     </sw-select-field>
 
-    <sw-description-list v-if="highlightedItems.length !== 0"
-                         columns="1fr 1fr"
-                         class="sw-order-document-settings-credit-note-modal__highlighted-items">
+    <sw-description-list
+        v-if="highlightedItems.length !== 0"
+        class="sw-order-document-settings-credit-note-modal__highlighted-items"
+        grid="1fr 1fr">
             <dt>{{ $tc('sw-order.documentModal.labelHighlightedItemsHeader') }}</dt>
             <dd>{{ $tc('sw-order.documentModal.labelHighlightedItemsEntry') }}</dd>
             <template v-for="item in highlightedItems">

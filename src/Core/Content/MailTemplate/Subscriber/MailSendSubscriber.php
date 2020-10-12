@@ -149,6 +149,14 @@ class MailSendSubscriber implements EventSubscriberInterface
                 $event->getContext(),
                 $this->getTemplateData($mailEvent)
             );
+
+            $writes = array_map(static function ($id) {
+                return ['id' => $id, 'sent' => true];
+            }, $extension->getDocumentIds());
+
+            if (!empty($writes)) {
+                $this->documentRepository->update($writes, $event->getContext());
+            }
         } catch (\Exception $e) {
             $this->logger->error(
                 "Could not send mail:\n"

@@ -25,7 +25,7 @@ export default {
         },
 
         userPrivileges(state) {
-            if (!state.currentUser || Array.isArray(state.currentUser.aclRoles)) {
+            if (!state.currentUser || !Array.isArray(state.currentUser.aclRoles)) {
                 return [];
             }
 

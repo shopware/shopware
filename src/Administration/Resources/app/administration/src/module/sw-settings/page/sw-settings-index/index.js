@@ -49,7 +49,16 @@ Component.register('sw-settings-index', {
          */
         pluginSettingsGroup() {
             const settingsGroups = this.settingsGroups;
-            return hasOwnProperty(settingsGroups, 'plugins') ? settingsGroups.plugins : [];
+
+            if (!hasOwnProperty(settingsGroups, 'plugins')) {
+                return [];
+            }
+
+            return settingsGroups.plugins.filter(setting => this.acl.can(setting.privilege));
+        },
+
+        pluginSettingsGroupExist() {
+            return this.pluginSettingsGroup.length > 0;
         }
     },
 
@@ -58,6 +67,10 @@ Component.register('sw-settings-index', {
             return (hasOwnProperty(this.settingsGroups, 'plugins') && this.settingsGroups.plugins.length > 0)
                 // @deprecated tag:v6.4.0
                 || (this.$refs.pluginConfig && this.$refs.pluginConfig.childElementCount > 0);
+        },
+
+        shouldSettingGroupExist(settingsGroup) {
+            return this.defaultSettingsGroups[settingsGroup] && this.defaultSettingsGroups[settingsGroup].length > 0;
         }
     }
 });

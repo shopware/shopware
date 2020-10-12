@@ -112,8 +112,6 @@
         "labelButtonCancel": "Abbrechen",
         "labelButtonChangePassword": "Ändern",
         "labelButtonSave": "Speichern",
-        "writeAccess": "Schreiben",
-        "readAccess": "Lesen",
         "contextMenuEdit": "Bearbeiten",
         "contextMenuDelete": "Löschen",
         "textChangePassword": "Mit einem Klick auf 'Ändern' wird das Passwort direkt gespeichert!",
@@ -135,9 +133,6 @@
           "idFieldLabel": "Zugangs-ID",
           "secretFieldLabel": "Sicherheitsschlüssel",
           "secretHelpText": "Bitte kopiere Deinen Sicherheitsschlüssel jetzt. Nach dem Speichern wird dieser aus Sicherheitsgründen nicht wieder angezeigt.",
-          "permissions": "Berechtigungen",
-          "readAccessFieldLabel": "Lesen (Standard)",
-          "writeAccessFieldLabel": "Schreiben (optional)",
           "messageSaveSuccess": "Integration erfolgreich gespeichert.",
           "messageSaveError": "Die Integration konnte nicht gespeichert werden.",
           "messageCreateNewError": "Die Integration konnte nicht erstellt werden."

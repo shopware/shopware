@@ -226,7 +226,7 @@ class SalesChannelCheckoutControllerTest extends TestCase
             'lastName' => $lastName,
         ];
 
-        $countryId = $this->getValidCountryId();
+        $countryId = $this->getValidCountryId(null);
         $street = 'Examplestreet 11';
         $zipcode = '48441';
         $city = 'Cologne';
@@ -311,7 +311,7 @@ class SalesChannelCheckoutControllerTest extends TestCase
             'firstName' => $firstName,
             'lastName' => $lastName,
             'billingAddress' => [
-                'countryId' => $this->getValidCountryId(),
+                'countryId' => $this->getValidCountryId(null),
                 'street' => 'Examplestreet 11',
                 'zipcode' => '48441',
                 'city' => 'Cologne',
@@ -388,7 +388,7 @@ class SalesChannelCheckoutControllerTest extends TestCase
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
             'billingAddress' => [
-                'countryId' => $this->getValidCountryId(),
+                'countryId' => $this->getValidCountryId(null),
                 'street' => 'Examplestreet 11',
                 'zipcode' => '48441',
                 'city' => 'Cologne',
@@ -440,7 +440,7 @@ class SalesChannelCheckoutControllerTest extends TestCase
             'lastName' => $lastName,
         ];
 
-        $countryId = $this->getValidCountryId();
+        $countryId = $this->getValidCountryId(null);
         $street = 'Examplestreet 11';
         $zipcode = '48441';
         $city = 'Cologne';
@@ -507,7 +507,7 @@ class SalesChannelCheckoutControllerTest extends TestCase
         $this->createCustomer($addressId, $mail, $password, $context);
 
         $browser = $this->createCart();
-
+        $this->addCountriesToSalesChannel();
         $this->login($browser, $mail, $password);
         static::assertSame(200, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
 
@@ -639,7 +639,7 @@ class SalesChannelCheckoutControllerTest extends TestCase
             'firstName' => $firstName,
             'lastName' => $lastName,
             'billingAddress' => [
-                'countryId' => $this->getValidCountryId(),
+                'countryId' => $this->getValidCountryId(null),
                 'street' => 'Examplestreet 11',
                 'zipcode' => '48411',
                 'city' => 'Cologne',
@@ -681,7 +681,7 @@ class SalesChannelCheckoutControllerTest extends TestCase
                     'city' => 'not',
                     'zipcode' => 'not',
                     'salutationId' => $this->getValidSalutationId(),
-                    'countryId' => $this->getValidCountryId(),
+                    'countryId' => $this->getValidCountryId(null),
                 ],
                 'defaultBillingAddressId' => $addressId,
                 'defaultPaymentMethodId' => $this->getAvailablePaymentMethod()->getId(),

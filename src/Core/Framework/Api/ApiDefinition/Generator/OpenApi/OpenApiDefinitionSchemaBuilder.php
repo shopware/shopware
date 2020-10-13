@@ -406,7 +406,7 @@ class OpenApiDefinitionSchemaBuilder
         return $property;
     }
 
-    private function getPropertyAssocsByField(?string $fieldClass): Object
+    private function getPropertyAssocsByField(?string $fieldClass): object
     {
         $property = new \stdClass();
         if ($fieldClass === null) {

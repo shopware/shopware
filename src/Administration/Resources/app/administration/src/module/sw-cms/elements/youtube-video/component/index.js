@@ -96,6 +96,7 @@ Component.register('sw-cms-el-youtube-video', {
     methods: {
         createdComponent() {
             this.initElementConfig('youtube-video');
+            this.initElementData('youtube-video');
         }
     }
 });

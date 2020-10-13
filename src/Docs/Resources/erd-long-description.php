@@ -705,4 +705,7 @@ Provides functionality to define sorting groups to sort products by.
 EOD
     ,
     Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingTranslationDefinition::class => '',
+    Shopware\Core\Framework\Event\EventAction\Aggregate\EventActionRule\EventActionRuleDefinition::class => '',
+    Shopware\Core\Framework\Event\EventAction\Aggregate\EventActionSalesChannel\EventActionSalesChannelDefinition::class => '',
+    Shopware\Core\System\Integration\Aggregate\IntegrationRole\IntegrationRoleDefinition::class => '',
 ];

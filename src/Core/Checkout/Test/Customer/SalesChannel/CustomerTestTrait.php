@@ -25,10 +25,10 @@ trait CustomerTestTrait
                     'firstName' => 'Max',
                     'lastName' => 'Mustermann',
                     'street' => 'Musterstraße 1',
-                    'city' => 'Schoöppingen',
+                    'city' => 'Schöppingen',
                     'zipcode' => '12345',
                     'salutationId' => $this->getValidSalutationId(),
-                    'country' => ['name' => 'Germany'],
+                    'countryId' => $this->getValidCountryId(),
                 ],
                 'defaultBillingAddressId' => $addressId,
                 'defaultPaymentMethod' => [

@@ -27,7 +27,7 @@ class SalesChannelProductDefinition extends ProductDefinition implements SalesCh
             ->addAssociation('prices')
             ->addAssociation('unit')
             ->addAssociation('deliveryTime')
-            ->addAssociation('cover')
+            ->addAssociation('cover.media')
         ;
 
         if (!$this->hasAvailableFilter($criteria)) {

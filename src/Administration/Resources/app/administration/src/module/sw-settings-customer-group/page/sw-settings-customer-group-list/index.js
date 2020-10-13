@@ -102,7 +102,6 @@ Component.register('sw-settings-customer-group-list', {
 
         createErrorNotification() {
             return this.createNotificationError({
-                title: this.$tc('global.default.error'),
                 message: this.$tc('sw-settings-customer-group.notification.errorMessageCannotDeleteCustomerGroup')
             });
         },

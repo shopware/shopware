@@ -1,6 +1,7 @@
 {% set ORDER_TRANSACTION_STATE_OPEN = constant('Shopware\\Core\\Checkout\\Order\\Aggregate\\OrderTransaction\\OrderTransactionStates::STATE_OPEN') %}
 {% set ORDER_TRANSACTION_STATE_FAILED = constant('Shopware\\Core\\Checkout\\Order\\Aggregate\\OrderTransaction\\OrderTransactionStates::STATE_FAILED') %}
 {% set ORDER_TRANSACTION_STATE_REMINDED = constant('Shopware\\Core\\Checkout\\Order\\Aggregate\\OrderTransaction\\OrderTransactionStates::STATE_REMINDED') %}
+{% set ORDER_TRANSACTION_STATE_CANCELLED = constant('Shopware\\Core\\Checkout\\Order\\Aggregate\\OrderTransaction\\OrderTransactionStates::STATE_CANCELLED') %}
 {% set ORDER_STATE_CANCELLED = constant('Shopware\\Core\\Checkout\\Order\\OrderStates::STATE_CANCELLED') %}
 
 {% block page_account_order_item_overview %}
@@ -57,7 +58,15 @@
                     {% endblock %}
                 {% endblock %}
 
-                {% set isPaymentNeeded = order.transactions.last.stateMachineState.technicalName == ORDER_TRANSACTION_STATE_FAILED or order.transactions.last.stateMachineState.technicalName == ORDER_TRANSACTION_STATE_REMINDED %}
+                {% set states = [
+                    ORDER_TRANSACTION_STATE_FAILED,
+                    ORDER_TRANSACTION_STATE_REMINDED,
+                    ORDER_TRANSACTION_STATE_CANCELLED
+                ] %}
+
+                {% set state = order.transactions.last.stateMachineState.technicalName %}
+
+                {% set isPaymentNeeded = state in states %}
 
                 <div class="row flex-wrap">
                     {% block page_account_order_item_heading %}

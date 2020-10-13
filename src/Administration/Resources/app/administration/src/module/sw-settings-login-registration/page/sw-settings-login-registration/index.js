@@ -5,6 +5,8 @@ const { Component, Mixin } = Shopware;
 Component.register('sw-settings-login-registration', {
     template,
 
+    inject: ['feature'],
+
     mixins: [
         Mixin.getByName('notification')
     ],
@@ -37,7 +39,6 @@ Component.register('sw-settings-login-registration', {
             }).catch((err) => {
                 this.isLoading = false;
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
                     message: err
                 });
             });

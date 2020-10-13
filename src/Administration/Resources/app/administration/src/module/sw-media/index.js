@@ -57,6 +57,7 @@ Module.register('sw-media', {
         icon: 'default-object-image',
         path: 'sw.media.index',
         position: 20,
-        parent: 'sw-content'
+        parent: 'sw-content',
+        privilege: 'media.viewer'
     }]
 });

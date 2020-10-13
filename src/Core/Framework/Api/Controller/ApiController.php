@@ -219,7 +219,7 @@ class ApiController extends AbstractController
         $definition = $this->definitionRegistry->getByEntityName($entity);
         $missing = $this->validateAclPermissions($context, $definition, AclRoleDefinition::PRIVILEGE_CREATE);
         if ($missing) {
-            throw new MissingPrivilegeException($missing);
+            throw new MissingPrivilegeException([$missing]);
         }
 
         $eventContainer = $context->scope(Context::CRUD_API_SCOPE, function (Context $context) use ($definition, $id, $behavior): EntityWrittenContainerEvent {
@@ -388,7 +388,7 @@ class ApiController extends AbstractController
         $permissions = array_unique(array_filter(array_merge($permissions, $missing)));
 
         if (!empty($permissions)) {
-            throw new MissingPrivilegeException(implode(', ', $permissions));
+            throw new MissingPrivilegeException($permissions);
         }
 
         $entity = $context->scope(Context::CRUD_API_SCOPE, function (Context $context) use ($repository, $criteria, $id): ?Entity {
@@ -444,6 +444,7 @@ class ApiController extends AbstractController
 
     public function create(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
     {
+        // @feature-deprecated (flag:FEATURE_NEXT_3722) tag:v6.4.0 - Will be removed, write access will be granted by the acl permissions
         if (!$this->hasScope($request, WriteScope::IDENTIFIER)) {
             throw new AccessDeniedHttpException(sprintf('This access token does not have the scope "%s" to process this Request', WriteScope::IDENTIFIER));
         }
@@ -453,6 +454,7 @@ class ApiController extends AbstractController
 
     public function update(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
     {
+        // @feature-deprecated (flag:FEATURE_NEXT_3722) tag:v6.4.0 - Will be removed, write access will be granted by the acl permissions
         if (!$this->hasScope($request, WriteScope::IDENTIFIER)) {
             throw new AccessDeniedHttpException(sprintf('This access token does not have the scope "%s" to process this Request', WriteScope::IDENTIFIER));
         }
@@ -462,6 +464,7 @@ class ApiController extends AbstractController
 
     public function delete(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
     {
+        // @feature-deprecated (flag:FEATURE_NEXT_3722) tag:v6.4.0 - Will be removed, write access will be granted by the acl permissions
         if (!$this->hasScope($request, WriteScope::IDENTIFIER)) {
             throw new AccessDeniedHttpException(sprintf('This access token does not have the scope "%s" to process this Request', WriteScope::IDENTIFIER));
         }
@@ -586,7 +589,7 @@ class ApiController extends AbstractController
             $permissions = array_unique(array_filter(array_merge($permissions, $nested)));
 
             if (!empty($permissions)) {
-                throw new MissingPrivilegeException(implode(', ', $permissions));
+                throw new MissingPrivilegeException($permissions);
             }
 
             return [$criteria, $repository];
@@ -711,7 +714,7 @@ class ApiController extends AbstractController
         $permissions = array_unique(array_filter(array_merge($permissions, $nested)));
 
         if (!empty($permissions)) {
-            throw new MissingPrivilegeException(implode(', ', $permissions));
+            throw new MissingPrivilegeException($permissions);
         }
 
         return [$criteria, $repository];

@@ -15,6 +15,9 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-ge
             provide: {
                 validationService: {}
             },
+            directives: {
+                tooltip() {}
+            },
             mocks: {
                 $tc: translationKey => translationKey
             },
@@ -22,7 +25,8 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-ge
                 next5983: true,
                 sortingOption: {
                     label: 'Price descending'
-                }
+                },
+                isDefaultSorting: false
             },
             stubs: {
                 'sw-card': {
@@ -64,5 +68,21 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-ge
         const isActive = switchField.element.value;
 
         expect(isActive).toBe('on');
+    });
+
+    it('should not disable active state switch on normal product sortings', () => {
+        const switchField = wrapper.find('.sw-field--switch input');
+        const isDisabled = switchField.attributes('disabled');
+
+        expect(isDisabled).toBeUndefined();
+    });
+
+    it('should disable active state switch on default sortings', async () => {
+        await wrapper.setProps({ isDefaultSorting: true });
+
+        const switchField = wrapper.find('.sw-field--switch input');
+        const isDisabled = switchField.attributes('disabled');
+
+        expect(isDisabled).toBe('disabled');
     });
 });

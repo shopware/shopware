@@ -16,7 +16,7 @@ class EntityExists extends Constraint
 {
     public const ENTITY_DOES_NOT_EXISTS = 'f1e5c873-5baf-4d5b-8ab7-e422bfce91f1';
 
-    public $message = 'The {{ entity }} entity with {{ primaryProperty }} {{ id }} does not exists.';
+    public $message = 'The {{ entity }} entity with {{ primaryProperty }} {{ id }} does not exist.';
 
     /**
      * @var string

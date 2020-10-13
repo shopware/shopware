@@ -22,6 +22,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @group slow
+ */
 class ThumbnailServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;

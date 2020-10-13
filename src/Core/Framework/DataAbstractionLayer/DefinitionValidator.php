@@ -829,13 +829,14 @@ class DefinitionValidator
             return [];
         }
 
-        return [$definition->getClass() => [
-            sprintf(
-                'Association %s.%s does not end with a \'s\'.',
-                $definition->getEntityName(),
-                $association->getPropertyName()
-            ),
-        ],
+        return [
+            $definition->getClass() => [
+                sprintf(
+                    'Association %s.%s does not end with a \'s\'.',
+                    $definition->getEntityName(),
+                    $association->getPropertyName()
+                ),
+            ],
         ];
     }
 
@@ -883,17 +884,18 @@ class DefinitionValidator
             mb_stripos($prop, $ref) === false && mb_stripos($prop, $refPlural) === false
             && mb_stripos($prop, $refSalesChannelPart) === false && mb_stripos($prop, $refSalesChannelPartPlural) === false
         ) {
-            $ret = [$definition->getClass() => [
-                sprintf(
-                    'Association %s.%s does not contain reference class name `%s` or `%s` or `%s` or `%s`',
-                    $definition->getEntityName(),
-                    $association->getPropertyName(),
-                    $ref,
-                    $refPlural,
-                    $refSalesChannelPart,
-                    $refSalesChannelPartPlural
-                ),
-            ],
+            $ret = [
+                $definition->getClass() => [
+                    sprintf(
+                        'Association %s.%s does not contain reference class name `%s` or `%s` or `%s` or `%s`',
+                        $definition->getEntityName(),
+                        $association->getPropertyName(),
+                        $ref,
+                        $refPlural,
+                        $refSalesChannelPart,
+                        $refSalesChannelPartPlural
+                    ),
+                ],
             ];
 
             return $ret;

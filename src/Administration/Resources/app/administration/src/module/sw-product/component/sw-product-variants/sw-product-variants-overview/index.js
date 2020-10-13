@@ -303,6 +303,10 @@ Component.register('sw-product-variants-overview', {
             return !foundVariant;
         },
 
+        isActiveFieldInherited(variant) {
+            return variant.active === null;
+        },
+
         onInheritanceRestore(variant, currency) {
             if (!variant.price) {
                 return;
@@ -319,6 +323,14 @@ Component.register('sw-product-variants-overview', {
             if (variant.price.length <= 0) {
                 variant.price = null;
             }
+        },
+
+        onActiveInheritanceRestore(variant) {
+            variant.active = null;
+        },
+
+        onActiveInheritanceRemove(variant) {
+            variant.active = true;
         },
 
         onInheritanceRemove(variant, currency) {
@@ -413,7 +425,6 @@ Component.register('sw-product-variants-overview', {
                 this.modalLoading = false;
 
                 this.createNotificationSuccess({
-                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-product.variations.generatedListMessageDeleteSuccess')
                 });
 

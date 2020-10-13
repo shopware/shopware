@@ -100,6 +100,9 @@ class ApiVersioningV4Test extends TestCase
         static::assertEquals(404, $this->browser->getResponse()->getStatusCode(), print_r($this->browser->getResponse()->getContent(), true));
     }
 
+    /**
+     * @group slow
+     */
     public function testCreateAndUpdateV3Works(): void
     {
         $this->browser->request(

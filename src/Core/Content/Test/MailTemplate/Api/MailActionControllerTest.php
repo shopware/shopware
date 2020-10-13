@@ -15,6 +15,9 @@ use Symfony\Bundle\SwiftmailerBundle\DataCollector\MessageDataCollector;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Profiler\Profiler;
 
+/**
+ * @group slow
+ */
 class MailActionControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
@@ -24,6 +27,7 @@ class MailActionControllerTest extends TestCase
 
     public function setUp(): void
     {
+        static::markTestSkipped('to heavy memory usage - if you changed something for mails, run this');
         parent::setUp();
     }
 

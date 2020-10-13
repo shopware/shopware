@@ -6,8 +6,10 @@ use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangeCustomerProfileRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangeEmailRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangePasswordRoute;
+use Shopware\Core\Checkout\Customer\SalesChannel\AbstractDeleteCustomerRoute;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -49,18 +51,25 @@ class AccountProfileController extends StorefrontController
      */
     private $changeEmailRoute;
 
+    /**
+     * @var AbstractDeleteCustomerRoute
+     */
+    private $deleteCustomerRoute;
+
     public function __construct(
         AccountOverviewPageLoader $overviewPageLoader,
         AccountProfilePageLoader $profilePageLoader,
         AbstractChangeCustomerProfileRoute $changeCustomerProfileRoute,
         AbstractChangePasswordRoute $changePasswordRoute,
-        AbstractChangeEmailRoute $changeEmailRoute
+        AbstractChangeEmailRoute $changeEmailRoute,
+        AbstractDeleteCustomerRoute $deleteCustomerRoute
     ) {
         $this->overviewPageLoader = $overviewPageLoader;
         $this->profilePageLoader = $profilePageLoader;
         $this->changeCustomerProfileRoute = $changeCustomerProfileRoute;
         $this->changePasswordRoute = $changePasswordRoute;
         $this->changeEmailRoute = $changeEmailRoute;
+        $this->deleteCustomerRoute = $deleteCustomerRoute;
     }
 
     /**
@@ -167,5 +176,32 @@ class AccountProfileController extends StorefrontController
         }
 
         return $this->redirectToRoute('frontend.account.profile.page');
+    }
+
+    /**
+     * @Route("/account/profile/delete", name="frontend.account.profile.delete", methods={"POST"})
+     *
+     * @throws CustomerNotLoggedInException
+     */
+    public function deleteProfile(Request $request, SalesChannelContext $context): Response
+    {
+        if (!Feature::isActive('FEATURE_NEXT_10077')) {
+            return $this->redirectToRoute('frontend.home.page');
+        }
+
+        $this->denyAccessUnlessLoggedIn();
+
+        try {
+            $this->deleteCustomerRoute->delete($context);
+            $this->addFlash('success', $this->trans('account.profileDeleteSuccessAlert'));
+        } catch (\Exception $exception) {
+            $this->addFlash('danger', $this->trans('error.message-default'));
+        }
+
+        if ($request->get('redirectTo') || $request->get('forwardTo')) {
+            return $this->createActionResponse($request);
+        }
+
+        return $this->redirectToRoute('frontend.home.page');
     }
 }

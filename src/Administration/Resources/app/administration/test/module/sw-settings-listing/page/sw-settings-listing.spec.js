@@ -169,27 +169,6 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
             },
             {
                 locked: false,
-                key: 'clearance-sale',
-                position: 1,
-                active: true,
-                fields: [
-                    {
-                        field: 'product.clearanceSale',
-                        order: 'asc',
-                        position: 1,
-                        naturalSorting: 0
-                    }
-                ],
-                label: 'Clearance Sale',
-                createdAt: '2020-08-07T13:40:37.560+00:00',
-                updatedAt: null,
-                translated: { label: 'Clearance Sale' },
-                apiAlias: null,
-                id: 'bbf63ab809ff41f7823eb17bd48dc364',
-                translations: []
-            },
-            {
-                locked: false,
                 key: 'listing-prive',
                 position: 1,
                 active: true,
@@ -253,7 +232,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
             },
             {
                 locked: false,
-                key: 'asdfsaf',
+                key: 'asdfsafasdasss',
                 position: 1,
                 active: false,
                 fields: [
@@ -274,7 +253,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
             },
             {
                 locked: false,
-                key: 'asdfsaf',
+                key: 'asdfsafasd',
                 position: 1,
                 active: false,
                 fields: [
@@ -285,12 +264,33 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                         naturalSorting: 0
                     }
                 ],
-                label: 'asdfsaf',
+                label: 'asdfsasdasdaaf',
                 createdAt: '2020-08-10T06:19:53.126+00:00',
                 updatedAt: null,
                 translated: { label: 'asdfsaf' },
                 apiAlias: null,
-                id: '23456787654321234567876543',
+                id: '23456787654321234567876588',
+                translations: []
+            },
+            {
+                locked: false,
+                key: 'random-test',
+                position: 1,
+                active: false,
+                fields: [
+                    {
+                        field: 'product.stock',
+                        order: 'asc',
+                        position: 1,
+                        naturalSorting: 0
+                    }
+                ],
+                label: 'asdfsasdasdaaf',
+                createdAt: '2020-08-10T06:19:53.126+00:00',
+                updatedAt: null,
+                translated: { label: 'asdfsaf' },
+                apiAlias: null,
+                id: '23456787654321234567876577',
                 translations: []
             }
         ];
@@ -401,5 +401,27 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
         const isNameDefaultSorting = wrapper.vm.isItemDefaultSorting('name-desc');
 
         expect(isNameDefaultSorting).toBe(false);
+    });
+
+    it('should set inactive product sorting to be active when set as default sorting', async () => {
+        let defaultSorting;
+
+        const defaultSortingKey = 'sadfsfad';
+        const productSortings = wrapper.vm.productSortingOptions;
+
+        Object.entries(productSortings).forEach(([, productSorting]) => {
+            if (productSorting.key === defaultSortingKey) {
+                defaultSorting = productSorting;
+            }
+        });
+
+        expect(defaultSorting).toBeDefined();
+        expect(defaultSorting.active).toBeFalsy();
+
+        // sets the default sorting option
+        wrapper.vm.$refs.systemConfig.actualConfigData = { null: { 'core.listing.defaultSorting': defaultSortingKey } };
+        wrapper.vm.setDefaultSortingActive();
+
+        expect(defaultSorting.active).toBeTruthy();
     });
 });

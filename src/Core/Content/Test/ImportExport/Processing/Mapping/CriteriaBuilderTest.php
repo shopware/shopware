@@ -57,7 +57,6 @@ class CriteriaBuilderTest extends TestCase
         static::assertArrayHasKey('manufacturer', $associations);
         static::assertInstanceOf(Criteria::class, $associations['manufacturer']);
 
-        /** @var Criteria[] $manufacturerAssociations */
         $manufacturerAssociations = $associations['manufacturer']->getAssociations();
         static::assertArrayHasKey('media', $manufacturerAssociations);
         static::assertInstanceOf(Criteria::class, $manufacturerAssociations['media']);

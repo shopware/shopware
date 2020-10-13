@@ -1,8 +1,5 @@
 export default class HttpClient {
 
-    /**
-     * Constructor.
-     */
     constructor() {
         this._request = null;
         this._accessKey = '';
@@ -54,7 +51,13 @@ export default class HttpClient {
      *
      * @returns {XMLHttpRequest}
      */
-    post(url, data, callback, contentType = 'application/json', csrfProtected = true) {
+    post(
+        url,
+        data,
+        callback,
+        contentType = 'application/json',
+        csrfProtected = true
+    ) {
         contentType = this._getContentType(data, contentType);
         const request = this._createPreparedRequest('POST', url, contentType);
 
@@ -87,7 +90,12 @@ export default class HttpClient {
      *
      * @returns {XMLHttpRequest}
      */
-    delete(url, data, callback, contentType = 'application/json') {
+    delete(
+        url,
+        data,
+        callback,
+        contentType = 'application/json'
+    ) {
         contentType = this._getContentType(data, contentType);
         const request = this._createPreparedRequest('DELETE', url, contentType);
 
@@ -96,6 +104,7 @@ export default class HttpClient {
 
     /**
      * Request PATCH
+     *
      * @param {string} url
      * @param {object|null} data
      * @param {function} callback
@@ -103,7 +112,12 @@ export default class HttpClient {
      *
      * @returns {XMLHttpRequest}
      */
-    patch(url, data, callback, contentType = 'application/json') {
+    patch(
+        url,
+        data,
+        callback,
+        contentType = 'application/json'
+    ) {
         contentType = this._getContentType(data, contentType);
         const request = this._createPreparedRequest('PATCH', url, contentType);
 
@@ -122,19 +136,19 @@ export default class HttpClient {
     }
 
     /**
-     * register event listener
-     * which executes the given callback
-     * when the request has finished
-     *
-     * @param request
-     * @param callback
      * @private
+     * Register event listener, which executes the given callback, when the request has finished
+     *
+     * @param {XMLHttpRequest} request
+     * @param {function} callback
      */
     _registerOnLoaded(request, callback) {
+        if (!callback) {
+            return;
+        }
+
         request.addEventListener('loadend', () => {
-            if (callback) {
-                callback(request.responseText);
-            }
+            callback(request.responseText, request);
         });
     }
 
@@ -155,13 +169,13 @@ export default class HttpClient {
     }
 
     /**
-     * returns the appropriate content type for the request
+     * @private
+     * Returns the appropriate content type for the request
      *
      * @param {*} data
      * @param {string} contentType
      *
      * @returns {string|boolean}
-     * @private
      */
     _getContentType(data, contentType) {
 
@@ -177,15 +191,14 @@ export default class HttpClient {
     }
 
     /**
-     * Returns a new and configured XMLHttpRequest object which
-     * is prepared to being used
+     * @private
+     * Returns a new and configured XMLHttpRequest object
      *
      * @param {'GET'|'POST'|'DELETE'|'PATCH'} type
      * @param {string} url
      * @param {string} contentType
      *
      * @returns {XMLHttpRequest}
-     * @private
      */
     _createPreparedRequest(type, url, contentType) {
         this._request = new XMLHttpRequest();

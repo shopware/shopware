@@ -48,6 +48,8 @@ class MailHeaderFooterApiTest extends TestCase
 
     /**
      * api.mail_header_footer.create
+     *
+     * @group slow
      */
     public function testHeaderFooterCreate(): void
     {
@@ -64,7 +66,7 @@ class MailHeaderFooterApiTest extends TestCase
 
         // read created data from db
         $records = $this->connection->fetchAll(
-            'SELECT * 
+            'SELECT *
                         FROM mail_header_footer mhf
                         JOIN mail_header_footer_translation mhft ON mhf.id=mhft.mail_header_footer_id'
         );
@@ -86,6 +88,8 @@ class MailHeaderFooterApiTest extends TestCase
 
     /**
      * api.mail_header_footer.list
+     *
+     * @group slow
      */
     public function testHeaderFooterList(): void
     {

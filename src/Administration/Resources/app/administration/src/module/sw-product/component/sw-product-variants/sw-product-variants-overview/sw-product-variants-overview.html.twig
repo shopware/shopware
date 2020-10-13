@@ -216,7 +216,21 @@
 
                 {% block sw_product_variants_overview_data_grid_column_active %}
                     <template slot="column-active" slot-scope="{ item, isInlineEdit }">
-                        <sw-data-grid-column-boolean v-model="item.active" :isInlineEdit="isInlineEdit" />
+                        <template v-if="isInlineEdit">
+                            <sw-data-grid-column-boolean v-model="item.active" :isInlineEdit="isInlineEdit" :disabled="isActiveFieldInherited(item)" />
+
+                            <sw-inheritance-switch :isInherited="isActiveFieldInherited(item)"
+                                                   class="sw-product-variants-overview__active-inherited-icon"
+                                                   @inheritance-restore="onActiveInheritanceRestore(item)"
+                                                   @inheritance-remove="onActiveInheritanceRemove(item)">
+                            </sw-inheritance-switch>
+                        </template>
+
+                        <template v-else>
+                            <sw-icon v-if="item.active === true" name="small-default-checkmark-line-medium" small class="is--active"></sw-icon>
+                            <sw-icon v-else-if="item.active === false" name="small-default-x-line-medium" small class="is--inactive"></sw-icon>
+                            <sw-icon v-else key="inherit-icon" :multicolor="true" name="custom-inherited" size="16"></sw-icon>
+                        </template>
                     </template>
                 {% endblock %}
 

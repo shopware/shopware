@@ -4,8 +4,6 @@ namespace Shopware\Core\Framework\Store\Api;
 
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ConnectException;
-use Shopware\Core\Framework\Api\Context\AdminApiSource;
-use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -25,8 +23,6 @@ use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Core\System\User\UserEntity;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -35,7 +31,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @RouteScope(scopes={"api"})
  */
-class StoreController extends AbstractController
+class StoreController extends AbstractStoreController
 {
     /**
      * @var StoreClient
@@ -56,11 +52,6 @@ class StoreController extends AbstractController
      * @var PluginLifecycleService
      */
     private $pluginLifecycleService;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $userRepository;
 
     /**
      * @var SystemConfigService
@@ -88,6 +79,7 @@ class StoreController extends AbstractController
         $this->userRepository = $userRepository;
         $this->configService = $configService;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
+        parent::__construct($userRepository);
     }
 
     /**
@@ -117,9 +109,7 @@ class StoreController extends AbstractController
             throw new StoreInvalidCredentialsException();
         }
 
-        if (!$context->getSource() instanceof AdminApiSource) {
-            throw new InvalidContextSourceException(AdminApiSource::class, \get_class($context->getSource()));
-        }
+        $this->ensureAdminApiSource($context);
 
         try {
             $accessTokenStruct = $this->storeClient->loginWithShopwareId($shopwareId, $password, $language, $context);
@@ -143,21 +133,14 @@ class StoreController extends AbstractController
      */
     public function checkLogin(Context $context): Response
     {
-        if (!$context->getSource() instanceof AdminApiSource) {
-            throw new InvalidContextSourceException(AdminApiSource::class, \get_class($context->getSource()));
-        }
-
-        $userId = $context->getSource()->getUserId();
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('id', $userId));
-
-        /** @var UserEntity|null $user */
-        $user = $this->userRepository->search($criteria, $context)->getEntities()->first();
-
         $tokenExists = false;
-        if ($user && $user->getStoreToken()) {
-            $tokenExists = true;
+
+        try {
+            $storeToken = $this->getUserStoreToken($context);
+            if ($storeToken !== '') {
+                $tokenExists = true;
+            }
+        } catch (StoreTokenMissingException $storeTokenMissingException) {
         }
 
         return new JsonResponse(['storeTokenExists' => $tokenExists]);
@@ -168,9 +151,7 @@ class StoreController extends AbstractController
      */
     public function logout(Context $context): Response
     {
-        if (!$context->getSource() instanceof AdminApiSource) {
-            throw new InvalidContextSourceException(AdminApiSource::class, \get_class($context->getSource()));
-        }
+        $this->ensureAdminApiSource($context);
 
         $context->scope(Context::SYSTEM_SCOPE, function ($context): void {
             $this->userRepository->update([['id' => $context->getSource()->getUserId(), 'storeToken' => null]], $context);
@@ -195,7 +176,7 @@ class StoreController extends AbstractController
 
         return new JsonResponse([
             'items' => $licenseList,
-            'total' => count($licenseList),
+            'total' => \count($licenseList),
         ]);
     }
 
@@ -223,7 +204,7 @@ class StoreController extends AbstractController
 
         return new JsonResponse([
             'items' => $updatesList,
-            'total' => count($updatesList),
+            'total' => \count($updatesList),
         ]);
     }
 
@@ -296,7 +277,7 @@ class StoreController extends AbstractController
 
         return new JsonResponse([
             'items' => $violations,
-            'total' => count($violations),
+            'total' => \count($violations),
         ]);
     }
 
@@ -330,23 +311,5 @@ class StoreController extends AbstractController
             'total' => $searchResult->count(),
             'items' => $plugins,
         ]);
-    }
-
-    private function getUserStoreToken(Context $context): string
-    {
-        if (!$context->getSource() instanceof AdminApiSource) {
-            throw new InvalidContextSourceException(AdminApiSource::class, \get_class($context->getSource()));
-        }
-
-        $userId = $context->getSource()->getUserId();
-
-        /** @var UserEntity|null $user */
-        $user = $this->userRepository->search(new Criteria([$userId]), $context)->first();
-
-        if ($user->getStoreToken() === null) {
-            throw new StoreTokenMissingException();
-        }
-
-        return $user->getStoreToken();
     }
 }

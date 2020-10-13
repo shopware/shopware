@@ -15,6 +15,7 @@ import './view/sw-first-run-wizard-shopware-base';
 import './view/sw-first-run-wizard-shopware-account';
 import './view/sw-first-run-wizard-shopware-domain';
 import './view/sw-first-run-wizard-finish';
+import './acl';
 
 const { Module } = Shopware;
 
@@ -108,6 +109,7 @@ Module.register('sw-first-run-wizard', {
     settingsItem: {
         group: 'system',
         to: 'sw.first.run.wizard.index',
-        icon: 'default-object-rocket'
+        icon: 'default-object-rocket',
+        privilege: 'system.frw'
     }
 });

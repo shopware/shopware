@@ -18,7 +18,8 @@ Module.register('sw-settings-sitemap', {
             component: 'sw-settings-sitemap',
             path: 'index',
             meta: {
-                parentPath: 'sw.settings.index'
+                parentPath: 'sw.settings.index',
+                privilege: 'system.system_config'
             }
         }
     },
@@ -26,6 +27,7 @@ Module.register('sw-settings-sitemap', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.sitemap.index',
-        icon: 'default-location-map'
+        icon: 'default-location-map',
+        privilege: 'system.system_config'
     }
 });

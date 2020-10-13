@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Changelog\Command;
 
-use Shopware\Core\Framework\Changelog\ChangelogReleaseExporter;
+use Shopware\Core\Framework\Changelog\Processor\ChangelogReleaseExporter;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -12,10 +12,14 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class ChangelogChangeCommand extends Command
 {
-    /** @var string */
+    /**
+     * @var string
+     */
     protected static $defaultName = 'changelog:change';
 
-    /** @var ChangelogReleaseExporter */
+    /**
+     * @var ChangelogReleaseExporter
+     */
     private $releaseExporter;
 
     public function __construct(ChangelogReleaseExporter $releaseExporter)
@@ -35,7 +39,8 @@ class ChangelogChangeCommand extends Command
             ->addOption('storefront', null, InputOption::VALUE_NONE, 'Returns all changes made in the Storefront')
             ->addOption('admin', null, InputOption::VALUE_NONE, 'Returns all changes made in the Administration')
             ->addOption('upgrade', null, InputOption::VALUE_NONE, 'Returns all changes documented in the Upgrade Information')
-            ->addOption('include-feature-flags', null, InputOption::VALUE_NONE, 'Returns all changes, including features which are still behind a feature flag.');
+            ->addOption('include-feature-flags', null, InputOption::VALUE_NONE, 'Returns all changes, including features which are still behind a feature flag.')
+            ->addOption('keys-only', null, InputOption::VALUE_NONE, 'Returns only Jira ticket keys of all changes made.');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -55,7 +60,7 @@ class ChangelogChangeCommand extends Command
             $includeFeatureFlags = false;
         }
 
-        $output = $this->releaseExporter->export($this->getRequestedSection($input), $version, $includeFeatureFlags);
+        $output = $this->releaseExporter->export($this->getRequestedSection($input), $version, $includeFeatureFlags, (bool) $input->getOption('keys-only'));
 
         /** @var string $path */
         $path = $input->getOption('path') ?: '';

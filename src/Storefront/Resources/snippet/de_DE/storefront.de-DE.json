@@ -63,6 +63,9 @@
     "payment-method-blocked": "Die gewählte Zahlungsart %name% ist nicht verfügbar.",
     "shipping-method-blocked": "Die gewählte Versandart %name% ist nicht verfügbar.",
     "shipping-address-blocked": "Lieferungen an die gewählte Lieferadresse sind nicht möglich.",
+    "shipping-address-invalid": "Die gewählte Versandadresse ist nicht gültig oder unvollständig. Bitte prüfen Sie Ihre Eingaben.",
+    "billing-address-blocked": "Rechnungen können nicht an die gewählte Rechnungsadresse ausgestellt werden.",
+    "billing-address-invalid": "Die gewählte Rechnungsadresse ist nicht gültig oder unvollständig. Bitte prüfen Sie Ihre Eingaben.",
     "VIOLATION::TOO_SHORT_ERROR": "%field% ist zu kurz.",
     "product-not-found": "Das Produkt wurde nicht gefunden.",
     "message-403-ajax": "Die Sitzung ist abgelaufen. Bitte laden Sie die Seite neu und versuchen Sie es erneut.",
@@ -71,6 +74,8 @@
     "auto-promotion-not-found": "Promotion \"%name%\" was no longer valid!"
   },
   "account": {
+    "externalPaymentCanceled": "Wir haben Ihre Bestellung erhalten, aber die Zahlung wurde abgebrochen. Bitte ändern Sie Ihre Zahlungsmethode oder versuchen Sie es erneut",
+    "externalPaymentFailure": "Wir haben Ihre Bestellung erhalten, aber wir konnten Ihre Zahlung nicht bearbeiten, bitte ändern Sie die Zahlungsmethode oder versuchen Sie es erneut",
     "confirmationIsAlreadyDone": "Die Bestätigung ist bereits erfolgt oder die URL ist ungültig.",
     "doubleOptInMailConfirmationSuccessfully": "Vielen Dank für die Bestätigung Ihrer E-Mail-Adresse! Sie können Ihre Bestellung nun abschließen.",
     "doubleOptInRegistrationSuccessfully": "Vielen Dank für Ihre Anmeldung! Ihr Account wurde erfolgreich freigeschaltet.",
@@ -177,6 +182,12 @@
     "profileRecoverPasswordInfo": "Wir senden Ihnen eine Bestätigungs-E-Mail. Klicken Sie auf den darin enthaltenen Link, um Ihr Passwort zu ändern.",
     "profileRecoverPasswordSubmit": "E-Mail senden",
     "profileSaveChanges": "Änderungen speichern",
+    "profileDelete": "<a href=\"%target%\" data-toggle=\"modal\" data-target=\"%target%\">Klicken Sie hier</a> um alle Ihre persönlichen Daten zu löschen",
+    "profileDeleteAlert": "Nach dem Löschen der persönlichen Daten Ihres Kundenkontos sind Newsletter-Einträge und Bewertungen für Sie nicht mehr zugänglich. Beachten Sie jedoch, dass weiterhin Aufzeichnungen über alle Bestellungen gespeichert bleiben, um die gesetzlichen Bestimmungen zu erfüllen.",
+    "profileDeleteConfirm": "Möchten Sie Ihr Kundenkonto wirklich löschen?",
+    "profileDeleteModalTitle": "Kundenkonto",
+    "profileDeleteButton": "Konto löschen",
+    "profileDeleteSuccessAlert": "Ihr Kundenkonto wurde gelöscht.",
     "addressWelcome": "Adressen",
     "addressText": "Ändern Sie Ihre Standard-Adressen oder fügen Sie neue hinzu.",
     "addressListHeader": "Alle Adressen",
@@ -375,7 +386,8 @@
     "shipping-address-blocked": "Lieferungen an die gewählte Lieferadresse sind nicht möglich.",
     "customerCommentHeader": "Zusätzliche Informationen",
     "customerCommentLabel": "Möchten Sie uns etwas über Ihre Bestellung mitteilen?",
-    "customerCommentPlaceholder": "Kommentieren Sie hier ..."
+    "customerCommentPlaceholder": "Kommentieren Sie hier ...",
+    "cart-merged-hint": "Der aktuelle Warenkorb enthält u.U. zusätzliche Produkte, die noch von einem früheren Besuch gespeichert waren."
   },
   "listing": {
     "filterTitleText": "Filter",
@@ -402,7 +414,8 @@
     "filterRangeActiveMaxLabel": "Preis bis",
     "filterRangeErrorMessage": "Der Mindestpreis darf nicht höher sein als der Höchstpreis.",
     "filterSubmitText": "Filter",
-    "defaultProductSortingLabel": "Name A-Z"
+    "defaultProductSortingLabel": "Name A-Z",
+    "disabledFilterTooltip": "Dieser Filter zeigt in Kombination mit den ausgewählten Filtern keine weiteren Ergebnisse an."
   },
   "newsletter": {
     "headline": "Newsletter abonnieren",
@@ -546,6 +559,12 @@
           "true": "Ja",
           "false": "Nein"
         }
+      }
+    },
+    "cms": {
+      "vimeo": {
+        "privacyNotice": "Mit dem Aufruf des Videos erklärst Du Dich einverstanden, dass Deine Daten an %platform% übermittelt werden und das Du die <a data-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"Datenschutzbestimmungen\">Datenschutzbestimmungen</a> gelesen hast.",
+        "acceptButtonLabel": "Akzeptieren"
       }
     }
   }

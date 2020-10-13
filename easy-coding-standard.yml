@@ -1,3 +1,5 @@
+# @deprecated tag:v6.4.0 - The file 'easy-coding-standard.yml' will be removed. Please use 'easy-coding-standard.php' instead.
+
 services:
     PhpCsFixer\Fixer\CastNotation\ModernizeTypesCastingFixer: ~
     PhpCsFixer\Fixer\ClassNotation\ClassAttributesSeparationFixer:
@@ -22,6 +24,7 @@ services:
     PhpCsFixer\Fixer\PhpUnit\PhpUnitTestCaseStaticMethodCallsFixer: ~
     PhpCsFixer\Fixer\ReturnNotation\NoUselessReturnFixer: ~
     PhpCsFixer\Fixer\Strict\DeclareStrictTypesFixer: ~
+    PhpCsFixer\Fixer\Whitespace\BlankLineBeforeStatementFixer: ~
     PhpCsFixer\Fixer\Whitespace\CompactNullableTypehintFixer: ~
     PhpCsFixerCustomFixers\Fixer\NoImportFromGlobalNamespaceFixer: ~
     PhpCsFixerCustomFixers\Fixer\NoSuperfluousConcatenationFixer: ~
@@ -34,14 +37,17 @@ services:
 
 parameters:
     sets:
-        - 'psr12'
         - 'symfony'
         - 'array'
         - 'control-structures'
         - 'strict'
+        - 'psr12'
     cache_directory: 'var/cache/cs_fixer'
     cache_namespace: 'platform'
     skip:
+        Symplify\CodingStandard\Fixer\ArrayNotation\ArrayOpenerAndCloserNewlineFixer: ~
+        Symplify\CodingStandard\Fixer\ArrayNotation\ArrayListItemNewlineFixer: ~
+        PhpCsFixer\Fixer\FunctionNotation\SingleLineThrowFixer: ~
         PhpCsFixer\Fixer\ClassNotation\SelfAccessorFixer: ~
         PhpCsFixer\Fixer\LanguageConstruct\ExplicitIndirectVariableFixer: ~
         PhpCsFixer\Fixer\PhpTag\BlankLineAfterOpeningTagFixer: ~
@@ -49,4 +55,3 @@ parameters:
         PhpCsFixer\Fixer\StringNotation\ExplicitStringVariableFixer: ~
         PhpCsFixerCustomFixers\Fixer\NoUselessCommentFixer: # would otherwise destroy the example in the annotation
             - 'src/Core/System/Annotation/Concept/DeprecationPattern/ReplaceDecoratedInterface.php'
-        PHP_CodeSniffer\Standards\Generic\Sniffs\CodeAnalysis\AssignmentInConditionSniff: ~

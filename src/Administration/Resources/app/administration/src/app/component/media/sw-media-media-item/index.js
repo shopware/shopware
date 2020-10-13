@@ -67,13 +67,11 @@ Component.register('sw-media-media-item', {
                 item.fileName = updatedName;
                 item.isLoading = false;
                 this.createNotificationSuccess({
-                    title: this.$tc('global.default.success'),
                     message: this.$tc('global.sw-media-media-item.notification.renamingSuccess.message')
                 });
                 this.$emit('media-item-rename-success', item);
             } catch {
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
                     message: this.$tc('global.sw-media-media-item.notification.renamingError.message')
                 });
             } finally {
@@ -84,7 +82,6 @@ Component.register('sw-media-media-item', {
 
         rejectRenaming(endInlineEdit) {
             this.createNotificationError({
-                title: this.$tc('global.default.error'),
                 message: this.$tc('global.sw-media-media-item.notification.errorBlankItemName.message')
             });
 
@@ -121,7 +118,6 @@ Component.register('sw-media-media-item', {
         copyItemLink(item) {
             dom.copyToClipboard(item.url);
             this.createNotificationSuccess({
-                title: this.$tc('global.default.success'),
                 message: this.$tc('sw-media.general.notification.urlCopied.message')
             });
         },

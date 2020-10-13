@@ -216,4 +216,7 @@ return [
     'Shopware\\Storefront' => 'Storefront',
     Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingDefinition::class => 'Product sorting',
     Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingTranslationDefinition::class => 'Translations',
+    Shopware\Core\Framework\Event\EventAction\Aggregate\EventActionRule\EventActionRuleDefinition::class => 'M:N Mapping',
+    Shopware\Core\Framework\Event\EventAction\Aggregate\EventActionSalesChannel\EventActionSalesChannelDefinition::class => 'M:N Mapping',
+    Shopware\Core\System\Integration\Aggregate\IntegrationRole\IntegrationRoleDefinition::class => 'M:N Mapping',
 ];

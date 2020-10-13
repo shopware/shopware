@@ -41,10 +41,10 @@
 
                 {% block sw_media_upload_v2_compact_url_form %}
                     <sw-media-url-form
-                            v-if="showUrlInput"
-                            variant="modal"
-                            @modal-close="closeUrlModal"
-                            @media-url-form-submit="onUrlUpload">
+                        v-if="showUrlInput"
+                        variant="modal"
+                        @modal-close="closeUrlModal"
+                        @media-url-form-submit="onUrlUpload">
                     </sw-media-url-form>
                 {% endblock %}
             </div>
@@ -124,8 +124,8 @@
                                             v-if="mediaModalIsOpen"
                                             @modal-close="mediaModalIsOpen = false"
                                             @media-modal-selection-change="onModalClosed"
-                                            :allowMultiSelect="false"
-                                        ></sw-media-modal-v2>
+                                            :allowMultiSelect="false">
+                                        </sw-media-modal-v2>
 
                                         {% block sw_media_upload_v2_regular_media_sidebar_button %}{% endblock %}
                                     </template>

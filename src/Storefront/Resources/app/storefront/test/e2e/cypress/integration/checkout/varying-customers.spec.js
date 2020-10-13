@@ -77,7 +77,8 @@ describe('Checkout: Proceed checkout using various customers', () => {
                     cy.get('#addressAddressStreet').typeAndCheckStorefront('42 Wallaby Way');
                     cy.get('#addressAddressZipcode').typeAndCheckStorefront('2000');
                     cy.get('#addressAddressCity').typeAndCheckStorefront('Sydney');
-                    cy.get('#addressAddressCountry').typeAndSelect('Australia');
+                    cy.get('#addressAddressCountry').typeAndSelect('Germany');
+                    cy.get('#addressAddressCountryState').typeAndSelect('Lower Saxony');
                     cy.get('.address-form-submit').click();
                     cy.get('.alert-success .alert-content').contains('Address has been saved.');
 

@@ -8,7 +8,7 @@ const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 Component.register('sw-product-detail-context-prices', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('notification')
@@ -273,7 +273,6 @@ Component.register('sw-product-detail-context-prices', {
             // if it is the only item in the priceRuleGroup
             if (matchingPriceRuleGroup.prices.length <= 1) {
                 this.createNotificationError({
-                    title: this.$tc('sw-product.advancedPrices.deletionNotPossibleTitle'),
                     message: this.$tc('sw-product.advancedPrices.deletionNotPossibleMessage')
                 });
 

@@ -16,6 +16,9 @@ use Shopware\Core\Content\Product\Aggregate\ProductFeatureSetTranslation\Product
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Migration\Migration1590758953ProductFeatureSet;
 
+/**
+ * @group slow
+ */
 class Migration1590758953ProductFeatureSetTest extends TestCase
 {
     use IntegrationTestBehaviour;

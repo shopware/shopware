@@ -62,7 +62,7 @@ describe('src/module/sw-product-stream/component/sw-product-stream-filter', () =
     it('should be a Vue.JS component', () => {
         const wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBe(true);
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should return correct tooltip settings', () => {

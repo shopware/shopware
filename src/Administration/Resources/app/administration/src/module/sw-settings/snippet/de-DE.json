@@ -13,5 +13,12 @@
       "labelSalesChannelSelect": "Verkaufskanal",
       "inherited": "Vererbt"
     }
+  },
+  "sw-privileges": {
+    "additional_permissions": {
+      "system": {
+        "system_config": "Grundlegende Einstellungen"
+      }
+    }
   }
 }

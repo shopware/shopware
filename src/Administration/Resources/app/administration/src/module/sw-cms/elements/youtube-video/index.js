@@ -41,6 +41,17 @@ Shopware.Service('cmsService').registerCmsElement({
         advancedPrivacyMode: {
             source: 'static',
             value: true
+        },
+        needsConfirmation: {
+            source: 'static',
+            value: false
+        },
+        previewMedia: {
+            source: 'static',
+            value: null,
+            entity: {
+                name: 'media'
+            }
         }
     }
 });

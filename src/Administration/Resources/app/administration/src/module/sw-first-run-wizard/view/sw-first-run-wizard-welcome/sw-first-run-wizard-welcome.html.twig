@@ -42,6 +42,13 @@
                             {{ language.customLabel }}
                         </option>
                     </sw-select-field>
+                    <sw-password-field
+                        type="password"
+                        :label="$tc('sw-first-run-wizard.shopwareAccount.passwordPlaceholder')"
+                        :copyAble="false"
+                        @keypress.enter="onConfirmLanguageSwitch"
+                        v-model="user.pw">
+                    </sw-password-field>
                 {% endblock %}
 
                 {% block sw_first_run_wizard_welcome_confirm_language_switch_modal_footer %}

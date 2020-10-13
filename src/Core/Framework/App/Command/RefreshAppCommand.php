@@ -15,6 +15,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class RefreshAppCommand extends Command
 {
+    protected static $defaultName = 'app:refresh';
+
     /**
      * @var AppService
      */
@@ -35,8 +37,7 @@ class RefreshAppCommand extends Command
 
     protected function configure(): void
     {
-        $this->setName('app:refresh')
-            ->setDescription('Refreshes the installed Apps')
+        $this->setDescription('Refreshes the installed Apps')
             ->addOption(
                 'force',
                 'f',

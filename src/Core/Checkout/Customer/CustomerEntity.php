@@ -299,6 +299,20 @@ class CustomerEntity extends Entity
      */
     protected $requestedGroup;
 
+    /**
+     * @internal (flag:FEATURE_NEXT_10555)
+     *
+     * @var string|null
+     */
+    protected $boundSalesChannelId;
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10555)
+     *
+     * @var SalesChannelEntity|null
+     */
+    protected $boundSalesChannel;
+
     public function __toString()
     {
         return $this->getFirstName() . ' ' . $this->getLastName();
@@ -853,5 +867,25 @@ class CustomerEntity extends Entity
     public function setRequestedGroup(?CustomerGroupEntity $requestedGroup): void
     {
         $this->requestedGroup = $requestedGroup;
+    }
+
+    public function getBoundSalesChannelId(): ?string
+    {
+        return $this->boundSalesChannelId;
+    }
+
+    public function setBoundSalesChannelId(?string $boundSalesChannelId): void
+    {
+        $this->boundSalesChannelId = $boundSalesChannelId;
+    }
+
+    public function getBoundSalesChannel(): ?SalesChannelEntity
+    {
+        return $this->boundSalesChannel;
+    }
+
+    public function setBoundSalesChannel(SalesChannelEntity $boundSalesChannel): void
+    {
+        $this->boundSalesChannel = $boundSalesChannel;
     }
 }

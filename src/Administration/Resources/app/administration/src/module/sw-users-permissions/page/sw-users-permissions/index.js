@@ -13,7 +13,15 @@ Component.register('sw-users-permissions', {
         };
     },
 
-    computed: {},
+    methods: {
+        reloadUserListing() {
+            if (this.$refs.userListing) {
+                this.$refs.userListing.getList();
+            }
 
-    methods: {}
+            if (this.$refs.roleListing) {
+                this.$refs.roleListing.getList();
+            }
+        }
+    }
 });

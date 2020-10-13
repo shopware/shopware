@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Customer\Subscriber;
 use Shopware\Core\Checkout\Customer\CustomerEvents;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -59,6 +60,27 @@ class CustomerTokenSubscriber implements EventSubscriberInterface
 
         foreach ($payloads as $payload) {
             if ($this->customerCredentialsChanged($payload)) {
+                if (Feature::isActive('FEATURE_NEXT_10058')) {
+                    $newToken = $this->contextPersister->replace($token, $context);
+
+                    $context->assign([
+                        'token' => $newToken,
+                    ]);
+
+                    if (!$master->hasSession()) {
+                        return;
+                    }
+
+                    $session = $master->getSession();
+                    $session->migrate();
+                    $session->set('sessionId', $session->getId());
+
+                    $session->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $newToken);
+                    $master->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $newToken);
+
+                    return;
+                }
+
                 $this->contextPersister->revokeAllCustomerTokens($payload['id'], $token);
             }
         }

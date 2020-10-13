@@ -20,6 +20,9 @@ use Shopware\Development\Kernel;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
+/**
+ * @group slow
+ */
 class PluginManagementServiceTest extends TestCase
 {
     use KernelTestBehaviour;

@@ -51,7 +51,7 @@
       "textResetConfirm": "Are you sure you want to reset the snippet \"{key}\" for this set? | Are you sure you want to reset the snippets for \"{key}\"?",
       "textSnippetList": "Snippets of \"{setName}\" | Snippets",
       "resetErrorMessage": "Snippet \"{key}\" could not be reset. | Snippet \"{key}\" could not be deleted.",
-      "resetSuccessMessage": "Snippet \"{key}\" has been reset to \"{value}\". | Snippet \"{key}\" has been deleted.",
+      "resetSuccessMessage": "Snippet \"{key}\" has been reset to it's default value. | Snippet \"{key}\" has been deleted.",
       "titleSidebarCustomItems": "Custom snippets",
       "titleSidebarItemRefresh": "Refresh",
       "titleSidebarItemFilter": "Filter"
@@ -93,5 +93,12 @@
       "author": "Author",
       "more": "More filters"
     }
-  }
+  },
+  "sw-privileges": {
+      "permissions": {
+          "snippet": {
+            "label": "Snippets"
+         }
+      }
+   }
 }

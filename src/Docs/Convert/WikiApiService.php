@@ -812,7 +812,7 @@ class WikiApiService
 
         foreach ($hashesOnServer as $hashToBeDeleted => $mappedId) {
             $this->articleHandler->deleteEntityHash($hashToBeDeleted);
-            $this->deleteArticle($mappedId);
+            $this->deleteArticle((int) $mappedId);
         }
     }
 
@@ -833,16 +833,19 @@ class WikiApiService
 
         foreach ($hashesOnServer as $hashToBeDeleted => $mappedId) {
             $this->categoryHandler->deleteEntityHash($hashToBeDeleted);
-            $this->deleteCategory($mappedId);
+            $this->deleteCategory((string) $mappedId);
         }
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function buildAssocArray(array $entities): array
     {
         $rebuiltArray = [];
 
         foreach ($entities as $entity) {
-            $rebuiltArray[$entity['hash']] = $entity['mapped_id'];
+            $rebuiltArray[(string) $entity['hash']] = $entity['mapped_id'];
         }
 
         return $rebuiltArray;

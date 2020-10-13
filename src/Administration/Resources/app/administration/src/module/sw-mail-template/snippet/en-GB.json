@@ -71,7 +71,8 @@
       "textHeadlineEdit": "Edit email template",
       "titleResult": "Email template",
       "messageSaveSuccess": "The email template \"{subject}\" has been saved.",
-      "messageSaveError": "The email template \"{subject}\" could not be saved."
+      "messageSaveError": "The email template \"{subject}\" could not be saved.",
+      "textErrorMessage": "Error message"
     }
   },
   "sw-mail-header-footer": {
@@ -93,7 +94,8 @@
       "buttonCancel": "Cancel",
       "buttonDelete": "Delete",
       "messageEmpty": "No email header and footer yet",
-      "titleSidebarItemRefresh": "Refresh"
+      "titleSidebarItemRefresh": "Refresh",
+      "messageDeleteError": "The header and footer \"{name}\" cannot be deleted, while Sales Channels are configured."
     },
     "detail": {
       "basic": {
@@ -125,6 +127,13 @@
       "titleResult": "Email header/footer",
       "messageSaveSuccess": "The email header/footer \"{name}\" has been saved.",
       "messageSaveError": "The email header/footer \"{name}\" could not be saved."
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "mail_templates": {
+        "label": "Email templates"
+      }
     }
   }
 }

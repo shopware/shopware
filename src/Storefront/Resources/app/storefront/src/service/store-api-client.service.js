@@ -7,6 +7,16 @@ export default class StoreApiClient extends HttpClient {
         this._proxyUrl = window.router['frontend.store-api.proxy'];
     }
 
+    /**
+     * @private
+     * Returns a new and configured XMLHttpRequest object
+     *
+     * @param {'GET'|'POST'|'DELETE'|'PATCH'} type
+     * @param {string} url
+     * @param {string} contentType
+     *
+     * @returns {XMLHttpRequest}
+     */
     _createPreparedRequest(type, url, contentType) {
         this._request = new XMLHttpRequest();
 
@@ -24,7 +34,24 @@ export default class StoreApiClient extends HttpClient {
         return this._request;
     }
 
-    post(url, data, callback, contentType = 'application/json', csrfProtected = true) {
+    /**
+     * Request POST
+     *
+     * @param {string} url
+     * @param {object|null} data
+     * @param {function} callback
+     * @param {string} contentType
+     * @param {boolean} csrfProtected
+     *
+     * @returns {XMLHttpRequest}
+     */
+    post(
+        url,
+        data,
+        callback,
+        contentType = 'application/json',
+        csrfProtected = true
+    ) {
         if (csrfProtected && this._csrfEnabled && this._csrfMode !== 'ajax') {
             if (data instanceof FormData) {
                 data.append('_csrf_token', window.storeApiProxyToken);

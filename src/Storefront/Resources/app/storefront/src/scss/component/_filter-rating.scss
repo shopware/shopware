@@ -23,6 +23,11 @@ This filter item should only be used inside a filter panel.
     &.is-active .icon-star {
         color: $icon-review-color;
     }
+
+    &.disabled {
+        opacity: 0.3;
+        cursor: default;
+    }
 }
 
 .filter-rating-count {

@@ -51,7 +51,7 @@ SalesChannel Customer
 
 * [Entity relationship diagram](./10-erd/erd-shopware-core-checkout-customer.md)
 
-#### Document <span class="tip is--primary">Data store</span> <span class="tip is--primary">Extension</span>
+#### Document <span class="tip is--primary">Data store</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Extension</span>
 
 * [Sources](https://github.com/shopware/platform/tree/master/src/Core/Checkout/Document)
 
@@ -125,7 +125,7 @@ Mass imports and exports through files
 
 * [Entity relationship diagram](./10-erd/erd-shopware-core-content-importexport.md)
 
-#### MailTemplate <span class="tip is--primary">Data store</span> <span class="tip is--primary">Maintenance</span> <span class="tip is--primary">Custom actions</span> <span class="tip is--primary">Business Event Dispatcher</span> <span class="tip is--primary">Extension</span>
+#### MailTemplate <span class="tip is--primary">Data store</span> <span class="tip is--primary">Maintenance</span> <span class="tip is--primary">Custom actions</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Business Event Dispatcher</span> <span class="tip is--primary">Extension</span>
 
 * [Sources](https://github.com/shopware/platform/tree/master/src/Core/Content/MailTemplate)
 
@@ -165,7 +165,7 @@ Product export
 
 * [Entity relationship diagram](./10-erd/erd-shopware-core-content-productexport.md)
 
-#### ProductStream <span class="tip is--primary">Data store</span> <span class="tip is--primary">Extension</span>
+#### ProductStream <span class="tip is--primary">Data store</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Extension</span>
 
 * [Sources](https://github.com/shopware/platform/tree/master/src/Core/Content/ProductStream)
 
@@ -181,7 +181,7 @@ Content configuration
 
 * [Entity relationship diagram](./10-erd/erd-shopware-core-content-property.md)
 
-#### Rule <span class="tip is--primary">Data store</span> <span class="tip is--primary">Extension</span>
+#### Rule <span class="tip is--primary">Data store</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Extension</span>
 
 * [Sources](https://github.com/shopware/platform/tree/master/src/Core/Content/Rule)
 
@@ -310,7 +310,7 @@ Plugin services
 
 Rule matching
 
-#### Store <span class="tip is--primary">Maintenance</span> <span class="tip is--primary">Extension</span>
+#### Store <span class="tip is--primary">Maintenance</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Extension</span>
 
 * [Sources](https://github.com/shopware/platform/tree/master/src/Core/Framework/Store)
 
@@ -334,7 +334,7 @@ Update process
 
 UUID Handling
 
-#### Validation 
+#### Validation <span class="tip is--primary">Custom Extendable</span>
 
 * [Sources](https://github.com/shopware/platform/tree/master/src/Core/Framework/Validation)
 
@@ -418,7 +418,7 @@ Locales
 
 * [Entity relationship diagram](./10-erd/erd-shopware-core-system-locale.md)
 
-#### NumberRange <span class="tip is--primary">Data store</span> <span class="tip is--primary">Extension</span>
+#### NumberRange <span class="tip is--primary">Data store</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Extension</span>
 
 * [Sources](https://github.com/shopware/platform/tree/master/src/Core/System/NumberRange)
 
@@ -451,7 +451,7 @@ Translation management
 
 * [Entity relationship diagram](./10-erd/erd-shopware-core-system-snippet.md)
 
-#### StateMachine <span class="tip is--primary">Data store</span> <span class="tip is--primary">Maintenance</span> <span class="tip is--primary">Custom actions</span> <span class="tip is--primary">Extension</span>
+#### StateMachine <span class="tip is--primary">Data store</span> <span class="tip is--primary">Maintenance</span> <span class="tip is--primary">Custom actions</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Extension</span>
 
 * [Sources](https://github.com/shopware/platform/tree/master/src/Core/System/StateMachine)
 
@@ -491,7 +491,7 @@ Product / Shipping Units
 
 * [Entity relationship diagram](./10-erd/erd-shopware-core-system-unit.md)
 
-#### User <span class="tip is--primary">Data store</span> <span class="tip is--primary">Maintenance</span> <span class="tip is--primary">Business Event Dispatcher</span> <span class="tip is--primary">Extension</span>
+#### User <span class="tip is--primary">Data store</span> <span class="tip is--primary">Maintenance</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Business Event Dispatcher</span> <span class="tip is--primary">Extension</span>
 
 * [Sources](https://github.com/shopware/platform/tree/master/src/Core/System/User)
 

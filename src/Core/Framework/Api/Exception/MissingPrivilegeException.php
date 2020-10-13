@@ -2,12 +2,30 @@
 
 namespace Shopware\Core\Framework\Api\Exception;
 
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Shopware\Core\Framework\ShopwareHttpException;
+use Symfony\Component\HttpFoundation\Response;
 
-class MissingPrivilegeException extends AccessDeniedHttpException
+class MissingPrivilegeException extends ShopwareHttpException
 {
-    public function __construct(string $privilege)
+    public const MISSING_PRIVILEGE_ERROR = 'FRAMEWORK__MISSING_PRIVILEGE_ERROR';
+
+    public function __construct(array $privilege = [])
     {
-        parent::__construct(sprintf('Missing privilege %s', $privilege));
+        $errorMessage = json_encode([
+            'message' => 'Missing privilege',
+            'missingPrivileges' => $privilege,
+        ]);
+
+        parent::__construct($errorMessage ?: '');
+    }
+
+    public function getStatusCode(): int
+    {
+        return Response::HTTP_FORBIDDEN;
+    }
+
+    public function getErrorCode(): string
+    {
+        return self::MISSING_PRIVILEGE_ERROR;
     }
 }

@@ -13,6 +13,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
+/**
+ * @group slow
+ */
 class ApiVersioningV2Test extends TestCase
 {
     use IntegrationTestBehaviour;

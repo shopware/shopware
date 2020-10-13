@@ -57,18 +57,19 @@
             {% block sw_promotion_list_content %}
                 <div class="sw-promotion-list__content">
                     {% block sw_promotion_list_grid %}
-                        <sw-entity-listing :repository="promotionRepository"
-                                           :columns="promotionColumns"
-                                           :items="promotions"
-                                           detailRoute="sw.promotion.detail"
-                                           :isLoading="isLoading"
-                                           :allowInlineEdit="acl.can('promotion.editor')"
-                                           :showSelection="acl.can('promotion.deleter')"
-                                           :allowEdit="acl.can('promotion.editor')"
-                                           :allowView="acl.can('promotion.viewer')"
-                                           allowColumnEdit
-                                           fullPage
-                                           @update-records="updateTotal">
+                        <sw-entity-listing
+                            :repository="promotionRepository"
+                            :columns="promotionColumns"
+                            :items="promotions"
+                            detailRoute="sw.promotion.detail"
+                            :isLoading="isLoading"
+                            :allowInlineEdit="acl.can('promotion.editor')"
+                            :showSelection="acl.can('promotion.deleter')"
+                            :allowEdit="acl.can('promotion.editor')"
+                            :allowView="acl.can('promotion.viewer')"
+                            allowColumnEdit
+                            fullPage
+                            @update-records="updateTotal">
 
                             {% block sw_promotion_list_grid_columns %}
                                 {% block sw_promotion_list_grid_columns_active %}
@@ -95,12 +96,6 @@
                                 <sw-context-menu-item
                                     @click="showDelete(item.id)"
                                     :disabled="item.hasOrders || !acl.can('promotion.deleter')"
-                                    v-tooltip="{
-                                        message: $tc('sw-privileges.tooltip.warning'),
-                                        disabled: acl.can('promotion.deleter'),
-                                        showOnDisabledElements: true,
-                                        position: 'bottom'
-                                    }"
                                     variant="danger">
                                     {{ $tc('global.default.delete') }}
                                 </sw-context-menu-item>

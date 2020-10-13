@@ -161,7 +161,6 @@ Component.register('sw-media-modal-delete', {
                         this.$tc(`${errorSnippet}.folder`, 1, { name: item.name });
 
                     this.createNotificationError({
-                        title: this.$tc('global.default.error'),
                         message
                     });
 
@@ -201,7 +200,6 @@ Component.register('sw-media-modal-delete', {
 
         async updateSuccessNotification(successAmount, failureAmount, totalAmount) {
             const notification = {
-                title: this.$tc('global.default.success'),
                 message: this.$tc(
                     this.snippets.successOverall,
                     successAmount,

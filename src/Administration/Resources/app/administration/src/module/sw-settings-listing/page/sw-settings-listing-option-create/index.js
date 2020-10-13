@@ -20,6 +20,7 @@ Shopware.Component.extend('sw-settings-listing-option-create', 'sw-settings-list
     methods: {
         createdComponent() {
             this.productSortingEntity = this.createProductSortingEntity();
+            Shopware.State.commit('context/resetLanguageToDefault');
         },
 
         createProductSortingEntity() {

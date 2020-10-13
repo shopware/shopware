@@ -25,7 +25,7 @@ describe('Essential characteristics: Test create operation', () => {
             });
     })
 
-    it('@base @settings: create a feature set', () => {
+    it('@settings: create a feature set', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({

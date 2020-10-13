@@ -1,0 +1,9 @@
+framework:
+    messenger:
+        transports:
+            default:
+                dsn: "sync://"
+
+shopware:
+    admin_worker:
+        enable_admin_worker: false

@@ -39,6 +39,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\System\Tax\TaxDefinition;
 
+/**
+ * @group slow
+ */
 class EntityAggregatorTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -977,6 +980,7 @@ class EntityAggregatorTest extends TestCase
 
     /**
      * @dataProvider dateHistogramProvider
+     * @group slow
      */
     public function testDateHistogram(DateHistogramCase $case): void
     {
@@ -1020,60 +1024,78 @@ class EntityAggregatorTest extends TestCase
     public function dateHistogramProvider()
     {
         return [
-            [new DateHistogramCase(DateHistogramAggregation::PER_MINUTE, [
-                '2019-01-01 10:11:00' => 1,
-                '2019-01-01 10:13:00' => 1,
-                '2019-06-15 13:00:00' => 1,
-                '2020-09-30 15:00:00' => 1,
-                '2021-12-10 11:59:00' => 1,
-            ])],
-            [new DateHistogramCase(DateHistogramAggregation::PER_HOUR, [
-                '2019-01-01 10:00:00' => 2,
-                '2019-06-15 13:00:00' => 1,
-                '2020-09-30 15:00:00' => 1,
-                '2021-12-10 11:00:00' => 1,
-            ])],
-            [new DateHistogramCase(DateHistogramAggregation::PER_DAY, [
-                '2019-01-01 00:00:00' => 2,
-                '2019-06-15 00:00:00' => 1,
-                '2020-09-30 00:00:00' => 1,
-                '2021-12-10 00:00:00' => 1,
-            ])],
-            [new DateHistogramCase(DateHistogramAggregation::PER_WEEK, [
-                '2019 01' => 2,
-                '2019 24' => 1,
-                '2020 40' => 1,
-                '2021 49' => 1,
-            ])],
-            [new DateHistogramCase(DateHistogramAggregation::PER_MONTH, [
-                '2019-01-01 00:00:00' => 2,
-                '2019-06-01 00:00:00' => 1,
-                '2020-09-01 00:00:00' => 1,
-                '2021-12-01 00:00:00' => 1,
-            ])],
-            [new DateHistogramCase(DateHistogramAggregation::PER_QUARTER, [
-                '2019 1' => 2,
-                '2019 2' => 1,
-                '2020 3' => 1,
-                '2021 4' => 1,
-            ])],
-            [new DateHistogramCase(DateHistogramAggregation::PER_YEAR, [
-                '2019-01-01 00:00:00' => 3,
-                '2020-01-01 00:00:00' => 1,
-                '2021-01-01 00:00:00' => 1,
-            ])],
-            [new DateHistogramCase(DateHistogramAggregation::PER_MONTH, [
-                '2019 January' => 2,
-                '2019 June' => 1,
-                '2020 September' => 1,
-                '2021 December' => 1,
-            ], 'Y F')],
-            [new DateHistogramCase(DateHistogramAggregation::PER_DAY, [
-                'Tuesday 01st Jan, 2019' => 2,
-                'Saturday 15th Jun, 2019' => 1,
-                'Wednesday 30th Sep, 2020' => 1,
-                'Friday 10th Dec, 2021' => 1,
-            ], 'l dS M, Y')],
+            [
+                new DateHistogramCase(DateHistogramAggregation::PER_MINUTE, [
+                    '2019-01-01 10:11:00' => 1,
+                    '2019-01-01 10:13:00' => 1,
+                    '2019-06-15 13:00:00' => 1,
+                    '2020-09-30 15:00:00' => 1,
+                    '2021-12-10 11:59:00' => 1,
+                ]),
+            ],
+            [
+                new DateHistogramCase(DateHistogramAggregation::PER_HOUR, [
+                    '2019-01-01 10:00:00' => 2,
+                    '2019-06-15 13:00:00' => 1,
+                    '2020-09-30 15:00:00' => 1,
+                    '2021-12-10 11:00:00' => 1,
+                ]),
+            ],
+            [
+                new DateHistogramCase(DateHistogramAggregation::PER_DAY, [
+                    '2019-01-01 00:00:00' => 2,
+                    '2019-06-15 00:00:00' => 1,
+                    '2020-09-30 00:00:00' => 1,
+                    '2021-12-10 00:00:00' => 1,
+                ]),
+            ],
+            [
+                new DateHistogramCase(DateHistogramAggregation::PER_WEEK, [
+                    '2019 01' => 2,
+                    '2019 24' => 1,
+                    '2020 40' => 1,
+                    '2021 49' => 1,
+                ]),
+            ],
+            [
+                new DateHistogramCase(DateHistogramAggregation::PER_MONTH, [
+                    '2019-01-01 00:00:00' => 2,
+                    '2019-06-01 00:00:00' => 1,
+                    '2020-09-01 00:00:00' => 1,
+                    '2021-12-01 00:00:00' => 1,
+                ]),
+            ],
+            [
+                new DateHistogramCase(DateHistogramAggregation::PER_QUARTER, [
+                    '2019 1' => 2,
+                    '2019 2' => 1,
+                    '2020 3' => 1,
+                    '2021 4' => 1,
+                ]),
+            ],
+            [
+                new DateHistogramCase(DateHistogramAggregation::PER_YEAR, [
+                    '2019-01-01 00:00:00' => 3,
+                    '2020-01-01 00:00:00' => 1,
+                    '2021-01-01 00:00:00' => 1,
+                ]),
+            ],
+            [
+                new DateHistogramCase(DateHistogramAggregation::PER_MONTH, [
+                    '2019 January' => 2,
+                    '2019 June' => 1,
+                    '2020 September' => 1,
+                    '2021 December' => 1,
+                ], 'Y F'),
+            ],
+            [
+                new DateHistogramCase(DateHistogramAggregation::PER_DAY, [
+                    'Tuesday 01st Jan, 2019' => 2,
+                    'Saturday 15th Jun, 2019' => 1,
+                    'Wednesday 30th Sep, 2020' => 1,
+                    'Friday 10th Dec, 2021' => 1,
+                ], 'l dS M, Y'),
+            ],
         ];
     }
 

@@ -21,6 +21,11 @@ Component.register('sw-property-detail-base', {
         isLoading: {
             type: Boolean,
             default: false
+        },
+        allowEdit: {
+            type: Boolean,
+            required: false,
+            default: true
         }
     },
 

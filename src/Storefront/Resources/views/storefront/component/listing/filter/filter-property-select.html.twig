@@ -1,5 +1,15 @@
 {% sw_extends '@Storefront/storefront/component/listing/filter/filter-multi-select.html.twig' %}
 
+{% if dataPluginSelectorOptions is not defined %}
+    {% set dataPluginSelectorOptions = {
+        name: name,
+        propertyName: propertyName,
+        snippets: {
+            disabledFilterText: 'listing.disabledFilterTooltip'|trans|sw_sanitize
+        }
+    } %}
+{% endif %}
+
 {% block component_filter_multi_select_list_item %}
     <li class="filter-multi-select-list-item filter-property-select-list-item">
         {% if displayType == 'color' or displayType == 'media' %}

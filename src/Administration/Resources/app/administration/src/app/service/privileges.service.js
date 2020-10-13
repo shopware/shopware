@@ -215,6 +215,12 @@ export default class PrivilegesService {
         this.alreadyImportedAdminPrivileges = [];
 
         const allPrivileges = adminPrivileges.reduce((acc, adminPrivilegeKey) => {
+            const isAdminPrivilege = adminPrivilegeKey.match(/.+\..+/);
+
+            if (!isAdminPrivilege) {
+                return acc;
+            }
+
             const privileges = this._getPrivilegesWithDependencies(adminPrivilegeKey);
 
             return [...acc, adminPrivilegeKey, ...privileges];

@@ -62,6 +62,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationFi
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\WhitelistRuleField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeDefinition;
 use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
@@ -101,6 +102,7 @@ class ProductDefinition extends EntityDefinition
             'purchaseSteps' => 1,
             'shippingFree' => false,
             'restockTime' => 3,
+            'active' => true,
         ];
     }
 
@@ -131,7 +133,7 @@ class ProductDefinition extends EntityDefinition
             (new IntField('stock', 'stock'))->addFlags(new Required()),
             (new IntField('restock_time', 'restockTime'))->addFlags(new Inherited()),
             (new IntField('auto_increment', 'autoIncrement'))->addFlags(new WriteProtected()),
-            new BoolField('active', 'active'),
+            (new BoolField('active', 'active'))->addFlags(new Inherited()),
             (new IntField('available_stock', 'availableStock'))->addFlags(new WriteProtected()),
             (new BoolField('available', 'available'))->addFlags(new WriteProtected()),
             (new BoolField('is_closeout', 'isCloseout'))->addFlags(new Inherited()),
@@ -165,6 +167,7 @@ class ProductDefinition extends EntityDefinition
             (new BlacklistRuleField())->addFlags(new ReadProtected(SalesChannelApiSource::class)),
             (new WhitelistRuleField())->addFlags(new ReadProtected(SalesChannelApiSource::class)),
             (new BoolField('custom_field_set_selection_active', 'customFieldSetSelectionActive'))->addFlags(new Inherited()),
+            (new IntField('sales', 'sales'))->addFlags(new WriteProtected()),
 
             (new TranslatedField('metaDescription'))->addFlags(new Inherited()),
             (new TranslatedField('name'))->addFlags(new Inherited(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
@@ -264,6 +267,13 @@ class ProductDefinition extends EntityDefinition
         $collection->add(
             (new PriceField('purchase_prices', 'purchasePrices'))->addFlags(new Inherited())
         );
+
+        if (Feature::isActive('FEATURE_NEXT_10075')) {
+            $collection->add(
+                (new TranslatedField('customSearchKeywords'))
+                    ->addFlags(new Inherited(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING))
+            );
+        }
 
         return $collection;
     }

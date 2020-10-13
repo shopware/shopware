@@ -4,6 +4,8 @@ namespace Shopware\Core\Checkout\Order\Api;
 
 use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
+use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriber;
+use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -53,6 +55,15 @@ class OrderActionController extends AbstractController
         Request $request,
         Context $context
     ): JsonResponse {
+        $context->addExtension(
+            MailSendSubscriber::MAIL_CONFIG_EXTENSION,
+            new MailSendSubscriberConfig(
+                $request->request->get('sendMail', true) === false,
+                $request->request->get('mediaIds', []),
+                $request->request->get('documentIds', [])
+            )
+        );
+
         $toPlace = $this->orderService->orderStateTransition(
             $orderId,
             $transition,
@@ -81,6 +92,15 @@ class OrderActionController extends AbstractController
         Request $request,
         Context $context
     ): JsonResponse {
+        $context->addExtension(
+            MailSendSubscriber::MAIL_CONFIG_EXTENSION,
+            new MailSendSubscriberConfig(
+                $request->request->get('sendMail', true) === false,
+                $request->request->get('mediaIds', []),
+                $request->request->get('documentIds', [])
+            )
+        );
+
         $toPlace = $this->orderService->orderTransactionStateTransition(
             $orderTransactionId,
             $transition,
@@ -109,6 +129,15 @@ class OrderActionController extends AbstractController
         Request $request,
         Context $context
     ): JsonResponse {
+        $context->addExtension(
+            MailSendSubscriber::MAIL_CONFIG_EXTENSION,
+            new MailSendSubscriberConfig(
+                $request->request->get('sendMail', true) === false,
+                $request->request->get('mediaIds', []),
+                $request->request->get('documentIds', [])
+            )
+        );
+
         $toPlace = $this->orderService->orderDeliveryStateTransition(
             $orderDeliveryId,
             $transition,

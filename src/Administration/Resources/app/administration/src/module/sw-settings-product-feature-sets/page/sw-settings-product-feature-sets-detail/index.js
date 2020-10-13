@@ -6,7 +6,7 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 Component.register('sw-settings-product-feature-sets-detail', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -55,6 +55,14 @@ Component.register('sw-settings-product-feature-sets-detail', {
         },
 
         tooltipSave() {
+            if (!this.acl.can('product_feature_sets.editor')) {
+                return {
+                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    disabled: this.acl.can('product_feature_sets.editor'),
+                    showOnDisabledElements: true
+                };
+            }
+
             const systemKey = this.$device.getSystemKey();
 
             return {
@@ -137,7 +145,6 @@ Component.register('sw-settings-product-feature-sets-detail', {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        title: this.$tc('global.default.error'),
                         message: this.$tc('sw-settings-product-feature-sets.detail.notificationErrorMessage')
                     });
                 })

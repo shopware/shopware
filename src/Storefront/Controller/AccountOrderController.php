@@ -168,6 +168,8 @@ class AccountOrderController extends StorefrontController
             $this->addFlash('danger', $this->trans('account.editOrderPaymentNotChangeable'));
         }
 
+        $page->setErrorCode($request->get('error-code'));
+
         return $this->renderStorefront('@Storefront/storefront/page/account/order/index.html.twig', ['page' => $page]);
     }
 

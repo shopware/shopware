@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\PaymentProcessException;
@@ -131,6 +132,7 @@ class CheckoutController extends StorefrontController
         $page = $this->finishPageLoader->load($request, $context);
 
         if ($page->isPaymentFailed() === true) {
+            // @feature-deprecated (flag:FEATURE_NEXT_9351) tag:v6.4.0 - errors will be redirected immediately to the edit order page
             $this->addFlash(
                 'danger',
                 $this->trans(
@@ -162,17 +164,22 @@ class CheckoutController extends StorefrontController
             $this->addAffiliateTracking($data, $request->getSession());
             $orderId = $this->orderService->createOrder($data, $context);
             $finishUrl = $this->generateUrl('frontend.checkout.finish.page', ['orderId' => $orderId]);
-            $errorUrl = $this->generateUrl('frontend.checkout.finish.page', [
-                'orderId' => $orderId,
-                'changedPayment' => false,
-                'paymentFailed' => true,
-            ]);
+            if (Feature::isActive('FEATURE_NEXT_9351')) {
+                $errorUrl = $this->generateUrl('frontend.account.edit-order.page', ['orderId' => $orderId]);
+            } else {
+                $errorUrl = $this->generateUrl('frontend.checkout.finish.page', [
+                    'orderId' => $orderId,
+                    'changedPayment' => false,
+                    'paymentFailed' => true,
+                ]);
+            }
 
             $response = $this->paymentService->handlePaymentByOrder($orderId, $data, $context, $finishUrl, $errorUrl);
 
             return $response ?? new RedirectResponse($finishUrl);
         } catch (ConstraintViolationException $formViolations) {
         } catch (Error $blockedError) {
+        } catch (EmptyCartException $blockedError) {
         } catch (PaymentProcessException | InvalidOrderException | UnknownPaymentMethodException $e) {
             return $this->forwardToRoute('frontend.checkout.finish.page', ['orderId' => $orderId, 'changedPayment' => false, 'paymentFailed' => true]);
         }
@@ -203,11 +210,7 @@ class CheckoutController extends StorefrontController
         if (Feature::isActive('FEATURE_NEXT_10058')) {
             if ($request->cookies->get('sf_redirect') === null) {
                 $cart = $page->getCart();
-                if ($cart->getErrors()->count() > 0) {
-                    $this->addCartErrorsToFlashBag($cart->getErrors()->getNotices(), 'info');
-                    $this->addCartErrorsToFlashBag($cart->getErrors()->getWarnings(), 'warning');
-                    $this->addCartErrorsToFlashBag($cart->getErrors()->getErrors(), 'danger');
-                }
+                $this->addCartErrors($cart);
                 $cart->getErrors()->clear();
             }
         }
@@ -222,23 +225,6 @@ class CheckoutController extends StorefrontController
         if ($affiliateCode !== null && $campaignCode !== null) {
             $dataBag->set(AffiliateTrackingListener::AFFILIATE_CODE_KEY, $affiliateCode);
             $dataBag->set(AffiliateTrackingListener::CAMPAIGN_CODE_KEY, $campaignCode);
-        }
-    }
-
-    /**
-     * @param Error[] $errors
-     */
-    private function addCartErrorsToFlashBag(array $errors, string $type): void
-    {
-        foreach ($errors as $error) {
-            $parameters = [];
-            foreach ($error->getParameters() as $key => $value) {
-                $parameters['%' . $key . '%'] = $value;
-            }
-
-            $message = $this->trans('checkout.' . $error->getMessageKey(), $parameters);
-
-            $this->addFlash($type, $message);
         }
     }
 }

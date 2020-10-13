@@ -21,7 +21,7 @@ describe('src/app/service/acl.service.js', () => {
             get: () => ({ currentUser: { admin: true } })
         });
 
-        expect(aclService.isAdmin()).toBeTruthy();
+        expect(aclService.isAdmin()).toBe(true);
     });
 
     it('should not be an admin', async () => {
@@ -29,7 +29,15 @@ describe('src/app/service/acl.service.js', () => {
             get: () => ({ currentUser: { admin: false } })
         });
 
-        expect(aclService.isAdmin()).toBeFalsy();
+        expect(aclService.isAdmin()).toBe(false);
+    });
+
+    it('should not be an admin if the store is empty', async () => {
+        const aclService = new AclService({
+            get: () => ({ currentUser: null })
+        });
+
+        expect(aclService.isAdmin()).toBe(false);
     });
 
     it('should allow every privilege as an admin', async () => {
@@ -40,7 +48,7 @@ describe('src/app/service/acl.service.js', () => {
             }
         });
 
-        expect(aclService.can('system.clear_cache')).toBeTruthy();
+        expect(aclService.can('system.clear_cache')).toBe(true);
     });
 
     it('should disallow when privilege does not exists', async () => {
@@ -62,7 +70,7 @@ describe('src/app/service/acl.service.js', () => {
             }
         });
 
-        expect(aclService.can('system.clear_cache')).toBeTruthy();
+        expect(aclService.can('system.clear_cache')).toBe(true);
     });
 
     it('should return all privileges', async () => {
@@ -92,7 +100,7 @@ describe('src/app/service/acl.service.js', () => {
             }
         });
 
-        expect(aclService.hasAccessToRoute('sw.product.index')).toBeTruthy();
+        expect(aclService.hasAccessToRoute('sw.product.index')).toBe(true);
     });
 
     it('should have access to the route when no privilege exists', async () => {
@@ -107,7 +115,7 @@ describe('src/app/service/acl.service.js', () => {
             }
         });
 
-        expect(aclService.hasAccessToRoute('sw.product.index')).toBeTruthy();
+        expect(aclService.hasAccessToRoute('sw.product.index')).toBe(true);
     });
 
     it('should not have access to the route when privilege not matches', async () => {
@@ -145,6 +153,6 @@ describe('src/app/service/acl.service.js', () => {
             }
         });
 
-        expect(aclService.hasAccessToRoute('sw.product.index')).toBeTruthy();
+        expect(aclService.hasAccessToRoute('sw.product.index')).toBe(true);
     });
 });

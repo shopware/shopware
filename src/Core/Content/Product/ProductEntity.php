@@ -91,6 +91,11 @@ class ProductEntity extends Entity
     protected $ean;
 
     /**
+     * @var int
+     */
+    protected $sales;
+
+    /**
      * @var string
      */
     protected $productNumber;
@@ -447,6 +452,11 @@ class ProductEntity extends Entity
      */
     protected $customFieldSetSelectionActive;
 
+    /**
+     * @var string[]|null
+     */
+    protected $customSearchKeywords;
+
     public function __construct()
     {
         $this->prices = new ProductPriceCollection();
@@ -554,6 +564,16 @@ class ProductEntity extends Entity
     public function setEan(?string $ean): void
     {
         $this->ean = $ean;
+    }
+
+    public function getSales(): int
+    {
+        return $this->sales;
+    }
+
+    public function setSales(int $sales): void
+    {
+        $this->sales = $sales;
     }
 
     public function getStock(): int
@@ -1317,5 +1337,15 @@ class ProductEntity extends Entity
     public function setCustomFieldSetSelectionActive(?bool $customFieldSetSelectionActive): void
     {
         $this->customFieldSetSelectionActive = $customFieldSetSelectionActive;
+    }
+
+    public function getCustomSearchKeywords(): ?array
+    {
+        return $this->customSearchKeywords;
+    }
+
+    public function setCustomSearchKeywords(?array $customSearchKeywords): void
+    {
+        $this->customSearchKeywords = $customSearchKeywords;
     }
 }

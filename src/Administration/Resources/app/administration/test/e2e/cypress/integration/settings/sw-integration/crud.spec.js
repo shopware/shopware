@@ -45,6 +45,38 @@ describe('Integration: crud integrations', () => {
         cy.get('.sw-data-grid__cell-content a[href="#"]').contains('chat-key');
     });
 
+    it('@settings: can create a new integration with double click', () => {
+        // Request we want to wait for later
+        cy.server();
+        cy.route({
+            url: '/api/v*/integration',
+            method: 'post'
+        }).as('createIntegration');
+
+        // go to integration module
+        cy.get('.sw-admin-menu__item--sw-settings').click();
+        cy.get('.sw-settings__tab-system').click();
+        cy.get('#sw-integration').click();
+
+        // go to create page
+        cy.get('.sw-integration-list__add-integration-action').dblclick();
+
+        // clear old data and type another one in name field
+        cy.get('#sw-field--currentIntegration-label')
+            .clear()
+            .type('chat-key');
+        cy.get('.sw-field__checkbox input[type="checkbox"]').check();
+
+        cy.get('.sw-integration-detail-modal__save-action').click();
+
+        // Verify create a integration
+        cy.wait('@createIntegration').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
+        });
+
+        cy.get('.sw-data-grid__cell-content a[href="#"]').contains('chat-key');
+    });
+
     it('@settings: can edit a integration', () => {
         const page = new SettingsPageObject();
         // Request we want to wait for later

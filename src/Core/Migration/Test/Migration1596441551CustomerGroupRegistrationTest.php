@@ -33,12 +33,6 @@ class Migration1596441551CustomerGroupRegistrationTest extends TestCase
         static::assertSame(2, $typesCount);
     }
 
-    public function testEventActionExists(): void
-    {
-        static::assertSame(1, (int) $this->getContainer()->get(Connection::class)->fetchColumn('SELECT COUNT(*) FROM event_action WHERE event_name = "customer.group.registration.accepted"'));
-        static::assertSame(1, (int) $this->getContainer()->get(Connection::class)->fetchColumn('SELECT COUNT(*) FROM event_action WHERE event_name = "customer.group.registration.declined"'));
-    }
-
     public function testDutchWithRemovedDeAndEnLanguage(): void
     {
         $connection = $this->getContainer()->get(Connection::class);

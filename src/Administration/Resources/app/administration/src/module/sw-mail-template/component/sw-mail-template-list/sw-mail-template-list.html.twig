@@ -7,12 +7,17 @@
             <sw-entity-listing
                 v-if="mailTemplates"
                 class="sw-mail-templates-list-grid"
+                id="mailTemplateGrid"
+                detailRoute="sw.mail.template.detail"
                 :items="mailTemplates"
                 :columns="getListColumns()"
                 :repository="mailTemplateRepository"
-                detailRoute="sw.mail.template.detail"
                 :fullPage="false"
-                :isLoading="isLoading">
+                :isLoading="isLoading"
+                :allowView="acl.can('mail_templates.viewer')"
+                :allowEdit="acl.can('mail_templates.editor')"
+                :allowDelete="acl.can('mail_templates.deleter')"
+                :showSelection="acl.can('mail_templates.deleter')">
                 <template #column-salesChannels.salesChannel.name="{ item }">
                     {% block sw_mail_template_list_columns_sales_channels_label %}
                         {{  getSalesChannelsString(item) }}
@@ -21,7 +26,10 @@
 
                 <template #more-actions="{ item }">
                     {% block sw_mail_template_list_grid_columns_actions_duplicate %}
-                        <sw-context-menu-item @click="onDuplicate(item.id)">
+                        <sw-context-menu-item
+                            class="sw-mail-template-list-grid__duplicate-action"
+                            :disabled="!acl.can('mail_templates.creator')"
+                            @click="onDuplicate(item.id)">
                             {{ $tc('sw-mail-template.list.contextMenuDuplicate') }}
                         </sw-context-menu-item>
                     {% endblock %}

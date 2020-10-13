@@ -29,6 +29,9 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @group slow
+ */
 class ApiControllerTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -116,9 +119,6 @@ EOF;
 
     public function testInsertAuthenticatedWithIntegration(): void
     {
-        if (Feature::isActive('FEATURE_NEXT_3722')) {
-            static::markTestSkipped('Reactivate if Integrations can have their own acls or delete if integrations are finally removed');
-        }
         $id = Uuid::randomHex();
 
         $data = [

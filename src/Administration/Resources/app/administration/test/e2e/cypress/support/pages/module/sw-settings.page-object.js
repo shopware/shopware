@@ -36,7 +36,18 @@ export default class SettingsPageObject {
                 numberRangeSaveAction: '.sw-settings-number-range-detail__save-action',
                 numberRangeColumnName: '.sw-data-grid__cell--name',
 
-                integrationListConent: '.sw-integration-list'
+                integrationListContent: '.sw-integration-list',
+
+                mailTemplateSaveAction: '.sw-mail-template-detail__save-action',
+                mailTemplateGridList: '#mailTemplateGrid',
+                mailTemplateColumnDescription: '.sw-data-grid__cell--description',
+                mailTemplateColumnSalesChannel: '.sw-data-grid__cell--salesChannels-salesChannel-name',
+
+                mailHeaderFooterSaveAction: '.sw-mail-header-footer-detail__save-action',
+                mailHeaderFooterGridList: '#mailHeaderFooterGrid',
+                mailHeaderFooterColumnName: '.sw-data-grid__cell--name',
+                mailHeaderFooterColumnDescription: '.sw-data-grid__cell--description',
+                mailHeaderFooterColumnSalesChannel: '.sw-data-grid__cell--salesChannels-name'
             }
         };
     }

@@ -228,7 +228,6 @@ Component.register('sw-settings-customer-group-detail', {
                 this.customerGroup = await this.createdComponent();
             } catch (err) {
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-settings-customer-group.detail.notificationErrorMessage')
                 });
             }

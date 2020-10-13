@@ -143,55 +143,43 @@ class ExampleListingSubscriber implements EventSubscriberInterface {
 
 
 ## Adding new Filter
-New product listing filters can be registered via the event `\Shopware\Core\Content\Product\Events\ProductListingCriteriaEvent`.
-This event will be fired when the `Criteria` object is created for the listing. The event can be used to respond to the request to add new filters or aggregations to the Criteria object.
-Afterwards it is important to register for the event `\Shopware\Core\Content\Product\Events\ProductListingResultEvent` to add the filtered values to the result.
-The following example shows an implementation for the vendor filter:
+New product listing filters can be registered via the event `\Shopware\Core\Content\Product\Events\ProductListingCollectFilterEvent` was introduced, where every developer can specify the meta data for a filter. 
+The handling, if and how a filter is added, is done by the core. Here is an example implementation:
 
 ```php
-<?php
-
-namespace Shopware\Core\Content\Product\SalesChannel\Listing;
-
-use Shopware\Core\Content\Product\Events\ProductListingCriteriaEvent;
-use Shopware\Core\Content\Product\Events\ProductListingResultEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\EntityAggregation;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpFoundation\Request;
-
 class ExampleListingSubscriber implements EventSubscriberInterface
 {
     public static function getSubscribedEvents()
     {
         return [
-            ProductListingCriteriaEvent::class => 'handleRequest',
-            ProductListingResultEvent::class => 'handleResult',
+            ProductListingCollectFilterEvent::class => 'addFilter'
         ];
     }
 
-    public function handleRequest(ProductListingCriteriaEvent $event)
+    public function handleRequest(ProductListingCollectFilterEvent $event)
     {
-        $criteria = $event->getCriteria();
-
-        $request = $event->getRequest();
-
-        $criteria->addAggregation(
-            new EntityAggregation('manufacturer', 'product.manufacturerId', 'product_manufacturer')
-        );
-
+        $filters = $event->getFilters();
+        
         $ids = $this->getManufacturerIds($request);
 
-        if (empty($ids)) {
-            return;
-        }
+        $filter = new Filter(
+            //unique name of the filter
+            'manufacturer',
+            
+            // defines if this filter is active
+            !empty($ids),
+            
+            // defines aggregations behind a filter. Sometimes a filter contains multiple aggregations like properties
+            [new EntityAggregation('manufacturer', 'product.manufacturerId', 'product_manufacturer')],
+            
+            // defines the DAL filter which should be added to the criteria   
+            new EqualsAnyFilter('product.manufacturerId', $ids),
+            
+            // defines the values which will be added as currentFilter to the result
+            $ids
+        );
 
-        $criteria->addPostFilter(new EqualsAnyFilter('product.manufacturerId', $ids));
-    }
-
-    public function handleResult(ProductListingResultEvent $event)
-    {
-        $event->getResult()->addCurrentFilter('manufacturer', $this->getManufacturerIds($event->getRequest()));
+        $filters->add($filter);
     }
 
     private function getManufacturerIds(Request $request): array

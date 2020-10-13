@@ -5,6 +5,7 @@
                 v-model="currentOption.name"
                 validation="required"
                 :label="$tc('sw-property.detail.labelOptionName')"
+                :disabled="!allowEdit"
                 :placeholder="$tc('sw-property.detail.placeholderOptionName')"
                 required>
             </sw-text-field>
@@ -15,6 +16,7 @@
                 v-model="currentOption.position"
                 pattern="[0-9]"
                 :step="1"
+                :disabled="!allowEdit"
                 :label="$tc('sw-property.detail.labelOptionPosition')"
                 :placeholder="$tc('sw-property.detail.placeholderOptionPosition')">
             </sw-number-field>
@@ -24,6 +26,7 @@
             <sw-colorpicker
                 v-model="currentOption.colorHexCode"
                 colorOutput="hex"
+                :disabled="!allowEdit"
                 :label="$tc('sw-property.detail.labelOptionColor')"
                 :zIndex="1000">
             </sw-colorpicker>
@@ -31,15 +34,16 @@
 
         {% block sw_property_option_detail_media %}
             <sw-upload-listener
-                    :uploadTag="currentOption.id"
-                    autoUpload
-                    @media-upload-finish="successfulUpload">
+                :uploadTag="currentOption.id"
+                autoUpload
+                @media-upload-finish="successfulUpload">
             </sw-upload-listener>
             <sw-media-compact-upload-v2
                 defaultFolder="product"
                 :label="$tc('sw-property.detail.labelMediaUpload')"
                 :source="currentOption.mediaId"
                 :uploadTag="currentOption.id"
+                :disabled="!allowEdit"
                 @media-upload-remove-image="removeMedia"
                 @selection-change="setMedia">
             </sw-media-compact-upload-v2>
@@ -54,7 +58,16 @@
                 {% endblock %}
 
                 {% block sw_property_option_detail_footer_save %}
-                    <sw-button variant="primary" size="small" @click="onSave">
+                    <sw-button
+                        variant="primary"
+                        size="small"
+                        :disabled="!allowEdit"
+                        @click="onSave"
+                        v-tooltip.bottom="{
+                            message: $tc('sw-privileges.tooltip.warning'),
+                            disabled: acl.can('property.editor'),
+                            showOnDisabledElements: true
+                        }">
                         {{ $tc('sw-property.detail.buttonApply') }}
                     </sw-button>
                 {% endblock %}

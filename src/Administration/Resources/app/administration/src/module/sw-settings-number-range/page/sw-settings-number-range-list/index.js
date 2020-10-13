@@ -121,13 +121,11 @@ Component.register('sw-settings-number-range-list', {
         onInlineEditSave(promise, numberRange) {
             promise.then(() => {
                 this.createNotificationSuccess({
-                    title: this.$tc('global.default.success'),
                     message: this.$tc('sw-settings-number-range.detail.messageSaveSuccess', 0, { name: numberRange.name })
                 });
             }).catch(() => {
                 this.getList();
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-settings-number-range.detail.messageSaveError')
                 });
             });

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Test\App\Api;
 
-use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonEntity;
@@ -12,15 +11,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
+use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
 use Shopware\Core\Framework\Test\App\StorefrontPluginRegistryTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 
 class AppActionControllerTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use GuzzleTestClientBehaviour;
     use AdminApiTestBehaviour;
     use AppSystemTestBehaviour;
     use StorefrontPluginRegistryTestBehaviour;
@@ -74,8 +73,6 @@ class AppActionControllerTest extends TestCase
 
     public function testRunAction(): void
     {
-        $appServerMock = $this->getContainer()->get(MockHandler::class);
-
         /** @var EntityRepositoryInterface $actionRepo */
         $actionRepo = $this->getContainer()->get('app_action_button.repository');
         $this->loadAppsFromDir(__DIR__ . '/../Manifest/_fixtures/test');
@@ -96,12 +93,12 @@ class AppActionControllerTest extends TestCase
             'ids' => $ids,
         ];
 
-        $appServerMock->append(new Response(200));
+        $this->appendNewResponse(new Response(200));
         $this->getBrowser()->request('POST', $url, [], [], [], json_encode($postData));
 
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
 
-        $request = $appServerMock->getLastRequest();
+        $request = $this->getLastRequest();
 
         static::assertEquals('POST', $request->getMethod());
         $body = $request->getBody()->getContents();
@@ -130,8 +127,6 @@ class AppActionControllerTest extends TestCase
 
     public function testRunActionEmpty(): void
     {
-        $appServerMock = $this->getContainer()->get(MockHandler::class);
-
         /** @var EntityRepositoryInterface $actionRepo */
         $actionRepo = $this->getContainer()->get('app_action_button.repository');
         $this->loadAppsFromDir(__DIR__ . '/../Manifest/_fixtures/test');
@@ -148,12 +143,12 @@ class AppActionControllerTest extends TestCase
 
         $postData = ['ids' => []];
 
-        $appServerMock->append(new Response(200));
+        $this->appendNewResponse(new Response(200));
         $this->getBrowser()->request('POST', $url, [], [], [], json_encode($postData));
 
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
 
-        $request = $appServerMock->getLastRequest();
+        $request = $this->getLastRequest();
 
         static::assertEquals('POST', $request->getMethod());
         $body = $request->getBody()->getContents();

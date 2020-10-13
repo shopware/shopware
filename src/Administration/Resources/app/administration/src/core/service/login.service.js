@@ -39,8 +39,25 @@ export default function createLoginService(httpClient, context, bearerAuth = nul
         addOnLogoutListener,
         addOnLoginListener,
         getStorageKey,
-        notifyOnLoginListener
+        notifyOnLoginListener,
+        verifyUserToken
     };
+
+    /**
+     * Helper function to receive a logged in user token
+     * @returns {response.data.access_token} returns an OAuth token
+     * @param password
+     */
+    function verifyUserToken(password) {
+        return this.verifyUserByUsername(Shopware.State.get('session').currentUser.username, password).then(({ access }) => {
+            if (Shopware.Utils.types.isString(access)) {
+                return access;
+            }
+            throw new Error('access Token should be of type String');
+        }).catch((e) => {
+            throw e;
+        });
+    }
 
     /**
      * Sends an AJAX request to the authentication end point and tries to log in the user with the provided

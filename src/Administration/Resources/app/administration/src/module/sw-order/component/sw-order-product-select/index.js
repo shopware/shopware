@@ -98,12 +98,13 @@ Component.register('sw-order-product-select', {
                 this.item.label = newProduct.name;
                 this.item.priceDefinition.price = newProduct.price[0].gross;
                 this.item.priceDefinition.type = this.lineItemPriceTypes.QUANTITY;
-                this.item.price.unitPrice = newProduct.price[0].gross;
-                this.item.price.totalPrice = 0;
+                this.item.price.unitPrice = '...';
+                this.item.price.totalPrice = '...';
                 this.item.price.quantity = 1;
-                this.item.totalPrice = 0;
+                this.item.unitPrice = '...';
+                this.item.totalPrice = '...';
                 this.item.precision = 2;
-                this.item.priceDefinition.taxRules.taxRate = newProduct.tax.taxRate;
+                this.item.priceDefinition.taxRules[0].taxRate = newProduct.tax.taxRate;
             });
         }
     }

@@ -12,6 +12,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class VerifyManifestCommand extends Command
 {
+    protected static $defaultName = 'app:verify';
+
     public function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new ShopwareStyle($input, $output);
@@ -39,8 +41,7 @@ class VerifyManifestCommand extends Command
 
     protected function configure(): void
     {
-        $this->setName('app:verify')
-            ->setDescription('checks manifests for errors')
+        $this->setDescription('checks manifests for errors')
             ->addArgument('manifests', InputArgument::IS_ARRAY, 'The paths of the manifest file');
     }
 }

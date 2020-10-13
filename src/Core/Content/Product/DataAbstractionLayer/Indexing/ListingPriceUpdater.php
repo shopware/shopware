@@ -98,9 +98,11 @@ class ListingPriceUpdater
 
         $query->from('product', 'product');
         $query->innerJoin('product', 'product_price', 'price', 'price.product_id = product.prices AND product.version_id = price.product_version_id');
+        $query->leftJoin('product', 'product', 'parent', 'parent.id = product.parent_id');
+
         $query->andWhere('product.id IN (:ids) OR product.parent_id IN (:ids)');
         $query->andWhere('product.available = 1');
-        $query->andWhere('product.active = 1');
+        $query->andWhere('IFNULL(product.active, parent.active) = 1');
         $query->andWhere('(product.child_count = 0 OR product.parent_id IS NOT NULL)');
         $query->andWhere('product.version_id = :version');
 
@@ -130,7 +132,7 @@ class ListingPriceUpdater
         $query->andWhere('(product.child_count = 0 OR product.parent_id IS NOT NULL)');
         $query->andWhere('product.id IN (:ids) OR product.parent_id IN (:ids)');
         $query->andWhere('product.available = 1');
-        $query->andWhere('product.active = 1');
+        $query->andWhere('IFNULL(product.active, parent.active) = 1');
         $query->andWhere('product.version_id = :version');
 
         $query->setParameter('ids', $ids, Connection::PARAM_STR_ARRAY);

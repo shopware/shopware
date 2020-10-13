@@ -36,6 +36,8 @@ Table(ShopwareCoreSystemCustomField, "Shopware\Core\System\CustomField\n(Custom 
 }
 Table(ShopwareCoreFrameworkEvent, "Shopware\Core\Framework\Event\n(Business events)") {
    event_action Table
+   event_action_rule Table
+   event_action_sales_channel Table
 }
 Table(ShopwareCoreFrameworkMessageQueue, "Shopware\Core\Framework\MessageQueue\n(Asynchronous messaging)") {
    dead_message Table
@@ -106,6 +108,7 @@ Table(ShopwareCoreSystemUser, "Shopware\Core\System\User\n(Admin Accounts)") {
 }
 Table(ShopwareCoreSystemIntegration, "Shopware\Core\System\Integration\n(O-Auth integrations)") {
    integration Table
+   integration_role Table
 }
 Table(ShopwareCoreSystemStateMachine, "Shopware\Core\System\StateMachine\n(State machine)") {
    state_machine Table
@@ -285,6 +288,9 @@ ShopwareCoreFrameworkApi --> ShopwareCoreFrameworkApi
 ShopwareCoreSystemUser --> ShopwareCoreFrameworkApi
 ShopwareCoreSystemCustomField --> ShopwareCoreSystemCustomField
 ShopwareCoreContentProduct --> ShopwareCoreSystemCustomField
+ShopwareCoreFrameworkEvent --> ShopwareCoreFrameworkEvent
+ShopwareCoreFrameworkEvent --> ShopwareCoreContentRule
+ShopwareCoreFrameworkEvent --> ShopwareCoreSystemSalesChannel
 ShopwareCoreFrameworkMessageQueue --> ShopwareCoreFrameworkMessageQueue
 ShopwareCoreFrameworkPlugin --> ShopwareCoreFrameworkPlugin
 ShopwareCoreCheckoutPayment --> ShopwareCoreFrameworkPlugin
@@ -361,6 +367,8 @@ ShopwareCoreContentMedia --> ShopwareCoreSystemUser
 ShopwareCoreSystemUser --> ShopwareCoreSystemUser
 ShopwareCoreSystemStateMachine --> ShopwareCoreSystemUser
 ShopwareCoreContentImportExport --> ShopwareCoreSystemUser
+ShopwareCoreSystemIntegration --> ShopwareCoreSystemIntegration
+ShopwareCoreSystemIntegration --> ShopwareCoreFrameworkApi
 ShopwareCoreSystemStateMachine --> ShopwareCoreSystemStateMachine
 ShopwareCoreCheckoutOrder --> ShopwareCoreSystemStateMachine
 ShopwareCoreSystemNumberRange --> ShopwareCoreSystemNumberRange

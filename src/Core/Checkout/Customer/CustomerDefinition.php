@@ -38,6 +38,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\PasswordField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\RemoteAddressField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
@@ -70,7 +71,7 @@ class CustomerDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([
+        $fields = new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
 
             (new FkField('customer_group_id', 'groupId', CustomerGroupDefinition::class))->addFlags(new Required()),
@@ -133,5 +134,17 @@ class CustomerDefinition extends EntityDefinition
             new FkField('requested_customer_group_id', 'requestedGroupId', CustomerGroupDefinition::class),
             new ManyToOneAssociationField('requestedGroup', 'requested_customer_group_id', CustomerGroupDefinition::class, 'id', false),
         ]);
+
+        if (Feature::isActive('FEATURE_NEXT_10555')) {
+            $fields->add(
+                new FkField('bound_sales_channel_id', 'boundSalesChannelId', SalesChannelDefinition::class)
+            );
+
+            $fields->add(
+                new ManyToOneAssociationField('boundSalesChannel', 'bound_sales_channel_id', SalesChannelDefinition::class, 'id', false)
+            );
+        }
+
+        return $fields;
     }
 }

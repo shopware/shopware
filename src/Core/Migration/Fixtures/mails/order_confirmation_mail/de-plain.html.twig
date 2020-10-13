@@ -1,0 +1,54 @@
+{% set currencyIsoCode = order.currency.isoCode %}
+Hallo {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
+
+Ihre Bestellung ist am {{ order.orderDateTime|date }} bei uns eingegangen.
+
+Bestellnummer: {{ order.orderNumber }}
+
+Sobald ein Zahlungseingang erfolgt ist, erhalten Sie eine separate Benachrichtigung und Ihre Bestellung wird verarbeitet.
+
+Den aktuellen Status Ihrer Bestellung können Sie jederzeit über diesen Link abrufen: {{ rawUrl('frontend.account.order.single.page', { 'deepLinkCode': order.deepLinkCode}, salesChannel.domains|first.url) }}
+Über diesen Link können Sie auch die Bestellung bearbeiten, die Zahlungsart wechseln oder nachträglich eine Zahlung durchführen.
+
+Informationen zu Ihrer Bestellung:
+
+Pos.   Artikel-Nr.			Beschreibung			Menge			Preis			Summe
+{% for lineItem in order.lineItems %}
+{{ loop.index }}      {% if lineItem.payload.productNumber is defined %}{{ lineItem.payload.productNumber|u.wordwrap(80) }}{% endif %}				{{ lineItem.label|u.wordwrap(80) }}{% if lineItem.payload.options is defined and lineItem.payload.options|length >= 1 %}, {% for option in lineItem.payload.options %}{{ option.group }}: {{ option.option }}{% if lineItem.payload.options|last != option %}{{ " | " }}{% endif %}{% endfor %}{% endif %}				{{ lineItem.quantity }}			{{ lineItem.unitPrice|currency(currencyIsoCode) }}			{{ lineItem.totalPrice|currency(currencyIsoCode) }}
+{% endfor %}
+
+{% set delivery = order.deliveries.first %}
+
+Versandkosten: {{order.deliveries.first.shippingCosts.totalPrice|currency(currencyIsoCode) }}
+Gesamtkosten Netto: {{ order.amountNet|currency(currencyIsoCode) }}
+    {% for calculatedTax in order.price.calculatedTaxes %}
+        {% if order.taxStatus is same as('net') %}zzgl.{% else %}inkl.{% endif %} {{ calculatedTax.taxRate }}% MwSt. {{ calculatedTax.tax|currency(currencyIsoCode) }}
+    {% endfor %}
+Gesamtkosten Brutto: {{ order.amountTotal|currency(currencyIsoCode) }}
+
+Gewählte Versandart: {{ delivery.shippingMethod.name }}
+{{ delivery.shippingMethod.description }}
+
+{% set billingAddress = order.addresses.get(order.billingAddressId) %}
+Rechnungsadresse:
+{{ billingAddress.company }}
+{{ billingAddress.firstName }} {{ billingAddress.lastName }}
+{{ billingAddress.street }}
+{{ billingAddress.zipcode }} {{ billingAddress.city }}
+{{ billingAddress.country.name }}
+
+Lieferadresse:
+{{ delivery.shippingOrderAddress.company }}
+{{ delivery.shippingOrderAddress.firstName }} {{ delivery.shippingOrderAddress.lastName }}
+{{ delivery.shippingOrderAddress.street }}
+{{ delivery.shippingOrderAddress.zipcode}} {{ delivery.shippingOrderAddress.city }}
+{{ delivery.shippingOrderAddress.country.name }}
+
+{% if billingAddress.vatId %}
+Ihre Umsatzsteuer-ID: {{ billingAddress.vatId }}
+Bei erfolgreicher Prüfung und sofern Sie aus dem EU-Ausland
+bestellen, erhalten Sie Ihre Ware umsatzsteuerbefreit.
+{% endif %}
+
+Den aktuellen Status Ihrer Bestellung können Sie auch jederzeit auf unserer Webseite im  Bereich "Mein Konto" - "Meine Bestellungen" abrufen: {{ rawUrl('frontend.account.order.single.page', { 'deepLinkCode': order.deepLinkCode}, salesChannel.domains|first.url) }}
+Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.

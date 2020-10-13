@@ -10,6 +10,11 @@
         display: flex;
     }
 
+    .sw-tooltip--wrapper > button.sw-button {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+
     .sw-button {
         border-radius: 0;
         margin-left: -1px;

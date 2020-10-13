@@ -25,8 +25,7 @@
               "releaseDate": "Erscheinungsdatum",
               "stock": "Lagerbestand",
               "listingPrices": "Streichpreis",
-              "unitsSold": "Verkaufte Einheiten",
-              "isCloseout": "Ausverkauft"
+              "sales": "Verkaufte Einheiten"
             },
             "customField": "Zusatzfeld",
             "_score": "_score"

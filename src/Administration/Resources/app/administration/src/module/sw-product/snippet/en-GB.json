@@ -36,7 +36,12 @@
     "categoryForm": {
       "labelCategory": "Categories",
       "placeholderCategory": "Select category...",
-      "placeholderTags": "Enter a tag..."
+      "placeholderTags": "Enter a tag...",
+      "labelSearchKeyword": "Search Keywords",
+      "placeholderSearchKeywords": "Enter keywords that find this product...",
+      "textAddSearchKeyword": "Click here to add search keyword",
+      "textEnterValidSearchKeyword": "Searchable keywords",
+      "helpTextSearchKeyword": "The product in the Storefront can also be found using these keywords."
     },
     "priceForm": {
       "labelTaxRate": "Tax rate",
@@ -204,7 +209,6 @@
       "coverSubline": "Cover"
     },
     "advancedPrices": {
-      "deletionNotPossibleTitle": "Error",
       "deletionNotPossibleMessage": "At least one price tier needed. Try deleting the entire pricing rule instead.",
       "newRuleWarning": "In order to create a new pricing rule, select a conditional rule first.",
       "advancedPricesNotExisting": "No advanced prices available for this product yet.",

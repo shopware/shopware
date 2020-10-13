@@ -57,7 +57,8 @@ describe('src/module/sw-setttigs-listing/page/sw-settings-listing-option-create'
                         create: () => Promise.resolve(getProductSortingEntity()),
                         save: () => Promise.resolve({ config: { data: JSON.stringify({ id: 'asdfaf' }) } })
                     })
-                }
+                },
+                systemConfigApiService: {}
             },
             stubs: {
                 'sw-page': {

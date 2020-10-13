@@ -30,7 +30,7 @@ Component.register('sw-first-run-wizard-welcome', {
             latestTouchedPlugin: null,
             showConfirmLanguageSwitchModal: false,
             newLocaleId: null,
-            user: { localeId: '' },
+            user: { localeId: '', pw: '' },
             userProfile: {},
             userPromise: null,
             isLoading: false
@@ -172,17 +172,27 @@ Component.register('sw-first-run-wizard-welcome', {
         },
 
         onConfirmLanguageSwitch() {
-            this.userRepository.save(this.user, Shopware.Context.api)
-                .then(async () => {
-                    this.showConfirmLanguageSwitchModal = false;
+            this.loginService.verifyUserToken(this.user.pw).then((verifiedToken) => {
+                const context = { ...Shopware.Context.api };
+                context.authToken.access = verifiedToken;
 
-                    await Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId);
+                this.userRepository.save(this.user, context)
+                    .then(async () => {
+                        await Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId);
 
-                    document.location.reload();
-                })
-                .catch(() => {
-                    this.showConfirmLanguageSwitchModal = false;
+                        document.location.reload();
+                    })
+                    .finally(() => {
+                        this.showConfirmLanguageSwitchModal = false;
+                    });
+            }).catch(() => {
+                this.createNotificationError({
+                    title: this.$tc('sw-settings-user.user-detail.passwordConfirmation.notificationPasswordErrorTitle'),
+                    message: this.$tc('sw-settings-user.user-detail.passwordConfirmation.notificationPasswordErrorMessage')
                 });
+            }).finally(() => {
+                this.confirmPassword = '';
+            });
         },
 
         onCancelSwitch() {
@@ -318,7 +328,6 @@ Component.register('sw-first-run-wizard-welcome', {
             const tryLater = this.$tc('sw-first-run-wizard.welcome.tryAgainLater');
 
             this.createNotificationError({
-                title: this.$tc('global.default.error'),
                 message: `${message}\n${errorMessage}\n${tryLater}`
             });
         },
@@ -352,7 +361,6 @@ Component.register('sw-first-run-wizard-welcome', {
                 const installedPlugins = await missingSnippets.join(', ');
 
                 this.createNotification({
-                    title: this.$tc('global.default.success'),
                     message: this.$tc('sw-first-run-wizard.welcome.pluginsInstalledMessage', missingSnippets.length)
                         + installedPlugins
                 });

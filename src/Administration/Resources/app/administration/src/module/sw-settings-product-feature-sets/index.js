@@ -2,6 +2,7 @@ import './page/sw-settings-product-feature-sets-list';
 import './page/sw-settings-product-feature-sets-detail';
 import './component/sw-settings-product-feature-sets-values-card';
 import './component/sw-settings-product-feature-sets-modal';
+import './acl';
 
 
 const { Module } = Shopware;
@@ -21,7 +22,8 @@ Module.register('sw-settings-product-feature-sets', {
             component: 'sw-settings-product-feature-sets-list',
             path: 'index',
             meta: {
-                parentPath: 'sw.settings.index'
+                parentPath: 'sw.settings.index',
+                privilege: 'product_feature_sets.viewer'
             }
         },
 
@@ -29,7 +31,8 @@ Module.register('sw-settings-product-feature-sets', {
             component: 'sw-settings-product-feature-sets-detail',
             path: 'detail/:id',
             meta: {
-                parentPath: 'sw.settings.product.feature.sets.index'
+                parentPath: 'sw.settings.product.feature.sets.index',
+                privilege: 'product_feature_sets.viewer'
             },
             props: {
                 default(route) {
@@ -44,7 +47,8 @@ Module.register('sw-settings-product-feature-sets', {
             component: 'sw-settings-product-feature-sets-detail',
             path: 'create',
             meta: {
-                parentPath: 'sw.settings.product.feature.sets.index'
+                parentPath: 'sw.settings.product.feature.sets.index',
+                privilege: 'product_feature_sets.creator'
             }
         }
     },
@@ -52,6 +56,7 @@ Module.register('sw-settings-product-feature-sets', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.product.feature.sets.index',
-        icon: 'default-basic-checkmark-block'
+        icon: 'default-basic-checkmark-block',
+        privilege: 'product_feature_sets.viewer'
     }
 });

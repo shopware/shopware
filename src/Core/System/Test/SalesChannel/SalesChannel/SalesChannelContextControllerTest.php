@@ -55,7 +55,7 @@ class SalesChannelContextControllerTest extends TestCase
         $content = json_decode($this->getSalesChannelBrowser()->getResponse()->getContent(), true);
 
         static::assertEquals(
-            sprintf('The "shipping_method" entity with id "%s" does not exists.', $testId),
+            sprintf('The "shipping_method" entity with id "%s" does not exist.', $testId),
             $content['errors'][0]['detail'] ?? null
         );
 
@@ -67,7 +67,7 @@ class SalesChannelContextControllerTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $this->getSalesChannelBrowser()->getResponse()->getStatusCode());
 
         static::assertEquals(
-            sprintf('The "payment_method" entity with id "%s" does not exists.', $testId),
+            sprintf('The "payment_method" entity with id "%s" does not exist.', $testId),
             $content['errors'][0]['detail'] ?? null
         );
     }
@@ -116,7 +116,7 @@ class SalesChannelContextControllerTest extends TestCase
         $content = json_decode($this->getSalesChannelBrowser()->getResponse()->getContent(), true);
 
         static::assertEquals(
-            sprintf('The "customer_address" entity with id "%s" does not exists.', $testId),
+            sprintf('The "customer_address" entity with id "%s" does not exist.', $testId),
             $content['errors'][0]['detail'] ?? null
         );
 
@@ -128,7 +128,7 @@ class SalesChannelContextControllerTest extends TestCase
         $content = json_decode($this->getSalesChannelBrowser()->getResponse()->getContent(), true);
 
         static::assertEquals(
-            sprintf('The "customer_address" entity with id "%s" does not exists.', $testId),
+            sprintf('The "customer_address" entity with id "%s" does not exist.', $testId),
             $content['errors'][0]['detail'] ?? null
         );
     }
@@ -169,7 +169,7 @@ class SalesChannelContextControllerTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $request->getStatusCode(), print_r($content, true));
 
         static::assertEquals(
-            sprintf('The "language" entity with id "%s" does not exists.', $id),
+            sprintf('The "language" entity with id "%s" does not exist.', $id),
             $content['errors'][0]['detail'] ?? null
         );
     }
@@ -214,7 +214,7 @@ class SalesChannelContextControllerTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $request->getStatusCode(), print_r($content, true));
 
         static::assertEquals(
-            sprintf('The "currency" entity with id "%s" does not exists.', $id),
+            sprintf('The "currency" entity with id "%s" does not exist.', $id),
             $content['errors'][0]['detail'] ?? null
         );
     }
@@ -255,10 +255,10 @@ class SalesChannelContextControllerTest extends TestCase
                     'firstName' => 'Max',
                     'lastName' => 'Mustermann',
                     'street' => 'Musterstraße 1',
-                    'city' => 'Schoöppingen',
+                    'city' => 'Schöppingen',
                     'zipcode' => '12345',
                     'salutationId' => $this->getValidSalutationId(),
-                    'country' => ['name' => 'Germany'],
+                    'countryId' => $this->getValidCountryId(),
                 ],
                 'defaultBillingAddressId' => $addressId,
                 'defaultPaymentMethod' => [
@@ -291,7 +291,7 @@ class SalesChannelContextControllerTest extends TestCase
             'city' => 'Cologne',
             'zipcode' => '89563',
             'salutationId' => $this->getValidSalutationId(),
-            'country' => ['name' => 'Germany'],
+            'countryId' => $this->getValidCountryId(),
         ];
 
         $this->customerAddressRepository

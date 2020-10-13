@@ -32,35 +32,41 @@ class InvalidateCacheSubscriberTest extends TestCase
         $events = new NestedEventCollection([
             new EntityWrittenEvent(
                 $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
-                [new EntityWriteResult(
-                    $id,
-                    ['name' => 'test', 'id' => $id, 'stock' => 15, 'manufacturerId' => $id],
-                    $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
-                    EntityWriteResult::OPERATION_INSERT,
-                    new EntityExistence($this->getContainer()->get(ProductDefinition::class)->getEntityName(), ['id' => $id], true, false, false, [])
-                )],
+                [
+                    new EntityWriteResult(
+                        $id,
+                        ['name' => 'test', 'id' => $id, 'stock' => 15, 'manufacturerId' => $id],
+                        $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
+                        EntityWriteResult::OPERATION_INSERT,
+                        new EntityExistence($this->getContainer()->get(ProductDefinition::class)->getEntityName(), ['id' => $id], true, false, false, [])
+                    ),
+                ],
                 $context
             ),
             new EntityWrittenEvent(
                 $this->getContainer()->get(ProductManufacturerDefinition::class)->getEntityName(),
-                [new EntityWriteResult(
-                    $id,
-                    ['name' => 'test', 'id' => $id, 'active' => true],
-                    $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
-                    EntityWriteResult::OPERATION_INSERT,
-                    new EntityExistence($this->getContainer()->get(ProductDefinition::class)->getEntityName(), ['id' => $id], true, false, false, [])
-                )],
+                [
+                    new EntityWriteResult(
+                        $id,
+                        ['name' => 'test', 'id' => $id, 'active' => true],
+                        $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
+                        EntityWriteResult::OPERATION_INSERT,
+                        new EntityExistence($this->getContainer()->get(ProductDefinition::class)->getEntityName(), ['id' => $id], true, false, false, [])
+                    ),
+                ],
                 $context
             ),
             new EntityWrittenEvent(
                 $this->getContainer()->get(ProductCategoryDefinition::class)->getEntityName(),
-                [new EntityWriteResult(
-                    $id,
-                    ['productId' => $id, 'categoryId' => $id],
-                    $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
-                    EntityWriteResult::OPERATION_INSERT,
-                    new EntityExistence($this->getContainer()->get(ProductDefinition::class)->getEntityName(), ['id' => $id], true, false, false, [])
-                )],
+                [
+                    new EntityWriteResult(
+                        $id,
+                        ['productId' => $id, 'categoryId' => $id],
+                        $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
+                        EntityWriteResult::OPERATION_INSERT,
+                        new EntityExistence($this->getContainer()->get(ProductDefinition::class)->getEntityName(), ['id' => $id], true, false, false, [])
+                    ),
+                ],
                 $context
             ),
         ]);

@@ -102,7 +102,6 @@
                                     <sw-context-menu-item @click="showDelete(item.id)"
                                         :disabled="!acl.can('product_stream.deleter') || !allowDelete"
                                         class="sw-entity-listing__context-menu-edit-delete"
-                                        v-tooltip="getNoPermissionsTooltip('product_stream.deleter')"
                                         variant="danger">
                                         {{ $tc('global.default.delete') }}
                                     </sw-context-menu-item>

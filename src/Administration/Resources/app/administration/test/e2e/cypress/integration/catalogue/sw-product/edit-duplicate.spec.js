@@ -79,7 +79,7 @@ describe('Product: Duplicate product', () => {
         // Save and duplicate
         cy.clickContextMenuItem(
             '.sw-product-detail__save-duplicate-action',
-            '.sw-context-button > .sw-button'
+            '.sw-product-detail__save-button-group .sw-context-button'
         );
 
         // Verify product
@@ -126,7 +126,7 @@ describe('Product: Duplicate product', () => {
         // Save and duplicate
         cy.clickContextMenuItem(
             '.sw-product-detail__save-duplicate-action',
-            '.sw-context-button > .sw-button'
+            '.sw-product-detail__save-button-group .sw-context-button'
         );
 
         // Verify product
@@ -141,7 +141,7 @@ describe('Product: Duplicate product', () => {
         // Save and duplicate
         cy.clickContextMenuItem(
             '.sw-product-detail__save-duplicate-action',
-            '.sw-context-button > .sw-button'
+            '.sw-product-detail__save-button-group .sw-context-button'
         );
 
         // Verify product

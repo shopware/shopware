@@ -24,7 +24,6 @@
     },
     "require": {
         "cocur/slugify": "4.0.0",
-        "composer/composer": "1.10.10",
         "erusev/parsedown-extra": "0.8.1",
         "guzzlehttp/guzzle": "6.5.2",
         "shopware/core": "*",

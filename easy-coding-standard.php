@@ -25,6 +25,7 @@ use PhpCsFixer\Fixer\PhpUnit\PhpUnitTestCaseStaticMethodCallsFixer;
 use PhpCsFixer\Fixer\ReturnNotation\NoUselessReturnFixer;
 use PhpCsFixer\Fixer\Strict\DeclareStrictTypesFixer;
 use PhpCsFixer\Fixer\StringNotation\ExplicitStringVariableFixer;
+use PhpCsFixer\Fixer\Whitespace\BlankLineBeforeStatementFixer;
 use PhpCsFixer\Fixer\Whitespace\CompactNullableTypehintFixer;
 use PhpCsFixerCustomFixers\Fixer\NoImportFromGlobalNamespaceFixer;
 use PhpCsFixerCustomFixers\Fixer\NoSuperfluousConcatenationFixer;
@@ -66,6 +67,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(PhpUnitTestCaseStaticMethodCallsFixer::class);
     $services->set(NoUselessReturnFixer::class);
     $services->set(DeclareStrictTypesFixer::class);
+    $services->set(BlankLineBeforeStatementFixer::class);
     $services->set(CompactNullableTypehintFixer::class);
     $services->set(NoImportFromGlobalNamespaceFixer::class);
     $services->set(NoSuperfluousConcatenationFixer::class);

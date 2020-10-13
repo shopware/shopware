@@ -22,7 +22,7 @@ Component.register('sw-settings-listing', {
             sortingOptionsGridLimit: 10,
             sortingOptionsGridPage: 1,
             modalVisible: false,
-            toBeDeletedProductSortingOptionId: null,
+            toBeDeletedProductSortingOption: null,
             productSortingOptionsSearchTerm: null,
             isProductSortingOptionsCardLoading: false,
             customFields: []
@@ -32,10 +32,6 @@ Component.register('sw-settings-listing', {
     computed: {
         productSortingOptionRepository() {
             return this.repositoryFactory.create('product_sorting');
-        },
-
-        filteredProductSortingOptions() {
-            return this.productSortingOptions.filter(option => !option.locked);
         },
 
         customFieldRepository() {
@@ -51,6 +47,10 @@ Component.register('sw-settings-listing', {
 
             criteria.addSorting(
                 Criteria.sort('priority', 'DESC')
+            );
+
+            criteria.addFilter(
+                Criteria.equals('locked', false)
             );
 
             return criteria;
@@ -92,17 +92,6 @@ Component.register('sw-settings-listing', {
                     label: this.$tc('sw-settings-listing.index.productSorting.grid.header.priority')
                 }
             ];
-        },
-
-        /**
-         * Filtered list of products sortings that are not locked.
-         * Used by the select field inside the system settings section
-         * @return {[]|*[]}
-         */
-        notLockedProductSortings() {
-            return this.productSortingOptions.filter(currentProductSorting => {
-                return !currentProductSorting.locked;
-            });
         }
     },
 
@@ -171,11 +160,11 @@ Component.register('sw-settings-listing', {
             return this.productSortingOptionRepository.saveAll(this.productSortingOptions, Shopware.Context.api);
         },
 
-        onDeleteProductSorting(id) {
+        onDeleteProductSorting(item) {
             // closes modal
-            this.toBeDeletedProductSortingOptionId = null;
+            this.toBeDeletedProductSortingOption = null;
 
-            this.productSortingOptionRepository.delete(id, Shopware.Context.api)
+            this.productSortingOptionRepository.delete(item.id, Shopware.Context.api)
                 .catch(() => {
                     this.createNotificationError({
                         message: this.$tc('sw-settings-listing.index.productSorting.messageDeleteError')
@@ -183,7 +172,24 @@ Component.register('sw-settings-listing', {
                 })
                 .finally(() => {
                     this.fetchProductSortingOptions();
+                    this.checkForPagination();
                 });
+        },
+
+        /**
+         * check, if we need to paginate back, when deleting the last sorting option on a page
+         */
+        checkForPagination() {
+            if (this.sortingOptionsGridPage !== 1) {
+                const newTotal = this.productSortingOptions.total - 1;
+
+                if ((this.sortingOptionsGridPage * this.sortingOptionsGridLimit) >= newTotal) {
+                    this.onPageChange({
+                        page: this.sortingOptionsGridPage - 1,
+                        limit: this.sortingOptionsGridLimit
+                    });
+                }
+            }
         },
 
         onPageChange({ page = 1, limit = 10 }) {

@@ -8,7 +8,8 @@
 
 {% block sw_settings_listing_option_base_language_switch %}
     <template #language-switch>
-        <sw-language-switch @on-change="onChangeLanguage">
+        <sw-language-switch @on-change="onChangeLanguage"
+            :disabled="isNewProductSorting">
         </sw-language-switch>
     </template>
 {% endblock %}

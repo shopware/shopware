@@ -249,6 +249,16 @@ Shopware.Component.register('sw-settings-listing-option-criteria-grid', {
         },
 
         onSaveInlineEdit(item) {
+            if (item.field === null) {
+                this.createNotificationError({
+                    message: this.$t(
+                        'sw-settings-listing.general.productSortingCriteriaGrid.options.customFieldCriteriaNotNull'
+                    )
+                });
+
+                return;
+            }
+
             if (item.field === 'customFields') {
                 item.field = `customFields.${item.field}`;
             }
@@ -284,7 +294,7 @@ Shopware.Component.register('sw-settings-listing-option-criteria-grid', {
             const technicalName = this.stripCustomFieldPath(criteriaName);
             const customField = this.getCustomFieldByName(technicalName);
 
-            return this.getInlineSnippet(customField.config.label);
+            return this.getInlineSnippet(customField.config.label) || technicalName;
         },
 
         getCustomFieldName(customField) {

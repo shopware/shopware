@@ -10,6 +10,10 @@ Shopware.Component.extend('sw-settings-listing-option-create', 'sw-settings-list
             return this.productSortingEntity && this.productSortingEntity.label ?
                 this.productSortingEntity.label :
                 this.$tc('sw-settings-listing.create.smartBarTitle');
+        },
+
+        isNewProductSorting() {
+            return this.productSortingEntity._isNew;
         }
     },
 

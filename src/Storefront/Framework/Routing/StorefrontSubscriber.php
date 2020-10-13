@@ -163,9 +163,12 @@ class StorefrontSubscriber implements EventSubscriberInterface
             $session->set('sessionId', $session->getId());
         }
 
-        if (!$session->has(PlatformRequest::HEADER_CONTEXT_TOKEN)) {
+        $salesChannelId = $master->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
+
+        if (!$session->has(PlatformRequest::HEADER_CONTEXT_TOKEN) || $session->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID) !== $salesChannelId) {
             $token = Random::getAlphanumericString(32);
             $session->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $token);
+            $session->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, $salesChannelId);
         }
 
         $master->headers->set(

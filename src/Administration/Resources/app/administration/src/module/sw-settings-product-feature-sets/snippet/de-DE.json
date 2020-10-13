@@ -65,5 +65,12 @@
         "referencePrice": "Grundpreis"
       }
     }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "product_feature_sets": {
+        "label": "Wesentliche Merkmale"
+      }
+    }
   }
 }

@@ -7,11 +7,21 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 Component.register('sw-settings-tax-detail', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('notification')
     ],
+
+    shortcuts: {
+        'SYSTEMKEY+S': {
+            active() {
+                return this.allowSave;
+            },
+            method: 'onSave'
+        },
+        ESCAPE: 'onCancel'
+    },
 
     props: {
         taxId: {
@@ -44,7 +54,36 @@ Component.register('sw-settings-tax-detail', {
             return this.repositoryFactory.create('tax');
         },
 
-        ...mapPropertyErrors('tax', ['name', 'taxRate'])
+        ...mapPropertyErrors('tax', ['name', 'taxRate']),
+
+        isNewTax() {
+            return this.tax.isNew === 'function'
+                ? this.tax.isNew()
+                : false;
+        },
+
+        allowSave() {
+            return this.isNewTax
+                ? this.acl.can('tax.creator')
+                : this.acl.can('tax.editor');
+        },
+
+        tooltipSave() {
+            if (!this.allowSave) {
+                return {
+                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    disabled: this.allowSave,
+                    showOnDisabledElements: true
+                };
+            }
+
+            const systemKey = this.$device.getSystemKey();
+
+            return {
+                message: `${systemKey} + S`,
+                appearance: 'light'
+            };
+        }
     },
 
     watch: {
@@ -103,11 +142,14 @@ Component.register('sw-settings-tax-detail', {
                 });
             }).catch(() => {
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-settings-tax.detail.messageSaveError')
                 });
                 this.isLoading = false;
             });
+        },
+
+        onCancel() {
+            this.$router.push({ name: 'sw.settings.tax.index' });
         }
     }
 });

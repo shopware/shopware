@@ -2,7 +2,7 @@ import { email } from 'src/core/service/validation.service';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-profile-index.html.twig';
 
-const { Component, Mixin, State } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Component.getComponentHelper();
 const types = Shopware.Utils.types;
@@ -234,29 +234,19 @@ Component.register('sw-profile-index', {
             });
         },
 
-
+        // @deprecated tag:v6.4.0 use loginService.verifyUserToken() instead
         verifyUserToken() {
-            const { username } = State.get('session').currentUser;
-
-            return this.loginService.verifyUserByUsername(username, this.confirmPassword).then(({ access }) => {
-                this.confirmPassword = '';
-
-                if (types.isString(access)) {
-                    return access;
-                }
-
-                return false;
-            }).catch(() => {
-                this.confirmPassword = '';
+            // eslint-disable-next-line no-unused-vars
+            return this.loginService.verifyUserToken(this.confirmPassword).catch(e => {
                 this.createErrorMessage(this.$tc('sw-profile.index.notificationOldPasswordErrorMessage'));
-
                 return false;
+            }).finally(() => {
+                this.confirmPassword = '';
             });
         },
 
         createErrorMessage(errorMessage) {
             this.createNotificationError({
-                title: this.$tc('sw-profile.index.notificationPasswordErrorTitle'),
                 message: errorMessage
             });
         },
@@ -302,18 +292,22 @@ Component.register('sw-profile-index', {
             this.setMediaItem({ targetId: mediaItem.id });
         },
 
-        async onSubmitConfirmPassword() {
-            const verifiedToken = await this.verifyUserToken();
+        onSubmitConfirmPassword() {
+            return this.loginService.verifyUserToken(this.confirmPassword).then((verifiedToken) => {
+                if (!verifiedToken) {
+                    return;
+                }
 
-            if (!verifiedToken) {
-                return;
-            }
+                this.confirmPasswordModal = false;
+                this.isSaveSuccessful = false;
+                this.isLoading = true;
 
-            this.confirmPasswordModal = false;
-            this.isSaveSuccessful = false;
-            this.isLoading = true;
-
-            this.saveUser(verifiedToken);
+                this.saveUser(verifiedToken);
+            }).catch(() => {
+                this.createErrorMessage(this.$tc('sw-profile.index.notificationOldPasswordErrorMessage'));
+            }).finally(() => {
+                this.confirmPassword = '';
+            });
         },
 
         onCloseConfirmPasswordModal() {
@@ -337,7 +331,6 @@ Component.register('sw-profile-index', {
 
         handleUserSaveError() {
             this.createNotificationError({
-                title: this.$tc('sw-profile.index.notificationPasswordErrorTitle'),
                 message: this.$tc('sw-profile.index.notificationSaveErrorMessage')
             });
             this.isLoading = false;

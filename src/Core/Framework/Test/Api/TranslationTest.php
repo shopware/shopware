@@ -16,6 +16,9 @@ use Shopware\Core\System\Language\TranslationValidator;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @group slow
+ */
 class TranslationTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;

@@ -173,14 +173,12 @@ Component.register('sw-customer-detail', {
                 this.isSaveSuccessful = true;
                 this.createdComponent();
                 this.createNotificationSuccess({
-                    title: this.$tc('global.default.success'),
                     message: this.$tc('sw-customer.detail.messageSaveSuccess', 0, {
                         name: `${this.customer.firstName} ${this.customer.lastName}`
                     })
                 });
             }).catch((exception) => {
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-customer.detail.messageSaveError')
                 });
                 this.isLoading = false;
@@ -208,14 +206,12 @@ Component.register('sw-customer-detail', {
             if (passwordSet) {
                 if (passwordNotEquals) {
                     this.createNotificationError({
-                        title: this.$tc('global.default.error'),
                         message: this.$tc('sw-customer.detail.notificationPasswordErrorMessage')
                     });
 
                     return false;
                 } if (invalidLength) {
                     this.createNotificationError({
-                        title: this.$tc('global.default.error'),
                         message: this.$tc('sw-customer.detail.notificationPasswordLengthErrorMessage')
                     });
 
@@ -229,12 +225,10 @@ Component.register('sw-customer-detail', {
         acceptCustomerGroupRegistration() {
             this.customerGroupRegistrationService.accept(this.customer.id).then(() => {
                 this.createNotificationSuccess({
-                    title: this.$tc('global.default.success'),
                     message: this.$tc('sw-customer.customerGroupRegistration.acceptMessage')
                 });
             }).catch(() => {
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-customer.customerGroupRegistration.errorMessage')
                 });
             }).finally(() => {
@@ -245,12 +239,10 @@ Component.register('sw-customer-detail', {
         declineCustomerGroupRegistration() {
             this.customerGroupRegistrationService.decline(this.customer.id).then(() => {
                 this.createNotificationSuccess({
-                    title: this.$tc('global.default.success'),
                     message: this.$tc('sw-customer.customerGroupRegistration.declineMessage')
                 });
             }).catch(() => {
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-customer.customerGroupRegistration.errorMessage')
                 });
             }).finally(() => {

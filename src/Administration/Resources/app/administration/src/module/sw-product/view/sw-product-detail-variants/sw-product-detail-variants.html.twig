@@ -2,10 +2,11 @@
     <div class="sw-product-detail-variants">
 
         {% block sw_product_detail_variants_sw_card_generated_variants %}
-            <sw-card class="sw-product-detail-variants__generated-variants"
-                     :class="{'is--loading': isLoading}"
-                     :title="$tc('sw-product.variations.generatedVariationCardTitle')"
-                     large>
+            <sw-card
+                class="sw-product-detail-variants__generated-variants"
+                :class="{'is--loading': isLoading}"
+                :title="$tc('sw-product.variations.generatedVariationCardTitle')"
+                large>
 
                 {% block sw_product_detail_variants_sw_card_generated_variants_overview %}
                     <sw-product-variants-overview
@@ -29,14 +30,15 @@
                                 <p>{{ $tc('sw-product.variations.emptyStateDescription') }}</p>
                             </div>
 
-                            <sw-button variant="ghost"
-                                       :disabled="!acl.can('product.creator')"
-                                       v-tooltip="{
-                                            message: this.$tc('sw-privileges.tooltip.warning'),
-                                            disabled: this.acl.can('product.creator'),
-                                            showOnDisabledElements: true
-                                        }"
-                                       @click="openModal('variantGeneration')">
+                            <sw-button
+                                variant="ghost"
+                                :disabled="!acl.can('product.creator')"
+                                v-tooltip="{
+                                    message: this.$tc('sw-privileges.tooltip.warning'),
+                                    disabled: this.acl.can('product.creator'),
+                                    showOnDisabledElements: true
+                                }"
+                                @click="openModal('variantGeneration')">
                                 {{ $tc('sw-product.variations.emptyStateButton') }}
                             </sw-button>
                         </div>

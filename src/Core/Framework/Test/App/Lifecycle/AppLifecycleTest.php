@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\App\Lifecycle;
 
 use Doctrine\DBAL\Connection;
+use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonEntity;
 use Shopware\Core\Framework\App\AppCollection;
@@ -10,6 +11,7 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Event\AppDeletedEvent;
 use Shopware\Core\Framework\App\Event\AppInstalledEvent;
 use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
+use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
 use Shopware\Core\Framework\App\Manifest\Manifest;
@@ -20,7 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\WebhookEntity;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
@@ -29,7 +31,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class AppLifecycleTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use GuzzleTestClientBehaviour;
 
     /**
      * @var AppLifecycle
@@ -103,6 +105,26 @@ class AppLifecycleTest extends TestCase
         $this->assertDefaultCustomFields($apps->first()->getId());
         $this->assertDefaultWebhooks($apps->first()->getId());
         $this->assertDefaultTemplate($apps->first()->getId());
+    }
+
+    public function testInstallRollbacksRegistrationFailure(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
+
+        $this->appendNewResponse(new Response(500));
+
+        $wasThrown = false;
+
+        try {
+            $this->appLifecycle->install($manifest, true, $this->context);
+        } catch (AppRegistrationException $e) {
+            $wasThrown = true;
+        }
+
+        static::assertTrue($wasThrown);
+        $apps = $this->appRepository->search(new Criteria(), $this->context)->getTotal();
+
+        static::assertEquals(0, $apps);
     }
 
     public function testInstallMinimalManifest(): void

@@ -63,6 +63,9 @@
     "payment-method-blocked": "Payment via %name% not available.",
     "shipping-method-blocked": "%name% shipping is not available.",
     "shipping-address-blocked": "Shipping to the selected address is not possible.",
+    "shipping-address-invalid": "The selected shipping address is not valid or incomplete. Please check your entries.",
+    "billing-address-blocked": "Billing to the selected address is not possible.",
+    "billing-address-invalid": "The selected billing address is not valid or incomplete. Please check your entries.",
     "VIOLATION::TOO_SHORT_ERROR": "%field% is too short.",
     "product-not-found": "The product could not be found.",
     "message-403-ajax": "Your session has expired. Please reload the page and try again.",
@@ -71,6 +74,8 @@
     "auto-promotion-not-found": "Promotion \"%name%\" was no longer valid!"
   },
   "account": {
+    "externalPaymentCanceled": "We received your order, but the payment was aborted. Please change your payment method or try again",
+    "externalPaymentFailure": "We received your order, but we were not able to process your payment, please change the payment method or try again",
     "confirmationIsAlreadyDone": "Either the email address has already been confirmed or the URL is invalid.",
     "doubleOptInMailConfirmationSuccessfully": "Thank you for confirming your email address! You can now complete your order.",
     "doubleOptInRegistrationSuccessfully": "Thank you for signing up! Your account has been successfully unlocked.",
@@ -177,6 +182,12 @@
     "profileRecoverPasswordInfo": "We will send you a confirmation email. Click the link in that email in order to change your password.",
     "profileRecoverPasswordSubmit": "Send email",
     "profileSaveChanges": "Save changes",
+    "profileDelete": "<a href=\"%target%\" data-toggle=\"modal\" data-target=\"%target%\">Click here</a> to delete all your personal data",
+    "profileDeleteAlert": "After deleting your customer account personal data, newsletter entries and reviews won't be accessible to you anymore. Note that records of all orders will be kept nonetheless in order to fulfill legal regulations.",
+    "profileDeleteConfirm": "Do you really want to delete your customer account?",
+    "profileDeleteModalTitle": "Customer account",
+    "profileDeleteButton": "Delete account",
+    "profileDeleteSuccessAlert": "Your customer account was deleted.",
     "addressWelcome": "Addresses",
     "addressText": "View your current default addresses or add new ones.",
     "addressListHeader": "All addresses",
@@ -375,7 +386,8 @@
     "shipping-address-blocked": "Shipping to the selected shipping address is currently not possible.",
     "customerCommentHeader": "Additional information",
     "customerCommentLabel": "Would you like to tell us anything about your order?",
-    "customerCommentPlaceholder": "Comment here..."
+    "customerCommentPlaceholder": "Comment here...",
+    "cart-merged-hint": "The current shopping cart might contain additional products that have been added and saved during a previous visit."
   },
   "listing": {
     "filterTitleText": "Filter",
@@ -402,7 +414,8 @@
     "filterRangeActiveMaxLabel": "Price to",
     "filterRangeErrorMessage": "The minimum price cannot be higher than the maximum price.",
     "filterSubmitText": "Filter",
-    "defaultProductSortingLabel": "Name, ascending"
+    "defaultProductSortingLabel": "Name, ascending",
+    "disabledFilterTooltip": "This filter does not display any further results in combination with the selected filters."
   },
   "newsletter": {
     "headline": "Subscribe to newsletter",
@@ -546,6 +559,12 @@
           "true": "Yes",
           "false": "No"
         }
+      }
+    },
+    "cms": {
+      "vimeo": {
+        "privacyNotice": "By viewing the video you agree that your data will be transferred to %platform% and that you have read the <a data-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"Privacy policy\">Privacy policy</a>.",
+        "acceptButtonLabel": "Accept"
       }
     }
   }

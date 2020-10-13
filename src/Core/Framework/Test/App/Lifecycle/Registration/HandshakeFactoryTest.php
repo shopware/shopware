@@ -10,6 +10,7 @@ use Shopware\Core\Framework\App\Lifecycle\Registration\StoreHandshake;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -29,7 +30,11 @@ class HandshakeFactoryTest extends TestCase
 
         $shopUrl = 'test.shop.com';
 
-        $factory = new HandshakeFactory($shopUrl, $this->getContainer()->get(ShopIdProvider::class));
+        $factory = new HandshakeFactory(
+            $shopUrl,
+            $this->getContainer()->get(ShopIdProvider::class),
+            $this->getContainer()->get(StoreClient::class)
+        );
 
         $handshake = $factory->create($manifest);
 
@@ -49,7 +54,11 @@ class HandshakeFactoryTest extends TestCase
             'value' => Uuid::randomHex(),
         ]);
 
-        $factory = new HandshakeFactory($shopUrl, $this->getContainer()->get(ShopIdProvider::class));
+        $factory = new HandshakeFactory(
+            $shopUrl,
+            $this->getContainer()->get(ShopIdProvider::class),
+            $this->getContainer()->get(StoreClient::class)
+        );
 
         static::expectException(AppRegistrationException::class);
         $factory->create($manifest);
@@ -61,7 +70,11 @@ class HandshakeFactoryTest extends TestCase
 
         $shopUrl = 'test.shop.com';
 
-        $factory = new HandshakeFactory($shopUrl, $this->getContainer()->get(ShopIdProvider::class));
+        $factory = new HandshakeFactory(
+            $shopUrl,
+            $this->getContainer()->get(ShopIdProvider::class),
+            $this->getContainer()->get(StoreClient::class)
+        );
 
         $handshake = $factory->create($manifest);
 

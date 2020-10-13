@@ -6,10 +6,11 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-mail-header-footer-list', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     mixins: [
-        Mixin.getByName('listing')
+        Mixin.getByName('listing'),
+        Mixin.getByName('notification')
     ],
 
     data() {
@@ -94,15 +95,68 @@ Component.register('sw-mail-header-footer-list', {
         },
 
         onDuplicate(id) {
-            this.mailHeaderFooterRepository.clone(id, Shopware.Context.api).then(({ newId }) => {
+            this.mailHeaderFooterRepository.clone(id, Shopware.Context.api).then((mailHeaderFooter) => {
                 this.$router.push(
                     {
                         name: 'sw.mail.template.detail_head_foot',
-                        params: { id: newId }
+                        params: { id: mailHeaderFooter.id }
                     }
                 );
             });
-        }
+        },
 
+        checkCanBeDeleted(mailHeaderFooter) {
+            return !mailHeaderFooter.salesChannels.length;
+        },
+
+        onDelete(item) {
+            this.$refs.listing.deleteId = null;
+
+            if (!this.checkCanBeDeleted(item)) {
+                this.showDeleteErrorNotification(item);
+            }
+
+            this.mailHeaderFooterRepository.delete(item.id, Shopware.Context.api)
+                .then(() => {
+                    this.$refs.listing.resetSelection();
+                    this.$refs.listing.doSearch();
+                });
+        },
+
+        getMailHeaderFooterCriteria(mailHeaderFooter) {
+            const criteria = new Criteria();
+
+            criteria.addFilter(
+                Criteria.equalsAny('id', mailHeaderFooter)
+            );
+
+            criteria.addAssociation('salesChannels');
+
+            return criteria;
+        },
+
+        onMultipleDelete() {
+            const selectedMailHeaderFooters = Object.values(this.$refs.listing.selection).map(currentProxy => {
+                return currentProxy.id;
+            });
+
+            this.mailHeaderFooterRepository
+                .search(this.getMailHeaderFooterCriteria(selectedMailHeaderFooters), Shopware.Context.api)
+                .then(response => {
+                    response.forEach((mailHeaderFooter) => {
+                        if (!this.checkCanBeDeleted(mailHeaderFooter)) {
+                            this.showDeleteErrorNotification(mailHeaderFooter);
+                        }
+                    });
+
+                    this.$refs.listing.deleteItems();
+                });
+        },
+
+        showDeleteErrorNotification(item) {
+            return this.createNotificationError({
+                message: this.$tc('sw-mail-header-footer.list.messageDeleteError', 0, { name: item.name })
+            });
+        }
     }
 });

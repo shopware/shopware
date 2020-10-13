@@ -25,6 +25,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -44,6 +45,7 @@ use Symfony\Component\HttpFoundation\Response;
 class CheckoutControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
+    use StorefrontSalesChannelTestHelper;
 
     private const UUID_LENGTH = 32;
     private const PRODUCT_PRICE = 15.99;
@@ -62,6 +64,7 @@ class CheckoutControllerTest extends TestCase
 
     /**
      * @dataProvider customerComments
+     * @group slow
      *
      * @param string|float|int|bool|null $customerComment
      */
@@ -119,9 +122,13 @@ class CheckoutControllerTest extends TestCase
 
         static::assertInstanceOf(RedirectResponse::class, $response);
 
-        static::assertStringContainsString('/checkout/finish', $response->getTargetUrl(), 'Target Url does not point to /checkout/finish');
-        static::assertStringContainsString('paymentFailed=1', $response->getTargetUrl(), 'Target Url does not contain paymentFailed=1 as query parameter');
-        static::assertStringContainsString('changedPayment=0', $response->getTargetUrl(), 'Target Url does not contain changedPayment=0 as query parameter');
+        if (Feature::isActive('FEATURE_NEXT_9351')) {
+            static::assertStringContainsString('/account/order/edit', $response->getTargetUrl(), 'Target Url does not point to /checkout/finish');
+        } else {
+            static::assertStringContainsString('/checkout/finish', $response->getTargetUrl(), 'Target Url does not point to /checkout/finish');
+            static::assertStringContainsString('paymentFailed=1', $response->getTargetUrl(), 'Target Url does not contain paymentFailed=1 as query parameter');
+            static::assertStringContainsString('changedPayment=0', $response->getTargetUrl(), 'Target Url does not contain changedPayment=0 as query parameter');
+        }
     }
 
     public function testAffiliateOrder(): void
@@ -134,6 +141,22 @@ class CheckoutControllerTest extends TestCase
 
         static::assertSame(self::TEST_AFFILIATE_CODE, $order->getAffiliateCode());
         static::assertSame(self::TEST_CAMPAIGN_CODE, $order->getCampaignCode());
+    }
+
+    public function testOrderWithEmptyCartDoesNotResultIn400StatusCode(): void
+    {
+        $browser = $this->getBrowserWithLoggedInCustomer();
+
+        $browser->request(
+            'POST',
+            $_SERVER['APP_URL'] . '/checkout/order',
+            [
+                'tos' => 'on',
+            ]
+        );
+
+        $response = $browser->getResponse();
+        static::assertLessThan(400, $response->getStatusCode(), $response->getContent());
     }
 
     /**
@@ -430,6 +453,7 @@ class CheckoutControllerTest extends TestCase
 
     private function createSalesChannelContext(string $contextToken, ?bool $withFailedPaymentMethod = false): SalesChannelContext
     {
+        $this->updateSalesChannel(Defaults::SALES_CHANNEL);
         $salesChannelData = [
             SalesChannelContextService::CUSTOMER_ID => $this->createCustomer(),
         ];

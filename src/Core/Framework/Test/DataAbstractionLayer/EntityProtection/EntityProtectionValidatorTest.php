@@ -43,6 +43,7 @@ class EntityProtectionValidatorTest extends TestCase
 
     /**
      * @dataProvider blockedApiRequest
+     * @group slow
      */
     public function testItBlocksApiAccess(string $method, string $url): void
     {

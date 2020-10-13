@@ -153,7 +153,6 @@ Component.register('sw-property-detail', {
                 this.isSaveSuccessful = true;
             }).catch((exception) => {
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-property.detail.messageSaveError')
                 });
                 this.isLoading = false;

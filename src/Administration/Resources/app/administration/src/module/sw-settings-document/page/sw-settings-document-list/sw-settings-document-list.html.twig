@@ -121,28 +121,20 @@
                                                     <sw-context-button>
 
                                                         {% block sw_settings_document_list_columns_actions_edit %}
-                                                            <sw-context-menu-item class="sw-document-list__edit-action"
-                                                                                  :disabled="!acl.can('document.editor')"
-                                                                                  :routerLink="{ name: 'sw.settings.document.detail', params: { id: item.id } }"
-                                                                                  v-tooltip.bottom="{
-                                                                                      message: $tc('sw-privileges.tooltip.warning'),
-                                                                                      disabled: acl.can('document.editor'),
-                                                                                      showOnDisabledElements: true
-                                                                                  }">
+                                                            <sw-context-menu-item
+                                                                class="sw-document-list__edit-action"
+                                                                :disabled="!acl.can('document.editor')"
+                                                                :routerLink="{ name: 'sw.settings.document.detail', params: { id: item.id } }">
                                                                 {{ $tc('sw-settings-document.list.contextMenuEdit') }}
                                                             </sw-context-menu-item>
                                                         {% endblock %}
 
                                                         {% block sw_settings_document_list_columns_actions_delete %}
-                                                            <sw-context-menu-item variant="danger"
-                                                                                  class="sw-document-list__delete-action"
-                                                                                  :disabled="!acl.can('document.deleter')"
-                                                                                  @click="onDelete(item.id)"
-                                                                                  v-tooltip.bottom="{
-                                                                                      message: $tc('sw-privileges.tooltip.warning'),
-                                                                                      disabled: acl.can('document.deleter'),
-                                                                                      showOnDisabledElements: true
-                                                                                  }">
+                                                            <sw-context-menu-item
+                                                                variant="danger"
+                                                                class="sw-document-list__delete-action"
+                                                                :disabled="!acl.can('document.deleter')"
+                                                                @click="onDelete(item.id)">
                                                                 {{ $tc('sw-settings-document.list.buttonDelete') }}
                                                             </sw-context-menu-item>
                                                         {% endblock %}

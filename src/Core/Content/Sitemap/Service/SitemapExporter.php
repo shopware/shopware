@@ -65,30 +65,31 @@ class SitemapExporter implements SitemapExporterInterface
      */
     public function generate(SalesChannelContext $salesChannelContext, bool $force = false, ?string $lastProvider = null, ?int $offset = null): SitemapGenerationResult
     {
-        if ($force === false && $this->isLocked($salesChannelContext)) {
-            throw new AlreadyLockedException($salesChannelContext);
+        $this->lock($salesChannelContext, $force);
+
+        try {
+            $host = $this->getHost($salesChannelContext);
+
+            $sitemapHandle = $this->sitemapHandleFactory->create($this->filesystem, $salesChannelContext);
+
+            foreach ($this->urlProvider as $urlProvider) {
+                do {
+                    $result = $urlProvider->getUrls($salesChannelContext, $this->batchSize, $offset);
+
+                    foreach ($result->getUrls() as $url) {
+                        $url->setLoc($this->seoUrlPlaceholderHandler->replace($url->getLoc(), $host, $salesChannelContext));
+                    }
+
+                    $sitemapHandle->write($result->getUrls());
+                    $needRun = $result->getNextOffset() !== null;
+                    $offset = $result->getNextOffset();
+                } while ($needRun);
+            }
+
+            $sitemapHandle->finish();
+        } finally {
+            $this->unlock($salesChannelContext);
         }
-
-        $host = $this->getHost($salesChannelContext);
-
-        $sitemapHandle = $this->sitemapHandleFactory->create($this->filesystem, $salesChannelContext);
-
-        foreach ($this->urlProvider as $urlProvider) {
-            do {
-                $result = $urlProvider->getUrls($salesChannelContext, $this->batchSize, $offset);
-
-                foreach ($result->getUrls() as $url) {
-                    $url->setLoc($this->seoUrlPlaceholderHandler->replace($url->getLoc(), $host, $salesChannelContext));
-                }
-
-                $sitemapHandle->write($result->getUrls());
-                $needRun = $result->getNextOffset() !== null;
-                $offset = $result->getNextOffset();
-            } while ($needRun);
-        }
-
-        $sitemapHandle->finish();
-        $this->unlock($salesChannelContext);
 
         return new SitemapGenerationResult(
             true,
@@ -99,14 +100,21 @@ class SitemapExporter implements SitemapExporterInterface
         );
     }
 
+    private function lock(SalesChannelContext $salesChannelContext, bool $force): void
+    {
+        $key = $this->generateCacheKeyForSalesChannel($salesChannelContext);
+        $item = $this->cache->getItem($key);
+        if ($item->isHit() && !$force) {
+            throw new AlreadyLockedException($salesChannelContext);
+        }
+
+        $item->set(true);
+        $this->cache->save($item);
+    }
+
     private function unlock(SalesChannelContext $salesChannelContext): void
     {
         $this->cache->deleteItem($this->generateCacheKeyForSalesChannel($salesChannelContext));
-    }
-
-    private function isLocked(SalesChannelContext $salesChannelContext): bool
-    {
-        return $this->cache->hasItem($this->generateCacheKeyForSalesChannel($salesChannelContext));
     }
 
     private function generateCacheKeyForSalesChannel(SalesChannelContext $salesChannelContext): string

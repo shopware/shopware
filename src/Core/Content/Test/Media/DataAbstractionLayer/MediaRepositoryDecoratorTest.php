@@ -9,6 +9,8 @@ use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
+use Shopware\Core\Checkout\Order\OrderEvents;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\MediaDefinition;
@@ -24,6 +26,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 
+/**
+ * @group slow
+ */
 class MediaRepositoryDecoratorTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -42,6 +47,11 @@ class MediaRepositoryDecoratorTest extends TestCase
     private $documentRepository;
 
     /**
+     * @var EntityRepositoryInterface
+     */
+    private $orderRepository;
+
+    /**
      * @var StateMachineRegistry
      */
     private $stateMachineRegistry;
@@ -55,6 +65,7 @@ class MediaRepositoryDecoratorTest extends TestCase
     {
         $this->mediaRepository = $this->getContainer()->get('media.repository');
         $this->documentRepository = $this->getContainer()->get('document.repository');
+        $this->orderRepository = $this->getContainer()->get('order.repository');
         $this->context = Context::createDefaultContext();
         $this->stateMachineRegistry = $this->getContainer()->get(StateMachineRegistry::class);
     }
@@ -105,7 +116,7 @@ class MediaRepositoryDecoratorTest extends TestCase
                         'name' => 'test',
                     ],
                     'id' => $documentId,
-                    'order' => $this->getOrderData($orderId, $this->context),
+                    'order' => $this->getOrderData($orderId, $this->context)[0],
                     'fileType' => 'pdf',
                     'config' => [],
                     'deepLinkCode' => 'deeplink',
@@ -404,15 +415,47 @@ class MediaRepositoryDecoratorTest extends TestCase
         static::assertTrue($this->getPublicFilesystem()->has($mediaUrl));
     }
 
-    private function getOrderData(string $orderId, Context $context): array
+    public function testDeleteMediaEntityWithOrder(): void
+    {
+        $mediaId = Uuid::randomHex();
+        $orderId = Uuid::randomHex();
+
+        $this->mediaRepository->create(
+            [
+                [
+                    'id' => $mediaId,
+                    'name' => 'test media',
+                    'mimeType' => 'image/png',
+                    'fileExtension' => 'png',
+                    'fileName' => $mediaId . '-' . (new \DateTime())->getTimestamp(),
+                ],
+            ],
+            $this->context
+        );
+
+        $order = $this->getOrderData($orderId, $this->context, $mediaId);
+
+        $this->orderRepository->create($order, $this->context);
+
+        $event = $this->mediaRepository->delete([['id' => $mediaId]], $this->context)->getEventByEntityName(OrderLineItemDefinition::ENTITY_NAME);
+
+        $this->runWorker();
+
+        $payload = $event->getPayloads()[0];
+
+        static::assertEquals(OrderEvents::ORDER_LINE_ITEM_WRITTEN_EVENT, $event->getName());
+        static::assertNull($payload['coverId']);
+    }
+
+    private function getOrderData(string $orderId, Context $context, ?string $mediaId = null): array
     {
         $addressId = Uuid::randomHex();
         $orderLineItemId = Uuid::randomHex();
         $countryStateId = Uuid::randomHex();
         $salutation = $this->getValidSalutationId();
 
-        $order
-            = [
+        $order = [
+            [
                 'id' => $orderId,
                 'orderDateTime' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                 'price' => new CartPrice(10, 10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET),
@@ -459,6 +502,7 @@ class MediaRepositoryDecoratorTest extends TestCase
                         'price' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
                         'priceDefinition' => new QuantityPriceDefinition(10, new TaxRuleCollection(), 2),
                         'good' => true,
+                        'coverId' => $mediaId,
                     ],
                 ],
                 'deepLinkCode' => 'BwvdEInxOHBbwfRw6oHF1Q_orfYeo9RY',
@@ -520,7 +564,8 @@ class MediaRepositoryDecoratorTest extends TestCase
                         'id' => $addressId,
                     ],
                 ],
-            ]
+            ],
+        ]
         ;
 
         return $order;

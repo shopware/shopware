@@ -37,7 +37,6 @@ Component.register('sw-settings-shopware-updates-index', {
                     this.updateModalShown = true;
                 } else {
                     this.createNotificationInfo({
-                        title: this.$tc('global.default.info'),
                         message: this.$tc('sw-settings-shopware-updates.notifications.alreadyUpToDate')
                     });
                 }
@@ -66,7 +65,6 @@ Component.register('sw-settings-shopware-updates-index', {
             }).catch((err) => {
                 this.isLoading = false;
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
                     message: err
                 });
             });

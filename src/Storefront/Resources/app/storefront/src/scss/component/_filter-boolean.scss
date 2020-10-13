@@ -22,6 +22,17 @@ This filter item should only be used inside a filter panel.
         border-color: $primary;
         color: $primary;
     }
+
+    &.disabled {
+        cursor: default;
+        background: $disabled-btn-bg;
+        border-color: $disabled-btn-border-color;
+
+        .filter-boolean-label {
+            color: $gray-300;
+            cursor: default;
+        }
+    }
 }
 
 .filter-boolean-label {

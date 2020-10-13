@@ -167,7 +167,7 @@ trait SalesChannelApiTestBehaviour
             'paymentMethods' => [['id' => $paymentMethod->getId()]],
             'shippingMethodId' => $this->getAvailableShippingMethod()->getId(),
             'navigationCategoryId' => $this->getValidCategoryId(),
-            'countryId' => $this->getValidCountryId(),
+            'countryId' => $this->getValidCountryId(null),
             'currencies' => [['id' => Defaults::CURRENCY]],
             'languages' => [['id' => Defaults::LANGUAGE_SYSTEM]],
             'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
@@ -179,6 +179,7 @@ trait SalesChannelApiTestBehaviour
                     'url' => 'http://localhost',
                 ],
             ],
+            'countries' => [['id' => $this->getValidCountryId(null)]],
         ], $salesChannelOverride);
 
         $salesChannelRepository->upsert([$salesChannel], Context::createDefaultContext());

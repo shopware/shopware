@@ -124,6 +124,12 @@
                                 </template>
                             {% endblock %}
 
+                            {% block sw_customer_list_grid_columns_boundSalesChannel %}
+                                <template v-if="feature.isActive('FEATURE_NEXT_10555')" #column-boundSalesChannelId="{ item }">
+                                    {{ item.boundSalesChannelId ? item.salesChannel.translated.name : $tc('sw-customer.list.emptyBoundSalesChannel') }}
+                                </template>
+                            {% endblock %}
+
                             {% block sw_customer_list_grid_columns_actions %}
                                 <template #actions="{ item }">
                                     {% block sw_customer_list_grid_columns_actions_view %}

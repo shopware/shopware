@@ -101,7 +101,7 @@ abstract class Bundle extends SymfonyBundle
     }
 
     /**
-     * @feature-deprecated tag:v6.4.0 - Implement `getActionEventClasses` instead
+     * @feature-deprecated (flag:FEATURE_NEXT_9351) tag:v6.4.0 - Implement `getActionEventClasses` instead
      */
     protected function getActionEvents(): array
     {

@@ -2,40 +2,114 @@
 
 namespace Shopware\Core\Framework\Changelog;
 
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
+
 class ChangelogDefinition
 {
-    /** @var string */
+    /**
+     * @Assert\NotBlank(
+     *     message="The title should not be blank"
+     * )
+     *
+     * @var string
+     */
     private $title;
 
-    /** @var string */
+    /**
+     * @Assert\NotBlank(
+     *     message="The Jira ticket should not be blank"
+     * )
+     *
+     * @var string
+     */
     private $issue;
 
-    /** @var string|null */
+    /**
+     * @var string|null
+     */
     private $flag;
 
-    /** @var string|null */
+    /**
+     * @var string|null
+     */
     private $author;
 
-    /** @var string|null */
+    /**
+     * @var string|null
+     */
     private $authorEmail;
 
-    /** @var string|null */
+    /**
+     * @var string|null
+     */
     private $authorGitHub;
 
-    /** @var string|null */
+    /**
+     * @var string|null
+     */
     private $core;
 
-    /** @var string|null */
+    /**
+     * @var string|null
+     */
     private $storefront;
 
-    /** @var string|null */
+    /**
+     * @var string|null
+     */
     private $administration;
 
-    /** @var string|null */
+    /**
+     * @var string|null
+     */
     private $api;
 
-    /** @var string|null */
+    /**
+     * @var string|null
+     */
     private $upgrade;
+
+    /**
+     * @Assert\Callback
+     */
+    public function validate(ExecutionContextInterface $context): void
+    {
+        if (empty($this->api) && empty($this->core) && empty($this->storefront) && empty($this->administration)) {
+            $context->buildViolation('You have to define at least one change of API, Core, Administration or Storefront')
+                ->addViolation();
+        }
+
+        if ($this->api && preg_match('/\n+#\s+(\w+)/', $this->api, $matches)) {
+            $context->buildViolation(sprintf('You should use "___" to separate API and %s section', $matches[1]))
+                ->atPath('api')
+                ->addViolation();
+        }
+
+        if ($this->storefront && preg_match('/\n+#\s+(\w+)/', $this->storefront, $matches)) {
+            $context->buildViolation(sprintf('You should use "___" to separate Storefront and %s section', $matches[1]))
+                ->atPath('storefront')
+                ->addViolation();
+        }
+
+        if ($this->administration && preg_match('/\n+#\s+(\w+)/', $this->administration, $matches)) {
+            $context->buildViolation(sprintf('You should use "___" to separate Administration and %s section', $matches[1]))
+                ->atPath('administration')
+                ->addViolation();
+        }
+
+        if ($this->core && preg_match('/\n+#\s+(\w+)/', $this->core, $matches)) {
+            $context->buildViolation(sprintf('You should use "___" to separate Core and %s section', $matches[1]))
+                ->atPath('core')
+                ->addViolation();
+        }
+
+        if ($this->upgrade && preg_match('/\n+#\s+(\w+)/', $this->upgrade, $matches)) {
+            $context->buildViolation(sprintf('You should use "___" to separate Upgrade Information and %s section ', $matches[1]))
+                ->atPath('upgrade')
+                ->addViolation();
+        }
+    }
 
     public function getTitle(): string
     {
@@ -167,21 +241,6 @@ class ChangelogDefinition
         $this->upgrade = $upgrade;
 
         return $this;
-    }
-
-    public function isValid(): bool
-    {
-        // These are required fields in a changelog
-        if (empty($this->title) || empty($this->issue)) {
-            return false;
-        }
-
-        // At least one of them have to be specified
-        if (empty($this->api) && empty($this->storefront) && empty($this->administration) && empty($this->core)) {
-            return false;
-        }
-
-        return true;
     }
 
     public function toTemplate(): string

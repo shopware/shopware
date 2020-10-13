@@ -24,6 +24,11 @@ Component.register('sw-settings-product-feature-sets-values-card', {
             type: Boolean,
             required: false,
             default: false
+        },
+        allowEdit: {
+            type: Boolean,
+            required: false,
+            default: true
         }
     },
 
@@ -156,6 +161,10 @@ Component.register('sw-settings-product-feature-sets-values-card', {
                 this.resetPositions();
                 this.getList();
             }
+        },
+
+        onPositionChange(features) {
+            this.$set(this.productFeatureSet, 'features', features);
         },
 
         resetPositions() {

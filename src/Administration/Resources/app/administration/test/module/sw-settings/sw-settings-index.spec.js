@@ -6,7 +6,15 @@ import 'src/app/component/base/sw-tabs';
 import 'src/app/component/base/sw-tabs-item';
 
 
-function createWrapper(privileges = []) {
+function createWrapper(privileges = [
+    'store.viewer',
+    'user.viewer',
+    'foo.viewer',
+    'snippet.viewer',
+    'store.viewer',
+    'listing.viewer',
+    'shipping.viewer'
+]) {
     const settingsItemsMock = [
         {
             group: 'system',
@@ -14,7 +22,8 @@ function createWrapper(privileges = []) {
             icon: 'default-device-laptop',
             id: 'sw-settings-store',
             name: 'settings-store',
-            label: 'c'
+            label: 'c',
+            privilege: 'store.viewer'
         },
         {
             group: 'system',
@@ -22,7 +31,8 @@ function createWrapper(privileges = []) {
             icon: 'default-avatar-single',
             id: 'sw-settings-user',
             name: 'settings-user',
-            label: 'a'
+            label: 'a',
+            privilege: 'user.viewer'
         },
         {
             group: 'system',
@@ -30,7 +40,8 @@ function createWrapper(privileges = []) {
             icon: 'default-avatar-single',
             id: 'sw-settings-foo',
             name: 'settings-foo',
-            label: 'b'
+            label: 'b',
+            privilege: 'foo.viewer'
         },
         {
             group: 'shop',
@@ -38,7 +49,8 @@ function createWrapper(privileges = []) {
             icon: 'default-object-globe',
             id: 'sw-settings-snippet',
             name: 'settings-snippet',
-            label: 'h'
+            label: 'h',
+            privilege: 'snippet.viewer'
         },
         {
             group: 'shop',
@@ -46,7 +58,8 @@ function createWrapper(privileges = []) {
             icon: 'default-symbol-products',
             id: 'sw-settings-listing',
             name: 'settings-listing',
-            label: 's'
+            label: 's',
+            privilege: 'listing.viewer'
         },
         {
             group: 'shop',
@@ -54,7 +67,8 @@ function createWrapper(privileges = []) {
             icon: 'default-package-open',
             id: 'sw-settings-shipping',
             name: 'settings-shipping',
-            label: 'a'
+            label: 'a',
+            privilege: 'shipping.viewer'
         }
     ];
 
@@ -77,7 +91,7 @@ function createWrapper(privileges = []) {
             },
             'sw-settings-item': Shopware.Component.build('sw-settings-item'),
             'router-link': {
-                template: '<a></a>'
+                template: '<a><slot></slot></a>'
             },
             'sw-icon': {
                 template: '<span></span>'
@@ -243,5 +257,82 @@ describe('module/sw-settings/page/sw-settings-index', () => {
         const barSetting = settingsGroups.find(setting => setting.id === 'sw-settings-bar');
 
         expect(barSetting).toBeUndefined();
+    });
+
+    it('should hide icon background when backgroundEnabled is false', async () => {
+        const settingsItemToAdd = {
+            group: 'shop',
+            to: 'sw.bar.index',
+            icon: 'bar',
+            id: 'settings-background-disabled',
+            name: 'settings-background-disabled',
+            label: 'b',
+            backgroundEnabled: false
+        };
+
+        Shopware.State.commit('settingsItems/addItem', settingsItemToAdd);
+
+        const wrapper = createWrapper();
+
+        const settingsGroups = Object.entries(wrapper.vm.settingsGroups);
+
+        settingsGroups.forEach(([settingsGroup, settingsItems]) => {
+            const settingsGroupWrapper = wrapper.find(`#sw-settings__content-grid-${settingsGroup}`);
+            const settingsItemsWrappers = settingsGroupWrapper.findAll('.sw-settings-item');
+
+            settingsItemsWrappers.wrappers.forEach((settingsItemsWrapper, index) => {
+                const iconClasses = settingsItemsWrapper.find('.sw-settings-item__icon').attributes().class;
+
+                if (settingsItems[index].backgroundEnabled === false) {
+                    expect(iconClasses).not.toContain('background--enabled');
+                } else {
+                    expect(iconClasses).toContain('background--enabled');
+                }
+            });
+        });
+    });
+
+    it('should hide the tab when user has no access to any settings inside the tab', async () => {
+        const settingsItemToAdd = {
+            privilege: 'system.foo_bar',
+            group: 'shop',
+            to: 'sw.bar.index',
+            icon: 'bar',
+            id: 'sw-settings-bar',
+            name: 'settings-bar',
+            label: 'b'
+        };
+
+        Shopware.State.commit('settingsItems/addItem', settingsItemToAdd);
+
+        const wrapper = await createWrapper('system.foo_bar');
+
+        const systemTab = wrapper.find('.sw-settings__tab-system');
+        const shopTab = wrapper.find('.sw-settings__tab-shop');
+
+        expect(systemTab.exists()).toBe(false);
+        expect(shopTab.exists()).toBe(true);
+    });
+
+    it('should hide the tab when user has no access to any settings inside the tab', async () => {
+        const settingsItemToAdd = {
+            privilege: 'system.foo_bar',
+            group: 'system',
+            to: 'sw.bar.index',
+            icon: 'bar',
+            id: 'sw-settings-bar',
+            name: 'settings-bar',
+            label: 'b'
+        };
+
+        Shopware.State.commit('settingsItems/addItem', settingsItemToAdd);
+
+        const wrapper = await createWrapper('system.foo_bar');
+
+        const systemTab = wrapper.find('.sw-settings__tab-system');
+        const shopTab = wrapper.find('.sw-settings__tab-shop');
+
+        expect(systemTab.exists()).toBe(true);
+        expect(shopTab.exists()).toBe(false);
     });
 });

@@ -1,6 +1,10 @@
 @import "~scss/variables";
 
 .sw-sales-channel-modal-detail {
+    margin: -20px -30px;
+    padding: 20px 30px;
+    overflow: hidden;
+
     .sw-sales-channel-modal-detail__header {
         margin-bottom: 30px;
     }
@@ -20,7 +24,7 @@
     }
 
     .sw-sales-channel-modal-detail__screenshots {
-        margin-bottom: 30px;
+        margin: 36px 30px 0 30px;
     }
 
     .sw-sales-channel-modal-detail__header-name {
@@ -47,17 +51,5 @@
 
     .sw-sales-channel-modal-detail__description-text {
         color: $color-darkgray-200;
-    }
-
-    .sw-sales-channel-modal-detail__screenshot {
-        display: inline-block;
-
-        img {
-            width: 200px;
-        }
-
-        &:not(:first-child) {
-            margin-left: 20px;
-        }
     }
 }

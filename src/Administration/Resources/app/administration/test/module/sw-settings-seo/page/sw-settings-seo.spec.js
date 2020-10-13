@@ -57,7 +57,7 @@ describe('src/module/sw-settings-seo/page/sw-settings-seo', () => {
     });
 
     it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should contain the settings card', () => {

@@ -3,7 +3,6 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
@@ -267,30 +266,10 @@ class CartLineItemController extends StorefrontController
         if ($cart->getErrors()->count() <= 0) {
             return false;
         }
-
-        $this->addCartErrorsToFlashBag($cart->getErrors()->getNotices(), 'info');
-        $this->addCartErrorsToFlashBag($cart->getErrors()->getWarnings(), 'warning');
-        $this->addCartErrorsToFlashBag($cart->getErrors()->getErrors(), 'danger');
+        $this->addCartErrors($cart);
 
         $cart->getErrors()->clear();
 
         return true;
-    }
-
-    /**
-     * @param Error[] $errors
-     */
-    private function addCartErrorsToFlashBag(array $errors, string $type): void
-    {
-        foreach ($errors as $error) {
-            $parameters = [];
-            foreach ($error->getParameters() as $key => $value) {
-                $parameters['%' . $key . '%'] = $value;
-            }
-
-            $message = $this->trans('checkout.' . $error->getMessageKey(), $parameters);
-
-            $this->addFlash($type, $message);
-        }
     }
 }

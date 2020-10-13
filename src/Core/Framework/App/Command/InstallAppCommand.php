@@ -15,6 +15,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class InstallAppCommand extends Command
 {
+    protected static $defaultName = 'app:install';
+
     /**
      * @var string
      */
@@ -67,8 +69,7 @@ class InstallAppCommand extends Command
 
     protected function configure(): void
     {
-        $this->setName('app:install')
-            ->setDescription('Installs the app in the folder with the given name')
+        $this->setDescription('Installs the app in the folder with the given name')
             ->addArgument(
                 'name',
                 InputArgument::REQUIRED,

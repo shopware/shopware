@@ -19,7 +19,7 @@
                 {% block sw_settings_product_feature_set_detail_actions_save %}
                     <sw-button-process class="sw-settings-currency-detail__save-action"
                                        :isLoading="isLoading"
-                                       :disabled="isLoading"
+                                       :disabled="isLoading || !acl.can('product_feature_sets.editor')"
                                        v-model="isSaveSuccessful"
                                        variant="primary"
                                        @process-finish="saveFinish"
@@ -48,6 +48,7 @@
                             <sw-field type="text"
                                       class="sw-settings-product-feature-sets-detail__name"
                                       required
+                                      :disabled="!acl.can('product_feature_sets.editor')"
                                       :label="$tc('sw-settings-product-feature-sets.detail.labelName')"
                                       :placeholder="placeholder(productFeatureSet, 'name', $tc('sw-settings-product-feature-sets.detail.placeholderName'))"
                                       v-model="productFeatureSet.name">
@@ -57,6 +58,8 @@
                         {% block sw_settings_product_feature_set_detail_content_field_description %}
                             <sw-field type="textarea"
                                       :label="$tc('sw-settings-product-feature-sets.detail.labelDescription')"
+                                      class="sw-settings-product-feature-sets-detail__description"
+                                      :disabled="!acl.can('product_feature_sets.editor')"
                                       :placeholder="placeholder(productFeatureSet, 'description', $tc('sw-settings-product-feature-sets.detail.placeholderDescription'))"
                                       v-model="productFeatureSet.description">
                             </sw-field>
@@ -68,6 +71,7 @@
                 {% block sw_settings_product_feature_set_detail_content_values_card %}
                     <sw-settings-product-feature-sets-values-card v-if="productFeatureSet.id"
                                                                   :disabled="!productFeatureSetId"
+                                                                  :allowEdit="acl.can('product_feature_sets.editor')"
                                                                   class="sw-settings-product-feature-sets-detail__tax-rule-grid"
                                                                   :productFeatureSet="productFeatureSet"
                                                                   @product-feature-set-rule-save="onSave"

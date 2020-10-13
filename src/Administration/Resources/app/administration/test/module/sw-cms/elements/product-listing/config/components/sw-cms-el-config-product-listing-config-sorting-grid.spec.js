@@ -46,27 +46,11 @@ function createWrapper(productSortings = []) {
     });
 }
 
+// eslint-disable-next-line max-len
 describe('src/module/sw-cms/elements/product-listing/config/components/sw-cms-el-config-product-listing-config-sorting-grid', () => {
     it('should be a Vue.js component', () => {
         const wrapper = createWrapper();
         expect(wrapper.vm).toBeTruthy();
-    });
-
-    it('should format product sorting fields correctly', () => {
-        const wrapper = createWrapper();
-
-        const input = [
-            {
-                field: 'foo'
-            },
-            {
-                field: 'bar'
-            }
-        ];
-
-        const output = wrapper.vm.formatProductSortingFields(input);
-
-        expect(output).toBe('foo, bar');
     });
 
     it('should remove entry from product sortings on delete', async () => {

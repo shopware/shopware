@@ -12,6 +12,7 @@ import './view/sw-import-export-view-import';
 import './view/sw-import-export-view-export';
 import './view/sw-import-export-view-profiles';
 import './component/sw-import-export-progress';
+import './acl';
 
 Shopware.Service().register('importExport', () => {
     return new ImportExportService(
@@ -42,7 +43,8 @@ Shopware.Module.register('sw-import-export', {
             component: 'sw-import-export',
             path: 'index',
             meta: {
-                parentPath: 'sw.settings.index'
+                parentPath: 'sw.settings.index',
+                privilege: 'system.import_export'
             },
             redirect: {
                 name: 'sw.import.export.index.import'
@@ -53,21 +55,24 @@ Shopware.Module.register('sw-import-export', {
                     component: 'sw-import-export-view-import',
                     path: 'import',
                     meta: {
-                        parentPath: 'sw.settings.index'
+                        parentPath: 'sw.settings.index',
+                        privilege: 'system.import_export'
                     }
                 },
                 export: {
                     component: 'sw-import-export-view-export',
                     path: 'export',
                     meta: {
-                        parentPath: 'sw.settings.index'
+                        parentPath: 'sw.settings.index',
+                        privilege: 'system.import_export'
                     }
                 },
                 profiles: {
                     component: 'sw-import-export-view-profiles',
                     path: 'profiles',
                     meta: {
-                        parentPath: 'sw.settings.index'
+                        parentPath: 'sw.settings.index',
+                        privilege: 'system.import_export'
                     }
                 }
             }
@@ -77,6 +82,7 @@ Shopware.Module.register('sw-import-export', {
     settingsItem: {
         group: 'shop',
         to: 'sw.import.export.index',
-        icon: 'default-location-flag'
+        icon: 'default-location-flag',
+        privilege: 'system.import_export'
     }
 });

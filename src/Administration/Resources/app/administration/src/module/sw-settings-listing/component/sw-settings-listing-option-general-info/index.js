@@ -10,6 +10,11 @@ Component.register('sw-settings-listing-option-general-info', {
         sortingOption: {
             type: Object,
             required: true
+        },
+
+        isDefaultSorting: {
+            type: Boolean,
+            required: true
         }
     },
 

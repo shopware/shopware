@@ -22,6 +22,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\System\Integration\Aggregate\IntegrationRole\IntegrationRoleDefinition;
+use Shopware\Core\System\Integration\IntegrationDefinition;
 use Shopware\Core\System\User\UserDefinition;
 
 class AclRoleDefinition extends EntityDefinition
@@ -81,6 +83,12 @@ class AclRoleDefinition extends EntityDefinition
             $collection->add(
                 (new OneToOneAssociationField('app', 'id', 'acl_role_id', AppDefinition::class, false))
                     ->addFlags(new CascadeDelete())
+            );
+        }
+
+        if (Feature::isActive('FEATURE_NEXT_3722')) {
+            $collection->add(
+                new ManyToManyAssociationField('integrations', IntegrationDefinition::class, IntegrationRoleDefinition::class, 'acl_role_id', 'integration_id')
             );
         }
 

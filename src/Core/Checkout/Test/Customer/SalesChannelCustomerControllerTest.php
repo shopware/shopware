@@ -13,6 +13,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
@@ -25,6 +26,9 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Serializer;
 
+/**
+ * @group slow
+ */
 class SalesChannelCustomerControllerTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
@@ -98,6 +102,8 @@ class SalesChannelCustomerControllerTest extends TestCase
         $rulesProperty->setValue($ruleLoader, null);
 
         $this->browser = $this->createCustomSalesChannelBrowser(['id' => Defaults::SALES_CHANNEL]);
+        $this->addCountriesToSalesChannel();
+        $this->addCountriesToSalesChannel([], $this->browser->getServerParameter('test-sales-channel-id'));
         $this->assignSalesChannelContext($this->browser);
     }
 
@@ -205,6 +211,9 @@ class SalesChannelCustomerControllerTest extends TestCase
 
     public function testLogout(): void
     {
+        $systemConfig = $this->getContainer()->get(SystemConfigService::class);
+        $systemConfig->set('core.loginRegistration.invalidateSessionOnLogOut', true);
+
         $this->createCustomerAndLogin();
         $this->browser->request('POST', '/sales-channel-api/v' . PlatformRequest::API_VERSION . '/customer/logout');
         $response = $this->browser->getResponse();
@@ -472,6 +481,8 @@ class SalesChannelCustomerControllerTest extends TestCase
 
     public function testChangePasswordTokenInvalidation(): void
     {
+        Feature::skipTestIfActive('FEATURE_NEXT_10058', $this);
+
         $customerId = $this->createCustomerAndLogin();
         $oldTokenId = Random::getAlphanumericString(32);
 
@@ -636,7 +647,7 @@ class SalesChannelCustomerControllerTest extends TestCase
                     'city' => 'Schoöppingen',
                     'zipcode' => '12345',
                     'salutationId' => $this->getValidSalutationId(),
-                    'country' => ['name' => 'Germany'],
+                    'countryId' => $this->getValidCountryId(),
                 ],
                 'defaultBillingAddressId' => $addressId,
                 'defaultPaymentMethod' => [
@@ -689,7 +700,7 @@ class SalesChannelCustomerControllerTest extends TestCase
             'city' => 'Cologne',
             'zipcode' => '89563',
             'salutationId' => $this->getValidSalutationId(),
-            'country' => ['name' => 'Germany'],
+            'countryId' => $this->getValidCountryId(),
         ];
 
         $this->customerAddressRepository->upsert([$data], $this->context);

@@ -165,21 +165,24 @@ describe('core/factory/http.factory.js', () => {
             expect(Shopware.Utils.debug.warn).toHaveBeenCalled();
         });
 
-        test(`should not throw an warning if version is 1 with method ${method}`, async () => {
+        test(`should use current api version if version <= 0 is provided with method ${method}`, async () => {
             expect(Shopware.Utils.debug.warn).not.toHaveBeenCalled();
 
             Shopware.Context.api.apiPath = 'https://www.shopware-test.de/api';
-            Shopware.Context.api.apiVersion = 1;
+            Shopware.Context.api.apiVersion = 3;
 
             const { client, clientMock } = getClientMock();
 
             clientMock[`on${firstLetterToUppercase(method)}`]('/test')
                 .reply(200, { it: 'works' });
 
-            const response = await client[method]('/test');
+            const response = await client[method]('/test', { version: 0 });
+            expect(response.config.url).toEqual(
+                `${Shopware.Context.api.apiPath}/v${Shopware.Context.api.apiVersion - 1}/test`
+            );
             expect(response.status).toEqual(200);
 
-            expect(Shopware.Utils.debug.warn).not.toHaveBeenCalled();
+            expect(Shopware.Utils.debug.warn).toHaveBeenCalled();
         });
     });
 
@@ -322,21 +325,24 @@ describe('core/factory/http.factory.js', () => {
             expect(Shopware.Utils.debug.warn).toHaveBeenCalled();
         });
 
-        test(`should not throw an warning if version is 1 with method ${method}`, async () => {
+        test(`should use current api version if version <= 0 is provided with method ${method}`, async () => {
             expect(Shopware.Utils.debug.warn).not.toHaveBeenCalled();
 
             Shopware.Context.api.apiPath = 'https://www.shopware-test.de/api';
-            Shopware.Context.api.apiVersion = 1;
+            Shopware.Context.api.apiVersion = 3;
 
             const { client, clientMock } = getClientMock();
 
             clientMock[`on${firstLetterToUppercase(method)}`]('/test')
                 .reply(200, { it: 'works' });
 
-            const response = await client[method]('/test');
+            const response = await client[method]('/test', { version: 0 });
+            expect(response.config.url).toEqual(
+                `${Shopware.Context.api.apiPath}/v${Shopware.Context.api.apiVersion - 1}/test`
+            );
             expect(response.status).toEqual(200);
 
-            expect(Shopware.Utils.debug.warn).not.toHaveBeenCalled();
+            expect(Shopware.Utils.debug.warn).toHaveBeenCalled();
         });
     });
 });

@@ -86,6 +86,7 @@ class CachedEntityReader implements EntityReaderInterface
     {
         //generate cache key list for multi cache get
         $keys = [];
+        /** @var string $id */
         foreach ($criteria->getIds() as $id) {
             $keys[] = $this->cacheKeyGenerator->getEntityContextCacheKey($id, $definition, $context, $criteria);
         }
@@ -135,6 +136,7 @@ class CachedEntityReader implements EntityReaderInterface
         }
 
         //check if invalid ids provided and cache them with null to prevent further storage access with invalid id calls
+        /** @var string $id */
         foreach ($criteria->getIds() as $id) {
             if ($collection->has($id)) {
                 continue;

@@ -15,9 +15,16 @@ Component.register('sw-grid-row', {
             type: Object,
             required: true
         },
+
         index: {
             type: Number,
             required: false
+        },
+
+        allowInlineEdit: {
+            type: Boolean,
+            required: false,
+            default: true
         }
     },
 
@@ -56,7 +63,7 @@ Component.register('sw-grid-row', {
         },
 
         onInlineEditStart() {
-            if (this.$device.getViewportWidth() < 800) {
+            if (!this.allowInlineEdit || this.$device.getViewportWidth() < 800) {
                 return;
             }
 

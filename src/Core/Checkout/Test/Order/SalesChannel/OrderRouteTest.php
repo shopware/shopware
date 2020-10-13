@@ -26,6 +26,9 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 
+/**
+ * @group slow
+ */
 class OrderRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -382,7 +385,7 @@ class OrderRouteTest extends TestCase
                             'city' => 'Schoöppingen',
                             'zipcode' => '12345',
                             'salutationId' => $this->getValidSalutationId(),
-                            'country' => ['name' => 'Germany'],
+                            'countryId' => $this->getValidCountryId(),
                         ],
                         'defaultBillingAddressId' => $addressId,
                         'defaultPaymentMethod' => [

@@ -30,6 +30,10 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing-option-base', 
         };
     }
 
+    function getDefaultSortingKey() {
+        return 'name-desc';
+    }
+
     function getProductSortingEntityWithoutCriteria() {
         const productSortingEntity = getProductSortingEntity();
         productSortingEntity.fields = [];
@@ -86,10 +90,17 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing-option-base', 
                             }
                         };
                     }
+                },
+                systemConfigApiService: {
+                    getValues: () => {
+                        return Promise.resolve(getDefaultSortingKey());
+                    }
                 }
             },
             stubs: {
                 'sw-page': true,
+                'sw-button': true,
+                'sw-language-switch': true,
                 'sw-settings-listing-option-general-info': true,
                 'sw-settings-listing-option-criteria-grid': true
             }

@@ -25,6 +25,10 @@ class TestAppServer
 
     public function __invoke(RequestInterface $request, array $options): Promise
     {
+        if ($this->inner->count() > 0) {
+            return \call_user_func($this->inner, $request, $options);
+        }
+
         if ($this->isRegistration($request)) {
             $promise = new Promise();
             $promise->resolve(new Response(200, [], $this->buildAppResponse($request)));

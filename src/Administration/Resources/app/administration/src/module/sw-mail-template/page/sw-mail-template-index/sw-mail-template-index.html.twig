@@ -24,9 +24,18 @@
 
         {% block sw_mail_template_list_smart_bar_actions %}
             <template #smart-bar-actions>
-                <sw-context-button>
+                <sw-context-button
+                    v-tooltip.bottom="{
+                        message: $tc('sw-privileges.tooltip.warning'),
+                        disabled: acl.can('mail_templates.creator'),
+                        showOnDisabledElements: true
+                     }"
+                    :disabled="!acl.can('mail_templates.creator')">
                     <template #button>
-                        <sw-button class="sw-mail-template__button-create" variant="primary">
+                        <sw-button
+                            class="sw-mail-template__button-create"
+                            variant="primary"
+                            :disabled="!acl.can('mail_templates.creator')">
                             {{ $tc('sw-mail-template.list.buttonAdd') }}
                             <sw-icon name="small-arrow-medium-down" size="16"></sw-icon>
                         </sw-button>

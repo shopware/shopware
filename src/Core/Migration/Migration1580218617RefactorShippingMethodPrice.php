@@ -114,12 +114,14 @@ class Migration1580218617RefactorShippingMethodPrice extends MigrationStep
         foreach ($shippingPrices as $shippingPrice) {
             $id = Uuid::fromBytesToHex($shippingPrice['currency_id']);
             $key = 'c' . $id;
-            $currencyPrice = [$key => [
-                'currencyId' => Uuid::fromBytesToHex($shippingPrice['currency_id']),
-                'net' => $shippingPrice['price'],
-                'gross' => $shippingPrice['price'],
-                'linked' => false,
-            ]];
+            $currencyPrice = [
+                $key => [
+                    'currencyId' => Uuid::fromBytesToHex($shippingPrice['currency_id']),
+                    'net' => $shippingPrice['price'],
+                    'gross' => $shippingPrice['price'],
+                    'linked' => false,
+                ],
+            ];
             $currencyPrice = json_encode($currencyPrice);
 
             $connection->executeUpdate(

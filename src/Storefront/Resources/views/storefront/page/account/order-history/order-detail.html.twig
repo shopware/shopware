@@ -162,7 +162,7 @@
                                                     {% endblock %}
 
                                                     {% block page_account_order_item_detail_shipping_costs_value %}
-                                                        <dd class="col-6 col-md-4">{{ order.shippingTotal|currency }}</dd>
+                                                        <dd class="col-6 col-md-4">{{ order.shippingTotal|currency(order.currency.isoCode) }}</dd>
                                                     {% endblock %}
                                                 {% endblock %}
 
@@ -180,9 +180,9 @@
                                                     {% block page_account_order_item_detail_amount_value %}
                                                         <dd class="col-6 col-md-4">
                                                             {% if order.isTaxFree %}
-                                                                {{ order.amountNet|currency }}
+                                                                {{ order.amountNet|currency(order.currency.isoCode) }}
                                                             {% else %}
-                                                                {{ order.amountTotal|currency }}
+                                                                {{ order.amountTotal|currency(order.currency.isoCode) }}
                                                             {% endif %}
                                                         </dd>
                                                     {% endblock %}

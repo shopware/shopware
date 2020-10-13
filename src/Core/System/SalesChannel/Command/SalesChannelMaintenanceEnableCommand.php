@@ -55,13 +55,17 @@ class SalesChannelMaintenanceEnableCommand extends Command
 
         if (!$input->getOption('all')) {
             $ids = $input->getArgument('ids');
-            if (empty($ids)) {
+            if ($ids === null || $ids === []) {
                 $output->write('No sales channels were updated. Provide id(s) or run with --all option.');
 
                 return 0;
             }
 
-            $criteria->setIds($ids);
+            if (\is_array($ids)) {
+                $criteria->setIds($ids);
+            } else {
+                $criteria->setIds([$ids]);
+            }
         }
         $salesChannelIds = $this->salesChannelRepository->searchIds($criteria, $context)->getIds();
 

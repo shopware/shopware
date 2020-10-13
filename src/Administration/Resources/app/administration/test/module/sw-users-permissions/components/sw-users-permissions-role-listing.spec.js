@@ -123,4 +123,11 @@ describe('module/sw-users-permissions/components/sw-users-permissions-role-listi
         expect(contextMenuItemEdit.attributes().disabled).toBe('true');
         expect(contextMenuItemDelete.attributes().disabled).toBeUndefined();
     });
+
+    it('should emit the event when listing change', async () => {
+        expect(wrapper.vm).toBeTruthy();
+
+        const emittedGetList = wrapper.emitted('get-list');
+        expect(emittedGetList.length).toBeGreaterThan(0);
+    });
 });

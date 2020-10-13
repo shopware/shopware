@@ -123,5 +123,12 @@
             "plugins": "Plugins",
             "shopware": "Shopware Account"
         }
+    },
+    "sw-privileges": {
+        "additional_permissions": {
+            "system": {
+              "frw": "First Run Wizard"
+            }
+        }
     }
 }

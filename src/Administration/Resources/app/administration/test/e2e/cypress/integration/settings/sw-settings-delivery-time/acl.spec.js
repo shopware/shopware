@@ -81,8 +81,8 @@ describe('Delivery time: Test acl privileges', () => {
             cy.get('#sw-settings-delivery-time').click();
 
             // click on third element in grid
-            cy.get(`${page.elements.dataGridRow}--2`)
-                .contains('1-2 weeks')
+            cy.get(`${page.elements.dataGridRow}--0`)
+                .contains('Express')
                 .click();
 
             // edit name
@@ -90,7 +90,7 @@ describe('Delivery time: Test acl privileges', () => {
 
             // edit unit
             cy.get('.sw-delivery-time-detail__field-unit')
-                .typeSingleSelectAndCheck('Day', '.sw-delivery-time-detail__field-unit');
+                .typeSingleSelectAndCheck('Week', '.sw-delivery-time-detail__field-unit');
 
             // save delivery time
             cy.get(page.elements.deliveryTimeSaveAction).click();
@@ -106,7 +106,7 @@ describe('Delivery time: Test acl privileges', () => {
             cy.get(`${page.elements.dataGridRow}--0`).should('be.visible')
                 .contains('Standard');
             cy.get(`${page.elements.dataGridRow}--0 ${page.elements.deliveryTimeColumnUnit}`).should('be.visible')
-                .contains('Day');
+                .contains('Week');
         });
     });
 

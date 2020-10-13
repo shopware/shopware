@@ -2,7 +2,6 @@
 
 namespace Shopware\Docs\Inspection;
 
-use Composer\EventDispatcher\Event;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -12,6 +11,7 @@ use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
+use Symfony\Contracts\EventDispatcher\Event;
 
 class ModuleInspector
 {

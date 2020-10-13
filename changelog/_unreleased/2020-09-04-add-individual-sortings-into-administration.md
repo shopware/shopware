@@ -4,7 +4,7 @@ issue: NEXT-9457
 flag: FEATURE_NEXT_5983
 ---
 # Administration
-* Added `itemIdentifierProperty` to `sw-data-grid` with wich you can use inline edit when the entities have no id
+* Added `itemIdentifierProperty` to `sw-data-grid` with which you can use inline edit when the entities have no id
 * Added `sw-settings-listing-delete-modal` component
 * Added `sw-settings-listing-option-criteria-grid` component
 * Added `sw-settings-listing-option-general-info` component

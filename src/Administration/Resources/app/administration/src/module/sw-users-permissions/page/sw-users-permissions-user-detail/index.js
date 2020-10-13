@@ -142,13 +142,19 @@ Component.register('sw-users-permissions-user-detail', {
         },
 
         integrationColumns() {
-            return [{
+            const columns = [{
                 property: 'accessKey',
                 label: this.$tc('sw-users-permissions.users.user-detail.labelAccessKey')
-            }, {
-                property: 'writeAccess',
-                label: this.$tc('sw-users-permissions.users.user-detail.labelPermissions')
             }];
+
+            if (!this.feature.isActive('FEATURE_NEXT_3722')) {
+                columns.push({
+                    property: 'writeAccess',
+                    label: this.$tc('sw-users-permissions.users.user-detail.labelPermissions')
+                });
+            }
+
+            return columns;
         },
 
         secretAccessKeyFieldType() {
@@ -328,14 +334,6 @@ Component.register('sw-users-permissions-user-detail', {
                 promises = [Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId)];
             }
 
-            if (!this.user.title || this.user.title.length <= 0) {
-                const firstRole = this.user.aclRoles.first();
-
-                if (firstRole) {
-                    this.user.title = firstRole.name;
-                }
-            }
-
             return Promise.all(promises).then(this.checkEmail().then(() => {
                 if (!this.isEmailUsed) {
                     this.isLoading = true;
@@ -366,7 +364,6 @@ Component.register('sw-users-permissions-user-detail', {
                 }
 
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-users-permissions.users.user-detail.notification.duplicateEmailErrorMessage')
                 });
 

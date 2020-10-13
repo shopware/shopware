@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Customer\Exception\NoHashProvidedException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -130,13 +131,15 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
         $response = new CustomerResponse($customer);
 
         $newToken = $this->contextPersister->replace($context->getToken(), $context);
+
         $this->contextPersister->save(
             $newToken,
             [
                 'customerId' => $customer->getId(),
                 'billingAddressId' => null,
                 'shippingAddressId' => null,
-            ]
+            ],
+            Feature::isActive('FEATURE_NEXT_10058') ? $customer->getId() : null
         );
 
         $event = new CustomerLoginEvent($context, $customer, $newToken);

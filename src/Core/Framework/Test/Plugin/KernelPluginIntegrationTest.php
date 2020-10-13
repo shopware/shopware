@@ -25,6 +25,9 @@ use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use SwagTest\SwagTest;
 
+/**
+ * @group slow
+ */
 class KernelPluginIntegrationTest extends TestCase
 {
     use PluginIntegrationTestBehaviour;
@@ -360,6 +363,6 @@ class KernelPluginIntegrationTest extends TestCase
 
     private static function getTestVersion(): string
     {
-        return '6.0.0';
+        return '6.3.0.0';
     }
 }

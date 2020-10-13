@@ -84,6 +84,7 @@ class BusinessEventCollector
             $class,
             $instance instanceof MailActionInterface,
             $instance instanceof LogAwareBusinessEventInterface,
+            $instance instanceof SalesChannelAware,
             $instance::getAvailableData()->toArray()
         );
     }

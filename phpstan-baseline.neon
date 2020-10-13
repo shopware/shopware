@@ -1,21 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Cannot call method getCountry\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Aggregate\\\\CustomerAddress\\\\CustomerAddressEntity\\|null\\.$#"
-			count: 2
-			path: src/Core/Checkout/Cart/Address/AddressValidator.php
-
-		-
-			message: "#^Cannot call method getShippingAvailable\\(\\) on Shopware\\\\Core\\\\System\\\\Country\\\\CountryEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Address/AddressValidator.php
-
-		-
-			message: "#^Cannot call method getTranslation\\(\\) on Shopware\\\\Core\\\\System\\\\Country\\\\CountryEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Address/AddressValidator.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Cart\\:\\:get\\(\\) has no return typehint specified\\.$#"
 			count: 1
 			path: src/Core/Checkout/Cart/Cart.php
@@ -901,11 +886,6 @@ parameters:
 			path: src/Core/Checkout/Payment/Cart/Token/JWTFactoryV2.php
 
 		-
-			message: "#^Parameter \\#1 \\$str of function mb_strtolower expects string, string\\|null given\\.$#"
-			count: 2
-			path: src/Core/Checkout/Payment/DataAbstractionLayer/PaymentHandlerIdentifierSubscriber.php
-
-		-
 			message: "#^Parameter \\#1 \\$orderTransactionId of method Shopware\\\\Core\\\\Checkout\\\\Payment\\\\PaymentService\\:\\:getPaymentTransactionStruct\\(\\) expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Checkout/Payment/PaymentService.php
@@ -1716,11 +1696,6 @@ parameters:
 			path: src/Core/Content/Media/Api/MediaUploadController.php
 
 		-
-			message: "#^Cannot cast \\(array\\<string\\>\\)\\|string\\|true to int\\.$#"
-			count: 1
-			path: src/Core/Content/Media/Commands/GenerateMediaTypesCommand.php
-
-		-
 			message: "#^Parameter \\#2 \\$mimeType of class Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\MediaFile constructor expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Content/Media/Commands/GenerateMediaTypesCommand.php
@@ -1741,17 +1716,7 @@ parameters:
 			path: src/Core/Content/Media/Commands/GenerateThumbnailsCommand.php
 
 		-
-			message: "#^Cannot cast array\\<string\\>\\|bool\\|string\\|null to int\\.$#"
-			count: 1
-			path: src/Core/Content/Media/Commands/GenerateThumbnailsCommand.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\Commands\\\\GenerateThumbnailsCommand\\:\\:getFolderFilterFromInput\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Content/Media/Commands/GenerateThumbnailsCommand.php
-
-		-
-			message: "#^Parameter \\#2 \\.\\.\\.\\$args of function sprintf expects bool\\|float\\|int\\|string\\|null, \\(array\\<string\\>\\)\\|string\\|true given\\.$#"
 			count: 1
 			path: src/Core/Content/Media/Commands/GenerateThumbnailsCommand.php
 
@@ -1904,11 +1869,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Media\\\\Metadata\\\\MetadataLoader\\:\\:\\$metadataLoader \\(array\\<Shopware\\\\Core\\\\Content\\\\Media\\\\Metadata\\\\MetadataLoader\\\\MetadataLoaderInterface\\>\\) does not accept iterable\\.$#"
 			count: 1
 			path: src/Core/Content/Media/Metadata/MetadataLoader.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Content\\\\Media\\\\Metadata\\\\MetadataLoader\\\\ImageMetadataLoader\\:\\:extractMetadata\\(\\) should return array\\|null but returns \\(array\\)\\|true\\.$#"
-			count: 1
-			path: src/Core/Content/Media/Metadata/MetadataLoader/ImageMetadataLoader.php
 
 		-
 			message: "#^Parameter \\#1 \\$fromValue of method Shopware\\\\Core\\\\Content\\\\Media\\\\Pathname\\\\PathnameStrategy\\\\AbstractPathNameStrategy\\:\\:generateMd5Path\\(\\) expects string, string\\|null given\\.$#"
@@ -2079,11 +2039,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductReview\\\\ProductReviewEntity\\:\\:\\$status \\(bool\\) does not accept bool\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/Product/Aggregate/ProductReview/ProductReviewEntity.php
-
-		-
-			message: "#^Parameter \\#1 \\$quantity of method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\Struct\\\\QuantityPriceDefinition\\:\\:setQuantity\\(\\) expects int, int\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/Product/Cart/ProductCartProcessor.php
 
 		-
 			message: "#^Cannot call method getMedia\\(\\) on Shopware\\\\Core\\\\Content\\\\Product\\\\Aggregate\\\\ProductMedia\\\\ProductMediaEntity\\|null\\.$#"
@@ -2704,11 +2659,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlRoute\\\\SeoUrlRouteRegistry\\:\\:findByDefinition\\(\\) should return array\\<Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlRoute\\\\SeoUrlRouteInterface\\> but returns array\\|Shopware\\\\Core\\\\Content\\\\Seo\\\\SeoUrlRoute\\\\SeoUrlRouteInterface\\.$#"
 			count: 1
 			path: src/Core/Content/Seo/SeoUrlRoute/SeoUrlRouteRegistry.php
-
-		-
-			message: "#^Parameter \\#2 \\.\\.\\.\\$args of function sprintf expects bool\\|float\\|int\\|string\\|null, \\(array\\<string\\>\\)\\|string\\|true given\\.$#"
-			count: 1
-			path: src/Core/Content/Sitemap/Commands/SitemapGenerateCommand.php
 
 		-
 			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Aggregate\\\\SalesChannelType\\\\SalesChannelTypeEntity\\|null\\.$#"
@@ -3461,16 +3411,6 @@ parameters:
 			path: src/Core/Framework/App/Lifecycle/Registration/AppRegistrationService.php
 
 		-
-			message: "#^Cannot call method getSecret\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Setup\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Lifecycle/Registration/HandshakeFactory.php
-
-		-
-			message: "#^Cannot call method getRegistrationUrl\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\Manifest\\\\Xml\\\\Setup\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/App/Lifecycle/Registration/HandshakeFactory.php
-
-		-
 			message: "#^Argument of an invalid type Shopware\\\\Core\\\\Framework\\\\App\\\\Aggregate\\\\AppTranslation\\\\AppTranslationCollection\\|null supplied for foreach, only iterables are supported\\.$#"
 			count: 1
 			path: src/Core/Framework/App/Manifest/ModuleLoader.php
@@ -4212,11 +4152,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\FieldSerializer\\\\JsonFieldSerializer\\:\\:decode\\(\\) has parameter \\$value with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/JsonFieldSerializer.php
-
-		-
-			message: "#^Parameter \\#2 \\$fieldName of class Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\FieldException\\\\UnexpectedFieldException constructor expects string, int\\|string given\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/JsonFieldSerializer.php
 
@@ -5141,16 +5076,6 @@ parameters:
 			path: src/Core/Framework/MessageQueue/Handler/EncryptedMessageHandler.php
 
 		-
-			message: "#^Parameter \\#1 \\$memoryLimit of method Shopware\\\\Core\\\\Framework\\\\MessageQueue\\\\ScheduledTask\\\\Command\\\\ScheduledTaskRunner\\:\\:convertToBytes\\(\\) expects string, \\(array\\<string\\>\\)\\|string\\|true given\\.$#"
-			count: 1
-			path: src/Core/Framework/MessageQueue/ScheduledTask/Command/ScheduledTaskRunner.php
-
-		-
-			message: "#^Parameter \\#2 \\.\\.\\.\\$args of function sprintf expects bool\\|float\\|int\\|string\\|null, array\\<string\\>\\|bool\\|string\\|null given\\.$#"
-			count: 2
-			path: src/Core/Framework/MessageQueue/ScheduledTask/Command/ScheduledTaskRunner.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\MessageQueue\\\\ScheduledTask\\\\MessageQueue\\\\RegisterScheduledTaskHandler\\:\\:handle\\(\\) has parameter \\$message with no typehint specified\\.$#"
 			count: 1
 			path: src/Core/Framework/MessageQueue/ScheduledTask/MessageQueue/RegisterScheduledTaskHandler.php
@@ -5178,16 +5103,6 @@ parameters:
 		-
 			message: "#^Parameter \\#3 \\$directory of method Shopware\\\\Core\\\\Framework\\\\Migration\\\\Command\\\\CreateMigrationCommand\\:\\:createMigrationFile\\(\\) expects string, string\\|false given\\.$#"
 			count: 1
-			path: src/Core/Framework/Migration/Command/CreateMigrationCommand.php
-
-		-
-			message: "#^Parameter \\#2 \\$needle of function mb_strpos expects string, \\(array\\<string\\>\\)\\|string\\|true given\\.$#"
-			count: 1
-			path: src/Core/Framework/Migration/Command/CreateMigrationCommand.php
-
-		-
-			message: "#^Parameter \\#2 \\.\\.\\.\\$args of function sprintf expects bool\\|float\\|int\\|string\\|null, \\(array\\<string\\>\\)\\|string\\|true given\\.$#"
-			count: 2
 			path: src/Core/Framework/Migration/Command/CreateMigrationCommand.php
 
 		-
@@ -5316,11 +5231,6 @@ parameters:
 			path: src/Core/Framework/Plugin/Command/PluginCreateCommand.php
 
 		-
-			message: "#^Parameter \\#2 \\.\\.\\.\\$args of function sprintf expects bool\\|float\\|int\\|string\\|null, \\(array\\<string\\>\\)\\|string\\|true given\\.$#"
-			count: 1
-			path: src/Core/Framework/Plugin/Command/PluginListCommand.php
-
-		-
 			message: "#^Parameter \\#1 \\$file of method Shopware\\\\Core\\\\Framework\\\\Plugin\\\\PluginManagementService\\:\\:extractPluginZip\\(\\) expects string, array\\<string\\>\\|string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Framework/Plugin/Command/PluginZipImportCommand.php
@@ -5432,7 +5342,7 @@ parameters:
 
 		-
 			message: "#^Cannot call method fetchAll\\(\\) on Doctrine\\\\DBAL\\\\Driver\\\\Statement\\|int\\.$#"
-			count: 2
+			count: 3
 			path: src/Core/Framework/Routing/ApiRequestContextResolver.php
 
 		-
@@ -5524,21 +5434,6 @@ parameters:
 			message: "#^Parameter \\#4 \\$userId of method Shopware\\\\Core\\\\Framework\\\\Store\\\\Services\\\\FirstRunWizardClient\\:\\:frwLogin\\(\\) expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Framework/Store/Api/FirstRunWizardController.php
-
-		-
-			message: "#^Cannot call method getShopUserToken\\(\\) on Shopware\\\\Core\\\\Framework\\\\Store\\\\Struct\\\\AccessTokenStruct\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Store/Api/FirstRunWizardController.php
-
-		-
-			message: "#^Cannot call method getStoreToken\\(\\) on Shopware\\\\Core\\\\System\\\\User\\\\UserEntity\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Store/Api/FirstRunWizardController.php
-
-		-
-			message: "#^Cannot call method getStoreToken\\(\\) on Shopware\\\\Core\\\\System\\\\User\\\\UserEntity\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Store/Api/StoreController.php
 
 		-
 			message: "#^Parameter \\#2 \\$user of method Shopware\\\\Core\\\\Framework\\\\Store\\\\Command\\\\StoreDownloadCommand\\:\\:getUserStoreToken\\(\\) expects string, array\\<string\\>\\|bool\\|string\\|null given\\.$#"
@@ -6401,11 +6296,6 @@ parameters:
 			path: src/Core/System/SalesChannel/Command/SalesChannelListCommand.php
 
 		-
-			message: "#^Parameter \\#1 \\$ids of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Criteria\\:\\:setIds\\(\\) expects array, array\\<string\\>\\|string given\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Command/SalesChannelMaintenanceEnableCommand.php
-
-		-
 			message: "#^Parameter \\#1 \\$address of static method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Delivery\\\\Struct\\\\ShippingLocation\\:\\:createFromAddress\\(\\) expects Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Aggregate\\\\CustomerAddress\\\\CustomerAddressEntity, Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Aggregate\\\\CustomerAddress\\\\CustomerAddressEntity\\|null given\\.$#"
 			count: 1
 			path: src/Core/System/SalesChannel/Context/SalesChannelContextFactory.php
@@ -6507,16 +6397,6 @@ parameters:
 
 		-
 			message: "#^Parameter \\#1 \\$definition of class Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelEntityIdSearchResultLoadedEvent constructor expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInterface given\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Entity/SalesChannelRepository.php
-
-		-
-			message: "#^Offset 'definition' does not exist on array\\('criteria' \\=\\> mixed, 'definition' \\=\\> Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInterface\\)\\|null\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Entity/SalesChannelRepository.php
-
-		-
-			message: "#^Offset 'criteria' does not exist on array\\('criteria' \\=\\> mixed, 'definition' \\=\\> Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInterface\\)\\|null\\.$#"
 			count: 1
 			path: src/Core/System/SalesChannel/Entity/SalesChannelRepository.php
 
@@ -7036,11 +6916,6 @@ parameters:
 			path: src/Docs/Convert/WikiApiService.php
 
 		-
-			message: "#^Parameter \\#1 \\$hash of method Shopware\\\\Docs\\\\Convert\\\\EntityHandler\\:\\:deleteEntityHash\\(\\) expects string, int\\|string given\\.$#"
-			count: 2
-			path: src/Docs/Convert/WikiApiService.php
-
-		-
 			message: "#^Property Shopware\\\\Docs\\\\Docs\\:\\:\\$name has no typehint specified\\.$#"
 			count: 1
 			path: src/Docs/Docs.php
@@ -7204,16 +7079,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$input of function array_keys expects array, array\\|\\(callable\\) given\\.$#"
 			count: 1
 			path: src/Elasticsearch/Framework/Indexing/CreateAliasTaskHandler.php
-
-		-
-			message: "#^Cannot access offset 'errors' on array\\|\\(callable\\(\\)\\: mixed\\)\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/Indexing/ElasticsearchIndexer.php
-
-		-
-			message: "#^Parameter \\#1 \\$result of method Shopware\\\\Elasticsearch\\\\Framework\\\\Indexing\\\\ElasticsearchIndexer\\:\\:parseErrors\\(\\) expects array, \\(array\\)\\|\\(callable\\) given\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/Indexing/ElasticsearchIndexer.php
 
 		-
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
@@ -7939,4 +7804,24 @@ parameters:
 			message: "#^Method Shopware\\\\Development\\\\Command\\\\DatabaseDebugViewGenerator\\:\\:updateDatabaseView\\(\\) has parameter \\$tableName with no typehint specified\\.$#"
 			count: 1
 			path: ../src/Command/DatabaseDebugViewGenerator.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\LogoutRoute\\:\\:logout\\(\\) has no return typehint specified\\.$#"
+			count: 1
+			path: src/Core/Checkout/Customer/SalesChannel/LogoutRoute.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\ChangePasswordRoute\\:\\:change\\(\\) has no return typehint specified\\.$#"
+			count: 1
+			path: src/Core/Checkout/Customer/SalesChannel/ChangePasswordRoute.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\AbstractLogoutRoute\\:\\:logout\\(\\) has no return typehint specified\\.$#"
+			count: 1
+			path: src/Core/Checkout/Customer/SalesChannel/AbstractLogoutRoute.php
+
+		-
+			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\AbstractChangePasswordRoute\\:\\:change\\(\\) has no return typehint specified\\.$#"
+			count: 1
+			path: src/Core/Checkout/Customer/SalesChannel/AbstractChangePasswordRoute.php
 

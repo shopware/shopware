@@ -8,21 +8,42 @@
                 <sw-entity-listing
                     v-if="mailHeaderFooters"
                     class="sw-mail-templates-list-grid"
+                    id="mailHeaderFooterGrid"
+                    detailRoute="sw.mail.template.detail_head_foot"
+                    ref="listing"
                     :items="mailHeaderFooters"
                     :columns="getListColumns()"
                     :repository="mailHeaderFooterRepository"
-                    detailRoute="sw.mail.template.detail_head_foot"
                     :fullPage="false"
-                    :isLoading="isLoading">
+                    :isLoading="isLoading"
+                    :allowView="acl.can('mail_templates.viewer')"
+                    :allowEdit="acl.can('mail_templates.editor')"
+                    :allowDelete="acl.can('mail_templates.deleter')"
+                    :showSelection="acl.can('mail_templates.deleter')">
                     <template #column-salesChannels.name="{ item }">
                         {% block sw_mail_template_list_columns_sales_channels_label %}
                             {{  getSalesChannelsString(item) }}
                         {% endblock %}
                     </template>
 
+                    <template #bulk-modal-delete-items>
+                        <sw-button @click="onMultipleDelete" variant="danger" size="small">
+                            {{ $tc('global.default.delete') }}
+                        </sw-button>
+                    </template>
+
+                    <template #delete-modal-delete-item="{ item }">
+                        <sw-button @click="onDelete(item)" variant="danger" size="small">
+                            {{ $tc('global.default.delete') }}
+                        </sw-button>
+                    </template>
+
                     <template #more-actions="{ item }">
                         {% block sw_mail_header_footer_list_grid_columns_actions_duplicate %}
-                            <sw-context-menu-item @click="onDuplicate(item.id)">
+                            <sw-context-menu-item
+                                class="sw-mail-header-footer-list-grid__duplicate-action"
+                                :disabled="!acl.can('mail_templates.creator')"
+                                @click="onDuplicate(item.id)">
                                 {{ $tc('sw-mail-header-footer.list.contextMenuDuplicate') }}
                             </sw-context-menu-item>
                         {% endblock %}

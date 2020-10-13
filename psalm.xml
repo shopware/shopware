@@ -73,6 +73,9 @@
             </errorLevel>
         </UnusedMethodCall>
 
+        <ParamNameMismatch errorLevel="info"/>
+        <UnsafeInstantiation errorLevel="info"/>
+
         <!-- Issue in Psalm https://github.com/vimeo/psalm/issues/2706 -->
         <InaccessibleProperty>
             <errorLevel type="info">

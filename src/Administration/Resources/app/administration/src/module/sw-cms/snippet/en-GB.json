@@ -258,7 +258,9 @@
             "deleteModal": {
               "heading": "Deleting \"{productSortingName}\".",
               "body": "Are you sure you want to delete \"{productSortingName}\"?"
-            }
+            },
+            "defaultSortingInUse": "This product sorting is already selected as default sorting.",
+            "defaultSortingCantBeDisabled": "This sorting is the default sorting. It has to be active to cause no problems with your product listing."
           }
         }
       },
@@ -345,7 +347,9 @@
             "showTitle": "Show video title",
             "advancedPrivacy": "Advanced privacy mode",
             "start": "Start video at",
-            "end": "End video at"
+            "end": "End video at",
+            "needsConfirmation": "Load video only after confirmation by the user",
+            "previewImage": "Preview image"
           },
           "placeholder": {
             "videoId": "Enter a video link..."

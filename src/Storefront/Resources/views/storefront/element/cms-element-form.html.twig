@@ -9,45 +9,47 @@
 
                 <div class="card">
                     <div class="card-body">
-                        {% if element.config.type.value is same as('contact') %}
-                            {% block element_form_contact_form_title %}
-                                <div class="card-title mb-4">
-                                    {% if element.config.title.value %}
-                                        {{ element.config.title.value }}
-                                    {%  else %}
-                                        {{ "contact.headline"|trans }}
-                                    {% endif %}
-                                </div>
-                            {% endblock %}
+                        {% block element_form_wrapper %}
+                            {% if element.config.type.value is same as('contact') %}
+                                {% block element_form_contact_form_title %}
+                                    <div class="card-title mb-4">
+                                        {% if element.config.title.value %}
+                                            {{ element.config.title.value }}
+                                        {%  else %}
+                                            {{ "contact.headline"|trans }}
+                                        {% endif %}
+                                    </div>
+                                {% endblock %}
 
-                            {% block element_form_contact_form_form %}
-                                {% sw_include '@Storefront/storefront/element/cms-element-form/form-types/contact-form.html.twig'
-                                    with {
-                                        action: 'frontend.form.contact.send',
-                                        submitText: 'contact.formSubmit'
-                                    }
-                                %}
-                            {% endblock %}
-                        {% elseif element.config.type.value is same as('newsletter') %}
-                            {% block element_form_newsletter_form_title %}
-                                <div class="card-title mb-4">
-                                    {% if element.config.title.value %}
-                                        {{ element.config.title.value }}
-                                    {%  else %}
-                                        {{ "newsletter.headline"|trans }}
-                                    {% endif %}
-                                </div>
-                            {% endblock %}
+                                {% block element_form_contact_form_form %}
+                                    {% sw_include '@Storefront/storefront/element/cms-element-form/form-types/contact-form.html.twig'
+                                        with {
+                                            action: 'frontend.form.contact.send',
+                                            submitText: 'contact.formSubmit'
+                                        }
+                                    %}
+                                {% endblock %}
+                            {% elseif element.config.type.value is same as('newsletter') %}
+                                {% block element_form_newsletter_form_title %}
+                                    <div class="card-title mb-4">
+                                        {% if element.config.title.value %}
+                                            {{ element.config.title.value }}
+                                        {%  else %}
+                                            {{ "newsletter.headline"|trans }}
+                                        {% endif %}
+                                    </div>
+                                {% endblock %}
 
-                            {% block element_form_newsletter_form_form %}
-                                {% sw_include '@Storefront/storefront/element/cms-element-form/form-types/newsletter-form.html.twig'
-                                    with {
-                                        action: 'frontend.form.newsletter.register.handle',
-                                        submitText: 'newsletter.formSubmit'
-                                    }
-                                %}
-                            {% endblock %}
-                        {% endif %}
+                                {% block element_form_newsletter_form_form %}
+                                    {% sw_include '@Storefront/storefront/element/cms-element-form/form-types/newsletter-form.html.twig'
+                                        with {
+                                            action: 'frontend.form.newsletter.register.handle',
+                                            submitText: 'newsletter.formSubmit'
+                                        }
+                                    %}
+                                {% endblock %}
+                            {% endif %}
+                        {% endblock %}
                     </div>
                 </div>
             </div>

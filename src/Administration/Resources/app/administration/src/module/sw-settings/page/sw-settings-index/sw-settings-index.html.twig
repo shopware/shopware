@@ -12,6 +12,7 @@
                             <template #default="{ active }">
                                 {% block sw_settings_content_tab_shop %}
                                     <sw-tabs-item class="sw-settings__tab-shop"
+                                                  v-if="shouldSettingGroupExist('shop')"
                                                   name="shop"
                                                   :activeTab="active"
                                                   :title="$tc('sw-settings.index.tabShop')">
@@ -21,6 +22,7 @@
 
                                 {% block sw_settings_content_tab_system %}
                                     <sw-tabs-item class="sw-settings__tab-system"
+                                                  v-if="shouldSettingGroupExist('system')"
                                                   name="system"
                                                   :activeTab="active"
                                                   :title="$tc('sw-settings.index.tabSystem')">
@@ -61,7 +63,8 @@
                                                                       :key="settingsItem.name"
                                                                       :label="$tc(settingsItem.label)"
                                                                       :to="{ name: settingsItem.to }"
-                                                                      :id="settingsItem.id">
+                                                                      :id="settingsItem.id"
+                                                                      :backgroundEnabled="settingsItem.backgroundEnabled">
                                                         <template #icon>
                                                             <component v-if="settingsItem.iconComponent" :is="settingsItem.iconComponent"></component>
                                                             <sw-icon v-else :name="settingsItem.icon"></sw-icon>
@@ -86,13 +89,15 @@
                                                                       :key="pluginSettingsItem.name"
                                                                       :label="$tc(pluginSettingsItem.label)"
                                                                       :to="{ name: pluginSettingsItem.to }"
-                                                                      :id="pluginSettingsItem.id">
+                                                                      :id="pluginSettingsItem.id"
+                                                                      :backgroundEnabled="pluginSettingsItem.backgroundEnabled">
                                                         <template #icon>
                                                             <component v-if="pluginSettingsItem.iconComponent" :is="pluginSettingsItem.iconComponent"></component>
                                                             <sw-icon v-else :name="pluginSettingsItem.icon"></sw-icon>
                                                         </template>
                                                     </sw-settings-item>
 
+                                                    {# @deprecated tag:v6.4.0 - use "settingsItem" in Module.register() instead #}
                                                     {% block sw_settings_content_card_slot_plugins %}{% endblock %}
                                                 </div>
                                             </slot>

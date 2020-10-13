@@ -10,6 +10,14 @@ Component.register('sw-product-deliverability-form', {
         Mixin.getByName('placeholder')
     ],
 
+    props: {
+        allowEdit: {
+            type: Boolean,
+            required: false,
+            default: true
+        }
+    },
+
     computed: {
         ...mapState('swProductDetail', [
             'product',

@@ -3,6 +3,7 @@ import template from './sw-mail-header-footer-detail.html.twig';
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { warn } = Shopware.Utils.debug;
+const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-mail-header-footer-detail', {
     template,
@@ -12,7 +13,16 @@ Component.register('sw-mail-header-footer-detail', {
         Mixin.getByName('notification')
     ],
 
-    inject: ['entityMappingService', 'repositoryFactory'],
+    inject: ['entityMappingService', 'repositoryFactory', 'acl'],
+
+    shortcuts: {
+        'SYSTEMKEY+S': {
+            active() {
+                return this.allowSave;
+            },
+            method: 'onSave'
+        }
+    },
 
     data() {
         return {
@@ -33,6 +43,10 @@ Component.register('sw-mail-header-footer-detail', {
     },
 
     computed: {
+        ...mapPropertyErrors('mailHeaderFooter', [
+            'name'
+        ]),
+
         identifier() {
             return this.placeholder(this.mailHeaderFooter, 'name');
         },
@@ -70,6 +84,29 @@ Component.register('sw-mail-header-footer-detail', {
                 }
                 return completerFunction;
             }(this.entityMappingService));
+        },
+
+        allowSave() {
+            return this.mailHeaderFooter && this.mailHeaderFooter.isNew()
+                ? this.acl.can('mail_templates.creator')
+                : this.acl.can('mail_templates.editor');
+        },
+
+        tooltipSave() {
+            if (!this.allowSave) {
+                return {
+                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    disabled: this.allowSave,
+                    showOnDisabledElements: true
+                };
+            }
+
+            const systemKey = this.$device.getSystemKey();
+
+            return {
+                message: `${systemKey} + S`,
+                appearance: 'light'
+            };
         }
     },
 
@@ -134,7 +171,6 @@ Component.register('sw-mail-header-footer-detail', {
                 })
                 .catch((error) => {
                     const notificationError = {
-                        title: this.$tc('global.default.error'),
                         message: this.$tc(
                             'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'
                         )

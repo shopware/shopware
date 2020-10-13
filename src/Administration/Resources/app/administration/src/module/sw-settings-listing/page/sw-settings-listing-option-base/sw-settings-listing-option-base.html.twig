@@ -31,7 +31,8 @@
 
                 {% block sw_settings_listing_option_base_smart_content_general_info %}
                     <sw-settings-listing-option-general-info v-if="productSortingEntity"
-                        :sortingOption="productSortingEntity">
+                        :sortingOption="productSortingEntity"
+                        :isDefaultSorting="isDefaultSorting">
                     </sw-settings-listing-option-general-info>
                 {% endblock %}
 

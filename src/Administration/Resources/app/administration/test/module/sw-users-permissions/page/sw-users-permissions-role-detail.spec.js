@@ -43,7 +43,9 @@ function createWrapper({
             'sw-field': true,
             'sw-users-permissions-permissions-grid': true,
             'sw-users-permissions-additional-permissions': true,
-            'sw-verify-user-modal': true
+            'sw-verify-user-modal': true,
+            'sw-tabs': true,
+            'router-view': true
         },
         mocks: {
             $tc: t => t,
@@ -163,6 +165,50 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
         expect(wrapper.vm.role.privileges).not.toContain('order:create:discount');
     });
 
+    it('should filter custom privileges', async () => {
+        const wrapper = createWrapper({
+            privileges: ['orders.create_discounts', 'system.clear_cache', 'product:update', 'order:read'],
+            privilegeMappingEntries: [
+                {
+                    category: 'additional_permissions',
+                    parent: null,
+                    key: 'system',
+                    roles: {
+                        clear_cache: {
+                            privileges: ['system:clear:cache'],
+                            dependencies: []
+                        }
+                    }
+                },
+                {
+                    category: 'additional_permissions',
+                    parent: null,
+                    key: 'orders',
+                    roles: {
+                        create_discounts: {
+                            privileges: ['order:create:discount'],
+                            dependencies: []
+                        }
+                    }
+                }
+            ]
+        });
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.role.privileges).toContain('system.clear_cache');
+        expect(wrapper.vm.role.privileges).toContain('orders.create_discounts');
+        expect(wrapper.vm.role.privileges).not.toContain('system:clear:cache');
+        expect(wrapper.vm.role.privileges).not.toContain('order:create:discount');
+        expect(wrapper.vm.role.privileges).not.toContain('product:update');
+        expect(wrapper.vm.role.privileges).not.toContain('order:read');
+
+        expect(wrapper.vm.detailedPrivileges).toEqual([
+            'product:update',
+            'order:read'
+        ]);
+    });
+
     it('should save privilege with all privileges and admin privilege key combination', async () => {
         const wrapper = createWrapper({
             privileges: ['system.clear_cache'],
@@ -248,6 +294,115 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
                     'orders.create_discounts',
                     'order:create:discount',
                     ...wrapper.vm.privileges.getRequiredPrivileges()
+                ].sort()
+            },
+            contextMock
+        );
+    });
+
+    it('should save privileges with all privileges, admin privilege key combinations and detailed privileges', async () => {
+        const wrapper = createWrapper({
+            privileges: ['system.clear_cache', 'orders.create_discounts', 'product:read'],
+            privilegeMappingEntries: [
+                {
+                    category: 'additional_permissions',
+                    parent: null,
+                    key: 'system',
+                    roles: {
+                        clear_cache: {
+                            privileges: ['system:clear:cache'],
+                            dependencies: []
+                        }
+                    }
+                },
+                {
+                    category: 'additional_permissions',
+                    parent: null,
+                    key: 'orders',
+                    roles: {
+                        create_discounts: {
+                            privileges: ['order:create:discount'],
+                            dependencies: []
+                        }
+                    }
+                }
+            ]
+        });
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.roleRepository.save).not.toHaveBeenCalled();
+
+        const contextMock = { access: '1a2b3c' };
+        wrapper.vm.saveRole(contextMock);
+
+        expect(wrapper.vm.roleRepository.save).toHaveBeenCalledWith(
+            {
+                isNew: isNew,
+                name: 'demoRole',
+                privileges: [
+                    'system.clear_cache',
+                    'system:clear:cache',
+                    'orders.create_discounts',
+                    'order:create:discount',
+                    ...wrapper.vm.privileges.getRequiredPrivileges(),
+                    'product:read'
+                ].sort()
+            },
+            contextMock
+        );
+    });
+
+    it('should merge privileges and detailed privileges', async () => {
+        const wrapper = createWrapper({
+            privileges: ['system.clear_cache', 'orders.create_discounts', 'product:read'],
+            privilegeMappingEntries: [
+                {
+                    category: 'additional_permissions',
+                    parent: null,
+                    key: 'system',
+                    roles: {
+                        clear_cache: {
+                            privileges: ['system:clear:cache'],
+                            dependencies: []
+                        }
+                    }
+                },
+                {
+                    category: 'additional_permissions',
+                    parent: null,
+                    key: 'orders',
+                    roles: {
+                        create_discounts: {
+                            privileges: ['order:create:discount'],
+                            dependencies: []
+                        }
+                    }
+                }
+            ]
+        });
+
+        await wrapper.vm.$nextTick();
+
+        wrapper.vm.detailedPrivileges.push('currency:update');
+
+        expect(wrapper.vm.roleRepository.save).not.toHaveBeenCalled();
+
+        const contextMock = { access: '1a2b3c' };
+        wrapper.vm.saveRole(contextMock);
+
+        expect(wrapper.vm.roleRepository.save).toHaveBeenCalledWith(
+            {
+                isNew: isNew,
+                name: 'demoRole',
+                privileges: [
+                    'system.clear_cache',
+                    'system:clear:cache',
+                    'orders.create_discounts',
+                    'order:create:discount',
+                    ...wrapper.vm.privileges.getRequiredPrivileges(),
+                    'product:read',
+                    'currency:update'
                 ].sort()
             },
             contextMock
@@ -423,17 +578,7 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
         });
 
         const saveButton = wrapper.find('.sw-users-permissions-role-detail__button-save');
-        const fieldRoleName = wrapper.find('sw-field-stub[label="sw-users-permissions.roles.detail.labelName"]');
-        const fieldRoleDescription = wrapper
-            .find('sw-field-stub[label="sw-users-permissions.roles.detail.labelDescription"]');
-        const permissionsGrid = wrapper.find('sw-users-permissions-permissions-grid-stub');
-        const additionalPermissionsGrid = wrapper.find('sw-users-permissions-additional-permissions-stub');
-
         expect(saveButton.attributes().disabled).toBe('disabled');
-        expect(fieldRoleName.attributes().disabled).toBe('true');
-        expect(fieldRoleDescription.attributes().disabled).toBe('true');
-        expect(permissionsGrid.attributes().disabled).toBe('true');
-        expect(additionalPermissionsGrid.attributes().disabled).toBe('true');
     });
 
     it('should enable the button and fields when edit aclPrivileges exists', async () => {
@@ -445,16 +590,6 @@ describe('module/sw-users-permissions/page/sw-users-permissions-role-detail', ()
         });
 
         const saveButton = wrapper.find('.sw-users-permissions-role-detail__button-save');
-        const fieldRoleName = wrapper.find('sw-field-stub[label="sw-users-permissions.roles.detail.labelName"]');
-        const fieldRoleDescription = wrapper
-            .find('sw-field-stub[label="sw-users-permissions.roles.detail.labelDescription"]');
-        const permissionsGrid = wrapper.find('sw-users-permissions-permissions-grid-stub');
-        const additionalPermissionsGrid = wrapper.find('sw-users-permissions-additional-permissions-stub');
-
         expect(saveButton.attributes().disabled).toBeUndefined();
-        expect(fieldRoleName.attributes().disabled).toBeUndefined();
-        expect(fieldRoleDescription.attributes().disabled).toBeUndefined();
-        expect(permissionsGrid.attributes().disabled).toBeUndefined();
-        expect(additionalPermissionsGrid.attributes().disabled).toBeUndefined();
     });
 });

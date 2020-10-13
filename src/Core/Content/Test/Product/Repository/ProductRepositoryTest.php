@@ -21,8 +21,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -32,6 +34,9 @@ use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\System\Tax\TaxEntity;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @group slow
+ */
 class ProductRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -1328,6 +1333,64 @@ class ProductRepositoryTest extends TestCase
         static::assertSame($greenMedia, Uuid::fromBytesToHex($row['media_id']));
     }
 
+    public function testActiveInheritance(): void
+    {
+        $ids = new IdsCollection();
+
+        $products = [
+            [
+                'id' => $ids->create('parent'),
+                'productNumber' => Uuid::randomHex(),
+                'name' => 'T-shirt',
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+                'tax' => ['name' => 'test', 'taxRate' => 15],
+                'stock' => 10,
+            ],
+            [
+                'id' => $ids->create('red'),
+                'productNumber' => Uuid::randomHex(),
+                'parentId' => $ids->get('parent'),
+                'name' => 'red',
+                'stock' => 10,
+            ],
+            [
+                'id' => $ids->create('green'),
+                'productNumber' => Uuid::randomHex(),
+                'parentId' => $ids->get('parent'),
+                'stock' => 10,
+                'name' => 'green',
+                'active' => false,
+            ],
+            [
+                'id' => $ids->create('blue'),
+                'productNumber' => Uuid::randomHex(),
+                'parentId' => $ids->get('parent'),
+                'stock' => 10,
+                'name' => 'green',
+                'active' => true,
+            ],
+        ];
+
+        $context = Context::createDefaultContext();
+        $this->getContainer()
+            ->get('product.repository')
+            ->create($products, $context);
+
+        $context->setConsiderInheritance(true);
+
+        $criteria = new Criteria($ids->getList(['red', 'green', 'blue']));
+        $criteria->addFilter(new EqualsFilter('active', true));
+
+        /** @var IdSearchResult $products */
+        $products = $this->getContainer()
+            ->get('product.repository')
+            ->searchIds($criteria, $context);
+
+        static::assertTrue($products->has($ids->get('red')));
+        static::assertTrue($products->has($ids->get('blue')));
+        static::assertFalse($products->has($ids->get('green')));
+    }
+
     public function testVariantInheritanceWithCategories(): void
     {
         $redId = Uuid::randomHex();
@@ -2614,6 +2677,7 @@ class ProductRepositoryTest extends TestCase
 
     /**
      * @dataProvider customFieldVariantsProvider
+     * @group slow
      */
     public function testVariantCustomFieldInheritance(array $translations, array $expected, Context $context): void
     {

@@ -9,6 +9,8 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Plugin\Composer\CommandExecutor;
 use Shopware\Core\Framework\Plugin\Exception\PluginHasActiveDependantsException;
@@ -18,6 +20,7 @@ use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginService;
+use Shopware\Core\Framework\Plugin\Requirement\Exception\RequirementStackException;
 use Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator;
 use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
@@ -33,6 +36,9 @@ use SwagTest\SwagTest;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
+/**
+ * @group slow
+ */
 class PluginLifecycleServiceTest extends TestCase
 {
     use PluginTestsHelper;
@@ -41,6 +47,7 @@ class PluginLifecycleServiceTest extends TestCase
 
     private const PLUGIN_NAME = 'SwagTest';
     private const DEPENDENT_PLUGIN_NAME = self::PLUGIN_NAME . 'Extension';
+    private const NOT_SUPPORTED_VERSION_PLUGIN_NAME = 'SwagTestNotSupportedVersion';
 
     /**
      * @var ContainerInterface
@@ -411,6 +418,39 @@ class PluginLifecycleServiceTest extends TestCase
         }
     }
 
+    public function testActivateNotSupportedVersion(): void
+    {
+        $this->addTestPluginToKernel(self::NOT_SUPPORTED_VERSION_PLUGIN_NAME);
+
+        $this->pluginService->refreshPlugins($this->context, new NullIO());
+
+        $pluginEntity = $this->installNotSupportedPlugin(self::NOT_SUPPORTED_VERSION_PLUGIN_NAME);
+
+        $this->expectException(
+            RequirementStackException::class
+        );
+        $this->pluginLifecycleService->activatePlugin($pluginEntity, $this->context);
+    }
+
+    private function installNotSupportedPlugin(string $name): PluginEntity
+    {
+        /** @var EntityRepositoryInterface $pluginRepository */
+        $pluginRepository = $this->getContainer()->get('plugin.repository');
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('name', $name));
+        $result = $pluginRepository->search($criteria, $this->context);
+        /** @var PluginEntity $result */
+        $result = $result->getEntities()->first();
+        $date = new \DateTime();
+        $result->setInstalledAt($date);
+        $pluginRepository->update([[
+            'id' => $result->getId(),
+            'installedAt' => $date->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]], $this->context);
+
+        return $result;
+    }
+
     private function installPluginTest(Context $context): void
     {
         $pluginInstalled = $this->installPlugin($context);
@@ -608,7 +648,7 @@ class PluginLifecycleServiceTest extends TestCase
         static::assertNotNull($exception, 'Expected exception to be thrown');
     }
 
-    private function addLanguage(String $iso, $id = 0): string
+    private function addLanguage(string $iso, $id = 0): string
     {
         if ($id === 0) {
             $id = Uuid::randomHex();
@@ -642,7 +682,8 @@ class PluginLifecycleServiceTest extends TestCase
         $localeId = $this->getIsoId($iso);
         $languageRepository->update(
             [
-                ['id' => $this->systemLanguageId, 'name' => $iso, 'localeId' => $localeId,
+                [
+                    'id' => $this->systemLanguageId, 'name' => $iso, 'localeId' => $localeId,
                     'translationCode' => [
                         'id' => $localeId,
                         'code' => $iso,
@@ -658,7 +699,7 @@ class PluginLifecycleServiceTest extends TestCase
         $this->setNewSystemLanguage('en-GB');
     }
 
-    private function getIsoId(String $iso)
+    private function getIsoId(string $iso)
     {
         $result = $this->connection->executeQuery('SELECT LOWER(HEX(id)) FROM locale WHERE code = ?', [$iso]);
 

@@ -86,7 +86,7 @@ class JsonApiEncoderTest extends TestCase
         $actual = $this->arrayRemove($actual, 'extensions');
         $actual['included'] = $this->removeIncludedExtensions($actual['included']);
 
-        static::assertEquals($fixture->getAdminJsonApiFixtures(), $actual);
+        $this->assertValues($fixture->getAdminJsonApiFixtures(), $actual);
     }
 
     /**
@@ -110,7 +110,7 @@ class JsonApiEncoderTest extends TestCase
         static::assertStringNotContainsString('"links":[]', $actual);
         static::assertStringContainsString('"links":{}', $actual);
 
-        static::assertEquals($fixture->getAdminJsonApiFixtures(), json_decode($actual, true));
+        $this->assertValues($fixture->getAdminJsonApiFixtures(), json_decode($actual, true));
     }
 
     /**
@@ -137,7 +137,7 @@ class JsonApiEncoderTest extends TestCase
         static::assertStringNotContainsString('"attributes":[]', $actual);
         static::assertStringContainsString('"attributes":{}', $actual);
 
-        static::assertEquals($fixture->getAdminJsonApiFixtures(), json_decode($actual, true));
+        $this->assertValues($fixture->getAdminJsonApiFixtures(), json_decode($actual, true));
     }
 
     private function arrayRemove($haystack, string $keyToRemove): array
@@ -165,5 +165,18 @@ class JsonApiEncoderTest extends TestCase
         }
 
         return $filtered;
+    }
+
+    private function assertValues(array $expected, array $actual): void
+    {
+        foreach ($expected as $key => $value) {
+            static::assertArrayHasKey($key, $actual);
+
+            if (is_array($value)) {
+                $this->assertValues($value, $actual[$key]);
+            } else {
+                static::assertEquals($value, $actual[$key]);
+            }
+        }
     }
 }

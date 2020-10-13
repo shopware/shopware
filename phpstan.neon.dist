@@ -65,6 +65,13 @@ parameters:
         -
              message: '#Strict comparison using#'
              path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi/OpenApiLoader.php
+        # For BC in SalesChannelContextService get
+        - '#Method Shopware\\Core\\System\\SalesChannel\\Context\\SalesChannelContextServiceInterface::get\(\) invoked with 4 parameters, 3 required\.#'
+
+        - '#Property Shopware\\Core\\Checkout\\Order\\Event\\OrderStateMachineStateChangeEvent::\$salesChannelId is never read, only written.#'
+        -
+            message: '#Cannot call method fetchAll\(\) on Doctrine\\DBAL\\Driver\\Statement\|int.#'
+            path: src/Core/Migration/Migration1599822061MigrateOrderMails.php
 
 services:
     -

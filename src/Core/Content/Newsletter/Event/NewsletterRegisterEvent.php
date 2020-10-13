@@ -11,9 +11,10 @@ use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\MailActionInterface;
+use Shopware\Core\Framework\Event\SalesChannelAware;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class NewsletterRegisterEvent extends Event implements MailActionInterface
+class NewsletterRegisterEvent extends Event implements MailActionInterface, SalesChannelAware
 {
     public const EVENT_NAME = NewsletterEvents::NEWSLETTER_REGISTER_EVENT;
 
@@ -96,7 +97,7 @@ class NewsletterRegisterEvent extends Event implements MailActionInterface
         return $this->mailRecipientStruct;
     }
 
-    public function getSalesChannelId(): ?string
+    public function getSalesChannelId(): string
     {
         return $this->salesChannelId;
     }

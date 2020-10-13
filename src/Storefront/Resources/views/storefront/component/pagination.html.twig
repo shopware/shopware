@@ -2,8 +2,9 @@
     {% set currentPage = ((criteria.offset + 1) / criteria.limit )|round(0, 'ceil') %}
     {% set totalPages = (entities.total / criteria.limit)|round(0, 'ceil') %}
 
-    <nav aria-label="pagination" class="pagination-nav">
-        {% block component_pagination %}
+    {% if totalPages > 1 %}
+        <nav aria-label="pagination" class="pagination-nav">
+            {% block component_pagination %}
             <ul class="pagination">
                 {% block component_pagination_first %}
                     <li class="page-item page-first{% if currentPage == 1 %} disabled{% endif %}">
@@ -150,5 +151,6 @@
                 {% endblock %}
             </ul>
         {% endblock %}
-    </nav>
+        </nav>
+    {% endif %}
 {% endblock %}

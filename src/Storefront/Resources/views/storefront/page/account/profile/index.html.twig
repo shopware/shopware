@@ -408,6 +408,89 @@
                         {% endblock %}
                     </div>
                 {% endblock %}
+
+                {% block page_account_profile_delete_account %}
+                    {% if shopware.config.core.loginRegistration.allowCustomerDeletion and feature('FEATURE_NEXT_10077') %}
+                        <div class="account-deleting py-4">
+                            {{ 'account.profileDelete'|trans({
+                                '%target%': '#confirmDeleteAccountModal'
+                            })|raw }}
+                        </div>
+                    {% endif %}
+                {% endblock %}
+
+                {% block page_account_delete_account_confirm_modal %}
+                    {% if shopware.config.core.loginRegistration.allowCustomerDeletion and feature('FEATURE_NEXT_10077') %}
+                        <div class="modal fade confirm-delete-account-modal"
+                             id="confirmDeleteAccountModal"
+                             tabindex="1"
+                             role="dialog">
+                            <div class="modal-dialog modal-dialog-centered"
+                                 role="document">
+
+                                {% block page_account_delete_account_confirm_modal_content %}
+                                    <div class="modal-content">
+
+                                        {% block page_account_delete_account_confirm_modal_header %}
+                                            <div class="modal-header">
+
+                                                {% block page_account_delete_account_confirm_modal_header_title %}
+                                                    <div class="modal-title h3">
+                                                        {{ "account.profileDeleteModalTitle"|trans|sw_sanitize }}
+                                                    </div>
+                                                {% endblock %}
+
+                                                {% block page_account_delete_account_confirm_modal_header_close_button %}
+                                                    <button
+                                                        type="button"
+                                                        class="modal-close close"
+                                                        data-dismiss="modal"
+                                                        aria-label="Close">
+                                                        <span aria-hidden="true">
+                                                            {% sw_icon 'x' style { 'size': 'sm' } %}
+                                                        </span>
+                                                    </button>
+                                                {% endblock %}
+                                            </div>
+                                        {% endblock %}
+
+                                        {% block page_account_delete_account_confirm_modal_body %}
+                                            <div class="modal-body">
+
+                                                {% block page_account_delete_account_confirm_modal_form %}
+                                                    <form method="post"
+                                                          action="{{ path('frontend.account.profile.delete') }}"
+                                                          data-form-submit-loader="true">
+
+                                                        {% block page_account_delete_account_confirm_form_csrf %}
+                                                            {{ sw_csrf('frontend.account.profile.delete') }}
+                                                        {% endblock %}
+
+                                                        {% block page_account_delete_account_confirm_alert %}
+                                                            {{ "account.profileDeleteAlert"|trans|sw_sanitize }}
+                                                        {% endblock %}
+
+                                                        {% block page_account_delete_account_confirm_text %}
+                                                            <h6 class="py-2">{{ "account.profileDeleteConfirm"|trans|sw_sanitize }}</h6>
+                                                        {% endblock %}
+
+                                                        {% block page_account_delete_account_confirm_button %}
+                                                            <div class="text-right">
+                                                                <button class="btn btn-outline-danger" type="submit">
+                                                                    {{ "account.profileDeleteButton"|trans|sw_sanitize }}
+                                                                </button>
+                                                            </div>
+                                                        {% endblock %}
+                                                    </form>
+                                                {% endblock %}
+                                            </div>
+                                        {% endblock %}
+                                    </div>
+                                {% endblock %}
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endblock %}
             {% endblock %}
         </div>
     {% endblock %}

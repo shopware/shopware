@@ -12,13 +12,16 @@ export default class FilterRatingPlugin extends FilterBasePlugin {
         snippets: {
             filterRatingActiveLabelStart: 'Minimum',
             filterRatingActiveLabelEndSingular: 'star',
-            filterRatingActiveLabelEnd: 'stars'
-        }
+            filterRatingActiveLabelEnd: 'stars',
+            disabledFilterText: 'Filter not active'
+        },
+        reviewPointAttr: 'data-review-form-point'
     });
 
     init() {
         this.currentRating = 0;
         this.counter = DomAccess.querySelector(this.el, this.options.countSelector);
+        this._maxRating = null;
 
         this._getRatingSystemPluginInstance();
         this._registerEvents();
@@ -46,7 +49,14 @@ export default class FilterRatingPlugin extends FilterBasePlugin {
     /**
      * @private
      */
-    _onChangeRating() {
+    _onChangeRating(event) {
+        if (event) {
+            const points = event.target.value;
+            if (this._maxRating && this._maxRating < points) {
+                return;
+            }
+        }
+
         this.listing.changeListing();
     }
 
@@ -97,8 +107,8 @@ export default class FilterRatingPlugin extends FilterBasePlugin {
             }
 
             labels.push({
-                label: `${this.options.snippets.filterRatingActiveLabelStart} 
-                        ${currentRating} 
+                label: `${this.options.snippets.filterRatingActiveLabelStart}
+                        ${currentRating}
                         ${endSnippet}`,
                 id: 'rating'
             });
@@ -107,6 +117,65 @@ export default class FilterRatingPlugin extends FilterBasePlugin {
         }
 
         return labels;
+    }
+
+    /**
+     * @public
+     */
+    refreshDisabledState(filter) {
+        const ratingFilter = filter[this.options.name];
+        const maxRating = ratingFilter.max;
+
+        if (maxRating && maxRating > 0 ) {
+            this.enableFilter();
+            this.setMaxRating(maxRating);
+            this.ratingSystem.setMaxRating(maxRating);
+            this._maxRating = maxRating;
+            return;
+        }
+
+        this.disableFilter();
+    }
+
+    /**
+     * @public
+     */
+    disableFilter() {
+        const button = DomAccess.querySelector(this.el, '.filter-panel-item-toggle');
+
+        button.disabled = true;
+        button.setAttribute('title', this.options.snippets.disabledFilterText);
+        this.el.classList.add('disabled');
+    }
+
+    /**
+     * @public
+     */
+    enableFilter() {
+        const button = DomAccess.querySelector(this.el, '.filter-panel-item-toggle');
+
+        button.disabled = false;
+        button.removeAttribute('title');
+        this.el.classList.remove('disabled');
+    }
+
+    /**
+     * @public
+     */
+    setMaxRating(maxRating) {
+        const ratingPoints = DomAccess.querySelectorAll(this.el, '[' + this.options.reviewPointAttr + ']');
+
+        ratingPoints.forEach((radio) => {
+            const radioValue = radio.getAttribute(this.options.reviewPointAttr);
+
+            if (radioValue > maxRating) {
+                radio.classList.add('disabled');
+                radio.setAttribute('title', this.options.snippets.disabledFilterText);
+            } else {
+                radio.classList.remove('disabled');
+                radio.removeAttribute('title');
+            }
+        });
     }
 
     /**

@@ -179,7 +179,7 @@ class InfoController extends AbstractController
     }
 
     /**
-     * @feature-deprecated tag:v6.4.0 - use `\Shopware\Core\Framework\Api\Controller\InfoController::businessEvents` instead
+     * @feature-deprecated (flag:FEATURE_NEXT_9351) tag:v6.4.0 - use `\Shopware\Core\Framework\Api\Controller\InfoController::businessEvents` instead
      *
      * @Route("/api/v{version}/_info/business-events.json", name="api.info.events", methods={"GET"})
      */

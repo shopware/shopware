@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
 use Shopware\Core\Framework\Test\App\TestAppServer;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -120,6 +121,19 @@ class AppRegistrationServiceTest extends TestCase
         $this->registrator->registerApp($manifest, '', '', Context::createDefaultContext());
     }
 
+    public function testRegistrationFailsIfRegistrationRequestIsNotHTTP200(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/minimal/manifest.xml');
+
+        $appSecret = 'dont_tell';
+        $appResponseBody = $this->buildAppResponse($manifest, $appSecret);
+
+        $this->appendNewResponse(new Response(500, [], $appResponseBody));
+
+        static::expectException(AppRegistrationException::class);
+        $this->registrator->registerApp($manifest, '', '', Context::createDefaultContext());
+    }
+
     public function testRegistrationFailsIfAppUrlChangeWasDetected(): void
     {
         $id = Uuid::randomHex();
@@ -148,7 +162,8 @@ class AppRegistrationServiceTest extends TestCase
 
         $handshakeFactory = new HandshakeFactory(
             $this->shopUrl,
-            $shopIdProviderMock
+            $shopIdProviderMock,
+            $this->getContainer()->get(StoreClient::class)
         );
 
         $registrator = new AppRegistrationService(

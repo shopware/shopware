@@ -25,6 +25,11 @@ Component.register('sw-seo-main-category', {
             type: Boolean,
             required: false,
             default: false
+        },
+        allowEdit: {
+            type: Boolean,
+            required: false,
+            default: true
         }
     },
 

@@ -101,7 +101,6 @@ Component.register('sw-media-quickinfo', {
             if (this.item) {
                 dom.copyToClipboard(this.item.url);
                 this.createNotificationSuccess({
-                    title: this.$tc('sw-media.general.notification.urlCopied.title'),
                     message: this.$tc('sw-media.general.notification.urlCopied.message')
                 });
             }
@@ -136,13 +135,11 @@ Component.register('sw-media-quickinfo', {
                 item.fileName = value;
 
                 this.createNotificationSuccess({
-                    title: this.$tc('global.default.success'),
                     message: this.$tc('global.sw-media-media-item.notification.renamingSuccess.message')
                 });
                 this.$emit('media-item-rename-success', item);
             } catch {
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
                     message: this.$tc('global.sw-media-media-item.notification.renamingError.message')
                 });
             } finally {

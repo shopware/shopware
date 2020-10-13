@@ -52,6 +52,10 @@ General styling for cms elements
     position: relative;
     width: 100%;
 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
     &.is--streched {
         height: 100%;
     }
@@ -63,7 +67,8 @@ General styling for cms elements
         padding-top: calc((9 / 16) * 100%);
     }
 
-    &__video {
+    &__video,
+    &__placeholder {
         width: 100%;
         height: 100%;
         position: absolute;
@@ -72,6 +77,30 @@ General styling for cms elements
         bottom: 0;
         left: 0;
         border: 0 none;
+    }
+
+    &__placeholder img {
+        object-fit: cover;
+        font-family: 'object-fit: cover;'; // IE polyfill
+        height: 100%;
+        width: 100%;
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+    }
+
+    &__backdrop {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+
+        > div {
+            background: rgba(255, 255, 255, 0.5);
+            padding: $spacer;
+        }
     }
 }
 
@@ -86,7 +115,8 @@ General styling for cms elements
         padding-top: 56.25%;
     }
 
-    &__video {
+    &__video,
+    &__placeholder {
         width: 100%;
         height: 100%;
         position: absolute;
@@ -95,6 +125,30 @@ General styling for cms elements
         bottom: 0;
         left: 0;
         border: 0 none;
+    }
+
+    &__placeholder img {
+        object-fit: cover;
+        font-family: 'object-fit: cover;'; // IE polyfill
+        height: 100%;
+        width: 100%;
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+    }
+
+    &__backdrop {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+
+        > div {
+            background: rgba(255, 255, 255, 0.5);
+            padding: $spacer;
+        }
     }
 }
 

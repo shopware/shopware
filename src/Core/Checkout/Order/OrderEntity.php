@@ -187,6 +187,11 @@ class OrderEntity extends Entity
      */
     protected $customerComment;
 
+    /**
+     * @var string[]|null
+     */
+    protected $ruleIds = [];
+
     public function getCurrencyId(): string
     {
         return $this->currencyId;
@@ -531,6 +536,16 @@ class OrderEntity extends Entity
     public function setCustomerComment(?string $customerComment): void
     {
         $this->customerComment = $customerComment;
+    }
+
+    public function getRuleIds(): ?array
+    {
+        return $this->ruleIds;
+    }
+
+    public function setRuleIds(?array $ruleIds): void
+    {
+        $this->ruleIds = $ruleIds;
     }
 
     private function addChildren(OrderLineItemCollection $lineItems, OrderLineItemCollection $parents): void

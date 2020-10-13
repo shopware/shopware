@@ -8,7 +8,7 @@ const { StateDeprecated } = Shopware;
 Component.register('sw-integration-list', {
     template,
 
-    inject: ['integrationService', 'repositoryFactory', 'acl'],
+    inject: ['integrationService', 'repositoryFactory', 'acl', 'feature'],
 
     mixins: [
         Mixin.getByName('notification')
@@ -50,6 +50,9 @@ Component.register('sw-integration-list', {
             const criteria = new Criteria(1, 25);
 
             criteria.addSorting(Criteria.sort('label', 'ASC'));
+            if (this.feature.isActive('FEATURE_NEXT_3722')) {
+                criteria.addAssociation('aclRoles');
+            }
 
             return criteria;
         },
@@ -146,14 +149,12 @@ Component.register('sw-integration-list', {
 
         createSavedSuccessNotification() {
             this.createNotificationSuccess({
-                title: this.$tc('global.default.success'),
                 message: this.$tc('sw-integration.detail.messageSaveSuccess')
             });
         },
 
         createSavedErrorNotification() {
             this.createNotificationError({
-                title: this.$tc('global.default.error'),
                 message: this.$tc('sw-integration.detail.messageSaveError')
             });
         },
@@ -166,13 +167,13 @@ Component.register('sw-integration-list', {
             this.isModalLoading = true;
 
             this.integrationService.generateKey().then((response) => {
+                this.currentIntegration = this.currentIntegration || this.integrationRepository.create();
                 this.currentIntegration.accessKey = response.accessKey;
                 this.currentIntegration.secretAccessKey = response.secretAccessKey;
                 this.showSecretAccessKey = true;
                 this.isModalLoading = false;
             }).catch(() => {
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-integration.detail.messageCreateNewError')
                 });
             });

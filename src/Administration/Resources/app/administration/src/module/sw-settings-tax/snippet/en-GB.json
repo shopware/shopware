@@ -47,5 +47,12 @@
       "textDeleteConfirm": "Are you sure you want to delete this country: \"{name}\"?",
       "placeholderStates": "Add states..."
     }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "tax": {
+        "label": "Tax"
+      }
+    }
   }
 }

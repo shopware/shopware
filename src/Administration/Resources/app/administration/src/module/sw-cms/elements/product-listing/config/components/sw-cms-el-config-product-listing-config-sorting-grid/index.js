@@ -17,9 +17,8 @@ Shopware.Component.register('sw-cms-el-config-product-listing-config-sorting-gri
 
     data() {
         return {
-            paginationLimit: 10,
-            paginationPage: 1,
-            paginationSteps: [10]
+            limit: 10,
+            page: 1
         };
     },
 
@@ -42,11 +41,24 @@ Shopware.Component.register('sw-cms-el-config-product-listing-config-sorting-gri
             }
 
             return productSorting.id === this.defaultSorting.id;
+        },
+
+        onPageChange({ page, limit }) {
+            this.page = page;
+            this.limit = limit;
         }
     },
 
     computed: {
-        paginationTotal() {
+        visibleProductSortings() {
+            return this.productSortings.slice((this.page - 1) * this.limit, (this.page - 1) * this.limit + this.limit);
+        },
+
+        paginationVisible() {
+            return this.total > this.limit;
+        },
+
+        total() {
             return this.productSortings.length;
         },
 

@@ -162,7 +162,7 @@
                 {% endblock %}
 
                 {% block component_offcanvas_product_remove %}
-                    <div class="col-2 cart-item-remove">
+                    <div class="cart-item-remove">
                         {% block component_offcanvas_product_remove_form %}
                             {% if lineItem.removable %}
                                 <form action="{{ path('frontend.checkout.line-item.delete', {'id': id}) }}"

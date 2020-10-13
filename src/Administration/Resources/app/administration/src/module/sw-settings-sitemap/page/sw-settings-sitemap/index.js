@@ -37,7 +37,6 @@ Component.register('sw-settings-sitemap', {
             }).catch((err) => {
                 this.isLoading = false;
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
                     message: err
                 });
             });

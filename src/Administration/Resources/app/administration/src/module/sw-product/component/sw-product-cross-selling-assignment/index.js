@@ -19,6 +19,11 @@ Component.register('sw-product-cross-selling-assignment', {
         crossSellingId: {
             type: String,
             required: true
+        },
+        allowEdit: {
+            type: Boolean,
+            required: false,
+            default: true
         }
     },
 

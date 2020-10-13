@@ -8,8 +8,6 @@ variables:
     LOG_STDOUT: $CI_PROJECT_DIR/stdout.log
     PERCY_BRANCH: $CI_DEV_BRANCH
     PERCY_TARGET_BRANCH: $CI_TARGET_BRANCH_NAME
-    DEV_IMAGE: shopware/development:latest
-    MYSQL_IMAGE: mysql:5.7
     MYSQL_CMD: mysqld
 
 stages:
@@ -107,7 +105,10 @@ PHP Unit:
             alias: elasticsearch
             command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
     rules:
+      - if: '$CI_MERGE_REQUEST_LABELS =~ /.*unit::skip.*/'
+        when: never
       - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      - if: '$CI_PIPELINE_SOURCE == "pipeline"'
       - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
         changes:
           - "Migration*.php"
@@ -120,20 +121,23 @@ PHP Unit:
     parallel:
         matrix:
             -   EACH_MR: 'true'
+                MYSQL_IMAGE: mysql:5.7
+                DEV_IMAGE: shopware/development:latest
                 FEATURE_ALL: ["false", "true"]
-            # mysql 5.7 with php 7.3 and 7.4
-            -   DEV_IMAGE:
+            -   MYSQL_IMAGE: mysql:5.7
+                DEV_IMAGE:
                     - shopware/development:7.3
                     - shopware/development:7.4
                 FEATURE_ALL: ["false", "true"]
-            # php 7.2 with mysql 5.7 and mariadb 10.4
             -   MYSQL_IMAGE:
                     - mysql:5.7
                     - mariadb:10.3
                     - mariadb:10.4
+                DEV_IMAGE: shopware/development:latest
                 FEATURE_ALL: ["false", "true"]
             -   MYSQL_IMAGE:
                     - mysql:8.0.19
+                DEV_IMAGE: shopware/development:latest
                 FEATURE_ALL: ["false", "true"]
                 MYSQL_CMD: 'mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON'
 
@@ -144,6 +148,7 @@ Javascript analysis:
             - master
             - /^6\..*$/
             - schedules
+            - pipelines
     stage: unit
     timeout: 1h 00m
     before_script: []
@@ -184,10 +189,11 @@ PHP analysis:
         - if [[ -f "cache.zip" ]]; then unzip -q cache.zip; fi
         - cd development
         - php dev-ops/analyze/generate-composer.php
-        - php dev-ops/analyze/vendor/bin/ecs check platform/src --config platform/easy-coding-standard.yml
+        - php dev-ops/analyze/vendor/bin/ecs check platform/src --config platform/easy-coding-standard.php
         - php dev-ops/analyze/phpstan-config-generator.php
         - php dev-ops/analyze/vendor/bin/phpstan analyze --autoload-file=dev-ops/analyze/vendor/autoload.php --configuration platform/phpstan.neon --error-format gitlab | tee phpstan-report.json
         - php dev-ops/analyze/vendor/bin/psalm --config=platform/psalm.xml --threads=$(nproc) --diff --diff-methods --show-info=false
+        - php bin/console changelog:check
     artifacts:
         reports:
             codequality: development/phpstan-report.json
@@ -232,6 +238,7 @@ Administration (Jest):
             - merge_requests
             - master
             - /^6\..*$/
+            - pipelines
     stage: unit
     timeout: 1h 00m
     services:
@@ -252,6 +259,7 @@ Storefront (Jest):
             - merge_requests
             - master
             - /^6\..*$/
+            - pipelines
     stage: unit
     timeout: 1h 00m
     variables:
@@ -303,6 +311,8 @@ E2E:
         - echo cypress_grep $cypress_grep
         - echo SECTION $SECTION
         - echo TEST_DIRECTORY $TEST_DIRECTORY
+        - mkdir -p config/packages/
+        - cp platform/src/Core/Framework/Resources/config/packages/e2e/e2e.yaml config/packages/shopware.yaml
         - echo FEATURE_ALL $FEATURE_ALL
         - echo BROWSER $BROWSER
         - echo cypress_usePercy $cypress_usePercy
@@ -311,13 +321,14 @@ E2E:
         - ./psh.phar storefront:init --APP_ENV="prod" --DB_NAME="shopware_e2e"
         - ./psh.phar e2e:dump-db --APP_ENV="prod"
         - E2E_BASE_PATH=vendor/shopware/platform/src/${SECTION}/Resources/app/$(echo ${SECTION} | tr '[:upper:]' '[:lower:]')/test/e2e
-        - npm i @shopware-ag/e2e-testsuite-platform@1.3.0-beta.3 --prefix $E2E_BASE_PATH
-        - if [[ $cypress_usePercy = "true" ]]; then npm install --save-dev @percy/cypress; fi
+        - npm i @shopware-ag/e2e-testsuite-platform@1.3.1-beta.1 --prefix $E2E_BASE_PATH
         - forever start ${E2E_BASE_PATH}/node_modules/@shopware-ag/e2e-testsuite-platform/routes/cypress.js
         - chown -R 1000:1000 .
-        - CYPRESS_CMD="npm install --production --prefix /e2e && export PERCY_TOKEN=$PERCY_TOKEN && npx percy exec -- cypress run --browser chrome --headless --project /e2e --config baseUrl=http://docker.vm:8000 $CYPRESS_PARAMS --spec $TEST_DIRECTORY"
-        - echo $CYPRESS_CMD
-        - docker run --shm-size=2g --name cypress --add-host="docker.vm:$(hostname -I)" -e cypress_grep -e cypress_usePercy -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/${E2E_BASE_PATH}:/e2e -v $(pwd):/app -w /e2e --entrypoint "sh" cypress/included:4.10.0 -c "$CYPRESS_CMD"
+        - CYPRESS_CMD="cypress run"
+        - if [[ $cypress_usePercy = "true" ]]; then export CYPRESS_CMD="npx percy exec -- cypress run"; npm install --save-dev @percy/cypress; fi
+        - FULL_CYPRESS_CMD="npm install --production --prefix /e2e && export PERCY_TOKEN=$PERCY_TOKEN && $CYPRESS_CMD --browser chrome --headless --project /e2e --config baseUrl=http://docker.vm:8000 $CYPRESS_PARAMS --spec $TEST_DIRECTORY"
+        - echo $FULL_CYPRESS_CMD
+        - docker run --shm-size=2g --name cypress --add-host="docker.vm:$(hostname -I)" -e cypress_grep -e cypress_usePercy -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/${E2E_BASE_PATH}:/e2e -v $(pwd):/app -w /e2e --entrypoint "sh" cypress/included:4.10.0 -c "$FULL_CYPRESS_CMD"
     after_script:
         - npx mochawesome-merge development/build/artifacts/e2e/mochawesome/single-reports/mochawesome*.json > development/build/artifacts/e2e/mochawesome/report-final.json
         - npx mochawesome-report-generator development/build/artifacts/e2e/mochawesome/report-final.json --cdn true --reportDir development/build/artifacts/e2e/mochawesome
@@ -331,14 +342,27 @@ E2E:
         reports:
             junit: development/build/artifacts/e2e/*.xml
     rules:
-        -   if: '$cypress_grep == null && $CI_PIPELINE_SOURCE == "schedule"'
-        -   if: '$cypress_grep && $CI_PIPELINE_SOURCE == "schedule"'
+        -   if: '$CI_MERGE_REQUEST_LABELS =~ /.*E2E::skip.*/ || ($cypress_grep == null && $CI_MERGE_REQUEST_LABELS =~ /.*E2E::only_base.*/)'
             when: never
+            # run full tests if trigger by scheduled or another pipeline (production)
+        -   if: '$cypress_grep == null && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "pipeline")'
+            # skip @base jobs if trigger by scheduled or another pipeline (production)
+        -   if: '$cypress_grep && ($CI_PIPELINE_SOURCE == "schedule" || $CI_PIPELINE_SOURCE == "pipeline")'
+            when: never
+            # run full tests if there are changes to migrations
         -   if: '$cypress_grep == null && $CI_PIPELINE_SOURCE == "merge_request_event"'
             changes:
                 - "Migration*.php"
                 - "**/Migration*.php"
-        -   if: '$cypress_grep == null &&$CI_MERGE_REQUEST_LABELS =~ /.*E2E::all.*/'
+            # skip @base jobs if there are changes to migrations, because the full set runs
+        -   if: '$cypress_grep && $CI_PIPELINE_SOURCE == "merge_request_event" && $CI_MERGE_REQUEST_LABELS !~ /.*E2E::only_base.*/'
+            changes:
+                - "Migration*.php"
+                - "**/Migration*.php"
+            when: never
+        -   if: '$cypress_grep == null && $CI_MERGE_REQUEST_LABELS =~ /.*E2E::all.*/'
+        -   if: '$cypress_grep && $CI_MERGE_REQUEST_LABELS =~ /.*E2E::all.*/'
+            when: never
         -   if: '$cypress_grep && ($CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH =~ "^(master|6\..+)$")'
         -   if: '$cypress_grep == null && $CI_PIPELINE_SOURCE == "merge_request_event"'
             when: manual
@@ -355,14 +379,10 @@ E2E:
             -   cypress_grep: '@base'
                 SECTION: 'Administration'
                 TEST_DIRECTORY:
-                    - "cypress/integration/content/**/*"
-                    - "cypress/integration/catalogue/**/*"
-                    - "cypress/integration/customer/**/*"
-                    - "cypress/integration/media-marketing/**/*"
-                    - "cypress/integration/general/**/*"
-                    - "cypress/integration/order/**/*"
-                    - "cypress/integration/rule-product-stream/**/*"
-                    - "cypress/integration/settings/**/*"
+                    - "cypress/integration/content/**/* cypress/integration/catalogue/**/*"
+                    - "cypress/integration/customer/**/* cypress/integration/media-marketing/**/*"
+                    - "cypress/integration/general/**/* cypress/integration/order/**/*"
+                    - "cypress/integration/rule-product-stream/**/* cypress/integration/settings/**/*"
                 FEATURE_ALL: "false" # ["false", "true"]
                 BROWSER: 'chrome'
                 CYPRESS_PARAMS: "--config numTestsKeptInMemory=0"
@@ -462,6 +482,7 @@ Symfony security check:
             - master
             - /^6\..*$/
             - schedules
+            - pipelines
     image: shopware/development:latest
     before_script: []
     allow_failure: true
@@ -480,6 +501,7 @@ NPM security check:
             - master
             - /^6\..*$/
             - schedules
+            - pipelines
     image: shopware/development:latest
     before_script: []
     allow_failure: true
@@ -545,5 +567,24 @@ Create Major MR:
     before_script: []
     script:
         - >
-            DATA='{ "source_branch": "master", "target_branch": "major", "title": "[CI] Update major", "description": "This MR was automatically created by this scheduled pipeline '"$CI_PIPELINE_URL"'", "labels": [ "workflow::review" ], "assignee_ids": [83, 12, 41, 11] }';
-            curl -v --header "Private-Token: $CREATE_MR_TOKEN" --header "Content-Type: application/json" --data "$DATA" "$CI_API_V4_URL/projects/$CI_PROJECT_ID/merge_requests"
+            CI_NEW_MASTER_MAJOR_BRANCH=master-for-major-$(echo $CI_COMMIT_TIMESTAMP | grep -oE '(^[^:]*)');
+            X_TOTAL=$(curl -I --header "Private-Token: $CREATE_MR_TOKEN" "$CI_API_V4_URL/projects/$CI_PROJECT_ID/merge_requests/?state=opened&labels=Update%20Major" | grep 'x-total:');
+            if [ "$X_TOTAL" == "x-total: 0" ]; then
+                echo "There is no open merge request to major branch. Will create one";
+                echo "Create the new Branch:"$CI_NEW_MASTER_MAJOR_BRANCH;
+                curl -X POST --header "Private-Token: $CREATE_MR_TOKEN" --header "Content-Type: application/json" "$CI_API_V4_URL/projects/$CI_PROJECT_ID/repository/branches?branch=$CI_NEW_MASTER_MAJOR_BRANCH&ref=master";
+                echo "Create MR with Data:";
+                DATA='{ "source_branch": "'$CI_NEW_MASTER_MAJOR_BRANCH'", "target_branch": "major", "title": "[CI] Update major", "description": "This MR was automatically created by this scheduled pipeline '"$CI_PIPELINE_URL"'", "labels": [ "workflow::review", "Update Major" ], "assignee_ids": [83, 12, 41, 11] }';
+                echo $DATA;
+                curl --header "Private-Token: $CREATE_MR_TOKEN" --header "Content-Type: application/json" --data "$DATA" "$CI_API_V4_URL/projects/$CI_PROJECT_ID/merge_requests";
+                echo "MR Created";
+            else
+                echo "There is already an open merge request for master to major:"$X_TOTAL;
+                echo "Create the new Branch:"$CI_NEW_MASTER_MAJOR_BRANCH;
+                curl -X POST --header "Private-Token: $CREATE_MR_TOKEN" --header "Content-Type: application/json" "$CI_API_V4_URL/projects/$CI_PROJECT_ID/repository/branches?branch=$CI_NEW_MASTER_MAJOR_BRANCH&ref=master";
+                echo "Create MR in development with Data:";
+                DATA='{ "source_branch": "'$CI_NEW_MASTER_MAJOR_BRANCH'", "target_branch": "major", "title": "WIP: [CI] Update major - '$CI_COMMIT_TIMESTAMP'", "description": "This MR was automatically created by this scheduled pipeline '"$CI_PIPELINE_URL"'", "labels": [ "workflow::development", "Update Major" ], "assignee_ids": [83, 12, 41, 11] }';
+                echo $DATA;
+                curl --header "Private-Token: $CREATE_MR_TOKEN" --header "Content-Type: application/json" --data "$DATA" "$CI_API_V4_URL/projects/$CI_PROJECT_ID/merge_requests";
+                echo "MR Created";
+            fi

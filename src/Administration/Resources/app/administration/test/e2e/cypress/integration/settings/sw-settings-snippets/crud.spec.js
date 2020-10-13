@@ -57,7 +57,7 @@ describe('Snippets: Test crud operations', () => {
         );
         cy.get(`${page.elements.modal}__body`).contains('Are you sure you want to delete the snippets');
 
-        cy.get(`${page.elements.modalFooter} button${page.elements.primaryButton}`).click();
+        cy.get(`${page.elements.modalFooter} button${page.elements.dangerButton}`).click();
         cy.get(page.elements.modal).should('not.exist');
         cy.get(`${page.elements.dataGridRow}--0`).should('not.have.value', 'a.Woodech');
     });

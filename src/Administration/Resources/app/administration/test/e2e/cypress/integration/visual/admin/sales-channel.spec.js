@@ -19,8 +19,6 @@ describe('Sales Channel: Visual tests', () => {
     });
 
     it('@visual: check appearance of basic sales channel workflow', () => {
-        const page = new SalesChannelPageObject();
-
         // Request we want to wait for later
         cy.server();
         cy.route({
@@ -33,9 +31,15 @@ describe('Sales Channel: Visual tests', () => {
 
         // Take snapshot for visual testing
         cy.changeElementStyling(
-            '.sw-sales-channel-detail__select-countries .sw-select-selection-list',
+            '.sw-entity-multi-select .sw-select-selection-list',
             'visibility: hidden'
         );
+
+        cy.changeElementStyling(
+            '.sw-entity-multi-select .sw-select__selection',
+            'background-color: #189EF'
+        );
+        cy.pause();
         cy.takeSnapshot('Sales channel detail', '.sw-sales-channel-detail-base');
     });
 });

@@ -11,7 +11,7 @@ purposes. This file controls which resources the theme should load and which cor
 ...
 └── DemoTheme
     ├── Resources
-    │   └── theme.json <--
+    │   └── theme.json <--
     └── manifest.xml
 ```
 
@@ -84,7 +84,7 @@ is similar to the structure of the core storefront.
     ├── Resources
     │   ├── views 
     │   │   └── storefront <-- Your Twig templates go here
-    │   └── theme.json
+    │   └── theme.json
     └── manifest.xml
 ```
 
@@ -101,7 +101,7 @@ views directory:
     │   │       └── layout
     │   │           └── header
     │   │               └── logo.html.twig <-- Override core logo template
-    │   └── theme.json
+    │   └── theme.json
     └── manifest.xml
 ```
 When taking a look at our theme the whole logo template should be overwritten with empty content. In order to modify
@@ -137,7 +137,7 @@ your theme where you can find all JavaScript and SCSS files.
     │   │           └── scss
     │   │               └── base.scss <-- SCSS entry point file
     │   ├── views
-    │   └── theme.json
+    │   └── theme.json
     └── manifest.xml
 ```
 
@@ -190,7 +190,7 @@ You can add custom JavaScript to your theme by creating a `main.js` file which i
     │   │       └── src
     │   │           └── main.js <-- JavaScript entry point file
     │   ├── views
-    │   └── theme.json
+    │   └── theme.json
     └── manifest.xml
 ```
 
@@ -237,7 +237,7 @@ Therefore place your snippet files under a snippet folder in your Resources fold
     │   ├── snippet
     │   │   ├── storefront.de-DE.json <-- snippets with german translations
     │   │   └── storefront.en-GB.json <-- snippets with english translations
-    │   └── theme.json
+    │   └── theme.json
     └── manifest.xml
 ```
 
@@ -260,7 +260,7 @@ you can add it to your theme files under `app/storefront/src/assets`:
     │   │           └── preview.jpg
     │   ├── views
     │   ├── snippet
-    │   └── theme.json
+    │   └── theme.json
     └── manifest.xml
 ```
 

@@ -75,7 +75,6 @@ Component.register('sw-plugin-manager', {
                     return;
                 }
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
                     message: this.$tc(error.message)
                 });
             });

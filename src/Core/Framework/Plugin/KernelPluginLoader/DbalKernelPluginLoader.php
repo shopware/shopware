@@ -28,6 +28,7 @@ class DbalKernelPluginLoader extends KernelPluginLoader
                    `base_class` AS baseClass,
                    IF(`active` = 1 AND `installed_at` IS NOT NULL, 1, 0) AS active,
                    `path`,
+                   `version`,
                    `autoload`,
                    `managed_by_composer` AS managedByComposer
             FROM `plugin`

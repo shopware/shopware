@@ -53,6 +53,9 @@ const mockItems = [
                     percentage: 100
                 }
             ]
+        },
+        priceDefinition: {
+            price: 100
         }
     },
     {
@@ -78,6 +81,9 @@ const mockItems = [
                     percentage: 100
                 }
             ]
+        },
+        priceDefinition: {
+            price: 100
         }
     }
 ];
@@ -335,5 +341,29 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         const firstRow = wrapper.find('.sw-data-grid__row--0');
 
         expect(firstRow.contains('Product item'));
+    });
+
+    it('should automatically convert negative value of credit item price when user enter positive value', async () => {
+        const wrapper = createWrapper({});
+
+        await wrapper.setProps({
+            order: {
+                ...wrapper.props().order,
+                lineItems: [...mockItems]
+            },
+            editable: true
+        });
+
+        const creditItem = wrapper.vm.order.lineItems[2];
+
+        wrapper.vm.checkItemPrice(creditItem.priceDefinition.price, creditItem);
+
+        expect(creditItem.priceDefinition.price < 0).toEqual(true);
+
+        const customItem = wrapper.vm.order.lineItems[1];
+
+        wrapper.vm.checkItemPrice(customItem.priceDefinition.price, customItem);
+
+        expect(customItem.priceDefinition.price > 0).toEqual(true);
     });
 });

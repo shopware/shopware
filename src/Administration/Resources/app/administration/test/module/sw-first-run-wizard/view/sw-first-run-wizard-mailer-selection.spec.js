@@ -1,4 +1,4 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-selection';
 
 describe('module/sw-first-run-wizard/view/sw-first-run-wizard-modal', () => {
@@ -6,11 +6,7 @@ describe('module/sw-first-run-wizard/view/sw-first-run-wizard-modal', () => {
     const frwRedirectLocal = 'sw.first.run.wizard.index.mailer.local';
 
     const CreateFirstRunWizardMailerSettings = function CreateFirstRunWizardMailerSettings() {
-        const localVue = createLocalVue();
-        localVue.filter('asset', () => {});
-
         return shallowMount(Shopware.Component.build('sw-first-run-wizard-mailer-selection'), {
-            localVue,
             stubs: {
                 'sw-help-text': {
                     template: '<div />'
@@ -21,9 +17,6 @@ describe('module/sw-first-run-wizard/view/sw-first-run-wizard-modal', () => {
                 'sw-loader': {
                     template: '<div />'
                 }
-            },
-            mocks: {
-                $tc: (translationPath) => translationPath
             },
             provide: {
                 systemConfigApiService: {

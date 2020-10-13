@@ -39,11 +39,6 @@ function mountSwTabs(routes) {
         stubs: {
             'sw-tabs': Shopware.Component.build('sw-tabs'),
             'sw-tabs-item': Shopware.Component.build('sw-tabs-item')
-        },
-        mocks: {
-            $device: {
-                onResize() {}
-            }
         }
     });
 }

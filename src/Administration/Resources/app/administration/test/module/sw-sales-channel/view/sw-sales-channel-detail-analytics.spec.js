@@ -22,9 +22,6 @@ function createWrapper(privileges = []) {
                 }
             }
         },
-        mocks: {
-            $tc: v => v
-        },
         propsData: {
             salesChannel: {}
         }

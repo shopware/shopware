@@ -18,8 +18,6 @@ function createWrapper(privileges = []) {
             }
         },
         mocks: {
-            $tc: v => v,
-            $router: { replace: () => {} },
             $route: { query: '' }
         },
         stubs: {

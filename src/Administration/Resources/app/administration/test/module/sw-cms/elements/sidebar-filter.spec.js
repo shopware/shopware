@@ -1,20 +1,14 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 import 'src/module/sw-cms/elements/sidebar-filter/component';
 
 function createWrapper() {
-    const localVue = createLocalVue();
-
     return shallowMount(Shopware.Component.build('sw-cms-el-sidebar-filter'), {
-        localVue,
         propsData: {
             element: {}
         },
         stubs: {
             'sw-icon': true
-        },
-        mocks: {
-            $tc: (value) => value
         },
         provide: {
             cmsService: {

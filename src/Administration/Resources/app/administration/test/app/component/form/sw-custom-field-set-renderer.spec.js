@@ -144,12 +144,6 @@ function createWrapper(props) {
             feature: {
                 isActive: () => true
             }
-        },
-        mocks: {
-            $tc: key => key,
-            $device: {
-                onResize: () => {}
-            }
         }
     });
 }
@@ -666,6 +660,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         expect(tabs).toHaveLength(2);
     });
 
+    // eslint-disable-next-line max-len
     it('should not filter custom field sets when entity has no parent and customFieldSetSelectionActive not set', async () => {
         const props = {
             entity: {
@@ -710,6 +705,7 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         expect(tabs).toHaveLength(2);
     });
 
+    // eslint-disable-next-line max-len
     it('should not filter custom field sets when customFieldSetSelectionActive not set and parent has no selection', async () => {
         const props = {
             entity: {

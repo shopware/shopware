@@ -12,9 +12,6 @@ describe('module/sw-first-run-wizard/view/sw-first-run-wizard-mailer-smtp', () =
                     template: '<div />'
                 }
             },
-            mocks: {
-                $tc: (translationPath) => translationPath
-            },
             provide: {
                 systemConfigApiService: {
                     getValues: () => Promise.resolve({

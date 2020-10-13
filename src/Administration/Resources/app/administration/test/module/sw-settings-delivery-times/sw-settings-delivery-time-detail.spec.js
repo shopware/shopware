@@ -8,10 +8,6 @@ function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-settings-delivery-time-detail'), {
         localVue,
         mocks: {
-            $tc: (translationPath) => translationPath,
-            $device: {
-                getSystemKey: () => 'CTRL'
-            },
             $route: {
                 params: {
                     id: '1'

@@ -1,4 +1,4 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/media/sw-media-folder-item';
 
 const { Module } = Shopware;
@@ -30,20 +30,13 @@ const ID_CONTENT_FOLDER = '08bc82b315c54cb097e5c3fb30f6ff16';
 
 
 function createWrapper(defaultFolderId, privileges = []) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
     return shallowMount(Shopware.Component.build('sw-media-folder-item'), {
         mocks: {
-            $tc: () => {},
             $route: {
                 query: {
                     page: 1,
                     limit: 25
                 }
-            },
-            $router: {
-                replace: () => {}
             }
         },
         provide: {

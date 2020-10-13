@@ -11,10 +11,6 @@ function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-review-detail'), {
         localVue,
         mocks: {
-            $tc: () => {},
-            $device: {
-                getSystemKey: () => 'CTRL'
-            },
             $route: {
                 query: {
                     page: 1,
@@ -22,10 +18,6 @@ function createWrapper(privileges = []) {
                 },
                 params: {
                     id: '12312'
-                }
-            },
-            $router: {
-                replace: () => {
                 }
             },
             date: () => {},
@@ -104,7 +96,6 @@ describe('module/sw-review/page/sw-review-detail', () => {
     it('should be a Vue.JS component', async () => {
         const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
-
 
         expect(wrapper.vm).toBeTruthy();
     });

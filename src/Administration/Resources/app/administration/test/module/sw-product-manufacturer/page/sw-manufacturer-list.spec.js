@@ -1,12 +1,8 @@
-import { createLocalVue, mount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import 'src/module/sw-manufacturer/page/sw-manufacturer-list';
 
 function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
     return mount(Shopware.Component.build('sw-manufacturer-list'), {
-        localVue,
         stubs: {
             'sw-page': {
                 template: '<div><slot name="smart-bar-actions"></slot><slot name="content">CONTENT</slot></div>'
@@ -34,12 +30,7 @@ function createWrapper(privileges = []) {
             }
         },
         mocks: {
-            $tc: v => v,
-            $route: { query: '' },
-            $router: {
-                replace: () => {
-                }
-            }
+            $route: { query: '' }
         }
     });
 }

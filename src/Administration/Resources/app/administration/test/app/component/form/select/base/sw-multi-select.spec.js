@@ -34,7 +34,6 @@ const createMultiSelect = (customOptions) => {
             'sw-label': Shopware.Component.build('sw-label'),
             'sw-button': Shopware.Component.build('sw-button')
         },
-        mocks: { $tc: key => key },
         propsData: {
             value: [],
             options: [

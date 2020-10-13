@@ -46,10 +46,7 @@ describe('components/entity/sw-product-stream-grid-preview.spec', () => {
                 'sw-product-variant-info': true
             },
             mocks: {
-                $tc: key => key,
-                $te: key => key,
-                $route: { meta: { $module: { icon: 'default' } } },
-                $device: { onResize: key => key }
+                $route: { meta: { $module: { icon: 'default' } } }
             },
             propsData: {
                 filters: null

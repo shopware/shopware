@@ -69,9 +69,6 @@ function createWrapper(privileges = []) {
             },
             validationService: () => {}
         },
-        mocks: {
-            $tc: v => v
-        },
         propsData: {
             promotion: {
                 name: 'Test Promotion',

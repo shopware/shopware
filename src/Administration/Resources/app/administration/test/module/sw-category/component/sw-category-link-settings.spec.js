@@ -16,8 +16,7 @@ function createWrapper(privileges = [], category = {}) {
         mocks: {
             $route: {
                 params: {}
-            },
-            $tc: v => v
+            }
         },
         provide: {
             acl: {

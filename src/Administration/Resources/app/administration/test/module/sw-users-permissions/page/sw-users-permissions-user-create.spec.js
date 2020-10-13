@@ -1,13 +1,9 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-users-permissions/page/sw-users-permissions-user-detail';
 import 'src/module/sw-users-permissions/page/sw-users-permissions-user-create';
 
 function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
     return shallowMount(Shopware.Component.build('sw-users-permissions-user-create'), {
-        localVue,
         provide: {
             acl: {
                 can: (identifier) => {
@@ -67,14 +63,10 @@ function createWrapper(privileges = []) {
 
         },
         mocks: {
-            $tc: v => v,
             $route: {
                 params: {
                     id: '1a2b3c4d'
                 }
-            },
-            $device: {
-                getSystemKey: () => {}
             }
         },
         stubs: {

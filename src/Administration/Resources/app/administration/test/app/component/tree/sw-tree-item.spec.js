@@ -31,8 +31,7 @@ function createWrapper(customOptions = {}) {
         mocks: {
             $route: {
                 params: {}
-            },
-            $tc: v => v
+            }
         },
         provide: {},
         propsData: {

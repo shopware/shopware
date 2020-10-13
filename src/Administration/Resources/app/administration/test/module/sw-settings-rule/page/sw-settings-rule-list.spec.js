@@ -1,12 +1,8 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-rule/page/sw-settings-rule-list';
 
 function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
     return shallowMount(Shopware.Component.build('sw-settings-rule-list'), {
-        localVue,
         stubs: {
             'sw-page': {
                 template: `
@@ -44,12 +40,8 @@ function createWrapper(privileges = []) {
             }
         },
         mocks: {
-            $tc: v => v,
             $route: {
                 query: 'foo'
-            },
-            $router: {
-                replace: () => {}
             }
         }
     });

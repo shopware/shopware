@@ -1,4 +1,4 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-product-stream/component/sw-product-stream-filter';
 import 'src/app/component/rule/sw-condition-base';
 
@@ -16,11 +16,7 @@ function createWrapper(privileges = []) {
         Shopware.EntityDefinition.add(entity, mockEntitySchema[entity]);
     });
 
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
     return shallowMount(Shopware.Component.build('sw-product-stream-filter'), {
-        localVue,
         stubs: {
             'sw-condition-type-select': true,
             'sw-text-field': true,
@@ -48,9 +44,6 @@ function createWrapper(privileges = []) {
             },
             insertNodeIntoTree: () => {},
             removeNodeFromTree: () => {}
-        },
-        mocks: {
-            $tc: key => key
         },
         propsData: {
             condition: {}

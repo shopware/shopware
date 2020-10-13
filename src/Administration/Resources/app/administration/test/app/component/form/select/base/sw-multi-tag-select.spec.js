@@ -1,4 +1,4 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/form/select/base/sw-multi-tag-select';
 import 'src/app/component/form/select/base/sw-select-base';
 import 'src/app/component/form/field-base/sw-block-field';
@@ -16,11 +16,7 @@ const selector = {
 };
 
 const createMultiDataSelect = (customOptions) => {
-    const localVue = createLocalVue();
-    localVue.directive('popover', {});
-
     const options = {
-        localVue,
         stubs: {
             'sw-select-base': Shopware.Component.build('sw-select-base'),
             'sw-block-field': Shopware.Component.build('sw-block-field'),
@@ -32,7 +28,6 @@ const createMultiDataSelect = (customOptions) => {
                 template: '<div></div>'
             }
         },
-        mocks: { $tc: key => key },
         propsData: {
             value: []
         }

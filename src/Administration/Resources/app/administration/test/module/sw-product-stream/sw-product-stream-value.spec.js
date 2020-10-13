@@ -36,9 +36,6 @@ function createWrapper(privileges = [], fieldType = null, conditionType = '', en
                 type: conditionType
             }
         },
-        mocks: {
-            $tc: key => key
-        },
         stubs: {
             'sw-container': {
                 template: '<div class="sw-container"><slot></slot></div>'

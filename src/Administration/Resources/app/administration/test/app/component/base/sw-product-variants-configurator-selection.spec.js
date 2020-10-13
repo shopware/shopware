@@ -16,9 +16,6 @@ function createWrapper() {
             options: [],
             product: {}
         },
-        mocks: {
-            $tc: () => {}
-        },
         provide: {
             repositoryFactory: {
                 create: () => ({ search: () => Promise.resolve() })

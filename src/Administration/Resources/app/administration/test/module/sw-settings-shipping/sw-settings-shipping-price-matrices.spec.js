@@ -1,4 +1,4 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrices';
 import 'src/module/sw-settings-shipping/component/sw-settings-shipping-price-matrix';
 import 'src/app/component/base/sw-button';
@@ -17,12 +17,7 @@ Shopware.State.registerModule('swShippingDetail', state);
 const swSettingsShippingPriceMatrix = Shopware.Component.build('sw-settings-shipping-price-matrix');
 
 const createWrapper = () => {
-    const localVue = createLocalVue();
-    localVue.directive('popover', {});
-    localVue.directive('tooltip', {});
-
     return shallowMount(Shopware.Component.build('sw-settings-shipping-price-matrices'), {
-        localVue,
         store: Shopware.State._store,
         stubs: {
             'sw-settings-shipping-price-matrix': swSettingsShippingPriceMatrix,
@@ -51,11 +46,7 @@ const createWrapper = () => {
             'sw-inheritance-switch': Shopware.Component.build('sw-inheritance-switch')
         },
         mocks: {
-            $tc: key => key,
-            $te: () => false,
-            $device: {
-                onResize: () => {}
-            }
+            $te: () => false
         },
         provide: {
             repositoryFactory: {

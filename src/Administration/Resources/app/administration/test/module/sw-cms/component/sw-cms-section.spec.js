@@ -5,7 +5,6 @@ import Vuex from 'vuex';
 
 function createWrapper() {
     const localVue = createLocalVue();
-    localVue.directive('droppable', {});
     localVue.use(Vuex);
 
     return shallowMount(Shopware.Component.build('sw-cms-section'), {
@@ -44,10 +43,6 @@ function createWrapper() {
             'sw-cms-block': true,
             'sw-cms-block-foo-bar': true,
             'sw-cms-stage-add-block': true
-        },
-        mocks: {
-            $tc: (value) => value,
-            $store: Shopware.State._store
         },
         provide: {
             repositoryFactory: {},

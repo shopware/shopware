@@ -18,9 +18,6 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-ge
             directives: {
                 tooltip() {}
             },
-            mocks: {
-                $tc: translationKey => translationKey
-            },
             propsData: {
                 next5983: true,
                 sortingOption: {

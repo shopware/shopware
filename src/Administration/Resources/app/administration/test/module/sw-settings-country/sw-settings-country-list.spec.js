@@ -9,7 +9,6 @@ function createWrapper(privileges = []) {
         localVue,
 
         mocks: {
-            $tc: key => key,
             $route: {
                 query: {
                     page: 1,

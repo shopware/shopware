@@ -1,4 +1,4 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-promotion/page/sw-promotion-list';
 
 /**
@@ -6,11 +6,7 @@ import 'src/module/sw-promotion/page/sw-promotion-list';
  * @feature-deprecated (flag:FEATURE_NEXT_13810)
  */
 function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
     return shallowMount(Shopware.Component.build('sw-promotion-list'), {
-        localVue,
         stubs: {
             'sw-page': {
                 template: '<div class="sw-page"><slot name="smart-bar-actions"></slot><slot name="content"></slot></div>'
@@ -36,12 +32,8 @@ function createWrapper(privileges = []) {
             }
         },
         mocks: {
-            $tc: v => v,
             $route: {
                 query: ''
-            },
-            $router: {
-                replace: () => {}
             }
         }
     });

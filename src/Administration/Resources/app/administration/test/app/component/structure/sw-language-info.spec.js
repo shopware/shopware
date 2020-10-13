@@ -22,9 +22,7 @@ describe('src/app/component/structure/sw-language-info', () => {
             localVue,
             stubs: {},
             mocks: {
-                $store: Shopware.State._store,
-                $tc: (v1, v2, v3) => ({ v1, v2, v3 }),
-                $sanitize: v => v
+                $tc: (v1, v2, v3) => ({ v1, v2, v3 })
             },
             provide: {
                 repositoryFactory: {

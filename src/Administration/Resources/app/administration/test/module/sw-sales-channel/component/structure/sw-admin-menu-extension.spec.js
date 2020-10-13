@@ -1,4 +1,4 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/structure/sw-admin-menu';
 import 'src/module/sw-sales-channel/component/structure/sw-admin-menu-extension';
 import createMenuService from 'src/app/service/menu.service';
@@ -7,12 +7,7 @@ const menuService = createMenuService(Shopware.Module);
 Shopware.Service().register('menuService', () => menuService);
 
 function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-
-    localVue.directive('tooltip', {});
-
     return shallowMount(Shopware.Component.build('sw-admin-menu'), {
-        localVue,
         stubs: {
             'sw-version': true,
             'sw-icon': true,
@@ -41,13 +36,6 @@ function createWrapper(privileges = []) {
             },
             appModulesService: {
                 fetchAppModules: () => Promise.resolve([])
-            }
-        },
-        mocks: {
-            $tc: v => v,
-            $device: {
-                onResize: () => {},
-                getViewportWidth: () => 1920
             }
         },
         methods: {

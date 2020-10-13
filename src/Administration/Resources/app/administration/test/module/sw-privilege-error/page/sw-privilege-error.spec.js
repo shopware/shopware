@@ -17,12 +17,6 @@ describe('src/module/sw-privilege-error/page/sw-privilege-error', () => {
                 'sw-button': {
                     template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>'
                 }
-            },
-            mocks: {
-                $router: {
-                    go: jest.fn()
-                },
-                $tc: v => v
             }
         });
     });

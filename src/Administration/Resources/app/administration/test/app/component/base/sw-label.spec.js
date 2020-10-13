@@ -1,19 +1,10 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/base/sw-label';
 
 function createWrapper(propsData = {}, listeners = {}) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
     return shallowMount(Shopware.Component.build('sw-label'), {
-        localVue,
         stubs: {
             'sw-icon': true
-        },
-        provide: {
-        },
-        mocks: {
-            $tc: v => v
         },
         listeners,
         propsData: propsData

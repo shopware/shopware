@@ -1,12 +1,8 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/rule/sw-condition-and-container';
 
 function createWrapper(customProps = {}) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
     return shallowMount(Shopware.Component.build('sw-condition-and-container'), {
-        localVue,
         stubs: {
             'sw-button': true,
             'sw-condition-tree-node': true
@@ -23,9 +19,6 @@ function createWrapper(customProps = {}) {
             acl: {
                 can: () => true
             }
-        },
-        mocks: {
-            $tc: v => v
         },
         propsData: {
             condition: {

@@ -1,4 +1,4 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-customer/page/sw-customer-detail';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/form/sw-custom-field-set-renderer';
@@ -6,14 +6,8 @@ import 'src/app/component/form/sw-form-field-renderer';
 import 'src/app/component/utils/sw-inherit-wrapper';
 
 function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
     return shallowMount(Shopware.Component.build('sw-customer-detail'), {
-        localVue,
         mocks: {
-            $tc: () => {
-            },
             $route: {
                 query: {
                     edit: false,

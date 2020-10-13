@@ -21,9 +21,6 @@ function createWrapper(customProps = {}) {
                 can: () => true
             }
         },
-        mocks: {
-            $tc: v => v
-        },
         propsData: {
             condition: {
                 test: [

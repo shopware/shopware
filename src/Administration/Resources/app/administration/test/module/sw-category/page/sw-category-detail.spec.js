@@ -5,7 +5,6 @@ import 'src/module/sw-category/page/sw-category-detail';
 function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.use(Vuex);
-    localVue.directive('tooltip', {});
 
     return shallowMount(Shopware.Component.build('sw-category-detail'), {
         localVue,
@@ -20,15 +19,6 @@ function createWrapper(privileges = []) {
             'sw-category-tree': true,
             'sw-button': true,
             'sw-button-process': true
-        },
-        mocks: {
-            $tc: v => v,
-            $device: {
-                getViewportWidth: () => {},
-                getSystemKey: () => {},
-                onResize: () => {}
-            },
-            $store: Shopware.State._store
         },
         provide: {
             acl: {

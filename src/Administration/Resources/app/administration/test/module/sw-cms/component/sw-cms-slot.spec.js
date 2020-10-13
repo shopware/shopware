@@ -15,9 +15,6 @@ function createWrapper() {
             'foo-bar': true,
             'sw-icon': true
         },
-        mocks: {
-            $tc: (value) => value
-        },
         provide: {
             cmsService: {
                 getCmsElementConfigByName: () => ({

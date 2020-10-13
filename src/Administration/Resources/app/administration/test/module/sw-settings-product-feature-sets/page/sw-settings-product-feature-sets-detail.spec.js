@@ -56,14 +56,6 @@ const detailPage = (additionalOptions = {}, privileges = []) => {
             'sw-settings-product-feature-sets-values-card': true,
             i18n: true
         },
-        mocks: {
-            $tc: (translationPath) => translationPath,
-            $te: (translationPath) => translationPath,
-            $device: {
-                onResize: () => {},
-                getSystemKey: () => {}
-            }
-        },
         propsData: {
             productFeatureSet: {
                 id: null,

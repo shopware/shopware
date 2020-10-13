@@ -8,7 +8,6 @@ function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-settings-tax-list'), {
         localVue,
         mocks: {
-            $tc: key => key,
             $route: {
                 query: {
                     page: 1,

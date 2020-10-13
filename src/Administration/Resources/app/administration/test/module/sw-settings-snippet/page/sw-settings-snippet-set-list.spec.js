@@ -58,12 +58,8 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
         return shallowMount(Shopware.Component.build('sw-settings-snippet-set-list'), {
             localVue,
             mocks: {
-                $tc: key => key,
                 $route: {
                     query: 'test'
-                },
-                $device: {
-                    onResize: () => null
                 }
             },
             provide: {

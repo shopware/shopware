@@ -51,7 +51,6 @@ const setup = (propOverride) => {
 
     return shallowMount(Shopware.Component.build('sw-purchase-price-field'), {
         stubs: ['sw-price-field', 'sw-field', 'sw-icon'],
-        mocks: { $tc: key => key },
         propsData
     });
 };

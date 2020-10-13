@@ -1,11 +1,8 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-order/component/sw-order-state-history-card';
 import 'src/module/sw-order/component/sw-order-state-change-modal';
 
 function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
     const orderProp = {
         transactions: [],
         deliveries: [
@@ -16,7 +13,6 @@ function createWrapper(privileges = []) {
     orderProp.transactions.last = () => ({});
 
     return shallowMount(Shopware.Component.build('sw-order-state-history-card'), {
-        localVue,
         stubs: {
             'sw-card': {
                 template: '<div><slot></slot></div>'
@@ -45,9 +41,6 @@ function createWrapper(privileges = []) {
                     search: () => Promise.resolve([])
                 })
             }
-        },
-        mocks: {
-            $tc: v => v
         },
         propsData: {
             title: '',

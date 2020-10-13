@@ -34,10 +34,6 @@ describe('components/media/sw-media-modal-delete', () => {
                 },
                 'sw-alert': true
             },
-            mocks: {
-                $tc: key => key,
-                $sanitize: key => key
-            },
             provide: {
                 repositoryFactory: {
                     create: () => ({ search: () => Promise.resolve() })

@@ -37,13 +37,6 @@ function createWrapper() {
             'sw-avatar': true,
             'sw-shortcut-overview': true
         },
-        mocks: {
-            $tc: key => key,
-            $device: {
-                onResize: () => {},
-                getViewportWidth: () => {}
-            }
-        },
         provide: {
             feature: {
                 isActive: () => true

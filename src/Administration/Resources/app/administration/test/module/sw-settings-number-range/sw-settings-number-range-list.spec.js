@@ -9,15 +9,11 @@ function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-settings-number-range-list'), {
         localVue,
         mocks: {
-            $tc: () => {},
             $route: {
                 query: {
                     page: 1,
                     limit: 25
                 }
-            },
-            $router: {
-                replace: () => {}
             }
         },
         provide: {

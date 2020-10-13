@@ -121,12 +121,6 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
                 }
             },
             mocks: {
-                $t: () => {},
-                $te: () => {},
-                $tc: () => {},
-                $device: {
-                    onResize: () => {}
-                },
                 $route: {
                     name: '',
                     meta: {

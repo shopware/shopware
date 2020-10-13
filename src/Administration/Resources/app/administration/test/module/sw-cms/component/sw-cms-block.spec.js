@@ -9,10 +9,6 @@ function createWrapper() {
         propsData: {
             block: {}
         },
-        stubs: {},
-        mocks: {
-            $tc: (value) => value
-        },
         provide: {
             cmsService: {}
         }

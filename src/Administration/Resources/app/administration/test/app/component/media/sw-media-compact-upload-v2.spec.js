@@ -18,10 +18,6 @@ describe('src/app/component/media/sw-media-compact-upload-v2', () => {
                 'sw-button': true,
                 'sw-media-url-form': true
             },
-            mocks: {
-                $t: v => v,
-                $tc: v => v
-            },
             provide: {
                 repositoryFactory: {},
                 configService: {},

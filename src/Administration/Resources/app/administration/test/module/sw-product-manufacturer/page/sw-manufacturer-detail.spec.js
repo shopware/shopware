@@ -65,14 +65,7 @@ function createWrapper(privileges = []) {
             }
         },
         mocks: {
-            $tc: v => v,
-            $route: {},
-            $router: {
-                replace: () => {}
-            },
-            $device: {
-                getSystemKey: () => {}
-            }
+            $route: {}
         },
         propsData: {
             manufacturerId: 'id'

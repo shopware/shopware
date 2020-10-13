@@ -1,19 +1,12 @@
 import 'src/app/component/grid/sw-grid';
-
 import 'src/app/mixin/notification.mixin';
 import 'src/app/mixin/listing.mixin';
-
 import 'src/module/sw-settings/mixin/sw-settings-list.mixin';
-
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-document/page/sw-settings-document-list/';
 
 function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
     return shallowMount(Shopware.Component.build('sw-settings-document-list'), {
-        localVue,
         data() {
             return {
                 items: [
@@ -70,16 +63,7 @@ function createWrapper(privileges = []) {
             }
         },
         mocks: {
-            $tc: v => v,
-            $route: { query: '' },
-            $device: {
-                onResize: () => {
-                }
-            },
-            $router: {
-                replace: () => {
-                }
-            }
+            $route: { query: '' }
         }
     });
 }

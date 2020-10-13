@@ -18,9 +18,6 @@ function createWrapper(customProps = {}) {
             availableTypes: {},
             childAssociationField: {}
         },
-        mocks: {
-            $tc: v => v
-        },
         propsData: {
             condition: {},
             ...customProps

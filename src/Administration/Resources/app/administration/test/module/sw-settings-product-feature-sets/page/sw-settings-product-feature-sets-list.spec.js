@@ -54,12 +54,6 @@ const listPage = (additionalOptions = {}, privileges = []) => {
             i18n: true
         },
         mocks: {
-            $tc: (translationPath) => translationPath,
-            $te: (translationPath) => translationPath,
-            $device: {
-                onResize: () => {},
-                getSystemKey: () => {}
-            },
             $route: {
                 meta: {
                     $module: {
@@ -67,9 +61,6 @@ const listPage = (additionalOptions = {}, privileges = []) => {
                     }
                 },
                 query: {}
-            },
-            $router: {
-                replace: () => {}
             }
         },
         data() {

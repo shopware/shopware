@@ -50,10 +50,6 @@ function createWrapper() {
     };
 
     return mount(grandParent, {
-        mocks: {
-            $tc: () => {
-            }
-        },
         provide: {
             repositoryFactory: {
                 create: () => ({ search: () => Promise.resolve('bar') })

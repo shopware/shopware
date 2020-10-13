@@ -1,23 +1,13 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-customer/page/sw-customer-list';
 
 function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
     return shallowMount(Shopware.Component.build('sw-customer-list'), {
-        localVue,
         mocks: {
-            $tc: () => {
-            },
             $route: {
                 query: {
                     page: 1,
                     limit: 25
-                }
-            },
-            $router: {
-                replace: () => {
                 }
             }
         },

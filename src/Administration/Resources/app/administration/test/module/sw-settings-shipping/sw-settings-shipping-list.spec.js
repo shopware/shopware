@@ -14,16 +14,8 @@ function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-settings-shipping-list'), {
         localVue,
         mocks: {
-            $store: Shopware.State._store,
-            $tc: () => {},
-            $device: {
-                getSystemKey: () => {}
-            },
             $route: {
                 query: ''
-            },
-            $router: {
-                replace: () => {}
             }
         },
         provide: {

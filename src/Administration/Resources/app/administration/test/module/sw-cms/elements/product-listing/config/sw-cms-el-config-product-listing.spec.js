@@ -77,9 +77,6 @@ function createWrapper(activeTab = 'sorting') {
                 isActive: () => true
             }
         },
-        mocks: {
-            $tc: t => t
-        },
         propsData: Vue.observable({
             defaultConfig: {},
             element: {

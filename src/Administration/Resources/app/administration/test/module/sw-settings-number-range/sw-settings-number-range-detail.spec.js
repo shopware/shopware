@@ -12,11 +12,6 @@ function createWrapper(privileges = []) {
                 params: {
                     id: 'id'
                 }
-            },
-            $tc: (translationPath) => translationPath,
-            $t: () => {},
-            $device: {
-                getSystemKey: () => 'CTRL'
             }
         },
         provide: {

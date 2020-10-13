@@ -12,15 +12,10 @@ function createWrapper(privileges = []) {
         localVue,
 
         mocks: {
-            $tc: key => key,
             $route: {
                 params: {
                     id: 'id'
                 }
-            },
-            $device: {
-                getSystemKey: () => {},
-                onResize: () => {}
             }
         },
 

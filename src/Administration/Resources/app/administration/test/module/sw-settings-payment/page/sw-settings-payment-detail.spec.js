@@ -1,17 +1,9 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-payment/page/sw-settings-payment-detail';
 
 function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
     return shallowMount(Shopware.Component.build('sw-settings-payment-detail'), {
-        localVue,
         mocks: {
-            $tc: () => {},
-            $device: {
-                getSystemKey: () => {}
-            },
             $route: {
                 query: {
                     page: 1,

@@ -15,7 +15,6 @@ function createWrapper() {
     return shallowMount(Shopware.Component.build('sw-settings-login-registration'), {
         localVue,
         mocks: {
-            $tc: () => {},
             $route: {
                 meta: {}
             }

@@ -12,9 +12,6 @@ function createWrapper(privileges = []) {
             'sw-users-permissions-permissions-grid': true,
             'sw-users-permissions-additional-permissions': true
         },
-        mocks: {
-            $tc: t => t
-        },
         propsData: {
             role: {}
         },

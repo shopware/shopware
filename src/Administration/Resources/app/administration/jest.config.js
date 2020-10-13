@@ -1,6 +1,6 @@
 // For a detailed explanation regarding each configuration property, visit:
 // https://jestjs.io/docs/en/configuration.html
-const { join } = require('path');
+const { join, resolve } = require('path');
 
 module.exports = {
     preset: '@shopware-ag/jest-preset-sw6-admin',
@@ -9,6 +9,14 @@ module.exports = {
     },
 
     coverageDirectory: join(process.env.PROJECT_ROOT, '/build/artifacts'),
+
+    setupFilesAfterEnv: [
+        resolve(join(__dirname, '/test/_setup/prepare_environment.js'))
+    ],
+
+    moduleNameMapper: {
+        '^test(.*)$': '<rootDir>/test$1'
+    },
 
     reporters: [
         'default',

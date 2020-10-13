@@ -10,7 +10,6 @@ describe('src/module/sw-settings-basic-information/component/sw-settings-captcha
                 }
             },
             mocks: {
-                $tc: (translationPath) => translationPath,
                 getInlineSnippet: (name) => name
             },
             attrs: {

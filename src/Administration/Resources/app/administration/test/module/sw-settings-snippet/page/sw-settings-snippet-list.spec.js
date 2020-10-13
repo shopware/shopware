@@ -102,11 +102,6 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-list', () => {
                     query: {
                         ids: 'a2f95068665e4498ae98a2318a7963df'
                     }
-                },
-                $tc: key => key,
-                $te: key => key,
-                $device: {
-                    onResize: () => {}
                 }
             },
             stubs: {

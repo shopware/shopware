@@ -1,21 +1,14 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-import-export/component/sw-import-export-progress';
 
 describe('module/sw-import-export/components/sw-import-export-progress', () => {
     let wrapper;
-    let localVue;
 
     beforeEach(() => {
-        localVue = createLocalVue();
-
         wrapper = shallowMount(Shopware.Component.build('sw-import-export-progress'), {
-            localVue,
             stubs: [
                 'sw-progress-bar', 'sw-button', 'sw-import-export-activity-detail-modal'
             ],
-            mocks: {
-                $tc: (translationPath) => translationPath
-            },
             provide: {
                 importExport: { getDownloadUrl: () => { return ''; } }
             }
@@ -23,7 +16,6 @@ describe('module/sw-import-export/components/sw-import-export-progress', () => {
     });
 
     afterEach(() => {
-        localVue = null;
         wrapper.destroy();
     });
 

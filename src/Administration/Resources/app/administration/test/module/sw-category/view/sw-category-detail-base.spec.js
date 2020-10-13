@@ -46,8 +46,6 @@ describe('module/sw-category/view/sw-category-detail-base.spec', () => {
                 }
             },
             mocks: {
-                $tc: key => key,
-                $store: Shopware.State._store,
                 placeholder: () => {}
             },
             propsData: {

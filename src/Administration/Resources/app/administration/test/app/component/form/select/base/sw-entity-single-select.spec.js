@@ -89,7 +89,6 @@ const createEntitySingleSelect = (customOptions) => {
             'sw-loader': Shopware.Component.build('sw-loader'),
             'sw-product-variant-info': Shopware.Component.build('sw-product-variant-info')
         },
-        mocks: { $tc: key => key },
         propsData: {
             value: null,
             entity: 'test'

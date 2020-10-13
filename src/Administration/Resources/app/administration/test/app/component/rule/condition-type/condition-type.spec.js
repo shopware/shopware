@@ -1,5 +1,5 @@
 /* global adminPath */
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/rule/sw-condition-base';
 import fs from 'fs';
 // eslint-disable-next-line
@@ -15,11 +15,7 @@ function importAllConditionTypes() {
 }
 
 function createWrapperForComponent(componentName, props = {}) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
     return shallowMount(Shopware.Component.build(componentName), {
-        localVue,
         stubs: {
             'sw-field-error': {
                 template: '<div class="sw-field-error"></div>'
@@ -89,9 +85,6 @@ function createWrapperForComponent(componentName, props = {}) {
             feature: {
                 isActive: () => true
             }
-        },
-        mocks: {
-            $tc: v => v
         },
         propsData: {
             condition: {},

@@ -29,7 +29,6 @@ function createWrapper() {
             'sw-app-actions': true
         },
         mocks: {
-            $tc: v => v,
             $route: {
                 meta: {
                 },

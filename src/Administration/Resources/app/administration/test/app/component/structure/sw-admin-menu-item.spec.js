@@ -50,7 +50,6 @@ function createWrapper({ propsData = {}, privileges = [] } = {}) {
             }
         },
         mocks: {
-            $tc: key => key,
             $route: {
                 meta: {}
             },

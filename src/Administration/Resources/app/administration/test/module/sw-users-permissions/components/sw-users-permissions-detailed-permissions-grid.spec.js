@@ -31,9 +31,6 @@ function createWrapper(
         provide: {
             privileges: privilegesService
         },
-        mocks: {
-            $tc: t => t
-        },
         propsData: Vue.observable({
             role: { privileges: rolePrivileges },
             detailedPrivileges: detailedPrivileges

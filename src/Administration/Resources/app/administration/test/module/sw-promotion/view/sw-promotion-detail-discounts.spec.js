@@ -1,4 +1,4 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-promotion/view/sw-promotion-detail-discounts';
 import promotionState from 'src/module/sw-promotion/page/sw-promotion-detail/state';
 
@@ -7,11 +7,7 @@ import promotionState from 'src/module/sw-promotion/page/sw-promotion-detail/sta
  * @feature-deprecated (flag:FEATURE_NEXT_13810)
  */
 function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
     return shallowMount(Shopware.Component.build('sw-promotion-detail-discounts'), {
-        localVue,
         stubs: {
             'sw-card': true,
             'sw-button': true
@@ -33,12 +29,8 @@ function createWrapper(privileges = []) {
             }
         },
         mocks: {
-            $tc: v => v,
             $route: {
                 query: ''
-            },
-            $router: {
-                replace: () => {}
             }
         }
     });

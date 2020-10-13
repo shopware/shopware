@@ -57,14 +57,6 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
                 'sw-button-group': true,
                 i18n: true
             },
-            mocks: {
-                $tc: (translationPath) => translationPath,
-                $te: (translationPath) => translationPath,
-                $device: {
-                    onResize: () => {
-                    }
-                }
-            },
             propsData: {
                 isLoading: false,
                 productFeatureSet: {

@@ -302,11 +302,6 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
 
     function createWrapper() {
         return shallowMount(Shopware.Component.build('sw-settings-listing'), {
-            mocks: {
-                $tc: key => key,
-                $te: key => key,
-                $device: { onResize: () => ({}) }
-            },
             provide: {
                 next5983: true,
                 repositoryFactory: {

@@ -1,4 +1,4 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-mail-template/page/sw-mail-template-detail';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
@@ -57,11 +57,7 @@ const repositoryMockFactory = () => {
 };
 
 const createWrapper = (privileges = []) => {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
     return shallowMount(Shopware.Component.build('sw-mail-template-detail'), {
-        localVue,
         provide: {
             repositoryFactory: {
                 create: () => repositoryMockFactory()
@@ -79,12 +75,7 @@ const createWrapper = (privileges = []) => {
             }
         },
         mocks: {
-            $tc: (translationPath) => translationPath,
-            $router: { replace: () => {} },
-            $route: { params: { id: Shopware.Utils.createId() } },
-            $device: {
-                getSystemKey: () => 'CTRL'
-            }
+            $route: { params: { id: Shopware.Utils.createId() } }
         },
         stubs: {
             'sw-page': {

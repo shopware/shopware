@@ -1,4 +1,4 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-import-export/component/sw-import-export-exporter';
 import 'src/app/component/form/select/entity/sw-entity-single-select';
 import 'src/app/component/form/select/base/sw-select-base';
@@ -52,13 +52,9 @@ const repositoryMockFactory = () => {
 
 describe('components/sw-import-export-exporter', () => {
     let wrapper;
-    let localVue;
 
     beforeEach(() => {
-        localVue = createLocalVue();
-
         wrapper = shallowMount(Shopware.Component.build('sw-import-export-exporter'), {
-            localVue,
             stubs: {
                 'sw-entity-single-select': Shopware.Component.build('sw-entity-single-select'),
                 'sw-select-base': Shopware.Component.build('sw-select-base'),
@@ -76,9 +72,6 @@ describe('components/sw-import-export-exporter', () => {
                 'sw-alert': true,
                 'sw-modal': true,
                 'sw-button': true
-            },
-            mocks: {
-                $tc: snippetPath => snippetPath
             },
             provide: {
                 importExport: {
@@ -113,7 +106,6 @@ describe('components/sw-import-export-exporter', () => {
     });
 
     afterEach(() => {
-        localVue = null;
         wrapper.destroy();
     });
 

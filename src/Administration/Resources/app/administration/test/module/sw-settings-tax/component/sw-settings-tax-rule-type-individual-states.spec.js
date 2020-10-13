@@ -24,10 +24,6 @@ function createWrapper(taxRule) {
             taxRule
         },
 
-        mocks: {
-            $tc: key => key
-        },
-
         provide: {
             repositoryFactory: {
                 create: (entityName) => {

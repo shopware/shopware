@@ -4,7 +4,6 @@ import 'src/app/component/base/sw-card';
 
 function createWrapper() {
     const localVue = createLocalVue();
-
     localVue.directive('responsive', {});
 
     return shallowMount(Shopware.Component.build('sw-cms-page-form'), {
@@ -20,9 +19,6 @@ function createWrapper() {
             'sw-cms-el-config-text': {
                 template: '<div class="config-element">Config element</div>'
             }
-        },
-        mocks: {
-            $tc: (value) => value
         },
         provide: {
             cmsService: {

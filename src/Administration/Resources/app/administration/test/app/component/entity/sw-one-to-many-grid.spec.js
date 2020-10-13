@@ -1,14 +1,9 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/entity/sw-one-to-many-grid';
 
 function createWrapper() {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
     return shallowMount(Shopware.Component.build('sw-one-to-many-grid'), {
-        localVue,
-
         propsData: {
             columns: [
                 {
@@ -31,14 +26,6 @@ function createWrapper() {
                 }
             ],
             allowDelete: true
-        },
-
-        mocks: {
-            $tc: () => {},
-            $te: () => true,
-            $device: {
-                onResize: () => {}
-            }
         },
 
         provide: {

@@ -8,12 +8,7 @@ function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-settings-customer-group-detail'), {
         localVue,
         mocks: {
-            $tc: (translationPath) => translationPath,
-            $router: { replace: () => {} },
-            $route: { query: '' },
-            $device: {
-                getSystemKey: () => 'CTRL'
-            }
+            $route: { query: '' }
         },
 
         propsData: {

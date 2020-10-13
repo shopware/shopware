@@ -72,6 +72,10 @@ describe('module/sw-dashboard/page/sw-dashboard-index', () => {
         wrapper.destroy();
     });
 
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
+    });
+
     it('should not show the stats', async () => {
         const orderToday = wrapper.find('.sw-dashboard-index__intro-stats-today');
         const statisticsCount = wrapper.find('.sw-dashboard-index__statistics-count');
@@ -93,10 +97,6 @@ describe('module/sw-dashboard/page/sw-dashboard-index', () => {
         expect(orderToday.exists()).toBeTruthy();
         expect(statisticsCount.exists()).toBeTruthy();
         expect(statisticsSum.exists()).toBeTruthy();
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should display headline for unknown user', async () => {

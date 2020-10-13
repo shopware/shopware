@@ -77,7 +77,6 @@ function createWrapper(privileges = []) {
             validationService: {}
         },
         mocks: {
-            $tc: v => v,
             $route: {
                 params: {
                     id: '1a2b3c4d'

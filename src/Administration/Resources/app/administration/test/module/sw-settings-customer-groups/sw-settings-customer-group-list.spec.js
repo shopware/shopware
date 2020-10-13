@@ -8,8 +8,6 @@ function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-settings-customer-group-list'), {
         localVue,
         mocks: {
-            $tc: (translationPath) => translationPath,
-            $router: { replace: () => {} },
             $route: {
                 query: {
                     page: 1,

@@ -59,16 +59,11 @@ function createWrapper(privileges = []) {
             'router-link': true
         },
         mocks: {
-            $tc: snippetPath => snippetPath,
-            $store: Shopware.State._store,
             $route: {
                 name: 'sw.product.detail.base',
                 params: {
                     id: '1234'
                 }
-            },
-            $device: {
-                getSystemKey: () => {}
             }
         },
         provide: {

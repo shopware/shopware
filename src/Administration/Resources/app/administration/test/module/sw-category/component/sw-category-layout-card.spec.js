@@ -1,11 +1,8 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-category/component/sw-category-layout-card';
 
 function createWrapper(privileges = []) {
-    const localVue = createLocalVue();
-
     return shallowMount(Shopware.Component.build('sw-category-layout-card'), {
-        localVue,
         stubs: {
             'sw-card': true,
             'sw-cms-list-item': true,
@@ -15,8 +12,7 @@ function createWrapper(privileges = []) {
         mocks: {
             $route: {
                 params: {}
-            },
-            $tc: v => v
+            }
         },
         provide: {
             acl: {

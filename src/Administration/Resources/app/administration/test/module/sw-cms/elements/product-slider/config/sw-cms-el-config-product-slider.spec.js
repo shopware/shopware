@@ -1,10 +1,8 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-element.mixin';
 import 'src/module/sw-cms/elements/product-slider/config';
 
 function createWrapper(customCmsElementConfig) {
-    const localVue = createLocalVue();
-
     const productStreamMock = {
         name: 'Cheap pc parts',
         apiFilter: ['foo', 'bar'],
@@ -16,7 +14,6 @@ function createWrapper(customCmsElementConfig) {
     };
 
     return shallowMount(Shopware.Component.build('sw-cms-el-config-product-slider'), {
-        localVue,
         propsData: {
             element: {
                 config: {
@@ -53,9 +50,6 @@ function createWrapper(customCmsElementConfig) {
             'sw-alert': true,
             'sw-number-field': true,
             'sw-icon': true
-        },
-        mocks: {
-            $tc: (value) => value
         },
         provide: {
             feature: {

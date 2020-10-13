@@ -14,9 +14,6 @@ function createWrapper() {
             },
             productCustomFields: []
         },
-        mocks: {
-            $tc: key => key
-        },
         stubs: {
             'sw-arrow-field': true,
             'sw-single-select': Shopware.Component.build('sw-single-select'),

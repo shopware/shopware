@@ -1,4 +1,5 @@
 import { shallowMount } from '@vue/test-utils';
+import flushPromises from 'flush-promises';
 import 'src/module/sw-order/component/sw-order-product-select';
 
 const createWrapper = () => {
@@ -27,32 +28,8 @@ const createWrapper = () => {
         stubs: {
             'sw-text-field': true,
             'sw-entity-single-select': true
-        },
-        mocks: {
-            $tc: t => t
         }
-
     });
-};
-
-const repositoryMockFactory = () => {
-    return {
-        get: () => {
-            return Promise.resolve({
-                id: 1,
-                name: 'Product test',
-                price: [
-                    {
-                        gross: 110,
-                        net: 100
-                    }
-                ],
-                tax: {
-                    taxRate: 7
-                }
-            });
-        }
-    };
 };
 
 describe('src/module/sw-order/component/sw-order-product-select', () => {
@@ -77,10 +54,36 @@ describe('src/module/sw-order/component/sw-order-product-select', () => {
             };
         });
 
-        Shopware.Service().register('repositoryFactory', () => {
-            return {
-                create: () => repositoryMockFactory()
-            };
+        const mockResponses = global.repositoryFactoryMock.responses;
+
+        mockResponses.addResponse({
+            method: 'POST',
+            url: '/api/v3/search/product',
+            status: 200,
+            response: {
+                data: [
+                    {
+                        attributes: {
+                            id: '1',
+                            name: 'Product test',
+                            price: [
+                                {
+                                    gross: 110,
+                                    net: 100
+                                }
+                            ],
+                            tax: {
+                                taxRate: 7
+                            }
+                        },
+                        id: '1',
+                        relationships: []
+                    }
+                ],
+                meta: {
+                    total: 1
+                }
+            }
         });
     });
 
@@ -160,9 +163,9 @@ describe('src/module/sw-order/component/sw-order-product-select', () => {
             }
         });
 
-        await wrapper.vm.onItemChanged();
+        await wrapper.vm.onItemChanged('1');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.item.priceDefinition.price).toEqual(100);
     });
@@ -178,9 +181,9 @@ describe('src/module/sw-order/component/sw-order-product-select', () => {
             }
         });
 
-        await wrapper.vm.onItemChanged();
+        await wrapper.vm.onItemChanged('1');
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.item.priceDefinition.price).toEqual(110);
     });

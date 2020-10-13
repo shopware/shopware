@@ -11,9 +11,6 @@ function createWrapper() {
         stubs: {
             'sw-icon': true
         },
-        mocks: {
-            $tc: (value) => value
-        },
         provide: {
             cmsService: {}
         }

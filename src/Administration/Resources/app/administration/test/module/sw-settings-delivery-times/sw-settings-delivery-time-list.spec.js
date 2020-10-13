@@ -9,7 +9,6 @@ function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-settings-delivery-time-list'), {
         localVue,
         mocks: {
-            $tc: () => {},
             $route: {
                 query: {
                     page: 1,

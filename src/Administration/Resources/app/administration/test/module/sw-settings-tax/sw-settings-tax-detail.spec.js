@@ -1,19 +1,8 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-tax/page/sw-settings-tax-detail';
 
 function createWrapper(privileges = [], isShopwareDefaultTax = true) {
-    const localVue = createLocalVue();
-    localVue.directive('tooltip', {});
-
     return shallowMount(Shopware.Component.build('sw-settings-tax-detail'), {
-        localVue,
-        mocks: {
-            $tc: key => key,
-            $te: () => isShopwareDefaultTax,
-            $device: {
-                getSystemKey: () => {}
-            }
-        },
         provide: {
             repositoryFactory: {
                 create: () => ({

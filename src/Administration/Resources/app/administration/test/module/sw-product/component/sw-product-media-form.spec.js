@@ -11,7 +11,6 @@ function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-product-media-form'), {
         localVue,
         mocks: {
-            $tc: () => {},
             $store: new Vuex.Store({
                 modules: {
                     swProductDetail: {

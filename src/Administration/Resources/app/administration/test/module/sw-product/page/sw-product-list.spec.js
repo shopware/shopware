@@ -217,7 +217,6 @@ function getCurrencyData() {
 function createWrapper() {
     const localVue = createLocalVue();
     localVue.use(VueRouter);
-    localVue.directive('tooltip', {});
     localVue.filter('currency', (currency) => currency);
 
     const router = new VueRouter({
@@ -237,11 +236,6 @@ function createWrapper() {
         wrapper: shallowMount(Shopware.Component.build('sw-product-list'), {
             localVue,
             router,
-            mocks: {
-                $device: { onResize: () => {} },
-                $tc: () => {},
-                $te: () => {}
-            },
             provide: {
                 numberRangeService: {},
                 feature: {

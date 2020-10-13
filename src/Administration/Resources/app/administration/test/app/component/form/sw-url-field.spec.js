@@ -29,9 +29,6 @@ describe('components/form/sw-url-field', () => {
             },
             provide: {
                 validationService: {}
-            },
-            mocks: {
-                $tc: key => key
             }
         });
     });

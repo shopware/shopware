@@ -9,9 +9,6 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
                     template: '<div />'
                 }
             },
-            mocks: {
-                $tc: (translationPath) => translationPath
-            },
             provide: {
                 systemConfigApiService: {
                     getValues: () => Promise.resolve({

@@ -1,4 +1,4 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/form/select/base/sw-select-base';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
@@ -13,12 +13,8 @@ const EntityDefinitionFactory = require('src/core/factory/entity-definition.fact
 
 describe('module/sw-import-export/components/sw-import-export-entity-path-select', () => {
     let wrapper;
-    let localVue;
 
     beforeEach(() => {
-        localVue = createLocalVue();
-        localVue.directive('popover', {});
-
         const mockEntitySchema = {
             product: {
                 entity: 'product',
@@ -131,7 +127,6 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         });
 
         wrapper = shallowMount(Shopware.Component.build('sw-import-export-entity-path-select'), {
-            localVue,
             stubs: {
                 'sw-select-base': Shopware.Component.build('sw-select-base'),
                 'sw-block-field': Shopware.Component.build('sw-block-field'),
@@ -153,7 +148,6 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
     });
 
     afterEach(() => {
-        localVue = null;
         wrapper.destroy();
     });
 

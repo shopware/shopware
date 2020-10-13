@@ -63,10 +63,6 @@ describe('module/sw-product/page/sw-product-detail', () => {
                     params: {
                         id: '1234'
                     }
-                },
-                $tc: translationKey => translationKey,
-                $device: {
-                    getSystemKey: () => {}
                 }
             },
             provide: {

@@ -76,6 +76,7 @@ class CheckoutCartPageLoader
         $page = $this->genericLoader->load($request, $salesChannelContext);
 
         $page = CheckoutCartPage::createFrom($page);
+        $page->getMetaInformation()->assign(['robots' => 'noindex,follow']);
 
         $page->setCountries($this->getCountries($salesChannelContext));
 

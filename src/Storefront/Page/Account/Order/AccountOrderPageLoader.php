@@ -69,6 +69,7 @@ class AccountOrderPageLoader
         $page = $this->genericLoader->load($request, $salesChannelContext);
 
         $page = AccountOrderPage::createFrom($page);
+        $page->getMetaInformation()->assign(['robots' => 'noindex,follow']);
 
         $page->setOrders(StorefrontSearchResult::createFrom($this->getOrders($request, $salesChannelContext)));
 

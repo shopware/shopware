@@ -58,6 +58,7 @@ class AccountProfilePageLoader
         $page = $this->genericLoader->load($request, $salesChannelContext);
 
         $page = AccountProfilePage::createFrom($page);
+        $page->getMetaInformation()->assign(['robots' => 'noindex,follow']);
 
         $page->setSalutations($this->getSalutations($salesChannelContext, $request));
 

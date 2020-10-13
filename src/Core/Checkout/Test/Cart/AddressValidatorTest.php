@@ -175,9 +175,11 @@ class AddressValidatorTest extends TestCase
         switch ($addressMode) {
             case self::ADDRESS_MODE_COUNTRY_INACTIVE:
                 $update['active'] = false;
+
                 break;
             case self::ADDRESS_MODE_COUNTRY_NOT_SHIPPABLE:
                 $update['shippingAvailable'] = false;
+
                 break;
         }
         $countryRepository->update([$update], $context);

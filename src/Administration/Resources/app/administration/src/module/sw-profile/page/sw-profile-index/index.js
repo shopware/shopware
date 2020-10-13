@@ -284,19 +284,9 @@ Component.register('sw-profile-index', {
             } else {
                 const changes = this.userRepository.getSyncChangeset([this.user]);
 
-                this.userService.updateUser(changes.changeset[0].changes, context).then(() => {
-                    if (this.newPassword) {
-                        // re-issue a valid jwt token, as all user tokens were invalidated on password change
-                        this.loginService.loginByUsername(this.user.username, this.newPassword).then(() => {
-                            this.isLoading = false;
-                            this.isSaveSuccessful = true;
-                        }).catch(() => {
-                            this.handleUserSaveError();
-                        });
-                    } else {
-                        this.isLoading = false;
-                        this.isSaveSuccessful = true;
-                    }
+                this.userService.updateUser(changes.changeset[0].changes).then(() => {
+                    this.isLoading = false;
+                    this.isSaveSuccessful = true;
 
                     Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId);
                 });

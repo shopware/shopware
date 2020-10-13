@@ -32,6 +32,15 @@ Component.register('sw-verify-user-modal', {
                 const context = { ...Shopware.Context.api };
                 context.authToken.access = verifiedToken;
 
+                let authObject = this.loginService.getBearerAuthentication();
+                authObject = {
+                    ...authObject,
+                    ...{
+                        access: verifiedToken
+                    }
+                };
+                this.loginService.setBearerAuthentication(authObject);
+
                 this.$emit('verified', context);
             }).catch(() => {
                 this.createNotificationError({

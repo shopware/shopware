@@ -41,9 +41,7 @@ class UserApiService extends ApiService {
      */
     updateUser(additionalParams = {}, additionalHeaders = {}) {
         const data = additionalParams;
-        const headers = this.getBasicHeaders({
-            Authorization: `Bearer ${additionalHeaders.authToken.access}`
-        });
+        const headers = this.getBasicHeaders(additionalHeaders);
 
         return this.httpClient
             .patch('/_info/me', data,

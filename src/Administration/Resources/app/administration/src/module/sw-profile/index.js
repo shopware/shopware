@@ -16,7 +16,10 @@ Module.register('sw-profile', {
     routes: {
         index: {
             component: 'sw-profile-index',
-            path: 'index'
+            path: 'index',
+            meta: {
+                privilege: 'user.update_profile'
+            }
         }
     }
 });

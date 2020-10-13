@@ -32,7 +32,7 @@
 
                                 {% block sw_settings_content_tab_plugins %}
                                     <sw-tabs-item class="sw-settings__tab-plugins"
-                                                  v-if="hasPluginConfig() && pluginSettingsGroupExist"
+                                                  v-if="hasPluginConfig()"
                                                   name="plugins"
                                                   :activeTab="active"
                                                   :title="$tc('sw-settings.index.tabPlugins')">
@@ -97,6 +97,7 @@
                                                         </template>
                                                     </sw-settings-item>
 
+                                                    {# @deprecated tag:v6.4.0 - use "settingsItem" in Module.register() instead #}
                                                     {% block sw_settings_content_card_slot_plugins %}{% endblock %}
                                                 </div>
                                             </slot>

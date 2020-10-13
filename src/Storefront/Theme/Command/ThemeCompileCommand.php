@@ -10,6 +10,7 @@ use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Storefront\Theme\ThemeService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -39,6 +40,12 @@ class ThemeCompileCommand extends Command
         $this->salesChannelRepository = $salesChannelRepository;
     }
 
+    public function configure(): void
+    {
+        $this
+            ->addOption('keep-assets', 'k', InputOption::VALUE_NONE, 'Keep current assets, do not delete them');
+    }
+
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->io = new SymfonyStyle($input, $output);
@@ -53,8 +60,7 @@ class ThemeCompileCommand extends Command
             if (!$themes || !$theme = $themes->first()) {
                 continue;
             }
-
-            $this->themeService->compileTheme($salesChannel->getId(), $theme->getId(), $context);
+            $this->themeService->compileTheme($salesChannel->getId(), $theme->getId(), $context, null, !$input->getOption('keep-assets'));
         }
 
         $this->io->note(sprintf('Took %f seconds', (float) microtime(true) - $start));

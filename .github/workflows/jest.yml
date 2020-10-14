@@ -3,15 +3,14 @@ name: Jest
 on:
     push:
         branches:
-            - '6.2'
-            - master
+            - major
     pull_request:
 
 jobs:
   admin:
     runs-on: ubuntu-latest
     env:
-      DEVELOPMENT_BRANCH: master
+      DEVELOPMENT_BRANCH: major
 
     steps:
     - name: Clone development

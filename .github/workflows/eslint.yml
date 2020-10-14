@@ -3,8 +3,7 @@ name: Javascript analysis
 on:
     push:
         branches:
-            - '6.2'
-            - master
+            - major
     pull_request:
 
 jobs:

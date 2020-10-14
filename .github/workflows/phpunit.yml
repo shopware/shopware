@@ -3,8 +3,7 @@ name: PHPUnit
 on:
     push:
         branches:
-            - '6.2'
-            - master
+            - major
     pull_request:
 
 jobs:
@@ -14,7 +13,7 @@ jobs:
         php: ['7.2', '7.3', '7.4']
     runs-on: ubuntu-latest
     env:
-      DEVELOPMENT_BRANCH: master
+      DEVELOPMENT_BRANCH: major
       TEST_SUITES: 'administration storefront checkout content framework profiling migration system elasticsearch docs'
 
     steps:

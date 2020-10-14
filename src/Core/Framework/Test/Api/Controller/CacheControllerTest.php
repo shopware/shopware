@@ -3,6 +3,8 @@
 namespace Shopware\Core\Framework\Test\Api\Controller;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
@@ -103,5 +105,23 @@ class CacheControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse();
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r($response->getContent(), true));
+    }
+
+    public function testCacheIndexEndpointNoPermissions(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_3722', $this);
+
+        try {
+            $this->authorizeBrowser($this->getBrowser(), [], ['something']);
+            $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/index');
+
+            /** @var JsonResponse $response */
+            $response = $this->getBrowser()->getResponse();
+
+            static::assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode(), $response->getContent());
+            static::assertEquals(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, json_decode($response->getContent(), true)['errors'][0]['code'], $response->getContent());
+        } finally {
+            $this->resetBrowser();
+        }
     }
 }

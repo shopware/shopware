@@ -44,10 +44,29 @@ Component.register('sw-order-create-base', {
                     return;
                 }
 
-                Object.keys(newValue).forEach(key => {
-                    this.createNotificationError({
-                        message: newValue[key].message
-                    });
+                Object.values(newValue).forEach((value) => {
+                    switch (value.level) {
+                        case 0: {
+                            this.createNotificationSuccess({
+                                message: value.message
+                            });
+                            break;
+                        }
+
+                        case 10: {
+                            this.createNotificationWarning({
+                                message: value.message
+                            });
+                            break;
+                        }
+
+                        default: {
+                            this.createNotificationError({
+                                message: value.message
+                            });
+                            break;
+                        }
+                    }
                 });
             }
         }

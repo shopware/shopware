@@ -109,12 +109,20 @@ class Criteria extends Struct
     protected $title;
 
     /**
-     * @param string[]|array<int, string[]> $ids
+     * @param string[]|array<int, string[]>|null $ids
      *
      * @throws InconsistentCriteriaIdsException
      */
-    public function __construct(array $ids = [])
+    public function __construct(?array $ids = null)
     {
+        if (\is_array($ids) && \count($ids) === 0) {
+            @trigger_error('Empty id arrays in Criteria constructors are deprecated and will throw an InconsistentCriteriaIdsException in 6.4.0.', E_USER_DEPRECATED);
+        }
+
+        if ($ids === null) {
+            $ids = [];
+        }
+
         if (\count($ids) > \count(array_filter($ids))) {
             throw new InconsistentCriteriaIdsException();
         }
@@ -467,10 +475,18 @@ class Criteria extends Struct
     }
 
     /**
-     * @param string[]|array<int, string[]> $ids
+     * @param string[]|array<int, string[]>|null $ids
      */
-    public function cloneForRead(array $ids = []): Criteria
+    public function cloneForRead(?array $ids = null): Criteria
     {
+        if (\is_array($ids) && \count($ids) === 0) {
+            @trigger_error('Empty id arrays in Criteria `cloneForRead` method are deprecated and will throw an InconsistentCriteriaIdsException in 6.4.0.', E_USER_DEPRECATED);
+        }
+
+        if ($ids === null) {
+            $ids = [];
+        }
+
         $self = new self($ids);
         $self->setTitle($this->getTitle());
 

@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
@@ -37,6 +38,11 @@ class EntityScoreBuilderTest extends TestCase
     private $testDefinitionTranslated;
 
     /**
+     * @var EntityDefinition
+     */
+    private $onlyDateFieldDefinition;
+
+    /**
      * @var Context
      */
     private $context;
@@ -45,7 +51,54 @@ class EntityScoreBuilderTest extends TestCase
     {
         $this->testDefinition = $this->registerDefinition(ScoreBuilderTestDefinition::class, NestedDefinition::class);
         $this->testDefinitionTranslated = $this->registerDefinition(OnlyTranslatedFieldDefinition::class);
+        $this->onlyDateFieldDefinition = $this->registerDefinition(OnlyDateFieldDefinition::class);
         $this->context = Context::createDefaultContext();
+    }
+
+    /**
+     * @dataProvider validDateTerms
+     */
+    public function testValidDateTerms(string $dateTerm): void
+    {
+        $builder = new EntityScoreQueryBuilder();
+
+        $pattern = new SearchPattern(
+            new SearchTerm($dateTerm, 1),
+            'product'
+        );
+
+        $queries = $builder->buildScoreQueries($pattern, $this->onlyDateFieldDefinition, 'test', $this->context);
+
+        static::assertEquals(
+            [
+                new ScoreQuery(new EqualsFilter('test.dateTime', $dateTerm), 100),
+                new ScoreQuery(new ContainsFilter('test.dateTime', $dateTerm), 50),
+            ],
+            $queries
+        );
+    }
+
+    /**
+     * @dataProvider inValidDateTerms
+     */
+    public function testInValidDateTerms(string $dateTerm): void
+    {
+        $builder = new EntityScoreQueryBuilder();
+
+        $pattern = new SearchPattern(
+            new SearchTerm($dateTerm, 1),
+            'product'
+        );
+
+        $queries = $builder->buildScoreQueries($pattern, $this->onlyDateFieldDefinition, 'test', $this->context);
+
+        static::assertNotEquals(
+            [
+                new ScoreQuery(new EqualsFilter('test.dateTime', $dateTerm), 100),
+                new ScoreQuery(new ContainsFilter('test.dateTime', $dateTerm), 50),
+            ],
+            $queries
+        );
     }
 
     public function testSimplePattern(): void
@@ -162,6 +215,29 @@ class EntityScoreBuilderTest extends TestCase
             $queries
         );
     }
+
+    public function inValidDateTerms()
+    {
+        return [
+            'query should not be return abc123' => ['abc123'],
+            'query should not be return 2020' => ['2020'],
+            'query should not be return 2020-01-01' => ['2020-1-01'],
+            'query should not be return 1900-12-12' => ['1900-12-1'],
+            'query should not be return 1900-12-21' => ['1999-31-31'],
+            'query should not be return 2012-02-28' => ['2012-02-31'],
+            'query should not be return 2012-12-01 12:12:12' => ['2012-12-01 12:12:12'],
+        ];
+    }
+
+    public function validDateTerms()
+    {
+        return [
+            'query should be return 2020-01-01' => ['2020-01-01'],
+            'query should be return 1900-12-12' => ['1900-12-01'],
+            'query should be return 1900-12-21' => ['1999-12-31'],
+            'query should be return 2012-02-28' => ['2012-02-28'],
+        ];
+    }
 }
 
 class ScoreBuilderTestDefinition extends EntityDefinition
@@ -214,6 +290,23 @@ class OnlyTranslatedFieldDefinition extends EntityDefinition
     {
         return new FieldCollection([
             new TranslatedField('name'),
+        ]);
+    }
+}
+
+class OnlyDateFieldDefinition extends EntityDefinition
+{
+    public const ENTITY_NAME = 'dates';
+
+    public function getEntityName(): string
+    {
+        return 'dates';
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new DateTimeField('date_time', 'dateTime'))->addFlags(new SearchRanking(100)),
         ]);
     }
 }

@@ -87,6 +87,14 @@ class EntityTemplateLoaderTest extends TestCase
         static::assertEquals('@TestTheme/storefront/base.html.twig', $source->getName());
     }
 
+    public function testGetSourceContextForDeactivatedApp(): void
+    {
+        $this->importTemplates();
+
+        static::expectException(LoaderError::class);
+        $this->templateLoader->getSourceContext('@StorefrontTheme/storefront/base.html.twig');
+    }
+
     public function testGetCacheKey(): void
     {
         static::assertEquals(
@@ -147,6 +155,19 @@ class EntityTemplateLoaderTest extends TestCase
         );
     }
 
+    public function testExistsForDeactivatedApp(): void
+    {
+        static::assertFalse(
+            $this->templateLoader->exists('@StorefrontTheme/storefront/base.html.twig')
+        );
+
+        $this->importTemplates();
+
+        static::assertFalse(
+            $this->templateLoader->exists('@StorefrontTheme/storefront/base.html.twig')
+        );
+    }
+
     private function importTemplates(): void
     {
         $this->templateRepository->upsert([
@@ -161,6 +182,7 @@ class EntityTemplateLoaderTest extends TestCase
                     'version' => '0.0.1',
                     'label' => 'test',
                     'accessToken' => 'test',
+                    'active' => true,
                     'integration' => [
                         'label' => 'test',
                         'writeAccess' => false,
@@ -183,6 +205,7 @@ class EntityTemplateLoaderTest extends TestCase
                     'version' => '0.0.1',
                     'label' => 'test',
                     'accessToken' => 'test',
+                    'active' => false,
                     'integration' => [
                         'label' => 'test',
                         'writeAccess' => false,

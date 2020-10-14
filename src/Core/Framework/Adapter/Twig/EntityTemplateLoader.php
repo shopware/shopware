@@ -94,6 +94,7 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('path', $path))
             ->addFilter(new EqualsFilter('active', true))
+            ->addFilter(new EqualsFilter('app.active', true))
             ->addAssociation('app');
 
         $templates = $this->templateRepository->search($criteria, Context::createDefaultContext());

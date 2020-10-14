@@ -152,8 +152,8 @@ class UserControllerTest extends TestCase
 
         $getAdditionalPrivileges = function (AclGetAdditionalPrivilegesEvent $event): void {
             $privileges = $event->getPrivileges();
-            static::assertContains('user:update_profile', $privileges);
-            $privileges[] = 'my_custom_privilege';
+            static::assertContains('user_change_me', $privileges);
+            $privileges[] = 'user_change_me';
             $event->setPrivileges($privileges);
         };
         $this->getContainer()->get('event_dispatcher')->addListener(AclGetAdditionalPrivilegesEvent::class, $getAdditionalPrivileges);
@@ -164,7 +164,6 @@ class UserControllerTest extends TestCase
 
         static::assertNotContains('unit:read', $privileges);
         static::assertContains('user_change_me', $privileges);
-        static::assertContains('my_custom_privilege', $privileges);
     }
 
     public function testSetOwnProfileNoPermission(): void

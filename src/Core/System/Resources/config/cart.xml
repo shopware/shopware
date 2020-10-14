@@ -36,4 +36,18 @@
         </input-field>
 
     </card>
+
+    <card>
+        <title>Wishlist</title>
+        <title lang="de-DE">Merkzettel</title>
+
+        <input-field type="bool">
+            <name>wishlistEnabled</name>
+            <label>Activate wishlist</label>
+            <label lang="de-DE">Merkzettel aktivieren</label>
+            <flag>FEATURE_NEXT_10549</flag>
+        </input-field>
+
+    </card>
+
 </config>

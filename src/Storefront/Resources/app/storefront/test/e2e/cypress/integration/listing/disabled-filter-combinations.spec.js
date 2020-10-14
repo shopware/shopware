@@ -3,6 +3,8 @@ import variant2 from '../../fixtures/variantProduct2';
 
 describe('Test product filters get disabled if a combination is not possible', () => {
     beforeEach(() => {
+        let salesChannelId = null;
+        let languageId = null;
         cy.setToInitialState()
             .then(() => {
                 cy.loginViaApi().then(() => {
@@ -13,6 +15,39 @@ describe('Test product filters get disabled if a combination is not possible', (
                 });
             })
             .then(() => {
+                return cy.searchViaAdminApi({
+                    endpoint: 'sales-channel',
+                    data: {
+                        field: 'name',
+                        value: 'Storefront'
+                    }
+                });
+            })
+            .then((salesChannel) => {
+                salesChannelId = salesChannel.id;
+                return cy.searchViaAdminApi({
+                    endpoint: 'language',
+                    data: {
+                        field: 'name',
+                        value: 'English'
+                    }
+                });
+            })
+            .then((language) => {
+                languageId = language.id
+
+                variant1.productReviews = [
+                    {
+                        id: 'f1d2554b0ce847cd82f3ac9bd1c0dfab',
+                        product_id: 'f1d2554b0ce847cd82f3ac9bd1c0dfca',
+                        salesChannelId: salesChannelId,
+                        languageId: languageId,
+                        points: 3,
+                        status: true,
+                        content: 'This is the best product I have ever seen!',
+                        title: 'Impressed'
+                    }
+                ];
                 return cy.createProductFixture(variant1);
             })
             .then(() => {
@@ -292,5 +327,52 @@ describe('Test product filters get disabled if a combination is not possible', (
                 const classList = Array.from($el[0].classList);
                 return classList.includes('disabled');
             });
+    });
+
+    it('Should filter by rating and disable not possible rating filter options', () => {
+        cy.get('.filter-multi-select-properties').contains('color').as('colorFilterButton');
+        cy.get('@colorFilterButton').closest('.filter-multi-select-properties').as('colorFilter');
+
+        cy.get('.filter-multi-select-properties').contains('size').as('sizeFilterButton');
+        cy.get('@sizeFilterButton').closest('.filter-multi-select-properties').as('sizeFilter');
+
+        cy.get('.filter-boolean').contains('Free shipping').as('shippingFilterLabel');
+        cy.get('@shippingFilterLabel').closest('.filter-boolean').as('shippingFilter');
+
+        cy.get('.filter-multi-select-manufacturer').as('manufacturerFilter');
+
+        cy.get('.filter-multi-select-rating').as('RatingFilter');
+
+        cy.get('@RatingFilter').click();
+        cy.get('.filter-multi-select-rating .filter-multi-select-dropdown')
+            .as('ratingList').should('be.visible');
+
+        // Filter by at least 3 stars
+        cy.get('@ratingList').within(() => {
+            // First element(4 stars) should be disabled since we have only a product with a 3 star rating
+            cy.get('.filter-rating-select-list-item').should('have.length', 4).eq(0).should('satisfy', ($el) => {
+                const classList = Array.from($el[0].classList);
+                return classList.includes('disabled');
+            });
+            cy.get('.filter-rating-select-list-item').eq(1).click();
+            cy.get('.filter-rating-select-list-item').eq(1).within(() => {
+                cy.get('.filter-rating-select-item-checkmark').should('have.css', 'opacity', "1");
+            });
+        });
+
+        // Close rating dropdown
+        cy.get('@RatingFilter').click();
+
+        // Label for active rating filter should be shown
+        cy.get('.filter-panel-active-container').contains('At least 3 stars').should('be.visible');
+
+        // One product should be shown
+        cy.get('.product-box').should('have.length', 1);
+
+        // Reset all button
+        cy.get('.filter-reset-all').click();
+
+        // All products should be shown
+        cy.get('.product-box').should('have.length', 2);
     });
 });

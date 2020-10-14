@@ -49,21 +49,21 @@ export default {
             "productNumber": "TEST.1",
             "stock": 10,
             "options": [
-                {"id": "f1d2554b0ce847cd82f3ac9bd1c0dfba"},
+                {"id": "f1d2554b0ce847cd82f3ac9bd1c0dfba"}
             ]
         },
         {
             "productNumber": "TEST.2",
             "stock": 10,
             "options": [
-                {"id": "f1d2554b0ce847cd82f3ac9bd1c0dfbb"},
+                {"id": "f1d2554b0ce847cd82f3ac9bd1c0dfbb"}
             ]
         },
         {
             "productNumber": "TEST.3",
             "stock": 10,
             "options": [
-                {"id": "f1d2554b0ce847cd82f3ac9bd1c0dfbc"},
+                {"id": "f1d2554b0ce847cd82f3ac9bd1c0dfbc"}
             ]
         }
     ],

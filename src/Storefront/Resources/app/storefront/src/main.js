@@ -61,7 +61,7 @@ import FilterMultiSelectPlugin from 'src/plugin/listing/filter-multi-select.plug
 import FilterPropertySelectPlugin from 'src/plugin/listing/filter-property-select.plugin';
 import FilterBooleanPlugin from 'src/plugin/listing/filter-boolean.plugin';
 import FilterRangePlugin from 'src/plugin/listing/filter-range.plugin';
-import FilterRatingPlugin from 'src/plugin/listing/filter-rating.plugin';
+import FilterRatingSelectPlugin from 'src/plugin/listing/filter-rating-select.plugin';
 import ListingPlugin from 'src/plugin/listing/listing.plugin';
 import OffCanvasFilterPlugin from 'src/plugin/offcanvas-filter/offcanvas-filter.plugin';
 import RatingSystemPlugin from 'src/plugin/rating-system/rating-system.plugin';
@@ -132,7 +132,7 @@ PluginManager.register('FilterBoolean', FilterBooleanPlugin, '[data-filter-boole
 PluginManager.register('FilterRange', FilterRangePlugin, '[data-filter-range]');
 PluginManager.register('FilterMultiSelect', FilterMultiSelectPlugin, '[data-filter-multi-select]');
 PluginManager.register('FilterPropertySelect', FilterPropertySelectPlugin, '[data-filter-property-select]');
-PluginManager.register('FilterRating', FilterRatingPlugin, '[data-filter-rating]');
+PluginManager.register('FilterRatingSelect', FilterRatingSelectPlugin, '[data-filter-rating-select]');
 PluginManager.register('ListingPagination', ListingPaginationPlugin, '[data-listing-pagination]');
 PluginManager.register('ListingSorting', ListingSortingPlugin, '[data-listing-sorting]');
 PluginManager.register('CrossSelling', CrossSellingPlugin, '[data-cross-selling]');

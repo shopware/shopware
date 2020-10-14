@@ -11,7 +11,7 @@
                 {% block sw_newsletter_recipient_detail_actions_edit %}
                     <sw-button class="sw-newsletter-recipient-detail__open-edit-mode-action"
                                variant="primary"
-                               :disabled="isLoading"
+                               :disabled="isLoading || !acl.can('newsletter_recipient.editor')"
                                @click="onClickSave">
                         {{ $tc('sw-newsletter-recipient.general.buttonSave') }}
                     </sw-button>
@@ -27,15 +27,17 @@
                         <sw-container columns="1fr 1fr" gap="10px">
                             {% block sw_newsletter_recipient_detail_form_salutation %}
                                 <sw-entity-single-select
-                                        :label="$tc('sw-newsletter-recipient.general.salutation')"
-                                        v-model="newsletterRecipient.salutationId"
-                                        labelProperty="displayName"
-                                        entity="salutation">
+                                    :disabled="!acl.can('newsletter_recipient.editor')"
+                                    :label="$tc('sw-newsletter-recipient.general.salutation')"
+                                    v-model="newsletterRecipient.salutationId"
+                                    labelProperty="displayName"
+                                    entity="salutation">
                                 </sw-entity-single-select>
                             {% endblock %}
 
                             {% block sw_newsletter_recipient_detail_form_title %}
                                 <sw-field :label="$tc('sw-newsletter-recipient.list.title')"
+                                          :disabled="!acl.can('newsletter_recipient.editor')"
                                           v-model="newsletterRecipient.title">
                                 </sw-field>
                             {% endblock %}
@@ -44,12 +46,14 @@
                         <sw-container columns="1fr 1fr" gap="10px">
                             {% block sw_newsletter_recipient_detail_form_first_name %}
                                 <sw-field :label="$tc('sw-newsletter-recipient.list.firstName')"
+                                          :disabled="!acl.can('newsletter_recipient.editor')"
                                           v-model="newsletterRecipient.firstName">
                                 </sw-field>
                             {% endblock %}
 
                             {% block sw_newsletter_recipient_detail_form_last_name %}
                                 <sw-field :label="$tc('sw-newsletter-recipient.list.lastName')"
+                                          :disabled="!acl.can('newsletter_recipient.editor')"
                                           v-model="newsletterRecipient.lastName">
                                 </sw-field>
                             {% endblock %}
@@ -57,51 +61,58 @@
 
                         {% block sw_newsletter_recipient_detail_form_email %}
                             <sw-field :label="$tc('sw-newsletter-recipient.list.email')"
+                                      :disabled="!acl.can('newsletter_recipient.editor')"
                                       v-model="newsletterRecipient.email">
                             </sw-field>
                         {% endblock %}
 
                         {% block sw_newsletter_recipient_detail_form_street %}
                             <sw-field :label="$tc('sw-newsletter-recipient.list.street')"
+                                      :disabled="!acl.can('newsletter_recipient.editor')"
                                       v-model="newsletterRecipient.street">
                             </sw-field>
                         {% endblock %}
 
-                         <sw-container columns="1fr 1fr" gap="10px">
+                        <sw-container columns="1fr 1fr" gap="10px">
                             {% block sw_newsletter_recipient_detail_form_zip_code %}
                                 <sw-field :label="$tc('sw-newsletter-recipient.list.zipCode')"
+                                          :disabled="!acl.can('newsletter_recipient.editor')"
                                           v-model="newsletterRecipient.zipCode">
                                 </sw-field>
                             {% endblock %}
 
                             {% block sw_newsletter_recipient_detail_form_city %}
                                 <sw-field :label="$tc('sw-newsletter-recipient.list.city')"
+                                          :disabled="!acl.can('newsletter_recipient.editor')"
                                           v-model="newsletterRecipient.city">
                                 </sw-field>
                             {% endblock %}
-                         </sw-container>
+                        </sw-container>
 
                         {% block sw_newsletter_recipient_detail_form_language %}
                             <sw-entity-single-select
-                                    :label="$tc('sw-newsletter-recipient.general.language')"
-                                    v-model="newsletterRecipient.languageId"
-                                    entity="language">
+                                :label="$tc('sw-newsletter-recipient.general.language')"
+                                :disabled="!acl.can('newsletter_recipient.editor')"
+                                v-model="newsletterRecipient.languageId"
+                                entity="language">
                             </sw-entity-single-select>
                         {% endblock %}
 
                         {% block sw_newsletter_recipient_detail_form_sales_channel %}
                             <sw-entity-single-select
-                                    disabled
-                                    labelProperty="name"
-                                    :label="$tc('sw-newsletter-recipient.general.salesChannel')"
-                                    v-model="newsletterRecipient.salesChannelId"
-                                    entity="sales_channel">
+                                :label="$tc('sw-newsletter-recipient.general.salesChannel')"
+                                labelProperty="name"
+                                :disabled="true"
+                                v-model="newsletterRecipient.salesChannelId"
+                                entity="sales_channel">
                             </sw-entity-single-select>
                         {% endblock %}
 
                         {% block sw_newsletter_recipient_detail_form_tags %}
-                            <sw-entity-tag-select :label="$tc('sw-newsletter-recipient.general.tags')"
-                                                  v-model="newsletterRecipient.tags">
+                            <sw-entity-tag-select 
+                                :label="$tc('sw-newsletter-recipient.general.tags')"
+                                :disabled="!acl.can('newsletter_recipient.editor')"
+                                v-model="newsletterRecipient.tags">
                             </sw-entity-tag-select>
                         {% endblock %}
 

@@ -66,10 +66,10 @@ class Migration1595553089FixOrderConfirmationMailForAllPayloads extends Migratio
         if ($templateId !== null) {
             // updating available entities of mail template
             $availableEntities = $this->fetchSystemMailTemplateAvailableEntitiesFromType($connection, $mailTemplateType);
-            $newAvaibleEntities = substr($availableEntities, 0, -1) . ',"editOrderUrl": null}';
+            $newAvailableEntities = substr($availableEntities, 0, -1) . ',"editOrderUrl": null}';
 
             $sqlStatement = 'UPDATE `mail_template_type` SET `available_entities` = :availableEntities WHERE `technical_name` = :mailTemplateType AND `updated_at` IS NULL';
-            $connection->executeUpdate($sqlStatement, ['availableEntities' => $newAvaibleEntities, 'mailTemplateType' => $mailTemplateType]);
+            $connection->executeUpdate($sqlStatement, ['availableEntities' => $newAvailableEntities, 'mailTemplateType' => $mailTemplateType]);
 
             $this->updateMailTemplateTranslation(
                 $connection,
@@ -106,17 +106,12 @@ class Migration1595553089FixOrderConfirmationMailForAllPayloads extends Migratio
         return $templateId;
     }
 
-    private function fetchSystemMailTemplateAvailableEntitiesFromType(Connection $connection, string $mailTemplateType): ?string
+    private function fetchSystemMailTemplateAvailableEntitiesFromType(Connection $connection, string $mailTemplateType): string
     {
-        $availableEntities = $connection->executeQuery('
-        SELECT `available_entities` FROM `mail_template_type` WHERE `technical_name` = :mailTemplateType AND updated_at IS NULL;
-        ', ['mailTemplateType' => $mailTemplateType])->fetchColumn();
-
-        if ($availableEntities === false || !is_string($availableEntities)) {
-            return null;
-        }
-
-        return $availableEntities;
+        return (string) $connection->executeQuery(
+            'SELECT `available_entities` FROM `mail_template_type` WHERE `technical_name` = :mailTemplateType AND updated_at IS NULL;',
+            ['mailTemplateType' => $mailTemplateType]
+        )->fetchColumn();
     }
 
     private function updateMailTemplateTranslation(

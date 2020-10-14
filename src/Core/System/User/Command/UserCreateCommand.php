@@ -49,6 +49,15 @@ class UserCreateCommand extends Command
         $io = new ShopwareStyle($input, $output);
 
         $username = $input->getArgument('username');
+        if ($username === null) {
+            $io->error('No user name given.');
+
+            return 1;
+        }
+        if (\is_array($username)) {
+            $username = implode(' ', $username);
+        }
+
         $password = $input->getOption('password');
 
         if (empty($password)) {

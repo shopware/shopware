@@ -4,8 +4,11 @@ namespace Shopware\Core\Framework\Test\Api\Controller;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\Acl\Event\AclGetAdditionalPrivilegesEvent;
+use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -141,5 +144,42 @@ class UserControllerTest extends TestCase
         $response = $client->getResponse();
         $content = json_decode($response->getContent(), true);
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r($content, true));
+    }
+
+    public function testSetOwnProfilePrivilegesEvent(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_3722', $this);
+
+        $getAdditionalPrivileges = function (AclGetAdditionalPrivilegesEvent $event): void {
+            $privileges = $event->getPrivileges();
+            static::assertContains('user:update_profile', $privileges);
+            $privileges[] = 'my_custom_privilege';
+            $event->setPrivileges($privileges);
+        };
+        $this->getContainer()->get('event_dispatcher')->addListener(AclGetAdditionalPrivilegesEvent::class, $getAdditionalPrivileges);
+
+        $this->getBrowser()->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/_info/me');
+        $response = $this->getBrowser()->getResponse();
+        $privileges = json_decode($response->getContent(), true);
+
+        static::assertNotContains('unit:read', $privileges);
+        static::assertContains('user_change_me', $privileges);
+        static::assertContains('my_custom_privilege', $privileges);
+    }
+
+    public function testSetOwnProfileNoPermission(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_3722', $this);
+
+        try {
+            $this->authorizeBrowser($this->getBrowser(), [], []);
+            $this->getBrowser()->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/_info/me');
+            $response = $this->getBrowser()->getResponse();
+
+            static::assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode(), $response->getContent());
+            static::assertEquals(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, json_decode($response->getContent(), true)['errors'][0]['code'], $response->getContent());
+        } finally {
+            $this->resetBrowser();
+        }
     }
 }

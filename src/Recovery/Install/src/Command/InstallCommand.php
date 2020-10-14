@@ -658,6 +658,12 @@ EOT;
         $this->dumpProgress($conn, $dump);
 
         $this->runMigrations();
+
+        $preSql = <<<'EOT'
+SET FOREIGN_KEY_CHECKS = 1;
+';
+EOT;
+        $conn->query($preSql);
     }
 
     private function dumpProgress(\PDO $conn, DumpIterator $dump): void

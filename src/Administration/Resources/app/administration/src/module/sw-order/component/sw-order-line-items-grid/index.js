@@ -237,11 +237,6 @@ Component.register('sw-order-line-items-grid', {
             this.searchTerm = searchTerm.toLowerCase();
         },
 
-        /** @deprecated:v6.4.0 use isCreditItem instead */
-        itemIsCredit(id) {
-            return this.isCreditItem(id);
-        },
-
         isCreditItem(id) {
             const item = this.orderLineItems.find((elem) => { return elem.id === id; });
             return item.type === this.lineItemTypes.CREDIT;

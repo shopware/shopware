@@ -10,8 +10,7 @@ Component.register('sw-order-line-items-grid-sales-channel', {
     props: {
         salesChannelId: {
             type: String,
-            // @deprecated tag:v6.4.0 - salesChannelId will become required: true
-            required: false,
+            required: true,
             default: ''
         },
 

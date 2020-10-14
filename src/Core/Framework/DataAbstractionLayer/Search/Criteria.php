@@ -479,7 +479,7 @@ class Criteria extends Struct
      */
     public function cloneForRead(?array $ids = null): Criteria
     {
-        if (\is_array($ids) && \count($ids) === 0) {
+        if ($ids === []) {
             @trigger_error('Empty id arrays in Criteria `cloneForRead` method are deprecated and will throw an InconsistentCriteriaIdsException in 6.4.0.', E_USER_DEPRECATED);
         }
 

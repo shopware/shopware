@@ -19,7 +19,7 @@
                 {% block sw_settings_number_range_detail_actions_abort %}
                     <sw-button
                         v-tooltip.bottom="tooltipCancel"
-                        :disabled="isLoading || !this.acl.can('number_ranges.editor')"
+                        :disabled="isLoading"
                         @click="onCancel">
                         {{ $tc('sw-settings-number-range.detail.buttonCancel') }}
                     </sw-button>

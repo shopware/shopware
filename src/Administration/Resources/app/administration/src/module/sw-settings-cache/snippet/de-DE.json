@@ -16,21 +16,21 @@
       "clearCachesHeadline": "Caches leeren",
       "clearCachesText": "Der Cache wird sofort synchron geleert für alle verwendeten Adapter.",
       "clearCachesButton": "Caches leeren",
-      "clearAndWarmUpHeadline": "Caches löschen und aufwärmen",
+      "clearAndWarmUpHeadline": "Caches leeren und aufwärmen",
       "clearAndWarmUpText": "Nachdem der Cache geleert wurde, werden asynchron neue Cache-Einträge generiert.",
-      "clearAndWarmUpButton": "Löschen und Aufwärmen",
+      "clearAndWarmUpButton": "Leeren und Aufwärmen",
       "indexesHeadline": "Indizes",
       "indexesText": "Es werden alle Indizes asynchron aktualisiert. Der Fortschritt kann in den Mitteilungen eingesehen werden. Dies betrifft unter anderem die Produkt- und Kategorieindizes oder auch die SEO-URL's.",
       "indexesButton": "Indizes aktualisieren"
     },
     "notifications": {
       "clearCache": {
-        "started": "Cache wird gelöscht.",
-        "success": "Cache gelöscht.",
-        "error": "Cache konnte nicht gelöscht werden."
+        "started": "Cache wird geleert.",
+        "success": "Cache wurde geleert.",
+        "error": "Cache konnte nicht geleert werden."
       },
       "clearCacheAndWarmup": {
-        "started": "Alle Caches gelöscht. Neuer Cache wird aufgewärmt. Tipp: Du kannst den Fortschritt über die Mitteilungen verfolgen.",
+        "started": "Alle Caches wurden geleert. Neuer Cache wird aufgewärmt. Tipp: Du kannst den Fortschritt über die Mitteilungen verfolgen.",
         "success": "Aufwärmen abgeschlossen."
       },
       "index": {
@@ -39,11 +39,11 @@
       }
     },
     "modal": {
-      "title": "Cache löschen",
-      "message": "Bist Du sicher, dass Du alle Caches löschen möchtest?",
+      "title": "Cache leeren",
+      "message": "Bist Du sicher, dass Du alle Caches leeren möchtest?",
       "actions": {
         "cancel": "Abbrechen",
-        "clear": "Löschen"
+        "clear": "Leeren"
       }
     }
   },

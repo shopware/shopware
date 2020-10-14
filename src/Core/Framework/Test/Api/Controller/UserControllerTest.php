@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Test\Api\Controller;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Api\Acl\Event\AclGetAdditionalPrivilegesEvent;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
 use Shopware\Core\Framework\Context;
@@ -108,6 +107,52 @@ class UserControllerTest extends TestCase
         static::assertEquals(array_values($ids->getList(['role-2'])), $assigned);
     }
 
+    public function testAddRoleAssignment(): void
+    {
+        $ids = new IdsCollection();
+
+        $user = [
+            'id' => $ids->get('user'),
+            'email' => 'foo@bar.com',
+            'firstName' => 'Firstname',
+            'lastName' => 'Lastname',
+            'password' => 'password',
+            'username' => 'foobar',
+            'localeId' => $this->getContainer()->get(Connection::class)->fetchColumn('SELECT LOWER(HEX(id)) FROM locale LIMIT 1'),
+            'aclRoles' => [],
+        ];
+
+        $this->getContainer()->get('user.repository')
+            ->create([$user], Context::createDefaultContext());
+
+        $client = $this->getBrowser(true, [UserVerifiedScope::IDENTIFIER]);
+        $client->request(
+            'PATCH',
+            '/api/v' . PlatformRequest::API_VERSION . '/user/' . $ids->get('user'),
+            [
+                'aclRoles' => [
+                    ['id' => $ids->get('role-1'), 'name' => 'role-1'],
+                    ['id' => $ids->get('role-2'), 'name' => 'role-2'],
+                ],
+            ]
+        );
+
+        $response = $client->getResponse();
+        $content = json_decode($response->getContent(), true);
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r($content, true));
+
+        $assigned = $this->getContainer()->get(Connection::class)
+            ->fetchAll(
+                'SELECT LOWER(HEX(acl_role_id)) as id FROM acl_user_role WHERE user_id = :id ORDER BY acl_role_id ASC',
+                ['id' => Uuid::fromHexToBytes($ids->get('user'))]
+            );
+
+        $assigned = array_column($assigned, 'id');
+        $expectedIds = $ids->getList(['role-1', 'role-2']);
+        sort($expectedIds);
+        static::assertEquals(array_values($expectedIds), $assigned);
+    }
+
     public function testDeleteUser(): void
     {
         $id = Uuid::randomHex();
@@ -146,24 +191,25 @@ class UserControllerTest extends TestCase
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r($content, true));
     }
 
-    public function testSetOwnProfilePrivilegesEvent(): void
+    public function testSetOwnProfileWithPermission(): void
     {
         Feature::skipTestIfInActive('FEATURE_NEXT_3722', $this);
 
-        $getAdditionalPrivileges = function (AclGetAdditionalPrivilegesEvent $event): void {
-            $privileges = $event->getPrivileges();
-            static::assertContains('user_change_me', $privileges);
-            $privileges[] = 'user_change_me';
-            $event->setPrivileges($privileges);
-        };
-        $this->getContainer()->get('event_dispatcher')->addListener(AclGetAdditionalPrivilegesEvent::class, $getAdditionalPrivileges);
+        try {
+            $this->authorizeBrowser($this->getBrowser(), [UserVerifiedScope::IDENTIFIER], ['user_change_me']);
+            $this->getBrowser()->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/_info/me', ['firstName' => 'newName']);
+            $responsePatch = $this->getBrowser()->getResponse();
 
-        $this->getBrowser()->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/_info/me');
-        $response = $this->getBrowser()->getResponse();
-        $privileges = json_decode($response->getContent(), true);
+            static::assertEquals(Response::HTTP_NO_CONTENT, $responsePatch->getStatusCode(), $responsePatch->getContent());
 
-        static::assertNotContains('unit:read', $privileges);
-        static::assertContains('user_change_me', $privileges);
+            $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/_info/me');
+            $response = $this->getBrowser()->getResponse();
+
+            static::assertEquals(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
+            static::assertEquals('newName', json_decode($response->getContent(), true)['data']['attributes']['firstName']);
+        } finally {
+            $this->resetBrowser();
+        }
     }
 
     public function testSetOwnProfileNoPermission(): void
@@ -171,12 +217,30 @@ class UserControllerTest extends TestCase
         Feature::skipTestIfInActive('FEATURE_NEXT_3722', $this);
 
         try {
-            $this->authorizeBrowser($this->getBrowser(), [], []);
+            $this->authorizeBrowser($this->getBrowser(), [UserVerifiedScope::IDENTIFIER], []);
             $this->getBrowser()->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/_info/me');
             $response = $this->getBrowser()->getResponse();
 
             static::assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode(), $response->getContent());
             static::assertEquals(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, json_decode($response->getContent(), true)['errors'][0]['code'], $response->getContent());
+            static::assertEquals(['user_change_me'], json_decode(json_decode($response->getContent(), true)['errors'][0]['detail'], true)['missingPrivileges'], $response->getContent());
+        } finally {
+            $this->resetBrowser();
+        }
+    }
+
+    public function testSetOwnProfilePermissionButNotAllowedField(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_3722', $this);
+
+        try {
+            $this->authorizeBrowser($this->getBrowser(), [UserVerifiedScope::IDENTIFIER], ['user_change_me']);
+            $this->getBrowser()->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/_info/me', ['title' => 'newTitle']);
+            $response = $this->getBrowser()->getResponse();
+
+            static::assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode(), $response->getContent());
+            static::assertEquals(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, json_decode($response->getContent(), true)['errors'][0]['code'], $response->getContent());
+            static::assertEquals(['user:update'], json_decode(json_decode($response->getContent(), true)['errors'][0]['detail'], true)['missingPrivileges'], $response->getContent());
         } finally {
             $this->resetBrowser();
         }

@@ -60,7 +60,7 @@ Component.register('sw-admin-menu-item', {
         showMenuItem() {
             // special case for settings module, children are stored in a global state store
             if (this.entry.path === 'sw.settings.index') {
-                return this.hasActiveSettingModules;
+                return this.acl.hasActiveSettingModules();
             }
             if (this.children.length > 0) {
                 return true;
@@ -91,24 +91,6 @@ Component.register('sw-admin-menu-item', {
 
                 return this.acl.can(child.privilege);
             });
-        },
-
-        hasActiveSettingModules() {
-            const groups = Object.values(Shopware.State.get('settingsItems').settingsGroups);
-
-            let hasActive = false;
-
-            groups.forEach((modules) => {
-                modules.forEach((module) => {
-                    if (!module.privilege) {
-                        hasActive = true;
-                    } else if (this.acl.can(module.privilege)) {
-                        hasActive = true;
-                    }
-                });
-            });
-
-            return hasActive;
         }
     },
 

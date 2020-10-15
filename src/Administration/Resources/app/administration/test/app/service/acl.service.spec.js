@@ -155,4 +155,70 @@ describe('src/app/service/acl.service.js', () => {
 
         expect(aclService.hasAccessToRoute('sw.product.index')).toBe(true);
     });
+
+    it('should have access to the settings route when user has any access to settings', async () => {
+        const aclService = new AclService({
+            get: (key) => {
+                if (key === 'settingsItems') {
+                    return {
+                        settingsGroups: {
+                            shop: [
+                                {
+                                    group: 'shop',
+                                    icon: 'default-chart-pie',
+                                    id: 'sw-settings-tax',
+                                    label: 'sw-settings-tax.general.mainMenuItemGeneral',
+                                    name: 'settings-tax',
+                                    privilege: 'tax.viewer',
+                                    to: 'sw.settings.tax.index'
+                                }
+                            ],
+                            system: []
+                        }
+                    };
+                }
+
+                return { currentUser: { admin: false } };
+            },
+            getters: {
+                userPrivileges: ['tax.viewer']
+            }
+        });
+
+        expect(aclService.hasAccessToRoute('.sw.settings.index')).toBe(true);
+        expect(aclService.hasAccessToRoute('/sw/settings/index')).toBe(true);
+    });
+
+    it('should have access to the settings route when user has no access to settings', async () => {
+        const aclService = new AclService({
+            get: (key) => {
+                if (key === 'settingsItems') {
+                    return {
+                        settingsGroups: {
+                            shop: [
+                                {
+                                    group: 'shop',
+                                    icon: 'default-chart-pie',
+                                    id: 'sw-settings-tax',
+                                    label: 'sw-settings-tax.general.mainMenuItemGeneral',
+                                    name: 'settings-tax',
+                                    privilege: 'tax.viewer',
+                                    to: 'sw.settings.tax.index'
+                                }
+                            ],
+                            system: []
+                        }
+                    };
+                }
+
+                return { currentUser: { admin: false } };
+            },
+            getters: {
+                userPrivileges: []
+            }
+        });
+
+        expect(aclService.hasAccessToRoute('.sw.settings.index')).toBe(false);
+        expect(aclService.hasAccessToRoute('/sw/settings/index')).toBe(false);
+    });
 });

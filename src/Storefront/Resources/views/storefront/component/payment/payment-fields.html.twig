@@ -1,6 +1,8 @@
 {% block component_payment_methods %}
     <div class="payment-methods">
         {% for payment in page.paymentMethods %}
+
+            {# @deprecated tag:v6.4.0.0 moved to new component/payment/payment-method.html.twig #}
             {% block component_payment_method %}
                 <div class="payment-method">
                     {% block component_payment_method_field %}

@@ -2,6 +2,7 @@
     "global": {
         "error-codes": {
             "FRAMEWORK__MISSING_PRIVILEGE_ERROR": "Missing permissions",
+            "FRAMEWORK__DELETE_RESTRICTED": "Deletion failed",
             "c1051bb4-d103-4f74-8988-acbcafc7fdc3": "This value should not be blank.",
             "INVALID_MEDIA_URL": "Please enter a valid URL to upload a file.",
             "CONTENT__MISSING_RULE_TYPE_EXCEPTION": "You must choose a type for this rule.",
@@ -31,7 +32,8 @@
             "notificationSaveErrorMessageRequiredFieldsInvalid": "Please fill in all required fields.",
             "unspecifiedSaveErrorMessage": "An error occurred.",
             "notificationSaveSuccessMessage": "The entity \"{entityName}\" has been saved.",
-            "messageDeleteSuccess": "\"{name}\" was deleted successfully."
+            "messageDeleteSuccess": "\"{name}\" deleted.",
+            "messageDeleteFailed": "is still in use by: "
         },
         "notification-center": {
             "title": "Notifications",

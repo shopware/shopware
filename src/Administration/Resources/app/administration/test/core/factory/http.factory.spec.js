@@ -14,8 +14,15 @@ describe('core/factory/http.factory.js', () => {
     beforeEach(() => {
         Shopware.Utils.debug.warn = jest.fn();
         Shopware.Utils.debug.warn.mockClear();
+        Shopware.Utils.debug.error = jest.fn();
+        Shopware.Utils.debug.error.mockClear();
         Shopware.Context.api.apiPath = 'https://www.shopware-test.de/api';
         Shopware.Context.api.apiVersion = 1;
+        Shopware.Application.view = {
+            root: {
+                $tc: v => v
+            }
+        };
     });
 
     ['request', 'get', 'delete', 'head', 'options', 'post', 'put', 'patch'].forEach(method => {
@@ -343,6 +350,48 @@ describe('core/factory/http.factory.js', () => {
             expect(response.status).toEqual(200);
 
             expect(Shopware.Utils.debug.warn).toHaveBeenCalled();
+        });
+
+        test('should throw a DELETE_RESTRICTED 409 error notification', async () => {
+            Shopware.Context.api.apiPath = 'https://www.shopware-test.de/api';
+            Shopware.Context.api.apiVersion = 3;
+
+            const { client, clientMock } = getClientMock();
+            clientMock.onPost('/test')
+                .reply(409, {
+                    errors: [{
+                        status: '409',
+                        code: 'FRAMEWORK__DELETE_RESTRICTED',
+                        title: 'Conflict',
+                        detail: 'The delete request for tax was denied due to a conflict. The entity is currently in use by: tax_rule (27)',
+                        meta: {
+                            parameters: {
+                                entity: 'tax',
+                                usagesString: 'tax_rule (27)',
+                                usages: ['tax_rule (27)']
+                            }
+                        }
+                    }]
+                });
+
+            const dispatchSpy = jest.fn();
+
+            Object.defineProperty(Shopware.State, 'dispatch', {
+                value: dispatchSpy
+            });
+            try {
+                await client.post('/test');
+            } catch (e) {
+                expect(e.response.status).toBe(409);
+            }
+            expect(dispatchSpy).toHaveBeenCalledWith('notification/createNotification', {
+                variant: 'error',
+                system: false,
+                autoClose: false,
+                growl: true,
+                title: 'global.default.error',
+                message: '\"Tax\" global.notification.messageDeleteFailed<br>tax_rule (27)'
+            });
         });
     });
 });

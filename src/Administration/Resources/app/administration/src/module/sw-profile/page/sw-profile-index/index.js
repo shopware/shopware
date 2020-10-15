@@ -175,12 +175,10 @@ Component.register('sw-profile-index', {
         async getUserData() {
             const routeUser = this.$route.params.user;
             if (routeUser) {
-                console.log('Shopware.Context.api', Shopware.Context.api);
                 return this.userRepository.get(routeUser.id, Shopware.Context.api);
             }
 
             const user = await this.userService.getUser();
-            console.log('Shopware.Context.api', Shopware.Context.api);
             return this.userRepository.get(user.data.id, Shopware.Context.api);
         },
 
@@ -254,34 +252,7 @@ Component.register('sw-profile-index', {
         },
 
         saveUser(context) {
-            console.log('context', context);
-
-            if (this.acl.can('user:editor')) {
-                this.userRepository.save(this.user, context).then(() => {
-                    this.$refs.mediaSidebarItem.getList();
-
-                    Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId);
-
-                    if (this.newPassword) {
-                        // re-issue a valid jwt token, as all user tokens were invalidated on password change
-                        this.loginService.loginByUsername(this.user.username, this.newPassword).then(() => {
-                            this.isLoading = false;
-                            this.isSaveSuccessful = true;
-                        }).catch(() => {
-                            this.handleUserSaveError();
-                        });
-                    } else {
-                        this.isLoading = false;
-                        this.isSaveSuccessful = true;
-                    }
-
-                    this.oldPassword = '';
-                    this.newPassword = '';
-                    this.newPasswordConfirm = '';
-                }).catch(() => {
-                    this.handleUserSaveError();
-                });
-            } else {
+            if (!this.acl.can('user:editor')) {
                 const changes = this.userRepository.getSyncChangeset([this.user]);
 
                 this.userService.updateUser(changes.changeset[0].changes).then(() => {
@@ -290,7 +261,35 @@ Component.register('sw-profile-index', {
 
                     Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId);
                 });
+
+                return;
             }
+
+            this.userRepository.save(this.user, context).then(() => {
+                this.$refs.mediaSidebarItem.getList();
+
+                Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId);
+
+                if (this.newPassword) {
+                    // re-issue a valid jwt token, as all user tokens were invalidated on password change
+                    this.loginService.loginByUsername(this.user.username, this.newPassword).then(() => {
+                        this.isSaveSuccessful = true;
+                    }).catch(() => {
+                        this.handleUserSaveError();
+                    }).finally(() => {
+                        this.isLoading = false;
+                    });
+                } else {
+                    this.isLoading = false;
+                    this.isSaveSuccessful = true;
+                }
+
+                this.oldPassword = '';
+                this.newPassword = '';
+                this.newPasswordConfirm = '';
+            }).catch(() => {
+                this.handleUserSaveError();
+            });
         },
 
         setMediaItem({ targetId }) {
@@ -309,6 +308,15 @@ Component.register('sw-profile-index', {
                 if (!verifiedToken) {
                     return;
                 }
+
+                const authObject = {
+                    ...this.loginService.getBearerAuthentication(),
+                    ...{
+                        access: verifiedToken
+                    }
+                };
+
+                this.loginService.setBearerAuthentication(authObject);
 
                 this.confirmPasswordModal = false;
                 this.isSaveSuccessful = false;

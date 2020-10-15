@@ -18,6 +18,11 @@ class UserControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
 
+    public function tearDown(): void
+    {
+        $this->resetBrowser();
+    }
+
     /**
      * @group slow
      */
@@ -195,54 +200,42 @@ class UserControllerTest extends TestCase
     {
         Feature::skipTestIfInActive('FEATURE_NEXT_3722', $this);
 
-        try {
-            $this->authorizeBrowser($this->getBrowser(), [UserVerifiedScope::IDENTIFIER], ['user_change_me']);
-            $this->getBrowser()->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/_info/me', ['firstName' => 'newName']);
-            $responsePatch = $this->getBrowser()->getResponse();
+        $this->authorizeBrowser($this->getBrowser(), [UserVerifiedScope::IDENTIFIER], ['user_change_me']);
+        $this->getBrowser()->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/_info/me', ['firstName' => 'newName']);
+        $responsePatch = $this->getBrowser()->getResponse();
 
-            static::assertEquals(Response::HTTP_NO_CONTENT, $responsePatch->getStatusCode(), $responsePatch->getContent());
+        static::assertEquals(Response::HTTP_NO_CONTENT, $responsePatch->getStatusCode(), $responsePatch->getContent());
 
-            $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/_info/me');
-            $response = $this->getBrowser()->getResponse();
+        $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/_info/me');
+        $response = $this->getBrowser()->getResponse();
 
-            static::assertEquals(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
-            static::assertEquals('newName', json_decode($response->getContent(), true)['data']['attributes']['firstName']);
-        } finally {
-            $this->resetBrowser();
-        }
+        static::assertEquals(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
+        static::assertEquals('newName', json_decode($response->getContent(), true)['data']['attributes']['firstName']);
     }
 
     public function testSetOwnProfileNoPermission(): void
     {
         Feature::skipTestIfInActive('FEATURE_NEXT_3722', $this);
 
-        try {
-            $this->authorizeBrowser($this->getBrowser(), [UserVerifiedScope::IDENTIFIER], []);
-            $this->getBrowser()->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/_info/me');
-            $response = $this->getBrowser()->getResponse();
+        $this->authorizeBrowser($this->getBrowser(), [UserVerifiedScope::IDENTIFIER], []);
+        $this->getBrowser()->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/_info/me');
+        $response = $this->getBrowser()->getResponse();
 
-            static::assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode(), $response->getContent());
-            static::assertEquals(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, json_decode($response->getContent(), true)['errors'][0]['code'], $response->getContent());
-            static::assertEquals(['user_change_me'], json_decode(json_decode($response->getContent(), true)['errors'][0]['detail'], true)['missingPrivileges'], $response->getContent());
-        } finally {
-            $this->resetBrowser();
-        }
+        static::assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode(), $response->getContent());
+        static::assertEquals(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, json_decode($response->getContent(), true)['errors'][0]['code'], $response->getContent());
+        static::assertEquals(['user_change_me'], json_decode(json_decode($response->getContent(), true)['errors'][0]['detail'], true)['missingPrivileges'], $response->getContent());
     }
 
     public function testSetOwnProfilePermissionButNotAllowedField(): void
     {
         Feature::skipTestIfInActive('FEATURE_NEXT_3722', $this);
 
-        try {
-            $this->authorizeBrowser($this->getBrowser(), [UserVerifiedScope::IDENTIFIER], ['user_change_me']);
-            $this->getBrowser()->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/_info/me', ['title' => 'newTitle']);
-            $response = $this->getBrowser()->getResponse();
+        $this->authorizeBrowser($this->getBrowser(), [UserVerifiedScope::IDENTIFIER], ['user_change_me']);
+        $this->getBrowser()->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/_info/me', ['title' => 'newTitle']);
+        $response = $this->getBrowser()->getResponse();
 
-            static::assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode(), $response->getContent());
-            static::assertEquals(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, json_decode($response->getContent(), true)['errors'][0]['code'], $response->getContent());
-            static::assertEquals(['user:update'], json_decode(json_decode($response->getContent(), true)['errors'][0]['detail'], true)['missingPrivileges'], $response->getContent());
-        } finally {
-            $this->resetBrowser();
-        }
+        static::assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode(), $response->getContent());
+        static::assertEquals(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, json_decode($response->getContent(), true)['errors'][0]['code'], $response->getContent());
+        static::assertEquals(['user:update'], json_decode(json_decode($response->getContent(), true)['errors'][0]['detail'], true)['missingPrivileges'], $response->getContent());
     }
 }

@@ -131,7 +131,7 @@
                                                  placeholder="0"
                                                  size="small"
                                                  :min="getMinItemPrice(item.id)"
-                                                 :max="getMaxItemPrice(item.id)">
+                                                 @change="checkItemPrice($event, item)">
                                 </sw-number-field>
                             {% endblock %}
 

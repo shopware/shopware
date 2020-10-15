@@ -77,8 +77,7 @@
                         {% endblock %}
 
                         {% block sw_settings_listing_content_card_view_options_card %}
-                            <sw-card v-if="feature.isActive('FEATURE_NEXT_5983')"
-                                class="sw-settings-listing-index__sorting-options-card"
+                            <sw-card class="sw-settings-listing-index__sorting-options-card"
                                 :title="$tc('sw-settings-listing.index.productSorting.title')"
                                 :isLoading="isProductSortingOptionsCardLoading">
 

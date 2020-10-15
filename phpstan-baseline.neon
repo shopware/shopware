@@ -2911,21 +2911,6 @@ parameters:
 			path: src/Core/Framework/Adapter/Twig/TokenParser/ExtendsTokenParser.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Acl\\\\AclWriteValidator\\:\\:buildViolation\\(\\) has parameter \\$invalidValue with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Acl/AclWriteValidator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Acl\\\\AclWriteValidator\\:\\:buildViolation\\(\\) has parameter \\$root with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Acl/AclWriteValidator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Acl\\\\AclWriteValidator\\:\\:getPrivilegeForParentWriteOperation\\(\\) should return string but returns string\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Acl/AclWriteValidator.php
-
-		-
 			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInterface\\:\\:getEntityName\\(\\)\\.$#"
 			count: 1
 			path: src/Core/Framework/Api/ApiDefinition/Generator/EntitySchemaGenerator.php

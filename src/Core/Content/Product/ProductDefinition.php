@@ -34,7 +34,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deprecated;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
@@ -134,6 +133,9 @@ class ProductDefinition extends EntityDefinition
 
             (new FkField('delivery_time_id', 'deliveryTimeId', DeliveryTimeDefinition::class))->addFlags(new Inherited()),
 
+            (new FkField('product_feature_set_id', 'featureSetId', ProductFeatureSetDefinition::class))
+                ->addFlags(new Inherited()),
+
             (new PriceField('price', 'price'))->addFlags(new Inherited(), new Required(), new ReadProtected(SalesChannelApiSource::class)),
             (new NumberRangeField('product_number', 'productNumber'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING), new Required()),
             (new IntField('stock', 'stock'))->addFlags(new Required()),
@@ -143,6 +145,7 @@ class ProductDefinition extends EntityDefinition
             (new IntField('available_stock', 'availableStock'))->addFlags(new WriteProtected()),
             (new BoolField('available', 'available'))->addFlags(new WriteProtected()),
             (new BoolField('is_closeout', 'isCloseout'))->addFlags(new Inherited()),
+            (new ListField('variation', 'variation', StringField::class))->addFlags(new Runtime()),
 
             (new StringField('display_group', 'displayGroup'))->addFlags(new WriteProtected()),
             (new JsonField('configurator_group_config', 'configuratorGroupConfig'))->addFlags(new ReadProtected(SalesChannelApiSource::class), new Inherited()),
@@ -156,7 +159,7 @@ class ProductDefinition extends EntityDefinition
             (new FloatField('purchase_unit', 'purchaseUnit'))->addFlags(new Inherited()),
             (new FloatField('reference_unit', 'referenceUnit'))->addFlags(new Inherited()),
             (new BoolField('shipping_free', 'shippingFree'))->addFlags(new Inherited()),
-            (new FloatField('purchase_price', 'purchasePrice'))->addFlags(new Inherited(), new Deprecated('v4', 'v4')),
+            (new PriceField('purchase_prices', 'purchasePrices'))->addFlags(new Inherited()),
             (new BoolField('mark_as_topseller', 'markAsTopseller'))->addFlags(new Inherited()),
             (new FloatField('weight', 'weight'))->addFlags(new Inherited()),
             (new FloatField('width', 'width'))->addFlags(new Inherited()),
@@ -201,6 +204,9 @@ class ProductDefinition extends EntityDefinition
                 ->addFlags(new Inherited()),
 
             (new ManyToOneAssociationField('cover', 'product_media_id', ProductMediaDefinition::class, 'id'))
+                ->addFlags(new Inherited()),
+
+            (new ManyToOneAssociationField('featureSet', 'product_feature_set_id', ProductFeatureSetDefinition::class, 'id'))
                 ->addFlags(new Inherited()),
 
             (new OneToManyAssociationField('prices', ProductPriceDefinition::class, 'product_id'))
@@ -258,25 +264,8 @@ class ProductDefinition extends EntityDefinition
         ]);
 
         $collection->add(
-            (new ListField('variation', 'variation', StringField::class))->addFlags(new Runtime())
-        );
-
-        $collection->add(
-            (new FkField('product_feature_set_id', 'featureSetId', ProductFeatureSetDefinition::class))
-                ->addFlags(new Inherited())
-        );
-        $collection->add(
-            (new ManyToOneAssociationField('featureSet', 'product_feature_set_id', ProductFeatureSetDefinition::class, 'id'))
-                ->addFlags(new Inherited())
-        );
-
-        $collection->add(
-            (new PriceField('purchase_prices', 'purchasePrices'))->addFlags(new Inherited())
-        );
-
-        $collection->add(
             (new TranslatedField('customSearchKeywords'))
-                    ->addFlags(new Inherited(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING))
+                ->addFlags(new Inherited(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING))
         );
 
         if (Feature::isActive('FEATURE_NEXT_10549')) {

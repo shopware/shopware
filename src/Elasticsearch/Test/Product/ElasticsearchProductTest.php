@@ -480,7 +480,7 @@ class ElasticsearchProductTest extends TestCase
             // check simple equals filter
             $criteria = new Criteria($data->prefixed('p'));
             $criteria->addGroupField(new FieldGrouping('stock'));
-            $criteria->addGroupField(new FieldGrouping('purchasePrice'));
+            $criteria->addGroupField(new FieldGrouping('purchasePrices'));
 
             $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
 
@@ -1953,7 +1953,6 @@ class ElasticsearchProductTest extends TestCase
             'productNumber' => $key,
             'name' => $name,
             'stock' => $stock,
-            'purchasePrice' => $purchasePrice,
             'price' => $mapped,
             'manufacturer' => ['id' => $this->ids->create($manufacturerKey), 'name' => $manufacturerKey],
             'tax' => ['id' => $this->ids->create($taxKey),  'name' => 'test', 'taxRate' => 15],

@@ -1,0 +1,79 @@
+@startuml
+' uncomment the line below if you're using computer with a retina display
+' skinparam dpi 300
+!define Table(name,desc) class name as "desc" << (T,#FFAAAA) >>
+!define ForeignTable(name,desc) class name as "desc" << (T,#ada6a6) >>
+!define TranslationTable(name,desc) class name as "desc" << (I,#4286f4) >>
+' we use bold for primary key
+' green color for unique
+' and underscore for not_null
+!define primary_key(x) <b>x</b>
+!define unique(x) <color:green>x</color>
+!define not_null(x) <u>x</u>
+' other tags available:
+' <i></i>
+' <back:COLOR></color>, where color is a color name or html color code
+' (#FFAACC)
+' see: http://plantuml.com/classes.html#More
+hide methods
+hide stereotypes
+hide empty members
+skinparam backgroundColor #FFFFFF
+
+' entities
+
+Table(ShopwareCoreCheckoutPaymentPaymentMethodDefinition, "payment_method\n(Payment method)") {
+   primary_key(id) id
+   pluginId foreignKey
+   handlerIdentifier string
+   name translated
+   description translated
+   position int
+   active bool
+   afterOrderEnabled bool
+   customFields translated
+   availabilityRuleId foreignKey
+   mediaId foreignKey
+   formattedHandlerIdentifier string
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   translated json
+}
+TranslationTable(ShopwareCoreCheckoutPaymentAggregatePaymentMethodTranslationPaymentMethodTranslationDefinition, "payment_method_translation\n((Translations))") {
+   not_null(name) string
+   description longText
+   customFields customFields
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   primary_key(paymentMethodId) foreignKey
+   primary_key(languageId) foreignKey
+}
+ForeignTable(ShopwareCoreContentMediaMediaDefinition, "media") {
+}
+ForeignTable(ShopwareCoreContentRuleRuleDefinition, "rule") {
+}
+ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
+}
+ForeignTable(ShopwareCoreFrameworkPluginPluginDefinition, "plugin") {
+}
+ForeignTable(ShopwareCoreCheckoutCustomerCustomerDefinition, "customer") {
+}
+ForeignTable(ShopwareCoreCheckoutOrderAggregateOrderTransactionOrderTransactionDefinition, "order_transaction") {
+}
+ForeignTable(ShopwareCoreSystemSalesChannelAggregateSalesChannelPaymentMethodSalesChannelPaymentMethodDefinition, "sales_channel_payment_method") {
+}
+ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
+}
+
+' relationshipd
+
+ShopwareCoreCheckoutPaymentAggregatePaymentMethodTranslationPaymentMethodTranslationDefinition --> ShopwareCoreCheckoutPaymentPaymentMethodDefinition
+ShopwareCoreCheckoutPaymentPaymentMethodDefinition --> ShopwareCoreContentMediaMediaDefinition
+ShopwareCoreCheckoutPaymentPaymentMethodDefinition --> ShopwareCoreContentRuleRuleDefinition
+ShopwareCoreCheckoutPaymentPaymentMethodDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
+ShopwareCoreCheckoutPaymentPaymentMethodDefinition --> ShopwareCoreFrameworkPluginPluginDefinition
+ShopwareCoreCheckoutPaymentPaymentMethodDefinition --> ShopwareCoreCheckoutCustomerCustomerDefinition
+ShopwareCoreCheckoutPaymentPaymentMethodDefinition --> ShopwareCoreCheckoutOrderAggregateOrderTransactionOrderTransactionDefinition
+ShopwareCoreCheckoutPaymentPaymentMethodDefinition --> ShopwareCoreSystemSalesChannelAggregateSalesChannelPaymentMethodSalesChannelPaymentMethodDefinition
+ShopwareCoreCheckoutPaymentAggregatePaymentMethodTranslationPaymentMethodTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
+@enduml

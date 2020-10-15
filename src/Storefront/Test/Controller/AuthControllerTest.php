@@ -70,6 +70,27 @@ class AuthControllerTest extends TestCase
         static::assertFalse($oldContextExists);
     }
 
+    public function testLogoutWhenSalesChannelIdChanged(): void
+    {
+        $browser = $this->login();
+
+        $session = $browser->getRequest()->getSession();
+        $contextToken = $session->get('sw-context-token');
+
+        static::assertEquals($browser->getRequest()->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID), $session->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID));
+
+        $session->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, Defaults::SALES_CHANNEL);
+
+        $browser->request('GET', '/account');
+
+        /** @var RedirectResponse $redirectResponse */
+        $redirectResponse = $browser->getResponse();
+
+        static::assertInstanceOf(RedirectResponse::class, $redirectResponse);
+        static::assertStringStartsWith('/account/login', $redirectResponse->getTargetUrl());
+        static::assertNotEquals($contextToken, $browser->getRequest()->getSession()->get('sw-context-token'));
+    }
+
     public function testSessionIsInvalidatedOnLogOutIsDeactivated(): void
     {
         $systemConfig = $this->getContainer()->get(SystemConfigService::class);

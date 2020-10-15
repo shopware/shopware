@@ -238,14 +238,11 @@ class UpdateControllerTest extends TestCase
 
     public function testCheckUpdateEndpoint(): void
     {
-        $_SERVER['SHOPWARE_UPDATE_TEST'] = 1;
         $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/_action/update/check');
-        $_SERVER['SHOPWARE_UPDATE_TEST'] = 0;
         /** @var JsonResponse $response */
         $response = $this->getBrowser()->getResponse();
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($response->getContent(), true));
-        static::assertSame('6.0.0-ea2', json_decode($response->getContent(), true)['version']);
     }
 
     public function testCheckUpdateEndpointNoPermissions(): void

@@ -4,22 +4,16 @@ namespace Shopware\Core\Framework\Api\Acl;
 
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
+use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Validator\ConstraintViolation;
-use Symfony\Component\Validator\ConstraintViolationInterface;
-use Symfony\Component\Validator\ConstraintViolationList;
 
 class AclWriteValidator implements EventSubscriberInterface
 {
-    public const VIOLATION_NO_PERMISSION = 'no_permission_violation';
-
     public static function getSubscribedEvents()
     {
         return [PreWriteValidationEvent::class => 'preValidate'];
@@ -37,7 +31,7 @@ class AclWriteValidator implements EventSubscriberInterface
             return;
         }
 
-        $violationList = new ConstraintViolationList();
+        $missingPrivileges = [];
 
         foreach ($commands as $command) {
             $resource = $command->getDefinition()->getEntityName();
@@ -56,56 +50,18 @@ class AclWriteValidator implements EventSubscriberInterface
             }
 
             if (!$source->isAllowed($resource . ':' . $privilege)) {
-                $this->violates($privilege, $resource, $command, $violationList);
+                $missingPrivileges[] = $resource . ':' . $privilege;
             }
         }
 
-        $this->tryToThrow($violationList);
+        $this->tryToThrow($missingPrivileges);
     }
 
-    private function tryToThrow(ConstraintViolationList $violations): void
+    private function tryToThrow(array $missingPrivileges): void
     {
-        if ($violations->count() > 0) {
-            throw new WriteConstraintViolationException($violations, '', Response::HTTP_FORBIDDEN);
+        if (!empty($missingPrivileges)) {
+            throw new MissingPrivilegeException($missingPrivileges);
         }
-    }
-
-    private function buildViolation(
-        string $messageTemplate,
-        array $parameters,
-        $root = null,
-        ?string $propertyPath = null,
-        $invalidValue = null,
-        ?string $code = null
-    ): ConstraintViolationInterface {
-        return new ConstraintViolation(
-            str_replace(array_keys($parameters), array_values($parameters), $messageTemplate),
-            $messageTemplate,
-            $parameters,
-            $root,
-            $propertyPath,
-            $invalidValue,
-            null,
-            $code
-        );
-    }
-
-    private function violates(
-        string $privilege,
-        string $resource,
-        WriteCommand $command,
-        ConstraintViolationList $violationList
-    ): void {
-        $violationList->add(
-            $this->buildViolation(
-                'No permissions to %privilege%".',
-                ['%privilege%' => $resource . ':' . $privilege],
-                null,
-                '/' . $command->getDefinition()->getEntityName(),
-                null,
-                self::VIOLATION_NO_PERMISSION
-            )
-        );
     }
 
     /**
@@ -121,7 +77,7 @@ class AclWriteValidator implements EventSubscriberInterface
         // if we update e.g. a product and add translations for a new language
         // the writeCommand on the translation would be an insert
         if ($parentCommand) {
-            return $parentCommand->getPrivilege();
+            return (string) $parentCommand->getPrivilege();
         }
 
         // if we don't have a parentCommand it must be a update,

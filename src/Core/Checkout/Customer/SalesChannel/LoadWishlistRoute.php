@@ -5,7 +5,6 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist\CustomerWishlistEntity;
-use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerWishlistLoaderCriteriaEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerWishlistProductListingResultEvent;
 use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotActivatedException;
@@ -99,19 +98,19 @@ class LoadWishlistRoute extends AbstractLoadWishlistRoute
             throw new CustomerNotLoggedInException();
         }
 
-        $wishlist = $this->loadWishlist($context, $customer);
+        $wishlist = $this->loadWishlist($context, $customer->getId());
         $products = $this->loadProducts($wishlist->getId(), $criteria, $context, $request);
 
         return new LoadWishlistRouteResponse($wishlist, $products);
     }
 
-    private function loadWishlist(SalesChannelContext $context, CustomerEntity $customer): CustomerWishlistEntity
+    private function loadWishlist(SalesChannelContext $context, string $customerId): CustomerWishlistEntity
     {
         $criteria = new Criteria();
         $criteria->setLimit(1);
         $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND, [
-            new EqualsFilter('customerId', $customer->getId()),
-            new EqualsFilter('salesChannelId', $customer->getSalesChannelId()),
+            new EqualsFilter('customerId', $customerId),
+            new EqualsFilter('salesChannelId', $context->getSalesChannel()->getId()),
         ]));
 
         $wishlist = $this->wishlistRepository->search($criteria, $context->getContext());

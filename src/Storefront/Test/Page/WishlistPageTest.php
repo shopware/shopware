@@ -4,7 +4,6 @@ namespace Shopware\Storefront\Test\Page;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotActivatedException;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -27,19 +26,18 @@ class WishlistPageTest extends TestCase
 
     public function setUp(): void
     {
+        Feature::skipTestIfInActive('FEATURE_NEXT_10549', $this);
+
         $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
     }
 
     public function testLoginRequirement(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10549', $this);
         $this->assertLoginRequirement();
     }
 
     public function testInActiveWishlist(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10549', $this);
-
         $request = new Request();
         $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
 
@@ -51,8 +49,6 @@ class WishlistPageTest extends TestCase
 
     public function testWishlistNotFound(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10549', $this);
-
         $request = new Request();
         $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
 
@@ -66,15 +62,13 @@ class WishlistPageTest extends TestCase
 
     public function testItLoadsWishlistPage(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10549', $this);
-
         $request = new Request();
         $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
 
         $this->systemConfigService->set('core.cart.wishlistEnabled', true);
 
         $product = $this->getRandomProduct($context);
-        $this->createCustomerWishlist($context->getCustomer()->getId(), $product->getId());
+        $this->createCustomerWishlist($context->getCustomer()->getId(), $product->getId(), $context->getSalesChannel()->getId());
 
         /** @var WishlistPageLoadedEvent $event */
         $event = null;
@@ -96,7 +90,7 @@ class WishlistPageTest extends TestCase
         return $this->getContainer()->get(WishlistPageLoader::class);
     }
 
-    private function createCustomerWishlist(string $customerId, string $productId): string
+    private function createCustomerWishlist(string $customerId, string $productId, string $salesChannelId): string
     {
         $customerWishlistId = Uuid::randomHex();
         $customerWishlistRepository = $this->getContainer()->get('customer_wishlist.repository');
@@ -105,7 +99,7 @@ class WishlistPageTest extends TestCase
             [
                 'id' => $customerWishlistId,
                 'customerId' => $customerId,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => $salesChannelId,
                 'products' => [
                     [
                         'productId' => $productId,

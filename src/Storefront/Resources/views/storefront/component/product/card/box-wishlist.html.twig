@@ -8,6 +8,8 @@
 
         {{ block('component_product_box_image') }}
 
+        {% block component_product_box_wishlist_action %}{% endblock %}
+
         {% block component_product_box_wishlist %}
             <div class="product-wishlist product-wishlist-remove">
                 {% block component_product_wishlist_remove_form %}

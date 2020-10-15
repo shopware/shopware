@@ -121,6 +121,7 @@ class ProductReviewLoader
     private function getCustomerReview(string $productId, SalesChannelContext $context): ?ProductReviewEntity
     {
         $customer = $context->getCustomer();
+
         if (!$customer) {
             return null;
         }

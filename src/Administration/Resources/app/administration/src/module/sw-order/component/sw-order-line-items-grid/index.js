@@ -257,17 +257,19 @@ Component.register('sw-order-line-items-grid', {
             return 0;
         },
 
-        getMaxItemPrice(id) {
-            if (!this.isCreditItem(id)) {
-                return null;
-            }
-            return 0;
-        },
-
         showTaxValue(item) {
             return (this.isCreditItem(item.id) || this.isPromotionItem(item)) && (item.price.taxRules.length > 1)
                 ? this.$tc('sw-order.detailBase.textCreditTax')
                 : `${item.price.taxRules[0].taxRate} %`;
+        },
+
+        checkItemPrice(price, item) {
+            if (this.isCreditItem(item.id)) {
+                item.priceDefinition.price = Math.abs(price) * -1;
+                return;
+            }
+
+            item.priceDefinition.price = price;
         },
 
         tooltipTaxDetail(item) {

@@ -60,6 +60,10 @@ Component.register('sw-order-line-items-grid', {
             return Service('cartStoreService').getLineItemTypes();
         },
 
+        taxStatus() {
+            return get(this.order, 'taxStatus', '');
+        },
+
         getLineItemColumns() {
             const columnDefinitions = [{
                 property: 'label',
@@ -231,11 +235,6 @@ Component.register('sw-order-line-items-grid', {
 
         onSearchTermChange(searchTerm) {
             this.searchTerm = searchTerm.toLowerCase();
-        },
-
-        /** @deprecated:v6.4.0 use isCreditItem instead */
-        itemIsCredit(id) {
-            return this.isCreditItem(id);
         },
 
         isCreditItem(id) {

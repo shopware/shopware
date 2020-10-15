@@ -2,6 +2,7 @@
   "global": {
     "error-codes": {
       "FRAMEWORK__MISSING_PRIVILEGE_ERROR": "Fehlende Berechtigungen",
+      "FRAMEWORK__DELETE_RESTRICTED": "Löschen fehlgeschlagen",
       "c1051bb4-d103-4f74-8988-acbcafc7fdc3": "Dieses Feld darf nicht leer sein",
       "INVALID_MEDIA_URL": "Bitte gib eine valide URL ein, um eine Datei hochzuladen.",
       "CONTENT__MISSING_RULE_TYPE_EXCEPTION": "Du musst einen Typ für diese Regel auswählen.",
@@ -31,7 +32,8 @@
       "notificationSaveErrorMessageRequiredFieldsInvalid": "Bitte fülle alle Pflichtfelder aus.",
       "unspecifiedSaveErrorMessage": "Ein Fehler ist aufgetreten.",
       "notificationSaveSuccessMessage": "Die Entität \"{entityName}\" wurde erfolgreich gespeichert.",
-      "messageDeleteSuccess": "\"{name}\" wurde erfolgreich gelöscht."
+      "messageDeleteSuccess": "\"{name}\" gelöscht.",
+      "messageDeleteFailed": "wird verwendet von: "
     },
     "notification-center": {
       "title": "Mitteilungen",

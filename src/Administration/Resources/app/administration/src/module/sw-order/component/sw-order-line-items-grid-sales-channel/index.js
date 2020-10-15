@@ -80,6 +80,18 @@ Component.register('sw-order-line-items-grid-sales-channel', {
             return get(this.cart, 'price.taxStatus', '');
         },
 
+        unitPriceLabel() {
+            if (this.taxStatus === 'net') {
+                return this.$tc('sw-order.createBase.columnPriceNet');
+            }
+
+            if (this.taxStatus === 'tax-free') {
+                return this.$tc('sw-order.createBase.columnPriceTaxFree');
+            }
+
+            return this.$tc('sw-order.createBase.columnPriceGross');
+        },
+
         getLineItemColumns() {
             const columnDefinitions = [{
                 property: 'label',
@@ -92,9 +104,7 @@ Component.register('sw-order-line-items-grid-sales-channel', {
             }, {
                 property: 'unitPrice',
                 dataIndex: 'unitPrice',
-                label: get(this.cart, 'price.taxStatus') === 'net' ?
-                    this.$tc('sw-order.createBase.columnPriceNet') :
-                    this.$tc('sw-order.createBase.columnPriceGross'),
+                label: this.unitPriceLabel,
                 allowResize: false,
                 align: 'right',
                 inlineEdit: true,
@@ -110,20 +120,24 @@ Component.register('sw-order-line-items-grid-sales-channel', {
             }, {
                 property: 'totalPrice',
                 dataIndex: 'totalPrice',
-                label: get(this.cart, 'price.taxStatus') === 'net' ?
+                label: this.taxStatus === 'net' ?
                     this.$tc('sw-order.createBase.columnTotalPriceNet') :
                     this.$tc('sw-order.createBase.columnTotalPriceGross'),
                 allowResize: false,
                 align: 'right',
                 width: '80px'
-            }, {
-                property: 'tax',
-                label: this.$tc('sw-order.createBase.columnTax'),
-                allowResize: false,
-                align: 'right',
-                inlineEdit: true,
-                width: '100px'
             }];
+
+            if (this.taxStatus !== 'tax-free') {
+                return [...columnDefinitions, {
+                    property: 'tax',
+                    label: this.$tc('sw-order.createBase.columnTax'),
+                    allowResize: false,
+                    align: 'right',
+                    inlineEdit: true,
+                    width: '100px'
+                }];
+            }
 
             return columnDefinitions;
         }

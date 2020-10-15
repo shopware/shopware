@@ -143,4 +143,37 @@ describe('src/module/sw-order/view/sw-order-create-base', () => {
 
         wrapper.vm.createNotificationWarning.mockRestore();
     });
+
+    it('should only display Total row when status is tax free', async () => {
+        const wrapper = createWrapper();
+
+        Shopware.State.commit('swOrder/setCart', {
+            token: null,
+            lineItems: [],
+            price: {
+                taxStatus: 'tax-free'
+            }
+        });
+
+        await wrapper.vm.$nextTick();
+
+        const orderSummary = wrapper.find('.sw-order-create-summary__data');
+        expect(orderSummary.html()).not.toContain('sw-order.createBase.summaryLabelAmountWithoutTaxes');
+        expect(orderSummary.html()).not.toContain('sw-order.createBase.summaryLabelAmountTotal');
+    });
+
+    it('should display Total excluding VAT and Total including VAT row when tax status is not tax free', async () => {
+        const wrapper = createWrapper();
+
+        Shopware.State.commit('swOrder/setCart', {
+            token: null,
+            lineItems: []
+        });
+
+        await wrapper.vm.$nextTick();
+
+        const orderSummary = wrapper.find('.sw-order-create-summary__data');
+        expect(orderSummary.html()).toContain('sw-order.createBase.summaryLabelAmountWithoutTaxes');
+        expect(orderSummary.html()).toContain('sw-order.createBase.summaryLabelAmountTotal');
+    });
 });

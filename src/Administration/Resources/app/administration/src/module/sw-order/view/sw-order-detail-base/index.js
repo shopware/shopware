@@ -193,6 +193,10 @@ Component.register('sw-order-detail-base', {
             criteria.addFilter(Criteria.equals('relations.entityName', 'order'));
 
             return criteria;
+        },
+
+        taxStatus() {
+            return this.order.price.taxStatus;
         }
     },
 

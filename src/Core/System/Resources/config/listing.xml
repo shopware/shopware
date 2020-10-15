@@ -35,7 +35,6 @@
             <label lang="de-DE">Filteroptionen ohne Ergebnisse deaktivieren</label>
             <helpText>Filter options are deactivated and cannot be clicked if they provide no results</helpText>
             <helpText lang="de-DE">Filteroptionen sind deaktiviert und können nicht angeklickt werden, wenn sie keine Ergebnisse liefern</helpText>
-            <flag>FEATURE_NEXT_5993</flag>
         </input-field>
 
         <input-field type="int">

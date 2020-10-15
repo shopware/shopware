@@ -17,6 +17,11 @@ class EventActionEntity extends Entity
     protected $eventName;
 
     /**
+     * @var string|null
+     */
+    protected $title;
+
+    /**
      * @var string
      */
     protected $actionName;
@@ -99,5 +104,15 @@ class EventActionEntity extends Entity
     public function setSalesChannels(SalesChannelCollection $salesChannels): void
     {
         $this->salesChannels = $salesChannels;
+    }
+
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+    public function setTitle(?string $title): void
+    {
+        $this->title = $title;
     }
 }

@@ -116,7 +116,6 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter"/>
             <argument type="service" id="Shopware\Core\Framework\Event\BusinessEventCollector"/>
             <argument type="service" id="state_machine_state.repository"/>
-            <argument type="service" id="payment_method.repository"/>
         </service>
     </services>
 </container>

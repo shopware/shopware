@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\MailTemplate\Subscriber;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException;
 use Shopware\Core\Content\MailTemplate\Exception\SalesChannelNotFoundException;
@@ -54,13 +55,19 @@ class MailSendSubscriber implements EventSubscriberInterface
      */
     private $documentRepository;
 
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
     public function __construct(
         MailServiceInterface $mailService,
         EntityRepositoryInterface $mailTemplateRepository,
         MediaService $mediaService,
         EntityRepositoryInterface $mediaRepository,
         EntityRepositoryInterface $documentRepository,
-        DocumentService $documentService
+        DocumentService $documentService,
+        LoggerInterface $logger
     ) {
         $this->mailService = $mailService;
         $this->mailTemplateRepository = $mailTemplateRepository;
@@ -68,6 +75,7 @@ class MailSendSubscriber implements EventSubscriberInterface
         $this->mediaRepository = $mediaRepository;
         $this->documentRepository = $documentRepository;
         $this->documentService = $documentService;
+        $this->logger = $logger;
     }
 
     public static function getSubscribedEvents(): array
@@ -135,11 +143,21 @@ class MailSendSubscriber implements EventSubscriberInterface
             $data->set('binAttachments', $attachments);
         }
 
-        $this->mailService->send(
-            $data->all(),
-            $event->getContext(),
-            $this->getTemplateData($mailEvent)
-        );
+        try {
+            $this->mailService->send(
+                $data->all(),
+                $event->getContext(),
+                $this->getTemplateData($mailEvent)
+            );
+        } catch (\Exception $e) {
+            $this->logger->error(
+                "Could not send mail:\n"
+                . $e->getMessage() . "\n"
+                . 'Error Code:' . $e->getCode() . "\n"
+                . "Template data: \n"
+                . json_encode($data->all()) . "\n"
+            );
+        }
     }
 
     private function getMailTemplate(string $id, Context $context): ?MailTemplateEntity
@@ -175,10 +193,6 @@ class MailSendSubscriber implements EventSubscriberInterface
     private function buildAttachments(BusinessEvent $event, MailTemplateEntity $mailTemplate, MailSendSubscriberConfig $config): array
     {
         $attachments = [];
-
-        if ($mailTemplate->getMedia() === null) {
-            return [];
-        }
 
         if ($mailTemplate->getMedia() !== null) {
             foreach ($mailTemplate->getMedia() as $mailTemplateMedia) {

@@ -46,6 +46,7 @@ Component.register('sw-order-state-history-card', {
             modalConfirmed: false,
             currentActionName: null,
             currentStateType: null,
+            /** @deprecated tag:v6.4.0 - Will be removed. Mail template assignment will be done via "sw-event-action". */
             mailTemplatesExist: false,
             technicalName: ''
         };

@@ -14,7 +14,7 @@ Component.register('sw-mail-template-detail', {
         Mixin.getByName('notification')
     ],
 
-    inject: ['mailService', 'entityMappingService', 'repositoryFactory', 'acl'],
+    inject: ['mailService', 'entityMappingService', 'repositoryFactory', 'acl', 'feature'],
 
     shortcuts: {
         'SYSTEMKEY+S': {
@@ -33,8 +33,11 @@ Component.register('sw-mail-template-detail', {
             isLoading: false,
             isSaveSuccessful: false,
             mailTemplateType: {},
+            /** @deprecated tag:v6.4.0 - Will be removed. Sales channel assignment will be done via "sw-event-action" */
             mailTemplateSalesChannels: null,
+            /** @deprecated tag:v6.4.0 - Will be removed. Sales channel assignment will be done via "sw-event-action" */
             mailTemplateSalesChannelsAssoc: {},
+            /** @deprecated tag:v6.4.0 - Will be removed. Sales channel assignment will be done via "sw-event-action" */
             salesChannelTypeCriteria: null,
             selectedType: {},
             editorConfig: {
@@ -42,7 +45,9 @@ Component.register('sw-mail-template-detail', {
             },
             mailTemplateMedia: null,
             mailTemplateMediaSelected: {},
-            fileAccept: 'application/pdf, image/*'
+            fileAccept: 'application/pdf, image/*',
+            /** @internal (flag:FEATURE_NEXT_9351) */
+            testMailSalesChannelId: null
         };
     },
 
@@ -66,6 +71,9 @@ Component.register('sw-mail-template-detail', {
             return this.repositoryFactory.create('mail_template');
         },
 
+        /**
+         * @deprecated tag:v6.4.0 - Will be removed. Sales channel assignment will be done via "sw-event-action".
+         */
         mailTemplateSalesChannelAssociationRepository() {
             return this.repositoryFactory.create('mail_template_sales_channel');
         },
@@ -157,7 +165,10 @@ Component.register('sw-mail-template-detail', {
 
         loadEntityData() {
             const criteria = new Criteria();
+
+            /** @deprecated tag:v6.4.0 - Will be removed. Sales channel assignment will be done via "sw-event-action" */
             criteria.addAssociation('salesChannels.salesChannel');
+
             criteria.addAssociation('mailTemplateType');
             criteria.addAssociation('media.media');
             this.isLoading = true;
@@ -173,6 +184,9 @@ Component.register('sw-mail-template-detail', {
             });
         },
 
+        /**
+         * @deprecated tag:v6.4.0 - Will be removed. Sales channel assignment will be done via "sw-event-action"
+         */
         createSalesChannelCollection() {
             return new EntityCollection('/sales-channel', 'sales_channel', Shopware.Context.api);
         },
@@ -283,6 +297,27 @@ Component.register('sw-mail-template-detail', {
                 message: this.$tc('sw-mail-template.general.notificationTestMailSalesChannelErrorMessage')
             };
 
+            if (this.feature.isActive('FEATURE_NEXT_9351')) {
+                if (!this.testMailSalesChannelId) {
+                    this.createNotificationError(notificationTestMailErrorSalesChannel);
+                    return;
+                }
+
+                this.mailService.testMailTemplate(
+                    this.testerMail,
+                    this.mailTemplate,
+                    this.mailTemplateMedia,
+                    this.testMailSalesChannelId
+                ).then(() => {
+                    this.createNotificationSuccess(notificationTestMailSuccess);
+                }).catch((exception) => {
+                    this.createNotificationError(notificationTestMailError);
+                    warn(this._name, exception.message, exception.response);
+                });
+
+                return;
+            }
+
             if (this.mailTemplate.salesChannels.length) {
                 this.mailTemplate.salesChannels.forEach((salesChannelAssoc) => {
                     let salesChannelId = '';
@@ -340,6 +375,9 @@ Component.register('sw-mail-template-detail', {
             this.outerCompleterFunction();
         },
 
+        /**
+         * @deprecated tag:v6.4.0 - Will be removed. Sales channel assignment will be done via "sw-event-action"
+         */
         getPossibleSalesChannels(assignedSalesChannelIds) {
             this.setSalesChannelCriteria(assignedSalesChannelIds);
             const criteria = new Criteria();
@@ -353,6 +391,9 @@ Component.register('sw-mail-template-detail', {
             });
         },
 
+        /**
+         * @deprecated tag:v6.4.0 - Will be removed. Sales channel assignment will be done via "sw-event-action"
+         */
         setSalesChannelCriteria(assignedSalesChannelIds) {
             this.salesChannelTypeCriteria = new Criteria();
             if (assignedSalesChannelIds.length > 0) {
@@ -387,6 +428,9 @@ Component.register('sw-mail-template-detail', {
             }
         },
 
+        /**
+         * @deprecated tag:v6.4.0 - Will be removed. Sales channel assignment will be done via "sw-event-action"
+         */
         enrichAssocStores(responseAssoc) {
             this.mailTemplateSalesChannelsAssoc = responseAssoc;
             this.mailTemplateSalesChannelsAssoc.forEach((salesChannelAssoc) => {
@@ -401,6 +445,9 @@ Component.register('sw-mail-template-detail', {
             this.isLoading = false;
         },
 
+        /**
+         * @deprecated tag:v6.4.0 - Will be removed. Sales channel assignment will be done via "sw-event-action"
+         */
         handleSalesChannel() {
             // check selected saleschannels and associate to config
             if (!this.mailTemplateSalesChannels.length) {
@@ -423,6 +470,9 @@ Component.register('sw-mail-template-detail', {
             }
         },
 
+        /**
+         * @deprecated tag:v6.4.0 - Will be removed. Sales channel assignment will be done via "sw-event-action"
+         */
         mailTemplateHasSaleschannel(salesChannelId) {
             let found = false;
             this.mailTemplate.salesChannels.forEach((salesChannelAssoc) => {
@@ -433,11 +483,17 @@ Component.register('sw-mail-template-detail', {
             return found;
         },
 
+        /**
+         * @deprecated tag:v6.4.0 - Will be removed. Sales channel assignment will be done via "sw-event-action"
+         */
         salesChannelIsSelected(salesChannelId) {
             // SalesChannel is selected in select field?
             return this.mailTemplateSalesChannels.has(salesChannelId);
         },
 
+        /**
+         * @deprecated tag:v6.4.0 - Will be removed. Sales channel assignment will be done via "sw-event-action"
+         */
         undeleteSaleschannel(salesChannelId) {
             this.mailTemplate.salesChannels.forEach((salesChannelAssoc) => {
                 if (salesChannelAssoc.salesChannelId === salesChannelId && salesChannelAssoc.isDeleted === true) {

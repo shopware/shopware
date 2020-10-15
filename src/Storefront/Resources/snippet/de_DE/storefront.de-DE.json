@@ -228,6 +228,7 @@
     "orderContextMenuChangePayment": "Zahlungsart ändern",
     "orderContextMenuReorder": "Bestellung wiederholen",
     "orderContextMenuCancel": "Bestellung stornieren",
+    "completePayment": "Zahlung abschließen",
     "editOrder": "Bestellung bearbeiten",
     "editOrderUpdateButton": "Zahlung abschließen",
     "editOrderBackToAccountButton": "Zurück zum Account",

@@ -4,6 +4,9 @@ import './sw-order-state-change-modal-assign-mail-template.scss';
 const { Criteria } = Shopware.Data;
 const { Component } = Shopware;
 
+/**
+ * @deprecated tag:v6.4.0 - Will be removed. Mail template assignment will be done via "sw-event-action".
+ */
 Component.register('sw-order-state-change-modal-assign-mail-template', {
     template,
 

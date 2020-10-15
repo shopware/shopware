@@ -127,7 +127,8 @@ class AccountOrderPageLoader
             ->getAssociation('transactions')
             ->addSorting(new FieldSorting('createdAt'));
 
-        $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::DESCENDING));
+        $criteria
+            ->addSorting(new FieldSorting('orderDateTime', FieldSorting::DESCENDING));
 
         if ($request->get('deepLinkCode')) {
             $criteria->addFilter(new EqualsFilter('deepLinkCode', $request->get('deepLinkCode')));

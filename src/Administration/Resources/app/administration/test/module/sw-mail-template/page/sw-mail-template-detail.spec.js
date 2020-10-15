@@ -79,6 +79,9 @@ const createWrapper = (privileges = []) => {
 
                     return privileges.includes(identifier);
                 }
+            },
+            feature: {
+                isActive: () => true
             }
         },
         mocks: {
@@ -247,7 +250,6 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             { selector: wrapper.findAll('sw-code-editor-stub'), attribute: 'disabled', expect: 'true' },
             { selector: wrapper.findAll('sw-context-menu-item-stub'), attribute: 'disabled', expect: 'true' },
             { selector: wrapper.find('sw-entity-single-select-stub'), attribute: 'disabled', expect: 'true' },
-            { selector: wrapper.find('sw-entity-multi-select-stub'), attribute: 'disabled', expect: 'true' },
             { selector: wrapper.find('sw-media-upload-v2-stub'), attribute: 'disabled', expect: 'true' },
             { selector: wrapper.find('sw-text-field-stub'), attribute: 'disabled', expect: 'true' },
             { selector: wrapper.find('.sw-mail-template-detail__attachments-info-grid'), attribute: 'showselection', expect: undefined }
@@ -281,7 +283,6 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             { selector: wrapper.findAll('sw-code-editor-stub'), attribute: 'disabled', expect: undefined },
             { selector: wrapper.findAll('sw-context-menu-item-stub'), attribute: 'disabled', expect: undefined },
             { selector: wrapper.find('sw-entity-single-select-stub'), attribute: 'disabled', expect: undefined },
-            { selector: wrapper.find('sw-entity-multi-select-stub'), attribute: 'disabled', expect: undefined },
             { selector: wrapper.find('sw-media-upload-v2-stub'), attribute: 'disabled', expect: undefined },
             { selector: wrapper.find('sw-text-field-stub'), attribute: 'disabled', expect: undefined },
             { selector: wrapper.find('.sw-mail-template-detail__attachments-info-grid'), attribute: 'showselection', expect: 'true' }

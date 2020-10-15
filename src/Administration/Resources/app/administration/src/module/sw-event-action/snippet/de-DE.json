@@ -1,0 +1,45 @@
+{
+  "sw-event-action": {
+    "general": {
+      "mainMenuItemGeneral": "Ereignisaktionen",
+      "placeholderSearchBar": "Durchsuche alle Ereignisse ...",
+      "descriptionTextModule": "Verwaltung von Ereignisaktionen."
+    },
+    "list": {
+      "textHeadline": "Ereignisaktionen",
+      "labelActionAdd": "Ereignisaktion hinzufügen",
+      "columnEventName": "Event Name",
+      "columnSalesChannel": "Verkaufskanal",
+      "columnRules": "Regeln",
+      "columnMailTemplate": "Mail Template",
+      "columnTitle": "Titel",
+      "columnActive": "Aktiv"
+    },
+    "detail": {
+      "titleNewEntity": "Neue Ereignisaktion",
+      "fieldLabelEventName": "Event",
+      "fieldLabelSalesChannel": "Verkaufskanal",
+      "fieldLabelRules": "Regeln",
+      "fieldMailTemplate": "E-Mail-Template",
+      "fieldMailTemplateDetailLink": "E-Mail-Template Details",
+      "fieldLabelActive": "Aktiv",
+      "fieldLabelTitle": "Titel",
+      "placeholderEventName": "Wähle ein Business-Event...",
+      "placeholderRules": "Wähle Regeln...",
+      "placeholderSalesChannels": "Wähle Verkaufskanäle...",
+      "placeholderMailTemplate": "Wähle ein E-Mail-Template",
+      "errorMailTemplateId": "Bitte wähle ein E-Mail-Template",
+      "titleRecipientsCard": "E-Mail Empfänger",
+      "textEmptyStateRecipients": "Es gibt noch keine Empfänger für diese Ereignisaktion. Die Mail wird dann an den Kunden gesendet",
+      "columnRecipientName": "Empfängername",
+      "columnRecipientMail": "E-Mail"
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "event_action": {
+        "label": "Ereignisaktionen"
+      }
+    }
+  }
+}

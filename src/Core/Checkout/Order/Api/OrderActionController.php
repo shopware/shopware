@@ -59,8 +59,8 @@ class OrderActionController extends AbstractController
             MailSendSubscriber::MAIL_CONFIG_EXTENSION,
             new MailSendSubscriberConfig(
                 $request->request->get('sendMail', true) === false,
-                $request->request->get('mediaIds', []),
-                $request->request->get('documentIds', [])
+                $request->request->get('documentIds', []),
+                $request->request->get('mediaIds', [])
             )
         );
 
@@ -96,8 +96,8 @@ class OrderActionController extends AbstractController
             MailSendSubscriber::MAIL_CONFIG_EXTENSION,
             new MailSendSubscriberConfig(
                 $request->request->get('sendMail', true) === false,
-                $request->request->get('mediaIds', []),
-                $request->request->get('documentIds', [])
+                $request->request->get('documentIds', []),
+                $request->request->get('mediaIds', [])
             )
         );
 
@@ -133,8 +133,8 @@ class OrderActionController extends AbstractController
             MailSendSubscriber::MAIL_CONFIG_EXTENSION,
             new MailSendSubscriberConfig(
                 $request->request->get('sendMail', true) === false,
-                $request->request->get('mediaIds', []),
-                $request->request->get('documentIds', [])
+                $request->request->get('documentIds', []),
+                $request->request->get('mediaIds', [])
             )
         );
 

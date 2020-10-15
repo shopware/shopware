@@ -172,10 +172,12 @@ Component.register('sw-order-list', {
                 allowResize: true
             }, {
                 property: 'transactions.last().stateMachineState.name',
+                dataIndex: 'transactions.stateMachineState.name',
                 label: 'sw-order.list.columnTransactionState',
                 allowResize: true
             }, {
                 property: 'deliveries[0].stateMachineState.name',
+                dataIndex: 'deliveries.stateMachineState.name',
                 label: 'sw-order.list.columnDeliveryState',
                 allowResize: true
             }, {

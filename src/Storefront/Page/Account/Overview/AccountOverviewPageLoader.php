@@ -92,6 +92,7 @@ class AccountOverviewPageLoader
             ->addAssociation('transactions.paymentMethod')
             ->addAssociation('deliveries.shippingMethod')
             ->addAssociation('addresses')
+            ->addAssociation('currency')
             ->setLimit(1)
             ->addAssociation('orderCustomer');
 

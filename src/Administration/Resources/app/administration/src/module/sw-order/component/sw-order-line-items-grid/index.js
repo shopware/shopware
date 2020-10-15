@@ -257,13 +257,6 @@ Component.register('sw-order-line-items-grid', {
             }
             return 0;
         },
-        /** @deprecated:v6.4.0 */
-        getMaxItemPrice(id) {
-            if (!this.isCreditItem(id)) {
-                return null;
-            }
-            return 0;
-        },
 
         showTaxValue(item) {
             return (this.isCreditItem(item.id) || this.isPromotionItem(item)) && (item.price.taxRules.length > 1)

@@ -89,7 +89,9 @@
             {% endblock %}
 
             {% block sw_product_price_form_maintain_currencies_link %}
-                <a @click.prevent="displayMaintainCurrencies = true" v-if="product.price" class="sw-card__quick-link">
+                <a @click.prevent="displayMaintainCurrencies = true"
+                   v-if="product.price"
+                   class="sw-card__quick-link">
                     {{ $tc('sw-product.detailBase.linkMaintainCurrencyPrices') }} <sw-icon name="default-arrow-simple-right" small></sw-icon>
                 </a>
             {% endblock %}
@@ -101,6 +103,7 @@
                                           :prices="product.price"
                                           :defaultPrice="defaultPrice"
                                           :taxRate="productTaxRate"
+                                          :disabled="!allowEdit"
                                           @modal-close="onMaintainCurrenciesClose">
             </sw-maintain-currencies-modal>
         {% endblock %}

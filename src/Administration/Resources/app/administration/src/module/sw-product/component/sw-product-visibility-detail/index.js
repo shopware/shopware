@@ -7,6 +7,14 @@ const { mapState } = Shopware.Component.getComponentHelper();
 Component.register('sw-product-visibility-detail', {
     template,
 
+    props: {
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
+        }
+    },
+
     data() {
         return {
             items: [],

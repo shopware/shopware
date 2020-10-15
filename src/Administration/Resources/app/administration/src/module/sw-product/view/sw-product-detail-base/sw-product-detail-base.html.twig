@@ -118,6 +118,7 @@
                     v-if="product.seoUrls"
                     :isLoading="loading.product"
                     :hasDefaultTemplate="false"
+                    :disabled="!acl.can('product.editor')"
                     :urls="product.seoUrls">
 
                     <template #seo-additional="props">

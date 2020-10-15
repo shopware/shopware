@@ -172,7 +172,7 @@
         <template slot="sidebar">
             {% block sw_product_detail_sidebar %}
                 <sw-sidebar :propagateWidth="true">
-                    <sw-sidebar-media-item ref="mediaSidebarItem">
+                    <sw-sidebar-media-item ref="mediaSidebarItem" :disabled="!acl.can('product.editor')">
                         <template slot="context-menu-items" slot-scope="media">
                             <sw-context-menu-item @click="onAddItemToProduct(media.mediaItem)">
                                 {{ $tc('sw-product.detailBase.labelContextMenuAddToProduct') }}

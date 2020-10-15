@@ -50,7 +50,7 @@
             </sw-container>
 
             <sw-modal v-if="displayVisibilityDetail" @modal-close="closeAdvancedVisibility" :title="$tc('sw-product.visibility.textHeadline')" class="sw-product-category-form__visibility_modal">
-                <sw-product-visibility-detail></sw-product-visibility-detail>
+                <sw-product-visibility-detail :disabled="!allowEdit"></sw-product-visibility-detail>
 
                 <template slot="modal-footer">
                     <sw-button variant="primary" size="small" @click="closeAdvancedVisibility">

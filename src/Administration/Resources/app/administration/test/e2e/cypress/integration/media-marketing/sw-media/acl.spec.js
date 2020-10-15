@@ -1,6 +1,6 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
-import MediaPageObject from "../../../support/pages/module/sw-media.page-object";
+import MediaPageObject from '../../../support/pages/module/sw-media.page-object';
 
 describe('Property: Test ACL privileges', () => {
     beforeEach(() => {
@@ -170,7 +170,6 @@ describe('Property: Test ACL privileges', () => {
                 });
                 cy.get('.sw-media-base-item__name[title="sw_logo_white.png"]')
                     .should('be.visible');
-
             }
         });
     });
@@ -202,6 +201,34 @@ describe('Property: Test ACL privileges', () => {
             );
             cy.get('.sw-media-sidebar__quickaction--disabled.quickaction--move').should('be.visible');
             cy.get('.sw-media-sidebar__quickaction--disabled.quickaction--deleter').should('not.exist');
+        });
+    });
+
+    it('@media: can edit settings for media folder', () => {
+        cy.window().then(win => {
+            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
+                return;
+            }
+
+            // open context menu and open settings modal
+            cy.get('.sw-media-grid-item__item--0 .sw-context-button__button').click({ force: true });
+            cy.get('.sw-media-context-item__open-settings-action').click();
+
+            // go to thumbnail tab
+            cy.get('.sw-media-folder-settings__thumbnails-tab').click();
+
+            // turn on thumbnail edit mode
+            cy.get('.sw-media-modal-folder-settings__switch-mode').click();
+
+            // delete thumbnail size
+            cy.get('.sw-media-folder-settings__thumbnails-tab').click();
+
+            // turn of thumbnail edit mode
+            cy.get('.sw-media-modal-folder-settings__switch-mode').click();
+
+            cy.get('.sw-modal .sw-button.sw-button--primary').click();
+
+            cy.awaitAndCheckNotification('Settings have been saved.');
         });
     });
 });

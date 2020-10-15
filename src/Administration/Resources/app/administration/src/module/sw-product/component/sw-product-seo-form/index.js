@@ -6,6 +6,14 @@ const { mapPropertyErrors, mapState, mapGetters } = Shopware.Component.getCompon
 Component.register('sw-product-seo-form', {
     template,
 
+    props: {
+        allowEdit: {
+            type: Boolean,
+            required: false,
+            default: true
+        }
+    },
+
     mixins: [
         Mixin.getByName('placeholder')
     ],

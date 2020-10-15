@@ -11,7 +11,7 @@
                     <sw-field
                         type="switch"
                         class="sw-custom-field-set-renderer__selection-switch"
-                        :disabled="props.isInherited"
+                        :disabled="props.isInherited || disabled"
                         @change="props.updateCurrentValue"
                         :value="props.currentValue">
                     </sw-field>

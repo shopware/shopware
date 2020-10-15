@@ -17,6 +17,7 @@
         },
         "options": {
           "criteriaAlreadyUsed": "The \"{criteriaName}\" option is already being used.",
+          "customFieldCriteriaNotNull": "Please choose a valid custom field.",
           "label": {
             "product": {
               "name": "Product name",
@@ -24,7 +25,7 @@
               "productNumber": "Product number",
               "releaseDate": "Release date",
               "stock": "Product stock",
-              "listingPrices": "Product list price",
+              "listingPrices": "Product listing price",
               "sales": "Units sold"
             },
             "customField": "Custom field",
@@ -70,7 +71,7 @@
         "saveError": "There was an error while saving the sorting option \"{sortingOptionName}\"."
       },
       "criteria": {
-        "title": "Sorting options",
+        "title": "Sorting criteria",
         "selectPlaceholder": "Search and add criteria...",
         "emptyStateSubline": "No criteria defined for this sorting option yet."
       },

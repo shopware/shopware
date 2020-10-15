@@ -17,6 +17,7 @@
         },
         "options": {
           "criteriaAlreadyUsed": "Die \"{criteriaName}\"-Option wird schon verwendet.",
+          "customFieldCriteriaNotNull": "Bitte wähle ein gültiges Zusatzfeld aus.",
           "label": {
             "product": {
               "name": "Produktname",
@@ -24,7 +25,7 @@
               "productNumber": "Produktnummer",
               "releaseDate": "Erscheinungsdatum",
               "stock": "Lagerbestand",
-              "listingPrices": "Streichpreis",
+              "listingPrices": "Produktlisten-Preis",
               "sales": "Verkaufte Einheiten"
             },
             "customField": "Zusatzfeld",
@@ -70,7 +71,7 @@
         "saveError": "Es gab ein Problem beim speichern der Sortier-Option \"{sortingOptionName}\"."
       },
       "criteria": {
-        "title": "Sortier-Optionen",
+        "title": "Sortier-Kriterien",
         "selectPlaceholder": "Suchen und Kriterium hinzufügen.",
         "emptyStateSubline": "Diese Produkt-Sortierung hat keine Kriterien."
       },

@@ -66,7 +66,7 @@
                                             v-model="config['core.listing.defaultSorting']"
                                             :label="$tc('sw-settings-listing.general.labelDefaultSorting')"
                                             :placeholder="$tc('sw-settings-listing.general.placeholderDefaultSorting')"
-                                            :options="notLockedProductSortings"
+                                            :options="productSortingOptions"
                                             labelProperty="label"
                                             valueProperty="key">
                                         </sw-single-select>
@@ -114,7 +114,7 @@
                                     <sw-data-grid v-if="productSortingOptions.length > 0"
                                         :compactMode="false"
                                         :columns="productSortingOptionColumns"
-                                        :dataSource="filteredProductSortingOptions"
+                                        :dataSource="productSortingOptions"
                                         allowInlineEdit
                                         plainAppearance
                                         :showSelection="false"
@@ -145,7 +145,7 @@
 
                                                 {% block sw_settings_listing_content_card_view_options_card_grid_column_actions_delete %}
                                                     <sw-context-menu-item variant="danger"
-                                                        @click="toBeDeletedProductSortingOptionId = item.id"
+                                                        @click="toBeDeletedProductSortingOption = item"
                                                         :disabled="item.locked || isItemDefaultSorting(item.key)">
                                                         {{ $tc('global.default.delete') }}
                                                     </sw-context-menu-item>
@@ -159,7 +159,8 @@
                                                     @page-change="onPageChange"
                                                     :page="sortingOptionsGridPage"
                                                     :total="sortingOptionsGridTotal"
-                                                    :limit="sortingOptionsGridLimit">
+                                                    :limit="sortingOptionsGridLimit"
+                                                    :steps="[10]">
                                                 </sw-pagination>
                                             </template>
                                         {% endblock %}
@@ -186,11 +187,13 @@
                 {% endblock %}
 
                 {% block sw_settings_listing_content_card_view_options_delete_modal %}
-                    <sw-settings-listing-delete-modal v-if="toBeDeletedProductSortingOptionId"
+                    <sw-settings-listing-delete-modal v-if="toBeDeletedProductSortingOption"
                         :title="$tc('sw-settings-listing.index.deleteModal.title')"
-                        :description="$tc('sw-settings-listing.index.deleteModal.description')"
-                        @cancel="toBeDeletedProductSortingOptionId = null"
-                        @delete="onDeleteProductSorting(toBeDeletedProductSortingOptionId)">
+                        :description="$t('sw-settings-listing.index.deleteModal.description', {
+                            'sortingOptionName': toBeDeletedProductSortingOption.label
+                        })"
+                        @cancel="toBeDeletedProductSortingOption = null"
+                        @delete="onDeleteProductSorting(toBeDeletedProductSortingOption)">
                     </sw-settings-listing-delete-modal>
                 {% endblock %}
             </template>

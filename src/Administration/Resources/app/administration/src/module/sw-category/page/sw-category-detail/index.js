@@ -30,7 +30,12 @@ Component.register('sw-category-detail', {
     ],
 
     shortcuts: {
-        'SYSTEMKEY+S': 'onSave',
+        'SYSTEMKEY+S': {
+            active() {
+                return this.acl.can('category.editor');
+            },
+            method: 'onSave'
+        },
         ESCAPE: 'cancelEdit'
     },
 

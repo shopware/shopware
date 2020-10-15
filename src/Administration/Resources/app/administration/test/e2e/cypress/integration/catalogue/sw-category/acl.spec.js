@@ -51,8 +51,10 @@ describe('Category: Test ACL privileges', () => {
 
             cy.get('#categoryName').should('have.value', 'Home');
 
-            cy.get('.sw-category-detail__tab-cms').click();
-            cy.get('#sw-field--element-config-minHeight-value').should('have.value', '320px');
+            cy.get('.sw-category-detail__tab-cms').should('satisfy', ($el) => {
+                const classList = Array.from($el[0].classList);
+                return classList.includes('sw-tabs-item--is-disabled');
+            });
         });
     });
 
@@ -94,6 +96,10 @@ describe('Category: Test ACL privileges', () => {
 
             // Edit the category
             cy.get('#categoryName').clearTypeAndCheck('Shop');
+
+            // Check if content tab works
+            cy.get('.sw-category-detail__tab-cms').click();
+            cy.get('#sw-field--element-config-minHeight-value').should('have.value', '320px');
 
             // Save the category
             cy.get('.sw-category-detail__save-action').click();

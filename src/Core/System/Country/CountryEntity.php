@@ -61,6 +61,27 @@ class CountryEntity extends Entity
     protected $forceStateInRegistration;
 
     /**
+     * @internal (flag:FEATURE_NEXT_10559)
+     *
+     * @var bool
+     */
+    protected $companyTaxFree;
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10559)
+     *
+     * @var bool
+     */
+    protected $checkVatIdPattern;
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10559)
+     *
+     * @var string|null
+     */
+    protected $vatIdPattern;
+
+    /**
      * @var CountryStateCollection|null
      */
     protected $states;
@@ -188,6 +209,54 @@ class CountryEntity extends Entity
     public function setForceStateInRegistration(bool $forceStateInRegistration): void
     {
         $this->forceStateInRegistration = $forceStateInRegistration;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10559)
+     */
+    public function getCompanyTaxFree(): bool
+    {
+        return $this->companyTaxFree;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10559)
+     */
+    public function setCompanyTaxFree(bool $companyTaxFree): void
+    {
+        $this->companyTaxFree = $companyTaxFree;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10559)
+     */
+    public function getCheckVatIdPattern(): bool
+    {
+        return $this->checkVatIdPattern;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10559)
+     */
+    public function setCheckVatIdPattern(bool $checkVatIdPattern): void
+    {
+        $this->checkVatIdPattern = $checkVatIdPattern;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10559)
+     */
+    public function getVatIdPattern(): ?string
+    {
+        return $this->vatIdPattern;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10559)
+     */
+    public function setVatIdPattern(?string $vatIdPattern): void
+    {
+        $this->vatIdPattern = $vatIdPattern;
     }
 
     public function getStates(): ?CountryStateCollection

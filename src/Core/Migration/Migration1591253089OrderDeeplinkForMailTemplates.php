@@ -246,10 +246,11 @@ class Migration1591253089OrderDeeplinkForMailTemplates extends MigrationStep
         if ($templateId !== null) {
             // updating available entities of mail template
             $availableEntities = $this->fetchSystemMailTemplateAvailableEntitiesFromType($connection, $mailTemplateType);
-            $newAvailableEntities = substr($availableEntities, 0, -1) . ',"editOrderUrl": null}';
-
-            $sqlStatement = 'UPDATE `mail_template_type` SET `available_entities` = :availableEntities WHERE `technical_name` = :mailTemplateType AND `updated_at` IS NULL';
-            $connection->executeUpdate($sqlStatement, ['availableEntities' => $newAvailableEntities, 'mailTemplateType' => $mailTemplateType]);
+            if (!isset($availableEntities['editOrderUrl'])) {
+                $availableEntities['editOrderUrl'] = null;
+                $sqlStatement = 'UPDATE `mail_template_type` SET `available_entities` = :availableEntities WHERE `technical_name` = :mailTemplateType AND `updated_at` IS NULL';
+                $connection->executeUpdate($sqlStatement, ['availableEntities' => json_encode($availableEntities), 'mailTemplateType' => $mailTemplateType]);
+            }
 
             $this->updateMailTemplateTranslation(
                 $connection,
@@ -286,12 +287,18 @@ class Migration1591253089OrderDeeplinkForMailTemplates extends MigrationStep
         return $templateId;
     }
 
-    private function fetchSystemMailTemplateAvailableEntitiesFromType(Connection $connection, string $mailTemplateType): string
+    private function fetchSystemMailTemplateAvailableEntitiesFromType(Connection $connection, string $mailTemplateType): array
     {
-        return (string) $connection->executeQuery(
+        $availableEntities = $connection->executeQuery(
             'SELECT `available_entities` FROM `mail_template_type` WHERE `technical_name` = :mailTemplateType AND updated_at IS NULL;',
             ['mailTemplateType' => $mailTemplateType]
         )->fetchColumn();
+
+        if ($availableEntities === false || !is_string($availableEntities) || json_decode($availableEntities, true) === null) {
+            return [];
+        }
+
+        return json_decode($availableEntities, true);
     }
 
     private function updateMailTemplateTranslation(

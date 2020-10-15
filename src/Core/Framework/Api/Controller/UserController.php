@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Api\Controller\Exception\ExpectedUserHttpException;
+use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
@@ -88,6 +89,30 @@ class UserController extends AbstractController
         }
 
         return $responseFactory->createDetailResponse(new Criteria(), $user, $this->userDefinition, $request, $context);
+    }
+
+    /**
+     * @Route("/api/v{version}/_info/me", name="api.change.me", defaults={"auth_required"=true}, methods={"PATCH"})
+     * @Acl({"user_change_me"})
+     */
+    public function updateMe(Context $context, Request $request, ResponseFactoryInterface $responseFactory): Response
+    {
+        if (!$context->getSource() instanceof AdminApiSource) {
+            throw new InvalidContextSourceException(AdminApiSource::class, \get_class($context->getSource()));
+        }
+
+        $userId = $context->getSource()->getUserId();
+        if (!$userId) {
+            throw new ExpectedUserHttpException();
+        }
+
+        $allowedChanges = ['id', 'firstName', 'lastName', 'username', 'localeId', 'email', 'avatarMedia', 'avatarId', 'password'];
+
+        if (!empty(array_diff(array_keys($request->request->all()), $allowedChanges))) {
+            throw new MissingPrivilegeException(['user:update']);
+        }
+
+        return $this->upsertUser($userId, $request, $context, $responseFactory);
     }
 
     /**

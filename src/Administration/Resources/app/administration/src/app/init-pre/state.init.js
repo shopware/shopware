@@ -33,7 +33,7 @@ function initVuexState(state) {
 }
 
 function initVuexModules(modules, state) {
-    return Object.keys(modules).map((storeModule) => {
-        return state.registerModule(storeModule, modules[storeModule]);
+    Object.keys(modules).forEach((storeModule) => {
+        state.registerModule(storeModule, modules[storeModule]);
     });
 }

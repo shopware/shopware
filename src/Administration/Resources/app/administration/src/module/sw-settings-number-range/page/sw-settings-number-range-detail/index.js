@@ -246,6 +246,10 @@ Component.register('sw-settings-number-range-detail', {
         },
 
         onSave() {
+            if (!this.acl.can('number_ranges.editor')) {
+                return false;
+            }
+
             this.isSaveSuccessful = false;
 
             const numberRangeName = this.numberRange.name || this.placeholder(this.numberRange, 'name');

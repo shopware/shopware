@@ -16,7 +16,6 @@ Component.register('sw-users-permissions-user-detail', {
         'userValidationService',
         'integrationService',
         'repositoryFactory',
-        'feature',
         'acl'
     ],
 

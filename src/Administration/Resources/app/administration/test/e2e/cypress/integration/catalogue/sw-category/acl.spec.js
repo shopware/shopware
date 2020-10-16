@@ -28,202 +28,178 @@ describe('Category: Test ACL privileges', () => {
     });
 
     it('@base @catalogue: can view category', () => {
-        cy.window().then((win) => {
-            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
-                return;
+        const page = new CategoryPageObject();
+
+        cy.loginAsUserWithPermissions([
+            {
+                key: 'category',
+                role: 'viewer'
             }
+        ]);
 
-            const page = new CategoryPageObject();
+        cy.get('.sw-admin-menu__navigation-list-item.sw-catalogue').click();
+        cy.get('.sw-admin-menu__navigation-list-item.sw-category').click();
 
-            cy.loginAsUserWithPermissions([
-                {
-                    key: 'category',
-                    role: 'viewer'
-                }
-            ]);
+        cy.get('.sw-empty-state__title').contains('No category selected');
+        cy.get(`${page.elements.categoryTreeItem}__icon`).should('be.visible');
+        cy.get(`${page.elements.categoryTreeItem}__content`).first().click();
 
-            cy.get('.sw-admin-menu__navigation-list-item.sw-catalogue').click();
-            cy.get('.sw-admin-menu__navigation-list-item.sw-category').click();
+        cy.get('#categoryName').should('have.value', 'Home');
 
-            cy.get('.sw-empty-state__title').contains('No category selected');
-            cy.get(`${page.elements.categoryTreeItem}__icon`).should('be.visible');
-            cy.get(`${page.elements.categoryTreeItem}__content`).first().click();
-
-            cy.get('#categoryName').should('have.value', 'Home');
-
-            cy.get('.sw-category-detail__tab-cms').should('satisfy', ($el) => {
-                const classList = Array.from($el[0].classList);
-                return classList.includes('sw-tabs-item--is-disabled');
-            });
+        cy.get('.sw-category-detail__tab-cms').should('satisfy', ($el) => {
+            const classList = Array.from($el[0].classList);
+            return classList.includes('sw-tabs-item--is-disabled');
         });
     });
 
     it('@catalogue: can edit category', () => {
-        cy.window().then((win) => {
-            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
-                return;
+        const page = new CategoryPageObject();
+
+        cy.loginAsUserWithPermissions([
+            {
+                key: 'category',
+                role: 'viewer'
+            },
+            {
+                key: 'category',
+                role: 'editor'
             }
+        ]);
 
-            const page = new CategoryPageObject();
+        cy.get('.sw-admin-menu__navigation-list-item.sw-catalogue').click();
+        cy.get('.sw-admin-menu__navigation-list-item.sw-category').click();
 
-            cy.loginAsUserWithPermissions([
-                {
-                    key: 'category',
-                    role: 'viewer'
-                },
-                {
-                    key: 'category',
-                    role: 'editor'
-                }
-            ]);
+        cy.get('.sw-empty-state__title').contains('No category selected');
+        cy.get(`${page.elements.categoryTreeItem}__icon`).should('be.visible');
 
-            cy.get('.sw-admin-menu__navigation-list-item.sw-catalogue').click();
-            cy.get('.sw-admin-menu__navigation-list-item.sw-category').click();
+        cy.server();
+        cy.route({
+            url: '/api/v*/category/*',
+            method: 'patch'
+        }).as('saveData');
 
-            cy.get('.sw-empty-state__title').contains('No category selected');
-            cy.get(`${page.elements.categoryTreeItem}__icon`).should('be.visible');
+        // Select a category
+        cy.get('.sw-tree-item__label')
+            .contains('Home')
+            .click();
 
-            cy.server();
-            cy.route({
-                url: '/api/v*/category/*',
-                method: 'patch'
-            }).as('saveData');
+        // Edit the category
+        cy.get('#categoryName').clearTypeAndCheck('Shop');
 
-            // Select a category
-            cy.get('.sw-tree-item__label')
-                .contains('Home')
-                .click();
+        // Check if content tab works
+        cy.get('.sw-category-detail__tab-cms').click();
+        cy.get('#sw-field--element-config-minHeight-value').should('have.value', '320px');
 
-            // Edit the category
-            cy.get('#categoryName').clearTypeAndCheck('Shop');
+        // Save the category
+        cy.get('.sw-category-detail__save-action').click();
 
-            // Check if content tab works
-            cy.get('.sw-category-detail__tab-cms').click();
-            cy.get('#sw-field--element-config-minHeight-value').should('have.value', '320px');
-
-            // Save the category
-            cy.get('.sw-category-detail__save-action').click();
-
-            // Wait for category request with correct data to be successful
-            cy.wait('@saveData').then((xhr) => {
-                expect(xhr).to.have.property('status', 204);
-                expect(xhr.requestBody).to.have.property('name', 'Shop');
-            });
+        // Wait for category request with correct data to be successful
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
+            expect(xhr.requestBody).to.have.property('name', 'Shop');
         });
     });
 
     it('@catalogue: can create category', () => {
-        cy.window().then((win) => {
-            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
-                return;
+        cy.loginAsUserWithPermissions([
+            {
+                key: 'category',
+                role: 'viewer'
+            },
+            {
+                key: 'category',
+                role: 'editor'
+            },
+            {
+                key: 'category',
+                role: 'creator'
             }
+        ]);
 
-            cy.loginAsUserWithPermissions([
-                {
-                    key: 'category',
-                    role: 'viewer'
-                },
-                {
-                    key: 'category',
-                    role: 'editor'
-                },
-                {
-                    key: 'category',
-                    role: 'creator'
-                }
-            ]);
+        cy.get('.sw-admin-menu__navigation-list-item.sw-catalogue').click();
+        cy.get('.sw-admin-menu__navigation-list-item.sw-category').click();
 
-            cy.get('.sw-admin-menu__navigation-list-item.sw-catalogue').click();
-            cy.get('.sw-admin-menu__navigation-list-item.sw-category').click();
+        const page = new CategoryPageObject();
 
-            const page = new CategoryPageObject();
+        // Request we want to wait for later
+        cy.server();
+        cy.route({
+            url: `${Cypress.env('apiPath')}/category`,
+            method: 'post'
+        }).as('saveData');
 
-            // Request we want to wait for later
-            cy.server();
-            cy.route({
-                url: `${Cypress.env('apiPath')}/category`,
-                method: 'post'
-            }).as('saveData');
+        // Add category before root one
+        cy.clickContextMenuItem(
+            `${page.elements.categoryTreeItem}__before-action`,
+            page.elements.contextMenuButton,
+            `${page.elements.categoryTreeItem}:nth-of-type(1)`
+        );
+        cy.get(`${page.elements.categoryTreeItem}__content input`).type('Categorian');
+        cy.get(`${page.elements.categoryTreeItem}__content input`).type('{enter}');
 
-            // Add category before root one
-            cy.clickContextMenuItem(
-                `${page.elements.categoryTreeItem}__before-action`,
-                page.elements.contextMenuButton,
-                `${page.elements.categoryTreeItem}:nth-of-type(1)`
-            );
-            cy.get(`${page.elements.categoryTreeItem}__content input`).type('Categorian');
-            cy.get(`${page.elements.categoryTreeItem}__content input`).type('{enter}');
-
-            // Verify category
-            cy.wait('@saveData').then((xhr) => {
-                expect(xhr).to.have.property('status', 204);
-            });
-            cy.get('.sw-confirm-field__button-list').then((btn) => {
-                if (btn.attr('style').includes('display: none;')) {
-                    cy.get('.sw-tree-actions__headline').click();
-                } else {
-                    cy.get('.sw-confirm-field__button--cancel').click();
-                }
-            });
-            cy.get(`${page.elements.categoryTreeItem}:nth-child(2)`).contains('Categorian');
+        // Verify category
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
         });
+        cy.get('.sw-confirm-field__button-list').then((btn) => {
+            if (btn.attr('style').includes('display: none;')) {
+                cy.get('.sw-tree-actions__headline').click();
+            } else {
+                cy.get('.sw-confirm-field__button--cancel').click();
+            }
+        });
+        cy.get(`${page.elements.categoryTreeItem}:nth-child(2)`).contains('Categorian');
     });
 
     it('@catalogue: can delete category', () => {
-        cy.window().then((win) => {
-            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
-                return;
+        cy.loginAsUserWithPermissions([
+            {
+                key: 'category',
+                role: 'viewer'
+            },
+            {
+                key: 'category',
+                role: 'editor'
+            },
+            {
+                key: 'category',
+                role: 'creator'
+            },
+            {
+                key: 'category',
+                role: 'deleter'
             }
+        ]);
 
-            cy.loginAsUserWithPermissions([
-                {
-                    key: 'category',
-                    role: 'viewer'
-                },
-                {
-                    key: 'category',
-                    role: 'editor'
-                },
-                {
-                    key: 'category',
-                    role: 'creator'
-                },
-                {
-                    key: 'category',
-                    role: 'deleter'
-                }
-            ]);
+        cy.route({
+            url: `${Cypress.env('apiPath')}/category/*`,
+            method: 'delete'
+        }).as('deleteData');
 
-            cy.route({
-                url: `${Cypress.env('apiPath')}/category/*`,
-                method: 'delete'
-            }).as('deleteData');
+        cy.get('.sw-admin-menu__navigation-list-item.sw-catalogue').click();
+        cy.get('.sw-admin-menu__navigation-list-item.sw-category').click();
 
-            cy.get('.sw-admin-menu__navigation-list-item.sw-catalogue').click();
-            cy.get('.sw-admin-menu__navigation-list-item.sw-category').click();
+        const page = new CategoryPageObject();
 
-            const page = new CategoryPageObject();
+        cy.clickContextMenuItem(
+            '.sw-context-menu__group-button-delete',
+            page.elements.contextMenuButton,
+            `${page.elements.categoryTreeItem}:nth-of-type(2)`
+        );
 
-            cy.clickContextMenuItem(
-                '.sw-context-menu__group-button-delete',
-                page.elements.contextMenuButton,
-                `${page.elements.categoryTreeItem}:nth-of-type(2)`
-            );
+        // expect modal to be open
+        cy.get('.sw-modal')
+            .should('be.visible');
+        cy.get('.sw_tree__confirm-delete-text')
+            .contains('ParentCategory');
 
-            // expect modal to be open
-            cy.get('.sw-modal')
-                .should('be.visible');
-            cy.get('.sw_tree__confirm-delete-text')
-                .contains('ParentCategory');
+        cy.get('.sw-modal__footer > .sw-button--danger > .sw-button__content')
+            .should('not.be.disabled')
+            .click();
 
-            cy.get('.sw-modal__footer > .sw-button--danger > .sw-button__content')
-                .should('not.be.disabled')
-                .click();
-
-            // Verify deletion
-            cy.wait('@deleteData').then((xhr) => {
-                expect(xhr).to.have.property('status', 204);
-            });
+        // Verify deletion
+        cy.wait('@deleteData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
         });
     });
 });

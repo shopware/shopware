@@ -67,14 +67,12 @@ class IntegrationDefinition extends EntityDefinition
             );
         }
 
-        if (Feature::isActive('FEATURE_NEXT_3722')) {
-            $collection->add(
-                (new BoolField('write_access', 'writeAccess'))->addFlags(new Deprecated('v3', 'v4'))
-            );
-            $collection->add(
-                new ManyToManyAssociationField('aclRoles', AclRoleDefinition::class, IntegrationRoleDefinition::class, 'integration_id', 'acl_role_id')
-            );
-        }
+        $collection->add(
+            (new BoolField('write_access', 'writeAccess'))->addFlags(new Deprecated('v3', 'v4'))
+        );
+        $collection->add(
+            new ManyToManyAssociationField('aclRoles', AclRoleDefinition::class, IntegrationRoleDefinition::class, 'integration_id', 'acl_role_id')
+        );
 
         return $collection;
     }

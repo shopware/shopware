@@ -8,7 +8,6 @@ use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
 use Shopware\Core\Framework\Api\OAuth\Client\ApiClient;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 class ClientRepository implements ClientRepositoryInterface
@@ -65,7 +64,7 @@ class ClientRepository implements ClientRepositoryInterface
 
     private function getUserByAccessKey(string $clientIdentifier, string $clientSecret): ClientEntityInterface
     {
-        // @feature-deprecated (flag:FEATURE_NEXT_3722) tag:v6.4.0 - write_access will be removed
+        // @deprecated tag:v6.4.0 - write_access will be removed
         $key = $this->connection->createQueryBuilder()
             ->select(['user_id', 'secret_access_key', 'write_access'])
             ->from('user_access_key')
@@ -82,16 +81,12 @@ class ClientRepository implements ClientRepositoryInterface
             throw OAuthServerException::invalidCredentials();
         }
 
-        if (Feature::isActive('FEATURE_NEXT_3722')) {
-            return new ApiClient($clientIdentifier, true, Uuid::fromBytesToHex($key['user_id']));
-        }
-
-        return new ApiClient($clientIdentifier, (bool) $key['write_access'], Uuid::fromBytesToHex($key['user_id']));
+        return new ApiClient($clientIdentifier, true, Uuid::fromBytesToHex($key['user_id']));
     }
 
     private function getIntegrationByAccessKey(string $clientIdentifier, string $clientSecret): ClientEntityInterface
     {
-        // @feature-deprecated (flag:FEATURE_NEXT_3722) tag:v6.4.0 - write_access will be removed
+        // @deprecated tag:v6.4.0 - write_access will be removed
         $key = $this->connection->createQueryBuilder()
             ->select(['integration.id AS id', 'label', 'secret_access_key', 'write_access', 'app.active as active'])
             ->from('integration')
@@ -115,10 +110,6 @@ class ClientRepository implements ClientRepositoryInterface
             throw OAuthServerException::invalidCredentials();
         }
 
-        if (Feature::isActive('FEATURE_NEXT_3722')) {
-            return new ApiClient($clientIdentifier, true, $key['label']);
-        }
-
-        return new ApiClient($clientIdentifier, (bool) $key['write_access'], $key['label']);
+        return new ApiClient($clientIdentifier, true, $key['label']);
     }
 }

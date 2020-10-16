@@ -285,6 +285,7 @@ Table(ShopwareStorefront, "Shopware\Storefront\n(Storefront)") {
 ' relationshipd
 
 ShopwareCoreFrameworkApi --> ShopwareCoreFrameworkApi
+ShopwareCoreSystemIntegration --> ShopwareCoreFrameworkApi
 ShopwareCoreSystemUser --> ShopwareCoreFrameworkApi
 ShopwareCoreSystemCustomField --> ShopwareCoreSystemCustomField
 ShopwareCoreContentProduct --> ShopwareCoreSystemCustomField
@@ -368,7 +369,6 @@ ShopwareCoreSystemUser --> ShopwareCoreSystemUser
 ShopwareCoreSystemStateMachine --> ShopwareCoreSystemUser
 ShopwareCoreContentImportExport --> ShopwareCoreSystemUser
 ShopwareCoreSystemIntegration --> ShopwareCoreSystemIntegration
-ShopwareCoreSystemIntegration --> ShopwareCoreFrameworkApi
 ShopwareCoreSystemStateMachine --> ShopwareCoreSystemStateMachine
 ShopwareCoreCheckoutOrder --> ShopwareCoreSystemStateMachine
 ShopwareCoreSystemNumberRange --> ShopwareCoreSystemNumberRange

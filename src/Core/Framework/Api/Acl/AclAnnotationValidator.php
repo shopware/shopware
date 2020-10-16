@@ -11,9 +11,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
-/**
- * @internal (flag:FEATURE_NEXT_3722)
- */
 class AclAnnotationValidator implements EventSubscriberInterface
 {
     public static function getSubscribedEvents()

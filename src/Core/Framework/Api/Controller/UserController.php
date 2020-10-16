@@ -202,8 +202,6 @@ class UserController extends AbstractController
     /**
      * @Route("/api/v{version}/user/{userId}", name="api.user.update", defaults={"auth_required"=true}, methods={"PATCH"})
      * @Acl({"user:update"})
-     *
-     * @internal (flag:FEATURE_NEXT_3722)
      */
     public function updateUser(?string $userId, Request $request, Context $context, ResponseFactoryInterface $factory): Response
     {

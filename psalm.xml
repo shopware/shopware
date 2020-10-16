@@ -83,6 +83,13 @@
             </errorLevel>
         </InaccessibleProperty>
 
+        <UnnecessaryVarAnnotation>
+            <errorLevel type="info">
+                <!-- Needed for a smooth transition of the PHPStan update. Could be removed once PHPStan is updated to 0.12.49 -->
+                <file name="platform/src/Elasticsearch/Framework/DataAbstractionLayer/ElasticsearchEntitySearcher.php"/>
+            </errorLevel>
+        </UnnecessaryVarAnnotation>
+
         <!-- level 3 issues - slightly lazy code writing, but provably low false-negatives -->
 
         <DeprecatedMethod errorLevel="info"/>

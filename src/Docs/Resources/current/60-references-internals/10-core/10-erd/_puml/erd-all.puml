@@ -877,6 +877,7 @@ Table(ShopwareCoreContentProductProductDefinition, "product\n(Product)") {
    variation list
    featureSetId foreignKey
    purchasePrices price
+   customSearchKeywords translated
    not_null(createdAt) createdAt
    updatedAt updatedAt
    translated json
@@ -1003,6 +1004,7 @@ TranslationTable(ShopwareCoreContentProductAggregateProductTranslationProductTra
    metaTitle string
    packUnit string
    packUnitPlural string
+   customSearchKeywords list
    customFields customFields
    not_null(createdAt) createdAt
    updatedAt updatedAt

@@ -62,7 +62,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationFi
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\WhitelistRuleField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeDefinition;
 use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
@@ -268,12 +267,10 @@ class ProductDefinition extends EntityDefinition
             (new PriceField('purchase_prices', 'purchasePrices'))->addFlags(new Inherited())
         );
 
-        if (Feature::isActive('FEATURE_NEXT_10075')) {
-            $collection->add(
-                (new TranslatedField('customSearchKeywords'))
-                    ->addFlags(new Inherited(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING))
-            );
-        }
+        $collection->add(
+            (new TranslatedField('customSearchKeywords'))
+                ->addFlags(new Inherited(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING))
+        );
 
         return $collection;
     }

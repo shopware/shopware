@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Category\SalesChannel;
 use Doctrine\DBAL\Connection;
 use OpenApi\Annotations as OA;
 use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Category\Event\NavigationRouteValidationEvent;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -18,6 +19,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -46,16 +48,23 @@ class NavigationRoute extends AbstractNavigationRoute
      */
     private $requestCriteriaBuilder;
 
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $dispatcher;
+
     public function __construct(
         Connection $connection,
         SalesChannelRepositoryInterface $repository,
         SalesChannelCategoryDefinition $categoryDefinition,
-        RequestCriteriaBuilder $requestCriteriaBuilder
+        RequestCriteriaBuilder $requestCriteriaBuilder,
+        EventDispatcherInterface $dispatcher
     ) {
         $this->categoryRepository = $repository;
         $this->connection = $connection;
         $this->categoryDefinition = $categoryDefinition;
         $this->requestCriteriaBuilder = $requestCriteriaBuilder;
+        $this->dispatcher = $dispatcher;
     }
 
     public function getDecorated(): AbstractNavigationRoute
@@ -269,6 +278,10 @@ class NavigationRoute extends AbstractNavigationRoute
             $context->getSalesChannel()->getServiceCategoryId(),
             $context->getSalesChannel()->getNavigationCategoryId(),
         ]);
+
+        $event = new NavigationRouteValidationEvent($ids);
+        $this->dispatcher->dispatch($event);
+        $ids = $event->getIds();
 
         foreach ($ids as $id) {
             if ($this->isChildCategory($activeId, $path, $id)) {

@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Test\App;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 class ActiveAppsLoaderTest extends TestCase
@@ -19,7 +18,6 @@ class ActiveAppsLoaderTest extends TestCase
 
     public function setUp(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10286', $this);
         $this->activeAppsLoader = $this->getContainer()->get(ActiveAppsLoader::class);
     }
 

@@ -20,7 +20,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSetRelation\CustomFieldSetRelationDefinition;
 use Shopware\Core\System\CustomField\CustomFieldDefinition;
 
@@ -52,7 +51,7 @@ class CustomFieldSetDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        $collection = new FieldCollection([
+        return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new StringField('name', 'name'))->addFlags(new Required()),
             new JsonField('config', 'config', [], []),
@@ -61,17 +60,13 @@ class CustomFieldSetDefinition extends EntityDefinition
             new BoolField('global', 'global'),
             (new IntField('position', 'position')),
 
+            new FkField('app_id', 'appId', AppDefinition::class),
+
             (new OneToManyAssociationField('customFields', CustomFieldDefinition::class, 'set_id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('relations', CustomFieldSetRelationDefinition::class, 'set_id'))->addFlags(new CascadeDelete()),
             (new ManyToManyAssociationField('products', ProductDefinition::class, ProductCustomFieldSetDefinition::class, 'custom_field_set_id', 'product_id'))
                 ->addFlags(new CascadeDelete(), new ReverseInherited('customFieldSets')),
+            new ManyToOneAssociationField('app', 'app_id', AppDefinition::class),
         ]);
-
-        if (Feature::isActive('FEATURE_NEXT_10286')) {
-            $collection->add(new FkField('app_id', 'appId', AppDefinition::class));
-            $collection->add(new ManyToOneAssociationField('app', 'app_id', AppDefinition::class));
-        }
-
-        return $collection;
     }
 }

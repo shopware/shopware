@@ -29,8 +29,7 @@ Component.register('sw-app-actions', {
         },
 
         areActionsAvailable() {
-            return this.feature.isActive('FEATURE_NEXT_10286')
-                && !!this.actions
+            return !!this.actions
                 && this.actions.length > 0
                 && this.params.length > 0;
         },

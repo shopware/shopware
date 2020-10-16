@@ -36,7 +36,8 @@ Component.register('sw-admin-menu', {
             flyoutLabel: '',
             subMenuOpen: false,
             scrollbarOffset: '',
-            isUserLoading: true
+            isUserLoading: true,
+            myAppsEntry: null
         };
     },
 
@@ -85,10 +86,11 @@ Component.register('sw-admin-menu', {
         mainMenuEntries() {
             const mainMenu = this.menuService.getMainMenu();
 
-            const myAppsEntry = mainMenu.find((entry) => entry.id === 'sw-my-apps');
+            // save menu entry for reactivity purposes
+            this.myAppsEntry = mainMenu.find((entry) => entry.id === 'sw-my-apps');
 
-            if (myAppsEntry && this.appEntries.length > 0) {
-                myAppsEntry.children = [...myAppsEntry.children, ...this.appEntries];
+            if (this.myAppsEntry && this.appEntries.length > 0) {
+                this.myAppsEntry.children = [...this.myAppsEntry.children, ...this.appEntries];
             }
 
             return mainMenu;
@@ -165,9 +167,7 @@ Component.register('sw-admin-menu', {
                 this.isOffCanvasShown = state;
             });
 
-            if (this.feature.isActive('FEATURE_NEXT_10286')) {
-                this.refreshApps();
-            }
+            this.refreshApps();
         },
 
         refreshApps() {

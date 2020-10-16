@@ -75,12 +75,12 @@ class StorefrontSubscriber implements EventSubscriberInterface
     private $hreflangLoader;
 
     /**
-     * @var ShopIdProvider|null
+     * @var ShopIdProvider
      */
     private $shopIdProvider;
 
     /**
-     * @var ActiveAppsLoader|null
+     * @var ActiveAppsLoader
      */
     private $activeAppsLoader;
 
@@ -93,8 +93,8 @@ class StorefrontSubscriber implements EventSubscriberInterface
         HreflangLoaderInterface $hreflangLoader,
         bool $kernelDebug,
         MaintenanceModeResolver $maintenanceModeResolver,
-        ?ShopIdProvider $shopIdProvider,
-        ?ActiveAppsLoader $activeAppsLoader
+        ShopIdProvider $shopIdProvider,
+        ActiveAppsLoader $activeAppsLoader
     ) {
         $this->requestStack = $requestStack;
         $this->router = $router;
@@ -345,12 +345,6 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
     public function addShopIdParameter(StorefrontRenderEvent $event): void
     {
-        // remove nullable props and on-invalid=null behaviour in service declaration
-        // when removing the feature flag
-        if (!$this->activeAppsLoader || !$this->shopIdProvider || !Feature::isActive('FEATURE_NEXT_10286')) {
-            return;
-        }
-
         if (!$this->activeAppsLoader->getActiveApps()) {
             return;
         }

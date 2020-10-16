@@ -25,7 +25,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Event\BusinessEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
@@ -57,7 +56,6 @@ class WebhookDispatcherTest extends TestCase
 
     public function setUp(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10286', $this);
         $this->webhookRepository = $this->getContainer()->get('webhook.repository');
         $this->shopUrl = $_ENV['APP_URL'];
         $this->shopIdProvider = $this->getContainer()->get(ShopIdProvider::class);
@@ -683,8 +681,6 @@ class WebhookDispatcherTest extends TestCase
 
     public function testDispatchesEntityWrittenEventIfAppHasPermission(): void
     {
-        static::markTestSkipped('NEXT-10286');
-
         $appId = Uuid::randomHex();
         $aclRoleId = Uuid::randomHex();
         $appRepository = $this->getContainer()->get('app.repository');
@@ -748,7 +744,7 @@ class WebhookDispatcherTest extends TestCase
                         'entity' => 'product',
                         'operation' => 'delete',
                         'primaryKey' => $entityId,
-                        'updatedFields' => [],
+                        'updatedFields' => ['id'],
                     ],
                 ],
                 'event' => ProductEvents::PRODUCT_WRITTEN_EVENT,
@@ -899,7 +895,9 @@ class WebhookDispatcherTest extends TestCase
                     [
                         new EntityWriteResult(
                             $entityId,
-                            [],
+                            [
+                                'id' => $entityId,
+                            ],
                             ProductDefinition::ENTITY_NAME,
                             EntityWriteResult::OPERATION_DELETE,
                             null,

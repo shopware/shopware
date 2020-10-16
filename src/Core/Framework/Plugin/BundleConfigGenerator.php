@@ -8,7 +8,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
@@ -31,7 +30,7 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
     private $pluginRepository;
 
     /**
-     * @var ActiveAppsLoader|null
+     * @var ActiveAppsLoader
      */
     private $activeAppsLoader;
 
@@ -43,7 +42,7 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
     public function __construct(
         Kernel $kernel,
         EntityRepositoryInterface $pluginRepository,
-        ?ActiveAppsLoader $activeAppsLoader
+        ActiveAppsLoader $activeAppsLoader
     ) {
         $this->kernel = $kernel;
         $this->pluginRepository = $pluginRepository;
@@ -110,12 +109,6 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
 
     private function generateAppConfigs(): array
     {
-        // remove nullable prop and on-invalid=null behaviour in service declaration
-        // when removing the feature flag
-        if (!$this->activeAppsLoader || !Feature::isActive('FEATURE_NEXT_10286')) {
-            return [];
-        }
-
         $configs = [];
         foreach ($this->activeAppsLoader->getActiveApps() as $app) {
             $absolutePath = $this->projectDir . '/' . $app['path'];

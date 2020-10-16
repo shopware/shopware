@@ -2841,11 +2841,6 @@ parameters:
 			path: src/Core/Framework/Adapter/Twig/InstanceOfExtension.php
 
 		-
-			message: "#^Cannot call method aggregate\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepositoryInterface\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Twig/NamespaceHierarchy/BundleHierarchyBuilder.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\NamespaceHierarchy\\\\NamespaceHierarchyBuilder\\:\\:\\$namespaceHierarchyBuilders \\(array\\<Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\NamespaceHierarchy\\\\TemplateNamespaceHierarchyBuilderInterface\\>\\) does not accept iterable\\.$#"
 			count: 1
 			path: src/Core/Framework/Adapter/Twig/NamespaceHierarchy/NamespaceHierarchyBuilder.php
@@ -6356,16 +6351,6 @@ parameters:
 			path: src/Core/System/Snippet/Files/SnippetFileCollection.php
 
 		-
-			message: "#^Cannot call method getActiveApps\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\ActiveAppsLoader\\|null\\.$#"
-			count: 1
-			path: src/Core/System/Snippet/Files/SnippetFileLoader.php
-
-		-
-			message: "#^Cannot call method loadSnippetFilesFromApp\\(\\) on Shopware\\\\Core\\\\System\\\\Snippet\\\\Files\\\\AppSnippetFileLoader\\|null\\.$#"
-			count: 1
-			path: src/Core/System/Snippet/Files/SnippetFileLoader.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\Filter\\\\AddedFilter\\:\\:filter\\(\\) has parameter \\$requestFilterValue with no typehint specified\\.$#"
 			count: 1
 			path: src/Core/System/Snippet/Filter/AddedFilter.php
@@ -7438,11 +7423,6 @@ parameters:
 		-
 			message: "#^Cannot call method add\\(\\) on Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\StorefrontPluginConfigurationCollection\\|null\\.$#"
 			count: 2
-			path: src/Storefront/Theme/StorefrontPluginRegistry.php
-
-		-
-			message: "#^Cannot call method getActiveApps\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\ActiveAppsLoader\\|null\\.$#"
-			count: 1
 			path: src/Storefront/Theme/StorefrontPluginRegistry.php
 
 		-

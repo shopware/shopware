@@ -6,7 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\EntityTemplateLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Twig\Error\LoaderError;
@@ -50,7 +49,6 @@ class EntityTemplateLoaderTest extends TestCase
 
     public function setUp(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10286', $this);
         $this->templateRepository = $this->getContainer()->get('app_template.repository');
         $this->templateLoader = $this->getContainer()->get(EntityTemplateLoader::class);
         $this->template1Id = Uuid::randomHex();
@@ -59,9 +57,7 @@ class EntityTemplateLoaderTest extends TestCase
 
     public function tearDown(): void
     {
-        if (Feature::isActive('FEATURE_NEXT_10286')) {
-            $this->templateLoader->clearInternalCache();
-        }
+        $this->templateLoader->clearInternalCache();
     }
 
     public function testGetSubscribedEvents(): void

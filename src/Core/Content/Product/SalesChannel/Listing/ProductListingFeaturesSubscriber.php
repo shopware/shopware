@@ -31,7 +31,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -194,10 +193,6 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
 
     public function removeScoreSorting(ProductListingResultEvent $event): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_5983')) {
-            return;
-        }
-
         $sortings = $event->getResult()->getAvailableSortings();
 
         $defaultSorting = $sortings->getByKey(self::DEFAULT_SEARCH_SORT);
@@ -309,10 +304,6 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
 
     private function getAvailableSortings(Request $request, Context $context): EntityCollection
     {
-        if (!Feature::isActive('FEATURE_NEXT_5983')) {
-            return $this->sortingRegistry->getProductSortingEntities();
-        }
-
         $criteria = new Criteria();
         $availableSortings = $request->get('availableSortings');
         $availableSortingsFilter = [];

@@ -13,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -228,7 +227,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
 
     public function searchSortingProvider(): array
     {
-        $searchSortings = [
+        return [
             [
                 ['_score' => FieldSorting::DESCENDING],
                 new Request(),
@@ -249,30 +248,23 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                 ['product.listingPrices' => FieldSorting::DESCENDING],
                 new Request(['order' => 'price-desc']),
             ],
+            [
+                [
+                    'product.name' => FieldSorting::ASCENDING,
+                    'product.listingPrices' => FieldSorting::DESCENDING,
+                ],
+                new Request(['order' => 'test-multiple-sortings']),
+            ],
+            [
+                ['product.listingPrices' => FieldSorting::DESCENDING],
+                new Request(['order' => 'price-desc'], ['availableSortings' => ['price-desc' => 1, 'price-asc' => 0]]),
+            ],
         ];
-
-        if (Feature::isActive('FEATURE_NEXT_5983')) {
-            $searchSortings = \array_merge($searchSortings, [
-                [
-                    [
-                        'product.name' => FieldSorting::ASCENDING,
-                        'product.listingPrices' => FieldSorting::DESCENDING,
-                    ],
-                    new Request(['order' => 'test-multiple-sortings']),
-                ],
-                [
-                    ['product.listingPrices' => FieldSorting::DESCENDING],
-                    new Request(['order' => 'price-desc'], ['availableSortings' => ['price-desc' => 1, 'price-asc' => 0]]),
-                ],
-            ]);
-        }
-
-        return $searchSortings;
     }
 
     public function listSortingProvider(): array
     {
-        $listSortings = [
+        return [
             [
                 ['product.name' => FieldSorting::ASCENDING],
                 new Request(),
@@ -293,25 +285,18 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                 ['product.listingPrices' => FieldSorting::DESCENDING],
                 new Request(['order' => 'price-desc']),
             ],
+            [
+                [
+                    'product.name' => FieldSorting::ASCENDING,
+                    'product.listingPrices' => FieldSorting::DESCENDING,
+                ],
+                new Request(['order' => 'test-multiple-sortings']),
+            ],
+            [
+                ['product.listingPrices' => FieldSorting::DESCENDING],
+                new Request(['order' => 'price-desc'], ['availableSortings' => ['price-desc' => 1, 'price-asc' => 0]]),
+            ],
         ];
-
-        if (Feature::isActive('FEATURE_NEXT_5983')) {
-            $listSortings = \array_merge($listSortings, [
-                [
-                    [
-                        'product.name' => FieldSorting::ASCENDING,
-                        'product.listingPrices' => FieldSorting::DESCENDING,
-                    ],
-                    new Request(['order' => 'test-multiple-sortings']),
-                ],
-                [
-                    ['product.listingPrices' => FieldSorting::DESCENDING],
-                    new Request(['order' => 'price-desc'], ['availableSortings' => ['price-desc' => 1, 'price-asc' => 0]]),
-                ],
-            ]);
-        }
-
-        return $listSortings;
     }
 
     public function unavailableSearchSortingProvider(): array

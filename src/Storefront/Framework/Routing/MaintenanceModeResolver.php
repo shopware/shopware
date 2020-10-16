@@ -34,6 +34,14 @@ class MaintenanceModeResolver
             && !$this->isClientAllowed($request);
     }
 
+    public function shouldRedirectToShop(Request $request): bool
+    {
+        return !$this->isXmlHttpRequest($request)
+            && !$this->isErrorControllerRequest($request)
+            && (!$this->isMaintenanceModeActive($this->requestStack->getMasterRequest())
+                || $this->isClientAllowed($request));
+    }
+
     private function isSalesChannelRequest(?Request $master): bool
     {
         if (!$master) {

@@ -93,13 +93,14 @@
                                                 {% endblock %}
 
                                                 {% block sw_customer_card_metadata_customer_email_editor %}
-                                                    <sw-text-field v-else
-                                                                   v-model="customer.email"
-                                                                   :label="$tc('sw-customer.card.labelEmail')"
-                                                                   validation="required"
-                                                                   required
-                                                                   :placeholder="$tc('sw-customer.card.placeholderEmail')">
-                                                    </sw-text-field>
+                                                    <sw-email-field v-else
+                                                                    v-model="customer.email"
+                                                                    validation="required"
+                                                                    required
+                                                                    :label="$tc('sw-customer.card.labelEmail')"
+                                                                    :placeholder="$tc('sw-customer.card.placeholderEmail')"
+                                                                    :error="customerEmailError">
+                                                    </sw-email-field>
                                                 {% endblock %}
                                             {% endblock %}
 

@@ -6,11 +6,15 @@ import 'src/app/mixin/salutation.mixin';
 function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
+    localVue.filter('date', v => v);
 
     return shallowMount(Shopware.Component.build('sw-review-detail'), {
         localVue,
         mocks: {
             $tc: () => {},
+            $device: {
+                getSystemKey: () => 'CTRL'
+            },
             $route: {
                 query: {
                     page: 1,
@@ -100,6 +104,7 @@ describe('module/sw-review/page/sw-review-detail', () => {
     it('should be a Vue.JS component', async () => {
         const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
+
 
         expect(wrapper.vm).toBeTruthy();
     });

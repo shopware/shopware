@@ -1,5 +1,6 @@
 import template from './sw-customer-card.html.twig';
 import './sw-customer-card.scss';
+import errorConfig from '../../error-config.json';
 
 const { Component, Mixin } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
@@ -63,7 +64,7 @@ Component.register('sw-customer-card', {
             return Object.values(name).filter(item => item !== null).join(' - ').trim();
         },
 
-        ...mapPropertyErrors('customer', ['firstName', 'lastName'])
+        ...mapPropertyErrors('customer', errorConfig['sw.customer.detail.base'].customer)
     },
 
     methods: {

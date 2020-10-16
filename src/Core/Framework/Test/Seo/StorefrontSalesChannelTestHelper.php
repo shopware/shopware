@@ -44,7 +44,7 @@ trait StorefrontSalesChannelTestHelper
         $browser->setServerParameter('test-sales-channel-id', $salesChannel->getId());
 
         $customerId = Uuid::randomHex();
-        $this->createCustomerWithEmail($customerId, 'foo', 'bar', $salesChannel);
+        $this->createCustomerWithEmail($customerId, 'foo@foo.de', 'bar', $salesChannel);
         $browser->request(
             'POST',
             $_SERVER['APP_URL'] . '/account/login',

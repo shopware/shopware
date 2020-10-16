@@ -53,6 +53,14 @@ class SearchController extends StorefrontController
     {
         try {
             $page = $this->searchPageLoader->load($request, $context);
+            if ($page->getListing()->getTotal() === 1) {
+                $product = $page->getListing()->first();
+                if ($request->get('search') === $product->getProductNumber()) {
+                    $productId = $product->getId();
+
+                    return $this->forwardToRoute('frontend.detail.page', [], ['productId' => $productId]);
+                }
+            }
         } catch (MissingRequestParameterException $missingRequestParameterException) {
             return $this->forwardToRoute('frontend.home.page');
         }

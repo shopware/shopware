@@ -873,7 +873,7 @@ class EntityReaderTest extends TestCase
             'customerNumber' => 'A',
             'salutationId' => $this->getValidSalutationId(),
             'password' => 'A',
-            'email' => 'test@test.com',
+            'email' => 'test@example.com',
             'salesChannelId' => Defaults::SALES_CHANNEL,
             'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
             'group' => ['name' => 'test'],
@@ -884,7 +884,7 @@ class EntityReaderTest extends TestCase
                 $customer,
                 [
                     'id' => $id1,
-                    'email' => Uuid::randomHex(),
+                    'email' => Uuid::randomHex() . '@example.com',
                     'defaultShippingAddressId' => $defaultAddressId1,
                     'defaultBillingAddressId' => $defaultAddressId1,
                     'addresses' => [
@@ -899,7 +899,7 @@ class EntityReaderTest extends TestCase
                 $customer,
                 [
                     'id' => $id2,
-                    'email' => Uuid::randomHex(),
+                    'email' => Uuid::randomHex() . '@example.com',
                     'defaultShippingAddressId' => $defaultAddressId2,
                     'defaultBillingAddressId' => $defaultAddressId2,
                     'addresses' => [

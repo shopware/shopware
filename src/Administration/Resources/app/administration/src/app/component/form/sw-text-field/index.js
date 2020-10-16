@@ -8,7 +8,7 @@ const { Component, Mixin } = Shopware;
  * @status ready
  * @example-type dynamic
  * @component-example
- * <sw-text-field type="text" label="Name" placeholder="placeholder goes here..."></sw-text-field>
+ * <sw-text-field label="Name" placeholder="placeholder goes here..."></sw-text-field>
  */
 Component.register('sw-text-field', {
     template,

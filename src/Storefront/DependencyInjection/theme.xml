@@ -139,7 +139,7 @@
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeFileResolver"/>
             <argument type="service" id="theme.repository"/>
-            <argument>%kernel.cache_dir%</argument>
+            <argument>%kernel.project_dir%</argument>
 
             <tag name="console.command"/>
         </service>

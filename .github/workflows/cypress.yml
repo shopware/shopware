@@ -1,0 +1,149 @@
+name: Cypress
+
+on:
+    push:
+      branches:
+          - master
+    pull_request:
+
+jobs:
+  Administration:
+    runs-on: ubuntu-latest
+    container: shopware/development:7.4
+    continue-on-error: true
+    strategy:
+        matrix: 
+            test-directory: ["cypress/integration/content/**/*", "cypress/integration/catalogue/**/*", "cypress/integration/customer/**/*", "cypress/integration/media-marketing/**/*", "cypress/integration/general/**/*", "cypress/integration/order/**/*", "cypress/integration/rule-product-stream/**/*", "cypress/integration/settings/**/*"]
+    env:
+      DEVELOPMENT_BRANCH: master
+   
+    services:
+        mysql:
+         image: mysql:5.7
+         env:
+             MYSQL_ROOT_PASSWORD: shopware
+             MYSQL_DATABASE: shopware
+
+    steps:
+    - name: Clone development
+      run: git clone -b $DEVELOPMENT_BRANCH https://github.com/shopware/development.git && cd development && rm -rf platform
+
+    - name: Clone platform
+      uses: actions/checkout@v2
+      with:
+        path: development/platform
+
+    - name: Fix platform for composer
+      run: |
+        apt-get update && apt-get install -y xvfb
+        export WEB_DOCUMENT_ROOT=$(pwd)/development/public
+        /entrypoint supervisord > /dev/null 2>&1 &
+        cd development/platform
+        git fetch --prune --unshallow
+        git checkout master
+        git checkout -
+        cd ..
+        git reset --hard @
+
+    - name: Install Shopware
+      run: |
+        cd development
+        cp platform/.github/.psh.yaml.override .
+        ./psh.phar init-composer
+        if [[ ! -h vendor/shopware/platform ]]; then echo 'vendor/shopware/platform should be a symlink'; exit 1; fi
+        php dev-ops/generate_ssl.php
+        ./psh.phar init-composer
+        ./psh.phar init-database
+        ./psh.phar init-shopware
+        ./psh.phar administration:init
+        ./psh.phar storefront:init
+        npm install --prefix vendor/shopware/platform/src/Administration/Resources/app/administration/test/e2e
+        forever start vendor/shopware/platform/src/Administration/Resources/app/administration/test/e2e/node_modules/@shopware-ag/e2e-testsuite-platform/routes/cypress.js
+        ./psh.phar init-test-databases
+        ./psh.phar e2e:dump-db
+        bin/console theme:change --all Storefront
+        bin/console cache:clear
+
+    - name: Cypress run
+      run: |
+          cd development
+          chown -R 1000:1000 .
+          export CYPRESS_baseUrl=http://localhost:8000
+          npm --prefix vendor/shopware/platform/src/Administration/Resources/app/administration/test/e2e run cy:run:chrome -- --spec "${{ matrix.test-directory }}" --config numTestsKeptInMemory=0 --env grep=@base --headless	
+    
+    - uses: actions/upload-artifact@v2
+      if: failure()
+      with:
+        name: cypress
+        path: |
+            development/platform/src/Administration/Resources/app/administration/test/app/build
+            development/var/logs
+        
+  Storefront:
+    runs-on: ubuntu-latest
+    container: shopware/development:7.4
+    continue-on-error: true
+    env:
+      DEVELOPMENT_BRANCH: master
+
+    services:
+        mysql:
+         image: mysql:5.7
+         env:
+             MYSQL_ROOT_PASSWORD: shopware
+             MYSQL_DATABASE: shopware
+
+    steps:
+    - name: Clone development
+      run: git clone -b $DEVELOPMENT_BRANCH https://github.com/shopware/development.git && cd development && rm -rf platform
+
+    - name: Clone platform
+      uses: actions/checkout@v2
+      with:
+        path: development/platform
+
+    - name: Fix platform for composer
+      run: |
+        apt-get update && apt-get install -y xvfb
+        export WEB_DOCUMENT_ROOT=$(pwd)/development/public
+        /entrypoint supervisord > /dev/null 2>&1 &
+        cd development/platform
+        git fetch --prune --unshallow
+        git checkout master
+        git checkout -
+        cd ..
+        git reset --hard @
+
+    - name: Install Shopware
+      run: |
+        cd development
+        cp platform/.github/.psh.yaml.override .
+        ./psh.phar init-composer
+        if [[ ! -h vendor/shopware/platform ]]; then echo 'vendor/shopware/platform should be a symlink'; exit 1; fi
+        php dev-ops/generate_ssl.php
+        ./psh.phar init-composer
+        ./psh.phar init-database
+        ./psh.phar init-shopware
+        ./psh.phar administration:init
+        ./psh.phar storefront:init
+        npm install --prefix vendor/shopware/platform/src/Storefront/Resources/app/storefront/test/e2e
+        forever start vendor/shopware/platform/src/Storefront/Resources/app/storefront/test/e2e/node_modules/@shopware-ag/e2e-testsuite-platform/routes/cypress.js
+        ./psh.phar init-test-databases
+        ./psh.phar e2e:dump-db
+        bin/console theme:change --all Storefront
+        bin/console cache:clear
+
+    - name: Cypress run
+      run: |
+          cd development
+          chown -R 1000:1000 .
+          export CYPRESS_baseUrl=http://localhost:8000
+          npm --prefix vendor/shopware/platform/src/Storefront/Resources/app/storefront/test/e2e run cy:run:chrome -- --config numTestsKeptInMemory=0 --env grep=@base --headless
+
+    - uses: actions/upload-artifact@v2
+      if: failure()
+      with:
+        name: cypress
+        path: |
+            development/platform/src/Storefront/Resources/app/storefront/test/app/build
+            development/var/logs

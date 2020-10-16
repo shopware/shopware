@@ -199,7 +199,7 @@ Component.register('sw-data-grid', {
         },
 
         localStorageItemKey() {
-            return `${this.identifier}-grid-columns`;
+            return `${this.identifier}-grid`;
         },
 
         selectionCount() {
@@ -271,6 +271,7 @@ Component.register('sw-data-grid', {
     methods: {
         createdComponent() {
             this.initGridColumns();
+            this.initCompactModeAndShowPreviews();
         },
 
         mountedComponent() {
@@ -290,13 +291,26 @@ Component.register('sw-data-grid', {
                 const storageItem = window.localStorage.getItem(this.localStorageItemKey);
 
                 if (storageItem !== null) {
-                    columns = JSON.parse(storageItem);
+                    columns = JSON.parse(storageItem).columns;
                 }
             }
 
             this.currentColumns = columns;
 
             this.findResizeColumns();
+        },
+
+        initCompactModeAndShowPreviews() {
+            if (!this.identifier) {
+                return;
+            }
+
+            const storageItem = window.localStorage.getItem(this.localStorageItemKey);
+
+            if (storageItem !== null) {
+                this.compact = JSON.parse(storageItem).compact;
+                this.previews = JSON.parse(storageItem).previews;
+            }
         },
 
         findResizeColumns() {
@@ -334,11 +348,21 @@ Component.register('sw-data-grid', {
             });
         },
 
+        // @deprecated tag:v6.4.0
         saveGridColumns() {
             if (!this.identifier) {
                 return;
             }
             window.localStorage.setItem(this.localStorageItemKey, JSON.stringify(this.currentColumns));
+        },
+
+        saveUserSettings() {
+            if (!this.identifier) {
+                return;
+            }
+
+            const userSettings = { columns: this.currentColumns, compact: this.compact, previews: this.previews };
+            window.localStorage.setItem(this.localStorageItemKey, JSON.stringify(userSettings));
         },
 
         getHeaderCellClasses(column, index) {
@@ -374,19 +398,27 @@ Component.register('sw-data-grid', {
 
         onChangeCompactMode(value) {
             this.compact = value;
+            this.saveUserSettings();
         },
 
         onChangePreviews(value) {
             this.previews = value;
+            this.saveUserSettings();
         },
 
         onChangeColumnVisibility(value, index) {
             this.currentColumns[index].visible = value;
+            this.saveUserSettings();
+
+            // @deprecated tag:v6.4.0 - use saveUserSettings instead
             this.saveGridColumns();
         },
 
         onChangeColumnOrder(currentColumnIndex, newColumnIndex) {
             this.currentColumns = this.orderColumns(this.currentColumns, currentColumnIndex, newColumnIndex);
+            this.saveUserSettings();
+
+            // @deprecated tag:v6.4.0 - use saveUserSettings instead
             this.saveGridColumns();
         },
 
@@ -418,6 +450,9 @@ Component.register('sw-data-grid', {
 
         hideColumn(columnIndex) {
             this.currentColumns[columnIndex].visible = false;
+            this.saveUserSettings();
+
+            // @deprecated tag:v6.4.0 - use saveUserSettings instead
             this.saveGridColumns();
         },
 

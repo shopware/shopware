@@ -38,7 +38,7 @@ class ThemeDumpCommand extends Command
     /**
      * @var string
      */
-    private $cacheDir;
+    private $projectDir;
 
     /**
      * @var Context
@@ -54,14 +54,14 @@ class ThemeDumpCommand extends Command
         StorefrontPluginRegistryInterface $pluginRegistry,
         ThemeFileResolver $themeFileResolver,
         EntityRepositoryInterface $themeRepository,
-        string $cacheDir
+        string $projectDir
     ) {
         parent::__construct();
 
         $this->pluginRegistry = $pluginRegistry;
         $this->themeFileResolver = $themeFileResolver;
         $this->themeRepository = $themeRepository;
-        $this->cacheDir = $cacheDir;
+        $this->projectDir = $projectDir;
         $this->context = Context::createDefaultContext();
     }
 
@@ -107,7 +107,7 @@ class ThemeDumpCommand extends Command
         $dump['basePath'] = $themeConfig->getBasePath();
 
         file_put_contents(
-            $this->cacheDir . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'theme-files.json',
+            $this->projectDir . DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'theme-files.json',
             json_encode($dump, JSON_PRETTY_PRINT)
         );
 

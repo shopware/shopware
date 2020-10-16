@@ -117,6 +117,10 @@ Cypress.Commands.add('prepareAdminForScreenshot', () => {
         '.sw-version__info',
         'visibility: hidden'
     );
+    cy.changeElementStyling(
+        '.sw-alert',
+        'display: none'
+    );
 });
 
 /**

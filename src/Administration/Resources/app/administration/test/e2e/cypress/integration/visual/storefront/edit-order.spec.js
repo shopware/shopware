@@ -36,7 +36,8 @@ describe('Account - Order: Visual tests', () => {
         cy.get('.login-submit [type="submit"]').click();
 
         // Take snapshot for visual testing
-        cy.changeElementStyling('.order-table-header-heading', 'color : #fff');
+        cy.changeElementStyling('.order-table-header-heading', 'color: #fff');
+        cy.changeElementStyling('.order-table-header-order-status', 'visibility: hidden');
         cy.takeSnapshot('Account overview', '.order-table', { widths: [375, 1920] });
     });
 });

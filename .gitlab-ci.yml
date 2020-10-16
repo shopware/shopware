@@ -6,8 +6,6 @@ variables:
     WEB_DOCUMENT_ROOT: $CI_PROJECT_DIR/development/public
     GIT_STRATEGY: clone
     LOG_STDOUT: $CI_PROJECT_DIR/stdout.log
-    PERCY_BRANCH: $CI_DEV_BRANCH
-    PERCY_TARGET_BRANCH: $CI_TARGET_BRANCH_NAME
     MYSQL_CMD: mysqld
 
 stages:
@@ -329,7 +327,7 @@ E2E:
         - chown -R 1000:1000 .
         - CYPRESS_CMD="cypress run"
         - if [[ $cypress_usePercy = "true" ]]; then export CYPRESS_CMD="npx percy exec -- cypress run"; npm install --save-dev @percy/cypress; fi
-        - FULL_CYPRESS_CMD="npm install --production --prefix /e2e && export PERCY_TOKEN=$PERCY_TOKEN && $CYPRESS_CMD --browser chrome --headless --project /e2e --config baseUrl=http://docker.vm:8000 $CYPRESS_PARAMS --spec $TEST_DIRECTORY"
+        - FULL_CYPRESS_CMD="npm install --production --prefix /e2e && export PERCY_TOKEN=$PERCY_TOKEN && $CYPRESS_CMD --browser chrome --project /e2e --config baseUrl=http://docker.vm:8000 $CYPRESS_PARAMS --spec $TEST_DIRECTORY"
         - echo $FULL_CYPRESS_CMD
         - docker run --shm-size=2g --name cypress --add-host="docker.vm:$(hostname -I)" -e cypress_grep -e cypress_usePercy -e CYPRESS_baseUrl=http://docker.vm:8000 -v $(pwd)/${E2E_BASE_PATH}:/e2e -v $(pwd):/app -w /e2e --entrypoint "sh" cypress/included:5.6.0 -c "$FULL_CYPRESS_CMD"
     after_script:

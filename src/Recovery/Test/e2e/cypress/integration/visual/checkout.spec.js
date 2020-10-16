@@ -105,10 +105,7 @@ describe('Checkout: Visual tests', () => {
 
         // Take snapshot for visual testing
         cy.get('.sw-data-grid__skeleton').should('not.exist');
-        cy.changeElementStyling(
-            '.sw-version__info',
-            'visibility: hidden'
-        );
+        cy.prepareAdminForScreenshot();
         cy.changeElementStyling('.sw-data-grid__cell--orderDateTime', 'color: #fff');
         cy.takeSnapshot(`Order listing`, '.sw-order-list');
 
@@ -137,10 +134,7 @@ describe('Checkout: Visual tests', () => {
             '.sw-card-section--secondary > .sw-container > :nth-child(2) > :nth-child(4)',
             'color: rgb(240, 242, 245);'
         );
-        cy.changeElementStyling(
-            '.sw-version__info',
-            'visibility: hidden'
-        );
+        cy.prepareAdminForScreenshot();
         cy.takeSnapshot('Order detail', '.sw-order-detail');
 
     });

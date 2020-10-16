@@ -32,10 +32,7 @@ describe('Media: Visual tests', () => {
             .should('be.visible');
 
         // Take snapshot for visual testing
-        cy.changeElementStyling(
-            '.sw-version__info',
-            'visibility: hidden'
-        );
+        cy.prepareAdminForScreenshot();
         cy.takeSnapshot('Media listing', '.sw-media-library');
     });
 });

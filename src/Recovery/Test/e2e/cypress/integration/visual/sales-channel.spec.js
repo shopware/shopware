@@ -31,10 +31,7 @@ describe('Sales Channel: Visual tests', () => {
         cy.contains(saleschannel).click();
 
         // Take snapshot for visual testing
-        cy.changeElementStyling(
-            '.sw-version__info',
-            'visibility: hidden'
-        );
+        cy.prepareAdminForScreenshot();
         cy.takeSnapshot('Sales channel detail', '.sw-sales-channel-detail-base');
     });
 });

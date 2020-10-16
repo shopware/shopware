@@ -103,6 +103,21 @@ Cypress.Commands.add('updateViaAdminApi', (endpoint, id, data) => {
     });
 });
 
+/**
+ * Updates an existing entity using Shopware API at the given endpoint
+ * @memberOf Cypress.Chainable#
+ * @name prepareAdminForScreenshot
+ * @function
+ */
+Cypress.Commands.add('prepareAdminForScreenshot', () => {
+    cy.get('.sw-avatar')
+        .should('have.css', 'background-image')
+        .and('match', /Max%20Mustermann.png/);
+    cy.changeElementStyling(
+        '.sw-version__info',
+        'visibility: hidden'
+    );
+});
 
 /**
  * Updates an existing entity using Shopware API at the given endpoint

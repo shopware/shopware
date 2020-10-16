@@ -131,11 +131,9 @@ describe('Minimal install', () => {
         cy.location().should((loc) => {
             expect(loc.hash).to.eq('#/sw/first/run/wizard/index');
         });
+
         // Take snapshot for visual testing
-        cy.changeElementStyling(
-            '.sw-version__info',
-            'visibility: hidden'
-        );
+        cy.prepareAdminForScreenshot();
         cy.get('.sw-first-run-wizard__welcome-image').should('be.visible');
         cy.takeSnapshot('FRW - Welcome', '.sw-modal.sw-first-run-wizard-modal');
 
@@ -151,10 +149,7 @@ describe('Minimal install', () => {
         cy.get('.sw-step-display .sw-step-item.sw-step-item--active span').contains('Data import');
 
         // Take snapshot for visual testing
-        cy.changeElementStyling(
-            '.sw-version__info',
-            'visibility: hidden'
-        );
+        cy.prepareAdminForScreenshot();
         cy.takeSnapshot('FRW - Data', '.sw-modal.sw-first-run-wizard-modal');
         cy.get('.sw-button span').contains('Next').click();
 
@@ -169,10 +164,7 @@ describe('Minimal install', () => {
         cy.get('.sw-step-display .sw-step-item.sw-step-item--active span').contains('Mailer configuration');
 
         // Take snapshot for visual testing
-        cy.changeElementStyling(
-            '.sw-version__info',
-            'visibility: hidden'
-        );
+        cy.prepareAdminForScreenshot();
         cy.takeSnapshot('FRW - Mail', '.sw-modal.sw-first-run-wizard-modal');
         cy.get('.sw-button span').contains('Configure later').click();
 
@@ -185,10 +177,7 @@ describe('Minimal install', () => {
         cy.get('.sw-step-display .sw-step-item.sw-step-item--active span').contains('PayPal setup');
 
         // Take snapshot for visual testing
-        cy.changeElementStyling(
-            '.sw-version__info',
-            'visibility: hidden'
-        );
+        cy.prepareAdminForScreenshot();
         cy.takeSnapshot('FRW - PayPal', '.sw-modal.sw-first-run-wizard-modal');
         cy.get('.sw-button span').contains('Skip').click();
 

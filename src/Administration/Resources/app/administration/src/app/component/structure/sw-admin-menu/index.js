@@ -55,10 +55,6 @@ Component.register('sw-admin-menu', {
         },
 
         userTitle() {
-            if (!this.feature.isActive('FEATURE_NEXT_3722')) {
-                return 'Administrator';
-            }
-
             if (this.currentUser && this.currentUser.admin) {
                 return this.$tc('global.sw-admin-menu.administrator');
             }

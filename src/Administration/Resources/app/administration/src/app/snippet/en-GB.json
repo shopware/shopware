@@ -1005,5 +1005,32 @@
     },
     "sw-rating-stars": {
         "ratingTooltipText": "{actual} of {max} stars"
+    },
+    "sw-app": {
+      "component": {
+        "sw-app-app-url-changed-modal": {
+          "move-shop-permanently": {
+            "name": "Migrate apps to new domain",
+            "description": "Make your apps use the new domain instead of the old domain. This will assign all apps and app data to your new domain and remove the assignment from the old domain."
+          },
+          "reinstall-apps": {
+            "name": "Copy apps to current domain",
+            "description": "If you want to keep your apps working on both domains, this reinstalls all apps on your new domain. Note: App data on your old domain will still be available, non-free apps may require additional charges for each domain."
+          },
+          "uninstall-apps": {
+            "name": "Uninstall apps",
+            "description": "Keeps app data on old domain and uninstalls all apps from the new domain."
+          },
+          "title": "Domain change detected",
+          "oldLabel": "Old domain: ",
+          "newLabel": "New domain: ",
+          "explanationHeader": "We have noticed a change in your shop domain.",
+          "explanation": "Installed apps are still connected with the old domain and won't work with the new domain. There are three options from here to proceed.",
+          "confirmation": "Confirm",
+          "cancellation": "Cancel",
+          "success": "Domain changed.",
+          "error": "Error while changing domain for apps"
+        }
+      }
     }
 }

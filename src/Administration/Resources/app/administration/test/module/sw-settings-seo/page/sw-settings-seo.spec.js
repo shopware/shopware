@@ -31,7 +31,9 @@ function createWrapper() {
             $tc: v => v,
             $route: {
                 meta: {
-
+                },
+                params: {
+                    id: ''
                 }
             }
         },
@@ -40,6 +42,9 @@ function createWrapper() {
                 getConfig: () => Promise.resolve({
                     'core.seo.redirectToCanonicalUrl': true
                 })
+            },
+            feature: {
+                isActive: () => true
             }
         }
     });

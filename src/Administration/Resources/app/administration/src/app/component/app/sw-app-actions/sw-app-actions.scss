@@ -1,0 +1,13 @@
+@import "~scss/variables";
+
+.sw-app-actions {
+    margin-right: 8px;
+
+    .sw-app-actions__action-button .sw-button {
+        padding: 11px;
+
+        .sw-icon {
+            color: $color-menu-start;
+        }
+    }
+}

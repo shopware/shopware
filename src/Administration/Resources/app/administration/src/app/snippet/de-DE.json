@@ -65,7 +65,7 @@
           "message": "Dynamische Produktgruppe indexiert. | Noch eine dynamische Produktgruppe verbleibend ... | Circa {n} dynamische Produktgruppe verbleibend ...",
           "messageSuccess": "Dynamische Produktgruppen indexiert."
         },
-        "category":  {
+        "category": {
           "title": "Kategorie-Indexierung",
           "message": "Kategorie indexiert. | Noch eine Kategorie verbleibend ... | Circa {n} Kategorien verbleibend ...",
           "messageSuccess": "Kategorien indexiert."
@@ -80,7 +80,7 @@
           "message": "Verkaufskanal indexiert. | Noch ein Verkaufskanal verbleibend ... | Circa {n} Verkaufskanal verbleibend ...",
           "messageSuccess": "Verkaufskanäle indexiert."
         },
-        "rule":  {
+        "rule": {
           "title": "Regel-Indexierung",
           "message": "Regeln indexiert. | Noch eine Regel verbleibend ... | Circa {n} Regeln verbleibend ...",
           "messageSuccess": "Regeln indexiert."
@@ -1005,5 +1005,32 @@
   },
   "sw-rating-stars": {
     "ratingTooltipText": "{actual} von {max} Sternen"
+  },
+  "sw-app": {
+    "component": {
+      "sw-app-app-url-changed-modal": {
+        "move-shop-permanently": {
+          "name": "Migriere Deine Apps zur neuen Domain",
+          "description": "Verbindet Deine Apps mit der neuen Domain. Dadurch werden alle Apps für die alte Domain deaktiviert."
+        },
+        "reinstall-apps": {
+          "name": "Installiere Deine Apps neu",
+          "description": "Verbindet Deine Apps mit der neuen und der alten Domain. Für kostenpflichtige Apps können zusätzliche Gebühren anfallen."
+        },
+        "uninstall-apps": {
+          "name": "Deinstalliere Deine Apps",
+          "description": "Löscht alle App-Daten der neuen Domain. Die mit der alten Domain verbundenen Apps funktionieren weiterhin."
+        },
+        "title": "Domain-Änderung wurde festgestellt",
+        "oldLabel": "Alte Domain: ",
+        "newLabel": "Neue Domain: ",
+        "explanationHeader": "Deine Shop-Domain hat sich geändert.",
+        "explanation": "Die installierten Apps sind immer noch mit der alten Domain verbunden und funktionieren mit der neuen Domain noch nicht. Du hast drei Optionen um fortzufahren:",
+        "confirmation": "Bestätigen",
+        "cancellation": "Abbrechen",
+        "success": "Domain Änderung erfolgreich durchgeführt.",
+        "error": "Keine Änderung durchgeführt."
+      }
+    }
   }
 }

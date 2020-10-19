@@ -76,6 +76,10 @@ Mixin.register('listing', {
 
             // Fetch new list
             this.getList();
+        },
+
+        selection() {
+            Shopware.State.commit('shopwareApps/setSelectedIds', Object.keys(this.selection));
         }
     },
 

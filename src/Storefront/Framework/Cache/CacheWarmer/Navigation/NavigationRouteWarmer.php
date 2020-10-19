@@ -29,7 +29,10 @@ class NavigationRouteWarmer implements CacheRouteWarmer
     public function createMessage(SalesChannelDomainEntity $domain, ?array $offset): ?WarmUpMessage
     {
         $iterator = $this->iteratorFactory->createIterator($this->definition, $offset);
-        $iterator->getQuery()->setMaxResults(10);
+        $query = $iterator->getQuery();
+        $query
+            ->andWhere('`category`.active = 1')
+            ->setMaxResults(10);
 
         $ids = $iterator->fetch();
         if (empty($ids)) {

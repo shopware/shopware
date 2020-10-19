@@ -1,7 +1,7 @@
 ---
 title: Add option `--keep-assets` to command `theme:compile`
 author: Hendrik Söbbing
-author_email: hendrik@soebbing 
+author_email: hendrik@soebbing.de
 author_github: @soebbing
 ---
 # Storefront

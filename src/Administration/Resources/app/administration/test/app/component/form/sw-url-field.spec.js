@@ -41,7 +41,19 @@ describe('components/form/sw-url-field', () => {
         await wrapper.find('.sw-url-input-field__input').setValue('www.test-domain.de');
         expect(wrapper.find('.sw-field__error').exists()).toBe(false);
 
+        await wrapper.find('.sw-url-input-field__input').setValue('www.test-domain.de:8080');
+        expect(wrapper.find('.sw-field__error').exists()).toBe(false);
+
+        await wrapper.find('.sw-url-input-field__input').setValue('www.test-domain.de:8080/foobar:foo');
+        expect(wrapper.find('.sw-field__error').exists()).toBe(false);
+
+        await wrapper.find('.sw-url-input-field__input').setValue('www.test-domain.de:8080:');
+        expect(wrapper.find('.sw-field__error').exists()).toBe(true);
+
         await wrapper.find('.sw-url-input-field__input').setValue('#');
+        expect(wrapper.find('.sw-field__error').exists()).toBe(true);
+
+        await wrapper.find('.sw-url-input-field__input').setValue(':');
         expect(wrapper.find('.sw-field__error').exists()).toBe(true);
     });
 

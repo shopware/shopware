@@ -88,7 +88,7 @@ class MonitoringBusDecorator implements MessageBusInterface
     {
         $this->connection->executeUpdate('
             UPDATE `message_queue_stats`
-            SET `size` = `size` - 1
+            SET `size` = IF(`size` - 1 >= 0, `size` - 1, 0)
             WHERE `name` = :name;
         ', [
             'name' => $name,

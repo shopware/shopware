@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Controller\ErrorController;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Shopware\Storefront\Framework\Csrf\CsrfPlaceholderHandler;
@@ -164,6 +165,13 @@ class StorefrontSubscriber implements EventSubscriberInterface
         }
 
         $salesChannelId = $master->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
+        if ($salesChannelId === null) {
+            /** @var SalesChannelContext|null $salesChannelContext */
+            $salesChannelContext = $master->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
+            if ($salesChannelContext !== null) {
+                $salesChannelId = $salesChannelContext->getSalesChannel()->getId();
+            }
+        }
 
         if (!$session->has(PlatformRequest::HEADER_CONTEXT_TOKEN) || $session->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID) !== $salesChannelId) {
             $token = Random::getAlphanumericString(32);

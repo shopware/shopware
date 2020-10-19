@@ -477,7 +477,7 @@ Component.register('sw-cms-detail', {
             const sections = this.page.sections;
 
             if (sections.length < 1) {
-                this.createNotificationWarning({
+                this.createNotificationError({
                     message: this.$tc('sw-cms.detail.notification.messageMissingSections')
                 });
 
@@ -485,7 +485,7 @@ Component.register('sw-cms-detail', {
             }
 
             if (sections.length === 1 && sections[0].blocks.length === 0) {
-                this.createNotificationWarning({
+                this.createNotificationError({
                     message: this.$tc('sw-cms.detail.notification.messageMissingBlocks')
                 });
 
@@ -507,7 +507,7 @@ Component.register('sw-cms-detail', {
 
             if (foundEmptyRequiredField.length > 0) {
                 const warningMessage = this.$tc('sw-cms.detail.notification.messageMissingBlockFields');
-                this.createNotificationWarning({
+                this.createNotificationError({
                     message: warningMessage
                 });
 
@@ -543,8 +543,8 @@ Component.register('sw-cms-detail', {
                 }
 
                 if (hasEmptyConfig === true) {
-                    const warningMessage = this.$tc('sw-cms.detail.notificationM.messageMissingElements');
-                    this.createNotificationWarning({
+                    const warningMessage = this.$tc('sw-cms.detail.notification.messageMissingElements');
+                    this.createNotificationError({
                         message: warningMessage,
                         duration: 10000
                     });

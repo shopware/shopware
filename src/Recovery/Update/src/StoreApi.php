@@ -89,8 +89,12 @@ class StoreApi
 
         $response = $this->client->post($url);
 
+        $backup = libxml_disable_entity_loader(true);
+
         $result = simplexml_load_string($response->getBody());
         $result = $result->call;
+
+        libxml_disable_entity_loader($backup);
 
         if ($result->status === 'failed') {
             throw new \RuntimeException($result->response->message);

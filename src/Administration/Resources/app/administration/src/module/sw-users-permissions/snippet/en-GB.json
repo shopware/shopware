@@ -116,7 +116,7 @@
         "readAccess": "Read",
         "contextMenuEdit": "Edit",
         "contextMenuDelete": "Delete",
-        "textChangePassword": "Pressing the change button will immediately save the new password!",
+        "textChangePassword": "Pressing the \"change\" button will immediately save the new password!",
         "addAccessKey": "New access key",
         "labelAccessKey": "Access key",
         "labelPermissions": "Permissions",
@@ -180,7 +180,7 @@
         "settings": "Settings"
       },
       "users_and_permissions": {
-        "label": "Users & Permissions"
+        "label": "Users & permissions"
       },
       "routes": {
         "label": "Routes"
@@ -202,17 +202,17 @@
       "routes": {
         "label": "Routes",
         "api_action_access-key_integration": "Create new API key",
-        "api_acl_privileges_get": "Read all acl privileges",
-        "api_acl_privileges_route_get": "Read acl route privileges",
+        "api_acl_privileges_get": "Read all ACL privileges",
+        "api_acl_privileges_route_get": "Read ACL route privileges",
         "api_action_cache_info": "Read cache info",
         "api_action_cache_index": "Trigger indexer",
-        "api_action_cache_delete_and_warmup": "Delete and Warmup Cache",
-        "api_action_cache_delete": "Delete Cache",
-        "api_action_cache_cleanup": "Cleanup Cache",
-        "api_action_container-cache_delete": "Delete Container Cache",
+        "api_action_cache_delete_and_warmup": "Delete and warm up cache",
+        "api_action_cache_delete": "Delete cache",
+        "api_action_cache_cleanup": "Clean up cache",
+        "api_action_container-cache_delete": "Delete container cache",
         "api_info_me": "Read own api user info",
         "api_info_ping": "Refresh auth token",
-        "system:clear:cache": "Clear Cache"
+        "system:clear:cache": "Clear cache"
       }
     }
   }

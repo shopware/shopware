@@ -194,7 +194,7 @@ Component.register('sw-manufacturer-detail', {
         },
 
         onSave() {
-            if (!this.acl.can('manufacturer.editor')) {
+            if (!this.acl.can('product_manufacturer.editor')) {
                 return;
             }
 

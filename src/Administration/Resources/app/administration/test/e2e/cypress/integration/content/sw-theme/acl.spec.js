@@ -30,7 +30,6 @@ describe('Theme: Test ACL privileges', () => {
         cy.get('.sw-property-list').should('not.exist');
 
         // see menu without theme menu item
-        cy.get('.sw-admin-menu__item--sw-content').click();
         cy.get('.sw-admin-menu__navigation-list-item.sw-theme-manager').should('not.exist');
     });
 

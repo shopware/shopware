@@ -1,6 +1,6 @@
 // / <reference types="Cypress" />
 
-import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
+import PropertyPageObject from '../../../support/pages/module/sw-property.page-object';
 
 describe('Property: Test ACL privileges', () => {
     beforeEach(() => {
@@ -39,7 +39,7 @@ describe('Property: Test ACL privileges', () => {
     });
 
     it('@catalogue: can view property', () => {
-        const page = new ProductPageObject();
+        const page = new PropertyPageObject();
 
         cy.loginAsUserWithPermissions([
             {
@@ -71,7 +71,7 @@ describe('Property: Test ACL privileges', () => {
             method: 'patch'
         }).as('saveProperty');
 
-        const page = new ProductPageObject();
+        const page = new PropertyPageObject();
 
         cy.loginAsUserWithPermissions([
             {
@@ -95,7 +95,7 @@ describe('Property: Test ACL privileges', () => {
         cy.get('#sw-field--propertyGroup-description').type('My description');
 
         // Verify updated product
-        cy.get('.sw-property-option-list__add-button').should('be.disabled');
+        cy.get('.sw-property-option-list__add-button').should('not.be.disabled');
         cy.get('.sw-property-option-list__delete-button').should('be.disabled');
         cy.get('.sw-property-detail__save-action').should('not.be.disabled');
         cy.get('.sw-property-detail__save-action').click();
@@ -116,7 +116,7 @@ describe('Property: Test ACL privileges', () => {
             method: 'post'
         }).as('saveData');
 
-        const page = new ProductPageObject();
+        const page = new PropertyPageObject();
 
         cy.loginAsUserWithPermissions([
             {
@@ -154,7 +154,7 @@ describe('Property: Test ACL privileges', () => {
             method: 'delete'
         }).as('deleteData');
 
-        const page = new ProductPageObject();
+        const page = new PropertyPageObject();
 
         cy.loginAsUserWithPermissions([
             {

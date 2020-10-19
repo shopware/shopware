@@ -51,6 +51,8 @@ Component.register('sw-settings-document-list', {
                 .getAssociation('salesChannels')
                 .addAssociation('salesChannel');
 
+            criteria.addSorting(Criteria.sort('name', 'ASC', false));
+
             return criteria;
         }
     }

@@ -65,7 +65,7 @@ export default class ProductStreamPageObject {
 
         cy.get(selector).within((p) => {
             cy.get('.sw-entity-multi-select').within(($multiSelect) => {
-                cy.wrap($multiSelect).click();
+                cy.get('.sw-select-selection-list__input').click();
                 cy.get('.sw-select-result-list').should('be.visible');
             });
         });

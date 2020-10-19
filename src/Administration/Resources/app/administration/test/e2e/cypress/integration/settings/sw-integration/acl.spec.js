@@ -43,6 +43,10 @@ describe('Integration: Test acl privileges', () => {
             },
             {
                 key: 'integration',
+                role: 'editor'
+            },
+            {
+                key: 'integration',
                 role: 'creator'
             }
         ]);
@@ -64,9 +68,7 @@ describe('Integration: Test acl privileges', () => {
 
         // clear old data and type another one in name field
         cy.get('#sw-field--currentIntegration-label')
-            .clear()
-            .type('automation key');
-        cy.get('.sw-field__checkbox input[type="checkbox"]').check();
+            .clearTypeAndCheck('automation key');
 
         cy.get('.sw-integration-detail-modal__save-action').click();
 
@@ -108,8 +110,7 @@ describe('Integration: Test acl privileges', () => {
         cy.get(`${page.elements.dataGridRow}--0`).contains('chat-key').click();
 
         cy.get('#sw-field--currentIntegration-label')
-            .clear()
-            .type('chat-key-edited');
+            .clearTypeAndCheck('chat-key-edited');
 
         cy.get('.sw-button--danger').click();
 

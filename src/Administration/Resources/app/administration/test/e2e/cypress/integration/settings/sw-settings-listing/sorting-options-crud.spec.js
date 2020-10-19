@@ -30,7 +30,7 @@ describe('Listing: Test crud operations', () => {
 
         // check updated data
         cy.get('.sw-data-grid__row--0 > .sw-data-grid__cell--label').contains('Price descending');
-        cy.get('.sw-data-grid__row--0 > .sw-data-grid__cell--criteria').contains('Product list price');
+        cy.get('.sw-data-grid__row--0 > .sw-data-grid__cell--criteria').contains('Product listing price');
         cy.get('.sw-data-grid__row--0 > .sw-data-grid__cell--priority').contains('5');
 
         cy.server();

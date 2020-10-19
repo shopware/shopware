@@ -1,7 +1,7 @@
 // / <reference types="Cypress" />
 import DocumentPageObject from '../../../support/pages/module/sw-settings.page-object';
 
-describe('Manufacturer: Test crud operations with ACL', () => {
+describe('Settings Documents: Test crud operations with ACL', () => {
     beforeEach(() => {
         cy.setToInitialState().then(() => {
             cy.loginViaApi();
@@ -38,7 +38,7 @@ describe('Manufacturer: Test crud operations with ACL', () => {
         cy.get('.sw-settings-document-list__add-document').should('have.class', 'sw-button--disabled');
 
         // navigate to detail page and see if there are values
-        cy.get(`${page.elements.gridRow}--0 a`).click();
+        cy.get(`${page.elements.gridRow}--3 a`).click();
         cy.get('#sw-field--documentConfig-name').should('have.value', 'storno').should('be.disabled');
         cy.get('.sw-settings-document-detail__select-type').should('have.class', 'is--disabled');
         cy.get('.sw-settings-document-detail__save-action').should('be.disabled');
@@ -92,7 +92,7 @@ describe('Manufacturer: Test crud operations with ACL', () => {
         cy.get('.sw-settings-document-list-grid').contains('very Document');
     });
 
-    it('@catalogue: edit and read manufacturer with ACL', () => {
+    it('@catalogue: edit and read documents with ACL', () => {
         const page = new DocumentPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -144,7 +144,7 @@ describe('Manufacturer: Test crud operations with ACL', () => {
         cy.route({ url: `${Cypress.env('apiPath')}/document-base-config/**`, method: 'delete' }).as('deleteData');
 
         // Delete Document
-        cy.get('.sw-grid__row--0').first().as('row');
+        cy.get('.sw-grid__row--3').first().as('row');
         cy.get('@row').find('.sw-context-button__button').click();
         cy.get('.sw-document-list__delete-action').click();
         cy.get(`${page.elements.modal} ${page.elements.modal}__body p`).contains('Are you sure you want to delete the document "storno"?');

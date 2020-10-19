@@ -36,7 +36,7 @@ describe('Promotion: Test ACL privileges', () => {
 
         cy.get(`${page.elements.dataGridRow}--0`).contains('Thunder Tuesday');
         cy.clickContextMenuItem(
-            '.sw-entity-listing__context-menu-view-action',
+            '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
@@ -51,9 +51,6 @@ describe('Promotion: Test ACL privileges', () => {
         cy.get('.sw-tabs-item').eq(1).click();
         cy.get('.sw-promotion-persona-form__persona-rules .sw-promotion-rule-select')
             .should('have.class', 'is--disabled');
-
-        cy.get('.sw-tabs-item').eq(2).click();
-        cy.get('.sw-promotion-detail-discounts .sw-button').should('be.disabled');
     });
 
     it('@acl: can edit promotion', () => {

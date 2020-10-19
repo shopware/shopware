@@ -7,7 +7,7 @@ let customer = {
     country: 'Germany'
 };
 
-describe('Property: Test ACL privileges', () => {
+describe('Customer: Test ACL privileges', () => {
     beforeEach(() => {
         cy.setToInitialState()
             .then(() => {

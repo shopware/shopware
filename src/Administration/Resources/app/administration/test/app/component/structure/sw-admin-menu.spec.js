@@ -35,6 +35,12 @@ function createWrapper() {
             },
             userService: {
                 getUser: () => Promise.resolve({})
+            },
+            appModulesService: {
+                fetchAppModules: () => Promise.resolve()
+            },
+            feature: {
+                isActive: () => true
             }
         }
     });

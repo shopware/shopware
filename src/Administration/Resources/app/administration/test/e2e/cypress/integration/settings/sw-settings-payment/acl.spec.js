@@ -2,7 +2,7 @@
 
 import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
 
-describe('Property: Test ACL privileges', () => {
+describe('Payment: Test ACL privileges', () => {
     beforeEach(() => {
         cy.setToInitialState()
             .then(() => {
@@ -30,10 +30,6 @@ describe('Property: Test ACL privileges', () => {
         cy.get('.sw-privilege-error__access-denied-image').should('be.visible');
         cy.get('h1').contains('Access denied');
         cy.get('.sw-settings-payment-list').should('not.exist');
-
-        // see menu without settings-payment menu item
-        cy.get('.sw-admin-menu__item--sw-settings').click();
-        cy.get('.sw-admin-menu__navigation-list-item.sw-settings-payment').should('not.exist');
     });
 
     it('@settings: can view payment', () => {
@@ -78,6 +74,7 @@ describe('Property: Test ACL privileges', () => {
         // open payment method
         cy.contains('.sw-data-grid__cell-value', 'CredStick').click();
         cy.get('#sw-field--paymentMethod-description').type('My description');
+        cy.get('#sw-field--paymentMethod-position').clearTypeAndCheck('0');
 
         // Verify updated payment method
         cy.get('.sw-payment-detail__save-action').should('not.be.disabled');

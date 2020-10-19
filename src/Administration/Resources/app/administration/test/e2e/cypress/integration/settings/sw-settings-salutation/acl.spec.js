@@ -136,7 +136,7 @@ describe('Salutation: Test acl privileges', () => {
 
         // assert salutations list is exists and contains salutation which was edited before in list
         cy.get(`${page.elements.salutationListContent}`).should('be.visible');
-        cy.get(`${page.elements.dataGridRow}--0`).should('be.visible').contains('Dear Boss');
+        cy.get(`${page.elements.dataGridRow}--1`).should('be.visible').contains('Dear Boss');
     });
 
     it('@settings: can delete a salutation if have a deleter privilege', () => {

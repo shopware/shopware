@@ -2,7 +2,7 @@
 
 import MediaPageObject from '../../../support/pages/module/sw-media.page-object';
 
-describe('Property: Test ACL privileges', () => {
+describe('Media: Test ACL privileges', () => {
     beforeEach(() => {
         cy.setToInitialState()
             .then(() => {
@@ -27,10 +27,6 @@ describe('Property: Test ACL privileges', () => {
         cy.get('.sw-privilege-error__access-denied-image').should('be.visible');
         cy.get('h1').contains('Access denied');
         cy.get('.sw-media-library').should('not.exist');
-
-        // see menu without media-payment menu item
-        cy.get('.sw-content > span.sw-admin-menu__navigation-link').click();
-        cy.get('.sw-admin-menu__navigation-list-item.sw-media').should('not.exist');
     });
 
     it('@media: can view media', () => {

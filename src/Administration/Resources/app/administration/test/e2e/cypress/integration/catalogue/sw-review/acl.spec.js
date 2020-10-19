@@ -118,12 +118,17 @@ describe('Review: Test ACL privileges', () => {
             cy.visit(`${Cypress.env('admin')}#/sw/review/index`);
         });
 
-        // open review
+        // delete review
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
+
+        cy.get(`${page.elements.modal} p`).contains(
+            'Are you sure you want to delete this item?'
+        );
+        cy.get(`${page.elements.modal}__footer ${page.elements.dangerButton}`).click();
 
         // Verify new options in listing
         cy.wait('@deleteData').then((xhr) => {

@@ -31,11 +31,6 @@ describe('Custom fields: Test ACL privileges', () => {
         cy.get('.sw-privilege-error__access-denied-image').should('be.visible');
         cy.get('h1').contains('Access denied');
         cy.get('.sw-settings-custom-field-set-list__card').should('not.exist');
-
-        // see settings without custom field menu item
-        cy.get('.sw-admin-menu__item--sw-settings').click();
-        cy.get('.sw-settings__tab-system').click();
-        cy.get('.sw-admin-menu__navigation-list-item.sw-settings-payment').should('not.exist');
     });
 
     it('@settings @customField: can view custom field set', () => {

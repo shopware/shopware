@@ -145,7 +145,7 @@ describe('Language: Test acl privileges', () => {
         );
 
         cy.get('.sw-modal__body').should('be.visible');
-        cy.get('.sw-modal__body').contains('Are you sure you want to delete the language "Kyoto Japanese"? This will delete all content in this language and can not be undone!');
+        cy.get('.sw-modal__body').contains('Are you sure you want to delete the language "Philippine English"? This will delete all content in this language and can not be undone!');
         cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
         cy.get(page.elements.modal).should('not.exist');
 
@@ -154,6 +154,6 @@ describe('Language: Test acl privileges', () => {
             expect(xhr).to.have.property('status', 204);
         });
 
-        cy.get(`${page.elements.dataGridRow}--2 .sw-data-grid__cell--name`).contains('Philippine English');
+        cy.get(`${page.elements.dataGridRow}--2`).should('not.exist');
     });
 });

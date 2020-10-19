@@ -53,8 +53,7 @@ describe('Product: Test ACL privileges', () => {
             .scrollIntoView()
             .click();
 
-        cy.get('.sw-empty-state__description-content')
-            .contains('Create properties and property values first, then return here to assign them.');
+        cy.contains('Create properties and property values first, then return here to assign them.');
 
         cy.get('.sw-product-detail__tab-variants')
             .scrollIntoView()

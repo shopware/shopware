@@ -156,6 +156,13 @@
                         </sw-card>
                     {% endblock %}
 
+                    {% block sw_settings_shipping_detail_tax_cost %}
+                        <sw-settings-shipping-tax-cost
+                            v-if="!isLoading"
+                            :disabled="!acl.can('shipping.editor')">
+                        </sw-settings-shipping-tax-cost>
+                    {% endblock %}
+
                     {% block sw_settings_shipping_detail_price_matrices %}
                         <sw-settings-shipping-price-matrices
                             v-if="!isLoading"

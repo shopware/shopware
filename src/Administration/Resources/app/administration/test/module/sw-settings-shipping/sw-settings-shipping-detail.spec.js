@@ -1,6 +1,8 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { createLocalVue, shallowMount, enableAutoDestroy } from '@vue/test-utils';
 import Vuex from 'vuex';
 import 'src/module/sw-settings-shipping/page/sw-settings-shipping-detail';
+
+enableAutoDestroy(afterEach);
 
 function createWrapper(privileges = []) {
     const localVue = createLocalVue();
@@ -60,6 +62,7 @@ function createWrapper(privileges = []) {
             'sw-entity-tag-select': true,
             'sw-select-rule-create': true,
             'sw-settings-shipping-price-matrices': true,
+            'sw-settings-shipping-tax-cost': true,
             'sw-language-info': true
         }
     });
@@ -96,6 +99,9 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-detail', () => {
 
         const settingsShippingPriceMatrices = wrapper.find('sw-settings-shipping-price-matrices-stub');
         expect(settingsShippingPriceMatrices.attributes().disabled).toBe('true');
+
+        const settingsShippingTax = wrapper.find('sw-settings-shipping-tax-cost-stub');
+        expect(settingsShippingTax.attributes().disabled).toBe('true');
     });
 
     it('should have all fields enabled', async () => {
@@ -130,6 +136,9 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-detail', () => {
 
         const settingsShippingPriceMatrices = wrapper.find('sw-settings-shipping-price-matrices-stub');
         expect(settingsShippingPriceMatrices.attributes().disabled).toBeUndefined();
+
+        const settingsShippingTax = wrapper.find('sw-settings-shipping-tax-cost-stub');
+        expect(settingsShippingTax.attributes().disabled).toBeUndefined();
     });
 });
 

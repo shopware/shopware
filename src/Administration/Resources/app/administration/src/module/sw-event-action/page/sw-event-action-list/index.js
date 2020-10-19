@@ -4,9 +4,6 @@ import './sw-event-action-list.scss';
 const snakeCase = Shopware.Utils.string.snakeCase;
 const { Component, Mixin, Data: { Criteria } } = Shopware;
 
-/**
- * @internal (flag:FEATURE_NEXT_9351)
- */
 Component.register('sw-event-action-list', {
     template,
 

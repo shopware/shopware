@@ -4,9 +4,6 @@ import './component/sw-event-action-list-expand-labels';
 import './component/sw-event-action-detail-recipients';
 import './acl';
 
-/**
- * @internal (flag:FEATURE_NEXT_9351)
- */
 Shopware.Module.register('sw-event-action', {
     type: 'core',
     name: 'event-action',
@@ -18,7 +15,6 @@ Shopware.Module.register('sw-event-action', {
     icon: 'default-action-settings',
     favicon: 'icon-module-settings.png',
     entity: 'event_action',
-    flag: 'FEATURE_NEXT_9351',
 
     routes: {
         index: {

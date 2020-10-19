@@ -46,7 +46,6 @@ Component.register('sw-mail-template-detail', {
             mailTemplateMedia: null,
             mailTemplateMediaSelected: {},
             fileAccept: 'application/pdf, image/*',
-            /** @internal (flag:FEATURE_NEXT_9351) */
             testMailSalesChannelId: null
         };
     },
@@ -297,50 +296,22 @@ Component.register('sw-mail-template-detail', {
                 message: this.$tc('sw-mail-template.general.notificationTestMailSalesChannelErrorMessage')
             };
 
-            if (this.feature.isActive('FEATURE_NEXT_9351')) {
-                if (!this.testMailSalesChannelId) {
-                    this.createNotificationError(notificationTestMailErrorSalesChannel);
-                    return;
-                }
-
-                this.mailService.testMailTemplate(
-                    this.testerMail,
-                    this.mailTemplate,
-                    this.mailTemplateMedia,
-                    this.testMailSalesChannelId
-                ).then(() => {
-                    this.createNotificationSuccess(notificationTestMailSuccess);
-                }).catch((exception) => {
-                    this.createNotificationError(notificationTestMailError);
-                    warn(this._name, exception.message, exception.response);
-                });
-
+            if (!this.testMailSalesChannelId) {
+                this.createNotificationError(notificationTestMailErrorSalesChannel);
                 return;
             }
 
-            if (this.mailTemplate.salesChannels.length) {
-                this.mailTemplate.salesChannels.forEach((salesChannelAssoc) => {
-                    let salesChannelId = '';
-                    if (typeof salesChannelAssoc === 'object') {
-                        salesChannelId = salesChannelAssoc.salesChannel.id;
-                    } else {
-                        salesChannelId = salesChannelAssoc;
-                    }
-                    this.mailService.testMailTemplate(
-                        this.testerMail,
-                        this.mailTemplate,
-                        this.mailTemplateMedia,
-                        salesChannelId
-                    ).then(() => {
-                        this.createNotificationSuccess(notificationTestMailSuccess);
-                    }).catch((exception) => {
-                        this.createNotificationError(notificationTestMailError);
-                        warn(this._name, exception.message, exception.response);
-                    });
-                });
-            } else {
-                this.createNotificationError(notificationTestMailErrorSalesChannel);
-            }
+            this.mailService.testMailTemplate(
+                this.testerMail,
+                this.mailTemplate,
+                this.mailTemplateMedia,
+                this.testMailSalesChannelId
+            ).then(() => {
+                this.createNotificationSuccess(notificationTestMailSuccess);
+            }).catch((exception) => {
+                this.createNotificationError(notificationTestMailError);
+                warn(this._name, exception.message, exception.response);
+            });
         },
 
         onChangeType(id) {

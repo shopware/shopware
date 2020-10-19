@@ -62,17 +62,6 @@
 
                             {# @deprecated tag:v6.4.0 - Will be removed. Sales channel assignment will be done via "sw-event-action" #}
                             {% block sw_mail_template_basic_form_sales_channels_field %}
-                                <sw-entity-multi-select
-                                    v-model="mailTemplateSalesChannels"
-                                    v-if="mailTemplateSalesChannels !== null && !feature.isActive('FEATURE_NEXT_9351')"
-                                    class="sw-mail-template-detail__sales-channel"
-                                    ref="mailTemplateSalesChannelSelect"
-                                    labelProperty="name"
-                                    :criteria="salesChannelTypeCriteria"
-                                    :label="$tc('sw-mail-template.detail.basic.labelSalesChannels')"
-                                    :placeholder="$tc('sw-mail-template.detail.basic.placeholderSalesChannels')"
-                                    :disabled="!acl.can('mail_templates.editor')">
-                                </sw-entity-multi-select>
                             {% endblock %}
 
                             {% block sw_mail_template_basic_form_description_field %}
@@ -237,10 +226,8 @@
                                     </sw-text-field>
                                 {% endblock %}
 
-                                {# @internal (flag:FEATURE_NEXT_9351) - Sales channel selection only relevant for test mail. Sales channel assignment will be done via "sw-event-action" #}
                                 {% block sw_mail_template_mail_text_form_test_sales_channel_field %}
                                     <sw-entity-single-select
-                                        v-if="feature.isActive('FEATURE_NEXT_9351')"
                                         v-model="testMailSalesChannelId"
                                         entity="sales_channel"
                                         :label="$tc('sw-mail-template.detail.basic.labelSalesChannels')"

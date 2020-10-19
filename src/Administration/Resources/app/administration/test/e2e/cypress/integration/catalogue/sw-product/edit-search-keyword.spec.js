@@ -15,7 +15,7 @@ describe('Product: Search Keyword product', () => {
             });
     });
 
-    it('@catalogue: edit a product\'s search keyword', () => {
+    it.skip('@catalogue: edit a product\'s search keyword', () => {
         cy.server();
         cy.route({
             url: `/api/v*/product/*`,

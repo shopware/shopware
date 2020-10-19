@@ -1,7 +1,6 @@
 ---
 title: Add administration module to control event actions
 issue: NEXT-10498
-flag: FEATURE_NEXT_9351
 author: Tobias Berge
 author_email: t.berge@shopware.com 
 author_github: @tobiasberge

@@ -79,6 +79,7 @@ Table(ShopwareCoreFrameworkEventEventActionEventActionDefinition, "event_action\
    not_null(actionName) string
    config json
    active bool
+   title string
    not_null(createdAt) createdAt
    updatedAt updatedAt
 }
@@ -1661,6 +1662,7 @@ Table(ShopwareCoreCheckoutOrderOrderDefinition, "order\n(Order root table)") {
    campaignCode string
    customerComment longText
    not_null(stateId) stateMachineState
+   ruleIds list
    customFields customFields
    not_null(createdAt) createdAt
    updatedAt updatedAt
@@ -1998,9 +2000,9 @@ ShopwareCoreSystemCustomFieldAggregateCustomFieldSetCustomFieldSetDefinition -->
 ShopwareCoreSystemCustomFieldAggregateCustomFieldSetRelationCustomFieldSetRelationDefinition --> ShopwareCoreSystemCustomFieldAggregateCustomFieldSetCustomFieldSetDefinition
 ShopwareCoreContentProductAggregateProductCustomFieldSetProductCustomFieldSetDefinition --> ShopwareCoreSystemCustomFieldAggregateCustomFieldSetCustomFieldSetDefinition
 ShopwareCoreFrameworkEventEventActionAggregateEventActionRuleEventActionRuleDefinition --> ShopwareCoreFrameworkEventEventActionEventActionDefinition
-ShopwareCoreFrameworkEventEventActionAggregateEventActionRuleEventActionRuleDefinition --> ShopwareCoreContentRuleRuleDefinition
 ShopwareCoreFrameworkEventEventActionAggregateEventActionSalesChannelEventActionSalesChannelDefinition --> ShopwareCoreFrameworkEventEventActionEventActionDefinition
-ShopwareCoreFrameworkEventEventActionAggregateEventActionSalesChannelEventActionSalesChannelDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
+ShopwareCoreContentRuleRuleDefinition --> ShopwareCoreFrameworkEventEventActionAggregateEventActionRuleEventActionRuleDefinition
+ShopwareCoreSystemSalesChannelSalesChannelDefinition --> ShopwareCoreFrameworkEventEventActionAggregateEventActionSalesChannelEventActionSalesChannelDefinition
 ShopwareCoreFrameworkMessageQueueScheduledTaskScheduledTaskDefinition --> ShopwareCoreFrameworkMessageQueueDeadMessageDeadMessageDefinition
 ShopwareCoreFrameworkPluginAggregatePluginTranslationPluginTranslationDefinition --> ShopwareCoreFrameworkPluginPluginDefinition
 ShopwareCoreCheckoutPaymentPaymentMethodDefinition --> ShopwareCoreFrameworkPluginPluginDefinition

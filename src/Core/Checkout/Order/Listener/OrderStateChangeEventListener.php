@@ -17,7 +17,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\BusinessEventCollectorEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\StateMachine\Event\StateMachineStateChangeEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -108,12 +107,6 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
 
         $order = $this->getOrder($orderDelivery->getOrderId(), $event->getContext());
 
-        if (!Feature::isActive('FEATURE_NEXT_9351')) {
-            $this->dispatchEvent($event->getStateEventName(), $order, $event->getContext());
-
-            return;
-        }
-
         $context = $this->getContext($order, $event->getContext());
 
         $this->dispatchEvent($event->getStateEventName(), $order, $context);
@@ -143,12 +136,6 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
 
         $order = $this->getOrder($orderTransaction->getOrderId(), $event->getContext());
 
-        if (!Feature::isActive('FEATURE_NEXT_9351')) {
-            $this->dispatchEvent($event->getStateEventName(), $order, $event->getContext());
-
-            return;
-        }
-
         $context = $this->getContext($order, $event->getContext());
 
         $this->dispatchEvent($event->getStateEventName(), $order, $context);
@@ -162,12 +149,6 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
         $orderId = $event->getTransition()->getEntityId();
 
         $order = $this->getOrder($orderId, $event->getContext());
-
-        if (!Feature::isActive('FEATURE_NEXT_9351')) {
-            $this->dispatchEvent($event->getStateEventName(), $order, $event->getContext());
-
-            return;
-        }
 
         $context = $this->getContext($order, $event->getContext());
 

@@ -11,7 +11,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\Event\EventAction\EventActionCollection;
 use Shopware\Core\Framework\Event\EventAction\EventActionDefinition;
-use Shopware\Core\Framework\Feature;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -102,18 +101,16 @@ class BusinessEventDispatcher implements EventDispatcherInterface
         $criteria->addFilter(new EqualsFilter('event_action.eventName', $name));
         $criteria->addFilter(new EqualsFilter('event_action.active', true));
 
-        if (Feature::isActive('FEATURE_NEXT_9351')) {
-            $criteria->addFilter(new OrFilter([
-                new EqualsFilter('event_action.rules.id', null),
-                new EqualsAnyFilter('event_action.rules.id', $context->getRuleIds()),
-            ]));
+        $criteria->addFilter(new OrFilter([
+            new EqualsFilter('event_action.rules.id', null),
+            new EqualsAnyFilter('event_action.rules.id', $context->getRuleIds()),
+        ]));
 
-            if ($event instanceof SalesChannelAware) {
-                $criteria->addFilter(new OrFilter([
-                    new EqualsFilter('salesChannels.id', $event->getSalesChannelId()),
-                    new EqualsFilter('salesChannels.id', null),
-                ]));
-            }
+        if ($event instanceof SalesChannelAware) {
+            $criteria->addFilter(new OrFilter([
+                new EqualsFilter('salesChannels.id', $event->getSalesChannelId()),
+                new EqualsFilter('salesChannels.id', null),
+            ]));
         }
 
         /** @var EventActionCollection $events */

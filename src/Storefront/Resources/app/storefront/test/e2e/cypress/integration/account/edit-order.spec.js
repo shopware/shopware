@@ -80,10 +80,9 @@ describe('Account: Edit order', () => {
         cy.get('.order-table-header-order-table-body > :nth-child(3)').contains('Invoice');
         cy.get('.order-table-header-context-menu').click();
         cy.get('a.order-table-header-context-menu-content-link').click();
-        cy.get('.card-body > [data-toggle="modal"]').click();
+        cy.get('.confirm-payment .card-body > [data-toggle="modal"]').click();
         cy.get('label[for~="paymentMethod2"]').click();
         cy.get('#confirmPaymentForm > .btn-primary').click();
-        cy.get('.custom-checkbox label').click(1, 1);
         cy.get('#confirmOrderForm > .btn').scrollIntoView();
         cy.get('#confirmOrderForm > .btn').click();
         cy.get('.finish-order-details .checkout-card .card-body p:first').contains('Paid in advance');

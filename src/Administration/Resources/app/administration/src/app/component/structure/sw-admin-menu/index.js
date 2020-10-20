@@ -36,8 +36,7 @@ Component.register('sw-admin-menu', {
             flyoutLabel: '',
             subMenuOpen: false,
             scrollbarOffset: '',
-            isUserLoading: true,
-            myAppsEntry: null
+            isUserLoading: true
         };
     },
 
@@ -87,10 +86,10 @@ Component.register('sw-admin-menu', {
             const mainMenu = this.menuService.getMainMenu();
 
             // save menu entry for reactivity purposes
-            this.myAppsEntry = mainMenu.find((entry) => entry.id === 'sw-my-apps');
+            const myAppsEntry = mainMenu.find((entry) => entry.id === 'sw-my-apps');
 
-            if (this.myAppsEntry && this.appEntries.length > 0) {
-                this.myAppsEntry.children = [...this.myAppsEntry.children, ...this.appEntries];
+            if (myAppsEntry && this.appEntries.length > 0) {
+                myAppsEntry.children = [...myAppsEntry.children, ...this.appEntries];
             }
 
             return mainMenu;

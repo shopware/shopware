@@ -35,6 +35,12 @@ export function createRouter() {
                     view: 'list'
                 }
             }
+        }, {
+            name: 'sw.settings.index',
+            path: '/sw/setting/index',
+            meta: {
+                $module: {}
+            }
         }]
     });
 }

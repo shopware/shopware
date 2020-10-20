@@ -1008,6 +1008,9 @@
   },
   "sw-app": {
     "component": {
+      "sw-app-actions": {
+        "messageErrorFetchButtons": "Es ist ein Fehler beim Laden Deiner Appactions aufgetreten."
+      },
       "sw-app-app-url-changed-modal": {
         "move-shop-permanently": {
           "name": "Migriere Deine Apps zur neuen Domain",

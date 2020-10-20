@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
 use Shopware\Core\Checkout\Document\Twig\DocumentTemplateRenderer;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Twig\Error\Error;
@@ -51,22 +52,20 @@ class CreditNoteGenerator implements DocumentGeneratorInterface
         ?string $templatePath = null
     ): string {
         $templatePath = $templatePath ?? self::DEFAULT_TEMPLATE;
-
         $lineItems = $order->getLineItems();
-        $creditItems = [];
+        $creditItems = new OrderLineItemCollection();
         if ($lineItems) {
-            foreach ($lineItems as $lineItem) {
-                if ($lineItem->getType() === LineItem::CREDIT_LINE_ITEM_TYPE) {
-                    $creditItems[] = $lineItem;
-                }
-            }
+            $creditItems = $lineItems->filterByType(LineItem::CREDIT_LINE_ITEM_TYPE);
         }
+        $order->setLineItems($creditItems);
 
         $documentString = $this->documentTemplateRenderer->render(
             $templatePath,
             [
                 'order' => $order,
                 'creditItems' => $creditItems,
+                'price' => $creditItems->getPrices()->sum(),
+                'amountTax' => $creditItems->getPrices()->sum()->getCalculatedTaxes()->getAmount(),
                 'config' => DocumentConfigurationFactory::mergeConfiguration($config, new DocumentConfiguration())->jsonSerialize(),
                 'rootDir' => $this->rootDir,
                 'context' => $context,

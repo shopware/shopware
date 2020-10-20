@@ -7,3 +7,113 @@
 {% block document_headline %}
     <h1>{% trans with {'%creditNoteNumber%': config.custom.creditNoteNumber, '%invoiceNumber%': config.custom.invoiceNumber}  %}document.creditNoteHeadline{% endtrans %}</h1>
 {% endblock %}
+
+{% block document_line_item_table_iterator %}
+    {# @var lineItem \Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity #}
+    {% for lineItem in lineItemPage %}
+        {% for tax in lineItem.price.calculatedTaxes %}
+            {% if tax.taxRate > 0 %}
+                <tr class="line-item{% if loop.first %} first{% endif %}">
+                    {% block document_line_item_table_rows %}
+                        {% block document_line_item_table_row_position %}
+                            {% if config.displayLineItemPosition %}
+                                <td>{{ loop.index }}</td>
+                            {% endif %}
+                        {% endblock %}
+
+                        {% block document_line_item_table_row_product_number %}
+                            {% if lineItem.payload.productNumber %}
+                                <td>{{ lineItem.payload.productNumber | u.truncate(10) }}</td>
+                            {% else %}
+                                <td></td>
+                            {% endif %}
+                        {% endblock %}
+
+                        {% block document_line_item_table_row_label %}
+                            <td class="line-item-breakable">
+                                {{ lineItem.label }}
+                                {% if lineItem.payload.options|length >= 1 %}
+                                    <br/>
+                                    {% for option in lineItem.payload.options %}
+                                        {{ option.group }}: {{ option.option }}
+                                        {% if lineItem.payload.options|last != option %}
+                                            {{ " | " }}
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                            </td>
+                        {% endblock %}
+
+                        {% block document_line_item_table_row_quantity %}
+                            <td class="align-right">{{ lineItem.quantity }}</td>
+                        {% endblock %}
+
+                        {% block document_line_item_table_prices %}
+                            {% if config.displayPrices %}
+                                {% block document_line_item_table_row_tax_rate %}
+                                    <td class="align-right">{{ tax.taxRate }}%</td>
+                                {% endblock %}
+                                {% block document_line_item_row_table_unit_price %}
+                                    <td class="align-right">{{ (tax.price / -1)|currency(currencyIsoCode) }}</td>
+                                {% endblock %}
+                                {% block document_line_item_table_row_total_price %}
+                                    <td class="align-right">{{ (tax.price * lineItem.quantity / -1)|currency(currencyIsoCode) }}</td>
+                                {% endblock %}
+                            {% endif %}
+                        {% endblock %}
+                    {% endblock %}
+                </tr>
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+{% endblock %}
+
+{% block document_line_item_table_shipping %}
+{% endblock %}
+
+{% block document_sum %}
+    <div class="sum-container">
+        {% block document_sum_table %}
+            <table class="sum-table">
+                {% block document_sum_table_inner %}
+                    {% block document_sum_total_net %}
+                        <tr>
+                            {% block document_sum_total_net_label %}
+                                <td class="align-right">{{ 'document.lineItems.totalNet'|trans|sw_sanitize }}</td>
+                            {% endblock %}
+                            {% block document_sum_total_net_price %}
+                                <td class="align-right">{{ price.unitPrice|abs|currency(currencyIsoCode) }}</td>
+                            {% endblock %}
+                        </tr>
+                    {% endblock %}
+
+                    {% block document_sum_taxes %}
+                        {% for calculatedTax in price.calculatedTaxes.sortByTax %}
+                            {% if calculatedTax.taxRate > 0 %}
+                                <tr>
+                                    {% block document_sum_tax_label %}
+                                        <td class="align-right">{{ 'document.lineItems.tax'|trans({'%taxRate%': calculatedTax.taxRate})|sw_sanitize }}</td>
+                                    {% endblock %}
+                                    {% block document_sum_tax_rate %}
+                                        <td class="align-right">{{ calculatedTax.tax|abs|currency(currencyIsoCode) }}</td>
+                                    {% endblock %}
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                    {% endblock %}
+
+                    {% block document_sum_total %}
+                        <tr class="bold">
+                            {% block document_sum_total_label %}
+                                <td class="align-right">{{ 'document.lineItems.total'|trans|sw_sanitize }}</td>
+                            {% endblock %}
+                            {% block document_sum_total_price %}
+                                <td class="align-right">{{ (price.unitPrice + amountTax)|abs|currency(currencyIsoCode) }}</td>
+                            {% endblock %}
+                        </tr>
+                    {% endblock %}
+                {% endblock %}
+            </table>
+        {% endblock %}
+    </div>
+{% endblock %}

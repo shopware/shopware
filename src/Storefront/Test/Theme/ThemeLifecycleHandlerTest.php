@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Test\Theme;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
@@ -58,6 +59,7 @@ class ThemeLifecycleHandlerTest extends TestCase
 
         $this->configFactory = $this->getContainer()->get(StorefrontPluginConfigurationFactory::class);
 
+        $this->getContainer()->get(Connection::class)->executeUpdate('DELETE FROM `theme_sales_channel`');
         $this->assignThemeToDefaultSalesChannel();
     }
 

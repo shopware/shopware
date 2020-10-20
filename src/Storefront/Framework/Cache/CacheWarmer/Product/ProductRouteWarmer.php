@@ -31,7 +31,7 @@ class ProductRouteWarmer implements CacheRouteWarmer
         $iterator = $this->iteratorFactory->createIterator($this->definition, $offset);
         $query = $iterator->getQuery();
         $query
-            ->leftJoin('`product`', '`product`', 'pp', '`product`.id = pp.parent_id')
+            ->leftJoin('`product`', '`product`', 'pp', 'pp.id = `product`.parent_id')
             ->andWhere('COALESCE (`product`.active, `pp`.active)')
             ->distinct()
             ->setMaxResults(10);

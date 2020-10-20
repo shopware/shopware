@@ -31,6 +31,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -144,7 +145,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
 
         $criteria->addAssociation('options');
 
-        $this->handlePagination($request, $criteria);
+        $this->handlePagination($request, $criteria, $event->getSalesChannelContext());
 
         $this->handleFilters($request, $criteria, $context);
 
@@ -161,7 +162,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
             $request->request->set('order', self::DEFAULT_SEARCH_SORT);
         }
 
-        $this->handlePagination($request, $criteria);
+        $this->handlePagination($request, $criteria, $event->getSalesChannelContext());
 
         $this->handleFilters($request, $criteria, $context);
 
@@ -188,7 +189,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
 
         $result->setPage($this->getPage($event->getRequest()));
 
-        $result->setLimit($this->getLimit($event->getRequest()));
+        $result->setLimit($this->getLimit($event->getRequest(), $event->getSalesChannelContext()));
     }
 
     public function removeScoreSorting(ProductListingResultEvent $event): void
@@ -265,9 +266,10 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         return $aggregations;
     }
 
-    private function handlePagination(Request $request, Criteria $criteria): void
+    private function handlePagination(Request $request, Criteria $criteria, SalesChannelContext $context): void
     {
-        $limit = $this->getLimit($request);
+        $limit = $this->getLimit($request, $context);
+
         $page = $this->getPage($request);
 
         $criteria->setOffset(($page - 1) * $limit);
@@ -489,12 +491,19 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         return array_filter($ids);
     }
 
-    private function getLimit(Request $request): int
+    private function getLimit(Request $request, SalesChannelContext $context): int
     {
         $limit = $request->query->getInt('limit', 24);
+        if (Feature::isActive('FEATURE_NEXT_10554')) {
+            $limit = $request->query->getInt('limit', 0);
+        }
 
         if ($request->isMethod(Request::METHOD_POST)) {
             $limit = $request->request->getInt('limit', $limit);
+        }
+
+        if (Feature::isActive('FEATURE_NEXT_10554')) {
+            $limit = $limit > 0 ? $limit : $this->systemConfigService->getInt('core.listing.productsPerPage', $context->getSalesChannel()->getId());
         }
 
         return $limit <= 0 ? 24 : $limit;

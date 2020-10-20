@@ -17,8 +17,6 @@ use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @RouteScope(scopes={"api"})
- *
- * @internal (flag:FEATURE_NEXT_3722)
  */
 class AclController extends AbstractController
 {
@@ -42,7 +40,7 @@ class AclController extends AbstractController
 
     /**
      * @HttpCache()
-     * @Route("/api/v{version}/_action/acl/privileges", name="api.acl.privileges.get", methods={"GET"}, defaults={"auth_required"=true,"acl_required"=true})
+     * @Route("/api/v{version}/_action/acl/privileges", name="api.acl.privileges.get", methods={"GET"}, defaults={"auth_required"=true})
      * @Acl({"api_acl_privileges_get"})
      */
     public function getPrivileges(): JsonResponse
@@ -55,7 +53,7 @@ class AclController extends AbstractController
     }
 
     /**
-     * @Route("/api/v{version}/_action/acl/additional_privileges", name="api.acl.privileges.additional.get", methods={"GET"}, defaults={"auth_required"=true,"acl_required"=true})
+     * @Route("/api/v{version}/_action/acl/additional_privileges", name="api.acl.privileges.additional.get", methods={"GET"}, defaults={"auth_required"=true})
      * @Acl({"api_acl_privileges_additional_get"})
      */
     public function getAdditionalPrivileges(Context $context): JsonResponse

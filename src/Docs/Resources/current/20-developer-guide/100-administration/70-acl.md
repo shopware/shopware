@@ -1,11 +1,6 @@
 [titleEn]: <>(ACL in the administration)
 [hash]: <>(article:developer_administration_acl)
 
-## Warning: Experimental function
-The content of this documentation refers to a feature which is currently hidden under a 
-feature flag and is not yet fully implemented. To view this feature, the feature flag
-`FEATURE_NEXT_3722` must be enabled.
-
 ## ACL
 
 The Access Control List or ACL in Shopware ensures that you can create individual roles. 

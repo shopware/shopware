@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Test\Api\Controller;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Acl\Event\AclGetAdditionalPrivilegesEvent;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,7 +15,6 @@ class AclControllerTest extends TestCase
 
     public function testGetPrivileges(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_3722', $this);
         $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/_action/acl/privileges');
         $response = $this->getBrowser()->getResponse();
         $privileges = json_decode($response->getContent(), true);
@@ -27,7 +25,6 @@ class AclControllerTest extends TestCase
 
     public function testGetAdditionalPrivileges(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_3722', $this);
         $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/_action/acl/additional_privileges');
         $response = $this->getBrowser()->getResponse();
         $privileges = json_decode($response->getContent(), true);
@@ -38,8 +35,6 @@ class AclControllerTest extends TestCase
 
     public function testGetAdditionalPrivilegesEvent(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_3722', $this);
-
         $getAdditionalPrivileges = function (AclGetAdditionalPrivilegesEvent $event): void {
             $privileges = $event->getPrivileges();
             static::assertContains('system:clear:cache', $privileges);
@@ -59,8 +54,6 @@ class AclControllerTest extends TestCase
 
     public function testGetAdditionalPrivilegesNoPermission(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_3722', $this);
-
         try {
             $this->authorizeBrowser($this->getBrowser(), [], []);
             $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/_action/acl/additional_privileges');

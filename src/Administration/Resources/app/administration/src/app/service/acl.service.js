@@ -21,10 +21,6 @@ export default class AclService {
      * @returns {boolean}
      */
     can(privilegeKey) {
-        if (!Shopware.Service('feature').isActive('FEATURE_NEXT_3722')) {
-            return true;
-        }
-
         if (this.isAdmin() || !privilegeKey) {
             return true;
         }

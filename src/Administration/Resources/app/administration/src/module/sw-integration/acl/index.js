@@ -5,13 +5,15 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
     roles: {
         viewer: {
             privileges: [
-                'integration:read'
+                'integration:read',
+                'acl_role:read'
             ],
             dependencies: []
         },
         editor: {
             privileges: [
-                'integration:update'
+                'integration:update',
+                'api_action_access-key_integration'
             ],
             dependencies: [
                 'integration.viewer'

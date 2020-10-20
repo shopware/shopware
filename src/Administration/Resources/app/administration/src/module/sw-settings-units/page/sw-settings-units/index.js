@@ -78,7 +78,11 @@ Component.register('sw-settings-units', {
         },
 
         createUnitsCriteria() {
-            return new Criteria(1, 500);
+            const criteria = new Criteria(1, 500);
+
+            criteria.addSorting(Criteria.sort('name', 'ASC', false));
+
+            return criteria;
         },
 
         loadUnits() {

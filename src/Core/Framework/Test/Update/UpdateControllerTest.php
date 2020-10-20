@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
@@ -247,8 +246,6 @@ class UpdateControllerTest extends TestCase
 
     public function testCheckUpdateEndpointNoPermissions(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_3722', $this);
-
         try {
             $this->authorizeBrowser($this->getBrowser(), [], ['something']);
             $_SERVER['SHOPWARE_UPDATE_TEST'] = 1;

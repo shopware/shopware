@@ -10,7 +10,7 @@
         </service>
 
         <service id="Shopware\Core\System\Integration\Aggregate\IntegrationRole\IntegrationRoleDefinition">
-            <tag name="shopware.entity.definition" flag="FEATURE_NEXT_3722"/>
+            <tag name="shopware.entity.definition"/>
         </service>
     </services>
 </container>

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\DependencyInjection;
 
-use Shopware\Core\Framework\Feature;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 
@@ -39,19 +38,6 @@ class FrameworkExtension extends Extension
              */
             if ($key === 'shopware.api.api_browser.auth_required') {
                 $container->setParameter('shopware.api.api_browser.auth_required_str', (string) (int) $option);
-            }
-
-            if (Feature::isActive('FEATURE_NEXT_3722')) {
-                /*
-                 * The route cache in dev mode checks on each request if its fresh. If you use the following expression
-                 * `defaults={"auth_required"="%shopware.api.api_browser.acl_required%"}` it also checks if the parameter
-                 * matches the value in the container. The expression always results in a string, but the value in the
-                 * container is a boolean. So they never match. To workaround this, we add this as an additional string
-                 * parameter. So in the dynamic use case you have to use `defaults={"auth_required"="%shopware.api.api_browser.acl_required_str%"}`
-                 */
-                if ($key === 'shopware.api.api_browser.acl_required') {
-                    $container->setParameter('shopware.api.api_browser.acl_required_str', (string) (int) $option);
-                }
             }
 
             if (\is_array($option)) {

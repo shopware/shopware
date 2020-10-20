@@ -27,14 +27,12 @@ class IntegrationEntity extends Entity
     protected $secretAccessKey;
 
     /**
-     * @internal (flag:FEATURE_NEXT_3722)
-     *
      * @var bool
      */
     protected $admin;
 
     /**
-     * @feature-deprecated (flag:FEATURE_NEXT_3722) tag:v6.4.0
+     * @deprecated tag:v6.4.0 will be removed in 6.4.0
      *
      * @var bool
      */
@@ -56,8 +54,6 @@ class IntegrationEntity extends Entity
     protected $app;
 
     /**
-     * @internal (flag:FEATURE_NEXT_3722)
-     *
      * @var AclRoleCollection|null
      */
     protected $aclRoles;
@@ -93,7 +89,7 @@ class IntegrationEntity extends Entity
     }
 
     /**
-     * @feature-deprecated (flag:FEATURE_NEXT_3722) tag:v6.4.0
+     * @deprecated tag:v6.4.0 will be removed in 6.4.0
      */
     public function getWriteAccess(): bool
     {
@@ -101,7 +97,7 @@ class IntegrationEntity extends Entity
     }
 
     /**
-     * @feature-deprecated (flag:FEATURE_NEXT_3722) tag:v6.4.0
+     * @deprecated tag:v6.4.0 will be removed in 6.4.0
      */
     public function setWriteAccess(bool $writeAccess): void
     {
@@ -138,33 +134,21 @@ class IntegrationEntity extends Entity
         $this->app = $app;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_3722)
-     */
     public function getAclRoles(): ?AclRoleCollection
     {
         return $this->aclRoles;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_3722)
-     */
     public function setAclRoles(AclRoleCollection $aclRoles): void
     {
         $this->aclRoles = $aclRoles;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_3722)
-     */
     public function getAdmin(): bool
     {
         return $this->admin;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_3722)
-     */
     public function setAdmin(bool $admin): void
     {
         $this->admin = $admin;

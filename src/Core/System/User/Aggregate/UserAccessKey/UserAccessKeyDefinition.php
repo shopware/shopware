@@ -17,7 +17,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PasswordField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\User\UserDefinition;
 
 class UserAccessKeyDefinition extends EntityDefinition
@@ -59,11 +58,9 @@ class UserAccessKeyDefinition extends EntityDefinition
                 ->addFlags(new ReadProtected(SalesChannelApiSource::class)),
         ]);
 
-        if (Feature::isActive('FEATURE_NEXT_3722')) {
-            $fields->add(
-                (new BoolField('write_access', 'writeAccess'))->addFlags(new Deprecated('v3', 'v4'))
-            );
-        }
+        $fields->add(
+            (new BoolField('write_access', 'writeAccess'))->addFlags(new Deprecated('v3', 'v4'))
+        );
 
         return $fields;
     }

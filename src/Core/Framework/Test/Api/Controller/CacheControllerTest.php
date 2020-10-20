@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Test\Api\Controller;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
@@ -109,8 +108,6 @@ class CacheControllerTest extends TestCase
 
     public function testCacheIndexEndpointNoPermissions(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_3722', $this);
-
         try {
             $this->authorizeBrowser($this->getBrowser(), [], ['something']);
             $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/index');

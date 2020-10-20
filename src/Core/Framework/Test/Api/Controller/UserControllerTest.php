@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -198,8 +197,6 @@ class UserControllerTest extends TestCase
 
     public function testSetOwnProfileWithPermission(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_3722', $this);
-
         $this->authorizeBrowser($this->getBrowser(), [UserVerifiedScope::IDENTIFIER], ['user_change_me']);
         $this->getBrowser()->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/_info/me', ['firstName' => 'newName']);
         $responsePatch = $this->getBrowser()->getResponse();
@@ -215,8 +212,6 @@ class UserControllerTest extends TestCase
 
     public function testSetOwnProfileNoPermission(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_3722', $this);
-
         $this->authorizeBrowser($this->getBrowser(), [UserVerifiedScope::IDENTIFIER], []);
         $this->getBrowser()->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/_info/me');
         $response = $this->getBrowser()->getResponse();
@@ -228,8 +223,6 @@ class UserControllerTest extends TestCase
 
     public function testSetOwnProfilePermissionButNotAllowedField(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_3722', $this);
-
         $this->authorizeBrowser($this->getBrowser(), [UserVerifiedScope::IDENTIFIER], ['user_change_me']);
         $this->getBrowser()->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/_info/me', ['title' => 'newTitle']);
         $response = $this->getBrowser()->getResponse();

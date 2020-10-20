@@ -138,7 +138,6 @@
 
                                         {% block sw_settings_user_detail_grid_content_acl_is_admin %}
                                             <sw-switch-field
-                                                v-if="feature.isActive('FEATURE_NEXT_3722')"
                                                 class="sw-settings-user-detail__grid-is-admin"
                                                 :label="$tc('sw-users-permissions.users.user-detail.labelAdministrator')"
                                                 :disabled="isCurrentUser || !acl.can('users_and_permissions.editor')"
@@ -148,7 +147,6 @@
 
                                         {% block sw_settings_user_detail_grid_content_job_title %}
                                             <sw-text-field
-                                                v-if="feature.isActive('FEATURE_NEXT_3722')"
                                                 class="sw-settings-user-detail__grid-jobTitle"
                                                 :disabled="!acl.can('users_and_permissions.editor')"
                                                 :label="$tc('sw-users-permissions.users.user-detail.labelJobTitle')"
@@ -158,7 +156,6 @@
 
                                         {% block sw_settings_user_detail_grid_content_acl_roles %}
                                             <sw-entity-multi-select
-                                                v-if="feature.isActive('FEATURE_NEXT_3722')"
                                                 class="sw-settings-user-detail__grid-aclRoles"
                                                 :label="$tc('sw-users-permissions.users.user-detail.labelRoles')"
                                                 v-model="user.aclRoles"
@@ -212,14 +209,6 @@
 
                                                 {# @deprecated tag:v6.4.0.0 - Not needed anymore, since any access key will have the same permissions as the user who created it. #}
                                                 {% block sw_settings_user_detail_key_grid_column_write_access %}
-                                                    <template #column-writeAccess="{ item }" v-if="!feature.isActive('FEATURE_NEXT_3722')">
-                                                        <sw-label size="medium" ghost caps>
-                                                            {{ $tc('sw-users-permissions.users.user-detail.readAccess') }}
-                                                        </sw-label>
-                                                        <sw-label v-if="item.writeAccess" size="medium" ghost caps>
-                                                            {{ $tc('sw-users-permissions.users.user-detail.writeAccess') }}
-                                                        </sw-label>
-                                                    </template>
                                                 {% endblock %}
 
                                                 {% block sw_settings_user_detail_grid_columns_actions %}
@@ -286,28 +275,13 @@
                               @modal-close="onCloseDetailModal">
                         {% block sw_settings_user_detail_detail_modal_inner %}
 
-                            <div class="sw-field" v-if="!feature.isActive('FEATURE_NEXT_3722')">
-                                <label>{{ $tc('sw-users-permissions.users.user-detail.modal.permissions') }}</label>
+                            {# @deprecated tag:v6.4.0.0 - Not needed anymore, since any access key will have the same permissions as the user who created it. #}
+                            {% block sw_settings_user_detail_detail_modal_inner_field_read_access %}
+                            {% endblock %}
 
-                                <sw-container columns="repeat(auto-fit, minmax(200px, 1fr))">
-                                    {# @deprecated tag:v6.4.0.0 - Not needed anymore, since any access key will have the same permissions as the user who created it. #}
-                                    {% block sw_settings_user_detail_detail_modal_inner_field_read_access %}
-                                        <sw-field :label="$tc('sw-users-permissions.users.user-detail.modal.readAccessFieldLabel')"
-                                                  :value="true"
-                                                  disabled="disabled"
-                                                  type="checkbox">
-                                        </sw-field>
-                                    {% endblock %}
-
-                                    {# @deprecated tag:v6.4.0.0 - Not needed anymore, since any access key will have the same permissions as the user who created it. #}
-                                    {% block sw_settings_user_detail_detail_modal_inner_field_write_access %}
-                                        <sw-field :label="$tc('sw-users-permissions.users.user-detail.modal.writeAccessFieldLabel')"
-                                                  type="checkbox"
-                                                  v-model="currentIntegration.writeAccess">
-                                        </sw-field>
-                                    {% endblock %}
-                                </sw-container>
-                            </div>
+                            {# @deprecated tag:v6.4.0.0 - Not needed anymore, since any access key will have the same permissions as the user who created it. #}
+                            {% block sw_settings_user_detail_detail_modal_inner_field_write_access %}
+                            {% endblock %}
 
                             {% block sw_settings_user_detail_detail_modal_inner_field_access_key %}
                                 <sw-field :label="$tc('sw-users-permissions.users.user-detail.modal.idFieldLabel')"

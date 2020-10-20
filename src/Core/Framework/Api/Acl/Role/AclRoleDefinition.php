@@ -86,11 +86,9 @@ class AclRoleDefinition extends EntityDefinition
             );
         }
 
-        if (Feature::isActive('FEATURE_NEXT_3722')) {
-            $collection->add(
-                new ManyToManyAssociationField('integrations', IntegrationDefinition::class, IntegrationRoleDefinition::class, 'acl_role_id', 'integration_id')
-            );
-        }
+        $collection->add(
+            new ManyToManyAssociationField('integrations', IntegrationDefinition::class, IntegrationRoleDefinition::class, 'acl_role_id', 'integration_id')
+        );
 
         return $collection;
     }

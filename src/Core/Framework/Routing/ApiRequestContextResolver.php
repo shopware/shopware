@@ -11,7 +11,6 @@ use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -236,12 +235,6 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         if ($appPermissions !== null) {
             $source->setIsAdmin(false);
             $source->setPermissions($appPermissions);
-
-            return $source;
-        }
-
-        if (!Feature::isActive('FEATURE_NEXT_3722')) {
-            $source->setIsAdmin(true);
 
             return $source;
         }

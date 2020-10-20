@@ -118,10 +118,6 @@ abstract class Plugin extends Bundle
 
     final protected function addPrivileges(string $role, array $privileges): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_3722')) {
-            return;
-        }
-
         /** @var EntityRepositoryInterface $aclRepository */
         $aclRepository = $this->container->get('acl_role.repository');
 
@@ -145,10 +141,6 @@ abstract class Plugin extends Bundle
 
     final protected function removePrivileges(array $privileges): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_3722')) {
-            return;
-        }
-
         /** @var EntityRepositoryInterface $aclRepository */
         $aclRepository = $this->container->get('acl_role.repository');
 

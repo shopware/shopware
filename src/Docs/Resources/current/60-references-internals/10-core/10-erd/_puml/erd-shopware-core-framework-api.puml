@@ -36,11 +36,14 @@ Table(ShopwareCoreFrameworkApiAclRoleAclUserRoleDefinition, "acl_user_role\n(M:N
    not_null(createdAt) createdAt
    updatedAt updatedAt
 }
+ForeignTable(ShopwareCoreSystemIntegrationAggregateIntegrationRoleIntegrationRoleDefinition, "integration_role") {
+}
 ForeignTable(ShopwareCoreSystemUserUserDefinition, "user") {
 }
 
 ' relationshipd
 
 ShopwareCoreFrameworkApiAclRoleAclUserRoleDefinition --> ShopwareCoreFrameworkApiAclRoleAclRoleDefinition
+ShopwareCoreFrameworkApiAclRoleAclRoleDefinition --> ShopwareCoreSystemIntegrationAggregateIntegrationRoleIntegrationRoleDefinition
 ShopwareCoreFrameworkApiAclRoleAclUserRoleDefinition --> ShopwareCoreSystemUserUserDefinition
 @enduml

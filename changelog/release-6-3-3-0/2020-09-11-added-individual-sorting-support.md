@@ -1,7 +1,6 @@
 ---
 title:              Added individual sorting support
 issue:              NEXT-9457
-flag:               FEATURE_NEXT_5983
 author:             Lennart Tinkloh
 author_email:       l.tinkloh@shopware.com
 author_github:      lernhart

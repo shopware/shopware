@@ -1,7 +1,6 @@
 ---
 title: Added sold quantity metric
 issue: NEXT-10765
-flag: FEATURE_NEXT_5983
 author: Lennart Tinkloh
 author_email: l.tinkloh@shopware.com 
 author_github: lernhart

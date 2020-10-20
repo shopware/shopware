@@ -1,7 +1,6 @@
 ---
 title: Add individual sorting into administration
 issue: NEXT-9457
-flag: FEATURE_NEXT_5983
 ---
 # Administration
 * Added `itemIdentifierProperty` to `sw-data-grid` with which you can use inline edit when the entities have no id

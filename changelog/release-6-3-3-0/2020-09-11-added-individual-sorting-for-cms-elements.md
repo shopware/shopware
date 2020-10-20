@@ -1,7 +1,6 @@
 ---
 title:              Added individual sorting for cms elements
 issue:              NEXT-10365
-flag:               FEATURE_NEXT_5983
 author:             Lennart Tinkloh
 author_email:       l.tinkloh@shopware.com
 author_github:      lernhart

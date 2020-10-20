@@ -1,7 +1,6 @@
 ---
 title: Fix settings menu option needs to be hidden
 issue: NEXT-11283
-flag: FEATURE_NEXT_3722
 author: Jannis Leifeld
 author_email: j.leifeld@shopware.com 
 author_github: @jleifeld

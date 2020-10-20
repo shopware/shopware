@@ -1,7 +1,6 @@
 ---
 title:         ACL for languages
 issue:         NEXT-8951
-flag:          FEATURE_NEXT_3722
 author:        Sy Dinh
 author_email:  s.dinh@shopware.com
 author_github: @sydinh

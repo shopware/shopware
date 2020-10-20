@@ -251,7 +251,7 @@ Component.register('sw-profile-index', {
             });
         },
 
-        saveUser(context) {
+        saveUser(authToken) {
             if (!this.acl.can('user:editor')) {
                 const changes = this.userRepository.getSyncChangeset([this.user]);
 
@@ -264,6 +264,9 @@ Component.register('sw-profile-index', {
 
                 return;
             }
+
+            const context = { ...Shopware.Context.api };
+            context.authToken.access = authToken;
 
             this.userRepository.save(this.user, context).then(() => {
                 this.$refs.mediaSidebarItem.getList();

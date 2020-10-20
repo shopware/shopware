@@ -1,12 +1,14 @@
 import template from './sw-app-actions.html.twig';
 import './sw-app-actions.scss';
 
-const { Component, Utils } = Shopware;
+const { Component, Mixin, Utils } = Shopware;
 
 Component.register('sw-app-actions', {
     template,
 
     inject: ['feature', 'appActionButtonService'],
+
+    mixins: [Mixin.getByName('notification')],
 
     data() {
         return {
@@ -29,8 +31,7 @@ Component.register('sw-app-actions', {
         },
 
         areActionsAvailable() {
-            return this.feature.isActive('FEATURE_NEXT_10286')
-                && !!this.actions
+            return !!this.actions
                 && this.actions.length > 0
                 && this.params.length > 0;
         },
@@ -60,6 +61,15 @@ Component.register('sw-app-actions', {
                 this.actions = await this.appActionButtonService.getActionButtonsPerView(this.entity, this.view);
             } catch (e) {
                 this.actions = [];
+
+                // ignore missing parameter exception for pages without correct view
+                if (!!e.name && e.name === 'InvalidActionButtonParameterError') {
+                    return;
+                }
+
+                this.createNotificationError({
+                    message: this.$tc('sw-app.component.sw-app-actions.messageErrorFetchButtons')
+                });
             }
         }
     }

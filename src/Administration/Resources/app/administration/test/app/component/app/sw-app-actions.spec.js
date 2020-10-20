@@ -2,6 +2,7 @@ import { createLocalVue, mount } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import Vuex from 'vuex';
 import flushPromises from 'flush-promises';
+import { InvalidActionButtonParameterError } from 'src/core/service/api/app-action-button.service';
 import { createRouter, actionButtonData } from './_fixtures/app-action-fixtures';
 import 'src/app/component/app/sw-app-actions';
 import 'src/app/component/base/sw-icon';
@@ -44,6 +45,10 @@ function createWrapper(router) {
             appActionButtonService: {
                 runAction: jest.fn(),
                 getActionButtonsPerView(entity, view) {
+                    if (!entity || !view) {
+                        throw new InvalidActionButtonParameterError('error');
+                    }
+
                     if (entity === 'product' && view === 'detail') {
                         return Promise.resolve(actionButtonData);
                     }
@@ -52,9 +57,12 @@ function createWrapper(router) {
                         return Promise.resolve([]);
                     }
 
-                    return Promise.reject();
+                    return Promise.reject(new Error('error occured'));
                 }
             }
+        },
+        mocks: {
+            $tc: (translation) => { return translation; }
         }
     });
 }
@@ -64,6 +72,7 @@ describe('sw-app-actions', () => {
 
     beforeEach(() => {
         Shopware.State.commit('shopwareApps/setSelectedIds', [Shopware.Utils.createId()]);
+        document.location.href = 'http://localhost/';
     });
 
     afterEach(() => {
@@ -115,13 +124,34 @@ describe('sw-app-actions', () => {
         expect(wrapper.vm.$el).toBeInstanceOf(Comment);
     });
 
-    it('is not rendered if appActionButtonService.appActionButtonService throws an error', async () => {
+    it('it throws an error if appActionButtonService.appActionButtonService throws an error', async () => {
         const router = createRouter();
         wrapper = createWrapper(router);
+        wrapper.vm.createNotificationError = jest.fn();
 
         router.push({ name: 'sw.order.detail' });
         await flushPromises();
 
+        const notificationMock = wrapper.vm.createNotificationError;
+
+        expect(notificationMock).toBeCalledTimes(1);
+        expect(notificationMock).toBeCalledWith({
+            message: 'sw-app.component.sw-app-actions.messageErrorFetchButtons'
+        });
+        expect(wrapper.vm.$el).toBeInstanceOf(Comment);
+    });
+
+    it('ignores pages where entity and view are not set', async () => {
+        const router = createRouter();
+        wrapper = createWrapper(router);
+        wrapper.vm.createNotificationError = jest.fn();
+
+        router.push({ name: 'sw.settings.index' });
+        await flushPromises();
+
+        const notificationMock = wrapper.vm.createNotificationError;
+
+        expect(notificationMock).toBeCalledTimes(0);
         expect(wrapper.vm.$el).toBeInstanceOf(Comment);
     });
 

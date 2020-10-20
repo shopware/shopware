@@ -304,9 +304,6 @@ class StoreClient
         return json_decode((string) $response->getBody(), true)['updateAllowed'];
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_10286)
-     */
     public function signPayloadWithAppSecret(string $payload, string $appName): string
     {
         $response = $this->getClient()->post(self::SBP_API_URL_GENERATE_SIGNATURE, [

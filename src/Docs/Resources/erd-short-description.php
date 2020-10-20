@@ -219,4 +219,12 @@ return [
     Shopware\Core\Framework\Event\EventAction\Aggregate\EventActionRule\EventActionRuleDefinition::class => 'M:N Mapping',
     Shopware\Core\Framework\Event\EventAction\Aggregate\EventActionSalesChannel\EventActionSalesChannelDefinition::class => 'M:N Mapping',
     Shopware\Core\System\Integration\Aggregate\IntegrationRole\IntegrationRoleDefinition::class => 'M:N Mapping',
+    Shopware\Core\Framework\App\AppDefinition::class => 'Apps',
+    Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationDefinition::class => 'Translations',
+    Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonDefinition::class => 'App action buttons',
+    Shopware\Core\Framework\App\Aggregate\ActionButtonTranslation\ActionButtonTranslationDefinition::class => 'Translations',
+    Shopware\Core\Framework\App\Template\TemplateDefinition::class => 'App templates',
+    Shopware\Core\Framework\Webhook\WebhookDefinition::class => 'Webhooks',
+    'Shopware\\Core\\Framework\\App' => 'App system',
+    'Shopware\\Core\\Framework\\Webhook' => 'Webhooks',
 ];

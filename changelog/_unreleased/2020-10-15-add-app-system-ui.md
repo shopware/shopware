@@ -1,7 +1,6 @@
 ---
 title: Add Administration UI for app system
 issue: NEXT-10286
-flag: FEATURE_NEXT_10286
 ---
 # Core
 

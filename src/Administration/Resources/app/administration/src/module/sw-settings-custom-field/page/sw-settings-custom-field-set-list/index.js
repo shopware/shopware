@@ -59,9 +59,7 @@ Component.register('sw-settings-custom-field-set-list', {
                 ]
             ));
 
-            if (this.feature.isActive('FEATURE_NEXT_10286')) {
-                criteria.addFilter(Criteria.equals('appId', null));
-            }
+            criteria.addFilter(Criteria.equals('appId', null));
 
             return criteria;
         }

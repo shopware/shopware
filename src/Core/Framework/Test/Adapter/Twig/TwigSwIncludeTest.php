@@ -10,7 +10,6 @@ use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Test\Adapter\Twig\fixtures\BundleFixture;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Kernel;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 
@@ -125,8 +124,7 @@ class TwigSwIncludeTest extends TestCase
             new NamespaceHierarchyBuilder([
                 new BundleHierarchyBuilder(
                     $kernel,
-                    // ToDo NEXT-10286: remove on invalid behaviour when feature flag gets removed
-                    $this->getContainer()->get('app.repository', ContainerInterface::NULL_ON_INVALID_REFERENCE)
+                    $this->getContainer()->get('app.repository')
                 ),
             ])
         );

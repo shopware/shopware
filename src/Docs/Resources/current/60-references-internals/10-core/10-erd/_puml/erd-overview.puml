@@ -29,6 +29,13 @@ Table(ShopwareCoreFrameworkApi, "Shopware\Core\Framework\Api\n(Rest-API)") {
    acl_role Table
    acl_user_role Table
 }
+Table(ShopwareCoreFrameworkApp, "Shopware\Core\Framework\App\n(App system)") {
+   app Table
+   app_translation Table
+   app_action_button Table
+   app_action_button_translation Table
+   app_template Table
+}
 Table(ShopwareCoreSystemCustomField, "Shopware\Core\System\CustomField\n(Custom Fields/EAV)") {
    custom_field Table
    custom_field_set Table
@@ -55,6 +62,9 @@ Table(ShopwareCoreContentSeo, "Shopware\Core\Content\Seo\n(Seo)") {
    seo_url Table
    seo_url_template Table
    main_category Table
+}
+Table(ShopwareCoreFrameworkWebhook, "Shopware\Core\Framework\Webhook\n(Webhooks)") {
+   webhook Table
 }
 Table(ShopwareCoreSystemSalesChannel, "Shopware\Core\System\SalesChannel\n(Sales channels)") {
    sales_channel Table
@@ -285,8 +295,14 @@ Table(ShopwareStorefront, "Shopware\Storefront\n(Storefront)") {
 ' relationshipd
 
 ShopwareCoreFrameworkApi --> ShopwareCoreFrameworkApi
+ShopwareCoreFrameworkApp --> ShopwareCoreFrameworkApi
 ShopwareCoreSystemIntegration --> ShopwareCoreFrameworkApi
 ShopwareCoreSystemUser --> ShopwareCoreFrameworkApi
+ShopwareCoreFrameworkApp --> ShopwareCoreFrameworkApp
+ShopwareCoreSystemIntegration --> ShopwareCoreFrameworkApp
+ShopwareCoreSystemCustomField --> ShopwareCoreFrameworkApp
+ShopwareCoreFrameworkWebhook --> ShopwareCoreFrameworkApp
+ShopwareCoreSystemLanguage --> ShopwareCoreFrameworkApp
 ShopwareCoreSystemCustomField --> ShopwareCoreSystemCustomField
 ShopwareCoreContentProduct --> ShopwareCoreSystemCustomField
 ShopwareCoreFrameworkEvent --> ShopwareCoreFrameworkEvent

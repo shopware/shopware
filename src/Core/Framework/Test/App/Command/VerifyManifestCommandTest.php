@@ -4,18 +4,12 @@ namespace Shopware\Core\Framework\Test\App\Command;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Command\VerifyManifestCommand;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Console\Tester\CommandTester;
 
 class VerifyManifestCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;
-
-    public function setUp(): void
-    {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10286', $this);
-    }
 
     public function testVerifyValidManifest(): void
     {

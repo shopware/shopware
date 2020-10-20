@@ -13,7 +13,7 @@
         <service id="Shopware\Storefront\Theme\StorefrontPluginRegistry" public="true">
             <argument type="service" id="kernel"/>
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory"/>
-            <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader" on-invalid="null"/>
+            <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeCompiler">
@@ -69,7 +69,6 @@
             <argument type="service" id="Shopware\Storefront\Theme\ThemeLifecycleHandler"/>
 
             <tag name="kernel.event_subscriber"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_10286"/>
         </service>
 
         <!-- Entity definitions -->

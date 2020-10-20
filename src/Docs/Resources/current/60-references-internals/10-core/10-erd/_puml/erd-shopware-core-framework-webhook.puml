@@ -22,30 +22,19 @@ skinparam backgroundColor #FFFFFF
 
 ' entities
 
-Table(ShopwareCoreSystemIntegrationIntegrationDefinition, "integration\n(O-Auth integration)") {
+Table(ShopwareCoreFrameworkWebhookWebhookDefinition, "webhook\n(Webhooks)") {
    primary_key(id) id
-   not_null(label) string
-   not_null(accessKey) string
-   not_null(secretAccessKey) password
-   writeAccess bool
-   lastUsageAt dateTime
-   admin bool
-   customFields customFields
+   not_null(name) string
+   not_null(eventName) string
+   not_null(url) string
+   appId foreignKey
    not_null(createdAt) createdAt
    updatedAt updatedAt
 }
-Table(ShopwareCoreSystemIntegrationAggregateIntegrationRoleIntegrationRoleDefinition, "integration_role\n(M:N Mapping)") {
-   primary_key(integrationId) foreignKey
-   primary_key(aclRoleId) foreignKey
-}
 ForeignTable(ShopwareCoreFrameworkAppAppDefinition, "app") {
-}
-ForeignTable(ShopwareCoreFrameworkApiAclRoleAclRoleDefinition, "acl_role") {
 }
 
 ' relationshipd
 
-ShopwareCoreSystemIntegrationIntegrationDefinition --> ShopwareCoreFrameworkAppAppDefinition
-ShopwareCoreSystemIntegrationAggregateIntegrationRoleIntegrationRoleDefinition --> ShopwareCoreSystemIntegrationIntegrationDefinition
-ShopwareCoreSystemIntegrationAggregateIntegrationRoleIntegrationRoleDefinition --> ShopwareCoreFrameworkApiAclRoleAclRoleDefinition
+ShopwareCoreFrameworkWebhookWebhookDefinition --> ShopwareCoreFrameworkAppAppDefinition
 @enduml

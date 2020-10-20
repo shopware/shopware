@@ -1,5 +1,12 @@
 import ApiService from '../api.service';
 
+export class InvalidActionButtonParameterError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = 'InvalidActionButtonParameterError';
+    }
+}
+
 export default class AppActionButtonService extends ApiService {
     /**
      * @param {AxiosInstance} httpClient
@@ -24,6 +31,14 @@ export default class AppActionButtonService extends ApiService {
      * @param {string} view
      */
     getActionButtonsPerView(entity, view) {
+        if (!entity) {
+            throw new InvalidActionButtonParameterError(`Parameter "entity" must have a valid value. Given: ${entity}`);
+        }
+
+        if (!view) {
+            throw new InvalidActionButtonParameterError(`Parameter "view" must have a valid value. Given: ${view}`);
+        }
+
         return this.httpClient
             .get(`app-system/action-button/${entity}/${view}`,
                 {

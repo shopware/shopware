@@ -6,7 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 class NamespaceHierarchyBuilderTest extends TestCase
@@ -15,8 +14,6 @@ class NamespaceHierarchyBuilderTest extends TestCase
 
     public function testItAddsAppTemplateNamespaces(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10286', $this);
-
         /** @var EntityRepositoryInterface $appRepository */
         $appRepository = $this->getContainer()->get('app.repository');
 

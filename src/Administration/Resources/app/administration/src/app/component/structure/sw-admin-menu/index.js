@@ -85,6 +85,7 @@ Component.register('sw-admin-menu', {
         mainMenuEntries() {
             const mainMenu = this.menuService.getMainMenu();
 
+            // save menu entry for reactivity purposes
             const myAppsEntry = mainMenu.find((entry) => entry.id === 'sw-my-apps');
 
             if (myAppsEntry && this.appEntries.length > 0) {
@@ -165,9 +166,7 @@ Component.register('sw-admin-menu', {
                 this.isOffCanvasShown = state;
             });
 
-            if (this.feature.isActive('FEATURE_NEXT_10286')) {
-                this.refreshApps();
-            }
+            this.refreshApps();
         },
 
         refreshApps() {

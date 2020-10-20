@@ -1,4 +1,4 @@
-import AppActionButtonService from 'src/core/service/api/app-action-button.service';
+import AppActionButtonService, { InvalidActionButtonParameterError } from 'src/core/service/api/app-action-button.service';
 import createLoginService from 'src/core/service/login.service';
 import createHTTPClient from 'src/core/factory/http.factory';
 import MockAdapter from 'axios-mock-adapter';
@@ -18,6 +18,28 @@ describe('appActionButtonService', () => {
         const { appActionButtonService } = createAppActionButtonService();
 
         expect(appActionButtonService).toBeInstanceOf(AppActionButtonService);
+    });
+
+    it('throws an exception if entity is not set for getActionButtonsPerView', () => {
+        // const appActionButtonService = Shopware.Service('appActionButton');
+        const { appActionButtonService } = createAppActionButtonService();
+
+        expect(() => {
+            appActionButtonService.getActionButtonsPerView();
+        }).toThrow(
+            new InvalidActionButtonParameterError('Parameter "entity" must have a valid value. Given: undefined')
+        );
+    });
+
+    it('throws an exception if view is not set for getActionButtonsPerView', () => {
+        // const appActionButtonService = Shopware.Service('appActionButton');
+        const { appActionButtonService } = createAppActionButtonService();
+
+        expect(() => {
+            appActionButtonService.getActionButtonsPerView('product');
+        }).toThrow(
+            new InvalidActionButtonParameterError('Parameter "view" must have a valid value. Given: undefined')
+        );
     });
 
     it('returns action button data', async () => {

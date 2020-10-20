@@ -46,6 +46,65 @@ Table(ShopwareCoreFrameworkApiAclRoleAclUserRoleDefinition, "acl_user_role\n(M:N
    not_null(createdAt) createdAt
    updatedAt updatedAt
 }
+Table(ShopwareCoreFrameworkAppAppDefinition, "app\n(Apps)") {
+   primary_key(id) id
+   not_null(name) string
+   not_null(path) string
+   author string
+   copyright string
+   license string
+   not_null(active) bool
+   privacy string
+   not_null(version) string
+   iconRaw blob
+   icon string
+   appSecret string
+   modules list
+   label translated
+   description translated
+   not_null(integrationId) foreignKey
+   not_null(aclRoleId) foreignKey
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   translated json
+}
+TranslationTable(ShopwareCoreFrameworkAppAggregateAppTranslationAppTranslationDefinition, "app_translation\n((Translations))") {
+   not_null(label) string
+   description longText
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   primary_key(appId) foreignKey
+   primary_key(languageId) foreignKey
+}
+Table(ShopwareCoreFrameworkAppAggregateActionButtonActionButtonDefinition, "app_action_button\n(App action buttons)") {
+   primary_key(id) id
+   not_null(entity) string
+   not_null(view) string
+   not_null(url) string
+   not_null(action) string
+   not_null(openNewTab) bool
+   label translated
+   not_null(appId) foreignKey
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   translated json
+}
+TranslationTable(ShopwareCoreFrameworkAppAggregateActionButtonTranslationActionButtonTranslationDefinition, "app_action_button_translation\n((Translations))") {
+   not_null(label) string
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+   primary_key(appActionButtonId) foreignKey
+   primary_key(languageId) foreignKey
+}
+Table(ShopwareCoreFrameworkAppTemplateTemplateDefinition, "app_template\n(App templates)") {
+   primary_key(id) id
+   not_null(template) longText
+   not_null(path) string
+   not_null(active) bool
+   not_null(appId) foreignKey
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+}
 Table(ShopwareCoreSystemCustomFieldCustomFieldDefinition, "custom_field\n(CustomField configuration)") {
    primary_key(id) id
    not_null(name) string
@@ -63,6 +122,7 @@ Table(ShopwareCoreSystemCustomFieldAggregateCustomFieldSetCustomFieldSetDefiniti
    active bool
    global bool
    position int
+   appId foreignKey
    not_null(createdAt) createdAt
    updatedAt updatedAt
 }
@@ -209,6 +269,15 @@ Table(ShopwareCoreContentSeoMainCategoryMainCategoryDefinition, "main_category\n
    not_null(categoryId) foreignKey
    not_null(categoryVersionId) referenceVersion
    not_null(salesChannelId) foreignKey
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+}
+Table(ShopwareCoreFrameworkWebhookWebhookDefinition, "webhook\n(Webhooks)") {
+   primary_key(id) id
+   not_null(name) string
+   not_null(eventName) string
+   not_null(url) string
+   appId foreignKey
    not_null(createdAt) createdAt
    updatedAt updatedAt
 }
@@ -1994,8 +2063,18 @@ Table(ShopwareStorefrontThemeAggregateThemeMediaDefinition, "theme_media\n(M:N M
 ' relationshipd
 
 ShopwareCoreFrameworkApiAclRoleAclUserRoleDefinition --> ShopwareCoreFrameworkApiAclRoleAclRoleDefinition
+ShopwareCoreFrameworkAppAppDefinition --> ShopwareCoreFrameworkApiAclRoleAclRoleDefinition
 ShopwareCoreSystemIntegrationAggregateIntegrationRoleIntegrationRoleDefinition --> ShopwareCoreFrameworkApiAclRoleAclRoleDefinition
 ShopwareCoreSystemUserUserDefinition --> ShopwareCoreFrameworkApiAclRoleAclUserRoleDefinition
+ShopwareCoreFrameworkAppAggregateAppTranslationAppTranslationDefinition --> ShopwareCoreFrameworkAppAppDefinition
+ShopwareCoreSystemIntegrationIntegrationDefinition --> ShopwareCoreFrameworkAppAppDefinition
+ShopwareCoreSystemCustomFieldAggregateCustomFieldSetCustomFieldSetDefinition --> ShopwareCoreFrameworkAppAppDefinition
+ShopwareCoreFrameworkAppAggregateActionButtonActionButtonDefinition --> ShopwareCoreFrameworkAppAppDefinition
+ShopwareCoreFrameworkAppTemplateTemplateDefinition --> ShopwareCoreFrameworkAppAppDefinition
+ShopwareCoreFrameworkWebhookWebhookDefinition --> ShopwareCoreFrameworkAppAppDefinition
+ShopwareCoreSystemLanguageLanguageDefinition --> ShopwareCoreFrameworkAppAggregateAppTranslationAppTranslationDefinition
+ShopwareCoreFrameworkAppAggregateActionButtonTranslationActionButtonTranslationDefinition --> ShopwareCoreFrameworkAppAggregateActionButtonActionButtonDefinition
+ShopwareCoreSystemLanguageLanguageDefinition --> ShopwareCoreFrameworkAppAggregateActionButtonTranslationActionButtonTranslationDefinition
 ShopwareCoreSystemCustomFieldAggregateCustomFieldSetCustomFieldSetDefinition --> ShopwareCoreSystemCustomFieldCustomFieldDefinition
 ShopwareCoreSystemCustomFieldAggregateCustomFieldSetRelationCustomFieldSetRelationDefinition --> ShopwareCoreSystemCustomFieldAggregateCustomFieldSetCustomFieldSetDefinition
 ShopwareCoreContentProductAggregateProductCustomFieldSetProductCustomFieldSetDefinition --> ShopwareCoreSystemCustomFieldAggregateCustomFieldSetCustomFieldSetDefinition

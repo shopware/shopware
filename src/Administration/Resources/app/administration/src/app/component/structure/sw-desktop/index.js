@@ -40,9 +40,7 @@ Component.register('sw-desktop', {
     methods: {
         createdComponent() {
             this.checkRouteSettings();
-            if (this.feature.isActive('FEATURE_NEXT_10286')) {
-                this.updateShowUrlChangedModal();
-            }
+            this.updateShowUrlChangedModal();
         },
 
         checkRouteSettings() {

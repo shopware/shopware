@@ -1008,6 +1008,9 @@
     },
     "sw-app": {
       "component": {
+        "sw-app-actions": {
+          "messageErrorFetchButtons": "An error occurred while fetching your app actions."
+        },
         "sw-app-app-url-changed-modal": {
           "move-shop-permanently": {
             "name": "Migrate apps to new domain",

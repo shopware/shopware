@@ -4,14 +4,13 @@ import './page/sw-my-apps-page';
 const { Module } = Shopware;
 
 Module.register('sw-my-apps', {
-    type: 'plugin',
+    type: 'core',
     name: 'sw-my-apps',
     title: 'sw-my-apps.general.mainMenuItemGeneral',
     description: 'sw-my-apps.general.moduleDescription',
     icon: 'default-view-grid',
     color: '#9AA8B5',
     routePrefixPath: 'my-apps',
-    flag: 'FEATURE_NEXT_10286',
 
     routes: {
         index: {

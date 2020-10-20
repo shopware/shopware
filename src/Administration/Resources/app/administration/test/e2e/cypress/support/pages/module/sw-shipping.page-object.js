@@ -22,6 +22,7 @@ export default class ShippingMethodPageObject {
             'Cart >= 0',
             '.sw-settings-shipping-detail__top-rule'
         );
+        this.createShippingMethodTax();
         this.createShippingMethodPriceRule();
     }
 
@@ -54,5 +55,39 @@ export default class ShippingMethodPageObject {
 
         cy.get(this.elements.shippingSaveAction).click();
         cy.get(this.elements.successIcon).should('be.visible');
+    }
+
+    createShippingMethodTax() {
+        cy.window().then((win) => {
+            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_6995')) {
+                cy.log('Skipping test of deactivated feature \'FEATURE_NEXT_6995\' flag');
+                return;
+            }
+
+            // Fixed
+            cy.get('.sw-settings-shipping__tax-type-selection').typeSingleSelectAndCheck(
+                'Fixed',
+                '.sw-settings-shipping__tax-type-selection'
+            );
+            cy.get('.sw-settings-shipping__tax-rate').should('exist');
+            cy.get('.sw-settings-shipping__tax-rate').typeSingleSelectAndCheck(
+                'Standard rate',
+                '.sw-settings-shipping__tax-rate'
+            );
+
+            // Auto
+            cy.get('.sw-settings-shipping__tax-type-selection').typeSingleSelectAndCheck(
+                'Auto',
+                '.sw-settings-shipping__tax-type-selection'
+            );
+            cy.get('.sw-settings-shipping__tax-rate').should('not.exist');
+
+            // Highest
+            cy.get('.sw-settings-shipping__tax-type-selection').typeSingleSelectAndCheck(
+                'Highest',
+                '.sw-settings-shipping__tax-type-selection'
+            );
+            cy.get('.sw-settings-shipping__tax-rate').should('not.exist');
+        });
     }
 }

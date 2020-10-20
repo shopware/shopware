@@ -3,6 +3,7 @@ import './page/sw-settings-shipping-detail';
 import './component/sw-price-rule-modal';
 import './component/sw-settings-shipping-price-matrices';
 import './component/sw-settings-shipping-price-matrix';
+import './component/sw-settings-shipping-tax-cost';
 import './acl';
 
 

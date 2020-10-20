@@ -82,6 +82,29 @@
                                     </template>
                                 {% endblock %}
 
+                                {% block sw_settings_shipping_list_grid_columns_tax_type %}
+                                    <template v-if="feature.isActive('FEATURE_NEXT_6995')"
+                                              #column-taxType="{ item, isInlineEdit }">
+                                        {% block sw_settings_shipping_list_grid_columns_tax_type_inline_edit %}
+                                            <template v-if="isInlineEdit">
+                                                <sw-single-select
+                                                    v-model="item.taxType"
+                                                    required
+                                                    size="small"
+                                                    :placeholder="$tc('sw-settings-shipping.list.placeholderTaxType')"
+                                                    :options="shippingCostTaxOptions">
+                                                </sw-single-select>
+                                            </template>
+                                        {% endblock %}
+
+                                        {% block sw_settings_shipping_list_grid_columns_tax_type_content %}
+                                            <template v-else>
+                                                {{ shippingTaxTypeLabel(item.taxType) }}
+                                            </template>
+                                        {% endblock %}
+                                    </template>
+                                {% endblock %}
+
                                 {% block sw_settings_shipping_list_grid_columns_actions %}
                                     <template #actions="{ item }">
                                         {% block sw_settings_shipping_list_grid_columns_actions_edit %}

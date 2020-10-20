@@ -1,7 +1,6 @@
 ---
 title:         ACL for email templates module in settings
 issue:         NEXT-8950
-flag:          FEATURE_NEXT_3722
 ---
 # Administration
 * Added ACL privileges to email templates module in settings

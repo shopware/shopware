@@ -1,7 +1,6 @@
 ---
 title: Add ACL for product stream module
 issue: NEXT-8927
-flag: FEATURE_NEXT_3722
 ---
 # Administration
 * Added ACL privileges to `sw-product-stream` module

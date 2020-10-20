@@ -1,8 +1,6 @@
 ---
 title: Adding ACL for Routes
-issue: NEXT-10714
-flag: FEATURE_NEXT_3722
- 
+issue: NEXT-10714 
 ---
 # Core
 *  Added `Shopware\Core\Framework\Api\Controller\AclController` to provide all core privileges

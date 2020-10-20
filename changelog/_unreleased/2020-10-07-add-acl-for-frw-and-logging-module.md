@@ -1,7 +1,6 @@
 ---
 title: Add ACL for first run wizard and logging module
 issue: NEXT-10736
-flag: FEATURE_NEXT_3722
 author: Ramona Schwering
 author_email: r.schwering@shopware.com 
 author_github: @leichteckig

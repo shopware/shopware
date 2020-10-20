@@ -1,7 +1,6 @@
 ---
 title:          ACL for shopping experiences
 issue:          NEXT-10543
-flag:           FEATURE_NEXT_3722
 author:         Jannis Leifeld
 author_email:   j.leifeld@shopware.com
 author_github:  @jleifeld

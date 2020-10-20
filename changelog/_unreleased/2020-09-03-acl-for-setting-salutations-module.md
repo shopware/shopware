@@ -1,7 +1,6 @@
 ---
 title:          ACL for setting salutations module
 issue:          NEXT-8955
-flag:           FEATURE_NEXT_3722
 author:         Thuan Le
 author_email:   th.le@shopware.com
 author_github:  @thuanle

@@ -1,7 +1,6 @@
 ---
 title: ACL for custom fields
 issue: NEXT-8959
-flag: FEATURE_NEXT_3722
 author: Ramona Schwering    
 author_email: r.schwering@shopware.com
 author_github: leichteckig

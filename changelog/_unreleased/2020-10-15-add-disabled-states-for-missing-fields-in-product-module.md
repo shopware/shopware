@@ -1,7 +1,6 @@
 ---
 title: Add disabled states for missing fields in product module
 issue: NEXT-9001
-flag: FEATURE_NEXT_3722
 author: Jannis Leifeld
 author_email: j.leifeld@shopware.com 
 author_github: @jleifeld

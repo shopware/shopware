@@ -5,9 +5,6 @@ const snakeCase = Shopware.Utils.string.snakeCase;
 const { Component, Utils, Mixin, Data: { Criteria }, Classes: { ShopwareError } } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
-/**
- * @internal (flag:FEATURE_NEXT_9351)
- */
 Component.register('sw-event-action-detail', {
     template,
 

@@ -70,14 +70,13 @@
 
                 <div class="row flex-wrap">
                     {% block page_account_order_item_heading %}
-                        <h3 class="{% if feature('FEATURE_NEXT_9351') %}col-auto{% else %}col{% endif %} order-table-header-heading">{{ "account.orderHeadline"|trans|sw_sanitize }} {{ order.orderDateTime|format_date('short', locale=app.request.locale) }}</h3>
+                        <h3 class="col-auto order-table-header-heading">{{ "account.orderHeadline"|trans|sw_sanitize }} {{ order.orderDateTime|format_date('short', locale=app.request.locale) }}</h3>
                     {% endblock %}
 
                     {% block page_account_order_item_status_col %}
                         <div class="col-12 col-sm">
                             {% block page_account_order_item_status %}
-                                {% if feature('FEATURE_NEXT_9351') %}
-
+                                <div class="order-table-header-order-status">
                                     {% if isPaymentNeeded %}
                                         {% block page_account_order_item_status_badge_payment_process_needed %}
                                             <a href="{{ path('frontend.account.edit-order.page', { 'orderId': order.id }) }}"
@@ -93,16 +92,7 @@
                                             </span>
                                         {% endblock %}
                                     {% endif %}
-                                {% else %}
-                                    <h5 class="order-table-header-order-status">
-                                        {{ "account.orderStatus"|trans|sw_sanitize }}
-                                        {% if order.transactions.last.stateMachineState.technicalName == ORDER_TRANSACTION_STATE_FAILED or order.transactions.last.stateMachineState.technicalName == ORDER_TRANSACTION_STATE_REMINDED %}
-                                            {{ "account.orderStatusActionRequired"|trans|sw_sanitize }}
-                                            {% else %}
-                                            {{ order.stateMachineState.translated.name }}
-                                        {% endif %}
-                                    </h5>
-                                {% endif %}
+                                </div>
                             {% endblock %}
                         </div>
                     {% endblock %}
@@ -110,7 +100,7 @@
                     {% block page_account_order_item_context_menu_col %}
                         <div class="col-1 order-table-header-context-menu-wrapper">
 
-                            {% if feature('FEATURE_NEXT_9351') and isPaymentNeeded %}
+                            {% if isPaymentNeeded %}
                                 <span class="order-table-header-context-menu-indicator notification-dot notification-dot-danger"></span>
                             {% endif %}
 
@@ -136,7 +126,7 @@
 
                                         {% if orderState != ORDER_STATE_CANCELLED and (orderPaymentState == ORDER_TRANSACTION_STATE_OPEN or orderPaymentState == ORDER_TRANSACTION_STATE_FAILED or orderPaymentState == ORDER_TRANSACTION_STATE_REMINDED) %}
                                             {% block page_account_order_item_context_menu_content_change_payment_button %}
-                                                {% if feature('FEATURE_NEXT_9351') and isPaymentNeeded %}
+                                                {% if isPaymentNeeded %}
                                                     <a class="order-table-header-context-menu-content-link"
                                                        href="{{ path('frontend.account.edit-order.page', { 'orderId': order.id }) }}">
                                                         <strong>{{ "account.orderStatusActionCompletePayment"|trans|sw_sanitize }}</strong>

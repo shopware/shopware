@@ -1,7 +1,6 @@
 ---
 title:              expose business events
 issue:              NEXT-10701
-flag:               FEATURE_NEXT_9351
 author:             Oliver Skroblin
 author_email:       o.skroblin@shopware.com
 author_github:      @OliverSkroblin

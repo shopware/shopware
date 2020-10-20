@@ -290,8 +290,8 @@ ShopwareCoreSystemUser --> ShopwareCoreFrameworkApi
 ShopwareCoreSystemCustomField --> ShopwareCoreSystemCustomField
 ShopwareCoreContentProduct --> ShopwareCoreSystemCustomField
 ShopwareCoreFrameworkEvent --> ShopwareCoreFrameworkEvent
-ShopwareCoreFrameworkEvent --> ShopwareCoreContentRule
-ShopwareCoreFrameworkEvent --> ShopwareCoreSystemSalesChannel
+ShopwareCoreContentRule --> ShopwareCoreFrameworkEvent
+ShopwareCoreSystemSalesChannel --> ShopwareCoreFrameworkEvent
 ShopwareCoreFrameworkMessageQueue --> ShopwareCoreFrameworkMessageQueue
 ShopwareCoreFrameworkPlugin --> ShopwareCoreFrameworkPlugin
 ShopwareCoreCheckoutPayment --> ShopwareCoreFrameworkPlugin

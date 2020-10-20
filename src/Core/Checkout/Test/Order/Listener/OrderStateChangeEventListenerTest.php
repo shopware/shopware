@@ -21,7 +21,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
@@ -37,8 +36,6 @@ class OrderStateChangeEventListenerTest extends TestCase
 
     public function testTriggerTransactionEvents(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_9351', $this);
-
         $ids = new TestDataCollection();
 
         $this->createOrder($ids);
@@ -61,8 +58,6 @@ class OrderStateChangeEventListenerTest extends TestCase
 
     public function testTriggerOrderEvent(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_9351', $this);
-
         $ids = new TestDataCollection();
 
         $this->createOrder($ids);
@@ -84,8 +79,6 @@ class OrderStateChangeEventListenerTest extends TestCase
 
     public function testOrderDeliveryEvent(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_9351', $this);
-
         $ids = new TestDataCollection();
 
         $this->createOrder($ids);
@@ -107,7 +100,6 @@ class OrderStateChangeEventListenerTest extends TestCase
 
     public function testRulesForOrder(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_9351', $this);
         $ids = new TestDataCollection();
 
         $rule = [

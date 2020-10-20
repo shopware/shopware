@@ -841,26 +841,6 @@ parameters:
 			path: src/Core/Checkout/Order/SalesChannel/OrderRouteResponseStruct.php
 
 		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Order/SalesChannel/OrderService.php
-
-		-
-			message: "#^Cannot call method getDecimalPrecision\\(\\) on Shopware\\\\Core\\\\System\\\\Currency\\\\CurrencyEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Order/SalesChannel/OrderService.php
-
-		-
-			message: "#^Parameter \\#1 \\$orderId of class Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Exception\\\\OrderNotFoundException constructor expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Order/SalesChannel/OrderService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Order\\\\SalesChannel\\\\OrderService\\:\\:getOrder\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderEntity but returns Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Order/SalesChannel/OrderService.php
-
-		-
 			message: "#^Cannot access offset \\(int\\|string\\) on array\\<Shopware\\\\Core\\\\Checkout\\\\Payment\\\\Cart\\\\PaymentHandler\\\\AsynchronousPaymentHandlerInterface\\>\\|Shopware\\\\Core\\\\Checkout\\\\Payment\\\\Cart\\\\PaymentHandler\\\\SynchronousPaymentHandlerInterface\\.$#"
 			count: 2
 			path: src/Core/Checkout/Payment/Cart/PaymentHandler/PaymentHandlerRegistry.php

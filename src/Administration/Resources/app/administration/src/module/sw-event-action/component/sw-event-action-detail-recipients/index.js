@@ -3,9 +3,6 @@ import './sw-event-action-detail-recipients.scss';
 
 const { Component, Utils, Classes: { ShopwareError } } = Shopware;
 
-/**
- * @internal (flag:FEATURE_NEXT_9351)
- */
 Component.register('sw-event-action-detail-recipients', {
     template,
 

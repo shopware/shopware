@@ -18,7 +18,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Event\EventAction\Aggregate\EventActionRule\EventActionRuleDefinition;
 use Shopware\Core\Framework\Event\EventAction\Aggregate\EventActionSalesChannel\EventActionSalesChannelDefinition;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 class EventActionDefinition extends EntityDefinition
@@ -57,23 +56,13 @@ class EventActionDefinition extends EntityDefinition
             (new StringField('action_name', 'actionName', 500))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new JsonField('config', 'config'),
             new BoolField('active', 'active'),
+            (new StringField('title', 'title', 500))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
+
+            (new ManyToManyAssociationField('rules', RuleDefinition::class, EventActionRuleDefinition::class, 'event_action_id', 'rule_id'))
+                ->addFlags(new CascadeDelete(), new ReadProtected(SalesChannelApiSource::class), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
+            (new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, EventActionSalesChannelDefinition::class, 'event_action_id', 'sales_channel_id'))
+                ->addFlags(new CascadeDelete(), new ReadProtected(SalesChannelApiSource::class), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
         ]);
-
-        if (Feature::isActive('FEATURE_NEXT_9351')) {
-            $fields->add(
-                (new ManyToManyAssociationField('rules', RuleDefinition::class, EventActionRuleDefinition::class, 'event_action_id', 'rule_id'))
-                    ->addFlags(new CascadeDelete(), new ReadProtected(SalesChannelApiSource::class), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING))
-            );
-
-            $fields->add(
-                (new StringField('title', 'title', 500))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING))
-            );
-
-            $fields->add(
-                (new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, EventActionSalesChannelDefinition::class, 'event_action_id', 'sales_channel_id'))
-                    ->addFlags(new CascadeDelete(), new ReadProtected(SalesChannelApiSource::class), new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING))
-            );
-        }
 
         return $fields;
     }

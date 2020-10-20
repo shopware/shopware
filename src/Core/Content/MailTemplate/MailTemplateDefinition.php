@@ -20,7 +20,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Feature;
 
 class MailTemplateDefinition extends EntityDefinition
 {
@@ -65,14 +64,9 @@ class MailTemplateDefinition extends EntityDefinition
                 ->addFlags(new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
             (new OneToManyAssociationField('media', MailTemplateMediaDefinition::class, 'mail_template_id', 'id'))
                 ->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('salesChannels', MailTemplateSalesChannelDefinition::class, 'mail_template_id', 'id'))
+                ->addFlags(new CascadeDelete(), new Deprecated('v3', 'v4', 'event_action entity')),
         ]);
-
-        if (Feature::isActive('FEATURE_NEXT_9351')) {
-            $fields->add(
-                (new OneToManyAssociationField('salesChannels', MailTemplateSalesChannelDefinition::class, 'mail_template_id', 'id'))
-                    ->addFlags(new CascadeDelete(), new Deprecated('v3', 'v4', 'event_action entity'))
-            );
-        }
 
         return $fields;
     }

@@ -1,9 +1,6 @@
 import template from './sw-event-action-list-expand-labels.html.twig';
 import './sw-event-action-list-expand-labels.scss';
 
-/**
- * @internal (flag:FEATURE_NEXT_9351)
- */
 Shopware.Component.register('sw-event-action-list-expand-labels', {
     template,
 

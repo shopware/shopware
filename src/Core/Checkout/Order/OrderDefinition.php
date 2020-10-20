@@ -37,7 +37,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StateMachineStateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
@@ -102,6 +101,8 @@ class OrderDefinition extends EntityDefinition
             (new StateMachineStateField('state_id', 'stateId', OrderStates::STATE_MACHINE))->setFlags(new Required()),
             new ManyToOneAssociationField('stateMachineState', 'state_id', StateMachineStateDefinition::class, 'id', true),
 
+            new ListField('rule_ids', 'ruleIds', StringField::class),
+
             new CustomFields(),
 
             (new OneToOneAssociationField('orderCustomer', 'id', 'order_id', OrderCustomerDefinition::class))->addFlags(new CascadeDelete(), new SearchRanking(0.5)),
@@ -115,10 +116,6 @@ class OrderDefinition extends EntityDefinition
             new OneToManyAssociationField('documents', DocumentDefinition::class, 'order_id'),
             (new ManyToManyAssociationField('tags', TagDefinition::class, OrderTagDefinition::class, 'order_id', 'tag_id'))->addFlags(new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
         ]);
-
-        if (Feature::isActive('FEATURE_NEXT_9351')) {
-            $fields->add(new ListField('rule_ids', 'ruleIds', StringField::class));
-        }
 
         return $fields;
     }

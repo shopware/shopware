@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Event\Command;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
-use Shopware\Core\Framework\Feature;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
@@ -27,10 +26,6 @@ class DebugDumpBusinessEventsCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if (!Feature::isActive('FEATURE_NEXT_9351')) {
-            throw new Feature\FeatureNotActiveException('FEATURE_NEXT_9351');
-        }
-
         $result = $this->collector->collect(Context::createDefaultContext());
 
         $table = new Table($output);

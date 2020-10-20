@@ -47,6 +47,7 @@ Table(ShopwareCoreCheckoutOrderOrderDefinition, "order\n(Order root table)") {
    campaignCode string
    customerComment longText
    not_null(stateId) stateMachineState
+   ruleIds list
    customFields customFields
    not_null(createdAt) createdAt
    updatedAt updatedAt

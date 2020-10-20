@@ -170,14 +170,9 @@ class SalesChannelDefinition extends EntityDefinition
             (new OneToManyAssociationField('productExports', ProductExportDefinition::class, 'sales_channel_id', 'id'))->addFlags(new ReadProtected(SalesChannelApiSource::class)),
             (new OneToOneAssociationField('analytics', 'analytics_id', 'id', SalesChannelAnalyticsDefinition::class, true))->addFlags(new CascadeDelete()),
             new ManyToManyAssociationField('customerGroupsRegistrations', CustomerGroupDefinition::class, CustomerGroupRegistrationSalesChannelDefinition::class, 'sales_channel_id', 'customer_group_id', 'id', 'id'),
+            (new ManyToManyAssociationField('eventActions', EventActionDefinition::class, EventActionSalesChannelDefinition::class, 'sales_channel_id', 'event_action_id'))
+                ->addFlags(new CascadeDelete(), new ReadProtected(SalesChannelApiSource::class)),
         ]);
-
-        if (Feature::isActive('FEATURE_NEXT_9351')) {
-            $fields->add(
-                (new ManyToManyAssociationField('eventActions', EventActionDefinition::class, EventActionSalesChannelDefinition::class, 'sales_channel_id', 'event_action_id'))
-                    ->addFlags(new CascadeDelete(), new ReadProtected(SalesChannelApiSource::class))
-            );
-        }
 
         if (Feature::isActive('FEATURE_NEXT_10555')) {
             $fields->add(

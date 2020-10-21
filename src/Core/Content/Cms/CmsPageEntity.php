@@ -25,7 +25,7 @@ class CmsPageEntity extends Entity
     protected $type;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $entity;
 
@@ -89,12 +89,12 @@ class CmsPageEntity extends Entity
         $this->type = $type;
     }
 
-    public function getEntity(): string
+    public function getEntity(): ?string
     {
         return $this->entity;
     }
 
-    public function setEntity(string $entity): void
+    public function setEntity(?string $entity): void
     {
         $this->entity = $entity;
     }

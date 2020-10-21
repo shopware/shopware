@@ -11,7 +11,8 @@ Component.register('sw-cms-sidebar', {
 
     inject: [
         'cmsService',
-        'repositoryFactory'
+        'repositoryFactory',
+        'feature'
     ],
 
     mixins: [

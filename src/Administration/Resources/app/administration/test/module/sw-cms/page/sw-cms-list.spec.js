@@ -75,6 +75,9 @@ function createWrapper(privileges = []) {
             },
             repositoryFactory: {
                 create: () => ({ search: () => Promise.resolve() })
+            },
+            feature: {
+                isActive: () => true
             }
         }
     });

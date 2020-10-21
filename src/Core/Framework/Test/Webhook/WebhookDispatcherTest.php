@@ -57,7 +57,7 @@ class WebhookDispatcherTest extends TestCase
     public function setUp(): void
     {
         $this->webhookRepository = $this->getContainer()->get('webhook.repository');
-        $this->shopUrl = $_ENV['APP_URL'];
+        $this->shopUrl = $_SERVER['APP_URL'];
         $this->shopIdProvider = $this->getContainer()->get(ShopIdProvider::class);
     }
 

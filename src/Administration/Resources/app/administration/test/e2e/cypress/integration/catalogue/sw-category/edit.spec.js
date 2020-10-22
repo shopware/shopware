@@ -9,6 +9,7 @@ describe('Category: Edit categories', () => {
     });
 
     beforeEach(() => {
+        cy.clock();
         cy.loginViaApi()
             .then(() => {
                 return cy.createProductFixture();
@@ -82,7 +83,9 @@ describe('Category: Edit categories', () => {
         // Change product assignment type to dynamic product group
         cy.get('.sw-category-detail__product-assignment-type-select').typeSingleSelect(
             'Dynamic product group',
-            '.sw-category-detail__product-assignment-type-select'
+            '.sw-category-detail__product-assignment-type-select', {
+                clock: true
+            }
         );
 
         // Verify that the preview shows an empty state first
@@ -92,7 +95,9 @@ describe('Category: Edit categories', () => {
         // Select product stream
         cy.get('.sw-category-detail__product-stream-select').typeSingleSelect(
             '2nd Product stream',
-            '.sw-category-detail__product-stream-select'
+            '.sw-category-detail__product-stream-select', {
+                clock: true
+            }
         );
 
         // Save the category

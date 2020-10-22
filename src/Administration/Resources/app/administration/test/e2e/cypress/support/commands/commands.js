@@ -343,3 +343,141 @@ Cypress.Commands.add('sortListingViaColumn', (
 
     cy.get(rowZeroSelector).contains(firstEntry);
 });
+
+
+/**
+ * Types in a sw-select field and checks if the content was correctly typed
+ * @memberOf Cypress.Chainable#
+ * @name typeMultiSelectAndCheck
+ * @function
+ * @param {String} value - Desired value of the element
+ * @param {Object} [options={}] - Options concerning swSelect usage
+ */
+Cypress.Commands.add('typeMultiSelectAndCheck', {
+    prevSubject: 'element'
+}, (subject, value, options = {}) => {
+    const resultPrefix = '.sw-select';
+    const inputCssSelector = '.sw-select-selection-list__input';
+    const searchTerm = options.searchTerm || value;
+    const position = options.position || 0;
+
+    // Request we want to wait for later
+    cy.server();
+    cy.route({
+        url: `${Cypress.env('apiPath')}/search/*`,
+        method: 'post'
+    }).as('filteredResultCall');
+
+    cy.wrap(subject).should('be.visible');
+
+    // type in the search term if available
+    if (options.searchTerm) {
+        cy.get(`${subject.selector} ${inputCssSelector}`).type(searchTerm);
+        cy.get(`${subject.selector} ${inputCssSelector}`).should('have.value', searchTerm);
+
+        if(options.clock) {
+            cy.clock().then((clock) => {
+                clock.tick(1000);
+            });
+        }
+        cy.wait('@filteredResultCall').then(() => {
+            cy.get(`${resultPrefix}-option--${position}`).should('be.visible');
+
+            cy.wait('@filteredResultCall').then(() => {
+                cy.get('.sw-loader__element').should('not.exist');
+            });
+        });
+
+        cy.get(`${resultPrefix}-option--${position}`).should('be.visible');
+        cy.get(`${resultPrefix}-option--${position} .sw-highlight-text__highlight`).contains(value);
+
+        // select the first result (or at another position)
+        cy.get(`${resultPrefix}-option--${position}`)
+            .click({force: true});
+    } else {
+        cy.wrap(subject).click();
+
+        if(options.clock) {
+            cy.clock().then((clock) => {
+                clock.tick(1000);
+            });
+        }
+        cy.get('.sw-select-result').should('be.visible');
+        cy.contains('.sw-select-result', value).click();
+    }
+
+    // in multi selects we can check if the value is the selected item
+    cy.get(`${subject.selector} .sw-select-selection-list__item-holder--0`).contains(value);
+
+    // close search results
+    cy.get(`${subject.selector} ${inputCssSelector}`).type('{esc}');
+    cy.get(`${subject.selector} .sw-select-result-list`).should('not.exist');
+});
+
+/**
+ * Types in an sw-select field
+ * @memberOf Cypress.Chainable#
+ * @name typeSingleSelect
+ * @function
+ * @param {String} value - Desired value of the element
+ * @param {String} selector - selector of the element
+ * @param {Object} [options={}] - Options concerning swSelect usage
+ */
+Cypress.Commands.add('typeSingleSelect', {
+    prevSubject: 'element'
+}, (subject, value, selector, options = {}) => {
+    const resultPrefix = '.sw-select';
+    const inputCssSelector = `.sw-select__selection input`;
+
+    cy.wrap(subject).should('be.visible');
+    cy.wrap(subject).click();
+
+    // type in the search term if available
+    if (value) {
+        cy.get('.sw-select-result-list').should('be.visible');
+        cy.get(`${selector} ${inputCssSelector}`).clear();
+        cy.get(`${selector} ${inputCssSelector}`).type(value);
+        cy.get(`${selector} ${inputCssSelector}`).should('have.value', value);
+
+        // Wait the debounce time for the search to begin
+        if(options.clock) {
+            cy.clock().then((clock) => {
+                clock.tick(1000);
+            });
+        }
+
+        cy.get(`${selector}.sw-loader__element`).should('not.exist');
+
+        cy.get(`${selector} .is--disabled`)
+            .should('not.exist');
+
+        cy.get('.sw-select-result__result-item-text')
+            .should('be.visible');
+
+        cy.get('.sw-select-result__result-item-text')
+            .contains(value).click({force: true});
+    } else {
+        // Select the first element
+        cy.get(`${resultPrefix}-option--0`).click({force: true});
+    }
+});
+
+
+/**
+ * Types in an sw-select field and checks if the content was correctly typed
+ * @memberOf Cypress.Chainable#
+ * @name typeSingleSelectAndCheck
+ * @function
+ * @param {String} value - Desired value of the element
+ * @param {String} selector - Options concerning swSelect usage
+ * @param {Object} [options={}] - Options concerning swSelect usage
+ */
+Cypress.Commands.add('typeSingleSelectAndCheck', {
+    prevSubject: 'element'
+}, (subject, value, selector, options = {}) => {
+    cy.get(subject).typeSingleSelect(value, selector, options);
+
+    // expect the placeholder for an empty select field not be shown and search for the value
+    cy.get(`${subject.selector} .sw-select__selection .is--placeholder`).should('not.exist');
+    cy.get(`${subject.selector} .sw-select__selection`).contains(value);
+});

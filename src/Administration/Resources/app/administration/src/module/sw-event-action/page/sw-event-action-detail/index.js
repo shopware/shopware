@@ -65,7 +65,7 @@ Component.register('sw-event-action-detail', {
 
             return new ShopwareError({
                 code: 'EVENT_ACTION_DETAIL_MISSING_MAIL_TEMPLATE_ID',
-                detail: this.$tc('sw-event-action.detail.errorMailTemplateId')
+                detail: this.$tc('global.error-codes.c1051bb4-d103-4f74-8988-acbcafc7fdc3')
             });
         },
 
@@ -217,7 +217,7 @@ Component.register('sw-event-action-detail', {
                 })
                 .catch((exception) => {
                     this.createNotificationError({
-                        message: exception
+                        message: this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid')
                     });
                     this.isLoading = false;
 

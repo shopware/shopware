@@ -3,7 +3,7 @@
         "error-codes": {
             "FRAMEWORK__MISSING_PRIVILEGE_ERROR": "Missing permissions",
             "FRAMEWORK__DELETE_RESTRICTED": "Deletion failed",
-            "c1051bb4-d103-4f74-8988-acbcafc7fdc3": "This value should not be blank.",
+            "c1051bb4-d103-4f74-8988-acbcafc7fdc3": "This field must not be empty.",
             "INVALID_MEDIA_URL": "Please enter a valid URL to upload a file.",
             "CONTENT__MISSING_RULE_TYPE_EXCEPTION": "You must choose a type for this rule.",
             "SHOPWARE_INVALID_IP": "Please enter a valid IP address.",
@@ -666,7 +666,7 @@
             "delivery_time": "Delivery time | Delivery times",
             "import_export_profile": "Import/Export Profile | Import/Export Profiles",
             "feature_set": "Template | Templates",
-            "event_action": "Event actions"
+            "event_action": "Business events"
         },
         "day-of-week": {
             "monday": "Monday",

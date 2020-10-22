@@ -61,8 +61,8 @@
       "columnActions": "Aktion(en)",
       "columnAffiliateCode": "Affiliate-Code",
       "columnCampaignCode": "Kampagnen-Code",
-      "columnBoundSalesChannel": "Gebunden an Sales Channel",
-      "emptyBoundSalesChannel": "Nein",
+      "columnBoundSalesChannel": "Verkaufskanal",
+      "emptyBoundSalesChannel": "Alle",
       "contextMenuView": "Anzeigen",
       "contextMenuDuplicate": "Duplizieren",
       "contextMenuDelete": "Löschen",
@@ -121,8 +121,9 @@
       "contentActive": "Aktiv | Inaktiv",
       "emptyTextLogin": "Noch keine Anmeldung",
       "emptyTextBirthday": "keine Angabe",
-      "labelBoundSalesChannel": "Gebunden an Sales Channel",
-      "emptyBoundSalesChannel": "Nein"
+      "labelBoundSalesChannel": "Verkaufskanal",
+      "emptyBoundSalesChannel": "Alle",
+      "helpTextBoundSalesChannel": "Dieser Kunde kann sich in folgenden Verkaufskanälen anmelden"
     },
     "detailBase": {
       "labelAccountCard": "Konto",

@@ -2,8 +2,8 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/master/src/Core/System/SystemConfig/Schema/config.xsd">
     <card>
-        <title>General (all sales channels)</title>
-        <title lang="de-DE">Allgemein (alle Verkaufskanäle)</title>
+        <title>Customer Scope</title>
+        <title lang="de-DE">Kunden-Zuweisung</title>
 
         <input-field type="bool">
             <name>isCustomerBoundToSalesChannel</name>

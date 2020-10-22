@@ -17,3 +17,13 @@ $sw-customer-detail-base-color-text: $color-gutenberg;
         }
     }
 }
+
+.sw-bound-sales-channel {
+    &__label {
+        display: flex;
+        align-items: center;
+        .sw-help-text {
+            margin-left: 10px;
+        }
+    }
+}

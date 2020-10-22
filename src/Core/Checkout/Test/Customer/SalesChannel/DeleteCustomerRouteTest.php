@@ -8,7 +8,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -67,8 +66,6 @@ class DeleteCustomerRouteTest extends TestCase
 
     public function testNotLoggedIn(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10077', $this);
-
         $this->browser
             ->request(
                 'DELETE',
@@ -85,8 +82,6 @@ class DeleteCustomerRouteTest extends TestCase
 
     public function testDeleteAValidCustomer(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10077', $this);
-
         /** @var TraceableEventDispatcher $dispatcher */
         $dispatcher = $this->getContainer()->get('event_dispatcher');
 

@@ -7,7 +7,6 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -31,8 +30,6 @@ class AccountProfileControllerTest extends TestCase
 
     public function testDeleteCustomerProfile(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10077', $this);
-
         $context = Context::createDefaultContext();
         $customer = $this->createCustomer($context);
 

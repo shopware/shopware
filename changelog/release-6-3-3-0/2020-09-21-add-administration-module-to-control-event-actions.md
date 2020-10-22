@@ -45,3 +45,15 @@ ___
 # Core
 * Added new flag `Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking` to field `event_name` in `Shopware\Core\Framework\Event\EventAction\EventActionDefinition::defineFields`
 * Added new flag `Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking` to field `action_name` in `Shopware\Core\Framework\Event\EventAction\EventActionDefinition::defineFields`
+---
+# Upgrade Information
+
+## New handling to assign mail templates to business events
+
+With the new event action module (`sw-event-action`) the user can configure which mail template will be sent for a business event. This makes other assignments superfluous:
+* The assignment for mail templates inside the order module (when changing the order state) is no longer needed.
+* The component `sw-order-state-change-modal-assign-mail-template` is deprecated for `tag:v6.0.0` and is not being rendered anymore from now on. Changes which have been made to this component will not be visible.
+* The assignment of sales channels inside the mail template detail page is no longer needed.
+* The select field inside the block `sw_order_state_change_modal_assign_mail_template_component` in `Resources/app/administration/src/module/sw-order/component/sw-order-state-change-modal/sw-order-state-change-modal.html.twig` was removed.
+  * The twig block is still present but css or template extensions which rely on the field to be displayed may have to be adjusted.
+  * A sales channel selection is only needed in order to send a test mail and has been added to the `sidebar` slot of `sw-mail-template-detail` component.

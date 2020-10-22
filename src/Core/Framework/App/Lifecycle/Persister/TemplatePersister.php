@@ -47,7 +47,7 @@ class TemplatePersister
                 $existingTemplates->remove($existing->getId());
             } else {
                 $payload['appId'] = $appId;
-                $payload['active'] = true;
+                $payload['active'] = false;
                 $payload['path'] = $templatePath;
             }
 

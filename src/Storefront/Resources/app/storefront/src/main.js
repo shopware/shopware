@@ -83,6 +83,7 @@ import WishlistWidgetPlugin from 'src/plugin/header/wishlist-widget.plugin';
 import WishlistLocalStoragePlugin from 'src/plugin/wishlist/local-wishlist.plugin';
 import WishlistPersistStoragePlugin from 'src/plugin/wishlist/persist-wishlist.plugin';
 import AddToWishlistPlugin from 'src/plugin/wishlist/add-to-wishlist.plugin';
+import BuyBoxPlugin from 'src/plugin/buy-box/buy-box.plugin';
 
 window.eventEmitter = new NativeEventEmitter();
 
@@ -161,6 +162,10 @@ PluginManager.register('Ellipsis', EllipsisPlugin, '[data-ellipsis]');
 PluginManager.register('SwagBlockLink', SwagBlockLink, '[href="#not-found"]');
 PluginManager.register('ClearInput', ClearInputPlugin, '[data-clear-input]');
 PluginManager.register('CmsGdprVideoElement', CmsGdprVideoElement, '[data-cms-gdpr-video-element]');
+
+if (Feature.isActive('FEATURE_NEXT_10078')) {
+    PluginManager.register('BuyBox', BuyBoxPlugin, '[data-buy-box]');
+}
 
 if (window.csrf.enabled && window.csrf.mode === 'ajax') {
     PluginManager.register('FormCsrfHandler', FormCsrfHandlerPlugin, '[data-form-csrf-handler]');

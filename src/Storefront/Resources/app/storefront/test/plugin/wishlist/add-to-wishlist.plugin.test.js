@@ -2,7 +2,6 @@
  * @jest-environment jsdom
  */
 
-/* eslint-disable */
 import WishlistLocalStoragePlugin from 'src/plugin/wishlist/local-wishlist.plugin';
 import AddToWishlistPlugin from 'src/plugin/wishlist/add-to-wishlist.plugin';
 

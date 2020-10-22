@@ -1,0 +1,115 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Content\Product\Cms;
+
+use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
+use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
+use Shopware\Core\Content\Cms\DataResolver\Element\AbstractCmsElementResolver;
+use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
+use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
+use Shopware\Core\Content\Cms\SalesChannel\Struct\BuyBoxStruct;
+use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\SalesChannel\Detail\AbstractProductDetailRoute;
+use Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Content\Property\PropertyGroupCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+
+/**
+ * @internal (flag:FEATURE_NEXT_10078)
+ */
+class BuyBoxCmsElementResolver extends AbstractCmsElementResolver
+{
+    /**
+     * @var ProductConfiguratorLoader;
+     */
+    private $productConfiguratorLoader;
+
+    /**
+     * @var AbstractProductDetailRoute
+     */
+    private $productRoute;
+
+    public function __construct(
+        AbstractProductDetailRoute $productRoute,
+        ProductConfiguratorLoader $productConfiguratorLoader
+    ) {
+        $this->productRoute = $productRoute;
+        $this->productConfiguratorLoader = $productConfiguratorLoader;
+    }
+
+    public function getType(): string
+    {
+        return 'buy-box';
+    }
+
+    public function collect(CmsSlotEntity $slot, ResolverContext $resolverContext): ?CriteriaCollection
+    {
+        $config = $slot->getFieldConfig();
+        $productConfig = $config->get('product');
+
+        if (!$productConfig || $productConfig->getValue() === null) {
+            return null;
+        }
+
+        $criteria = new Criteria([$productConfig->getValue()]);
+
+        $criteriaCollection = new CriteriaCollection();
+        $criteriaCollection->add('product_' . $slot->getUniqueIdentifier(), ProductDefinition::class, $criteria);
+
+        return $criteriaCollection;
+    }
+
+    public function enrich(CmsSlotEntity $slot, ResolverContext $resolverContext, ElementDataCollection $result): void
+    {
+        $buyBox = new BuyBoxStruct();
+        $slot->setData($buyBox);
+
+        $config = $slot->getFieldConfig();
+        $productConfig = $config->get('product');
+
+        if (!$productConfig || $productConfig->getValue() === null) {
+            return;
+        }
+
+        // TODO: NEXT-12840 - Load product mapped data if a cms product detail layout is assigned page for a product
+
+        if ($productConfig->isStatic()) {
+            $this->resolveProductFromRemote($slot, $buyBox, $result, $resolverContext, $productConfig->getValue());
+        }
+    }
+
+    private function resolveProductFromRemote(CmsSlotEntity $slot, BuyBoxStruct $buyBox, ElementDataCollection $result, ResolverContext $resolverContext, string $productId): void
+    {
+        $searchResult = $result->get('product_' . $slot->getUniqueIdentifier());
+        if (!$searchResult) {
+            return;
+        }
+
+        /** @var SalesChannelProductEntity|null $product */
+        $product = $searchResult->get($productId);
+
+        if (!$product) {
+            return;
+        }
+
+        $context = $resolverContext->getSalesChannelContext();
+        $request = $resolverContext->getRequest();
+
+        if (!$product->getParentId() && $product->getChildCount() > 0) {
+            $result = $this->productRoute->load($product->getId(), $request, $context, new Criteria());
+            $product = $result->getProduct();
+
+            /** @var PropertyGroupCollection $configurator */
+            $configurator = $result->getConfigurator();
+        } else {
+            $configurator = $this->productConfiguratorLoader->load($product, $context);
+        }
+
+        // TODO: NEXT-12803 - Get totalReviews by ProductReviewLoader and store it in buyBox after NEXT-11745 completed
+
+        $buyBox->setConfiguratorSettings($configurator);
+        $buyBox->setProduct($product);
+        $buyBox->setProductId($product->getId());
+    }
+}

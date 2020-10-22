@@ -160,7 +160,7 @@ export default class IndividualCodeGenerator extends EventEmitter {
                     // calculate our DIFF value how many codes have been generated
                     countGenerated += databaseCount - existingCodes.length;
 
-                    if (countGenerated >= desiredCount) {
+                    if (countGenerated >= maxGenerationCount) {
                         // we're done with generation :)
                         onCompleted(countGenerated);
                         return;
@@ -173,7 +173,7 @@ export default class IndividualCodeGenerator extends EventEmitter {
                     }
 
                     // we're not yet done, and give it another shot with a new run
-                    const leftToGenerate = desiredCount - countGenerated;
+                    const leftToGenerate = maxGenerationCount - countGenerated;
                     this.startMainProcess(pattern, leftToGenerate, runCount, countGenerated, onCompleted);
                 });
             });
@@ -287,10 +287,11 @@ export default class IndividualCodeGenerator extends EventEmitter {
  * @param {Number} promotionId - The promotion Id of the new code
  */
 function createCodes(pattern, count, existingCodes, promotionId) {
+    const permutationCount = CodeGenerator.getPermutationCount(pattern);
     const plainNewCodesList = [];
     const allNewCodes = [];
 
-    for (let i = 1; i <= count; i += 1) {
+    for (let i = 1; i <= count; i = plainNewCodesList.length) {
         // generate a new random code
         const randomCode = CodeGenerator.generateCode(pattern);
 
@@ -303,12 +304,10 @@ function createCodes(pattern, count, existingCodes, promotionId) {
             allNewCodes.push(codeObject);
 
             plainNewCodesList.push(randomCode);
+        }
 
-            if (plainNewCodesList.length >= count) {
-                break;
-            }
-        } else {
-            i -= 1;
+        if (permutationCount <= (allNewCodes.length + existingCodes.length)) {
+            break;
         }
     }
 

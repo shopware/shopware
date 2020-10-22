@@ -124,7 +124,8 @@
         "messageMissingProductListing": "Speichern nicht möglich. Bitte füge mindestens einen Produktlisting-Block hinzu oder ändere den Typ dieses Layouts.",
         "messageMissingSections": "Du kannst leere Seiten nicht speichern. Bitte füge zuerst eine Sektion hinzu.",
         "messageMissingBlocks": "Du kannst keine leere Seite speichern. Bitte füge zuerst einige Blöcke hinzu.",
-        "messageMissingElements": "Konfiguration erforderlich. Bitte konfiguriere alle Elemente Deines Layouts."
+        "messageMissingElements": "Konfiguration erforderlich. Bitte konfiguriere alle Elemente Deines Layouts.",
+        "messageRedundantElements": "Layouts dürfen nur ein {name}-Element enthalten."
       },
       "placeholder": {
         "demoEntity": "Wähle einen Datensatz zur Vorschau ..."
@@ -415,10 +416,34 @@
           }
         }
       },
+      "buyBox": {
+        "label": "Buybox",
+        "infoText": {
+          "tooltipSettingDisabled" : "Die Produktdaten dieses Elements werden automatisch aus dem mit dem Layout verbundenen Produkt geladen. Der angezeigte Inhalt ist nur eine Beispielvorschau."
+        },
+        "config": {
+          "label": {
+            "selection": "Produkt"
+          },
+          "placeholder": {
+            "selection": "Wähle ein Produkt ..."
+          }
+        },
+        "component": {
+          "label": {
+            "actionBuy": "In den Warenkorb",
+            "taxInfo": "Preise inkl. MwSt. zzgl. Versandkosten",
+            "deliveryShippingFree": "Versandkostenfrei",
+            "deliveryTime": "Sofort verfügbar, Lieferzeit {name}",
+            "variants": "Variants",
+            "productNumber": "Produktnummer:"
+          }
+        }
+      },
       "productDescriptionReviews": {
         "label": "Produktbeschreibung und -bewertungen",
         "infoText": {
-          "descriptionAndReviewsElement": "Die Daten in diesem Element werden automatisiert über die Kategoriezuweisung geladen. Die hier angezeigten Inhalte sind lediglich Platzhalter."
+          "descriptionAndReviewsElement": "Die Produktdaten dieses Elements werden automatisch aus dem mit dem Layout verbundenen Produkt geladen. Der angezeigte Inhalt ist nur eine Beispielvorschau."
         },
         "component": {
           "label": {
@@ -432,6 +457,9 @@
             "reviews": "Bewertungen"
           }
         }
+      },
+      "crossSelling": {
+        "label": "Cross Selling"
       }
     },
     "blocks": {

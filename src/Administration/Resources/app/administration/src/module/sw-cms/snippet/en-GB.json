@@ -124,7 +124,8 @@
         "messageMissingProductListing": "Unable to save. Please add at least one product listing block or change this layout's type.",
         "messageMissingSections": "You can not save an empty page. Please add a section first.",
         "messageMissingBlocks": "You can not save an empty page. Please add some blocks first.",
-        "messageMissingElements": "Configuration required. Please configure all elements of your layout."
+        "messageMissingElements": "Configuration required. Please configure all elements of your layout.",
+        "messageRedundantElements": "Layouts must not contain more than one {name} element."
       },
       "placeholder": {
         "demoEntity": "Select an entity to preview..."
@@ -415,6 +416,30 @@
           }
         }
       },
+      "buyBox": {
+        "label": "Buy box",
+        "infoText": {
+          "tooltipSettingDisabled" : "This element's product data is automatically loaded by the product associated with this layout. The content just shows a sample preview."
+        },
+        "config": {
+          "label": {
+            "selection": "Product"
+          },
+          "placeholder": {
+            "selection": "Select a product ..."
+          }
+        },
+        "component": {
+          "label": {
+            "actionBuy": "Add to cart",
+            "taxInfo": "Prices incl. VAT plus shipping costs",
+            "deliveryShippingFree": "Free shipping",
+            "deliveryTime": "Available, delivery time {name}",
+            "variants": "Variants",
+            "productNumber": "Product number:"
+          }
+        }
+      },
       "productDescriptionReviews": {
         "label": "Product description & reviews",
         "infoText": {
@@ -432,6 +457,9 @@
             "reviews": "Reviews"
           }
         }
+      },
+      "crossSelling": {
+        "label": "Cross Selling"
       }
     },
     "blocks": {

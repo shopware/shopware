@@ -48,6 +48,7 @@ class SearchPageLoader
     {
         $page = $this->genericLoader->load($request, $salesChannelContext);
         $page = SearchPage::createFrom($page);
+        $page->getMetaInformation()->assign(['robots' => 'noindex,follow']);
 
         if (!$request->query->has('search')) {
             throw new MissingRequestParameterException('search');

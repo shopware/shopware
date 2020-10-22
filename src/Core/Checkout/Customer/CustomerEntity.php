@@ -301,15 +301,11 @@ class CustomerEntity extends Entity
     protected $requestedGroup;
 
     /**
-     * @internal (flag:FEATURE_NEXT_10555)
-     *
      * @var string|null
      */
     protected $boundSalesChannelId;
 
     /**
-     * @internal (flag:FEATURE_NEXT_10555)
-     *
      * @var SalesChannelEntity|null
      */
     protected $boundSalesChannel;

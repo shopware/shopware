@@ -5,8 +5,6 @@ const { Component, Mixin } = Shopware;
 Component.register('sw-settings-login-registration', {
     template,
 
-    inject: ['feature'],
-
     mixins: [
         Mixin.getByName('notification')
     ],

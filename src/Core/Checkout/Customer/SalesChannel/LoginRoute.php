@@ -15,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -178,12 +177,10 @@ class LoginRoute extends AbstractLoginRoute
         $criteria->addFilter(new EqualsFilter('customer.email', $email));
         $criteria->addFilter(new EqualsFilter('customer.guest', 0));
 
-        if (Feature::isActive('FEATURE_NEXT_10555')) {
-            $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
-                new EqualsFilter('customer.boundSalesChannelId', null),
-                new EqualsFilter('customer.boundSalesChannelId', $context->getSalesChannel()->getId()),
-            ]));
-        }
+        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
+            new EqualsFilter('customer.boundSalesChannelId', null),
+            new EqualsFilter('customer.boundSalesChannelId', $context->getSalesChannel()->getId()),
+        ]));
 
         $result = $this->customerRepository->search($criteria, $context->getContext());
 

@@ -15,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
@@ -405,15 +404,13 @@ class SalesChannelContextFactory
         $criteria->addAssociation('defaultShippingAddress.country');
         $criteria->addAssociation('defaultShippingAddress.countryState');
 
-        if (Feature::isActive('FEATURE_NEXT_10555')) {
-            /** @var SalesChannelApiSource $source */
-            $source = $context->getSource();
+        /** @var SalesChannelApiSource $source */
+        $source = $context->getSource();
 
-            $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
-                new EqualsFilter('customer.boundSalesChannelId', null),
-                new EqualsFilter('customer.boundSalesChannelId', $source->getSalesChannelId()),
-            ]));
-        }
+        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
+            new EqualsFilter('customer.boundSalesChannelId', null),
+            new EqualsFilter('customer.boundSalesChannelId', $source->getSalesChannelId()),
+        ]));
 
         $customer = $this->customerRepository->search($criteria, $context)->get($customerId);
 

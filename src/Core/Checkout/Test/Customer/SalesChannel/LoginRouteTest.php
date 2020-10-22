@@ -11,7 +11,6 @@ use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -112,8 +111,6 @@ class LoginRouteTest extends TestCase
 
     public function testLoginWithInvalidBoundSalesChannelId(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10555', $this);
-
         static::expectException(UnauthorizedHttpException::class);
 
         $email = Uuid::randomHex() . '@example.com';
@@ -324,11 +321,8 @@ class LoginRouteTest extends TestCase
             'lastName' => 'Mustermann',
             'salutationId' => $this->getValidSalutationId(),
             'customerNumber' => '12345',
+            'boundSalesChannelId' => $boundSalesChannelId,
         ];
-
-        if (Feature::isActive('FEATURE_NEXT_10555')) {
-            $customer['boundSalesChannelId'] = $boundSalesChannelId;
-        }
 
         $this->customerRepository->create([$customer], $this->ids->context);
 

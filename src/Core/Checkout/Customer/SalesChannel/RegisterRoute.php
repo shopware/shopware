@@ -19,7 +19,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Event\DataMappingEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -180,9 +179,7 @@ class RegisterRoute extends AbstractRegisterRoute
 
         $customer = $this->setDoubleOptInData($customer, $context);
 
-        if (Feature::isActive('FEATURE_NEXT_10555')) {
-            $customer['boundSalesChannelId'] = $this->getBoundSalesChannelId($customer['email'], $context);
-        }
+        $customer['boundSalesChannelId'] = $this->getBoundSalesChannelId($customer['email'], $context);
 
         $this->customerRepository->create([$customer], $context->getContext());
 
@@ -415,10 +412,7 @@ class RegisterRoute extends AbstractRegisterRoute
         if (!$isGuest) {
             $minLength = $this->systemConfigService->get('core.loginRegistration.passwordMinLength', $context->getSalesChannel()->getId());
             $validation->add('password', new NotBlank(), new Length(['min' => $minLength]));
-            $options = Feature::isActive('FEATURE_NEXT_10555')
-                ? ['context' => $context->getContext(), 'salesChannelContext' => $context]
-                : ['context' => $context->getContext()];
-
+            $options = ['context' => $context->getContext(), 'salesChannelContext' => $context];
             $validation->add('email', new CustomerEmailUnique($options));
         }
 

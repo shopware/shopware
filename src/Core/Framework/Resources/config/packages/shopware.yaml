@@ -55,7 +55,6 @@ shopware:
     feature:
         flags:
             - FEATURE_NEXT_1797
-            - FEATURE_NEXT_10555
             - FEATURE_NEXT_10549
             - FEATURE_NEXT_10559
             - FEATURE_NEXT_6995

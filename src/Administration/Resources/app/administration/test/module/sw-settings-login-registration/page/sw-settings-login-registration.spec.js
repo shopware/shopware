@@ -10,8 +10,6 @@ const classes = {
 };
 
 function createWrapper() {
-    Shopware.Feature.flags.FEATURE_NEXT_10555 = true;
-
     const localVue = createLocalVue();
 
     return shallowMount(Shopware.Component.build('sw-settings-login-registration'), {

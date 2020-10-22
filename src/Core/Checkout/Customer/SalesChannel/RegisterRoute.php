@@ -210,6 +210,7 @@ class RegisterRoute extends AbstractRegisterRoute
                     'billingAddressId' => null,
                     'shippingAddressId' => null,
                 ],
+                Feature::isActive('FEATURE_NEXT_10058') ? $context->getSalesChannel()->getId() : null,
                 Feature::isActive('FEATURE_NEXT_10058') ? $customerEntity->getId() : null
             );
 

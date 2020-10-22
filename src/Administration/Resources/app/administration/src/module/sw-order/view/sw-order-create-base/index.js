@@ -8,6 +8,10 @@ const { mapGetters } = Component.getComponentHelper();
 Component.register('sw-order-create-base', {
     template,
 
+    inject: [
+        'feature'
+    ],
+
     mixins: [
         Mixin.getByName('notification')
     ],
@@ -477,7 +481,8 @@ Component.register('sw-order-create-base', {
 
         enableAutomaticPromotions() {
             this.updateLoading(true);
-            Service('cartStoreService').enableAutomaticPromotions(this.cart.token).then(() => {
+            const additionalParams = this.feature.isActive('FEATURE_NEXT_10058') ? { salesChannelId: this.customer.salesChannelId } : {};
+            Service('cartStoreService').enableAutomaticPromotions(this.cart.token, additionalParams).then(() => {
                 this.loadCart();
             });
         },

@@ -149,8 +149,9 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
 
         $this->validator->validate($parameters, $definition);
 
-        if (Feature::isActive('FEATURE_NEXT_10058') && $customer = $context->getCustomer()) {
-            $this->contextPersister->save($context->getToken(), $parameters, $customer->getId());
+        if (Feature::isActive('FEATURE_NEXT_10058')) {
+            $customer = $context->getCustomer();
+            $this->contextPersister->save($context->getToken(), $parameters, $context->getSalesChannel()->getId(), $customer ? $customer->getId() : null);
         } else {
             $this->contextPersister->save($context->getToken(), $parameters);
         }

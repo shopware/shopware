@@ -51,11 +51,17 @@ class AppStateServiceThemeTest extends TestCase
      */
     private $eventDispatcher;
 
+    /**
+     * @var EntityRepository
+     */
+    private $templateRepo;
+
     public function setUp(): void
     {
         $this->themeService = $this->getContainer()->get(ThemeService::class);
         $this->appRepo = $this->getContainer()->get('app.repository');
         $this->themeRepo = $this->getContainer()->get('theme.repository');
+        $this->templateRepo = $this->getContainer()->get('app_template.repository');
         $this->appStateService = $this->getContainer()->get(AppStateService::class);
         $this->eventDispatcher = $this->getContainer()->get('event_dispatcher');
     }
@@ -132,6 +138,13 @@ class AppStateServiceThemeTest extends TestCase
         $this->appStateService->deactivateApp($appId, $context);
 
         static::assertTrue($eventWasReceived);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('appId', $appId));
+        $criteria->addFilter(new EqualsFilter('active', true));
+
+        static::assertEquals(0, $this->templateRepo->search($criteria, $context)->getTotal());
+
         $this->eventDispatcher->removeListener(AppDeactivatedEvent::class, $onAppDeactivation);
     }
 
@@ -155,6 +168,13 @@ class AppStateServiceThemeTest extends TestCase
         $this->appStateService->activateApp($appId, $context);
 
         static::assertTrue($eventWasReceived);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('appId', $appId));
+        $criteria->addFilter(new EqualsFilter('active', true));
+
+        static::assertEquals(1, $this->templateRepo->search($criteria, $context)->getTotal());
+
         $this->eventDispatcher->removeListener(AppActivatedEvent::class, $onAppActivation);
     }
 

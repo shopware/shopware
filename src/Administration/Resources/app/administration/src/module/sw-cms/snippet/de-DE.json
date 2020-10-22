@@ -523,6 +523,9 @@
               "reviews": "Bewertungen"
             }
           }
+        },
+        "galleryBuyBox": {
+          "label": "Galerie und Buybox"
         }
       },
       "image": {

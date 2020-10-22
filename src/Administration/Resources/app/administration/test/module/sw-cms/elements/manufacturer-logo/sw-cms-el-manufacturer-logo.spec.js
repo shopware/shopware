@@ -80,4 +80,58 @@ describe('module/sw-cms/elements/manufacturer-logo/component', () => {
         expect(wrapper.vm.element.config.media.source).toBe('mapped');
         expect(wrapper.vm.element.config.media.value).toBe('product.manufacturer.media');
     });
+
+    it('should update style regarding to config value', async () => {
+        expect(wrapper.vm.styles).toEqual({
+            'max-width': '180px',
+            'min-height': '40px',
+            'align-self': null
+        });
+
+        await wrapper.setProps({
+            element: {
+                config: {
+                    ...wrapper.props().element.config,
+                    displayMode: {
+                        source: 'statics',
+                        value: 'cover'
+                    },
+                    minHeight: {
+                        source: 'static',
+                        value: '50px'
+                    }
+                },
+                data: {}
+            }
+        });
+
+        expect(wrapper.vm.styles).toEqual({
+            'max-width': '180px',
+            'min-height': '50px',
+            'align-self': null
+        });
+
+        await wrapper.setProps({
+            element: {
+                config: {
+                    ...wrapper.props().element.config,
+                    displayMode: {
+                        source: 'statics',
+                        value: 'standard'
+                    },
+                    verticalAlign: {
+                        source: 'static',
+                        value: 'center'
+                    }
+                },
+                data: {}
+            }
+        });
+
+        expect(wrapper.vm.styles).toEqual({
+            'max-width': '180px',
+            'min-height': '40px',
+            'align-self': 'center'
+        });
+    });
 });

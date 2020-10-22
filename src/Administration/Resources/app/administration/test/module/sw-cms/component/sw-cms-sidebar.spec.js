@@ -31,7 +31,18 @@ function createWrapper() {
     const localVue = createLocalVue();
     localVue.directive('draggable', {});
     localVue.directive('droppable', {});
-    localVue.directive('tooltip', {});
+    localVue.directive('tooltip', {
+        bind(el, binding) {
+            el.setAttribute('tooltip-message', binding.value.message);
+        },
+        inserted(el, binding) {
+            el.setAttribute('tooltip-message', binding.value.message);
+        },
+        update(el, binding) {
+            el.setAttribute('tooltip-message', binding.value.message);
+        }
+    });
+
     localVue.use(Vuex);
 
     return shallowMount(Shopware.Component.build('sw-cms-sidebar'), {
@@ -69,7 +80,8 @@ function createWrapper() {
             'sw-cms-section-config': true,
             'sw-context-button': true,
             'sw-context-menu-item': true,
-            'sw-cms-sidebar-nav-element': true
+            'sw-cms-sidebar-nav-element': true,
+            'sw-entity-single-select': true
         },
         mocks: {
             $tc: (value) => value,
@@ -171,5 +183,42 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         await wrapper.vm.$nextTick();
 
         expect(wrapper.emitted('open-layout-assignment')).toBeTruthy();
+    });
+
+    it('should show tooltip and disable layout type select when page type is product detail', async () => {
+        const wrapper = createWrapper();
+
+        await wrapper.setProps({
+            page: {
+                ...wrapper.props().page,
+                type: 'product_detail'
+            }
+        });
+
+
+        const layoutTypeSelect = wrapper.find('sw-select-field-stub[label="sw-cms.detail.label.pageType"]');
+
+        expect(layoutTypeSelect.attributes()['tooltip-message'])
+            .toBe('sw-cms.detail.tooltip.cannotSelectProductPageLayout');
+
+        expect(layoutTypeSelect.attributes().disabled).toBeTruthy();
+    });
+
+    it('should hide tooltip and enable layout type select when page type is not product detail', async () => {
+        const wrapper = createWrapper();
+
+        await wrapper.setProps({
+            page: {
+                ...wrapper.props().page,
+                type: 'page'
+            }
+        });
+
+
+        const layoutTypeSelect = wrapper.find('sw-select-field-stub[label="sw-cms.detail.label.pageType"]');
+        const productPageOption = wrapper.find('option[value="product_detail"]');
+
+        expect(layoutTypeSelect.attributes().disabled).toBeFalsy();
+        expect(productPageOption.attributes().disabled).toBeTruthy();
     });
 });

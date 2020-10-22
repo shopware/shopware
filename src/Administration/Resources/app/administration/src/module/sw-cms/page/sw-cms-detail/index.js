@@ -58,6 +58,21 @@ Component.register('sw-cms-detail', {
                     ]
                 },
                 {
+                    type: 'gallery-buybox',
+                    elements: [
+                        {
+                            slot: 'left',
+                            type: 'image-gallery',
+                            config: {}
+                        },
+                        {
+                            slot: 'right',
+                            type: 'buy-box',
+                            config: {}
+                        }
+                    ]
+                },
+                {
                     type: 'product-heading',
                     elements: [
                         {
@@ -221,6 +236,15 @@ Component.register('sw-cms-detail', {
 
         currentDeviceView() {
             return this.cmsPageState.currentCmsDeviceView;
+        },
+
+        demoProductCriteria() {
+            const criteria = new Criteria();
+            criteria.addAssociation('media');
+            criteria.addAssociation('deliveryTime');
+            criteria.addAssociation('manufacturer.media');
+
+            return criteria;
         }
     },
 
@@ -359,6 +383,10 @@ Component.register('sw-cms-detail', {
         },
 
         loadFirstDemoEntity() {
+            if (this.cmsPageState.currentMappingEntity === 'product') {
+                return;
+            }
+
             const criteria = new Criteria();
 
             if (this.cmsPageState.currentMappingEntity === 'category') {
@@ -414,7 +442,13 @@ Component.register('sw-cms-detail', {
                 return;
             }
 
-            this.currentMappingEntityRepo.get(demoEntityId, Shopware.Context.api).then((entity) => {
+            const demoContext = this.cmsPageState.currentMappingEntity === 'product'
+                ? { ...Shopware.Context.api, inheritance: true }
+                : Shopware.Context.api;
+
+            const demoCriteria = this.cmsPageState.currentMappingEntity === 'product' ? this.demoProductCriteria : new Criteria();
+
+            this.currentMappingEntityRepo.get(demoEntityId, demoContext, demoCriteria).then((entity) => {
                 if (!entity) {
                     return;
                 }

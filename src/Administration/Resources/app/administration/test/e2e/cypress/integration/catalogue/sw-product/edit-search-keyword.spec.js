@@ -11,6 +11,9 @@ describe('Product: Search Keyword product', () => {
                 cy.loginViaApi();
             })
             .then(() => {
+                return cy.createProductFixture();
+            })
+            .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
             });
     });
@@ -29,7 +32,7 @@ describe('Product: Search Keyword product', () => {
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--1`
+            `${page.elements.dataGridRow}--0`
         );
 
         // Create new search keyword

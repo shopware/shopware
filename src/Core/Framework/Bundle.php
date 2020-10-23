@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework;
 
+use Composer\Autoload\ClassLoader;
 use Shopware\Core\Framework\Adapter\Asset\AssetPackageService;
 use Shopware\Core\Framework\Adapter\Filesystem\PrefixFilesystem;
 use Shopware\Core\Framework\Event\BusinessEventRegistry;
@@ -27,7 +28,7 @@ abstract class Bundle extends SymfonyBundle
     public function build(ContainerBuilder $container): void
     {
         parent::build($container);
-
+        $this->loadAdditionalClassLoaders();
         $this->registerContainerFile($container);
         $this->registerMigrationPath($container);
         $this->registerFilesystem($container, 'private');
@@ -97,6 +98,22 @@ abstract class Bundle extends SymfonyBundle
 
         if ($fileSystem->exists($confDir)) {
             $routes->import($confDir . '/{routes_overwrite}' . Kernel::CONFIG_EXTS, '/', 'glob');
+        }
+    }
+
+    public function loadAdditionalClassLoaders(): void
+    {
+    }
+
+    protected function appendClassLoaderFile(string $file): void
+    {
+        if (is_file($file)) {
+            $classLoader = require_once $file;
+
+            if ($classLoader instanceof ClassLoader) {
+                $classLoader->unregister();
+                $classLoader->register(false);
+            }
         }
     }
 

@@ -11,7 +11,7 @@ export default class AppModulesService extends ApiService {
             'app-system/modules',
             {
                 headers: this.getBasicHeaders()
-            },
+            }
         ).then(({ data }) => {
             return data.modules;
         });

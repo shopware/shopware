@@ -70,19 +70,22 @@ default:
         - ./psh.phar init
         - if [[ ! -h vendor/shopware/platform ]]; then echo 'vendor/shopware/platform should be a symlink'; exit 1; fi
         - mkdir -p build/artifacts/
+        - failed="0"
         - echo -e
-            "<?xml version="1.0" encoding="UTF-8"?>
+            '<?xml version="1.0" encoding="UTF-8"?>
             <testsuites>
-            " > build/artifacts/phpunit.junit.xml
+            ' > build/artifacts/phpunit.junit.xml
         - >
             for TEST_SUITE in $TEST_SUITES; do
                 log_unit_file=build/artifacts/$TEST_SUITE.junit.xml
                 set -x
-                php vendor/bin/phpunit --configuration vendor/shopware/platform/phpunit.xml.dist --log-junit "$log_unit_file" --colors=never --testsuite "$TEST_SUITE"
+                php vendor/bin/phpunit --configuration vendor/shopware/platform/phpunit.xml.dist --log-junit "$log_unit_file" --colors=never --testsuite "$TEST_SUITE" || exit_code=$?
+                if [ $exit_code -ne "0" ]; then failed="1"; fi;
                 set +x
                 tail -n +3 "$log_unit_file" | head -n -1 >> build/artifacts/phpunit.junit.xml
             done
         - echo -e "</testsuites>" >> "build/artifacts/phpunit.junit.xml"
+        - if [ $failed -ne "0" ]; then exit 1; fi;
     coverage: '/^\s*Lines:\s*(\d+(?:\.\d+)?%)/'
     artifacts:
         when: always
@@ -157,7 +160,7 @@ Javascript analysis:
         - npm clean-install
         - npm run lerna -- bootstrap
         - cd app/administration
-        - PROJECT_ROOT=$(pwd) node_modules/.bin/eslint --ext .js,.vue --format junit src test > eslint.junit.xml
+        - PROJECT_ROOT=$(pwd) npm run lint:junit
     artifacts:
         reports:
             junit: src/Administration/Resources/app/administration/eslint.junit.xml

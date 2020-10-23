@@ -161,7 +161,7 @@ class CartSalesChannelService extends ApiService {
         return this.httpClient.post(route, {}, { additionalParams, headers });
     }
 
-    modifyShippingCosts(salesChannelId, contextToken, shippingCosts, additionalHeaders, additionalParams = {},) {
+    modifyShippingCosts(salesChannelId, contextToken, shippingCosts, additionalHeaders, additionalParams = {}) {
         const route = '_proxy/modify-shipping-costs';
         const headers = {
             ...this.getBasicHeaders(additionalHeaders),

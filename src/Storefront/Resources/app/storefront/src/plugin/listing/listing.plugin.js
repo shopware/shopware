@@ -133,7 +133,7 @@ export default class ListingPlugin extends Plugin {
             const values = filterPlugin.getValues();
 
             Object.keys(values).forEach((key) => {
-                if (filters.hasOwnProperty(key)) {
+                if (Object.prototype.hasOwnProperty.call(filters, key)) {
                     Object.values(values[key]).forEach((value) => {
                         filters[key].push(value);
                     });

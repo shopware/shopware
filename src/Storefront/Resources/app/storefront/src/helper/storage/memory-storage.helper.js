@@ -23,7 +23,7 @@ export default class MemoryStorage {
      * @returns {*}
      */
     getItem(key) {
-        return this._storage.hasOwnProperty(key) ? this._storage[key] : null;
+        return Object.prototype.hasOwnProperty.call(this._storage, key) ? this._storage[key] : null;
     }
 
     /**

@@ -85,7 +85,7 @@ Component.register('sw-media-modal-folder-dissolve', {
 
                 this.$emit(
                     'media-folder-dissolve-modal-dissolve',
-                    dissolvedIds,
+                    dissolvedIds
                 );
             } catch {
                 if (this.itemsToDissolve.length > 1) {

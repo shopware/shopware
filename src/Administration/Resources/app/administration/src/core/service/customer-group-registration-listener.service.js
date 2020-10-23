@@ -44,7 +44,7 @@ export default function addCustomerGroupRegistrationListener(loginService) {
             ),
             actions: [{
                 label: getApplicationRootReference().$tc(
-                    'sw-customer.customerGroupRegistration.notification.openCustomer',
+                    'sw-customer.customerGroupRegistration.notification.openCustomer'
                 ),
                 route: { name: 'sw.customer.detail', params: { id: customer.id } }
             }],

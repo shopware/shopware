@@ -43,7 +43,7 @@ export default class AppActionButtonService extends ApiService {
             .get(`app-system/action-button/${entity}/${view}`,
                 {
                     headers: this.getBasicHeaders()
-                },).then(({ data }) => {
+                }).then(({ data }) => {
                 return data.actions;
             });
     }
@@ -61,7 +61,7 @@ export default class AppActionButtonService extends ApiService {
                 params,
                 {
                     headers: this.getBasicHeaders()
-                },
+                }
             );
     }
 }

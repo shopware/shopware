@@ -52,7 +52,7 @@ describe('appActionButtonService', () => {
                 actions: [{
                     name: 'App'
                 }]
-            },
+            }
         );
 
         const actionButtons = await appActionButtonService.getActionButtonsPerView('product', 'detail');
@@ -69,7 +69,7 @@ describe('appActionButtonService', () => {
 
         clientMock.onPost(`app-system/action-button/run/${actionButtonId}`).reply(
             200,
-            null,
+            null
         );
 
         await appActionButtonService.runAction(actionButtonId);

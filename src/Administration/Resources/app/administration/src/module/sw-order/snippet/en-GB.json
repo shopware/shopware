@@ -391,7 +391,7 @@
     },
     "additional_permissions": {
       "orders": {
-        "create_discounts": "Create discounts"
+        "create_discounts": "Create credit items"
       }
     }
   }

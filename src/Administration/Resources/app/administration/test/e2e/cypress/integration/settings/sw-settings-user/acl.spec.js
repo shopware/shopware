@@ -396,6 +396,6 @@ describe('User: Test acl privileges', () => {
         cy.get('.sw-modal')
             .should('not.be.visible');
 
-        cy.awaitAndCheckNotification('User "Abraham Allison " has been deleted.');
+        cy.awaitAndCheckNotification('User "Abraham Allison " deleted.');
     });
 });

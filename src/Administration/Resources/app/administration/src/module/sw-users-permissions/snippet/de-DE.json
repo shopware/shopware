@@ -6,13 +6,14 @@
     "permissions": {},
     "roles": {
       "general": {
-        "labelCreateNewRole": "Neue Rolle",
+        "labelCreateNewRole": "Rolle erstellen",
         "cardLabel": "Rollen"
       },
       "role-grid": {
         "labelName": "Name",
         "labelDescription": "Beschreibung",
         "messageEmptyTitle": "Noch keine Rollen vorhanden",
+        "messageEmptySubline": "Erstelle Rollen, um Benutzerrechte zu organisieren.",
         "contextMenuEdit": "Bearbeiten",
         "contextMenuDelete": "Löschen",
         "titleModalDelete": "Rolle löschen",
@@ -21,10 +22,10 @@
         "labelButtonDelete": "Löschen",
         "notification": {
           "deleteSuccess":  {
-            "message": "Die Rolle \"{name}\" wurde erfolgreich gelöscht."
+            "message": "Rolle \"{name}\" gelöscht."
           },
           "deleteError": {
-            "message": "Beim Löschen der Rolle \"{name}\" ist ein Fehler aufgetreten."
+            "message": "Die Rolle \"{name}\" konnte nicht gelöscht werden."
           }
         }
       },
@@ -47,7 +48,7 @@
       },
       "view": {
         "detailed": {
-          "alertText": "In dieser Ansicht können Privilegien detailliert konfiguriert werden. Diese Konfiguration ist nur in Ausnahmesituationen notwendig. Sollten im System z. B. Erweiterungen eingesetzt werden die neue Datensätze hinzufügen jedoch keine Rechte hierfür vergeben haben, können diese hier konfiguriert werden. Alle deaktivierten Checkboxen sind Berechtigungen, die bereits im Tab “Allgemein” vergeben wurden."
+          "alertText": "In dieser Ansicht kannst Du Privilegien detailliert konfigurieren. Alle deaktivierten Checkboxen sind Berechtigungen, die durch Auswahlen im Tab \"Allgemein\" gesetzt wurden und sind dadurch nicht veränderbar. Konfiguration an dieser Stelle sind notwendig, wenn im System z. B. Erweiterungen eingesetzt werden die neue Datensätze hinzufügen jedoch keine Rechte hierfür vergeben haben."
         }
       },
       "tabs": {
@@ -60,7 +61,7 @@
         "mainMenuItemGeneral": "Benutzer & Rechte",
         "placeholderSearchBar": "Finde Benutzer ...",
         "labelUserList": "Benutzer & Rechte",
-        "labelCreateNewUser": "Neuer Benutzer",
+        "labelCreateNewUser": "Benutzer erstellen",
         "cardLabel": "Benutzer"
       },
       "user-grid": {
@@ -78,10 +79,10 @@
         "labelButtonDelete": "Löschen",
         "notification": {
           "deleteSuccess": {
-            "message": "Der Benutzer \"{name}\" wurde erfolgreich gelöscht."
+            "message": "Benutzer \"{name}\" gelöscht."
           },
           "deleteError": {
-            "message": "Beim Löschen des Benutzers \"{name}\" ist ein Fehler aufgetreten."
+            "message": "Der Benutzer \"{name}\" konnte nicht gelöscht werden."
           },
           "deleteUserLoggedInError": {
             "message": "Benutzer können sich nicht selbst löschen."
@@ -103,22 +104,24 @@
         "labelLanguagePlaceholder": "Sprache auswählen ...",
         "labelChangePassword": "Passwort ändern",
         "labelAdministrator": "Administrator",
-        "labelJobTitle": "Job Titel",
+        "labelJobTitle": "Job-Titel",
         "labelRoles": "Rollen",
         "labelNewPassword": "Neues Passwort",
         "labelNewUser": "Neuer Benutzer",
         "placeholderNewPassword": "Neues Passwort eingeben ...",
-        "placeholderNewPasswordConfirm": "Neues Passwort erneut eingeben ...",
+        "placeholderNewPasswordConfirm": "Neues Passwort bestätigen ...",
         "labelButtonCancel": "Abbrechen",
         "labelButtonChangePassword": "Ändern",
         "labelButtonSave": "Speichern",
+        "writeAccess": "Schreiben",
+        "readAccess": "Lesen",
         "contextMenuEdit": "Bearbeiten",
         "contextMenuDelete": "Löschen",
         "textChangePassword": "Mit einem Klick auf 'Ändern' wird das Passwort direkt gespeichert!",
-        "addAccessKey": "Neuer Zugangsschlüssel",
+        "addAccessKey": "Zugangsschlüssel erstellen",
         "labelAccessKey": "Zugangsschlüssel",
         "labelPermissions": "Berechtigungen",
-        "disabledRoleSelectWarning": "Rollen sind nur für Benutzer verfügbar, die kein \"Administrator\" sind.",
+        "disabledRoleSelectWarning": "Rollen sind nur für Benutzer verfügbar, die keine Administrator-Rechte haben.",
         "passwordConfirmation": {
           "titleConfirmPasswordModal": "Gib Dein Passwort zur Bestätigung ein",
           "labelConfirmPassword": "Passwort",
@@ -139,22 +142,22 @@
           "buttonCreateNewApiKeys": "API-Zugangsdaten neu generieren",
           "hintCreateNewApiKeys": "Die Neugenerierung der API-Zugangsdaten erfordert die Aktualisierung aller zugehörigen Skripte oder Anwendungen.",
           "labelFieldLabel": "Name",
-          "idFieldLabel": "Zugangs-ID",
+          "idFieldLabel": "Zugangsschlüssel-ID",
           "secretFieldLabel": "Sicherheitsschlüssel",
-          "secretHelpText": "Bitte kopiere Deinen Sicherheitsschlüssel jetzt. Nach dem Speichern wird dieser aus Sicherheitsgründen nicht wieder angezeigt.",
-          "messageSaveSuccess": "Integration erfolgreich gespeichert.",
+          "secretHelpText": "Bitte kopiere Deinen Sicherheitsschlüssel jetzt! Nach dem Speichern wird dieser aus Sicherheitsgründen nicht wieder angezeigt.",
+          "messageSaveSuccess": "Integration gespeichert.",
           "messageSaveError": "Die Integration konnte nicht gespeichert werden.",
           "messageCreateNewError": "Die Integration konnte nicht erstellt werden."
         },
         "notification": {
           "saveError": {
-            "message": "Beim Speichern des Benutzers \"{name}\" ist ein Fehler aufgetreten."
+            "message": "Der Benutzers \"{name}\" konnte nicht gespeichert werden."
           },
           "saveSuccess": {
-            "message": "Der Benutzer \"{name}\" wurde erfolgreich gespeichert."
+            "message": "Benutzer \"{name}\" gespeichert."
           },
           "invalidEmailErrorMessage": "Bitte gib eine gültige E-Mail-Adresse ein.",
-          "duplicateEmailErrorMessage": "Deine E-Mail-Adresse wird bereits verwendet."
+          "duplicateEmailErrorMessage": "Diese E-Mail-Adresse wird bereits verwendet."
         }
       }
     }

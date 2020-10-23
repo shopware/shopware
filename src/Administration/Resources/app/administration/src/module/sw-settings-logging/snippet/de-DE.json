@@ -1,7 +1,7 @@
 {
   "sw-settings-logging": {
     "general": {
-      "mainMenuItemGeneral": "Logging",
+      "mainMenuItemGeneral": "Ereignis-Logs",
       "placeholderSearchBar": "Logs durchsuchen ..."
     },
     "list": {
@@ -10,11 +10,11 @@
       "columnMessage": "Nachricht",
       "columnLevel": "Priorität",
       "columnContent": "Inhalt",
-      "actionShowInfo": "Zeige Details ...",
+      "actionShowInfo": "Details anzeigen ...",
       "levelDebug": "Debug",
       "levelInfo": "Info",
       "levelNotice": "Hinweis",
-      "levelWarning": "Warning",
+      "levelWarning": "Warnung",
       "levelError": "Fehler",
       "levelCritical": "Kritisch",
       "levelAlert": "Alarm",
@@ -27,7 +27,7 @@
     },
     "mailInfo": {
       "tabHTML": "HTML",
-      "tabPlain": "Plain",
+      "tabPlain": "Klartext",
       "recipientsTitle": "Empfänger",
       "contentsTitle": "Inhalt"
     }
@@ -35,7 +35,7 @@
   "sw-privileges": {
     "additional_permissions": {
       "system": {
-        "logging": "Logging"
+        "logging": "Ereignis-Logs"
       }
     }
   }

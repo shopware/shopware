@@ -391,7 +391,7 @@
     },
     "additional_permissions": {
       "orders": {
-        "create_discounts": "Rabatte erstellen"
+        "create_discounts": "Gutschriften erstellen"
       }
     }
   }

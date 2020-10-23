@@ -1,5 +1,4 @@
 import EntityStore from 'src/core/data/EntityStore';
-// eslint-disable-next-line
 import EventEmitter from 'events';
 
 const { StateDeprecated } = Shopware;

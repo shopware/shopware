@@ -1,4 +1,3 @@
-// eslint-disable-next-line
 import EventEmitter from 'events';
 import CodeGenerator from '../service/code-generator.service';
 import Criteria from '../../../core/data-new/criteria.data';

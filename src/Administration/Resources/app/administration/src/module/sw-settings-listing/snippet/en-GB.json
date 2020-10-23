@@ -6,7 +6,7 @@
       "description": "Manage the display of products here.",
       "buttonSave": "Save",
       "messageSaveSuccess": "Configuration saved.",
-      "messageSaveError": "An error occurred while saving the configuration.",
+      "messageSaveError": "Configuration could not be saved.",
       "labelDefaultSorting": "Default sorting",
       "placeholderDefaultSorting": "Select a default sorting...",
       "productSortingCriteriaGrid": {
@@ -16,12 +16,12 @@
           "priority": "Priority"
         },
         "options": {
-          "criteriaAlreadyUsed": "The \"{criteriaName}\" option is already being used.",
+          "criteriaAlreadyUsed": "The sorting criterion \"{criteriaName}\" is already in use.",
           "customFieldCriteriaNotNull": "Please choose a valid custom field.",
           "label": {
             "product": {
               "name": "Product name",
-              "ratingAverage": "Average rating",
+              "ratingAverage": "Product rating",
               "productNumber": "Product number",
               "releaseDate": "Release date",
               "stock": "Product stock",
@@ -67,8 +67,8 @@
         "labelActive": "Active"
       },
       "notification": {
-        "saveSuccess": "Successfully saved \"{sortingOptionName}\" sorting option.",
-        "saveError": "There was an error while saving the sorting option \"{sortingOptionName}\"."
+        "saveSuccess": "Sorting option \"{sortingOptionName}\" saved.",
+        "saveError": "The sorting option \"{sortingOptionName}\" could not be saved."
       },
       "criteria": {
         "title": "Sorting criteria",

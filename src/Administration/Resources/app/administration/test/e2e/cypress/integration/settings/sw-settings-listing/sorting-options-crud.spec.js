@@ -105,7 +105,7 @@ describe('Listing: Test crud operations', () => {
 
         // add rating as criteria
         cy.get('.sw-single-select')
-            .typeSingleSelect('Average rating', '.sw-single-select');
+            .typeSingleSelect('Product rating', '.sw-single-select');
 
         // save changes
         cy.get('.sw-button')

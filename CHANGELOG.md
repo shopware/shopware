@@ -142,6 +142,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-11411 - Fix notifications for missing configurations in cms](/changelog/release-6-3-3-0/2020-10-16-fix-notifications-for-missing-configurations-in-cms.md)
 *  [NEXT-10286 - Release app system](/changelog/release-6-3-3-0/2020-10-16-release-app-system.md)
 *  [NEXT-11467 - Fix spelling in ACL module](/changelog/release-6-3-3-0/2020-10-19-fix-spelling-in-acl-module.md)
+*  [NEXT-11468 - Fix struct encoding of extensions](/changelog/release-6-3-3-0/2020-10-21-fix-struct-encoding-of-extensions.md)
 *  [NEXT-11260 - set admin flag to all users](/changelog/release-6-3-3-0/2020-25-10-release-acl.md)
 
 ## 6.3.2.0

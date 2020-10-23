@@ -41,7 +41,7 @@ class LogEntryDefinition extends EntityDefinition
             new IntField('level', 'level'),
             new StringField('channel', 'channel'),
             (new JsonField('context', 'context'))->addFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
-            (new JsonField('extra', 'extra'))->addFlags(new SearchRanking(SearchRanking::LOW_SEARCH_RAKING)),
+            (new JsonField('extra', 'extra'))->addFlags(new SearchRanking(SearchRanking::LOW_SEARCH_RANKING)),
 
             new CreatedAtField(),
         ]);

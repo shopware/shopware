@@ -70,7 +70,7 @@ class ShippingMethodDefinition extends EntityDefinition
             new FkField('media_id', 'mediaId', MediaDefinition::class),
             (new FkField('delivery_time_id', 'deliveryTimeId', DeliveryTimeDefinition::class))->addFlags(new Required()),
             new ManyToOneAssociationField('deliveryTime', 'delivery_time_id', DeliveryTimeDefinition::class, 'id', true),
-            (new TranslatedField('description'))->addFlags(new SearchRanking(SearchRanking::LOW_SEARCH_RAKING)),
+            (new TranslatedField('description'))->addFlags(new SearchRanking(SearchRanking::LOW_SEARCH_RANKING)),
             new TranslatedField('trackingUrl'),
             (new TranslationsAssociationField(ShippingMethodTranslationDefinition::class, 'shipping_method_id'))->addFlags(new Required()),
             new ManyToOneAssociationField('availabilityRule', 'availability_rule_id', RuleDefinition::class),

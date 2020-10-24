@@ -7636,16 +7636,6 @@ parameters:
 			path: src/Storefront/Theme/Twig/ThemeInheritanceBuilder.php
 
 		-
-			message: "#^Cannot call method find\\(\\) on Symfony\\\\Component\\\\Console\\\\Application\\|null\\.$#"
-			count: 1
-			path: ../src/Command/ConfigDebugCommand.php
-
-		-
-			message: "#^Method Shopware\\\\Development\\\\Command\\\\DatabaseDebugViewGenerator\\:\\:updateDatabaseView\\(\\) has parameter \\$tableName with no typehint specified\\.$#"
-			count: 1
-			path: ../src/Command/DatabaseDebugViewGenerator.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\LogoutRoute\\:\\:logout\\(\\) has no return typehint specified\\.$#"
 			count: 1
 			path: src/Core/Checkout/Customer/SalesChannel/LogoutRoute.php

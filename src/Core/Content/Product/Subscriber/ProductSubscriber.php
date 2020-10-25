@@ -49,7 +49,6 @@ class ProductSubscriber implements EventSubscriberInterface
         $sorted = [];
         foreach ($properties as $option) {
             $origin = $option->getGroup();
-
             if (!$origin) {
                 continue;
             }
@@ -59,9 +58,16 @@ class ProductSubscriber implements EventSubscriberInterface
                 $group->setOptions(new PropertyGroupOptionCollection());
             }
 
-            $group->getOptions()->add($option);
+            $groupId = $group->getId();
+            if (array_key_exists($groupId, $sorted)) {
+                $group = $sorted[$groupId];
+                $group->getOptions()->add($option);
+                $sorted[$groupId] = $group;
+                continue;
+            }
 
-            $sorted[$group->getId()] = $group;
+            $group->getOptions()->add($option);
+            $sorted[$groupId] = $group;
         }
 
         $collection = new PropertyGroupCollection($sorted);

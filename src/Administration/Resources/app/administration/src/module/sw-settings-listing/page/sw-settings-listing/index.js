@@ -221,7 +221,13 @@ Component.register('sw-settings-listing', {
             const technicalName = this.stripCustomFieldPath(criteriaName);
             const customField = this.getCustomFieldByName(technicalName);
 
-            return this.getInlineSnippet(customField.config.label);
+            const inlineSnippet = this.getInlineSnippet(customField.config.label);
+
+            if (inlineSnippet === null) {
+                return technicalName;
+            }
+
+            return inlineSnippet;
         },
 
         getCustomFieldByName(technicalName) {

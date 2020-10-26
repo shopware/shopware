@@ -36,12 +36,7 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
     /**
      * @var bool
      */
-    protected $isCalculated;
-
-    /**
-     * @var int
-     */
-    protected $precision;
+    protected $isCalculated = true;
 
     /**
      * @var ReferencePriceDefinition|null
@@ -53,30 +48,11 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
      */
     protected $listPrice;
 
-    /**
-     * @deprecated tag:v6.4.0 - Use `\Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition::create`
-     */
-    public function __construct(
-        float $price,
-        TaxRuleCollection $taxRules,
-        int $precision,
-        int $quantity = 1,
-        bool $isCalculated = false,
-        ?ReferencePriceDefinition $referencePrice = null,
-        ?float $listPrice = null
-    ) {
+    public function __construct(float $price, TaxRuleCollection $taxRules, int $quantity = 1)
+    {
         $this->price = $price;
         $this->taxRules = $taxRules;
         $this->quantity = $quantity;
-        $this->precision = $precision;
-        $this->isCalculated = $isCalculated;
-        $this->referencePriceDefinition = $referencePrice;
-        $this->listPrice = $listPrice;
-    }
-
-    public static function create(float $price, TaxRuleCollection $taxRules, int $quantity = 1)
-    {
-        return new self($price, $taxRules, 2, $quantity, true);
     }
 
     public function getPrice(): float
@@ -104,19 +80,6 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
         $this->quantity = $quantity;
     }
 
-    public function getPrecision(): int
-    {
-        return $this->precision;
-    }
-
-    /**
-     * @deprecated tag:v6.4.0 - Will be removed. Currency precision will only be tracked in CashRoundingConfig.
-     */
-    public function setPrecision(int $precision): void
-    {
-        $this->precision = $precision;
-    }
-
     public static function fromArray(array $data): self
     {
         $taxRules = array_map(
@@ -129,17 +92,16 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
             $data['taxRules']
         );
 
-        $data['precision'] = $data['precision'] ?? 2;
-
-        return new self(
+        $self = new self(
             (float) $data['price'],
             new TaxRuleCollection($taxRules),
-            (int) $data['precision'],
-            array_key_exists('quantity', $data) ? $data['quantity'] : 1,
-            array_key_exists('isCalculated', $data) ? $data['isCalculated'] : false,
-            null,
-            isset($data['listPrice']) ? (float) $data['listPrice'] : null
+            array_key_exists('quantity', $data) ? $data['quantity'] : 1
         );
+
+        $self->setIsCalculated(array_key_exists('isCalculated', $data) ? $data['isCalculated'] : false);
+        $self->setListPrice(isset($data['listPrice']) ? (float) $data['listPrice'] : null);
+
+        return $self;
     }
 
     public function jsonSerialize(): array
@@ -166,7 +128,6 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
             'price' => [new NotBlank(), new Type('numeric')],
             'quantity' => [new Type('int')],
             'isCalculated' => [new Type('bool')],
-            'precision' => [new NotBlank(), new Type('int')],
         ];
     }
 

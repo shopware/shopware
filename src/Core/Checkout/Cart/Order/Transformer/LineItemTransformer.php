@@ -8,32 +8,25 @@ use Shopware\Core\Checkout\Cart\Order\IdStruct;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 class LineItemTransformer
 {
     private const LINE_ITEM_PLACEHOLDER = 'lineItemPlaceholder';
 
-    /**
-     * @deprecated tag:v6.4.0 - Parameter `$context` will be removed
-     */
-    public static function transformCollection(LineItemCollection $lineItems, ?string $parentId = null, ?Context $context = null): array
+    public static function transformCollection(LineItemCollection $lineItems, ?string $parentId = null): array
     {
         $output = [];
         $position = 1;
         foreach ($lineItems as $lineItem) {
-            $output = array_replace($output, self::transform($lineItem, $parentId, $position, $context));
+            $output = array_replace($output, self::transform($lineItem, $parentId, $position));
             ++$position;
         }
 
         return $output;
     }
 
-    /**
-     * @deprecated tag:v6.4.0 - Parameter `$context` will be removed
-     */
-    public static function transform(LineItem $lineItem, ?string $parentId = null, int $position = 1, ?Context $context = null): array
+    public static function transform(LineItem $lineItem, ?string $parentId = null, int $position = 1): array
     {
         $output = [];
         /** @var IdStruct|null $idStruct */
@@ -50,10 +43,6 @@ class LineItemTransformer
         }
 
         $definition = $lineItem->getPriceDefinition();
-
-        if ($context && $definition && method_exists($lineItem, 'setPrecision')) {
-            $definition->setPrecision($context->getCurrencyPrecision());
-        }
 
         $data = [
             'id' => $id,
@@ -80,7 +69,7 @@ class LineItemTransformer
         });
 
         if ($lineItem->hasChildren()) {
-            $output = array_merge($output, self::transformCollection($lineItem->getChildren(), $id, $context));
+            $output = array_merge($output, self::transformCollection($lineItem->getChildren(), $id));
         }
 
         return $output;

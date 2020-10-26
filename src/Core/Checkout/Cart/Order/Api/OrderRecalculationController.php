@@ -111,7 +111,7 @@ class OrderRecalculationController extends AbstractController
         $lineItem->setPayload($payload);
 
         $lineItem->setPriceDefinition(
-            AbsolutePriceDefinition::create(
+            new AbsolutePriceDefinition(
                 $priceDefinition['price'],
                 new LineItemOfTypeRule(Rule::OPERATOR_NEQ, $type)
             )
@@ -144,7 +144,7 @@ class OrderRecalculationController extends AbstractController
         $lineItem = (new LineItem($identifier, $type, null, $quantity))
             ->setStackable(true)
             ->setRemovable(true);
-        $this->updateLineItemByRequest($request, $lineItem, $context);
+        $this->updateLineItemByRequest($request, $lineItem);
 
         $this->recalculationService->addCustomLineItem($orderId, $lineItem, $context);
 
@@ -167,7 +167,7 @@ class OrderRecalculationController extends AbstractController
     /**
      * @throws InvalidPayloadException
      */
-    private function updateLineItemByRequest(Request $request, LineItem $lineItem, Context $context): void
+    private function updateLineItemByRequest(Request $request, LineItem $lineItem): void
     {
         $label = $request->request->get('label');
         $description = $request->request->get('description');
@@ -182,7 +182,6 @@ class OrderRecalculationController extends AbstractController
         $lineItem->setStackable($stackable);
         $lineItem->setPayload($payload);
 
-        $priceDefinition['precision'] = $priceDefinition['precision'] ?? $context->getCurrencyPrecision();
         $lineItem->setPriceDefinition(QuantityPriceDefinition::fromArray($priceDefinition));
     }
 }

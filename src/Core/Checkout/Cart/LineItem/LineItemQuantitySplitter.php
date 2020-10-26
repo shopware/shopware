@@ -38,7 +38,7 @@ class LineItemQuantitySplitter
         // change the quantity to 1 single item
         $tmpItem->setQuantity($quantity);
 
-        $definition = QuantityPriceDefinition::create($unitPrice, $taxRules, $tmpItem->getQuantity());
+        $definition = new QuantityPriceDefinition($unitPrice, $taxRules, $tmpItem->getQuantity());
 
         $price = $this->quantityPriceCalculator->calculate($definition, $context);
 

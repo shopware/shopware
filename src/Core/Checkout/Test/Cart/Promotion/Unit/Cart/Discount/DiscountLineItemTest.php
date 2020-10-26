@@ -18,7 +18,7 @@ class DiscountLineItemTest extends TestCase
     {
         $this->discount = new DiscountLineItem(
             'Black Friday',
-            QuantityPriceDefinition::create(29, new TaxRuleCollection()),
+            new QuantityPriceDefinition(29, new TaxRuleCollection()),
             [
                 'discountScope' => 'cart',
                 'discountType' => 'absolute',

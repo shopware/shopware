@@ -30,14 +30,8 @@ class GrossPriceCalculator
         $this->priceRounding = $priceRounding;
     }
 
-    /**
-     * @deprecated tag:v6.4.0 - `$config` parameter will be required
-     */
-    public function calculate(QuantityPriceDefinition $definition, ?CashRoundingConfig $config = null): CalculatedPrice
+    public function calculate(QuantityPriceDefinition $definition, CashRoundingConfig $config): CalculatedPrice
     {
-        // @deprecated tag:v6.4.0 - `$config` parameter will be required
-        $config = $config ?? new CashRoundingConfig($definition->getPrecision(), 0.01, true);
-
         $unitPrice = $this->getUnitPrice($definition, $config);
 
         $unitTaxes = $this->taxCalculator->calculateGrossTaxes($unitPrice, $definition->getTaxRules());

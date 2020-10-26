@@ -335,7 +335,7 @@ class PromotionDeliveryCalculator
             // beware that our discount may not reduce shipping costs beneath 0
             if ($reduceValue >= $deliveryShippingPrice) {
                 // would reduce shipping costs under 0, only discount delivery shipping costs
-                $calculateDefinition = QuantityPriceDefinition::create(-1 * $deliveryShippingPrice, $delivery->getShippingCosts()->getTaxRules());
+                $calculateDefinition = new QuantityPriceDefinition(-1 * $deliveryShippingPrice, $delivery->getShippingCosts()->getTaxRules());
                 // add a discount delivery item to the collection
                 $this->addDiscountDeliveryItem($deliveries, $delivery, $this->quantityPriceCalculator->calculate($calculateDefinition, $context));
                 $deliveryAdded = true;
@@ -346,7 +346,7 @@ class PromotionDeliveryCalculator
             }
 
             // we may reduce shipping costs by reduceValue
-            $calculateDefinition = QuantityPriceDefinition::create(-1 * $reduceValue, $delivery->getShippingCosts()->getTaxRules());
+            $calculateDefinition = new QuantityPriceDefinition(-1 * $reduceValue, $delivery->getShippingCosts()->getTaxRules());
             // add a discount delivery item to the collection
             $this->addDiscountDeliveryItem($deliveries, $delivery, $this->quantityPriceCalculator->calculate($calculateDefinition, $context));
             $deliveryAdded = true;
@@ -388,7 +388,7 @@ class PromotionDeliveryCalculator
                 $discountPrice = $maxReducedPrice;
             }
 
-            $calculateDefinition = QuantityPriceDefinition::create(-1 * $discountPrice, $delivery->getShippingCosts()->getTaxRules());
+            $calculateDefinition = new QuantityPriceDefinition(-1 * $discountPrice, $delivery->getShippingCosts()->getTaxRules());
             // add a discount delivery item to the collection
             $this->addDiscountDeliveryItem($deliveries, $delivery, $this->quantityPriceCalculator->calculate($calculateDefinition, $context));
             $deliveryAdded = true;
@@ -436,7 +436,7 @@ class PromotionDeliveryCalculator
             // beware that our discount may not reduce shipping costs beneath 0
             if ($dynamicDiscountPriceValue >= $deliveryShippingPrice) {
                 // would reduce shipping costs under 0, only discount delivery shipping costs
-                $calculateDefinition = QuantityPriceDefinition::create(-1 * $deliveryShippingPrice, $delivery->getShippingCosts()->getTaxRules());
+                $calculateDefinition = new QuantityPriceDefinition(-1 * $deliveryShippingPrice, $delivery->getShippingCosts()->getTaxRules());
                 // add a discount delivery item to the collection
                 $this->addDiscountDeliveryItem($deliveries, $delivery, $this->quantityPriceCalculator->calculate($calculateDefinition, $context));
                 $deliveryAdded = true;
@@ -447,7 +447,7 @@ class PromotionDeliveryCalculator
             }
 
             // we may reduce shipping costs by reduceValue
-            $calculateDefinition = QuantityPriceDefinition::create(-1 * $dynamicDiscountPriceValue, $delivery->getShippingCosts()->getTaxRules());
+            $calculateDefinition = new QuantityPriceDefinition(-1 * $dynamicDiscountPriceValue, $delivery->getShippingCosts()->getTaxRules());
             // add a discount delivery item to the collection
             $this->addDiscountDeliveryItem($deliveries, $delivery, $this->quantityPriceCalculator->calculate($calculateDefinition, $context));
             $deliveryAdded = true;
@@ -499,7 +499,7 @@ class PromotionDeliveryCalculator
             return;
         }
 
-        $priceDefinition = QuantityPriceDefinition::create(0, new TaxRuleCollection(), 1);
+        $priceDefinition = new QuantityPriceDefinition(0, new TaxRuleCollection(), 1);
         $price = $this->quantityPriceCalculator->calculate($priceDefinition, $context);
 
         $promotionItem = $this->builder->buildDeliveryPlaceholderLineItem($discount, $priceDefinition, $price);

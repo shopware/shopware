@@ -48,7 +48,7 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
         foreach ($prices as $price) {
             $quantity = $price->getQuantityEnd() ?? $price->getQuantityStart();
 
-            $definition = QuantityPriceDefinition::create($this->getCurrencyPrice($price, $context), $taxRules, $quantity);
+            $definition = new QuantityPriceDefinition($this->getCurrencyPrice($price, $context), $taxRules, $quantity);
             $definition->setReferencePriceDefinition($reference);
             $definitions[] = $definition;
         }
@@ -63,7 +63,7 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
         $list = $this->getListPrice($product, $context);
         $reference = $this->buildReferencePriceDefinition($product);
 
-        $definition = QuantityPriceDefinition::create($price, $context->buildTaxRules($product->getTaxId()));
+        $definition = new QuantityPriceDefinition($price, $context->buildTaxRules($product->getTaxId()));
         $definition->setReferencePriceDefinition($reference);
         $definition->setListPrice($list);
 
@@ -89,10 +89,10 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
                     $to *= $context->getContext()->getCurrencyFactor();
                 }
 
-                $from = QuantityPriceDefinition::create($from, $taxRules);
+                $from = new QuantityPriceDefinition($from, $taxRules);
                 $from->setReferencePriceDefinition($reference);
 
-                $to = QuantityPriceDefinition::create($to, $taxRules);
+                $to = new QuantityPriceDefinition($to, $taxRules);
                 $to->setReferencePriceDefinition($reference);
 
                 return ['from' => $from, 'to' => $to];
@@ -104,7 +104,7 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
         if (!$prices || count($prices) <= 0) {
             $price = $this->getProductCurrencyPrice($product, $context);
 
-            $definition = QuantityPriceDefinition::create($price, $taxRules);
+            $definition = new QuantityPriceDefinition($price, $taxRules);
             $definition->setReferencePriceDefinition($reference);
 
             return ['from' => $definition, 'to' => $definition];
@@ -120,10 +120,10 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
             $lowest = $value < $lowest ? $value : $lowest;
         }
 
-        $from = QuantityPriceDefinition::create($lowest, $taxRules);
+        $from = new QuantityPriceDefinition($lowest, $taxRules);
         $from->setReferencePriceDefinition($reference);
 
-        $to = QuantityPriceDefinition::create($highest, $taxRules);
+        $to = new QuantityPriceDefinition($highest, $taxRules);
         $to->setReferencePriceDefinition($reference);
 
         return ['from' => $from, 'to' => $to];
@@ -139,7 +139,7 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
         if (!$prices) {
             $price = $this->getProductCurrencyPrice($product, $context);
 
-            $definition = QuantityPriceDefinition::create($price, $taxRules, $quantity);
+            $definition = new QuantityPriceDefinition($price, $taxRules, $quantity);
 
             $definition->setListPrice(
                 $this->getListPrice($product, $context)
@@ -154,7 +154,7 @@ class ProductPriceDefinitionBuilder implements ProductPriceDefinitionBuilderInte
 
         $prices = $this->getQuantityPrices($prices, $quantity);
 
-        $definition = QuantityPriceDefinition::create($this->getCurrencyPrice($prices[0], $context), $taxRules, $quantity);
+        $definition = new QuantityPriceDefinition($this->getCurrencyPrice($prices[0], $context), $taxRules, $quantity);
 
         $definition->setListPrice(
             $this->getListPrice($product, $context)

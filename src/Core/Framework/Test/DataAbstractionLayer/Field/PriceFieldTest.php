@@ -252,6 +252,8 @@ EOF;
             'symbol' => 'A',
             'shortName' => 'A',
             'isoCode' => 'A',
+            'itemRounding' => json_decode(json_encode($rounding), true),
+            'totalRounding' => json_decode(json_encode($rounding), true),
         ];
 
         $this->getContainer()
@@ -481,6 +483,8 @@ EOF;
             'symbol' => 'A',
             'shortName' => 'A',
             'isoCode' => 'A',
+            'itemRounding' => json_decode(json_encode($rounding), true),
+            'totalRounding' => json_decode(json_encode($rounding), true),
         ];
 
         $this->getContainer()

@@ -176,7 +176,7 @@ class ProcessorTest extends TestCase
 
         $creditLineItem = (new LineItem($creditId, LineItem::CREDIT_LINE_ITEM_TYPE, $creditId, 1))
             ->setLabel('credit')
-            ->setPriceDefinition(new AbsolutePriceDefinition(-100, 2));
+            ->setPriceDefinition(new AbsolutePriceDefinition(-100));
 
         $cart->addLineItems(new LineItemCollection([$productLineItem, $customLineItem, $creditLineItem]));
 

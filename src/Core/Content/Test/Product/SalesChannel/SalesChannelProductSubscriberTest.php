@@ -10,6 +10,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -95,6 +96,8 @@ class SalesChannelProductSubscriberTest extends TestCase
                     'symbol' => 'XXX',
                     'isoCode' => 'XX',
                     'decimalPrecision' => 3,
+                    'itemRounding' => json_decode(json_encode(new CashRoundingConfig(3, 0.01, true)), true),
+                    'totalRounding' => json_decode(json_encode(new CashRoundingConfig(3, 0.01, true)), true),
                 ],
             ], $ids->context);
 

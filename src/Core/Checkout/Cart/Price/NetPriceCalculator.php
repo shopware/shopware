@@ -30,14 +30,8 @@ class NetPriceCalculator
         $this->priceRounding = $priceRounding;
     }
 
-    /**
-     * @deprecated tag:v6.4.0 - `$config` parameter will be required
-     */
-    public function calculate(QuantityPriceDefinition $definition, ?CashRoundingConfig $config = null): CalculatedPrice
+    public function calculate(QuantityPriceDefinition $definition, CashRoundingConfig $config): CalculatedPrice
     {
-        // @deprecated tag:v6.4.0 - `$config` parameter will be required
-        $config = $config ?? new CashRoundingConfig($definition->getPrecision(), 0.01, true);
-
         $unitPrice = $this->round($definition->getPrice(), $config);
 
         $taxRules = $definition->getTaxRules();

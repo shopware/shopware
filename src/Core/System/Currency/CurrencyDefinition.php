@@ -10,7 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CashRoundingConfigField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deprecated;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -54,8 +53,6 @@ class CurrencyDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        $decimalsField = (new IntField('decimal_precision', 'decimalPrecision'))->addFlags(new Required());
-
         $fields = new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new FloatField('factor', 'factor'))->addFlags(new Required()),
@@ -77,22 +74,23 @@ class CurrencyDefinition extends EntityDefinition
         ]);
 
         if (Feature::isActive('FEATURE_NEXT_6059')) {
-            $decimalsField = (new IntField('decimal_precision', 'decimalPrecision'))
-                ->addFlags(new Deprecated('v6.3.0', 'v6.4.0', 'itemRounding'));
-
             $fields->add(
-                new CashRoundingConfigField('item_rounding', 'itemRounding')
+                (new CashRoundingConfigField('item_rounding', 'itemRounding'))->addFlags(new Required())
             );
             $fields->add(
-                new CashRoundingConfigField('total_rounding', 'totalRounding')
+                (new CashRoundingConfigField('total_rounding', 'totalRounding'))->addFlags(new Required())
             );
             $fields->add(
                 (new OneToManyAssociationField('countryRoundings', CurrencyCountryRoundingDefinition::class, 'currency_id'))
                     ->addFlags(new CascadeDelete())
             );
-        }
 
-        $fields->add($decimalsField);
+            $fields->add(new IntField('decimal_precision', 'decimalPrecision'));
+        } else {
+            $fields->add(
+                (new IntField('decimal_precision', 'decimalPrecision'))->addFlags(new Required())
+            );
+        }
 
         return $fields;
     }

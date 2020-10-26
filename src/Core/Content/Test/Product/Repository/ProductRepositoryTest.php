@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -118,6 +119,8 @@ class ProductRepositoryTest extends TestCase
                     'symbol' => 'A',
                     'isoCode' => 'A',
                     'decimalPrecision' => 2,
+                    'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
+                    'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
                 ],
             ],
             $this->context

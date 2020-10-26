@@ -29,7 +29,7 @@ class ReferencePriceCalculatorTest extends TestCase
 
     public function testNoReferencePriceWithoutDefinition(): void
     {
-        $definition = QuantityPriceDefinition::create(123.3, new TaxRuleCollection());
+        $definition = new QuantityPriceDefinition(123.3, new TaxRuleCollection());
 
         $referencePrice = $this->calculator->calculate($definition, new CashRoundingConfig(2, 0.01, true));
 
@@ -47,7 +47,7 @@ class ReferencePriceCalculatorTest extends TestCase
             'Liter'
         );
 
-        $quantityPriceDefinition = QuantityPriceDefinition::create($price, new TaxRuleCollection());
+        $quantityPriceDefinition = new QuantityPriceDefinition($price, new TaxRuleCollection());
         $quantityPriceDefinition->setReferencePriceDefinition($referencePriceDefinition);
         $quantityPriceDefinition->setIsCalculated(false);
 

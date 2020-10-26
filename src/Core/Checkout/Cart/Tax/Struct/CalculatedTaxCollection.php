@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Cart\Tax\Struct;
 
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
-use Shopware\Core\Checkout\Cart\Price\PriceRoundingInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Struct\Collection;
 
@@ -84,19 +83,7 @@ class CalculatedTaxCollection extends Collection
         return $new;
     }
 
-    /**
-     * @deprecated tag:v6.4.0 - Use `mathRound` instead
-     */
-    public function round(PriceRoundingInterface $priceRounding, int $precision): void
-    {
-        foreach ($this->elements as $tax) {
-            $tax->setTax(
-                $priceRounding->round($tax->getTax(), $precision)
-            );
-        }
-    }
-
-    public function mathRound(CashRounding $rounding, CashRoundingConfig $config): void
+    public function round(CashRounding $rounding, CashRoundingConfig $config): void
     {
         foreach ($this->elements as $tax) {
             $tax->setTax(

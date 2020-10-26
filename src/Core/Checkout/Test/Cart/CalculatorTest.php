@@ -51,7 +51,7 @@ class CalculatorTest extends TestCase
         $cart = new Cart('test', 'test');
 
         $lineItem = (new LineItem('A', 'test'))
-            ->setPriceDefinition(QuantityPriceDefinition::create(100, new TaxRuleCollection([])));
+            ->setPriceDefinition(new QuantityPriceDefinition(100, new TaxRuleCollection([])));
 
         $cart->add($lineItem);
 
@@ -66,7 +66,7 @@ class CalculatorTest extends TestCase
         $cart = new Cart('test', 'test');
 
         $lineItem = (new LineItem('A', 'test', null, 2))
-            ->setPriceDefinition(QuantityPriceDefinition::create(100, new TaxRuleCollection([]), 2));
+            ->setPriceDefinition(new QuantityPriceDefinition(100, new TaxRuleCollection([]), 2));
 
         $cart->add($lineItem);
 
@@ -81,12 +81,12 @@ class CalculatorTest extends TestCase
         $cart = new Cart('test', 'test');
 
         $lineItem = (new LineItem('A', 'test', null, 2))
-            ->setPriceDefinition(QuantityPriceDefinition::create(100, new TaxRuleCollection(), 2));
+            ->setPriceDefinition(new QuantityPriceDefinition(100, new TaxRuleCollection(), 2));
 
         $cart->add($lineItem);
 
         $lineItem = (new LineItem('B', 'test'))
-            ->setPriceDefinition(PercentagePriceDefinition::create(-10));
+            ->setPriceDefinition(new PercentagePriceDefinition(-10));
 
         $cart->add($lineItem);
 
@@ -102,12 +102,12 @@ class CalculatorTest extends TestCase
         $cart = new Cart('test', 'test');
 
         $lineItem = (new LineItem('A', 'test', null, 2))
-            ->setPriceDefinition(QuantityPriceDefinition::create(100, new TaxRuleCollection(), 2));
+            ->setPriceDefinition(new QuantityPriceDefinition(100, new TaxRuleCollection(), 2));
 
         $cart->add($lineItem);
 
         $lineItem = (new LineItem('B', 'test'))
-            ->setPriceDefinition(PercentagePriceDefinition::create(-10));
+            ->setPriceDefinition(new PercentagePriceDefinition(-10));
 
         $cart->add($lineItem);
 
@@ -123,12 +123,12 @@ class CalculatorTest extends TestCase
         $cart = new Cart('test', 'test');
 
         $lineItem = (new LineItem('A', 'test', null, 2))
-            ->setPriceDefinition(QuantityPriceDefinition::create(100, new TaxRuleCollection([]), 2));
+            ->setPriceDefinition(new QuantityPriceDefinition(100, new TaxRuleCollection([]), 2));
 
         $cart->add($lineItem);
 
         $lineItem = (new LineItem('B', 'test'))
-            ->setPriceDefinition(AbsolutePriceDefinition::create(-15));
+            ->setPriceDefinition(new AbsolutePriceDefinition(-15));
 
         $cart->add($lineItem);
 
@@ -144,18 +144,18 @@ class CalculatorTest extends TestCase
         $cart = new Cart('test', 'test');
 
         $lineItem = (new LineItem('A', 'test'))
-            ->setPriceDefinition(QuantityPriceDefinition::create(100, new TaxRuleCollection()));
+            ->setPriceDefinition(new QuantityPriceDefinition(100, new TaxRuleCollection()));
 
         $cart->add($lineItem);
 
         $lineItem = (new LineItem('B', 'product', null, 2))
-            ->setPriceDefinition(QuantityPriceDefinition::create(100, new TaxRuleCollection(), 2));
+            ->setPriceDefinition(new QuantityPriceDefinition(100, new TaxRuleCollection(), 2));
 
         $cart->add($lineItem);
 
         $lineItem = (new LineItem('C', 'test'))
             ->setPriceDefinition(
-                PercentagePriceDefinition::create(
+                new PercentagePriceDefinition(
                     -10,
                     new AndRule([
                         (new LineItemOfTypeRule())->assign(['lineItemType' => 'product']), ])
@@ -178,19 +178,19 @@ class CalculatorTest extends TestCase
 
         $lineItem = new LineItem('A', 'test');
         $lineItem->setPriceDefinition(
-            QuantityPriceDefinition::create(100, new TaxRuleCollection([]))
+            new QuantityPriceDefinition(100, new TaxRuleCollection([]))
         );
         $cart->add($lineItem);
 
         $lineItem = new LineItem('B', 'product', null, 2);
         $lineItem->setPriceDefinition(
-            QuantityPriceDefinition::create(100, new TaxRuleCollection([]), 2)
+            new QuantityPriceDefinition(100, new TaxRuleCollection([]), 2)
         );
         $cart->add($lineItem);
 
         $lineItem = new LineItem('C', 'test');
         $lineItem->setPriceDefinition(
-            AbsolutePriceDefinition::create(
+            new AbsolutePriceDefinition(
                 -10,
                 new AndRule([(new LineItemOfTypeRule())->assign(['lineItemType' => 'product'])])
             )
@@ -210,10 +210,10 @@ class CalculatorTest extends TestCase
         $lineItem = new LineItem('A', 'test');
 
         $product = new LineItem('B', 'product-1');
-        $product->setPriceDefinition(QuantityPriceDefinition::create(100, new TaxRuleCollection()));
+        $product->setPriceDefinition(new QuantityPriceDefinition(100, new TaxRuleCollection()));
 
         $discount = new LineItem('C', 'discount-1');
-        $discount->setPriceDefinition(PercentagePriceDefinition::create(-10));
+        $discount->setPriceDefinition(new PercentagePriceDefinition(-10));
 
         $children = new LineItemCollection([$product, $discount]);
 
@@ -237,35 +237,35 @@ class CalculatorTest extends TestCase
         $nested = (new LineItem('A', 'container'))->assign([
             'children' => new LineItemCollection([
                 (new LineItem('P1', 'product'))->assign([
-                    'priceDefinition' => QuantityPriceDefinition::create(100, new TaxRuleCollection()),
+                    'priceDefinition' => new QuantityPriceDefinition(100, new TaxRuleCollection()),
                 ]),
                 (new LineItem('P2', 'product'))->assign([
-                    'priceDefinition' => QuantityPriceDefinition::create(100, new TaxRuleCollection()),
+                    'priceDefinition' => new QuantityPriceDefinition(100, new TaxRuleCollection()),
                 ]),
                 (new LineItem('D', 'discount'))->assign([
-                    'priceDefinition' => PercentagePriceDefinition::create(-10),
+                    'priceDefinition' => new PercentagePriceDefinition(-10),
                 ]),
                 (new LineItem('B', 'container'))->assign([
                     'children' => new LineItemCollection([
                         (new LineItem('P1', 'product'))->assign([
-                            'priceDefinition' => QuantityPriceDefinition::create(100, new TaxRuleCollection()),
+                            'priceDefinition' => new QuantityPriceDefinition(100, new TaxRuleCollection()),
                         ]),
                         (new LineItem('P2', 'product'))->assign([
-                            'priceDefinition' => QuantityPriceDefinition::create(100, new TaxRuleCollection()),
+                            'priceDefinition' => new QuantityPriceDefinition(100, new TaxRuleCollection()),
                         ]),
                         (new LineItem('D', 'discount'))->assign([
-                            'priceDefinition' => PercentagePriceDefinition::create(-10),
+                            'priceDefinition' => new PercentagePriceDefinition(-10),
                         ]),
                         (new LineItem('C', 'container'))->assign([
                             'children' => new LineItemCollection([
                                 (new LineItem('P1', 'product'))->assign([
-                                    'priceDefinition' => QuantityPriceDefinition::create(100, new TaxRuleCollection()),
+                                    'priceDefinition' => new QuantityPriceDefinition(100, new TaxRuleCollection()),
                                 ]),
                                 (new LineItem('P2', 'product'))->assign([
-                                    'priceDefinition' => QuantityPriceDefinition::create(100, new TaxRuleCollection()),
+                                    'priceDefinition' => new QuantityPriceDefinition(100, new TaxRuleCollection()),
                                 ]),
                                 (new LineItem('D', 'discount'))->assign([
-                                    'priceDefinition' => PercentagePriceDefinition::create(-10),
+                                    'priceDefinition' => new PercentagePriceDefinition(-10),
                                 ]),
                             ]),
                         ]),
@@ -307,18 +307,18 @@ class CalculatorTest extends TestCase
         $nested = (new LineItem('A', 'container'))->assign([
             'children' => new LineItemCollection([
                 (new LineItem('P1', 'product'))->assign([
-                    'priceDefinition' => QuantityPriceDefinition::create(100, new TaxRuleCollection()),
+                    'priceDefinition' => new QuantityPriceDefinition(100, new TaxRuleCollection()),
                 ]),
                 (new LineItem('D', 'discount'))->assign([
-                    'priceDefinition' => PercentagePriceDefinition::create(-10, $noContainerRule),
+                    'priceDefinition' => new PercentagePriceDefinition(-10, $noContainerRule),
                 ]),
                 (new LineItem('B', 'container'))->assign([
                     'children' => new LineItemCollection([
                         (new LineItem('P1', 'product'))->assign([
-                            'priceDefinition' => QuantityPriceDefinition::create(100, new TaxRuleCollection()),
+                            'priceDefinition' => new QuantityPriceDefinition(100, new TaxRuleCollection()),
                         ]),
                         (new LineItem('D', 'discount'))->assign([
-                            'priceDefinition' => PercentagePriceDefinition::create(-10, $noContainerRule),
+                            'priceDefinition' => new PercentagePriceDefinition(-10, $noContainerRule),
                         ]),
                     ]),
                 ]),

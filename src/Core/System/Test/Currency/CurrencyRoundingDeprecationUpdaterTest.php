@@ -26,7 +26,7 @@ class CurrencyRoundingDeprecationUpdaterTest extends TestCase
         return [
             'Write old value' => [
                 2,
-                null,
+                ['decimals' => 2, 'roundForNet' => true, 'interval' => 0.01],
                 ['decimals' => 2, 'roundForNet' => true, 'interval' => 0.01],
             ],
             'Write new value' => [
@@ -45,7 +45,7 @@ class CurrencyRoundingDeprecationUpdaterTest extends TestCase
     /**
      * @dataProvider createProvider
      */
-    public function testCreate(?int $decimals, ?array $rounding, array $expected): void
+    public function testCreate(?int $decimals, array $rounding, array $expected): void
     {
         Feature::skipTestIfInActive('FEATURE_NEXT_6059', $this);
 
@@ -59,13 +59,12 @@ class CurrencyRoundingDeprecationUpdaterTest extends TestCase
             'isoCode' => 'de',
             'shortName' => 'test',
             'name' => 'test',
+            'itemRounding' => $rounding,
+            'totalRounding' => $rounding,
         ];
 
         if ($decimals) {
             $payload['decimalPrecision'] = $decimals;
-        } else {
-            $payload['itemRounding'] = $rounding;
-            $payload['totalRounding'] = $rounding;
         }
 
         $this->getContainer()

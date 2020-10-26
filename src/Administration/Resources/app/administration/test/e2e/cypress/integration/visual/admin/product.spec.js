@@ -186,7 +186,9 @@ describe('Product: Visual tests', () => {
         cy.get('#sw-field--crossSelling-product-group')
             .typeSingleSelectAndCheck(
                 '2nd Product stream',
-                '#sw-field--crossSelling-product-group'
+                '#sw-field--crossSelling-product-group', {
+                    clock: true
+                }
             );
         cy.get('input[name="sw-field--crossSelling-active"]').click();
 

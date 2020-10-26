@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Test\Product\Subscriber;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Content\Product\Subscriber\ProductSubscriber;
@@ -13,6 +14,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 
 class ProductLoadedSubscriberTest extends TestCase
 {
@@ -26,6 +29,189 @@ class ProductLoadedSubscriberTest extends TestCase
     {
         static::assertArrayHasKey(ProductEvents::PRODUCT_LOADED_EVENT, ProductSubscriber::getSubscribedEvents());
         static::assertCount(1, ProductSubscriber::getSubscribedEvents()[ProductEvents::PRODUCT_LOADED_EVENT]);
+    }
+
+    /**
+     * @dataProvider propertyCases
+     */
+    public function testSortProperties(array $product, $expected, array $languageChain, Criteria $criteria, bool $sort, array $language): void
+    {
+        $this->getContainer()->get('product.repository')
+            ->create([$product], Context::createDefaultContext());
+
+        $salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)
+            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+
+        $criteria->setIds([$product['id']])
+            ->addAssociation('properties.group');
+
+        $productEntity = $this->getContainer()
+            ->get('sales_channel.product.repository')
+            ->search($criteria, $salesChannelContext)
+            ->first();
+
+        $subscriber = $this->getContainer()->get(ProductSubscriber::class);
+        $productLoadedEvent = new EntityLoadedEvent(
+            $this->getContainer()->get(ProductDefinition::class),
+            [$productEntity],
+            Context::createDefaultContext()
+        );
+        $subscriber->loaded($productLoadedEvent);
+
+        $sortedProperties = $productEntity->getSortedProperties()->getElements();
+
+        foreach ($expected as $expectedGroupKey => $expectedGroup) {
+            $optionElements = $sortedProperties[$expectedGroupKey]->getOptions()->getElements();
+
+            static::assertEquals($expectedGroup['name'], $sortedProperties[$expectedGroupKey]->getName());
+            static::assertEquals($expectedGroup['id'], $sortedProperties[$expectedGroupKey]->getId());
+            static::assertEquals(array_keys($expectedGroup['options']), array_keys($optionElements));
+
+            foreach ($expectedGroup['options'] as $optionId => $option) {
+                static::assertEquals($option['id'], $optionElements[$optionId]->getId());
+                static::assertEquals($option['name'], $optionElements[$optionId]->getName());
+            }
+        }
+    }
+
+    public function propertyCases(): array
+    {
+        $ids = new TestDataCollection();
+
+        $defaults = [
+            'id' => $ids->get('product'),
+            'name' => 'test-product',
+            'productNumber' => $ids->get('product'),
+            'stock' => 10,
+            'price' => [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
+            ],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
+            'visibilities' => [
+                [
+                    'salesChannelId' => Defaults::SALES_CHANNEL,
+                    'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
+                ],
+            ],
+        ];
+
+        $language = [
+            'id' => $ids->create('language'),
+            'name' => 'sub_en',
+            'parentId' => Defaults::LANGUAGE_SYSTEM,
+            'localeId' => $this->getLocaleIdOfSystemLanguage(),
+        ];
+
+        return [
+            [
+                array_merge($defaults, [
+                    'properties' => [
+                        [
+                            'id' => $ids->get('bitter'),
+                            'name' => 'bitter',
+                            'groupId' => $ids->get('taste'),
+                            'group' => ['id' => $ids->get('taste'), 'name' => 'taste'],
+                        ],
+                        [
+                            'id' => $ids->get('sweet'),
+                            'name' => 'sweet',
+                            'groupId' => $ids->get('taste'),
+                            'group' => ['id' => $ids->get('taste'), 'name' => 'taste'],
+                        ],
+                    ],
+                ]),
+                [
+                    [
+                        'id' => $ids->get('taste'),
+                        'name' => 'taste',
+                        'options' => [
+                            $ids->get('bitter') => [
+                                'id' => $ids->get('bitter'),
+                                'name' => 'bitter',
+                            ],
+                            $ids->get('sweet') => [
+                                'id' => $ids->get('sweet'),
+                                'name' => 'sweet',
+                            ],
+                        ],
+                    ],
+                ],
+                [Defaults::LANGUAGE_SYSTEM],
+                (new Criteria()),
+                false,
+                $language,
+            ],
+            [
+                array_merge($defaults, [
+                    'properties' => [
+                        [
+                            'id' => $ids->get('bitter'),
+                            'name' => 'bitter',
+                            'groupId' => $ids->get('taste'),
+                            'group' => ['id' => $ids->get('taste'), 'name' => 'taste'],
+                        ],
+                        [
+                            'id' => $ids->get('sweet'),
+                            'name' => 'sweet',
+                            'groupId' => $ids->get('taste'),
+                            'group' => ['id' => $ids->get('taste'), 'name' => 'taste'],
+                        ],
+                        [
+                            'id' => $ids->get('red'),
+                            'name' => 'red',
+                            'groupId' => $ids->get('color'),
+                            'group' => ['id' => $ids->get('color'), 'name' => 'color'],
+                        ],
+                        [
+                            'id' => $ids->get('leather'),
+                            'name' => 'leather',
+                            'groupId' => $ids->get('material'),
+                            'group' => ['id' => $ids->get('material'), 'name' => 'material'],
+                        ],
+                    ],
+                ]),
+                [
+                    [
+                        'id' => $ids->get('color'),
+                        'name' => 'color',
+                        'options' => [
+                            $ids->get('red') => [
+                                'id' => $ids->get('red'),
+                                'name' => 'red',
+                            ],
+                        ],
+                    ],
+                    [
+                        'id' => $ids->get('material'),
+                        'name' => 'material',
+                        'options' => [
+                            $ids->get('leather') => [
+                                'id' => $ids->get('leather'),
+                                'name' => 'leather',
+                            ],
+                        ],
+                    ],
+                    [
+                        'id' => $ids->get('taste'),
+                        'name' => 'taste',
+                        'options' => [
+                            $ids->get('bitter') => [
+                                'id' => $ids->get('bitter'),
+                                'name' => 'bitter',
+                            ],
+                            $ids->get('sweet') => [
+                                'id' => $ids->get('sweet'),
+                                'name' => 'sweet',
+                            ],
+                        ],
+                    ],
+                ],
+                [Defaults::LANGUAGE_SYSTEM],
+                (new Criteria()),
+                false,
+                $language,
+            ],
+        ];
     }
 
     /**

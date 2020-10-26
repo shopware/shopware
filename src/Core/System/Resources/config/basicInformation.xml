@@ -147,6 +147,33 @@
             <helpText>Shows a button which allows users to accept all cookies in the storefront</helpText>
             <helpText lang="de-DE">Zeigt einen Button an, der es Nutzern erlaubt alle Cookies in der Storefront zu akzeptieren</helpText>
         </component>
+
+        <component name="sw-switch-field">
+            <name>firstNameFieldRequired</name>
+            <bordered>bordered</bordered>
+            <label>Require first name in contact form</label>
+            <label lang="de-DE">Telefonnummer als Pflichtfeld in Kontaktformular behandeln</label>
+            <helpText>Sets first name input as required in contact form</helpText>
+            <helpText lang="de-DE">Setzt das Feld Vorname als Pflichtfeld im Kontaktformular</helpText>
+        </component>
+
+        <component name="sw-switch-field">
+            <name>lastNameFieldRequired</name>
+            <bordered>bordered</bordered>
+            <label>Require last name in contact form</label>
+            <label lang="de-DE">Nachname als Pflichtfeld in Kontaktformular behandeln</label>
+            <helpText>Sets last name input as required in contact form</helpText>
+            <helpText lang="de-DE">Setzt das Feld Nachname als Pflichtfeld im Kontaktformular</helpText>
+        </component>
+
+        <component name="sw-switch-field">
+            <name>phoneNumberFieldRequired</name>
+            <bordered>bordered</bordered>
+            <label>Require phone number in contact form</label>
+            <label lang="de-DE">Telefonummer als Pflichtfeld in Kontaktformular behandeln</label>
+            <helpText>Sets phone number input as required in contact form</helpText>
+            <helpText lang="de-DE">Setzt das Feld Telefonnummer als Pflichtfeld im Kontaktformular</helpText>
+        </component>
     </card>
 
 </config>

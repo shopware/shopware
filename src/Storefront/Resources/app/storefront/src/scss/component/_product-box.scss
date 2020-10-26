@@ -107,6 +107,10 @@ $box-image-height-img: 332px;
     font-size: 14px;
     line-height: 18px;
     overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
 }
 
 .product-price-info {

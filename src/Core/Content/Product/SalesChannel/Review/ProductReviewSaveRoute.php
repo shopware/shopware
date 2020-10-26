@@ -65,7 +65,7 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
     /**
      * @OA\Post(
      *      path="/product/{productId}/review",
-     *      description="",
+     *      summary="",
      *      operationId="saveProductReview",
      *      tags={"Store API","Product"},
      *      @OA\Response(

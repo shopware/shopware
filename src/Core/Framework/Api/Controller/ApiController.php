@@ -123,7 +123,7 @@ class ApiController extends AbstractController
     /**
      * @OA\Get(
      *      path="/_search",
-     *      description="Search for multiple entites by a given term",
+     *      summary="Search for multiple entites by a given term",
      *      operationId="compositeSearch",
      *      tags={"Admin Api"},
      *      @OA\Parameter(

@@ -55,7 +55,7 @@ class PaymentMethodRoute extends AbstractPaymentMethodRoute
      * @Entity("payment_method")
      * @OA\Get(
      *      path="/payment-method",
-     *      description="Loads all available payment methods",
+     *      summary="Loads all available payment methods",
      *      operationId="readPaymentMethod",
      *      tags={"Store API", "Payment Method"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),

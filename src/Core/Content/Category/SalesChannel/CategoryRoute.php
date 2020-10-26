@@ -58,7 +58,7 @@ class CategoryRoute extends AbstractCategoryRoute
     /**
      * @OA\Post(
      *      path="/category/{categoryId}",
-     *      description="Loads a category with the resolved cms page",
+     *      summary="Loads a category with the resolved cms page",
      *      operationId="readCategory",
      *      tags={"Store API", "Content"},
      *      @OA\Parameter(

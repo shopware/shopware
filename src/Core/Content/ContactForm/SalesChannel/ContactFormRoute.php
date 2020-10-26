@@ -71,7 +71,7 @@ class ContactFormRoute extends AbstractContactFormRoute
     /**
      * @OA\Post(
      *      path="/contact-form",
-     *      description="Send message throught contact form",
+     *      summary="Send message throught contact form",
      *      operationId="sendContactMail",
      *      tags={"Store API", "Contact Mail"},
      *      @OA\Parameter(name="salutationId", description="Salutation ID", in="body", @OA\Schema(type="string")),

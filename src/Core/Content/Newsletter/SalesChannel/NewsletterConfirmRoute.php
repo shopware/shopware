@@ -61,7 +61,7 @@ class NewsletterConfirmRoute extends AbstractNewsletterConfirmRoute
     /**
      * @OA\Post(
      *      path="/newsletter/confirm",
-     *      description="Confirm newsletter registration",
+     *      summary="Confirm newsletter registration",
      *      operationId="confirmNewsletter",
      *      tags={"Store API", "Newsletter"},
      *      @OA\Parameter(name="hash", description="Hash from Mail", in="query", @OA\Schema(type="string")),

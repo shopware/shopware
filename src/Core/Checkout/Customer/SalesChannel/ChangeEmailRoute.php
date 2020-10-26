@@ -67,7 +67,7 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
     /**
      * @OA\Post(
      *      path="/account/change-email",
-     *      description="Change email",
+     *      summary="Change email",
      *      operationId="changeEmail",
      *      tags={"Store API", "Account"},
      *      @OA\Parameter(

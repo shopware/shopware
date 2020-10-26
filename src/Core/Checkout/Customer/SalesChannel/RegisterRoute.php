@@ -118,7 +118,7 @@ class RegisterRoute extends AbstractRegisterRoute
     /**
      * @OA\Post(
      *      path="/account/register",
-     *      description="Register",
+     *      summary="Register",
      *      operationId="register",
      *      tags={"Store API", "Account"},
      *      @OA\Parameter(name="guest", description="Create guest user", in="query", @OA\Schema(type="boolean")),

@@ -38,7 +38,7 @@ class ProductReviewRoute extends AbstractProductReviewRoute
      * @Entity("product_review")
      * @OA\Post(
      *      path="/product/{productId}/reviews",
-     *      description="",
+     *      summary="",
      *      operationId="readProductReviews",
      *      tags={"Store API","Product"},
      *      @OA\Response(

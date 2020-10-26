@@ -68,7 +68,7 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
     /**
      * @OA\Patch(
      *      path="/context",
-     *      description="Update the context",
+     *      summary="Update the context",
      *      operationId="updateContext",
      *      tags={"Store API","Context"},
      *      @OA\Parameter(name="currencyId", description="Currency", @OA\Schema(type="string")),

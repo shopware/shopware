@@ -67,7 +67,7 @@ class NavigationRoute extends AbstractNavigationRoute
      * @Entity("category")
      * @OA\Get(
      *      path="/navigation/{requestActiveId}/{requestRootId}",
-     *      description="Loads all available navigations",
+     *      summary="Loads all available navigations",
      *      operationId="readNavigation",
      *      tags={"Store API", "Navigation"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),

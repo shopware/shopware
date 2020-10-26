@@ -76,7 +76,7 @@ class ChangePasswordRoute extends AbstractChangePasswordRoute
     /**
      * @OA\Post(
      *      path="/account/change-password",
-     *      description="Change password",
+     *      summary="Change password",
      *      operationId="changePassword",
      *      tags={"Store API", "Account"},
      *      @OA\Parameter(

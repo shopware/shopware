@@ -44,7 +44,7 @@ class DeleteCustomerRoute extends AbstractDeleteCustomerRoute
     /**
      * @OA\Delete(
      *      path="/account/customer",
-     *      description="Delete customer profile",
+     *      summary="Delete customer profile",
      *      operationId="deleteCustomer",
      *      tags={"Store API", "Account"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),

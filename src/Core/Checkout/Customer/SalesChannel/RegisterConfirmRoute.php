@@ -70,7 +70,7 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
     /**
      * @OA\Post(
      *      path="/account/register-confirm",
-     *      description="Confirm double optin registration",
+     *      summary="Confirm double optin registration",
      *      operationId="registerConfirm",
      *      tags={"Store API", "Account"},
      *      @OA\Parameter(name="hash", description="Hash from Link in Mail", in="query", @OA\Schema(type="string")),

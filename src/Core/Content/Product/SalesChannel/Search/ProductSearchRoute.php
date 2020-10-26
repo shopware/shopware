@@ -76,7 +76,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
      * @Entity("product")
      * @OA\Get(
      *      path="/search",
-     *      description="Search",
+     *      summary="Search",
      *      operationId="searchPage",
      *      tags={"Store API","Search"},
      *      @OA\Parameter(

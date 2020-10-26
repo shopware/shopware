@@ -81,7 +81,7 @@ class LoginRoute extends AbstractLoginRoute
     /**
      * @OA\Post(
      *      path="/account/login",
-     *      description="Login as customer using password",
+     *      summary="Login as customer using password",
      *      operationId="loginCustomer",
      *      tags={"Store API", "Account"},
      *      @OA\Parameter(

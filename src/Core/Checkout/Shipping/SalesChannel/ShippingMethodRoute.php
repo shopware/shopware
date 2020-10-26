@@ -54,7 +54,7 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
      * @Entity("shipping_method")
      * @OA\Get(
      *      path="/shipping-method",
-     *      description="Loads all available shipping methods",
+     *      summary="Loads all available shipping methods",
      *      operationId="readShippingMethod",
      *      tags={"Store API", "Shipping Method"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),

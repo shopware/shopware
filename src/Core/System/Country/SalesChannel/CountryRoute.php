@@ -31,7 +31,7 @@ class CountryRoute extends AbstractCountryRoute
     /**
      * @OA\Get(
      *      path="/country",
-     *      description="Loads all available countries",
+     *      summary="Loads all available countries",
      *      operationId="readCountry",
      *      tags={"Store API", "Country"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),

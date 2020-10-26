@@ -72,7 +72,7 @@ class LogoutRoute extends AbstractLogoutRoute
     /**
      * @OA\Post(
      *      path="/account/logout",
-     *      description="Logouts current loggedin customer",
+     *      summary="Logouts current loggedin customer",
      *      operationId="logoutCustomer",
      *      tags={"Store API", "Account"},
      *      @OA\Response(

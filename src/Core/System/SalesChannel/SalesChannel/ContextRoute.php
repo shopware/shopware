@@ -5,6 +5,7 @@ namespace Shopware\Core\System\SalesChannel\SalesChannel;
 use OpenApi\Annotations as OA;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -19,9 +20,10 @@ class ContextRoute extends AbstractContextRoute
     }
 
     /**
+     * @Since("6.3.0.0")
      * @OA\Get(
      *      path="/context",
-     *      description="Read the context",
+     *      summary="Read the context",
      *      operationId="readContext",
      *      tags={"Store API","Context"},
      *      @OA\Response(

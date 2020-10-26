@@ -70,7 +70,7 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
     /**
      * @OA\Post(
      *      path="/account/change-profile",
-     *      description="Change profile information",
+     *      summary="Change profile information",
      *      operationId="changeProfile",
      *      tags={"Store API", "Account"},
      *      @OA\Parameter(

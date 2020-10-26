@@ -84,7 +84,7 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
     /**
      * @OA\Post(
      *      path="/account/recovery-password-confirm",
-     *      description="Resets password using recovery hash",
+     *      summary="Resets password using recovery hash",
      *      operationId="recoveryPassword",
      *      tags={"Store API", "Account"},
      *      @OA\Parameter(

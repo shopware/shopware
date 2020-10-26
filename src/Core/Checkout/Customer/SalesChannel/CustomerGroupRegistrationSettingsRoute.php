@@ -35,7 +35,7 @@ class CustomerGroupRegistrationSettingsRoute extends AbstractCustomerGroupRegist
     /**
      * @OA\Get(
      *      path="/customer-group-registration/config/{customerGroupId}",
-     *      description="Change email",
+     *      summary="Change email",
      *      operationId="getCustomerGroupRegistrationInfo",
      *      tags={"Store API", "Account"},
      *      @OA\Parameter(

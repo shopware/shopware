@@ -54,7 +54,7 @@ class CustomerRoute extends AbstractCustomerRoute
      * @Entity("customer")
      * @OA\Get(
      *      path="/account/customer",
-     *      description="Returns informations about the loggedin customer",
+     *      summary="Returns informations about the loggedin customer",
      *      operationId="readCustomer",
      *      tags={"Store API", "Account"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),

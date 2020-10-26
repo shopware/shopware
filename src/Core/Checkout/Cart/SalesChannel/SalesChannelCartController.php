@@ -102,7 +102,7 @@ class SalesChannelCartController extends AbstractController
     /**
      * @OA\Post(
      *      path="/checkout/cart",
-     *      description="Create a new Cart",
+     *      summary="Create a new Cart",
      *      operationId="createCart",
      *      tags={"Sales Channel Api"},
      *      @OA\Parameter(

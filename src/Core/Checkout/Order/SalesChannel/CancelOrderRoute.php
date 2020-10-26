@@ -34,7 +34,7 @@ class CancelOrderRoute extends AbstractCancelOrderRoute
     /**
      * @OA\Post(
      *      path="/order/state/cancel",
-     *      description="Cancel a order",
+     *      summary="Cancel a order",
      *      operationId="cancelOrder",
      *      tags={"Store API", "Order"},
      *      @OA\Parameter(

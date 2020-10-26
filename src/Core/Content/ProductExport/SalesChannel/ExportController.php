@@ -68,7 +68,7 @@ class ExportController
     /**
      * @OA\Get(
      *      path="/product-export/{accessKey}/{fileName}",
-     *      description="Export product export",
+     *      summary="Export product export",
      *      operationId="readProductExport",
      *      tags={"Store API", "Product"},
      *      @OA\Response(

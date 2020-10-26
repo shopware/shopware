@@ -68,7 +68,7 @@ class SalesChannelCrossSellingController extends AbstractController
     /**
      * * @OA\Get(
      *      path="/product/{id}/cross-selling",
-     *      description="Get the cross selling products for given product",
+     *      summary="Get the cross selling products for given product",
      *      operationId="getCrossSelling",
      *      tags={"Sales Channel Api"},
      *      @OA\Parameter(

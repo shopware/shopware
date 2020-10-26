@@ -45,7 +45,7 @@ class SeoUrlRoute extends AbstractSeoUrlRoute
      * @Entity("seo_url")
      * @OA\Post(
      *      path="/seo-url",
-     *      description="Loads seo urls",
+     *      summary="Loads seo urls",
      *      operationId="readSeoUrl",
      *      tags={"Store API", "Seo"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),

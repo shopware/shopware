@@ -83,7 +83,7 @@ class ProductListingRoute extends AbstractProductListingRoute
      * @Entity("product")
      * @OA\Post(
      *      path="/product-listing/{categoryId}",
-     *      description="Loads products from listing",
+     *      summary="Loads products from listing",
      *      operationId="readProductListing",
      *      tags={"Store API","Product"},
      *      @OA\Response(

@@ -46,7 +46,7 @@ class HandlePaymentMethodRoute extends AbstractHandlePaymentMethodRoute
     /**
      * @OA\Get(
      *      path="/handle-payment",
-     *      description="Handles a payment for an order",
+     *      summary="Handles a payment for an order",
      *      operationId="handlePaymentMethod",
      *      tags={"Store API", "Payment Method"},
      *      @OA\Parameter(

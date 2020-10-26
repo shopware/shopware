@@ -70,7 +70,7 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
     /**
      * @OA\Post(
      *      path="/newsletter/subscribe",
-     *      description="Subscribe to newsletter",
+     *      summary="Subscribe to newsletter",
      *      operationId="subscribeToNewsletter",
      *      tags={"Store API", "Newsletter"},
      *      @OA\Parameter(name="email", description="Email", in="query", @OA\Schema(type="string")),

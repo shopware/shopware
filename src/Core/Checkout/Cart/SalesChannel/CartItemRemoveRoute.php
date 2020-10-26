@@ -50,7 +50,7 @@ class CartItemRemoveRoute extends AbstractCartItemRemoveRoute
     /**
      * @OA\Delete(
      *      path="/checkout/cart/line-item",
-     *      description="Remove line item entries",
+     *      summary="Remove line item entries",
      *      operationId="removeLineItem",
      *      tags={"Store API", "Cart"},
      *      @OA\RequestBody(@OA\JsonContent(ref="#/definitions/CartItemsDelete")),

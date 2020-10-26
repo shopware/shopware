@@ -76,7 +76,7 @@ class ProductSuggestRoute extends AbstractProductSuggestRoute
      * @Entity("product")
      * @OA\Get(
      *      path="/search-suggest",
-     *      description="Search suggests",
+     *      summary="Search suggests",
      *      operationId="searchSuggest",
      *      tags={"Store API","Search"},
      *      @OA\Parameter(

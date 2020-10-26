@@ -6906,16 +6906,6 @@ parameters:
 			path: src/Elasticsearch/Framework/DataAbstractionLayer/ElasticsearchEntitySearcher.php
 
 		-
-			message: "#^Parameter \\#1 \\$size of method ONGR\\\\ElasticsearchDSL\\\\Search\\:\\:setSize\\(\\) expects int, int\\|null given\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/DataAbstractionLayer/ElasticsearchEntitySearcher.php
-
-		-
-			message: "#^Parameter \\#1 \\$from of method ONGR\\\\ElasticsearchDSL\\\\Search\\:\\:setFrom\\(\\) expects int, int\\|null given\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/DataAbstractionLayer/ElasticsearchEntitySearcher.php
-
-		-
 			message: "#^Parameter \\#2 \\$search of function array_key_exists expects array, array\\|\\(callable\\) given\\.$#"
 			count: 1
 			path: src/Elasticsearch/Framework/ElasticsearchHelper.php

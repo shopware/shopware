@@ -9,7 +9,6 @@
 >
     <projectFiles>
         <directory name="platform/src"/>
-        <directory name="src"/>
         <ignoreFiles>
             <directory name="vendor"/>
             <directory name="platform/src/Recovery"/>

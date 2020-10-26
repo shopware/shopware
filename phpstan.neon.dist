@@ -9,7 +9,6 @@ parameters:
     tmpDir: ../var/cache/phpstan
     paths:
         - src
-        - ../src
     symfony:
         constant_hassers: false
         # the placeholder "%ShopwareHashedCacheDir%" will be replaced on execution by dev-ops/analyze/phpstan-config-generator.php script

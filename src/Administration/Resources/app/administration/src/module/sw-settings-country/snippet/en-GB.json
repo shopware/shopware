@@ -32,6 +32,7 @@
       "labelShippingAvailable": "Shipping available",
       "labelTaxFree": "Tax free",
       "labelCompanyTaxFree": "Tax free for companies",
+      "labelCheckVatIdFormat": "Basically validate the VAT ID for correct format",
       "labelForceStateInRegistration": "State is required on registration",
       "placeholderName": "Enter name...",
       "placeholderPosition": "1",

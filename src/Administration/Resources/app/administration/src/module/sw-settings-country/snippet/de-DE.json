@@ -32,6 +32,7 @@
       "labelShippingAvailable": "Versand verfügbar",
       "labelTaxFree": "Steuerfrei",
       "labelCompanyTaxFree": "Steuerfrei für Unternehmen",
+      "labelCheckVatIdFormat": "Umsatzsteuer-ID grundlegend auf korrekte Struktur validieren",
       "labelForceStateInRegistration": "Bundesland bei Registrierung erforderlich",
       "placeholderName": "Namen eingeben ...",
       "placeholderPosition": "1",

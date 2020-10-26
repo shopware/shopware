@@ -145,6 +145,15 @@
                                             :label="$tc('sw-settings-country.detail.labelCompanyTaxFree')">
                                         </sw-switch-field>
                                     {% endblock %}
+                                    {% block sw_settings_country_detail_content_field_check_vat_id_format %}
+                                        <sw-switch-field
+                                            v-model="country.checkVatIdPattern"
+                                            class="sw-settings-country-detail__field-check-vatid-format"
+                                            bordered
+                                            :disabled="!acl.can('country.editor')"
+                                            :label="$tc('sw-settings-country.detail.labelCheckVatIdFormat')">
+                                        </sw-switch-field>
+                                    {% endblock %}
                                 </template>
                             </sw-container>
                         </sw-card>

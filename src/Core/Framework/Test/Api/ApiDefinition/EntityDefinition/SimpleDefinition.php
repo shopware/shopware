@@ -6,6 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildCountField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Since;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -31,6 +32,7 @@ class SimpleDefinition extends EntityDefinition
                 new FloatField('float_field', 'floatField'),
                 new BoolField('bool_field', 'boolField'),
                 new IdField('id_field', 'idField'),
+                (new StringField('i_am_a_new_field', 'i_am_a_new_field'))->addFlags(new Since('6.3.9.9')),
                 new ChildCountField(),
 
                 (new StringField('required_field', 'requiredField'))->addFlags(new Required()),

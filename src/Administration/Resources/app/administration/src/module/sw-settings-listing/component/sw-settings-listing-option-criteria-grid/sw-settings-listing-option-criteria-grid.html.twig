@@ -27,6 +27,8 @@
                 :showSelection="false"
                 plainAppearance
                 @inline-edit-save="onSaveInlineEdit"
+                @inline-edit-cancel="onCancelInlineEdit"
+                ref="dataGrid"
                 itemIdentifierProperty="field">
 
                 {% block sw_settings_listing_option_criteria_card_grid_column_field %}
@@ -35,7 +37,7 @@
                         {% block sw_settings_listing_option_criteria_card_grid_column_field_select %}
                             <sw-single-select v-if="isInlineEdit && item.field === 'customField'"
                                 v-model="item.field"
-                                :options="customFields"
+                                :options="unusedCustomFields"
                                 labelProperty="name"
                                 valueProperty="name"
                                 :placeholder="$tc('global.sw-single-select.valuePlaceholder')">

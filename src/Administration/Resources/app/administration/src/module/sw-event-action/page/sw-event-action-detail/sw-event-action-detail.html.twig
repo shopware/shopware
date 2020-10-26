@@ -49,6 +49,7 @@
                                         type="text"
                                         :disabled="!acl.can('event_action.editor')"
                                         :label="$tc('sw-event-action.detail.fieldLabelTitle')"
+                                        :placeholder="$tc('sw-event-action.detail.placeholderTitle')"
                                         v-model="eventAction.title">
                                     </sw-field>
                                 {% endblock %}

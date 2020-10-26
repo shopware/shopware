@@ -17,7 +17,7 @@
                             disabled: acl.can('event_action.editor'),
                             showOnDisabledElements: true
                         }">
-                        {{ $tc('global.default.add') }}
+                        {{ $tc('sw-event-action.detail.addRecipientButton') }}
                     </sw-button>
                 {% endblock %}
             </template>
@@ -58,6 +58,7 @@
                                     v-if="isInlineEdit"
                                     :size="compact ? 'small' : 'default'"
                                     :error="recipientMailError(item.email)"
+                                    :placeholder="$tc('sw-event-action.detail.placeholderRecipientEmailAddress')"
                                     v-model="item.email">
                                 </sw-text-field>
                                 <template v-else>
@@ -72,6 +73,7 @@
                                     v-if="isInlineEdit"
                                     :size="compact ? 'small' : 'default'"
                                     :error="recipientNameError(item.name)"
+                                    :placeholder="$tc('sw-event-action.detail.placeholderRecipientName')"
                                     v-model="item.name">
                                 </sw-text-field>
                                 <template v-else>

@@ -5,7 +5,6 @@ namespace Shopware\Core\Checkout\Test\Customer\SalesChannel;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -128,9 +127,7 @@ class ChangePasswordRouteTest extends TestCase
 
         static::assertArrayNotHasKey('errors', $response);
 
-        Feature::skipTestIfActive('FEATURE_NEXT_10058', $this);
-
-        static::assertTrue($response['success']);
+        static::assertNotEmpty($response['contextToken']);
 
         $this->browser
             ->request(
@@ -150,8 +147,6 @@ class ChangePasswordRouteTest extends TestCase
 
     public function testContextTokenIsReplacedAfterChangingPassword(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10058', $this);
-
         $this->browser
             ->request(
                 'POST',

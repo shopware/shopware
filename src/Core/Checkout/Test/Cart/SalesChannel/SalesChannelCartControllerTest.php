@@ -10,7 +10,6 @@ use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -617,19 +616,11 @@ class SalesChannelCartControllerTest extends TestCase
 
         $token = $browser->getServerParameter('HTTP_SW_CONTEXT_TOKEN');
 
-        if (Feature::isActive('FEATURE_NEXT_10058')) {
-            $payload = $this->getContainer()->get(SalesChannelContextPersister::class)->load($token, $browser->getServerParameter('test-sales-channel-id'));
-        } else {
-            $payload = $this->getContainer()->get(SalesChannelContextPersister::class)->load($token);
-        }
+        $payload = $this->getContainer()->get(SalesChannelContextPersister::class)->load($token, $browser->getServerParameter('test-sales-channel-id'));
 
         $payload[SalesChannelContextService::PERMISSIONS] = [ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES => true];
 
-        if (Feature::isActive('FEATURE_NEXT_10058')) {
-            $this->getContainer()->get(SalesChannelContextPersister::class)->save($token, $payload, $browser->getServerParameter('test-sales-channel-id'));
-        } else {
-            $this->getContainer()->get(SalesChannelContextPersister::class)->save($token, $payload);
-        }
+        $this->getContainer()->get(SalesChannelContextPersister::class)->save($token, $payload, $browser->getServerParameter('test-sales-channel-id'));
 
         $browser->request(
             'POST',

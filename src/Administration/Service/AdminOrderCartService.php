@@ -6,7 +6,6 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryProcessor;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -39,7 +38,7 @@ class AdminOrderCartService
     }
 
     /**
-     * @feature-deprecated (flag:FEATURE_NEXT_10058) tag:v6.4.0 - $salesChannelId will be required
+     * @deprecated tag:v6.4.0 - $salesChannelId will be required
      */
     public function addPermission(string $token, string $permission, ?string $salesChannelId = null): void
     {
@@ -54,11 +53,11 @@ class AdminOrderCartService
     }
 
     /**
-     * @feature-deprecated (flag:FEATURE_NEXT_10058) tag:v6.4.0 - $salesChannelId will be required
+     * @deprecated tag:v6.4.0 - $salesChannelId will be required
      */
     public function deletePermission(string $token, string $permission, ?string $salesChannelId = null): void
     {
-        $payload = $this->contextPersister->load($token, Feature::isActive('FEATURE_NEXT_10058') ? $salesChannelId : null);
+        $payload = $this->contextPersister->load($token, $salesChannelId);
         $payload[SalesChannelContextService::PERMISSIONS][$permission] = false;
 
         $this->contextPersister->save($token, $payload, $salesChannelId);

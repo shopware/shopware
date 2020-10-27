@@ -13,7 +13,6 @@ use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\PaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\PaymentService;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -199,12 +198,10 @@ class CheckoutController extends StorefrontController
     public function offcanvas(Request $request, SalesChannelContext $context): Response
     {
         $page = $this->offcanvasCartPageLoader->load($request, $context);
-        if (Feature::isActive('FEATURE_NEXT_10058')) {
-            if ($request->cookies->get('sf_redirect') === null) {
-                $cart = $page->getCart();
-                $this->addCartErrors($cart);
-                $cart->getErrors()->clear();
-            }
+        if ($request->cookies->get('sf_redirect') === null) {
+            $cart = $page->getCart();
+            $this->addCartErrors($cart);
+            $cart->getErrors()->clear();
         }
 
         return $this->renderStorefront('@Storefront/storefront/component/checkout/offcanvas-cart.html.twig', ['page' => $page]);

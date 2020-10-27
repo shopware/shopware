@@ -8,7 +8,6 @@ use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerPasswordMatches;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -119,7 +118,7 @@ class ChangePasswordRoute extends AbstractChangePasswordRoute
 
         $this->customerRepository->update([$customerData], $context->getContext());
 
-        return Feature::isActive('FEATURE_NEXT_10058') ? new ContextTokenResponse($context->getToken()) : new SuccessResponse();
+        return new ContextTokenResponse($context->getToken());
     }
 
     private function dispatchValidationEvent(DataValidationDefinition $definition, Context $context): void

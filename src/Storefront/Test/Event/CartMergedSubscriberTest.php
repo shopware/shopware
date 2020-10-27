@@ -4,7 +4,6 @@ namespace Shopware\Storefront\Test\Event;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\CartMergedEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Event\CartMergedSubscriber;
 
@@ -14,8 +13,6 @@ class CartMergedSubscriberTest extends TestCase
 
     public function testMergedHintIsAdded(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10058', $this);
-
         $this->getContainer()->get(CartMergedSubscriber::class)->addCartMergedNoticeFlash($this->createMock(CartMergedEvent::class));
 
         $flashBag = $this->getContainer()->get('session')->getFlashBag();

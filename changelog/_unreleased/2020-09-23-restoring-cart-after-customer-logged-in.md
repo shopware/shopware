@@ -1,7 +1,6 @@
 ---
 title: Restoring Cart after customer logged in
 issue: NEXT-10527
-flag: FEATURE_NEXT_10058
 ---
 # Core
 *  Added `sales_channel_id` nullable column in `sales_channel_api_context` table.

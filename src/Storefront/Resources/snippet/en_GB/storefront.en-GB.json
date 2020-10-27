@@ -392,7 +392,8 @@
     "customerCommentHeader": "Additional information",
     "customerCommentLabel": "Would you like to tell us anything about your order?",
     "customerCommentPlaceholder": "Comment here...",
-    "cart-merged-hint": "The current shopping cart might contain additional products that have been added and saved during a previous visit."
+    "cart-merged-hint": "The current shopping cart might contain additional products that have been added and saved during a previous visit.",
+    "product-not-found": "The product could not be found."
   },
   "listing": {
     "filterTitleText": "Filter",

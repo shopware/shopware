@@ -1,7 +1,6 @@
 ---
 title: Clear session data on logout setting is set to false by default for new installations
 issue: NEXT-11144
-flag: FEATURE_NEXT_10058
 ---
 # Core
 *  Changed the default setting `Clear session data on logout` to false for new installations.

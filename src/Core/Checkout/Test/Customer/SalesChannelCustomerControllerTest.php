@@ -13,7 +13,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
@@ -481,17 +480,15 @@ class SalesChannelCustomerControllerTest extends TestCase
 
     public function testChangePasswordTokenInvalidation(): void
     {
-        Feature::skipTestIfActive('FEATURE_NEXT_10058', $this);
-
         $customerId = $this->createCustomerAndLogin();
-        $oldTokenId = Random::getAlphanumericString(32);
+        $oldTokenId = $this->browser->getServerParameter('HTTP_SW_CONTEXT_TOKEN');
 
         // insert another token for the same customer to simulate a second active session
         $this->getContainer()
             ->get(SalesChannelContextPersister::class)
             ->save($oldTokenId, [
                 'customerId' => $customerId,
-            ]);
+            ], Defaults::SALES_CHANNEL, $customerId);
 
         $password = '12345678';
 
@@ -508,15 +505,16 @@ class SalesChannelCustomerControllerTest extends TestCase
         $result = $this->connection->createQueryBuilder()
             ->select(['token', 'payload'])
             ->from('sales_channel_api_context')
-            ->where('token = :token')
-            ->setParameter(':token', $oldTokenId)
+            ->where('customer_id = :customerId')
+            ->andWhere('sales_channel_id = :salesChannelId')
+            ->setParameter(':customerId', Uuid::fromHexToBytes($customerId))
+            ->setParameter(':salesChannelId', Uuid::fromHexToBytes(Defaults::SALES_CHANNEL))
             ->execute()
             ->fetch();
 
-        $payload = json_decode($result['payload'], true);
-
-        // customer id in the token should be set to null, which invalidates the token
-        static::assertNull($payload['customerId']);
+        static::assertNotEmpty($result);
+        static::assertNotEmpty($result['token']);
+        static::assertNotEquals($oldTokenId, $result['token']);
     }
 
     public function testChangeProfile(): void

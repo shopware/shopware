@@ -17,6 +17,7 @@ describe('Listing: Test crud operations', () => {
             .dblclick();
 
         cy.get('.sw-data-grid__row--3 > .sw-data-grid__cell--priority > .sw-data-grid__cell-content input')
+            .scrollIntoView()
             .clearTypeAndCheck('5');
 
         cy.get('.sw-data-grid__inline-edit-save').click();
@@ -106,6 +107,11 @@ describe('Listing: Test crud operations', () => {
         // add rating as criteria
         cy.get('.sw-single-select')
             .typeSingleSelect('Product rating', '.sw-single-select');
+
+        // save inline editing
+        cy.get('.sw-data-grid__inline-edit-save')
+            .should('be.visible')
+            .click();
 
         // save changes
         cy.get('.sw-button')

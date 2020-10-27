@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Cart\Price\Struct;
 
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\Framework\Util\FloatComparator;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
@@ -35,14 +36,14 @@ class PercentagePriceDefinition extends Struct implements PriceDefinitionInterfa
 
     public function __construct(float $percentage, int $precision, ?Rule $filter = null)
     {
-        $this->percentage = $percentage;
+        $this->percentage = FloatComparator::cast($percentage);
         $this->filter = $filter;
         $this->precision = $precision;
     }
 
     public function getPercentage(): float
     {
-        return $this->percentage;
+        return FloatComparator::cast($this->percentage);
     }
 
     public function getFilter(): ?Rule

@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
@@ -69,6 +70,7 @@ class ContactFormRoute extends AbstractContactFormRoute
     }
 
     /**
+     * @Since("6.2.0")
      * @OA\Post(
      *      path="/contact-form",
      *      summary="Send message throught contact form",

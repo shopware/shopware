@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\CartPersisterInterface;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -46,6 +47,7 @@ class CartItemUpdateRoute extends AbstractCartItemUpdateRoute
     }
 
     /**
+     * @Since("6.3.0.0")
      * @OA\Patch(
      *      path="/checkout/cart/line-item",
      *      summary="Update line item entries",

@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -50,6 +51,7 @@ class SalutationRoute extends AbstractSalutationRoute
     }
 
     /**
+     * @Since("6.2.0")
      * @Entity("salutation")
      * @OA\Post(
      *      path="/salutation",

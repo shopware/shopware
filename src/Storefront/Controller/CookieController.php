@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Cookie\CookieProviderInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,6 +30,7 @@ class CookieController extends StorefrontController
     }
 
     /**
+     * @Since("6.1.0")
      * @Route("/cookie/offcanvas", name="frontend.cookie.offcanvas", options={"seo"="false"}, methods={"GET"}, defaults={"XmlHttpRequest"=true})
      */
     public function offcanvas(SalesChannelContext $context): Response
@@ -40,6 +42,7 @@ class CookieController extends StorefrontController
     }
 
     /**
+     * @Since("6.1.0")
      * @Route("/cookie/permission", name="frontend.cookie.permission", options={"seo"="false"}, methods={"GET"}, defaults={"XmlHttpRequest"=true})
      */
     public function permission(SalesChannelContext $context): Response

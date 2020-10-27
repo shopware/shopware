@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AccountRegistrationService;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
@@ -90,6 +91,7 @@ class RegisterController extends StorefrontController
     }
 
     /**
+     * @Since("6.0.0")
      * @Route("/account/register", name="frontend.account.register.page", methods={"GET"})
      */
     public function accountRegisterPage(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
@@ -115,6 +117,7 @@ class RegisterController extends StorefrontController
     }
 
     /**
+     * @Since("6.3.1.0")
      * @Route("/customer-group-registration/{customerGroupId}", name="frontend.account.customer-group-registration.page", methods={"GET"})
      */
     public function customerGroupRegistration(string $customerGroupId, Request $request, RequestDataBag $data, SalesChannelContext $context): Response
@@ -145,6 +148,7 @@ class RegisterController extends StorefrontController
     }
 
     /**
+     * @Since("6.0.0")
      * @Route("/checkout/register", name="frontend.checkout.register.page", options={"seo"="false"}, methods={"GET"})
      */
     public function checkoutRegisterPage(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
@@ -169,6 +173,7 @@ class RegisterController extends StorefrontController
     }
 
     /**
+     * @Since("6.0.0")
      * @Route("/account/register", name="frontend.account.register.save", methods={"POST"})
      * @Captcha
      */
@@ -206,6 +211,7 @@ class RegisterController extends StorefrontController
     }
 
     /**
+     * @Since("6.1.0")
      * @Route("/registration/confirm", name="frontend.account.register.mail", methods={"GET"})
      */
     public function confirmRegistration(SalesChannelContext $context, QueryDataBag $queryDataBag): Response

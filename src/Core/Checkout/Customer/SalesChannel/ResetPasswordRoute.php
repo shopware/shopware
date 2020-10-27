@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -82,6 +83,7 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
     }
 
     /**
+     * @Since("6.2.0")
      * @OA\Post(
      *      path="/account/recovery-password-confirm",
      *      summary="Resets password using recovery hash",

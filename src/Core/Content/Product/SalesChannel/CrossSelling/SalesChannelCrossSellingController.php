@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -66,7 +67,8 @@ class SalesChannelCrossSellingController extends AbstractController
     }
 
     /**
-     * * @OA\Get(
+     * @Since("6.1.0")
+     * @OA\Get(
      *      path="/product/{id}/cross-selling",
      *      summary="Get the cross selling products for given product",
      *      operationId="getCrossSelling",

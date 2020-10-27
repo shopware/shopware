@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Rule\Container\Container;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -67,6 +68,7 @@ class OrderRoute extends AbstractOrderRoute
     }
 
     /**
+     * @Since("6.2.0")
      * @Entity("order")
      * @OA\Post(
      *      path="/order",

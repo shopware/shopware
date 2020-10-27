@@ -6,6 +6,7 @@ use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,6 +33,7 @@ class CancelOrderRoute extends AbstractCancelOrderRoute
     }
 
     /**
+     * @Since("6.2.0")
      * @OA\Post(
      *      path="/order/state/cancel",
      *      summary="Cancel a order",

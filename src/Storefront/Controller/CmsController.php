@@ -10,6 +10,7 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\AbstractProductListingRou
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Cache\Annotation\HttpCache;
@@ -49,6 +50,7 @@ class CmsController extends StorefrontController
     }
 
     /**
+     * @Since("6.0.0")
      * Route for cms data (used in XmlHttpRequest)
      *
      * @HttpCache()
@@ -70,6 +72,7 @@ class CmsController extends StorefrontController
     }
 
     /**
+     * @Since("6.0.0")
      * Route to load a cms page which assigned to the provided navigation id.
      * Navigation id is required to load the slot config for the navigation
      *
@@ -96,6 +99,7 @@ class CmsController extends StorefrontController
     }
 
     /**
+     * @Since("6.0.0")
      * @HttpCache()
      *
      * Route to load the listing filters

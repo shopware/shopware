@@ -408,8 +408,9 @@ class OpenApiDefinitionSchemaBuilder
             $property->format = 'uuid';
         }
 
-        if ($flag = $field->getFlag(Since::class)) {
-            /** @var Since|null $flag */
+        /* @var Since|null $flag */
+        $flag = $field->getFlag(Since::class);
+        if ($flag) {
             $property->description = 'Added since version: ' . $flag->getSince();
         }
 

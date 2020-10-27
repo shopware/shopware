@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Shopware\Storefront\Controller;
 
@@ -6,6 +8,7 @@ use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangePaymentMethodRoute;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -39,6 +42,7 @@ class AccountPaymentController extends StorefrontController
     }
 
     /**
+     * @Since("6.0.0")
      * @Route("/account/payment", name="frontend.account.payment.page", options={"seo"="false"}, methods={"GET"})
      *
      * @throws CustomerNotLoggedInException
@@ -53,6 +57,7 @@ class AccountPaymentController extends StorefrontController
     }
 
     /**
+     * @Since("6.0.0")
      * @Route("/account/payment", name="frontend.account.payment.save", methods={"POST"})
      *
      * @throws CustomerNotLoggedInException

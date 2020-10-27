@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Customer\Exception\CannotDeleteDefaultAddressExceptio
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Routing\Annotation\Route;
@@ -36,6 +37,7 @@ class DeleteAddressRoute extends AbstractDeleteAddressRoute
     }
 
     /**
+     * @Since("6.3.2.0")
      * @OA\Delete(
      *      path="/account/address/{addressId}",
      *      summary="Deletes a customer address",

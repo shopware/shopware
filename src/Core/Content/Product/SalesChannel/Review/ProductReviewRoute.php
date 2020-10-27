@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Shopware\Core\Content\Product\SalesChannel\Review;
 
@@ -10,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -35,6 +38,7 @@ class ProductReviewRoute extends AbstractProductReviewRoute
     }
 
     /**
+     * @Since("6.3.2.0")
      * @Entity("product_review")
      * @OA\Post(
      *      path="/product/{productId}/reviews",

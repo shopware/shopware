@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
@@ -65,6 +66,7 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
     }
 
     /**
+     * @Since("6.2.0")
      * @OA\Post(
      *      path="/order/payment",
      *      summary="set payment for an order",

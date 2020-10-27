@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Customer\Event\CustomerDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -42,6 +43,7 @@ class DeleteCustomerRoute extends AbstractDeleteCustomerRoute
     }
 
     /**
+     * @Since("6.3.2.0")
      * @OA\Delete(
      *      path="/account/customer",
      *      summary="Delete customer profile",

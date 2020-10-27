@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -47,6 +48,7 @@ class LanguageRoute extends AbstractLanguageRoute
     }
 
     /**
+     * @Since("6.2.0")
      * @Entity("language")
      * @OA\Get(
      *      path="/language",

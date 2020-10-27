@@ -4,6 +4,7 @@ namespace Shopware\Core\System\SystemConfig\Api;
 
 use Shopware\Core\Framework\Routing\Annotation\Acl;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -35,6 +36,7 @@ class SystemConfigController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0")
      * @Route("/api/v{version}/_action/system-config/check", name="api.action.core.system-config.check", methods={"GET"})
      * @Acl({"system_config:read"})
      */
@@ -50,6 +52,7 @@ class SystemConfigController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0")
      * @Route("/api/v{version}/_action/system-config/schema", name="api.action.core.system-config", methods={"GET"})
      *
      * @throws MissingRequestParameterException
@@ -66,6 +69,7 @@ class SystemConfigController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0")
      * @Route("/api/v{version}/_action/system-config", name="api.action.core.system-config.value", methods={"GET"})
      * @Acl({"system_config:read"})
      */
@@ -89,6 +93,7 @@ class SystemConfigController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0")
      * @Route("/api/v{version}/_action/system-config", name="api.action.core.save.system-config", methods={"POST"})
      * @Acl({"system_config:update", "system_config:create", "system_config:delete"})
      */
@@ -102,6 +107,7 @@ class SystemConfigController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0")
      * @Route("/api/v{version}/_action/system-config/batch", name="api.action.core.save.system-config.batch", methods={"POST"})
      * @Acl({"system_config:update", "system_config:create", "system_config:delete"})
      */

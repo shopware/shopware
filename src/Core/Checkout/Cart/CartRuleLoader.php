@@ -12,7 +12,7 @@ use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 class CartRuleLoader
 {
     public const CHECKOUT_RULE_LOADER_CACHE_KEY = 'all-rules';
-    private const MAX_ITERATION = 5;
+    private const MAX_ITERATION = 7;
 
     /**
      * @var CartPersisterInterface
@@ -84,29 +84,43 @@ class CartRuleLoader
     {
         $rules = $this->loadRules($context->getContext());
 
+        // save all rules for later usage
+        $all = $rules;
+
+        // update rules in current context
         $context->setRuleIds($rules->getIds());
 
         $iteration = 1;
 
+        // start first cart calculation to have all objects enriched
         $cart = $this->processor->process($cart, $context, $behaviorContext);
 
         do {
+            $compare = $cart;
+
             if ($iteration > self::MAX_ITERATION) {
                 break;
             }
 
-            //find rules which matching current cart and context state
+            // filter rules which matches to current scope
             $rules = $rules->filterMatchingRules($cart, $context);
 
-            //place rules into context for further usages
+            // update matching rules in context
             $context->setRuleIds($rules->getIds());
 
-            //recalculate cart for new context rules
-            $new = $this->processor->process($cart, $context, $behaviorContext);
+            // calculate cart again
+            $cart = $this->processor->process($cart, $context, $behaviorContext);
 
-            $recalculate = $this->cartChanged($cart, $new);
+            // check if the cart changed, in this case we have to recalculate the cart again
+            $recalculate = $this->cartChanged($cart, $compare);
 
-            $cart = $new;
+            // check if rules changed for the last calculated cart, in this case we have to recalculate
+            $ruleCompare = $all->filterMatchingRules($cart, $context);
+
+            if (!$rules->equals($ruleCompare)) {
+                $recalculate = true;
+                $rules = $ruleCompare;
+            }
 
             ++$iteration;
         } while ($recalculate);

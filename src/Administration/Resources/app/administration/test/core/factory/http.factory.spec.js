@@ -387,9 +387,6 @@ describe('core/factory/http.factory.js', () => {
             }
             expect(dispatchSpy).toHaveBeenCalledWith('notification/createNotification', {
                 variant: 'error',
-                system: false,
-                autoClose: false,
-                growl: true,
                 title: 'global.default.error',
                 message: '\"Tax\" global.notification.messageDeleteFailed<br>tax_rule (27)'
             });

@@ -174,9 +174,6 @@ function globalErrorHandlingInterceptor(client) {
                     const blockingEntities = parameters.usages.reduce((message, entity) => `${message}<br>${entity}`, '');
                     Shopware.State.dispatch('notification/createNotification', {
                         variant: 'error',
-                        system: false,
-                        autoClose: false,
-                        growl: true,
                         title: $tc('global.default.error'),
                         message: `"${entityName}" ${$tc('global.notification.messageDeleteFailed')}${blockingEntities}`
                     });
@@ -187,9 +184,6 @@ function globalErrorHandlingInterceptor(client) {
                 errors.forEach(singleError => {
                     Shopware.State.dispatch('notification/createNotification', {
                         variant: 'error',
-                        system: false,
-                        autoClose: false,
-                        growl: true,
                         title: singleError.title,
                         message: singleError.detail
                     });

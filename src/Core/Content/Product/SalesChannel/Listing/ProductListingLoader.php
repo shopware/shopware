@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
@@ -133,11 +134,11 @@ class ProductListingLoader
         }
 
         $criteria->addFilter(
-            new NotFilter(
-                NotFilter::CONNECTION_AND,
+            new MultiFilter(
+                MultiFilter::CONNECTION_OR,
                 [
-                    new EqualsFilter('product.isCloseout', true),
-                    new EqualsFilter('product.available', false),
+                    new EqualsFilter('product.isCloseout', false),
+                    new EqualsFilter('product.available', true),
                 ]
             )
         );

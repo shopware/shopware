@@ -22,9 +22,6 @@ describe('Product: Visual tests', () => {
     beforeEach(() => {
         cy.loginViaApi()
             .then(() => {
-                cy.clock();
-            })
-            .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
             });
     });
@@ -186,9 +183,7 @@ describe('Product: Visual tests', () => {
         cy.get('#sw-field--crossSelling-product-group')
             .typeSingleSelectAndCheck(
                 '2nd Product stream',
-                '#sw-field--crossSelling-product-group', {
-                    clock: true
-                }
+                '#sw-field--crossSelling-product-group'
             );
         cy.get('input[name="sw-field--crossSelling-active"]').click();
 

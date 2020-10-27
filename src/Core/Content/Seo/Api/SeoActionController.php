@@ -164,9 +164,12 @@ class SeoActionController extends AbstractController
         $config = $seoUrlRoute->getConfig();
         $repository = $this->getRepository($config);
 
+        $criteria = (new Criteria($fk ? [$fk] : []))->setLimit(1);
+        $seoUrlRoute->prepareCriteria($criteria);
+
         /** @var Entity|null $entity */
         $entity = $repository
-            ->search((new Criteria($fk ? [$fk] : []))->setLimit(1), $context)
+            ->search($criteria, $context)
             ->first();
 
         if (!$entity) {

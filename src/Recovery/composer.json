@@ -5,7 +5,7 @@
     "license": "MIT",
     "minimum-stability": "stable",
     "require": {
-        "php": "^7.2"
+        "php": "~7.4"
     },
     "scripts": {
         "pre-install-cmd": [
@@ -25,7 +25,7 @@
     "config": {
         "autoloader-suffix": "ShopwareRecovery",
         "platform": {
-            "php": "7.2.9"
+            "php": "7.4.0"
         }
     },
     "require-dev": {

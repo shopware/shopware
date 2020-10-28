@@ -12,9 +12,9 @@
         ]
     },
     "config": {
-      "platform": {
-        "php": "7.2.9"
-      }
+        "platform": {
+            "php": "7.4.0"
+        }
     },
     "extra": {
         "branch-alias": {

@@ -9,7 +9,7 @@ return [
         'config/jwt/',
     ],
     'system' => [
-        ['name' => 'php', 'group' => 'core', 'required' => '7.2.0', 'error' => true],
+        ['name' => 'php', 'group' => 'core', 'required' => '7.4.0', 'error' => true],
         ['name' => 'pdo', 'group' => 'extension', 'required' => '1', 'error' => true],
         ['name' => 'pdo_mysql', 'group' => 'extension', 'required' => '1', 'error' => true],
         ['name' => 'phar', 'group' => 'extension', 'required' => '1', 'error' => true],

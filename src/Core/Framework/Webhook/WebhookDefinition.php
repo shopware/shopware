@@ -31,6 +31,11 @@ class WebhookDefinition extends EntityDefinition
         return WebhookCollection::class;
     }
 
+    public function since(): ?string
+    {
+        return '6.3.1.0';
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([

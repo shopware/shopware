@@ -41,6 +41,11 @@ class VersionCommitDataDefinition extends EntityDefinition
         return VersionCommitDataEntity::class;
     }
 
+    public function since(): ?string
+    {
+        return '6.0.0';
+    }
+
     protected function getParentDefinitionClass(): ?string
     {
         return VersionCommitDefinition::class;

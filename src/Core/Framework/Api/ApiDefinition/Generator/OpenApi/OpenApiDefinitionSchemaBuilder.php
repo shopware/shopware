@@ -410,7 +410,7 @@ class OpenApiDefinitionSchemaBuilder
 
         /* @var Since|null $flag */
         $flag = $field->getFlag(Since::class);
-        if ($flag) {
+        if ($flag instanceof Since) {
             $property->description = 'Added since version: ' . $flag->getSince();
         }
 

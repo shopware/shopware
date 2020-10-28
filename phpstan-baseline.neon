@@ -2837,27 +2837,12 @@ parameters:
 
 		-
 			message: "#^Cannot call method getPropertyName\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\|null\\.$#"
-			count: 2
-			path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi/OpenApiDefinitionSchemaBuilder.php
-
-		-
-			message: "#^Parameter \\#1 \\$fieldClass of method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\OpenApi\\\\OpenApiDefinitionSchemaBuilder\\:\\:getPropertyByField\\(\\) expects string, class\\-string\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\>\\|false given\\.$#"
 			count: 1
 			path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi/OpenApiDefinitionSchemaBuilder.php
 
 		-
-			message: "#^Parameter \\#1 \\$object of function get_class expects object, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi/OpenApiDefinitionSchemaBuilder.php
-
-		-
-			message: "#^Parameter \\#1 \\$field of method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\OpenApi\\\\OpenApiDefinitionSchemaBuilder\\:\\:isWriteProtected\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi/OpenApiDefinitionSchemaBuilder.php
-
-		-
-			message: "#^Parameter \\#1 \\$field of method Shopware\\\\Core\\\\Framework\\\\Api\\\\ApiDefinition\\\\Generator\\\\OpenApi\\\\OpenApiDefinitionSchemaBuilder\\:\\:isDeprecated\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Field\\\\Field\\|null given\\.$#"
-			count: 1
+			message: "#^Parameter \\#1 $field of method Shopware\\Core\\Framework\\Api\\ApiDefinition\\Generator\\OpenApi\\OpenApiDefinitionSchemaBuilder::getPropertyByField() expects Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\Field, Shopware\\Core\\Framework\\DataAbstractionLayer\\Field\\Field|null given\\.$#"
+			count: 3
 			path: src/Core/Framework/Api/ApiDefinition/Generator/OpenApi/OpenApiDefinitionSchemaBuilder.php
 
 		-

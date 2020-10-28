@@ -71,6 +71,11 @@ class CustomerDefinition extends EntityDefinition
         return true;
     }
 
+    public function since(): ?string
+    {
+        return '6.0.0';
+    }
+
     protected function defineFields(): FieldCollection
     {
         $fields = new FieldCollection([

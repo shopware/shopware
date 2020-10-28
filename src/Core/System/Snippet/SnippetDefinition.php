@@ -35,6 +35,11 @@ class SnippetDefinition extends EntityDefinition
         return SnippetEntity::class;
     }
 
+    public function since(): ?string
+    {
+        return '6.0.0';
+    }
+
     protected function getParentDefinitionClass(): ?string
     {
         return SnippetSetDefinition::class;

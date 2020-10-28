@@ -33,6 +33,11 @@ class SeoUrlTemplateDefinition extends EntityDefinition
         return SeoUrlTemplateCollection::class;
     }
 
+    public function since(): ?string
+    {
+        return '6.0.0';
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([

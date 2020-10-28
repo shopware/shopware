@@ -21,6 +21,11 @@ class ExtendedProductManufacturerDefinition extends EntityDefinition
         return 'extended_product_manufacturer';
     }
 
+    public function since(): ?string
+    {
+        return '6.0.0.0';
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([

@@ -19,6 +19,11 @@ class CustomFieldPlainTestDefinition extends EntityDefinition
         return self::ENTITY_NAME;
     }
 
+    public function since(): ?string
+    {
+        return '6.0.0.0';
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([

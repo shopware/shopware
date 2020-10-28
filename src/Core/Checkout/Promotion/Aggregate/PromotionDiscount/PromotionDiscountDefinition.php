@@ -1,5 +1,4 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount;
 
@@ -38,6 +37,11 @@ class PromotionDiscountDefinition extends EntityDefinition
     public function getCollectionClass(): string
     {
         return PromotionDiscountCollection::class;
+    }
+
+    public function since(): ?string
+    {
+        return '6.0.0';
     }
 
     protected function getParentDefinitionClass(): ?string

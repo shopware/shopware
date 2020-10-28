@@ -84,9 +84,12 @@ class SalesChannelDefinition extends EntityDefinition
 
     public function getDefaults(): array
     {
-        return [
-            'taxCalculationType' => self::CALCULATION_TYPE_HORIZONTAL,
-        ];
+        return ['taxCalculationType' => self::CALCULATION_TYPE_HORIZONTAL];
+    }
+
+    public function since(): ?string
+    {
+        return '6.0.0';
     }
 
     protected function defineFields(): FieldCollection
@@ -176,10 +179,7 @@ class SalesChannelDefinition extends EntityDefinition
         ]);
 
         if (Feature::isActive('FEATURE_NEXT_10555')) {
-            $fields->add(
-                (new OneToManyAssociationField('boundCustomers', CustomerDefinition::class, 'bound_sales_channel_id', 'id'))
-                    ->addFlags(new ReadProtected(SalesChannelApiSource::class))
-            );
+            $fields->add((new OneToManyAssociationField('boundCustomers', CustomerDefinition::class, 'bound_sales_channel_id', 'id'))->addFlags(new ReadProtected(SalesChannelApiSource::class)));
         }
 
         if (Feature::isActive('FEATURE_NEXT_10549')) {

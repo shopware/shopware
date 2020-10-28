@@ -27,6 +27,11 @@ class ActionButtonTranslationDefinition extends EntityTranslationDefinition
         return ActionButtonTranslationCollection::class;
     }
 
+    public function since(): ?string
+    {
+        return '6.3.1.0';
+    }
+
     protected function getParentDefinitionClass(): string
     {
         return ActionButtonDefinition::class;

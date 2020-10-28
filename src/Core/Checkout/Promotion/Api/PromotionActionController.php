@@ -111,6 +111,7 @@ class PromotionActionController extends AbstractController
     }
 
     /**
+     * @Since("6.3.4.0")
      * @Route("/api/v{version}/_action/promotion/discount/picker", name="api.action.promotion.discount.picker", methods={"GET"})
      *
      * @throws \Shopware\Core\Framework\Uuid\Exception\InvalidUuidException

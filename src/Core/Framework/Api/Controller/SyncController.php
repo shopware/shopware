@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\Framework\Api\Controller;
 
@@ -54,15 +52,23 @@ class SyncController extends AbstractController
      */
     public function sync(Request $request, Context $context, int $version): JsonResponse
     {
-        $behavior = new SyncBehavior(filter_var($request->headers->get(PlatformRequest::HEADER_FAIL_ON_ERROR, 'true'), FILTER_VALIDATE_BOOLEAN), filter_var($request->headers->get(PlatformRequest::HEADER_SINGLE_OPERATION, 'false'), FILTER_VALIDATE_BOOLEAN), $request->headers->get(PlatformRequest::HEADER_INDEXING_BEHAVIOR, null));
+        $behavior = new SyncBehavior(
+            filter_var($request->headers->get(PlatformRequest::HEADER_FAIL_ON_ERROR, 'true'), FILTER_VALIDATE_BOOLEAN),
+            filter_var($request->headers->get(PlatformRequest::HEADER_SINGLE_OPERATION, 'false'), FILTER_VALIDATE_BOOLEAN),
+            $request->headers->get(PlatformRequest::HEADER_INDEXING_BEHAVIOR, null)
+        );
+
         $payload = $this->serializer->decode($request->getContent(), 'json');
+
         $operations = [];
         foreach ($payload as $key => $operation) {
             $operations[] = new SyncOperation((string) $key, $operation['entity'], $operation['action'], $operation['payload'], $version);
         }
+
         $result = $context->scope(Context::CRUD_API_SCOPE, function (Context $context) use ($operations, $behavior): SyncResult {
             return $this->syncService->sync($operations, $context, $behavior);
         });
+
         if ($behavior->failOnError() && !$result->isSuccess()) {
             return new JsonResponse($result, 400);
         }

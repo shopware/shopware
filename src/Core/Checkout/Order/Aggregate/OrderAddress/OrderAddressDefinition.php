@@ -41,6 +41,11 @@ class OrderAddressDefinition extends EntityDefinition
         return OrderAddressEntity::class;
     }
 
+    public function since(): ?string
+    {
+        return '6.0.0';
+    }
+
     protected function getParentDefinitionClass(): ?string
     {
         return OrderDefinition::class;

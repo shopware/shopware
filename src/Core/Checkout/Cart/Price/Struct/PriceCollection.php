@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Cart\Price\Struct;
 
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Framework\Struct\Collection;
 
@@ -57,6 +58,19 @@ class PriceCollection extends Collection
         }
 
         return $taxes;
+    }
+
+    public function getHighestTaxRule(): TaxRuleCollection
+    {
+        $rules = new TaxRuleCollection();
+
+        $highestRate = $this->getTaxRules()->highestRate();
+
+        if ($highestRate !== null) {
+            $rules->add(new TaxRule($highestRate->getTaxRate(), 100));
+        }
+
+        return $rules;
     }
 
     public function merge(self $prices): self

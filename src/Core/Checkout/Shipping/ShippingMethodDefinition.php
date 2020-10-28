@@ -22,13 +22,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelShippingMethod\SalesChannelShippingMethodDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\Tag\TagDefinition;
+use Shopware\Core\System\Tax\TaxDefinition;
 
 class ShippingMethodDefinition extends EntityDefinition
 {
@@ -49,9 +52,16 @@ class ShippingMethodDefinition extends EntityDefinition
         return ShippingMethodEntity::class;
     }
 
+    public function getDefaults(): array
+    {
+        return [
+            'taxType' => ShippingMethodEntity::TAX_TYPE_AUTO,
+        ];
+    }
+
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([
+        $collection = new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new TranslatedField('name'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new BoolField('active', 'active'),
@@ -73,5 +83,13 @@ class ShippingMethodDefinition extends EntityDefinition
             (new ManyToManyAssociationField('salesChannels', SalesChannelDefinition::class, SalesChannelShippingMethodDefinition::class, 'shipping_method_id', 'sales_channel_id'))->addFlags(new ReadProtected(SalesChannelApiSource::class)),
             (new OneToManyAssociationField('salesChannelDefaultAssignments', SalesChannelDefinition::class, 'shipping_method_id', 'id'))->addFlags(new RestrictDelete(), new ReadProtected(SalesChannelApiSource::class)),
         ]);
+
+        if (Feature::isActive('FEATURE_NEXT_6995')) {
+            $collection->add(new StringField('tax_type', 'taxType', 50));
+            $collection->add(new FkField('tax_id', 'taxId', TaxDefinition::class));
+            $collection->add(new ManyToOneAssociationField('tax', 'tax_id', TaxDefinition::class));
+        }
+
+        return $collection;
     }
 }

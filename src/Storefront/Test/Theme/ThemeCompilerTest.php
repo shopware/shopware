@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Event\ThemeCompilerEnrichScssVariablesEvent;
 use Shopware\Storefront\Test\Theme\fixtures\MockThemeVariablesSubscriber;
+use Shopware\Storefront\Theme\PhpStyleCompiler;
 use Shopware\Storefront\Theme\ThemeCompiler;
 use Shopware\Storefront\Theme\ThemeFileImporter;
 use Shopware\Storefront\Theme\ThemeFileResolver;
@@ -64,12 +65,12 @@ class ThemeCompilerTest extends TestCase
             $mockFilesystem,
             $mockFilesystem,
             $themeFileResolver,
-            true,
             $eventDispatcher,
             $this->getContainer()->get(ThemeFileImporter::class),
             $mediaRepository,
             ['theme' => new UrlPackage(['http://localhost'], new EmptyVersionStrategy())],
-            $this->getContainer()->get(CacheClearer::class)
+            $this->getContainer()->get(CacheClearer::class),
+            $this->getContainer()->get(PhpStyleCompiler::class)
         );
     }
 

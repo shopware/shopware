@@ -3,9 +3,6 @@
 namespace Shopware\Storefront\Theme;
 
 use League\Flysystem\FilesystemInterface;
-use ScssPhp\ScssPhp\Compiler;
-use ScssPhp\ScssPhp\Formatter\Crunched;
-use ScssPhp\ScssPhp\Formatter\Expanded;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
@@ -15,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Event\ThemeCompilerEnrichScssVariablesEvent;
 use Shopware\Storefront\Theme\Exception\InvalidThemeException;
-use Shopware\Storefront\Theme\Exception\ThemeCompileException;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
@@ -30,9 +26,9 @@ class ThemeCompiler implements ThemeCompilerInterface
     private $filesystem;
 
     /**
-     * @var Compiler
+     * @var AbstractStyleCompiler
      */
-    private $scssCompiler;
+    private $styleCompiler;
 
     /**
      * @var ThemeFileResolver
@@ -69,37 +65,26 @@ class ThemeCompiler implements ThemeCompilerInterface
      */
     private $cacheClearer;
 
-    /**
-     * @var bool
-     */
-    private $debug;
-
     public function __construct(
         FilesystemInterface $filesystem,
         FilesystemInterface $tempFilesystem,
         ThemeFileResolver $themeFileResolver,
-        bool $debug,
         EventDispatcherInterface $eventDispatcher,
         ThemeFileImporterInterface $themeFileImporter,
         EntityRepositoryInterface $mediaRepository,
         iterable $packages,
-        CacheClearer $cacheClearer
+        CacheClearer $cacheClearer,
+        AbstractStyleCompiler $styleCompiler
     ) {
         $this->filesystem = $filesystem;
         $this->tempFilesystem = $tempFilesystem;
         $this->themeFileResolver = $themeFileResolver;
         $this->themeFileImporter = $themeFileImporter;
-
-        $this->scssCompiler = new Compiler();
-        $this->scssCompiler->setImportPaths('');
-
-        $this->scssCompiler->setFormatter($debug ? Expanded::class : Crunched::class);
         $this->eventDispatcher = $eventDispatcher;
         $this->mediaRepository = $mediaRepository;
         $this->packages = $packages;
         $this->cacheClearer = $cacheClearer;
-
-        $this->debug = $debug;
+        $this->styleCompiler = $styleCompiler;
     }
 
     public function compileTheme(
@@ -124,7 +109,9 @@ class ThemeCompiler implements ThemeCompilerInterface
         foreach ($styleFiles as $file) {
             $concatenatedStyles .= $this->themeFileImporter->getConcatenableStylePath($file, $themeConfig);
         }
-        $compiled = $this->compileStyles($concatenatedStyles, $themeConfig, $styleFiles->getResolveMappings(), $salesChannelId);
+        $variables = $this->dumpVariables($themeConfig->getThemeConfig(), $salesChannelId);
+        $compileContext = new StyleCompileContext($variables, $concatenatedStyles, $themeConfig, $styleFiles->getResolveMappings(), $salesChannelId);
+        $compiled = $this->styleCompiler->compileStyles($compileContext);
         $cssFilepath = $outputPath . DIRECTORY_SEPARATOR . 'css' . DIRECTORY_SEPARATOR . 'all.css';
         $this->filesystem->put($cssFilepath, $compiled);
 
@@ -179,49 +166,6 @@ class ThemeCompiler implements ThemeCompilerInterface
             // method copyBatch is provided by copyBatch filesystem plugin
             $this->filesystem->copyBatch(...$assets);
         }
-    }
-
-    private function compileStyles(
-        string $concatenatedStyles,
-        StorefrontPluginConfiguration $configuration,
-        array $resolveMappings,
-        string $salesChannelId
-    ): string {
-        $this->scssCompiler->addImportPath(function ($originalPath) use ($resolveMappings) {
-            foreach ($resolveMappings as $resolve => $resolvePath) {
-                $resolve = '~' . $resolve;
-                if (mb_strpos($originalPath, $resolve) === 0) {
-                    $dirname = $resolvePath . dirname(mb_substr($originalPath, mb_strlen($resolve)));
-                    $filename = basename($originalPath);
-                    $extension = pathinfo($filename, PATHINFO_EXTENSION) === '' ? '.scss' : '';
-                    $path = $dirname . DIRECTORY_SEPARATOR . $filename . $extension;
-                    if (file_exists($path)) {
-                        return $path;
-                    }
-
-                    $path = $dirname . DIRECTORY_SEPARATOR . '_' . $filename . $extension;
-                    if (file_exists($path)) {
-                        return $path;
-                    }
-                }
-            }
-
-            return null;
-        });
-
-        $variables = $this->dumpVariables($configuration->getThemeConfig(), $salesChannelId);
-
-        try {
-            $cssOutput = $this->scssCompiler->compile($variables . $concatenatedStyles);
-        } catch (\Throwable $exception) {
-            throw new ThemeCompileException(
-                $configuration->getTechnicalName(),
-                $exception->getMessage()
-            );
-        }
-        $autoPreFixer = new Autoprefixer($cssOutput);
-
-        return $autoPreFixer->compile($this->debug);
     }
 
     private function formatVariables(array $variables): array

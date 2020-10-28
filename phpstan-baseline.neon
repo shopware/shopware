@@ -7428,7 +7428,7 @@ parameters:
 		-
 			message: "#^Parameter \\#1 \\$themeName of class Shopware\\\\Storefront\\\\Theme\\\\Exception\\\\ThemeCompileException constructor expects string, string\\|null given\\.$#"
 			count: 1
-			path: src/Storefront/Theme/ThemeCompiler.php
+			path: src/Storefront/Theme/PhpStyleCompiler.php
 
 		-
 			message: "#^Property Shopware\\\\Storefront\\\\Theme\\\\ThemeConfigField\\:\\:\\$value has no typehint specified\\.$#"

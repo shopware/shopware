@@ -1,3 +1,4 @@
+
 {% block sw_settings_shipping_detail %}
     <sw-page class="sw-settings-shipping-detail">
 
@@ -60,6 +61,7 @@
                                     <sw-field type="text"
                                               required
                                               :disabled="!acl.can('shipping.editor')"
+                                              :error="shippingMethodNameError"
                                               :label="$tc('sw-settings-shipping.detail.labelName')"
                                               :placeholder="placeholder(shippingMethod, 'name', $tc('sw-settings-shipping.detail.placeholderName'))"
                                               v-model="shippingMethod.name">
@@ -115,6 +117,7 @@
                                     :criteria="deliveryTimeCriteria"
                                     :label="$tc('sw-settings-shipping.detail.labelDeliveryTime')"
                                     :placeholder="$tc('sw-settings-shipping.detail.placeholderDeliveryTime')"
+                                    :error="shippingMethodDeliveryTimeIdError"
                                     required>
                                 </sw-entity-single-select>
                             {% endblock %}
@@ -148,6 +151,7 @@
                                                        :ruleFilter="ruleFilter"
                                                        :disabled="!acl.can('shipping.editor')"
                                                        required
+                                                       :error="shippingMethodAvailabilityRuleIdError"
                                                        :label="$tc('sw-settings-shipping.detail.topRule')"
                                                        class="sw-settings-shipping-detail__top-rule"
                                                        @save-rule="onSaveRule">

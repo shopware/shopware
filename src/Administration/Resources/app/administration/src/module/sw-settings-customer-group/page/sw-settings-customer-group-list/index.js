@@ -42,9 +42,6 @@ Component.register('sw-settings-customer-group-list', {
         allCustomerGroupsCriteria() {
             const criteria = new Criteria(this.page, this.limit);
 
-            criteria.addAssociation('salesChannels')
-                .addAssociation('customers');
-
             criteria.setTerm(this.term);
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
 
@@ -93,9 +90,6 @@ Component.register('sw-settings-customer-group-list', {
             criteria.addFilter(
                 Criteria.equalsAny('id', idsOfSelectedCustomerGroups)
             );
-
-            criteria.addAssociation('salesChannels')
-                .addAssociation('customers');
 
             return criteria;
         },

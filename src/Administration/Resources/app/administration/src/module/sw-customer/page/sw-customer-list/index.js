@@ -202,8 +202,6 @@ Component.register('sw-customer-list', {
             if (this.feature.isActive('FEATURE_NEXT_10555')) {
                 columns.push({
                     property: 'boundSalesChannelId',
-                    dataIndex: 'boundSalesChannel',
-                    inlineEdit: 'string',
                     label: 'sw-customer.list.columnBoundSalesChannel',
                     allowResize: true,
                     visible: false

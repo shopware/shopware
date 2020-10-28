@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-sales-channel-modal', {
     template,
 
-    inject: { repositoryFactory: 'repositoryFactory' },
+    inject: ['repositoryFactory'],
 
     data() {
         return {

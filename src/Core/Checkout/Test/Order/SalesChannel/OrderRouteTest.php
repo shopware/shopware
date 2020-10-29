@@ -186,8 +186,6 @@ class OrderRouteTest extends TestCase
 
     public function testGetOrderShowsValidDocuments(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10537', $this);
-
         $this->createDocument($this->orderId);
 
         $criteria = new Criteria([$this->orderId]);
@@ -209,8 +207,6 @@ class OrderRouteTest extends TestCase
 
     public function testGetOrderDoesNotShowUnAvailableDocuments(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10537', $this);
-
         $this->createDocument($this->orderId, false);
 
         $criteria = new Criteria([$this->orderId]);
@@ -232,8 +228,6 @@ class OrderRouteTest extends TestCase
 
     public function testGetOrderDoesNotShowHasNotSentDocument(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10537', $this);
-
         $this->createDocument($this->orderId, true, false);
 
         $criteria = new Criteria([$this->orderId]);

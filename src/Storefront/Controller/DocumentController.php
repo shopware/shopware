@@ -29,8 +29,6 @@ class DocumentController extends StorefrontController
     /**
      * @Route("/account/order/document/{documentId}/{deepLinkCode}", name="frontend.account.order.single.document", methods={"GET"})
      *
-     * @internal (flag:FEATURE_NEXT_10537)
-     *
      * @throws InvalidDocumentException
      */
     public function downloadDocument(Request $request, SalesChannelContext $context): Response

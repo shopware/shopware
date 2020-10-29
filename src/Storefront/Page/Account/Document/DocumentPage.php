@@ -5,9 +5,6 @@ namespace Shopware\Storefront\Page\Account\Document;
 use Shopware\Core\Checkout\Document\GeneratedDocument;
 use Shopware\Storefront\Page\Page;
 
-/*
- * @internal (flag:FEATURE_NEXT_10537)
- */
 class DocumentPage extends Page
 {
     /**

@@ -1,7 +1,6 @@
 ---
 title: Customers are able to view document order from Storefront
 issue: NEXT-10976
-flag: FEATURE_NEXT_10537
 ---
 # Storefront
 *  Added a new Storefront Route named `frontend.account.order.single.document` in `Shopware\Storefront\Controller\DocumentController` that allows customer to view order's documents from Storefront.

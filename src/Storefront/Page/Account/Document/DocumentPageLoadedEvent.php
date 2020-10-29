@@ -6,9 +6,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\PageLoadedEvent;
 use Symfony\Component\HttpFoundation\Request;
 
-/*
- * @internal (flag:FEATURE_NEXT_10537)
- */
 class DocumentPageLoadedEvent extends PageLoadedEvent
 {
     /**

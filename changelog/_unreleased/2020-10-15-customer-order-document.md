@@ -1,7 +1,6 @@
 ---
 title:  Customer order document
-issue:  NEXT-10975   
-flag :  FEATURE_NEXT_10537
+issue:  NEXT-10975
 ---
 # Administration
 * Added new bool field `displayInCustomerAccount` to data prop `generalFormFields` in `module/sw-settings-document/page/sw-settings-document-detail/index.js`

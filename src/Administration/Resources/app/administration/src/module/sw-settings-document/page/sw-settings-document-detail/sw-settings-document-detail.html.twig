@@ -81,7 +81,6 @@
                                 <template v-if="documentConfig.config" v-for="formField in generalFormFields">
                                     {% block sw_settings_document_detail_content_form_field_renderer %}
                                         <sw-form-field-renderer
-                                            v-if="formField.name !== 'displayInCustomerAccount' || feature.isActive('FEATURE_NEXT_10537')"
                                             :disabled="!acl.can('document.editor')"
                                             class="sw-settings-document-detail__form-field-renderer"
                                             v-bind="formField"

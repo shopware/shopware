@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Cart\Tax\Struct;
 
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\Framework\Util\FloatComparator;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
@@ -20,18 +21,18 @@ class TaxRule extends Struct
 
     public function __construct(float $taxRate, float $percentage = 100.0)
     {
-        $this->taxRate = $taxRate;
-        $this->percentage = $percentage;
+        $this->taxRate = FloatComparator::cast($taxRate);
+        $this->percentage = FloatComparator::cast($percentage);
     }
 
     public function getTaxRate(): float
     {
-        return $this->taxRate;
+        return FloatComparator::cast($this->taxRate);
     }
 
     public function getPercentage(): float
     {
-        return $this->percentage;
+        return FloatComparator::cast($this->percentage);
     }
 
     public static function getConstraints(): array

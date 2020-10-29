@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Cart\Price\Struct;
 
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\Framework\Util\FloatComparator;
 
 class ReferencePriceDefinition extends Struct
 {
@@ -23,19 +24,19 @@ class ReferencePriceDefinition extends Struct
 
     public function __construct(float $purchaseUnit, float $referenceUnit, string $unitName)
     {
-        $this->purchaseUnit = $purchaseUnit;
-        $this->referenceUnit = $referenceUnit;
+        $this->purchaseUnit = FloatComparator::cast($purchaseUnit);
+        $this->referenceUnit = FloatComparator::cast($referenceUnit);
         $this->unitName = $unitName;
     }
 
     public function getPurchaseUnit(): float
     {
-        return $this->purchaseUnit;
+        return FloatComparator::cast($this->purchaseUnit);
     }
 
     public function getReferenceUnit(): float
     {
-        return $this->referenceUnit;
+        return FloatComparator::cast($this->referenceUnit);
     }
 
     public function getUnitName(): string

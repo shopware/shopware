@@ -93,6 +93,15 @@ Component.register('sw-users-permissions-user-detail', {
             return criteria;
         },
 
+        aclRoleCriteria() {
+            const criteria = new Criteria();
+
+            // Roles created by apps should not be assignable in the admin
+            criteria.addFilter(Criteria.equals('app.id', null));
+
+            return criteria;
+        },
+
         languageRepository() {
             return this.repositoryFactory.create('language');
         },

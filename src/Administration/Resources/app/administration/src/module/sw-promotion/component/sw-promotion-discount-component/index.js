@@ -351,7 +351,7 @@ Component.register('sw-promotion-discount-component', {
         },
 
         onCloseAdvancedPricesModal() {
-            if (this.discount.maxValue === null) {
+            if ((this.discount.type === DiscountTypes.PERCENTAGE) && this.discount.maxValue === null) {
                 // clear any currency values if max value is gone
                 this.clearAdvancedPrices();
             } else {

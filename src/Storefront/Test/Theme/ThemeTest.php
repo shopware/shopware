@@ -23,7 +23,6 @@ use Shopware\Storefront\Theme\ThemeEntity;
 use Shopware\Storefront\Theme\ThemeLifecycleService;
 use Shopware\Storefront\Theme\ThemeService;
 use Symfony\Component\Config\Loader\LoaderInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\KernelInterface;
 
@@ -408,8 +407,7 @@ class ThemeTest extends TestCase
                     }
                 },
                 $this->getContainer()->get(StorefrontPluginConfigurationFactory::class),
-                // ToDo: NEXT-10286: remove on invalid null behaviour when feature flag is removed
-                $this->getContainer()->get(ActiveAppsLoader::class, ContainerInterface::NULL_ON_INVALID_REFERENCE)
+                $this->getContainer()->get(ActiveAppsLoader::class)
             ),
             $this->getContainer()->get('theme.repository'),
             $this->getContainer()->get('theme_sales_channel.repository'),

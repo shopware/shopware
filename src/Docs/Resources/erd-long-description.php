@@ -708,4 +708,30 @@ EOD
     Shopware\Core\Framework\Event\EventAction\Aggregate\EventActionRule\EventActionRuleDefinition::class => '',
     Shopware\Core\Framework\Event\EventAction\Aggregate\EventActionSalesChannel\EventActionSalesChannelDefinition::class => '',
     Shopware\Core\System\Integration\Aggregate\IntegrationRole\IntegrationRoleDefinition::class => '',
+    Shopware\Core\Framework\App\AppDefinition::class => <<<'EOD'
+Represents an installed app in the system.
+EOD
+    ,
+    Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationDefinition::class => '',
+    Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonDefinition::class => <<<'EOD'
+A single action button that an app has registered.
+EOD
+    ,
+    Shopware\Core\Framework\App\Aggregate\ActionButtonTranslation\ActionButtonTranslationDefinition::class => '',
+    Shopware\Core\Framework\App\Template\TemplateDefinition::class => <<<'EOD'
+A template change provided by an app.
+EOD
+    ,
+    Shopware\Core\Framework\Webhook\WebhookDefinition::class => <<<'EOD'
+The configuration for a webhook that should be dispatched to an external system.
+EOD
+    ,
+    'Shopware\\Core\\Framework\\App' => <<<'EOD'
+Provides the technical basis and extension points for the app system.
+EOD
+    ,
+    'Shopware\\Core\\Framework\\Webhook' => <<<'EOD'
+Functionality to dispatch events via webhooks to external systems.
+EOD
+    ,
 ];

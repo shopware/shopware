@@ -69,7 +69,7 @@ Application
         return new PrivilegesService();
     })
     .addServiceProvider('acl', () => {
-        return new AclService(Shopware.State);
+        return new AclService(Shopware.State, Shopware.State.get('settingsItems'));
     })
     .addServiceProvider('loginService', () => {
         const serviceContainer = Application.getContainer('service');

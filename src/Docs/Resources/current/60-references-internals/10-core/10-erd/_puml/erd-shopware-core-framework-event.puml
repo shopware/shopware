@@ -28,6 +28,7 @@ Table(ShopwareCoreFrameworkEventEventActionEventActionDefinition, "event_action\
    not_null(actionName) string
    config json
    active bool
+   title string
    not_null(createdAt) createdAt
    updatedAt updatedAt
 }
@@ -47,7 +48,7 @@ ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channe
 ' relationshipd
 
 ShopwareCoreFrameworkEventEventActionAggregateEventActionRuleEventActionRuleDefinition --> ShopwareCoreFrameworkEventEventActionEventActionDefinition
-ShopwareCoreFrameworkEventEventActionAggregateEventActionRuleEventActionRuleDefinition --> ShopwareCoreContentRuleRuleDefinition
 ShopwareCoreFrameworkEventEventActionAggregateEventActionSalesChannelEventActionSalesChannelDefinition --> ShopwareCoreFrameworkEventEventActionEventActionDefinition
+ShopwareCoreFrameworkEventEventActionAggregateEventActionRuleEventActionRuleDefinition --> ShopwareCoreContentRuleRuleDefinition
 ShopwareCoreFrameworkEventEventActionAggregateEventActionSalesChannelEventActionSalesChannelDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 @enduml

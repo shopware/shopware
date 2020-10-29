@@ -6,14 +6,13 @@ parameters:
     treatPhpDocTypesAsCertain: false
     checkMissingIterableValueType: false
     inferPrivatePropertyTypeFromConstructor: true
-    tmpDir: %rootDir%/../../../../../../../var/cache/phpstan
+    tmpDir: ../var/cache/phpstan
     paths:
         - src
-        - ../src
     symfony:
         constant_hassers: false
         # the placeholder "%ShopwareHashedCacheDir%" will be replaced on execution by dev-ops/analyze/phpstan-config-generator.php script
-        container_xml_path: '%rootDir%/../../../../../../..%ShopwareHashedCacheDir%/srcShopware_Development_KernelDevDebugContainer.xml'
+        container_xml_path: '..%ShopwareHashedCacheDir%/srcShopware_Development_KernelDevDebugContainer.xml'
 
     featureToggles:
         unusedClassElements: true

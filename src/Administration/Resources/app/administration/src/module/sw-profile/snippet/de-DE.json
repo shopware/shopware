@@ -37,5 +37,12 @@
       "labelButtonCancel": "Abbrechen",
       "labelButtonConfirm": "Bestätigen"
     }
+  },
+  "sw-privileges": {
+    "additional_permissions": {
+      "user": {
+        "update_profile": "Eigenes Profil ändern"
+      }
+    }
   }
 }

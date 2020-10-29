@@ -40,6 +40,11 @@ class PromotionCartAddedInformationError extends Error
         return self::KEY;
     }
 
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
     public function getParameters(): array
     {
         return [

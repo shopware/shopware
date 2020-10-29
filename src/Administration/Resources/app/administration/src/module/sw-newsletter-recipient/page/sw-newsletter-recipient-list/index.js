@@ -6,7 +6,7 @@ const { Component, Mixin, Data: { Criteria, EntityCollection } } = Shopware;
 Component.register('sw-newsletter-recipient-list', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('listing')
@@ -58,7 +58,7 @@ Component.register('sw-newsletter-recipient-list', {
             this.tagCollection = new EntityCollection('/tag', 'tag', Shopware.Context.api, new Criteria());
 
             const criteria = new Criteria(1, 100);
-            this.languageStore.search(criteria, Shopware.Context.api).then((items) => {
+            this.repositoryFactory.create('language').search(criteria, Shopware.Context.api).then((items) => {
                 this.languageFilters = items;
             });
 

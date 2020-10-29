@@ -40,6 +40,7 @@ class NestedEntityBusinessEvent implements BusinessEventInterface, BusinessEvent
                     'name' => $this->tax->getName(),
                     'taxRate' => (int) $this->tax->getTaxRate(),
                     'products' => null,
+                    'shippingMethods' => null,
                     'customFields' => null,
                     'translated' => [],
                     'createdAt' => $this->tax->getCreatedAt()->format(DATE_RFC3339_EXTENDED),

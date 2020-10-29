@@ -54,6 +54,7 @@ describe('Shipping: Test crud operations', () => {
         // Edit base data
         cy.get('.sw-data-grid__cell-value').contains('Luftpost').click();
         cy.get('input[name=sw-field--shippingMethod-name]').clearTypeAndCheck('Wasserpost');
+        page.createShippingMethodTax();
         page.createShippingMethodPriceRule();
 
         cy.get(page.elements.shippingSaveAction).click();

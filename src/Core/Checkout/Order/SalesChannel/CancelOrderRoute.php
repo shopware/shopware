@@ -62,8 +62,7 @@ class CancelOrderRoute extends AbstractCancelOrderRoute
             $request->get('orderId'),
             'cancel',
             new ParameterBag(),
-            $context->getContext(),
-            $context->getCustomer()->getId()
+            $context->getContext()
         );
 
         return new CancelOrderRouteResponse($newState);

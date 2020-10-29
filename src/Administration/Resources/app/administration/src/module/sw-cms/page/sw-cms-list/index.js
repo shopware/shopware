@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-cms-list', {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: ['repositoryFactory', 'acl', 'feature'],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -60,26 +60,32 @@ Component.register('sw-cms-list', {
         },
 
         sortPageTypes() {
-            return [
+            const sortPageTypes = [
                 { value: '', name: this.$tc('sw-cms.sorting.labelSortByAllPages'), active: true },
                 { value: 'page', name: this.$tc('sw-cms.sorting.labelSortByShopPages') },
                 { value: 'landingpage', name: this.$tc('sw-cms.sorting.labelSortByLandingPages') },
                 { value: 'product_list', name: this.$tc('sw-cms.sorting.labelSortByCategoryPages') }
-
-                // Will be implemented in the future
-                // { value: 'product_detail', name: this.$tc('sw-cms.sorting.labelSortByProductPages'), disabled: true }
             ];
+
+            if (this.feature.isActive('FEATURE_NEXT_10078')) {
+                sortPageTypes.push({ value: 'product_detail', name: this.$tc('sw-cms.sorting.labelSortByProductPages') });
+            }
+
+            return sortPageTypes;
         },
 
         pageTypes() {
-            return {
+            const pageTypes = {
                 page: this.$tc('sw-cms.sorting.labelSortByShopPages'),
                 landingpage: this.$tc('sw-cms.sorting.labelSortByLandingPages'),
                 product_list: this.$tc('sw-cms.sorting.labelSortByCategoryPages')
-
-                // Will be implemented in the future
-                // product_detail: this.$tc('sw-cms.sorting.labelSortByProductPages')
             };
+
+            if (this.feature.isActive('FEATURE_NEXT_10078')) {
+                pageTypes.product_detail = this.$tc('sw-cms.sorting.labelSortByProductPages');
+            }
+
+            return pageTypes;
         },
 
         sortingConCat() {

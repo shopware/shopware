@@ -127,7 +127,6 @@ function globalErrorHandlingInterceptor(client) {
             // create a fallback if the backend structure does not match the convention
             try {
                 const missingPrivilegeErrors = errors.filter(e => e.code === 'FRAMEWORK__MISSING_PRIVILEGE_ERROR');
-
                 missingPrivilegeErrors.forEach(missingPrivilegeError => {
                     const detail = JSON.parse(missingPrivilegeError.detail);
                     let missingPrivileges = detail.missingPrivileges;
@@ -159,6 +158,32 @@ function globalErrorHandlingInterceptor(client) {
                         system: true,
                         autoClose: false,
                         growl: true,
+                        title: singleError.title,
+                        message: singleError.detail
+                    });
+                });
+            }
+        }
+
+        if (status === 409) {
+            try {
+                if (errors[0].code === 'FRAMEWORK__DELETE_RESTRICTED') {
+                    const parameters = errors[0].meta.parameters;
+
+                    const entityName = Shopware.Utils.string.capitalizeString(parameters.entity);
+                    const blockingEntities = parameters.usages.reduce((message, entity) => `${message}<br>${entity}`, '');
+                    Shopware.State.dispatch('notification/createNotification', {
+                        variant: 'error',
+                        title: $tc('global.default.error'),
+                        message: `"${entityName}" ${$tc('global.notification.messageDeleteFailed')}${blockingEntities}`
+                    });
+                }
+            } catch (e) {
+                Shopware.Utils.debug.error(e);
+
+                errors.forEach(singleError => {
+                    Shopware.State.dispatch('notification/createNotification', {
+                        variant: 'error',
                         title: singleError.title,
                         message: singleError.detail
                     });

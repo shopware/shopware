@@ -87,11 +87,6 @@ describe('Mail templates: Test crud privileges', () => {
         cy.get('#sw-field--mailTemplate-subject').clear().type('Subject');
         cy.get('#sw-field--mailTemplate-senderName').clear().type('DemoShop');
 
-        cy.get('.sw-mail-template-detail__sales-channel').scrollIntoView();
-        cy.get('.sw-mail-template-detail__sales-channel').typeMultiSelectAndCheck('Headless');
-        cy.get('.sw-mail-template-detail__sales-channel .sw-select-selection-list__input')
-            .type('{esc}');
-
         // do saving action
         cy.get(page.elements.mailTemplateSaveAction).click();
 
@@ -105,9 +100,6 @@ describe('Mail templates: Test crud privileges', () => {
         // verify fields
         cy.get(`${page.elements.mailTemplateGridList} ${page.elements.dataGridRow}--0 ${page.elements.mailTemplateColumnDescription}`)
             .contains('Default description');
-
-        cy.get(`${page.elements.mailTemplateGridList} ${page.elements.dataGridRow}--0 ${page.elements.mailTemplateColumnSalesChannel}`)
-            .contains('Headless');
     });
 
     it('@settings: delete email template', () => {
@@ -251,11 +243,6 @@ describe('Mail templates: Test crud privileges', () => {
         // update fields
         cy.get('#sw-field--mailHeaderFooter-description').clear().type('Edited description');
 
-        cy.get('.sw-mail-header-footer-detail__sales-channel').scrollIntoView();
-        cy.get('.sw-mail-header-footer-detail__sales-channel').typeMultiSelectAndCheck('Storefront');
-        cy.get('.sw-mail-header-footer-detail__sales-channel .sw-select-selection-list__input')
-            .type('{esc}');
-
         // do saving action
         cy.get(page.elements.mailHeaderFooterSaveAction).click();
 
@@ -269,9 +256,6 @@ describe('Mail templates: Test crud privileges', () => {
         // verify fields
         cy.get(`${page.elements.mailHeaderFooterGridList} ${page.elements.dataGridRow}--0 ${page.elements.mailHeaderFooterColumnDescription}`)
             .contains('Edited description');
-
-        cy.get(`${page.elements.mailHeaderFooterGridList} ${page.elements.dataGridRow}--0 ${page.elements.mailHeaderFooterColumnSalesChannel}`)
-            .contains('Storefront');
     });
 
     it('@settings: delete email header footer', () => {

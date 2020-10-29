@@ -88,7 +88,8 @@ class ConfigReader extends XmlReader
     private function getCardName(\DOMElement $element): ?string
     {
         foreach ($element->getElementsByTagName('name') as $name) {
-            if ($name->parentNode->nodeName !== 'card') {
+            $parentNode = $name->parentNode;
+            if (($parentNode !== null) && $parentNode->nodeName !== 'card') {
                 continue;
             }
 
@@ -168,8 +169,13 @@ class ConfigReader extends XmlReader
 
         foreach ($element->getElementsByTagName('option') as $option) {
             /* @var \DOMElement $option */
+            $idTag = $option->getElementsByTagName('id')->item(0);
+            if ($idTag === null) {
+                continue;
+            }
+
             $options[] = [
-                'id' => $option->getElementsByTagName('id')->item(0)->nodeValue,
+                'id' => $idTag->nodeValue,
                 'name' => $this->getOptionLabels($option),
             ];
         }

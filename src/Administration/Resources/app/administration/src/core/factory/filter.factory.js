@@ -57,7 +57,7 @@ function register(filterName, filterFactoryMethod = noop) {
     if (filterRegistry.has(filterName)) {
         warn(
             name,
-            `The filter "${filterName}" is already registered. Please select a unique name for your filter.`,
+            `The filter "${filterName}" is already registered. Please select a unique name for your filter.`
         );
         return false;
     }

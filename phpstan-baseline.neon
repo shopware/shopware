@@ -841,26 +841,6 @@ parameters:
 			path: src/Core/Checkout/Order/SalesChannel/OrderRouteResponseStruct.php
 
 		-
-			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Order/SalesChannel/OrderService.php
-
-		-
-			message: "#^Cannot call method getDecimalPrecision\\(\\) on Shopware\\\\Core\\\\System\\\\Currency\\\\CurrencyEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Order/SalesChannel/OrderService.php
-
-		-
-			message: "#^Parameter \\#1 \\$orderId of class Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Exception\\\\OrderNotFoundException constructor expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Order/SalesChannel/OrderService.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Order\\\\SalesChannel\\\\OrderService\\:\\:getOrder\\(\\) should return Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderEntity but returns Shopware\\\\Core\\\\Checkout\\\\Order\\\\OrderEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Order/SalesChannel/OrderService.php
-
-		-
 			message: "#^Cannot access offset \\(int\\|string\\) on array\\<Shopware\\\\Core\\\\Checkout\\\\Payment\\\\Cart\\\\PaymentHandler\\\\AsynchronousPaymentHandlerInterface\\>\\|Shopware\\\\Core\\\\Checkout\\\\Payment\\\\Cart\\\\PaymentHandler\\\\SynchronousPaymentHandlerInterface\\.$#"
 			count: 2
 			path: src/Core/Checkout/Payment/Cart/PaymentHandler/PaymentHandlerRegistry.php
@@ -1141,11 +1121,6 @@ parameters:
 			path: src/Core/Content/Cms/DataResolver/Element/AbstractCmsElementResolver.php
 
 		-
-			message: "#^Parameter \\#1 \\$field of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Entity\\:\\:getTranslation\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/Cms/DataResolver/Element/AbstractCmsElementResolver.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Cms\\\\DataResolver\\\\Element\\\\ElementDataCollection\\:\\:\\$searchResults has no typehint specified\\.$#"
 			count: 1
 			path: src/Core/Content/Cms/DataResolver/Element/ElementDataCollection.php
@@ -1184,16 +1159,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Content\\\\Content\\:\\:\\$name has no typehint specified\\.$#"
 			count: 1
 			path: src/Core/Content/Content.php
-
-		-
-			message: "#^Parameter \\#1 \\$time of class DateTimeImmutable constructor expects string, array\\<string\\>\\|string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Command/ImportEntityCommand.php
-
-		-
-			message: "#^Parameter \\#2 \\.\\.\\.\\$args of function sprintf expects bool\\|float\\|int\\|string\\|null, array\\<string\\>\\|string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/Command/ImportEntityCommand.php
 
 		-
 			message: "#^Parameter \\#1 \\$path of class Symfony\\\\Component\\\\HttpFoundation\\\\File\\\\UploadedFile constructor expects string, array\\<string\\>\\|string\\|null given\\.$#"
@@ -2876,11 +2841,6 @@ parameters:
 			path: src/Core/Framework/Adapter/Twig/InstanceOfExtension.php
 
 		-
-			message: "#^Cannot call method aggregate\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityRepositoryInterface\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Twig/NamespaceHierarchy/BundleHierarchyBuilder.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\NamespaceHierarchy\\\\NamespaceHierarchyBuilder\\:\\:\\$namespaceHierarchyBuilders \\(array\\<Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\NamespaceHierarchy\\\\TemplateNamespaceHierarchyBuilderInterface\\>\\) does not accept iterable\\.$#"
 			count: 1
 			path: src/Core/Framework/Adapter/Twig/NamespaceHierarchy/NamespaceHierarchyBuilder.php
@@ -2909,21 +2869,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$str of function ltrim expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Framework/Adapter/Twig/TokenParser/ExtendsTokenParser.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Acl\\\\AclWriteValidator\\:\\:buildViolation\\(\\) has parameter \\$invalidValue with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Acl/AclWriteValidator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Acl\\\\AclWriteValidator\\:\\:buildViolation\\(\\) has parameter \\$root with no typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Acl/AclWriteValidator.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\Acl\\\\AclWriteValidator\\:\\:getPrivilegeForParentWriteOperation\\(\\) should return string but returns string\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Acl/AclWriteValidator.php
 
 		-
 			message: "#^Call to an undefined method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Entity\\\\SalesChannelDefinitionInterface\\:\\:getEntityName\\(\\)\\.$#"
@@ -4861,21 +4806,6 @@ parameters:
 			path: src/Core/Framework/Demodata/DemodataContext.php
 
 		-
-			message: "#^Parameter \\#1 \\$class of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\DefinitionInstanceRegistry\\:\\:get\\(\\) expects string, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|string given\\.$#"
-			count: 1
-			path: src/Core/Framework/Demodata/DemodataService.php
-
-		-
-			message: "#^Parameter \\#2 \\.\\.\\.\\$args of function sprintf expects bool\\|float\\|int\\|string\\|null, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|string given\\.$#"
-			count: 1
-			path: src/Core/Framework/Demodata/DemodataService.php
-
-		-
-			message: "#^Parameter \\#1 \\$definition of method Shopware\\\\Core\\\\Framework\\\\Demodata\\\\DemodataRequest\\:\\:getOptions\\(\\) expects string, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\|string given\\.$#"
-			count: 1
-			path: src/Core/Framework/Demodata/DemodataService.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Demodata\\\\Faker\\\\Commerce\\:\\:\\$productName has no typehint specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Demodata/Faker/Commerce.php
@@ -4926,16 +4856,6 @@ parameters:
 			path: src/Core/Framework/Demodata/Generator/CustomFieldGenerator.php
 
 		-
-			message: "#^Parameter \\#3 \\.\\.\\.\\$args of function sprintf expects bool\\|float\\|int\\|string\\|null, array\\|string given\\.$#"
-			count: 1
-			path: src/Core/Framework/Demodata/Generator/MailHeaderFooterGenerator.php
-
-		-
-			message: "#^Parameter \\#3 \\.\\.\\.\\$args of function sprintf expects bool\\|float\\|int\\|string\\|null, array\\|string given\\.$#"
-			count: 1
-			path: src/Core/Framework/Demodata/Generator/MailTemplateGenerator.php
-
-		-
 			message: "#^Parameter \\#2 \\$mimeType of class Shopware\\\\Core\\\\Content\\\\Media\\\\File\\\\MediaFile constructor expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Core/Framework/Demodata/Generator/MediaGenerator.php
@@ -4952,11 +4872,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Demodata\\\\Generator\\\\ProductGenerator\\:\\:getTaxes\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Framework/Demodata/Generator/ProductGenerator.php
-
-		-
-			message: "#^Parameter \\#3 \\.\\.\\.\\$args of function sprintf expects bool\\|float\\|int\\|string\\|null, array\\|string given\\.$#"
 			count: 1
 			path: src/Core/Framework/Demodata/Generator/ProductGenerator.php
 
@@ -6041,24 +5956,9 @@ parameters:
 			path: src/Core/Migration/Migration1582011195FixCountryStateGermanTranslation.php
 
 		-
-			message: "#^Parameter \\#1 \\$str of function substr expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Migration/Migration1588153272UpdateGermanMailTemplates.php
-
-		-
-			message: "#^Parameter \\#1 \\$str of function substr expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Migration/Migration1591253089OrderDeeplinkForMailTemplates.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Migration1591361320ChargebackAndAuthorized\\:\\:getLanguageId\\(\\) has no return typehint specified\\.$#"
 			count: 1
 			path: src/Core/Migration/Migration1591361320ChargebackAndAuthorized.php
-
-		-
-			message: "#^Parameter \\#1 \\$str of function substr expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Migration/Migration1595553089FixOrderConfirmationMailForAllPayloads.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Migration\\\\Test\\\\NullConnection\\:\\:setOriginalConnection\\(\\) has parameter \\$originalConnection with no typehint specified\\.$#"
@@ -6242,11 +6142,6 @@ parameters:
 
 		-
 			message: "#^Argument of an invalid type array\\|ArrayObject\\|bool\\|float\\|int\\|string\\|null supplied for foreach, only iterables are supported\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/Api/StructEncoder.php
-
-		-
-			message: "#^Parameter \\#1 \\$struct of method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\Api\\\\StructEncoder\\:\\:encode\\(\\) expects Shopware\\\\Core\\\\Framework\\\\Struct\\\\Struct, Shopware\\\\Core\\\\Framework\\\\Struct\\\\Struct\\|null given\\.$#"
 			count: 1
 			path: src/Core/System/SalesChannel/Api/StructEncoder.php
 
@@ -6451,16 +6346,6 @@ parameters:
 			path: src/Core/System/Snippet/Files/SnippetFileCollection.php
 
 		-
-			message: "#^Cannot call method getActiveApps\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\ActiveAppsLoader\\|null\\.$#"
-			count: 1
-			path: src/Core/System/Snippet/Files/SnippetFileLoader.php
-
-		-
-			message: "#^Cannot call method loadSnippetFilesFromApp\\(\\) on Shopware\\\\Core\\\\System\\\\Snippet\\\\Files\\\\AppSnippetFileLoader\\|null\\.$#"
-			count: 1
-			path: src/Core/System/Snippet/Files/SnippetFileLoader.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\System\\\\Snippet\\\\Filter\\\\AddedFilter\\:\\:filter\\(\\) has parameter \\$requestFilterValue with no typehint specified\\.$#"
 			count: 1
 			path: src/Core/System/Snippet/Filter/AddedFilter.php
@@ -6651,16 +6536,6 @@ parameters:
 			path: src/Core/System/SystemConfig/SystemConfigService.php
 
 		-
-			message: "#^Cannot access property \\$nodeName on DOMElement\\|null\\.$#"
-			count: 1
-			path: src/Core/System/SystemConfig/Util/ConfigReader.php
-
-		-
-			message: "#^Cannot access property \\$nodeValue on DOMElement\\|null\\.$#"
-			count: 1
-			path: src/Core/System/SystemConfig/Util/ConfigReader.php
-
-		-
 			message: "#^Offset 'states' does not exist on array\\|null\\.$#"
 			count: 1
 			path: src/Core/System/Tax/TaxRuleType/IndividualStatesRuleTypeFilter.php
@@ -6679,26 +6554,6 @@ parameters:
 			message: "#^Offset 'zipCode' does not exist on array\\|null\\.$#"
 			count: 1
 			path: src/Core/System/Tax/TaxRuleType/ZipCodeRuleTypeFilter.php
-
-		-
-			message: "#^Parameter \\#1 \\$username of method Shopware\\\\Core\\\\System\\\\User\\\\Command\\\\UserChangePasswordCommand\\:\\:getUserId\\(\\) expects string, array\\<string\\>\\|string\\|null given\\.$#"
-			count: 1
-			path: src/Core/System/User/Command/UserChangePasswordCommand.php
-
-		-
-			message: "#^Parameter \\#2 \\.\\.\\.\\$args of function sprintf expects bool\\|float\\|int\\|string\\|null, array\\<string\\>\\|string\\|null given\\.$#"
-			count: 2
-			path: src/Core/System/User/Command/UserChangePasswordCommand.php
-
-		-
-			message: "#^Parameter \\#1 \\$username of method Shopware\\\\Core\\\\System\\\\User\\\\Service\\\\UserProvisioner\\:\\:provision\\(\\) expects string, array\\<string\\>\\|string\\|null given\\.$#"
-			count: 1
-			path: src/Core/System/User/Command/UserCreateCommand.php
-
-		-
-			message: "#^Parameter \\#2 \\.\\.\\.\\$args of function sprintf expects bool\\|float\\|int\\|string\\|null, array\\<string\\>\\|string\\|null given\\.$#"
-			count: 1
-			path: src/Core/System/User/Command/UserCreateCommand.php
 
 		-
 			message: "#^Cannot call method getEmail\\(\\) on Shopware\\\\Core\\\\System\\\\User\\\\UserEntity\\|null\\.$#"
@@ -7051,21 +6906,6 @@ parameters:
 			path: src/Elasticsearch/Framework/DataAbstractionLayer/ElasticsearchEntitySearcher.php
 
 		-
-			message: "#^Parameter \\#1 \\$size of method ONGR\\\\ElasticsearchDSL\\\\Search\\:\\:setSize\\(\\) expects int, int\\|null given\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/DataAbstractionLayer/ElasticsearchEntitySearcher.php
-
-		-
-			message: "#^Parameter \\#1 \\$from of method ONGR\\\\ElasticsearchDSL\\\\Search\\:\\:setFrom\\(\\) expects int, int\\|null given\\.$#"
-			count: 1
-			path: src/Elasticsearch/Framework/DataAbstractionLayer/ElasticsearchEntitySearcher.php
-
-		-
-			message: "#^Cannot call method getField\\(\\) on Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Grouping\\\\FieldGrouping\\|null\\.$#"
-			count: 2
-			path: src/Elasticsearch/Framework/DataAbstractionLayer/ElasticsearchEntitySearcher.php
-
-		-
 			message: "#^Parameter \\#2 \\$search of function array_key_exists expects array, array\\|\\(callable\\) given\\.$#"
 			count: 1
 			path: src/Elasticsearch/Framework/ElasticsearchHelper.php
@@ -7139,11 +6979,6 @@ parameters:
 			message: "#^Cannot call method setDefaultBillingAddress\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\\|null\\.$#"
 			count: 1
 			path: src/Storefront/Controller/AddressController.php
-
-		-
-			message: "#^Parameter \\#1 \\$id of method Shopware\\\\Core\\\\Content\\\\Product\\\\Cart\\\\ProductLineItemFactory\\:\\:create\\(\\) expects string, array\\|string\\|null given\\.$#"
-			count: 1
-			path: src/Storefront/Controller/CartLineItemController.php
 
 		-
 			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\CustomerEntity\\|null\\.$#"
@@ -7576,11 +7411,6 @@ parameters:
 			path: src/Storefront/Theme/StorefrontPluginRegistry.php
 
 		-
-			message: "#^Cannot call method getActiveApps\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\ActiveAppsLoader\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Theme/StorefrontPluginRegistry.php
-
-		-
 			message: "#^Parameter \\#1 \\$pluginPath of method Shopware\\\\Storefront\\\\Theme\\\\Subscriber\\\\PluginLifecycleSubscriber\\:\\:createConfigFromClassName\\(\\) expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Storefront/Theme/Subscriber/PluginLifecycleSubscriber.php
@@ -7794,16 +7624,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
 			count: 1
 			path: src/Storefront/Theme/Twig/ThemeInheritanceBuilder.php
-
-		-
-			message: "#^Cannot call method find\\(\\) on Symfony\\\\Component\\\\Console\\\\Application\\|null\\.$#"
-			count: 1
-			path: ../src/Command/ConfigDebugCommand.php
-
-		-
-			message: "#^Method Shopware\\\\Development\\\\Command\\\\DatabaseDebugViewGenerator\\:\\:updateDatabaseView\\(\\) has parameter \\$tableName with no typehint specified\\.$#"
-			count: 1
-			path: ../src/Command/DatabaseDebugViewGenerator.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\LogoutRoute\\:\\:logout\\(\\) has no return typehint specified\\.$#"

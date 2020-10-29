@@ -1,3 +1,5 @@
+{# @deprecated tag:v6.4.0.0 the content of this file will be moved to new component/payment/payment-form.html.twig #}
+
 {% block page_checkout_change_payment_form %}
     <form id="confirmPaymentForm"
           name="confirmPaymentForm"
@@ -19,12 +21,14 @@
             } %}
         {% endblock %}
 
+        {# @deprecated tag:v6.4.0.0 removed #}
         {% block page_checkout_change_payment_form_submit %}
             <button class="btn btn-primary" type="submit">
                 {{ "checkout.confirmChangePaymentShippingSave"|trans|sw_sanitize }}
             </button>
         {% endblock %}
 
+        {# @deprecated tag:v6.4.0.0 removed #}
         {% block page_checkout_change_payment_cancel %}
             <button class="btn btn-light"
                     type="button"

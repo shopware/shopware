@@ -7,7 +7,6 @@ use Shopware\Core\Framework\App\Manifest\ModuleLoader;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SystemConfigTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -35,7 +34,6 @@ class ModuleLoaderTest extends TestCase
 
     public function setUp(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10286', $this);
         $this->appRepository = $this->getContainer()->get('app.repository');
         $this->moduleLoader = $this->getContainer()->get(ModuleLoader::class);
         $this->context = Context::createDefaultContext();

@@ -3,9 +3,10 @@
 namespace Shopware\Core\System\Test\Snippet\Subscriber;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\FetchMode;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -14,9 +15,14 @@ class CustomFieldSubscriberTest extends TestCase
     use IntegrationTestBehaviour;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepositoryInterface
      */
     private $customFieldSetRepository;
+
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $customFieldRepository;
 
     /**
      * @var Context
@@ -34,7 +40,7 @@ class CustomFieldSubscriberTest extends TestCase
     private $connection;
 
     /**
-     * @var EntityRepository
+     * @var EntityRepositoryInterface
      */
     private $snippetSetRepository;
 
@@ -42,6 +48,7 @@ class CustomFieldSubscriberTest extends TestCase
     {
         $this->context = Context::createDefaultContext();
         $this->customFieldSetRepository = $this->getContainer()->get('custom_field_set.repository');
+        $this->customFieldRepository = $this->getContainer()->get('custom_field.repository');
         $this->snippetSetRepository = $this->getContainer()->get('snippet_set.repository');
         $this->connection = $this->getContainer()->get(Connection::class);
     }
@@ -660,5 +667,87 @@ class CustomFieldSubscriberTest extends TestCase
             ],
             'expectedCount' => 12,
         ];
+    }
+
+    public function testSnippetIsDeletedIfCustomFieldGetsDeleted(): void
+    {
+        $customFieldId = Uuid::randomHex();
+
+        $this->customFieldSetRepository->upsert([[
+            'id' => Uuid::randomHex(),
+            'name' => 'CustomFieldSet',
+            'customFields' => [
+                [
+                    'id' => $customFieldId,
+                    'name' => 'CustomField 1',
+                    'type' => 'text',
+                    'config' => [
+                        'label' => [
+                            'de-DE' => 'DE - Label 1',
+                            'en-GB' => 'EN - Label 1',
+                        ],
+                    ],
+                ],
+                [
+                    'id' => Uuid::randomHex(),
+                    'name' => 'CustomField 2',
+                    'type' => 'text',
+                    'config' => [
+                        'label' => [
+                            'de-DE' => 'DE - Label 2',
+                            'en-GB' => 'EN - Label 2',
+                        ],
+                    ],
+                ],
+            ],
+        ]], $this->context);
+
+        $snippets = $this->connection->executeQuery('SELECT `value` FROM `snippet` ORDER BY `value` ASC')->fetchAll(FetchMode::COLUMN);
+        static::assertSame([
+            'DE - Label 1',
+            'DE - Label 2',
+            'EN - Label 1',
+            'EN - Label 2',
+        ], $snippets);
+
+        $this->customFieldRepository->delete([['id' => $customFieldId]], $this->context);
+
+        $snippets = $this->connection->executeQuery('SELECT `value` FROM `snippet` ORDER BY `value` ASC')->fetchAll(FetchMode::COLUMN);
+        static::assertSame([
+            'DE - Label 2',
+            'EN - Label 2',
+        ], $snippets);
+    }
+
+    public function testReinsertOfCustomFieldsWorks(): void
+    {
+        $customFieldId = Uuid::randomHex();
+        $customField = [
+            'id' => $customFieldId,
+            'name' => 'CustomField 1',
+            'type' => 'text',
+            'config' => [
+                'label' => [
+                    'de-DE' => 'DE - Label 1',
+                    'en-GB' => 'EN - Label 1',
+                ],
+            ],
+        ];
+
+        $this->customFieldSetRepository->upsert([[
+            'id' => Uuid::randomHex(),
+            'name' => 'CustomFieldSet',
+            'customFields' => [$customField],
+        ]], $this->context);
+
+        $this->customFieldRepository->delete([['id' => $customFieldId]], $this->context);
+
+        $this->customFieldRepository->create([$customField], $this->context);
+
+        $snippets = $this->connection->executeQuery('SELECT `value` FROM `snippet` ORDER BY `value` ASC')->fetchAll(FetchMode::COLUMN);
+        static::assertSame([
+            'DE - Label 1',
+            'EN - Label 1',
+        ], $snippets);
     }
 }

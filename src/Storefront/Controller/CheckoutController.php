@@ -132,7 +132,7 @@ class CheckoutController extends StorefrontController
         $page = $this->finishPageLoader->load($request, $context);
 
         if ($page->isPaymentFailed() === true) {
-            // @feature-deprecated (flag:FEATURE_NEXT_9351) tag:v6.4.0 - errors will be redirected immediately to the edit order page
+            // @deprecated tag:v6.4.0 - errors will be redirected immediately to the edit order page
             $this->addFlash(
                 'danger',
                 $this->trans(
@@ -164,15 +164,7 @@ class CheckoutController extends StorefrontController
             $this->addAffiliateTracking($data, $request->getSession());
             $orderId = $this->orderService->createOrder($data, $context);
             $finishUrl = $this->generateUrl('frontend.checkout.finish.page', ['orderId' => $orderId]);
-            if (Feature::isActive('FEATURE_NEXT_9351')) {
-                $errorUrl = $this->generateUrl('frontend.account.edit-order.page', ['orderId' => $orderId]);
-            } else {
-                $errorUrl = $this->generateUrl('frontend.checkout.finish.page', [
-                    'orderId' => $orderId,
-                    'changedPayment' => false,
-                    'paymentFailed' => true,
-                ]);
-            }
+            $errorUrl = $this->generateUrl('frontend.account.edit-order.page', ['orderId' => $orderId]);
 
             $response = $this->paymentService->handlePaymentByOrder($orderId, $data, $context, $finishUrl, $errorUrl);
 

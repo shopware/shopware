@@ -29,7 +29,7 @@ class BusinessEventRegistry
     }
 
     /**
-     * @feature-deprecated (flag:FEATURE_NEXT_9351) tag:v6.4.0 - use `\Shopware\Core\Framework\Event\BusinessEventCollector::collect` instead
+     * @deprecated tag:v6.4.0 - use `\Shopware\Core\Framework\Event\BusinessEventCollector::collect` instead
      */
     public function getEvents(): array
     {
@@ -37,7 +37,7 @@ class BusinessEventRegistry
     }
 
     /**
-     * @feature-deprecated (flag:FEATURE_NEXT_9351) tag:v6.4.0 - use `\Shopware\Core\Framework\Event\BusinessEventCollector::collect` instead
+     * @deprecated tag:v6.4.0 - use `\Shopware\Core\Framework\Event\BusinessEventCollector::collect` instead
      */
     public function getEventNames(): array
     {
@@ -45,7 +45,7 @@ class BusinessEventRegistry
     }
 
     /**
-     * @feature-deprecated (flag:FEATURE_NEXT_9351) tag:v6.4.0 - use `\Shopware\Core\Framework\Event\BusinessEventCollector::collect` instead
+     * @deprecated tag:v6.4.0 - use `\Shopware\Core\Framework\Event\BusinessEventCollector::collect` instead
      */
     public function getAvailableDataByEvent(string $eventName): array
     {
@@ -53,7 +53,7 @@ class BusinessEventRegistry
     }
 
     /**
-     * @feature-deprecated (flag:FEATURE_NEXT_9351) tag:v6.4.0 - use `addClasses` instead
+     * @deprecated tag:v6.4.0 - use `addClasses` instead
      */
     public function add(string $event, array $availableData): void
     {
@@ -73,7 +73,7 @@ class BusinessEventRegistry
     }
 
     /**
-     * @feature-deprecated (flag:FEATURE_NEXT_9351) tag:v6.4.0 - use `addClasses` instead
+     * @deprecated tag:v6.4.0 - use `addClasses` instead
      */
     public function addMultiple(array $events): void
     {
@@ -85,7 +85,7 @@ class BusinessEventRegistry
     }
 
     /**
-     * @feature-deprecated (flag:FEATURE_NEXT_9351) tag:v6.4.0 - will be removed
+     * @deprecated tag:v6.4.0 - will be removed
      */
     private function compile(): void
     {

@@ -74,6 +74,7 @@ class AddressDetailPageLoader
         $page = $this->genericLoader->load($request, $salesChannelContext);
 
         $page = AddressDetailPage::createFrom($page);
+        $page->getMetaInformation()->assign(['robots' => 'noindex,follow']);
 
         $page->setSalutations($this->getSalutations($salesChannelContext));
 

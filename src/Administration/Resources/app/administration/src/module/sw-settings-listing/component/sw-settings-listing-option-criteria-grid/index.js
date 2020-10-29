@@ -74,6 +74,15 @@ Shopware.Component.register('sw-settings-listing-option-criteria-grid', {
             });
         },
 
+        unusedCustomFields() {
+            return this.customFields.filter(customField => {
+                return !this.productSortingEntity.fields.some(field => {
+                    return field.field === customField.name ||
+                        field.field === `customFields.${customField.name}`;
+                });
+            });
+        },
+
         productSortingEntityColumns() {
             return [
                 {
@@ -163,6 +172,23 @@ Shopware.Component.register('sw-settings-listing-option-criteria-grid', {
         }
     },
 
+    watch: {
+        productSortingEntity: {
+            handler() {
+                if (!this.productSortingEntity || !this.productSortingEntity.fields) {
+                    return;
+                }
+
+                this.productSortingEntity.fields.forEach(field => {
+                    if (field.field === null) {
+                        field.field = 'customField';
+                    }
+                });
+            },
+            deep: true
+        }
+    },
+
     created() {
         this.createdComponent();
     },
@@ -219,6 +245,11 @@ Shopware.Component.register('sw-settings-listing-option-criteria-grid', {
             if (!this.criteriaIsAlreadyUsed(fieldName)) {
                 this.$emit('criteria-add', fieldName);
 
+                const record = this.productSortingEntity.fields.find(field => field.field === fieldName);
+                if (record) {
+                    this.$refs.dataGrid.onDbClickCell(record);
+                }
+
                 return;
             }
 
@@ -249,11 +280,44 @@ Shopware.Component.register('sw-settings-listing-option-criteria-grid', {
         },
 
         onSaveInlineEdit(item) {
+            if (item.field === null) {
+                this.createNotificationError({
+                    message: this.$t(
+                        'sw-settings-listing.general.productSortingCriteriaGrid.options.customFieldCriteriaNotNull'
+                    )
+                });
+
+                return;
+            }
+
             if (item.field === 'customFields') {
                 item.field = `customFields.${item.field}`;
             }
 
+            if (item.field === 'customField') {
+                this.createNotificationError({
+                    message: this.$t(
+                        'sw-settings-listing.general.productSortingCriteriaGrid.options.customFieldCriteriaNotNull'
+                    )
+                });
+
+                this.filterEmptyCustomFields(item);
+                return;
+            }
+
             this.$emit('inline-edit-save');
+        },
+
+        onCancelInlineEdit(item) {
+            if (item && item.field === 'customField') {
+                this.filterEmptyCustomFields(item);
+            }
+        },
+
+        filterEmptyCustomFields(item) {
+            this.productSortingEntity.fields = this.productSortingEntity.fields.filter(field => {
+                return field.field !== item.field;
+            });
         },
 
         /**
@@ -284,7 +348,7 @@ Shopware.Component.register('sw-settings-listing-option-criteria-grid', {
             const technicalName = this.stripCustomFieldPath(criteriaName);
             const customField = this.getCustomFieldByName(technicalName);
 
-            return this.getInlineSnippet(customField.config.label);
+            return this.getInlineSnippet(customField.config.label) || technicalName;
         },
 
         getCustomFieldName(customField) {

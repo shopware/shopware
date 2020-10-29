@@ -1,5 +1,6 @@
 const:
-    DB_HOST: "127.0.0.1"
+    APP_URL: "http://localhost:8000"
+    DB_HOST: "mysql"
     DB_USER: "root"
     DB_PASSWORD: "shopware"
-    SHOPWARE_ES_HOSTS: "localhost:9200"
+    SHOPWARE_ES_HOSTS: "elasticsearch:9200"

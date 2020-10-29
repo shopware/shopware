@@ -200,11 +200,7 @@ class AccountOrderController extends StorefrontController
             'changedPayment' => true,
         ]);
 
-        $errorUrl = $this->generateUrl('frontend.checkout.finish.page', [
-            'orderId' => $orderId,
-            'changedPayment' => true,
-            'paymentFailed' => true,
-        ]);
+        $errorUrl = $this->generateUrl('frontend.account.edit-order.page', ['orderId' => $orderId]);
 
         $setPaymentRequest = new Request();
         $setPaymentRequest->request->set('orderId', $orderId);

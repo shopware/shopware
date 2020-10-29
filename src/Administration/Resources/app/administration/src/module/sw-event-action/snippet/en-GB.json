@@ -1,0 +1,48 @@
+{
+  "sw-event-action": {
+    "general": {
+      "mainMenuItemGeneral": "Business events",
+      "placeholderSearchBar": "Search events...",
+      "descriptionTextModule": "Automate your email delivery with business events."
+    },
+    "list": {
+      "textHeadline": "Business events",
+      "labelActionAdd": "Add business event",
+      "columnEventName": "Event",
+      "columnSalesChannel": "Sales Channel",
+      "columnRules": "Rules",
+      "columnMailTemplate": "Email template",
+      "columnTitle": "Title",
+      "columnActive": "Active"
+    },
+    "detail": {
+      "titleNewEntity": "New business event",
+      "fieldLabelEventName": "Event",
+      "fieldLabelSalesChannel": "Sales Channel",
+      "fieldLabelRules": "Rules",
+      "fieldMailTemplate": "Email template",
+      "fieldMailTemplateDetailLink": "Open email template",
+      "fieldLabelActive": "Active",
+      "fieldLabelTitle": "Title",
+      "placeholderTitle": "Enter title...",
+      "placeholderEventName": "Select an event...",
+      "placeholderRules": "Select rules...",
+      "placeholderSalesChannels": "Select Sales Channels...",
+      "placeholderMailTemplate": "Select an email template...",
+      "titleRecipientsCard": "Email recipients",
+      "textEmptyStateRecipients": "There are no additional recipients for this event yet. - Customer emails will be sent regardless.",
+      "columnRecipientName": "Name",
+      "columnRecipientMail": "Email address",
+      "addRecipientButton": "Add recipient",
+      "placeholderRecipientEmailAddress": "Enter email address...",
+      "placeholderRecipientName": "Enter recipient name..."
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "event_action": {
+        "label": "Business events"
+      }
+    }
+  }
+}

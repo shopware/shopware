@@ -15,6 +15,16 @@ Component.register('sw-review-detail', {
         'salutation'
     ],
 
+    shortcuts: {
+        'SYSTEMKEY+S': {
+            active() {
+                return this.acl.can('review.editor');
+            },
+            method: 'onSave'
+        },
+        ESCAPE: 'onCancel'
+    },
+
     data() {
         return {
             isLoading: null,
@@ -62,6 +72,30 @@ Component.register('sw-review-detail', {
             criteria.addSorting(Criteria.sort('name', 'ASC', false));
 
             return criteria;
+        },
+
+        tooltipSave() {
+            if (!this.acl.can('review.editor')) {
+                return {
+                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    disabled: true,
+                    showOnDisabledElements: true
+                };
+            }
+
+            const systemKey = this.$device.getSystemKey();
+
+            return {
+                message: `${systemKey} + S`,
+                appearance: 'light'
+            };
+        },
+
+        tooltipCancel() {
+            return {
+                message: 'ESC',
+                appearance: 'light'
+            };
         }
     },
 
@@ -116,6 +150,10 @@ Component.register('sw-review-detail', {
 
         onSaveFinish() {
             this.isSaveSuccessful = false;
+        },
+
+        onCancel() {
+            this.$router.push({ name: 'sw.review.index' });
         }
     }
 });

@@ -42,7 +42,8 @@ by the message system in the Shopware core.
 
 >Can we use the app system into Community Edition?
 
-Yes, you just install the app system plugin and you are ready to go:
+Yes, since shopware 6.3.3.0 the app-system is directly built into the shopware core.
+If you run an older version of shopware you can install the app system plugin and you are ready to go:
 https://github.com/shopware/app-system
 
 

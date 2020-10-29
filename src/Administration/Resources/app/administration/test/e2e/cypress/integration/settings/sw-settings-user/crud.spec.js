@@ -88,16 +88,6 @@ describe('User: Test crud operations', () => {
         // should be able to delete the user
         cy.get('a.smart-bar__back-btn').click();
 
-        cy.wait('@searchCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
-
-        cy.get('.sw-simple-search-field input').first().type('abraham');
-
-        cy.wait('@searchCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
-
         cy.clickContextMenuItem(
             '.sw-settings-user-list__user-delete-action',
             '.sw-context-button__button',

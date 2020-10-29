@@ -13,16 +13,14 @@ function getSnippetSets() {
         {
             name: 'messages.en-GB',
             iso: 'en-GB',
-            path:
-                '/Users/n.haberkamp/code/development/platform/src/Core/Framework/Resources/snippet/en_GB/messages.en-GB.base.json',
+            path: 'development/platform/src/Core/Framework/Resources/snippet/en_GB/messages.en-GB.base.json',
             author: 'Shopware',
             isBase: true
         },
         {
             name: 'messages.de-DE',
             iso: 'de-DE',
-            path:
-                '/Users/n.haberkamp/code/development/platform/src/Core/Framework/Resources/snippet/de_DE/messages.de-DE.base.json',
+            path: 'development/platform/src/Core/Framework/Resources/snippet/de_DE/messages.de-DE.base.json',
             author: 'Shopware',
             isBase: true
         }

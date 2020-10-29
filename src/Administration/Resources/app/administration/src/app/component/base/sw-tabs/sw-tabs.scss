@@ -22,15 +22,19 @@
             height: 2px;
             background-color: $color-gray-300;
         }
+
+        .sw-tooltip--wrapper {
+            display: flex;
+        }
     }
 
     .sw-tabs__slider {
-         transform-origin: top left;
-         transition: 0.2s all ease-in-out;
-         position: absolute;
-         bottom: 0;
-         height: 2px;
-         background-color: $color-shopware-brand-500;
+        transform-origin: top left;
+        transition: 0.2s all ease-in-out;
+        position: absolute;
+        bottom: 0;
+        height: 2px;
+        background-color: $color-shopware-brand-500;
 
         &.has--error {
             background-color: $color-crimson-500;
@@ -78,7 +82,6 @@
         padding: 20px 0;
     }
 
-
     &.sw-tabs--vertical {
         .sw-tabs__content {
             flex-direction: column;
@@ -96,11 +99,11 @@
 
         &.sw-tabs--align-right {
             .sw-tabs__content {
-                .sw-tabs-item {
+                .sw-tabs-item { /* stylelint-disable-line */
                     text-align: right;
                 }
 
-                .sw-tabs__slider {
+                .sw-tabs__slider { /* stylelint-disable-line */
                     transform-origin: bottom right;
                     left: auto;
                     right: 0;

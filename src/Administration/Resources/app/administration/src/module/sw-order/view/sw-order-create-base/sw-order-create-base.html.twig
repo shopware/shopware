@@ -18,6 +18,7 @@
                 v-if="showPromotionModal"
                 :isLoading="isLoading"
                 :currency="currency"
+                :salesChannelId="customer.salesChannelId"
                 @close="onClosePromotionModal"
                 @save="onSavePromotionModal"
             >
@@ -138,20 +139,33 @@
                                                 {% endblock %}
 
                                                 {% block sw_order_create_base_line_items_summary_amount_without_tax %}
-                                                    <dt><strong>{{ $tc('sw-order.createBase.summaryLabelAmountWithoutTaxes') }}</strong></dt>
-                                                    <dd><strong>{{ (cartPrice ? cartPrice.netPrice : 0) | currency(currency.shortName) }}</strong></dd>
+                                                    <template v-if="taxStatus !== 'tax-free'">
+                                                        <dt><strong>{{ $tc('sw-order.createBase.summaryLabelAmountWithoutTaxes') }}</strong></dt>
+                                                        <dd><strong>{{ (cartPrice ? cartPrice.netPrice : 0) | currency(currency.shortName) }}</strong></dd>
+                                                    </template>
                                                 {% endblock %}
 
                                                 {% block sw_order_create_base_line_items_summary_taxes %}
-                                                    <template v-for="calculatedTax in filteredCalculatedTaxes">
-                                                        <dt>{{ $tc('sw-order.createBase.summaryLabelTaxes', 1, { taxRate: calculatedTax.taxRate }) }}</dt>
-                                                        <dd>{{ calculatedTax.tax | currency(currency.shortName) }}</dd>
+                                                    <template v-if="taxStatus !== 'tax-free'">
+                                                        <template v-for="calculatedTax in filteredCalculatedTaxes">
+                                                            <dt>{{ $tc('sw-order.createBase.summaryLabelTaxes', 1, { taxRate: calculatedTax.taxRate }) }}</dt>
+                                                            <dd>{{ calculatedTax.tax | currency(currency.shortName) }}</dd>
+                                                        </template>
                                                     </template>
                                                 {% endblock %}
 
                                                 {% block sw_order_create_base_line_items_summary_amount_total %}
-                                                    <dt><strong>{{ $tc('sw-order.createBase.summaryLabelAmountTotal') }}</strong></dt>
-                                                    <dd><strong>{{ (cartPrice ? cartPrice.totalPrice : 0) | currency(currency.shortName) }}</strong></dd>
+                                                    <template v-if="taxStatus !== 'tax-free'">
+                                                        <dt><strong>{{ $tc('sw-order.createBase.summaryLabelAmountTotal') }}</strong></dt>
+                                                        <dd><strong>{{ (cartPrice ? cartPrice.totalPrice : 0) | currency(currency.shortName) }}</strong></dd>
+                                                    </template>
+                                                {% endblock %}
+
+                                                {% block sw_order_create_base_line_items_summary_amount_free_tax %}
+                                                    <template v-if="taxStatus === 'tax-free'">
+                                                        <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmount') }}</strong></dt>
+                                                        <dd><strong>{{ cartPrice.positionPrice | currency(currency.shortName) }}</strong></dd>
+                                                    </template>
                                                 {% endblock %}
                                             {% endblock %}
                                         </sw-description-list>

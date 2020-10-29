@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Framework\Cache\Annotation\HttpCache;
+use Shopware\Storefront\Framework\Routing\MaintenanceModeResolver;
 use Shopware\Storefront\Page\Maintenance\MaintenancePageLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -28,12 +29,19 @@ class MaintenanceController extends StorefrontController
      */
     private $maintenancePageLoader;
 
+    /**
+     * @var MaintenanceModeResolver
+     */
+    private $maintenanceModeResolver;
+
     public function __construct(
         SystemConfigService $systemConfigService,
-        MaintenancePageLoader $maintenancePageLoader
+        MaintenancePageLoader $maintenancePageLoader,
+        MaintenanceModeResolver $maintenanceModeResolver
     ) {
         $this->systemConfigService = $systemConfigService;
         $this->maintenancePageLoader = $maintenancePageLoader;
+        $this->maintenanceModeResolver = $maintenanceModeResolver;
     }
 
     /**
@@ -44,7 +52,7 @@ class MaintenanceController extends StorefrontController
     {
         $salesChannel = $context->getSalesChannel();
 
-        if (!$salesChannel->isMaintenance()) {
+        if ($this->maintenanceModeResolver->shouldRedirectToShop($request)) {
             return $this->redirectToRoute('frontend.home.page');
         }
 
@@ -52,9 +60,14 @@ class MaintenanceController extends StorefrontController
         $maintenanceLayoutId = $this->systemConfigService->getString('core.basicInformation.maintenancePage', $salesChannelId);
 
         if ($maintenanceLayoutId === '') {
-            return $this->renderStorefront(
+            $response = $this->renderStorefront(
                 '@Storefront/storefront/page/error/error-maintenance.html.twig'
             );
+
+            $response->setStatusCode(Response::HTTP_SERVICE_UNAVAILABLE, 'Service Temporarily Unavailable');
+            $response->headers->set('Retry-After', '3600');
+
+            return $response;
         }
 
         $maintenancePage = $this->maintenancePageLoader->load($maintenanceLayoutId, $request, $context);
@@ -64,7 +77,8 @@ class MaintenanceController extends StorefrontController
             ['page' => $maintenancePage]
         );
 
-        $response->setStatusCode(Response::HTTP_OK);
+        $response->setStatusCode(Response::HTTP_SERVICE_UNAVAILABLE, 'Service Temporarily Unavailable');
+        $response->headers->set('Retry-After', '3600');
 
         return $response;
     }

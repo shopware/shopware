@@ -2,7 +2,7 @@ import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/app/component/structure/sw-admin-menu';
 import mainMenu from './_mocks/mainMenu.json';
 
-function createWrapper(options = { featureFlags: [] }) {
+function createWrapper() {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
@@ -25,9 +25,6 @@ function createWrapper(options = { featureFlags: [] }) {
             }
         },
         provide: {
-            feature: {
-                isActive: (feature) => options.featureFlags.includes(feature)
-            },
             menuService: {
                 getMainMenu: () => {
                     return mainMenu;
@@ -38,6 +35,9 @@ function createWrapper(options = { featureFlags: [] }) {
             },
             userService: {
                 getUser: () => Promise.resolve({})
+            },
+            appModulesService: {
+                fetchAppModules: () => Promise.resolve([])
             }
         }
     });
@@ -77,21 +77,13 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should show the admin title', async () => {
-        const userTitle = wrapper.find('.sw-admin-menu__user-type');
-
-        expect(userTitle.text()).toBe('Administrator');
-    });
-
     it('should show the snippet for the admin title', async () => {
         Shopware.State.commit('setCurrentUser', {
             admin: true,
             title: 'Master of something',
             aclRoles: []
         });
-        wrapper = await createWrapper({
-            featureFlags: ['FEATURE_NEXT_3722']
-        });
+        wrapper = await createWrapper();
 
         const userTitle = wrapper.find('.sw-admin-menu__user-type');
 
@@ -104,7 +96,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
             title: 'Master of something',
             aclRoles: []
         });
-        wrapper = await createWrapper({ featureFlags: ['FEATURE_NEXT_3722'] });
+        wrapper = await createWrapper();
 
         const userTitle = wrapper.find('.sw-admin-menu__user-type');
 
@@ -117,7 +109,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
             title: null,
             aclRoles: []
         });
-        wrapper = await createWrapper({ featureFlags: ['FEATURE_NEXT_3722'] });
+        wrapper = await createWrapper();
 
         const userTitle = wrapper.find('.sw-admin-menu__user-type');
 
@@ -132,7 +124,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
                 { name: 'Copyreader' }
             ]
         });
-        wrapper = await createWrapper({ featureFlags: ['FEATURE_NEXT_3722'] });
+        wrapper = await createWrapper();
 
         const userTitle = wrapper.find('.sw-admin-menu__user-type');
 

@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Test\App;
 
 use Shopware\Core\Framework\Adapter\Twig\EntityTemplateLoader;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
-use Shopware\Core\Framework\Feature;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -30,10 +29,6 @@ trait StorefrontPluginRegistryTestBehaviour
      */
     public function clearEntityTemplateLoaderDatabaseCache(): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_10286')) {
-            return;
-        }
-
         $templateLoader = $this->getContainer()
             ->get(EntityTemplateLoader::class);
 

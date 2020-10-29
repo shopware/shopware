@@ -161,7 +161,7 @@ class CartSalesChannelService extends ApiService {
         return this.httpClient.post(route, {}, { additionalParams, headers });
     }
 
-    modifyShippingCosts(salesChannelId, contextToken, shippingCosts, additionalHeaders, additionalParams = {},) {
+    modifyShippingCosts(salesChannelId, contextToken, shippingCosts, additionalHeaders, additionalParams = {}) {
         const route = '_proxy/modify-shipping-costs';
         const headers = {
             ...this.getBasicHeaders(additionalHeaders),
@@ -179,7 +179,13 @@ class CartSalesChannelService extends ApiService {
             'sw-context-token': contextToken
         };
 
-        return this.httpClient.patch(route, {}, { additionalParams, headers });
+        const data = {};
+
+        if (Shopware.Service('feature').isActive('FEATURE_NEXT_10058')) {
+            data.salesChannelId = additionalParams.salesChannelId;
+        }
+
+        return this.httpClient.patch(route, data, { additionalParams, headers });
     }
 
     enableAutomaticPromotions(contextToken, additionalParams = {}, additionalHeaders = {}) {
@@ -189,7 +195,13 @@ class CartSalesChannelService extends ApiService {
             'sw-context-token': contextToken
         };
 
-        return this.httpClient.patch(route, {}, { additionalParams, headers });
+        const data = {};
+
+        if (Shopware.Service('feature').isActive('FEATURE_NEXT_10058')) {
+            data.salesChannelId = additionalParams.salesChannelId;
+        }
+
+        return this.httpClient.patch(route, data, { additionalParams, headers });
     }
 }
 

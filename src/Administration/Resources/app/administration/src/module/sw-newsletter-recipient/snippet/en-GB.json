@@ -39,6 +39,11 @@
     }
   },
   "sw-privileges": {
+    "permissions": {
+      "newsletter_recipient": {
+        "label": "Newsletter recipients"
+      }
+    },
     "additional_permissions": {
       "marketing": {
         "send_newsletter": "Send newsletter"

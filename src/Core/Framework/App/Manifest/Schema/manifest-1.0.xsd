@@ -262,7 +262,7 @@
         <xs:restriction base="xs:string">
             <xs:enumeration value="product"/>
             <xs:enumeration value="order"/>
-            <xs:enumeration value="catalogue"/>
+            <xs:enumeration value="catagory"/>
             <xs:enumeration value="promotion"/>
         </xs:restriction>
     </xs:simpleType>

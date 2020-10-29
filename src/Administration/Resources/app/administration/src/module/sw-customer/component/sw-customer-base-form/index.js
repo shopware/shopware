@@ -1,4 +1,5 @@
 import template from './sw-customer-base-form.html.twig';
+import errorConfig from '../../error-config.json';
 
 const { Component } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
@@ -14,17 +15,7 @@ Component.register('sw-customer-base-form', {
     },
 
     computed: {
-        ...mapPropertyErrors('customer', [
-            'salutationId',
-            'firstName',
-            'lastName',
-            'email',
-            'groupId',
-            'salesChannelId',
-            'defaultPaymentMethodId',
-            'customerNumber',
-            'password'
-        ])
+        ...mapPropertyErrors('customer', errorConfig['sw.customer.detail.base'].customer)
     },
 
     watch: {

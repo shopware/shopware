@@ -14,7 +14,8 @@ Shopware.Service('privileges')
                     'media_folder:read',
                     'sales_channel:read',
                     'cms_block:read',
-                    'cms_slot:read'
+                    'cms_slot:read',
+                    'product_sorting:read'
                 ],
                 dependencies: []
             },

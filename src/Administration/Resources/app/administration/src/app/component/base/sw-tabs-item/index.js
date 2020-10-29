@@ -121,6 +121,10 @@ Component.register('sw-tabs-item', {
         },
 
         clickEvent() {
+            if (this.disabled) {
+                return;
+            }
+
             this.$parent.setActiveItem(this);
             this.$emit('click');
         },

@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
@@ -69,6 +70,7 @@ class EntityCompilerPass implements CompilerPassInterface
                 $repository->setPublic(true);
 
                 $container->setDefinition($repositoryId, $repository);
+                $container->registerAliasForArgument($repositoryId, EntityRepositoryInterface::class);
             }
             $repositoryNameMap[$entity] = $repositoryId;
         }

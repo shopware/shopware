@@ -32,6 +32,15 @@ Component.register('sw-verify-user-modal', {
                 const context = { ...Shopware.Context.api };
                 context.authToken.access = verifiedToken;
 
+                const authObject = {
+                    ...this.loginService.getBearerAuthentication(),
+                    ...{
+                        access: verifiedToken
+                    }
+                };
+
+                this.loginService.setBearerAuthentication(authObject);
+
                 this.$emit('verified', context);
             }).catch(() => {
                 this.createNotificationError({
@@ -40,6 +49,7 @@ Component.register('sw-verify-user-modal', {
                 });
             }).finally(() => {
                 this.confirmPassword = '';
+                this.$emit('close');
             });
         },
 

@@ -21,7 +21,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\WebhookEntity;
@@ -60,7 +59,6 @@ class AppLifecycleTest extends TestCase
 
     public function setUp(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10286', $this);
         $this->appRepository = $this->getContainer()->get('app.repository');
         $this->actionButtonRepository = $this->getContainer()->get('app_action_button.repository');
 

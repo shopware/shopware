@@ -70,7 +70,7 @@ describe('src/app/service/acl.service.js', () => {
         privilegesService.addPrivilegeMappingEntry('notAnObject');
         expect(global.console.warn).toHaveBeenCalledWith(
             '[addPrivilegeMappingEntry]',
-            'The privilegeMapping has to be an object.',
+            'The privilegeMapping has to be an object.'
         );
 
         expect(privilegesService.getPrivilegesMappings().length).toBe(0);
@@ -83,7 +83,7 @@ describe('src/app/service/acl.service.js', () => {
         privilegesService.addPrivilegeMappingEntries('notAnArray');
         expect(global.console.error).toHaveBeenCalledWith(
             '[addPrivilegeMappingEntries]',
-            'The privilegeMappings must be an array.',
+            'The privilegeMappings must be an array.'
         );
 
         expect(privilegesService.getPrivilegesMappings().length).toBe(0);
@@ -107,7 +107,7 @@ describe('src/app/service/acl.service.js', () => {
         privilegesService.addPrivilegeMappingEntry(privilegeMapping);
         expect(global.console.warn).toHaveBeenCalledWith(
             '[addPrivilegeMappingEntry]',
-            'The privilegeMapping need the property "category".',
+            'The privilegeMapping need the property "category".'
         );
 
         expect(privilegesService.getPrivilegesMappings().length).toBe(0);
@@ -131,7 +131,7 @@ describe('src/app/service/acl.service.js', () => {
         privilegesService.addPrivilegeMappingEntry(privilegeMapping);
         expect(global.console.warn).toHaveBeenCalledWith(
             '[addPrivilegeMappingEntry]',
-            'The privilegeMapping need the property "parent".',
+            'The privilegeMapping need the property "parent".'
         );
 
         expect(privilegesService.getPrivilegesMappings().length).toBe(0);
@@ -155,7 +155,7 @@ describe('src/app/service/acl.service.js', () => {
         privilegesService.addPrivilegeMappingEntry(privilegeMapping);
         expect(global.console.warn).toHaveBeenCalledWith(
             '[addPrivilegeMappingEntry]',
-            'The privilegeMapping need the property "key".',
+            'The privilegeMapping need the property "key".'
         );
 
         expect(privilegesService.getPrivilegesMappings().length).toBe(0);

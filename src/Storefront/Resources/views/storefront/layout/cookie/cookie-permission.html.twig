@@ -1,4 +1,5 @@
 {% block layout_cookie_permission_inner %}
+    {% set acceptAllCookies = shopware.config.core.basicInformation.acceptAllCookies %}
     <div
         class="cookie-permission-container"
         data-cookie-permission="true">
@@ -19,7 +20,7 @@
                             <span class="cookie-permission-button js-cookie-permission-button">
                                 <button
                                     type="submit"
-                                    class="btn btn-secondary">
+                                    class="btn {{ acceptAllCookies ? 'btn-outline-danger' : 'btn-secondary' }}">
                                     {{ "cookie.deny"|trans|sw_sanitize }}
                                 </button>
                             </span>
@@ -29,11 +30,23 @@
                             <span class="js-cookie-configuration-button">
                                 <button
                                     type="submit"
-                                    class="btn btn-primary">
+                                    class="btn {{ acceptAllCookies ? 'btn-secondary' : 'btn-primary' }}">
                                     {{ "cookie.configure"|trans|sw_sanitize }}
                                 </button>
                             </span>
                         {% endblock %}
+
+                        {% if acceptAllCookies %}
+                            {% block layout_cookie_permission_inner_button_accept_all %}
+                                <span class="js-cookie-accept-all-button">
+                                    <button
+                                        type="submit"
+                                        class="btn btn-primary">
+                                        {{ "cookie.acceptAll"|trans|sw_sanitize }}
+                                    </button>
+                                </span>
+                            {% endblock %}
+                        {% endif %}
                     </div>
                 {% endblock %}
             </div>

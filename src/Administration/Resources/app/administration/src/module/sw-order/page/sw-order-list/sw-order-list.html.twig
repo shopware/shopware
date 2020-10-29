@@ -65,13 +65,14 @@
                                           :columns="orderColumns"
                                           :fullPage="true"
                                           :showSettings="true"
-                                          :showSelection="false"
+                                          :showSelection="true"
                                           :sortBy="sortBy"
                                           :sortDirection="sortDirection"
                                           :isLoading="isLoading"
                                           :allowColumnEdit="true"
                                           identifier="sw-order-list"
-                                          @column-sort="onSortColumn">
+                                          @column-sort="onSortColumn"
+                                          @selection-change="updateSelection">
 
                                 {% block sw_order_list_grid_columns %}
                                     {% block sw_order_list_grid_columns_customer_name %}

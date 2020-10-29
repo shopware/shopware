@@ -39,7 +39,11 @@
                             :items="items"
                             :columns="columns"
                             :repository="repository"
-                            detailRoute="sw.newsletter.recipient.detail">
+                            detailRoute="sw.newsletter.recipient.detail"
+                            :allowView="acl.can('newsletter_recipient.viewer')"
+                            :allowEdit="acl.can('newsletter_recipient.editor')"
+                            :allowInlineEdit="acl.can('newsletter_recipient.editor')"
+                            :allowDelete="acl.can('newsletter_recipient.deleter')">
 
                             {% block sw_newsletter_recipientlist_list_grid_name %}
                                 <template slot="column-firstName" slot-scope="{ item, compact, isInlineEdit }">

@@ -10,7 +10,6 @@ use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\BusinessEventRegistry;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Kernel;
 use Shopware\Core\PlatformRequest;
@@ -124,10 +123,6 @@ class InfoController extends AbstractController
      */
     public function businessEvents(Context $context): JsonResponse
     {
-        if (!Feature::isActive('FEATURE_NEXT_9351')) {
-            throw new Feature\FeatureNotActiveException('FEATURE_NEXT_9351');
-        }
-
         $events = $this->eventCollector->collect($context);
 
         return $this->json($events);
@@ -179,7 +174,7 @@ class InfoController extends AbstractController
     }
 
     /**
-     * @feature-deprecated (flag:FEATURE_NEXT_9351) tag:v6.4.0 - use `\Shopware\Core\Framework\Api\Controller\InfoController::businessEvents` instead
+     * @deprecated tag:v6.4.0 - use `\Shopware\Core\Framework\Api\Controller\InfoController::businessEvents` instead
      *
      * @Route("/api/v{version}/_info/business-events.json", name="api.info.events", methods={"GET"})
      */

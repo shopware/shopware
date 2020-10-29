@@ -10,7 +10,6 @@ use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -47,8 +46,6 @@ class ProductListingSortingTest extends TestCase
 
     public function testDuplicateProductSortingKey(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_5983', $this);
-
         $productSortingKey = Uuid::randomHex();
 
         $data = [
@@ -84,8 +81,6 @@ class ProductListingSortingTest extends TestCase
 
     public function testProductListingSortingConversion(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_5983', $this);
-
         $productListingSortingMock = $this->getProductListingSortingMock();
 
         $productSortingRegistry = new ProductListingSortingRegistry(

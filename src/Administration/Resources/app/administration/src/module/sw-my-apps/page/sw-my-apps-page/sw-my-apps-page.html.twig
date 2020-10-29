@@ -1,0 +1,43 @@
+{% block sw_my_apps_page %}
+    <sw-page class="sw-my-apps-page">
+        <template #smart-bar-header>
+            {% block sw_my_apps_page_header %}
+                <h2>{{ heading }}</h2>
+            {% endblock %}
+        </template>
+
+        <template #content>
+            {% block sw_my_apps_page_content %}
+                <template v-if="!suspend">
+                    {% block sw_my_apps_page_content_app_content %}
+                        <iframe
+                            id="app-content"
+                            class="sw-my-apps-page__app-content"
+                            ref="innerFrame"
+                            referrerpolicy="origin-when-cross-origin"
+                            :src="entryPoint"
+                            :title="heading"
+                            v-show="appLoaded">
+                        </iframe>
+                    {% endblock %}
+
+                    <template v-if="!appLoaded">
+                        {% block sw_my_apps_page_content_not_loaded %}
+                            <template v-if="timedOut">
+                                {% block sw_my_apps_page_content_timed_out %}
+                                    <sw-my-apps-error-page></sw-my-apps-error-page>
+                                {% endblock %}
+                            </template>
+
+                            <template v-else>
+                                {% block sw_my_apps_page_content_loading %}
+                                    <sw-loader></sw-loader>
+                                {% endblock %}
+                            </template>
+                        {% endblock %}
+                    </template>
+                </template>
+            {% endblock %}
+        </template>
+    </sw-page>
+{% endblock %}

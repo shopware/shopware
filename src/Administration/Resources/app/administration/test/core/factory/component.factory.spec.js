@@ -863,58 +863,61 @@ describe('core/factory/component.factory.js', () => {
         expect(thirdComponent.template).toBe('<div><div>Second.</div><div>Third.</div></div>');
     });
 
-    it('should extend an extended component and all four components get build before with multiple usage of parent', async () => {
-        ComponentFactory.register('first-component', {
-            template: '{% block first %}<div>First.</div>{% endblock %}'
-        });
-        ComponentFactory.extend('second-component', 'first-component', {
-            template: '{% block first %}{% block second %}<div>Second.</div>{% endblock %}{% endblock %}'
-        });
-        ComponentFactory.extend('third-component', 'second-component', {
+    it('should extend an extended component and all four components get build before with multiple usage of parent',
+        async () => {
+            ComponentFactory.register('first-component', {
+                template: '{% block first %}<div>First.</div>{% endblock %}'
+            });
+            ComponentFactory.extend('second-component', 'first-component', {
+                template: '{% block first %}{% block second %}<div>Second.</div>{% endblock %}{% endblock %}'
+            });
+            ComponentFactory.extend('third-component', 'second-component', {
+                // eslint-disable-next-line max-len
+                template: '{% block second %}<div>{% parent %}{% block third %}<div>Third.</div>{% endblock %}</div>{% endblock %}'
+            });
+            ComponentFactory.extend('fourth-component', 'third-component', {
+                // eslint-disable-next-line max-len
+                template: '{% block second %}<div>{% block fourth %}<div>Fourth.</div>{% parent %}{% endblock %}</div>{% endblock %}'
+            });
+
+            ComponentFactory.build('first-component');
+            ComponentFactory.build('second-component');
+            ComponentFactory.build('third-component');
+            const fourthComponent = ComponentFactory.build('fourth-component');
             // eslint-disable-next-line max-len
-            template: '{% block second %}<div>{% parent %}{% block third %}<div>Third.</div>{% endblock %}</div>{% endblock %}'
-        });
-        ComponentFactory.extend('fourth-component', 'third-component', {
-            // eslint-disable-next-line max-len
-            template: '{% block second %}<div>{% block fourth %}<div>Fourth.</div>{% parent %}{% endblock %}</div>{% endblock %}'
+            expect(fourthComponent.template).toBe('<div><div>Fourth.</div><div><div>Second.</div><div>Third.</div></div></div>');
         });
 
-        ComponentFactory.build('first-component');
-        ComponentFactory.build('second-component');
-        ComponentFactory.build('third-component');
-        const fourthComponent = ComponentFactory.build('fourth-component');
-        expect(fourthComponent.template).toBe('<div><div>Fourth.</div><div><div>Second.</div><div>Third.</div></div></div>');
-    });
+    it('should extend an extended component and all five components get build before with multiple usage of parent',
+        async () => {
+            ComponentFactory.register('first-component', {
+                template: '{% block first %}<div>First.</div>{% endblock %}'
+            });
+            ComponentFactory.extend('second-component', 'first-component', {
+                template: '{% block first %}{% block second %}<div>Second.</div>{% endblock %}{% endblock %}'
+            });
+            ComponentFactory.extend('third-component', 'second-component', {
+                // eslint-disable-next-line max-len
+                template: '{% block second %}<div>{% parent %}{% block third %}<div>Third.</div>{% endblock %}</div>{% endblock %}'
+            });
+            ComponentFactory.extend('fourth-component', 'third-component', {
+                // eslint-disable-next-line max-len
+                template: '{% block second %}<div>{% block fourth %}<div>Fourth.</div>{% endblock %}{% parent %}</div>{% endblock %}'
+            });
+            ComponentFactory.extend('fifth-component', 'fourth-component', {
+                // eslint-disable-next-line max-len
+                template: '{% block second %}<div>{% block fifth %}<div>Fifth.</div>{% endblock %}{% parent %}</div>{% endblock %}'
+            });
 
-    it('should extend an extended component and all five components get build before with multiple usage of parent', async () => {
-        ComponentFactory.register('first-component', {
-            template: '{% block first %}<div>First.</div>{% endblock %}'
-        });
-        ComponentFactory.extend('second-component', 'first-component', {
-            template: '{% block first %}{% block second %}<div>Second.</div>{% endblock %}{% endblock %}'
-        });
-        ComponentFactory.extend('third-component', 'second-component', {
-            // eslint-disable-next-line max-len
-            template: '{% block second %}<div>{% parent %}{% block third %}<div>Third.</div>{% endblock %}</div>{% endblock %}'
-        });
-        ComponentFactory.extend('fourth-component', 'third-component', {
-            // eslint-disable-next-line max-len
-            template: '{% block second %}<div>{% block fourth %}<div>Fourth.</div>{% endblock %}{% parent %}</div>{% endblock %}'
-        });
-        ComponentFactory.extend('fifth-component', 'fourth-component', {
-            // eslint-disable-next-line max-len
-            template: '{% block second %}<div>{% block fifth %}<div>Fifth.</div>{% endblock %}{% parent %}</div>{% endblock %}'
-        });
+            ComponentFactory.build('first-component');
+            ComponentFactory.build('second-component');
+            ComponentFactory.build('third-component');
+            ComponentFactory.build('fourth-component');
+            const fifthComponent = ComponentFactory.build('fifth-component');
 
-        ComponentFactory.build('first-component');
-        ComponentFactory.build('second-component');
-        ComponentFactory.build('third-component');
-        ComponentFactory.build('fourth-component');
-        const fifthComponent = ComponentFactory.build('fifth-component');
-
-        // eslint-disable-next-line max-len
-        expect(fifthComponent.template).toBe('<div><div>Fifth.</div><div><div>Fourth.</div><div><div>Second.</div><div>Third.</div></div></div></div>');
-    });
+            // eslint-disable-next-line max-len
+            expect(fifthComponent.template).toBe('<div><div>Fifth.</div><div><div>Fourth.</div><div><div>Second.</div><div>Third.</div></div></div></div>');
+        });
 
     it('should extend an extended component', async () => {
         ComponentFactory.register('first-component', {
@@ -1147,7 +1150,7 @@ describe('core/factory/component.factory.js', () => {
             const childComponent = shallowMount(ComponentFactory.build('child-component'));
 
             expect(childComponent.vm.fooBar()).toBe('called');
-        },
+        }
     );
 
     it(

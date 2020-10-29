@@ -80,7 +80,10 @@
                                 {{ $tc('sw-product.variations.overview.generateVariants') }}
                             </sw-button>
 
-                            <sw-button variant="ghost" class="sw-product-variants__configure-storefront-action" @click="$emit('delivery-open')">
+                            <sw-button variant="ghost"
+                                       class="sw-product-variants__configure-storefront-action"
+                                       :disabled="!acl.can('product.editor')"
+                                       @click="$emit('delivery-open')">
                                 {{ $tc('sw-product.variations.overview.storefrontDelivery') }}
                             </sw-button>
                         {% endblock %}

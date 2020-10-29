@@ -231,14 +231,12 @@ base-uri 'self';
         <service id="Shopware\Core\System\Snippet\Files\SnippetFileLoader">
             <argument type="service" id="kernel"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\Core\System\Snippet\Files\AppSnippetFileLoader" on-invalid="null"/>
-            <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader" on-invalid="null"/>
+            <argument type="service" id="Shopware\Core\System\Snippet\Files\AppSnippetFileLoader"/>
+            <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader"/>
         </service>
 
         <service id="Shopware\Core\System\Snippet\Files\AppSnippetFileLoader">
             <argument>%kernel.project_dir%</argument>
-
-            <tag name="shopware.feature" flag="FEATURE_NEXT_10286"/>
         </service>
 
         <service id="Shopware\Core\System\Snippet\Files\SnippetFileCollection" public="true" lazy="true">
@@ -299,7 +297,7 @@ base-uri 'self';
 
         <service id="Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\BundleHierarchyBuilder">
             <argument type="service" id="kernel"/>
-            <argument type="service" id="app.repository" on-invalid="null"/>
+            <argument type="service" id="app.repository"/>
 
             <tag name="shopware.twig.hierarchy_builder" priority="1000"/>
         </service>
@@ -355,7 +353,6 @@ base-uri 'self';
 
             <tag name="twig.loader"/>
             <tag name="kernel.event_subscriber"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_10286"/>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Twig\AppTemplateIterator"
@@ -363,8 +360,6 @@ base-uri 'self';
                  public="true">
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\AppTemplateIterator.inner"/>
             <argument type="service" id="app_template.repository"/>
-
-            <tag name="shopware.feature" flag="FEATURE_NEXT_10286"/>
         </service>
 
         <service id="Shopware\Core\Framework\Routing\ApiRequestContextResolver">

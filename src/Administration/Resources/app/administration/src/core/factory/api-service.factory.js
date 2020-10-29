@@ -52,7 +52,7 @@ function register(apiServiceName, apiService = null) {
     if (has(apiServiceName)) {
         warn(
             name,
-            `The apiService "${apiServiceName}" is already registered. Please select a unique name for your apiService.`,
+            `The apiService "${apiServiceName}" is already registered. Please select a unique name for your apiService.`
         );
         return false;
     }

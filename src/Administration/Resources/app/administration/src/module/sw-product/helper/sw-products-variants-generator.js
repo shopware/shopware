@@ -91,7 +91,7 @@ export default class VariantsGenerator extends EventEmitter {
             const numbers = {};
             const numberMap = {};
 
-            // eslint-disable-next-line no-restricted-syntax
+            // eslint-disable-next-line
             for (const [key, variant] of Object.entries(variationOnServer)) {
                 const hash = md5(JSON.stringify(variant.options.sort()));
                 hashed[hash] = key;

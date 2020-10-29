@@ -551,6 +551,34 @@ class ProductCartProcessorTest extends TestCase
         static::assertEquals($product, $actualProduct);
     }
 
+    public function testProcessCartShouldReCalculateThePriceWhenAddAProductAndHasNoCustomPrice(): void
+    {
+        $this->createProduct();
+        $token = $this->ids->create('token');
+        $options = [
+            SalesChannelContextService::PERMISSIONS => [
+                ProductCartProcessor::SKIP_PRODUCT_STOCK_VALIDATION => false,
+                ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES => true,
+            ],
+        ];
+
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+            ->create($token, Defaults::SALES_CHANNEL, $options);
+
+        $product = $this->getContainer()->get(ProductLineItemFactory::class)
+            ->create($this->ids->get('product'));
+        $product->setLabel('My test product');
+
+        $cart = $this->cartService->getCart($token, $context);
+        $this->cartService->add($cart, $product, $context);
+
+        $actualProduct = $cart->get($product->getId());
+
+        static::assertEquals($product->getQuantity(), $actualProduct->getQuantity());
+        static::assertEquals($product->getPrice(), $this->calculator->calculate($product->getPriceDefinition(), $context));
+        static::assertEquals($product, $actualProduct);
+    }
+
     private function getProductCart(): Cart
     {
         $product = $this->getContainer()->get(ProductLineItemFactory::class)

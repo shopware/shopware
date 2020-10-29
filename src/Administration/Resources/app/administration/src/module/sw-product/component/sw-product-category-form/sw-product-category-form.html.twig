@@ -50,7 +50,7 @@
             </sw-container>
 
             <sw-modal v-if="displayVisibilityDetail" @modal-close="closeAdvancedVisibility" :title="$tc('sw-product.visibility.textHeadline')" class="sw-product-category-form__visibility_modal">
-                <sw-product-visibility-detail></sw-product-visibility-detail>
+                <sw-product-visibility-detail :disabled="!allowEdit"></sw-product-visibility-detail>
 
                 <template slot="modal-footer">
                     <sw-button variant="primary" size="small" @click="closeAdvancedVisibility">
@@ -83,8 +83,7 @@
         {% endblock %}
 
         {% block sw_product_category_form_search_keyword_field %}
-            <sw-inherit-wrapper v-if="feature.isActive('FEATURE_NEXT_10075')"
-                                v-model="product.customSearchKeywords"
+            <sw-inherit-wrapper v-model="product.customSearchKeywords"
                                 :helpText="$tc('sw-product.categoryForm.helpTextSearchKeyword')"
                                 :inheritedValue="parentProduct.customSearchKeywords"
                                 :label="$tc('sw-product.categoryForm.labelSearchKeyword')">

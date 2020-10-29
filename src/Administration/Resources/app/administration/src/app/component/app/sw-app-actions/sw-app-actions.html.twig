@@ -1,0 +1,18 @@
+{% block sw_app_actions %}
+    <div class="sw-app-actions" v-if="areActionsAvailable">
+        <sw-context-button class="sw-app-actions__action-button">
+            <template slot="button">
+                <sw-button>
+                    <sw-icon name="small-more" size="16"></sw-icon>
+                </sw-button>
+            </template>
+
+            <sw-app-action-button
+                v-for="action in actions"
+                :key="action.id"
+                :action="action"
+                @run-app-action="runAction">
+            </sw-app-action-button>
+        </sw-context-button>
+    </div>
+{% endblock %}

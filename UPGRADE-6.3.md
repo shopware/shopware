@@ -1,6 +1,216 @@
 UPGRADE FROM 6.2.x to 6.3
 =======================
 
+# 6.3.3.0
+## Deprecation of the current sortings implementation
+
+The current defined sortings in the service definition xml are deprecated for release **6.4.0.0** .
+
+If you have defined custom sorting options in the service definition, please consider upgrading to the new logic via migration.
+
+Before, custom sortings were handled by defining them as services and tagging them as `shopware.sales_channel.product_listing.sorting`:
+```xml
+<service id="product_listing.sorting.name_ascending" class="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingSorting">
+    <argument>name-asc</argument>
+    <argument>filter.sortByNameAscending</argument>
+    <argument type="collection">
+        <argument key="product.name">asc</argument>
+    </argument>
+    <tag name="shopware.sales_channel.product_listing.sorting" />
+</service>
+```
+Now it is possible to store custom sortings in the database `product_sorting` and its translatable label in `product_sorting_translation`
+## Product listing filter handling
+We optimized the product listing aggregation handling. 
+
+In order to implement a filter for a product listing before, you had to register for the following events:
+* `\Shopware\Core\Content\Product\Events\ProductListingCriteriaEvent`
+    * Adds the filter and aggregations to the criteria
+* `\Shopware\Core\Content\Product\Events\ProductListingResultEvent`
+    * Adds the filtered values to the result
+
+### Before
+```
+class ExampleListingSubscriber implements EventSubscriberInterface
+{
+    public static function getSubscribedEvents()
+    {
+        return [
+            ProductListingCriteriaEvent::class => 'handleRequest',
+            ProductListingResultEvent::class => 'handleResult',
+        ];
+    }
+
+    public function handleRequest(ProductListingCriteriaEvent $event)
+    {
+        $criteria = $event->getCriteria();
+
+        $request = $event->getRequest();
+
+        $criteria->addAggregation(
+            new EntityAggregation('manufacturer', 'product.manufacturerId', 'product_manufacturer')
+        );
+
+        $ids = $this->getManufacturerIds($request);
+
+        if (empty($ids)) {
+            return;
+        }
+
+        $criteria->addPostFilter(new EqualsAnyFilter('product.manufacturerId', $ids));
+    }
+
+    public function handleResult(ProductListingResultEvent $event)
+    {
+        $event->getResult()->addCurrentFilter('manufacturer', $this->getManufacturerIds($event->getRequest()));
+    }
+
+    private function getManufacturerIds(Request $request): array
+    {
+        $ids = $request->query->get('manufacturer', '');
+        $ids = explode('|', $ids);
+
+        return array_filter($ids);
+    }
+}
+```
+
+### After
+As we have now introduced a new mode for the filters, where the filters have been further reduced with each filtering, we have simplified the system.
+For this, the event `\Shopware\Core\Content\Product\Events\ProductListingCollectFilterEvent` was introduced, where every developer can specify the meta data for a filter. 
+The handling, if and how a filter is added, is done by the core.
+
+```
+class ExampleListingSubscriber implements EventSubscriberInterface
+{
+    public static function getSubscribedEvents()
+    {
+        return [
+            ProductListingCollectFilterEvent::class => 'addFilter'
+        ];
+    }
+
+    public function handleRequest(ProductListingCollectFilterEvent $event)
+    {
+        $filters = $event->getFilters();
+        
+        $ids = $this->getManufacturerIds($request);
+
+        $filter = new Filter(
+            //unique name of the filter
+            'manufacturer',
+            
+            // defines if this filter is active
+            !empty($ids),
+            
+            // defines aggregations behind a filter. Sometimes a filter contains multiple aggregations like properties
+            [new EntityAggregation('manufacturer', 'product.manufacturerId', 'product_manufacturer')],
+            
+            // defines the DAL filter which should be added to the criteria   
+            new EqualsAnyFilter('product.manufacturerId', $ids),
+            
+            // defines the values which will be added as currentFilter to the result
+            $ids
+        );
+
+        $filters->add($filter);
+    }
+
+    private function getManufacturerIds(Request $request): array
+    {
+        $ids = $request->query->get('manufacturer', '');
+        $ids = explode('|', $ids);
+
+        return array_filter($ids);
+    }
+}
+```
+## Entity Repository Autowiring
+
+The DAL entity repositories can now be injected into your services using autowiring. Necessary for this to work
+(apart from having your service configured for [autowiring](https://symfony.com/doc/current/service_container/autowiring.html) generally)
+are:
+- The type of the parameter. It needs to be `EntityRepositoryInterface`
+- The name of the variable. It must be the same as the id of the service in the DIC, written in `camelCase` instead of `snake_case`, followed by the word `Repository`.
+
+So for example, a media_thumbnail repository (id `media_thumbnail.repository`) would be requested (and injected) like this:
+```php
+public function __construct(EntityRepositoryInterface $mediaThumbnailRepository) {}
+```
+## Write protection of `StateMachineStateField` was removed
+The `StateMachineStateField` does not have a write-protection by default anymore. Instead, the scopes which are allowed
+to write the field directly have to be given as a constructor parameter of the `StateMachineStateField` class.
+## verifyUserToken() method
+The verifyUserToken method was available nearly identical in multiple locations.
+It has now been integrated into the loginService.js. In case you need to verify a User you can get an Access token
+by calling loginService.verifyUserToken(userPassword) and provide the current user's password, the username will be automatically 
+fetched from the session.
+## `name` attribute of `ProductFeatureSetTranslationDefinition` will be non-nullable
+
+With [NEXT-11000](https://issues.shopware.com/issues/NEXT-11000), the `name` attribute in
+[ProductFeatureSetTranslationDefinition](https://github.com/shopware/platform/blob/master/src/Core/Content/Product/Aggregate/ProductFeatureSetTranslation/ProductFeatureSetTranslationDefinition.php)
+was marked non-nullable. This change is also implemented on database-level with
+[Migration1601388975RequireFeatureSetName.php](https://github.com/shopware/platform/blob/master/src/Core/Migration/Migration1601388975RequireFeatureSetName.php).
+For blue-green deployment compatibility, the now non-nullable field will have an empty string as default value.
+The upcoming **6.4.0.0** release will contain major **breaking changes** to the payment and shipping method selection templates in the storefront.
+The modal to select payment or shipping methods was removed entirely.
+Instead, the payment and shipping methods will be shown instantly up to a default maximum of `5` methods.
+All other methods will be hidden inside a JavaScript controlled collapse.
+
+The changes especially apply to the `confirm checkout` and `edit order` pages.
+
+We refactored most of the payment and shipping method storefront templates and split the content up into multiple templates to raise the usability.
+
+**Please review the changes on the `major` branch on GitHub.**  
+
+## Breaking changes in upcoming v6.4.0.0 release:
+
+`storefront/page/checkout/confirm/confirm-payment.html.twig`:
+ * Renamed block `page_checkout_confirm_payment_current` to `page_checkout_change_payment_form`. This block will include the new component `storefront/component/payment/payment-form.html.twig` which will hold the contents.
+ * Removed block `page_checkout_confirm_payment_current_image`.
+ * Removed block `page_checkout_confirm_payment_current_text`.
+ * Removed block `page_checkout_confirm_payment_invalid_tooltip`.
+ * Removed block `page_checkout_confirm_payment_modal_toggle`.
+ * Removed block `page_checkout_confirm_payment_modal`.
+ * Removed block `page_checkout_confirm_payment_modal_body`.
+
+`storefront/page/checkout/confirm/confirm-shipping.html.twig`:
+ * Renamed block `page_checkout_confirm_shipping_current` to `page_checkout_change_shipping_form`. This block will include the new component `storefront/component/shipping/shipping-form.html.twig` which will hold the contents.
+ * Moved content of block `page_checkout_confirm_shipping_form` to the new components.
+ * Removed block `page_checkout_confirm_shipping_current_image`.
+ * Removed block `page_checkout_confirm_shipping_current_text`.
+ * Removed block `page_checkout_confirm_shipping_invalid_tooltip`.
+ * Removed block `page_checkout_confirm_shipping_modal_toggle`.
+ * Removed block `page_checkout_confirm_shipping_modal`.
+ * Removed block `page_checkout_confirm_shipping_modal_body`.
+
+`storefront/component/payment/payment-fields.html.twig`:
+ * Moved content of block `component_payment_method` to its own new template `storefront/component/payment/payment-method.html.twig`.
+
+Added following templates:
+ * `storefront/component/payment/payment-form.html.twig`.
+ * `storefront/component/payment/payment-method.html.twig`.
+ * `storefront/component/shipping/shipping-form.html.twig`.
+ * `storefront/component/shipping/shipping-fields.html.twig`.
+ * `storefront/component/shipping/shipping-method.html.twig`.
+ * `storefront/page/account/order/confirm-payment.html.twig`.
+ * `storefront/page/account/order/confirm-shipping.html.twig`.
+
+Removed following templates:
+ * `storefront/page/account/order/payment.html.twig`.
+ * `storefront/page/account/order/shipping.html.twig`.
+ * `storefront/page/account/order/change-payment-modal.html.twig`.
+
+## New handling to assign mail templates to business events
+
+With the new event action module (`sw-event-action`) the user can configure which mail template will be sent for a business event. This makes other assignments superfluous:
+* The assignment for mail templates inside the order module (when changing the order state) is no longer needed.
+* The component `sw-order-state-change-modal-assign-mail-template` is deprecated for `tag:v6.0.0` and is not being rendered anymore from now on. Changes which have been made to this component will not be visible.
+* The assignment of sales channels inside the mail template detail page is no longer needed.
+* The select field inside the block `sw_order_state_change_modal_assign_mail_template_component` in `Resources/app/administration/src/module/sw-order/component/sw-order-state-change-modal/sw-order-state-change-modal.html.twig` was removed.
+  * The twig block is still present but css or template extensions which rely on the field to be displayed may have to be adjusted.
+  * A sales channel selection is only needed in order to send a test mail and has been added to the `sidebar` slot of `sw-mail-template-detail` component.
+
 # 6.3.2.0
 ## Deprecation of the Sales Channel API
 
@@ -392,3 +602,7 @@ Make sure you are using the correct asset package in the twig function `asset`.
 
 * Themes: `{{ asset('folder/image.png', 'theme') }`
 * Plugins: `{{ asset('folder/image.png', 'asset') }` or `{{ asset('folder/image.png', '@MyPluginName') }`
+
+Others
+------------
+* All current administration users will be set to admin users due to the release of the acl system. Please check your user rights after update.

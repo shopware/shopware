@@ -6,7 +6,7 @@ const { Component, Locale, Mixin, Data: { Criteria } } = Shopware;
 Component.register('sw-settings-custom-field-set-list', {
     template,
 
-    inject: ['acl'],
+    inject: ['acl', 'feature'],
 
     mixins: [
         Mixin.getByName('sw-inline-snippet'),
@@ -58,6 +58,8 @@ Component.register('sw-settings-custom-field-set-list', {
                     ...this.getTermCriteria(params.term)
                 ]
             ));
+
+            criteria.addFilter(Criteria.equals('appId', null));
 
             return criteria;
         }

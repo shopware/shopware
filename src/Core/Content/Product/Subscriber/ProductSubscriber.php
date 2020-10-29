@@ -55,6 +55,13 @@ class ProductSubscriber implements EventSubscriberInterface
             }
             $group = $sorted[$origin->getId()] ?? $sorted[$origin->getId()] = clone $origin;
 
+            $groupId = $group->getId();
+            if (array_key_exists($groupId, $sorted)) {
+                $sorted[$groupId]->getOptions()->add($option);
+
+                continue;
+            }
+
             if (!$group->getOptions()) {
                 $group->setOptions(new PropertyGroupOptionCollection());
             }

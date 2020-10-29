@@ -118,7 +118,6 @@ Component.register('sw-modal', {
 
         destroyedComponent() {
             this.shortcutService.startEventListener();
-            document.querySelector('.sw-modal__dialog').focus();
         },
 
         setFocusToModal() {

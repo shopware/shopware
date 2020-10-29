@@ -11,7 +11,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
-use Shopware\Core\Framework\Feature;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 class BundleHierarchyBuilder implements TemplateNamespaceHierarchyBuilderInterface
@@ -22,11 +21,11 @@ class BundleHierarchyBuilder implements TemplateNamespaceHierarchyBuilderInterfa
     private $kernel;
 
     /**
-     * @var EntityRepositoryInterface|null
+     * @var EntityRepositoryInterface
      */
     private $appRepository;
 
-    public function __construct(KernelInterface $kernel, ?EntityRepositoryInterface $appRepository)
+    public function __construct(KernelInterface $kernel, EntityRepositoryInterface $appRepository)
     {
         $this->kernel = $kernel;
         $this->appRepository = $appRepository;
@@ -50,12 +49,6 @@ class BundleHierarchyBuilder implements TemplateNamespaceHierarchyBuilderInterfa
             array_unshift($namespaceHierarchy, $bundle->getName());
 
             $namespaceHierarchy = array_values(array_unique($namespaceHierarchy));
-        }
-
-        // remove nullable prop and on-invalid=null behaviour in service config
-        // when we remove the feature flag
-        if (!$this->appRepository || !Feature::isActive('FEATURE_NEXT_10286')) {
-            return $namespaceHierarchy;
         }
 
         return array_unique(array_merge($this->getAppTemplateNamespaces(), $namespaceHierarchy));

@@ -100,7 +100,7 @@ class OrderRoute extends AbstractOrderRoute
 
         if ($context->getCustomer()) {
             $criteria->addFilter(new EqualsFilter('order.orderCustomer.customerId', $context->getCustomer()->getId()));
-        } elseif (!$criteria->hasEqualsFilter('order.deepLinkCode')) {
+        } elseif (!$criteria->hasEqualsFilter('deepLinkCode')) {
             throw new CustomerNotLoggedInException();
         } else {
             // Search with deepLinkCode needs updatedAt Filter

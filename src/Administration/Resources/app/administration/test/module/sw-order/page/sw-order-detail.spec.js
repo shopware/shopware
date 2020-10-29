@@ -7,6 +7,9 @@ function createWrapper(privileges = []) {
 
     return shallowMount(Shopware.Component.build('sw-order-detail'), {
         localVue,
+        propsData: {
+            orderId: Shopware.Utils.createId()
+        },
         stubs: {
             'sw-page': {
                 template: '<div><slot name="smart-bar-actions"></slot></div>'
@@ -28,12 +31,7 @@ function createWrapper(privileges = []) {
             }
         },
         mocks: {
-            $tc: v => v,
-            $route: {
-                params: {
-                    id: '1a2b3c'
-                }
-            }
+            $tc: v => v
         }
     });
 }

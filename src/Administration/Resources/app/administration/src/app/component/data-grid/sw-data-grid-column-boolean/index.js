@@ -1,4 +1,5 @@
 import template from './sw-data-grid-column-boolean.html.twig';
+import './sw-data-grid-column-boolean.scss';
 
 const { Component } = Shopware;
 

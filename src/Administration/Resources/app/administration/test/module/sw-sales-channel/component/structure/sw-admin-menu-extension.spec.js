@@ -44,6 +44,9 @@ function createWrapper(privileges = []) {
                 onResize: () => {},
                 getViewportWidth: () => 1920
             }
+        },
+        methods: {
+            refreshApps: () => {}
         }
     });
 }

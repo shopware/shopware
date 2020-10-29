@@ -42,6 +42,11 @@ class PromotionNotEligibleError extends Error
         return self::KEY;
     }
 
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
     public function blockOrder(): bool
     {
         return false;

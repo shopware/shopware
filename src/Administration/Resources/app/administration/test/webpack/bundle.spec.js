@@ -1,6 +1,9 @@
+// eslint-disable-next-line
 const util = require('util');
 const fs = require('fs');
+// eslint-disable-next-line
 const path = require('path');
+// eslint-disable-next-line
 const { sep } = require('path');
 const dircompare = require('dir-compare');
 const exec = util.promisify(require('child_process').exec);

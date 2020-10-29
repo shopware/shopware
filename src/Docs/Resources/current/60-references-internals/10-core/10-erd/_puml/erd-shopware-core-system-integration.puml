@@ -38,11 +38,14 @@ Table(ShopwareCoreSystemIntegrationAggregateIntegrationRoleIntegrationRoleDefini
    primary_key(integrationId) foreignKey
    primary_key(aclRoleId) foreignKey
 }
+ForeignTable(ShopwareCoreFrameworkAppAppDefinition, "app") {
+}
 ForeignTable(ShopwareCoreFrameworkApiAclRoleAclRoleDefinition, "acl_role") {
 }
 
 ' relationshipd
 
+ShopwareCoreSystemIntegrationIntegrationDefinition --> ShopwareCoreFrameworkAppAppDefinition
 ShopwareCoreSystemIntegrationAggregateIntegrationRoleIntegrationRoleDefinition --> ShopwareCoreSystemIntegrationIntegrationDefinition
 ShopwareCoreSystemIntegrationAggregateIntegrationRoleIntegrationRoleDefinition --> ShopwareCoreFrameworkApiAclRoleAclRoleDefinition
 @enduml

@@ -121,7 +121,6 @@
             <name>allowCustomerDeletion</name>
             <label>Allow customer deletion</label>
             <label lang="de-DE">Löschen des Kunden zulassen</label>
-            <flag>FEATURE_NEXT_10077</flag>
         </input-field>
     </card>
 </config>

@@ -9,7 +9,7 @@ describe('Login / Registration: Test show operations on templates', () => {
             });
     });
 
-    it('@settings: General (all sales channels)', () => {
+    it('@settings: Customer Scope', () => {
         cy.window().then((win) => {
             if (!win.Shopware.Feature.isActive('FEATURE_NEXT_10555')) {
                 return;
@@ -22,7 +22,7 @@ describe('Login / Registration: Test show operations on templates', () => {
                 method: 'post'
             }).as('saveSettings');
 
-            cy.get('.sw-system-config__card--0 .sw-card__title').contains('General (all sales channels)');
+            cy.get('.sw-system-config__card--0 .sw-card__title').contains('Customer Scope');
 
             cy.get('input[name="core.systemWideLoginRegistration.isCustomerBoundToSalesChannel"]').scrollIntoView();
             cy.get('input[name="core.systemWideLoginRegistration.isCustomerBoundToSalesChannel"]').should('be.visible');

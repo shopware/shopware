@@ -122,7 +122,7 @@ class GenericPageLoader implements GenericPageLoaderInterface
             'revisit' => '15 days',
             'robots' => 'index,follow',
             'xmlLang' => $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_LOCALE) ?? '',
-            'metaTitle' => $this->systemConfigService->get('core.basicInformation.shopName') ?? '',
+            'metaTitle' => $this->systemConfigService->getString('core.basicInformation.shopName', $context->getSalesChannel()->getId()),
         ]));
 
         $this->eventDispatcher->dispatch(

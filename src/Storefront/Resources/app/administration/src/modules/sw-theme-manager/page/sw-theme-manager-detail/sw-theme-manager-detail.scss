@@ -120,6 +120,10 @@
         :not(div.sw-media-upload) .sw-field {
             margin: 0;
         }
+
+        .sw-theme-manager-detail__content--section_field-full-width {
+            grid-column: span 2 / auto;
+        }
     }
 
     .sw-theme-manager-detail__content--section_title {

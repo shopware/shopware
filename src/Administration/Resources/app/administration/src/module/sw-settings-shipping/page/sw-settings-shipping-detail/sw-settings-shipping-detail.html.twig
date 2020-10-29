@@ -148,11 +148,19 @@
                                                        :ruleFilter="ruleFilter"
                                                        :disabled="!acl.can('shipping.editor')"
                                                        required
+                                                       :label="$tc('sw-settings-shipping.detail.topRule')"
                                                        class="sw-settings-shipping-detail__top-rule"
                                                        @save-rule="onSaveRule">
                                 </sw-select-rule-create>
                             {% endblock %}
                         </sw-card>
+                    {% endblock %}
+
+                    {% block sw_settings_shipping_detail_tax_cost %}
+                        <sw-settings-shipping-tax-cost
+                            v-if="!isLoading"
+                            :disabled="!acl.can('shipping.editor')">
+                        </sw-settings-shipping-tax-cost>
                     {% endblock %}
 
                     {% block sw_settings_shipping_detail_price_matrices %}

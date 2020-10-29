@@ -6,7 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\EntityTemplateLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Twig\Error\LoaderError;
@@ -50,7 +49,6 @@ class EntityTemplateLoaderTest extends TestCase
 
     public function setUp(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10286', $this);
         $this->templateRepository = $this->getContainer()->get('app_template.repository');
         $this->templateLoader = $this->getContainer()->get(EntityTemplateLoader::class);
         $this->template1Id = Uuid::randomHex();
@@ -59,9 +57,7 @@ class EntityTemplateLoaderTest extends TestCase
 
     public function tearDown(): void
     {
-        if (Feature::isActive('FEATURE_NEXT_10286')) {
-            $this->templateLoader->clearInternalCache();
-        }
+        $this->templateLoader->clearInternalCache();
     }
 
     public function testGetSubscribedEvents(): void
@@ -85,6 +81,14 @@ class EntityTemplateLoaderTest extends TestCase
 
         static::assertEquals(self::FIRST_TEMPLATE, $source->getCode());
         static::assertEquals('@TestTheme/storefront/base.html.twig', $source->getName());
+    }
+
+    public function testGetSourceContextForDeactivatedApp(): void
+    {
+        $this->importTemplates();
+
+        static::expectException(LoaderError::class);
+        $this->templateLoader->getSourceContext('@StorefrontTheme/storefront/base.html.twig');
     }
 
     public function testGetCacheKey(): void
@@ -147,6 +151,19 @@ class EntityTemplateLoaderTest extends TestCase
         );
     }
 
+    public function testExistsForDeactivatedApp(): void
+    {
+        static::assertFalse(
+            $this->templateLoader->exists('@StorefrontTheme/storefront/base.html.twig')
+        );
+
+        $this->importTemplates();
+
+        static::assertFalse(
+            $this->templateLoader->exists('@StorefrontTheme/storefront/base.html.twig')
+        );
+    }
+
     private function importTemplates(): void
     {
         $this->templateRepository->upsert([
@@ -161,6 +178,7 @@ class EntityTemplateLoaderTest extends TestCase
                     'version' => '0.0.1',
                     'label' => 'test',
                     'accessToken' => 'test',
+                    'active' => true,
                     'integration' => [
                         'label' => 'test',
                         'writeAccess' => false,
@@ -183,6 +201,7 @@ class EntityTemplateLoaderTest extends TestCase
                     'version' => '0.0.1',
                     'label' => 'test',
                     'accessToken' => 'test',
+                    'active' => false,
                     'integration' => [
                         'label' => 'test',
                         'writeAccess' => false,

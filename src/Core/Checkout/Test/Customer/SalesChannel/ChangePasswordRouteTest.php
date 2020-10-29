@@ -165,13 +165,14 @@ class ChangePasswordRouteTest extends TestCase
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
-        $oldContextExists = $this->getContainer()->get(SalesChannelContextPersister::class)->load($this->contextToken);
+        $oldContextExists = $this->getContainer()->get(SalesChannelContextPersister::class)->load($this->contextToken, $this->ids->get('sales-channel'));
 
         static::assertEmpty($oldContextExists);
 
         // Token is replaced
         static::assertNotEquals($this->contextToken, $response['contextToken']);
-        $newContextExists = $this->getContainer()->get(SalesChannelContextPersister::class)->load($response['contextToken'], $this->customerId);
+
+        $newContextExists = $this->getContainer()->get(SalesChannelContextPersister::class)->load($response['contextToken'], $this->ids->get('sales-channel'), $this->customerId);
 
         static::assertNotEmpty($newContextExists);
     }

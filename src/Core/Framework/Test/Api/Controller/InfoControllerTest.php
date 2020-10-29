@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Test\Api\Controller;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Kernel;
 use Shopware\Core\PlatformRequest;
@@ -46,8 +45,6 @@ class InfoControllerTest extends TestCase
 
     public function testBusinessEventRoute(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_9351', $this);
-
         $url = sprintf('/api/v%s/_info/events.json', PlatformRequest::API_VERSION);
         $client = $this->getBrowser();
         $client->request('GET', $url);
@@ -92,20 +89,6 @@ class InfoControllerTest extends TestCase
             ],
             [
                 'name' => 'state_enter.order_delivery.state.shipped_partially',
-                'class' => "Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent",
-                'mailAware' => true,
-                'logAware' => false,
-                'salesChannelAware' => true,
-                'extensions' => [],
-                'data' => [
-                    'order' => [
-                        'type' => 'entity',
-                        'entityClass' => OrderDefinition::class,
-                    ],
-                ],
-            ],
-            [
-                'name' => 'state_enter.order_transaction.state.cash_payment.cancelled',
                 'class' => "Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent",
                 'mailAware' => true,
                 'logAware' => false,

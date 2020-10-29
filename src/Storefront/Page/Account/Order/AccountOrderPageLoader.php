@@ -69,6 +69,7 @@ class AccountOrderPageLoader
         $page = $this->genericLoader->load($request, $salesChannelContext);
 
         $page = AccountOrderPage::createFrom($page);
+        $page->getMetaInformation()->assign(['robots' => 'noindex,follow']);
 
         $page->setOrders(StorefrontSearchResult::createFrom($this->getOrders($request, $salesChannelContext)));
 
@@ -127,7 +128,8 @@ class AccountOrderPageLoader
             ->getAssociation('transactions')
             ->addSorting(new FieldSorting('createdAt'));
 
-        $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::DESCENDING));
+        $criteria
+            ->addSorting(new FieldSorting('orderDateTime', FieldSorting::DESCENDING));
 
         if ($request->get('deepLinkCode')) {
             $criteria->addFilter(new EqualsFilter('deepLinkCode', $request->get('deepLinkCode')));

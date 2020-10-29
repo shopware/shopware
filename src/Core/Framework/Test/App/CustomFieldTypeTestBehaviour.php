@@ -8,21 +8,12 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\CustomField\CustomFieldEntity;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 trait CustomFieldTypeTestBehaviour
 {
     use StorefrontPluginRegistryTestBehaviour;
-
-    /**
-     * @before
-     */
-    public function skipIfFeatureIsDeactivated(): void
-    {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10286', $this);
-    }
 
     abstract protected function getContainer(): ContainerInterface;
 

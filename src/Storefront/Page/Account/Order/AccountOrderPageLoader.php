@@ -12,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
@@ -121,13 +120,10 @@ class AccountOrderPageLoader
             ->addAssociation('lineItems.cover')
             ->addAssociation('addresses')
             ->addAssociation('currency')
+            ->addAssociation('documents.documentType')
             ->setLimit($limit)
             ->setOffset(($page - 1) * $limit)
             ->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NEXT_PAGES);
-
-        if (Feature::isActive('FEATURE_NEXT_10537')) {
-            $criteria->addAssociation('documents.documentType');
-        }
 
         $criteria
             ->getAssociation('transactions')

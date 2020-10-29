@@ -7,7 +7,7 @@ const { Criteria, EntityCollection } = Shopware.Data;
 Component.register('sw-settings-document-detail', {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'feature'],
+    inject: ['repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('notification'),

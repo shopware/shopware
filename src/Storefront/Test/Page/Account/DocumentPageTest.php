@@ -7,7 +7,6 @@ use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentIdStruct;
 use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Storefront\Page\Account\Document\DocumentPage;
@@ -23,7 +22,6 @@ class DocumentPageTest extends TestCase
 
     protected function setUp(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10537', $this);
         parent::setUp();
     }
 

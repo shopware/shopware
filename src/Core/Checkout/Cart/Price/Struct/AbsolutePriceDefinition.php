@@ -28,26 +28,10 @@ class AbsolutePriceDefinition extends Struct implements PriceDefinitionInterface
      */
     protected $filter;
 
-    /**
-     * @deprecated tag:v6.4.0 - `$precision` parameter will be removed
-     *
-     * @var int
-     */
-    protected $precision;
-
-    /**
-     * @deprecated tag:v6.4.0 - `$precision` parameter will be removed. Use `create` instead
-     */
-    public function __construct(float $price, int $precision = 2, ?Rule $filter = null)
+    public function __construct(float $price, ?Rule $filter = null)
     {
         $this->price = $price;
         $this->filter = $filter;
-        $this->precision = $precision;
-    }
-
-    public static function create(float $price, ?Rule $filter = null)
-    {
-        return new self($price, 2, $filter);
     }
 
     public function getFilter(): ?Rule
@@ -58,14 +42,6 @@ class AbsolutePriceDefinition extends Struct implements PriceDefinitionInterface
     public function getPrice(): float
     {
         return $this->price;
-    }
-
-    /**
-     * @deprecated tag:v6.4.0 - `$precision` parameter will be removed
-     */
-    public function getPrecision(): int
-    {
-        return $this->precision;
     }
 
     public function getType(): string
@@ -96,13 +72,5 @@ class AbsolutePriceDefinition extends Struct implements PriceDefinitionInterface
     public function getApiAlias(): string
     {
         return 'cart_price_absolute';
-    }
-
-    /**
-     * @deprecated tag:v6.4.0 - Will be removed. Currency precision will only be tracked in CashRoundingConfig.
-     */
-    public function setPrecision(int $precision): void
-    {
-        $this->precision = $precision;
     }
 }

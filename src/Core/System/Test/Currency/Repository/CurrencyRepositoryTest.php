@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter;
@@ -43,8 +44,28 @@ class CurrencyRepositoryTest extends TestCase
         $recordB = Uuid::randomHex();
 
         $records = [
-            ['id' => $recordA, 'decimalPrecision' => 2, 'name' => 'match', 'isoCode' => 'FOO', 'shortName' => 'test', 'factor' => 1, 'symbol' => 'A'],
-            ['id' => $recordB, 'decimalPrecision' => 2, 'name' => 'not', 'isoCode' => 'BAR', 'shortName' => 'match', 'factor' => 1, 'symbol' => 'A'],
+            [
+                'id' => $recordA,
+                'decimalPrecision' => 2,
+                'name' => 'match',
+                'isoCode' => 'FOO',
+                'shortName' => 'test',
+                'factor' => 1,
+                'symbol' => 'A',
+                'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
+                'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
+            ],
+            [
+                'id' => $recordB,
+                'decimalPrecision' => 2,
+                'name' => 'not',
+                'isoCode' => 'BAR',
+                'shortName' => 'match',
+                'factor' => 1,
+                'symbol' => 'A',
+                'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
+                'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
+            ],
         ];
 
         $this->currencyRepository->create($records, Context::createDefaultContext());
@@ -83,7 +104,17 @@ class CurrencyRepositoryTest extends TestCase
         $recordA = Uuid::randomHex();
 
         $records = [
-            ['id' => $recordA, 'decimalPrecision' => 2, 'name' => 'match', 'isoCode' => 'FOO', 'shortName' => 'test', 'factor' => 1, 'symbol' => 'A'],
+            [
+                'id' => $recordA,
+                'decimalPrecision' => 2,
+                'name' => 'match',
+                'isoCode' => 'FOO',
+                'shortName' => 'test',
+                'factor' => 1,
+                'symbol' => 'A',
+                'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
+                'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
+            ],
         ];
 
         $this->currencyRepository->create($records, $context);

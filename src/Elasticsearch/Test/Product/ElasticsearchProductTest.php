@@ -227,6 +227,7 @@ class ElasticsearchProductTest extends TestCase
                 'shortName' => 'A',
                 'isoCode' => 'A',
                 'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.05, true)), true),
+                'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.05, true)), true),
             ];
 
             $this->getContainer()
@@ -1859,6 +1860,7 @@ class ElasticsearchProductTest extends TestCase
         );
 
         $ids = $searcher->search($this->productDefinition, $criteria, $context);
+
         foreach ($expected as $id) {
             static::assertTrue($ids->has($id));
         }

@@ -125,25 +125,6 @@ Table of contents
 
 ### Core
 * Refactored document templates to supported nested line items, see `adr/2020-08-12-document-template-refactoring.md` for more details
-* Added new `item_rounding` and `total_rounding` field to `order` and `currency` entity
-* Added new `currency_country_rounding` which contains country specific cash rounding configuration
-* Added new CashRoundingField which stores the cash rounding in `order`, `currency` and `currency_country_rounding`
-* Added new `CashRoundingConfig` class which will be decoded by the corresponding `CashRoundingField`
-* Deprecated `RoundingInterface` and `Rounding` class, use `CashRounding` class instead
-* Deprecated `CalculatedTaxCollection::round` function, use `CalculatedTaxCollection::mathRound` instead
-* Deprecated `Context::getCurrencyPrecision`, use `Context::getRounding` instead
-* Removed `currencyPrecision` parameter of `Context::__construct()`
-* Added `itemRounding` and `totalRounding` to `SalesChannelContext`
-* Added `AbstractElasticsearchDefinition::extendDocuments` which allows to add not related entity data to an indexed document
-* Fixed currency price indexing and usage in elasticsearch
-* Deprecated `__construct` of all price definitions: `AbsolutePriceDefinition`, `PercentagePriceDefinition` and `QuantityPriceDefinition`, use `*Definition::create` instead
-* Deprecated `precision` parameter of price definition, a specific precision for each definition is no longer supported
-* Added `CartPrice::rawTotal` which contains the unrounded total value
-* Added `Context $context` parameter to `\Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator::calculate`
-* Added `Context $context` parameter to `\Shopware\Core\Checkout\Cart\Price\NetPriceCalculator::calculate`
-* Deprecated `\Shopware\Core\Checkout\Cart\Price\ReferencePriceCalculator`
-* Deprecated `\Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator` use `TaxCalculator` instead
-* Deprecated `\Shopware\Core\System\Currency\CurrencyEntity::$decimalPrecision` use `itemRounding` or `totalRounding` instead
 
 ### Storefront
 * Removed template component/listing/breadcrumb.html.twig

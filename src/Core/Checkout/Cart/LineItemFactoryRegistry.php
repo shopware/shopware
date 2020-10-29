@@ -123,7 +123,6 @@ class LineItemFactoryRegistry
                 'priceDefinition',
                 (new DataValidationDefinition())
                     ->add('type', new Type('string'))
-                    ->add('precision', new Type('int'))
                     ->add('price', new Type('numeric'))
                     ->add('percentage', new Type('numeric'))
                     ->add('quantity', new Type('int'))

@@ -377,7 +377,7 @@ class SalesChannelCartController extends AbstractController
 
         if ($requestDataBag->get('priceDefinition') !== null && $context->hasPermission(ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES)) {
             $priceDefinition = $requestDataBag->get('priceDefinition')->all();
-            $priceDefinitionType = $this->initPriceDefinition($context->getContext(), $priceDefinition, $lineItem->getType());
+            $priceDefinitionType = $this->initPriceDefinition($priceDefinition, $lineItem->getType());
             $lineItem->setPriceDefinition($priceDefinitionType);
 
             if ($lineItem->getType() === LineItem::PRODUCT_LINE_ITEM_TYPE) {
@@ -386,13 +386,11 @@ class SalesChannelCartController extends AbstractController
         }
     }
 
-    private function initPriceDefinition(Context $context, array $priceDefinition, string $lineItemType)
+    private function initPriceDefinition(array $priceDefinition, string $lineItemType)
     {
         if (!isset($priceDefinition['type'])) {
             throw new InvalidPriceFieldTypeException('none');
         }
-
-        $priceDefinition['precision'] = $priceDefinition['precision'] ?? $context->getCurrencyPrecision();
 
         switch ($priceDefinition['type']) {
             case QuantityPriceDefinition::TYPE:
@@ -400,11 +398,11 @@ class SalesChannelCartController extends AbstractController
             case AbsolutePriceDefinition::TYPE:
                 $rules = new LineItemOfTypeRule(Rule::OPERATOR_NEQ, $lineItemType);
 
-                return AbsolutePriceDefinition::create($priceDefinition['price'], $rules);
+                return new AbsolutePriceDefinition($priceDefinition['price'], $rules);
             case PercentagePriceDefinition::TYPE:
                 $rules = new LineItemOfTypeRule(Rule::OPERATOR_NEQ, $lineItemType);
 
-                return PercentagePriceDefinition::create($priceDefinition['percentage'], $rules);
+                return new PercentagePriceDefinition($priceDefinition['percentage'], $rules);
         }
 
         throw new InvalidPriceFieldTypeException($priceDefinition['type']);

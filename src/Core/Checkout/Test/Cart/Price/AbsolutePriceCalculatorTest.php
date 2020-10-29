@@ -64,10 +64,10 @@ class AbsolutePriceCalculatorTest extends TestCase
     {
         $calculator = $this->createQuantityPriceCalculator();
 
-        $definition = QuantityPriceDefinition::create(30, new TaxRuleCollection([new TaxRule(19)]));
+        $definition = new QuantityPriceDefinition(30, new TaxRuleCollection([new TaxRule(19)]));
         $price1 = $calculator->calculate($definition, Generator::createSalesChannelContext());
 
-        $definition = QuantityPriceDefinition::create(30, new TaxRuleCollection([new TaxRule(7)]));
+        $definition = new QuantityPriceDefinition(30, new TaxRuleCollection([new TaxRule(7)]));
         $price2 = $calculator->calculate($definition, Generator::createSalesChannelContext());
 
         return new AbsoluteCalculation(
@@ -93,7 +93,7 @@ class AbsolutePriceCalculatorTest extends TestCase
     {
         $calculator = $this->createQuantityPriceCalculator();
 
-        $priceDefinition = QuantityPriceDefinition::create(29.00, new TaxRuleCollection([new TaxRule(17, 100)]), 10);
+        $priceDefinition = new QuantityPriceDefinition(29.00, new TaxRuleCollection([new TaxRule(17, 100)]), 10);
 
         $price = $calculator->calculate($priceDefinition, Generator::createSalesChannelContext());
 

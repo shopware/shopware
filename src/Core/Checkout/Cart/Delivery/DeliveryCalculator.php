@@ -185,7 +185,7 @@ class DeliveryCalculator
 
         $price = $this->getCurrencyPrice($priceCollection, $context);
 
-        $definition = QuantityPriceDefinition::create($price, $rules, 1);
+        $definition = new QuantityPriceDefinition($price, $rules, 1);
 
         return $this->priceCalculator->calculate($definition, $context);
     }

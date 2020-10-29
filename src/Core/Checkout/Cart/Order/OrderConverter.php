@@ -144,7 +144,7 @@ class OrderConverter
 
         $data['languageId'] = $context->getSalesChannel()->getLanguageId();
 
-        $convertedLineItems = LineItemTransformer::transformCollection($cart->getLineItems(), null, $context->getContext());
+        $convertedLineItems = LineItemTransformer::transformCollection($cart->getLineItems(), null);
         $shippingAddresses = [];
 
         if ($conversionContext->shouldIncludeDeliveries()) {

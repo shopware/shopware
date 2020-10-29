@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Test\TestCaseBase\AssertArraySubsetBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
@@ -277,6 +278,8 @@ class SalesChannelControllerTest extends TestCase
             'shortName' => 'USD',
             'isoCode' => 'FOO',
             'name' => 'US Dollar',
+            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
+            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
         ];
         $data = [
             'id' => $this->getSalesChannelApiSalesChannelId(),

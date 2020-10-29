@@ -56,7 +56,7 @@ class PercentagePriceCalculatorTest extends TestCase
     {
         $calculator = $this->createQuantityPriceCalculator();
 
-        $priceDefinition = QuantityPriceDefinition::create(100.00, new TaxRuleCollection([new TaxRule(20, 100)]), 5);
+        $priceDefinition = new QuantityPriceDefinition(100.00, new TaxRuleCollection([new TaxRule(20, 100)]), 5);
 
         $price = $calculator->calculate($priceDefinition, Generator::createSalesChannelContext());
         static::assertSame(500.00, $price->getTotalPrice());
@@ -80,7 +80,7 @@ class PercentagePriceCalculatorTest extends TestCase
     {
         $calculator = $this->createQuantityPriceCalculator();
 
-        $priceDefinition = QuantityPriceDefinition::create(29.00, new TaxRuleCollection([new TaxRule(17, 100)]), 10);
+        $priceDefinition = new QuantityPriceDefinition(29.00, new TaxRuleCollection([new TaxRule(17, 100)]), 10);
 
         $price = $calculator->calculate($priceDefinition, Generator::createSalesChannelContext());
 
@@ -102,10 +102,10 @@ class PercentagePriceCalculatorTest extends TestCase
     {
         $calculator = $this->createQuantityPriceCalculator();
 
-        $definition = QuantityPriceDefinition::create(30, new TaxRuleCollection([new TaxRule(19)]));
+        $definition = new QuantityPriceDefinition(30, new TaxRuleCollection([new TaxRule(19)]));
         $price1 = $calculator->calculate($definition, Generator::createSalesChannelContext());
 
-        $definition = QuantityPriceDefinition::create(30, new TaxRuleCollection([new TaxRule(7)]));
+        $definition = new QuantityPriceDefinition(30, new TaxRuleCollection([new TaxRule(7)]));
         $price2 = $calculator->calculate($definition, Generator::createSalesChannelContext());
 
         return new PercentageCalculation(

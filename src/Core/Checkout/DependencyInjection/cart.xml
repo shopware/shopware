@@ -94,12 +94,6 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Cart\Price\PriceRounding"/>
-
-        <service id="Shopware\Core\Checkout\Cart\Price\ReferencePriceCalculator">
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\PriceRounding"/>
-        </service>
-
         <service id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\NetPriceCalculator"/>
@@ -132,8 +126,6 @@
         <service id="Shopware\Core\Checkout\Cart\Tax\TaxDetector"/>
 
         <service id="Shopware\Core\Checkout\Cart\Tax\TaxCalculator" />
-
-        <service id="Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator" public="true"/>
 
         <service id="Shopware\Core\Checkout\Cart\Delivery\DeliveryBuilder"/>
 

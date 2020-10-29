@@ -79,7 +79,7 @@ class PriceActionController extends AbstractController
 
         $taxRules = new TaxRuleCollection([new TaxRule($tax->getTaxRate())]);
 
-        $definition = QuantityPriceDefinition::create($price, $taxRules, $quantity);
+        $definition = new QuantityPriceDefinition($price, $taxRules, $quantity);
         $definition->setIsCalculated($preCalculated);
 
         $config = new CashRoundingConfig(50, 0.01, true);

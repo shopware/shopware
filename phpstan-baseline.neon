@@ -221,21 +221,6 @@ parameters:
 			path: src/Core/Checkout/Cart/Order/Transformer/LineItemTransformer.php
 
 		-
-			message: "#^Cannot call method getPurchaseUnit\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\Struct\\\\ReferencePriceDefinition\\|null\\.$#"
-			count: 2
-			path: src/Core/Checkout/Cart/Price/ReferencePriceCalculator.php
-
-		-
-			message: "#^Cannot call method getReferenceUnit\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\Struct\\\\ReferencePriceDefinition\\|null\\.$#"
-			count: 2
-			path: src/Core/Checkout/Cart/Price/ReferencePriceCalculator.php
-
-		-
-			message: "#^Cannot call method getUnitName\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\Struct\\\\ReferencePriceDefinition\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Price/ReferencePriceCalculator.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\Struct\\\\CalculatedPrice\\:\\:\\$referencePrice \\(Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\Struct\\\\ReferencePrice\\) does not accept Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\Struct\\\\ReferencePrice\\|null\\.$#"
 			count: 1
 			path: src/Core/Checkout/Cart/Price/Struct/CalculatedPrice.php
@@ -7426,6 +7411,16 @@ parameters:
 			path: src/Storefront/Page/Product/ProductPageLoader.php
 
 		-
+			message: "#^Cannot call method find\\(\\) on Symfony\\\\Component\\\\Console\\\\Application\\|null\\.$#"
+			count: 1
+			path: ../src/Command/ConfigDebugCommand.php
+
+		-
+			message: "#^Method Shopware\\\\Development\\\\Command\\\\DatabaseDebugViewGenerator\\:\\:updateDatabaseView\\(\\) has parameter \\$tableName with no typehint specified\\.$#"
+			count: 1
+			path: ../src/Command/DatabaseDebugViewGenerator.php
+
+		-
 			message: "#^Cannot call method setMetaDescription\\(\\) on Shopware\\\\Storefront\\\\Page\\\\MetaInformation\\|null\\.$#"
 			count: 1
 			path: src/Storefront/Page/Product/ProductPageLoader.php
@@ -7766,16 +7761,6 @@ parameters:
 			path: src/Storefront/Theme/Twig/ThemeInheritanceBuilder.php
 
 		-
-			message: "#^Cannot call method find\\(\\) on Symfony\\\\Component\\\\Console\\\\Application\\|null\\.$#"
-			count: 1
-			path: ../src/Command/ConfigDebugCommand.php
-
-		-
-			message: "#^Method Shopware\\\\Development\\\\Command\\\\DatabaseDebugViewGenerator\\:\\:updateDatabaseView\\(\\) has parameter \\$tableName with no typehint specified\\.$#"
-			count: 1
-			path: ../src/Command/DatabaseDebugViewGenerator.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\LogoutRoute\\:\\:logout\\(\\) has no return typehint specified\\.$#"
 			count: 1
 			path: src/Core/Checkout/Customer/SalesChannel/LogoutRoute.php
@@ -7804,21 +7789,6 @@ parameters:
 			message: "#^Parameter \\#1 \\$totalRounding of method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelContext\\:\\:setTotalRounding\\(\\) expects Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Pricing\\\\CashRoundingConfig, Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Pricing\\\\CashRoundingConfig\\|null given\\.$#"
 			count: 1
 			path: src/Core/Checkout/Cart/Order/OrderConverter.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\Struct\\\\AbsolutePriceDefinition\\:\\:create\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Price/Struct/AbsolutePriceDefinition.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\Struct\\\\PercentagePriceDefinition\\:\\:create\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Price/Struct/PercentagePriceDefinition.php
-
-		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Price\\\\Struct\\\\QuantityPriceDefinition\\:\\:create\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/Price/Struct/QuantityPriceDefinition.php
 
 		-
 			message: "#^Parameter \\#1 \\$operations of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Write\\\\EntityWriterInterface\\:\\:sync\\(\\) expects array, iterable\\<Shopware\\\\Core\\\\Framework\\\\Api\\\\Sync\\\\SyncOperation\\> given\\.$#"

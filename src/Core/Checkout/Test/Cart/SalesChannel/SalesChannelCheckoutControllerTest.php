@@ -10,6 +10,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\AssertArraySubsetBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
@@ -135,6 +136,8 @@ class SalesChannelCheckoutControllerTest extends TestCase
             'shortName' => 'Yen',
             'isoCode' => 'JPY',
             'name' => 'japanese Yen',
+            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
+            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
         ];
         $context = Context::createDefaultContext();
         $this->currencyRepository->create([$yen], $context);

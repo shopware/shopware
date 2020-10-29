@@ -48,7 +48,7 @@ class PromotionItemBuilder
 
         // this is important to avoid any side effects when calculating the cart
         // a percentage of 0,00 will just do nothing
-        $item->setPriceDefinition(PercentagePriceDefinition::create(0));
+        $item->setPriceDefinition(new PercentagePriceDefinition(0));
 
         return $item;
     }
@@ -92,19 +92,19 @@ class PromotionItemBuilder
         switch ($discount->getType()) {
             case PromotionDiscountEntity::TYPE_ABSOLUTE:
                 $promotionValue = -$this->getCurrencySpecificValue($discount, $discount->getValue(), $currencyId);
-                $promotionDefinition = AbsolutePriceDefinition::create($promotionValue, $targetFilter);
+                $promotionDefinition = new AbsolutePriceDefinition($promotionValue, $targetFilter);
 
                 break;
 
             case PromotionDiscountEntity::TYPE_PERCENTAGE:
-                $promotionDefinition = PercentagePriceDefinition::create($promotionValue, $targetFilter);
+                $promotionDefinition = new PercentagePriceDefinition($promotionValue, $targetFilter);
 
                 break;
 
             case PromotionDiscountEntity::TYPE_FIXED:
             case PromotionDiscountEntity::TYPE_FIXED_UNIT:
                 $promotionValue = -abs($this->getCurrencySpecificValue($discount, $discount->getValue(), $currencyId));
-                $promotionDefinition = AbsolutePriceDefinition::create($promotionValue, $targetFilter);
+                $promotionDefinition = new AbsolutePriceDefinition($promotionValue, $targetFilter);
 
                 break;
 

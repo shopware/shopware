@@ -344,7 +344,6 @@ class SalesChannelContextFactory
           sales_channel.language_id as sales_channel_default_language_id,
           sales_channel.currency_id as sales_channel_currency_id,
           currency.factor as sales_channel_currency_factor,
-          currency.decimal_precision as sales_channel_currency_decimal_precision,
           GROUP_CONCAT(LOWER(HEX(sales_channel_language.language_id))) as sales_channel_language_ids
         FROM sales_channel
             INNER JOIN currency

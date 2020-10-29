@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingTranslationLanguageException;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Test\TestCaseBase\AssertArraySubsetBehaviour;
@@ -86,6 +87,8 @@ class TranslationTest extends TestCase
             'symbol' => '$',
             'decimalPrecision' => 2,
             'isoCode' => 'FOO',
+            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
+            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
             'translations' => [
                 'en-GB' => [
                     'name' => 'US Dollar',
@@ -119,6 +122,8 @@ class TranslationTest extends TestCase
             'decimalPrecision' => 2,
             'symbol' => '$',
             'isoCode' => 'FOO',
+            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
+            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
             'translations' => [
                 [
                     'languageId' => Defaults::LANGUAGE_SYSTEM,
@@ -154,6 +159,8 @@ class TranslationTest extends TestCase
             'decimalPrecision' => 2,
             'symbol' => '$',
             'isoCode' => 'FOO',
+            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
+            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
             'translations' => [
                 'en-GB' => [
                     'name' => $name,
@@ -190,6 +197,8 @@ class TranslationTest extends TestCase
             'decimalPrecision' => 2,
             'symbol' => '$',
             'isoCode' => 'FOO',
+            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
+            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
             'translations' => [
                 'en-GB' => [
                     'name' => $name,
@@ -249,6 +258,8 @@ class TranslationTest extends TestCase
             'factor' => 1,
             'decimalPrecision' => 2,
             'symbol' => '$',
+            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
+            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
             'isoCode' => 'FOO',
             'translations' => [
                 'en-GB' => [
@@ -304,6 +315,8 @@ class TranslationTest extends TestCase
             'symbol' => '$',
             'decimalPrecision' => 2,
             'isoCode' => 'FOO',
+            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
+            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
             'translations' => [
                 'en-GB' => [
                     'name' => $englishName,
@@ -348,6 +361,8 @@ class TranslationTest extends TestCase
             'symbol' => '$',
             'decimalPrecision' => 2,
             'isoCode' => 'BAR',
+            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
+            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
             'translations' => [
                 Defaults::LANGUAGE_SYSTEM => [
                     'name' => 'default',
@@ -386,6 +401,8 @@ class TranslationTest extends TestCase
             'symbol' => '$',
             'decimalPrecision' => 2,
             'isoCode' => 'TST',
+            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
+            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
             'translations' => [
                 Defaults::LANGUAGE_SYSTEM => [
                     'name' => 'US Dollar',

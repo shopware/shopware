@@ -4,6 +4,7 @@ namespace Shopware\Core\System\Test\Currency\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -104,6 +105,8 @@ class CurrencyRouteTest extends TestCase
                 'shortName' => 'test',
                 'factor' => 1,
                 'symbol' => 'A',
+                'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
+                'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
             ],
             [
                 'id' => $this->ids->create('currency2'),
@@ -113,6 +116,8 @@ class CurrencyRouteTest extends TestCase
                 'shortName' => 'yay',
                 'factor' => 1,
                 'symbol' => 'B',
+                'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
+                'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
             ],
         ];
 

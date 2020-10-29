@@ -5,11 +5,6 @@ namespace Shopware\Core\Checkout\Cart\Price\Struct;
 interface PriceDefinitionInterface
 {
     /**
-     * Returns the decimal precision for the price. Necessary for \Shopware\Core\Checkout\Cart\Price\PriceRounding::round
-     */
-    public function getPrecision(): int;
-
-    /**
      * Return the type of this PriceDefinition. At the moment three definitions exist: AbsolutePriceDefinition,
      * QuantityPriceDefinition and PercentagePriceDefinition. The type of the definition changes how a price is
      * calculated, but they all share the same datastructure. See the corresponding classes for exactly how each

@@ -49,7 +49,7 @@ class CurrencyEntity extends Entity
     protected $position;
 
     /**
-     * @deprecated tag:v6.4.0 - Use `itemRounding` or `totalRounding`
+     * @feature-deprecated (flag:FEATURE_NEXT_6059) tag:v6.4.0 - Use `itemRounding` or `totalRounding`
      *
      * @var int
      */
@@ -241,7 +241,7 @@ class CurrencyEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.4.0 - Use `itemRounding` or `totalRounding`
+     * @feature-deprecated (flag:FEATURE_NEXT_6059) tag:v6.4.0 - Use `itemRounding` or `totalRounding`
      */
     public function getDecimalPrecision(): int
     {
@@ -249,7 +249,7 @@ class CurrencyEntity extends Entity
     }
 
     /**
-     * @deprecated tag:v6.4.0 - Use `itemRounding` or `totalRounding`
+     * @feature-deprecated (flag:FEATURE_NEXT_6059) tag:v6.4.0 - Use `itemRounding` or `totalRounding`
      */
     public function setDecimalPrecision(int $decimalPrecision): void
     {

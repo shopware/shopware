@@ -18,3 +18,4 @@ import './sw-cms-stage-section-selection';
 import './sw-cms-sidebar';
 import './sw-cms-sidebar/sw-cms-sidebar-nav-element';
 import './sw-cms-create-wizard';
+import './sw-cms-layout-assignment-modal';

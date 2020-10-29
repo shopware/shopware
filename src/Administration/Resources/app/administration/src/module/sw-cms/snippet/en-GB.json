@@ -47,6 +47,11 @@
         "settings": "Settings",
         "layoutSettings": "Layout",
         "duplicate": "Duplicate"
+      },
+      "layoutAssignment": {
+        "headline": "Manage where this layout is visible",
+        "infoText": "You can use layouts for several categories in your shop. Here you can see which categories already use this layout or assign it to other categories.",
+        "actionAssignLayout": "Assign layout"
       }
     },
     "createWizard": {
@@ -138,6 +143,7 @@
         "headerBlockSettings": "Block:",
         "titleNavigator": "Navigator",
         "titleSectionSettings": "Section settings",
+        "titleLayoutAssignment": "Layout assignment",
         "mobile": "Mobile sidebar behavior",
         "mobileOptionHidden": "Hidden",
         "mobileOptionWrap": "Wrap"
@@ -598,6 +604,37 @@
         "actionConfirm": "Save",
         "modalTitle": "Select layout",
         "headline": "Landing page / product listing"
+      },
+      "cmsLayoutAssignmentModal": {
+        "infoText": "The layout will be displayed in your shop, as soon as you assign it to an active category.",
+        "infoTextShopPages": "You can use this layout for categories and for shop pages such as TOS, imprint, error pages etc.",
+        "labelCategories": "Categories",
+        "placeholderCategories": "Choose categories...",
+        "labelSalesChannel": "Sales Channel",
+        "placeholderSalesChannel": "Choose a Sales Channel...",
+        "resetOptionSalesChannel": "All Sales Channels",
+        "labelShopPages": "Shop pages",
+        "confirmChangesConfirm": "Confirm",
+        "confirmChangesRestorePrev": "Discard",
+        "confirmChangesTextCategories": "You have removed layout assignments from categories. If you confirm these changes, the category will be displayed using a default fallback layout.",
+        "confirmChangesTextShopPages": "You have removed layout assignments from shop pages. If you confirm these changes, the shop page will be displayed in a default fallback layout.",
+        "confirmChangesText": "Do you want to apply your changes?",
+        "confirmChangesTitle": "Confirm changes",
+        "shopPagesLoadError": "Unable to load shop pages",
+        "shopPagesSaveError": "Unable to save shop pages",
+        "tabCategories": "Categories",
+        "tabShopPages": "Shop pages",
+        "shopPages": {
+          "tosPage": "TOS pages",
+          "revocationPage": "Revocation notices",
+          "shippingPaymentInfoPage": "Payment and shipping information",
+          "privacyPage": "Privacy pages",
+          "imprintPage": "Imprint pages",
+          "404Page": "404 pages",
+          "maintenancePage": "Maintenance pages",
+          "contactPage": "Contact forms",
+          "newsletterPage": "Newsletter pages"
+        }
       },
       "cmsListItem": {
         "emptyText": "No layout assigned",

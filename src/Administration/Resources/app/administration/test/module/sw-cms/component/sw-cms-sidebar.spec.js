@@ -1,6 +1,7 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
 import 'src/module/sw-cms/component/sw-cms-sidebar';
+import 'src/app/component/base/sw-button';
 import Vuex from 'vuex';
 
 function getBlockData() {
@@ -30,6 +31,7 @@ function createWrapper() {
     const localVue = createLocalVue();
     localVue.directive('draggable', {});
     localVue.directive('droppable', {});
+    localVue.directive('tooltip', {});
     localVue.use(Vuex);
 
     return shallowMount(Shopware.Component.build('sw-cms-sidebar'), {
@@ -56,6 +58,7 @@ function createWrapper() {
             }
         },
         stubs: {
+            'sw-button': Shopware.Component.build('sw-button'),
             'sw-sidebar': true,
             'sw-sidebar-item': true,
             'sw-sidebar-collapse': true,
@@ -88,6 +91,9 @@ function createWrapper() {
             },
             feature: {
                 isActive: () => true
+            },
+            acl: {
+                can: () => true
             }
         }
     });
@@ -115,7 +121,7 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         });
 
         const sidebarItems = wrapper.findAll('sw-sidebar-item-stub');
-        expect(sidebarItems.length).toBe(4);
+        expect(sidebarItems.length).toBe(5);
 
         sidebarItems.wrappers.forEach(sidebarItem => {
             expect(sidebarItem.attributes().disabled).toBe('true');
@@ -126,7 +132,7 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         const wrapper = createWrapper();
 
         const sidebarItems = wrapper.findAll('sw-sidebar-item-stub');
-        expect(sidebarItems.length).toBe(4);
+        expect(sidebarItems.length).toBe(5);
 
         sidebarItems.wrappers.forEach(sidebarItem => {
             expect(sidebarItem.attributes().disabled).toBeUndefined();
@@ -155,5 +161,15 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         const [slot] = newBlock.slots;
 
         expect(slot.id).toBe('41d71c21cfb346149c066b4ebeeb0dbf');
+    });
+
+    it('should fire event to open layout assignment modal', async () => {
+        const wrapper = createWrapper();
+
+        wrapper.find('.sw-cms-sidebar__layout-assignment-open').trigger('click');
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.emitted('open-layout-assignment')).toBeTruthy();
     });
 });

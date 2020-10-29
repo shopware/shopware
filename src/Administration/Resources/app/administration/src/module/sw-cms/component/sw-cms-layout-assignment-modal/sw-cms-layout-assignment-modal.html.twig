@@ -1,0 +1,207 @@
+{% block sw_cms_layout_assignment_modal %}
+    <sw-modal
+        :title="$tc('sw-cms.detail.sidebar.titleLayoutAssignment')"
+        @modal-close="onAbort"
+        class="sw-cms-layout-assignment-modal">
+
+        {% block sw_cms_layout_assignment_modal_loader %}
+            <sw-loader
+                v-if="isLoading"
+                class="sw-cms-layout-assignment-modal__loader">
+            </sw-loader>
+        {% endblock %}
+
+        {% block sw_cms_layout_assignment_modal_info_text_general %}
+            <p
+                v-if="page.type !== 'page'"
+                class="sw-cms-layout-assignment-modal__info-text">
+                {{ $tc('sw-cms.components.cmsLayoutAssignmentModal.infoText') }}
+            </p>
+        {% endblock %}
+
+        {% block sw_cms_layout_assignment_modal_info_text_shop_pages %}
+            <p
+                v-if="page.type === 'page'"
+                class="sw-cms-layout-assignment-modal__info-text">
+                {{ $tc('sw-cms.components.cmsLayoutAssignmentModal.infoTextShopPages') }}
+            </p>
+        {% endblock %}
+
+        {% block sw_cms_layout_assignment_modal_tabs %}
+            <sw-tabs
+                class="sw-cms-layout-assignment-modal__tabs"
+                defaultItem="categories">
+
+                <template v-slot="{ active }">
+                    {% block sw_cms_layout_assignment_modal_tab_categories %}
+                        <sw-tabs-item
+                            v-if="page.type === 'page'"
+                            :activeTab="active"
+                            :title="$tc('sw-cms.components.cmsLayoutAssignmentModal.tabCategories')"
+                            class="sw-cms-layout-assignment-modal__tab-categories"
+                            name="categories">
+                            {{ $tc('sw-cms.components.cmsLayoutAssignmentModal.tabCategories') }}
+                        </sw-tabs-item>
+                    {% endblock %}
+
+                    {% block sw_cms_layout_assignment_modal_tab_shop_pages %}
+                        <sw-tabs-item
+                            v-if="page.type === 'page'"
+                            :activeTab="active"
+                            :title="$tc('sw-cms.components.cmsLayoutAssignmentModal.tabShopPages')"
+                            :disabled="!acl.can('system.system_config')"
+                            v-tooltip="{
+                                message: $tc('sw-privileges.tooltip.warning'),
+                                showOnDisabledElements: true,
+                                disabled: acl.can('system.system_config')
+                            }"
+                            class="sw-cms-layout-assignment-modal__tab-shop-pages"
+                            name="shop_pages">
+                            {{ $tc('sw-cms.components.cmsLayoutAssignmentModal.tabShopPages') }}
+                        </sw-tabs-item>
+                    {% endblock %}
+                </template>
+
+                <template #content="{ active }">
+                    {% block sw_cms_layout_assignment_modal_category_select %}
+                        <template v-if="active === 'categories'">
+
+                            {% block sw_cms_layout_assignment_modal_category_select_field %}
+                                <sw-category-tree-field
+                                    :categoriesCollection="page.categories"
+                                    :label="$tc('sw-cms.components.cmsLayoutAssignmentModal.labelCategories')"
+                                    :placeholder="$tc('sw-cms.components.cmsLayoutAssignmentModal.placeholderCategories')"
+                                    class="sw-cms-layout-assignment-modal__category-select"
+                                    key="categorySelect">
+                                </sw-category-tree-field>
+                            {% endblock %}
+                        </template>
+                    {% endblock %}
+
+                    {% block sw_cms_layout_assignment_modal_shop_pages_select %}
+                        <template v-if="active === 'shop_pages'">
+
+                            {% block sw_cms_layout_assignment_modal_shop_pages_select_sales_channel_field %}
+                                <sw-entity-single-select
+                                    class="sw-cms-layout-assignment-modal__sales-channel-select"
+                                    entity="sales_channel"
+                                    :label="$tc('sw-cms.components.cmsLayoutAssignmentModal.labelSalesChannel')"
+                                    :placeholder="$tc('sw-cms.components.cmsLayoutAssignmentModal.placeholderSalesChannel')"
+                                    :resetOption="$tc('sw-cms.components.cmsLayoutAssignmentModal.resetOptionSalesChannel')"
+                                    @change="onInputSalesChannelSelect"
+                                    v-model="shopPageSalesChannelId">
+                                </sw-entity-single-select>
+                            {% endblock %}
+
+                            {% block sw_cms_layout_assignment_modal_shop_pages_select_field %}
+                                <sw-inherit-wrapper
+                                    v-model="selectedShopPages[shopPageSalesChannelId]"
+                                    :inheritedValue="selectedShopPages.null"
+                                    :hasParent="shopPageSalesChannelId !== null"
+                                    :customInheritationCheckFunction="shopPageSelectInheritanceFunction"
+                                    :label="$tc('sw-cms.components.cmsLayoutAssignmentModal.labelShopPages')">
+                                    <template #content="props">
+                                        <sw-multi-select
+                                            class="sw-cms-layout-assignment-modal__shop-page-select"
+                                            :options="shopPages"
+                                            :disabled="props.isInherited"
+                                            :value="props.currentValue"
+                                            :mapInheritance="props"
+                                            @change="props.updateCurrentValue">
+                                        </sw-multi-select>
+                                    </template>
+                                </sw-inherit-wrapper>
+                            {% endblock %}
+                        </template>
+                    {% endblock %}
+                </template>
+            </sw-tabs>
+        {% endblock %}
+
+        {% block sw_cms_layout_assignment_modal_confirm_changes %}
+            <sw-modal
+                v-if="showConfirmChangesModal"
+                class="sw-cms-layout-assignment-modal__confirm-changes-modal"
+                size="650px"
+                :title="$tc('sw-cms.components.cmsLayoutAssignmentModal.confirmChangesTitle')"
+                @modal-close="closeConfirmChangesModal">
+
+                {% block sw_cms_layout_assignment_modal_confirm_changes_text_categories %}
+                    <p
+                        v-if="hasDeletedCategories"
+                        class="sw-cms-layout-assignment-modal__confirm-text-categories">
+                        {{ $tc('sw-cms.components.cmsLayoutAssignmentModal.confirmChangesTextCategories') }}
+                    </p>
+                {% endblock %}
+
+                {% block sw_cms_layout_assignment_modal_confirm_changes_text_shop_pages %}
+                    <p
+                        v-if="hasDeletedShopPages"
+                        class="sw-cms-layout-assignment-modal__confirm-text-shop-pages">
+                        {{ $tc('sw-cms.components.cmsLayoutAssignmentModal.confirmChangesTextShopPages') }}
+                    </p>
+                {% endblock %}
+
+                {% block sw_cms_layout_assignment_modal_confirm_changes_text %}
+                    <p><strong>{{ $tc('sw-cms.components.cmsLayoutAssignmentModal.confirmChangesText') }}</strong></p>
+                {% endblock %}
+
+                <template #modal-footer>
+                    {% block sw_cms_layout_assignment_modal_confirm_changes_keep_editing %}
+                        <sw-button
+                            @click="onKeepEditing"
+                            class="sw-cms-layout-assignment-modal__action-keep-editing"
+                            size="small">
+                            {{ $tc('global.default.cancel') }}
+                        </sw-button>
+                    {% endblock %}
+
+                    {% block sw_cms_layout_assignment_modal_confirm_changes_discard %}
+                        <sw-button
+                            @click="onDiscardChanges"
+                            class="sw-cms-layout-assignment-modal__action-changes-discard"
+                            variant="ghost"
+                            size="small">
+                            {{ $tc('sw-cms.components.cmsLayoutAssignmentModal.confirmChangesRestorePrev') }}
+                        </sw-button>
+                    {% endblock %}
+
+                    {% block sw_cms_layout_assignment_modal_confirm_changes_confirm %}
+                        <sw-button
+                            @click="onConfirmChanges"
+                            class="sw-cms-layout-assignment-modal__action-changes-confirm"
+                            variant="primary"
+                            size="small">
+                            {{ $tc('sw-cms.components.cmsLayoutAssignmentModal.confirmChangesConfirm') }}
+                        </sw-button>
+                    {% endblock %}
+                </template>
+            </sw-modal>
+        {% endblock %}
+
+        {% block sw_cms_layout_assignment_modal_actions %}
+            <template #modal-footer>
+                {% block sw_cms_layout_assignment_action_abort %}
+                    <sw-button
+                        @click="onAbort"
+                        :disabled="isLoading"
+                        class="sw-cms-layout-assignment-modal__action-cancel"
+                        size="small">
+                        {{ $tc('global.default.cancel') }}
+                    </sw-button>
+                {% endblock %}
+
+                {% block sw_cms_layout_assignment_action_confirm %}
+                    <sw-button
+                        @click="onConfirm"
+                        :disabled="isLoading"
+                        class="sw-cms-layout-assignment-modal__action-confirm"
+                        size="small"
+                        variant="primary">
+                        {{ $tc('sw-cms.sidebar.layoutAssignment.actionAssignLayout') }}
+                    </sw-button>
+                {% endblock %}
+            </template>
+        {% endblock %}
+    </sw-modal>
+{% endblock %}

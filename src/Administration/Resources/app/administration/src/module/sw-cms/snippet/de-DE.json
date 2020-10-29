@@ -47,6 +47,11 @@
         "settings": "Einstellungen",
         "layoutSettings": "Layout",
         "duplicate": "Duplizieren"
+      },
+      "layoutAssignment": {
+        "headline": "Verwalte wo dieses Layout zu sehen ist",
+        "infoText": "Du kannst Layouts für unterschiedliche Kategorien in Deinem Shop verwenden. Hier kannst Du einsehen, in welchen Kategorien dieses Layout bereits eingesetzt wird, oder es anderen Kategorien zuweisen.",
+        "actionAssignLayout": "Layout zuweisen"
       }
     },
     "createWizard": {
@@ -138,6 +143,7 @@
         "headerBlockSettings": "Block:",
         "titleNavigator": "Navigator",
         "titleSectionSettings": "Sektion-Einstellungen",
+        "titleLayoutAssignment": "Layout-Zuweisung",
         "mobile": "Mobiles Sidebar-Verhalten",
         "mobileOptionHidden": "Nicht angezeigt",
         "mobileOptionWrap": "Umbrechen"
@@ -598,6 +604,37 @@
         "actionConfirm": "Layout übernehmen",
         "modalTitle": "Layout auswählen",
         "headline": "Landingpage / Produktlisting"
+      },
+      "cmsLayoutAssignmentModal": {
+        "infoText": "Das Layout ist erst in Deinem Shop zu sehen, wenn Du es einer aktiven Kategorie zugewiesen hast.",
+        "infoTextShopPages": "Du kannst dieses Layout sowohl für Kategorien verwenden als auch für Shopseiten wie AGB, Impressum, Fehlerseiten etc.",
+        "labelCategories": "Kategorien",
+        "placeholderCategories": "Wähle Kategorien aus...",
+        "labelSalesChannel": "Verkaufskanal",
+        "placeholderSalesChannel": "Wähle einen Verkaufskanal...",
+        "resetOptionSalesChannel": "Alle Verkaufskanäle",
+        "labelShopPages": "Shopseiten",
+        "confirmChangesConfirm": "Übernehmen",
+        "confirmChangesRestorePrev": "Verwerfen",
+        "confirmChangesTextCategories": "Du hast Layout-Zuweisungen von Kategorie entfernt. Wenn Du diese Änderungen bestätigst, wird für die Anzeige der Kategorie auf ein Standard-Layout zurückgegriffen.",
+        "confirmChangesTextShopPages": "Du hast Layout-Zuweisungen von Shopseiten entfernt. Wenn Du die Änderungen bestätigst, wird für die Anzeige der Shopseite auf ein Standard-Layout zurückgegriffen.",
+        "confirmChangesText": "Möchtest Du Deine Änderungen übernehmen?",
+        "confirmChangesTitle": "Änderungen bestätigen",
+        "shopPagesLoadError": "Shopseiten konnten nicht geladen werden",
+        "shopPagesSaveError": "Shopseiten konnten nicht gespeichert werden",
+        "tabCategories": "Kategorien",
+        "tabShopPages": "Shopseiten",
+        "shopPages": {
+          "tosPage": "AGB-Seiten",
+          "revocationPage": "Widerrufsbelehrungen",
+          "shippingPaymentInfoPage": "Versand- und Zahlungsarten",
+          "privacyPage": "Datenschutz-Seiten",
+          "imprintPage": "Impressum",
+          "404Page": "404-Seiten",
+          "maintenancePage": "Wartungsseiten",
+          "contactPage": "Kontaktformulare",
+          "newsletterPage": "Newsletterseiten"
+        }
       },
       "cmsListItem": {
         "emptyText": "Kein Layout zugewiesen",

@@ -382,6 +382,10 @@ Component.register('sw-cms-sidebar', {
 
         pageUpdate() {
             this.$emit('page-update');
+        },
+
+        onOpenLayoutAssignment() {
+            this.$emit('open-layout-assignment');
         }
     }
 });

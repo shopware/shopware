@@ -111,11 +111,17 @@ export default class PrivilegesService {
         }
         this.alreadyImportedAdminPrivileges.push(adminPrivilegeKey);
 
+        const privilegeRole = this.getPrivilegeRole(adminPrivilegeKey);
+
+        if (!privilegeRole) {
+            return [];
+        }
+
         /**
          * Get all privileges (['product:read', fn(), 'product:update', ...])
          * and dependencies (['product.viewer', ...])
          */
-        const { privileges, dependencies } = this.getPrivilegeRole(adminPrivilegeKey);
+        const { privileges, dependencies } = privilegeRole;
 
         /**
          * Resolve all privileges for dependencies

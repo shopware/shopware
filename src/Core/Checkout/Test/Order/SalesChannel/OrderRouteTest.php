@@ -9,6 +9,9 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
+use Shopware\Core\Checkout\Document\DocumentGenerator\DeliveryNoteGenerator;
+use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderStates;
@@ -179,6 +182,75 @@ class OrderRouteTest extends TestCase
         static::assertArrayHasKey(0, $response['orders']['elements']);
         static::assertArrayHasKey('id', $response['orders']['elements'][0]);
         static::assertEquals($this->orderId, $response['orders']['elements'][0]['id']);
+    }
+
+    public function testGetOrderShowsValidDocuments(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_10537', $this);
+
+        $this->createDocument($this->orderId);
+
+        $criteria = new Criteria([$this->orderId]);
+
+        $this->browser
+            ->request(
+                'GET',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/order',
+                $this->requestCriteriaBuilder->toArray($criteria)
+            );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertArrayHasKey('orders', $response);
+        static::assertArrayHasKey('elements', $response['orders']);
+        static::assertArrayHasKey('documents', $response['orders']['elements'][0]);
+        static::assertCount(1, $response['orders']['elements'][0]['documents']);
+    }
+
+    public function testGetOrderDoesNotShowUnAvailableDocuments(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_10537', $this);
+
+        $this->createDocument($this->orderId, false);
+
+        $criteria = new Criteria([$this->orderId]);
+
+        $this->browser
+            ->request(
+                'GET',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/order',
+                $this->requestCriteriaBuilder->toArray($criteria)
+            );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertArrayHasKey('orders', $response);
+        static::assertArrayHasKey('elements', $response['orders']);
+        static::assertArrayHasKey('documents', $response['orders']['elements'][0]);
+        static::assertCount(0, $response['orders']['elements'][0]['documents']);
+    }
+
+    public function testGetOrderDoesNotShowHasNotSentDocument(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_10537', $this);
+
+        $this->createDocument($this->orderId, true, false);
+
+        $criteria = new Criteria([$this->orderId]);
+
+        $this->browser
+            ->request(
+                'GET',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/order',
+                $this->requestCriteriaBuilder->toArray($criteria)
+            );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertArrayHasKey('orders', $response);
+        static::assertArrayHasKey('elements', $response['orders']);
+        static::assertArrayHasKey('documents', $response['orders']['elements'][0]);
+        static::assertCount(0, $response['orders']['elements'][0]['documents']);
     }
 
     public function testGetOrderCheckPromotion(): void
@@ -460,5 +532,36 @@ class OrderRouteTest extends TestCase
         ];
 
         return $order;
+    }
+
+    private function createDocument(string $orderId, bool $showInCustomerAccount = true, bool $sent = true): void
+    {
+        $defaultContext = Context::createDefaultContext();
+
+        $documentRepository = $this->getContainer()->get('document.repository');
+
+        $documentTypeRepository = $this->getContainer()->get('document_type.repository');
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('technicalName', DeliveryNoteGenerator::DELIVERY_NOTE));
+
+        /** @var DocumentTypeEntity $documentType */
+        $documentType = $documentTypeRepository->search($criteria, $defaultContext)->first();
+
+        $documentRepository->create(
+            [
+                [
+                    'id' => Uuid::randomHex(),
+                    'documentTypeId' => $documentType->getId(),
+                    'fileType' => FileTypes::PDF,
+                    'orderId' => $orderId,
+                    'config' => ['documentNumber' => '1001', 'displayInCustomerAccount' => $showInCustomerAccount],
+                    'deepLinkCode' => 'test',
+                    'sent' => $sent,
+                    'static' => false,
+                ],
+            ],
+            $defaultContext
+        );
     }
 }

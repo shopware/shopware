@@ -1,0 +1,37 @@
+{% block page_account_order_detail_document_table_body %}
+    {% if order.documents|length %}
+        <div class="order-detail-content-body">
+            {% block page_account_order_document_detail_table_header %}
+                <div class="order-detail-content-header document-detail-content-header">
+                    <div class="row">
+                        {% block page_account_order_document_detail_table_header_name %}
+                            <div class="col-6 order-detail-content-header-cell document-header-file-name">
+                                {{ "account.documentItemColumnTitle"|trans|sw_sanitize }}
+                            </div>
+                        {% endblock %}
+
+                        {% block page_account_order_document_detail_table_header_quantity %}
+                            <div class="col-4 order-detail-content-header-cell document-header-date">
+                                {{ "account.documentItemColumnDate"|trans|sw_sanitize }}
+                            </div>
+                        {% endblock %}
+
+                        {% block page_account_order_document_detail_table_header_price %}
+                            <div class="col-2 order-detail-content-header-cell document-header-file-link">
+
+                            </div>
+                        {% endblock %}
+                    </div>
+                </div>
+            {% endblock %}
+
+            {% block page_account_orde_document_detail_items %}
+                {% for document in order.documents %}
+                    {% block page_account_order_document_detail_item %}
+                        {% sw_include '@Storefront/storefront/page/account/order-history/order-detail-document-item.html.twig' %}
+                    {% endblock %}
+                {% endfor %}
+            {% endblock %}
+        </div>
+    {% endif %}
+{% endblock %}

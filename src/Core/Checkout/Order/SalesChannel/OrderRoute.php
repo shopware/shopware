@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -96,7 +97,14 @@ class OrderRoute extends AbstractOrderRoute
         if (!$criteria) {
             $criteria = $this->requestCriteriaBuilder->handleRequest($request, new Criteria(), $this->orderDefinition, $context->getContext());
         }
+
         $criteria->addFilter(new EqualsFilter('order.salesChannelId', $context->getSalesChannel()->getId()));
+
+        if (Feature::isActive('FEATURE_NEXT_10537')) {
+            $criteria->getAssociation('documents')
+                ->addFilter(new EqualsFilter('config.displayInCustomerAccount', 'true'))
+                ->addFilter(new EqualsFilter('sent', true));
+        }
 
         if ($context->getCustomer()) {
             $criteria->addFilter(new EqualsFilter('order.orderCustomer.customerId', $context->getCustomer()->getId()));

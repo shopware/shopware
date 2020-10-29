@@ -123,6 +123,10 @@ Component.register('sw-users-permissions-permissions-grid', {
         addDependenciesForRole(identifier) {
             const privilegeRole = this.privileges.getPrivilegeRole(identifier);
 
+            if (!privilegeRole) {
+                return;
+            }
+
             privilegeRole.dependencies.forEach((dependencyIdentifier) => {
                 this.addPermission(dependencyIdentifier);
             });
@@ -176,6 +180,10 @@ Component.register('sw-users-permissions-permissions-grid', {
             const permissionsForParent = this.getPermissionsForParent(parentKey);
 
             const hasUnselected = permissionsForParent.some(permission => {
+                if (permission.roles[roleKey] === undefined) {
+                    return false;
+                }
+
                 return !this.isPermissionSelected(permission.key, roleKey);
             });
 
@@ -215,6 +223,10 @@ Component.register('sw-users-permissions-permissions-grid', {
             const allChildrenRolesSelected = this.areAllChildrenRolesSelected(parentKey, roleKey);
 
             permissionsForParent.forEach(permission => {
+                if (!permission.roles[roleKey]) {
+                    return;
+                }
+
                 const identifier = `${permission.key}.${roleKey}`;
 
                 if (this.isPermissionDisabled(permission.key, roleKey)) {

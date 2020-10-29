@@ -165,6 +165,7 @@
                                                     disabled: !user.admin || !acl.can('users_and_permissions.editor')
                                                 }"
                                                 :disabled="user.admin || !acl.can('users_and_permissions.editor')"
+                                                :criteria="aclRoleCriteria"
                                                 labelProperty="name">
                                             </sw-entity-multi-select>
                                         {% endblock %}

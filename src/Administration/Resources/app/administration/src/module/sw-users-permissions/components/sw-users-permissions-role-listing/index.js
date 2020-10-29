@@ -45,6 +45,8 @@ Component.register('sw-users-permissions-role-listing', {
 
         roleCriteria() {
             const criteria = new Criteria(this.page, this.limit);
+            // Roles created by apps should not be visible and editable in the admin
+            criteria.addFilter(Criteria.equals('app.id', null));
 
             if (this.term) {
                 criteria.setTerm(this.term);

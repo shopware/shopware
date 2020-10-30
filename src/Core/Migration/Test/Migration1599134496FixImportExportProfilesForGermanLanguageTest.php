@@ -128,6 +128,22 @@ class Migration1599134496FixImportExportProfilesForGermanLanguageTest extends Te
         static::assertContains('Standardprofil Variantenkonfiguration', $labels);
     }
 
+    public function testMigrateWithoutGermanLanguage(): void
+    {
+        $context = new Context(new SystemSource(), [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);
+        $this->importExportProfileRepository->create($this->getEnglishData(), $context);
+
+        $this->removeLanguageByIsoCode('de-DE');
+
+        $this->executeMigration();
+
+        $translations = $this->connection->fetchAll('SELECT * FROM import_export_profile_translation');
+        static::assertCount(6, $translations);
+
+        $labels = array_column($translations, 'label');
+        static::assertNotContains('Standardprofil Variantenkonfiguration', $labels);
+    }
+
     private function executeMigration(): void
     {
         $migration = new Migration1599134496FixImportExportProfilesForGermanLanguage();
@@ -349,5 +365,17 @@ SQL;
         unset($data);
 
         return $englishData;
+    }
+
+    private function removeLanguageByIsoCode(string $iso): void
+    {
+        $this->connection->executeUpdate(
+            'DELETE `language`
+            FROM `language`
+            INNER JOIN `locale` ON `language`.`locale_id` = `locale`.`id`
+            WHERE `locale`.`code` = :isoCode
+            ',
+            ['isoCode' => $iso]
+        );
     }
 }

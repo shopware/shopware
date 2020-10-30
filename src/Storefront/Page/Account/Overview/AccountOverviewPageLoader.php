@@ -69,7 +69,10 @@ class AccountOverviewPageLoader
 
         $page = AccountOverviewPage::createFrom($page);
         $page->setCustomer($this->loadCustomer($salesChannelContext));
-        $page->getMetaInformation()->assign(['robots' => 'noindex,follow']);
+
+        if ($page->getMetaInformation()) {
+            $page->getMetaInformation()->setRobots('noindex,follow');
+        }
 
         $order = $this->loadNewestOrder($salesChannelContext, $request);
 

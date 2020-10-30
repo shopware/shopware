@@ -57,7 +57,10 @@ class CheckoutFinishPageLoader
         $page = $this->genericLoader->load($request, $salesChannelContext);
 
         $page = CheckoutFinishPage::createFrom($page);
-        $page->getMetaInformation()->assign(['robots' => 'noindex,follow']);
+
+        if ($page->getMetaInformation()) {
+            $page->getMetaInformation()->setRobots('noindex,follow');
+        }
 
         $page->setOrder($this->getOrder($request, $salesChannelContext));
 

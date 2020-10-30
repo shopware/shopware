@@ -7261,21 +7261,6 @@ parameters:
 			path: src/Storefront/Page/Account/Order/AccountEditOrderPageLoader.php
 
 		-
-			message: "#^Cannot call method setMetaDescription\\(\\) on Shopware\\\\Storefront\\\\Page\\\\MetaInformation\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Page/Navigation/NavigationPageLoader.php
-
-		-
-			message: "#^Cannot call method setMetaTitle\\(\\) on Shopware\\\\Storefront\\\\Page\\\\MetaInformation\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Page/Navigation/NavigationPageLoader.php
-
-		-
-			message: "#^Cannot call method setMetaKeywords\\(\\) on Shopware\\\\Storefront\\\\Page\\\\MetaInformation\\|null\\.$#"
-			count: 1
-			path: src/Storefront/Page/Navigation/NavigationPageLoader.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Page\\\\Product\\\\Configurator\\\\ProductCombinationFinder\\:\\:searchForOptions\\(\\) should return string\\|null but returns array\\|string\\|null\\.$#"
 			count: 1
 			path: src/Storefront/Page/Product/Configurator/ProductCombinationFinder.php

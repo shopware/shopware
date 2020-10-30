@@ -482,6 +482,8 @@ class AppLifecycleTest extends TestCase
     public function testDelete(): void
     {
         $appId = Uuid::randomHex();
+        $roleId = Uuid::randomHex();
+
         $this->appRepository->create([[
             'id' => $appId,
             'name' => 'Test',
@@ -505,12 +507,14 @@ class AppLifecycleTest extends TestCase
                 'secretAccessKey' => 'test',
             ],
             'aclRole' => [
+                'id' => $roleId,
                 'name' => 'SwagApp',
             ],
         ]], $this->context);
 
         $app = [
             'id' => $appId,
+            'roleId' => $roleId,
         ];
 
         $eventWasReceived = false;
@@ -527,6 +531,11 @@ class AppLifecycleTest extends TestCase
         $this->eventDispatcher->removeListener(AppDeletedEvent::class, $onAppDeleted);
         $apps = $this->appRepository->searchIds(new Criteria([$appId]), $this->context)->getIds();
         static::assertCount(0, $apps);
+
+        /** @var EntityRepositoryInterface $aclRoleRepository */
+        $aclRoleRepository = $this->getContainer()->get('acl_role.repository');
+        $roles = $aclRoleRepository->searchIds(new Criteria([$roleId]), $this->context)->getIds();
+        static::assertCount(0, $roles);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('appId', $appId));

@@ -272,7 +272,7 @@ Logging
 Async processing
 
 * [Entity relationship diagram](./10-erd/erd-shopware-core-framework-messagequeue.md)
-* [Guide](./00-module/message-queue.md)
+* [Guide](./../../20-developer-guide/80-core/10-message-queue.md)
 
 #### Migration <span class="tip is--primary">Maintenance</span> <span class="tip is--primary">Custom Extendable</span>
 
@@ -425,7 +425,7 @@ Locales
 Number ranges (SKU)
 
 * [Entity relationship diagram](./10-erd/erd-shopware-core-system-numberrange.md)
-* [Guide](./00-module/number-range.md)
+* [Guide](./../../20-developer-guide/80-core/30-number-range.md)
 
 #### SalesChannel <span class="tip is--primary">Data store</span> <span class="tip is--primary">Maintenance</span> <span class="tip is--primary">Custom Extendable</span> <span class="tip is--primary">Extension</span>
 

@@ -178,6 +178,7 @@
                                 @items-delete-finish="loadCurrencyCountryRoundings"
                                 :items="currencyCountryRoundings"
                                 :columns="currencyCountryColumns"
+                                identifier="sw-settings-currency-detail-currency-country-list"
                                 :repository="currencyCountryRoundingRepository">
                                 {% block sw_settings_currency_detail_content_card_country_price_rounding_listing_country_column %}
                                     <template #column-country="{ item }">
@@ -217,6 +218,7 @@
                                 v-else
                                 class="sw-settings-currency-detail__currency-country-empty-state"
                                 title=""
+                                :absolute="false"
                                 :subline="emptyStateText">
                             </sw-empty-state>
                         {% endblock %}

@@ -5,13 +5,13 @@
                 v-model="entity.customFieldSetSelectionActive"
                 class="sw-custom-field-set-renderer__custom-field-set-selection-switch"
                 :inheritedValue="getInheritValue('customFieldSetSelectionActive')"
-                :hasParent="hasParent"
-                :label="$tc('sw-custom-field-set-renderer.labelCustomFieldSetSelectSwitch')">
+                :hasParent="hasParent">
                 <template #content="props">
                     <sw-field
                         type="switch"
+                        :mapInheritance="props"
                         class="sw-custom-field-set-renderer__selection-switch"
-                        :disabled="props.isInherited || disabled"
+                        :label="$tc('sw-custom-field-set-renderer.labelCustomFieldSetSelectSwitch')"
                         @change="props.updateCurrentValue"
                         :value="props.currentValue">
                     </sw-field>
@@ -73,6 +73,7 @@
                                     :key="`sw-tab--${set.id}`"
                                     variant="minimal"
                                     :name="set.name"
+                                    :class="'sw-tab--name-' + set.name"
                                     :activeTab="active">
                                     {{ getInlineSnippet(set.config.label) || set.name }}
                                 </sw-tabs-item>
@@ -84,21 +85,24 @@
                         <template slot="content" slot-scope="{ active }">
                             <template v-for="set in visibleCustomFieldSets">
                                 <div v-if="set.customFields"
-                                          v-show="active === set.name">
+                                     v-show="active === set.name"
+                                     :class="'sw-custom-field-set-renderer-tab-content__' + set.name">
                                     {% block sw_custom_field_set_renderer_card_form_renderer %}
                                         <template v-for="customField in set.customFields">
-                                            <sw-inherit-wrapper v-if="entity"
+                                            <sw-inherit-wrapper v-if="entity && customField.config"
                                                                 v-model="entity.customFields[customField.name]"
+                                                                v-bind="getInheritWrapperBind(customField)"
+                                                                :class="'sw-form-field-renderer-field__' + customField.name"
                                                                 :hasParent="hasParent"
                                                                 :required="customField.config.validation === 'required'"
-                                                                :inheritedValue="getInheritedCustomField(customField.name)"
-                                                                :helpText="getInlineSnippet(customField.config.helpText)"
-                                                                :label="getInlineSnippet(customField.config.label)">
+                                                                :inheritedValue="getInheritedCustomField(customField.name)">
                                                 <template #content="props">
                                                     <sw-form-field-renderer
-                                                        v-bind="getBind(customField)"
+                                                        v-bind="getBind(customField, props)"
+                                                        :class="'sw-form-field-renderer-input-field__' + customField.name"
                                                         :disabled="disabled || props.isInherited"
                                                         :value="props.currentValue"
+                                                        :key="props.isInherited"
                                                         @input="props.updateCurrentValue"
                                                         @change="props.updateCurrentValue">
                                                     </sw-form-field-renderer>

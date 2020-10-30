@@ -191,6 +191,14 @@ echo $app->getContainer()->get('renderer')->fetch('_header.php'); ?>
                        value="<?= strtoupper('NOK'); ?>"/>
                 <label for="nok"><?= $t->t('configuration_admin_currency_nok'); ?></label>
             </div>
+
+            <div class="custom-checkbox">
+                <input type="checkbox"
+                       id="czk"
+                       name="c_available_currencies[]"
+                       value="<?= strtoupper('CZK'); ?>"/>
+                <label for="czk"><?= $t->t('configuration_admin_currency_czk'); ?></label>
+            </div>
         </div>
 
         <hr>

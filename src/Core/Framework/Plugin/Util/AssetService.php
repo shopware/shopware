@@ -57,7 +57,10 @@ class AssetService
         }
 
         $targetDirectory = $this->getTargetDirectory($bundle);
-        $this->filesystem->deleteDir($targetDirectory);
+        try {
+            $this->filesystem->deleteDir($targetDirectory);
+        } catch (\Google\Cloud\Core\Exception\NotFoundException $exception) {
+        }
 
         $this->copy($originDir, $targetDirectory);
 

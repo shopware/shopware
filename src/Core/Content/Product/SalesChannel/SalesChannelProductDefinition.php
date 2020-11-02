@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel;
 
+use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
@@ -55,6 +57,11 @@ class SalesChannelProductDefinition extends ProductDefinition implements SalesCh
         );
         $fields->add(
             (new BoolField('is_new', 'isNew'))->addFlags(new Runtime())
+        );
+
+        $fields->add(
+            (new OneToOneAssociationField('seoCategory', 'seoCategory', 'id', CategoryDefinition::class))
+                ->addFlags(new Runtime())
         );
 
         return $fields;

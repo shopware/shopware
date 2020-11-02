@@ -6,6 +6,7 @@
             {# @deprecated tag:v6.4.0 class `cms-breadcrump` use `cms-breadcrumb` instead #}
             <div class="breadcrumb cms-breadcrumb cms-breadcrump container">
                 {% block cms_breadcrumb %}
+                    {# @deprecated tag:v6.4.0 parameter `navigationTree` will be removed #}
                     {% sw_include '@Storefront/storefront/component/listing/breadcrumb.html.twig' with {
                         context: context,
                         navigationTree: page.header.navigation.tree,

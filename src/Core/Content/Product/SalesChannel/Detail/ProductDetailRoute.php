@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Product\SalesChannel\Detail;
 
 use OpenApi\Annotations as OA;
+use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
@@ -41,14 +42,21 @@ class ProductDetailRoute extends AbstractProductDetailRoute
      */
     private $configuratorLoader;
 
+    /**
+     * @var CategoryBreadcrumbBuilder
+     */
+    private $breadcrumbBuilder;
+
     public function __construct(
         SalesChannelRepositoryInterface $repository,
         SystemConfigService $config,
-        ProductConfiguratorLoader $configuratorLoader
+        ProductConfiguratorLoader $configuratorLoader,
+        CategoryBreadcrumbBuilder $breadcrumbBuilder
     ) {
         $this->repository = $repository;
         $this->config = $config;
         $this->configuratorLoader = $configuratorLoader;
+        $this->breadcrumbBuilder = $breadcrumbBuilder;
     }
 
     public function getDecorated(): AbstractProductDetailRoute
@@ -86,6 +94,10 @@ class ProductDetailRoute extends AbstractProductDetailRoute
         if (!$product instanceof SalesChannelProductEntity) {
             throw new ProductNotFoundException($productId);
         }
+
+        $product->setSeoCategory(
+            $this->breadcrumbBuilder->getProductSeoCategory($product, $context)
+        );
 
         $configurator = $this->configuratorLoader->load($product, $context);
 

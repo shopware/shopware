@@ -16,7 +16,10 @@
                         {% block page_product_detail_breadcrumb %}
                             {% deprecated '@deprecated tag:v6.4.0 - Breadcrumb will be handled by "base_breadcrumb" in "storefront/base.html.twig"' %}
                             <div class="breadcrumb product-breadcrumb container">
+                                {# @deprecated tag:v6.4.0 parameter `navigationTree`, `categoryTree` and `product` will be removed #}
                                 {% sw_include '@Storefront/storefront/component/product/breadcrumb.html.twig' with {
+                                    context: context,
+                                    category: page.product.seoCategory,
                                     navigationTree: page.header.navigation.tree,
                                     categoryTree: page.product.categoryTree|last,
                                     product: page.product

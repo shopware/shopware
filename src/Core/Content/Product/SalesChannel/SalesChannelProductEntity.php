@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Product\SalesChannel;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
+use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CalculatedListingPrice;
@@ -51,6 +52,11 @@ class SalesChannelProductEntity extends ProductEntity
      * @var PropertyGroupCollection|null
      */
     protected $configurator;
+
+    /**
+     * @var CategoryEntity|null
+     */
+    protected $seoCategory;
 
     public function getCalculatedListingPrice(): CalculatedListingPrice
     {
@@ -131,5 +137,15 @@ class SalesChannelProductEntity extends ProductEntity
     public function setConfigurator(PropertyGroupCollection $configurator): void
     {
         $this->configurator = $configurator;
+    }
+
+    public function getSeoCategory(): ?CategoryEntity
+    {
+        return $this->seoCategory;
+    }
+
+    public function setSeoCategory(?CategoryEntity $category): void
+    {
+        $this->seoCategory = $category;
     }
 }

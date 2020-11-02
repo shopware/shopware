@@ -771,15 +771,15 @@ class VersionManager
             return $this->resolveMappingParents($definition, $rawData);
         }
 
-        $parentIds = null;
-        if($definition->isInheritanceAware()) {
-            $parentIds = $this->fetchIds($definition, $rawData);
+        $parentIds = [];
+        if ($definition->isInheritanceAware()) {
+            $parentIds = $this->fetchParentIds($definition, $rawData);
         }
 
         $parent = $definition->getParentDefinition();
 
         if (!$parent) {
-            return $parentIds ?? [];
+            return $parentIds;
         }
 
         $fkField = $definition->getFields()->filter(function (Field $field) use ($parent) {
@@ -805,9 +805,9 @@ class VersionManager
 
         $entity = $parent->getEntityName();
 
-        $nested[$entity] = array_merge($nested[$entity] ?? [], $primaryKeys);
+        $nested[$entity] = array_merge($nested[$entity] ?? [], $primaryKeys, $parentIds[$entity] ?? []);
 
-        return array_merge_recursive($nested, $parentIds ?? []);
+        return $nested;
     }
 
     private function resolveMappingParents(EntityDefinition $definition, array $rawData): array
@@ -1018,28 +1018,30 @@ class VersionManager
         return $parents;
     }
 
-    private function fetchIds(EntityDefinition $definition, array $rawData ) {
-        $idField = $definition->getFields()->filterInstance(IdField::class)->first()->getStorageName();
-        $storageField = $definition->getFields()->filterInstance(IdField::class)->first()->getPropertyName();
+    private function fetchParentIds(EntityDefinition $definition, array $rawData): array
+    {
+        /** @var IdField $idField */
+        $idField = $definition->getFields()->filterInstance(IdField::class);
+
+        /** @var ParentFkField $parentFkField */
         $parentFkField = $definition->getFields()->filterInstance(ParentFkField::class)->first()->getStorageName();
 
-        $fetchQuery = sprintf('SELECT DISTINCT LOWER(HEX(%s)) as id FROM %s WHERE %s IN (:ids)',
-            $parentFkField,
+        $fetchQuery = sprintf(
+            'SELECT DISTINCT LOWER(HEX(%s)) as id FROM %s WHERE %s IN (:ids)',
+            EntityDefinitionQueryHelper::escape($parentFkField->getStorageName()),
             EntityDefinitionQueryHelper::escape($definition->getEntityName()),
-            $idField
+            EntityDefinitionQueryHelper::escape($idField->getStorageName())
         );
 
         $parentIds = $this->connection->fetchAll(
             $fetchQuery,
-            ['ids' => Uuid::fromHexToBytesList(array_column($rawData, $storageField))],
+            ['ids' => Uuid::fromHexToBytesList(array_column($rawData, $idField->getPropertyName()))],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
 
-        $ids = array_map(function (string $id) {
-            return ['id' => $id];
-        }, array_unique(array_filter(array_column($parentIds, 'id'))));
+        $ids = array_unique(array_filter(array_column($parentIds, 'id')));
 
-        if(count($ids) == 0) {
+        if (count($ids) === 0) {
             return [];
         }
 

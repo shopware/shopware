@@ -12,7 +12,7 @@ class PasswordField extends Field implements StorageAware
     private $storageName;
 
     /**
-     * @var string|int|null
+     * @var string|null
      */
     private $algorithm;
 
@@ -21,10 +21,7 @@ class PasswordField extends Field implements StorageAware
      */
     private $hashOptions;
 
-    /**
-     * @param string|int $algorithm
-     */
-    public function __construct(string $storageName, string $propertyName, $algorithm = PASSWORD_DEFAULT, array $hashOptions = [])
+    public function __construct(string $storageName, string $propertyName, ?string $algorithm = PASSWORD_DEFAULT, array $hashOptions = [])
     {
         parent::__construct($propertyName);
         $this->storageName = $storageName;

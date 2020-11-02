@@ -22,7 +22,7 @@ include:
     -   local: .gitlab/ci/split.yml
 
 default:
-    image: shopware/development:latest
+    image: shopware/development:7.4
     before_script:
         - apt-install jq
         - export CI_DEV_BRANCH=$(echo $CI_COMMIT_REF_NAME | cut -d'+' -f2-)
@@ -122,22 +122,17 @@ PHP Unit:
         matrix:
             -   EACH_MR: 'true'
                 MYSQL_IMAGE: mysql:5.7
-                DEV_IMAGE: shopware/development:latest
-                FEATURE_ALL: ["false", "true"]
-            -   MYSQL_IMAGE: mysql:5.7
-                DEV_IMAGE:
-                    - shopware/development:7.3
-                    - shopware/development:7.4
+                DEV_IMAGE: shopware/development:7.4
                 FEATURE_ALL: ["false", "true"]
             -   MYSQL_IMAGE:
                     - mysql:5.7
                     - mariadb:10.3
                     - mariadb:10.4
-                DEV_IMAGE: shopware/development:latest
+                DEV_IMAGE: shopware/development:7.4
                 FEATURE_ALL: ["false", "true"]
             -   MYSQL_IMAGE:
                     - mysql:8.0.19
-                DEV_IMAGE: shopware/development:latest
+                DEV_IMAGE: shopware/development:7.4
                 FEATURE_ALL: ["false", "true"]
                 MYSQL_CMD: 'mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON'
 
@@ -461,7 +456,7 @@ Generating docs:
 
 RIPS security:
     stage: Security
-    image: php:7.3-alpine
+    image: php:7.4-alpine
     before_script: []
     allow_failure: true
     only:
@@ -483,7 +478,7 @@ Symfony security check:
             - /^6\..*$/
             - schedules
             - pipelines
-    image: shopware/development:latest
+    image: shopware/development:7.4
     before_script: []
     allow_failure: true
     script:
@@ -502,7 +497,7 @@ NPM security check:
             - /^6\..*$/
             - schedules
             - pipelines
-    image: shopware/development:latest
+    image: shopware/development:7.4
     before_script: []
     allow_failure: true
     script:
@@ -519,7 +514,7 @@ NPM security check:
 
 .Scrutinizer:
     stage: Deploy
-    image: php:7.3-alpine
+    image: php:7.4-alpine
     allow_failure: true
     before_script: []
     only:

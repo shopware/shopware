@@ -27,7 +27,7 @@ Although Shopware 6 support most UNIX like environments, we recommend using **Ub
 ### Environment
 
 PHP
-*  7.2 or higher
+*  7.4 or higher
 * `memory_limit` 512M minimum
 * `max_execution_time` 30 seconds minimum
 * Extensions:
@@ -78,7 +78,7 @@ If you are working on Linux there is a curated docker setup, that takes care of 
 
 In this case you need:
 
-* PHP 7.2+ CLI
+* PHP 7.4+ CLI
 * docker
 * docker-compose
 * bash

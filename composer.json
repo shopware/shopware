@@ -21,11 +21,11 @@
     },
     "config": {
         "platform": {
-            "php": "7.2.9"
+            "php": "7.4.0"
         }
     },
     "require": {
-        "php": ">=7.2.0",
+        "php": "~7.4",
         "ext-curl": "*",
         "ext-dom": "*",
         "ext-fileinfo": "*",

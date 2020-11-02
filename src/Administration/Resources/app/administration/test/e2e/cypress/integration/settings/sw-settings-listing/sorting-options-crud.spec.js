@@ -13,8 +13,12 @@ describe('Listing: Test crud operations', () => {
 
     it('@settings: create and read product sorting ', () => {
         // change position via inline edit
+        cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-data-grid').scrollIntoView();
         cy.get('.sw-data-grid__row--3 > .sw-data-grid__cell--priority > .sw-data-grid__cell-content')
             .dblclick();
+        cy.get('.sw-data-grid .is--inline-edit').should('exist');
+        cy.get('.sw-data-grid__inline-edit-save').should('be.visible');
 
         cy.get('.sw-data-grid__row--3 > .sw-data-grid__cell--priority > .sw-data-grid__cell-content input')
             .scrollIntoView()
@@ -90,6 +94,8 @@ describe('Listing: Test crud operations', () => {
     });
 
     it('@settings: edit an existing product sorting', () => {
+        cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-data-grid').scrollIntoView();
         cy.get('.sw-data-grid__row--1 > .sw-data-grid__cell--actions > .sw-data-grid__cell-content > .sw-context-button > .sw-context-button__button')
             .should('be.visible')
             .click();
@@ -123,6 +129,8 @@ describe('Listing: Test crud operations', () => {
 
     it('@settings: delete an existing product sorting', () => {
         cy.server();
+        cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-data-grid').scrollIntoView();
 
         cy.get('.sw-data-grid__row--2 > .sw-data-grid__cell--actions > .sw-data-grid__cell-content > .sw-context-button > .sw-context-button__button')
             .should('be.visible')

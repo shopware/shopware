@@ -81,7 +81,10 @@ class CheckoutRegisterPageLoader
         $page = $this->genericLoader->load($request, $salesChannelContext);
 
         $page = CheckoutRegisterPage::createFrom($page);
-        $page->getMetaInformation()->assign(['robots' => 'noindex,follow']);
+
+        if ($page->getMetaInformation()) {
+            $page->getMetaInformation()->setRobots('noindex,follow');
+        }
 
         $page->setCountries($this->getCountries($salesChannelContext));
         $page->setCart($this->cartService->getCart($salesChannelContext->getToken(), $salesChannelContext));

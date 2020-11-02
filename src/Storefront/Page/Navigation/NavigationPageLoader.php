@@ -74,11 +74,13 @@ class NavigationPageLoader implements NavigationPageLoaderInterface
             new NavigationPageLoadedEvent($page, $context, $request)
         );
 
-        $canonical = ($navigationId === $context->getSalesChannel()->getNavigationCategoryId())
-            ? $this->seoUrlReplacer->generate('frontend.home.page')
-            : $this->seoUrlReplacer->generate('frontend.navigation.page', ['navigationId' => $navigationId]);
+        if ($page->getMetaInformation()) {
+            $canonical = ($navigationId === $context->getSalesChannel()->getNavigationCategoryId())
+                ? $this->seoUrlReplacer->generate('frontend.home.page')
+                : $this->seoUrlReplacer->generate('frontend.navigation.page', ['navigationId' => $navigationId]);
 
-        $page->getMetaInformation()->assign(['canonical' => $canonical]);
+            $page->getMetaInformation()->assign(['canonical' => $canonical]);
+        }
 
         return $page;
     }
@@ -86,6 +88,10 @@ class NavigationPageLoader implements NavigationPageLoaderInterface
     private function loadMetaData(CategoryEntity $category, NavigationPage $page): void
     {
         $metaInformation = $page->getMetaInformation();
+
+        if ($metaInformation === null) {
+            return;
+        }
 
         $metaDescription = $category->getTranslation('metaDescription')
             ?? $category->getTranslation('description');

@@ -46,7 +46,10 @@ class AccountPaymentMethodPageLoader
         $page = $this->genericLoader->load($request, $salesChannelContext);
 
         $page = AccountPaymentMethodPage::createFrom($page);
-        $page->getMetaInformation()->assign(['robots' => 'noindex,follow']);
+
+        if ($page->getMetaInformation()) {
+            $page->getMetaInformation()->setRobots('noindex,follow');
+        }
 
         if ($page->getSalesChannelPaymentMethods()) {
             $page->setPaymentMethods($page->getSalesChannelPaymentMethods()->filterByActiveRules($salesChannelContext));

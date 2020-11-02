@@ -343,22 +343,3 @@ Cypress.Commands.add('sortListingViaColumn', (
 
     cy.get(rowZeroSelector).contains(firstEntry);
 });
-
-/**
- * Types in an sw-select field and checks if the content was correctly typed
- * @memberOf Cypress.Chainable#
- * @name typeSingleSelectAndCheck
- * @function
- * @param {String} value - Desired value of the element
- * @param {String} selector - Options concerning swSelect usage
- * @param {Object} [options={}] - Options concerning swSelect usage
- */
-Cypress.Commands.add('typeSingleSelectAndCheck', {
-    prevSubject: 'element'
-}, (subject, value, selector, options = {}) => {
-    cy.get(subject).typeSingleSelect(value, selector, options);
-
-    // expect the placeholder for an empty select field not be shown and search for the value
-    cy.get(`${subject.selector} .sw-select__selection .is--placeholder`).should('not.exist');
-    cy.get(`${subject.selector} .sw-select__selection`).contains(value);
-});

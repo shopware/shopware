@@ -13,7 +13,7 @@ describe('Media: Test crud operations', () => {
             });
     });
 
-    it.skip('@base @media: "create" via file upload and read medium', () => {
+    it('@base @media: "create" via file upload and read medium', () => {
         const page = new MediaPageObject();
 
         // Request we want to wait for later
@@ -56,7 +56,7 @@ describe('Media: Test crud operations', () => {
         }
     });
 
-    it.skip('@base @media: update and read medium\'s meta data (uploaded via url)', () => {
+    it('@base @media: update and read medium\'s meta data (uploaded via url)', () => {
         const page = new MediaPageObject();
 
         // Request we want to wait for later

@@ -204,6 +204,50 @@ class ProductRepositoryTest extends TestCase
         static::assertNull($variant->getName());
     }
 
+    public function testUpdatedProductChildCountOnVariantDeletion(): void
+    {
+        $parentId = Uuid::randomHex();
+        $variantId = Uuid::randomHex();
+        $secondVariantId = Uuid::randomHex();
+
+        $products = [
+            [
+                'id' => $parentId,
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 10,
+                'price' => [
+                    ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
+                ],
+                'manufacturer' => ['name' => 'test'],
+                'tax' => ['name' => 'test', 'taxRate' => 15],
+                // name should be required
+                'name' => 'parent',
+            ],
+            [
+                'id' => $variantId,
+                'productNumber' => Uuid::randomHex(),
+                'parentId' => $parentId,
+                'stock' => 15,
+            ],
+            [
+                'id' => $secondVariantId,
+                'productNumber' => Uuid::randomHex(),
+                'parentId' => $parentId,
+                'stock' => 15,
+            ],
+        ];
+
+        $this->repository->create($products, $this->context);
+        $this->repository->delete([['id' => $secondVariantId]], $this->context);
+
+        $product = $this->repository
+            ->search(new Criteria([$parentId]), $this->context)
+            ->first();
+
+        static::assertInstanceOf(ProductEntity::class, $product);
+        static::assertEquals(1, $product->getChildCount());
+    }
+
     public function testNameIsRequiredForParent(): void
     {
         $id = Uuid::randomHex();

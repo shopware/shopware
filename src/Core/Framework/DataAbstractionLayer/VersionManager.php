@@ -1020,22 +1020,14 @@ class VersionManager
 
     private function fetchParentIds(EntityDefinition $definition, array $rawData): array
     {
-        /** @var IdField $idField */
-        $idField = $definition->getFields()->filterInstance(IdField::class);
-
-        /** @var ParentFkField $parentFkField */
-        $parentFkField = $definition->getFields()->filterInstance(ParentFkField::class)->first()->getStorageName();
-
         $fetchQuery = sprintf(
-            'SELECT DISTINCT LOWER(HEX(%s)) as id FROM %s WHERE %s IN (:ids)',
-            EntityDefinitionQueryHelper::escape($parentFkField->getStorageName()),
-            EntityDefinitionQueryHelper::escape($definition->getEntityName()),
-            EntityDefinitionQueryHelper::escape($idField->getStorageName())
+            'SELECT DISTINCT LOWER(HEX(parent_id)) as id FROM %s WHERE id IN (:ids)',
+            EntityDefinitionQueryHelper::escape($definition->getEntityName())
         );
 
         $parentIds = $this->connection->fetchAll(
             $fetchQuery,
-            ['ids' => Uuid::fromHexToBytesList(array_column($rawData, $idField->getPropertyName()))],
+            ['ids' => Uuid::fromHexToBytesList(array_column($rawData, 'id'))],
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
 

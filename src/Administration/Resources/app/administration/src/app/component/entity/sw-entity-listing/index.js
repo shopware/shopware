@@ -129,6 +129,7 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
             // send delete request to the server, immediately
             return this.repository.delete(id, this.items.context).then(() => {
                 this.resetSelection();
+                this.$emit('delete-item-finish', id);
                 return this.doSearch();
             }).catch((errorResponse) => {
                 this.$emit('delete-item-failed', { id, errorResponse });

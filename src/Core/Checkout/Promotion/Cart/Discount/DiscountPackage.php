@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Checkout\Promotion\Cart\Discount;
 
+use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantityCollection;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Promotion\Exception\PriceNotFoundException;
@@ -28,9 +30,25 @@ class DiscountPackage
         return $this->metaItems;
     }
 
+    public function setMetaItems(LineItemQuantityCollection $metaItems): void
+    {
+        $this->metaItems = $metaItems;
+    }
+
     public function getCartItems(): LineItemFlatCollection
     {
         return $this->cartItems;
+    }
+
+    public function getCartItem(string $id): LineItem
+    {
+        foreach ($this->cartItems as $item) {
+            if ($item->getId() === $id) {
+                return $item;
+            }
+        }
+
+        throw new LineItemNotFoundException($id);
     }
 
     public function setCartItems(LineItemFlatCollection $items): void

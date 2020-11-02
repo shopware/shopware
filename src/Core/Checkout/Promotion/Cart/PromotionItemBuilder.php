@@ -160,8 +160,8 @@ class PromotionItemBuilder
      * shop owners, that delivery costs have been discounted by a promotion discount
      * if promotion is a auto promotion (no code) it may not be removed from cart
      *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
+     * @throws InvalidPayloadException
+     * @throws InvalidQuantityException
      */
     public function buildDeliveryPlaceholderLineItem(LineItem $discount, QuantityPriceDefinition $priceDefinition, CalculatedPrice $price): LineItem
     {
@@ -246,6 +246,7 @@ class PromotionItemBuilder
             'sorterKey' => null,
             'applierKey' => null,
             'usageKey' => null,
+            'pickerKey' => null,
         ];
 
         if ($discount->isConsiderAdvancedRules()) {
@@ -253,6 +254,7 @@ class PromotionItemBuilder
                 'sorterKey' => $discount->getSorterKey(),
                 'applierKey' => $discount->getApplierKey(),
                 'usageKey' => $discount->getUsageKey(),
+                'pickerKey' => $discount->getPickerKey(),
             ];
         }
 

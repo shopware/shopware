@@ -28,12 +28,16 @@
         "PRICE_DESC": "Price, descending"
       },
       "applier": {
-        "ALL": "All results",
-        "SELECT": "Every {count}. result"
+        "ALL": "All items",
+        "SELECT": "{count}. item"
       },
       "counter": {
         "ALL": "Unlimited",
         "SELECT": "{count} x"
+      },
+      "picker": {
+        "VERTICAL": "Vertical",
+        "HORIZONTAL": "Horizontal"
       }
     },
     "general": {
@@ -71,7 +75,7 @@
       },
       "tabs": {
         "tabGeneral": "General",
-        "tabPreconditions": "Preconditions",
+        "tabPreconditions": "Conditions",
         "tabDiscounts": "Discounts"
       },
       "main": {
@@ -87,10 +91,10 @@
           "labelValidUntil": "Valid until:",
           "labelMaxRedemptionsGlobal": "Total redemptions",
           "placeholderMaxRedemptionsGlobal": "Enter value...",
-          "helpTextMaxRedemptionsGlobal":"Enter '0' for infinite uses.",
+          "helpTextMaxRedemptionsGlobal": "Enter '0' for infinite uses.",
           "labelMaxRedemptionsPerCustomer": "Individual redemptions",
           "placeholderMaxRedemptionsPerCustomer": "Enter value...",
-          "helpTextMaxRedemptionsPerCustomer":"Enter '0' for infinite uses per individual customer.",
+          "helpTextMaxRedemptionsPerCustomer": "Enter '0' for infinite uses per individual customer.",
           "labelPromotionExclusions": "Do not combine with",
           "placeholderPromotionExclusions": "Add promotion...",
           "codes": {
@@ -198,6 +202,7 @@
             "buttonDelete": "Delete discount"
           },
           "labelSorting": "Sort by",
+          "labelPicking": "Item Picking Mode",
           "labelApplyCount": "Apply to",
           "labelMaxCount": "Maximum amount of usages",
           "linkAdvancedPrices": "Open advanced prices view",

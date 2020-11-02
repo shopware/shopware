@@ -5,6 +5,8 @@ namespace Shopware\Core\Checkout\Promotion\Api;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupPackagerInterface;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupServiceRegistry;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupSorterInterface;
+use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\FilterPickerInterface;
+use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\FilterServiceRegistry;
 use Shopware\Core\Checkout\Promotion\Util\PromotionCodesLoader;
 use Shopware\Core\Checkout\Promotion\Util\PromotionCodesRemover;
 use Shopware\Core\Framework\Context;
@@ -34,11 +36,17 @@ class PromotionActionController extends AbstractController
      */
     private $serviceRegistry;
 
-    public function __construct(PromotionCodesLoader $codesLoader, PromotionCodesRemover $codesRemover, LineItemGroupServiceRegistry $serviceRegistry)
+    /**
+     * @var FilterServiceRegistry
+     */
+    private $filterServiceRegistry;
+
+    public function __construct(PromotionCodesLoader $codesLoader, PromotionCodesRemover $codesRemover, LineItemGroupServiceRegistry $serviceRegistry, FilterServiceRegistry $filterServiceRegistry)
     {
         $this->codesLoader = $codesLoader;
         $this->codesRemover = $codesRemover;
         $this->serviceRegistry = $serviceRegistry;
+        $this->filterServiceRegistry = $filterServiceRegistry;
     }
 
     /**
@@ -95,5 +103,22 @@ class PromotionActionController extends AbstractController
         }
 
         return new JsonResponse($sorterKeys);
+    }
+
+    /**
+     * @Route("/api/v{version}/_action/promotion/discount/picker", name="api.action.promotion.discount.picker", methods={"GET"})
+     *
+     * @throws \Shopware\Core\Framework\Uuid\Exception\InvalidUuidException
+     */
+    public function getDiscountFilterPickers(): JsonResponse
+    {
+        $pickerKeys = [];
+
+        /** @var FilterPickerInterface $picker */
+        foreach ($this->filterServiceRegistry->getPickers() as $picker) {
+            $pickerKeys[] = $picker->getKey();
+        }
+
+        return new JsonResponse($pickerKeys);
     }
 }

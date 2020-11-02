@@ -9,8 +9,8 @@ use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupPackagerNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupSorterNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder;
-use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilderResult;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupDefinition;
+use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantity;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantityCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackage;
@@ -31,6 +31,9 @@ class SetScopeDiscountPackager extends DiscountPackager
         $this->groupBuilder = $groupBuilder;
     }
 
+    /**
+     * @deprecated tag:v6.4.0 function will be removed
+     */
     public function getResultContext(): string
     {
         return self::RESULT_CONTEXT_PACKAGE;
@@ -63,7 +66,7 @@ class SetScopeDiscountPackager extends DiscountPackager
 
         $result = $this->groupBuilder->findGroupPackages($definitions, $cart, $context);
 
-        $lowestCommonCount = $this->getLowestCommonGroupCountDenominator($definitions, $result);
+        $lowestCommonCount = $result->getLowestCommonGroupCountDenominator($definitions);
 
         // if no max possible groups that have
         // the same count have been found, then return no items
@@ -89,7 +92,15 @@ class SetScopeDiscountPackager extends DiscountPackager
             $units[] = new DiscountPackage(new LineItemQuantityCollection($itemsInSet));
         }
 
-        return new DiscountPackageCollection($units);
+        $splitUnits = [];
+
+        foreach ($units as $group) {
+            $singleItems = $this->splitQuantities($group->getMetaData()->getElements());
+
+            $splitUnits[] = new DiscountPackage(new LineItemQuantityCollection($singleItems));
+        }
+
+        return new DiscountPackageCollection($splitUnits);
     }
 
     /**
@@ -115,30 +126,18 @@ class SetScopeDiscountPackager extends DiscountPackager
     }
 
     /**
-     * Gets the lowest common denominator of possible groups.
-     * This means, we compare how often each group of the set
-     * has been found, and search the maximum count of complete sets.
-     * 2 GROUPS of A and 1 GROUP of B would mean a count of 1 for
-     * the whole set combination of A and B.
-     *
-     * @param LineItemGroupDefinition[] $definitions
+     * @param LineItemQuantity[] $groupItems
      */
-    private function getLowestCommonGroupCountDenominator(array $definitions, LineItemGroupBuilderResult $result): int
+    private function splitQuantities(array $groupItems): LineItemQuantityCollection
     {
-        $lowestCommonCount = null;
+        $items = [];
 
-        foreach ($definitions as $definition) {
-            $count = $result->getGroupCount($definition);
-
-            if ($lowestCommonCount === null) {
-                $lowestCommonCount = $count;
-            }
-
-            if ($count < $lowestCommonCount) {
-                $lowestCommonCount = $count;
+        foreach ($groupItems as $item) {
+            for ($i = 1; $i <= $item->getQuantity(); ++$i) {
+                $items[] = new LineItemQuantity($item->getLineItemId(), 1);
             }
         }
 
-        return $lowestCommonCount ?? 0;
+        return new LineItemQuantityCollection($items);
     }
 }

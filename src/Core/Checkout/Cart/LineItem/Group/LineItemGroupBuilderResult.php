@@ -112,6 +112,34 @@ class LineItemGroupBuilderResult
         return 0;
     }
 
+    /**
+     * Gets the lowest common denominator of possible groups.
+     * This means, we compare how often each group of the set
+     * has been found, and search the maximum count of complete sets.
+     * 2 GROUPS of A and 1 GROUP of B would mean a count of 1 for
+     * the whole set combination of A and B.
+     *
+     * @param LineItemGroupDefinition[] $definitions
+     */
+    public function getLowestCommonGroupCountDenominator(array $definitions): int
+    {
+        $lowestCommonCount = null;
+
+        foreach ($definitions as $definition) {
+            $count = $this->getGroupCount($definition);
+
+            if ($lowestCommonCount === null) {
+                $lowestCommonCount = $count;
+            }
+
+            if ($count < $lowestCommonCount) {
+                $lowestCommonCount = $count;
+            }
+        }
+
+        return $lowestCommonCount ?? 0;
+    }
+
     private function addGroupCount(string $key): void
     {
         // also increase our count of found items

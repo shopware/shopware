@@ -4,7 +4,8 @@ namespace Shopware\Core\Checkout\Test\Cart\Promotion\Unit\Cart\Builder;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException;
+use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Rule\LineItemUnitPriceRule;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountPrice\PromotionDiscountPriceCollection;
@@ -12,6 +13,7 @@ use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountPrice\PromotionD
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSetGroup\PromotionSetGroupCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSetGroup\PromotionSetGroupEntity;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
+use Shopware\Core\Checkout\Promotion\Exception\UnknownPromotionDiscountTypeException;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
@@ -24,13 +26,13 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class PromotionItemBuilderPayloadTest extends TestCase
 {
     /** @var PromotionEntity */
-    private $promotion = null;
+    private $promotion;
 
     /** @var MockObject */
-    private $salesChannelContext = null;
+    private $salesChannelContext;
 
     /** @var MockObject */
-    private $context = null;
+    private $context;
 
     public function setUp(): void
     {
@@ -52,7 +54,6 @@ class PromotionItemBuilderPayloadTest extends TestCase
      * It's also used as reference to individual codes that get marked as redeemed
      * in the event subscriber, when the order is created.
      *
-     * @test
      * @group promotions
      */
     public function testPayloadStructureBasic(): void
@@ -87,6 +88,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
                 'sorterKey' => null,
                 'applierKey' => null,
                 'usageKey' => null,
+                'pickerKey' => null,
             ],
             'exclusions' => [],
         ];
@@ -99,12 +101,11 @@ class PromotionItemBuilderPayloadTest extends TestCase
      * including our max value from our discount, when building
      * a new line item for our cart.
      *
-     * @test
      * @group promotions
      *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Promotion\Exception\UnknownPromotionDiscountTypeException
+     * @throws InvalidPayloadException
+     * @throws InvalidQuantityException
+     * @throws UnknownPromotionDiscountTypeException
      */
     public function testPayloadPercentageWithoutAdvancedPrices(): void
     {
@@ -135,6 +136,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
                 'sorterKey' => null,
                 'applierKey' => null,
                 'usageKey' => null,
+                'pickerKey' => null,
             ],
             'exclusions' => [],
         ];
@@ -195,12 +197,11 @@ class PromotionItemBuilderPayloadTest extends TestCase
      * if we set the scope to SetGroup and assign a single group.
      * The group id will be used from the scope suffix. e.g. "setgroup-id123"
      *
-     * @test
      * @group promotions
      *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Promotion\Exception\UnknownPromotionDiscountTypeException
+     * @throws InvalidPayloadException
+     * @throws InvalidQuantityException
+     * @throws UnknownPromotionDiscountTypeException
      */
     public function testPayloadHasGroupIdOnSetGroupScope(): void
     {
@@ -227,12 +228,11 @@ class PromotionItemBuilderPayloadTest extends TestCase
      * So we fake a new SetGroup including a rule collection
      * and make sure it has the correct structure in our payload.
      *
-     * @test
      * @group promotions
      *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Promotion\Exception\UnknownPromotionDiscountTypeException
+     * @throws InvalidPayloadException
+     * @throws InvalidQuantityException
+     * @throws UnknownPromotionDiscountTypeException
      */
     public function testPayloadWithSetGroup(): void
     {
@@ -285,6 +285,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
                 'sorterKey' => null,
                 'applierKey' => null,
                 'usageKey' => null,
+                'pickerKey' => null,
             ],
             'exclusions' => [],
         ];
@@ -297,12 +298,11 @@ class PromotionItemBuilderPayloadTest extends TestCase
      * the currency in our payload and not the one from
      * our discount entity.
      *
-     * @test
      * @group promotions
      *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Promotion\Exception\UnknownPromotionDiscountTypeException
+     * @throws InvalidPayloadException
+     * @throws InvalidQuantityException
+     * @throws UnknownPromotionDiscountTypeException
      */
     public function testPayloadPercentageMaxValueWithAdvancedPrices(): void
     {
@@ -338,12 +338,11 @@ class PromotionItemBuilderPayloadTest extends TestCase
      * absolute discounts is null. This feature is not available
      * for absolute discounts - only percentage discounts.
      *
-     * @test
      * @group promotions
      *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Promotion\Exception\UnknownPromotionDiscountTypeException
+     * @throws InvalidPayloadException
+     * @throws InvalidQuantityException
+     * @throws UnknownPromotionDiscountTypeException
      */
     public function testPayloadAbsoluteMaxValueIsNull(): void
     {
@@ -397,7 +396,6 @@ class PromotionItemBuilderPayloadTest extends TestCase
      * This test verifies that the correct payload in the lineItem
      * by the discountItemBuilder
      *
-     * @test
      * @group promotions
      */
     public function testPayloadDiscountValues(): void
@@ -429,7 +427,6 @@ class PromotionItemBuilderPayloadTest extends TestCase
      * This test verifies that the correct filter
      * values are being added to the payload if set
      *
-     * @test
      * @group promotions
      */
     public function testPayloadAdvancedFilterValues(): void
@@ -461,7 +458,6 @@ class PromotionItemBuilderPayloadTest extends TestCase
      * We enter valid values, but turn that feature off and
      * test if the values are null.
      *
-     * @test
      * @group promotions
      */
     public function testPayloadAdvancedFilterValuesNullIfDisabled(): void
@@ -492,8 +488,6 @@ class PromotionItemBuilderPayloadTest extends TestCase
      */
     private function getFakeRule(int $amount, string $operator): LineItemUnitPriceRule
     {
-        $productRule = (new LineItemUnitPriceRule())->assign(['amount' => $amount, 'operator' => $operator]);
-
-        return $productRule;
+        return (new LineItemUnitPriceRule())->assign(['amount' => $amount, 'operator' => $operator]);
     }
 }

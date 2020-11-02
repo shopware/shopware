@@ -71,6 +71,7 @@ Table(ShopwareCoreCheckoutPromotionAggregatePromotionDiscountPromotionDiscountDe
    sorterKey string
    applierKey string
    usageKey string
+   pickerKey string
    not_null(createdAt) createdAt
    updatedAt updatedAt
 }

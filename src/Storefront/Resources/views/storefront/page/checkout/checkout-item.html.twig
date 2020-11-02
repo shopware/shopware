@@ -198,7 +198,7 @@
                                                     </select>
                                                 {% endblock %}
                                             </form>
-                                        {% else %}
+                                        {% elseif lineItem.type != "promotion" %}
                                             {% block page_checkout_item_quantity_number %}
                                                 <div class="d-flex justify-content-end cart-item-quantity">
                                                     {{ lineItem.quantity }}

@@ -6,7 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupPackagerNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Exception\LineItemGroupSorterNotFoundException;
-use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroup;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupPackagerInterface;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupServiceRegistry;
@@ -27,7 +26,6 @@ use Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\ReferencePriceCalculator;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
-use Shopware\Core\Checkout\Cart\Tax\TaxRuleCalculator;
 use Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Fakes\FakeLineItemGroupSorter;
 use Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Fakes\FakeLineItemGroupTakeAllPackager;
 use Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Fakes\FakeSequenceSupervisor;
@@ -35,14 +33,23 @@ use Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Fakes\FakeTakeAllRul
 use Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Traits\LineItemGroupTestFixtureBehaviour;
 use Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Traits\LineItemTestFixtureBehaviour;
 use Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Traits\RulesTestFixtureBehaviour;
+use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionSetGroupTestFixtureBehaviour;
+use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
 use Shopware\Core\Content\Rule\RuleCollection;
+use Shopware\Core\Content\Rule\RuleEntity;
+use Shopware\Core\Framework\Rule\Container\AndRule;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class LineItemGroupBuilderTest extends TestCase
 {
+    use PromotionSetGroupTestFixtureBehaviour;
     use LineItemTestFixtureBehaviour;
     use LineItemGroupTestFixtureBehaviour;
     use RulesTestFixtureBehaviour;
+    use PromotionTestFixtureBehaviour;
+    use IntegrationTestBehaviour;
 
     private const KEY_PACKAGER_COUNT = 'COUNT';
 
@@ -129,7 +136,7 @@ class LineItemGroupBuilderTest extends TestCase
 
     /**
      * This test verifies that our extractor starts
-     * with the rule matching, before calling any sorters or packagers.
+     * with the sorting, then proceeds with rule matching and packagers.
      * This helps us to avoid any dependencies to rules inside sorters or packagers
      *
      * @test
@@ -150,14 +157,18 @@ class LineItemGroupBuilderTest extends TestCase
         $countPackager = $this->fakeTakeAllPackager->getSequenceCount();
 
         // check if the matcher is called before the other objects
-        $isCalledFirst = ($countMatcher < $countSorter) && ($countMatcher < $countPackager);
+        $isCalledFirst = ($countSorter < $countMatcher) && ($countMatcher < $countPackager);
 
         static::assertTrue($isCalledFirst, 'Matcher: ' . $countMatcher . ', Sorter: ' . $countSorter . ', Packager: ' . $countPackager);
     }
 
     /**
      * This test verifies that our extractor uses the sorter
-     * after the rules matcher and before the packager.
+     * once before the rules matcher and before the packager.
+     * We have to do this before iterating through the cart
+     * because we modify items there which means the price might get lost.
+     * Also due to performance its better if we sort once and then
+     * package our groups.
      *
      * @test
      * @group lineitemgroup
@@ -177,7 +188,7 @@ class LineItemGroupBuilderTest extends TestCase
         $countPackager = $this->fakeTakeAllPackager->getSequenceCount();
 
         // check if the matcher is called before the other objects
-        $isCalledMiddle = ($countSorter > $countMatcher) && ($countSorter < $countPackager);
+        $isCalledMiddle = ($countSorter < $countMatcher) && ($countSorter < $countPackager);
 
         static::assertTrue($isCalledMiddle, 'Matcher: ' . $countMatcher . ', Sorter: ' . $countSorter . ', Packager: ' . $countPackager);
     }
@@ -255,6 +266,58 @@ class LineItemGroupBuilderTest extends TestCase
     }
 
     /**
+     * This test verifies a bug fix in the "rest-of-cart" algorithm with this set of products.
+     * We add 3 different products (10x quantity for all products).
+     * Our group builder rule should only consider the first 2 products (20 items).
+     * We build groups of 5 items, which means we should get a result
+     * of 4 found groups in the end.
+     *
+     * @group lineitemgroup
+     */
+    public function testShouldFindGroupsWithRule(): void
+    {
+        $cart = $this->buildCart(0);
+
+        $item1 = $this->createProductItem(10, 10);
+        $item2 = $this->createProductItem(20, 10);
+        $item3 = $this->createProductItem(50, 10);
+
+        $item1->setReferencedId($item1->getId());
+        $item2->setReferencedId($item2->getId());
+        $item3->setReferencedId($item3->getId());
+
+        $item1->setQuantity(10);
+        $item2->setQuantity(10);
+        $item3->setQuantity(10);
+
+        $cart->addLineItems(new LineItemCollection([$item1, $item2, $item3]));
+
+        $rules = new AndRule(
+            [
+                $this->getProductsRule([$item1->getReferencedId(), $item2->getReferencedId()]),
+            ]
+        );
+
+        $ruleEntity = new RuleEntity();
+        $ruleEntity->setId(Uuid::randomHex());
+        $ruleEntity->setPayload($rules);
+
+        $group = $this->buildGroup(
+            self::KEY_PACKAGER_COUNT,
+            5,
+            self::KEY_SORTER_PRICE_DESC,
+            new RuleCollection([$ruleEntity])
+        );
+
+        $result = $this->unitTestBuilder->findGroupPackages([$group], $cart, $this->context);
+
+        /** @var array $groupCount */
+        $groupCount = $result->getGroupResult($group);
+
+        static::assertCount(4, $groupCount);
+    }
+
+    /**
      * This test verifies that we get a correct exception
      * if our provided packager has not been found.
      *
@@ -320,9 +383,7 @@ class LineItemGroupBuilderTest extends TestCase
         $priceRounding = new PriceRounding();
         $referencePriceCalculator = new ReferencePriceCalculator($priceRounding);
 
-        $taxCalculator = new TaxCalculator(
-            new TaxRuleCalculator()
-        );
+        $taxCalculator = new TaxCalculator();
 
         $quantityPriceCalculator = new QuantityPriceCalculator(
             new GrossPriceCalculator($taxCalculator, $priceRounding, $referencePriceCalculator),

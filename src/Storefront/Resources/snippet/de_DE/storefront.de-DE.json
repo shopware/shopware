@@ -537,6 +537,7 @@
     "groupRequired": "Technisch erforderlich",
     "groupRequiredDescription": "Für die Funktion des Shops erforderliche Cookies:",
     "groupRequiredSession": "Sitzung",
+    "groupRequiredCsrf": "CSRF-Schutz",
     "groupRequiredTimezone": "Zeitzone",
     "groupStatistical": "Statistiken",
     "groupStatisticalDescription": "Für Statistiken und Shop-Performance-Metriken genutzte Cookies.",

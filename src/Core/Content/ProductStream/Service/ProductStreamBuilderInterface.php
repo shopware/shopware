@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Context;
 interface ProductStreamBuilderInterface
 {
     public function buildFilters(
-        string $productStreamId,
+        string $id,
         Context $context
     ): array;
 }

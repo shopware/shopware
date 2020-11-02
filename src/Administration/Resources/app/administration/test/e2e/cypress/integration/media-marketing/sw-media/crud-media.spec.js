@@ -102,26 +102,10 @@ describe('Media: Test crud operations', () => {
 
         page.uploadImageUsingFileUpload('img/sw-login-background.png', 'sw-login-background.png');
 
-            cy.wait('@saveDataFileUpload').then((xhr) => {
-                cy.awaitAndCheckNotification('File has been saved.');
-                expect(xhr).to.have.property('status', 204);
-            });
-            page.deleteFile('sw-login-background.png');
-        }
-
-        if (Cypress.isBrowser('firefox')) {
-            // Upload medium
-            cy.clickContextMenuItem(
-                '.sw-media-upload-v2__button-url-upload',
-                '.sw-media-upload-v2__button-context-menu'
-            );
-            page.uploadImageUsingUrl('http://assets.shopware.com/sw_logo_white.png');
-
-            cy.wait('@saveDataFileUpload').then((xhr) => {
-                cy.awaitAndCheckNotification('File has been saved.');
-                expect(xhr).to.have.property('status', 204);
-            });
-            page.deleteFile('sw_logo_white.png');
-        }
+        cy.wait('@saveDataFileUpload').then((xhr) => {
+            cy.awaitAndCheckNotification('File has been saved.');
+            expect(xhr).to.have.property('status', 204);
+        });
+        page.deleteFile('sw-login-background.png');
     });
 });

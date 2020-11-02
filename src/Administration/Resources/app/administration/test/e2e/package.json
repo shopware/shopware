@@ -27,7 +27,7 @@
     "cypress-file-upload": "4.1.1"
   },
   "devDependencies": {
-    "cypress": "5.3.0",
+    "cypress": "5.5.0",
     "mochawesome-merge": "^4.0.0",
     "mochawesome-report-generator": "^4.1.0"
   }

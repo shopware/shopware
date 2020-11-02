@@ -161,7 +161,6 @@
 
         <service id="Shopware\Storefront\Theme\Twig\ThemeInheritanceBuilderInterface"
                  class="Shopware\Storefront\Theme\Twig\ThemeInheritanceBuilder">
-            <argument type="service" id="kernel"/>
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>
         </service>
 

@@ -327,6 +327,7 @@ Component.register('sw-product-detail', {
                 this.productCriteria
             ).then((res) => {
                 Shopware.State.commit('swProductDetail/setProduct', res);
+                console.log('product', res)
 
                 // Initialize an empty price collection if the product has no purchase prices
                 this.product.purchasePrices = this.product.purchasePrices || [];

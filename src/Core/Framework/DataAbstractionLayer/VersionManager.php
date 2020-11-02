@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -770,10 +771,15 @@ class VersionManager
             return $this->resolveMappingParents($definition, $rawData);
         }
 
+        $parentIds = null;
+        if($definition->isInheritanceAware()) {
+            $parentIds = $this->fetchIds($definition, $rawData);
+        }
+
         $parent = $definition->getParentDefinition();
 
         if (!$parent) {
-            return [];
+            return $parentIds ?? [];
         }
 
         $fkField = $definition->getFields()->filter(function (Field $field) use ($parent) {
@@ -801,7 +807,7 @@ class VersionManager
 
         $nested[$entity] = array_merge($nested[$entity] ?? [], $primaryKeys);
 
-        return $nested;
+        return array_merge_recursive($nested, $parentIds ?? []);
     }
 
     private function resolveMappingParents(EntityDefinition $definition, array $rawData): array
@@ -1010,5 +1016,33 @@ class VersionManager
         }
 
         return $parents;
+    }
+
+    private function fetchIds(EntityDefinition $definition, array $rawData ) {
+        $idField = $definition->getFields()->filterInstance(IdField::class)->first()->getStorageName();
+        $storageField = $definition->getFields()->filterInstance(IdField::class)->first()->getPropertyName();
+        $parentFkField = $definition->getFields()->filterInstance(ParentFkField::class)->first()->getStorageName();
+
+        $fetchQuery = sprintf('SELECT DISTINCT LOWER(HEX(%s)) as id FROM %s WHERE %s IN (:ids)',
+            $parentFkField,
+            EntityDefinitionQueryHelper::escape($definition->getEntityName()),
+            $idField
+        );
+
+        $parentIds = $this->connection->fetchAll(
+            $fetchQuery,
+            ['ids' => Uuid::fromHexToBytesList(array_column($rawData, $storageField))],
+            ['ids' => Connection::PARAM_STR_ARRAY]
+        );
+
+        $ids = array_map(function (string $id) {
+            return ['id' => $id];
+        }, array_unique(array_filter(array_column($parentIds, 'id'))));
+
+        if(count($ids) == 0) {
+            return [];
+        }
+
+        return [$definition->getEntityName() => $ids];
     }
 }

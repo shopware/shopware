@@ -530,7 +530,8 @@
         "shippingStreetRule": "Lieferstraße",
         "shippingZipCodeRule": "Lieferadresse-PLZ",
         "cartAmountRule": "Warenkorbwert",
-        "goodsCountRule": "Anzahl Warenkorbgüter",
+        "goodsCountRule": "Anzahl verschiedener Warenkorbgüter",
+        "goodsCountRuleNonDistinct": "Anzahl Warenkorbgüter",
         "goodsPriceRule": "Preis Warenkorbgüter",
         "lineItemOfTypeRule": {
           "label": "Position des Typs",

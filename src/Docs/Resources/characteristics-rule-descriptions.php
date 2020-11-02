@@ -18,7 +18,11 @@ Matches a specific number to the current cart's total weight.
 EOD
     ,
     Shopware\Core\Checkout\Cart\Rule\GoodsCountRule::class => <<<'EOD'
-Matches a number to the current cart's line item goods count.
+Matches a number to the current cart's distinct line item goods count.
+EOD
+    ,
+    Shopware\Core\Checkout\Cart\Rule\GoodsCountRuleNonDistinct::class => <<<'EOD'
+Matches a number to the current cart's total line item goods count.
 EOD
     ,
     Shopware\Core\Checkout\Cart\Rule\GoodsPriceRule::class => <<<'EOD'

@@ -18,7 +18,10 @@ List of all rule classes across Shopware 6.
  : Matches a specific number to the current cart's total weight.
 
 [Shopware\Core\Checkout\Cart\Rule\GoodsCountRule](https://github.com/shopware/platform/tree/master/src/Core/Shopware\Core\Checkout\Cart\Rule\GoodsCountRule)
- : Matches a number to the current cart's line item goods count.
+ : Matches a number to the current cart's distinct line item goods count.
+ 
+[Shopware\Core\Checkout\Cart\Rule\GoodsCountNonDistinctRule](https://github.com/shopware/platform/tree/master/src/Core/Shopware\Core\Checkout\Cart\Rule\GoodsCountRuleNonDistinct)
+ : Matches a number to the current cart's total line item goods count. 
 
 [Shopware\Core\Checkout\Cart\Rule\GoodsPriceRule](https://github.com/shopware/platform/tree/master/src/Core/Shopware\Core\Checkout\Cart\Rule\GoodsPriceRule)
  : Matches a specific number to the carts goods price.

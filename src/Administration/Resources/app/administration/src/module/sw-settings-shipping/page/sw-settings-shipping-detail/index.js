@@ -1,3 +1,4 @@
+import { mapPropertyErrors } from 'src/app/service/map-errors.service';
 import template from './sw-settings-shipping-detail.html.twig';
 import './sw-settings-shipping-detail.scss';
 import swShippingDetailState from './state';
@@ -51,6 +52,11 @@ Component.register('sw-settings-shipping-detail', {
         ...mapState('swShippingDetail', [
             'shippingMethod',
             'currencies'
+        ]),
+        ...mapPropertyErrors('shippingMethod', [
+            'name',
+            'deliveryTimeId',
+            'availabilityRuleId'
         ]),
 
         identifier() {

@@ -76,7 +76,7 @@ class SalesChannelRepository implements SalesChannelRepositoryInterface
         } else {
             $this->processCriteria($criteria, $salesChannelContext);
         }
-
+        $page = !$criteria->getLimit() ? 1 : (int) ceil(($criteria->getOffset() ?? 0 + 1) / $criteria->getLimit());
         if (!RepositorySearchDetector::isSearchRequired($this->definition, $criteria)) {
             $entities = $this->read($criteria, $salesChannelContext);
 
@@ -85,7 +85,9 @@ class SalesChannelRepository implements SalesChannelRepositoryInterface
                 $entities,
                 $aggregations,
                 $criteria,
-                $salesChannelContext->getContext()
+                $salesChannelContext->getContext(),
+                $page,
+                $criteria->getLimit()
             );
         }
 
@@ -118,7 +120,9 @@ class SalesChannelRepository implements SalesChannelRepositoryInterface
             $entities,
             $aggregations,
             $criteria,
-            $salesChannelContext->getContext()
+            $salesChannelContext->getContext(),
+            $page,
+            $criteria->getLimit()
         );
 
         $event = new EntitySearchResultLoadedEvent($this->definition, $result);

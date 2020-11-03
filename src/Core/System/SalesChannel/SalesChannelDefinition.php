@@ -4,6 +4,7 @@ namespace Shopware\Core\System\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupRegistrationSalesChannel\CustomerGroupRegistrationSalesChannelDefinition;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist\CustomerWishlistDefinition;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
@@ -178,6 +179,12 @@ class SalesChannelDefinition extends EntityDefinition
             $fields->add(
                 (new OneToManyAssociationField('boundCustomers', CustomerDefinition::class, 'bound_sales_channel_id', 'id'))
                     ->addFlags(new ReadProtected(SalesChannelApiSource::class))
+            );
+        }
+
+        if (Feature::isActive('FEATURE_NEXT_10549')) {
+            $fields->add(
+                (new OneToManyAssociationField('wishlists', CustomerWishlistDefinition::class, 'sales_channel_id'))->addFlags(new CascadeDelete())
             );
         }
 

@@ -97,6 +97,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService"/>
             <argument type="service" id="Shopware\Core\Framework\App\AppStateService"/>
+            <argument type="service" id="acl_role.repository"/>
             <argument type="string">%kernel.project_dir%</argument>
         </service>
 

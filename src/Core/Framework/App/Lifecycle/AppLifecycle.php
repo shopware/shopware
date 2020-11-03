@@ -81,6 +81,11 @@ class AppLifecycle extends AbstractAppLifecycle
      */
     private $webhookPersister;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $aclRoleRepository;
+
     public function __construct(
         EntityRepositoryInterface $appRepository,
         PermissionPersister $permissionPersister,
@@ -92,6 +97,7 @@ class AppLifecycle extends AbstractAppLifecycle
         EventDispatcherInterface $eventDispatcher,
         AppRegistrationService $registrationService,
         AppStateService $appStateService,
+        EntityRepositoryInterface $aclRoleRepository,
         string $projectDir
     ) {
         $this->appRepository = $appRepository;
@@ -105,6 +111,7 @@ class AppLifecycle extends AbstractAppLifecycle
         $this->appStateService = $appStateService;
         $this->actionButtonPersister = $actionButtonPersister;
         $this->templatePersister = $templatePersister;
+        $this->aclRoleRepository = $aclRoleRepository;
     }
 
     public function getDecorated(): AbstractAppLifecycle
@@ -152,7 +159,10 @@ class AppLifecycle extends AbstractAppLifecycle
             new AppDeletedEvent($appData['id'], $context)
         );
 
-        $this->appRepository->delete([['id' => $appData['id']]], $context);
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($appData): void {
+            $this->appRepository->delete([['id' => $appData['id']]], $context);
+            $this->aclRoleRepository->delete([['id' => $appData['roleId']]], $context);
+        });
     }
 
     private function updateApp(

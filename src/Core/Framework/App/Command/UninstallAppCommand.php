@@ -51,7 +51,14 @@ class UninstallAppCommand extends Command
             return 1;
         }
 
-        $this->appLifecycle->delete($app->getName(), ['id' => $app->getId()], $context);
+        $this->appLifecycle->delete(
+            $app->getName(),
+            [
+                'id' => $app->getId(),
+                'roleId' => $app->getAclRoleId(),
+            ],
+            $context
+        );
 
         $io->success('App uninstalled successfully.');
 

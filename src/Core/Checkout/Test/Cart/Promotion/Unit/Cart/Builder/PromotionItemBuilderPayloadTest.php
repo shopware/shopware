@@ -19,6 +19,7 @@ use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -171,11 +172,13 @@ class PromotionItemBuilderPayloadTest extends TestCase
 
         $item = $builder->buildDiscountLineItem('my-code', $this->promotion, $discount, 1, Defaults::CURRENCY, $currencyFactor);
 
+        $maxValue = FloatComparator::cast($maxValue * $currencyFactor);
+
         $expected = [
             'promotionId' => 'PR-1',
             'discountType' => 'percentage',
             'value' => '50',
-            'maxValue' => $maxValue * $currencyFactor,
+            'maxValue' => (string) $maxValue,
             'discountId' => 'P123',
             'code' => 'my-code',
             'discountScope' => 'cart',
@@ -185,6 +188,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
                 'sorterKey' => null,
                 'applierKey' => null,
                 'usageKey' => null,
+                'pickerKey' => null,
             ],
             'exclusions' => [],
         ];

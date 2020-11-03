@@ -320,6 +320,6 @@ The poll interval is the time in seconds that the admin-worker polls messages fr
 shopware:
     admin_worker:
         enable_admin_worker: true
-        poll_interval: 30
+        poll_interval: 20
         transports: ["default"]
 ``` 

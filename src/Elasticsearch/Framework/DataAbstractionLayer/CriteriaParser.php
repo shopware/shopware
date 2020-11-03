@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
@@ -264,11 +265,17 @@ class CriteriaParser
     {
         $fieldName = $this->buildAccessor($definition, $filter->getField(), $context);
 
-        if ($filter->getValue() === null) {
+        $value = $filter->getValue();
+        $field = $this->helper->getField($fieldName, $definition, $definition->getEntityName(), false);
+        if($field instanceof BoolField) {
+            $value = (bool) $value;
+        }
+
+        if ($value === null) {
             $query = new BoolQuery();
             $query->add(new ExistsQuery($fieldName), BoolQuery::MUST_NOT);
         } else {
-            $query = new TermQuery($fieldName, $filter->getValue());
+            $query = new TermQuery($fieldName, $value);
         }
 
         return $this->createNestedQuery($query, $definition, $filter->getField());

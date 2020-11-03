@@ -281,6 +281,11 @@ parameters:
 			path: src/Core/Checkout/Cart/Rule/GoodsCountRule.php
 
 		-
+			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Rule\\\\GoodsCountRuleNonDistinct\\:\\:\\$count \\(int\\) does not accept int\\|null\\.$#"
+			count: 1
+			path: src/Core/Checkout/Cart/Rule/GoodsCountRuleNonDistinct.php
+
+		-
 			message: "#^Cannot call method match\\(\\) on Shopware\\\\Core\\\\Framework\\\\Rule\\\\Container\\\\Container\\|null\\.$#"
 			count: 1
 			path: src/Core/Checkout/Cart/Rule/GoodsCountRule.php

@@ -1,0 +1,37 @@
+{% block sw_condition_value_content %}
+    <div class="sw-condition-goods-count-non-distinct">
+        {% block sw_condition_goods_count_non_distinct_field_operator %}
+            <sw-condition-operator-select v-bind="{ operators, condition }"
+                                          :disabled="disabled">
+            </sw-condition-operator-select>
+        {% endblock %}
+
+        {% block sw_condition_goods_count_non_distinct_field_count %}
+            <sw-number-field size="medium"
+                             numberType="int"
+                             :step="1"
+                             v-model="count"
+                             :disabled="disabled">
+            </sw-number-field>
+        {% endblock %}
+
+
+        {% block sw_condition_goods_count_non_distinct_filter_button %}
+            <div class="sw-condition-goods-count-non-distinct__filter">
+                <sw-button @click="showFilterModal = true"
+                           :disabled="disabled"
+                           v-tooltip="{ message: $tc('sw-settings-rule.conditionFilter.infoText') }">
+                    <sw-icon name="small-default-stack-filter" small></sw-icon>
+                </sw-button>
+            </div>
+        {% endblock %}
+    </div>
+
+    {% block sw_condition_goods_count_non_distinct_condition_modal %}
+        <sw-condition-modal v-if="showFilterModal"
+                            :disabled="disabled"
+                            @modal-close="showFilterModal = false"
+                            v-bind="{ condition, conditionDataProviderService }">>
+        </sw-condition-modal>
+    {% endblock %}
+{% endblock %}

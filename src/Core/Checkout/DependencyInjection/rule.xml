@@ -12,6 +12,10 @@
             <tag name="shopware.rule.definition"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Cart\Rule\GoodsCountRuleNonDistinct">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Cart\Rule\GoodsPriceRule">
             <tag name="shopware.rule.definition"/>
         </service>

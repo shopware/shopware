@@ -106,6 +106,11 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         label: 'global.sw-condition.condition.goodsCountRule',
         scopes: ['cart']
     });
+    ruleConditionService.addCondition('cartGoodsCountNonDistinct', {
+        component: 'sw-condition-goods-count-non-distinct',
+        label: 'global.sw-condition.condition.goodsCountRuleNonDistinct',
+        scopes: ['cart']
+    });
     ruleConditionService.addCondition('cartGoodsPrice', {
         component: 'sw-condition-goods-price',
         label: 'global.sw-condition.condition.goodsPriceRule',

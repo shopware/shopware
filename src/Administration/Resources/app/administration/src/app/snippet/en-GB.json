@@ -530,8 +530,8 @@
                 "shippingStreetRule": "Shipping street",
                 "shippingZipCodeRule": "Shipping postal code",
                 "cartAmountRule": "Cart amount",
-                "goodsCountRule": "Distinct Goods count",
-                "goodsCountRuleNonDistinct": "Total Goods count",
+                "goodsCountRule": "Distinct goods count",
+                "goodsCountRuleNonDistinct": "Total goods count",
                 "goodsPriceRule": "Goods price",
                 "lineItemOfTypeRule": {
                     "label": "Line item of type",

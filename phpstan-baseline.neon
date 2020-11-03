@@ -2126,7 +2126,7 @@ parameters:
 			path: src/Core/Content/Product/ProductCollection.php
 
 		-
-			message: "#^Parameter \\#1 \\$productStreamId of method Shopware\\\\Core\\\\Content\\\\ProductStream\\\\Service\\\\ProductStreamBuilderInterface\\:\\:buildFilters\\(\\) expects string, string\\|null given\\.$#"
+			message: "#^Parameter \\#1 \\$id of method Shopware\\\\Core\\\\Content\\\\ProductStream\\\\Service\\\\ProductStreamBuilderInterface\\:\\:buildFilters\\(\\) expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Content/Product/SalesChannel/CrossSelling/ProductCrossSellingRoute.php
 
@@ -2146,7 +2146,7 @@ parameters:
 			path: src/Core/Content/Product/SalesChannel/CrossSelling/ProductCrossSellingRoute.php
 
 		-
-			message: "#^Parameter \\#1 \\$productStreamId of method Shopware\\\\Core\\\\Content\\\\ProductStream\\\\Service\\\\ProductStreamBuilderInterface\\:\\:buildFilters\\(\\) expects string, string\\|null given\\.$#"
+			message: "#^Parameter \\#1 \\$id of method Shopware\\\\Core\\\\Content\\\\ProductStream\\\\Service\\\\ProductStreamBuilderInterface\\:\\:buildFilters\\(\\) expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Content/Product/SalesChannel/CrossSelling/SalesChannelCrossSellingController.php
 
@@ -2236,7 +2236,7 @@ parameters:
 			path: src/Core/Content/Product/SalesChannel/Listing/ProductListingResult.php
 
 		-
-			message: "#^Parameter \\#1 \\$productStreamId of method Shopware\\\\Core\\\\Content\\\\ProductStream\\\\Service\\\\ProductStreamBuilderInterface\\:\\:buildFilters\\(\\) expects string, string\\|null given\\.$#"
+			message: "#^Parameter \\#1 \\$id of method Shopware\\\\Core\\\\Content\\\\ProductStream\\\\Service\\\\ProductStreamBuilderInterface\\:\\:buildFilters\\(\\) expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Content/Product/SalesChannel/Listing/ProductListingRoute.php
 
@@ -2459,51 +2459,6 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Content\\\\ProductStream\\\\Exception\\\\NoFilterException\\:\\:__construct\\(\\) has parameter \\$id with no typehint specified\\.$#"
 			count: 1
 			path: src/Core/Content/ProductStream/Exception/NoFilterException.php
-
-		-
-			message: "#^Argument of an invalid type Shopware\\\\Core\\\\Content\\\\ProductStream\\\\Aggregate\\\\ProductStreamFilter\\\\ProductStreamFilterCollection\\|null supplied for foreach, only iterables are supported\\.$#"
-			count: 3
-			path: src/Core/Content/ProductStream/Service/ProductStreamBuilder.php
-
-		-
-			message: "#^Parameter \\#1 \\$operator of class Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Filter\\\\MultiFilter constructor expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/ProductStream/Service/ProductStreamBuilder.php
-
-		-
-			message: "#^Parameter \\#1 \\$field of class Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Search\\\\Filter\\\\EqualsAnyFilter constructor expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/ProductStream/Service/ProductStreamBuilder.php
-
-		-
-			message: "#^Parameter \\#2 \\$str of function explode expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/ProductStream/Service/ProductStreamBuilder.php
-
-		-
-			message: "#^Parameter \\#1 \\$filter of method Shopware\\\\Core\\\\Content\\\\ProductStream\\\\Service\\\\ProductStreamBuilder\\:\\:ensureQueries\\(\\) expects Shopware\\\\Core\\\\Content\\\\ProductStream\\\\Aggregate\\\\ProductStreamFilter\\\\ProductStreamFilterEntity, Shopware\\\\Core\\\\Content\\\\ProductStream\\\\Aggregate\\\\ProductStreamFilter\\\\ProductStreamFilterEntity\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/ProductStream/Service/ProductStreamBuilder.php
-
-		-
-			message: "#^Parameter \\#1 \\$filterEntity of method Shopware\\\\Core\\\\Content\\\\ProductStream\\\\Service\\\\ProductStreamBuilder\\:\\:createFilter\\(\\) expects Shopware\\\\Core\\\\Content\\\\ProductStream\\\\Aggregate\\\\ProductStreamFilter\\\\ProductStreamFilterEntity, Shopware\\\\Core\\\\Content\\\\ProductStream\\\\Aggregate\\\\ProductStreamFilter\\\\ProductStreamFilterEntity\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/ProductStream/Service/ProductStreamBuilder.php
-
-		-
-			message: "#^Cannot call method getPosition\\(\\) on Shopware\\\\Core\\\\Content\\\\ProductStream\\\\Aggregate\\\\ProductStreamFilter\\\\ProductStreamFilterEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/ProductStream/Service/ProductStreamBuilder.php
-
-		-
-			message: "#^Cannot call method getQueries\\(\\) on Shopware\\\\Core\\\\Content\\\\ProductStream\\\\Aggregate\\\\ProductStreamFilter\\\\ProductStreamFilterEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/ProductStream/Service/ProductStreamBuilder.php
-
-		-
-			message: "#^Parameter \\#1 \\$entity of method Shopware\\\\Core\\\\Content\\\\ProductStream\\\\Aggregate\\\\ProductStreamFilter\\\\ProductStreamFilterCollection\\:\\:add\\(\\) expects Shopware\\\\Core\\\\Content\\\\ProductStream\\\\Aggregate\\\\ProductStreamFilter\\\\ProductStreamFilterEntity, Shopware\\\\Core\\\\Content\\\\ProductStream\\\\Aggregate\\\\ProductStreamFilter\\\\ProductStreamFilterEntity\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/ProductStream/Service/ProductStreamBuilder.php
 
 		-
 			message: "#^Parameter \\#1 \\$object of static method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Struct\\:\\:createFrom\\(\\) expects Shopware\\\\Core\\\\Framework\\\\Struct\\\\Struct, Shopware\\\\Core\\\\Content\\\\Property\\\\PropertyGroupEntity\\|null given\\.$#"

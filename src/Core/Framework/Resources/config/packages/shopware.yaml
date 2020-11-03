@@ -32,7 +32,8 @@ shopware:
 
     admin_worker:
         enable_admin_worker: true
-        poll_interval: 30
+        # This has to be lower than PHP's max_execution_time (default: 30s)
+        poll_interval: 20
         transports: ["default"]
 
     auto_update:

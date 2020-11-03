@@ -866,11 +866,6 @@ parameters:
 			path: src/Core/Checkout/Payment/Cart/Token/JWTFactoryV2.php
 
 		-
-			message: "#^Parameter \\#1 \\$orderTransactionId of method Shopware\\\\Core\\\\Checkout\\\\Payment\\\\PaymentService\\:\\:getPaymentTransactionStruct\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Checkout/Payment/PaymentService.php
-
-		-
 			message: "#^Parameter \\#1 \\$paymentMethodId of method Shopware\\\\Core\\\\Checkout\\\\Payment\\\\PaymentService\\:\\:getPaymentHandlerById\\(\\) expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Checkout/Payment/PaymentService.php

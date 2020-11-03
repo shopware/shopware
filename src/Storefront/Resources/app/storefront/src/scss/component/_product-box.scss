@@ -99,7 +99,6 @@ $box-image-height-img: 332px;
         text-decoration: none;
     }
 }
-/* stylelint-enable value-no-vendor-prefix, property-no-vendor-prefix */
 
 .product-description {
     height: 54px;
@@ -107,7 +106,12 @@ $box-image-height-img: 332px;
     font-size: 14px;
     line-height: 18px;
     overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
 }
+/* stylelint-enable value-no-vendor-prefix, property-no-vendor-prefix */
 
 .product-price-info {
     margin-top: 10px;

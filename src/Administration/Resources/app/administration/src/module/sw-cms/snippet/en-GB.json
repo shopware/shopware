@@ -416,6 +416,9 @@
     },
     "blocks": {
       "commerce": {
+        "productHeading": {
+          "label": "Product name & manufacturer logo"
+        },
         "productListing": {
           "label": "Product listing"
         },

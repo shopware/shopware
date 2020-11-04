@@ -62,12 +62,7 @@ class ThemeService
         ?StorefrontPluginConfigurationCollection $configurationCollection = null,
         bool $withAssets = true
     ): void {
-        $themePluginConfiguration = $this->getPluginConfiguration(
-            $salesChannelId,
-            $themeId,
-            false,
-            $context
-        );
+        $themePluginConfiguration = $this->getPluginConfiguration($themeId, $context);
 
         $this->themeCompiler->compileTheme(
             $salesChannelId,
@@ -175,14 +170,13 @@ class ThemeService
         $configFields = [];
 
         $configuredTheme = $this->mergeStaticConfig($theme);
-
         $themeConfig = array_replace_recursive($baseThemeConfig, $configuredTheme);
 
         foreach ($themeConfig['fields'] as $name => $item) {
             $configFields[$name] = $themeConfigFieldFactory->create($name, $item);
         }
 
-        $configFields = json_decode(json_encode($configFields), true);
+        $configFields = json_decode((string) json_encode($configFields), true);
 
         $labels = array_replace_recursive($baseTheme->getLabels() ?? [], $theme->getLabels() ?? []);
         if ($translate && !empty($labels)) {
@@ -351,58 +345,117 @@ class ThemeService
         return $blocks;
     }
 
-    private function getPluginConfiguration(
-        ?string $salesChannelId,
-        ?string $themeId,
-        bool $translate,
-        Context $context
-    ): StorefrontPluginConfiguration {
-        if ($themeId === null) {
-            $criteria = new Criteria();
-            $criteria->addFilter(new EqualsFilter('salesChannel.id', $salesChannelId));
-            /** @var ThemeEntity|null $theme */
-            $theme = $this->themeRepository->search($criteria, $context)->first();
-        } else {
-            /** @var ThemeEntity|null $theme */
-            $theme = $this->themeRepository->search(new Criteria([$themeId]), $context)->get($themeId);
+    private function loadCompileConfig(string $themeId, Context $context): array
+    {
+        $config = $this->loadRecursiveConfig($themeId, $context);
+
+        $field = new ThemeConfigField();
+
+        foreach ($config['fields'] as $name => $item) {
+            $clone = clone $field;
+            $clone->setName($name);
+            $clone->assign($item);
+            $config[$name] = $clone;
         }
 
-        if ($theme === null) {
-            $pluginConfig = $this->pluginRegistry->getConfigurations()->getByTechnicalName(
-                StorefrontPluginRegistry::BASE_THEME_NAME
-            );
-            if (!$pluginConfig) {
-                throw new InvalidThemeException(StorefrontPluginRegistry::BASE_THEME_NAME);
-            }
+        return json_decode((string) json_encode($config), true);
+    }
 
-            return clone $pluginConfig;
+    private function loadRecursiveConfig(string $themeId, Context $context): array
+    {
+        $criteria = new Criteria([$themeId]);
+
+        $theme = $this->themeRepository
+            ->search($criteria, $context)
+            ->first();
+
+        if (!$theme instanceof ThemeEntity) {
+            throw new InvalidThemeException($themeId);
         }
-        $pluginConfig = null;
-        if ($theme->getTechnicalName() !== null) {
-            $pluginConfig = $this->pluginRegistry->getConfigurations()->getByTechnicalName($theme->getTechnicalName());
+
+        $config = $this->mergeStaticConfig($theme);
+
+        $parentId = $theme->getParentThemeId();
+        if ($parentId) {
+            $parent = $this->loadRecursiveConfig($parentId, $context);
+
+            return array_replace_recursive($parent, $config);
         }
 
-        // Is inherited Theme -> get Plugin
-        if ($pluginConfig === null) {
-            if ($theme->getParentThemeId() !== null) {
-                $criteria = (new Criteria())->addFilter(new EqualsFilter('id', $theme->getParentThemeId()));
-                /** @var ThemeEntity $parentTheme */
-                $parentTheme = $this->themeRepository->search($criteria, $context)->first();
-                $pluginConfig = $this->pluginRegistry->getConfigurations()->getByTechnicalName($parentTheme->getTechnicalName());
-            } else {
-                $parentTheme = false;
-                $pluginConfig = $this->pluginRegistry->getConfigurations()->getByTechnicalName(StorefrontPluginRegistry::BASE_THEME_NAME);
-            }
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('technicalName', StorefrontPluginRegistry::BASE_THEME_NAME));
 
-            if (!$pluginConfig) {
-                throw new InvalidThemeException($parentTheme ? $parentTheme->getTechnicalName() : StorefrontPluginRegistry::BASE_THEME_NAME);
-            }
+        $theme = $this->themeRepository
+            ->search($criteria, $context)
+            ->first();
+
+        if (!$theme instanceof ThemeEntity) {
+            throw new InvalidThemeException(StorefrontPluginRegistry::BASE_THEME_NAME);
+        }
+
+        $base = $this->mergeStaticConfig($theme);
+
+        return array_replace_recursive($base, $config);
+    }
+
+    private function getPluginConfiguration(string $themeId, Context $context): StorefrontPluginConfiguration
+    {
+        $pluginConfig = $this->loadConfigByName($themeId, $context);
+
+        if (!$pluginConfig) {
+            throw new InvalidThemeException($themeId);
         }
 
         $pluginConfig = clone $pluginConfig;
-        $pluginConfig->setThemeConfig($this->getThemeConfiguration($theme->getId(), $translate, $context));
+
+        $config = $this->loadCompileConfig($themeId, $context);
+
+        $pluginConfig->setThemeConfig($config);
 
         return $pluginConfig;
+    }
+
+    private function loadConfigByName(string $themeId, Context $context): ?StorefrontPluginConfiguration
+    {
+        /** @var ThemeEntity|null $theme */
+        $theme = $this->themeRepository
+            ->search(new Criteria([$themeId]), $context)
+            ->get($themeId);
+
+        if ($theme === null) {
+            return $this->pluginRegistry
+                ->getConfigurations()
+                ->getByTechnicalName(StorefrontPluginRegistry::BASE_THEME_NAME);
+        }
+
+        $pluginConfig = null;
+        if ($theme->getTechnicalName() !== null) {
+            $pluginConfig = $this->pluginRegistry
+                ->getConfigurations()
+                ->getByTechnicalName($theme->getTechnicalName());
+        }
+
+        if ($pluginConfig !== null) {
+            return $pluginConfig;
+        }
+
+        if ($theme->getParentThemeId() !== null) {
+            $criteria = new Criteria();
+            $criteria->addFilter(new EqualsFilter('id', $theme->getParentThemeId()));
+
+            /** @var ThemeEntity $parentTheme */
+            $parentTheme = $this->themeRepository
+                ->search($criteria, $context)
+                ->first();
+
+            return $this->pluginRegistry
+                ->getConfigurations()
+                ->getByTechnicalName($parentTheme->getTechnicalName());
+        }
+
+        return $this->pluginRegistry
+            ->getConfigurations()
+            ->getByTechnicalName(StorefrontPluginRegistry::BASE_THEME_NAME);
     }
 
     private function mergeStaticConfig(ThemeEntity $theme): array
@@ -493,7 +546,7 @@ class ThemeService
         return $translations['sections.' . $sectionName] ?? $sectionName;
     }
 
-    private function translateLabels(array $themeConfiguration, array $translations)
+    private function translateLabels(array $themeConfiguration, array $translations): array
     {
         foreach ($themeConfiguration as $key => &$value) {
             $value['label'] = $translations['fields.' . $key] ?? $key;
@@ -502,7 +555,7 @@ class ThemeService
         return $themeConfiguration;
     }
 
-    private function translateHelpTexts(array $themeConfiguration, array $translations)
+    private function translateHelpTexts(array $themeConfiguration, array $translations): array
     {
         foreach ($themeConfiguration as $key => &$value) {
             $value['helpText'] = $translations['fields.' . $key] ?? null;

@@ -16,6 +16,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
@@ -238,7 +239,14 @@ class ProductRepositoryTest extends TestCase
         ];
 
         $this->repository->create($products, $this->context);
-        $this->repository->delete([['id' => $secondVariantId]], $this->context);
+        $delete = $this->repository->delete([['id' => $secondVariantId]], $this->context);
+        static::assertInstanceOf(EntityWrittenContainerEvent::class, $delete);
+
+        $ids = $delete->getPrimaryKeys('product');
+
+        static::assertCount(2, $ids);
+        static::assertContains($parentId, $ids);
+        static::assertContains($secondVariantId, $ids);
 
         $product = $this->repository
             ->search(new Criteria([$parentId]), $this->context)

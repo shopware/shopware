@@ -6,6 +6,7 @@ use Shopware\Core\Content\ContactForm\SalesChannel\AbstractContactFormRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterSubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterUnsubscribeRoute;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -49,6 +50,7 @@ class FormController extends StorefrontController
     }
 
     /**
+     * @Since("6.1.0.0")
      * @Route("/form/contact", name="frontend.form.contact.send", methods={"POST"}, defaults={"XmlHttpRequest"=true})
      * @Captcha
      */
@@ -87,6 +89,7 @@ class FormController extends StorefrontController
     }
 
     /**
+     * @Since("6.1.0.0")
      * @Route("/form/newsletter", name="frontend.form.newsletter.register.handle", methods={"POST"}, defaults={"XmlHttpRequest"=true})
      * @Captcha
      */

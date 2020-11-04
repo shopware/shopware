@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\DefinitionNotFoundExc
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionEntity;
 use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
@@ -48,6 +49,7 @@ class StateMachineActionController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/state-machine/{entityName}/{entityId}/state", name="api.state_machine.states", methods={"GET"})
      *
      * @throws InconsistentCriteriaIdsException
@@ -93,6 +95,7 @@ class StateMachineActionController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/state-machine/{entityName}/{entityId}/state/{transition}", name="api.state_machine.transition_state", methods={"POST"})
      *
      * @throws IllegalTransitionException

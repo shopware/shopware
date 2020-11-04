@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -58,6 +59,7 @@ class RemoveWishlistProductRoute extends AbstractRemoveWishlistProductRoute
     }
 
     /**
+     * @Since("6.3.4.0")
      * @OA\Delete(
      *      path="/customer/wishlist/delete/{productId}",
      *      summary="Delete customer wishlist",

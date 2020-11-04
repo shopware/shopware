@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
@@ -63,6 +64,7 @@ class CartLineItemController extends StorefrontController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/checkout/line-item/delete/{id}", name="frontend.checkout.line-item.delete", methods={"POST", "DELETE"}, defaults={"XmlHttpRequest": true})
      */
     public function deleteLineItem(Cart $cart, string $id, Request $request, SalesChannelContext $salesChannelContext): Response
@@ -85,6 +87,7 @@ class CartLineItemController extends StorefrontController
     }
 
     /**
+     * @Since("6.0.0.0")
      * This is the storefront controller action for adding a promotion.
      * It has some individual code for the storefront layouts, like visual
      * error and success messages.
@@ -129,6 +132,7 @@ class CartLineItemController extends StorefrontController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/checkout/line-item/change-quantity/{id}", name="frontend.checkout.line-item.change-quantity", defaults={"XmlHttpRequest": true}, methods={"POST"})
      */
     public function changeQuantity(Cart $cart, string $id, Request $request, SalesChannelContext $salesChannelContext): Response
@@ -157,6 +161,7 @@ class CartLineItemController extends StorefrontController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/checkout/product/add-by-number", name="frontend.checkout.product.add-by-number", methods={"POST"})
      *
      * @throws InconsistentCriteriaIdsException
@@ -200,6 +205,7 @@ class CartLineItemController extends StorefrontController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/checkout/line-item/add", name="frontend.checkout.line-item.add", methods={"POST"}, defaults={"XmlHttpRequest"=true})
      *
      * requires the provided items in the following form

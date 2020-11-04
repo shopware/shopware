@@ -36,6 +36,11 @@ class ProductTranslationDefinition extends EntityTranslationDefinition
         return ProductTranslationEntity::class;
     }
 
+    public function since(): ?string
+    {
+        return '6.0.0.0';
+    }
+
     protected function getParentDefinitionClass(): string
     {
         return ProductDefinition::class;

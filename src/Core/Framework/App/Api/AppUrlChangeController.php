@@ -8,6 +8,7 @@ use Shopware\Core\Framework\App\Exception\AppUrlChangeStrategyNotFoundHttpExcept
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -40,6 +41,7 @@ class AppUrlChangeController extends AbstractController
     }
 
     /**
+     * @Since("6.3.3.0")
      * @Route("api/v{version}/app-system/app-url-change/strategies", name="api.app_system.app-url-change-strategies", methods={"GET"})
      */
     public function getAvailableStrategies(): JsonResponse
@@ -50,6 +52,7 @@ class AppUrlChangeController extends AbstractController
     }
 
     /**
+     * @Since("6.3.3.0")
      * @Route("api/v{version}/app-system/app-url-change/resolve", name="api.app_system.app-url-change-resolve", methods={"POST"})
      */
     public function resolve(Request $request, Context $context): Response
@@ -70,6 +73,7 @@ class AppUrlChangeController extends AbstractController
     }
 
     /**
+     * @Since("6.3.3.0")
      * @Route("api/v{version}/app-system/app-url-change/url-difference", name="api.app_system.app-url-difference", methods={"GET"})
      */
     public function getUrlDifference(): Response

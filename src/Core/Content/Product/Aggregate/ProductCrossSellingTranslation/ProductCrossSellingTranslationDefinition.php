@@ -27,6 +27,11 @@ class ProductCrossSellingTranslationDefinition extends EntityTranslationDefiniti
         return ProductCrossSellingTranslationEntity::class;
     }
 
+    public function since(): ?string
+    {
+        return '6.1.0.0';
+    }
+
     protected function getParentDefinitionClass(): string
     {
         return ProductCrossSellingDefinition::class;

@@ -5,6 +5,7 @@ namespace Shopware\Core\System\SalesChannel\SalesChannel;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -40,6 +41,7 @@ class StoreApiInfoController
     }
 
     /**
+     * @Since("6.2.0.0")
      * @Route("/store-api/v{version}/_info/openapi3.json", defaults={"auth_required"="%shopware.api.api_browser.auth_required_str%"}, name="store-api.info.openapi3", methods={"GET"})
      *
      * @throws \Exception
@@ -52,6 +54,7 @@ class StoreApiInfoController
     }
 
     /**
+     * @Since("6.2.0.0")
      * @Route("/store-api/v{version}/_info/open-api-schema.json", defaults={"auth_required"="%shopware.api.api_browser.auth_required_str%"}, name="store-api.info.open-api-schema", methods={"GET"})
      */
     public function openApiSchema(int $version): JsonResponse
@@ -62,6 +65,7 @@ class StoreApiInfoController
     }
 
     /**
+     * @Since("6.2.0.0")
      * @Route("/store-api/v{version}/_info/swagger.html", defaults={"auth_required"="%shopware.api.api_browser.auth_required_str%"}, name="store-api.info.swagger", methods={"GET"})
      */
     public function infoHtml(Request $request, int $version): Response

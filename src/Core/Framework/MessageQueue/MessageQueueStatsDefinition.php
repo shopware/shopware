@@ -33,9 +33,12 @@ class MessageQueueStatsDefinition extends EntityDefinition
 
     public function getDefaults(): array
     {
-        return [
-            'size' => 0,
-        ];
+        return ['size' => 0];
+    }
+
+    public function since(): ?string
+    {
+        return '6.0.0.0';
     }
 
     protected function defineFields(): FieldCollection

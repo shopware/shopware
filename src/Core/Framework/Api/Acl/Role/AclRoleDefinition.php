@@ -31,7 +31,6 @@ class AclRoleDefinition extends EntityDefinition
     public const PRIVILEGE_CREATE = 'create';
     public const PRIVILEGE_UPDATE = 'update';
     public const PRIVILEGE_DELETE = 'delete';
-
     public const ENTITY_NAME = 'acl_role';
 
     public function getEntityName(): string
@@ -52,6 +51,11 @@ class AclRoleDefinition extends EntityDefinition
     public function getDefaults(): array
     {
         return ['privileges' => []];
+    }
+
+    public function since(): ?string
+    {
+        return '6.0.0.0';
     }
 
     protected function defineProtections(): EntityProtectionCollection

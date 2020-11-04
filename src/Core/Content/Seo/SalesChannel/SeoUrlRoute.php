@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -42,10 +43,11 @@ class SeoUrlRoute extends AbstractSeoUrlRoute
     }
 
     /**
+     * @Since("6.2.0.0")
      * @Entity("seo_url")
      * @OA\Post(
      *      path="/seo-url",
-     *      description="Loads seo urls",
+     *      summary="Loads seo urls",
      *      operationId="readSeoUrl",
      *      tags={"Store API", "Seo"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),

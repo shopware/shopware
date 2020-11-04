@@ -42,6 +42,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -121,9 +122,10 @@ class ApiController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @OA\Get(
      *      path="/_search",
-     *      description="Search for multiple entites by a given term",
+     *      summary="Search for multiple entites by a given term",
      *      operationId="compositeSearch",
      *      tags={"Admin Api"},
      *      @OA\Parameter(
@@ -198,6 +200,7 @@ class ApiController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/clone/{entity}/{id}", name="api.clone", methods={"POST"}, requirements={
      *     "version"="\d+", "entity"="[a-zA-Z-]+", "id"="[0-9a-f]{32}"
      * })
@@ -239,6 +242,7 @@ class ApiController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/version/{entity}/{id}", name="api.createVersion", methods={"POST"},
      *     requirements={"version"="\d+", "entity"="[a-zA-Z-]+", "id"="[0-9a-f]{32}"
      * })
@@ -281,6 +285,7 @@ class ApiController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/version/merge/{entity}/{versionId}", name="api.mergeVersion", methods={"POST"},
      *     requirements={"version"="\d+", "entity"="[a-zA-Z-]+", "versionId"="[0-9a-f]{32}"
      * })
@@ -308,6 +313,7 @@ class ApiController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/version/{versionId}/{entity}/{entityId}", name="api.deleteVersion", methods={"POST"},
      *     requirements={"version"="\d+", "entity"="[a-zA-Z-]+", "id"="[0-9a-f]{32}"
      * })

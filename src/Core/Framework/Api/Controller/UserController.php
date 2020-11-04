@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\Acl;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\User\UserDefinition;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -68,6 +69,7 @@ class UserController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_info/me", name="api.info.me", methods={"GET"})
      */
     public function me(Context $context, Request $request, ResponseFactoryInterface $responseFactory): Response
@@ -92,6 +94,7 @@ class UserController extends AbstractController
     }
 
     /**
+     * @Since("6.3.3.0")
      * @Route("/api/v{version}/_info/me", name="api.change.me", defaults={"auth_required"=true}, methods={"PATCH"})
      * @Acl({"user_change_me"})
      */
@@ -116,6 +119,7 @@ class UserController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_info/ping", name="api.info.ping", methods={"GET"})
      */
     public function status(Context $context): Response
@@ -138,6 +142,7 @@ class UserController extends AbstractController
     }
 
     /**
+     * @Since("6.2.3.0")
      * @Route("/api/v{version}/user/{userId}", name="api.user.delete", defaults={"auth_required"=true}, methods={"DELETE"})
      * @Acl({"user:delete"})
      */
@@ -155,6 +160,7 @@ class UserController extends AbstractController
     }
 
     /**
+     * @Since("6.3.0.0")
      * @Route("/api/v{version}/user/{userId}/access-keys/{id}", name="api.user_access_keys.delete", defaults={"auth_required"=true}, methods={"DELETE"})
      * @Acl({"user_access_key:delete"})
      */
@@ -172,6 +178,7 @@ class UserController extends AbstractController
     }
 
     /**
+     * @Since("6.2.3.0")
      * @Route("/api/v{version}/user", name="api.user.create", defaults={"auth_required"=true}, methods={"POST"})
      * @Acl({"user:create"})
      */
@@ -200,6 +207,7 @@ class UserController extends AbstractController
     }
 
     /**
+     * @Since("6.3.3.0")
      * @Route("/api/v{version}/user/{userId}", name="api.user.update", defaults={"auth_required"=true}, methods={"PATCH"})
      * @Acl({"user:update"})
      */
@@ -209,6 +217,7 @@ class UserController extends AbstractController
     }
 
     /**
+     * @Since("6.3.2.0")
      * @Route("/api/v{version}/acl-role", name="api.acl_role.create", defaults={"auth_required"=true}, methods={"POST"})
      * @Acl({"acl_role:create"})
      */
@@ -237,6 +246,7 @@ class UserController extends AbstractController
     }
 
     /**
+     * @Since("6.3.3.0")
      * @Route("/api/v{version}/acl-role/{roleId}", name="api.acl_role.update", defaults={"auth_required"=true}, methods={"PATCH"})
      * @Acl({"acl_role:update"})
      */
@@ -246,6 +256,7 @@ class UserController extends AbstractController
     }
 
     /**
+     * @Since("6.3.3.0")
      * @Route("/api/v{version}/user/{userId}/acl-roles/{roleId}", name="api.user_role.delete", defaults={"auth_required"=true}, methods={"DELETE"})
      * @Acl({"acl_user_role:delete"})
      */
@@ -263,6 +274,7 @@ class UserController extends AbstractController
     }
 
     /**
+     * @Since("6.3.2.0")
      * @Route("/api/v{version}/acl-role/{roleId}", name="api.acl_role.delete", defaults={"auth_required"=true}, methods={"DELETE"})
      * @Acl({"acl_role:delete"})
      */

@@ -41,9 +41,12 @@ class IntegrationDefinition extends EntityDefinition
 
     public function getDefaults(): array
     {
-        return [
-            'admin' => true,
-        ];
+        return ['admin' => true];
+    }
+
+    public function since(): ?string
+    {
+        return '6.0.0.0';
     }
 
     protected function defineFields(): FieldCollection

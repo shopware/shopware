@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
@@ -66,9 +67,10 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
     }
 
     /**
+     * @Since("6.2.0.0")
      * @OA\Patch(
      *      path="/context",
-     *      description="Update the context",
+     *      summary="Update the context",
      *      operationId="updateContext",
      *      tags={"Store API","Context"},
      *      @OA\Parameter(name="currencyId", description="Currency", @OA\Schema(type="string")),

@@ -249,6 +249,11 @@ class ScoreBuilderTestDefinition extends EntityDefinition
         return 'test';
     }
 
+    public function since(): string
+    {
+        return '6.0.0.0';
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
@@ -269,6 +274,11 @@ class NestedDefinition extends EntityDefinition
         return 'nested';
     }
 
+    public function since(): string
+    {
+        return '6.0.0.0';
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
@@ -286,6 +296,11 @@ class OnlyTranslatedFieldDefinition extends EntityDefinition
         return 'translated';
     }
 
+    public function since(): string
+    {
+        return '6.0.0.0';
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
@@ -301,6 +316,11 @@ class OnlyDateFieldDefinition extends EntityDefinition
     public function getEntityName(): string
     {
         return 'dates';
+    }
+
+    public function since(): string
+    {
+        return '6.0.0.0';
     }
 
     protected function defineFields(): FieldCollection

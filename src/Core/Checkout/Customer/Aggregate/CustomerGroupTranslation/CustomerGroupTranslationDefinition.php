@@ -31,6 +31,11 @@ class CustomerGroupTranslationDefinition extends EntityTranslationDefinition
         return CustomerGroupTranslationEntity::class;
     }
 
+    public function since(): ?string
+    {
+        return '6.0.0.0';
+    }
+
     protected function getParentDefinitionClass(): string
     {
         return CustomerGroupDefinition::class;

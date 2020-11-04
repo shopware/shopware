@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Document\Exception\InvalidFileGeneratorTypeException;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -28,6 +29,7 @@ class DocumentGeneratorController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/order/{orderId}/document/{documentTypeName}", name="api.action.document.invoice", methods={"POST"})
      *
      * @throws InvalidDocumentGeneratorTypeException
@@ -58,6 +60,7 @@ class DocumentGeneratorController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/document/{documentId}/upload", name="api.action.document.upload", methods={"POST"})
      */
     public function uploadToDocument(Request $request, string $documentId, Context $context): JsonResponse

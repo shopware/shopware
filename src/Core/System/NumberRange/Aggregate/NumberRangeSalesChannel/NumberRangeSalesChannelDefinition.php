@@ -22,6 +22,11 @@ class NumberRangeSalesChannelDefinition extends EntityDefinition
         return self::ENTITY_NAME;
     }
 
+    public function since(): ?string
+    {
+        return '6.0.0.0';
+    }
+
     protected function getParentDefinitionClass(): ?string
     {
         return NumberRangeDefinition::class;

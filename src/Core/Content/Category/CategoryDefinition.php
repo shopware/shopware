@@ -81,33 +81,31 @@ class CategoryDefinition extends EntityDefinition
         ];
     }
 
+    public function since(): ?string
+    {
+        return '6.0.0.0';
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             new VersionField(),
-
             new ParentFkField(self::class),
             (new ReferenceVersionField(self::class, 'parent_version_id'))->addFlags(new Required()),
-
             new FkField('after_category_id', 'afterCategoryId', self::class),
             (new ReferenceVersionField(self::class, 'after_category_version_id'))->addFlags(new Required()),
-
             new FkField('media_id', 'mediaId', MediaDefinition::class),
-
             (new BoolField('display_nested_products', 'displayNestedProducts'))->addFlags(new Required()),
             (new IntField('auto_increment', 'autoIncrement'))->addFlags(new WriteProtected()),
-
             (new TranslatedField('breadcrumb'))->addFlags(new WriteProtected()),
             new TreeLevelField('level', 'level'),
             new TreePathField('path', 'path'),
             new ChildCountField(),
-
             (new StringField('type', 'type'))->addFlags(new Required()),
             (new StringField('product_assignment_type', 'productAssignmentType'))->addFlags(new Required()),
             new BoolField('visible', 'visible'),
             new BoolField('active', 'active'),
-
             (new TranslatedField('name'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new TranslatedField('customFields'),
             new TranslatedField('slotConfig'),
@@ -116,28 +114,21 @@ class CategoryDefinition extends EntityDefinition
             new TranslatedField('metaTitle'),
             new TranslatedField('metaDescription'),
             new TranslatedField('keywords'),
-
             new ParentAssociationField(self::class, 'id'),
             new ChildrenAssociationField(self::class),
-
             new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, 'id', false),
             (new TranslationsAssociationField(CategoryTranslationDefinition::class, 'category_id'))->addFlags(new Required()),
-
             (new ManyToManyAssociationField('products', ProductDefinition::class, ProductCategoryDefinition::class, 'category_id', 'product_id'))->addFlags(new CascadeDelete(), new ReverseInherited('categories')),
             (new ManyToManyAssociationField('nestedProducts', ProductDefinition::class, ProductCategoryTreeDefinition::class, 'category_id', 'product_id'))->addFlags(new CascadeDelete(), new WriteProtected()),
             new ManyToManyAssociationField('tags', TagDefinition::class, CategoryTagDefinition::class, 'category_id', 'tag_id'),
-
             new FkField('cms_page_id', 'cmsPageId', CmsPageDefinition::class),
             new ManyToOneAssociationField('cmsPage', 'cms_page_id', CmsPageDefinition::class, 'id', false),
-
             new FkField('product_stream_id', 'productStreamId', ProductStreamDefinition::class),
             new ManyToOneAssociationField('productStream', 'product_stream_id', ProductStreamDefinition::class, 'id', false),
-
             // Reverse Associations not available in sales-channel-api
             (new OneToManyAssociationField('navigationSalesChannels', SalesChannelDefinition::class, 'navigation_category_id'))->addFlags(new ReadProtected(SalesChannelApiSource::class)),
             (new OneToManyAssociationField('footerSalesChannels', SalesChannelDefinition::class, 'footer_category_id'))->addFlags(new ReadProtected(SalesChannelApiSource::class)),
             (new OneToManyAssociationField('serviceSalesChannels', SalesChannelDefinition::class, 'service_category_id'))->addFlags(new ReadProtected(SalesChannelApiSource::class)),
-
             (new OneToManyAssociationField('mainCategories', MainCategoryDefinition::class, 'category_id'))->addFlags(new CascadeDelete()),
             new OneToManyAssociationField('seoUrls', SeoUrlDefinition::class, 'foreign_key'),
         ]);

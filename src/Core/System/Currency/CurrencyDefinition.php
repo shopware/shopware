@@ -48,6 +48,11 @@ class CurrencyDefinition extends EntityDefinition
         return CurrencyEntity::class;
     }
 
+    public function since(): ?string
+    {
+        return '6.0.0.0';
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([

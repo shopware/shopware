@@ -302,6 +302,11 @@ abstract class EntityDefinition
         return $field instanceof OneToManyAssociationField && $field->getReferenceClass() === SeoUrlDefinition::class;
     }
 
+    public function since(): ?string
+    {
+        return null;
+    }
+
     protected function getParentDefinitionClass(): ?string
     {
         return null;

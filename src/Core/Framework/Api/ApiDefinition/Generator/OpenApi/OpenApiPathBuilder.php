@@ -57,6 +57,7 @@ class OpenApiPathBuilder
 
         return new Get([
             'summary' => 'List with basic information of ' . $humanReadableName . ' resources',
+            'description' => $definition->since() ? 'Available since: ' . $definition->since() : '',
             'tags' => [$humanReadableName],
             'parameters' => $this->getDefaultListingParameter(),
             'operationId' => 'get' . $this->convertToOperationId($definition->getEntityName()) . 'List',
@@ -127,6 +128,7 @@ class OpenApiPathBuilder
     {
         return new Get([
             'summary' => 'Detailed information about a ' . $this->convertToHumanReadable($definition->getEntityName()) . ' resource',
+            'description' => $definition->since() ? 'Available since: ' . $definition->since() : '',
             'operationId' => 'get' . $this->convertToOperationId($definition->getEntityName()),
             'tags' => [$this->convertToHumanReadable($definition->getEntityName())],
             'parameters' => [$this->getIdParameter($definition)],
@@ -142,7 +144,7 @@ class OpenApiPathBuilder
     {
         return new Post([
             'summary' => 'Create a new ' . $this->convertToHumanReadable($definition->getEntityName()) . ' resources',
-            'description' => 'Create a new ' . $this->convertToHumanReadable($definition->getEntityName()) . ' resources. All required fields must be provided in order to create a new resource successfully.',
+            'description' => $definition->since() ? 'Available since: ' . $definition->since() : '',
             'tags' => [$this->convertToHumanReadable($definition->getEntityName())],
             'operationId' => 'create' . $this->convertToOperationId($definition->getEntityName()),
             'parameters' => [
@@ -189,6 +191,7 @@ class OpenApiPathBuilder
     {
         return new Patch([
             'summary' => 'Partially update information about a ' . $this->convertToHumanReadable($definition->getEntityName()) . ' resource',
+            'description' => $definition->since() ? 'Available since: ' . $definition->since() : '',
             'operationId' => 'update' . $this->convertToOperationId($definition->getEntityName()),
             'tags' => [$this->convertToHumanReadable($definition->getEntityName())],
             'parameters' => [$this->getIdParameter($definition), $this->getResponseDataParameter()],
@@ -230,6 +233,7 @@ class OpenApiPathBuilder
     {
         return new Delete([
             'operationId' => 'delete' . $this->convertToOperationId($definition->getEntityName()),
+            'description' => $definition->since() ? 'Available since: ' . $definition->since() : '',
             'summary' => 'Delete a ' . $this->convertToHumanReadable($definition->getEntityName()) . ' resource',
             'tags' => [$this->convertToHumanReadable($definition->getEntityName())],
             'parameters' => [$this->getIdParameter($definition), $this->getResponseDataParameter()],

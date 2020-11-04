@@ -21,6 +21,7 @@ use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Rule\Rule;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -44,6 +45,7 @@ class OrderRecalculationController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/order/{orderId}/recalculate", name="api.action.order.recalculate", methods={"POST"})
      *
      * @throws CustomerNotLoggedInException
@@ -65,6 +67,7 @@ class OrderRecalculationController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/order/{orderId}/product/{productId}", name="api.action.order.add-product", methods={"POST"})
      *
      * @throws DeliveryWithoutAddressException
@@ -87,6 +90,7 @@ class OrderRecalculationController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/order/{orderId}/creditItem", name="api.action.order.add-credit-item", methods={"POST"})
      *
      * */
@@ -124,6 +128,7 @@ class OrderRecalculationController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/order/{orderId}/lineItem", name="api.action.order.add-line-item", methods={"POST"})
      *
      * @throws DeliveryWithoutAddressException
@@ -153,6 +158,7 @@ class OrderRecalculationController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/order-address/{orderAddressId}/customer-address/{customerAddressId}", name="api.action.order.replace-order-address", methods={"POST"})
      *
      * @throws OrderRecalculationException

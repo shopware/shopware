@@ -43,9 +43,12 @@ class EventActionDefinition extends EntityDefinition
     {
         $defaults = parent::getDefaults();
 
-        return array_merge($defaults, [
-            'active' => true,
-        ]);
+        return array_merge($defaults, ['active' => true]);
+    }
+
+    public function since(): ?string
+    {
+        return '6.0.0.0';
     }
 
     protected function defineFields(): FieldCollection

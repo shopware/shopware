@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
@@ -79,9 +80,10 @@ class LoginRoute extends AbstractLoginRoute
     }
 
     /**
+     * @Since("6.2.0.0")
      * @OA\Post(
      *      path="/account/login",
-     *      description="Login as customer using password",
+     *      summary="Login as customer using password",
      *      operationId="loginCustomer",
      *      tags={"Store API", "Account"},
      *      @OA\Parameter(

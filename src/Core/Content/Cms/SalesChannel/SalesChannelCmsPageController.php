@@ -7,6 +7,7 @@ use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -38,6 +39,7 @@ class SalesChannelCmsPageController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/sales-channel-api/v{version}/cms-page/{pageId}", name="sales-channel-api.cms.page", methods={"GET"})
      */
     public function getPage(string $pageId, Request $request, SalesChannelContext $context, ResponseFactoryInterface $responseFactory): Response

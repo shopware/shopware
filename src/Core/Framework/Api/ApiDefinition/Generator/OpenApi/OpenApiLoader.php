@@ -35,6 +35,9 @@ class OpenApiLoader
         $pathsToScan = array_unique(iterator_to_array($this->getApiRoutes(), false));
         $openApi = scan($pathsToScan, ['analysis' => new DeactivateValidationAnalysis()]);
 
+        // @see: https://regex101.com/r/XYRxEm/1
+        $sinceRegex = '/\@Since\("(.*)"\)/m';
+
         $allUndefined = true;
         $calculatedPaths = [];
         foreach ($openApi->paths as $pathItem) {
@@ -50,6 +53,12 @@ class OpenApiLoader
                         if ($tag === OpenApiSchemaBuilder::API[$api]['name']) {
                             unset($operation->tags[$tKey]);
                         }
+                    }
+
+                    preg_match($sinceRegex, $operation->_context->comment, $match);
+
+                    if (array_key_exists(1, $match)) {
+                        $operation->description = 'Available since: ' . $match[1];
                     }
 
                     $operation->tags = array_values($operation->tags);

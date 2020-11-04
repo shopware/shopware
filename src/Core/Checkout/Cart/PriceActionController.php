@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\Tax\TaxEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -57,6 +58,7 @@ class PriceActionController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("api/v{version}/_action/calculate-price", name="api.action.calculate-price", methods={"POST"})
      */
     public function calculate(Request $request, Context $context): JsonResponse

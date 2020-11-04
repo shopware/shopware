@@ -35,6 +35,11 @@ class CustomerWishlistDefinition extends EntityDefinition
         return CustomerWishlistCollection::class;
     }
 
+    public function since(): ?string
+    {
+        return '6.3.4.0';
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([

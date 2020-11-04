@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
@@ -80,9 +81,10 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
     }
 
     /**
+     * @Since("6.2.0.0")
      * @OA\Post(
      *      path="/account/recovery-password",
-     *      description="Sends a recovery email for password recovery",
+     *      summary="Sends a recovery email for password recovery",
      *      operationId="sendRecoveryMail",
      *      tags={"Store API", "Account"},
      *      @OA\Parameter(

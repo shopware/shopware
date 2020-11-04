@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Newsletter\SalesChannel;
 
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -43,6 +44,7 @@ class SalesChannelNewsletterController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/sales-channel-api/v{version}/newsletter/subscribe", name="sales-channel-api.newsletter.subscribe", methods={"POST"})
      */
     public function subscribe(Request $request, RequestDataBag $data, SalesChannelContext $context): JsonResponse
@@ -56,6 +58,7 @@ class SalesChannelNewsletterController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/sales-channel-api/v{version}/newsletter/confirm", name="sales-channel-api.newsletter.confirm", methods={"POST"})
      */
     public function confirm(RequestDataBag $requestData, SalesChannelContext $context): JsonResponse
@@ -66,6 +69,7 @@ class SalesChannelNewsletterController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/sales-channel-api/v{version}/newsletter/unsubscribe", name="sales-channel-api.newsletter.unsubscribe", methods={"POST"})
      */
     public function unsubscribe(RequestDataBag $requestData, SalesChannelContext $context): JsonResponse

@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -33,9 +34,10 @@ class CustomerGroupRegistrationSettingsRoute extends AbstractCustomerGroupRegist
     }
 
     /**
+     * @Since("6.3.1.0")
      * @OA\Get(
      *      path="/customer-group-registration/config/{customerGroupId}",
-     *      description="Change email",
+     *      summary="Change email",
      *      operationId="getCustomerGroupRegistrationInfo",
      *      tags={"Store API", "Account"},
      *      @OA\Parameter(

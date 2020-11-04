@@ -5,6 +5,7 @@ namespace Shopware\Core\System\SalesChannel\SalesChannel;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -29,6 +30,7 @@ class SalesChannelContextController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/sales-channel-api/v{version}/context", name="sales-channel-api.context.update", methods={"PATCH"})
      *
      * @throws AddressNotFoundException
@@ -44,6 +46,7 @@ class SalesChannelContextController extends AbstractController
     }
 
     /**
+     * @Since("6.1.0.0")
      * @Route("/sales-channel-api/v{version}/context", name="sales-channel-api.context.get", methods={"GET"})
      */
     public function getContext(SalesChannelContext $context): JsonResponse

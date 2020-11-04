@@ -63,6 +63,11 @@ class OrderDefinition extends EntityDefinition
         return OrderEntity::class;
     }
 
+    public function since(): ?string
+    {
+        return '6.0.0.0';
+    }
+
     protected function defineFields(): FieldCollection
     {
         $fields = new FieldCollection([

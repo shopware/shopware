@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Content\Product\SalesChannel\Search\AbstractProductSearchRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Cache\Annotation\HttpCache;
@@ -46,6 +47,7 @@ class SearchController extends StorefrontController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @HttpCache()
      * @Route("/search", name="frontend.search.page", methods={"GET"})
      */
@@ -69,6 +71,7 @@ class SearchController extends StorefrontController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @HttpCache()
      * @Route("/suggest", name="frontend.search.suggest", methods={"GET"}, defaults={"XmlHttpRequest"=true})
      */
@@ -80,6 +83,7 @@ class SearchController extends StorefrontController
     }
 
     /**
+     * @Since("6.2.0.0")
      * @HttpCache()
      *
      * Route to load the listing filters
@@ -99,6 +103,7 @@ class SearchController extends StorefrontController
     }
 
     /**
+     * @Since("6.3.3.0")
      * @HttpCache()
      *
      * Route to load the available listing filters

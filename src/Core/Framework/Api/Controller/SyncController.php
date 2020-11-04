@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Api\Sync\SyncResult;
 use Shopware\Core\Framework\Api\Sync\SyncServiceInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -40,6 +41,7 @@ class SyncController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * Starts a sync process for the list of provided actions.
      * This can be inserts, upserts, updates and deletes on different entities.
      * To continue upcoming actions on errors, please provide a "fail-on-error" header with value FALSE.

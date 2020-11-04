@@ -95,9 +95,9 @@ Just like the MessageQueueConsumer you should use the limit option to periodical
 To automatically start the processes again after they stopped because of exceeding the given limits you can use something like [upstart](http://upstart.ubuntu.com/getting-started.html) or [supervisor](http://supervisord.org/running.html).
 Alternatively you can configure a `CronJob` that runs the command again shortly after the time limit is exceeded.
 
-If you have configured the cli-worker, you can turn off the admin worker in your `shopware.yaml`.
+If you have configured the cli-worker, you can turn off the admin worker in your `shopware.yml`.
 ```yaml
-# config/packages/shopware.yaml
+# config/packages/shopware.yml
 shopware:
     admin_worker:
         enable_admin_worker: false

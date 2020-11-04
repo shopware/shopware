@@ -7556,11 +7556,6 @@ parameters:
 			path: src/Storefront/Theme/Twig/ThemeInheritanceBuilder.php
 
 		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Storefront/Theme/Twig/ThemeInheritanceBuilder.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\LogoutRoute\\:\\:logout\\(\\) has no return typehint specified\\.$#"
 			count: 1
 			path: src/Core/Checkout/Customer/SalesChannel/LogoutRoute.php

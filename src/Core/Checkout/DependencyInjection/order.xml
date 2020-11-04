@@ -90,8 +90,6 @@
 
         <service id="Shopware\Core\Checkout\Order\SalesChannel\OrderRoute" public="true">
             <argument type="service" id="order.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
-            <argument type="service" id="Shopware\Core\Checkout\Order\OrderDefinition"/>
             <argument type="service" id="promotion.repository"/>
         </service>
 

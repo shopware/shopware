@@ -49,17 +49,17 @@ class ApiVersionSubscriberTest extends TestCase
     {
         return [
             [[1, 2], '/api/v1/product', false],
-            [[1, 2], '/sales-channel-api/v1/product', false],
+            [[1, 2], '/store-api/v1/product', false],
 
             [[1, 2], '/api/oauth/token', false],
             [[1, 2], '/admin', false],
             [[1, 2], '/', false],
 
             [[1, 2], '/api/v0/product', true],
-            [[1, 2], '/sales-channel-api/v0/product', true],
+            [[1, 2], '/store-api/v0/product', true],
 
             [[1, 2], '/api/v3/product', true],
-            [[1, 2], '/sales-channel-api/v3/product', true],
+            [[1, 2], '/store-api/v3/product', true],
         ];
     }
 }

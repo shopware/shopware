@@ -79,7 +79,7 @@ class CheckoutConfirmPageLoader
         $request = new Request();
         $request->query->set('onlyAvailable', true);
 
-        return $this->paymentMethodRoute->load($request, $context)->getPaymentMethods();
+        return $this->paymentMethodRoute->load($request, $context, new Criteria())->getPaymentMethods();
     }
 
     private function getShippingMethods(SalesChannelContext $context): ShippingMethodCollection

@@ -7,7 +7,6 @@ use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -26,24 +25,10 @@ class PaymentMethodRoute extends AbstractPaymentMethodRoute
      */
     private $paymentMethodsRepository;
 
-    /**
-     * @var RequestCriteriaBuilder
-     */
-    private $criteriaBuilder;
-
-    /**
-     * @var SalesChannelPaymentMethodDefinition
-     */
-    private $paymentMethodDefinition;
-
     public function __construct(
-        SalesChannelRepositoryInterface $paymentMethodsRepository,
-        RequestCriteriaBuilder $criteriaBuilder,
-        SalesChannelPaymentMethodDefinition $paymentMethodDefinition
+        SalesChannelRepositoryInterface $paymentMethodsRepository
     ) {
         $this->paymentMethodsRepository = $paymentMethodsRepository;
-        $this->criteriaBuilder = $criteriaBuilder;
-        $this->paymentMethodDefinition = $paymentMethodDefinition;
     }
 
     public function getDecorated(): AbstractPaymentMethodRoute
@@ -90,12 +75,8 @@ class PaymentMethodRoute extends AbstractPaymentMethodRoute
      * )
      * @Route("/store-api/v{version}/payment-method", name="store-api.payment.method", methods={"GET", "POST"})
      */
-    public function load(Request $request, SalesChannelContext $context, ?Criteria $criteria = null): PaymentMethodRouteResponse
+    public function load(Request $request, SalesChannelContext $context, Criteria $criteria): PaymentMethodRouteResponse
     {
-        // @deprecated tag:v6.4.0 - Criteria will be required
-        if (!$criteria) {
-            $criteria = $this->criteriaBuilder->handleRequest($request, new Criteria(), $this->paymentMethodDefinition, $context->getContext());
-        }
         $criteria
             ->addFilter(new EqualsFilter('active', true))
             ->addAssociation('media');

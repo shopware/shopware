@@ -88,20 +88,6 @@
             <tag name="shopware.feature" flag="FEATURE_NEXT_10058"/>
         </service>
 
-        <service id="Shopware\Core\System\SalesChannel\SalesChannel\SalesChannelContextController" public="true">
-            <argument type="service" id="Shopware\Core\System\SalesChannel\SalesChannel\SalesChannelContextSwitcher"/>
-            <call method="setContainer">
-                <argument type="service" id="service_container"/>
-            </call>
-        </service>
-
-        <service id="Shopware\Core\System\SalesChannel\SalesChannel\SalesChannelApiSchemaController" public="true">
-            <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\DefinitionService"/>
-            <call method="setContainer">
-                <argument type="service" id="service_container"/>
-            </call>
-        </service>
-
         <service id="Shopware\Core\System\SalesChannel\SalesChannel\StoreApiInfoController" public="true">
             <argument type="service" id="Shopware\Core\Framework\Api\ApiDefinition\DefinitionService"/>
             <argument type="service" id="twig"/>

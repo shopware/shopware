@@ -133,7 +133,7 @@ class CategoryDefinition extends EntityDefinition
             new FkField('product_stream_id', 'productStreamId', ProductStreamDefinition::class),
             new ManyToOneAssociationField('productStream', 'product_stream_id', ProductStreamDefinition::class, 'id', false),
 
-            // Reverse Associations not available in sales-channel-api
+            // Reverse Associations not available in store-api
             (new OneToManyAssociationField('navigationSalesChannels', SalesChannelDefinition::class, 'navigation_category_id'))->addFlags(new ReadProtected(SalesChannelApiSource::class)),
             (new OneToManyAssociationField('footerSalesChannels', SalesChannelDefinition::class, 'footer_category_id'))->addFlags(new ReadProtected(SalesChannelApiSource::class)),
             (new OneToManyAssociationField('serviceSalesChannels', SalesChannelDefinition::class, 'service_category_id'))->addFlags(new ReadProtected(SalesChannelApiSource::class)),

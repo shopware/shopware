@@ -3,9 +3,7 @@
 namespace Shopware\Core\Content\Seo\SalesChannel;
 
 use OpenApi\Annotations as OA;
-use Shopware\Core\Content\Seo\SeoUrl\SalesChannel\SalesChannelSeoUrlDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -24,15 +22,9 @@ class SeoUrlRoute extends AbstractSeoUrlRoute
      */
     private $salesChannelRepository;
 
-    /**
-     * @var RequestCriteriaBuilder
-     */
-    private $requestCriteriaBuilder;
-
-    public function __construct(SalesChannelRepositoryInterface $salesChannelRepository, RequestCriteriaBuilder $requestCriteriaBuilder)
+    public function __construct(SalesChannelRepositoryInterface $salesChannelRepository)
     {
         $this->salesChannelRepository = $salesChannelRepository;
-        $this->requestCriteriaBuilder = $requestCriteriaBuilder;
     }
 
     public function getDecorated(): AbstractSeoUrlRoute
@@ -77,13 +69,8 @@ class SeoUrlRoute extends AbstractSeoUrlRoute
      *
      * @Route("/store-api/v{version}/seo-url", name="store-api.seo.url", methods={"GET", "POST"})
      */
-    public function load(Request $request, SalesChannelContext $context, ?Criteria $criteria = null): SeoUrlRouteResponse
+    public function load(Request $request, SalesChannelContext $context, Criteria $criteria): SeoUrlRouteResponse
     {
-        // @deprecated tag:v6.4.0 - Criteria will be required
-        if (!$criteria) {
-            $criteria = $this->requestCriteriaBuilder->handleRequest($request, new Criteria(), new SalesChannelSeoUrlDefinition(), $context->getContext());
-        }
-
         return new SeoUrlRouteResponse($this->salesChannelRepository->search($criteria, $context));
     }
 }

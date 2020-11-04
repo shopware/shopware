@@ -242,17 +242,6 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Shopware\Core\Content\Product\SalesChannel\CrossSelling\SalesChannelCrossSellingController" public="true">
-            <argument type="service" id="sales_channel.product.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter"/>
-            <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
-            <argument type="service" id="Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition"/>
-            <argument type="service" id="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder"/>
-            <call method="setContainer">
-                <argument type="service" id="service_container"/>
-            </call>
-        </service>
-
         <service id="Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute" public="true">
             <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface"/>
             <argument type="service" id="event_dispatcher"/>
@@ -265,15 +254,11 @@
             <argument type="service" id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader"/>
-            <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute" public="true">
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader" />
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
             <argument type="service" id="category.repository"/>
             <argument type="service" id="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder"/>
         </service>

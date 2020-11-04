@@ -105,9 +105,9 @@ class AddressListingPageLoader
     /**
      * @throws InconsistentCriteriaIdsException
      */
-    private function getSalutations(SalesChannelContext $salesChannelContext): SalutationCollection
+    private function getSalutations(SalesChannelContext $context): SalutationCollection
     {
-        $salutations = $this->salutationRoute->load(new Request(), $salesChannelContext)->getSalutations();
+        $salutations = $this->salutationRoute->load(new Request(), $context, new Criteria())->getSalutations();
 
         $salutations->sort(function (SalutationEntity $a, SalutationEntity $b) {
             return $b->getSalutationKey() <=> $a->getSalutationKey();

@@ -26,6 +26,10 @@ class ResponseHeaderListener implements EventSubscriberInterface
     {
         $headersBag = $event->getResponse()->headers;
         foreach (self::HEADERS as $header) {
+            if ($headersBag->has($header) || !$event->getRequest()->headers->has($header)) {
+                continue;
+            }
+
             $headersBag->set(
                 $header,
                 $event->getRequest()->headers->get($header),

@@ -408,10 +408,6 @@ base-uri 'self';
             <tag name="shopware.route_scope"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Routing\SalesChannelApiRouteScope">
-            <tag name="shopware.route_scope"/>
-        </service>
-
         <service id="Shopware\Core\Framework\Routing\StoreApiRouteScope">
             <tag name="shopware.route_scope"/>
         </service>

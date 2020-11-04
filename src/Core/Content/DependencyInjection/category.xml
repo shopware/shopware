@@ -31,8 +31,6 @@
         <service id="Shopware\Core\Content\Category\SalesChannel\NavigationRoute" public="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="sales_channel.category.repository"/>
-            <argument type="service" id="Shopware\Core\Content\Category\SalesChannel\SalesChannelCategoryDefinition"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
         </service>
 
         <service id="Shopware\Core\Content\Category\SalesChannel\CategoryRoute" public="true">

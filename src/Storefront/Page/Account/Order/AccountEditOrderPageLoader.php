@@ -159,7 +159,8 @@ class AccountEditOrderPageLoader
 
         return $this->paymentMethodRoute->load(
             $event->getStoreApiRequest(),
-            $context
+            $context,
+            new Criteria()
         )->getPaymentMethods();
     }
 

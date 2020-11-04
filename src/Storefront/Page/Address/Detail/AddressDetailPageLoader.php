@@ -93,7 +93,7 @@ class AddressDetailPageLoader
      */
     private function getSalutations(SalesChannelContext $salesChannelContext): SalutationCollection
     {
-        $salutations = $this->salutationRoute->load(new Request(), $salesChannelContext)->getSalutations();
+        $salutations = $this->salutationRoute->load(new Request(), $salesChannelContext, new Criteria())->getSalutations();
 
         $salutations->sort(function (SalutationEntity $a, SalutationEntity $b) {
             return $b->getSalutationKey() <=> $a->getSalutationKey();

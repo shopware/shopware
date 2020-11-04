@@ -22,7 +22,7 @@
             "dev-master": "6.3.x-dev"
         }
     },
-    "version": "6.3.3.0",
+    "version": "6.3.3.1",
     "require": {
         "cocur/slugify": "4.0.0",
         "doctrine/dbal": "2.10.1",

@@ -69,7 +69,7 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
     }
 
     /**
-     * @Since("6.2.0")
+     * @Since("6.2.0.0")
      * @OA\Post(
      *      path="/account/register-confirm",
      *      summary="Confirm double optin registration",

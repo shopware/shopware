@@ -125,7 +125,7 @@ class SalesChannelProxyController extends AbstractController
     }
 
     /**
-     * @Since("6.2.0")
+     * @Since("6.2.0.0")
      * @Route("/api/v{version}/_proxy/sales-channel-api/{salesChannelId}/{_path}", name="api.proxy.sales-channel", requirements={"_path" = ".*"})
      * @Route("/api/v{version}/_proxy/store-api/{salesChannelId}/{_path}", name="api.proxy.store-api", requirements={"_path" = ".*"})
      *
@@ -144,7 +144,7 @@ class SalesChannelProxyController extends AbstractController
     }
 
     /**
-     * @Since("6.2.0")
+     * @Since("6.2.0.0")
      * @Route("/api/v{version}/_proxy/switch-customer", name="api.proxy.switch-customer", methods={"PATCH"})
      *
      * @throws InconsistentCriteriaIdsException
@@ -180,7 +180,7 @@ class SalesChannelProxyController extends AbstractController
     }
 
     /**
-     * @Since("6.2.0")
+     * @Since("6.2.0.0")
      * @Route("/api/v{version}/_proxy/modify-shipping-costs", name="api.proxy.modify-shipping-costs", methods={"PATCH"})
      *
      * @throws InconsistentCriteriaIdsException
@@ -207,7 +207,7 @@ class SalesChannelProxyController extends AbstractController
     }
 
     /**
-     * @Since("6.2.0")
+     * @Since("6.2.0.0")
      * @Route("/api/v{version}/_proxy/disable-automatic-promotions", name="api.proxy.disable-automatic-promotions", methods={"PATCH"})
      */
     public function disableAutomaticPromotions(Request $request): JsonResponse
@@ -226,7 +226,7 @@ class SalesChannelProxyController extends AbstractController
     }
 
     /**
-     * @Since("6.2.0")
+     * @Since("6.2.0.0")
      * @Route("/api/v{version}/_proxy/enable-automatic-promotions", name="api.proxy.enable-automatic-promotions", methods={"PATCH"})
      */
     public function enableAutomaticPromotions(Request $request): JsonResponse

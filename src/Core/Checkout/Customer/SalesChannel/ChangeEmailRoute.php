@@ -66,7 +66,7 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
     }
 
     /**
-     * @Since("6.2.0")
+     * @Since("6.2.0.0")
      * @OA\Post(
      *      path="/account/change-email",
      *      summary="Change email",

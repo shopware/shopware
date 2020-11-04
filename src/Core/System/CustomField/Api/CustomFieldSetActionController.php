@@ -27,7 +27,7 @@ class CustomFieldSetActionController extends AbstractController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/attribute-set/relations", name="api.action.attribute-set.get-relations", methods={"GET"})
      */
     public function getAvailableRelations(): JsonResponse

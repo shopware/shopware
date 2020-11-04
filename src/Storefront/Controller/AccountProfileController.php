@@ -73,7 +73,7 @@ class AccountProfileController extends StorefrontController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/account", name="frontend.account.home.page", methods={"GET"})
      *
      * @throws CustomerNotLoggedInException
@@ -91,7 +91,7 @@ class AccountProfileController extends StorefrontController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/account/profile", name="frontend.account.profile.page", methods={"GET"})
      *
      * @throws CustomerNotLoggedInException
@@ -113,7 +113,7 @@ class AccountProfileController extends StorefrontController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/account/profile", name="frontend.account.profile.save", methods={"POST"})
      *
      * @throws CustomerNotLoggedInException
@@ -136,7 +136,7 @@ class AccountProfileController extends StorefrontController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/account/profile/email", name="frontend.account.profile.email.save", methods={"POST"})
      *
      * @throws CustomerNotLoggedInException
@@ -161,7 +161,7 @@ class AccountProfileController extends StorefrontController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/account/profile/password", name="frontend.account.profile.password.save", methods={"POST"})
      *
      * @throws CustomerNotLoggedInException

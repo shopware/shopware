@@ -90,7 +90,7 @@ class CheckoutController extends StorefrontController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/checkout/cart", name="frontend.checkout.cart.page", options={"seo"="false"}, methods={"GET"})
      */
     public function cartPage(Request $request, SalesChannelContext $context): Response
@@ -101,7 +101,7 @@ class CheckoutController extends StorefrontController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/checkout/confirm", name="frontend.checkout.confirm.page", options={"seo"="false"}, methods={"GET"}, defaults={"XmlHttpRequest"=true})
      */
     public function confirmPage(Request $request, SalesChannelContext $context): Response
@@ -120,7 +120,7 @@ class CheckoutController extends StorefrontController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/checkout/finish", name="frontend.checkout.finish.page", options={"seo"="false"}, methods={"GET"})
      *
      * @throws CustomerNotLoggedInException
@@ -152,7 +152,7 @@ class CheckoutController extends StorefrontController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/checkout/order", name="frontend.checkout.finish.order", options={"seo"="false"}, methods={"POST"})
      */
     public function order(RequestDataBag $data, SalesChannelContext $context, Request $request): Response
@@ -185,7 +185,7 @@ class CheckoutController extends StorefrontController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/widgets/checkout/info", name="frontend.checkout.info", methods={"GET"}, defaults={"XmlHttpRequest"=true})
      *
      * @throws CartTokenNotFoundException
@@ -198,7 +198,7 @@ class CheckoutController extends StorefrontController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/checkout/offcanvas", name="frontend.cart.offcanvas", options={"seo"="false"}, methods={"GET"}, defaults={"XmlHttpRequest"=true})
      *
      * @throws CartTokenNotFoundException

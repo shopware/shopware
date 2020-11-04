@@ -51,7 +51,7 @@ class PromotionActionController extends AbstractController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/promotion/{promotionId}/codes/individual", name="api.action.promotion.codes", methods={"GET"})
      *
      * @throws \Shopware\Core\Framework\Uuid\Exception\InvalidUuidException
@@ -62,7 +62,7 @@ class PromotionActionController extends AbstractController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/promotion/{promotionId}/codes/individual", name="api.action.promotion.codes.remove", methods={"DELETE"})
      *
      * @throws \Shopware\Core\Framework\Uuid\Exception\InvalidUuidException
@@ -75,7 +75,7 @@ class PromotionActionController extends AbstractController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/promotion/setgroup/packager", name="api.action.promotion.setgroup.packager", methods={"GET"})
      *
      * @throws \Shopware\Core\Framework\Uuid\Exception\InvalidUuidException
@@ -93,7 +93,7 @@ class PromotionActionController extends AbstractController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/promotion/setgroup/sorter", name="api.action.promotion.setgroup.sorter", methods={"GET"})
      *
      * @throws \Shopware\Core\Framework\Uuid\Exception\InvalidUuidException

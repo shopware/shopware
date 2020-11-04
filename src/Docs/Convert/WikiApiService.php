@@ -6,7 +6,7 @@ use GuzzleHttp\Client;
 
 class WikiApiService
 {
-    private const INITIAL_VERSION = '6.0.0';
+    private const INITIAL_VERSION = '6.0.0.0';
     private const DOC_VERSION = '1.0.0';
 
     /**

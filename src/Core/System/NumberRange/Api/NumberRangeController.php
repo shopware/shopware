@@ -29,7 +29,7 @@ class NumberRangeController extends AbstractController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/number-range/reserve/{type}/{saleschannel?}", name="api.action.number-range.reserve", methods={"GET"})
      * @Cache(mustRevalidate=true)
      */
@@ -43,7 +43,7 @@ class NumberRangeController extends AbstractController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/number-range/preview-pattern/{type}", defaults={"type"="default"}, name="api.action.number-range.preview-pattern", methods={"GET"})
      * @Cache(mustRevalidate=true)
      */

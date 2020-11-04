@@ -81,7 +81,7 @@ class ProductListingRoute extends AbstractProductListingRoute
     }
 
     /**
-     * @Since("6.2.0")
+     * @Since("6.2.0.0")
      * @Entity("product")
      * @OA\Post(
      *      path="/product-listing/{categoryId}",

@@ -68,7 +68,7 @@ class OrderRoute extends AbstractOrderRoute
     }
 
     /**
-     * @Since("6.2.0")
+     * @Since("6.2.0.0")
      * @Entity("order")
      * @OA\Post(
      *      path="/order",

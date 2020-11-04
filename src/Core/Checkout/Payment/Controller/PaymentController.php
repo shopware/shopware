@@ -32,7 +32,7 @@ class PaymentController extends AbstractController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @RouteScope(scopes={"storefront"})
      * @Route("/payment/finalize-transaction", defaults={"auth_required"=false}, name="payment.finalize.transaction", methods={"GET", "POST"})
      *

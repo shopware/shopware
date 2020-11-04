@@ -44,7 +44,7 @@ class OrderActionController extends AbstractController
     }
 
     /**
-     * @Since("6.1.0")
+     * @Since("6.1.0.0")
      * @Route("/api/v{version}/_action/order/{orderId}/state/{transition}", name="api.action.order.state_machine.order.transition_state", methods={"POST"})
      *
      * @throws OrderNotFoundException
@@ -82,7 +82,7 @@ class OrderActionController extends AbstractController
     }
 
     /**
-     * @Since("6.1.0")
+     * @Since("6.1.0.0")
      * @Route("/api/v{version}/_action/order_transaction/{orderTransactionId}/state/{transition}", name="api.action.order.state_machine.order_transaction.transition_state", methods={"POST"})
      *
      * @throws OrderNotFoundException
@@ -120,7 +120,7 @@ class OrderActionController extends AbstractController
     }
 
     /**
-     * @Since("6.1.0")
+     * @Since("6.1.0.0")
      * @Route("/api/v{version}/_action/order_delivery/{orderDeliveryId}/state/{transition}", name="api.action.order.state_machine.order_delivery.transition_state", methods={"POST"})
      *
      * @throws OrderNotFoundException

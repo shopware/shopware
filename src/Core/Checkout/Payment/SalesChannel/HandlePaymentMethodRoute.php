@@ -45,7 +45,7 @@ class HandlePaymentMethodRoute extends AbstractHandlePaymentMethodRoute
     }
 
     /**
-     * @Since("6.2.0")
+     * @Since("6.2.0.0")
      * @OA\Get(
      *      path="/handle-payment",
      *      summary="Handles a payment for an order",

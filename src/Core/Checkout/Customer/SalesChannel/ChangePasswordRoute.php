@@ -75,7 +75,7 @@ class ChangePasswordRoute extends AbstractChangePasswordRoute
     }
 
     /**
-     * @Since("6.2.0")
+     * @Since("6.2.0.0")
      * @OA\Post(
      *      path="/account/change-password",
      *      summary="Change password",

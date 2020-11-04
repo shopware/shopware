@@ -27,7 +27,7 @@ class SetNullOnDeleteParentDefinition extends EntityDefinition
 
     public function since(): ?string
     {
-        return '6.0.0';
+        return '6.0.0.0';
     }
 
     protected function defineFields(): FieldCollection
@@ -57,7 +57,7 @@ class SetNullOnDeleteChildDefinition extends EntityDefinition
 
     public function since(): ?string
     {
-        return '6.0.0';
+        return '6.0.0.0';
     }
 
     protected function defineFields(): FieldCollection
@@ -85,7 +85,7 @@ class SetNullOnDeleteManyToOneDefinition extends EntityDefinition
 
     public function since(): ?string
     {
-        return '6.0.0';
+        return '6.0.0.0';
     }
 
     protected function defineFields(): FieldCollection

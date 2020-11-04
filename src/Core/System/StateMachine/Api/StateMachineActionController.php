@@ -49,7 +49,7 @@ class StateMachineActionController extends AbstractController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/state-machine/{entityName}/{entityId}/state", name="api.state_machine.states", methods={"GET"})
      *
      * @throws InconsistentCriteriaIdsException
@@ -95,7 +95,7 @@ class StateMachineActionController extends AbstractController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/state-machine/{entityName}/{entityId}/state/{transition}", name="api.state_machine.transition_state", methods={"POST"})
      *
      * @throws IllegalTransitionException

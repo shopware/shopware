@@ -60,7 +60,7 @@ class NewsletterConfirmRoute extends AbstractNewsletterConfirmRoute
     }
 
     /**
-     * @Since("6.2.0")
+     * @Since("6.2.0.0")
      * @OA\Post(
      *      path="/newsletter/confirm",
      *      summary="Confirm newsletter registration",

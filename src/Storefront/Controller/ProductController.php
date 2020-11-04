@@ -95,7 +95,7 @@ class ProductController extends StorefrontController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @HttpCache()
      * @Route("/detail/{productId}/switch", name="frontend.detail.switch", methods={"GET"}, defaults={"XmlHttpRequest": true})
      */
@@ -123,7 +123,7 @@ class ProductController extends StorefrontController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/quickview/{productId}", name="widgets.quickview.minimal", methods={"GET"}, defaults={"XmlHttpRequest": true})
      */
     public function quickviewMinimal(Request $request, SalesChannelContext $context): Response
@@ -134,7 +134,7 @@ class ProductController extends StorefrontController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/product/{productId}/rating", name="frontend.detail.review.save", methods={"POST"}, defaults={"XmlHttpRequest"=true})
      */
     public function saveReview(string $productId, RequestDataBag $data, SalesChannelContext $context): Response
@@ -169,7 +169,7 @@ class ProductController extends StorefrontController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/product/{productId}/reviews", name="frontend.product.reviews", methods={"GET","POST"}, defaults={"XmlHttpRequest"=true})
      */
     public function loadReviews(Request $request, RequestDataBag $data, SalesChannelContext $context): Response

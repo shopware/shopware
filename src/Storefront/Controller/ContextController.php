@@ -67,7 +67,7 @@ class ContextController extends StorefrontController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/checkout/configure", name="frontend.checkout.configure", methods={"POST"}, options={"seo"="false"}, defaults={"XmlHttpRequest": true})
      */
     public function configure(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
@@ -78,7 +78,7 @@ class ContextController extends StorefrontController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/checkout/language", name="frontend.checkout.switch-language", methods={"POST"})
      */
     public function switchLanguage(Request $request, SalesChannelContext $context): RedirectResponse

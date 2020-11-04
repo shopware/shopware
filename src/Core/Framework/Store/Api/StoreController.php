@@ -84,7 +84,7 @@ class StoreController extends AbstractStoreController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/store/ping", name="api.custom.store.ping", methods={"GET"})
      */
     public function pingStoreAPI(): Response
@@ -99,7 +99,7 @@ class StoreController extends AbstractStoreController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/store/login", name="api.custom.store.login", methods={"POST"})
      */
     public function login(RequestDataBag $requestDataBag, QueryDataBag $queryDataBag, Context $context): JsonResponse
@@ -132,7 +132,7 @@ class StoreController extends AbstractStoreController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/store/checklogin", name="api.custom.store.checklogin", methods={"POST"})
      */
     public function checkLogin(Context $context): Response
@@ -151,7 +151,7 @@ class StoreController extends AbstractStoreController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/store/logout", name="api.custom.store.logout", methods={"POST"})
      */
     public function logout(Context $context): Response
@@ -166,7 +166,7 @@ class StoreController extends AbstractStoreController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/store/licenses", name="api.custom.store.licenses", methods={"GET"})
      */
     public function getLicenseList(QueryDataBag $queryDataBag, Context $context): JsonResponse
@@ -187,7 +187,7 @@ class StoreController extends AbstractStoreController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/store/updates", name="api.custom.store.updates", methods={"GET"})
      */
     public function getUpdateList(Request $request, Context $context): JsonResponse
@@ -216,7 +216,7 @@ class StoreController extends AbstractStoreController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/store/download", name="api.custom.store.download", methods={"GET"})
      */
     public function downloadPlugin(QueryDataBag $queryDataBag, Context $context): JsonResponse
@@ -262,7 +262,7 @@ class StoreController extends AbstractStoreController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/store/license-violations", name="api.custom.store.license-violations", methods={"POST"})
      */
     public function getLicenseViolations(Request $request, Context $context): JsonResponse
@@ -291,7 +291,7 @@ class StoreController extends AbstractStoreController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/store/plugin/search", name="api.action.store.plugin.search", methods={"POST"})
      */
     public function searchPlugins(Request $request, Context $context): Response

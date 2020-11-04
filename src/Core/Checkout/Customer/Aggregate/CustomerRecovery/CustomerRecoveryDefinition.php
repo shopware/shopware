@@ -36,7 +36,7 @@ class CustomerRecoveryDefinition extends EntityDefinition
 
     public function since(): ?string
     {
-        return '6.1.0';
+        return '6.1.0.0';
     }
 
     protected function getParentDefinitionClass(): ?string

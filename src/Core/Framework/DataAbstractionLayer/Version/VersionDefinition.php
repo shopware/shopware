@@ -46,7 +46,7 @@ class VersionDefinition extends EntityDefinition
 
     public function since(): ?string
     {
-        return '6.0.0';
+        return '6.0.0.0';
     }
 
     protected function defineFields(): FieldCollection

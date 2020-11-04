@@ -41,7 +41,7 @@ class CsrfController extends StorefrontController
     }
 
     /**
-     * @Since("6.1.0")
+     * @Since("6.1.0.0")
      * @Route("/csrf/generate", name="frontend.csrf.generateToken", defaults={"csrf_protected"=false, "XmlHttpRequest"=true}, methods={"POST"})
      */
     public function generateCsrf(Request $request): JsonResponse
@@ -62,7 +62,7 @@ class CsrfController extends StorefrontController
     }
 
     /**
-     * @Since("6.2.0")
+     * @Since("6.2.0.0")
      *
      * @deprecated tag:v6.4.0 will be removed without replacement
      * @Route("/api-access", name="frontend.api-access", defaults={"csrf_protected"=false, "XmlHttpRequest"=true}, methods={"GET"})

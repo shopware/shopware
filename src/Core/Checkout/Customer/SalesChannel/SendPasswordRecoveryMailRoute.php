@@ -81,7 +81,7 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
     }
 
     /**
-     * @Since("6.2.0")
+     * @Since("6.2.0.0")
      * @OA\Post(
      *      path="/account/recovery-password",
      *      summary="Sends a recovery email for password recovery",

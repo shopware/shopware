@@ -28,7 +28,7 @@ class SalesChannelApiSchemaController extends AbstractController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/sales-channel-api/v{version}/_info/openapi3.json", defaults={"auth_required"="%shopware.api.api_browser.auth_required_str%"}, name="sales-channel-api.info.openapi3", methods={"GET"})
      *
      * @throws \Exception
@@ -41,7 +41,7 @@ class SalesChannelApiSchemaController extends AbstractController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/sales-channel-api/v{version}/_info/open-api-schema.json", defaults={"auth_required"="%shopware.api.api_browser.auth_required_str%"}, name="sales-channel-api.info.open-api-schema", methods={"GET"})
      */
     public function openApiSchema(int $version): JsonResponse
@@ -52,7 +52,7 @@ class SalesChannelApiSchemaController extends AbstractController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/sales-channel-api/v{version}/_info/swagger.html", defaults={"auth_required"="%shopware.api.api_browser.auth_required_str%"}, name="sales-channel-api.info.swagger", methods={"GET"})
      */
     public function infoHtml(int $version): Response

@@ -50,7 +50,7 @@ class CmsController extends StorefrontController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * Route for cms data (used in XmlHttpRequest)
      *
      * @HttpCache()
@@ -72,7 +72,7 @@ class CmsController extends StorefrontController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * Route to load a cms page which assigned to the provided navigation id.
      * Navigation id is required to load the slot config for the navigation
      *
@@ -99,7 +99,7 @@ class CmsController extends StorefrontController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @HttpCache()
      *
      * Route to load the listing filters

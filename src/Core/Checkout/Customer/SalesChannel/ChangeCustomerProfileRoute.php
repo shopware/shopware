@@ -69,7 +69,7 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
     }
 
     /**
-     * @Since("6.2.0")
+     * @Since("6.2.0.0")
      * @OA\Post(
      *      path="/account/change-profile",
      *      summary="Change profile information",

@@ -56,7 +56,7 @@ class MediaUploadController extends AbstractController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/media/{mediaId}/upload", name="api.action.media.upload", methods={"POST"})
      */
     public function upload(Request $request, string $mediaId, Context $context, ResponseFactoryInterface $responseFactory): Response
@@ -81,7 +81,7 @@ class MediaUploadController extends AbstractController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/media/{mediaId}/rename", name="api.action.media.rename", methods={"POST"})
      */
     public function renameMediaFile(Request $request, string $mediaId, Context $context, ResponseFactoryInterface $responseFactory): Response
@@ -97,7 +97,7 @@ class MediaUploadController extends AbstractController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/media/provide-name", name="api.action.media.provide-name", methods={"GET"})
      */
     public function provideName(Request $request, Context $context): JsonResponse

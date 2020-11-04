@@ -69,7 +69,7 @@ class ConsumeMessagesController extends AbstractController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/message-queue/consume", name="api.action.message-queue.consume", methods={"POST"})
      */
     public function consumeMessages(Request $request): JsonResponse

@@ -90,7 +90,7 @@ class AccountOrderController extends StorefrontController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/account/order", name="frontend.account.order.page", options={"seo"="false"}, methods={"GET"})
      *
      * @throws CustomerNotLoggedInException
@@ -105,7 +105,7 @@ class AccountOrderController extends StorefrontController
     }
 
     /**
-     * @Since("6.2.0")
+     * @Since("6.2.0.0")
      * @Route("/account/order/{deepLinkCode}", name="frontend.account.order.single.page", options={"seo"="false"}, methods={"GET"})
      *
      * @throws CustomerNotLoggedInException
@@ -118,7 +118,7 @@ class AccountOrderController extends StorefrontController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/widgets/account/order/detail/{id}", name="widgets.account.order.detail", options={"seo"="false"}, methods={"GET"}, defaults={"XmlHttpRequest"=true})
      */
     public function ajaxOrderDetail(Request $request, SalesChannelContext $context): Response
@@ -134,7 +134,7 @@ class AccountOrderController extends StorefrontController
     }
 
     /**
-     * @Since("6.2.0")
+     * @Since("6.2.0.0")
      * @Route("/account/order/cancel", name="frontend.account.order.cancel", methods={"POST"})
      */
     public function cancelOrder(Request $request, SalesChannelContext $context): Response
@@ -161,7 +161,7 @@ class AccountOrderController extends StorefrontController
     }
 
     /**
-     * @Since("6.2.0")
+     * @Since("6.2.0.0")
      * @Route("/account/order/edit/{orderId}", name="frontend.account.edit-order.page", methods={"GET"})
      */
     public function editOrder(string $orderId, Request $request, SalesChannelContext $context): Response
@@ -180,7 +180,7 @@ class AccountOrderController extends StorefrontController
     }
 
     /**
-     * @Since("6.2.0")
+     * @Since("6.2.0.0")
      * @Route("/account/order/payment/{orderId}", name="frontend.account.edit-order.change-payment-method", methods={"POST"})
      */
     public function orderChangePayment(string $orderId, Request $request, SalesChannelContext $context): Response
@@ -198,7 +198,7 @@ class AccountOrderController extends StorefrontController
     }
 
     /**
-     * @Since("6.2.0")
+     * @Since("6.2.0.0")
      * @Route("/account/order/update/{orderId}", name="frontend.account.edit-order.update-order", methods={"POST"})
      */
     public function updateOrder(string $orderId, Request $request, SalesChannelContext $context): Response

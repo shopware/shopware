@@ -41,7 +41,7 @@ class SyncController extends AbstractController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * Starts a sync process for the list of provided actions.
      * This can be inserts, upserts, updates and deletes on different entities.
      * To continue upcoming actions on errors, please provide a "fail-on-error" header with value FALSE.

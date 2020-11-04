@@ -61,7 +61,7 @@ class ProductExportController extends StorefrontController
     }
 
     /**
-     * @Since("6.1.0")
+     * @Since("6.1.0.0")
      * @Route("/export/{accessKey}/{fileName}", name="frontend.export", methods={"GET"})
      */
     public function index(SalesChannelContext $context, Request $request): Response

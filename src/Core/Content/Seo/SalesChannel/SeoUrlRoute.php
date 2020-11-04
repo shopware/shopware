@@ -43,7 +43,7 @@ class SeoUrlRoute extends AbstractSeoUrlRoute
     }
 
     /**
-     * @Since("6.2.0")
+     * @Since("6.2.0.0")
      * @Entity("seo_url")
      * @OA\Post(
      *      path="/seo-url",

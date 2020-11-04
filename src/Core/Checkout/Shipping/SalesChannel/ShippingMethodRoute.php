@@ -52,7 +52,7 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
     }
 
     /**
-     * @Since("6.2.0")
+     * @Since("6.2.0.0")
      * @Entity("shipping_method")
      * @OA\Get(
      *      path="/shipping-method",

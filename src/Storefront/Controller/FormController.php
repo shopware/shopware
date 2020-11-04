@@ -50,7 +50,7 @@ class FormController extends StorefrontController
     }
 
     /**
-     * @Since("6.1.0")
+     * @Since("6.1.0.0")
      * @Route("/form/contact", name="frontend.form.contact.send", methods={"POST"}, defaults={"XmlHttpRequest"=true})
      * @Captcha
      */
@@ -89,7 +89,7 @@ class FormController extends StorefrontController
     }
 
     /**
-     * @Since("6.1.0")
+     * @Since("6.1.0.0")
      * @Route("/form/newsletter", name="frontend.form.newsletter.register.handle", methods={"POST"}, defaults={"XmlHttpRequest"=true})
      * @Captcha
      */

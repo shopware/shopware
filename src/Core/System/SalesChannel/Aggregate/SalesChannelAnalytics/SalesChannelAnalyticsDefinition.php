@@ -33,7 +33,7 @@ class SalesChannelAnalyticsDefinition extends EntityDefinition
 
     public function since(): ?string
     {
-        return '6.2.0';
+        return '6.2.0.0';
     }
 
     protected function defineFields(): FieldCollection

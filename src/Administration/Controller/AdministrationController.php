@@ -80,7 +80,7 @@ class AdministrationController extends AbstractController
     }
 
     /**
-     * @Since("6.1.0")
+     * @Since("6.1.0.0")
      * @RouteScope(scopes={"administration"})
      * @Route("/api/v{version}/_admin/snippets", name="api.admin.snippets", methods={"GET"})
      */

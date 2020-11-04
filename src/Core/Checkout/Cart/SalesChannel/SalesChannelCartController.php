@@ -86,7 +86,7 @@ class SalesChannelCartController extends AbstractController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/sales-channel-api/v{version}/checkout/cart", name="sales-channel-api.checkout.cart.detail", methods={"GET"})
      *
      * @throws CartTokenNotFoundException
@@ -102,7 +102,7 @@ class SalesChannelCartController extends AbstractController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @OA\Post(
      *      path="/checkout/cart",
      *      summary="Create a new Cart",
@@ -165,7 +165,7 @@ class SalesChannelCartController extends AbstractController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/sales-channel-api/v{version}/checkout/cart/product/{id}", name="sales-channel-api.checkout.frontend.cart.product.add", methods={"POST"})
      *
      * @throws MixedLineItemTypeException
@@ -186,7 +186,7 @@ class SalesChannelCartController extends AbstractController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * Adds the provided promotion code to the cart and recalculates it.
      * The code will be added as a separate promotion placeholder line item.
      * That one will be replaced with a real promotion (if valid) within the
@@ -210,7 +210,7 @@ class SalesChannelCartController extends AbstractController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/sales-channel-api/v{version}/checkout/cart/line-item/{id}", name="sales-channel-api.checkout.cart.line-item.add", methods={"POST"})
      *
      * @throws MissingRequestParameterException
@@ -242,7 +242,7 @@ class SalesChannelCartController extends AbstractController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/sales-channel-api/v{version}/checkout/cart/line-item/{id}", name="sales-channel-api.checkout.cart.line-item.delete", methods={"DELETE"})
      *
      * @throws LineItemNotFoundException
@@ -265,7 +265,7 @@ class SalesChannelCartController extends AbstractController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/sales-channel-api/v{version}/checkout/cart/line-item/{id}", name="sales-channel-api.checkout.cart.line-item.update", methods={"PATCH"})
      *
      * @throws InvalidQuantityException
@@ -298,7 +298,7 @@ class SalesChannelCartController extends AbstractController
     }
 
     /**
-     * @Since("6.2.0")
+     * @Since("6.2.0.0")
      * @Route("/sales-channel-api/v{version}/checkout/cart", name="sales-channel-api.checkout.cart.cancel", methods={"DELETE"})
      */
     public function cancelCart(SalesChannelContext $context): JsonResponse
@@ -309,7 +309,7 @@ class SalesChannelCartController extends AbstractController
     }
 
     /**
-     * @Since("6.2.0")
+     * @Since("6.2.0.0")
      * @Route("/sales-channel-api/v{version}/checkout/cart/line-items/delete", name="sales-channel-api.checkout.cart.line-items.delete", methods={"POST"})"
      *
      * @throws LineItemNotFoundException

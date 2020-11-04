@@ -70,7 +70,7 @@ class ContactFormRoute extends AbstractContactFormRoute
     }
 
     /**
-     * @Since("6.2.0")
+     * @Since("6.2.0.0")
      * @OA\Post(
      *      path="/contact-form",
      *      summary="Send message throught contact form",

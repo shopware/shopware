@@ -48,7 +48,7 @@ class LanguageRoute extends AbstractLanguageRoute
     }
 
     /**
-     * @Since("6.2.0")
+     * @Since("6.2.0.0")
      * @Entity("language")
      * @OA\Get(
      *      path="/language",

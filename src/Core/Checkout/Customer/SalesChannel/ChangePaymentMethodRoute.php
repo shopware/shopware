@@ -56,7 +56,7 @@ class ChangePaymentMethodRoute extends AbstractChangePaymentMethodRoute
     }
 
     /**
-     * @Since("6.2.0")
+     * @Since("6.2.0.0")
      * @OA\Post(
      *      path="/account/change-payment-method/{paymentMethodId}",
      *      summary="Change payment method",

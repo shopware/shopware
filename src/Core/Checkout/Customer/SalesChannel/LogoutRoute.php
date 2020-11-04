@@ -71,7 +71,7 @@ class LogoutRoute extends AbstractLogoutRoute
     }
 
     /**
-     * @Since("6.2.0")
+     * @Since("6.2.0.0")
      * @OA\Post(
      *      path="/account/logout",
      *      summary="Logouts current loggedin customer",

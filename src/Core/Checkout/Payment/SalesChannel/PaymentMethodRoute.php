@@ -53,7 +53,7 @@ class PaymentMethodRoute extends AbstractPaymentMethodRoute
     }
 
     /**
-     * @Since("6.2.0")
+     * @Since("6.2.0.0")
      * @Entity("payment_method")
      * @OA\Get(
      *      path="/payment-method",

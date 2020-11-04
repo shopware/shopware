@@ -50,7 +50,7 @@ class NewsletterUnsubscribeRoute extends AbstractNewsletterUnsubscribeRoute
     }
 
     /**
-     * @Since("6.2.0")
+     * @Since("6.2.0.0")
      * @OA\Post(
      *      path="/newsletter/unsubscribe",
      *      summary="Unsubscribe to newsletter",

@@ -34,7 +34,7 @@ class CmsRoute extends AbstractCmsRoute
     }
 
     /**
-     * @Since("6.2.0")
+     * @Since("6.2.0.0")
      * @OA\Post(
      *      path="/cms/{id}",
      *      summary="Resolves a cms page",

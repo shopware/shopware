@@ -46,7 +46,7 @@ class MaintenanceController extends StorefrontController
     }
 
     /**
-     * @Since("6.1.0")
+     * @Since("6.1.0.0")
      * @HttpCache()
      * @Route("/maintenance", name="frontend.maintenance.page", methods={"GET"})
      */
@@ -86,7 +86,7 @@ class MaintenanceController extends StorefrontController
     }
 
     /**
-     * @Since("6.1.0")
+     * @Since("6.1.0.0")
      * Route for stand alone cms pages during maintenance
      *
      * @HttpCache()

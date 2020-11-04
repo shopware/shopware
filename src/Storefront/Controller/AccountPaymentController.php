@@ -40,7 +40,7 @@ class AccountPaymentController extends StorefrontController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/account/payment", name="frontend.account.payment.page", options={"seo"="false"}, methods={"GET"})
      *
      * @throws CustomerNotLoggedInException
@@ -55,7 +55,7 @@ class AccountPaymentController extends StorefrontController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/account/payment", name="frontend.account.payment.save", methods={"POST"})
      *
      * @throws CustomerNotLoggedInException

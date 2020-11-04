@@ -34,7 +34,7 @@ class AuthController extends AbstractController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/api/oauth/authorize", name="api.oauth.authorize", defaults={"auth_required"=false}, methods={"POST"})
      */
     public function authorize(Request $request): void
@@ -42,7 +42,7 @@ class AuthController extends AbstractController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/api/oauth/token", name="api.oauth.token", defaults={"auth_required"=false}, methods={"POST"})
      */
     public function token(Request $request): Response

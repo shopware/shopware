@@ -51,7 +51,7 @@ class CurrencyRoute extends AbstractCurrencyRoute
     }
 
     /**
-     * @Since("6.2.0")
+     * @Since("6.2.0.0")
      * @Entity("currency")
      * @OA\Get(
      *      path="/currency",

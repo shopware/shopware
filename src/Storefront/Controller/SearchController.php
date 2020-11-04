@@ -47,7 +47,7 @@ class SearchController extends StorefrontController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @HttpCache()
      * @Route("/search", name="frontend.search.page", methods={"GET"})
      */
@@ -71,7 +71,7 @@ class SearchController extends StorefrontController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @HttpCache()
      * @Route("/suggest", name="frontend.search.suggest", methods={"GET"}, defaults={"XmlHttpRequest"=true})
      */
@@ -83,7 +83,7 @@ class SearchController extends StorefrontController
     }
 
     /**
-     * @Since("6.2.0")
+     * @Since("6.2.0.0")
      * @HttpCache()
      *
      * Route to load the listing filters

@@ -52,7 +52,7 @@ class CustomerRoute extends AbstractCustomerRoute
     }
 
     /**
-     * @Since("6.2.0")
+     * @Since("6.2.0.0")
      * @Entity("customer")
      * @OA\Get(
      *      path="/account/customer",

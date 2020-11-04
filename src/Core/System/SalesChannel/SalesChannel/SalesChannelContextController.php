@@ -30,7 +30,7 @@ class SalesChannelContextController extends AbstractController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/sales-channel-api/v{version}/context", name="sales-channel-api.context.update", methods={"PATCH"})
      *
      * @throws AddressNotFoundException
@@ -46,7 +46,7 @@ class SalesChannelContextController extends AbstractController
     }
 
     /**
-     * @Since("6.1.0")
+     * @Since("6.1.0.0")
      * @Route("/sales-channel-api/v{version}/context", name="sales-channel-api.context.get", methods={"GET"})
      */
     public function getContext(SalesChannelContext $context): JsonResponse

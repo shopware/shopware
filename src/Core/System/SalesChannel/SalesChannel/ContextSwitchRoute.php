@@ -67,7 +67,7 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
     }
 
     /**
-     * @Since("6.2.0")
+     * @Since("6.2.0.0")
      * @OA\Patch(
      *      path="/context",
      *      summary="Update the context",

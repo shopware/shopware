@@ -251,7 +251,7 @@ class ScoreBuilderTestDefinition extends EntityDefinition
 
     public function since(): string
     {
-        return '6.0.0';
+        return '6.0.0.0';
     }
 
     protected function defineFields(): FieldCollection
@@ -276,7 +276,7 @@ class NestedDefinition extends EntityDefinition
 
     public function since(): string
     {
-        return '6.0.0';
+        return '6.0.0.0';
     }
 
     protected function defineFields(): FieldCollection
@@ -298,7 +298,7 @@ class OnlyTranslatedFieldDefinition extends EntityDefinition
 
     public function since(): string
     {
-        return '6.0.0';
+        return '6.0.0.0';
     }
 
     protected function defineFields(): FieldCollection
@@ -320,7 +320,7 @@ class OnlyDateFieldDefinition extends EntityDefinition
 
     public function since(): string
     {
-        return '6.0.0';
+        return '6.0.0.0';
     }
 
     protected function defineFields(): FieldCollection

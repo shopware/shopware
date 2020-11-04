@@ -26,7 +26,7 @@ class SitemapController extends StorefrontController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/sitemap.xml", name="frontend.sitemap.xml", methods={"GET"}, defaults={"_format"="xml"})
      */
     public function sitemapXml(SalesChannelContext $context, Request $request): Response

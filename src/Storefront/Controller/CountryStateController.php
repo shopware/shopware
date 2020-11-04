@@ -29,7 +29,7 @@ class CountryStateController extends StorefrontController
     }
 
     /**
-     * @Since("6.1.0")
+     * @Since("6.1.0.0")
      * This route should only be used by storefront to update address forms. It is not a replacement for sales-channel-api routes
      *
      * @Route("country/country-state-data", name="frontend.country.country.data", defaults={"csrf_protected"=false, "XmlHttpRequest"=true}, methods={ "POST" })

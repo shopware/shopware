@@ -91,7 +91,7 @@ class RegisterController extends StorefrontController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/account/register", name="frontend.account.register.page", methods={"GET"})
      */
     public function accountRegisterPage(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
@@ -148,7 +148,7 @@ class RegisterController extends StorefrontController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/checkout/register", name="frontend.checkout.register.page", options={"seo"="false"}, methods={"GET"})
      */
     public function checkoutRegisterPage(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
@@ -173,7 +173,7 @@ class RegisterController extends StorefrontController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/account/register", name="frontend.account.register.save", methods={"POST"})
      * @Captcha
      */
@@ -211,7 +211,7 @@ class RegisterController extends StorefrontController
     }
 
     /**
-     * @Since("6.1.0")
+     * @Since("6.1.0.0")
      * @Route("/registration/confirm", name="frontend.account.register.mail", methods={"GET"})
      */
     public function confirmRegistration(SalesChannelContext $context, QueryDataBag $queryDataBag): Response

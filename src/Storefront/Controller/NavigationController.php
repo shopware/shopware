@@ -36,7 +36,7 @@ class NavigationController extends StorefrontController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @HttpCache()
      * @Route("/", name="frontend.home.page", options={"seo"="true"}, methods={"GET"})
      */
@@ -60,7 +60,7 @@ class NavigationController extends StorefrontController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @HttpCache()
      * @Route("/widgets/menu/offcanvas", name="frontend.menu.offcanvas", methods={"GET"}, defaults={"XmlHttpRequest"=true})
      */

@@ -27,7 +27,7 @@ class UserRecoveryController extends AbstractController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/user/user-recovery", defaults={"auth_required"=false}, name="api.action.user.user-recovery", methods={"POST"})
      */
     public function createUserRecovery(Request $request, Context $context): Response
@@ -39,7 +39,7 @@ class UserRecoveryController extends AbstractController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/user/user-recovery/hash", defaults={"auth_required"=false}, name="api.action.user.user-recovery.hash", methods={"GET"})
      */
     public function checkUserRecovery(Request $request, Context $context): Response
@@ -54,7 +54,7 @@ class UserRecoveryController extends AbstractController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/user/user-recovery/password", defaults={"auth_required"=false}, name="api.action.user.user-recovery.password", methods={"PATCH"})
      */
     public function updateUserPassword(Request $request, Context $context): Response

@@ -69,7 +69,7 @@ class UserController extends AbstractController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_info/me", name="api.info.me", methods={"GET"})
      */
     public function me(Context $context, Request $request, ResponseFactoryInterface $responseFactory): Response
@@ -119,7 +119,7 @@ class UserController extends AbstractController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_info/ping", name="api.info.ping", methods={"GET"})
      */
     public function status(Context $context): Response
@@ -142,7 +142,7 @@ class UserController extends AbstractController
     }
 
     /**
-     * @Since("6.2.3")
+     * @Since("6.2.3.0")
      * @Route("/api/v{version}/user/{userId}", name="api.user.delete", defaults={"auth_required"=true}, methods={"DELETE"})
      * @Acl({"user:delete"})
      */
@@ -178,7 +178,7 @@ class UserController extends AbstractController
     }
 
     /**
-     * @Since("6.2.3")
+     * @Since("6.2.3.0")
      * @Route("/api/v{version}/user", name="api.user.create", defaults={"auth_required"=true}, methods={"POST"})
      * @Acl({"user:create"})
      */

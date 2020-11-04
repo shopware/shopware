@@ -90,7 +90,7 @@ class SalesChannelCheckoutController extends AbstractController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/sales-channel-api/v{version}/checkout/order", name="sales-channel-api.checkout.order.create", methods={"POST"})
      *
      * @throws OrderNotFoundException
@@ -111,7 +111,7 @@ class SalesChannelCheckoutController extends AbstractController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/sales-channel-api/v{version}/checkout/guest-order", name="sales-channel-api.checkout.guest-order.create", methods={"POST"})
      *
      * @throws OrderNotFoundException
@@ -141,7 +141,7 @@ class SalesChannelCheckoutController extends AbstractController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/sales-channel-api/v{version}/checkout/guest-order/{id}", name="sales-channel-api.checkout.guest-order.detail", methods={"GET"})
      *
      * @throws OrderNotFoundException
@@ -172,7 +172,7 @@ class SalesChannelCheckoutController extends AbstractController
     }
 
     /**
-     * @Since("6.0.0")
+     * @Since("6.0.0.0")
      * @Route("/sales-channel-api/v{version}/checkout/order/{orderId}/pay", name="sales-channel-api.checkout.order.pay", methods={"POST"})
      *
      * @throws AsyncPaymentProcessException

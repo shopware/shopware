@@ -33,7 +33,7 @@ class CancelOrderRoute extends AbstractCancelOrderRoute
     }
 
     /**
-     * @Since("6.2.0")
+     * @Since("6.2.0.0")
      * @OA\Post(
      *      path="/order/state/cancel",
      *      summary="Cancel a order",

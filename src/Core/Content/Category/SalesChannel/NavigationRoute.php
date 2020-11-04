@@ -65,7 +65,7 @@ class NavigationRoute extends AbstractNavigationRoute
     }
 
     /**
-     * @Since("6.2.0")
+     * @Since("6.2.0.0")
      * @Entity("category")
      * @OA\Get(
      *      path="/navigation/{requestActiveId}/{requestRootId}",

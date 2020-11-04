@@ -57,7 +57,7 @@ class CategoryRoute extends AbstractCategoryRoute
     }
 
     /**
-     * @Since("6.2.0")
+     * @Since("6.2.0.0")
      * @OA\Post(
      *      path="/category/{categoryId}",
      *      summary="Loads a category with the resolved cms page",

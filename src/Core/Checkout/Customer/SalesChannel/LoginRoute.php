@@ -80,7 +80,7 @@ class LoginRoute extends AbstractLoginRoute
     }
 
     /**
-     * @Since("6.2.0")
+     * @Since("6.2.0.0")
      * @OA\Post(
      *      path="/account/login",
      *      summary="Login as customer using password",

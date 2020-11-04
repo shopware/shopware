@@ -291,7 +291,9 @@ Component.register('sw-data-grid', {
                 const storageItem = window.localStorage.getItem(this.localStorageItemKey);
 
                 if (storageItem !== null) {
-                    columns = JSON.parse(storageItem).columns;
+                    const parsedStorageItem = JSON.parse(storageItem);
+
+                    columns = parsedStorageItem.columns || parsedStorageItem;
                 }
             }
 

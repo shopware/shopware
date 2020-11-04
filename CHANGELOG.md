@@ -1,6 +1,9 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/2020-08-03-Implement-New-Changelog.md).
 
+## 6.3.3.1
+* [NEXT-11830 - Fix broken listings](/changelog/release-6-3-3-1/2020-11-04-fix-broken-listings.md)
+
 ## 6.3.3.0
 *  [NEXT-8927 - Add ACL for product stream module](/changelog/release-6-3-3-0/2020-09-02-implement-acl-for-product-stream-module.md)
 *  [NEXT-8951 - ACL for languages](/changelog/release-6-3-3-0/2020-09-03-acl-for-languages.md)

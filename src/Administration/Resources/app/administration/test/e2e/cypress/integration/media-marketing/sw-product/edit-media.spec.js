@@ -16,7 +16,7 @@ describe('Product: Edit product media', () => {
             });
     });
 
-    it('@catalogue: change media sorting', { browser: '!firefox' }, () => {
+    it('@catalogue: change media sorting', () => {
         const page = new ProductPageObject();
 
             // Request we want to wait for later
@@ -90,7 +90,7 @@ describe('Product: Edit product media', () => {
             .and('match', /sw-test-image/);
     });
 
-    it('@base @catalogue: set another cover image', { browser: '!firefox' }, () => {
+    it('@base @catalogue: set another cover image', () => {
         const page = new ProductPageObject();
 
             // Request we want to wait for later

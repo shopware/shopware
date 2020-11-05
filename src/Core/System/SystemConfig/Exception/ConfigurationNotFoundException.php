@@ -5,22 +5,19 @@ namespace Shopware\Core\System\SystemConfig\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @deprecated tag:v6.4.0 will be removed, `ConfigurationNotFoundException` is thrown instead
- */
-class BundleNotFoundException extends ShopwareHttpException
+class ConfigurationNotFoundException extends ShopwareHttpException
 {
-    public function __construct(string $bundleName)
+    public function __construct(string $scope)
     {
         parent::__construct(
-            'Bundle by name "{{ bundle }}" not found.',
-            ['bundle' => $bundleName]
+            'Configuration for scope "{{ $scope }}" not found.',
+            ['scope' => $scope]
         );
     }
 
     public function getErrorCode(): string
     {
-        return 'SYSTEM__BUNDLE_NOT_FOUND';
+        return 'SYSTEM__SCOPE_NOT_FOUND';
     }
 
     public function getStatusCode(): int

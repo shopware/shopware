@@ -54,6 +54,7 @@ Table(ShopwareCoreFrameworkAppAppDefinition, "app\n(Apps)") {
    copyright string
    license string
    not_null(active) bool
+   not_null(configurable) bool
    privacy string
    not_null(version) string
    iconRaw blob

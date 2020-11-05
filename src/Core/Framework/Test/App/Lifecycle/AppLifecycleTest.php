@@ -14,6 +14,7 @@ use Shopware\Core\Framework\App\Event\AppDeletedEvent;
 use Shopware\Core\Framework\App\Event\AppInstalledEvent;
 use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
+use Shopware\Core\Framework\App\Exception\InvalidAppConfigurationException;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
 use Shopware\Core\Framework\App\Manifest\Manifest;
@@ -25,15 +26,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\SystemConfigTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\WebhookEntity;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSetRelation\CustomFieldSetRelationEntity;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class AppLifecycleTest extends TestCase
 {
     use GuzzleTestClientBehaviour;
+    use SystemConfigTestBehaviour;
 
     /**
      * @var AppLifecycle
@@ -104,6 +108,7 @@ class AppLifecycleTest extends TestCase
         );
 
         static::assertEquals($appId, $apps->first()->getId());
+        static::assertFalse($apps->first()->isConfigurable());
         $this->assertDefaultActionButtons();
         $this->assertDefaultModules($apps->first());
         $this->assertDefaultPrivileges($apps->first()->getAclRoleId());
@@ -166,6 +171,7 @@ class AppLifecycleTest extends TestCase
     {
         $this->setNewSystemLanguage('nl-NL');
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
+
         $this->appLifecycle->install($manifest, true, $this->context);
 
         /** @var AppCollection $apps */
@@ -174,6 +180,33 @@ class AppLifecycleTest extends TestCase
         static::assertCount(1, $apps);
         static::assertEquals('SwagApp', $apps->first()->getName());
         static::assertEquals('Test for App System', $apps->first()->getDescription());
+    }
+
+    public function testInstallSavesConfig(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/withConfig/manifest.xml');
+        $this->appLifecycle->install($manifest, true, $this->context);
+
+        /** @var AppCollection $apps */
+        $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
+
+        static::assertCount(1, $apps);
+        static::assertEquals('SwagAppConfig', $apps->first()->getName());
+        static::assertTrue($apps->first()->isConfigurable());
+
+        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        $this->resetInternalSystemConfigCache();
+        static::assertEquals([
+            'SwagAppConfig.config.email' => 'no-reply@shopware.de',
+        ], $systemConfigService->getDomain('SwagAppConfig.config'));
+    }
+
+    public function testInstallThrowsIfConfigContainsComponentElement(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withInvalidConfig/manifest.xml');
+
+        static::expectException(InvalidAppConfigurationException::class);
+        $this->appLifecycle->install($manifest, true, $this->context);
     }
 
     public function testUpdateInactiveApp(): void
@@ -496,6 +529,96 @@ class AppLifecycleTest extends TestCase
         static::assertCount(0, $apps->first()->getActionButtons());
         static::assertCount(0, $apps->first()->getModules());
         static::assertCount(0, $apps->first()->getWebhooks());
+    }
+
+    public function testUpdateSetsConfiguration(): void
+    {
+        $id = Uuid::randomHex();
+        $roleId = Uuid::randomHex();
+        $path = str_replace($this->getContainer()->getParameter('kernel.project_dir') . '/', '', __DIR__ . '/../Manifest/_fixtures/withConfig');
+
+        $this->appRepository->create([[
+            'id' => $id,
+            'name' => 'SwagAppConfig',
+            'path' => $path,
+            'version' => '0.0.1',
+            'label' => 'test',
+            'accessToken' => 'test',
+            'integration' => [
+                'label' => 'test',
+                'writeAccess' => false,
+                'accessKey' => 'test',
+                'secretAccessKey' => 'test',
+            ],
+            'aclRole' => [
+                'id' => $roleId,
+                'name' => 'SwagApp',
+            ],
+        ]], Context::createDefaultContext());
+
+        $app = [
+            'id' => $id,
+            'roleId' => $roleId,
+        ];
+
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/withConfig/manifest.xml');
+
+        $this->appLifecycle->update($manifest, $app, $this->context);
+
+        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        $this->resetInternalSystemConfigCache();
+        static::assertEquals([
+            'SwagAppConfig.config.email' => 'no-reply@shopware.de',
+        ], $systemConfigService->getDomain('SwagAppConfig.config'));
+
+        /** @var AppCollection $apps */
+        $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
+
+        static::assertCount(1, $apps);
+        static::assertTrue($apps->first()->isConfigurable());
+    }
+
+    public function testUpdateDoesNotOverrideConfiguration(): void
+    {
+        $id = Uuid::randomHex();
+        $roleId = Uuid::randomHex();
+        $path = str_replace($this->getContainer()->getParameter('kernel.project_dir') . '/', '', __DIR__ . '/../Manifest/_fixtures/withConfig');
+
+        $this->appRepository->create([[
+            'id' => $id,
+            'name' => 'SwagAppConfig',
+            'path' => $path,
+            'version' => '0.0.1',
+            'label' => 'test',
+            'accessToken' => 'test',
+            'integration' => [
+                'label' => 'test',
+                'writeAccess' => false,
+                'accessKey' => 'test',
+                'secretAccessKey' => 'test',
+            ],
+            'aclRole' => [
+                'id' => $roleId,
+                'name' => 'SwagApp',
+            ],
+        ]], Context::createDefaultContext());
+
+        $app = [
+            'id' => $id,
+            'roleId' => $roleId,
+        ];
+
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/withConfig/manifest.xml');
+
+        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        $systemConfigService->set('SwagAppConfig.config.email', 'my-shop@test.com');
+
+        $this->appLifecycle->update($manifest, $app, $this->context);
+
+        $this->resetInternalSystemConfigCache();
+        static::assertEquals([
+            'SwagAppConfig.config.email' => 'my-shop@test.com',
+        ], $systemConfigService->getDomain('SwagAppConfig.config'));
     }
 
     public function testDelete(): void

@@ -5,6 +5,10 @@ namespace Shopware\Core\Content\ImportExport;
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Content\ImportExport\Event\EnrichExportCriteriaEvent;
+use Shopware\Core\Content\ImportExport\Event\ImportExportAfterImportRecordEvent;
+use Shopware\Core\Content\ImportExport\Event\ImportExportBeforeExportRecordEvent;
+use Shopware\Core\Content\ImportExport\Event\ImportExportBeforeImportRecordEvent;
+use Shopware\Core\Content\ImportExport\Event\ImportExportExceptionImportRecordEvent;
 use Shopware\Core\Content\ImportExport\Exception\ProcessingException;
 use Shopware\Core\Content\ImportExport\Processing\Mapping\CriteriaBuilder;
 use Shopware\Core\Content\ImportExport\Processing\Pipe\AbstractPipe;
@@ -138,15 +142,27 @@ class ImportExport
 
             try {
                 $record = $this->ensurePrimaryKeys($record);
-                // TODO: event before import record
-                $this->repository->upsert([$record], $context);
+
+                $event = new ImportExportBeforeImportRecordEvent($record, $row, $config, $context);
+                $this->eventDispatcher->dispatch($event);
+
+                $record = $event->getRecord();
+
+                $result = $this->repository->upsert([$record], $context);
                 $progress->addProcessedRecords(1);
 
-                // TODO: event after import record
+                $afterRecord = new ImportExportAfterImportRecordEvent($result, $record, $row, $config, $context);
+                $this->eventDispatcher->dispatch($afterRecord);
             } catch (\Throwable $exception) {
-                // TODO: event on exception - can rethrow
-                $record['_error'] = mb_convert_encoding($exception->getMessage(), 'UTF-8', 'UTF-8');
-                $failedRecords[] = $record;
+                $event = new ImportExportExceptionImportRecordEvent($exception, $record, $row, $config, $context);
+                $this->eventDispatcher->dispatch($event);
+
+                $exception = $event->getException();
+
+                if ($exception) {
+                    $record['_error'] = mb_convert_encoding($exception->getMessage(), 'UTF-8', 'UTF-8');
+                    $failedRecords[] = $record;
+                }
             }
             $this->importExportService->saveProgress($progress);
 
@@ -331,7 +347,11 @@ class ImportExport
             }
 
             if ($record !== []) {
-                // TODO: event before export record
+                $event = new ImportExportBeforeExportRecordEvent($config, $record, $originalRecord);
+                $this->eventDispatcher->dispatch($event);
+
+                $record = $event->getRecord();
+
                 $this->writer->append($config, $record, $offset);
                 ++$exportedRecords;
             }

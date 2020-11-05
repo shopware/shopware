@@ -353,7 +353,7 @@ export default function createLoginService(httpClient, context, bearerAuth = nul
     }
 
     /**
-     * @deprecated 6.3.0
+     * @deprecated tag:v6.4.0
      * It resets the old localStorage implementation of the authentication.
      * Can be removed in 6.3.0 because it is only needed for upgrading from
      * 6.1 to 6.2

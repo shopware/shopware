@@ -122,7 +122,7 @@ class LogoutRoute extends AbstractLogoutRoute
     }
 
     /**
-     * @deprecated tag:v6.3.0 use \Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister::delete
+     * @deprecated tag:v6.4.0 use \Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister::delete
      */
     private function deleteContextToken(string $token): void
     {

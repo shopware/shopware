@@ -16,6 +16,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
@@ -202,6 +203,57 @@ class ProductRepositoryTest extends TestCase
         static::assertInstanceOf(ProductEntity::class, $variant);
 
         static::assertNull($variant->getName());
+    }
+
+    public function testUpdatedProductChildCountOnVariantDeletion(): void
+    {
+        $parentId = Uuid::randomHex();
+        $variantId = Uuid::randomHex();
+        $secondVariantId = Uuid::randomHex();
+
+        $products = [
+            [
+                'id' => $parentId,
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 10,
+                'price' => [
+                    ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
+                ],
+                'manufacturer' => ['name' => 'test'],
+                'tax' => ['name' => 'test', 'taxRate' => 15],
+                // name should be required
+                'name' => 'parent',
+            ],
+            [
+                'id' => $variantId,
+                'productNumber' => Uuid::randomHex(),
+                'parentId' => $parentId,
+                'stock' => 15,
+            ],
+            [
+                'id' => $secondVariantId,
+                'productNumber' => Uuid::randomHex(),
+                'parentId' => $parentId,
+                'stock' => 15,
+            ],
+        ];
+
+        $this->repository->create($products, $this->context);
+        $delete = $this->repository->delete([['id' => $secondVariantId]], $this->context);
+        static::assertInstanceOf(EntityWrittenContainerEvent::class, $delete);
+
+        $ids = $delete->getPrimaryKeys('product');
+
+        static::assertCount(2, $ids);
+        static::assertContains($parentId, $ids);
+        static::assertContains($secondVariantId, $ids);
+
+        $product = $this->repository
+            ->search(new Criteria([$parentId]), $this->context)
+            ->first();
+
+        static::assertInstanceOf(ProductEntity::class, $product);
+        static::assertEquals(1, $product->getChildCount());
     }
 
     public function testNameIsRequiredForParent(): void

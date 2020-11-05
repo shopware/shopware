@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\ParentAssociationCanNotBeFetched;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -141,6 +142,10 @@ class EntityReader implements EntityReaderInterface
         }
 
         $fields = $this->addAssociationFieldsToCriteria($criteria, $definition, $fields);
+
+        if ($definition->isInheritanceAware() && $criteria->hasAssociation('parent')) {
+            throw new ParentAssociationCanNotBeFetched();
+        }
 
         $rows = $this->fetch($criteria, $definition, $context, $fields);
 

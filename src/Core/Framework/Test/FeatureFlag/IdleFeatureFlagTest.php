@@ -11,23 +11,23 @@ class IdleFeatureFlagTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    public static $featureAllValue;
-
-    public $excludedDirs = [
+    public const EXCLUDED_DIRS = [
         'src/Docs',
         'adr',
         'src/Core/Framework/Test/FeatureFlag',
         'src/Administration/Resources/app/administration/node_modules',
         'src/Administration/Resources/app/administration/test/e2e/node_modules',
         'src/Storefront/Resources/app/storefront/node_modules',
-        'src/Storefront/Resources/app/storefront/test/e2e/node_modules'
+        'src/Storefront/Resources/app/storefront/test/e2e/node_modules',
     ];
 
-    public $excludeByContent = [
+    public const EXCLUDE_BY_CONTENT = [
         'NEXT-1234',
         'NEXT-12345',
-        'NEXT-10286'
+        'NEXT-10286',
     ];
+
+    private static $featureAllValue;
 
     public static function setUpBeforeClass(): void
     {
@@ -42,7 +42,6 @@ class IdleFeatureFlagTest extends TestCase
     protected function setUp(): void
     {
         $_ENV['FEATURE_ALL'] = $_SERVER['FEATURE_ALL'] = 'false';
-        $_SERVER['APP_ENV'] = 'test';
         Feature::setRegisteredFeatures(
             $this->getContainer()->getParameter('shopware.feature.flags'),
             $this->getContainer()->getParameter('kernel.cache_dir') . '/shopware_features.php'
@@ -53,14 +52,13 @@ class IdleFeatureFlagTest extends TestCase
     {
         //init FeatureConfig
         $registeredFlags = array_keys(Feature::getAll());
-        $availableFeatureFlags = [];
 
         // Find the right files to check
         $finder = new Finder();
         $finder->files()
             ->in($this->getContainer()->get('kernel')->getProjectDir() . '/vendor/shopware/platform')
-            ->exclude($this->excludedDirs)
-            ->notContains($this->excludeByContent);
+            ->exclude(self::EXCLUDED_DIRS)
+            ->notContains(self::EXCLUDE_BY_CONTENT);
 
         foreach ($finder as $file) {
             $contents = $file->getContents();
@@ -68,13 +66,8 @@ class IdleFeatureFlagTest extends TestCase
             preg_match($regex, $contents, $keys);
 
             if (isset($keys[0])) {
-                $availableFeatureFlags[] = $keys[0];
+                static::assertContains($keys[0], $registeredFlags);
             }
-        }
-        $availableFeatureFlags = array_unique($availableFeatureFlags);
-
-        foreach ($availableFeatureFlags as $flag) {
-            static::assertContains($flag, $registeredFlags);
         }
     }
 }

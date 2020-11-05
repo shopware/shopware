@@ -140,32 +140,34 @@ class MailService implements MailServiceInterface
         $senderEmail = $this->getSender($data, $salesChannelId);
 
         $contents = $this->buildContents($data, $salesChannel);
-        foreach ($contents as $index => $template) {
-            try {
-                if (isset($data['testMode']) && (bool) $data['testMode'] === true) {
-                    $this->templateRenderer->enableTestMode();
-                }
+        if (isset($data['testMode']) && (bool) $data['testMode'] === true) {
+            $this->templateRenderer->enableTestMode();
+        }
 
+        $template = $data['subject'];
+
+        try {
+            $data['subject'] = $this->templateRenderer->render($template, $templateData, $context);
+            $template = $data['senderName'];
+            $data['senderName'] = $this->templateRenderer->render($template, $templateData, $context);
+            foreach ($contents as $index => $template) {
                 $contents[$index] = $this->templateRenderer->render($template, $templateData, $context);
-                $data['subject'] = $this->templateRenderer->render($data['subject'], $templateData, $context);
-                $data['senderName'] = $this->templateRenderer->render($data['senderName'], $templateData, $context);
-
-                if (isset($data['testMode']) && (bool) $data['testMode'] === true) {
-                    $this->templateRenderer->disableTestMode();
-                }
-            } catch (\Exception $e) {
-                $this->logger->error(
-                    "Could not render Mail-Template with error message:\n"
-                    . $e->getMessage() . "\n"
-                    . 'Error Code:' . $e->getCode() . "\n"
-                    . 'Template source:'
-                    . $template . "\n"
-                    . "Template data: \n"
-                    . json_encode($templateData) . "\n"
-                );
-
-                return null;
             }
+        } catch (\Exception $e) {
+            $this->logger->error(
+                "Could not render Mail-Template with error message:\n"
+                . $e->getMessage() . "\n"
+                . 'Error Code:' . $e->getCode() . "\n"
+                . 'Template source:'
+                . $template . "\n"
+                . "Template data: \n"
+                . json_encode($templateData) . "\n"
+            );
+
+            return null;
+        }
+        if (isset($data['testMode']) && (bool) $data['testMode'] === true) {
+            $this->templateRenderer->disableTestMode();
         }
 
         $mediaUrls = $this->getMediaUrls($data, $context);

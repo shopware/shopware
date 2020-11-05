@@ -26,11 +26,11 @@ class Migration1604502151AddThemePreviewMediaConstraint extends MigrationStep
             WHERE `theme`.`id` IN (:theme_ids)
         ', ['theme_ids' => $themeIdsWithInvalidMediaId]);
 
-        $connection->exec(
-            'ALTER TABLE `theme`
-                ADD FOREIGN KEY `fk.theme.preview_media_id`(preview_media_id) REFERENCES media(id)
-                    ON UPDATE CASCADE
-                    ON DELETE SET NULL;
+        $connection->exec('
+            ALTER TABLE `theme`
+            ADD FOREIGN KEY `fk.theme.preview_media_id`(preview_media_id) REFERENCES media(id)
+                ON UPDATE CASCADE
+                ON DELETE SET NULL;
        ');
     }
 

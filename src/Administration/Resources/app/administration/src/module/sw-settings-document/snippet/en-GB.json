@@ -53,6 +53,9 @@
       "labelPlaceOfJurisdiction": "Place of jurisdiction / HBR",
       "labelPlaceOfFulfillment": "Place of fulfillment",
       "labelExecutiveDirector": "Executive director",
+      "labelDisplayAdditionalNoteDelivery": "Display a note relating to intra-community delivery",
+      "labelDeliveryCountries": "Intra-Community countries",
+      "placeholderDisplayDeliveryCountries": "Search and add countries to the intra-community...",
       "labelOptionMedia": "Company logo",
       "placeholderName": "Enter name...",
       "buttonCancel": "Cancel",
@@ -61,7 +64,8 @@
       "disabledSalesChannelSelect": "Choose a document type first.",
       "disabledTypeSelect": "The type of global documents cannot be changed.",
       "labelDisplayDocumentInCustomerAccount": "Display document in \"My account\" area",
-      "helpTextDisplayDocumentInCustomerAccount": "The document is displayed to the store customer under Orders in the customer account. Only documents sent to the customer are displayed in the customer account."
+      "helpTextDisplayDocumentInCustomerAccount": "The document is displayed to the store customer under Orders in the customer account. Only documents sent to the customer are displayed in the customer account.",
+      "helpTextDisplayDeliveryCountries": "All selected countries will have an additional note displayed on the invoice documents relating intra-community deliveries."
     }
   },
   "sw-privileges": {

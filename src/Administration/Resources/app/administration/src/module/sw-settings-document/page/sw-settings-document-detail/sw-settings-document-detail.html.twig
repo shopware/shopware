@@ -81,14 +81,40 @@
                                 <template v-if="documentConfig.config" v-for="formField in generalFormFields">
                                     {% block sw_settings_document_detail_content_form_field_renderer %}
                                         <sw-form-field-renderer
+                                            v-if="formField"
                                             :disabled="!acl.can('document.editor')"
                                             class="sw-settings-document-detail__form-field-renderer"
                                             v-bind="formField"
                                             v-model="documentConfig.config[formField.name]">
                                         </sw-form-field-renderer>
+                                        <div v-else></div>
                                     {% endblock %}
                                 </template>
                             {% endblock %}
+                            <template v-if="feature.isActive('FEATURE_NEXT_10559')">
+                                {% block sw_settings_document_detail_content_field_additional_note_delivery %}
+                                    <sw-checkbox-field
+                                        v-if="isShowDisplayNoteDelivery"
+                                        v-model="documentConfig.config.displayAdditionalNoteDelivery"
+                                        class="sw-settings-document-detail__field_additional_note_delivery"
+                                        :disabled="!acl.can('document.editor')"
+                                        :label="$tc('sw-settings-document.detail.labelDisplayAdditionalNoteDelivery')">
+                                    </sw-checkbox-field>
+                                {% endblock %}
+
+                                {% block sw_settings_document_detail_content_field_delivery_countries %}
+                                    <sw-entity-multi-id-select
+                                        v-if="showCountriesSelect"
+                                        v-model="documentConfig.config.deliveryCountries"
+                                        class="sw-settings-document-detail__field_delivery_countries"
+                                        :repository="countryRepository"
+                                        :disabled="!acl.can('document.editor')"
+                                        :helpText="$tc('sw-settings-document.detail.helpTextDisplayDeliveryCountries')"
+                                        :label="$tc('sw-settings-document.detail.labelDeliveryCountries')"
+                                        :placeholder="$tc('sw-settings-document.detail.placeholderDisplayDeliveryCountries')">
+                                    </sw-entity-multi-id-select>
+                                {% endblock %}
+                            </template>
                         </sw-container>
                     </sw-card>
                 {% endblock %}

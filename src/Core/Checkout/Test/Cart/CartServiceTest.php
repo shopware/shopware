@@ -18,6 +18,7 @@ use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
@@ -34,6 +35,7 @@ class CartServiceTest extends TestCase
     use IntegrationTestBehaviour;
     use MailTemplateTestBehaviour;
     use TaxAddToSalesChannelTestBehaviour;
+    use CountryAddToSalesChannelTestBehaviour;
 
     /**
      * @var RepositoryInterface|null
@@ -228,8 +230,7 @@ class CartServiceTest extends TestCase
 
     public function testOrderCartSendMail(): void
     {
-        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
-        $context = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $context = $this->getSalesChannelContext();
 
         $contextService = $this->getContainer()->get(SalesChannelContextService::class);
 
@@ -308,7 +309,7 @@ class CartServiceTest extends TestCase
                     'city' => 'not',
                     'zipcode' => 'not',
                     'salutationId' => $this->getValidSalutationId(),
-                    'country' => ['name' => 'not'],
+                    'countryId' => $this->getValidCountryId(),
                 ],
                 'defaultBillingAddressId' => $addressId,
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
@@ -325,6 +326,8 @@ class CartServiceTest extends TestCase
 
     private function getSalesChannelContext(): SalesChannelContext
     {
+        $this->addCountriesToSalesChannel();
+
         return $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
     }

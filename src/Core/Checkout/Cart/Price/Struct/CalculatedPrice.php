@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Cart\Price\Struct;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\Framework\Util\FloatComparator;
 
 class CalculatedPrice extends Struct
 {
@@ -52,8 +53,8 @@ class CalculatedPrice extends Struct
         ?ReferencePrice $referencePrice = null,
         ?ListPrice $listPrice = null
     ) {
-        $this->unitPrice = $unitPrice;
-        $this->totalPrice = $totalPrice;
+        $this->unitPrice = FloatComparator::cast($unitPrice);
+        $this->totalPrice = FloatComparator::cast($totalPrice);
         $this->calculatedTaxes = $calculatedTaxes;
         $this->taxRules = $taxRules;
         $this->quantity = $quantity;
@@ -63,7 +64,7 @@ class CalculatedPrice extends Struct
 
     public function getTotalPrice(): float
     {
-        return $this->totalPrice;
+        return FloatComparator::cast($this->totalPrice);
     }
 
     public function getCalculatedTaxes(): CalculatedTaxCollection

@@ -11,14 +11,14 @@ Shopware.Service('privileges')
                     'customer:read',
                     'rule:read',
                     'sales_channel:read',
-                    'promotion_setgroup:read',
                     'promotion_discount:read',
                     'promotion_discount_prices:read',
                     'promotion_individual_code:read',
                     'rule_condition:read',
                     'currency:read',
                     'promotion_discount_rule:read',
-                    'promotion_discount_prices:read'
+                    'promotion_setgroup:read',
+                    'promotion_setgroup_rule:read'
                 ],
                 dependencies: []
             },
@@ -42,6 +42,8 @@ Shopware.Service('privileges')
                     'promotion_discount_prices:create',
                     'promotion_individual_code:create',
                     'promotion_individual_code:delete',
+                    'promotion_setgroup:create',
+                    'promotion_setgroup_rule:create',
                     Shopware.Service('privileges').getPrivileges('rule.creator')
                 ],
                 dependencies: [

@@ -19,7 +19,9 @@ use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
@@ -31,11 +33,13 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\Tax\TaxEntity;
 
 class DeliveryCalculatorTest extends TestCase
 {
@@ -1503,6 +1507,149 @@ class DeliveryCalculatorTest extends TestCase
         static::assertSame((float) 5, $deliveries->first()->getShippingCosts()->getTotalPrice());
     }
 
+    public function testCalculateByHighestTaxRateFromCartLineItem(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_6995', $this);
+        $shippingMethod = new ShippingMethodEntity();
+        $shippingMethod->setId(Uuid::randomHex());
+        $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
+        $shippingMethod->setName(Uuid::randomHex());
+        $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_HIGHEST);
+
+        $price = new ShippingMethodPriceEntity();
+        $price->setUniqueIdentifier(Uuid::randomHex());
+        $price->setCurrencyPrice(new PriceCollection(
+            [
+                new Price(
+                    Defaults::CURRENCY,
+                    5,
+                    10,
+                    false
+                ),
+            ]
+        ));
+
+        $shippingMethod->setPrices(new ShippingMethodPriceCollection([$price]));
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $baseContext = $this->createMock(Context::class);
+        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+
+        $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
+        $context->expects(static::atLeastOnce())->method('getRuleIds')->willReturn([]);
+        $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
+
+        $firstLineItem = $this->createLineItem(
+            new DeliveryInformation(10, 12.0, false, null, $this->deliveryTime),
+            new CalculatedPrice(
+                10,
+                10,
+                new CalculatedTaxCollection([new CalculatedTax(5, 19, 5)]),
+                new TaxRuleCollection([new TaxRule(19)])
+            )
+        );
+
+        $secondLineItem = $this->createLineItem(
+            new DeliveryInformation(10, 12.0, false, null, $this->deliveryTime),
+            new CalculatedPrice(
+                10,
+                10,
+                new CalculatedTaxCollection([new CalculatedTax(5, 7, 5)]),
+                new TaxRuleCollection([new TaxRule(7)])
+            )
+        );
+
+        $thirdLineItem = $this->createLineItem(
+            new DeliveryInformation(10, 12.0, false, null, $this->deliveryTime),
+            new CalculatedPrice(
+                10,
+                10,
+                new CalculatedTaxCollection([new CalculatedTax(5, 20, 5)]),
+                new TaxRuleCollection([new TaxRule(20)])
+            )
+        );
+
+        $deliveries = $this->buildDeliveries(new LineItemCollection([$firstLineItem, $secondLineItem, $thirdLineItem]), $context);
+
+        $data = new CartDataCollection();
+        $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
+
+        $cart = new Cart('test', 'test');
+
+        $this->deliveryCalculator->calculate($data, $cart, $deliveries, $context);
+
+        $shippingCosts = $deliveries->first()->getShippingCosts();
+
+        static::assertCount(1, $shippingCosts->getTaxRules());
+        static::assertEquals(20, $shippingCosts->getTaxRules()->first()->getTaxRate());
+    }
+
+    public function testCalculateByFixedTaxRate(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_6995', $this);
+        $shippingMethod = new ShippingMethodEntity();
+        $shippingMethod->setId(Uuid::randomHex());
+        $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
+        $shippingMethod->setName(Uuid::randomHex());
+        $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_FIXED);
+
+        $taxRate = 10;
+
+        $shippingMethod->setTax((new TaxEntity())->assign([
+            'id' => Uuid::randomHex(),
+            'name' => 'Test',
+            'taxRate' => $taxRate,
+        ]));
+
+        $price = new ShippingMethodPriceEntity();
+        $price->setUniqueIdentifier(Uuid::randomHex());
+        $price->setCurrencyPrice(new PriceCollection(
+            [
+                new Price(
+                    Defaults::CURRENCY,
+                    5,
+                    10,
+                    false
+                ),
+            ]
+        ));
+
+        $shippingMethod->setPrices(new ShippingMethodPriceCollection([$price]));
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $baseContext = $this->createMock(Context::class);
+        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+
+        $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
+        $context->expects(static::atLeastOnce())->method('getRuleIds')->willReturn([]);
+        $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
+        $context->expects(static::atLeastOnce())->method('buildTaxRules')->willReturn(new TaxRuleCollection([new TaxRule($taxRate)]));
+
+        $lineItem = $this->createLineItem(
+            new DeliveryInformation(10, 12.0, false, null, $this->deliveryTime),
+            new CalculatedPrice(
+                10,
+                10,
+                new CalculatedTaxCollection([new CalculatedTax(5, 19, 5)]),
+                new TaxRuleCollection()
+            )
+        );
+
+        $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem]), $context);
+
+        $data = new CartDataCollection();
+        $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
+
+        $cart = new Cart('test', 'test');
+
+        $this->deliveryCalculator->calculate($data, $cart, $deliveries, $context);
+
+        $shippingCosts = $deliveries->first()->getShippingCosts();
+
+        static::assertCount(1, $shippingCosts->getTaxRules());
+        static::assertEquals(10, $shippingCosts->getTaxRules()->first()->getTaxRate());
+    }
+
     private function buildDeliveries(LineItemCollection $lineItems, SalesChannelContext $context): DeliveryCollection
     {
         $data = new CartDataCollection();
@@ -1513,5 +1660,14 @@ class DeliveryCalculatorTest extends TestCase
 
         return $this->getContainer()->get(DeliveryBuilder::class)
             ->build($cart, $data, $context, new CartBehavior());
+    }
+
+    private function createLineItem(DeliveryInformation $deliveryInformation, CalculatedPrice $calculatedPrice)
+    {
+        $lineItem = new LineItem(Uuid::randomHex(), 'product');
+        $lineItem->setDeliveryInformation($deliveryInformation);
+        $lineItem->setPrice($calculatedPrice);
+
+        return $lineItem;
     }
 }

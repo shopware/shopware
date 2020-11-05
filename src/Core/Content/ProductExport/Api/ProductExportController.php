@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -50,6 +51,7 @@ class ProductExportController extends AbstractController
     }
 
     /**
+     * @Since("6.1.0.0")
      * @Route("/api/v{version}/_action/product-export/validate", name="api.action.product_export.validate",
      *                                                           methods={"POST"})
      *
@@ -88,6 +90,7 @@ class ProductExportController extends AbstractController
     }
 
     /**
+     * @Since("6.1.0.0")
      * @Route("/api/v{version}/_action/product-export/preview", name="api.action.product_export.preview", methods={"POST"})
      *
      * @throws RenderHeaderException

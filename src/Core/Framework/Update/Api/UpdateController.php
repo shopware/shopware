@@ -10,7 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
+use Shopware\Core\Framework\Routing\Annotation\Acl;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 use Shopware\Core\Framework\Update\Event\UpdatePostPrepareEvent;
 use Shopware\Core\Framework\Update\Event\UpdatePreFinishEvent;
@@ -123,7 +125,9 @@ class UpdateController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/update/check", name="api.custom.updateapi.check", methods={"GET"})
+     * @Acl({"system:core:update"})
      */
     public function updateApiCheck(): JsonResponse
     {
@@ -150,7 +154,9 @@ class UpdateController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/update/check-requirements", name="api.custom.update.check_requirements", methods={"GET"})
+     * @Acl({"system:core:update"})
      */
     public function checkRequirements(): JsonResponse
     {
@@ -160,7 +166,9 @@ class UpdateController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/update/plugin-compatibility", name="api.custom.updateapi.plugin_compatibility", methods={"GET"})
+     * @Acl({"system:core:update", "system_config:read"})
      */
     public function pluginCompatibility(Context $context): JsonResponse
     {
@@ -170,7 +178,9 @@ class UpdateController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/update/download-latest-update", name="api.custom.updateapi.download_latest_update", methods={"GET"})
+     * @Acl({"system:core:update", "system_config:read"})
      */
     public function downloadLatestUpdate(Request $request): JsonResponse
     {
@@ -194,7 +204,9 @@ class UpdateController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/update/unpack", name="api.custom.updateapi.unpack", methods={"GET"})
+     * @Acl({"system:core:update", "system_config:read"})
      */
     public function unpack(Request $request, Context $context): JsonResponse
     {
@@ -253,7 +265,9 @@ class UpdateController extends AbstractController
     }
 
     /**
+     * @Since("6.1.0.0")
      * @Route("/api/v{version}/_action/update/deactivate-plugins", name="api.custom.updateapi.deactivate-plugins", methods={"GET"})
+     * @Acl({"system:core:update", "system_config:read"})
      */
     public function deactivatePlugins(Request $request, Context $context): JsonResponse
     {
@@ -298,7 +312,9 @@ class UpdateController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/update/finish/{token}", defaults={"auth_required"=false}, name="api.custom.updateapi.finish", methods={"GET"})
+     * @Acl({"system:core:update", "system_config:read"})
      */
     public function finish(string $token, Request $request, Context $context): Response
     {

@@ -7,6 +7,8 @@ import './vimeo-video';
 import './product-box';
 import './product-listing';
 import './product-slider';
+import './product-name';
+import './manufacturer-logo';
 import './sidebar-filter';
 import './sidebar-category-navigation';
 import './form';

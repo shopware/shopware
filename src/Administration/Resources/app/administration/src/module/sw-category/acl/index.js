@@ -31,6 +31,7 @@ Shopware.Service('privileges')
                     'media:delete',
                     'media_thumbnail:delete',
                     Shopware.Service('privileges').getPrivileges('media.creator'),
+                    Shopware.Service('privileges').getPrivileges('cms.editor'),
                     'product_category:create',
                     'tag:create',
                     'category_tag:create',

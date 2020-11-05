@@ -116,14 +116,21 @@ Component.register('sw-settings-document-detail', {
                         label: this.$tc('sw-settings-document.detail.labelDisplayPrices')
                     }
                 },
-
-
                 {
                     name: 'itemsPerPage',
                     type: 'text',
                     config: {
                         type: 'text',
                         label: this.$tc('sw-settings-document.detail.labelItemsPerPage')
+                    }
+                },
+                {
+                    name: 'displayInCustomerAccount',
+                    type: 'bool',
+                    config: {
+                        type: 'checkbox',
+                        label: this.$tc('sw-settings-document.detail.labelDisplayDocumentInCustomerAccount'),
+                        helpText: this.$tc('sw-settings-document.detail.helpTextDisplayDocumentInCustomerAccount')
                     }
                 }
             ],

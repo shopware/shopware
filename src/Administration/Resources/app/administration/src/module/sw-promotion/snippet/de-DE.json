@@ -28,12 +28,16 @@
         "PRICE_DESC": "Preis absteigend"
       },
       "applier": {
-        "ALL": "Jedes Ergebnis",
-        "SELECT": "Jedes {count}. Ergebnis"
+        "ALL": "Jedes Produkt",
+        "SELECT": "{count}. Produkt"
       },
       "counter": {
         "ALL": "Unbegrenzt",
         "SELECT": "{count} x"
+      },
+      "picker": {
+        "VERTICAL": "Vertikal",
+        "HORIZONTAL": "Horizontal"
       }
     },
     "general": {
@@ -198,6 +202,7 @@
             "buttonDelete": "Rabatt entfernen"
           },
           "labelSorting": "Sortieren nach",
+          "labelPicking": "Produktauswahl Modus",
           "labelApplyCount": "Anwenden auf",
           "labelMaxCount": "Maximale Anwendung",
           "linkAdvancedPrices": "Erweiterte Preisansicht öffnen",

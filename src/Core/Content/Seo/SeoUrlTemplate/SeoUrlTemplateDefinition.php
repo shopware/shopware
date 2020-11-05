@@ -33,6 +33,11 @@ class SeoUrlTemplateDefinition extends EntityDefinition
         return SeoUrlTemplateCollection::class;
     }
 
+    public function since(): ?string
+    {
+        return '6.0.0.0';
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
@@ -41,7 +46,7 @@ class SeoUrlTemplateDefinition extends EntityDefinition
 
             (new StringField('entity_name', 'entityName', 64))->addFlags(new Required()),
             (new StringField('route_name', 'routeName'))->addFlags(new Required()),
-            (new StringField('template', 'template')),
+            (new StringField('template', 'template', 750)),
 
             new BoolField('is_valid', 'isValid'),
 

@@ -69,6 +69,7 @@
                             :allowView="acl.can('promotion.viewer')"
                             allowColumnEdit
                             fullPage
+                            @selection-change="updateSelection"
                             @update-records="updateTotal">
 
                             {% block sw_promotion_list_grid_columns %}

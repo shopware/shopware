@@ -37,7 +37,7 @@ class RepositoryIterator
 
         $this->criteria = $criteria;
         $this->repository = $repository;
-        $this->context = $context;
+        $this->context = clone $context;
     }
 
     public function getTotal(): int

@@ -13,7 +13,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -137,14 +136,15 @@ class ProductListingFeaturesSubscriberTest extends TestCase
         $event = new ProductListingCriteriaEvent($request, $criteria, Generator::createSalesChannelContext());
         $this->eventDispatcher->dispatch($event);
 
+        $filters = $this->getFiltersOfField($criteria->getPostFilters(), 'product.shippingFree');
         if ($expected === null) {
-            static::assertCount(0, $criteria->getPostFilters());
+            static::assertCount(0, $filters);
 
             return;
         }
 
-        static::assertCount(1, $criteria->getPostFilters());
-        $filter = $criteria->getPostFilters()[0];
+        static::assertCount(1, $filters, print_r($request, true));
+        $filter = array_shift($filters);
 
         static::assertInstanceOf(EqualsFilter::class, $filter);
         static::assertSame($expected, $filter->getValue());
@@ -227,7 +227,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
 
     public function searchSortingProvider(): array
     {
-        $searchSortings = [
+        return [
             [
                 ['_score' => FieldSorting::DESCENDING],
                 new Request(),
@@ -248,30 +248,23 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                 ['product.listingPrices' => FieldSorting::DESCENDING],
                 new Request(['order' => 'price-desc']),
             ],
+            [
+                [
+                    'product.name' => FieldSorting::ASCENDING,
+                    'product.listingPrices' => FieldSorting::DESCENDING,
+                ],
+                new Request(['order' => 'test-multiple-sortings']),
+            ],
+            [
+                ['product.listingPrices' => FieldSorting::DESCENDING],
+                new Request(['order' => 'price-desc'], ['availableSortings' => ['price-desc' => 1, 'price-asc' => 0]]),
+            ],
         ];
-
-        if (Feature::isActive('FEATURE_NEXT_5983')) {
-            $searchSortings = \array_merge($searchSortings, [
-                [
-                    [
-                        'product.name' => FieldSorting::ASCENDING,
-                        'product.listingPrices' => FieldSorting::DESCENDING,
-                    ],
-                    new Request(['order' => 'test-multiple-sortings']),
-                ],
-                [
-                    ['product.listingPrices' => FieldSorting::DESCENDING],
-                    new Request(['order' => 'price-desc'], ['availableSortings' => ['price-desc' => 1, 'price-asc' => 0]]),
-                ],
-            ]);
-        }
-
-        return $searchSortings;
     }
 
     public function listSortingProvider(): array
     {
-        $listSortings = [
+        return [
             [
                 ['product.name' => FieldSorting::ASCENDING],
                 new Request(),
@@ -292,25 +285,18 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                 ['product.listingPrices' => FieldSorting::DESCENDING],
                 new Request(['order' => 'price-desc']),
             ],
+            [
+                [
+                    'product.name' => FieldSorting::ASCENDING,
+                    'product.listingPrices' => FieldSorting::DESCENDING,
+                ],
+                new Request(['order' => 'test-multiple-sortings']),
+            ],
+            [
+                ['product.listingPrices' => FieldSorting::DESCENDING],
+                new Request(['order' => 'price-desc'], ['availableSortings' => ['price-desc' => 1, 'price-asc' => 0]]),
+            ],
         ];
-
-        if (Feature::isActive('FEATURE_NEXT_5983')) {
-            $listSortings = \array_merge($listSortings, [
-                [
-                    [
-                        'product.name' => FieldSorting::ASCENDING,
-                        'product.listingPrices' => FieldSorting::DESCENDING,
-                    ],
-                    new Request(['order' => 'test-multiple-sortings']),
-                ],
-                [
-                    ['product.listingPrices' => FieldSorting::DESCENDING],
-                    new Request(['order' => 'price-desc'], ['availableSortings' => ['price-desc' => 1, 'price-asc' => 0]]),
-                ],
-            ]);
-        }
-
-        return $listSortings;
     }
 
     public function unavailableSearchSortingProvider(): array
@@ -436,33 +422,18 @@ class ProductListingFeaturesSubscriberTest extends TestCase
 
         $filters = $criteria->getPostFilters();
 
-        static::assertCount(\count($properties), $filters, $message);
+        $filters = array_shift($filters);
 
-        $filtered = [];
+        if (count($properties) <= 0) {
+            static::assertNull($filters);
 
-        foreach ($filters as $filter) {
-            if (!$filter instanceof MultiFilter) {
-                continue;
-            }
-
-            foreach ($filter->getQueries() as $query) {
-                if (!$query instanceof EqualsAnyFilter) {
-                    continue;
-                }
-
-                if ($query->getField() !== 'product.optionIds') {
-                    continue;
-                }
-
-                foreach ($query->getValue() as $id) {
-                    $filtered[] = $id;
-                }
-            }
-        }
-
-        if (empty($properties)) {
             return;
         }
+
+        static::assertInstanceOf(MultiFilter::class, $filters);
+        static::assertCount(\count($properties), $filters->getQueries(), $message);
+
+        $filtered = $this->getFilteredValues($filters->getQueries());
 
         static::assertNotEmpty($filtered, $message);
 
@@ -471,5 +442,37 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                 static::assertContains($id, $filtered, $message);
             }
         }
+    }
+
+    private function getFilteredValues(array $filters): array
+    {
+        $filtered = [];
+        foreach ($filters as $filter) {
+            if ($filter instanceof EqualsAnyFilter && $filter->getField() === 'product.optionIds') {
+                $filtered = array_merge($filtered, $filter->getValue());
+            }
+
+            if ($filter instanceof MultiFilter) {
+                $filtered = array_merge($filtered, $this->getFilteredValues($filter->getQueries()));
+            }
+        }
+
+        return $filtered;
+    }
+
+    private function getFiltersOfField(array $filters, string $field)
+    {
+        $matches = [];
+        foreach ($filters as $filter) {
+            if ($filter->getField() === $field) {
+                $matches[] = $filter;
+            }
+
+            if ($filter instanceof MultiFilter) {
+                $matches = array_merge($matches, $this->getFiltersOfField($filter->getQueries(), $field));
+            }
+        }
+
+        return $matches;
     }
 }

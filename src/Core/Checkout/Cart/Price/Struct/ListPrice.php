@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Cart\Price\Struct;
 
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\Framework\Util\FloatComparator;
 
 class ListPrice extends Struct
 {
@@ -23,9 +24,9 @@ class ListPrice extends Struct
 
     private function __construct(float $price, float $discount, float $percentage)
     {
-        $this->price = $price;
-        $this->discount = $discount;
-        $this->percentage = $percentage;
+        $this->price = FloatComparator::cast($price);
+        $this->discount = FloatComparator::cast($discount);
+        $this->percentage = FloatComparator::cast($percentage);
     }
 
     public static function createFromUnitPrice(float $unitPrice, float $listPrice): ListPrice
@@ -39,17 +40,17 @@ class ListPrice extends Struct
 
     public function getPrice(): float
     {
-        return $this->price;
+        return FloatComparator::cast($this->price);
     }
 
     public function getDiscount(): float
     {
-        return $this->discount;
+        return FloatComparator::cast($this->discount);
     }
 
     public function getPercentage(): float
     {
-        return $this->percentage;
+        return FloatComparator::cast($this->percentage);
     }
 
     public function getApiAlias(): string

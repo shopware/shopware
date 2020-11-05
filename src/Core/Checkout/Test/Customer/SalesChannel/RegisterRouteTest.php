@@ -5,12 +5,16 @@ namespace Shopware\Core\Checkout\Test\Customer\SalesChannel;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -20,6 +24,7 @@ class RegisterRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
+    use CountryAddToSalesChannelTestBehaviour;
 
     /**
      * @var \Symfony\Bundle\FrameworkBundle\KernelBrowser
@@ -43,6 +48,9 @@ class RegisterRouteTest extends TestCase
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
         ]);
+
+        $this->addCountriesToSalesChannel([], $this->ids->get('sales-channel'));
+
         $this->assignSalesChannelContext($this->browser);
         $this->customerRepository = $this->getContainer()->get('customer.repository');
     }
@@ -74,6 +82,67 @@ class RegisterRouteTest extends TestCase
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertArrayHasKey('contextToken', $response);
+    }
+
+    /**
+     * @dataProvider customerBoundToSalesChannelProvider
+     */
+    public function testRegistrationWithCustomerScope(bool $isCustomerScoped, bool $hasGlobalAccount, bool $hasBoundAccount, bool $requestOnSameSalesChannel, int $expectedStatus): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_10555', $this);
+
+        $this->getContainer()->get(SystemConfigService::class)->set('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel', $isCustomerScoped);
+
+        if ($hasGlobalAccount || $hasBoundAccount) {
+            $boundSalesChannel = $isCustomerScoped && $hasBoundAccount;
+            $this->createBoundCustomer($this->ids->get('sales-channel'), $this->getRegistrationData()['email'], $boundSalesChannel);
+        }
+
+        $browser = $requestOnSameSalesChannel ? $this->browser : $this->createCustomSalesChannelBrowser([
+            'id' => $this->ids->create('sales-channel-2'),
+            'domains' => [
+                [
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'currencyId' => Defaults::CURRENCY,
+                    'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                    'url' => 'http://localhost2',
+                ],
+            ],
+        ]);
+
+        $storefrontUrl = $requestOnSameSalesChannel ? 'http://localhost' : 'http://localhost2';
+
+        $browser->request(
+            'POST',
+            '/store-api/v' . PlatformRequest::API_VERSION . '/account/register',
+            $this->getRegistrationData($storefrontUrl)
+        );
+
+        $response = json_decode($browser->getResponse()->getContent(), true);
+
+        static::assertEquals($expectedStatus, $browser->getResponse()->getStatusCode());
+
+        if ($expectedStatus === 200) {
+            static::assertSame('customer', $response['apiAlias']);
+            static::assertArrayNotHasKey('errors', $response);
+            static::assertNotEmpty($browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+
+            $browser->request(
+                'POST',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/account/login',
+                [
+                    'email' => 'teg-reg@example.com',
+                    'password' => '12345678',
+                ]
+            );
+
+            $response = json_decode($browser->getResponse()->getContent(), true);
+
+            static::assertArrayHasKey('contextToken', $response);
+        } else {
+            static::assertNotEmpty($response['errors']);
+            static::assertEquals('VIOLATION::CUSTOMER_EMAIL_NOT_UNIQUE', $response['errors'][0]['code']);
+        }
     }
 
     public function testRegistrationWithGivenToken(): void
@@ -301,7 +370,31 @@ class RegisterRouteTest extends TestCase
         static::assertNotSame('test', $context->getToken());
     }
 
-    private function getRegistrationData(): array
+    public function customerBoundToSalesChannelProvider(): array
+    {
+        $isCustomerScoped = true;
+        $hasGlobalAccount = true; // Account which has bound_sales_channel_id = null
+        $hasBoundAccount = true; // Account which has bound_sales_channel_id not null
+        $requestOnSameSalesChannel = true;
+
+        $expectedSuccessStatus = 200;
+        $expectedEmailExistedStatus = 400;
+
+        return [
+            [$isCustomerScoped, !$hasGlobalAccount, $hasBoundAccount, $requestOnSameSalesChannel, $expectedEmailExistedStatus],
+            [$isCustomerScoped, !$hasGlobalAccount, $hasBoundAccount, !$requestOnSameSalesChannel, $expectedSuccessStatus],
+            [$isCustomerScoped, $hasGlobalAccount, !$hasBoundAccount, $requestOnSameSalesChannel, $expectedEmailExistedStatus],
+            [$isCustomerScoped, $hasGlobalAccount, !$hasBoundAccount, !$requestOnSameSalesChannel, $expectedEmailExistedStatus],
+            [$isCustomerScoped, !$hasGlobalAccount, !$hasBoundAccount, $requestOnSameSalesChannel, $expectedSuccessStatus],
+            [!$isCustomerScoped, !$hasGlobalAccount, $hasBoundAccount, $requestOnSameSalesChannel, $expectedEmailExistedStatus],
+            [!$isCustomerScoped, !$hasGlobalAccount, $hasBoundAccount, !$requestOnSameSalesChannel, $expectedEmailExistedStatus],
+            [!$isCustomerScoped, $hasGlobalAccount, !$hasBoundAccount, $requestOnSameSalesChannel, $expectedEmailExistedStatus],
+            [!$isCustomerScoped, $hasGlobalAccount, !$hasBoundAccount, !$requestOnSameSalesChannel, $expectedEmailExistedStatus],
+            [!$isCustomerScoped, !$hasGlobalAccount, !$hasBoundAccount, $requestOnSameSalesChannel, $expectedSuccessStatus],
+        ];
+    }
+
+    private function getRegistrationData(string $storefrontUrl = 'http://localhost'): array
     {
         return [
             'salutationId' => $this->getValidSalutationId(),
@@ -314,7 +407,7 @@ class RegisterRouteTest extends TestCase
             'birthdayYear' => 2000,
             'birthdayMonth' => 1,
             'birthdayDay' => 22,
-            'storefrontUrl' => 'http://localhost',
+            'storefrontUrl' => $storefrontUrl,
             'billingAddress' => [
                 'countryId' => $this->getValidCountryId(),
                 'street' => 'Examplestreet 11',
@@ -338,5 +431,47 @@ class RegisterRouteTest extends TestCase
                 'additionalAddressLine2' => 'Additional address line 02',
             ],
         ];
+    }
+
+    private function createBoundCustomer(string $salesChannelId, string $email, bool $boundSalesChannel = false): string
+    {
+        $customerId = Uuid::randomHex();
+        $addressId = Uuid::randomHex();
+
+        $customer = [
+            'id' => $customerId,
+            'number' => '1337',
+            'salutationId' => $this->getValidSalutationId(),
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'customerNumber' => '1337',
+            'email' => $email,
+            'password' => 'shopware',
+            'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
+            'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+            'salesChannelId' => $salesChannelId,
+            'boundSalesChannelId' => $boundSalesChannel ? $salesChannelId : null,
+            'defaultBillingAddressId' => $addressId,
+            'defaultShippingAddressId' => $addressId,
+            'addresses' => [
+                [
+                    'id' => $addressId,
+                    'customerId' => $customerId,
+                    'countryId' => $this->getValidCountryId(),
+                    'salutationId' => $this->getValidSalutationId(),
+                    'firstName' => 'Max',
+                    'lastName' => 'Mustermann',
+                    'street' => 'Ebbinghoff 10',
+                    'zipcode' => '48624',
+                    'city' => 'Schöppingen',
+                ],
+            ],
+        ];
+
+        $this->getContainer()
+            ->get('customer.repository')
+            ->upsert([$customer], Context::createDefaultContext());
+
+        return $customerId;
     }
 }

@@ -6,7 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\ActionButton\ActionButtonLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -56,7 +55,6 @@ class ActionButtonLoaderTest extends TestCase
 
     public function setUp(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10286', $this);
         $this->appRepository = $this->getContainer()->get('app.repository');
         $this->actionButtonLoader = $this->getContainer()->get(ActionButtonLoader::class);
         $this->context = Context::createDefaultContext();

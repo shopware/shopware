@@ -307,7 +307,7 @@ E2E:
         - echo SECTION $SECTION
         - echo TEST_DIRECTORY $TEST_DIRECTORY
         - mkdir -p config/packages/
-        - cp platform/src/Core/Framework/Resources/config/packages/shopware_e2e.yaml config/packages/shopware.yaml
+        - cp platform/src/Core/Framework/Resources/config/packages/e2e/e2e.yaml config/packages/shopware.yaml
         - echo FEATURE_ALL $FEATURE_ALL
         - echo BROWSER $BROWSER
         - echo cypress_usePercy $cypress_usePercy

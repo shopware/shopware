@@ -33,6 +33,11 @@ class MailTemplateMediaDefinition extends MappingEntityDefinition
         return MailTemplateMediaEntity::class;
     }
 
+    public function since(): ?string
+    {
+        return '6.0.0.0';
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([

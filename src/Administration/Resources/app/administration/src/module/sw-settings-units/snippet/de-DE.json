@@ -19,5 +19,12 @@
       "successMessage": "Die Maßeinheit wurde erfolgreich gespeichert.",
       "errorMessage": "Die Maßeinheit konnte nicht gespeichert werden. Überprüfe, ob alle Felder ausgefüllt sind."
     }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "scale_unit": {
+        "label": "Maßeinheiten"
+      }
+    }
   }
 }

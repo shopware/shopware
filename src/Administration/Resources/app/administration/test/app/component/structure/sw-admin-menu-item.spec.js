@@ -1,4 +1,5 @@
 import { shallowMount } from '@vue/test-utils';
+import AclService from 'src/app/service/acl.service';
 import 'src/app/component/structure/sw-admin-menu-item';
 import catalogues from './_sw-admin-menu-item/catalogues';
 
@@ -35,6 +36,8 @@ function createWrapper({ propsData = {}, privileges = [] } = {}) {
         return privileges.includes(privilege);
     };
 
+    const aclService = new AclService(Shopware.State);
+
     return shallowMount(Shopware.Component.build('sw-admin-menu-item'), {
         sync: false,
         propsData: propsData,
@@ -65,7 +68,9 @@ function createWrapper({ propsData = {}, privileges = [] } = {}) {
                     }
 
                     return can(match.meta.privilege);
-                }
+                },
+                hasActiveSettingModules: aclService.hasActiveSettingModules,
+                state: aclService.state
             }
         }
     });
@@ -75,6 +80,11 @@ function createWrapper({ propsData = {}, privileges = [] } = {}) {
 describe('src/app/component/structure/sw-admin-menu-item', () => {
     beforeAll(() => {
         Shopware.Feature.isActive = () => true;
+        Shopware.Service().register('feature', () => {
+            return {
+                isActive: () => true
+            };
+        });
 
         Shopware.State.registerModule('settingsItems', {
             namespaced: true,
@@ -176,7 +186,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
         });
 
         const navigationLink = wrapper.find('.sw-admin-menu__navigation-link');
-        expect(navigationLink.is('span')).toBeTruthy();
+        expect(navigationLink.element.tagName).toBe('SPAN');
     });
 
     it('should not show the menu entry when user has no privilege', async () => {
@@ -257,7 +267,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
         });
 
         const navigationLink = wrapper.find('.sw-admin-menu__navigation-link');
-        expect(navigationLink.is('span')).toBeTruthy();
+        expect(navigationLink.element.tagName).toBe('SPAN');
     });
 
     it('should show a link when the path goes to a route which needs a privilege which is set', async () => {
@@ -299,8 +309,8 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
         });
 
         const navigationLink = wrapper.find('.sw-admin-menu__navigation-link');
-        expect(navigationLink.is('span')).toBeFalsy();
-        expect(navigationLink.is('a')).toBeTruthy();
+        expect(navigationLink.element.tagName).not.toBe('SPAN');
+        expect(navigationLink.element.tagName).toBe('A');
 
         expect(navigationLink.props().to).toMatchObject({
             name: 'sw.product.index'
@@ -426,7 +436,7 @@ describe('src/app/component/structure/sw-admin-menu-item', () => {
         });
 
         const navigationLink = wrapper.find('.sw-admin-menu__navigation-link');
-        expect(navigationLink.is('a')).toBeTruthy();
+        expect(navigationLink.element.tagName).toBe('A');
         expect(navigationLink.props().to).toMatchObject({
             name: 'sw.cms.index'
         });

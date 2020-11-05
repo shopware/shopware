@@ -59,6 +59,10 @@ class OffcanvasCartPageLoader
 
         $page = OffcanvasCartPage::createFrom($page);
 
+        if ($page->getMetaInformation()) {
+            $page->getMetaInformation()->assign(['robots' => 'noindex,follow']);
+        }
+
         $page->setCart($this->cartService->getCart($salesChannelContext->getToken(), $salesChannelContext));
 
         $page->setShippingMethods($this->getShippingMethods($salesChannelContext));

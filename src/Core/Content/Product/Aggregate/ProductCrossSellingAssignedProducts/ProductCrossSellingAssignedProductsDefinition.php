@@ -34,6 +34,11 @@ class ProductCrossSellingAssignedProductsDefinition extends EntityDefinition
         return ProductCrossSellingAssignedProductsCollection::class;
     }
 
+    public function since(): ?string
+    {
+        return '6.2.0.0';
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([

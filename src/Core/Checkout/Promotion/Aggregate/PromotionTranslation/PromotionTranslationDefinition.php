@@ -1,5 +1,4 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\Checkout\Promotion\Aggregate\PromotionTranslation;
 
@@ -32,6 +31,11 @@ class PromotionTranslationDefinition extends EntityTranslationDefinition
     public function getParentDefinitionClass(): string
     {
         return PromotionDefinition::class;
+    }
+
+    public function since(): ?string
+    {
+        return '6.0.0.0';
     }
 
     protected function defineFields(): FieldCollection

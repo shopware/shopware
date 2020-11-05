@@ -53,9 +53,12 @@ class AppDefinition extends EntityDefinition
 
     public function getDefaults(): array
     {
-        return [
-            'active' => false,
-        ];
+        return ['active' => false];
+    }
+
+    public function since(): ?string
+    {
+        return '6.3.1.0';
     }
 
     protected function defineFields(): FieldCollection

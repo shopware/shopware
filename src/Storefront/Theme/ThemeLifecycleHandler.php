@@ -34,16 +34,23 @@ class ThemeLifecycleHandler
      */
     private $themeRepository;
 
+    /**
+     * @var StorefrontPluginRegistryInterface
+     */
+    private $storefrontPluginRegistry;
+
     public function __construct(
         ThemeLifecycleService $themeLifecycleService,
         ThemeService $themeService,
         EntityRepositoryInterface $salesChannelRepository,
-        EntityRepositoryInterface $themeRepository
+        EntityRepositoryInterface $themeRepository,
+        StorefrontPluginRegistryInterface $storefrontPluginRegistry
     ) {
         $this->themeLifecycleService = $themeLifecycleService;
         $this->themeService = $themeService;
         $this->salesChannelRepository = $salesChannelRepository;
         $this->themeRepository = $themeRepository;
+        $this->storefrontPluginRegistry = $storefrontPluginRegistry;
     }
 
     public function handleThemeInstallOrUpdate(
@@ -56,39 +63,25 @@ class ThemeLifecycleHandler
             $this->changeThemeActive($config->getTechnicalName(), true, $context);
         }
 
-        if (!$config->hasFilesToCompile()) {
-            return;
-        }
-
-        $salesChannels = $this->getSalesChannels($context);
-
-        foreach ($salesChannels as $salesChannel) {
-            /** @var ThemeCollection|null $themes */
-            $themes = $salesChannel->getExtensionOfType('themes', ThemeCollection::class);
-            if (!$themes || !$theme = $themes->first()) {
-                continue;
-            }
-
-            $this->themeService->compileTheme(
-                $salesChannel->getId(),
-                $theme->getId(),
-                $context,
-                $configurationCollection
-            );
-        }
+        $this->recompileThemesIfNecessary($config, $context, $configurationCollection);
     }
 
     public function handleThemeUninstall(StorefrontPluginConfiguration $config, Context $context): void
     {
-        if (!$config->getIsTheme()) {
-            return;
+        if ($config->getIsTheme()) {
+            // throw an exception if theme is still assigned to a sales channel
+            $this->validateThemeAssignment($config->getTechnicalName(), $context);
+
+            // set active = false in the database to theme and all children
+            $this->changeThemeActive($config->getTechnicalName(), false, $context);
         }
 
-        // throw an exception if theme is still assigned to a sales channel
-        $this->validateThemeAssignment($config->getTechnicalName(), $context);
+        $configs = $this->storefrontPluginRegistry->getConfigurations();
+        $configs = $configs->filter(function (StorefrontPluginConfiguration $registeredConfig) use ($config): bool {
+            return $registeredConfig->getTechnicalName() !== $config->getTechnicalName();
+        });
 
-        // set active = false in the database to theme and all children
-        $this->changeThemeActive($config->getTechnicalName(), false, $context);
+        $this->recompileThemesIfNecessary($config, $context, $configs);
     }
 
     /**
@@ -179,5 +172,29 @@ class ThemeLifecycleHandler
         $result = $this->salesChannelRepository->search($criteria, $context)->getEntities();
 
         return $result;
+    }
+
+    private function recompileThemesIfNecessary(StorefrontPluginConfiguration $config, Context $context, StorefrontPluginConfigurationCollection $configurationCollection): void
+    {
+        if (!$config->hasFilesToCompile()) {
+            return;
+        }
+
+        $salesChannels = $this->getSalesChannels($context);
+
+        foreach ($salesChannels as $salesChannel) {
+            /** @var ThemeCollection|null $themes */
+            $themes = $salesChannel->getExtensionOfType('themes', ThemeCollection::class);
+            if (!$themes || !$theme = $themes->first()) {
+                continue;
+            }
+
+            $this->themeService->compileTheme(
+                $salesChannel->getId(),
+                $theme->getId(),
+                $context,
+                $configurationCollection
+            );
+        }
     }
 }

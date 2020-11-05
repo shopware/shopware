@@ -1,3 +1,8 @@
+{% if not app.request.xmlHttpRequest %}
+    {# only including this for robots to have appropriate meta tags #}
+    {% sw_include '@Storefront/storefront/layout/meta.html.twig' %}
+{% endif %}
+
 {% block utilities_offcanvas %}
     {% block utilities_offcanvas_close %}
         <button class="btn btn-light btn-block offcanvas-close js-offcanvas-close sticky-top">

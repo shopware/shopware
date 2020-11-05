@@ -40,6 +40,11 @@ class CustomerGroupDefinition extends EntityDefinition
         return CustomerGroupEntity::class;
     }
 
+    public function since(): ?string
+    {
+        return '6.0.0.0';
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
@@ -47,14 +52,12 @@ class CustomerGroupDefinition extends EntityDefinition
             (new TranslatedField('name'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new BoolField('display_gross', 'displayGross'),
             new TranslatedField('customFields'),
-
             // Merchant Registration
             new BoolField('registration_active', 'registrationActive'),
             new TranslatedField('registrationTitle'),
             new TranslatedField('registrationIntroduction'),
             new TranslatedField('registrationOnlyCompanyRegistration'),
             new TranslatedField('registrationSeoMetaDescription'),
-
             (new OneToManyAssociationField('customers', CustomerDefinition::class, 'customer_group_id', 'id'))->addFlags(new RestrictDelete(), new ReadProtected(SalesChannelApiSource::class)),
             (new OneToManyAssociationField('salesChannels', SalesChannelDefinition::class, 'customer_group_id', 'id'))->addFlags(new RestrictDelete(), new ReadProtected(SalesChannelApiSource::class)),
             (new TranslationsAssociationField(CustomerGroupTranslationDefinition::class, 'customer_group_id'))->addFlags(new Required()),

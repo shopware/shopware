@@ -176,14 +176,6 @@ Component.register('sw-product-detail', {
         },
 
         tooltipSave() {
-            if (!this.acl.can('product.editor')) {
-                return {
-                    message: this.$tc('sw-privileges.tooltip.warning'),
-                    disabled: this.acl.can('product.creator'),
-                    showOnDisabledElements: true
-                };
-            }
-
             const systemKey = this.$device.getSystemKey();
 
             return {
@@ -272,6 +264,7 @@ Component.register('sw-product-detail', {
         loadState() {
             Shopware.State.commit('swProductDetail/setLocalMode', false);
             Shopware.State.commit('swProductDetail/setProductId', this.productId);
+            Shopware.State.commit('shopwareApps/setSelectedIds', [this.productId]);
 
             return this.loadAll();
         },
@@ -288,6 +281,7 @@ Component.register('sw-product-detail', {
         createState() {
             // set local mode
             Shopware.State.commit('swProductDetail/setLocalMode', true);
+            Shopware.State.commit('shopwareApps/setSelectedIds', []);
 
             Shopware.State.commit('swProductDetail/setLoading', ['product', true]);
 
@@ -430,6 +424,14 @@ Component.register('sw-product-detail', {
         },
 
         onSave() {
+            if (!this.validateProductPurchase()) {
+                this.createNotificationError({
+                    message: this.$tc('sw-product.detail.errorMinMaxPurchase')
+                });
+
+                return new Promise((res) => res());
+            }
+
             if (!this.productId) {
                 if (this.productNumberPreview === this.product.productNumber) {
                     this.numberRangeService.reserve('product').then((response) => {
@@ -438,6 +440,7 @@ Component.register('sw-product-detail', {
                     });
                 }
             }
+
 
             this.isSaveSuccessful = false;
 
@@ -636,6 +639,14 @@ Component.register('sw-product-detail', {
         onDuplicateFinish(duplicate) {
             this.cloning = false;
             this.$router.push({ name: 'sw.product.detail', params: { id: duplicate.id } });
+        },
+
+        validateProductPurchase() {
+            if (this.product.maxPurchase && this.product.minPurchase > this.product.maxPurchase) {
+                return false;
+            }
+
+            return true;
         }
     }
 });

@@ -25,6 +25,11 @@ class SetNullOnDeleteParentDefinition extends EntityDefinition
         return self::ENTITY_NAME;
     }
 
+    public function since(): ?string
+    {
+        return '6.0.0.0';
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
@@ -50,6 +55,11 @@ class SetNullOnDeleteChildDefinition extends EntityDefinition
         return self::ENTITY_NAME;
     }
 
+    public function since(): ?string
+    {
+        return '6.0.0.0';
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
@@ -71,6 +81,11 @@ class SetNullOnDeleteManyToOneDefinition extends EntityDefinition
     public function getEntityName(): string
     {
         return self::ENTITY_NAME;
+    }
+
+    public function since(): ?string
+    {
+        return '6.0.0.0';
     }
 
     protected function defineFields(): FieldCollection

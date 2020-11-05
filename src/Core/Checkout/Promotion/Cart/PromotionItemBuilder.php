@@ -61,7 +61,7 @@ class PromotionItemBuilder
      * @throws InvalidQuantityException
      * @throws UnknownPromotionDiscountTypeException
      */
-    public function buildDiscountLineItem(string $code, PromotionEntity $promotion, PromotionDiscountEntity $discount, int $currencyPrecision, string $currencyId): LineItem
+    public function buildDiscountLineItem(string $code, PromotionEntity $promotion, PromotionDiscountEntity $discount, int $currencyPrecision, string $currencyId, float $currencyFactor = 1.0): LineItem
     {
         //get the rules collection of discount
         $discountRuleCollection = $discount->getDiscountRules();
@@ -91,7 +91,7 @@ class PromotionItemBuilder
 
         switch ($discount->getType()) {
             case PromotionDiscountEntity::TYPE_ABSOLUTE:
-                $promotionValue = -$this->getCurrencySpecificValue($discount, $discount->getValue(), $currencyId);
+                $promotionValue = -$this->getCurrencySpecificValue($discount, $discount->getValue(), $currencyId, $currencyFactor);
                 $promotionDefinition = new AbsolutePriceDefinition($promotionValue, $targetFilter);
 
                 break;
@@ -103,7 +103,7 @@ class PromotionItemBuilder
 
             case PromotionDiscountEntity::TYPE_FIXED:
             case PromotionDiscountEntity::TYPE_FIXED_UNIT:
-                $promotionValue = -abs($this->getCurrencySpecificValue($discount, $discount->getValue(), $currencyId));
+                $promotionValue = -abs($this->getCurrencySpecificValue($discount, $discount->getValue(), $currencyId, $currencyFactor));
                 $promotionDefinition = new AbsolutePriceDefinition($promotionValue, $targetFilter);
 
                 break;
@@ -141,7 +141,8 @@ class PromotionItemBuilder
                 $code,
                 $discount,
                 $promotion,
-                $currencyId
+                $currencyId,
+                $currencyFactor
             )
         );
 
@@ -159,8 +160,8 @@ class PromotionItemBuilder
      * shop owners, that delivery costs have been discounted by a promotion discount
      * if promotion is a auto promotion (no code) it may not be removed from cart
      *
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidPayloadException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
+     * @throws InvalidPayloadException
+     * @throws InvalidQuantityException
      */
     public function buildDeliveryPlaceholderLineItem(LineItem $discount, QuantityPriceDefinition $priceDefinition, CalculatedPrice $price): LineItem
     {
@@ -186,7 +187,7 @@ class PromotionItemBuilder
      * This will make sure we have our eligible items referenced as meta data
      * and also have the code in our payload.
      */
-    private function buildPayload(string $code, PromotionDiscountEntity $discount, PromotionEntity $promotion, string $currencyId): array
+    private function buildPayload(string $code, PromotionDiscountEntity $discount, PromotionEntity $promotion, string $currencyId, float $currencyFactor): array
     {
         $payload = [];
 
@@ -208,7 +209,7 @@ class PromotionItemBuilder
         // set our max value for maximum percentage discounts
         $payload['maxValue'] = '';
         if ($discount->getType() === PromotionDiscountEntity::TYPE_PERCENTAGE && $discount->getMaxValue() !== null) {
-            $payload['maxValue'] = (string) $this->getCurrencySpecificValue($discount, $discount->getMaxValue(), $currencyId);
+            $payload['maxValue'] = (string) $this->getCurrencySpecificValue($discount, $discount->getMaxValue(), $currencyId, $currencyFactor);
         }
 
         // set the scope of the discount cart, delivery....
@@ -245,6 +246,7 @@ class PromotionItemBuilder
             'sorterKey' => null,
             'applierKey' => null,
             'usageKey' => null,
+            'pickerKey' => null,
         ];
 
         if ($discount->isConsiderAdvancedRules()) {
@@ -252,6 +254,7 @@ class PromotionItemBuilder
                 'sorterKey' => $discount->getSorterKey(),
                 'applierKey' => $discount->getApplierKey(),
                 'usageKey' => $discount->getUsageKey(),
+                'pickerKey' => $discount->getPickerKey(),
             ];
         }
 
@@ -262,18 +265,20 @@ class PromotionItemBuilder
      * Gets the absolute price for the provided currency.
      * This can either be a specific value or the default discount value.
      */
-    private function getCurrencySpecificValue(PromotionDiscountEntity $discount, float $default, string $currencyId): float
+    private function getCurrencySpecificValue(PromotionDiscountEntity $discount, float $default, string $currencyId, float $currencyFactor): float
     {
         $currencyPrices = $discount->getPromotionDiscountPrices();
 
-        // if there is no special defined price return default value
+        // if there is no special defined price return default value (=default currency)
+        // multiplied by given currency factor
         if (!$currencyPrices instanceof PromotionDiscountPriceCollection || $currencyPrices->count() === 0) {
-            return $default;
+            return $default * $currencyFactor;
         }
 
         // there are defined special prices, let's look if we may find one in collection for sales channel currency
         // if there is one we want to return this otherwise we return standard value
-        $discountValue = $default;
+        // fallback is here the default currency multiplied by given currency factor
+        $discountValue = $default * $currencyFactor;
 
         foreach ($currencyPrices as $currencyPrice) {
             if ($currencyPrice->getCurrencyId() === $currencyId) {

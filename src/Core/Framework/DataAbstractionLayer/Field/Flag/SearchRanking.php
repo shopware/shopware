@@ -9,7 +9,9 @@ class SearchRanking extends Flag
 {
     public const ASSOCIATION_SEARCH_RANKING = 0.25;
     public const MIDDLE_SEARCH_RANKING = 250;
-    public const LOW_SEARCH_RAKING = 80;
+    /** @deprecated tag:v6.4.0 Use LOW_SEARCH_RANKING instead */
+    public const LOW_SEARCH_RAKING = self::LOW_SEARCH_RANKING;
+    public const LOW_SEARCH_RANKING = 80;
     public const HIGH_SEARCH_RANKING = 500;
 
     /**

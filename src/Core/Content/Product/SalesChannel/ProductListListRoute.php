@@ -7,6 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Routing\Annotation\Route;
@@ -32,10 +33,11 @@ class ProductListListRoute extends AbstractProductListRoute
     }
 
     /**
+     * @Since("6.3.2.0")
      * @Entity("product")
      * @OA\Post(
      *      path="/product",
-     *      description="This route can be used to load the products by specific filters",
+     *      summary="This route can be used to load the products by specific filters",
      *      operationId="readProduct",
      *      tags={"Store API", "Product"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),

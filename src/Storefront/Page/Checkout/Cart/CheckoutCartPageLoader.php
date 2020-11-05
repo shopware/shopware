@@ -77,6 +77,10 @@ class CheckoutCartPageLoader
 
         $page = CheckoutCartPage::createFrom($page);
 
+        if ($page->getMetaInformation()) {
+            $page->getMetaInformation()->setRobots('noindex,follow');
+        }
+
         $page->setCountries($this->getCountries($salesChannelContext));
 
         $page->setPaymentMethods($this->getPaymentMethods($salesChannelContext));

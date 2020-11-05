@@ -4,6 +4,7 @@ namespace Shopware\Core\System\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupRegistrationSalesChannel\CustomerGroupRegistrationSalesChannelDefinition;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist\CustomerWishlistDefinition;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
@@ -83,9 +84,12 @@ class SalesChannelDefinition extends EntityDefinition
 
     public function getDefaults(): array
     {
-        return [
-            'taxCalculationType' => self::CALCULATION_TYPE_HORIZONTAL,
-        ];
+        return ['taxCalculationType' => self::CALCULATION_TYPE_HORIZONTAL];
+    }
+
+    public function since(): ?string
+    {
+        return '6.0.0.0';
     }
 
     protected function defineFields(): FieldCollection
@@ -170,19 +174,17 @@ class SalesChannelDefinition extends EntityDefinition
             (new OneToManyAssociationField('productExports', ProductExportDefinition::class, 'sales_channel_id', 'id'))->addFlags(new ReadProtected(SalesChannelApiSource::class)),
             (new OneToOneAssociationField('analytics', 'analytics_id', 'id', SalesChannelAnalyticsDefinition::class, true))->addFlags(new CascadeDelete()),
             new ManyToManyAssociationField('customerGroupsRegistrations', CustomerGroupDefinition::class, CustomerGroupRegistrationSalesChannelDefinition::class, 'sales_channel_id', 'customer_group_id', 'id', 'id'),
+            (new ManyToManyAssociationField('eventActions', EventActionDefinition::class, EventActionSalesChannelDefinition::class, 'sales_channel_id', 'event_action_id'))
+                ->addFlags(new CascadeDelete(), new ReadProtected(SalesChannelApiSource::class)),
         ]);
 
-        if (Feature::isActive('FEATURE_NEXT_9351')) {
-            $fields->add(
-                (new ManyToManyAssociationField('eventActions', EventActionDefinition::class, EventActionSalesChannelDefinition::class, 'sales_channel_id', 'event_action_id'))
-                    ->addFlags(new CascadeDelete(), new ReadProtected(SalesChannelApiSource::class))
-            );
+        if (Feature::isActive('FEATURE_NEXT_10555')) {
+            $fields->add((new OneToManyAssociationField('boundCustomers', CustomerDefinition::class, 'bound_sales_channel_id', 'id'))->addFlags(new ReadProtected(SalesChannelApiSource::class)));
         }
 
-        if (Feature::isActive('FEATURE_NEXT_10555')) {
+        if (Feature::isActive('FEATURE_NEXT_10549')) {
             $fields->add(
-                (new OneToManyAssociationField('boundCustomers', CustomerDefinition::class, 'bound_sales_channel_id', 'id'))
-                    ->addFlags(new ReadProtected(SalesChannelApiSource::class))
+                (new OneToManyAssociationField('wishlists', CustomerWishlistDefinition::class, 'sales_channel_id'))->addFlags(new CascadeDelete())
             );
         }
 

@@ -4,6 +4,7 @@ namespace Shopware\Core\System\User\Api;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\User\Service\UserValidationService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -28,6 +29,7 @@ class UserValidationController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("api/v{version}/_action/user/check-email-unique", name="api.action.check-email-unique", methods={"POST"})
      *
      * @throws MissingRequestParameterException
@@ -51,6 +53,7 @@ class UserValidationController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("api/v{version}/_action/user/check-username-unique", name="api.action.check-username-unique", methods={"POST"})
      *
      * @throws MissingRequestParameterException

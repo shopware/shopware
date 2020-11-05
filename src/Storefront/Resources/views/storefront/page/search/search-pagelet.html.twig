@@ -14,7 +14,7 @@
         {% sw_include '@Storefront/storefront/component/product/listing.html.twig' with {
             searchResult: page.listing,
             dataUrl: url('widgets.search.pagelet.v2'),
-            filterUrl: '',
+            filterUrl: url('widgets.search.filter'),
             params: { search: page.searchTerm },
             sidebar: 0,
             boxLayout: 'minimal',

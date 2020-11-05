@@ -119,13 +119,12 @@
         "claimEmptyState": "Stelle neue Layouts mithilfe von Sektionen zusammen. Wähle eine Sektion und füge einfach per Drag & Drop-Blöcke zu jeder Sektion hinzu und befülle die Blöcke dann mit deinem individuellen Inhalt."
       },
       "notification": {
-        "titleMissingFields": "Fehlende Konfiguration",
-        "messageMissingFields": "Bitte fülle alle erforderlichen Konfigurationsfelder aus.",
+        "messageMissingFields": "Konfiguration erforderlich. Bitte fülle alle erforderlichen Felder aus.",
         "messageMissingBlockFields": "Konfiguration erforderlich. Bitte fülle alle Elemente mit Daten.",
-        "messageMissingProductListing": "Speichern nicht möglich. Bitte füge einen Produktlisting-Block hinzu oder ändere den Layout-Typ.",
+        "messageMissingProductListing": "Speichern nicht möglich. Bitte füge mindestens einen Produktlisting-Block hinzu oder ändere den Typ dieses Layouts.",
         "messageMissingSections": "Du kannst leere Seiten nicht speichern. Bitte füge zuerst eine Sektion hinzu.",
-        "messageMissingBlocks": "Du kannst keine leere Seite speichern. Bitte füge Blöcke hinzu.",
-        "messageMissingElements": "Bitte konfiguriere alle Elemente Deines Layouts."
+        "messageMissingBlocks": "Du kannst keine leere Seite speichern. Bitte füge zuerst einige Blöcke hinzu.",
+        "messageMissingElements": "Konfiguration erforderlich. Bitte konfiguriere alle Elemente Deines Layouts."
       },
       "placeholder": {
         "demoEntity": "Wähle einen Datensatz zur Vorschau ..."
@@ -417,6 +416,9 @@
     },
     "blocks": {
       "commerce": {
+        "productHeading": {
+          "label": "Produktname & Hersteller-Logo"
+        },
         "productListing": {
           "label": "Produkt-Listing"
         },

@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Rule\Container\Container;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -51,10 +52,11 @@ class OrderRoute extends AbstractOrderRoute
     }
 
     /**
+     * @Since("6.2.0.0")
      * @Entity("order")
      * @OA\Post(
      *      path="/order",
-     *      description="Listing orders",
+     *      summary="Listing orders",
      *      operationId="readOrder",
      *      tags={"Store API", "Order"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),
@@ -78,9 +80,13 @@ class OrderRoute extends AbstractOrderRoute
     {
         $criteria->addFilter(new EqualsFilter('order.salesChannelId', $context->getSalesChannel()->getId()));
 
+        $criteria->getAssociation('documents')
+            ->addFilter(new EqualsFilter('config.displayInCustomerAccount', 'true'))
+            ->addFilter(new EqualsFilter('sent', true));
+
         if ($context->getCustomer()) {
             $criteria->addFilter(new EqualsFilter('order.orderCustomer.customerId', $context->getCustomer()->getId()));
-        } elseif (!$criteria->hasEqualsFilter('order.deepLinkCode')) {
+        } elseif (!$criteria->hasEqualsFilter('deepLinkCode')) {
             throw new CustomerNotLoggedInException();
         } else {
             // Search with deepLinkCode needs updatedAt Filter

@@ -38,6 +38,11 @@ class ImportExportLogDefinition extends EntityDefinition
         return ImportExportLogEntity::class;
     }
 
+    public function since(): ?string
+    {
+        return '6.0.0.0';
+    }
+
     protected function defineProtections(): EntityProtectionCollection
     {
         return new EntityProtectionCollection([

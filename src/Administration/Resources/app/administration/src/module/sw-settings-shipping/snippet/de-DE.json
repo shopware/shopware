@@ -22,7 +22,10 @@
       "messageSaveSuccess": "Die Versandart \"{name}\" wurde erfolgreich gespeichert.",
       "messageSaveError": "Die Versandart \"{name}\" konnte nicht gespeichert werden.",
       "messageDeleteError": "Die Versandart \"{name}\" konnte nicht gelöscht werden.",
-      "messageDeleteSuccess": "Die Versandart \"{name}\" wurde erfolgreich gelöscht."
+      "messageDeleteSuccess": "Die Versandart \"{name}\" wurde erfolgreich gelöscht.",
+      "columnTaxType": "Steuer-Typ",
+      "columnTaxRate": "Steuersatz",
+      "placeholderTaxType": "Wähle einen Steuer-Typ"
     },
     "detail": {
       "textHeadline": "Neue Versandart",
@@ -44,7 +47,14 @@
       "labelLogoUpload": "Logo hochladen",
       "labelTrackingUrl": "Tracking-URL",
       "placeholderTrackingUrl": "Tracking-URL hier eingeben ...",
-      "helpTextTrackingUrl": "Hier kannst du die Tracking-URL des Versanddienstleisters eintragen. Statt der tatsächlichen Sendungsnummer, nutze bitte '%s' als Platzhalter. Shopware wird dann automatisch den korrekten Code für jede Bestellung an dieser Stelle einfügen, wenn dieser in der Bestelldetails gepflegt ist."
+      "helpTextTrackingUrl": "Hier kannst du die Tracking-URL des Versanddienstleisters eintragen. Statt der tatsächlichen Sendungsnummer, nutze bitte '%s' als Platzhalter. Shopware wird dann automatisch den korrekten Code für jede Bestellung an dieser Stelle einfügen, wenn dieser in der Bestelldetails gepflegt ist.",
+      "tax": {
+        "fieldName": "Steuern",
+        "labelTaxType": "Steuer-Typ",
+        "labelTaxRate": "Steuersatz",
+        "placeholderTaxType": "Wähle einen Steuer-Typ...",
+        "placeholderTaxRate": "Wähle einen Steuersatz..."
+      }
     },
     "constants": {
       "weight": "Gewicht",
@@ -99,6 +109,11 @@
     },
     "shippingPriceModal": {
       "modalTitle": "Abstufung hinzufügen"
+    },
+    "shippingCostOptions": {
+      "auto": "Auto",
+      "highest": "Höchster Satz",
+      "fixed": "Fester Satz"
     }
   },
   "sw-privileges": {

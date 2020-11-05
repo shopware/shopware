@@ -4,9 +4,14 @@
     {% set pluginSelector = 'filter-multi-select' %}
 {% endif %}
 
-{% set dataPluginSelectorOptions = {
-    name: name
-} %}
+{% if dataPluginSelectorOptions is not defined %}
+    {% set dataPluginSelectorOptions = {
+        name: name,
+        snippets: {
+            disabledFilterText: 'listing.disabledFilterTooltip'|trans|sw_sanitize
+        }
+    } %}
+{% endif %}
 
 {% block component_filter_multi_select %}
     <div class="filter-multi-select filter-multi-select-{{ name }} filter-panel-item{% if not sidebar %} dropdown{% endif %}"

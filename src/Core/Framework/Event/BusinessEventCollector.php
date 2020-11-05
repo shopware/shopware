@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Event;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\LogAwareBusinessEventInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -29,10 +28,6 @@ class BusinessEventCollector
 
     public function collect(Context $context): BusinessEventCollectorResponse
     {
-        if (!Feature::isActive('FEATURE_NEXT_9351')) {
-            throw new Feature\FeatureNotActiveException('FEATURE_NEXT_9351');
-        }
-
         $events = $this->registry->getClasses();
 
         $result = new BusinessEventCollectorResponse();

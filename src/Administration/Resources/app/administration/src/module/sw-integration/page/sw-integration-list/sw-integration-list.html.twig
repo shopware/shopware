@@ -64,7 +64,6 @@
 
                                                 {% block sw_integration_list_detail_modal_inner_acl_is_admin %}
                                                     <sw-switch-field
-                                                        v-if="feature.isActive('FEATURE_NEXT_3722')"
                                                         class="sw-settings-user-detail__grid-is-admin"
                                                         :label="$tc('sw-users-permissions.users.user-detail.labelAdministrator')"
                                                         :disabled="!acl.can('integration.editor')"
@@ -76,43 +75,18 @@
 
                                         {% block sw_integration_list_detail_modal_inner_acl_roles %}
                                             <sw-entity-multi-select
-                                                v-if="feature.isActive('FEATURE_NEXT_3722')"
                                                 class="sw-settings-user-detail__grid-aclRoles"
                                                 :label="$tc('sw-users-permissions.users.user-detail.labelRoles')"
                                                 v-model="currentIntegration.aclRoles"
                                                 v-tooltip="{
                                                     showDelay: 300,
                                                     message: $tc('sw-users-permissions.users.user-detail.disabledRoleSelectWarning'),
-                                                    disabled: !currentIntegration.admin || !acl.can('users_and_permissions.editor')
+                                                    disabled: !currentIntegration.admin || !acl.can('integration.editor')
                                                 }"
-                                                :disabled="currentIntegration.admin || !acl.can('users_and_permissions.editor')"
+                                                :disabled="currentIntegration.admin || !acl.can('integration.editor')"
                                                 labelProperty="name">
                                             </sw-entity-multi-select>
                                         {% endblock %}
-
-                                        <div class="sw-field" v-if="!feature.isActive('FEATURE_NEXT_3722')">
-                                            <label class="sw-field__label">{{ $tc('sw-integration.detail.permissions') }}</label>
-
-                                            <sw-container columns="repeat(auto-fit, minmax(200px, 1fr))">
-                                                {% block sw_integration_list_detail_modal_inner_field_readaccess %}
-                                                <sw-field :label="$tc('sw-integration.detail.readAccessFieldLabel')"
-                                                          :value="true"
-                                                          disabled="disabled"
-                                                          type="checkbox">
-                                                </sw-field>
-                                                {% endblock %}
-
-                                                {% block sw_integration_list_detail_modal_inner_field_writeaccess %}
-                                                <sw-field :label="$tc('sw-integration.detail.writeAccessFieldLabel')"
-                                                           type="checkbox"
-                                                           :disabled="!acl.can('integration.editor')"
-                                                           v-model="currentIntegration.writeAccess">
-                                                </sw-field>
-                                                {% endblock %}
-                                            </sw-container>
-
-                                        </div>
-
 
                                         {% block sw_integration_list_detail_modal_inner_field_accesskey %}
                                             <sw-field :label="$tc('sw-integration.detail.idFieldLabel')"
@@ -206,20 +180,13 @@
 
                                     {% block sw_integration_list_grid_inner_slot_columns_writeAccess %}
                                         <template #column-writeAccess="{ item }">
-                                            <template v-if="feature.isActive('FEATURE_NEXT_3722')">
-                                                <sw-label v-if="item.admin" size="medium" ghost caps light>
-                                                    {{ $tc('sw-users-permissions.users.user-detail.labelAdministrator') }}
-                                                </sw-label>
+                                            <sw-label v-if="item.admin" size="medium" ghost caps light>
+                                                {{ $tc('sw-users-permissions.users.user-detail.labelAdministrator') }}
+                                            </sw-label>
 
-                                                <sw-label v-else v-for="role in item.aclRoles" size="medium" ghost caps light>
-                                                    {{ role.name }}
-                                                </sw-label>
-                                            </template>
-
-                                            <template v-else>
-                                                <sw-label size="medium" ghost caps light>{{ $tc('sw-integration.list.readAccess') }}</sw-label>
-                                                <sw-label v-if="item.writeAccess" size="medium" ghost caps light>{{ $tc('sw-integration.list.writeAccess') }}</sw-label>
-                                            </template>
+                                            <sw-label v-else v-for="role in item.aclRoles" size="medium" ghost caps light>
+                                                {{ role.name }}
+                                            </sw-label>
                                         </template>
                                     {% endblock %}
 

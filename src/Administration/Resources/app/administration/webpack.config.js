@@ -197,6 +197,7 @@ const webpackConfig = {
         alias: {
             vue$: 'vue/dist/vue.esm.js',
             src: path.join(__dirname, 'src'),
+            // deprecated tag:v6.4.0.0
             module: path.join(__dirname, 'src/module'),
             scss: path.join(__dirname, 'src/app/assets/scss'),
             assets: path.join(__dirname, 'static')

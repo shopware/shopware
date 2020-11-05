@@ -220,4 +220,12 @@ return [
     Shopware\Core\Framework\Event\EventAction\Aggregate\EventActionSalesChannel\EventActionSalesChannelDefinition::class => 'M:N Mapping',
     Shopware\Core\System\Integration\Aggregate\IntegrationRole\IntegrationRoleDefinition::class => 'M:N Mapping',
     Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCountryRoundingDefinition::class => '__EMPTY__',
+    Shopware\Core\Framework\App\AppDefinition::class => '__EMPTY__',
+    Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationDefinition::class => 'Translations',
+    Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonDefinition::class => '__EMPTY__',
+    Shopware\Core\Framework\App\Aggregate\ActionButtonTranslation\ActionButtonTranslationDefinition::class => 'Translations',
+    Shopware\Core\Framework\App\Template\TemplateDefinition::class => '__EMPTY__',
+    Shopware\Core\Framework\Webhook\WebhookDefinition::class => '__EMPTY__',
+    'Shopware\\Core\\Framework\\App' => '__EMPTY__',
+    'Shopware\\Core\\Framework\\Webhook' => '__EMPTY__',
 ];

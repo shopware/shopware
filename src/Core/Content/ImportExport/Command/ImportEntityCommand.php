@@ -58,13 +58,22 @@ class ImportEntityCommand extends Command
         $profile = $this->chooseProfile($context, $io);
         $filePath = $input->getArgument('file');
 
+        $expireDateString = $input->getArgument('expireDate');
+        if ($expireDateString === null) {
+            throw new \InvalidArgumentException(
+                sprintf('"%s" is not a valid date. Please use format Y-m-d', $expireDateString)
+            );
+        }
+        if (\is_array($expireDateString)) {
+            $expireDateString = implode('', $expireDateString);
+        }
+
         try {
-            $expireDate = new \DateTimeImmutable($input->getArgument('expireDate'));
+            $expireDate = new \DateTimeImmutable($expireDateString);
         } catch (\Exception $e) {
-            throw new \InvalidArgumentException(sprintf(
-                '"%s" is not a valid date. Please use format Y-m-d',
-                $input->getArgument('expireDate')
-            ));
+            throw new \InvalidArgumentException(
+                sprintf('"%s" is not a valid date. Please use format Y-m-d', $expireDateString)
+            );
         }
 
         $file = new UploadedFile($filePath, basename($filePath), $profile->getFileType());

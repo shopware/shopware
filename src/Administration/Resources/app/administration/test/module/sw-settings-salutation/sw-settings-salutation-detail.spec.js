@@ -140,9 +140,10 @@ describe('module/sw-settings-salutation/page/sw-settings-salutation-list', () =>
 
         const saveButton = wrapper.find('.sw-settings-salutation-detail__save');
 
-        const fieldSalutationKeyLabel = wrapper.find('sw-field-stub[label="sw-settings-salutation.detail.fieldSalutationKeyLabel"]');
-        const fieldDisplayNameLabel = wrapper.find('sw-field-stub[label="sw-settings-salutation.detail.fieldDisplayNameLabel"]');
-        const fieldLetterNameLabel = wrapper.find('sw-field-stub[label="sw-settings-salutation.detail.fieldLetterNameLabel"]');
+        const labelPath = 'sw-settings-salutation.detail';
+        const fieldSalutationKeyLabel = wrapper.find(`sw-field-stub[label="${labelPath}.fieldSalutationKeyLabel"]`);
+        const fieldDisplayNameLabel = wrapper.find(`sw-field-stub[label="${labelPath}.fieldDisplayNameLabel"]`);
+        const fieldLetterNameLabel = wrapper.find(`sw-field-stub[label="${labelPath}.fieldLetterNameLabel"]`);
 
         expect(fieldSalutationKeyLabel.attributes().disabled).toBeFalsy();
         expect(fieldDisplayNameLabel.attributes().disabled).toBeFalsy();
@@ -160,9 +161,11 @@ describe('module/sw-settings-salutation/page/sw-settings-salutation-list', () =>
         await wrapper.vm.$nextTick();
 
         const saveButton = wrapper.find('.sw-settings-salutation-detail__save');
-        const fieldSalutationKeyLabel = wrapper.find('sw-field-stub[label="sw-settings-salutation.detail.fieldSalutationKeyLabel"]');
-        const fieldDisplayNameLabel = wrapper.find('sw-field-stub[label="sw-settings-salutation.detail.fieldDisplayNameLabel"]');
-        const fieldLetterNameLabel = wrapper.find('sw-field-stub[label="sw-settings-salutation.detail.fieldLetterNameLabel"]');
+
+        const labelPath = 'sw-settings-salutation.detail';
+        const fieldSalutationKeyLabel = wrapper.find(`sw-field-stub[label="${labelPath}.fieldSalutationKeyLabel"]`);
+        const fieldDisplayNameLabel = wrapper.find(`sw-field-stub[label="${labelPath}.fieldDisplayNameLabel"]`);
+        const fieldLetterNameLabel = wrapper.find(`sw-field-stub[label="${labelPath}.fieldLetterNameLabel"]`);
 
         expect(fieldSalutationKeyLabel.attributes().disabled).toBeTruthy();
         expect(fieldDisplayNameLabel.attributes().disabled).toBeTruthy();
@@ -184,9 +187,11 @@ describe('module/sw-settings-salutation/page/sw-settings-salutation-list', () =>
         await wrapper.vm.$nextTick();
 
         const saveButton = wrapper.find('.sw-settings-salutation-detail__save');
-        const fieldSalutationKeyLabel = wrapper.find('sw-field-stub[label="sw-settings-salutation.detail.fieldSalutationKeyLabel"]');
-        const fieldDisplayNameLabel = wrapper.find('sw-field-stub[label="sw-settings-salutation.detail.fieldDisplayNameLabel"]');
-        const fieldLetterNameLabel = wrapper.find('sw-field-stub[label="sw-settings-salutation.detail.fieldLetterNameLabel"]');
+
+        const labelPath = 'sw-settings-salutation.detail';
+        const fieldSalutationKeyLabel = wrapper.find(`sw-field-stub[label="${labelPath}.fieldSalutationKeyLabel"]`);
+        const fieldDisplayNameLabel = wrapper.find(`sw-field-stub[label="${labelPath}.fieldDisplayNameLabel"]`);
+        const fieldLetterNameLabel = wrapper.find(`sw-field-stub[label="${labelPath}.fieldLetterNameLabel"]`);
 
         expect(fieldSalutationKeyLabel.attributes().disabled).toBeTruthy();
         expect(fieldDisplayNameLabel.attributes().disabled).toBeTruthy();

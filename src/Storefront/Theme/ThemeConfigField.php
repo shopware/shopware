@@ -78,6 +78,11 @@ class ThemeConfigField extends Struct
      */
     protected $scss;
 
+    /**
+     * @var bool|null
+     */
+    protected $fullWidth;
+
     public function getName(): string
     {
         return $this->name;
@@ -226,5 +231,15 @@ class ThemeConfigField extends Struct
     public function setScss(?bool $scss): void
     {
         $this->scss = $scss;
+    }
+
+    public function getFullWidth(): ?bool
+    {
+        return $this->fullWidth;
+    }
+
+    public function setFullWidth(?bool $fullWidth): void
+    {
+        $this->fullWidth = $fullWidth;
     }
 }

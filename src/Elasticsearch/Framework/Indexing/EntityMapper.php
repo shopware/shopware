@@ -118,6 +118,7 @@ class EntityMapper
                         'ruleId' => self::KEYWORD_FIELD,
                         'from' => self::PRICE_FIELD,
                         'to' => self::PRICE_FIELD,
+                        'listPrice' => self::PRICE_FIELD,
                         'createdAt' => self::DATE_FIELD,
                         'updatedAt' => self::DATE_FIELD,
                     ],

@@ -47,6 +47,14 @@ Component.register('sw-data-grid-settings', {
         };
     },
 
+    computed: {
+        contextMenuClasses() {
+            return {
+                'sw-data-grid-settings': true
+            };
+        }
+    },
+
     watch: {
         columns() {
             this.currentColumns = this.columns;

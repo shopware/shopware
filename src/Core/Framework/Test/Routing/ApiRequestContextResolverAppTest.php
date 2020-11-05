@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Test\Routing;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Api\Acl\AclWriteValidator;
+use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
@@ -84,7 +84,7 @@ class ApiRequestContextResolverAppTest extends TestCase
 
         static::assertEquals(403, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
-        static::assertEquals(AclWriteValidator::VIOLATION_NO_PERMISSION, $data['errors'][0]['code']);
+        static::assertEquals(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, $data['errors'][0]['code']);
     }
 
     public function testCanWriteWithPermissionsSet(): void

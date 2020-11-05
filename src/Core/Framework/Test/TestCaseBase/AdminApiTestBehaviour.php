@@ -6,7 +6,9 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -199,6 +201,7 @@ trait AdminApiTestBehaviour
         }
 
         $browser->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['access_token']));
+        $browser->setServerParameter(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, new Context(new AdminApiSource($userId)));
     }
 
     /**

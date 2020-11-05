@@ -9,6 +9,8 @@ Component.register('sw-category-view', {
         Mixin.getByName('placeholder')
     ],
 
+    inject: ['acl'],
+
     props: {
         isLoading: {
             type: Boolean,

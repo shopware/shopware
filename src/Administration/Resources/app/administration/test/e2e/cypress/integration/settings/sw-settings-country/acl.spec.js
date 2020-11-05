@@ -17,396 +17,354 @@ describe('Country: Test acl privileges', () => {
     });
 
     it('@settings: can view a list of countries', () => {
-        cy.window().then((win) => {
-            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
-                return;
+        const page = new SettingsPageObject();
+
+        cy.loginAsUserWithPermissions([
+            {
+                key: 'country',
+                role: 'viewer'
             }
+        ]);
 
-            const page = new SettingsPageObject();
+        // go to countries module
+        cy.get('.sw-admin-menu__item--sw-settings').click();
+        cy.get('#sw-settings-country').click();
 
-            cy.loginAsUserWithPermissions([
-                {
-                    key: 'country',
-                    role: 'viewer'
-                }
-            ]);
-
-            // go to countries module
-            cy.get('.sw-admin-menu__item--sw-settings').click();
-            cy.get('#sw-settings-country').click();
-
-            // assert that there is an available list of countries
-            cy.get(`${page.elements.countryListContent}`).should('be.visible');
-        });
+        // assert that there is an available list of countries
+        cy.get(`${page.elements.countryListContent}`).should('be.visible');
     });
 
     it('@settings: can edit a country', () => {
-        cy.window().then((win) => {
-            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
-                return;
+        const page = new SettingsPageObject();
+
+        cy.loginAsUserWithPermissions([
+            {
+                key: 'country',
+                role: 'viewer'
+            },
+            {
+                key: 'country',
+                role: 'editor'
             }
+        ]);
 
-            const page = new SettingsPageObject();
+        // prepare api to update a country
+        cy.server();
+        cy.route({
+            url: '/api/v*/country/*',
+            method: 'patch'
+        }).as('saveCountry');
 
-            cy.loginAsUserWithPermissions([
-                {
-                    key: 'country',
-                    role: 'viewer'
-                },
-                {
-                    key: 'country',
-                    role: 'editor'
-                }
-            ]);
+        // go to countries module
+        cy.get('.sw-admin-menu__item--sw-settings').click();
+        cy.get('#sw-settings-country').click();
 
-            // prepare api to update a country
-            cy.server();
-            cy.route({
-                url: '/api/v*/country/*',
-                method: 'patch'
-            }).as('saveCountry');
+        // click on first element in grid
+        cy.get(`
+            ${page.elements.dataGridRow}--0
+            ${page.elements.countryColumnName}
+        `).click();
 
-            // go to countries module
-            cy.get('.sw-admin-menu__item--sw-settings').click();
-            cy.get('#sw-settings-country').click();
+        // Edit name, position, iso, iso3
+        cy.get('#sw-field--country-name')
+            .clear()
+            .type('000');
+        cy.get('#sw-field--country-position')
+            .clear()
+            .type('101');
+        cy.get('#sw-field--country-iso')
+            .clear()
+            .type('101');
+        cy.get('#sw-field--country-iso3')
+            .clear()
+            .type('101');
 
-            // click on first element in grid
-            cy.get(`
-                ${page.elements.dataGridRow}--0
-                ${page.elements.countryColumnName}
-            `).click();
+        // do saving action
+        cy.get(page.elements.countrySaveAction).click();
 
-            // Edit name, position, iso, iso3
-            cy.get('#sw-field--country-name')
-                .clear()
-                .type('000');
-            cy.get('#sw-field--country-position')
-                .clear()
-                .type('101');
-            cy.get('#sw-field--country-iso')
-                .clear()
-                .type('101');
-            cy.get('#sw-field--country-iso3')
-                .clear()
-                .type('101');
-
-            // do saving action
-            cy.get(page.elements.countrySaveAction).click();
-
-            // call api to update the country
-            cy.wait('@saveCountry').then((xhr) => {
-                expect(xhr).to.have.property('status', 204);
-            });
-
-            // assert that country is updated successfully
-            cy.get(page.elements.smartBarBack).click();
-            cy.get('input.sw-search-bar__input').typeAndCheckSearchField('000');
-            cy.get(`${page.elements.countryListContent}`).should('be.visible');
-            cy.get(`${page.elements.dataGridRow}--0`)
-                .should('be.visible')
-                .contains('000');
+        // call api to update the country
+        cy.wait('@saveCountry').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
         });
+
+        // assert that country is updated successfully
+        cy.get(page.elements.smartBarBack).click();
+        cy.get('input.sw-search-bar__input').typeAndCheckSearchField('000');
+        cy.get(`${page.elements.countryListContent}`).should('be.visible');
+        cy.get(`${page.elements.dataGridRow}--0`)
+            .should('be.visible')
+            .contains('000');
     });
 
     it('@settings: can create a country', () => {
-        cy.window().then((win) => {
-            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
-                return;
+        const page = new SettingsPageObject();
+
+        cy.loginAsUserWithPermissions([
+            {
+                key: 'country',
+                role: 'viewer'
+            },
+            {
+                key: 'country',
+                role: 'editor'
+            },
+            {
+                key: 'country',
+                role: 'creator'
             }
+        ]);
 
-            const page = new SettingsPageObject();
+        // prepare api to create a new country
+        cy.server();
+        cy.route({
+            url: '/api/v*/country',
+            method: 'post'
+        }).as('saveCountry');
 
-            cy.loginAsUserWithPermissions([
-                {
-                    key: 'country',
-                    role: 'viewer'
-                },
-                {
-                    key: 'country',
-                    role: 'editor'
-                },
-                {
-                    key: 'country',
-                    role: 'creator'
-                }
-            ]);
+        // go to countries module
+        cy.get('.sw-admin-menu__item--sw-settings').click();
+        cy.get('#sw-settings-country').click();
 
-            // prepare api to create a new country
-            cy.server();
-            cy.route({
-                url: '/api/v*/country',
-                method: 'post'
-            }).as('saveCountry');
+        // click on "Add country" button
+        cy.get('a[href="#/sw/settings/country/create"]').click();
 
-            // go to countries module
-            cy.get('.sw-admin-menu__item--sw-settings').click();
-            cy.get('#sw-settings-country').click();
+        // Enter name, position, iso, iso3
+        cy.get('#sw-field--country-name')
+            .clear()
+            .type('000');
+        cy.get('#sw-field--country-position')
+            .clear()
+            .type('101');
+        cy.get('#sw-field--country-iso')
+            .clear()
+            .type('101');
+        cy.get('#sw-field--country-iso3')
+            .clear()
+            .type('101');
 
-            // click on "Add country" button
-            cy.get('a[href="#/sw/settings/country/create"]').click();
+        // do saving action
+        cy.get(page.elements.countrySaveAction).click();
 
-            // Enter name, position, iso, iso3
-            cy.get('#sw-field--country-name')
-                .clear()
-                .type('000');
-            cy.get('#sw-field--country-position')
-                .clear()
-                .type('101');
-            cy.get('#sw-field--country-iso')
-                .clear()
-                .type('101');
-            cy.get('#sw-field--country-iso3')
-                .clear()
-                .type('101');
-
-            // do saving action
-            cy.get(page.elements.countrySaveAction).click();
-
-            // call api to create a new country
-            cy.wait('@saveCountry').then((xhr) => {
-                expect(xhr).to.have.property('status', 204);
-            });
-
-            // assert that country is created successfully
-            cy.get(page.elements.smartBarBack).click();
-            cy.get(`${page.elements.countryListContent}`).should('be.visible');
-            cy.get(`
-                ${page.elements.dataGridRow}--0
-                ${page.elements.countryColumnName}
-            `).contains('000');
+        // call api to create a new country
+        cy.wait('@saveCountry').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
         });
+
+        // assert that country is created successfully
+        cy.get(page.elements.smartBarBack).click();
+        cy.get(`${page.elements.countryListContent}`).should('be.visible');
+        cy.get(`
+            ${page.elements.dataGridRow}--0
+            ${page.elements.countryColumnName}
+        `).contains('000');
     });
 
     it('@settings: can delete a country', () => {
-        cy.window().then((win) => {
-            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
-                return;
+        const page = new SettingsPageObject();
+
+        cy.loginAsUserWithPermissions([
+            {
+                key: 'country',
+                role: 'viewer'
+            },
+            {
+                key: 'country',
+                role: 'deleter'
             }
+        ]);
 
-            const page = new SettingsPageObject();
+        // prepare api to delete a country
+        cy.server();
+        cy.route({
+            url: '/api/v*/country/*',
+            method: 'delete'
+        }).as('deleteCountry');
 
-            cy.loginAsUserWithPermissions([
-                {
-                    key: 'country',
-                    role: 'viewer'
-                },
-                {
-                    key: 'country',
-                    role: 'deleter'
-                }
-            ]);
+        // go to countries module
+        cy.get('.sw-admin-menu__item--sw-settings').click();
+        cy.get('#sw-settings-country').click();
 
-            // prepare api to delete a country
-            cy.server();
-            cy.route({
-                url: '/api/v*/country/*',
-                method: 'delete'
-            }).as('deleteCountry');
+        // find a country with the name is "Zimbabwe"
+        cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Zimbabwe');
 
-            // go to countries module
-            cy.get('.sw-admin-menu__item--sw-settings').click();
-            cy.get('#sw-settings-country').click();
+        // choose delete action
+        cy.clickContextMenuItem(
+            `${page.elements.contextMenu}-item--danger`,
+            page.elements.contextMenuButton,
+            `${page.elements.dataGridRow}--0`
+        );
 
-            // find a country with the name is "Zimbabwe"
-            cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Zimbabwe');
+        // assert that confirmation modal appears
+        cy.get('.sw-modal__body').should('be.visible');
+        cy.get('.sw-modal__body').contains('Are you sure you want to delete the country "Zimbabwe"?');
 
-            // choose delete action
-            cy.clickContextMenuItem(
-                `${page.elements.contextMenu}-item--danger`,
-                page.elements.contextMenuButton,
-                `${page.elements.dataGridRow}--0`
-            );
+        // do deleting action
+        cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
 
-            // assert that confirmation modal appears
-            cy.get('.sw-modal__body').should('be.visible');
-            cy.get('.sw-modal__body').contains('Are you sure you want to delete the country "Zimbabwe"?');
-
-            // do deleting action
-            cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
-
-            // call api to delete the country
-            cy.wait('@deleteCountry').then((xhr) => {
-                expect(xhr).to.have.property('status', 204);
-            });
-
-            // assert that modal is off, country is deleted
-            cy.get(page.elements.modal).should('not.exist');
-            cy.get(`${page.elements.dataGridRow}--0 ${page.elements.countryColumnName}`).should('not.exist');
+        // call api to delete the country
+        cy.wait('@deleteCountry').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
         });
+
+        // assert that modal is off, country is deleted
+        cy.get(page.elements.modal).should('not.exist');
+        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.countryColumnName}`).should('not.exist');
     });
 
     it('@settings: can view a list of states', () => {
-        cy.window().then((win) => {
-            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
-                return;
+        const page = new SettingsPageObject();
+
+        cy.loginAsUserWithPermissions([
+            {
+                key: 'country',
+                role: 'viewer'
             }
+        ]);
 
-            const page = new SettingsPageObject();
+        // go to countries module
+        cy.get('.sw-admin-menu__item--sw-settings').click();
+        cy.get('#sw-settings-country').click();
 
-            cy.loginAsUserWithPermissions([
-                {
-                    key: 'country',
-                    role: 'viewer'
-                }
-            ]);
+        // find a country with the name is "Germany"
+        cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Germany');
 
-            // go to countries module
-            cy.get('.sw-admin-menu__item--sw-settings').click();
-            cy.get('#sw-settings-country').click();
+        // choose "Germany"
+        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.countryColumnName}`).click();
 
-            // find a country with the name is "Germany"
-            cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Germany');
-
-            // choose "Germany"
-            cy.get(`${page.elements.dataGridRow}--0 ${page.elements.countryColumnName}`).click();
-
-            // assert that there is an available list of Germany's states
-            cy.get(`${page.elements.countryStateListContent}`).should('be.visible');
-        });
+        // assert that there is an available list of Germany's states
+        cy.get(`${page.elements.countryStateListContent}`).should('be.visible');
     });
 
     it('@settings: can edit a state', () => {
-        cy.window().then((win) => {
-            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
-                return;
+        const page = new SettingsPageObject();
+
+        cy.loginAsUserWithPermissions([
+            {
+                key: 'country',
+                role: 'viewer'
+            },
+            {
+                key: 'country',
+                role: 'editor'
             }
+        ]);
 
-            const page = new SettingsPageObject();
+        // prepare api to update a state
+        cy.server();
+        cy.route({
+            url: '/api/v*/country/*/states/*',
+            method: 'patch'
+        }).as('saveCountryState');
 
-            cy.loginAsUserWithPermissions([
-                {
-                    key: 'country',
-                    role: 'viewer'
-                },
-                {
-                    key: 'country',
-                    role: 'editor'
-                }
-            ]);
+        // go to countries module
+        cy.get('.sw-admin-menu__item--sw-settings').click();
+        cy.get('#sw-settings-country').click();
 
-            // prepare api to update a state
-            cy.server();
-            cy.route({
-                url: '/api/v*/country/*/states/*',
-                method: 'patch'
-            }).as('saveCountryState');
+        // find a country with the name is "Germany"
+        cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Germany');
 
-            // go to countries module
-            cy.get('.sw-admin-menu__item--sw-settings').click();
-            cy.get('#sw-settings-country').click();
+        // choose "Germany"
+        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.countryColumnName}`).click();
 
-            // find a country with the name is "Germany"
-            cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Germany');
+        // click on the first element in grid
+        cy.get(`
+            ${page.elements.countryStateListContent}
+            ${page.elements.dataGridRow}--0
+            ${page.elements.countryStateColumnName}
+        `).click();
 
-            // choose "Germany"
-            cy.get(`${page.elements.dataGridRow}--0 ${page.elements.countryColumnName}`).click();
+        // assert that modal appears
+        cy.get('.sw-modal__body').should('be.visible');
+        cy.get('.sw-modal__title').contains('Edit state/province');
 
-            // click on the first element in grid
-            cy.get(`
-                ${page.elements.countryStateListContent}
-                ${page.elements.dataGridRow}--0
-                ${page.elements.countryStateColumnName}
-            `).click();
+        // edit name, shortCode, position
+        cy.get('#sw-field--countryState-name')
+            .clear()
+            .type('000');
+        cy.get('#sw-field--countryState-shortCode')
+            .clear()
+            .type('101');
+        cy.get('#sw-field--countryState-position')
+            .clear()
+            .type('101');
 
-            // assert that modal appears
-            cy.get('.sw-modal__body').should('be.visible');
-            cy.get('.sw-modal__title').contains('Edit state/province');
+        // do saving action
+        cy.get(page.elements.countryStateSaveAction).click();
 
-            // edit name, shortCode, position
-            cy.get('#sw-field--countryState-name')
-                .clear()
-                .type('000');
-            cy.get('#sw-field--countryState-shortCode')
-                .clear()
-                .type('101');
-            cy.get('#sw-field--countryState-position')
-                .clear()
-                .type('101');
-
-            // do saving action
-            cy.get(page.elements.countryStateSaveAction).click();
-
-            // call api to update state
-            cy.wait('@saveCountryState').then((xhr) => {
-                expect(xhr).to.have.property('status', 204);
-            });
-
-            // assert that state is updated successfully
-            cy.get(`${page.elements.countryStateListContent}`).should('be.visible');
-            cy.get(`
-                ${page.elements.countryStateListContent}
-                ${page.elements.dataGridRow}--0
-                ${page.elements.countryStateColumnName}
-            `).should('be.visible').contains('000');
+        // call api to update state
+        cy.wait('@saveCountryState').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
         });
+
+        // assert that state is updated successfully
+        cy.get(`${page.elements.countryStateListContent}`).should('be.visible');
+        cy.get(`
+            ${page.elements.countryStateListContent}
+            ${page.elements.dataGridRow}--0
+            ${page.elements.countryStateColumnName}
+        `).should('be.visible').contains('000');
     });
 
     it('@settings: can create a state', () => {
-        cy.window().then((win) => {
-            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
-                return;
+        const page = new SettingsPageObject();
+
+        cy.loginAsUserWithPermissions([
+            {
+                key: 'country',
+                role: 'viewer'
+            },
+            {
+                key: 'country',
+                role: 'creator'
+            },
+            {
+                key: 'country',
+                role: 'editor'
             }
+        ]);
 
-            const page = new SettingsPageObject();
+        // prepare api to create a state
+        cy.server();
+        cy.route({
+            url: '/api/v*/country/*/states',
+            method: 'post'
+        }).as('saveCountryState');
 
-            cy.loginAsUserWithPermissions([
-                {
-                    key: 'country',
-                    role: 'viewer'
-                },
-                {
-                    key: 'country',
-                    role: 'creator'
-                },
-                {
-                    key: 'country',
-                    role: 'editor'
-                }
-            ]);
+        // go to countries module
+        cy.get('.sw-admin-menu__item--sw-settings').click();
+        cy.get('#sw-settings-country').click();
 
-            // prepare api to create a state
-            cy.server();
-            cy.route({
-                url: '/api/v*/country/*/states',
-                method: 'post'
-            }).as('saveCountryState');
+        // find a country with the name is "Germany"
+        cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Germany');
 
-            // go to countries module
-            cy.get('.sw-admin-menu__item--sw-settings').click();
-            cy.get('#sw-settings-country').click();
+        // choose "Germany"
+        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.countryColumnName}`).click();
 
-            // find a country with the name is "Germany"
-            cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Germany');
+        // click on "add state" button
+        cy.get(`${page.elements.countryStateAddAction}`).click();
 
-            // choose "Germany"
-            cy.get(`${page.elements.dataGridRow}--0 ${page.elements.countryColumnName}`).click();
+        // assert that modal appears
+        cy.get('.sw-modal__body').should('be.visible');
+        cy.get('.sw-modal__title').contains('New state/province');
 
-            // click on "add state" button
-            cy.get(`${page.elements.countryStateAddAction}`).click();
+        // enter name, shortCode, position
+        cy.get('#sw-field--countryState-name').typeAndCheck('000');
+        cy.get('#sw-field--countryState-shortCode').typeAndCheck('101');
+        cy.get('#sw-field--countryState-position').typeAndCheck('101');
 
-            // assert that modal appears
-            cy.get('.sw-modal__body').should('be.visible');
-            cy.get('.sw-modal__title').contains('New state/province');
+        // do saving action
+        cy.get(page.elements.countryStateSaveAction).click();
 
-            // enter name, shortCode, position
-            cy.get('#sw-field--countryState-name').typeAndCheck('000');
-            cy.get('#sw-field--countryState-shortCode').typeAndCheck('101');
-            cy.get('#sw-field--countryState-position').typeAndCheck('101');
-
-            // do saving action
-            cy.get(page.elements.countryStateSaveAction).click();
-
-            // call api to create state
-            cy.wait('@saveCountryState').then((xhr) => {
-                expect(xhr).to.have.property('status', 204);
-            });
-
-            // assert that state is created successfully
-            cy.get(`${page.elements.countryStateListContent}`).should('be.visible');
-            cy.get(`
-                ${page.elements.countryStateListContent}
-                ${page.elements.countryStateColumnName}
-            `).should('be.visible').contains('000');
+        // call api to create state
+        cy.wait('@saveCountryState').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
         });
+
+        // assert that state is created successfully
+        cy.get(`${page.elements.countryStateListContent}`).should('be.visible');
+        cy.get(`
+            ${page.elements.countryStateListContent}
+            ${page.elements.countryStateColumnName}
+        `).should('be.visible').contains('000');
     });
 });

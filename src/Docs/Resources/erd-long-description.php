@@ -712,4 +712,30 @@ EOD
 __EMPTY__
 EOD
     ,
+    Shopware\Core\Framework\App\AppDefinition::class => <<<'EOD'
+__EMPTY__
+EOD
+    ,
+    Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationDefinition::class => '',
+    Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonDefinition::class => <<<'EOD'
+__EMPTY__
+EOD
+    ,
+    Shopware\Core\Framework\App\Aggregate\ActionButtonTranslation\ActionButtonTranslationDefinition::class => '',
+    Shopware\Core\Framework\App\Template\TemplateDefinition::class => <<<'EOD'
+__EMPTY__
+EOD
+    ,
+    Shopware\Core\Framework\Webhook\WebhookDefinition::class => <<<'EOD'
+__EMPTY__
+EOD
+    ,
+    'Shopware\\Core\\Framework\\App' => <<<'EOD'
+__EMPTY__
+EOD
+    ,
+    'Shopware\\Core\\Framework\\Webhook' => <<<'EOD'
+__EMPTY__
+EOD
+    ,
 ];

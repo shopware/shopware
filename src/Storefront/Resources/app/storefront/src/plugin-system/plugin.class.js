@@ -104,7 +104,12 @@ export default class Plugin {
             );
         }
 
-        return deepmerge.all(merge.map(config => config || {}));
+        return deepmerge.all(
+            merge.filter(config => {
+                return config instanceof Object && !(config instanceof Array);
+            })
+                .map(config => config || {})
+        );
     }
 
     /**

@@ -90,7 +90,11 @@
                   content="{{ shopware.theme['sw-color-brand-primary'] }}"/>
         {% endblock %}
 
-        {% block layout_head_canonical %}{% endblock %}
+        {% block layout_head_canonical %}
+            {% if page.metaInformation.canonical %}
+                <link rel="canonical" href="{{ page.metaInformation.canonical }}" />
+            {% endif %}
+        {% endblock %}
 
         {% block layout_head_title %}
             <title itemprop="name">

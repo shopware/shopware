@@ -29,7 +29,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 class ProductCrossSellingDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'product_cross_selling';
-
     public const SORT_BY_PRICE = 'price';
     public const SORT_BY_RELEASE_DATE = 'releaseDate';
     public const SORT_BY_NAME = 'name';
@@ -66,6 +65,11 @@ class ProductCrossSellingDefinition extends EntityDefinition
             'active' => false,
             'limit' => 24,
         ];
+    }
+
+    public function since(): ?string
+    {
+        return '6.1.0.0';
     }
 
     protected function defineFields(): FieldCollection

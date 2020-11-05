@@ -14,7 +14,13 @@ Component.register('sw-admin-menu', {
         Mixin.getByName('notification')
     ],
 
-    inject: ['menuService', 'loginService', 'userService', 'feature'],
+    inject: [
+        'menuService',
+        'loginService',
+        'userService',
+        'appModulesService',
+        'feature'
+    ],
 
     data() {
         return {
@@ -41,31 +47,44 @@ Component.register('sw-admin-menu', {
         },
 
         userTitle() {
-            if (!this.feature.isActive('FEATURE_NEXT_3722')) {
-                return 'Administrator';
-            }
-
-            if (this.currentUser.admin) {
+            if (this.currentUser && this.currentUser.admin) {
                 return this.$tc('global.sw-admin-menu.administrator');
             }
 
-            if (this.currentUser.title && this.currentUser.title.length > 0) {
+            if (this.currentUser && this.currentUser.title && this.currentUser.title.length > 0) {
                 return this.currentUser.title;
             }
 
-            if (this.currentUser.aclRoles && this.currentUser.aclRoles.length > 0) {
+            if (this.currentUser && this.currentUser.aclRoles && this.currentUser.aclRoles.length > 0) {
                 return this.currentUser.aclRoles[0].name;
             }
 
-            return this.currentUser.title;
+            if (this.currentUser && this.currentUser.title) {
+                return this.currentUser.title;
+            }
+
+            return '';
         },
 
         currentLocale() {
             return Shopware.State.get('session').currentLocale;
         },
 
+        appEntries() {
+            return Shopware.State.getters['shopwareApps/navigation'];
+        },
+
         mainMenuEntries() {
-            return this.menuService.getMainMenu();
+            const mainMenu = this.menuService.getMainMenu();
+
+            // save menu entry for reactivity purposes
+            const myAppsEntry = mainMenu.find((entry) => entry.id === 'sw-my-apps');
+
+            if (myAppsEntry && this.appEntries.length > 0) {
+                myAppsEntry.children = [...myAppsEntry.children, ...this.appEntries];
+            }
+
+            return mainMenu;
         },
 
         sidebarCollapseIcon() {
@@ -137,6 +156,14 @@ Component.register('sw-admin-menu', {
             this.getUser();
             this.$root.$on('toggle-offcanvas', (state) => {
                 this.isOffCanvasShown = state;
+            });
+
+            this.refreshApps();
+        },
+
+        refreshApps() {
+            return this.appModulesService.fetchAppModules().then((modules) => {
+                return Shopware.State.dispatch('shopwareApps/setAppModules', modules);
             });
         },
 
@@ -297,7 +324,7 @@ Component.register('sw-admin-menu', {
 
         onLogoutUser() {
             this.loginService.logout();
-            Shopware.State.commit('session/removeCurrentUser');
+            Shopware.State.commit('removeCurrentUser');
             Shopware.State.commit('notification/setNotifications', {});
             Shopware.State.commit('notification/clearGrowlNotificationsForCurrentUser');
             Shopware.State.commit('notification/clearNotificationsForCurrentUser');

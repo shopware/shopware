@@ -18,14 +18,13 @@ class WriteProtectedReferenceDefinition extends MappingEntityDefinition
         return self::ENTITY_NAME;
     }
 
+    public function since(): ?string
+    {
+        return '6.0.0.0';
+    }
+
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([
-            (new FkField('wp_id', 'wpId', WriteProtectedDefinition::class))->addFlags(new PrimaryKey(), new Required()),
-            (new FkField('relation_id', 'relationId', WriteProtectedRelationDefinition::class))->addFlags(new PrimaryKey(), new Required()),
-
-            new ManyToOneAssociationField('wp', 'wp_id', WriteProtectedDefinition::class, 'id', false),
-            new ManyToOneAssociationField('relation', 'relation_id', WriteProtectedRelationDefinition::class, 'id', false),
-        ]);
+        return new FieldCollection([(new FkField('wp_id', 'wpId', WriteProtectedDefinition::class))->addFlags(new PrimaryKey(), new Required()), (new FkField('relation_id', 'relationId', WriteProtectedRelationDefinition::class))->addFlags(new PrimaryKey(), new Required()), new ManyToOneAssociationField('wp', 'wp_id', WriteProtectedDefinition::class, 'id', false), new ManyToOneAssociationField('relation', 'relation_id', WriteProtectedRelationDefinition::class, 'id', false)]);
     }
 }

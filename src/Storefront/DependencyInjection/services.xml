@@ -116,8 +116,8 @@
             <argument type="service" id="Shopware\Core\Content\Seo\HreflangLoaderInterface" />
             <argument>%kernel.debug%</argument>
             <argument type="service" id="Shopware\Storefront\Framework\Routing\MaintenanceModeResolver"/>
-            <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider" on-invalid="null"/>
-            <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader" on-invalid="null"/>
+            <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
+            <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -152,6 +152,7 @@
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Content\Category\SalesChannel\CategoryRoute"/>
+            <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Navigation\Error\ErrorPageLoader">
@@ -295,6 +296,13 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
+        </service>
+
+        <service id="Shopware\Storefront\Page\Account\Document\DocumentPageLoader">
+            <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Checkout\Document\DocumentService"/>
+            <argument type="service" id="document.repository"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Account\Order\AccountOrderDetailPageLoader">

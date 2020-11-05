@@ -10,7 +10,7 @@ const types = Shopware.Utils.types;
 Component.register('sw-profile-index', {
     template,
 
-    inject: ['userService', 'loginService', 'repositoryFactory'],
+    inject: ['userService', 'loginService', 'repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('notification')
@@ -242,6 +242,19 @@ Component.register('sw-profile-index', {
         },
 
         saveUser(authToken) {
+            if (!this.acl.can('user:editor')) {
+                const changes = this.userRepository.getSyncChangeset([this.user]);
+
+                this.userService.updateUser(changes.changeset[0].changes).then(() => {
+                    this.isLoading = false;
+                    this.isSaveSuccessful = true;
+
+                    Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId);
+                });
+
+                return;
+            }
+
             const context = { ...Shopware.Context.api };
             context.authToken.access = authToken;
 
@@ -253,10 +266,11 @@ Component.register('sw-profile-index', {
                 if (this.newPassword) {
                     // re-issue a valid jwt token, as all user tokens were invalidated on password change
                     this.loginService.loginByUsername(this.user.username, this.newPassword).then(() => {
-                        this.isLoading = false;
                         this.isSaveSuccessful = true;
                     }).catch(() => {
                         this.handleUserSaveError();
+                    }).finally(() => {
+                        this.isLoading = false;
                     });
                 } else {
                     this.isLoading = false;
@@ -287,6 +301,15 @@ Component.register('sw-profile-index', {
                 if (!verifiedToken) {
                     return;
                 }
+
+                const authObject = {
+                    ...this.loginService.getBearerAuthentication(),
+                    ...{
+                        access: verifiedToken
+                    }
+                };
+
+                this.loginService.setBearerAuthentication(authObject);
 
                 this.confirmPasswordModal = false;
                 this.isSaveSuccessful = false;

@@ -237,11 +237,13 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             { selector: wrapper.findAll('sw-code-editor-stub'), attribute: 'disabled', expect: 'true' },
             { selector: wrapper.findAll('sw-context-menu-item-stub'), attribute: 'disabled', expect: 'true' },
             { selector: wrapper.find('sw-entity-single-select-stub'), attribute: 'disabled', expect: 'true' },
-            { selector: wrapper.find('sw-entity-multi-select-stub'), attribute: 'disabled', expect: 'true' },
             { selector: wrapper.find('sw-media-upload-v2-stub'), attribute: 'disabled', expect: 'true' },
             { selector: wrapper.find('sw-text-field-stub'), attribute: 'disabled', expect: 'true' },
-            // eslint-disable-next-line max-len
-            { selector: wrapper.find('.sw-mail-template-detail__attachments-info-grid'), attribute: 'showselection', expect: undefined }
+            {
+                selector: wrapper.find('.sw-mail-template-detail__attachments-info-grid'),
+                attribute: 'showselection',
+                expect: undefined
+            }
         ].forEach(element => {
             if (element.selector.length > 1) {
                 element.selector.wrappers.forEach(el => {
@@ -272,11 +274,13 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
             { selector: wrapper.findAll('sw-code-editor-stub'), attribute: 'disabled', expect: undefined },
             { selector: wrapper.findAll('sw-context-menu-item-stub'), attribute: 'disabled', expect: undefined },
             { selector: wrapper.find('sw-entity-single-select-stub'), attribute: 'disabled', expect: undefined },
-            { selector: wrapper.find('sw-entity-multi-select-stub'), attribute: 'disabled', expect: undefined },
             { selector: wrapper.find('sw-media-upload-v2-stub'), attribute: 'disabled', expect: undefined },
             { selector: wrapper.find('sw-text-field-stub'), attribute: 'disabled', expect: undefined },
-            // eslint-disable-next-line max-len
-            { selector: wrapper.find('.sw-mail-template-detail__attachments-info-grid'), attribute: 'showselection', expect: 'true' }
+            {
+                selector: wrapper.find('.sw-mail-template-detail__attachments-info-grid'),
+                attribute: 'showselection',
+                expect: 'true'
+            }
         ].forEach(element => {
             if (element.selector.length > 1) {
                 element.selector.wrappers.forEach(el => {

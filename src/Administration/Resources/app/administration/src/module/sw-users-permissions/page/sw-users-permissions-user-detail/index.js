@@ -16,7 +16,6 @@ Component.register('sw-users-permissions-user-detail', {
         'userValidationService',
         'integrationService',
         'repositoryFactory',
-        'feature',
         'acl'
     ],
 
@@ -94,6 +93,15 @@ Component.register('sw-users-permissions-user-detail', {
             return criteria;
         },
 
+        aclRoleCriteria() {
+            const criteria = new Criteria();
+
+            // Roles created by apps should not be assignable in the admin
+            criteria.addFilter(Criteria.equals('app.id', null));
+
+            return criteria;
+        },
+
         languageRepository() {
             return this.repositoryFactory.create('language');
         },
@@ -142,19 +150,10 @@ Component.register('sw-users-permissions-user-detail', {
         },
 
         integrationColumns() {
-            const columns = [{
+            return [{
                 property: 'accessKey',
                 label: this.$tc('sw-users-permissions.users.user-detail.labelAccessKey')
             }];
-
-            if (!this.feature.isActive('FEATURE_NEXT_3722')) {
-                columns.push({
-                    property: 'writeAccess',
-                    label: this.$tc('sw-users-permissions.users.user-detail.labelPermissions')
-                });
-            }
-
-            return columns;
         },
 
         secretAccessKeyFieldType() {

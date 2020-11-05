@@ -27,7 +27,8 @@ Module.register('sw-settings-basic-information', {
             component: 'sw-settings-basic-information',
             path: 'index',
             meta: {
-                parentPath: 'sw.settings.index'
+                parentPath: 'sw.settings.index',
+                privilege: 'system.system_config'
             }
         }
     },
@@ -35,6 +36,7 @@ Module.register('sw-settings-basic-information', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.basic.information.index',
-        icon: 'default-basic-stack-line'
+        icon: 'default-basic-stack-line',
+        privilege: 'system.system_config'
     }
 });

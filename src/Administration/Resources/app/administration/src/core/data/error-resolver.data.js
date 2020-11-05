@@ -135,7 +135,7 @@ export default class ErrorResolver {
         if (definition.isToOneAssociation(field)) {
             this.resolveOneToOneFieldError(
                 `${entity.getEntityName()}.${entity.id}.${fieldName}`,
-                error,
+                error
             );
             return;
         }
@@ -143,7 +143,7 @@ export default class ErrorResolver {
         if (definition.isJsonField(field)) {
             this.resolveJsonFieldError(
                 `${entity.getEntityName()}.${entity.id}.${fieldName}`,
-                error,
+                error
             );
             return;
         }

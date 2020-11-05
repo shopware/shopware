@@ -1,6 +1,7 @@
 import template from './sw-order-create-details-header.html.twig';
 
 const { Component } = Shopware;
+const { Criteria } = Shopware.Data;
 
 Component.register('sw-order-create-details-header', {
     template,
@@ -39,6 +40,13 @@ Component.register('sw-order-create-details-header', {
             set(customerId) {
                 if (this.customer) this.customer.id = customerId;
             }
+        },
+        customerCriteria() {
+            const criteria = new Criteria(1, 25);
+
+            criteria.addAssociation('defaultBillingAddress.country');
+
+            return criteria;
         }
     },
 

@@ -6,4 +6,5 @@ trait SalesChannelFunctionalTestBehaviour
 {
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
+    use CountryAddToSalesChannelTestBehaviour;
 }

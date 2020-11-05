@@ -8,12 +8,14 @@ Component.register('sw-settings-cart', {
     mixins: [
         Mixin.getByName('notification')
     ],
+
     data() {
         return {
             isLoading: false,
             isSaveSuccessful: false
         };
     },
+
     methods: {
         saveFinish() {
             this.isSaveSuccessful = false;

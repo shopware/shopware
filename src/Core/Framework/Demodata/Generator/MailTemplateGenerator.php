@@ -116,6 +116,9 @@ class MailTemplateGenerator implements DemodataGeneratorInterface
         for ($i = 0; $i < $count; ++$i) {
             $tag = Random::getRandomArrayElement($tags);
             $text = $context->getFaker()->words(random_int(1, 10), true);
+            if (\is_array($text)) {
+                $text = implode(' ', $text);
+            }
             $output .= sprintf('<%1$s>%2$s</%1$s>', $tag, $text);
             $output .= '<br/>';
         }

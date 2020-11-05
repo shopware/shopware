@@ -1,43 +1,69 @@
 {% block component_address %}
     <div class="address">
         {% if address.company or address.vatId %}
-            <p>
-            {% if address.company %}
-                {{ address.company }}{% if address.department %} - {{ address.department }}{% endif %}
-                <br/>
-            {% endif %}
-            {% if address.vatId %}
-                {{ "address.companyVatLabel"|trans|sw_sanitize }}: {{ address.vatId }}
-            {% endif %}
-            </p>
+            {% block component_address_company %}
+                <p>
+                {% if address.company %}
+                    {% block component_address_company_name %}
+                    {{ address.company }}{% if address.department %} - {{ address.department }}{% endif %}
+                    {% endblock %}
+                    <br/>
+                {% endif %}
+                {% if address.vatId %}
+                    {% block component_address_company_vat_id %}
+                        {{ "address.companyVatLabel"|trans|sw_sanitize }}: {{ address.vatId }}
+                    {% endblock %}
+                {% endif %}
+                </p>
+            {% endblock %}
         {% endif %}
         <p>
             {% if address.salutation.salutationKey != 'not_specified' %}
-                {{ address.salutation.translated.displayName }}
+                {% block component_address_salutation %}
+                    {{ address.salutation.translated.displayName }}
+                {% endblock %}
             {% endif %}
             {% if address.title %}
-                {{ address.title }}<br/>
+                {% block component_address_title %}
+                    {{ address.title }}<br/>
+                {% endblock %}
             {% endif %}
-            {{ address.firstName }} {{ address.lastName }}<br/>
-            {{ address.street }}<br/>
+            {% block component_address_name %}
+                {{ address.firstName }} {{ address.lastName }}<br/>
+            {% endblock %}
+            {% block component_address_street %}
+                {{ address.street }}<br/>
+            {% endblock %}
             {% if address.additionalAddressLine1 %}
-                {{ address.additionalAddressLine1 }}<br/>
+                {% block component_address_additional_address_line_1 %}
+                    {{ address.additionalAddressLine1 }}<br/>
+                {% endblock %}
             {% endif %}
             {% if address.additionalAddressLine2 %}
-                {{ address.additionalAddressLine2 }}<br/>
+                {% block component_address_additional_address_line_2 %}
+                    {{ address.additionalAddressLine2 }}<br/>
+                {% endblock %}
             {% endif %}
             {% if address.phoneNumber %}
-                {{ address.phoneNumber }}<br/>
+                {% block component_address_phone_number %}
+                    {{ address.phoneNumber }}<br/>
+                {% endblock %}
             {% endif %}
-            {% if shopware.config.core.address.showZipcodeInFrontOfCity %}
-                {{ address.zipcode }} {{ address.city }}<br/>
-            {% else %}
-                {{ address.zipcode }} {{ address.city }}<br/>
-            {% endif %}
+            {% block component_address_zipcode_city %}
+                {% if shopware.config.core.address.showZipcodeInFrontOfCity %}
+                    {{ address.zipcode }} {{ address.city }}<br/>
+                {% else %}
+                    {{ address.zipcode }} {{ address.city }}<br/>
+                {% endif %}
+            {% endblock %}
             {% if address.countryState %}
-                {{ address.countryState.translated.name }}<br/>
+                {% block component_address_state %}
+                    {{ address.countryState.translated.name }}<br/>
+                {% endblock %}
             {% endif %}
-            {{ address.country.translated.name }}
+            {% block component_address_country %}
+                {{ address.country.translated.name }}
+            {% endblock %}
         </p>
     </div>
 {% endblock %}

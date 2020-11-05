@@ -16,12 +16,14 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Event\DataMappingEvent;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
@@ -115,9 +117,10 @@ class RegisterRoute extends AbstractRegisterRoute
     }
 
     /**
+     * @Since("6.2.0.0")
      * @OA\Post(
      *      path="/account/register",
-     *      description="Register",
+     *      summary="Register",
      *      operationId="register",
      *      tags={"Store API", "Account"},
      *      @OA\Parameter(name="guest", description="Create guest user", in="query", @OA\Schema(type="boolean")),
@@ -177,6 +180,10 @@ class RegisterRoute extends AbstractRegisterRoute
 
         $customer = $this->setDoubleOptInData($customer, $context);
 
+        if (Feature::isActive('FEATURE_NEXT_10555')) {
+            $customer['boundSalesChannelId'] = $this->getBoundSalesChannelId($customer['email'], $context);
+        }
+
         $this->customerRepository->create([$customer], $context->getContext());
 
         $criteria = new Criteria([$customer['id']]);
@@ -205,6 +212,7 @@ class RegisterRoute extends AbstractRegisterRoute
                     'billingAddressId' => null,
                     'shippingAddressId' => null,
                 ],
+                Feature::isActive('FEATURE_NEXT_10058') ? $context->getSalesChannel()->getId() : null,
                 Feature::isActive('FEATURE_NEXT_10058') ? $customerEntity->getId() : null
             );
 
@@ -407,7 +415,11 @@ class RegisterRoute extends AbstractRegisterRoute
         if (!$isGuest) {
             $minLength = $this->systemConfigService->get('core.loginRegistration.passwordMinLength', $context->getSalesChannel()->getId());
             $validation->add('password', new NotBlank(), new Length(['min' => $minLength]));
-            $validation->add('email', new CustomerEmailUnique(['context' => $context->getContext()]));
+            $options = Feature::isActive('FEATURE_NEXT_10555')
+                ? ['context' => $context->getContext(), 'salesChannelContext' => $context]
+                : ['context' => $context->getContext()];
+
+            $validation->add('email', new CustomerEmailUnique($options));
         }
 
         $validationEvent = new BuildValidationEvent($validation, $context->getContext());
@@ -440,5 +452,34 @@ class RegisterRoute extends AbstractRegisterRoute
         }
 
         return $mappedData;
+    }
+
+    private function getBoundSalesChannelId(string $email, SalesChannelContext $context): ?string
+    {
+        $bindCustomers = $this->systemConfigService->get('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel');
+        $salesChannelId = $context->getSalesChannel()->getId();
+
+        if ($bindCustomers) {
+            return $salesChannelId;
+        }
+
+        if ($this->hasBoundAccount($email, $context)) {
+            return $salesChannelId;
+        }
+
+        return null;
+    }
+
+    private function hasBoundAccount(string $email, SalesChannelContext $context): bool
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('email', $email));
+        $criteria->addFilter(new NotFilter(NotFilter::CONNECTION_AND, [
+            new EqualsFilter('customer.boundSalesChannelId', null),
+        ]));
+
+        $criteria->setLimit(1);
+
+        return $this->customerRepository->search($criteria, $context->getContext())->count() > 0;
     }
 }

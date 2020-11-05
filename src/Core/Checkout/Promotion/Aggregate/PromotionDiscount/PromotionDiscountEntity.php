@@ -122,6 +122,11 @@ class PromotionDiscountEntity extends Entity
      */
     protected $usageKey;
 
+    /**
+     * @var string|null
+     */
+    protected $pickerKey;
+
     public function getPromotionId(): string
     {
         return $this->promotionId;
@@ -306,5 +311,15 @@ class PromotionDiscountEntity extends Entity
     public function setUsageKey(string $usageKey): void
     {
         $this->usageKey = $usageKey;
+    }
+
+    public function getPickerKey(): string
+    {
+        return (string) $this->pickerKey;
+    }
+
+    public function setPickerKey(string $pickerKey): void
+    {
+        $this->pickerKey = $pickerKey;
     }
 }

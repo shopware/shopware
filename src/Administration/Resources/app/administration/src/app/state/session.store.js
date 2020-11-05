@@ -25,6 +25,10 @@ export default {
         },
 
         userPrivileges(state) {
+            if (!state.currentUser || !Array.isArray(state.currentUser.aclRoles)) {
+                return [];
+            }
+
             return state.currentUser.aclRoles.reduce((acc, role) => {
                 acc = [...acc, ...role.privileges];
 

@@ -18,7 +18,8 @@ Module.register('sw-settings-login-registration', {
             component: 'sw-settings-login-registration',
             path: 'index',
             meta: {
-                parentPath: 'sw.settings.index'
+                parentPath: 'sw.settings.index',
+                privilege: 'system.system_config'
             }
         }
     },
@@ -26,6 +27,7 @@ Module.register('sw-settings-login-registration', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.login.registration.index',
-        icon: 'default-action-log-in'
+        icon: 'default-action-log-in',
+        privilege: 'system.system_config'
     }
 });

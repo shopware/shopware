@@ -30,6 +30,15 @@
                                         <p>{{ $tc('sw-cms.detail.label.pageTypeCategory') }}</p>
                                     </div>
                                 {% endblock %}
+
+                                <template v-if="feature.isActive('FEATURE_NEXT_10078')">
+                                    {% block sw_cms_create_wizard_page_type_options_product_detail %}
+                                        <div class="sw-cms-create-wizard__page-type" @click="onPageTypeSelect('product_detail')">
+                                            <sw-icon name="default-action-tags" size="24"></sw-icon>
+                                            <p>{{ $tc('sw-cms.detail.label.pageTypeProduct') }}</p>
+                                        </div>
+                                    {% endblock %}
+                                </template>
                             {% endblock %}
                         </div>
                     {% endblock %}

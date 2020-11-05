@@ -108,6 +108,10 @@ Component.register('sw-settings-listing-option-base', {
         onSave() {
             this.transformCustomFieldCriterias();
 
+            this.productSortingEntity.fields = this.productSortingEntity.fields.filter(field => {
+                return field.field !== 'customField';
+            });
+
             return this.saveProductSorting()
                 .then(() => {
                     const sortingOptionName = this.productSortingEntity.label;

@@ -6,6 +6,7 @@ use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Payment\PaymentService;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
@@ -44,9 +45,10 @@ class HandlePaymentMethodRoute extends AbstractHandlePaymentMethodRoute
     }
 
     /**
+     * @Since("6.2.0.0")
      * @OA\Get(
      *      path="/handle-payment",
-     *      description="Handles a payment for an order",
+     *      summary="Handles a payment for an order",
      *      operationId="handlePaymentMethod",
      *      tags={"Store API", "Payment Method"},
      *      @OA\Parameter(

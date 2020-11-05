@@ -6,7 +6,7 @@ use GuzzleHttp\Client;
 
 class WikiApiService
 {
-    private const INITIAL_VERSION = '6.0.0';
+    private const INITIAL_VERSION = '6.0.0.0';
     private const DOC_VERSION = '1.0.0';
 
     /**
@@ -548,6 +548,10 @@ class WikiApiService
 
     private function deleteArticle(int $articleId): void
     {
+        if ($this->hasArticleRatings($articleId)) {
+            return;
+        }
+
         $this->client->delete(
             vsprintf('/wiki/entries/%d', [$articleId]),
             ['headers' => $this->getBasicHeaders()]
@@ -812,6 +816,7 @@ class WikiApiService
 
         foreach ($hashesOnServer as $hashToBeDeleted => $mappedId) {
             $this->articleHandler->deleteEntityHash($hashToBeDeleted);
+            $this->disableArticle((int) $mappedId);
             $this->deleteArticle((int) $mappedId);
         }
     }
@@ -849,5 +854,25 @@ class WikiApiService
         }
 
         return $rebuiltArray;
+    }
+
+    private function hasArticleRatings(int $articleId): bool
+    {
+        $articleVersionUrl = $this->buildArticleVersionUrl($this->getArticleInfo($articleId));
+
+        $response = $this->client->get(
+            sprintf('%s/ratings', $articleVersionUrl),
+            [
+                'headers' => $this->getBasicHeaders(),
+            ]
+        );
+
+        $ratings = json_decode($response->getBody()->getContents(), true);
+
+        if (!$ratings) {
+            return false;
+        }
+
+        return true;
     }
 }

@@ -11,5 +11,5 @@ interface SyncServiceInterface
      *
      * @throws \Doctrine\DBAL\ConnectionException
      */
-    public function sync(iterable $operations, Context $context, SyncBehavior $behavior): SyncResult;
+    public function sync(array $operations, Context $context, SyncBehavior $behavior): SyncResult;
 }

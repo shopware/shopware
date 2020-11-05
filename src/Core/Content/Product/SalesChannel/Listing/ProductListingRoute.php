@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -64,10 +65,11 @@ class ProductListingRoute extends AbstractProductListingRoute
     }
 
     /**
+     * @Since("6.2.0.0")
      * @Entity("product")
      * @OA\Post(
      *      path="/product-listing/{categoryId}",
-     *      description="Loads products from listing",
+     *      summary="Loads products from listing",
      *      operationId="readProductListing",
      *      tags={"Store API","Product"},
      *      @OA\Response(

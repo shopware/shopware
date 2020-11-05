@@ -7,10 +7,12 @@ use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class ChangeEmailRouteTest extends TestCase
 {
@@ -125,6 +127,95 @@ class ChangeEmailRouteTest extends TestCase
         static::assertSame('test@fooware.de', $response['email']);
     }
 
+    public function testChangeSuccessWithSameEmailOnDiffSalesChannel(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_10555', $this);
+
+        $this->getContainer()->get(SystemConfigService::class)->set('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel', true);
+
+        $newEmail = 'test@fooware.de';
+
+        $salesChannelContext = $this->createSalesChannelContext([
+            'domains' => [
+                [
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'currencyId' => Defaults::CURRENCY,
+                    'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                    'url' => 'http://localhost2',
+                ],
+            ],
+        ]);
+
+        $this->createCustomerOfSalesChannel($salesChannelContext->getSalesChannel()->getId(), $newEmail);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/account/change-email',
+                [
+                    'password' => 'shopware',
+                    'email' => $newEmail,
+                    'emailConfirmation' => $newEmail,
+                ]
+            );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertArrayNotHasKey('errors', $response);
+        static::assertTrue($response['success']);
+
+        $this->browser
+            ->request(
+                'GET',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/account/customer',
+                [
+                ]
+            );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertSame($newEmail, $response['email']);
+    }
+
+    public function testChangeFailWithSameEmailOnSameSalesChannel(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_10555', $this);
+
+        $newEmail = 'test@fooware.de';
+
+        $this->createCustomerOfSalesChannel($this->ids->get('sales-channel'), $newEmail);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/account/change-email',
+                [
+                    'password' => 'shopware',
+                    'email' => $newEmail,
+                    'emailConfirmation' => $newEmail,
+                ]
+            );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertArrayHasKey('errors', $response);
+        static::assertEquals(400, $this->browser->getResponse()->getStatusCode());
+        static::assertNotEmpty($response['errors']);
+        static::assertEquals('VIOLATION::CUSTOMER_EMAIL_NOT_UNIQUE', $response['errors'][0]['code']);
+
+        $this->browser
+            ->request(
+                'GET',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/account/customer',
+                [
+                ]
+            );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertNotEquals($newEmail, $response['email']);
+    }
+
     private function createCustomer(string $password, ?string $email = null): string
     {
         $customerId = Uuid::randomHex();
@@ -142,7 +233,7 @@ class ChangeEmailRouteTest extends TestCase
                     'city' => 'Schoöppingen',
                     'zipcode' => '12345',
                     'salutationId' => $this->getValidSalutationId(),
-                    'country' => ['name' => 'Germany'],
+                    'countryId' => $this->getValidCountryId(),
                 ],
                 'defaultBillingAddressId' => $addressId,
                 'defaultPaymentMethod' => [
@@ -179,6 +270,52 @@ class ChangeEmailRouteTest extends TestCase
                 'customerNumber' => '12345',
             ],
         ], $this->ids->context);
+
+        return $customerId;
+    }
+
+    private function createCustomerOfSalesChannel(string $salesChannelId, string $email): string
+    {
+        $customerId = Uuid::randomHex();
+        $addressId = Uuid::randomHex();
+
+        $customer = [
+            'id' => $customerId,
+            'number' => '1337',
+            'salutationId' => $this->getValidSalutationId(),
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'customerNumber' => '1337',
+            'email' => $email,
+            'password' => 'shopware',
+            'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
+            'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+            'salesChannelId' => $salesChannelId,
+            'defaultBillingAddressId' => $addressId,
+            'defaultShippingAddressId' => $addressId,
+            'addresses' => [
+                [
+                    'id' => $addressId,
+                    'customerId' => $customerId,
+                    'countryId' => $this->getValidCountryId(),
+                    'salutationId' => $this->getValidSalutationId(),
+                    'firstName' => 'Max',
+                    'lastName' => 'Mustermann',
+                    'street' => 'Ebbinghoff 10',
+                    'zipcode' => '48624',
+                    'city' => 'Schöppingen',
+                ],
+            ],
+        ];
+
+        if (Feature::isActive('FEATURE_NEXT_10555')) {
+            $isCustomerBound = $this->getContainer()->get(SystemConfigService::class)->get('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel');
+            $customer['boundSalesChannelId'] = $isCustomerBound ? $salesChannelId : null;
+        }
+
+        $this->getContainer()
+            ->get('customer.repository')
+            ->upsert([$customer], Context::createDefaultContext());
 
         return $customerId;
     }

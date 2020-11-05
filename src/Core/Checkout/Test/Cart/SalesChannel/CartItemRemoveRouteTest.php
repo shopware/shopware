@@ -7,6 +7,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -215,8 +216,18 @@ class CartItemRemoveRouteTest extends TestCase
     private function enableAdminAccess(): void
     {
         $token = $this->browser->getServerParameter('HTTP_SW_CONTEXT_TOKEN');
-        $payload = $this->getContainer()->get(SalesChannelContextPersister::class)->load($token);
+        if (Feature::isActive('FEATURE_NEXT_10058')) {
+            $payload = $this->getContainer()->get(SalesChannelContextPersister::class)->load($token, $this->ids->get('sales-channel'));
+        } else {
+            $payload = $this->getContainer()->get(SalesChannelContextPersister::class)->load($token);
+        }
+
         $payload[SalesChannelContextService::PERMISSIONS] = [ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES => true];
-        $this->getContainer()->get(SalesChannelContextPersister::class)->save($token, $payload);
+
+        if (Feature::isActive('FEATURE_NEXT_10058')) {
+            $this->getContainer()->get(SalesChannelContextPersister::class)->save($token, $payload, $this->ids->get('sales-channel'));
+        } else {
+            $this->getContainer()->get(SalesChannelContextPersister::class)->save($token, $payload);
+        }
     }
 }

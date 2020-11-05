@@ -28,13 +28,14 @@
                                     <ul class="sw-admin-menu__navigation-list">
 
                                         {% block sw_admin_menu_navigation_main_items %}
-                                            <sw-admin-menu-item v-for="(entry, index) in mainMenuEntries"
-                                                                @menu-item-hover="openFlyout"
-                                                                @menu-item-click="openSubMenu"
-                                                                :sidebarExpanded="isExpanded"
-                                                                :entry="entry"
-                                                                :key="entry.id || entry.path"
-                                                                :class="['sw-admin-menu__item--' + entry.id, entry.label]">
+                                            <sw-admin-menu-item
+                                                v-for="(entry, index) in mainMenuEntries"
+                                                :key="`${entry.id || entry.path}-${entry.children.length}`"
+                                                :class="['sw-admin-menu__item--' + entry.id, entry.label]"
+                                                :sidebarExpanded="isExpanded"
+                                                :entry="entry"
+                                                @menu-item-hover="openFlyout"
+                                                @menu-item-click="openSubMenu">
                                             </sw-admin-menu-item>
                                         {% endblock %}
                                     </ul>

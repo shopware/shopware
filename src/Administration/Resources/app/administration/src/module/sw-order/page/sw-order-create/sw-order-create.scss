@@ -6,7 +6,7 @@ $sw-order-user-card: '.sw-order-user-card';
 $sw-highlight-text: '.sw-highlight-text';
 $font-weight-semi-bold: 600;
 
-$select-result-customer-item-first-width: 40px;
+$select-result-customer-item-last-width: 40px;
 $select-result-customer-item-gutter: 10px;
 
 .sw-order-create {
@@ -23,13 +23,11 @@ $select-result-customer-item-gutter: 10px;
 
 .sw-order-create-details-header {
     &__customer-result-item {
-        min-width: calc(50% - (#{$select-result-customer-item-first-width} + #{$select-result-customer-item-gutter}));
-        max-width: calc(50% - (#{$select-result-customer-item-first-width} + #{$select-result-customer-item-gutter}));
-        margin: 0 $select-result-customer-item-gutter;
 
         &.has-many-childrens {
             display: flex;
             white-space: nowrap;
+            justify-content: space-between;
 
             #{$sw-highlight-text} {
                 @include reset-truncate;
@@ -37,18 +35,15 @@ $select-result-customer-item-gutter: 10px;
                 display: inline-block;
                 width: auto;
 
-                &:last-child {
-                    @include truncate;
-
-                    margin-left: 5px;
-                }
             }
         }
 
-        &:first-child {
-            min-width: $select-result-customer-item-first-width;
-            max-width: $select-result-customer-item-first-width;
+        .text-truncate {
+            @include truncate;
+            min-width: $select-result-customer-item-last-width;
+            max-width: $select-result-customer-item-last-width;
             color: $color-gray-500;
+            margin-left: 5px;
         }
 
         #{$sw-highlight-text} {
@@ -173,7 +168,7 @@ $select-result-customer-item-gutter: 10px;
     &.sw-order-create-details-header__customer-result {
         @include transition;
 
-        border-bottom: 0;
+        border-bottom: 1px solid $color-gray-500;
 
         #{$this}__result-item-text {
             width: 100%;
@@ -181,6 +176,10 @@ $select-result-customer-item-gutter: 10px;
 
         .sw-icon {
             @include hidden;
+        }
+
+        .text-gray-500 {
+            color: $color-gray-500;
         }
     }
 }

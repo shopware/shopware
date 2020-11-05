@@ -3,12 +3,21 @@
 }
 
 .sw-data-grid-settings {
+    .sw-context-menu__content {
+        padding: 0;
+    }
     .sw-data-grid__settings-container {
-        padding: 10px;
+        padding: 10px 18px;
     }
 
     .sw_context_menu_divider {
-        margin-bottom: 8px;
+        margin: 5px 0 8px;
+    }
+
+    .sw-data-grid__settings-column-list {
+        // 10 columns with 36px height
+        max-height: 360px;
+        overflow: auto;
     }
 
     .sw-data-grid__settings-column-item {

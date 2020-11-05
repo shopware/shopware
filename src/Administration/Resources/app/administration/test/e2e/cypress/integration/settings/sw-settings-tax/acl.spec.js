@@ -17,164 +17,146 @@ describe('Tax: Test acl privileges', () => {
     });
 
     it('@settings: create and read tax', () => {
-        cy.window().then((win) => {
-            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
-                return;
+        const page = new SettingsPageObject();
+
+        cy.loginAsUserWithPermissions([
+            {
+                key: 'tax',
+                role: 'viewer'
+            },
+            {
+                key: 'tax',
+                role: 'editor'
+            },
+            {
+                key: 'tax',
+                role: 'creator'
             }
+        ]);
 
-            const page = new SettingsPageObject();
+        // Request we want to wait for later
+        cy.server();
+        cy.route({
+            url: '/api/v*/tax',
+            method: 'post'
+        }).as('saveData');
 
-            cy.loginAsUserWithPermissions([
-                {
-                    key: 'tax',
-                    role: 'viewer'
-                },
-                {
-                    key: 'tax',
-                    role: 'editor'
-                },
-                {
-                    key: 'tax',
-                    role: 'creator'
-                }
-            ]);
+        // Go to tax module
+        cy.get('.sw-admin-menu__item--sw-settings').click();
+        cy.get('#sw-settings-tax').click();
 
-            // Request we want to wait for later
-            cy.server();
-            cy.route({
-                url: '/api/v*/tax',
-                method: 'post'
-            }).as('saveData');
+        // Create tax
+        cy.get('.sw-settings-tax-list-grid').should('be.visible');
+        cy.get('a[href="#/sw/settings/tax/create"]').click();
 
-            // Go to tax module
-            cy.get('.sw-admin-menu__item--sw-settings').click();
-            cy.get('#sw-settings-tax').click();
+        cy.get('input[name=sw-field--tax-name]').typeAndCheck('Very high tax');
+        cy.get('input[name=sw-field--tax-taxRate]').type('99');
 
-            // Create tax
-            cy.get('.sw-settings-tax-list-grid').should('be.visible');
-            cy.get('a[href="#/sw/settings/tax/create"]').click();
+        cy.get(page.elements.taxSaveAction).click();
 
-            cy.get('input[name=sw-field--tax-name]').typeAndCheck('Very high tax');
-            cy.get('input[name=sw-field--tax-taxRate]').type('99');
-
-            cy.get(page.elements.taxSaveAction).click();
-
-            // Verify creation
-            cy.wait('@saveData').then((xhr) => {
-                expect(xhr).to.have.property('status', 204);
-            });
-
-            cy.get(page.elements.smartBarBack).click();
-            cy.get(`${page.elements.dataGridRow}--4 ${page.elements.taxColumnName}`)
-                .should('be.visible')
-                .contains('Very high tax');
+        // Verify creation
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
         });
+
+        cy.get(page.elements.smartBarBack).click();
+        cy.get(`${page.elements.dataGridRow}--4 ${page.elements.taxColumnName}`)
+            .should('be.visible')
+            .contains('Very high tax');
     });
 
     it('@settings: update and read tax', () => {
-        cy.window().then((win) => {
-            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
-                return;
+        const page = new SettingsPageObject();
+
+        cy.loginAsUserWithPermissions([
+            {
+                key: 'tax',
+                role: 'viewer'
+            },
+            {
+                key: 'tax',
+                role: 'editor'
             }
+        ]);
 
-            const page = new SettingsPageObject();
+        // Request we want to wait for later
+        cy.server();
+        cy.route({
+            url: '/api/v*/tax/*',
+            method: 'patch'
+        }).as('saveData');
 
-            cy.loginAsUserWithPermissions([
-                {
-                    key: 'tax',
-                    role: 'viewer'
-                },
-                {
-                    key: 'tax',
-                    role: 'editor'
-                }
-            ]);
+        // Go to tax module
+        cy.get('.sw-admin-menu__item--sw-settings').click();
+        cy.get('#sw-settings-tax').click();
 
-            // Request we want to wait for later
-            cy.server();
-            cy.route({
-                url: '/api/v*/tax/*',
-                method: 'patch'
-            }).as('saveData');
+        // Edit tax
+        cy.get('.sw-settings-tax-list-grid').should('be.visible');
+        cy.clickContextMenuItem(
+            '.sw-tax-list__edit-action',
+            page.elements.contextMenuButton,
+            `${page.elements.dataGridRow}--0`
+        );
+        cy.get('input[name=sw-field--tax-name]').clearTypeAndCheck('Still high tax');
+        cy.get(page.elements.taxSaveAction).click();
 
-            // Go to tax module
-            cy.get('.sw-admin-menu__item--sw-settings').click();
-            cy.get('#sw-settings-tax').click();
-
-            // Edit tax
-            cy.get('.sw-settings-tax-list-grid').should('be.visible');
-            cy.clickContextMenuItem(
-                '.sw-tax-list__edit-action',
-                page.elements.contextMenuButton,
-                `${page.elements.dataGridRow}--0`
-            );
-            cy.get('input[name=sw-field--tax-name]').clearTypeAndCheck('Still high tax');
-            cy.get(page.elements.taxSaveAction).click();
-
-            // Verify creation
-            cy.wait('@saveData').then((xhr) => {
-                expect(xhr).to.have.property('status', 204);
-            });
-
-            cy.get(page.elements.smartBarBack).click();
-            cy.get(`${page.elements.dataGridRow}--3 ${page.elements.taxColumnName}`)
-                .should('be.visible')
-                .contains('Still high tax');
+        // Verify creation
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
         });
+
+        cy.get(page.elements.smartBarBack).click();
+        cy.get(`${page.elements.dataGridRow}--3 ${page.elements.taxColumnName}`)
+            .should('be.visible')
+            .contains('Still high tax');
     });
 
     it('@settings: delete tax', () => {
-        cy.window().then((win) => {
-            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_3722')) {
-                return;
+        const page = new SettingsPageObject();
+
+        cy.loginAsUserWithPermissions([
+            {
+                key: 'tax',
+                role: 'viewer'
+            },
+            {
+                key: 'tax',
+                role: 'deleter'
             }
+        ]);
 
-            const page = new SettingsPageObject();
+        // Request we want to wait for later
+        cy.server();
+        cy.route({
+            url: '/api/v*/tax/*',
+            method: 'delete'
+        }).as('deleteData');
 
-            cy.loginAsUserWithPermissions([
-                {
-                    key: 'tax',
-                    role: 'viewer'
-                },
-                {
-                    key: 'tax',
-                    role: 'deleter'
-                }
-            ]);
+        // Go to tax module
+        cy.get('.sw-admin-menu__item--sw-settings').click();
+        cy.get('#sw-settings-tax').click();
 
-            // Request we want to wait for later
-            cy.server();
-            cy.route({
-                url: '/api/v*/tax/*',
-                method: 'delete'
-            }).as('deleteData');
+        // Delete tax
+        cy.get('.sw-settings-tax-list-grid').should('be.visible');
+        cy.clickContextMenuItem(
+            `${page.elements.contextMenu}-item--danger`,
+            page.elements.contextMenuButton,
+            `${page.elements.dataGridRow}--0`
+        );
 
-            // Go to tax module
-            cy.get('.sw-admin-menu__item--sw-settings').click();
-            cy.get('#sw-settings-tax').click();
+        cy.get('.sw-modal__body').should('be.visible');
+        cy.get('.sw-modal__body')
+            .contains('Are you sure you want to delete the tax "High tax"?');
+        cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
 
-            // Delete tax
-            cy.get('.sw-settings-tax-list-grid').should('be.visible');
-            cy.clickContextMenuItem(
-                `${page.elements.contextMenu}-item--danger`,
-                page.elements.contextMenuButton,
-                `${page.elements.dataGridRow}--0`
-            );
-
-            cy.get('.sw-modal__body').should('be.visible');
-            cy.get('.sw-modal__body')
-                .contains('Are you sure you want to delete the tax "High tax"?');
-            cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
-
-            cy.wait('@deleteData').then((xhr) => {
-                expect(xhr).to.have.property('status', 204);
-            });
-
-            // Verify deletion
-            cy.get(page.elements.modal).should('not.exist');
-            cy.get(`${page.elements.dataGridRow}--3`).should('not.exist');
-
-            cy.contains('High tax').should('not.exist');
+        cy.wait('@deleteData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
         });
+
+        // Verify deletion
+        cy.get(page.elements.modal).should('not.exist');
+        cy.get(`${page.elements.dataGridRow}--3`).should('not.exist');
+
+        cy.contains('High tax').should('not.exist');
     });
 });

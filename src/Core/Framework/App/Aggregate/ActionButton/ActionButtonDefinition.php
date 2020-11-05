@@ -37,9 +37,12 @@ class ActionButtonDefinition extends EntityDefinition
 
     public function getDefaults(): array
     {
-        return [
-            'openNewTab' => false,
-        ];
+        return ['openNewTab' => false];
+    }
+
+    public function since(): ?string
+    {
+        return '6.3.1.0';
     }
 
     protected function defineFields(): FieldCollection

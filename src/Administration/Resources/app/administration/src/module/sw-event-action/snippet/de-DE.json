@@ -1,0 +1,48 @@
+{
+  "sw-event-action": {
+    "general": {
+      "mainMenuItemGeneral": "Business-Events",
+      "placeholderSearchBar": "Durchsuche alle Events ...",
+      "descriptionTextModule": "Automatisiere Deinen E-Mail-Versand mit Business-Events"
+    },
+    "list": {
+      "textHeadline": "Business-Events",
+      "labelActionAdd": "Business-Event hinzufügen",
+      "columnEventName": "Event",
+      "columnSalesChannel": "Verkaufskanal",
+      "columnRules": "Regeln",
+      "columnMailTemplate": "E-Mail-Template",
+      "columnTitle": "Titel",
+      "columnActive": "Aktiv"
+    },
+    "detail": {
+      "titleNewEntity": "Neues Business-Event",
+      "fieldLabelEventName": "Event",
+      "fieldLabelSalesChannel": "Verkaufskanal",
+      "fieldLabelRules": "Regeln",
+      "fieldMailTemplate": "E-Mail-Template",
+      "fieldMailTemplateDetailLink": "E-Mail-Template öffnen",
+      "fieldLabelActive": "Aktiv",
+      "fieldLabelTitle": "Titel",
+      "placeholderTitle": "Titel eingeben...",
+      "placeholderEventName": "Wähle ein Event aus ...",
+      "placeholderRules": "Wähle Regeln aus ...",
+      "placeholderSalesChannels": "Wähle Verkaufskanäle aus...",
+      "placeholderMailTemplate": "Wähle ein E-Mail-Template aus ...",
+      "titleRecipientsCard": "E-Mail-Empfänger",
+      "textEmptyStateRecipients": "Es gibt noch keine zusätzlichen Empfänger für dieses Event. - Kunden-E-Mails werden unabhängig davon versendet.",
+      "columnRecipientName": "Name",
+      "columnRecipientMail": "E-Mail-Adresse",
+      "addRecipientButton": "Empfänger hinzufügen",
+      "placeholderRecipientEmailAddress": "E-Mail-Adresse eingeben ...",
+      "placeholderRecipientName": "Empfänger-Namen eingeben ..."
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "event_action": {
+        "label": "Business-Events"
+      }
+    }
+  }
+}

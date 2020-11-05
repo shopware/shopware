@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Cart\Price\Struct;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\Framework\Util\FloatComparator;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
@@ -50,14 +51,14 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
 
     public function __construct(float $price, TaxRuleCollection $taxRules, int $quantity = 1)
     {
-        $this->price = $price;
+        $this->price = FloatComparator::cast($price);
         $this->taxRules = $taxRules;
         $this->quantity = $quantity;
     }
 
     public function getPrice(): float
     {
-        return $this->price;
+        return FloatComparator::cast($this->price);
     }
 
     public function getTaxRules(): TaxRuleCollection
@@ -138,11 +139,12 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
 
     public function getListPrice(): ?float
     {
-        return $this->listPrice;
+        return $this->listPrice ? FloatComparator::cast($this->listPrice) : null;
     }
 
     public function setListPrice(?float $listPrice): void
     {
+        $listPrice = $listPrice ? FloatComparator::cast($listPrice) : null;
         $this->listPrice = $listPrice;
     }
 

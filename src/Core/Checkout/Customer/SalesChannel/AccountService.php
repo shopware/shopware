@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
@@ -189,8 +190,13 @@ class AccountService
         if (!$includeGuests) {
             $criteria->addFilter(new EqualsFilter('customer.guest', 0));
         }
-        // TODO NEXT-389 we have to check an option like "bind customer to salesChannel"
-        // todo in this case we have to filter "customer.salesChannelId is null or salesChannelId = :current"
+
+        if (Feature::isActive('FEATURE_NEXT_10555')) {
+            $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
+                new EqualsFilter('customer.boundSalesChannelId', null),
+                new EqualsFilter('customer.boundSalesChannelId', $context->getSalesChannel()->getId()),
+            ]));
+        }
 
         return $this->customerRepository->search($criteria, $context->getContext());
     }

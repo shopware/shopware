@@ -26,6 +26,11 @@ class ProductSortingTranslationDefinition extends EntityTranslationDefinition
         return ProductSortingTranslationCollection::class;
     }
 
+    public function since(): ?string
+    {
+        return '6.3.2.0';
+    }
+
     protected function getParentDefinitionClass(): string
     {
         return ProductSortingDefinition::class;

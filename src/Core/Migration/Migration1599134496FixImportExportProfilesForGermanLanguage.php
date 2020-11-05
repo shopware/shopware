@@ -21,6 +21,10 @@ class Migration1599134496FixImportExportProfilesForGermanLanguage extends Migrat
             AND loc.code = \'de-DE\';
         ');
 
+        if (!$germanLanguageId) {
+            return;
+        }
+
         $englishLanguageId = $connection->fetchColumn('
             SELECT lang.id
             FROM language lang

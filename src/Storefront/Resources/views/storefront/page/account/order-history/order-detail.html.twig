@@ -3,6 +3,13 @@
         <div class="collapse"
              id="order{{ order.orderNumber }}">
             <div class="order-detail-content">
+
+                {% block page_account_order_documents_table %}
+                    <div class="order-detail-content-body">
+                        {% sw_include '@Storefront/storefront/page/account/order-history/order-detail-document.html.twig' %}
+                    </div>
+                {% endblock %}
+
                 {% block page_account_order_item_detail_table_header %}
                     <div class="order-detail-content-header">
                         <div class="row">

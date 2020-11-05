@@ -103,7 +103,7 @@ Component.register('sw-rule-modal', {
                 });
 
                 this.loading = false;
-                this.$emit('save', this.rule.id);
+                this.$emit('save', this.rule.id, this.rule);
                 this.$emit('modal-close');
             }).catch(() => {
                 this.isLoading = false;

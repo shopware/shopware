@@ -34,6 +34,11 @@ class CustomerRecoveryDefinition extends EntityDefinition
         return CustomerRecoveryCollection::class;
     }
 
+    public function since(): ?string
+    {
+        return '6.1.0.0';
+    }
+
     protected function getParentDefinitionClass(): ?string
     {
         return CustomerDefinition::class;

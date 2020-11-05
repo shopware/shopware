@@ -31,57 +31,93 @@ Module.register('sw-first-run-wizard', {
         index: {
             component: 'sw-first-run-wizard',
             path: 'index',
+            meta: {
+                privilege: 'admin'
+            },
             redirect: {
                 name: 'sw.first.run.wizard.index.welcome'
             },
             children: {
                 welcome: {
                     component: 'sw-first-run-wizard-welcome',
-                    path: ''
+                    path: '',
+                    meta: {
+                        privilege: 'admin'
+                    }
                 },
                 'data-import': {
                     component: 'sw-first-run-wizard-data-import',
-                    path: 'data-import'
+                    path: 'data-import',
+                    meta: {
+                        privilege: 'admin'
+                    }
                 },
                 mailer: {
                     component: 'sw-first-run-wizard-mailer-base',
                     path: 'mailer',
+                    meta: {
+                        privilege: 'admin'
+                    },
                     children: {
                         selection: {
                             component: 'sw-first-run-wizard-mailer-selection',
-                            path: 'selection'
+                            path: 'selection',
+                            meta: {
+                                privilege: 'admin'
+                            }
                         },
                         smtp: {
                             component: 'sw-first-run-wizard-mailer-smtp',
-                            path: 'smtp'
+                            path: 'smtp',
+                            meta: {
+                                privilege: 'admin'
+                            }
                         },
                         local: {
                             component: 'sw-first-run-wizard-mailer-local',
-                            path: 'local'
+                            path: 'local',
+                            meta: {
+                                privilege: 'admin'
+                            }
                         }
                     }
                 },
                 paypal: {
                     component: 'sw-first-run-wizard-paypal-base',
                     path: 'paypal',
+                    meta: {
+                        privilege: 'admin'
+                    },
                     children: {
                         info: {
                             component: 'sw-first-run-wizard-paypal-info',
-                            path: 'info'
+                            path: 'info',
+                            meta: {
+                                privilege: 'admin'
+                            }
                         },
                         install: {
                             component: 'sw-first-run-wizard-paypal-install',
-                            path: 'install'
+                            path: 'install',
+                            meta: {
+                                privilege: 'admin'
+                            }
                         },
                         credentials: {
                             component: 'sw-first-run-wizard-paypal-credentials',
-                            path: 'credentials'
+                            path: 'credentials',
+                            meta: {
+                                privilege: 'admin'
+                            }
                         }
                     }
                 },
                 plugins: {
                     component: 'sw-first-run-wizard-plugins',
-                    path: 'plugins'
+                    path: 'plugins',
+                    meta: {
+                        privilege: 'admin'
+                    }
                 },
                 shopware: {
                     component: 'sw-first-run-wizard-shopware-base',
@@ -89,17 +125,26 @@ Module.register('sw-first-run-wizard', {
                     children: {
                         account: {
                             component: 'sw-first-run-wizard-shopware-account',
-                            path: 'account'
+                            path: 'account',
+                            meta: {
+                                privilege: 'admin'
+                            }
                         },
                         domain: {
                             component: 'sw-first-run-wizard-shopware-domain',
-                            path: 'domain'
+                            path: 'domain',
+                            meta: {
+                                privilege: 'admin'
+                            }
                         }
                     }
                 },
                 finish: {
                     component: 'sw-first-run-wizard-finish',
-                    path: 'finish'
+                    path: 'finish',
+                    meta: {
+                        privilege: 'admin'
+                    }
                 }
             }
         }
@@ -108,6 +153,7 @@ Module.register('sw-first-run-wizard', {
     settingsItem: {
         group: 'system',
         to: 'sw.first.run.wizard.index',
-        icon: 'default-object-rocket'
+        icon: 'default-object-rocket',
+        privilege: 'admin'
     }
 });

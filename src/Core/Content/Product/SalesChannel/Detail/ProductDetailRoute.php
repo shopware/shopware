@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Product\SalesChannel\Detail;
 
 use OpenApi\Annotations as OA;
+use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -41,14 +43,21 @@ class ProductDetailRoute extends AbstractProductDetailRoute
      */
     private $configuratorLoader;
 
+    /**
+     * @var CategoryBreadcrumbBuilder
+     */
+    private $breadcrumbBuilder;
+
     public function __construct(
         SalesChannelRepositoryInterface $repository,
         SystemConfigService $config,
-        ProductConfiguratorLoader $configuratorLoader
+        ProductConfiguratorLoader $configuratorLoader,
+        CategoryBreadcrumbBuilder $breadcrumbBuilder
     ) {
         $this->repository = $repository;
         $this->config = $config;
         $this->configuratorLoader = $configuratorLoader;
+        $this->breadcrumbBuilder = $breadcrumbBuilder;
     }
 
     public function getDecorated(): AbstractProductDetailRoute
@@ -57,10 +66,11 @@ class ProductDetailRoute extends AbstractProductDetailRoute
     }
 
     /**
+     * @Since("6.3.2.0")
      * @Entity("product")
      * @OA\Post(
      *      path="/product/{productId}",
-     *      description="This route is used to load a single product with the corresponding details. In addition to loading the data, the best variant of the product is determined when a parent id is passed.",
+     *      summary="This route is used to load a single product with the corresponding details. In addition to loading the data, the best variant of the product is determined when a parent id is passed.",
      *      operationId="readProductDetail",
      *      tags={"Store API","Product"},
      *      @OA\Response(
@@ -86,6 +96,10 @@ class ProductDetailRoute extends AbstractProductDetailRoute
         if (!$product instanceof SalesChannelProductEntity) {
             throw new ProductNotFoundException($productId);
         }
+
+        $product->setSeoCategory(
+            $this->breadcrumbBuilder->getProductSeoCategory($product, $context)
+        );
 
         $configurator = $this->configuratorLoader->load($product, $context);
 

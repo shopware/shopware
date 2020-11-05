@@ -38,7 +38,7 @@ Module.register('sw-settings-payment', {
             path: 'create',
             meta: {
                 parentPath: 'sw.settings.payment.index',
-                privilege: 'payment.create'
+                privilege: 'payment.creator'
             }
         }
     },

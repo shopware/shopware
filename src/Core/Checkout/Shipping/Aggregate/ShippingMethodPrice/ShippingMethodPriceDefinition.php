@@ -35,6 +35,11 @@ class ShippingMethodPriceDefinition extends EntityDefinition
         return ShippingMethodPriceEntity::class;
     }
 
+    public function since(): ?string
+    {
+        return '6.0.0.0';
+    }
+
     protected function getParentDefinitionClass(): ?string
     {
         return ShippingMethodDefinition::class;

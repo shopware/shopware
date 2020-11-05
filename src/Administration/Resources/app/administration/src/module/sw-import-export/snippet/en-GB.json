@@ -155,5 +155,12 @@
             "failedExportText": "Export failed",
             "showLogFileLabel": "Show log entry"
         }
+    },
+  "sw-privileges": {
+    "additional_permissions": {
+      "system": {
+        "import_export": "Import/Export"
+      }
     }
+  }
 }

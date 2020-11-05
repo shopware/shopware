@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -28,7 +29,8 @@ class CountryStateController extends StorefrontController
     }
 
     /**
-     * This route should only be used by storefront to update address forms. It is not a replacement for store-api routes
+     * @Since("6.1.0.0")
+     * This route should only be used by storefront to update address forms. It is not a replacement for sales-channel-api routes
      *
      * @Route("country/country-state-data", name="frontend.country.country.data", defaults={"csrf_protected"=false, "XmlHttpRequest"=true}, methods={ "POST" })
      */

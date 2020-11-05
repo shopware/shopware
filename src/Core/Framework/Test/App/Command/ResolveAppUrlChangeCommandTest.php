@@ -6,16 +6,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppUrlChangeResolver\Resolver;
 use Shopware\Core\Framework\App\Command\ResolveAppUrlChangeCommand;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Symfony\Component\Console\Tester\CommandTester;
 
 class ResolveAppUrlChangeCommandTest extends TestCase
 {
-    public function setUp(): void
-    {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10286', $this);
-    }
-
     public function testResolveAppUrlChangeChoosesRightStrategy(): void
     {
         $urlChangeStrategy = $this->createMock(Resolver::class);

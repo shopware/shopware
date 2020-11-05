@@ -1,6 +1,8 @@
 {
   "global": {
     "error-codes": {
+      "FRAMEWORK__MISSING_PRIVILEGE_ERROR": "Fehlende Berechtigungen",
+      "FRAMEWORK__DELETE_RESTRICTED": "Löschen fehlgeschlagen",
       "c1051bb4-d103-4f74-8988-acbcafc7fdc3": "Dieses Feld darf nicht leer sein",
       "INVALID_MEDIA_URL": "Bitte gib eine valide URL ein, um eine Datei hochzuladen.",
       "CONTENT__MISSING_RULE_TYPE_EXCEPTION": "Du musst einen Typ für diese Regel auswählen.",
@@ -30,7 +32,8 @@
       "notificationSaveErrorMessageRequiredFieldsInvalid": "Bitte fülle alle Pflichtfelder aus.",
       "unspecifiedSaveErrorMessage": "Ein Fehler ist aufgetreten.",
       "notificationSaveSuccessMessage": "Die Entität \"{entityName}\" wurde erfolgreich gespeichert.",
-      "messageDeleteSuccess": "\"{name}\" wurde erfolgreich gelöscht."
+      "messageDeleteSuccess": "\"{name}\" gelöscht.",
+      "messageDeleteFailed": "wird verwendet von: "
     },
     "notification-center": {
       "title": "Mitteilungen",
@@ -62,7 +65,7 @@
           "message": "Dynamische Produktgruppe indexiert. | Noch eine dynamische Produktgruppe verbleibend ... | Circa {n} dynamische Produktgruppe verbleibend ...",
           "messageSuccess": "Dynamische Produktgruppen indexiert."
         },
-        "category":  {
+        "category": {
           "title": "Kategorie-Indexierung",
           "message": "Kategorie indexiert. | Noch eine Kategorie verbleibend ... | Circa {n} Kategorien verbleibend ...",
           "messageSuccess": "Kategorien indexiert."
@@ -77,7 +80,7 @@
           "message": "Verkaufskanal indexiert. | Noch ein Verkaufskanal verbleibend ... | Circa {n} Verkaufskanal verbleibend ...",
           "messageSuccess": "Verkaufskanäle indexiert."
         },
-        "rule":  {
+        "rule": {
           "title": "Regel-Indexierung",
           "message": "Regeln indexiert. | Noch eine Regel verbleibend ... | Circa {n} Regeln verbleibend ...",
           "messageSuccess": "Regeln indexiert."
@@ -661,8 +664,9 @@
       "unit": "Maßeinheit | Maßeinheiten",
       "user": "Benutzer",
       "delivery_time": "Lieferzeit | Lieferzeiten",
-      "import_export_profile": "Import/Export Profil | Import/Export Profile",
-      "feature_set": "Template | Templates"
+      "import_export_profile": "Import/Export-Profil | Import/Export-Profile",
+      "feature_set": "Template | Templates",
+      "event_action": "Business-Events"
     },
     "day-of-week": {
       "monday": "Montag",
@@ -672,6 +676,72 @@
       "friday": "Freitag",
       "saturday": "Samstag",
       "sunday": "Sonntag"
+    },
+    "businessEvents": {
+      "checkout_customer_before_login": "Kunde hat Anmeldungsanfrage gestellt",
+      "checkout_customer_changed-payment-method": "Kunde ändert Zahlungsart",
+      "checkout_customer_deleted": "Kundenkonto wurde gelöscht",
+      "checkout_customer_double_opt_in_guest_order": "Gastbestellerkonto wurde registriert mit Double-Opt-in",
+      "checkout_customer_double_opt_in_registration": "Kundenkonto wurde registriert mit Double-Opt-in",
+      "checkout_customer_guest_register": "Gastbestellerkonto wurde registriert",
+      "checkout_customer_login": "Kunde meldet sich an",
+      "checkout_customer_logout": "Kunde meldet sich ab",
+      "checkout_customer_register": "Kundenkonto wurde registriert",
+      "checkout_order_placed": "Bestellung ist eingegangen",
+      "contact_form_send":  "Kontaktformular wurde verschickt",
+      "customer_group_registration_accepted": "Kundengruppen-Registrierung wurde akzeptiert",
+      "customer_group_registration_declined": "Kundengruppen-Registrierung wurde abgelehnt",
+      "customer_recovery_request": "Kunde fordert neues Passwort an",
+      "mail_after_create_message":  "E-Mail wurde erzeugt",
+      "mail_before_send": "E-Mail wird gesendet",
+      "mail_sent":  "E-Mail wurde gesendet",
+      "newsletter_confirm": "Newsletteranmeldung wurde bestätigt",
+      "newsletter_register": "Newsletteranmeldung wurde registriert",
+      "newsletter_update": "Newsletteranmeldung wurde aktualisiert",
+      "product_export_log": "Produktexport wurde aufgeführt",
+      "state_enter_order_state_cancelled": "Bestellung erreicht Status abgebrochen",
+      "state_enter_order_state_completed": "Bestellung erreicht Status abgeschlossen",
+      "state_enter_order_state_in_progress": "Bestellung erreicht Status in Bearbeitung",
+      "state_enter_order_state_open": "Bestellung erreicht Status offen",
+      "state_enter_order_delivery_state_cancelled": "Lieferung erreicht Status abgebrochen",
+      "state_enter_order_delivery_state_open": "Lieferung erreicht Status offen",
+      "state_enter_order_delivery_state_returned": "Lieferung erreicht Status zurückgesendet",
+      "state_enter_order_delivery_state_returned_partially": "Lieferung erreicht Status teilweise zurückgesendet",
+      "state_enter_order_delivery_state_shipped": "Lieferung erreicht Status versandt",
+      "state_enter_order_delivery_state_shipped_partially": "Lieferung erreicht Status teilweise versandt",
+      "state_enter_order_transaction_state_authorized": "Zahlung erreicht Status autorisiert",
+      "state_enter_order_transaction_state_cancelled": "Zahlung erreicht Status abgebrochen",
+      "state_enter_order_transaction_state_chargeback": "Zahlung erreicht Status erstattet",
+      "state_enter_order_transaction_state_failed": "Zahlung erreicht Status fehlgeschlagen",
+      "state_enter_order_transaction_state_in_progress": "Zahlung erreicht Status in Bearbeitung",
+      "state_enter_order_transaction_state_open": "Zahlung erreicht Status offen",
+      "state_enter_order_transaction_state_paid": "Zahlung erreicht Status bezahlt",
+      "state_enter_order_transaction_state_paid_partially": "Zahlung erreicht Status teilweise bezahlt",
+      "state_enter_order_transaction_state_refunded": "Zahlung erreicht Status erstattet",
+      "state_enter_order_transaction_state_refunded_partially": "Zahlung erreicht Status teilweise erstattet",
+      "state_enter_order_transaction_state_reminded": "Zahlung erreicht Status Erinnerung versandt",
+      "state_leave_order_state_cancelled": "Bestellung verlässt Status abgebrochen",
+      "state_leave_order_state_completed": "Bestellung verlässt Status abgeschlossen",
+      "state_leave_order_state_in_progress": "Bestellung verlässt Status in Bearbeitung",
+      "state_leave_order_state_open": "Bestellung verlässt Status offen",
+      "state_leave_order_delivery_state_cancelled": "Lieferung verlässt Status abgebrochen",
+      "state_leave_order_delivery_state_open": "Lieferung verlässt Status offen",
+      "state_leave_order_delivery_state_returned": "Lieferung verlässt Status zurückgesendet",
+      "state_leave_order_delivery_state_returned_partially": "Lieferung verlässt Status teilweise zurückgesendet",
+      "state_leave_order_delivery_state_shipped": "Lieferung verlässt Status versandt",
+      "state_leave_order_delivery_state_shipped_partially": "Lieferung verlässt Status teilweise versandt",
+      "state_leave_order_transaction_state_authorized": "Zahlung verlässt Status autorisiert",
+      "state_leave_order_transaction_state_cancelled": "Zahlung verlässt Status abgebrochen",
+      "state_leave_order_transaction_state_chargeback": "Zahlung verlässt Status erstattet",
+      "state_leave_order_transaction_state_failed": "Zahlung verlässt Status fehlgeschlagen",
+      "state_leave_order_transaction_state_in_progress": "Zahlung verlässt Status in Bearbeitung",
+      "state_leave_order_transaction_state_open": "Zahlung verlässt Status offen",
+      "state_leave_order_transaction_state_paid": "Zahlung verlässt Status bezahlt",
+      "state_leave_order_transaction_state_paid_partially": "Zahlung verlässt Status teilweise bezahlt",
+      "state_leave_order_transaction_state_refunded": "Zahlung verlässt Status erstattet",
+      "state_leave_order_transaction_state_refunded_partially": "Zahlung verlässt Status teilweise erstattet",
+      "state_leave_order_transaction_state_reminded": "Zahlung verlässt Status Erinnerung versandt",
+      "user_recovery_request": "Benutzer-Wiederherstellungsanfrage gestellt"
     }
   },
   "sw-text-editor-toolbar": {
@@ -754,7 +824,9 @@
   },
   "sw-property-search": {
     "placeholderSearch": "Suche nach Eigenschaften ...",
-    "selected": "{count} Option ausgewählt | {count} Optionen ausgewählt"
+    "selected": "{count} Option ausgewählt | {count} Optionen ausgewählt",
+    "noPropertiesFound": "Keine Optionen gefunden",
+    "noPropertiesFoundDescription": "Versuche es mit einem anderen Suchbegriff."
   },
   "sw-property-assignment": {
     "columnGroup": "Eigenschaft",
@@ -920,6 +992,9 @@
   "sw-privileges": {
     "tooltip": {
       "warning": "Du hast nicht die erforderlichen Berechtigungen."
+    },
+    "error": {
+      "description": "Für diese Aktion fehlen Dir die nötigen Berechtigungen, bitte frage diese bei Deinem Administrator an. Die benötigten Berechtigungen sind:"
     }
   },
   "sw-custom-field-set-renderer": {
@@ -930,5 +1005,35 @@
   },
   "sw-rating-stars": {
     "ratingTooltipText": "{actual} von {max} Sternen"
+  },
+  "sw-app": {
+    "component": {
+      "sw-app-actions": {
+        "messageErrorFetchButtons": "Es ist ein Fehler beim Laden Deiner Appactions aufgetreten."
+      },
+      "sw-app-app-url-changed-modal": {
+        "move-shop-permanently": {
+          "name": "Migriere Deine Apps zur neuen Domain",
+          "description": "Verbindet Deine Apps mit der neuen Domain. Dadurch werden alle Apps für die alte Domain deaktiviert."
+        },
+        "reinstall-apps": {
+          "name": "Installiere Deine Apps neu",
+          "description": "Verbindet Deine Apps mit der neuen und der alten Domain. Für kostenpflichtige Apps können zusätzliche Gebühren anfallen."
+        },
+        "uninstall-apps": {
+          "name": "Deinstalliere Deine Apps",
+          "description": "Löscht alle App-Daten der neuen Domain. Die mit der alten Domain verbundenen Apps funktionieren weiterhin."
+        },
+        "title": "Domain-Änderung wurde festgestellt",
+        "oldLabel": "Alte Domain: ",
+        "newLabel": "Neue Domain: ",
+        "explanationHeader": "Deine Shop-Domain hat sich geändert.",
+        "explanation": "Die installierten Apps sind immer noch mit der alten Domain verbunden und funktionieren mit der neuen Domain noch nicht. Du hast drei Optionen um fortzufahren:",
+        "confirmation": "Bestätigen",
+        "cancellation": "Abbrechen",
+        "success": "Domain Änderung erfolgreich durchgeführt.",
+        "error": "Keine Änderung durchgeführt."
+      }
+    }
   }
 }

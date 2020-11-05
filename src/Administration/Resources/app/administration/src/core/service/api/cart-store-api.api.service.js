@@ -97,10 +97,13 @@ class CartStoreService extends ApiService {
     }
 
     getPayloadForItem(item, salesChannelId, isNewProductItem, id) {
-        const dummyPrice = deepCopyObject(item.priceDefinition);
-        dummyPrice.taxRules = item.priceDefinition.taxRules;
-        dummyPrice.quantity = item.quantity;
-        dummyPrice.type = this.mapLineItemTypeToPriceType(item.type);
+        let dummyPrice = null;
+        if (!isNewProductItem && item.price.unitPrice !== item.priceDefinition.price) {
+            dummyPrice = deepCopyObject(item.priceDefinition);
+            dummyPrice.taxRules = item.priceDefinition.taxRules;
+            dummyPrice.quantity = item.quantity;
+            dummyPrice.type = this.mapLineItemTypeToPriceType(item.type);
+        }
 
         return {
             items: [
@@ -169,7 +172,7 @@ class CartStoreService extends ApiService {
         return this.httpClient.post(route, payload, { additionalParams, headers });
     }
 
-    modifyShippingCosts(salesChannelId, contextToken, shippingCosts, additionalHeaders, additionalParams = {},) {
+    modifyShippingCosts(salesChannelId, contextToken, shippingCosts, additionalHeaders, additionalParams = {}) {
         const route = '_proxy/modify-shipping-costs';
         const headers = {
             ...this.getBasicHeaders(additionalHeaders),
@@ -187,7 +190,13 @@ class CartStoreService extends ApiService {
             'sw-context-token': contextToken
         };
 
-        return this.httpClient.patch(route, {}, { additionalParams, headers });
+        const data = {};
+
+        if (Shopware.Service('feature').isActive('FEATURE_NEXT_10058')) {
+            data.salesChannelId = additionalParams.salesChannelId;
+        }
+
+        return this.httpClient.patch(route, data, { additionalParams, headers });
     }
 
     enableAutomaticPromotions(contextToken, additionalParams = {}, additionalHeaders = {}) {
@@ -197,7 +206,13 @@ class CartStoreService extends ApiService {
             'sw-context-token': contextToken
         };
 
-        return this.httpClient.patch(route, {}, { additionalParams, headers });
+        const data = {};
+
+        if (Shopware.Service('feature').isActive('FEATURE_NEXT_10058')) {
+            data.salesChannelId = additionalParams.salesChannelId;
+        }
+
+        return this.httpClient.patch(route, data, { additionalParams, headers });
     }
 }
 

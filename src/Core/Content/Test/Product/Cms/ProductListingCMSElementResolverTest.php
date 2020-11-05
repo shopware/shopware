@@ -12,7 +12,6 @@ use Shopware\Core\Content\Product\SalesChannel\Exception\ProductSortingNotFoundE
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingEntity;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -42,8 +41,6 @@ class ProductListingCMSElementResolverTest extends TestCase
 
     public function testSortings(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_5983', $this);
-
         $slotConfig = [
             'availableSortings' => [
                 'value' => [
@@ -87,8 +84,6 @@ class ProductListingCMSElementResolverTest extends TestCase
 
     public function testUnavailableSortingThrowsException(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_5983', $this);
-
         $slotConfig = [
             'availableSortings' => [
                 'value' => [
@@ -118,8 +113,6 @@ class ProductListingCMSElementResolverTest extends TestCase
 
     public function testOnlyRestrictedSortingsAreAvailable(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_5983', $this);
-
         $slotConfig = [
             'availableSortings' => [
                 'value' => [
@@ -156,9 +149,6 @@ class ProductListingCMSElementResolverTest extends TestCase
             return $actualSorting->getKey();
         });
 
-        // TODO: remove following line, as soon feature flag FEATURE_NEXT_5983 can be removed
-        // until then, this prevents duplicates from sorting registry + database sortings
-        $actualSortings = array_unique($actualSortings);
         $availableSortings = \array_keys($availableSortings);
 
         sort($actualSortings);
@@ -169,8 +159,6 @@ class ProductListingCMSElementResolverTest extends TestCase
 
     public function testAvailableSortingsPriority(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_5983', $this);
-
         $slotConfig = [
             'availableSortings' => [
                 'value' => [
@@ -218,8 +206,6 @@ class ProductListingCMSElementResolverTest extends TestCase
 
     public function testHighestPrioritySortingIsDefaultSorting(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_5983', $this);
-
         $slotConfig = [
             'availableSortings' => [
                 'value' => [

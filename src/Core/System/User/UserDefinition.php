@@ -53,11 +53,14 @@ class UserDefinition extends EntityDefinition
         return UserEntity::class;
     }
 
+    public function since(): ?string
+    {
+        return '6.0.0.0';
+    }
+
     protected function defineProtections(): EntityProtectionCollection
     {
-        return new EntityProtectionCollection([
-            new WriteProtection(Context::SYSTEM_SCOPE),
-        ]);
+        return new EntityProtectionCollection([new WriteProtection(Context::SYSTEM_SCOPE)]);
     }
 
     protected function defineFields(): FieldCollection

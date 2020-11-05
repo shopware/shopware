@@ -15,7 +15,8 @@ Shopware.Module.register('sw-settings-mailer', {
             component: 'sw-settings-mailer',
             path: 'index',
             meta: {
-                parentPath: 'sw.settings.index'
+                parentPath: 'sw.settings.index',
+                privilege: 'system.system_config'
             }
         }
     },
@@ -23,6 +24,7 @@ Shopware.Module.register('sw-settings-mailer', {
     settingsItem: {
         group: 'system',
         to: 'sw.settings.mailer.index',
-        icon: 'default-communication-envelope'
+        icon: 'default-communication-envelope',
+        privilege: 'system.system_config'
     }
 });

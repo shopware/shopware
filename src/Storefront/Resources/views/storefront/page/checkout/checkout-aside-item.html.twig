@@ -73,7 +73,7 @@
 
                     {% block page_checkout_aside_item_quantity %}
                         <div class="checkout-aside-item-link-quantity">
-                            {% if lineItem.quantity %}
+                            {% if lineItem.quantity and lineItem.type != "promotion" %}
                                 {{ "checkout.cartHeaderQuantity"|trans }}: {{ lineItem.quantity }}
                             {% endif %}
                         </div>

@@ -119,13 +119,12 @@
         "claimEmptyState": "Create new layouts by choosing a section. Start by choosing a section type, drag & drop blocks into any section and fill in your content."
       },
       "notification": {
-        "titleMissingFields": "Error",
         "messageMissingFields": "Configuration required. Please fill in all required fields.",
-        "messageMissingBlockFields": "Configuration required. Please fill in all required elements.",
-        "messageMissingProductListing": "Unable to save. Please add a product listing block or change the layout type.",
+        "messageMissingBlockFields": "Configuration required. Please fill in data in all elements.",
+        "messageMissingProductListing": "Unable to save. Please add at least one product listing block or change this layout's type.",
         "messageMissingSections": "You can not save an empty page. Please add a section first.",
         "messageMissingBlocks": "You can not save an empty page. Please add some blocks first.",
-        "messageMissingElements": "Configuration required. Please fill in all required configuration elements."
+        "messageMissingElements": "Configuration required. Please configure all elements of your layout."
       },
       "placeholder": {
         "demoEntity": "Select an entity to preview..."
@@ -417,6 +416,9 @@
     },
     "blocks": {
       "commerce": {
+        "productHeading": {
+          "label": "Product name & manufacturer logo"
+        },
         "productListing": {
           "label": "Product listing"
         },

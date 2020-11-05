@@ -63,7 +63,7 @@
                         {% block sw_cms_slot_element_modal_selection_element %}
                             <div class="element-selection__element-wrapper"
                                  v-for="element in cmsElements"
-                                 v-if="!element.hidden"
+                                 v-if="!element.hidden && element.previewComponent"
                                  @click="onSelectElement(element.name)">
                                  <div class="element-selection__element">
                                     {% block sw_cms_slot_element_modal_selection_element_component %}

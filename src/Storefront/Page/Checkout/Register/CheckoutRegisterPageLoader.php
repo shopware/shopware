@@ -82,6 +82,10 @@ class CheckoutRegisterPageLoader
 
         $page = CheckoutRegisterPage::createFrom($page);
 
+        if ($page->getMetaInformation()) {
+            $page->getMetaInformation()->setRobots('noindex,follow');
+        }
+
         $page->setCountries($this->getCountries($salesChannelContext));
         $page->setCart($this->cartService->getCart($salesChannelContext->getToken(), $salesChannelContext));
         $page->setSalutations($this->getSalutations($salesChannelContext));

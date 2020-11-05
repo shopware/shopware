@@ -11,21 +11,17 @@
             <template slot="smart-bar-actions">
 
                 {% block sw_review_detail_actions_abort %}
-                    <sw-button :disabled="isLoading" :routerLink="{ name: 'sw.review.index' }">
+                    <sw-button :disabled="isLoading" v-tooltip.bottom="tooltipCancel" @click="onCancel">
                         {{ $tc('global.default.cancel') }}
                     </sw-button>
                 {% endblock %}
 
                 {% block sw_review_detail_actions_save %}
                     <sw-button-process
-                            v-tooltip="{
-                                message: $tc('sw-privileges.tooltip.warning'),
-                                disabled: acl.can('review.editor'),
-                                showOnDisabledElements: true
-                            }"
                             class="sw-review-detail__save-action"
                             variant="primary"
                             :disabled="isLoading || !acl.can('review.editor')"
+                            v-tooltip.bottom="tooltipSave"
                             :processSuccess="isSaveSuccessful"
                             @process-finish="onSaveFinish"
                             @click="onSave">

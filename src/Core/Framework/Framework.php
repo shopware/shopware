@@ -51,6 +51,7 @@ class Framework extends Bundle
         $loader->load('services.xml');
         $loader->load('acl.xml');
         $loader->load('api.xml');
+        $loader->load('app.xml');
         $loader->load('custom-field.xml');
         $loader->load('data-abstraction-layer.xml');
         $loader->load('demodata.xml');
@@ -64,11 +65,7 @@ class Framework extends Bundle
         $loader->load('language.xml');
         $loader->load('update.xml');
         $loader->load('seo.xml');
-
-        if (Feature::isActive('FEATURE_NEXT_10286')) {
-            $loader->load('app.xml');
-            $loader->load('webhook.xml');
-        }
+        $loader->load('webhook.xml');
 
         if ($container->getParameter('kernel.environment') === 'test') {
             $loader->load('services_test.xml');

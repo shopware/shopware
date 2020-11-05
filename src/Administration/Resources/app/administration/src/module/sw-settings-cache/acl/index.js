@@ -5,7 +5,11 @@ Shopware.Service('privileges')
         key: 'system',
         roles: {
             clear_cache: {
-                privileges: ['system:clear:cache'],
+                privileges: [
+                    'system:clear:cache',
+                    'system:cache:info',
+                    'api_action_cache_index'
+                ],
                 dependencies: []
             }
         }

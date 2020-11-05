@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -74,9 +75,10 @@ class ChangePasswordRoute extends AbstractChangePasswordRoute
     }
 
     /**
+     * @Since("6.2.0.0")
      * @OA\Post(
      *      path="/account/change-password",
-     *      description="Change password",
+     *      summary="Change password",
      *      operationId="changePassword",
      *      tags={"Store API", "Account"},
      *      @OA\Parameter(

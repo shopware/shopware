@@ -16,7 +16,8 @@ Module.register('sw-settings-store', {
             component: 'sw-settings-store',
             path: 'index',
             meta: {
-                parentPath: 'sw.settings.index'
+                parentPath: 'sw.settings.index',
+                privilege: 'system.system_config'
             }
         }
     },
@@ -24,6 +25,7 @@ Module.register('sw-settings-store', {
     settingsItem: {
         group: 'system',
         to: 'sw.settings.store.index',
-        icon: 'default-device-laptop'
+        icon: 'default-device-laptop',
+        privilege: 'system.system_config'
     }
 });

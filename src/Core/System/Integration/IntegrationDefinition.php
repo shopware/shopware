@@ -18,7 +18,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PasswordField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\Integration\Aggregate\IntegrationRole\IntegrationRoleDefinition;
 
 class IntegrationDefinition extends EntityDefinition
@@ -42,9 +41,12 @@ class IntegrationDefinition extends EntityDefinition
 
     public function getDefaults(): array
     {
-        return [
-            'admin' => true,
-        ];
+        return ['admin' => true];
+    }
+
+    public function since(): ?string
+    {
+        return '6.0.0.0';
     }
 
     protected function defineFields(): FieldCollection
@@ -58,23 +60,17 @@ class IntegrationDefinition extends EntityDefinition
             new DateTimeField('last_usage_at', 'lastUsageAt'),
             new BoolField('admin', 'admin'),
             new CustomFields(),
+
+            (new OneToOneAssociationField('app', 'id', 'integration_id', AppDefinition::class, false))
+                ->addFlags(new CascadeDelete()),
         ]);
 
-        if (Feature::isActive('FEATURE_NEXT_10286')) {
-            $collection->add(
-                (new OneToOneAssociationField('app', 'id', 'integration_id', AppDefinition::class, false))
-                    ->addFlags(new CascadeDelete())
-            );
-        }
-
-        if (Feature::isActive('FEATURE_NEXT_3722')) {
-            $collection->add(
-                (new BoolField('write_access', 'writeAccess'))->addFlags(new Deprecated('v3', 'v4'))
-            );
-            $collection->add(
-                new ManyToManyAssociationField('aclRoles', AclRoleDefinition::class, IntegrationRoleDefinition::class, 'integration_id', 'acl_role_id')
-            );
-        }
+        $collection->add(
+            (new BoolField('write_access', 'writeAccess'))->addFlags(new Deprecated('v3', 'v4'))
+        );
+        $collection->add(
+            new ManyToManyAssociationField('aclRoles', AclRoleDefinition::class, IntegrationRoleDefinition::class, 'integration_id', 'acl_role_id')
+        );
 
         return $collection;
     }

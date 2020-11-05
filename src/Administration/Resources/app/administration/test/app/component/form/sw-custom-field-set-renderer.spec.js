@@ -246,96 +246,98 @@ describe('src/app/component/form/sw-custom-field-set-renderer', () => {
         expect(tabs).toHaveLength(2);
     });
 
-    it('should not filter custom field sets when entity has no parent and customFieldSetSelectionActive not set', async () => {
-        const props = {
-            entity: {
-                customFields: {
-                    field1: null
+    it('should not filter custom field sets when entity has no parent and customFieldSetSelectionActive not set',
+        async () => {
+            const props = {
+                entity: {
+                    customFields: {
+                        field1: null
+                    },
+                    customFieldSets: createEntityCollection([{ id: 'set2' }]),
+                    customFieldSetSelectionActive: null
                 },
-                customFieldSets: createEntityCollection([{ id: 'set2' }]),
-                customFieldSetSelectionActive: null
-            },
-            sets: createEntityCollection([{
-                id: 'set1',
-                name: 'set1',
-                config: {},
-                customFields: [{
-                    name: 'field1',
-                    type: 'text',
-                    config: {
-                        label: 'field1Label'
-                    }
-                }]
-            },
-            {
-                id: 'set2',
-                name: 'set2',
-                config: {},
-                customFields: [{
-                    name: 'field2',
-                    type: 'text',
-                    config: {
-                        label: 'field2Label'
-                    }
-                }]
-            }]),
-            showCustomFieldSetSelection: true
-        };
-
-        const wrapper = createWrapper(props);
-
-        expect(wrapper.vm.filterCustomFields).toBe(false);
-        expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(2);
-        const tabs = wrapper.findAll('.sw-tabs__content .sw-tabs-item');
-        expect(tabs).toHaveLength(2);
-    });
-
-    it('should not filter custom field sets when customFieldSetSelectionActive not set and parent has no selection', async () => {
-        const props = {
-            entity: {
-                customFields: {
-                    field1: null
+                sets: createEntityCollection([{
+                    id: 'set1',
+                    name: 'set1',
+                    config: {},
+                    customFields: [{
+                        name: 'field1',
+                        type: 'text',
+                        config: {
+                            label: 'field1Label'
+                        }
+                    }]
                 },
-                customFieldSets: createEntityCollection([{ id: 'set2' }]),
-                customFieldSetSelectionActive: null
-            },
-            sets: createEntityCollection([{
-                id: 'set1',
-                name: 'set1',
-                config: {},
-                customFields: [{
-                    name: 'field1',
-                    type: 'text',
-                    config: {
-                        label: 'field1Label'
-                    }
-                }]
-            },
-            {
-                id: 'set2',
-                name: 'set2',
-                config: {},
-                customFields: [{
-                    name: 'field2',
-                    type: 'text',
-                    config: {
-                        label: 'field2Label'
-                    }
-                }]
-            }]),
-            parentEntity: {
-                id: 'parentId'
-            },
-            showCustomFieldSetSelection: true
-        };
+                {
+                    id: 'set2',
+                    name: 'set2',
+                    config: {},
+                    customFields: [{
+                        name: 'field2',
+                        type: 'text',
+                        config: {
+                            label: 'field2Label'
+                        }
+                    }]
+                }]),
+                showCustomFieldSetSelection: true
+            };
 
-        const wrapper = createWrapper(props);
+            const wrapper = createWrapper(props);
 
-        expect(wrapper.vm.filterCustomFields).toBe(false);
-        expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(2);
-        const tabs = wrapper.findAll('.sw-tabs__content .sw-tabs-item');
-        expect(tabs).toHaveLength(2);
-    });
+            expect(wrapper.vm.filterCustomFields).toBe(false);
+            expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(2);
+            const tabs = wrapper.findAll('.sw-tabs__content .sw-tabs-item');
+            expect(tabs).toHaveLength(2);
+        });
+
+    it('should not filter custom field sets when customFieldSetSelectionActive not set and parent has no selection',
+        async () => {
+            const props = {
+                entity: {
+                    customFields: {
+                        field1: null
+                    },
+                    customFieldSets: createEntityCollection([{ id: 'set2' }]),
+                    customFieldSetSelectionActive: null
+                },
+                sets: createEntityCollection([{
+                    id: 'set1',
+                    name: 'set1',
+                    config: {},
+                    customFields: [{
+                        name: 'field1',
+                        type: 'text',
+                        config: {
+                            label: 'field1Label'
+                        }
+                    }]
+                },
+                {
+                    id: 'set2',
+                    name: 'set2',
+                    config: {},
+                    customFields: [{
+                        name: 'field2',
+                        type: 'text',
+                        config: {
+                            label: 'field2Label'
+                        }
+                    }]
+                }]),
+                parentEntity: {
+                    id: 'parentId'
+                },
+                showCustomFieldSetSelection: true
+            };
+
+            const wrapper = createWrapper(props);
+
+            expect(wrapper.vm.filterCustomFields).toBe(false);
+            expect(wrapper.vm.visibleCustomFieldSets).toHaveLength(2);
+            const tabs = wrapper.findAll('.sw-tabs__content .sw-tabs-item');
+            expect(tabs).toHaveLength(2);
+        });
 
     it('should filter custom field sets when selection active and customFields selected', async () => {
         const props = {

@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\Event\LineItemRemovedEvent;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -48,9 +49,10 @@ class CartItemRemoveRoute extends AbstractCartItemRemoveRoute
     }
 
     /**
+     * @Since("6.3.0.0")
      * @OA\Delete(
      *      path="/checkout/cart/line-item",
-     *      description="Remove line item entries",
+     *      summary="Remove line item entries",
      *      operationId="removeLineItem",
      *      tags={"Store API", "Cart"},
      *      @OA\RequestBody(@OA\JsonContent(ref="#/definitions/CartItemsDelete")),

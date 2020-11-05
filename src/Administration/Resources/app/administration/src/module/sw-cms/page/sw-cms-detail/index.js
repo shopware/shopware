@@ -477,7 +477,7 @@ Component.register('sw-cms-detail', {
             const sections = this.page.sections;
 
             if (sections.length < 1) {
-                this.createNotificationWarning({
+                this.createNotificationError({
                     message: this.$tc('sw-cms.detail.notification.messageMissingSections')
                 });
 
@@ -485,7 +485,7 @@ Component.register('sw-cms-detail', {
             }
 
             if (sections.length === 1 && sections[0].blocks.length === 0) {
-                this.createNotificationWarning({
+                this.createNotificationError({
                     message: this.$tc('sw-cms.detail.notification.messageMissingBlocks')
                 });
 
@@ -507,7 +507,7 @@ Component.register('sw-cms-detail', {
 
             if (foundEmptyRequiredField.length > 0) {
                 const warningMessage = this.$tc('sw-cms.detail.notification.messageMissingBlockFields');
-                this.createNotificationWarning({
+                this.createNotificationError({
                     message: warningMessage
                 });
 
@@ -543,8 +543,8 @@ Component.register('sw-cms-detail', {
                 }
 
                 if (hasEmptyConfig === true) {
-                    const warningMessage = this.$tc('sw-cms.detail.notificationM.messageMissingElements');
-                    this.createNotificationWarning({
+                    const warningMessage = this.$tc('sw-cms.detail.notification.messageMissingElements');
+                    this.createNotificationError({
                         message: warningMessage,
                         duration: 10000
                     });
@@ -655,34 +655,13 @@ Component.register('sw-cms-detail', {
 
         onPageTypeChange() {
             if (this.page.type === 'product_list') {
-                const listingBlock = this.blockRepository.create();
-                const blockConfig = this.cmsBlocks['product-listing'];
-
-                listingBlock.type = 'product-listing';
-                listingBlock.position = 0;
-
-                listingBlock.sectionId = this.page.sections[0].id;
-                listingBlock.setionPosition = 'main';
-
-                Object.assign(
-                    listingBlock,
-                    cloneDeep(this.blockConfigDefaults),
-                    cloneDeep(blockConfig.defaultConfig || {})
-                );
-
-                const listingEl = this.slotRepository.create();
-                listingEl.blockId = listingBlock.id;
-                listingEl.slot = 'content';
-                listingEl.type = 'product-listing';
-                listingEl.config = {};
-
-                listingBlock.slots.push(listingEl);
-
-                this.page.sections[0].blocks.splice(0, 0, listingBlock);
+                this.processProductListingType();
+            } else if (this.page.type === 'product_detail') {
+                this.processProductDetailType();
             } else {
                 this.page.sections.forEach((section) => {
                     section.blocks.forEach((block) => {
-                        if (block.type === 'product-listing') {
+                        if (block.type === 'product-listing' || block.type === 'product-heading') {
                             section.blocks.remove(block.id);
                         }
                     });
@@ -691,6 +670,77 @@ Component.register('sw-cms-detail', {
 
             this.checkSlotMappings();
             this.onPageUpdate();
+        },
+
+        processProductListingType() {
+            const listingBlock = this.blockRepository.create();
+            const listingElements = [
+                {
+                    blockId: listingBlock.id,
+                    slot: 'content',
+                    type: 'product-listing',
+                    config: {}
+                }
+            ];
+
+            this.processBlock(listingBlock, 'product-listing');
+            this.processElements(listingBlock, listingElements);
+        },
+
+        processProductDetailType() {
+            this.processHeadingBlock();
+        },
+
+        processHeadingBlock() {
+            const headingBlock = this.blockRepository.create();
+            const headingElements = [
+                {
+                    blockId: headingBlock.id,
+                    slot: 'left',
+                    type: 'product-name',
+                    config: {}
+                },
+                {
+                    blockId: headingBlock.id,
+                    slot: 'right',
+                    type: 'manufacturer-logo',
+                    config: {}
+                }
+            ];
+
+            this.processBlock(headingBlock, 'product-heading');
+            this.processElements(headingBlock, headingElements);
+        },
+
+        processBlock(block, blockType) {
+            const cmsBlock = this.cmsBlocks[blockType];
+
+            block.type = blockType;
+            block.position = 0;
+
+            block.sectionId = this.page.sections[0].id;
+            block.sectionPosition = 'main';
+
+            Object.assign(
+                block,
+                cloneDeep(this.blockConfigDefaults),
+                cloneDeep(cmsBlock.defaultConfig || {})
+            );
+        },
+
+        processElements(block, elements) {
+            elements.forEach((element) => {
+                const slot = this.slotRepository.create();
+
+                slot.blockId = element.blockId;
+                slot.slot = element.slot;
+                slot.type = element.type;
+                slot.config = element.config;
+
+                block.slots.push(slot);
+            });
+
+            this.page.sections[0].blocks.splice(0, 0, block);
         },
 
         checkSlotMappings() {

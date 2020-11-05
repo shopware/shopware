@@ -156,7 +156,7 @@ trait SalesChannelApiTestBehaviour
         }
 
         $salesChannel = array_merge([
-            'id' => Uuid::randomHex(),
+            'id' => $salesChannelOverride['id'] ?? Uuid::randomHex(),
             'typeId' => Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
             'name' => 'API Test case sales channel',
             'accessKey' => AccessKeyHelper::generateAccessKey('sales-channel'),
@@ -167,7 +167,7 @@ trait SalesChannelApiTestBehaviour
             'paymentMethods' => [['id' => $paymentMethod->getId()]],
             'shippingMethodId' => $this->getAvailableShippingMethod()->getId(),
             'navigationCategoryId' => $this->getValidCategoryId(),
-            'countryId' => $this->getValidCountryId(),
+            'countryId' => $this->getValidCountryId(null),
             'currencies' => [['id' => Defaults::CURRENCY]],
             'languages' => [['id' => Defaults::LANGUAGE_SYSTEM]],
             'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
@@ -179,6 +179,7 @@ trait SalesChannelApiTestBehaviour
                     'url' => 'http://localhost',
                 ],
             ],
+            'countries' => [['id' => $this->getValidCountryId(null)]],
         ], $salesChannelOverride);
 
         $salesChannelRepository->upsert([$salesChannel], Context::createDefaultContext());
@@ -193,5 +194,11 @@ trait SalesChannelApiTestBehaviour
         $response = $browser->getResponse();
         $content = json_decode($response->getContent(), true);
         $browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $content['token']);
+    }
+
+    private function getRandomId(string $table)
+    {
+        return $this->getContainer()->get(Connection::class)
+            ->fetchColumn('SELECT LOWER(HEX(id)) FROM ' . $table);
     }
 }

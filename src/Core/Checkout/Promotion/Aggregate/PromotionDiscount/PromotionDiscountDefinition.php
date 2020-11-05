@@ -1,5 +1,4 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount;
 
@@ -40,6 +39,11 @@ class PromotionDiscountDefinition extends EntityDefinition
         return PromotionDiscountCollection::class;
     }
 
+    public function since(): ?string
+    {
+        return '6.0.0.0';
+    }
+
     protected function getParentDefinitionClass(): ?string
     {
         return PromotionDefinition::class;
@@ -59,6 +63,7 @@ class PromotionDiscountDefinition extends EntityDefinition
             (new StringField('sorter_key', 'sorterKey', 32)),
             (new StringField('applier_key', 'applierKey', 32)),
             (new StringField('usage_key', 'usageKey', 32)),
+            (new StringField('picker_key', 'pickerKey', 32)),
 
             new ManyToOneAssociationField('promotion', 'promotion_id', PromotionDefinition::class, 'id'),
             (new ManyToManyAssociationField('discountRules', RuleDefinition::class, PromotionDiscountRuleDefinition::class, 'discount_id', 'rule_id'))->addFlags(new CascadeDelete()),

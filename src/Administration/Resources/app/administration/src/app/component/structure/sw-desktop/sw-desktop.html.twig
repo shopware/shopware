@@ -11,6 +11,7 @@
                     <router-view></router-view>
                 {% endblock %}
             </div>
+            <sw-app-app-url-changed-modal v-if="urlDiff !== null" :urlDiff="urlDiff" @modal-close="closeModal"></sw-app-app-url-changed-modal>
         {% endblock %}
     </div>
 {% endblock %}

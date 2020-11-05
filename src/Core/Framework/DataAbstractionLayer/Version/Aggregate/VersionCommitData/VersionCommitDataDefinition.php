@@ -41,6 +41,11 @@ class VersionCommitDataDefinition extends EntityDefinition
         return VersionCommitDataEntity::class;
     }
 
+    public function since(): ?string
+    {
+        return '6.0.0.0';
+    }
+
     protected function getParentDefinitionClass(): ?string
     {
         return VersionCommitDefinition::class;
@@ -57,8 +62,8 @@ class VersionCommitDataDefinition extends EntityDefinition
             (new IntField('auto_increment', 'autoIncrement'))->addFlags(new WriteProtected()),
             (new StringField('entity_name', 'entityName'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new JsonField('entity_id', 'entityId'))->addFlags(new Required()),
-            (new StringField('action', 'action'))->addFlags(new Required(), new SearchRanking(SearchRanking::LOW_SEARCH_RAKING)),
-            (new VersionDataPayloadField('payload', 'payload'))->addFlags(new Required(), new SearchRanking(SearchRanking::LOW_SEARCH_RAKING)),
+            (new StringField('action', 'action'))->addFlags(new Required(), new SearchRanking(SearchRanking::LOW_SEARCH_RANKING)),
+            (new VersionDataPayloadField('payload', 'payload'))->addFlags(new Required(), new SearchRanking(SearchRanking::LOW_SEARCH_RANKING)),
         ]);
     }
 }

@@ -31,5 +31,12 @@
       "recipientsTitle": "Empfänger",
       "contentsTitle": "Inhalt"
     }
+  },
+  "sw-privileges": {
+    "additional_permissions": {
+      "system": {
+        "logging": "Logging"
+      }
+    }
   }
 }

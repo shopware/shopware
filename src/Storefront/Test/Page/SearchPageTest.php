@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Test\Page;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingFeaturesSubscriber;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Page\Search\SearchPage;
 use Shopware\Storefront\Page\Search\SearchPageLoadedEvent;
 use Shopware\Storefront\Page\Search\SearchPageLoader;
@@ -58,6 +59,29 @@ class SearchPageTest extends TestCase
             ProductListingFeaturesSubscriber::DEFAULT_SEARCH_SORT,
             $page->getListing()->getSorting()
         );
+    }
+
+    public function testItDisplaysCorrectTitle(): void
+    {
+        $request = new Request(['search' => self::TEST_TERM]);
+
+        $context = $this->createSalesChannelContextWithNavigation();
+
+        /** @var SearchPageLoadedEvent $homePageLoadedEvent */
+        $homePageLoadedEvent = null;
+        $this->catchEvent(SearchPageLoadedEvent::class, $homePageLoadedEvent);
+
+        $page = $this->getPageLoader()->load($request, $context);
+
+        static::assertSame('Demostore', $page->getMetaInformation()->getMetaTitle());
+
+        /** @var SystemConfigService $systemConfig */
+        $systemConfig = $this->getContainer()->get(SystemConfigService::class);
+        $systemConfig->set('core.basicInformation.shopName', 'Teststore', $context->getSalesChannel()->getId());
+
+        $page = $this->getPageLoader()->load($request, $context);
+
+        static::assertSame('Teststore', $page->getMetaInformation()->getMetaTitle());
     }
 
     /**

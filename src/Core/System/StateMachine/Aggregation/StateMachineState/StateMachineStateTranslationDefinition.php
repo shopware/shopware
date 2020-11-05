@@ -22,6 +22,11 @@ class StateMachineStateTranslationDefinition extends EntityTranslationDefinition
         return StateMachineStateTranslationEntity::class;
     }
 
+    public function since(): ?string
+    {
+        return '6.0.0.0';
+    }
+
     protected function getParentDefinitionClass(): string
     {
         return StateMachineStateDefinition::class;
@@ -29,9 +34,6 @@ class StateMachineStateTranslationDefinition extends EntityTranslationDefinition
 
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([
-            (new StringField('name', 'name'))->setFlags(new Required()),
-            new CustomFields(),
-        ]);
+        return new FieldCollection([(new StringField('name', 'name'))->setFlags(new Required()), new CustomFields()]);
     }
 }

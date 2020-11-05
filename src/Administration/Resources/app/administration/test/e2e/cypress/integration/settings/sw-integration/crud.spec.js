@@ -33,7 +33,6 @@ describe('Integration: crud integrations', () => {
         cy.get('#sw-field--currentIntegration-label')
             .clear()
             .type('chat-key');
-        cy.get('.sw-field__checkbox input[type="checkbox"]').check();
 
         cy.get('.sw-integration-detail-modal__save-action').click();
 
@@ -65,7 +64,6 @@ describe('Integration: crud integrations', () => {
         cy.get('#sw-field--currentIntegration-label')
             .clear()
             .type('chat-key');
-        cy.get('.sw-field__checkbox input[type="checkbox"]').check();
 
         cy.get('.sw-integration-detail-modal__save-action').click();
 
@@ -102,7 +100,6 @@ describe('Integration: crud integrations', () => {
         cy.get('#sw-field--currentIntegration-label')
             .clear()
             .type('chat-key');
-        cy.get('.sw-field__checkbox input[type="checkbox"]').check();
 
         cy.get('.sw-integration-detail-modal__save-action').click();
 
@@ -153,7 +150,6 @@ describe('Integration: crud integrations', () => {
         cy.get('#sw-field--currentIntegration-label')
             .clear()
             .type('chat-key');
-        cy.get('.sw-field__checkbox input[type="checkbox"]').check();
 
         cy.get('.sw-integration-detail-modal__save-action').click();
 

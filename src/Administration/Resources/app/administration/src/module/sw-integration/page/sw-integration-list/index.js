@@ -6,7 +6,7 @@ const { Component, Mixin, Data: { Criteria } } = Shopware;
 Component.register('sw-integration-list', {
     template,
 
-    inject: ['integrationService', 'repositoryFactory', 'acl', 'feature'],
+    inject: ['integrationService', 'repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('notification')
@@ -43,9 +43,7 @@ Component.register('sw-integration-list', {
             const criteria = new Criteria(1, 25);
 
             criteria.addSorting(Criteria.sort('label', 'ASC'));
-            if (this.feature.isActive('FEATURE_NEXT_3722')) {
-                criteria.addAssociation('aclRoles');
-            }
+            criteria.addAssociation('aclRoles');
 
             return criteria;
         },

@@ -200,7 +200,8 @@
       "tabProperties": "Property assignment",
       "messageSaveSuccess": "Product \"{name}\" has been saved.",
       "messageUploadSuccess": "{count} of {total} files saved.",
-      "messageSaveWarning": "No changes detected."
+      "messageSaveWarning": "No changes detected.",
+      "errorMinMaxPurchase": "Could not save product, the min purchase quantity is larger than max purchase quantity."
     },
     "mediaForm": {
       "errorHeadline": "Error",

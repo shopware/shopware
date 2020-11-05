@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -49,10 +50,11 @@ class NavigationRoute extends AbstractNavigationRoute
     }
 
     /**
+     * @Since("6.2.0.0")
      * @Entity("category")
      * @OA\Get(
      *      path="/navigation/{requestActiveId}/{requestRootId}",
-     *      description="Loads all available navigations",
+     *      summary="Loads all available navigations",
      *      operationId="readNavigation",
      *      tags={"Store API", "Navigation"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),

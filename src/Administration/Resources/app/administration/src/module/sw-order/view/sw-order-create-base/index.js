@@ -8,6 +8,10 @@ const { mapGetters } = Component.getComponentHelper();
 Component.register('sw-order-create-base', {
     template,
 
+    inject: [
+        'feature'
+    ],
+
     mixins: [
         Mixin.getByName('notification')
     ],
@@ -44,10 +48,29 @@ Component.register('sw-order-create-base', {
                     return;
                 }
 
-                Object.keys(newValue).forEach(key => {
-                    this.createNotificationError({
-                        message: newValue[key].message
-                    });
+                Object.values(newValue).forEach((value) => {
+                    switch (value.level) {
+                        case 0: {
+                            this.createNotificationSuccess({
+                                message: value.message
+                            });
+                            break;
+                        }
+
+                        case 10: {
+                            this.createNotificationWarning({
+                                message: value.message
+                            });
+                            break;
+                        }
+
+                        default: {
+                            this.createNotificationError({
+                                message: value.message
+                            });
+                            break;
+                        }
+                    }
                 });
             }
         }
@@ -194,6 +217,10 @@ Component.register('sw-order-create-base', {
             set(visibility) {
                 this.switchAutomaticPromotions(visibility);
             }
+        },
+
+        taxStatus() {
+            return get(this.cart, 'price.taxStatus', '');
         }
     },
 
@@ -454,7 +481,8 @@ Component.register('sw-order-create-base', {
 
         enableAutomaticPromotions() {
             this.updateLoading(true);
-            Service('cartStoreService').enableAutomaticPromotions(this.cart.token).then(() => {
+            const additionalParams = this.feature.isActive('FEATURE_NEXT_10058') ? { salesChannelId: this.customer.salesChannelId } : {};
+            Service('cartStoreService').enableAutomaticPromotions(this.cart.token, additionalParams).then(() => {
                 this.loadCart();
             });
         },

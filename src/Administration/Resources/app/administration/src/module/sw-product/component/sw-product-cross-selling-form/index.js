@@ -160,7 +160,7 @@ Component.register('sw-product-cross-selling-form', {
 
                     const filterRepository = this.repositoryFactory.create(
                         this.productStream.filters.entity,
-                        this.productStream.filters.source,
+                        this.productStream.filters.source
                     );
 
                     const criteria = new Criteria();

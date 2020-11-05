@@ -48,7 +48,7 @@ describe('Promotion: Test promotion with preconditional rules', () => {
         cy.get('#sw-field--promotion-code').type('funicular');
 
         // Add promotion rule
-        cy.get('a[title="Preconditions"]').click();
+        cy.get('a[title="Conditions"]').click();
         cy.contains('.sw-card__title', 'Target group').should('be.visible');
         cy.get('input[name="sw-field--promotion-customerRestriction"]').click();
         cy.get('.sw-promotion-persona-form-customers').should('be.visible');

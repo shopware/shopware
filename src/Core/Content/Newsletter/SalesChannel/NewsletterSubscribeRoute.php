@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
@@ -68,9 +69,10 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
     }
 
     /**
+     * @Since("6.2.0.0")
      * @OA\Post(
      *      path="/newsletter/subscribe",
-     *      description="Subscribe to newsletter",
+     *      summary="Subscribe to newsletter",
      *      operationId="subscribeToNewsletter",
      *      tags={"Store API", "Newsletter"},
      *      @OA\Parameter(name="email", description="Email", in="query", @OA\Schema(type="string")),

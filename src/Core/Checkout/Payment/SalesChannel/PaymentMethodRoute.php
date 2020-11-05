@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -37,10 +38,11 @@ class PaymentMethodRoute extends AbstractPaymentMethodRoute
     }
 
     /**
+     * @Since("6.2.0.0")
      * @Entity("payment_method")
      * @OA\Get(
      *      path="/payment-method",
-     *      description="Loads all available payment methods",
+     *      summary="Loads all available payment methods",
      *      operationId="readPaymentMethod",
      *      tags={"Store API", "Payment Method"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),

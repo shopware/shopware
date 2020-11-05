@@ -13,7 +13,6 @@ use Shopware\Core\Framework\Event\BusinessEventDispatcher;
 use Shopware\Core\Framework\Event\BusinessEvents;
 use Shopware\Core\Framework\Event\EventAction\EventActionCollection;
 use Shopware\Core\Framework\Event\EventAction\EventActionDefinition;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -117,7 +116,6 @@ class BusinessEventDispatcherTest extends TestCase
 
     public function testNotMatchingRulesNotDispatched(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_9351', $this);
         $context = Context::createDefaultContext();
         $event = new TestBusinessEvent($context);
 
@@ -173,8 +171,6 @@ class BusinessEventDispatcherTest extends TestCase
 
     public function testOneMatchingRuleDispatched(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_9351', $this);
-
         $ids = new TestDataCollection();
 
         $this->getContainer()->get('rule.repository')

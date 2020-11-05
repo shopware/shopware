@@ -16,6 +16,7 @@
 
         <service id="Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder" public="true">
             <argument type="service" id="product_stream.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
         </service>
 
         <service id="Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamIndexer">

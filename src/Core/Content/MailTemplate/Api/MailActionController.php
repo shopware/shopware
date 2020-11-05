@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Adapter\Twig\Exception\StringTemplateRenderingExcept
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -37,6 +38,7 @@ class MailActionController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/mail-template/send", name="api.action.mail_template.send", methods={"POST"})
      */
     public function send(RequestDataBag $post, Context $context): JsonResponse
@@ -47,6 +49,7 @@ class MailActionController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * Validates if an email template can be rendered without sending an email
      *
      * @Route("/api/v{version}/_action/mail-template/validate", name="api.action.mail_template.validate", methods={"POST"})

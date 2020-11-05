@@ -1,6 +1,6 @@
 import './sw-customer-detail.scss';
 import template from './sw-customer-detail.html.twig';
-import errorConfig from './error-config.json';
+import errorConfig from '../../error-config.json';
 
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -164,7 +164,9 @@ Component.register('sw-customer-detail', {
             if (!await this.validPassword(this.customer)) {
                 this.isLoading = false;
                 return false;
-            } if (this.customer.passwordNew) {
+            }
+
+            if (this.customer.passwordNew) {
                 this.customer.password = this.customer.passwordNew;
             }
 
@@ -210,7 +212,9 @@ Component.register('sw-customer-detail', {
                     });
 
                     return false;
-                } if (invalidLength) {
+                }
+
+                if (invalidLength) {
                     this.createNotificationError({
                         message: this.$tc('sw-customer.detail.notificationPasswordLengthErrorMessage')
                     });

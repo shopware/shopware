@@ -55,6 +55,9 @@ function createWrapper() {
                 getCmsBlockRegistry: () => ({
                     'foo-bar': {}
                 })
+            },
+            feature: {
+                isActive: () => true
             }
         }
     });

@@ -537,6 +537,7 @@
     "groupRequired": "Technically required",
     "groupRequiredDescription": "Cookies required for this shop to function:",
     "groupRequiredSession": "Session",
+    "groupRequiredCsrf": "CSRF protection",
     "groupRequiredTimezone": "Timezone",
     "groupStatistical": "Statistics",
     "groupStatisticalDescription": "Cookies used for statistics and shop performance metrics.",

@@ -44,5 +44,14 @@
             <helpText>Products are marked as new, if their release date does not date back past the set number of days.</helpText>
             <helpText lang="de-DE">Produkte werden als neu markiert, wenn ihr Erscheinungsdatum nicht länger als die angegebene Anzahl an Tagen zurückliegt.</helpText>
         </input-field>
+
+        <input-field type="int">
+            <name>productsPerPage</name>
+            <label>Number of products per page</label>
+            <label lang="de-DE">Anzahl der Produkte pro Seite</label>
+            <helpText>The number of products displayed on a single page in the storefront.</helpText>
+            <helpText lang="de-DE">Die Anzahl der Produkte die auf einer Seite in der Storefront angezeigt werden.</helpText>
+            <flag>FEATURE_NEXT_10554</flag>
+        </input-field>
     </card>
 </config>

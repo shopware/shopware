@@ -359,6 +359,7 @@ Cypress.Commands.add('sortListingViaColumn', (
  * @param {Number} limit - the limit to be checked
  */
 Cypress.Commands.add('testListing', ({ searchTerm, sorting = { location: undefined, text: undefined, propertyName: undefinded, sortDirection: undefined }, page, limit }) => {
+    cy.get('.sw-loader').should('not.exist');
     cy.get('.sw-data-grid__skeleton').should('not.exist');
 
     // check searchterm

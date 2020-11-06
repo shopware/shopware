@@ -130,6 +130,10 @@ class LoadWishlistRoute extends AbstractLoadWishlistRoute
         );
 
         $criteria->addSorting(
+            new FieldSorting('wishlists.updatedAt', FieldSorting::DESCENDING)
+        );
+
+        $criteria->addSorting(
             new FieldSorting('wishlists.createdAt', FieldSorting::DESCENDING)
         );
 

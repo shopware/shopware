@@ -17,6 +17,7 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\ParentAssociationCanNotBeFetched;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
@@ -1810,5 +1811,37 @@ class EntityReaderTest extends TestCase
         /** @var ProductEntity $product */
         $product = $products->get($productId);
         static::assertInstanceOf(ProductEntity::class, $product);
+    }
+
+    public function testParentCanNotBeFetchedException(): void
+    {
+        $criteria = new Criteria();
+        $criteria->setLimit(1);
+        $criteria->addAssociation('parent');
+
+        $data = [
+            'id' => Uuid::randomHex(),
+            'name' => 'test',
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 10,
+            'price' => [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
+            ],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
+        ];
+
+        $this->getContainer()->get('product.repository')
+            ->create([$data], Context::createDefaultContext());
+
+        $exception = null;
+
+        try {
+            $this->getContainer()->get('product.repository')
+                ->search($criteria, Context::createDefaultContext());
+        } catch (ParentAssociationCanNotBeFetched $e) {
+            $exception = $e;
+        }
+
+        static::assertInstanceOf(ParentAssociationCanNotBeFetched::class, $exception);
     }
 }

@@ -10,7 +10,7 @@ export default class HttpClient {
     }
 
     /**
-     * @deprecated tag:v6.3.0 - Sales channel access key is no longer available in storefront templates
+     * @deprecated tag:v6.4.0 - Sales channel access key is no longer available in storefront templates
      * @returns {string}
      */
     get accessKey() {
@@ -18,7 +18,7 @@ export default class HttpClient {
     }
 
     /**
-     * @deprecated tag:v6.3.0 - Context token is no longer available in storefront templates
+     * @deprecated tag:v6.4.0 - Context token is no longer available in storefront templates
      * @returns {string}
      */
     get contextToken() {

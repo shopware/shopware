@@ -364,14 +364,14 @@ Shopware.prototype = {
     /**
      * @memberOf module:Shopware
      * @type {Object}
-     * @deprecated 6.1
+     * @deprecated tag:v6.4.0
      */
     DataDeprecated: dataDeprecated,
 
     /**
      * @memberOf module:Shopware
      * @type {Object}
-     * @deprecated 6.1
+     * @deprecated tag:v6.4.0
      */
     StateDeprecated: {
         registerStore: StateFactoryDeprecated.registerStore,

@@ -2,7 +2,7 @@ import EntityStore from './EntityStore';
 
 /**
  * @module core/data/AssociationStore
- * @deprecated 6.1
+ * @deprecated tag:v6.4.0
  */
 
 /**

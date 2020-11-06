@@ -31,7 +31,7 @@ Component.register('sw-popover', {
             default: ''
         },
         /**
-         * @deprecated tag:v6.2.0
+         * @deprecated tag:v6.4.0
          */
         isPopover: {
             type: Boolean,

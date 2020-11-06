@@ -1,6 +1,6 @@
 /**
  * @module core/data/EntityStore
- * @deprecated 6.1
+ * @deprecated tag:v6.4.0
  */
 
 /**

@@ -133,7 +133,7 @@ describe('core/common.js', () => {
     });
 
     /**
-     * @deprecated 6.1
+     * @deprecated tag:v6.4.0
      */
     it('should contain the necessary methods for the DataDeprecated', async () => {
         expect(DataDeprecated).toHaveProperty('LocalStore');

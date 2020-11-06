@@ -9,7 +9,7 @@ const UploadEvents = {
 
 /**
  * @module core/data/UploadStore
- * @deprecated tag:v6.2.0
+ * @deprecated tag:v6.4.0
  */
 class UploadStore {
     constructor(mediaService) {

@@ -1,6 +1,6 @@
 /**
  * @module core/data/EntityProxy
- * @deprecated 6.1
+ * @deprecated tag:v6.4.0
  */
 
 /**

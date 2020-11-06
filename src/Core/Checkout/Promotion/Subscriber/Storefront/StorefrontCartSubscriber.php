@@ -91,7 +91,7 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
             // promotion with code
             $this->checkFixedDiscountItems($cart, $lineItem);
             //remove other discounts of the promotion that should be deleted
-            $this->removeOtherDiscountsOfPromotion($cart, $lineItem, $event->getContext());
+            $this->removeOtherDiscountsOfPromotion($cart, $lineItem, $event->getSalesChannelContext());
             $this->removeCode($code, $cart);
 
             return;

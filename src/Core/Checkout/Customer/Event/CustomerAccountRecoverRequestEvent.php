@@ -11,10 +11,11 @@ use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\MailActionInterface;
 use Shopware\Core\Framework\Event\SalesChannelAware;
+use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class CustomerAccountRecoverRequestEvent extends Event implements MailActionInterface, SalesChannelAware
+class CustomerAccountRecoverRequestEvent extends Event implements MailActionInterface, SalesChannelAware, ShopwareSalesChannelEvent
 {
     public const EVENT_NAME = 'customer.recovery.request';
 

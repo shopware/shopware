@@ -5,10 +5,11 @@ namespace Shopware\Core\Content\Product\Events;
 use Shopware\Core\Content\Product\SalesChannel\Listing\FilterCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
-class ProductListingCollectFilterEvent extends NestedEvent
+class ProductListingCollectFilterEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
     /**
      * @var Request

@@ -31,11 +31,19 @@ class JsonFieldAccessorBuilder implements FieldAccessorBuilderInterface
             return null;
         }
 
-        $jsonPath = preg_replace(
+        $jsonPathBase = preg_replace(
             '#^' . preg_quote($jsonField->getPropertyName(), '#') . '#',
             '',
             $accessor
         );
+
+        $jsonPath = '';
+        $jsonPathSegments = explode('.', (string) $jsonPathBase);
+        foreach ($jsonPathSegments as $jsonPathSegment) {
+            if (!empty($jsonPathSegment)) {
+                $jsonPath .= '."' . $jsonPathSegment . '"';
+            }
+        }
 
         if (empty($jsonPath)) {
             return EntityDefinitionQueryHelper::escape($root) . '.' . EntityDefinitionQueryHelper::escape($jsonField->getStorageName());

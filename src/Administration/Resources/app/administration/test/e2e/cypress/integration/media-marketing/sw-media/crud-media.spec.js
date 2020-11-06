@@ -86,7 +86,7 @@ describe('Media: Test crud operations', () => {
         cy.get('input[placeholder="Cypress example title"]').should('be.visible');
     });
 
-    it('@base @media: delete medium', () => {
+    it.skip('@base @media: delete medium', () => {
         const page = new MediaPageObject();
 
         // Request we want to wait for later

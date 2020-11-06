@@ -8,6 +8,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 class ListingPriceUpdater
@@ -76,7 +77,7 @@ class ListingPriceUpdater
 
             $listingPrices = $this->calculateListingPrices($ruleIds, $productPrices, $currencies);
 
-            $encoded = json_encode($listingPrices);
+            $encoded = JsonFieldSerializer::encodeJson($listingPrices);
 
             $query->execute([
                 'price' => $encoded,

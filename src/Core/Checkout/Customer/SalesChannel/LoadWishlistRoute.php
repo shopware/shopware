@@ -85,7 +85,7 @@ class LoadWishlistRoute extends AbstractLoadWishlistRoute
      *          @OA\JsonContent(ref="#/components/schemas/WishlistLoadRouteResponse")
      *     )
      * )
-     * @Route("/store-api/v{version}/customer/wishlist", name="store-api.customer.wishlist.load", methods={"GET", "POST"})
+     * @Route("/store-api/customer/wishlist", name="store-api.customer.wishlist.load", methods={"GET", "POST"})
      */
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): LoadWishlistRouteResponse
     {

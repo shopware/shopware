@@ -22,7 +22,7 @@ describe('Shipping: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/shipping-method',
+            url: `${Cypress.env('apiPath')}/shipping-method`,
             method: 'post'
         }).as('saveData');
 
@@ -47,7 +47,7 @@ describe('Shipping: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/shipping-method/*',
+            url: `${Cypress.env('apiPath')}/shipping-method/*`,
             method: 'patch'
         }).as('saveData');
 
@@ -75,7 +75,7 @@ describe('Shipping: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/shipping-method/*',
+            url: `${Cypress.env('apiPath')}/shipping-method/*`,
             method: 'delete'
         }).as('deleteData');
 
@@ -104,7 +104,7 @@ describe('Shipping: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/shipping-method',
+            url: `${Cypress.env('apiPath')}/shipping-method`,
             method: 'post'
         }).as('saveData');
 

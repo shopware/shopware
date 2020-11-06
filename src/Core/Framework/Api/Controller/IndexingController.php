@@ -29,7 +29,7 @@ class IndexingController extends AbstractController
      * @Since("6.0.0.0")
      * Starts the dal indexing process in batch mode
      *
-     * @Route("/api/v{version}/_action/indexing", name="api.action.indexing", methods={"POST"})
+     * @Route("/api/_action/indexing", name="api.action.indexing", methods={"POST"})
      */
     public function indexing(Request $request): JsonResponse
     {

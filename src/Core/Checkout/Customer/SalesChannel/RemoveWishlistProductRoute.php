@@ -77,7 +77,7 @@ class RemoveWishlistProductRoute extends AbstractRemoveWishlistProductRoute
      *          @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
-     * @Route("/store-api/v{version}/customer/wishlist/delete/{productId}", name="store-api.customer.wishlist.delete", methods={"DELETE"})
+     * @Route("/store-api/customer/wishlist/delete/{productId}", name="store-api.customer.wishlist.delete", methods={"DELETE"})
      */
     public function delete(string $productId, SalesChannelContext $context): SuccessResponse
     {

@@ -80,7 +80,7 @@ class LogoutRoute extends AbstractLogoutRoute
      *          description=""
      *     )
      * )
-     * @Route(path="/store-api/v{version}/account/logout", name="store-api.account.logout", methods={"POST"})
+     * @Route(path="/store-api/account/logout", name="store-api.account.logout", methods={"POST"})
      */
     public function logout(SalesChannelContext $context, ?RequestDataBag $data = null)
     {

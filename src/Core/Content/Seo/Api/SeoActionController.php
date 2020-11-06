@@ -105,7 +105,7 @@ class SeoActionController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/seo-url-template/validate", name="api.seo-url-template.validate", methods={"POST"}, requirements={"version"="\d+"})
+     * @Route("/api/_action/seo-url-template/validate", name="api.seo-url-template.validate", methods={"POST"})
      */
     public function validate(Request $request, Context $context): JsonResponse
     {
@@ -122,7 +122,7 @@ class SeoActionController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/seo-url-template/preview", name="api.seo-url-template.preview", methods={"POST"}, requirements={"version"="\d+"})
+     * @Route("/api/_action/seo-url-template/preview", name="api.seo-url-template.preview", methods={"POST"})
      */
     public function preview(Request $request, Context $context): Response
     {
@@ -154,7 +154,7 @@ class SeoActionController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/seo-url-template/context", name="api.seo-url-template.context", methods={"POST"}, requirements={"version"="\d+"})
+     * @Route("/api/_action/seo-url-template/context", name="api.seo-url-template.context", methods={"POST"})
      */
     public function getSeoUrlContext(RequestDataBag $data, Context $context): JsonResponse
     {
@@ -184,7 +184,7 @@ class SeoActionController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/seo-url/canonical", name="api.seo-url.canonical", methods={"PATCH"}, requirements={"version"="\d+"})
+     * @Route("/api/_action/seo-url/canonical", name="api.seo-url.canonical", methods={"PATCH"})
      */
     public function updateCanonicalUrl(RequestDataBag $seoUrl, Context $context): Response
     {
@@ -206,7 +206,7 @@ class SeoActionController extends AbstractController
 
     /**
      * @Since("6.3.1.0")
-     * @Route("/api/v{version}/_action/seo-url/create-custom-url", name="api.seo-url.create", methods={"POST"}, requirements={"version"="\d+"})
+     * @Route("/api/_action/seo-url/create-custom-url", name="api.seo-url.create", methods={"POST"})
      */
     public function createCustomSeoUrls(RequestDataBag $dataBag, Context $context): Response
     {
@@ -230,7 +230,7 @@ class SeoActionController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/seo-url-template/default/{routeName}", name="api.seo-url-template.default", methods={"GET"}, requirements={"version"="\d+"})
+     * @Route("/api/_action/seo-url-template/default/{routeName}", name="api.seo-url-template.default", methods={"GET"})
      */
     public function getDefaultSeoTemplate(string $routeName, Context $context): JsonResponse
     {

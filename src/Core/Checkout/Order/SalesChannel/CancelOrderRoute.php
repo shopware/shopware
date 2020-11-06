@@ -51,7 +51,7 @@ class CancelOrderRoute extends AbstractCancelOrderRoute
      *          @OA\JsonContent(ref="#/components/schemas/state_machine_state_flat")
      *     )
      * )
-     * @Route(path="/store-api/v{version}/order/state/cancel", name="store-api.order.state.cancel", methods={"POST"})
+     * @Route(path="/store-api/order/state/cancel", name="store-api.order.state.cancel", methods={"POST"})
      */
     public function cancel(Request $request, SalesChannelContext $context): CancelOrderRouteResponse
     {

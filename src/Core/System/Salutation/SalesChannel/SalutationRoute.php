@@ -65,7 +65,7 @@ class SalutationRoute extends AbstractSalutationRoute
      *          )
      *     )
      * )
-     * @Route(path="/store-api/v{version}/salutation", name="store-api.salutation", methods={"GET", "POST"})
+     * @Route(path="/store-api/salutation", name="store-api.salutation", methods={"GET", "POST"})
      */
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): SalutationRouteResponse
     {

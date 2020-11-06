@@ -9,7 +9,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
-use Shopware\Core\PlatformRequest;
 
 class ProductSearchRouteTest extends TestCase
 {
@@ -44,7 +43,7 @@ class ProductSearchRouteTest extends TestCase
     {
         $this->browser->request(
             'POST',
-            '/store-api/v' . PlatformRequest::API_VERSION . '/search?search=Product-Test',
+            '/store-api/search?search=Product-Test',
             [
             ]
         );
@@ -62,7 +61,7 @@ class ProductSearchRouteTest extends TestCase
     {
         $this->browser->request(
             'POST',
-            '/store-api/v' . PlatformRequest::API_VERSION . '/search?search=YAYY',
+            '/store-api/search?search=YAYY',
             [
             ]
         );
@@ -78,7 +77,7 @@ class ProductSearchRouteTest extends TestCase
     {
         $this->browser->request(
             'POST',
-            '/store-api/v' . PlatformRequest::API_VERSION . '/search',
+            '/store-api/search',
             [
             ]
         );

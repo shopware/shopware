@@ -76,8 +76,8 @@ class SwitchDefaultAddressRoute extends AbstractSwitchDefaultAddressRoute
      *          description=""
      *     )
      * )
-     * @Route(path="/store-api/v{version}/account/address/default-shipping/{addressId}", name="store-api.account.address.change.default.shipping", methods={"PATCH"}, defaults={"type" = "shipping"})
-     * @Route(path="/store-api/v{version}/account/address/default-billing/{addressId}", name="store-api.account.address.change.default.billing", methods={"PATCH"}, defaults={"type" = "billing"})
+     * @Route(path="/store-api/account/address/default-shipping/{addressId}", name="store-api.account.address.change.default.shipping", methods={"PATCH"}, defaults={"type" = "shipping"})
+     * @Route(path="/store-api/account/address/default-billing/{addressId}", name="store-api.account.address.change.default.billing", methods={"PATCH"}, defaults={"type" = "billing"})
      */
     public function swap(string $addressId, string $type, SalesChannelContext $context): NoContentResponse
     {

@@ -15,7 +15,6 @@ use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetEntity;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
@@ -67,7 +66,7 @@ class CustomFieldProtectionSubscriberTest extends TestCase
 
         $data = ['id' => $id, 'active' => false];
 
-        $client->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/custom-field-set/' . $id, $data, [], [
+        $client->request('PATCH', '/api/custom-field-set/' . $id, $data, [], [
             'HTTP_ACCEPT' => 'application/json',
         ]);
 
@@ -87,7 +86,7 @@ class CustomFieldProtectionSubscriberTest extends TestCase
 
         $data = ['id' => $id, 'active' => false];
 
-        $client->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/custom-field-set/' . $id, $data, [], [
+        $client->request('PATCH', '/api/custom-field-set/' . $id, $data, [], [
             'HTTP_ACCEPT' => 'application/json',
         ]);
         static::assertEquals(Response::HTTP_BAD_REQUEST, $client->getResponse()->getStatusCode());
@@ -122,7 +121,7 @@ class CustomFieldProtectionSubscriberTest extends TestCase
 
         $data = ['id' => $id, 'active' => false];
 
-        $client->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/custom-field-set/' . $id, $data, [], [
+        $client->request('PATCH', '/api/custom-field-set/' . $id, $data, [], [
             'HTTP_ACCEPT' => 'application/json',
         ]);
 

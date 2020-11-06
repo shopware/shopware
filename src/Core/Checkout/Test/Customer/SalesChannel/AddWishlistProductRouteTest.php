@@ -11,7 +11,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class AddWishlistProductRouteTest extends TestCase
@@ -72,7 +71,7 @@ class AddWishlistProductRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/login',
+                '/store-api/account/login',
                 [
                     'email' => $email,
                     'password' => 'shopware',
@@ -92,7 +91,7 @@ class AddWishlistProductRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/customer/wishlist/add/' . $productData[0]
+                '/store-api/customer/wishlist/add/' . $productData[0]
             );
         $response = json_decode($this->browser->getResponse()->getContent(), true);
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
@@ -108,7 +107,7 @@ class AddWishlistProductRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/customer/wishlist/add/' . $productData[0]
+                '/store-api/customer/wishlist/add/' . $productData[0]
             );
         $response = json_decode($this->browser->getResponse()->getContent(), true);
         $errors = $response['errors'][0];
@@ -128,7 +127,7 @@ class AddWishlistProductRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/customer/wishlist/add/' . $productId
+                '/store-api/customer/wishlist/add/' . $productId
             );
         $response = json_decode($this->browser->getResponse()->getContent(), true);
         $errors = $response['errors'][0];
@@ -147,7 +146,7 @@ class AddWishlistProductRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/customer/wishlist/add/' . $productData[0]
+                '/store-api/customer/wishlist/add/' . $productData[0]
             );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
@@ -166,7 +165,7 @@ class AddWishlistProductRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/customer/wishlist/add/' . $productId
+                '/store-api/customer/wishlist/add/' . $productId
             );
         $response = json_decode($this->browser->getResponse()->getContent(), true);
         $errors = $response['errors'][0];

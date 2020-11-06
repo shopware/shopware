@@ -55,7 +55,7 @@ class DeleteAddressRoute extends AbstractDeleteAddressRoute
      *          description=""
      *     )
      * )
-     * @Route(path="/store-api/v{version}/account/address/{addressId}", name="store-api.account.address.delete", methods={"DELETE"})
+     * @Route(path="/store-api/account/address/{addressId}", name="store-api.account.address.delete", methods={"DELETE"})
      */
     public function delete(string $addressId, SalesChannelContext $context): NoContentResponse
     {

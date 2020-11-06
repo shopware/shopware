@@ -39,7 +39,7 @@ class MailActionController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_action/mail-template/send", name="api.action.mail_template.send", methods={"POST"})
+     * @Route("/api/_action/mail-template/send", name="api.action.mail_template.send", methods={"POST"})
      */
     public function send(RequestDataBag $post, Context $context): JsonResponse
     {
@@ -52,7 +52,7 @@ class MailActionController extends AbstractController
      * @Since("6.0.0.0")
      * Validates if an email template can be rendered without sending an email
      *
-     * @Route("/api/v{version}/_action/mail-template/validate", name="api.action.mail_template.validate", methods={"POST"})
+     * @Route("/api/_action/mail-template/validate", name="api.action.mail_template.validate", methods={"POST"})
      *
      * @throws StringTemplateRenderingException
      */

@@ -56,10 +56,6 @@ class ApiService {
         return Object.assign({}, basicHeaders, additionalHeaders);
     }
 
-    getApiVersion() {
-        return Shopware.Context.api.apiVersion - 1;
-    }
-
     /**
      * Basic response handling.
      * Converts the JSON api data when the specific content type is set.

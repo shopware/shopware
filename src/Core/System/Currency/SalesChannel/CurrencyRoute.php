@@ -50,7 +50,7 @@ class CurrencyRoute extends AbstractCurrencyRoute
      *          @OA\JsonContent(ref="#/components/schemas/currency_flat")
      *     )
      * )
-     * @Route("/store-api/v{version}/currency", name="store-api.currency", methods={"GET", "POST"})
+     * @Route("/store-api/currency", name="store-api.currency", methods={"GET", "POST"})
      */
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): CurrencyRouteResponse
     {

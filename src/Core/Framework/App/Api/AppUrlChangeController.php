@@ -42,7 +42,7 @@ class AppUrlChangeController extends AbstractController
 
     /**
      * @Since("6.3.3.0")
-     * @Route("api/v{version}/app-system/app-url-change/strategies", name="api.app_system.app-url-change-strategies", methods={"GET"})
+     * @Route("api/app-system/app-url-change/strategies", name="api.app_system.app-url-change-strategies", methods={"GET"})
      */
     public function getAvailableStrategies(): JsonResponse
     {
@@ -53,7 +53,7 @@ class AppUrlChangeController extends AbstractController
 
     /**
      * @Since("6.3.3.0")
-     * @Route("api/v{version}/app-system/app-url-change/resolve", name="api.app_system.app-url-change-resolve", methods={"POST"})
+     * @Route("api/app-system/app-url-change/resolve", name="api.app_system.app-url-change-resolve", methods={"POST"})
      */
     public function resolve(Request $request, Context $context): Response
     {
@@ -74,7 +74,7 @@ class AppUrlChangeController extends AbstractController
 
     /**
      * @Since("6.3.3.0")
-     * @Route("api/v{version}/app-system/app-url-change/url-difference", name="api.app_system.app-url-difference", methods={"GET"})
+     * @Route("api/app-system/app-url-change/url-difference", name="api.app_system.app-url-difference", methods={"GET"})
      */
     public function getUrlDifference(): Response
     {

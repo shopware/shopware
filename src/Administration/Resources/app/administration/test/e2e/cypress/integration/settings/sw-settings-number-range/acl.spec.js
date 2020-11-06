@@ -62,19 +62,19 @@ describe('Number Range: Test acl privileges', () => {
 
         cy.server();
         cy.route({
-            url: '/api/v*/number-range',
+            url: `${Cypress.env('apiPath')}/number-range`,
             method: 'post'
         }).as('saveData');
         cy.route({
-            url: '/api/v*/search/number-range',
+            url: `${Cypress.env('apiPath')}/search/number-range`,
             method: 'post'
         }).as('searchData');
         cy.route({
-            url: '/api/v*/search/number-range-type',
+            url: `${Cypress.env('apiPath')}/search/number-range-type`,
             method: 'post'
         }).as('searchNumberRangeType');
         cy.route({
-            url: '/api/v*/search/sales-channel',
+            url: `${Cypress.env('apiPath')}/search/sales-channel`,
             method: 'post'
         }).as('searchSalesChannel');
 
@@ -132,11 +132,11 @@ describe('Number Range: Test acl privileges', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/number-range/*',
+            url: `${Cypress.env('apiPath')}/number-range/*`,
             method: 'patch'
         }).as('saveData');
         cy.route({
-            url: '/api/v*/search/number-range',
+            url: `${Cypress.env('apiPath')}/search/number-range`,
             method: 'post'
         }).as('searchData');
 
@@ -183,7 +183,7 @@ describe('Number Range: Test acl privileges', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/number-range/*',
+            url: `${Cypress.env('apiPath')}/number-range/*`,
             method: 'delete'
         }).as('deleteData');
 

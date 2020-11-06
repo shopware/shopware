@@ -89,42 +89,42 @@ class InfoController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_info/openapi3.json", defaults={"auth_required"="%shopware.api.api_browser.auth_required_str%"}, name="api.info.openapi3", methods={"GET"})
+     * @Route("/api/_info/openapi3.json", defaults={"auth_required"="%shopware.api.api_browser.auth_required_str%"}, name="api.info.openapi3", methods={"GET"})
      *
      * @throws \Exception
      */
-    public function info(int $version): JsonResponse
+    public function info(): JsonResponse
     {
-        $data = $this->definitionService->generate(OpenApi3Generator::FORMAT, DefinitionService::API, $version);
+        $data = $this->definitionService->generate(OpenApi3Generator::FORMAT, DefinitionService::API);
 
         return $this->json($data);
     }
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_info/open-api-schema.json", defaults={"auth_required"="%shopware.api.api_browser.auth_required_str%"}, name="api.info.open-api-schema", methods={"GET"})
+     * @Route("/api/_info/open-api-schema.json", defaults={"auth_required"="%shopware.api.api_browser.auth_required_str%"}, name="api.info.open-api-schema", methods={"GET"})
      */
-    public function openApiSchema(int $version): JsonResponse
+    public function openApiSchema(): JsonResponse
     {
-        $data = $this->definitionService->getSchema(OpenApi3Generator::FORMAT, DefinitionService::API, $version);
+        $data = $this->definitionService->getSchema(OpenApi3Generator::FORMAT, DefinitionService::API);
 
         return $this->json($data);
     }
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_info/entity-schema.json", name="api.info.entity-schema", methods={"GET"})
+     * @Route("/api/_info/entity-schema.json", name="api.info.entity-schema", methods={"GET"})
      */
-    public function entitySchema(int $version): JsonResponse
+    public function entitySchema(): JsonResponse
     {
-        $data = $this->definitionService->getSchema(EntitySchemaGenerator::FORMAT, DefinitionService::API, $version);
+        $data = $this->definitionService->getSchema(EntitySchemaGenerator::FORMAT, DefinitionService::API);
 
         return $this->json($data);
     }
 
     /**
      * @Since("6.3.2.0")
-     * @Route("/api/v{version}/_info/events.json", name="api.info.business-events", methods={"GET"})
+     * @Route("/api/_info/events.json", name="api.info.business-events", methods={"GET"})
      */
     public function businessEvents(Context $context): JsonResponse
     {
@@ -135,16 +135,15 @@ class InfoController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_info/swagger.html", defaults={"auth_required"="%shopware.api.api_browser.auth_required_str%"}, name="api.info.swagger", methods={"GET"})
+     * @Route("/api/_info/swagger.html", defaults={"auth_required"="%shopware.api.api_browser.auth_required_str%"}, name="api.info.swagger", methods={"GET"})
      */
-    public function infoHtml(Request $request, int $version): Response
+    public function infoHtml(Request $request): Response
     {
         $nonce = $request->attributes->get(PlatformRequest::ATTRIBUTE_CSP_NONCE);
         $response = $this->render(
             '@Framework/swagger.html.twig',
             [
                 'schemaUrl' => 'api.info.openapi3',
-                'apiVersion' => $version,
                 'cspNonce' => $nonce,
             ]
         );
@@ -162,7 +161,7 @@ class InfoController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
-     * @Route("/api/v{version}/_info/config", name="api.info.config", methods={"GET"})
+     * @Route("/api/_info/config", name="api.info.config", methods={"GET"})
      */
     public function config(): JsonResponse
     {
@@ -185,7 +184,7 @@ class InfoController extends AbstractController
      *
      * @deprecated tag:v6.4.0 - use `\Shopware\Core\Framework\Api\Controller\InfoController::businessEvents` instead
      *
-     * @Route("/api/v{version}/_info/business-events.json", name="api.info.events", methods={"GET"})
+     * @Route("/api/_info/business-events.json", name="api.info.events", methods={"GET"})
      */
     public function events(): JsonResponse
     {

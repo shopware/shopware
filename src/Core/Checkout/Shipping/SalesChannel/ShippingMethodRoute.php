@@ -74,7 +74,7 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
      *          )
      *     )
      * )
-     * @Route("/store-api/v{version}/shipping-method", name="store-api.shipping.method", methods={"GET", "POST"})
+     * @Route("/store-api/shipping-method", name="store-api.shipping.method", methods={"GET", "POST"})
      */
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): ShippingMethodRouteResponse
     {

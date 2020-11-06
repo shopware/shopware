@@ -61,7 +61,7 @@ describe('Delivery time: Test acl privileges', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/delivery-time/*',
+            url: `${Cypress.env('apiPath')}/delivery-time/*`,
             method: 'patch'
         }).as('updateDeliveryTime');
 
@@ -119,7 +119,7 @@ describe('Delivery time: Test acl privileges', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/delivery-time',
+            url: `${Cypress.env('apiPath')}/delivery-time`,
             method: 'post'
         }).as('createDeliveryTime');
 
@@ -166,7 +166,7 @@ describe('Delivery time: Test acl privileges', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/delivery-time/*',
+            url: `${Cypress.env('apiPath')}/delivery-time/*`,
             method: 'delete'
         }).as('deleteDeliveryTime');
 

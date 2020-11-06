@@ -57,7 +57,7 @@ describe('Media: Test ACL privileges', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/media-method/*',
+            url: `${Cypress.env('apiPath')}/media-method/*`,
             method: 'patch'
         }).as('savePayment');
 

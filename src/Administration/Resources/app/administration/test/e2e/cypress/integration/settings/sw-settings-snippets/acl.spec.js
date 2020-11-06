@@ -65,7 +65,7 @@ describe('Snippets: Test acl privileges', () => {
 
         cy.server();
         cy.route({
-            url: '/api/v*/snippet/*',
+            url: `${Cypress.env('apiPath')}/snippet/*`,
             method: 'patch'
         }).as('saveData');
 
@@ -104,7 +104,7 @@ describe('Snippets: Test acl privileges', () => {
 
         cy.server();
         cy.route({
-            url: '/api/v*/snippet',
+            url: `${Cypress.env('apiPath')}/snippet`,
             method: 'post'
         }).as('saveData');
 
@@ -148,7 +148,7 @@ describe('Snippets: Test acl privileges', () => {
 
         cy.server();
         cy.route({
-            url: '/api/v*/snippet-set',
+            url: `${Cypress.env('apiPath')}/snippet-set`,
             method: 'post'
         }).as('saveData');
 

@@ -37,11 +37,10 @@ export default class ImportExportService extends ApiService {
      *
      * @param fileId {Entity} File entity
      * @param accessToken
-     * @returns {Promise<void>}
+     * @returns {string}
      */
     getDownloadUrl(fileId, accessToken) {
-        const baseUrl = `${Shopware.Context.api.apiPath}/v${this.getApiVersion()}`;
-        return `${baseUrl}/_action/${this.getApiBasePath()}/file/download?fileId=${fileId}&accessToken=${accessToken}`;
+        return `${Shopware.Context.api.apiPath}/_action/${this.getApiBasePath()}/file/download?fileId=${fileId}&accessToken=${accessToken}`;
     }
 
     /**

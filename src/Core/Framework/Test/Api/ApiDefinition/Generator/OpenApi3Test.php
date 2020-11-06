@@ -26,7 +26,7 @@ class OpenApi3Test extends TestCase
      */
     public function testRequestOpenApi3Json($v): void
     {
-        $this->getBrowser()->request('GET', '/api/v' . $v . '/_info/openapi3.json');
+        $this->getBrowser()->request('GET', '/api/_info/openapi3.json');
 
         $response = $this->getBrowser()->getResponse();
 

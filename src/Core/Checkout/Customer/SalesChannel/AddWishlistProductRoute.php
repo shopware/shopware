@@ -78,7 +78,7 @@ class AddWishlistProductRoute extends AbstractAddWishlistProductRoute
      *          @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
-     * @Route("/store-api/v{version}/customer/wishlist/add/{productId}", name="store-api.customer.wishlist.add", methods={"POST"})
+     * @Route("/store-api/customer/wishlist/add/{productId}", name="store-api.customer.wishlist.add", methods={"POST"})
      */
     public function add(string $productId, SalesChannelContext $context): SuccessResponse
     {

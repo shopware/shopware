@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Api\Sync;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Api\Converter\Exceptions\ApiConversionException;
-use Shopware\Core\Framework\Api\Converter\Exceptions\ApiConversionNotAllowedException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -160,7 +159,7 @@ class SyncService implements SyncServiceInterface
 
         foreach ($records as $index => $record) {
             try {
-                $record = $this->convertToApiVersion($record, $definition, $operation->getApiVersion(), $index);
+                $record = $this->convertToApiVersion($record, $definition, $index);
 
                 $result = $repository->upsert([$record], $context);
                 $results[$index] = [
@@ -196,7 +195,7 @@ class SyncService implements SyncServiceInterface
 
         foreach ($records as $index => $record) {
             try {
-                $record = $this->convertToApiVersion($record, $definition, $operation->getApiVersion(), $index);
+                $record = $this->convertToApiVersion($record, $definition, $index);
 
                 $result = $repository->delete([$record], $context);
                 $results[$index] = [
@@ -220,16 +219,11 @@ class SyncService implements SyncServiceInterface
         return new SyncOperationResult($results);
     }
 
-    private function convertToApiVersion(array $record, EntityDefinition $definition, int $apiVersion, int $writeIndex)
+    private function convertToApiVersion(array $record, EntityDefinition $definition, int $writeIndex)
     {
         $exception = new ApiConversionException();
 
-        if (!$this->apiVersionConverter->isAllowed($definition->getEntityName(), null, $apiVersion)) {
-            $exception->add(new ApiConversionNotAllowedException($definition->getEntityName(), $apiVersion), "/${writeIndex}");
-            $exception->tryToThrow();
-        }
-
-        $converted = $this->apiVersionConverter->convertPayload($definition, $record, $apiVersion, $exception, "/${writeIndex}");
+        $converted = $this->apiVersionConverter->convertPayload($definition, $record, $exception, "/${writeIndex}");
         $exception->tryToThrow();
 
         return $converted;

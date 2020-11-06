@@ -17,11 +17,11 @@ describe('Product: Visual tests', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/product',
+            url: '/api/product',
             method: 'post'
         }).as('saveData');
         cy.route({
-            url: '/api/v*/_action/calculate-price',
+            url: '/api/_action/calculate-price',
             method: 'post'
         }).as('calculatePrice');
 

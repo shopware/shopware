@@ -13,7 +13,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
 
 class SendPasswordRecoveryMailRouteTest extends TestCase
 {
@@ -51,7 +50,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/recovery-password',
+                '/store-api/account/recovery-password',
                 [
                     'email' => 'lol@lol.de',
                     'storefrontUrl' => 'http://localhost',
@@ -69,7 +68,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/recovery-password',
+                '/store-api/account/recovery-password',
                 [
                     'email' => 'lol@lol.de',
                     'storefrontUrl' => 'http://aaaa.de',
@@ -89,7 +88,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/recovery-password?validateStorefrontUrl=false',
+                '/store-api/account/recovery-password?validateStorefrontUrl=false',
                 [
                     'email' => 'foo-test@test.de',
                     'storefrontUrl' => 'http://my-evil-page',
@@ -124,7 +123,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/recovery-password?validateStorefrontUrl=false',
+                '/store-api/account/recovery-password?validateStorefrontUrl=false',
                 [
                     'email' => 'foo-test@test.de',
                     'storefrontUrl' => $url,

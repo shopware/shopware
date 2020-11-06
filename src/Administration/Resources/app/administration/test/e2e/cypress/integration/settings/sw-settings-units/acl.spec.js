@@ -58,7 +58,7 @@ describe('Unit: Test acl privileges', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/unit',
+            url: `${Cypress.env('apiPath')}/unit`,
             method: 'post'
         }).as('saveData');
 
@@ -104,7 +104,7 @@ describe('Unit: Test acl privileges', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/unit/*',
+            url: `${Cypress.env('apiPath')}/unit/*`,
             method: 'patch'
         }).as('saveData');
 
@@ -149,7 +149,7 @@ describe('Unit: Test acl privileges', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/unit/*',
+            url: `${Cypress.env('apiPath')}/unit/*`,
             method: 'delete'
         }).as('deleteData');
 

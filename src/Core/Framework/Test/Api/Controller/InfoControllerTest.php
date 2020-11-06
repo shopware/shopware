@@ -7,7 +7,6 @@ use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Kernel;
-use Shopware\Core\PlatformRequest;
 
 class InfoControllerTest extends TestCase
 {
@@ -28,7 +27,7 @@ class InfoControllerTest extends TestCase
             ],
         ];
 
-        $url = sprintf('/api/v%s/_info/config', PlatformRequest::API_VERSION);
+        $url = '/api/_info/config';
         $client = $this->getBrowser();
         $client->request('GET', $url);
 
@@ -45,7 +44,7 @@ class InfoControllerTest extends TestCase
 
     public function testBusinessEventRoute(): void
     {
-        $url = sprintf('/api/v%s/_info/events.json', PlatformRequest::API_VERSION);
+        $url = '/api/_info/events.json';
         $client = $this->getBrowser();
         $client->request('GET', $url);
 

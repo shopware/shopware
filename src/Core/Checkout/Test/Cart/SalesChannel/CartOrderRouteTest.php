@@ -13,7 +13,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
 
 class CartOrderRouteTest extends TestCase
 {
@@ -61,7 +60,7 @@ class CartOrderRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/order'
+                '/store-api/checkout/order'
             );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
@@ -77,7 +76,7 @@ class CartOrderRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/order'
+                '/store-api/checkout/order'
             );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
@@ -94,7 +93,7 @@ class CartOrderRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/cart/line-item',
+                '/store-api/checkout/cart/line-item',
                 [
                     'items' => [
                         [
@@ -118,7 +117,7 @@ class CartOrderRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/order'
+                '/store-api/checkout/order'
             );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
@@ -136,7 +135,7 @@ class CartOrderRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/cart/line-item',
+                '/store-api/checkout/cart/line-item',
                 [
                     'items' => [
                         [
@@ -160,7 +159,7 @@ class CartOrderRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/order',
+                '/store-api/checkout/order',
                 [
                     'customerComment' => '  test comment  ',
                 ]
@@ -180,7 +179,7 @@ class CartOrderRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/cart/line-item',
+                '/store-api/checkout/cart/line-item',
                 [
                     'items' => [
                         [
@@ -204,7 +203,7 @@ class CartOrderRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/order',
+                '/store-api/checkout/order',
                 [
                     'affiliateCode' => 'test affiliate code',
                     'campaignCode' => 'test campaign code',
@@ -248,7 +247,7 @@ class CartOrderRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v' . PlatformRequest::API_VERSION . '/account/login',
+                '/store-api/account/login',
                 [
                     'email' => $email,
                     'password' => $password,

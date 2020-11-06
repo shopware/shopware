@@ -2921,21 +2921,6 @@ parameters:
 			path: src/Core/Framework/Api/Controller/SalesChannelProxyController.php
 
 		-
-			message: "#^Parameter \\#1 \\$field of class Shopware\\\\Core\\\\Framework\\\\Api\\\\Converter\\\\Exceptions\\\\QueryFutureFieldException constructor expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Converter/ApiVersionConverter.php
-
-		-
-			message: "#^Parameter \\#1 \\$field of class Shopware\\\\Core\\\\Framework\\\\Api\\\\Converter\\\\Exceptions\\\\QueryRemovedFieldException constructor expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Converter/ApiVersionConverter.php
-
-		-
-			message: "#^Parameter \\#1 \\$propertyName of method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\EntityDefinition\\:\\:getField\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/Converter/ApiVersionConverter.php
-
-		-
 			message: "#^Parameter \\#1 \\$accessKey of static method Shopware\\\\Core\\\\Framework\\\\Api\\\\Util\\\\AccessKeyHelper\\:\\:getOrigin\\(\\) expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Framework/Api/EventListener/Authentication/SalesChannelAuthenticationListener.php

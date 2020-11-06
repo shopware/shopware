@@ -22,7 +22,7 @@ describe('Currency: Test crud operations', () => {
             // Request we want to wait for later
             cy.server();
             cy.route({
-                url: '/api/v*/currency',
+                url: `${Cypress.env('apiPath')}/currency`,
                 method: 'post'
             }).as('saveData');
 
@@ -61,7 +61,7 @@ describe('Currency: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/currency/*',
+            url: `${Cypress.env('apiPath')}/currency/*`,
             method: 'patch'
         }).as('saveData');
 
@@ -93,7 +93,7 @@ describe('Currency: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/currency/*',
+            url: `${Cypress.env('apiPath')}/currency/*`,
             method: 'delete'
         }).as('deleteData');
 

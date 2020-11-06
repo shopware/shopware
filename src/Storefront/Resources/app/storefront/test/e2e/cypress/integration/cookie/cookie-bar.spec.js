@@ -25,7 +25,7 @@ describe('Test if the cookie bar works correctly', () => {
                     Authorization: `Bearer ${result.access}`
                 },
                 method: 'post',
-                url: `api/${Cypress.env('apiVersion')}/_action/system-config/batch`,
+                url: `api/_action/system-config/batch`,
                 body: {
                     null: {
                         'core.basicInformation.acceptAllCookies': true

@@ -55,7 +55,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         $this->openApi3Generator = $openApi3Generator;
     }
 
-    public function supports(string $format, int $version, string $api): bool
+    public function supports(string $format, string $api): bool
     {
         return $format === self::FORMAT && $api === DefinitionService::STORE_API;
     }
@@ -63,10 +63,10 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
     /**
      * {@inheritdoc}
      */
-    public function generate(array $definitions, int $version, string $api): array
+    public function generate(array $definitions, string $api): array
     {
         $openApi = $this->openApiLoader->load($api);
-        $this->openApiBuilder->enrich($openApi, $api, $version);
+        $this->openApiBuilder->enrich($openApi, $api);
         $forSalesChannel = $api === DefinitionService::STORE_API;
 
         ksort($definitions);
@@ -78,7 +78,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
 
             $onlyReference = $this->shouldIncludeReferenceOnly($definition, $forSalesChannel);
 
-            $schema = $this->definitionSchemaBuilder->getSchemaByDefinition($definition, $this->getResourceUri($definition), $forSalesChannel, $version, $onlyReference);
+            $schema = $this->definitionSchemaBuilder->getSchemaByDefinition($definition, $this->getResourceUri($definition), $forSalesChannel, $onlyReference);
 
             $openApi->components->merge($schema);
         }
@@ -100,9 +100,9 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
     /**
      * {@inheritdoc}
      */
-    public function getSchema(array $definitions, int $version): array
+    public function getSchema(array $definitions): array
     {
-        return $this->openApi3Generator->getSchema($definitions, $version);
+        return $this->openApi3Generator->getSchema($definitions);
     }
 
     private function getResourceUri(EntityDefinition $definition, string $rootPath = '/'): string

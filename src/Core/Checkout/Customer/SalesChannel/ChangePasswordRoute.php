@@ -94,7 +94,7 @@ class ChangePasswordRoute extends AbstractChangePasswordRoute
      *          @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
-     * @Route(path="/store-api/v{version}/account/change-password", name="store-api.account.change-password", methods={"POST"})
+     * @Route(path="/store-api/account/change-password", name="store-api.account.change-password", methods={"POST"})
      */
     public function change(RequestDataBag $requestDataBag, SalesChannelContext $context)
     {

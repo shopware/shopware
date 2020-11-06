@@ -78,7 +78,7 @@ class ImportExportApiService extends ApiService {
     }
 
     getDownloadUrl(fileId, accessToken) {
-        const baseUrl = `${Shopware.Context.api.apiPath}/v${this.getApiVersion()}`;
+        const baseUrl = `${Shopware.Context.api.apiPath}`;
         return `/${baseUrl}/_action/${this.getApiBasePath()}/file/download?fileId=${fileId}&accessToken=${accessToken}`;
     }
 }

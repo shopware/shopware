@@ -72,7 +72,7 @@ class NavigationRoute extends AbstractNavigationRoute
      *          @OA\JsonContent(ref="#/components/schemas/NavigationRouteResponse")
      *     )
      * )
-     * @Route("/store-api/v{version}/navigation/{requestActiveId}/{requestRootId}", name="store-api.navigation", methods={"GET", "POST"})
+     * @Route("/store-api/navigation/{requestActiveId}/{requestRootId}", name="store-api.navigation", methods={"GET", "POST"})
      */
     public function load(
         string $requestActiveId,

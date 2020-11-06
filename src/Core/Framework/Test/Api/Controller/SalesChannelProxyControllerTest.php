@@ -904,7 +904,7 @@ class SalesChannelProxyControllerTest extends TestCase
         string $salesChannelId,
         ?string $langOverride = null
     ): void {
-        $baseResource = '/api/v' . PlatformRequest::API_VERSION . '/category';
+        $baseResource = '/api/category';
 
         $categoryData = $data;
         $categoryData['active'] = true;
@@ -935,7 +935,7 @@ class SalesChannelProxyControllerTest extends TestCase
 
     private function createLanguage(string $langId, string $salesChannelId, $fallbackId = null): void
     {
-        $baseUrl = '/api/v' . PlatformRequest::API_VERSION;
+        $baseUrl = '/api';
 
         if ($fallbackId) {
             $fallbackLocaleId = Uuid::randomHex();
@@ -980,8 +980,7 @@ class SalesChannelProxyControllerTest extends TestCase
     private function getUrl(string $salesChannelId, string $url): string
     {
         return sprintf(
-            '/api/v%d/_proxy/store-api/%s/v%1$d/%s',
-            PlatformRequest::API_VERSION,
+            '/api/_proxy/store-api/%s/%s',
             $salesChannelId,
             ltrim($url, '/')
         );
@@ -990,8 +989,7 @@ class SalesChannelProxyControllerTest extends TestCase
     private function getStoreApiUrl(string $salesChannelId, string $url): string
     {
         return sprintf(
-            '/api/v%d/_proxy/store-api/%s/v%1$d/%s',
-            PlatformRequest::API_VERSION,
+            '/api/_proxy/store-api/%s/%s',
             $salesChannelId,
             ltrim($url, '/')
         );
@@ -1000,8 +998,7 @@ class SalesChannelProxyControllerTest extends TestCase
     private function getRootProxyUrl(string $url): string
     {
         return sprintf(
-            '/api/v%d/_proxy/%s',
-            PlatformRequest::API_VERSION,
+            '/api/_proxy/%s',
             ltrim($url, '/')
         );
     }

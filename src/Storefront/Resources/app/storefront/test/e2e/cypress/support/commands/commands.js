@@ -55,7 +55,7 @@ Cypress.Commands.add('setCustomerGroup', (customerNumber, customerGroupData) => 
 Cypress.Commands.add('requestAdminApiStorefront', (data) => {
     return cy.requestAdminApi(
         'POST',
-        `api/${Cypress.env('apiVersion')}/${data.endpoint}?response=true`,
+        `api/${data.endpoint}?response=true`,
         data
     ).then((responseData) => {
         return responseData;

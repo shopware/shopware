@@ -11,7 +11,6 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Test\TaxFixtures;
 use Symfony\Component\Serializer\Serializer;
 
@@ -38,7 +37,7 @@ class PriceActionControllerTest extends TestCase
 
     public function testPriceMissingExecption(): void
     {
-        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/price/actions/calculate');
+        $this->getBrowser()->request('POST', '/api/price/actions/calculate');
 
         $response = $this->getBrowser()->getResponse()->getContent();
         $response = json_decode($response, true);
@@ -48,7 +47,7 @@ class PriceActionControllerTest extends TestCase
 
     public function testTaxIdMissingException(): void
     {
-        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/price/actions/calculate', ['price' => 10]);
+        $this->getBrowser()->request('POST', '/api/price/actions/calculate', ['price' => 10]);
 
         $response = $this->getBrowser()->getResponse()->getContent();
 
@@ -59,7 +58,7 @@ class PriceActionControllerTest extends TestCase
 
     public function testTaxNotFoundException(): void
     {
-        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/price/actions/calculate', [
+        $this->getBrowser()->request('POST', '/api/price/actions/calculate', [
             'price' => 10,
             'taxId' => Uuid::randomHex(),
         ]);
@@ -217,10 +216,7 @@ class PriceActionControllerTest extends TestCase
 
     private function sendRequest(array $data): CalculatedPrice
     {
-        $url = sprintf(
-            '/api/v%s/_action/calculate-price',
-            PlatformRequest::API_VERSION
-        );
+        $url = '/api/_action/calculate-price';
         $this->getBrowser()->request('POST', $url, $data);
 
         $response = $this->getBrowser()->getResponse()->getContent();

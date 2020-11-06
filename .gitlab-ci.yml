@@ -316,7 +316,7 @@ E2E:
         - ./psh.phar storefront:init --APP_ENV="prod" --DB_NAME="shopware_e2e"
         - ./psh.phar e2e:dump-db --APP_ENV="prod"
         - E2E_BASE_PATH=vendor/shopware/platform/src/${SECTION}/Resources/app/$(echo ${SECTION} | tr '[:upper:]' '[:lower:]')/test/e2e
-        - npm i git://github.com/shopware/e2e-testsuite-platform.git#next-10706/store-api-migration --prefix $E2E_BASE_PATH
+        - npm i git://github.com/shopware/e2e-testsuite-platform.git#next-10665/remove-api-version --prefix $E2E_BASE_PATH
         - forever start ${E2E_BASE_PATH}/node_modules/@shopware-ag/e2e-testsuite-platform/routes/cypress.js
         - chown -R 1000:1000 .
         - CYPRESS_CMD="cypress run"

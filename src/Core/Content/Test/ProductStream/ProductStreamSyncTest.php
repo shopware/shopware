@@ -8,7 +8,6 @@ use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Framework\Api\Controller\SyncController;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\PlatformRequest;
 
 class ProductStreamSyncTest extends TestCase
 {
@@ -46,14 +45,14 @@ class ProductStreamSyncTest extends TestCase
             ],
         ];
 
-        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/sync', [], [], [], json_encode($data));
+        $this->getBrowser()->request('POST', '/api/_action/sync', [], [], [], json_encode($data));
         $response = $this->getBrowser()->getResponse();
 
         static::assertSame(200, $response->getStatusCode(), $response->getContent());
 
         $result = $this->connection
             ->executeQuery(
-                'SELECT * FROM product_stream 
+                'SELECT * FROM product_stream
                         INNER JOIN product_stream_translation ON product_stream.id = product_stream_translation.product_stream_id
                         WHERE product_stream.id = :id1
                           OR product_stream.id = :id2

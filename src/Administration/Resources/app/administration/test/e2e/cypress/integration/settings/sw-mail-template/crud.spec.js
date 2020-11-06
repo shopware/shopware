@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import SettingsPageObject from '../../../support/pages/module/sw-settings.page-object';
 
@@ -22,7 +22,7 @@ describe('Mail templates: Test crud privileges', () => {
         // prepare api to create a mail template
         cy.server();
         cy.route({
-            url: '/api/v*/mail-template',
+            url: `${Cypress.env('apiPath')}/mail-template`,
             method: 'post'
         }).as('createMailTemplate');
 
@@ -61,11 +61,11 @@ describe('Mail templates: Test crud privileges', () => {
         // prepare api to update a mail template
         cy.server();
         cy.route({
-            url: '/api/v*/mail-template/*',
+            url: `${Cypress.env('apiPath')}/mail-template/*`,
             method: 'patch'
         }).as('saveMailTemplate');
         cy.route({
-            url: '/api/v*/search/mail-template',
+            url: `${Cypress.env('apiPath')}/search/mail-template`,
             method: 'post'
         }).as('searchMailTemplate');
 
@@ -111,7 +111,7 @@ describe('Mail templates: Test crud privileges', () => {
         // prepare api to update a mail template
         cy.server();
         cy.route({
-            url: '/api/v*/mail-template/*',
+            url: `${Cypress.env('apiPath')}/mail-template/*`,
             method: 'delete'
         }).as('deleteMailTemplate');
 
@@ -147,15 +147,15 @@ describe('Mail templates: Test crud privileges', () => {
         cy.server();
 
         cy.route({
-            url: '/api/v*/mail-template/*',
+            url: `${Cypress.env('apiPath')}/mail-template/*`,
             method: 'patch'
         }).as('saveMailTemplate');
         cy.route({
-            url: '/api/v*/search/mail-template',
+            url: `${Cypress.env('apiPath')}/search/mail-template`,
             method: 'post'
         }).as('searchMailTemplate');
         cy.route({
-            url: '/api/v*/_action/clone/mail-template/*',
+            url: `${Cypress.env('apiPath')}/_action/clone/mail-template/*`,
             method: 'post'
         }).as('cloneMailTemplate');
 
@@ -195,11 +195,11 @@ describe('Mail templates: Test crud privileges', () => {
         // prepare api to create a mail header footer
         cy.server();
         cy.route({
-            url: '/api/v*/mail-header-footer',
+            url: `${Cypress.env('apiPath')}/mail-header-footer`,
             method: 'post'
         }).as('createMailHeaderFooter');
         cy.route({
-            url: '/api/v*/search/mail-template',
+            url: `${Cypress.env('apiPath')}/search/mail-template`,
             method: 'post'
         }).as('searchMailTemplate');
 
@@ -234,15 +234,15 @@ describe('Mail templates: Test crud privileges', () => {
         // prepare api to update a mail template
         cy.server();
         cy.route({
-            url: '/api/v*/mail-header-footer/*',
+            url: `${Cypress.env('apiPath')}/mail-header-footer/*`,
             method: 'patch'
         }).as('saveMailHeaderFooter');
         cy.route({
-            url: '/api/v*/search/mail-template',
+            url: `${Cypress.env('apiPath')}/search/mail-template`,
             method: 'post'
         }).as('searchMailTemplate');
         cy.route({
-            url: '/api/v*/search/mail-header-footer',
+            url: `${Cypress.env('apiPath')}/search/mail-header-footer`,
             method: 'post'
         }).as('searchMailHeaderFooterTemplate');
 
@@ -301,11 +301,11 @@ describe('Mail templates: Test crud privileges', () => {
         // prepare api to update a mail template
         cy.server();
         cy.route({
-            url: '/api/v*/mail-header-footer/*',
+            url: `${Cypress.env('apiPath')}/mail-header-footer/*`,
             method: 'delete'
         }).as('deleteMailHeaderFooter');
         cy.route({
-            url: '/api/v*/search/mail-template',
+            url: `${Cypress.env('apiPath')}/search/mail-template`,
             method: 'post'
         }).as('searchMailTemplate');
 
@@ -349,15 +349,15 @@ describe('Mail templates: Test crud privileges', () => {
         cy.server();
 
         cy.route({
-            url: '/api/v*/mail-header-footer/*',
+            url: `${Cypress.env('apiPath')}/mail-header-footer/*`,
             method: 'patch'
         }).as('saveMailHeaderFooter');
         cy.route({
-            url: '/api/v*/search/mail-template',
+            url: `${Cypress.env('apiPath')}/search/mail-template`,
             method: 'post'
         }).as('searchMailTemplate');
         cy.route({
-            url: '/api/v*/_action/clone/mail-header-footer/*',
+            url: `${Cypress.env('apiPath')}/_action/clone/mail-header-footer/*`,
             method: 'post'
         }).as('cloneMailTemplate');
 

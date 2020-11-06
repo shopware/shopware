@@ -79,7 +79,7 @@ class ProductListingRoute extends AbstractProductListingRoute
      *          @OA\JsonContent(ref="#/components/schemas/ProductListingResult")
      *     )
      * )
-     * @Route("/store-api/v{version}/product-listing/{categoryId}", name="store-api.product.listing", methods={"POST"})
+     * @Route("/store-api/product-listing/{categoryId}", name="store-api.product.listing", methods={"POST"})
      */
     public function load(string $categoryId, Request $request, SalesChannelContext $salesChannelContext, Criteria $criteria): ProductListingRouteResponse
     {

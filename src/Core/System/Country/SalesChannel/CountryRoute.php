@@ -50,7 +50,7 @@ class CountryRoute extends AbstractCountryRoute
      *     )
      * )
      * @Entity(value="country")
-     * @Route("/store-api/v{version}/country", name="store-api.country", methods={"GET", "POST"})
+     * @Route("/store-api/country", name="store-api.country", methods={"GET", "POST"})
      */
     public function load(Criteria $criteria, SalesChannelContext $context): CountryRouteResponse
     {

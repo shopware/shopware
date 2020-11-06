@@ -80,7 +80,7 @@ class ProductDetailRoute extends AbstractProductDetailRoute
      *          @OA\JsonContent(ref="#/components/schemas/product_flat")
      *     )
      * )
-     * @Route("/store-api/v{version}/product/{productId}", name="store-api.product.detail", methods={"POST"})
+     * @Route("/store-api/product/{productId}", name="store-api.product.detail", methods={"POST"})
      */
     public function load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductDetailRouteResponse
     {

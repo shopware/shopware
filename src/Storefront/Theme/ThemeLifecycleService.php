@@ -103,98 +103,41 @@ class ThemeLifecycleService
 
     public function refreshTheme(StorefrontPluginConfiguration $configuration, Context $context): void
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('technicalName', $configuration->getTechnicalName()));
-        /** @var ThemeEntity|null $theme */
-        $theme = $this->themeRepository->search($criteria, $context)->first();
-
-        // check if theme config already exists in the database
-        if ($theme) {
-            $themeData['id'] = $theme->getId();
-            $this->removeOldMedia($theme, $context);
-        } else {
-            $themeData['active'] = true;
+        if ($configuration->getTechnicalName() === null) {
+            throw new \LogicException('Bundle can not exist without technical name');
         }
-
-        $systemLanguageLocale = $this->getSystemLanguageLocale($context);
-
-        $labelTranslations = $this->getLabelsFromConfig($configuration->getThemeConfig());
-        $translations = $this->mapTranslations($labelTranslations, 'labels', $systemLanguageLocale);
-
-        $helpTextTranslations = $this->getHelpTextsFromConfig($configuration->getThemeConfig());
-        $translations = array_merge_recursive(
-            $translations,
-            $this->mapTranslations($helpTextTranslations, 'helpTexts', $systemLanguageLocale)
-        );
 
         $themeData['name'] = $configuration->getName();
         $themeData['technicalName'] = $configuration->getTechnicalName();
         $themeData['author'] = $configuration->getAuthor();
-        $themeData['translations'] = $translations;
 
-        // handle media
-        $themeFolderId = $this->getMediaDefaultFolderId('theme', $context);
-        $media = [];
+        $this->removeOldMedia($configuration->getTechnicalName(), $context);
 
-        if ($configuration->getPreviewMedia()) {
-            $mediaId = Uuid::randomHex();
-            $path = $configuration->getPreviewMedia();
+        // refresh theme after deleting media
+        $theme = $this->getThemeByTechnicalName($configuration->getTechnicalName(), $context);
 
-            $mediaItem = $this->createMediaStruct($path, $mediaId, $themeFolderId);
-
-            if ($mediaItem) {
-                $themeData['previewMediaId'] = $mediaId;
-                $media[$path] = $mediaItem;
-            }
+        // check if theme config already exists in the database
+        if ($theme) {
+            $themeData['id'] = $theme->getId();
+        } else {
+            $themeData['active'] = true;
         }
 
-        if (array_key_exists('fields', $configuration->getThemeConfig())) {
-            $config = $configuration->getThemeConfig();
+        $themeData['translations'] = $this->getTranslationsConfiguration($configuration, $context);
 
-            foreach ($config['fields'] as $key => $field) {
-                if (!array_key_exists('type', $field) || $field['type'] !== 'media') {
-                    continue;
-                }
+        $updatedData = $this->updateMediaInConfiguration($theme, $configuration, $context);
 
-                $path = $configuration->getBasePath() . DIRECTORY_SEPARATOR . $field['value'];
-
-                if (!array_key_exists($path, $media)) {
-                    $mediaId = Uuid::randomHex();
-                    $mediaItem = $this->createMediaStruct($path, $mediaId, $themeFolderId);
-
-                    if (!$mediaItem) {
-                        continue;
-                    }
-
-                    $media[$path] = $mediaItem;
-
-                    // replace media path with media ids
-                    $config['fields'][$key]['value'] = $mediaId;
-                } else {
-                    $config['fields'][$key]['value'] = $media[$path]['media']['id'];
-                }
-            }
-            $themeData['baseConfig'] = $config;
-        }
-        $themeData['media'] = array_column($media, 'media');
+        $themeData = array_merge($themeData, $updatedData);
 
         $this->themeRepository->upsert([$themeData], $context);
+    }
 
-        if (!empty($media)) {
-            foreach ($media as $item) {
-                try {
-                    $this->fileSaver->persistFileToMedia($item['mediaFile'], $item['basename'], $item['media']['id'], $context);
-                } catch (DuplicatedMediaFileNameException $e) {
-                    $newFileName = $this->fileNameProvider->provide(
-                        $item['basename'],
-                        $item['mediaFile']->getFileExtension(),
-                        null,
-                        $context
-                    );
-                    $this->fileSaver->persistFileToMedia($item['mediaFile'], $newFileName, $item['media']['id'], $context);
-                }
-            }
-        }
+    private function getThemeByTechnicalName(string $technicalName, Context $context): ?ThemeEntity
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('technicalName', $technicalName));
+
+        return $this->themeRepository->search($criteria, $context)->first();
     }
 
     private function createMediaStruct(string $path, string $mediaId, string $themeFolderId): ?array
@@ -232,6 +175,21 @@ class ThemeLifecycleService
         }
 
         return $defaultFolderId;
+    }
+
+    private function getTranslationsConfiguration(StorefrontPluginConfiguration $configuration, Context $context): array
+    {
+        $systemLanguageLocale = $this->getSystemLanguageLocale($context);
+
+        $labelTranslations = $this->getLabelsFromConfig($configuration->getThemeConfig());
+        $translations = $this->mapTranslations($labelTranslations, 'labels', $systemLanguageLocale);
+
+        $helpTextTranslations = $this->getHelpTextsFromConfig($configuration->getThemeConfig());
+
+        return array_merge_recursive(
+            $translations,
+            $this->mapTranslations($helpTextTranslations, 'helpTexts', $systemLanguageLocale)
+        );
     }
 
     private function getLabelsFromConfig(array $config): array
@@ -302,23 +260,23 @@ class ThemeLifecycleService
         return $this->themeFileImporter->fileExists($path);
     }
 
-    private function removeOldMedia(ThemeEntity $theme, Context $context): void
+    private function removeOldMedia(string $technicalName, Context $context): void
     {
+        $theme = $this->getThemeByTechnicalName($technicalName, $context);
+
+        if (!$theme) {
+            return;
+        }
+
         // find all assigned media files
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('media.themeMedia.id', $theme->getId()));
         $result = $this->mediaRepository->searchIds($criteria, $context);
-        $themeMediaData = [];
 
         // delete theme media association
-        if ($result->getTotal() !== 0) {
-            foreach ($result->getIds() as $id) {
-                $themeMediaData[] = ['themeId' => $theme->getId(), 'mediaId' => $id];
-            }
-        }
-
-        if ($theme->getPreviewMediaId()) {
-            $themeMediaData[] = ['themeId' => $theme->getId(), 'mediaId' => $theme->getPreviewMediaId()];
+        $themeMediaData = [];
+        foreach ($result->getIds() as $id) {
+            $themeMediaData[] = ['themeId' => $theme->getId(), 'mediaId' => $id];
         }
 
         if (empty($themeMediaData)) {
@@ -337,6 +295,85 @@ class ThemeLifecycleService
                 // This files will be recreated using the file name strategy for duplicated filenames.
             }
         }
+    }
+
+    private function updateMediaInConfiguration(?ThemeEntity $theme, StorefrontPluginConfiguration $pluginConfiguration, Context $context): array
+    {
+        $media = [];
+        $themeData = [];
+        $themeFolderId = $this->getMediaDefaultFolderId('theme', $context);
+
+        if ($pluginConfiguration->getPreviewMedia()) {
+            $mediaId = Uuid::randomHex();
+            $path = $pluginConfiguration->getPreviewMedia();
+
+            $mediaItem = $this->createMediaStruct($path, $mediaId, $themeFolderId);
+
+            if ($mediaItem) {
+                $themeData['previewMediaId'] = $mediaId;
+                $media[$path] = $mediaItem;
+            }
+
+            // if preview was not deleted because it is not created from theme use current preview id
+            if ($theme && $theme->getPreviewMediaId() !== null) {
+                $themeData['previewMediaId'] = $theme->getPreviewMediaId();
+            }
+        }
+
+        $baseConfig = $pluginConfiguration->getThemeConfig();
+
+        if (array_key_exists('fields', $baseConfig)) {
+            foreach ($baseConfig['fields'] as $key => $field) {
+                if (!array_key_exists('type', $field) || $field['type'] !== 'media') {
+                    continue;
+                }
+
+                $path = $pluginConfiguration->getBasePath() . DIRECTORY_SEPARATOR . $field['value'];
+
+                if (!array_key_exists($path, $media)) {
+                    $mediaId = Uuid::randomHex();
+                    $mediaItem = $this->createMediaStruct($path, $mediaId, $themeFolderId);
+
+                    if (!$mediaItem) {
+                        continue;
+                    }
+
+                    $media[$path] = $mediaItem;
+
+                    // replace media path with media ids
+                    $baseConfig['fields'][$key]['value'] = $mediaId;
+                } else {
+                    $baseConfig['fields'][$key]['value'] = $media[$path]['media']['id'];
+                }
+            }
+            $themeData['baseConfig'] = $baseConfig;
+        }
+
+        $mediaIds = [];
+
+        if (!empty($media)) {
+            $mediaIds = array_column($media, 'media');
+
+            $this->mediaRepository->create($mediaIds, $context);
+
+            foreach ($media as $item) {
+                try {
+                    $this->fileSaver->persistFileToMedia($item['mediaFile'], $item['basename'], $item['media']['id'], $context);
+                } catch (DuplicatedMediaFileNameException $e) {
+                    $newFileName = $this->fileNameProvider->provide(
+                        $item['basename'],
+                        $item['mediaFile']->getFileExtension(),
+                        null,
+                        $context
+                    );
+                    $this->fileSaver->persistFileToMedia($item['mediaFile'], $newFileName, $item['media']['id'], $context);
+                }
+            }
+        }
+
+        $themeData['media'] = $mediaIds;
+
+        return $themeData;
     }
 
     private function getSystemLanguageLocale(Context $context): string

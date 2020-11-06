@@ -35,6 +35,7 @@
             <argument type="service" id="sales_channel.category.repository"/>
             <argument type="service" id="Shopware\Core\Content\Sitemap\Service\ConfigHandler"/>
             <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface"/>
+            <argument type="service" id="event_dispatcher"/>
 
             <tag name="shopware.sitemap_url_provider"/>
         </service>

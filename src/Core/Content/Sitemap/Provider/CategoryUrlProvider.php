@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Sitemap\Provider;
 
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Category\Event\SalesChannelEntryPointsEvent;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
 use Shopware\Core\Content\Sitemap\Struct\Url;
@@ -16,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class CategoryUrlProvider implements UrlProviderInterface
 {
@@ -36,14 +38,21 @@ class CategoryUrlProvider implements UrlProviderInterface
      */
     private $seoUrlPlaceholderHandler;
 
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $dispatcher;
+
     public function __construct(
         SalesChannelRepositoryInterface $categoryRepository,
         ConfigHandler $configHandler,
-        SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler
+        SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler,
+        EventDispatcherInterface $dispatcher
     ) {
         $this->categoryRepository = $categoryRepository;
         $this->configHandler = $configHandler;
         $this->seoUrlPlaceholderHandler = $seoUrlPlaceholderHandler;
+        $this->dispatcher = $dispatcher;
     }
 
     public function getName(): string
@@ -87,14 +96,15 @@ class CategoryUrlProvider implements UrlProviderInterface
 
     private function getCategories(SalesChannelContext $salesChannelContext, int $limit, ?int $offset): CategoryCollection
     {
+        $event = SalesChannelEntryPointsEvent::forSalesChannel($salesChannelContext->getSalesChannel());
+        $this->dispatcher->dispatch($event);
+
         $categoriesCriteria = new Criteria();
         $categoriesCriteria->setLimit($limit);
         $categoriesCriteria->addFilter(new EqualsFilter('active', true));
-        $categoriesCriteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
-            new ContainsFilter('path', '|' . $salesChannelContext->getSalesChannel()->getNavigationCategoryId() . '|'),
-            new ContainsFilter('path', '|' . $salesChannelContext->getSalesChannel()->getFooterCategoryId() . '|'),
-            new ContainsFilter('path', '|' . $salesChannelContext->getSalesChannel()->getServiceCategoryId() . '|'),
-        ]));
+        $categoriesCriteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, array_map(function ($navigationId) {
+            return new ContainsFilter('path', '|' . $navigationId . '|');
+        }, $event->getNavigationIds())));
 
         if ($offset !== null) {
             $categoriesCriteria->setOffset($offset);

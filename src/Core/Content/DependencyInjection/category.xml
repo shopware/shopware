@@ -33,6 +33,7 @@
             <argument type="service" id="sales_channel.category.repository"/>
             <argument type="service" id="Shopware\Core\Content\Category\SalesChannel\SalesChannelCategoryDefinition"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Content\Category\SalesChannel\CategoryRoute" public="true">
@@ -69,6 +70,7 @@
         </service>
 
         <service id="Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder">
+            <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="category.repository"/>
         </service>
     </services>

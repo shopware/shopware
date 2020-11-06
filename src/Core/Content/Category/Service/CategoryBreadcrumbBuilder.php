@@ -10,8 +10,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Content\Category\Event\SalesChannelEntryPointsEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class CategoryBreadcrumbBuilder
 {
@@ -21,10 +23,18 @@ class CategoryBreadcrumbBuilder
     private $categoryRepository;
 
     /**
+     * @var EventDispatcherInterface
+     */
+    private $dispatcher;
+
+    /**
      * @deprecated tag:v6.4.0.0 - EntityRepositoryInterface will be required
      */
-    public function __construct(?EntityRepositoryInterface $categoryRepository = null)
-    {
+    public function __construct(
+        EventDispatcherInterface $dispatcher,
+        ?EntityRepositoryInterface $categoryRepository = null
+    ) {
+        $this->dispatcher = $dispatcher;
         $this->categoryRepository = $categoryRepository;
     }
 
@@ -38,23 +48,22 @@ class CategoryBreadcrumbBuilder
             return $categoryBreadcrumb;
         }
 
-        $entryPoints = [
-            $navigationCategoryId,
-        ];
-
-        if ($salesChannel !== null) {
-            $entryPoints[] = $salesChannel->getNavigationCategoryId();
-            $entryPoints[] = $salesChannel->getServiceCategoryId();
-            $entryPoints[] = $salesChannel->getFooterCategoryId();
+        if ($salesChannel) {
+            $event = SalesChannelEntryPointsEvent::forSalesChannel($salesChannel);
+            if ($navigationCategoryId !== null) {
+                $event->addId('navigation-category-id', $navigationCategoryId);
+            }
+        } else {
+            $event = new SalesChannelEntryPointsEvent();
         }
+
+        $this->dispatcher->dispatch($event);
+
+        $entryPoints = array_filter(array_values($event->getNavigationIds()));
 
         $keys = array_keys($categoryBreadcrumb);
 
         foreach ($entryPoints as $entryPoint) {
-            if ($entryPoint === null) {
-                continue;
-            }
-
             // Check where this category is located in relation to the navigation entry point of the sales channel
             $pos = array_search($entryPoint, $keys, true);
 
@@ -83,14 +92,15 @@ class CategoryBreadcrumbBuilder
             return $category;
         }
 
+        $event = SalesChannelEntryPointsEvent::forSalesChannel($context->getSalesChannel());
+        $this->dispatcher->dispatch($event);
+
         $criteria = new Criteria();
         $criteria->setLimit(1);
         $criteria->addFilter(new EqualsFilter('products.id', $product->getId()));
-        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
-            new ContainsFilter('path', '|' . $context->getSalesChannel()->getNavigationCategoryId() . '|'),
-            new ContainsFilter('path', '|' . $context->getSalesChannel()->getServiceCategoryId() . '|'),
-            new ContainsFilter('path', '|' . $context->getSalesChannel()->getFooterCategoryId() . '|'),
-        ]));
+        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, array_map(function ($navigationId) {
+            return new ContainsFilter('path', '|' . $navigationId . '|');
+        }, $event->getNavigationIds())));
 
         $categories = $this->categoryRepository->search($criteria, $context->getContext());
 
@@ -107,14 +117,15 @@ class CategoryBreadcrumbBuilder
             return null;
         }
 
+        $event = SalesChannelEntryPointsEvent::forSalesChannel($context->getSalesChannel());
+        $this->dispatcher->dispatch($event);
+
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('mainCategories.productId', $product->getId()));
         $criteria->addFilter(new EqualsFilter('mainCategories.salesChannelId', $context->getSalesChannel()->getId()));
-        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
-            new ContainsFilter('path', '|' . $context->getSalesChannel()->getNavigationCategoryId() . '|'),
-            new ContainsFilter('path', '|' . $context->getSalesChannel()->getServiceCategoryId() . '|'),
-            new ContainsFilter('path', '|' . $context->getSalesChannel()->getFooterCategoryId() . '|'),
-        ]));
+        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, array_map(function ($navigationId) {
+            return new ContainsFilter('path', '|' . $navigationId . '|');
+        }, $event->getNavigationIds())));
 
         $categories = $this->categoryRepository->search($criteria, $context->getContext())->getEntities();
         if ($categories->count() > 0) {

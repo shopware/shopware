@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Framework\Seo\SeoUrlRoute;
 
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Category\Event\SalesChannelEntryPointsEvent;
 use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlMapping;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class NavigationPageSeoUrlRoute implements SeoUrlRouteInterface
 {
@@ -28,10 +30,19 @@ class NavigationPageSeoUrlRoute implements SeoUrlRouteInterface
      */
     private $breadcrumbBuilder;
 
-    public function __construct(CategoryDefinition $categoryDefinition, CategoryBreadcrumbBuilder $breadcrumbBuilder)
-    {
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $dispatcher;
+
+    public function __construct(
+        CategoryDefinition $categoryDefinition,
+        CategoryBreadcrumbBuilder $breadcrumbBuilder,
+        EventDispatcherInterface $dispatcher
+    ) {
         $this->categoryDefinition = $categoryDefinition;
         $this->breadcrumbBuilder = $breadcrumbBuilder;
+        $this->dispatcher = $dispatcher;
     }
 
     public function getConfig(): SeoUrlRouteConfig
@@ -83,19 +94,13 @@ class NavigationPageSeoUrlRoute implements SeoUrlRouteInterface
         }
         $path = array_filter(explode('|', (string) $category->getPath()));
 
-        $navigationId = $salesChannel->getNavigationCategoryId();
-        if ($navigationId === $category->getId() || in_array($navigationId, $path, true)) {
-            return $navigationId;
-        }
+        $event = SalesChannelEntryPointsEvent::forSalesChannel($salesChannel);
+        $this->dispatcher->dispatch($event);
 
-        $footerId = $salesChannel->getFooterCategoryId();
-        if ($footerId === $category->getId() || in_array($footerId, $path, true)) {
-            return $footerId;
-        }
-
-        $serviceId = $salesChannel->getServiceCategoryId();
-        if ($serviceId === $category->getId() || in_array($serviceId, $path, true)) {
-            return $serviceId;
+        foreach ($event->getNavigationIds() as $navigationId) {
+            if ($navigationId === $category->getId() || in_array($navigationId, $path, true)) {
+                return $navigationId;
+            }
         }
 
         return null;

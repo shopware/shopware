@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class CategoryUrlProviderTest extends TestCase
 {
@@ -75,7 +76,8 @@ class CategoryUrlProviderTest extends TestCase
         return new CategoryUrlProvider(
             $this->categorySalesChannelRepository,
             $this->getContainer()->get(ConfigHandler::class),
-            $this->getContainer()->get(SeoUrlPlaceholderHandlerInterface::class)
+            $this->getContainer()->get(SeoUrlPlaceholderHandlerInterface::class),
+            $this->getContainer()->get(EventDispatcherInterface::class)
         );
     }
 

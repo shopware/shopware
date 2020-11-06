@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Category\SalesChannel;
 use Doctrine\DBAL\Connection;
 use OpenApi\Annotations as OA;
 use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Category\Event\SalesChannelEntryPointsEvent;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -19,6 +20,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -47,16 +49,23 @@ class NavigationRoute extends AbstractNavigationRoute
      */
     private $requestCriteriaBuilder;
 
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $dispatcher;
+
     public function __construct(
         Connection $connection,
         SalesChannelRepositoryInterface $repository,
         SalesChannelCategoryDefinition $categoryDefinition,
-        RequestCriteriaBuilder $requestCriteriaBuilder
+        RequestCriteriaBuilder $requestCriteriaBuilder,
+        EventDispatcherInterface $dispatcher
     ) {
         $this->categoryRepository = $repository;
         $this->connection = $connection;
         $this->categoryDefinition = $categoryDefinition;
         $this->requestCriteriaBuilder = $requestCriteriaBuilder;
+        $this->dispatcher = $dispatcher;
     }
 
     public function getDecorated(): AbstractNavigationRoute
@@ -98,8 +107,10 @@ class NavigationRoute extends AbstractNavigationRoute
         $buildTree = $request->query->getBoolean('buildTree', $request->request->getBoolean('buildTree', true));
         $depth = $request->query->getInt('depth', $request->request->getInt('depth', 2));
 
-        $activeId = $this->resolveAliasId($requestActiveId, $context->getSalesChannel());
-        $rootId = $this->resolveAliasId($requestRootId, $context->getSalesChannel());
+        $aliases = $this->findEntryPointIds($context->getSalesChannel());
+
+        $activeId = $aliases[$requestActiveId] ?? $requestActiveId;
+        $rootId = $aliases[$requestRootId] ?? $requestRootId;
 
         if ($activeId === null) {
             throw new CategoryNotFoundException($requestActiveId);
@@ -266,11 +277,7 @@ class NavigationRoute extends AbstractNavigationRoute
 
     private function validate(string $activeId, ?string $path, SalesChannelContext $context): void
     {
-        $ids = array_filter([
-            $context->getSalesChannel()->getFooterCategoryId(),
-            $context->getSalesChannel()->getServiceCategoryId(),
-            $context->getSalesChannel()->getNavigationCategoryId(),
-        ]);
+        $ids = $this->findEntryPointIds($context->getSalesChannel());
 
         foreach ($ids as $id) {
             if ($this->isChildCategory($activeId, $path, $id)) {
@@ -298,17 +305,11 @@ class NavigationRoute extends AbstractNavigationRoute
         return false;
     }
 
-    private function resolveAliasId(string $id, SalesChannelEntity $salesChannelEntity): ?string
+    private function findEntryPointIds(SalesChannelEntity $salesChannel): array
     {
-        switch ($id) {
-            case 'main-navigation':
-                return $salesChannelEntity->getNavigationCategoryId();
-            case 'service-navigation':
-                return $salesChannelEntity->getServiceCategoryId();
-            case 'footer-navigation':
-                return $salesChannelEntity->getFooterCategoryId();
-            default:
-                return $id;
-        }
+        $event = SalesChannelEntryPointsEvent::forSalesChannel($salesChannel);
+        $this->dispatcher->dispatch($event);
+
+        return $event->getNavigationIds();
     }
 }

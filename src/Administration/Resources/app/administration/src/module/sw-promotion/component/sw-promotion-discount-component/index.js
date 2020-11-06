@@ -42,7 +42,8 @@ Component.register('sw-promotion-discount-component', {
             availableSetGroups: [],
             syncService: null,
             httpClient: null,
-            sorterKeys: []
+            sorterKeys: [],
+            pickerKeys: []
         };
     },
     created() {
@@ -199,6 +200,33 @@ Component.register('sw-promotion-discount-component', {
             return result;
         },
 
+        graduationPickers() {
+            const result = [];
+
+            this.pickerKeys.forEach((keyValue) => {
+                result.push(
+                    {
+                        key: keyValue,
+                        name: this.$tc(`sw-promotion.filter.picker.${keyValue}`)
+                    }
+                );
+            });
+
+            return result;
+        },
+
+        isSetGroup() {
+            const splittedScope = this.discount.scope.split('-');
+            if (splittedScope[0] === DiscountScopes.SETGROUP) {
+                return true;
+            }
+            return false;
+        },
+
+        isSet() {
+            return (this.discount.scope === DiscountScopes.SET);
+        },
+
         graduationAppliers() {
             const appliers = [
                 {
@@ -207,8 +235,22 @@ Component.register('sw-promotion-discount-component', {
                 }
             ];
 
+            // if selection is a setgroup and group is of type count, we reduce the standard maximum count
+            // to the defined value of the group definitions
+            let maxCount = 10;
+            const splittedScope = this.discount.scope.split('-');
+            if (splittedScope[0] === DiscountScopes.SETGROUP) {
+                let i = 0;
+                this.availableSetGroups.forEach((group) => {
+                    i += 1;
+                    if (i === parseInt(splittedScope[1], 10) && group.value < maxCount && group.packagerKey === 'COUNT') {
+                        maxCount = group.value;
+                    }
+                });
+            }
+
             let i;
-            for (i = 2; i < 10; i += 1) {
+            for (i = 1; i <= maxCount; i += 1) {
                 appliers.push(
                     {
                         key: i,
@@ -239,7 +281,28 @@ Component.register('sw-promotion-discount-component', {
             }
 
             return counts;
+        },
+
+        isPickingModeVisible() {
+            if (this.discount.scope.startsWith(DiscountScopes.SETGROUP)) {
+                return true;
+            }
+
+            if (this.discount.scope === DiscountScopes.SET) {
+                return true;
+            }
+
+            return false;
+        },
+
+        isMaxUsageVisible() {
+            if (this.discount.scope === DiscountScopes.CART) {
+                return false;
+            }
+
+            return true;
         }
+
     },
     methods: {
         createdComponent() {
@@ -265,6 +328,34 @@ Component.register('sw-promotion-discount-component', {
             this.loadSorters().then((keys) => {
                 this.sorterKeys = keys;
             });
+
+            this.loadPickers().then((keys) => {
+                this.pickerKeys = keys;
+            });
+        },
+
+        onDiscountScopeChanged(value) {
+            this.cartScope = (value === DiscountScopes.CART);
+            this.shippingScope = (value === DiscountScopes.DELIVERY);
+
+            if (value === DiscountScopes.DELIVERY) {
+                this.discount.considerAdvancedRules = false;
+            } else {
+                this.discount.considerAdvancedRules = this.considerAdvancedRules;
+            }
+
+            // clear other values
+            this.discount.pickerKey = '';
+
+            // make sure to set to all, our cart doesn't have
+            // this option and thus we make sure its set to default ALL
+            this.discount.usageKey = 'ALL';
+
+            // immediately select
+            // a picker if none set for picker relevant scopes
+            if (this.isPickingModeVisible) {
+                this.discount.pickerKey = this.pickerKeys[0];
+            }
         },
 
         // This function verifies the currently set value
@@ -351,7 +442,7 @@ Component.register('sw-promotion-discount-component', {
         },
 
         onCloseAdvancedPricesModal() {
-            if (this.discount.maxValue === null) {
+            if ((this.discount.type === DiscountTypes.PERCENTAGE) && this.discount.maxValue === null) {
                 // clear any currency values if max value is gone
                 this.clearAdvancedPrices();
             } else {
@@ -377,17 +468,6 @@ Component.register('sw-promotion-discount-component', {
             });
         },
 
-        onDiscountScopeChanged(value) {
-            this.cartScope = (value === DiscountScopes.CART);
-            this.shippingScope = (value === DiscountScopes.DELIVERY);
-
-            if (value === DiscountScopes.DELIVERY) {
-                this.discount.considerAdvancedRules = false;
-            } else {
-                this.discount.considerAdvancedRules = this.considerAdvancedRules;
-            }
-        },
-
         async loadSetGroups() {
             const criteria = new Criteria();
             criteria.addFilter(
@@ -410,7 +490,19 @@ Component.register('sw-promotion-discount-component', {
             ).then((response) => {
                 return response.data;
             });
+        },
+
+        async loadPickers() {
+            return this.httpClient.get(
+                '/_action/promotion/discount/picker',
+                {
+                    headers: this.syncService.getBasicHeaders()
+                }
+            ).then((response) => {
+                return response.data;
+            });
         }
+
     }
 
 });

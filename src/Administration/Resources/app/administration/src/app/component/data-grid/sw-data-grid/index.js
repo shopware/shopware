@@ -199,7 +199,7 @@ Component.register('sw-data-grid', {
         },
 
         localStorageItemKey() {
-            return `${this.identifier}-grid-columns`;
+            return `${this.identifier}-grid`;
         },
 
         selectionCount() {
@@ -271,6 +271,7 @@ Component.register('sw-data-grid', {
     methods: {
         createdComponent() {
             this.initGridColumns();
+            this.initCompactModeAndShowPreviews();
         },
 
         mountedComponent() {
@@ -290,13 +291,28 @@ Component.register('sw-data-grid', {
                 const storageItem = window.localStorage.getItem(this.localStorageItemKey);
 
                 if (storageItem !== null) {
-                    columns = JSON.parse(storageItem);
+                    const parsedStorageItem = JSON.parse(storageItem);
+
+                    columns = parsedStorageItem.columns || parsedStorageItem;
                 }
             }
 
             this.currentColumns = columns;
 
             this.findResizeColumns();
+        },
+
+        initCompactModeAndShowPreviews() {
+            if (!this.identifier) {
+                return;
+            }
+
+            const storageItem = window.localStorage.getItem(this.localStorageItemKey);
+
+            if (storageItem !== null) {
+                this.compact = JSON.parse(storageItem).compact;
+                this.previews = JSON.parse(storageItem).previews;
+            }
         },
 
         findResizeColumns() {
@@ -334,6 +350,7 @@ Component.register('sw-data-grid', {
             });
         },
 
+        // @deprecated tag:v6.4.0
         saveGridColumns() {
             if (!this.identifier) {
                 return;
@@ -341,10 +358,19 @@ Component.register('sw-data-grid', {
             window.localStorage.setItem(this.localStorageItemKey, JSON.stringify(this.currentColumns));
         },
 
+        saveUserSettings() {
+            if (!this.identifier) {
+                return;
+            }
+
+            const userSettings = { columns: this.currentColumns, compact: this.compact, previews: this.previews };
+            window.localStorage.setItem(this.localStorageItemKey, JSON.stringify(userSettings));
+        },
+
         getHeaderCellClasses(column, index) {
             return [
                 {
-                    'sw-data-grid__cell--sortable': column.dataIndex,
+                    'sw-data-grid__cell--sortable': column.sortable,
                     'sw-data-grid__cell--icon-label': column.iconLabel
                 },
                 `sw-data-grid__cell--${index}`,
@@ -374,20 +400,30 @@ Component.register('sw-data-grid', {
 
         onChangeCompactMode(value) {
             this.compact = value;
+            this.saveUserSettings();
         },
 
         onChangePreviews(value) {
             this.previews = value;
+            this.saveUserSettings();
         },
 
         onChangeColumnVisibility(value, index) {
             this.currentColumns[index].visible = value;
+
+            // @deprecated tag:v6.4.0 - use saveUserSettings instead
             this.saveGridColumns();
+
+            this.saveUserSettings();
         },
 
         onChangeColumnOrder(currentColumnIndex, newColumnIndex) {
             this.currentColumns = this.orderColumns(this.currentColumns, currentColumnIndex, newColumnIndex);
+
+            // @deprecated tag:v6.4.0 - use saveUserSettings instead
             this.saveGridColumns();
+
+            this.saveUserSettings();
         },
 
         orderColumns(columns, oldColumnIndex, newColumnIndex) {
@@ -418,7 +454,11 @@ Component.register('sw-data-grid', {
 
         hideColumn(columnIndex) {
             this.currentColumns[columnIndex].visible = false;
+
+            // @deprecated tag:v6.4.0 - use saveUserSettings instead
             this.saveGridColumns();
+
+            this.saveUserSettings();
         },
 
         renderColumn(item, column) {
@@ -482,6 +522,7 @@ Component.register('sw-data-grid', {
         },
 
         onClickCancelInlineEdit(item) {
+            this.$emit('inline-edit-cancel', item);
             this.revert(item);
 
             this.disableInlineEdit();

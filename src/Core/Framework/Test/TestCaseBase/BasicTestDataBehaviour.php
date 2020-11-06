@@ -78,7 +78,9 @@ trait BasicTestDataBehaviour
         /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('shipping_method.repository');
 
-        $criteria = (new Criteria())->setLimit(1);
+        $criteria = (new Criteria())
+            ->setLimit(1)
+            ->addFilter(new EqualsFilter('active', true));
 
         return $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
     }
@@ -91,7 +93,8 @@ trait BasicTestDataBehaviour
         $shippingMethods = $repository->search(
             (new Criteria())
                 ->addAssociation('prices')
-                ->addFilter(new EqualsFilter('shipping_method.prices.calculation', 1)),
+                ->addFilter(new EqualsFilter('shipping_method.prices.calculation', 1))
+                ->addFilter(new EqualsFilter('active', true)),
             Context::createDefaultContext()
         )->getEntities();
 
@@ -138,12 +141,22 @@ trait BasicTestDataBehaviour
         return $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0] ?? null;
     }
 
-    protected function getValidCountryId(): string
+    /**
+     * @param string|null $salesChannelId (null when no saleschannel filtering)
+     */
+    protected function getValidCountryId(?string $salesChannelId = Defaults::SALES_CHANNEL): string
     {
         /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('country.repository');
 
-        $criteria = (new Criteria())->setLimit(1)->addFilter(new EqualsFilter('taxFree', 0));
+        $criteria = (new Criteria())->setLimit(1)
+            ->addFilter(new EqualsFilter('taxFree', 0))
+            ->addFilter(new EqualsFilter('active', true))
+            ->addFilter(new EqualsFilter('shippingAvailable', true));
+
+        if ($salesChannelId !== null) {
+            $criteria->addFilter(new EqualsFilter('salesChannels.id', $salesChannelId));
+        }
 
         return $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
     }

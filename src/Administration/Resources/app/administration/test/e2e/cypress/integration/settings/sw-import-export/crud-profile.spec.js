@@ -80,7 +80,8 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get('.sw-import-export-edit-profile-modal').should('not.be.visible');
 
         // Verify that created profile is inside profile listing
-        cy.get('.sw-import-export-view-profiles__search input[type="text"]').type('Basic');
+        cy.get('.sw-import-export-view-profiles__search input[type="text"]').click();
+        cy.get('.sw-import-export-view-profiles__search input[type="text"]').clearTypeAndCheck('Basic');
         cy.get(`${page.elements.dataGridRow}--0`).should('contain', 'Basic');
     });
 
@@ -94,7 +95,8 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get('.sw-import-export-view-profiles__listing').should('be.visible');
 
         // Search for given profile
-        cy.get('.sw-import-export-view-profiles__search input[type="text"]').typeAndCheck('E2E');
+        cy.get('.sw-import-export-view-profiles__search input[type="text"]').click();
+        cy.get('.sw-import-export-view-profiles__search input[type="text"]').clearTypeAndCheck('E2E');
         cy.get(`${page.elements.dataGridRow}--0`).should('contain', 'E2E');
         cy.get(`${page.elements.dataGridRow}--1`).should('not.exist');
 
@@ -120,6 +122,8 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get('.sw-import-export-edit-profile-modal').should('not.be.visible');
 
         // Verify updated profile is in listing
+        cy.get('.sw-import-export-view-profiles__listing').should('be.visible');
+        cy.get('.sw-import-export-view-profiles__search input[type="text"]').click();
         cy.get('.sw-import-export-view-profiles__search input[type="text"]').clearTypeAndCheck('Updated E2E');
         cy.get(`${page.elements.dataGridRow}--0`).should('contain', 'Updated E2E');
     });
@@ -134,7 +138,8 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get('.sw-import-export-view-profiles__listing').should('be.visible');
 
         // Search for given profile
-        cy.get('.sw-import-export-view-profiles__search input[type="text"]').typeAndCheck('E2E');
+        cy.get('.sw-import-export-view-profiles__search input[type="text"]').click();
+        cy.get('.sw-import-export-view-profiles__search input[type="text"]').clearTypeAndCheck('E2E');
         cy.get(`${page.elements.dataGridRow}--0`).should('contain', 'E2E');
         cy.get(`${page.elements.dataGridRow}--1`).should('not.exist');
 
@@ -159,6 +164,8 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         });
 
         // Verify deleted item is not present
+        cy.get('.sw-import-export-view-profiles__listing').should('be.visible');
+        cy.get('.sw-import-export-view-profiles__search input[type="text"]').click();
         cy.get('.sw-import-export-view-profiles__search input[type="text"]').clearTypeAndCheck('E2E');
         cy.get('.sw-import-export-view-profiles__listing .sw-data-grid__body').should('not.contain', 'E2E');
     });

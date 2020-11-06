@@ -81,6 +81,10 @@ class AccountEditOrderPageLoader
 
         $page = AccountEditOrderPage::createFrom($page);
 
+        if ($page->getMetaInformation()) {
+            $page->getMetaInformation()->setRobots('noindex,follow');
+        }
+
         $orderRouteResponse = $this->getOrder($request, $salesChannelContext);
 
         $order = $orderRouteResponse->getOrders()->first();

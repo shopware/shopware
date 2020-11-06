@@ -138,7 +138,6 @@
 
                                         {% block sw_settings_user_detail_grid_content_acl_is_admin %}
                                             <sw-switch-field
-                                                v-if="feature.isActive('FEATURE_NEXT_3722')"
                                                 class="sw-settings-user-detail__grid-is-admin"
                                                 :label="$tc('sw-users-permissions.users.user-detail.labelAdministrator')"
                                                 :disabled="isCurrentUser || !acl.can('users_and_permissions.editor')"
@@ -148,7 +147,6 @@
 
                                         {% block sw_settings_user_detail_grid_content_job_title %}
                                             <sw-text-field
-                                                v-if="feature.isActive('FEATURE_NEXT_3722')"
                                                 class="sw-settings-user-detail__grid-jobTitle"
                                                 :disabled="!acl.can('users_and_permissions.editor')"
                                                 :label="$tc('sw-users-permissions.users.user-detail.labelJobTitle')"
@@ -158,7 +156,6 @@
 
                                         {% block sw_settings_user_detail_grid_content_acl_roles %}
                                             <sw-entity-multi-select
-                                                v-if="feature.isActive('FEATURE_NEXT_3722')"
                                                 class="sw-settings-user-detail__grid-aclRoles"
                                                 :label="$tc('sw-users-permissions.users.user-detail.labelRoles')"
                                                 v-model="user.aclRoles"
@@ -168,6 +165,7 @@
                                                     disabled: !user.admin || !acl.can('users_and_permissions.editor')
                                                 }"
                                                 :disabled="user.admin || !acl.can('users_and_permissions.editor')"
+                                                :criteria="aclRoleCriteria"
                                                 labelProperty="name">
                                             </sw-entity-multi-select>
                                         {% endblock %}

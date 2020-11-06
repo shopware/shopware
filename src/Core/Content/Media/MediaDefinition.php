@@ -72,6 +72,11 @@ class MediaDefinition extends EntityDefinition
         return MediaEntity::class;
     }
 
+    public function since(): ?string
+    {
+        return '6.0.0.0';
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
@@ -80,7 +85,7 @@ class MediaDefinition extends EntityDefinition
             (new FkField('user_id', 'userId', UserDefinition::class))->addFlags(new ReadProtected(SalesChannelApiSource::class)),
             (new FkField('media_folder_id', 'mediaFolderId', MediaFolderDefinition::class))->addFlags(new ReadProtected(SalesChannelApiSource::class)),
 
-            (new StringField('mime_type', 'mimeType'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE), new SearchRanking(SearchRanking::LOW_SEARCH_RAKING)),
+            (new StringField('mime_type', 'mimeType'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE), new SearchRanking(SearchRanking::LOW_SEARCH_RANKING)),
             (new StringField('file_extension', 'fileExtension'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
             (new DateTimeField('uploaded_at', 'uploadedAt'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
             (new LongTextField('file_name', 'fileName'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),

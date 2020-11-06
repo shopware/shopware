@@ -17,6 +17,11 @@ class ManyToOneProductDefinition extends EntityDefinition
         return 'many_to_one_product';
     }
 
+    public function since(): ?string
+    {
+        return '6.0.0.0';
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([

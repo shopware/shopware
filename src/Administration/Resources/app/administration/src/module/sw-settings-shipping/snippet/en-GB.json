@@ -22,7 +22,10 @@
             "messageSaveSuccess": "Shipping method \"{name}\" has been saved.",
             "messageSaveError": "Shipping method \"{name}\" could not be saved.",
             "messageDeleteError": "Shipping method \"{name}\" could not be deleted.",
-            "messageDeleteSuccess": "Shipping method \"{name}\" has been deleted."
+            "messageDeleteSuccess": "Shipping method \"{name}\" has been deleted.",
+            "columnTaxType": "Tax Type",
+            "columnTaxRate": "Tax Rate",
+            "placeholderTaxType": "Select tax type"
         },
         "detail": {
             "textHeadline": "New shipping method",
@@ -44,7 +47,14 @@
             "labelLogoUpload": "Upload logo",
             "labelTrackingUrl": "Tracking URL",
             "placeholderTrackingUrl": "Enter URL...",
-            "helpTextTrackingUrl": "You may enter the shipping provider's tracking URL here. Just replace the actual shipping code with '%s' as a placeholder, Shopware will then insert the correct code for each order automatically, given one is provided in the order details."
+            "helpTextTrackingUrl": "You may enter the shipping provider's tracking URL here. Just replace the actual shipping code with '%s' as a placeholder, Shopware will then insert the correct code for each order automatically, given one is provided in the order details.",
+            "tax": {
+                "fieldName": "Tax",
+                "labelTaxType": "Type",
+                "labelTaxRate": "Rate",
+                "placeholderTaxType": "Select tax type...",
+                "placeholderTaxRate": "Select tax rate..."
+            }
         },
         "constants": {
             "weight": "Weight",
@@ -99,6 +109,11 @@
         },
         "shippingPriceModal": {
             "modalTitle": "Add shipping price rule"
+        },
+        "shippingCostOptions": {
+            "auto": "Auto",
+            "highest": "Highest",
+            "fixed": "Fixed"
         }
     },
     "sw-privileges": {

@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Event\ProductExportContentTypeEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -60,6 +61,7 @@ class ProductExportController extends StorefrontController
     }
 
     /**
+     * @Since("6.1.0.0")
      * @Route("/export/{accessKey}/{fileName}", name="frontend.export", methods={"GET"})
      */
     public function index(SalesChannelContext $context, Request $request): Response

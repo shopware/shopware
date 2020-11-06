@@ -2,27 +2,18 @@
 
 namespace Shopware\Storefront\Theme\Twig;
 
-use Shopware\Storefront\Framework\ThemeInterface;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\StorefrontPluginRegistryInterface;
-use Symfony\Component\HttpKernel\Bundle\BundleInterface;
-use Symfony\Component\HttpKernel\KernelInterface;
 
 class ThemeInheritanceBuilder implements ThemeInheritanceBuilderInterface
 {
     /**
-     * @var KernelInterface
-     */
-    private $kernel;
-
-    /**
-     * @var StorefrontPluginRegistryInterface|null
+     * @var StorefrontPluginRegistryInterface
      */
     private $themeRegistry;
 
-    public function __construct(KernelInterface $kernel, ?StorefrontPluginRegistryInterface $themeRegistry = null)
+    public function __construct(StorefrontPluginRegistryInterface $themeRegistry)
     {
-        $this->kernel = $kernel;
         $this->themeRegistry = $themeRegistry;
     }
 
@@ -36,10 +27,6 @@ class ThemeInheritanceBuilder implements ThemeInheritanceBuilderInterface
         $theme = array_shift($keys);
 
         $inheritance = $this->getThemeInheritance($theme, $themes);
-
-        if (!$inheritance) {
-            return $bundles;
-        }
 
         foreach ($bundles as $bundle) {
             $key = '@' . $bundle;
@@ -66,7 +53,7 @@ class ThemeInheritanceBuilder implements ThemeInheritanceBuilderInterface
         return array_reverse($flat);
     }
 
-    private function getThemeInheritance(string $theme, array $themes): ?array
+    private function getThemeInheritance(string $theme, array $themes): array
     {
         $names = array_keys($themes);
 
@@ -82,36 +69,15 @@ class ThemeInheritanceBuilder implements ThemeInheritanceBuilderInterface
 
         $default = $this->injectPluginWildcard($default);
 
-        $bundle = $this->getBundle($theme);
+        $themeConfig = $this->themeRegistry
+            ->getConfigurations()
+            ->getByTechnicalName($theme);
 
-        if (!$bundle) {
-            return null;
+        if (!$themeConfig) {
+            return $default;
         }
 
-        if ($this->themeRegistry) {
-            $themeConfig = $this->themeRegistry
-                ->getConfigurations()
-                ->getByTechnicalName($theme);
-
-            if (!$themeConfig) {
-                return $default;
-            }
-
-            $inheritance = $themeConfig->getViewInheritance();
-        } else {
-            // try to load inheritance from theme.json file
-            $file = $bundle->getPath() . '/Resources/theme.json';
-            if (!file_exists($file)) {
-                return $default;
-            }
-
-            $config = json_decode(file_get_contents($file), true);
-            if (!isset($config['views'])) {
-                return $default;
-            }
-
-            $inheritance = $config['views'];
-        }
+        $inheritance = $themeConfig->getViewInheritance();
 
         if (empty($inheritance)) {
             return $default;
@@ -123,17 +89,6 @@ class ThemeInheritanceBuilder implements ThemeInheritanceBuilderInterface
         }
 
         return $this->injectPluginWildcard($tree);
-    }
-
-    private function getBundle(string $name): ?BundleInterface
-    {
-        $bundles = $this->kernel->getBundles();
-
-        if (array_key_exists($name, $bundles)) {
-            return $this->kernel->getBundle($name);
-        }
-
-        return null;
     }
 
     private function injectPluginWildcard(array $inheritance): array
@@ -157,31 +112,13 @@ class ThemeInheritanceBuilder implements ThemeInheritanceBuilderInterface
 
     private function isTheme(string $bundle): bool
     {
-        if ($this->themeRegistry) {
-            $themeConfig = $this->themeRegistry->getConfigurations()->getByTechnicalName($bundle);
+        $themeConfig = $this->themeRegistry->getConfigurations()->getByTechnicalName($bundle);
 
-            if ($themeConfig === null) {
-                return false;
-            }
-
-            if ($themeConfig->getIsTheme()) {
-                return true;
-            }
-
-            if ($bundle === StorefrontPluginRegistry::BASE_THEME_NAME) {
-                return true;
-            }
-
+        if ($themeConfig === null) {
             return false;
         }
 
-        $bundleClass = $this->getBundle($bundle);
-
-        if ($bundleClass === null) {
-            return false;
-        }
-
-        if ($bundleClass instanceof ThemeInterface) {
+        if ($themeConfig->getIsTheme()) {
             return true;
         }
 

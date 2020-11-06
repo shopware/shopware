@@ -62,6 +62,10 @@ class AccountLoginPageLoader
 
         $page = AccountLoginPage::createFrom($page);
 
+        if ($page->getMetaInformation()) {
+            $page->getMetaInformation()->setRobots('noindex,follow');
+        }
+
         $page->setCountries($this->getCountries($salesChannelContext));
 
         $page->setSalutations($this->getSalutations($salesChannelContext));

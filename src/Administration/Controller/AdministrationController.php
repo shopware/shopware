@@ -8,6 +8,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardClient;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -58,6 +59,7 @@ class AdministrationController extends AbstractController
     }
 
     /**
+     * @Since("6.3.3.0")
      * @RouteScope(scopes={"administration"})
      * @Route("/admin", defaults={"auth_required"=false}, name="administration.index", methods={"GET"})
      */
@@ -78,6 +80,7 @@ class AdministrationController extends AbstractController
     }
 
     /**
+     * @Since("6.1.0.0")
      * @RouteScope(scopes={"administration"})
      * @Route("/api/v{version}/_admin/snippets", name="api.admin.snippets", methods={"GET"})
      */
@@ -94,6 +97,7 @@ class AdministrationController extends AbstractController
     }
 
     /**
+     * @Since("6.3.1.0")
      * @RouteScope(scopes={"administration"})
      * @Route("/api/v{version}/_admin/known-ips", name="api.admin.known-ips", methods={"GET"})
      */

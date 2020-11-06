@@ -53,7 +53,7 @@
   "sw-privileges": {
     "permissions": {
       "number_ranges": {
-        "label": "Number Ranges"
+        "label": "Number ranges"
       }
     }
   }

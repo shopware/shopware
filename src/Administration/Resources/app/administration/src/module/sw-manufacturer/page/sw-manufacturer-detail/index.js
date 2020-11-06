@@ -182,6 +182,10 @@ Component.register('sw-manufacturer-detail', {
         },
 
         onSave() {
+            if (!this.acl.can('product_manufacturer.editor')) {
+                return;
+            }
+
             this.isLoading = true;
 
             this.manufacturerRepository.save(this.manufacturer, Shopware.Context.api).then(() => {

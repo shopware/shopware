@@ -169,7 +169,7 @@ EOD
 Async processing
 
 * [Entity relationship diagram](./10-erd/erd-shopware-core-framework-messagequeue.md)
-* [Guide](./00-module/message-queue.md)
+* [Guide](./../../20-developer-guide/80-core/10-message-queue.md)
 EOD
     ,
     'Framework/Migration' => <<<'EOD'
@@ -272,7 +272,7 @@ EOD
 Number ranges (SKU)
 
 * [Entity relationship diagram](./10-erd/erd-shopware-core-system-numberrange.md)
-* [Guide](./00-module/number-range.md)
+* [Guide](./../../20-developer-guide/80-core/30-number-range.md)
 EOD
     ,
     'System/SalesChannel' => <<<'EOD'

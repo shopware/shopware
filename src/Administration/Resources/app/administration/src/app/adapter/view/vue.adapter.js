@@ -22,7 +22,7 @@ export default class VueAdapter extends ViewAdapter {
     }
 
     /**
-     * Creates the main instance for the view layer.
+     * Creates the main instance dfsffor the view layer.
      * Is used on startup process of the main application.
      *
      * @param renderElement

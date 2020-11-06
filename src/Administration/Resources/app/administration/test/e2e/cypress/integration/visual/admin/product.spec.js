@@ -10,7 +10,7 @@ describe('Product: Visual tests', () => {
                 return cy.createProductFixture();
             })
             .then(() => {
-                return cy.createDefaultFixture('product-stream');
+                return cy.createDefaultFixture('product-stream', {}, 'product-stream-active');
             })
             .then(() => {
                 return cy.createPropertyFixture({
@@ -165,38 +165,6 @@ describe('Product: Visual tests', () => {
             });
         });
 
-        cy.visit(`${Cypress.env('admin')}#/sw/product/stream/index`);
-
-        // Open and adjust product stream
-        cy.get('.sw-product-stream-list-grid').should('be.visible');
-        cy.clickContextMenuItem(
-            '.sw-entity-listing__context-menu-edit-action',
-            page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
-        );
-        cy.get(page.elements.loader).should('not.exist');
-
-        page.fillFilterWithEntityMultiSelect(
-            '.sw-product-stream-filter',
-            {
-                field: null,
-                operator: 'Is equal to any of',
-                value: ['Second product']
-            }
-        );
-        page.fillFilterWithEntityMultiSelect(
-            '.sw-product-stream-filter',
-            {
-                field: null,
-                operator: 'Is equal to any of',
-                value: ['Third product']
-            }
-        );
-        cy.get('.sw-button-process').click();
-        cy.wait('@saveStream').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
-
         // Open product and add cross selling
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
         cy.contains('Original product').click();
@@ -214,7 +182,7 @@ describe('Product: Visual tests', () => {
         cy.get('#sw-field--crossSelling-name').typeAndCheck('Kunden kauften auch');
         cy.get('#sw-field--crossSelling-product-group')
             .typeSingleSelectAndCheck(
-                '1st Productstream',
+                '2nd Product stream',
                 '#sw-field--crossSelling-product-group'
             );
         cy.get('input[name="sw-field--crossSelling-active"]').click();

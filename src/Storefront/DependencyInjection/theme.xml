@@ -13,7 +13,7 @@
         <service id="Shopware\Storefront\Theme\StorefrontPluginRegistry" public="true">
             <argument type="service" id="kernel"/>
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory"/>
-            <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader" on-invalid="null"/>
+            <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeCompiler">
@@ -59,6 +59,7 @@
             <argument type="service" id="Shopware\Storefront\Theme\ThemeService"/>
             <argument type="service" id="sales_channel.repository"/>
             <argument type="service" id="theme.repository"/>
+            <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>
         </service>
 
 
@@ -68,7 +69,6 @@
             <argument type="service" id="Shopware\Storefront\Theme\ThemeLifecycleHandler"/>
 
             <tag name="kernel.event_subscriber"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_10286"/>
         </service>
 
         <!-- Entity definitions -->
@@ -138,7 +138,7 @@
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeFileResolver"/>
             <argument type="service" id="theme.repository"/>
-            <argument>%kernel.cache_dir%</argument>
+            <argument>%kernel.project_dir%</argument>
 
             <tag name="console.command"/>
         </service>
@@ -161,7 +161,6 @@
 
         <service id="Shopware\Storefront\Theme\Twig\ThemeInheritanceBuilderInterface"
                  class="Shopware\Storefront\Theme\Twig\ThemeInheritanceBuilder">
-            <argument type="service" id="kernel"/>
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>
         </service>
 

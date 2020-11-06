@@ -70,6 +70,10 @@ class AccountOrderPageLoader
 
         $page = AccountOrderPage::createFrom($page);
 
+        if ($page->getMetaInformation()) {
+            $page->getMetaInformation()->setRobots('noindex,follow');
+        }
+
         $page->setOrders(StorefrontSearchResult::createFrom($this->getOrders($request, $salesChannelContext)));
 
         $page->setDeepLinkCode($request->get('deepLinkCode'));
@@ -119,6 +123,7 @@ class AccountOrderPageLoader
             ->addAssociation('lineItems.cover')
             ->addAssociation('addresses')
             ->addAssociation('currency')
+            ->addAssociation('documents.documentType')
             ->setLimit($limit)
             ->setOffset(($page - 1) * $limit)
             ->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NEXT_PAGES);
@@ -127,7 +132,8 @@ class AccountOrderPageLoader
             ->getAssociation('transactions')
             ->addSorting(new FieldSorting('createdAt'));
 
-        $criteria->addSorting(new FieldSorting('createdAt', FieldSorting::DESCENDING));
+        $criteria
+            ->addSorting(new FieldSorting('orderDateTime', FieldSorting::DESCENDING));
 
         if ($request->get('deepLinkCode')) {
             $criteria->addFilter(new EqualsFilter('deepLinkCode', $request->get('deepLinkCode')));

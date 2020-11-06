@@ -1,7 +1,12 @@
+{# @deprecated tag:v6.4.0.0 file will be renamed to page/account/order/confirm-shipping.html.twig #}
+
 {% sw_extends '@Storefront/storefront/page/checkout/confirm/confirm-shipping.html.twig' %}
 
+{# @deprecated tag:v6.4.0.0 renamed to page_checkout_change_shipping_form #}
 {% block page_checkout_confirm_shipping_current %}
     <p class="confirm-shipping-current">
+
+        {# @deprecated tag:v6.4.0.0 removed #}
         {% block page_checkout_confirm_shipping_current_image %}
             {% if context.shippingMethod.media %}
                 {% sw_thumbnails 'confirm-shipping-current-image-thumbnails' with {
@@ -18,15 +23,19 @@
             {% endif %}
         {% endblock %}
 
+        {# @deprecated tag:v6.4.0.0 removed #}
         {% block page_checkout_confirm_shipping_current_text %}
             <strong>{{ "checkout.confirmCurrentPaymentShipping"|trans|sw_sanitize }}</strong>
             {{ context.shippingMethod.translated.name }}
         {% endblock %}
 
+        {# @deprecated tag:v6.4.0.0 removed #}
         {% block page_checkout_confirm_shipping_invalid_tooltip %}{% endblock %}
     </p>
 {% endblock %}
 
+{# @deprecated tag:v6.4.0.0 removed #}
 {% block page_checkout_confirm_shipping_modal_toggle %}{% endblock %}
 
+{# @deprecated tag:v6.4.0.0 removed #}
 {% block page_checkout_confirm_shipping_modal %}{% endblock %}

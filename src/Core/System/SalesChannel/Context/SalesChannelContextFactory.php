@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -149,6 +150,7 @@ class SalesChannelContextFactory
 
         $criteria = new Criteria([$salesChannelId]);
         $criteria->setTitle('context-factory::sales-channel');
+        $criteria->addAssociation('countries');
         $criteria->addAssociation('currency');
         $criteria->addAssociation('domains');
 
@@ -416,6 +418,16 @@ class SalesChannelContextFactory
         $criteria->addAssociation('defaultBillingAddress.countryState');
         $criteria->addAssociation('defaultShippingAddress.country');
         $criteria->addAssociation('defaultShippingAddress.countryState');
+
+        if (Feature::isActive('FEATURE_NEXT_10555')) {
+            /** @var SalesChannelApiSource $source */
+            $source = $context->getSource();
+
+            $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
+                new EqualsFilter('customer.boundSalesChannelId', null),
+                new EqualsFilter('customer.boundSalesChannelId', $source->getSalesChannelId()),
+            ]));
+        }
 
         $customer = $this->customerRepository->search($criteria, $context)->get($customerId);
 

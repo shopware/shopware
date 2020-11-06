@@ -21,6 +21,7 @@ $sw-select-result-disabled-color-text: darken($color-steam-cloud, 15%);
         word-break: break-word;
         display: flex;
         flex-direction: column;
+        color: $color-darkgray-200;
     }
 
     .sw-icon {

@@ -70,6 +70,10 @@ class AccountOverviewPageLoader
         $page = AccountOverviewPage::createFrom($page);
         $page->setCustomer($this->loadCustomer($salesChannelContext));
 
+        if ($page->getMetaInformation()) {
+            $page->getMetaInformation()->setRobots('noindex,follow');
+        }
+
         $order = $this->loadNewestOrder($salesChannelContext, $request);
 
         if ($order !== null) {
@@ -92,6 +96,8 @@ class AccountOverviewPageLoader
             ->addAssociation('transactions.paymentMethod')
             ->addAssociation('deliveries.shippingMethod')
             ->addAssociation('addresses')
+            ->addAssociation('currency')
+            ->addAssociation('documents.documentType')
             ->setLimit(1)
             ->addAssociation('orderCustomer');
 

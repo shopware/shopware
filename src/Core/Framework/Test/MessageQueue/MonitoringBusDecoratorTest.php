@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\ReceivedStamp;
+use Symfony\Component\Messenger\Stamp\StampInterface;
 
 class MonitoringBusDecoratorTest extends TestCase
 {
@@ -34,6 +35,24 @@ class MonitoringBusDecoratorTest extends TestCase
 
         $decoratedBus = new MonitoringBusDecorator($innerBus, $connectionMock);
         $decoratedBus->dispatch($testMsg);
+    }
+
+    public function testStampsArePassedThrough(): void
+    {
+        $testMsg = new TestMessage();
+        $stamps = [$this->createMock(StampInterface::class)];
+
+        $innerBus = $this->createMock(MessageBusInterface::class);
+        $innerBus
+            ->expects(static::once())
+            ->method('dispatch')
+            ->with(static::equalTo($testMsg), static::equalTo($stamps))
+            ->willReturn(new Envelope($testMsg));
+
+        $connectionMock = $this->createMock(Connection::class);
+
+        $decoratedBus = new MonitoringBusDecorator($innerBus, $connectionMock);
+        $decoratedBus->dispatch($testMsg, $stamps);
     }
 
     public function testItCountsOutgoingMessages(): void

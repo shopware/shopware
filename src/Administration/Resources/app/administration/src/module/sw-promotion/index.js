@@ -38,7 +38,10 @@ Module.register('sw-promotion', {
             },
             path: 'index',
             meta: {
-                privilege: 'promotion.viewer'
+                privilege: 'promotion.viewer',
+                appSystem: {
+                    view: 'list'
+                }
             }
 
         },
@@ -71,7 +74,10 @@ Module.register('sw-promotion', {
                 name: 'sw.promotion.detail.base'
             },
             meta: {
-                privilege: 'promotion.viewer'
+                privilege: 'promotion.viewer',
+                appSystem: {
+                    view: 'detail'
+                }
             },
             children: {
                 base: {

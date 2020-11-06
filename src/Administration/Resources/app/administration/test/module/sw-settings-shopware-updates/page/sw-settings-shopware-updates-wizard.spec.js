@@ -94,6 +94,9 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
                             extensions: []
                         }
                     ])
+                },
+                feature: {
+                    isActive: () => true
                 }
             },
             mocks: {
@@ -104,6 +107,7 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
                     onResize: () => {}
                 },
                 $route: {
+                    name: '',
                     meta: {
                         parentPath: 'sw.settings.index',
                         $module: {
@@ -143,6 +147,9 @@ describe('module/sw-settings-shopware-updates/page/sw-settings-shopware-updates-
                                 }
                             ]
                         }
+                    },
+                    params: {
+                        id: ''
                     }
                 },
                 $i18n: {

@@ -31,6 +31,11 @@ class CustomFieldSetRelationDefinition extends EntityDefinition
         return CustomFieldSetRelationEntity::class;
     }
 
+    public function since(): ?string
+    {
+        return '6.0.0.0';
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([

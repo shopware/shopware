@@ -12,9 +12,12 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
@@ -78,9 +81,10 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
     }
 
     /**
+     * @Since("6.2.0.0")
      * @OA\Post(
      *      path="/account/recovery-password",
-     *      description="Sends a recovery email for password recovery",
+     *      summary="Sends a recovery email for password recovery",
      *      operationId="sendRecoveryMail",
      *      tags={"Store API", "Account"},
      *      @OA\Parameter(
@@ -221,6 +225,13 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('customer.email', $email));
         $criteria->addFilter(new EqualsFilter('customer.guest', 0));
+
+        if (Feature::isActive('FEATURE_NEXT_10555')) {
+            $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
+                new EqualsFilter('customer.boundSalesChannelId', null),
+                new EqualsFilter('customer.boundSalesChannelId', $context->getSalesChannel()->getId()),
+            ]));
+        }
 
         $result = $this->customerRepository->search($criteria, $context->getContext());
 

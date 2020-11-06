@@ -117,11 +117,23 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
             { name: 'save button', selector: '.sw-settings-customer-group-detail__save' },
             { name: 'name field ', selector: '.sw-settings-customer-group-detail__name' },
             { name: 'gross radio group', selector: 'sw-boolean-radio-group-stub' },
-            { name: 'registration form switch', selector: 'sw-switch-field-stub[label="sw-settings-customer-group.detail.registrationForm"]' },
-            { name: 'form title field', selector: 'sw-field-stub[label="sw-settings-customer-group.registration.title"]' },
+            {
+                name: 'registration form switch',
+                selector: 'sw-switch-field-stub[label="sw-settings-customer-group.detail.registrationForm"]'
+            },
+            {
+                name: 'form title field',
+                selector: 'sw-field-stub[label="sw-settings-customer-group.registration.title"]'
+            },
             { name: 'form editor', selector: 'sw-text-editor-stub' },
-            { name: 'only company switch', selector: 'sw-switch-field-stub[label="sw-settings-customer-group.registration.onlyCompaniesCanRegister"]' },
-            { name: 'seo meta field', selector: 'sw-field-stub[label="sw-settings-customer-group.registration.seoMetaDescription"]' },
+            {
+                name: 'only company switch',
+                selector: 'sw-switch-field-stub[label="sw-settings-customer-group.registration.onlyCompaniesCanRegister"]'
+            },
+            {
+                name: 'seo meta field',
+                selector: 'sw-field-stub[label="sw-settings-customer-group.registration.seoMetaDescription"]'
+            },
             { name: 'sales channel multiple select', selector: 'sw-entity-multi-select-stub' }
         ].forEach(({ name, selector }) => {
             it(`${name} should be disabled`, async () => {
@@ -151,11 +163,23 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
             { name: 'save button', selector: '.sw-settings-customer-group-detail__save' },
             { name: 'name field ', selector: '.sw-settings-customer-group-detail__name' },
             { name: 'gross radio group', selector: 'sw-boolean-radio-group-stub' },
-            { name: 'registration form switch', selector: 'sw-switch-field-stub[label="sw-settings-customer-group.detail.registrationForm"]' },
-            { name: 'form title field', selector: 'sw-field-stub[label="sw-settings-customer-group.registration.title"]' },
+            {
+                name: 'registration form switch',
+                selector: 'sw-switch-field-stub[label="sw-settings-customer-group.detail.registrationForm"]'
+            },
+            {
+                name: 'form title field',
+                selector: 'sw-field-stub[label="sw-settings-customer-group.registration.title"]'
+            },
             { name: 'form editor', selector: 'sw-text-editor-stub' },
-            { name: 'only company switch', selector: 'sw-switch-field-stub[label="sw-settings-customer-group.registration.onlyCompaniesCanRegister"]' },
-            { name: 'seo meta field', selector: 'sw-field-stub[label="sw-settings-customer-group.registration.seoMetaDescription"]' },
+            {
+                name: 'only company switch',
+                selector: 'sw-switch-field-stub[label="sw-settings-customer-group.registration.onlyCompaniesCanRegister"]'
+            },
+            {
+                name: 'seo meta field',
+                selector: 'sw-field-stub[label="sw-settings-customer-group.registration.seoMetaDescription"]'
+            },
             { name: 'sales channel multiple select', selector: 'sw-entity-multi-select-stub' }
         ].forEach(({ name, selector }) => {
             it(`${name} should be enabled`, async () => {

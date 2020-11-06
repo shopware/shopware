@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Api\Controller;
 
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Storefront\Framework\Captcha\AbstractCaptcha;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -24,6 +25,7 @@ class CaptchaController extends AbstractController
     }
 
     /**
+     * @Since("6.2.0.0")
      * Returns the IDs of all available captchas
      *
      * @Route("/api/v{version}/_action/captcha_list", name="api.action.captcha.list", methods={"GET"})

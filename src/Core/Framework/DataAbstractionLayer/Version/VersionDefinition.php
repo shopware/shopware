@@ -41,10 +41,12 @@ class VersionDefinition extends EntityDefinition
     {
         $dateTime = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
 
-        return [
-            'name' => sprintf('Draft %s', $dateTime),
-            'createdAt' => $dateTime,
-        ];
+        return ['name' => sprintf('Draft %s', $dateTime), 'createdAt' => $dateTime];
+    }
+
+    public function since(): ?string
+    {
+        return '6.0.0.0';
     }
 
     protected function defineFields(): FieldCollection

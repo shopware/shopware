@@ -198,7 +198,7 @@ export default function createLoginService(httpClient, context, bearerAuth = nul
     }
 
     /**
-     * Saves the bearer authentication object in the cokkies using the {@link storageKey} as the
+     * Saves the bearer authentication object in the cookies using the {@link storageKey} as the
      * object identifier.
      *
      * @memberOf module:core/service/login

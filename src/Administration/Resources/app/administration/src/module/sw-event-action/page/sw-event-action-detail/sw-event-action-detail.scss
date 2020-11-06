@@ -1,0 +1,34 @@
+@import "~scss/variables";
+
+.sw-event-action-detail {
+    .sw-event-action-detail__base .sw-card__content {
+        min-height: 400px;
+    }
+
+    .sw-single-select .sw-single-select__selection,
+    .sw-entity-single-select .sw-entity-single-select__selection {
+        white-space: nowrap;
+        overflow: hidden;
+        margin-right: 40px;
+
+        strong {
+            font-weight: $font-weight-semi-bold;
+        }
+    }
+
+    .sw-event-action-detail__mail-template-detail {
+        margin-top: -25px;
+        margin-bottom: 20px;
+        display: flex;
+
+        a {
+            color: $color-shopware-brand-500;
+            font-size: $font-size-small;
+            text-decoration: none;
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+    }
+}

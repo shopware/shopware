@@ -21,7 +21,7 @@ class OrderStateMachineStateChangeEvent extends Event implements MailActionInter
     private $order;
 
     /**
-     * @feature-deprecated (flag:FEATURE_NEXT_9351) tag:v6.4.0 - will be removed
+     * @deprecated tag:v6.4.0 - will be removed
      *
      * @var string|null
      */
@@ -43,7 +43,7 @@ class OrderStateMachineStateChangeEvent extends Event implements MailActionInter
     private $mailRecipientStruct;
 
     /**
-     * @feature-deprecated (flag:FEATURE_NEXT_9351) tag:v6.4.0 - parameter $salesChannelId will be removed
+     * @deprecated tag:v6.4.0 - parameter $salesChannelId will be removed
      */
     public function __construct(string $eventName, OrderEntity $order, ?string $salesChannelId, Context $context)
     {

@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Cache\Annotation\HttpCache;
 use Shopware\Storefront\Page\Navigation\NavigationPageLoaderInterface;
@@ -35,6 +36,7 @@ class NavigationController extends StorefrontController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @HttpCache()
      * @Route("/", name="frontend.home.page", options={"seo"="true"}, methods={"GET"})
      */
@@ -46,6 +48,7 @@ class NavigationController extends StorefrontController
     }
 
     /**
+     * @Since("6.3.3.0")
      * @HttpCache()
      * @Route("/navigation/{navigationId}", name="frontend.navigation.page", options={"seo"=true}, methods={"GET"})
      */
@@ -57,6 +60,7 @@ class NavigationController extends StorefrontController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @HttpCache()
      * @Route("/widgets/menu/offcanvas", name="frontend.menu.offcanvas", methods={"GET"}, defaults={"XmlHttpRequest"=true})
      */

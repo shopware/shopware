@@ -34,6 +34,21 @@ class RuleCollection extends EntityCollection
         });
     }
 
+    public function equals(RuleCollection $rules): bool
+    {
+        if ($this->count() !== $rules->count()) {
+            return false;
+        }
+
+        foreach ($this->elements as $element) {
+            if (!$rules->has($element->getId())) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public function getApiAlias(): string
     {
         return 'rule_collection';

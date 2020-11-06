@@ -63,6 +63,10 @@ class CheckoutConfirmPageLoader
         $page = $this->genericPageLoader->load($request, $salesChannelContext);
         $page = CheckoutConfirmPage::createFrom($page);
 
+        if ($page->getMetaInformation()) {
+            $page->getMetaInformation()->setRobots('noindex,follow');
+        }
+
         $page->setPaymentMethods($this->getPaymentMethods($salesChannelContext));
         $page->setShippingMethods($this->getShippingMethods($salesChannelContext));
         $page->setCart($this->cartService->getCart($salesChannelContext->getToken(), $salesChannelContext));

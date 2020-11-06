@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
@@ -70,9 +71,10 @@ class LogoutRoute extends AbstractLogoutRoute
     }
 
     /**
+     * @Since("6.2.0.0")
      * @OA\Post(
      *      path="/account/logout",
-     *      description="Logouts current loggedin customer",
+     *      summary="Logouts current loggedin customer",
      *      operationId="logoutCustomer",
      *      tags={"Store API", "Account"},
      *      @OA\Response(

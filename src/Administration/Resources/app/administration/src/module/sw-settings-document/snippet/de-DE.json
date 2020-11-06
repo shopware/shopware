@@ -59,7 +59,9 @@
       "buttonSave": "Speichern",
       "disabledSalesChannel": "Es gibt bereits ein Dokument vom selben Typ in diesem Sales Channel.",
       "disabledSalesChannelSelect": "Wähle zunächst einen Dokumententyp.",
-      "disabledTypeSelect": "Der Dokumententyp von globalen Dokumenten kann nicht geändert werden."
+      "disabledTypeSelect": "Der Dokumententyp von globalen Dokumenten kann nicht geändert werden.",
+      "labelDisplayDocumentInCustomerAccount": "Dokument in \"Mein Konto\" Bereich anzeigen",
+      "helpTextDisplayDocumentInCustomerAccount": "Das Dokument wird dem Shopkunden unter Bestellungen im Kundenkonto angezeigt. Nur Dokumente die an den Kunden gesendet wurden, werden im Kundenkonto angezeigt."
     }
   },
   "sw-privileges": {

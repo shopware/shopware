@@ -8,18 +8,12 @@ use Shopware\Core\Framework\App\Subscriber\AppLoadedSubscriber;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 class AppLoadedSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
-
-    public function setUp(): void
-    {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10286', $this);
-    }
 
     public function testGetSubscribedEvents(): void
     {

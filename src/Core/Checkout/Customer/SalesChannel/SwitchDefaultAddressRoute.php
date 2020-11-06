@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Routing\Annotation\Route;
@@ -40,9 +41,10 @@ class SwitchDefaultAddressRoute extends AbstractSwitchDefaultAddressRoute
     }
 
     /**
+     * @Since("6.3.2.0")
      * @OA\Patch(
      *      path="/account/address/default-shipping/{addressId}",
-     *      description="Sets the default shipping address",
+     *      summary="Sets the default shipping address",
      *      operationId="defaultShippingAddress",
      *      tags={"Store API", "Account", "Address"},
      *      @OA\Response(
@@ -52,7 +54,7 @@ class SwitchDefaultAddressRoute extends AbstractSwitchDefaultAddressRoute
      * )
      * @OA\Patch(
      *      path="/account/address/default-billing/{addressId}",
-     *      description="Sets the default billing address",
+     *      summary="Sets the default billing address",
      *      operationId="defaultBillingAddress",
      *      tags={"Store API", "Account", "Address"},
      *      @OA\Response(

@@ -30,6 +30,12 @@ Component.register('sw-maintain-currencies-modal', {
         hideListPrices: {
             required: false,
             default: false
+        },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 

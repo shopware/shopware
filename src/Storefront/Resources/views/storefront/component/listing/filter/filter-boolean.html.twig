@@ -1,7 +1,10 @@
 {% block component_filter_boolean %}
     {% set filterBooleanOptions = {
         name: name,
-        displayName: displayName
+        displayName: displayName,
+        snippets: {
+            disabledFilterText: 'listing.disabledFilterTooltip'|trans|sw_sanitize
+        }
     } %}
 
     {% block component_filter_boolean_panel_item %}

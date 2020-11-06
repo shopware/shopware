@@ -20,6 +20,11 @@ class IntegrationRoleDefinition extends MappingEntityDefinition
         return self::ENTITY_NAME;
     }
 
+    public function since(): ?string
+    {
+        return '6.3.3.0';
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([

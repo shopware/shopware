@@ -19,5 +19,12 @@
       "successMessage": "Scale unit has been saved.",
       "errorMessage": "Scale unit could not be saved. Please fill in all required fields."
     }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "scale_unit": {
+        "label": "Scale units"
+      }
+    }
   }
 }

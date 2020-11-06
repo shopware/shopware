@@ -15,6 +15,11 @@ class WriteProtectedTranslationDefinition extends EntityTranslationDefinition
         return self::ENTITY_NAME;
     }
 
+    public function since(): ?string
+    {
+        return '6.0.0.0';
+    }
+
     protected function getParentDefinitionClass(): string
     {
         return WriteProtectedTranslatedDefinition::class;

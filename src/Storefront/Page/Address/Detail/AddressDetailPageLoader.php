@@ -75,6 +75,10 @@ class AddressDetailPageLoader
 
         $page = AddressDetailPage::createFrom($page);
 
+        if ($page->getMetaInformation()) {
+            $page->getMetaInformation()->setRobots('noindex,follow');
+        }
+
         $page->setSalutations($this->getSalutations($salesChannelContext));
 
         $page->setCountries($this->getCountries($salesChannelContext));

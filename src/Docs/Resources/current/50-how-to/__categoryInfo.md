@@ -1,6 +1,6 @@
 [titleEn]: <>(HowTos)
-[__RAW__]: <>(__RAW__)
 [hash]: <>(category_how-to)
+[__RAW__]: <>(__RAW__)
 
 <style type='text/css'>
 

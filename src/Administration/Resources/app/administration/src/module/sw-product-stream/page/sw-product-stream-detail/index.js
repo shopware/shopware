@@ -81,7 +81,7 @@ Component.register('sw-product-stream-detail', {
 
             return this.repositoryFactory.create(
                 this.productStream.filters.entity,
-                this.productStream.filters.source,
+                this.productStream.filters.source
             );
         },
 

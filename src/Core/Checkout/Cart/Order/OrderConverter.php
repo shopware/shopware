@@ -197,9 +197,7 @@ class OrderConverter
             );
         }
 
-        if (Feature::isActive('FEATURE_NEXT_9351')) {
-            $data['ruleIds'] = $context->getRuleIds();
-        }
+        $data['ruleIds'] = $context->getRuleIds();
 
         $event = new CartConvertedEvent($cart, $data, $context, $conversionContext);
         $this->eventDispatcher->dispatch($event);
@@ -301,8 +299,13 @@ class OrderConverter
         $salesChannelContext->getContext()->addExtensions($context->getExtensions());
 
         if (Feature::isActive('FEATURE_NEXT_6059')) {
-            $salesChannelContext->setItemRounding($order->getItemRounding());
-            $salesChannelContext->setTotalRounding($order->getTotalRounding());
+            if ($order->getItemRounding()) {
+                $salesChannelContext->setItemRounding($order->getItemRounding());
+            }
+
+            if ($order->getTotalRounding()) {
+                $salesChannelContext->setTotalRounding($order->getTotalRounding());
+            }
         } else {
             $salesChannelContext->setItemRounding(new CashRoundingConfig($salesChannelContext->getCurrency()->getDecimalPrecision(), 0.01, true));
             $salesChannelContext->setTotalRounding(new CashRoundingConfig($salesChannelContext->getCurrency()->getDecimalPrecision(), 0.01, true));

@@ -19,7 +19,8 @@ Module.register('sw-settings-cart', {
             component: 'sw-settings-cart',
             path: 'index',
             meta: {
-                parentPath: 'sw.settings.index'
+                parentPath: 'sw.settings.index',
+                privilege: 'system.system_config'
             }
         }
     },
@@ -27,6 +28,7 @@ Module.register('sw-settings-cart', {
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.cart.index',
-        icon: 'default-lock-closed'
+        icon: 'default-lock-closed',
+        privilege: 'system.system_config'
     }
 });

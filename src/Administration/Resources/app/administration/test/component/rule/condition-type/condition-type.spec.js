@@ -2,6 +2,7 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/app/component/rule/sw-condition-base';
 import fs from 'fs';
+// eslint-disable-next-line
 import path from 'path';
 
 const conditionTypesRootPath = 'src/app/component/rule/condition-type/';

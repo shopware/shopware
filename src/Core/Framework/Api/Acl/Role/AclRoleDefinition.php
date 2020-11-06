@@ -21,7 +21,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\Integration\Aggregate\IntegrationRole\IntegrationRoleDefinition;
 use Shopware\Core\System\Integration\IntegrationDefinition;
 use Shopware\Core\System\User\UserDefinition;
@@ -32,7 +31,6 @@ class AclRoleDefinition extends EntityDefinition
     public const PRIVILEGE_CREATE = 'create';
     public const PRIVILEGE_UPDATE = 'update';
     public const PRIVILEGE_DELETE = 'delete';
-
     public const ENTITY_NAME = 'acl_role';
 
     public function getEntityName(): string
@@ -53,6 +51,11 @@ class AclRoleDefinition extends EntityDefinition
     public function getDefaults(): array
     {
         return ['privileges' => []];
+    }
+
+    public function since(): ?string
+    {
+        return '6.0.0.0';
     }
 
     protected function defineProtections(): EntityProtectionCollection
@@ -77,20 +80,14 @@ class AclRoleDefinition extends EntityDefinition
 
             (new ManyToManyAssociationField('users', UserDefinition::class, AclUserRoleDefinition::class, 'acl_role_id', 'user_id'))
                 ->addFlags(new ReadProtected(SalesChannelApiSource::class)),
+
+            (new OneToOneAssociationField('app', 'id', 'acl_role_id', AppDefinition::class, false))
+                ->addFlags(new CascadeDelete()),
         ]);
 
-        if (Feature::isActive('FEATURE_NEXT_10286')) {
-            $collection->add(
-                (new OneToOneAssociationField('app', 'id', 'acl_role_id', AppDefinition::class, false))
-                    ->addFlags(new CascadeDelete())
-            );
-        }
-
-        if (Feature::isActive('FEATURE_NEXT_3722')) {
-            $collection->add(
-                new ManyToManyAssociationField('integrations', IntegrationDefinition::class, IntegrationRoleDefinition::class, 'acl_role_id', 'integration_id')
-            );
-        }
+        $collection->add(
+            new ManyToManyAssociationField('integrations', IntegrationDefinition::class, IntegrationRoleDefinition::class, 'acl_role_id', 'integration_id')
+        );
 
         return $collection;
     }

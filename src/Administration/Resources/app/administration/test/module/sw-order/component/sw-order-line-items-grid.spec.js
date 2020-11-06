@@ -358,4 +358,37 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
 
         expect(customItem.priceDefinition.price > 0).toEqual(true);
     });
+
+    it('should have vat column and price label is not tax free when tax status is tax free', async () => {
+        const wrapper = createWrapper({});
+        await wrapper.setProps({
+            order: {
+                ...wrapper.props().order,
+                lineItems: [...mockItems]
+            }
+        });
+
+        const header = wrapper.find('.sw-data-grid__header');
+        const columnVat = header.find('.sw-data-grid__cell--4');
+        const columnTotalPrice = header.find('.sw-data-grid__cell--1');
+        expect(columnVat.exists()).toBe(true);
+        expect(columnTotalPrice.text()).not.toEqual('sw-order.createBase.columnPriceTaxFree');
+    });
+
+    it('should not have vat column and price label is tax free when tax status is tax free', async () => {
+        const wrapper = createWrapper({});
+        await wrapper.setProps({
+            order: {
+                ...wrapper.props().order,
+                lineItems: [...mockItems],
+                taxStatus: 'tax-free'
+            }
+        });
+
+        const header = wrapper.find('.sw-data-grid__header');
+        const columnVat = header.find('.sw-data-grid__cell--4');
+        const columnTotalPrice = header.find('.sw-data-grid__cell--1');
+        expect(columnVat.exists()).toBe(false);
+        expect(columnTotalPrice.text()).toEqual('sw-order.detailBase.columnPriceTaxFree');
+    });
 });

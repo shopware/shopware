@@ -29,7 +29,12 @@ class ProductRouteWarmer implements CacheRouteWarmer
     public function createMessage(SalesChannelDomainEntity $domain, ?array $offset): ?WarmUpMessage
     {
         $iterator = $this->iteratorFactory->createIterator($this->definition, $offset);
-        $iterator->getQuery()->setMaxResults(10);
+        $query = $iterator->getQuery();
+        $query
+            ->leftJoin('`product`', '`product`', 'pp', 'pp.id = `product`.parent_id')
+            ->andWhere('COALESCE (`product`.active, `pp`.active)')
+            ->distinct()
+            ->setMaxResults(10);
 
         $ids = $iterator->fetch();
         if (empty($ids)) {

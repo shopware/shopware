@@ -6,6 +6,8 @@ const { Component } = Shopware;
 Component.register('sw-cms-create-wizard', {
     template,
 
+    inject: ['feature'],
+
     props: {
         page: {
             type: Object,
@@ -14,22 +16,27 @@ Component.register('sw-cms-create-wizard', {
     },
 
     data() {
+        const pageTypeNames = {
+            page: this.$tc('sw-cms.detail.label.pageTypeShopPage'),
+            landingpage: this.$tc('sw-cms.detail.label.pageTypeLandingpage'),
+            product_list: this.$tc('sw-cms.detail.label.pageTypeCategory')
+        };
+
+        const pageTypeIcons = {
+            page: 'default-object-lightbulb',
+            landingpage: 'default-web-dashboard',
+            product_list: 'default-shopping-basket'
+        };
+
+        if (this.feature.isActive('FEATURE_NEXT_10078')) {
+            pageTypeNames.product_detail = this.$tc('sw-cms.detail.label.pageTypeProduct');
+            pageTypeIcons.product_detail = 'default-action-tags';
+        }
+
         return {
             step: 1,
-            pageTypeNames: {
-                page: this.$tc('sw-cms.detail.label.pageTypeShopPage'),
-                landingpage: this.$tc('sw-cms.detail.label.pageTypeLandingpage'),
-                product_list: this.$tc('sw-cms.detail.label.pageTypeCategory')
-                // Will be implemented in the future
-                // product_detail: this.$tc('sw-cms.detail.label.pageTypeProduct')
-            },
-            pageTypeIcons: {
-                page: 'default-object-lightbulb',
-                landingpage: 'default-web-dashboard',
-                product_list: 'default-shopping-basket'
-                // Will be implemented in the future
-                // product_detail: 'default-action-tags'
-            },
+            pageTypeNames,
+            pageTypeIcons,
             steps: {
                 pageType: 1,
                 sectionType: 2,

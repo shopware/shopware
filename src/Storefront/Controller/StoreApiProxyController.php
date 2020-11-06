@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\PlatformRequest;
@@ -49,6 +50,7 @@ class StoreApiProxyController
     }
 
     /**
+     * @Since("6.3.2.0")
      * @Route("/_proxy/store-api", name="frontend.store-api.proxy", defaults={"XmlHttpRequest"=true})
      */
     public function proxy(Request $request, SalesChannelContext $context): Response

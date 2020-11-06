@@ -1,52 +1,53 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-order/view/sw-order-detail-base';
 
+const orderMock = {
+    shippingCosts: {
+        calculatedTaxes: [],
+        totalPrice: {}
+    },
+    currency: {
+        translated: {
+            shortName: ''
+        }
+    },
+    transactions: [
+        {
+            stateMachineState: {
+                translated: {
+                    name: ''
+                }
+            }
+        }
+    ],
+    deliveries: [
+        {
+            stateMachineState: {
+                translated: {
+                    name: ''
+                }
+            },
+            shippingCosts: {
+                calculatedTaxes: [],
+                totalPrice: {}
+            }
+        }
+    ],
+    stateMachineState: {
+        translated: {
+            name: ''
+        }
+    },
+    price: {
+        calculatedTaxes: [],
+        taxStatus: 'gross'
+    }
+};
+
 function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
     localVue.filter('currency', v => v);
-
-    const orderMock = {
-        shippingCosts: {
-            calculatedTaxes: [],
-            totalPrice: {}
-        },
-        currency: {
-            translated: {
-                shortName: ''
-            }
-        },
-        transactions: [
-            {
-                stateMachineState: {
-                    translated: {
-                        name: ''
-                    }
-                }
-            }
-        ],
-        deliveries: [
-            {
-                stateMachineState: {
-                    translated: {
-                        name: ''
-                    }
-                },
-                shippingCosts: {
-                    calculatedTaxes: [],
-                    totalPrice: {}
-                }
-            }
-        ],
-        stateMachineState: {
-            translated: {
-                name: ''
-            }
-        },
-        price: {
-            calculatedTaxes: []
-        }
-    };
 
     orderMock.transactions.last = () => ({
         stateMachineState: {
@@ -167,5 +168,26 @@ describe('src/module/sw-order/view/sw-order-detail-base', () => {
 
         const orderState = wrapper.find('.sw-order-state-select__order-state');
         expect(orderState.attributes().disabled).toBeUndefined();
+    });
+
+    it('should display Total excluding VAT and Total including VAT row when tax status is not tax free', async () => {
+        await wrapper.destroy();
+        wrapper = await createWrapper(['order.editor']);
+        await wrapper.vm.$nextTick();
+
+        const orderSummary = wrapper.find('.sw-order-detail__summary');
+        expect(orderSummary.html()).toContain('sw-order.detailBase.summaryLabelAmountWithoutTaxes');
+        expect(orderSummary.html()).toContain('sw-order.detailBase.summaryLabelAmountTotal');
+    });
+
+    it('should only display Total row when tax status tax free', async () => {
+        await wrapper.destroy();
+        orderMock.price.taxStatus = 'tax-free';
+        wrapper = await createWrapper(['order.editor']);
+        await wrapper.vm.$nextTick();
+
+        const orderSummary = wrapper.find('.sw-order-detail__summary');
+        expect(orderSummary.html()).not.toContain('sw-order.detailBase.summaryLabelAmountWithoutTaxes');
+        expect(orderSummary.html()).not.toContain('sw-order.detailBase.summaryLabelAmountTotal');
     });
 });

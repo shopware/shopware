@@ -20,16 +20,13 @@ class NamedDefinition extends EntityDefinition
         return self::ENTITY_NAME;
     }
 
+    public function since(): ?string
+    {
+        return '6.0.0.0';
+    }
+
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
-
-            (new StringField('name', 'name'))->addFlags(new Required()),
-
-            new FkField('optional_group_id', 'optionalGroupId', NamedOptionalGroupDefinition::class),
-
-            new ManyToOneAssociationField('optionalGroup', 'optional_group_id', NamedOptionalGroupDefinition::class, 'id', true),
-        ]);
+        return new FieldCollection([(new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()), (new StringField('name', 'name'))->addFlags(new Required()), new FkField('optional_group_id', 'optionalGroupId', NamedOptionalGroupDefinition::class), new ManyToOneAssociationField('optionalGroup', 'optional_group_id', NamedOptionalGroupDefinition::class, 'id', true)]);
     }
 }

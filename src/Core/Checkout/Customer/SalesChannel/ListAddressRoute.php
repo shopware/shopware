@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\Address\Listing\AddressListingCriteriaEvent;
 use Symfony\Component\Routing\Annotation\Route;
@@ -42,10 +43,11 @@ class ListAddressRoute extends AbstractListAddressRoute
     }
 
     /**
+     * @Since("6.3.2.0")
      * @Entity("customer_address")
      * @OA\Get(
      *      path="/account/list-address",
-     *      description="List address",
+     *      summary="List address",
      *      operationId="listAddress",
      *      tags={"Store API", "Account", "Address"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),
@@ -57,7 +59,7 @@ class ListAddressRoute extends AbstractListAddressRoute
      * )
      * @OA\Post(
      *      path="/account/list-address",
-     *      description="List address",
+     *      summary="List address",
      *      operationId="listAddress",
      *      tags={"Store API", "Account", "Address"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),

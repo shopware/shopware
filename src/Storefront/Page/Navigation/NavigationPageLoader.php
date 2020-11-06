@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Page\Navigation;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Category\SalesChannel\AbstractCategoryRoute;
+use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
@@ -31,14 +32,21 @@ class NavigationPageLoader implements NavigationPageLoaderInterface
      */
     private $cmsPageRoute;
 
+    /**
+     * @var SeoUrlPlaceholderHandlerInterface
+     */
+    private $seoUrlReplacer;
+
     public function __construct(
         GenericPageLoaderInterface $genericLoader,
         EventDispatcherInterface $eventDispatcher,
-        AbstractCategoryRoute $cmsPageRoute
+        AbstractCategoryRoute $cmsPageRoute,
+        SeoUrlPlaceholderHandlerInterface $seoUrlReplacer
     ) {
         $this->genericLoader = $genericLoader;
         $this->eventDispatcher = $eventDispatcher;
         $this->cmsPageRoute = $cmsPageRoute;
+        $this->seoUrlReplacer = $seoUrlReplacer;
     }
 
     public function load(Request $request, SalesChannelContext $context): NavigationPage
@@ -66,12 +74,24 @@ class NavigationPageLoader implements NavigationPageLoaderInterface
             new NavigationPageLoadedEvent($page, $context, $request)
         );
 
+        if ($page->getMetaInformation()) {
+            $canonical = ($navigationId === $context->getSalesChannel()->getNavigationCategoryId())
+                ? $this->seoUrlReplacer->generate('frontend.home.page')
+                : $this->seoUrlReplacer->generate('frontend.navigation.page', ['navigationId' => $navigationId]);
+
+            $page->getMetaInformation()->assign(['canonical' => $canonical]);
+        }
+
         return $page;
     }
 
     private function loadMetaData(CategoryEntity $category, NavigationPage $page): void
     {
         $metaInformation = $page->getMetaInformation();
+
+        if ($metaInformation === null) {
+            return;
+        }
 
         $metaDescription = $category->getTranslation('metaDescription')
             ?? $category->getTranslation('description');

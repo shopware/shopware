@@ -39,6 +39,7 @@ Table(ShopwareCoreSystemCustomFieldAggregateCustomFieldSetCustomFieldSetDefiniti
    active bool
    global bool
    position int
+   appId foreignKey
    not_null(createdAt) createdAt
    updatedAt updatedAt
 }
@@ -51,10 +52,13 @@ Table(ShopwareCoreSystemCustomFieldAggregateCustomFieldSetRelationCustomFieldSet
 }
 ForeignTable(ShopwareCoreContentProductAggregateProductCustomFieldSetProductCustomFieldSetDefinition, "product_custom_field_set") {
 }
+ForeignTable(ShopwareCoreFrameworkAppAppDefinition, "app") {
+}
 
 ' relationshipd
 
 ShopwareCoreSystemCustomFieldAggregateCustomFieldSetCustomFieldSetDefinition --> ShopwareCoreSystemCustomFieldCustomFieldDefinition
 ShopwareCoreSystemCustomFieldAggregateCustomFieldSetRelationCustomFieldSetRelationDefinition --> ShopwareCoreSystemCustomFieldAggregateCustomFieldSetCustomFieldSetDefinition
 ShopwareCoreSystemCustomFieldAggregateCustomFieldSetCustomFieldSetDefinition --> ShopwareCoreContentProductAggregateProductCustomFieldSetProductCustomFieldSetDefinition
+ShopwareCoreSystemCustomFieldAggregateCustomFieldSetCustomFieldSetDefinition --> ShopwareCoreFrameworkAppAppDefinition
 @enduml

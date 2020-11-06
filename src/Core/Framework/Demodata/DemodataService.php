@@ -8,7 +8,6 @@ use Faker\Generator;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Demodata\Faker\Commerce;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\NullOutput;
@@ -54,7 +53,6 @@ class DemodataService
 
         $demodataContext = new DemodataContext($context, $faker, $this->projectDir, $console, $this->registry);
 
-        /** @var EntityDefinition|string $definitionClass */
         foreach ($request->all() as $definitionClass => $numberOfItems) {
             if ($numberOfItems === 0) {
                 continue;
@@ -69,7 +67,9 @@ class DemodataService
             });
 
             if (empty($validGenerators)) {
-                throw new \RuntimeException(sprintf('Could not generate demodata for "%s" because no generator is registered.', $definitionClass));
+                throw new \RuntimeException(
+                    sprintf('Could not generate demodata for "%s" because no generator is registered.', $definitionClass)
+                );
             }
 
             $start = microtime(true);

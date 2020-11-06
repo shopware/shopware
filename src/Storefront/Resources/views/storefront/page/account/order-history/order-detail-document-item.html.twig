@@ -1,0 +1,48 @@
+{% block page_account_order_document_item_detail %}
+    <div class="row order-detail-content-row">
+        {% set documentLink = path('frontend.account.order.single.document', {'documentId': document.id, 'deepLinkCode': document.deepLinkCode}) %}
+
+        {% block page_account_order_document_item_detail_file_name %}
+            <div class="col-12 col-md-6 document-item document-item-file-name">
+                <a href="{{ documentLink }}"
+                   target="_blank">
+                    {% block page_account_order_document_item_detail_file_name_icon %}
+                        <span class="icon icon-xs">{% sw_icon 'file' %}</span>
+                    {% endblock %}
+
+                    {% block page_account_order_document_item_detail_file_name_value %}
+                        {{ document.documentType.translated.name|replace({' ' : '-'}) }}_
+                        {{ document.config.documentNumber }}_
+                        {{ document.createdAt|format_date(pattern="Y-MM-dd") }}.{{ document.fileType }}
+                    {% endblock %}
+                </a>
+            </div>
+        {% endblock %}
+
+        {% block page_account_order_document_item_detail_date %}
+            <div class="col-9 col-md-4 document-item document-item-date">
+                {{ document.createdAt|format_date(pattern="dd/MM/Y HH:mm", locale=app.request.locale) }}
+            </div>
+        {% endblock %}
+
+        {% block page_account_order_document_item_detail_view_file_btn %}
+             <div class="col-3 col-md-2 document-item document-item-view-file">
+                 {% block page_account_order_document_item_detail_view_file_btn_text %}
+                     <a href="{{ documentLink }}"
+                        target="_blank"
+                        class="btn btn-light btn-sm document-item-view-file-text-btn">
+                         {{ "account.documentItemViewFileButton"|trans|sw_sanitize }}
+                     </a>
+                 {% endblock %}
+
+                 {% block page_account_order_document_item_detail_view_file_btn_icon %}
+                     <a href="{{ documentLink }}"
+                        target="_blank"
+                        class="btn btn-light btn-sm document-item-view-file-icon-btn">
+                         <span class="icon icon-xs">{% sw_icon 'external' %}</span>
+                     </a>
+                 {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

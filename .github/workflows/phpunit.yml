@@ -17,6 +17,17 @@ jobs:
       DEVELOPMENT_BRANCH: master
       TEST_SUITES: 'administration storefront checkout content framework profiling migration system elasticsearch docs'
 
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+            MYSQL_ROOT_PASSWORD: shopware
+            MYSQL_DATABASE: shopware
+      elasticsearch:
+        image: elastic/elasticsearch:7.1.1
+        env:
+          discovery.type: single-node
+
     steps:
     - name: Clone development
       run: git clone -b $DEVELOPMENT_BRANCH https://github.com/shopware/development.git && cd development && rm -rf platform

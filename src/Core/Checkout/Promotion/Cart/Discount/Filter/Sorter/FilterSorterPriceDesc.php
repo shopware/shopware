@@ -2,7 +2,8 @@
 
 namespace Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\Sorter;
 
-use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackage;
+use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantity;
+use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantityCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\FilterSorterInterface;
 
@@ -13,14 +14,24 @@ class FilterSorterPriceDesc implements FilterSorterInterface
         return 'PRICE_DESC';
     }
 
-    public function sort(DiscountPackageCollection $units): DiscountPackageCollection
+    public function sort(DiscountPackageCollection $packages): DiscountPackageCollection
     {
-        $sorted = $units->getElements();
+        foreach ($packages as $package) {
+            /** @var array $metaItems */
+            $metaItems = $package->getMetaData()->getElements();
 
-        usort($sorted, function (DiscountPackage $a, DiscountPackage $b) {
-            return $a->getTotalPrice() < $b->getTotalPrice();
-        });
+            usort($metaItems, function (LineItemQuantity $a, LineItemQuantity $b) use ($package) {
+                // we only have meta data here
+                // so lets get the prices
+                $priceA = $package->getCartItem($a->getLineItemId())->getPrice()->getUnitPrice();
+                $priceB = $package->getCartItem($b->getLineItemId())->getPrice()->getUnitPrice();
 
-        return new DiscountPackageCollection($sorted);
+                return $priceA < $priceB;
+            });
+
+            $package->setMetaItems(new LineItemQuantityCollection($metaItems));
+        }
+
+        return $packages;
     }
 }

@@ -8,7 +8,9 @@ Shopware.Service('privileges')
                 privileges: [
                     'payment_method:read',
                     Shopware.Service('privileges').getPrivileges('media.viewer'),
-                    'rule:read'
+                    'rule:read',
+                    'plugin:read',
+                    'system_config:read'
                 ],
                 dependencies: []
             },

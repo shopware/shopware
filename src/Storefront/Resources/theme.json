@@ -249,7 +249,8 @@
         "value": "app/storefront/dist/assets/logo/demostore-logo.png",
         "editable": true,
         "block": "media",
-        "order": 100
+        "order": 100,
+        "fullWidth": true
       },
       "sw-logo-tablet": {
         "label": {
@@ -264,7 +265,8 @@
         "value": "app/storefront/dist/assets/logo/demostore-logo.png",
         "editable": true,
         "block": "media",
-        "order": 200
+        "order": 200,
+        "fullWidth": true
       },
       "sw-logo-mobile": {
         "label": {
@@ -279,7 +281,8 @@
         "value": "app/storefront/dist/assets/logo/demostore-logo.png",
         "editable": true,
         "block": "media",
-        "order": 300
+        "order": 300,
+        "fullWidth": true
       },
       "sw-logo-share": {
         "label": {

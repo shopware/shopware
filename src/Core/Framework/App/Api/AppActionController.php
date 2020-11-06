@@ -8,6 +8,7 @@ use Shopware\Core\Framework\App\ActionButton\Executor;
 use Shopware\Core\Framework\App\Manifest\ModuleLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -52,6 +53,7 @@ class AppActionController extends AbstractController
     }
 
     /**
+     * @Since("6.3.3.0")
      * @Route("api/v{version}/app-system/action-button/{entity}/{view}", name="api.app_system.action_buttons", methods={"GET"})
      */
     public function getActionsPerView(string $entity, string $view, Context $context): Response
@@ -62,6 +64,7 @@ class AppActionController extends AbstractController
     }
 
     /**
+     * @Since("6.3.3.0")
      * @Route("api/v{version}/app-system/action-button/run/{id}", name="api.app_system.action_button.run", methods={"POST"})
      */
     public function runAction(string $id, Request $request, Context $context): Response
@@ -76,6 +79,7 @@ class AppActionController extends AbstractController
     }
 
     /**
+     * @Since("6.3.3.0")
      * @Route("api/v{version}/app-system/modules", name="api.app_system.modules", methods={"GET"})
      */
     public function getModules(Context $context): Response

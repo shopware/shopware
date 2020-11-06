@@ -9,6 +9,9 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
+use Shopware\Core\Checkout\Document\DocumentGenerator\DeliveryNoteGenerator;
+use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderStates;
@@ -19,10 +22,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 
@@ -127,15 +132,34 @@ class OrderRouteTest extends TestCase
             );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
-        $newToken = $this->contextPersister->replace($response['contextToken']);
-        $this->contextPersister->save(
-            $newToken,
-            [
-                'customerId' => $this->customerId,
-                'billingAddressId' => null,
-                'shippingAddressId' => null,
-            ]
-        );
+
+        if (Feature::isActive('FEATURE_NEXT_10058')) {
+            /** @var SalesChannelContextFactory $salesChannelContextFactory */
+            $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+            $salesChannelContext = $salesChannelContextFactory->create($response['contextToken'], Defaults::SALES_CHANNEL);
+
+            $newToken = $this->contextPersister->replace($response['contextToken'], $salesChannelContext);
+            $this->contextPersister->save(
+                $newToken,
+                [
+                    'customerId' => $this->customerId,
+                    'billingAddressId' => null,
+                    'shippingAddressId' => null,
+                ],
+                Defaults::SALES_CHANNEL,
+                $this->customerId
+            );
+        } else {
+            $newToken = $this->contextPersister->replace($response['contextToken']);
+            $this->contextPersister->save(
+                $newToken,
+                [
+                    'customerId' => $this->customerId,
+                    'billingAddressId' => null,
+                    'shippingAddressId' => null,
+                ]
+            );
+        }
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $newToken);
     }
@@ -158,6 +182,69 @@ class OrderRouteTest extends TestCase
         static::assertArrayHasKey(0, $response['orders']['elements']);
         static::assertArrayHasKey('id', $response['orders']['elements'][0]);
         static::assertEquals($this->orderId, $response['orders']['elements'][0]['id']);
+    }
+
+    public function testGetOrderShowsValidDocuments(): void
+    {
+        $this->createDocument($this->orderId);
+
+        $criteria = new Criteria([$this->orderId]);
+
+        $this->browser
+            ->request(
+                'GET',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/order',
+                $this->requestCriteriaBuilder->toArray($criteria)
+            );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertArrayHasKey('orders', $response);
+        static::assertArrayHasKey('elements', $response['orders']);
+        static::assertArrayHasKey('documents', $response['orders']['elements'][0]);
+        static::assertCount(1, $response['orders']['elements'][0]['documents']);
+    }
+
+    public function testGetOrderDoesNotShowUnAvailableDocuments(): void
+    {
+        $this->createDocument($this->orderId, false);
+
+        $criteria = new Criteria([$this->orderId]);
+
+        $this->browser
+            ->request(
+                'GET',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/order',
+                $this->requestCriteriaBuilder->toArray($criteria)
+            );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertArrayHasKey('orders', $response);
+        static::assertArrayHasKey('elements', $response['orders']);
+        static::assertArrayHasKey('documents', $response['orders']['elements'][0]);
+        static::assertCount(0, $response['orders']['elements'][0]['documents']);
+    }
+
+    public function testGetOrderDoesNotShowHasNotSentDocument(): void
+    {
+        $this->createDocument($this->orderId, true, false);
+
+        $criteria = new Criteria([$this->orderId]);
+
+        $this->browser
+            ->request(
+                'GET',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/order',
+                $this->requestCriteriaBuilder->toArray($criteria)
+            );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertArrayHasKey('orders', $response);
+        static::assertArrayHasKey('elements', $response['orders']);
+        static::assertArrayHasKey('documents', $response['orders']['elements'][0]);
+        static::assertCount(0, $response['orders']['elements'][0]['documents']);
     }
 
     public function testGetOrderCheckPromotion(): void
@@ -385,7 +472,7 @@ class OrderRouteTest extends TestCase
                             'city' => 'Schoöppingen',
                             'zipcode' => '12345',
                             'salutationId' => $this->getValidSalutationId(),
-                            'country' => ['name' => 'Germany'],
+                            'countryId' => $this->getValidCountryId(),
                         ],
                         'defaultBillingAddressId' => $addressId,
                         'defaultPaymentMethod' => [
@@ -439,5 +526,36 @@ class OrderRouteTest extends TestCase
         ];
 
         return $order;
+    }
+
+    private function createDocument(string $orderId, bool $showInCustomerAccount = true, bool $sent = true): void
+    {
+        $defaultContext = Context::createDefaultContext();
+
+        $documentRepository = $this->getContainer()->get('document.repository');
+
+        $documentTypeRepository = $this->getContainer()->get('document_type.repository');
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('technicalName', DeliveryNoteGenerator::DELIVERY_NOTE));
+
+        /** @var DocumentTypeEntity $documentType */
+        $documentType = $documentTypeRepository->search($criteria, $defaultContext)->first();
+
+        $documentRepository->create(
+            [
+                [
+                    'id' => Uuid::randomHex(),
+                    'documentTypeId' => $documentType->getId(),
+                    'fileType' => FileTypes::PDF,
+                    'orderId' => $orderId,
+                    'config' => ['documentNumber' => '1001', 'displayInCustomerAccount' => $showInCustomerAccount],
+                    'deepLinkCode' => 'test',
+                    'sent' => $sent,
+                    'static' => false,
+                ],
+            ],
+            $defaultContext
+        );
     }
 }

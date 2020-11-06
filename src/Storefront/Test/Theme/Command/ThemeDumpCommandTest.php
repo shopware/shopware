@@ -30,7 +30,7 @@ class ThemeDumpCommandTest extends TestCase
             $this->getPluginRegistryMock(),
             $themeFileResolverMock,
             $this->getContainer()->get('theme.repository'),
-            $this->getContainer()->getParameter('kernel.cache_dir')
+            $this->getContainer()->getParameter('kernel.project_dir')
         );
 
         $commandTester = new CommandTester($themeDumpCommand);

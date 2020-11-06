@@ -1,3 +1,0 @@
-shopware:
-    admin_worker:
-        enable_admin_worker: false

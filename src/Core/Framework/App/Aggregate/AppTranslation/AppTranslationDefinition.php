@@ -28,6 +28,11 @@ class AppTranslationDefinition extends EntityTranslationDefinition
         return AppTranslationCollection::class;
     }
 
+    public function since(): ?string
+    {
+        return '6.3.1.0';
+    }
+
     protected function getParentDefinitionClass(): string
     {
         return AppDefinition::class;

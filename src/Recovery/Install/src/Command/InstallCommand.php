@@ -658,6 +658,8 @@ EOT;
         $this->dumpProgress($conn, $dump);
 
         $this->runMigrations();
+
+        $conn->query('SET FOREIGN_KEY_CHECKS = 1;');
     }
 
     private function dumpProgress(\PDO $conn, DumpIterator $dump): void

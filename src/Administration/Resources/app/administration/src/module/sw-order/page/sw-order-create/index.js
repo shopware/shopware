@@ -55,7 +55,6 @@ Component.register('sw-order-create', {
             State.unregisterModule('swOrder');
         },
 
-
         redirectToOrderList() {
             this.$router.push({ name: 'sw.order.index' });
         },

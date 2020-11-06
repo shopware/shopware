@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Controller\ErrorController;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Shopware\Storefront\Framework\Csrf\CsrfPlaceholderHandler;
@@ -74,12 +75,12 @@ class StorefrontSubscriber implements EventSubscriberInterface
     private $hreflangLoader;
 
     /**
-     * @var ShopIdProvider|null
+     * @var ShopIdProvider
      */
     private $shopIdProvider;
 
     /**
-     * @var ActiveAppsLoader|null
+     * @var ActiveAppsLoader
      */
     private $activeAppsLoader;
 
@@ -92,8 +93,8 @@ class StorefrontSubscriber implements EventSubscriberInterface
         HreflangLoaderInterface $hreflangLoader,
         bool $kernelDebug,
         MaintenanceModeResolver $maintenanceModeResolver,
-        ?ShopIdProvider $shopIdProvider,
-        ?ActiveAppsLoader $activeAppsLoader
+        ShopIdProvider $shopIdProvider,
+        ActiveAppsLoader $activeAppsLoader
     ) {
         $this->requestStack = $requestStack;
         $this->router = $router;
@@ -163,9 +164,19 @@ class StorefrontSubscriber implements EventSubscriberInterface
             $session->set('sessionId', $session->getId());
         }
 
-        if (!$session->has(PlatformRequest::HEADER_CONTEXT_TOKEN)) {
+        $salesChannelId = $master->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
+        if ($salesChannelId === null) {
+            /** @var SalesChannelContext|null $salesChannelContext */
+            $salesChannelContext = $master->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
+            if ($salesChannelContext !== null) {
+                $salesChannelId = $salesChannelContext->getSalesChannel()->getId();
+            }
+        }
+
+        if (!$session->has(PlatformRequest::HEADER_CONTEXT_TOKEN) || $session->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID) !== $salesChannelId) {
             $token = Random::getAlphanumericString(32);
             $session->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $token);
+            $session->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, $salesChannelId);
         }
 
         $master->headers->set(
@@ -262,7 +273,10 @@ class StorefrontSubscriber implements EventSubscriberInterface
     {
         if ($this->maintenanceModeResolver->shouldRedirect($event->getRequest())) {
             $event->setResponse(
-                new RedirectResponse($this->router->generate('frontend.maintenance.page'))
+                new RedirectResponse(
+                    $this->router->generate('frontend.maintenance.page'),
+                    RedirectResponse::HTTP_TEMPORARY_REDIRECT
+                )
             );
         }
     }
@@ -331,12 +345,6 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
     public function addShopIdParameter(StorefrontRenderEvent $event): void
     {
-        // remove nullable props and on-invalid=null behaviour in service declaration
-        // when removing the feature flag
-        if (!$this->activeAppsLoader || !$this->shopIdProvider || !Feature::isActive('FEATURE_NEXT_10286')) {
-            return;
-        }
-
         if (!$this->activeAppsLoader->getActiveApps()) {
             return;
         }

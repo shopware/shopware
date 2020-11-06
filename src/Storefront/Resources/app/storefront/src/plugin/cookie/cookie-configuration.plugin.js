@@ -17,7 +17,7 @@
  *
  */
 
-/* global PluginManager, window */
+/* global PluginManager */
 
 import Plugin from 'src/plugin-system/plugin.class';
 import CookieStorage from 'src/helper/storage/cookie-storage.helper';
@@ -38,6 +38,7 @@ export default class CookieConfiguration extends Plugin {
         buttonOpenSelector: '.js-cookie-configuration-button button',
         buttonSubmitSelector: '.js-offcanvas-cookie-submit',
         buttonAcceptAllSelector: '.js-offcanvas-cookie-accept-all',
+        globalButtonAcceptAllSelector: '.js-cookie-accept-all-button',
         wrapperToggleSelector: '.offcanvas-cookie-entries span',
         parentInputSelector: '.offcanvas-cookie-parent-input',
         customLinkSelector: `[href="${window.router['frontend.cookie.offcanvas']}"]`,
@@ -65,7 +66,7 @@ export default class CookieConfiguration extends Plugin {
      * @private
      */
     _registerEvents() {
-        const { submitEvent, buttonOpenSelector, customLinkSelector } = this.options;
+        const { submitEvent, buttonOpenSelector, customLinkSelector, globalButtonAcceptAllSelector } = this.options;
 
         Array.from(document.querySelectorAll(buttonOpenSelector)).forEach(button => {
             button.addEventListener(submitEvent, this.openOffCanvas.bind(this));
@@ -73,6 +74,10 @@ export default class CookieConfiguration extends Plugin {
 
         Array.from(document.querySelectorAll(customLinkSelector)).forEach(customLink => {
             customLink.addEventListener(submitEvent, this._handleCustomLink.bind(this));
+        });
+
+        Array.from(document.querySelectorAll(globalButtonAcceptAllSelector)).forEach(customLink => {
+            customLink.addEventListener(submitEvent, this.acceptAllCookies.bind(this));
         });
     }
 
@@ -416,6 +421,12 @@ export default class CookieConfiguration extends Plugin {
 
         this._handleUpdateListener(activeCookieNames, inactiveCookieNames);
         this.closeOffCanvas();
+    }
+
+    acceptAllCookies() {
+        this.openOffCanvas(() => {
+            this._handleAcceptAll();
+        });
     }
 
     /**

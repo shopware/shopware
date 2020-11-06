@@ -358,7 +358,7 @@
                                                     <div class="col-6 form-group">
                                                         {% block page_account_profile_current_password_label %}
                                                             <label class="form-label"
-                                                                   for="personalPasswordCurrent">
+                                                                   for="password">
                                                                 {{ "account.profilePasswordCurrent"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
                                                             </label>
                                                         {% endblock %}
@@ -410,7 +410,7 @@
                 {% endblock %}
 
                 {% block page_account_profile_delete_account %}
-                    {% if shopware.config.core.loginRegistration.allowCustomerDeletion and feature('FEATURE_NEXT_10077') %}
+                    {% if shopware.config.core.loginRegistration.allowCustomerDeletion %}
                         <div class="account-deleting py-4">
                             {{ 'account.profileDelete'|trans({
                                 '%target%': '#confirmDeleteAccountModal'
@@ -420,7 +420,7 @@
                 {% endblock %}
 
                 {% block page_account_delete_account_confirm_modal %}
-                    {% if shopware.config.core.loginRegistration.allowCustomerDeletion and feature('FEATURE_NEXT_10077') %}
+                    {% if shopware.config.core.loginRegistration.allowCustomerDeletion %}
                         <div class="modal fade confirm-delete-account-modal"
                              id="confirmDeleteAccountModal"
                              tabindex="1"

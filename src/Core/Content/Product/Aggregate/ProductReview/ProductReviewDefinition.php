@@ -44,6 +44,11 @@ class ProductReviewDefinition extends EntityDefinition
         return ProductReviewEntity::class;
     }
 
+    public function since(): ?string
+    {
+        return '6.0.0.0';
+    }
+
     protected function getParentDefinitionClass(): ?string
     {
         return ProductDefinition::class;
@@ -60,8 +65,8 @@ class ProductReviewDefinition extends EntityDefinition
             (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new Required()),
             (new StringField('external_user', 'externalUser'))->addFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING), new ReadProtected(SalesChannelApiSource::class)),
             (new StringField('external_email', 'externalEmail'))->addFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING), new ReadProtected(SalesChannelApiSource::class)),
-            (new StringField('title', 'title'))->addFlags(new Required(), new SearchRanking(SearchRanking::LOW_SEARCH_RAKING)),
-            (new LongTextField('content', 'content'))->addFlags(new Required(), new SearchRanking(SearchRanking::LOW_SEARCH_RAKING), new AllowHtml()),
+            (new StringField('title', 'title'))->addFlags(new Required(), new SearchRanking(SearchRanking::LOW_SEARCH_RANKING)),
+            (new LongTextField('content', 'content'))->addFlags(new Required(), new SearchRanking(SearchRanking::LOW_SEARCH_RANKING), new AllowHtml()),
             new FloatField('points', 'points'),
             new BoolField('status', 'status'),
             new LongTextField('comment', 'comment'),

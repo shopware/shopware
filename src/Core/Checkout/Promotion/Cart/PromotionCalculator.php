@@ -34,10 +34,11 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\Calculator\DiscountPercentage
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Composition\DiscountCompositionBuilder;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountCalculatorResult;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem;
-use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackage;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackager;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\AdvancedPackageFilter;
+use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\AdvancedPackagePicker;
+use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\AdvancedPackageRules;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotEligibleError;
 use Shopware\Core\Checkout\Promotion\Exception\DiscountCalculatorNotFoundException;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidPriceDefinitionException;
@@ -71,6 +72,16 @@ class PromotionCalculator
      * @var AdvancedPackageFilter
      */
     private $advancedFilter;
+
+    /**
+     * @var AdvancedPackagePicker
+     */
+    private $advancedPicker;
+
+    /**
+     * @var AdvancedPackageRules
+     */
+    private $advancedRules;
 
     /**
      * @var LineItemQuantitySplitter
@@ -108,6 +119,8 @@ class PromotionCalculator
         LineItemGroupBuilder $groupBuilder,
         DiscountCompositionBuilder $compositionBuilder,
         AdvancedPackageFilter $filter,
+        AdvancedPackagePicker $picker,
+        AdvancedPackageRules $advancedRules,
         LineItemQuantitySplitter $lineItemQuantitySplitter,
         PercentagePriceCalculator $percentagePriceCalculator,
         DiscountPackager $cartScopeDiscountPackager,
@@ -119,6 +132,8 @@ class PromotionCalculator
         $this->groupBuilder = $groupBuilder;
         $this->discountCompositionBuilder = $compositionBuilder;
         $this->advancedFilter = $filter;
+        $this->advancedPicker = $picker;
+        $this->advancedRules = $advancedRules;
         $this->lineItemQuantitySplitter = $lineItemQuantitySplitter;
         $this->percentagePriceCalculator = $percentagePriceCalculator;
         $this->cartScopeDiscountPackager = $cartScopeDiscountPackager;
@@ -309,32 +324,28 @@ class PromotionCalculator
             );
         }
 
-        // if we should filter based on line items,
-        // then our sorter would not work, this one is for packages.
-        // in that case we temporarily wrap our line items in packages
-        // and move the found results back into 1 package in the end.
-        if ($packager->getResultContext() === DiscountPackager::RESULT_CONTEXT_LINEITEM) {
-            $packages = $packages->splitPackages();
+        // remember our initial package count
+        $originalPackageCount = $packages->count();
+
+        $packages = $this->enrichPackagesWithCartData($packages, $calculatedCart, $context);
+
+        // every scope packager can have an additional
+        // list of rules that can be used to filter out items.
+        // thus we enrich our current package with items
+        // and run it through the advanced rules if existing
+        if ($discount->getScope() !== PromotionDiscountEntity::SCOPE_SETGROUP) {
+            $packages = $this->advancedRules->filter($discount, $packages, $context);
         }
 
-        // now we have to add our real cart item data to our packager meta data.
-        // this is, because we need additional prices and more in our
-        // filter sorters, where we have price sorting for a whole fictional package unit.
+        // depending on the selected picker of our
+        // discount, the packages might be restructure
+        // also make sure we have correct cart items in our restructured packages from the picker
+        $packages = $this->advancedPicker->pickItems($discount, $packages);
         $packages = $this->enrichPackagesWithCartData($packages, $calculatedCart, $context);
 
         // if we have any graduation settings, make sure to reduce the items
         // that are eligible for our discount by executing our graduation resolver.
-        $packages = $this->advancedFilter->filter($discount->getFilterSorterKey(), $discount->getFilterApplierKey(), $discount->getFilterUsageKey(), $packages);
-
-        // if we had our line item scope and split it into different packages, then bring them back into 1 single package
-        if ($packager->getResultContext() === DiscountPackager::RESULT_CONTEXT_LINEITEM) {
-            $packages = new DiscountPackageCollection(
-                [new DiscountPackage($packages->getAllLineMetaItems())]
-            );
-        }
-
-        // update our line item data for the new and filtered packages.
-        // these items will then be used in our calculator
+        $packages = $this->advancedFilter->filterPackages($discount, $packages, $originalPackageCount);
         $packages = $this->enrichPackagesWithCartData($packages, $calculatedCart, $context);
 
         switch ($discount->getType()) {

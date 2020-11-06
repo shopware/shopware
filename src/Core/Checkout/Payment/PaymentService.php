@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Payment;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
 use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
@@ -60,13 +61,19 @@ class PaymentService
      */
     private $transactionStateHandler;
 
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+
     public function __construct(
         PaymentTransactionChainProcessor $paymentProcessor,
         TokenFactoryInterfaceV2 $tokenFactory,
         EntityRepositoryInterface $paymentMethodRepository,
         PaymentHandlerRegistry $paymentHandlerRegistry,
         EntityRepositoryInterface $orderTransactionRepository,
-        OrderTransactionStateHandler $transactionStateHandler
+        OrderTransactionStateHandler $transactionStateHandler,
+        LoggerInterface $logger
     ) {
         $this->paymentProcessor = $paymentProcessor;
         $this->tokenFactory = $tokenFactory;
@@ -74,6 +81,7 @@ class PaymentService
         $this->paymentHandlerRegistry = $paymentHandlerRegistry;
         $this->orderTransactionRepository = $orderTransactionRepository;
         $this->transactionStateHandler = $transactionStateHandler;
+        $this->logger = $logger;
     }
 
     /**
@@ -96,7 +104,9 @@ class PaymentService
         try {
             return $this->paymentProcessor->process($orderId, $dataBag, $context, $finishUrl, $errorUrl);
         } catch (PaymentProcessException $e) {
-            $this->transactionStateHandler->fail($e->getOrderTransactionId(), $context->getContext());
+            $transactionId = $e->getOrderTransactionId();
+            $this->logger->error('An error occurred during processing the payment', ['orderTransactionId' => $transactionId, 'exceptionMessage' => $e->getMessage()]);
+            $this->transactionStateHandler->fail($transactionId, $context->getContext());
             if ($errorUrl !== null) {
                 return new RedirectResponse($errorUrl);
             }
@@ -107,7 +117,6 @@ class PaymentService
 
     /**
      * @throws AsyncPaymentFinalizeException
-     * @throws CustomerCanceledAsyncPaymentException
      * @throws InvalidTransactionException
      * @throws TokenExpiredException
      * @throws UnknownPaymentMethodException
@@ -119,6 +128,10 @@ class PaymentService
     ): TokenStruct {
         $paymentTokenStruct = $this->parseToken($paymentToken);
         $transactionId = $paymentTokenStruct->getTransactionId();
+        if ($transactionId === null || !Uuid::isValid($transactionId)) {
+            throw new AsyncPaymentProcessException((string) $transactionId, "Payment JWT didn't contain a valid orderTransactionId");
+        }
+
         $context = $salesChannelContext->getContext();
         $paymentTransactionStruct = $this->getPaymentTransactionStruct($transactionId, $context);
 
@@ -131,12 +144,13 @@ class PaymentService
         try {
             $paymentHandler->finalize($paymentTransactionStruct, $request, $salesChannelContext);
         } catch (CustomerCanceledAsyncPaymentException $e) {
-            $this->transactionStateHandler->cancel($e->getOrderTransactionId(), $context);
+            $this->transactionStateHandler->cancel($transactionId, $context);
             $paymentTokenStruct->setException($e);
 
             return $paymentTokenStruct;
         } catch (PaymentProcessException $e) {
-            $this->transactionStateHandler->fail($e->getOrderTransactionId(), $context);
+            $this->logger->error('An error occurred during finalizing async payment', ['orderTransactionId' => $transactionId, 'exceptionMessage' => $e->getMessage()]);
+            $this->transactionStateHandler->fail($transactionId, $context);
             $paymentTokenStruct->setException($e);
 
             return $paymentTokenStruct;

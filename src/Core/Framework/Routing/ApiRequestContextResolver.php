@@ -245,12 +245,6 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             return $source;
         }
 
-        if (!Feature::isActive('FEATURE_NEXT_3722')) {
-            $source->setIsAdmin(true);
-
-            return $source;
-        }
-
         if ($userId !== null) {
             $source->setPermissions($this->fetchPermissions($userId));
             $source->setIsAdmin($this->isAdmin($userId));

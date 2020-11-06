@@ -151,12 +151,16 @@ Component.register('sw-promotion-detail', {
             this.isLoading = true;
             if (!this.promotionId) {
                 Shopware.State.commit('context/resetLanguageToDefault');
+                Shopware.State.commit('shopwareApps/setSelectedIds', []);
+
                 this.promotion = this.promotionRepository.create(Shopware.Context.api);
                 // hydrate and extend promotion with additional data
                 entityHydrator.hydrate(this.promotion);
                 this.isLoading = false;
                 return;
             }
+
+            Shopware.State.commit('shopwareApps/setSelectedIds', [this.promotionId]);
             this.loadEntityData();
 
             this.$root.$on('promotion-save-start', this.onShouldSave);

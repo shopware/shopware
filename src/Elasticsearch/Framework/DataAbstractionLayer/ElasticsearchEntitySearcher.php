@@ -144,6 +144,7 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
      */
     private function parseGrouping(array $groupings, EntityDefinition $definition, Context $context): array
     {
+        /** @var FieldGrouping $grouping */
         $grouping = array_shift($groupings);
 
         $accessor = $this->criteriaParser->buildAccessor($definition, $grouping->getField(), $context);
@@ -165,6 +166,7 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
         $groupings = $criteria->getGroupFields();
 
         if (count($groupings) === 1) {
+            /** @var FieldGrouping $first */
             $first = array_shift($groupings);
 
             $accessor = $this->criteriaParser->buildAccessor($definition, $first->getField(), $context);

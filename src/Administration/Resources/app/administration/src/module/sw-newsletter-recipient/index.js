@@ -1,6 +1,7 @@
 import './page/sw-newsletter-recipient-list/index';
 import './page/sw-newsletter-recipient-detail/index';
 import './component/sw-newsletter-recipient-filter-switch';
+import './acl';
 
 const { Module } = Shopware;
 
@@ -19,13 +20,18 @@ Module.register('sw-newsletter-recipient', {
     routes: {
         index: {
             component: 'sw-newsletter-recipient-list',
-            path: 'index'
+            path: 'index',
+            meta: {
+                privilege: 'newsletter_recipient.viewer'
+            }
+
         },
 
         detail: {
             component: 'sw-newsletter-recipient-detail',
             path: 'detail/:id',
             meta: {
+                privilege: 'newsletter_recipient.viewer',
                 parentPath: 'sw.newsletter.recipient.index'
             }
         }
@@ -36,6 +42,7 @@ Module.register('sw-newsletter-recipient', {
         icon: 'default-object-marketing',
         color: '#FFD700',
         path: 'sw.newsletter.recipient.index',
+        privilege: 'newsletter_recipient.viewer',
         label: 'sw-newsletter-recipient.general.mainMenuItemGeneral',
         parent: 'sw-marketing'
     }]

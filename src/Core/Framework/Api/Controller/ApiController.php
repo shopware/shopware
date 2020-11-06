@@ -13,7 +13,6 @@ use Shopware\Core\Framework\Api\Exception\LiveVersionDeleteException;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Api\Exception\NoEntityClonedException;
 use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
-use Shopware\Core\Framework\Api\OAuth\Scope\WriteScope;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -43,6 +42,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -50,7 +50,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -123,9 +122,10 @@ class ApiController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @OA\Get(
      *      path="/_search",
-     *      description="Search for multiple entites by a given term",
+     *      summary="Search for multiple entites by a given term",
      *      operationId="compositeSearch",
      *      tags={"Admin Api"},
      *      @OA\Parameter(
@@ -200,6 +200,7 @@ class ApiController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/clone/{entity}/{id}", name="api.clone", methods={"POST"}, requirements={
      *     "version"="\d+", "entity"="[a-zA-Z-]+", "id"="[0-9a-f]{32}"
      * })
@@ -241,6 +242,7 @@ class ApiController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/version/{entity}/{id}", name="api.createVersion", methods={"POST"},
      *     requirements={"version"="\d+", "entity"="[a-zA-Z-]+", "id"="[0-9a-f]{32}"
      * })
@@ -283,6 +285,7 @@ class ApiController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/version/merge/{entity}/{versionId}", name="api.mergeVersion", methods={"POST"},
      *     requirements={"version"="\d+", "entity"="[a-zA-Z-]+", "versionId"="[0-9a-f]{32}"
      * })
@@ -310,6 +313,7 @@ class ApiController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/version/{versionId}/{entity}/{entityId}", name="api.deleteVersion", methods={"POST"},
      *     requirements={"version"="\d+", "entity"="[a-zA-Z-]+", "id"="[0-9a-f]{32}"
      * })
@@ -444,31 +448,16 @@ class ApiController extends AbstractController
 
     public function create(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
     {
-        // @feature-deprecated (flag:FEATURE_NEXT_3722) tag:v6.4.0 - Will be removed, write access will be granted by the acl permissions
-        if (!$this->hasScope($request, WriteScope::IDENTIFIER)) {
-            throw new AccessDeniedHttpException(sprintf('This access token does not have the scope "%s" to process this Request', WriteScope::IDENTIFIER));
-        }
-
         return $this->write($request, $context, $responseFactory, $entityName, $path, self::WRITE_CREATE);
     }
 
     public function update(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
     {
-        // @feature-deprecated (flag:FEATURE_NEXT_3722) tag:v6.4.0 - Will be removed, write access will be granted by the acl permissions
-        if (!$this->hasScope($request, WriteScope::IDENTIFIER)) {
-            throw new AccessDeniedHttpException(sprintf('This access token does not have the scope "%s" to process this Request', WriteScope::IDENTIFIER));
-        }
-
         return $this->write($request, $context, $responseFactory, $entityName, $path, self::WRITE_UPDATE);
     }
 
     public function delete(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
     {
-        // @feature-deprecated (flag:FEATURE_NEXT_3722) tag:v6.4.0 - Will be removed, write access will be granted by the acl permissions
-        if (!$this->hasScope($request, WriteScope::IDENTIFIER)) {
-            throw new AccessDeniedHttpException(sprintf('This access token does not have the scope "%s" to process this Request', WriteScope::IDENTIFIER));
-        }
-
         $pathSegments = $this->buildEntityPath($entityName, $path, $request->attributes->getInt('version'), $context, [WriteProtection::class]);
 
         $last = $pathSegments[\count($pathSegments) - 1];

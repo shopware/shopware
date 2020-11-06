@@ -3,20 +3,19 @@
 namespace Shopware\Core\Checkout\Promotion\Cart\Discount\ScopePackager;
 
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
+use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantity;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantityCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemQuantitySplitter;
-use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
-use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountLineItem;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackage;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackageCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackager;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class CartScopeDiscountPackager extends DiscountPackager
@@ -31,6 +30,9 @@ class CartScopeDiscountPackager extends DiscountPackager
         $this->lineItemQuantitySplitter = $lineItemQuantitySplitter;
     }
 
+    /**
+     * @deprecated tag:v6.4.0 function will be removed
+     */
     public function getResultContext(): string
     {
         return self::RESULT_CONTEXT_LINEITEM;
@@ -51,20 +53,15 @@ class CartScopeDiscountPackager extends DiscountPackager
 
         $singleItems = $this->splitQuantities($allItems, $context);
 
-        $priceDefinition = $discount->getPriceDefinition();
-
-        /** @var array $foundItems */
         $foundItems = [];
 
         foreach ($singleItems as $cartLineItem) {
-            if ($this->isRulesFilterValid($cartLineItem, $priceDefinition, $context)) {
-                $item = new LineItemQuantity(
-                    $cartLineItem->getId(),
-                    $cartLineItem->getQuantity()
-                );
+            $item = new LineItemQuantity(
+                $cartLineItem->getId(),
+                $cartLineItem->getQuantity()
+            );
 
-                $foundItems[] = $item;
-            }
+            $foundItems[] = $item;
         }
 
         if ($foundItems === []) {
@@ -76,37 +73,9 @@ class CartScopeDiscountPackager extends DiscountPackager
         return new DiscountPackageCollection([$package]);
     }
 
-    private function isRulesFilterValid(LineItem $item, PriceDefinitionInterface $priceDefinition, SalesChannelContext $context): bool
-    {
-        // if the price definition doesnt allow filters,
-        // then return valid for the item
-        if (!method_exists($priceDefinition, 'getFilter')) {
-            return true;
-        }
-
-        /** @var Rule|null $filter */
-        $filter = $priceDefinition->getFilter();
-
-        // if the definition exists, but is empty
-        // this means we have no restrictions and thus its valid
-        if (!$filter instanceof Rule) {
-            return true;
-        }
-
-        // if our price definition has a filter rule
-        // then extract it, and check if it matches
-        $scope = new LineItemScope($item, $context);
-
-        if ($filter->match($scope)) {
-            return true;
-        }
-
-        return false;
-    }
-
     /**
-     * @throws \Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException
-     * @throws \Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException
+     * @throws InvalidQuantityException
+     * @throws LineItemNotStackableException
      */
     private function splitQuantities(LineItemCollection $cartItems, SalesChannelContext $context): LineItemFlatCollection
     {

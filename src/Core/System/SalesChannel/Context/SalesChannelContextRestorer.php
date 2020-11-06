@@ -54,7 +54,7 @@ class SalesChannelContextRestorer
 
     public function restore(string $customerId, SalesChannelContext $currentContext): SalesChannelContext
     {
-        $customerPayload = $this->contextPersister->load($currentContext->getToken(), $customerId);
+        $customerPayload = $this->contextPersister->load($currentContext->getToken(), $currentContext->getSalesChannel()->getId(), $customerId);
 
         if (empty($customerPayload) || $customerPayload['token'] === $currentContext->getToken()) {
             return $this->replaceContextToken($customerId, $currentContext);
@@ -115,6 +115,7 @@ class SalesChannelContextRestorer
                 'billingAddressId' => null,
                 'shippingAddressId' => null,
             ],
+            $currentContext->getSalesChannel()->getId(),
             $customerId
         );
 

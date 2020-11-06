@@ -26,7 +26,8 @@ Component.register('sw-users-permissions-user-listing', {
             isLoading: false,
             itemToDelete: null,
             disableRouteParams: true,
-            confirmPassword: ''
+            confirmPassword: '',
+            sortBy: 'username'
         };
     },
 

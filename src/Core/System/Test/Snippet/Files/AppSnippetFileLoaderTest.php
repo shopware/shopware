@@ -5,7 +5,6 @@ namespace Shopware\Core\System\Test\Snippet\Files;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Snippet\Files\AppSnippetFileLoader;
@@ -24,7 +23,6 @@ class AppSnippetFileLoaderTest extends TestCase
 
     public function setUp(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10286', $this);
         $this->snippetFileLoader = new SnippetFileLoader(
             new MockedKernel([]),
             $this->getContainer()->get(Connection::class),

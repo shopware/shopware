@@ -154,4 +154,86 @@ describe('ListingPlugin tests', () => {
         expect(listingPlugin._registry).not.toContain(elementsOutsideDocument[1]);
         expect(listingPlugin._registry).not.toContain(elementsOutsideDocument[2]);
     });
+
+    test('should not autoscroll to top because we are at the top', () => {
+        const mockElement = document.createElement('div');
+        const cmsElementProductListingWrapper = document.createElement('div');
+        cmsElementProductListingWrapper.classList.add('cms-element-product-listing-wrapper');
+
+        document.body.append(cmsElementProductListingWrapper);
+
+        listingPlugin = new ListingPlugin(mockElement);
+
+        jest.spyOn(listingPlugin, '_scrollTopOfListing');
+        window.scrollTo = jest.fn();
+        window.scrollY = 0;
+
+        expect(listingPlugin._scrollTopOfListing).not.toHaveBeenCalled();
+
+        listingPlugin._buildRequest();
+
+        expect(listingPlugin._scrollTopOfListing).toHaveBeenCalled();
+
+        expect(window.scrollTo).not.toHaveBeenCalled();
+    });
+
+    test('should autoscroll to top with scrollOffset because we are not at the top', () => {
+        const mockElement = document.createElement('div');
+        const cmsElementProductListingWrapper = document.createElement('div');
+        cmsElementProductListingWrapper.classList.add('cms-element-product-listing-wrapper');
+
+        document.body.append(cmsElementProductListingWrapper);
+
+        listingPlugin = new ListingPlugin(mockElement);
+
+        jest.spyOn(listingPlugin, '_scrollTopOfListing');
+        window.scrollTo = jest.fn();
+        window.scrollY = 500;
+
+        listingPlugin._cmsProductListingWrapper.getBoundingClientRect = () => ({
+            top: -500
+        })
+
+        expect(listingPlugin._scrollTopOfListing).not.toHaveBeenCalled();
+
+        listingPlugin._buildRequest();
+
+        expect(listingPlugin._scrollTopOfListing).toHaveBeenCalled();
+
+        expect(window.scrollTo).toHaveBeenCalledWith({
+            "behavior": "smooth",
+            "top": listingPlugin.options.scrollOffset * -1
+        });
+    });
+
+    test('should autoscroll to top of cmsElementProductListingWrapper because we are not at the top', () => {
+        const distanceToTop = 250;
+
+        const mockElement = document.createElement('div');
+        const cmsElementProductListingWrapper = document.createElement('div');
+        cmsElementProductListingWrapper.classList.add('cms-element-product-listing-wrapper');
+
+        document.body.append(cmsElementProductListingWrapper);
+
+        listingPlugin = new ListingPlugin(mockElement);
+
+        jest.spyOn(listingPlugin, '_scrollTopOfListing');
+        window.scrollTo = jest.fn();
+        window.scrollY = 500;
+
+        listingPlugin._cmsProductListingWrapper.getBoundingClientRect = () => ({
+            top: -1 * distanceToTop
+        })
+
+        expect(listingPlugin._scrollTopOfListing).not.toHaveBeenCalled();
+
+        listingPlugin._buildRequest();
+
+        expect(listingPlugin._scrollTopOfListing).toHaveBeenCalled();
+
+        expect(window.scrollTo).toHaveBeenCalledWith({
+            "behavior": "smooth",
+            "top": distanceToTop - listingPlugin.options.scrollOffset
+        });
+    });
 });

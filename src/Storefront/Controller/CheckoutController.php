@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\PaymentService;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
@@ -89,6 +90,7 @@ class CheckoutController extends StorefrontController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/checkout/cart", name="frontend.checkout.cart.page", options={"seo"="false"}, methods={"GET"})
      */
     public function cartPage(Request $request, SalesChannelContext $context): Response
@@ -99,6 +101,7 @@ class CheckoutController extends StorefrontController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/checkout/confirm", name="frontend.checkout.confirm.page", options={"seo"="false"}, methods={"GET"}, defaults={"XmlHttpRequest"=true})
      */
     public function confirmPage(Request $request, SalesChannelContext $context): Response
@@ -117,6 +120,7 @@ class CheckoutController extends StorefrontController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/checkout/finish", name="frontend.checkout.finish.page", options={"seo"="false"}, methods={"GET"})
      *
      * @throws CustomerNotLoggedInException
@@ -132,7 +136,7 @@ class CheckoutController extends StorefrontController
         $page = $this->finishPageLoader->load($request, $context);
 
         if ($page->isPaymentFailed() === true) {
-            // @feature-deprecated (flag:FEATURE_NEXT_9351) tag:v6.4.0 - errors will be redirected immediately to the edit order page
+            // @deprecated tag:v6.4.0 - errors will be redirected immediately to the edit order page
             $this->addFlash(
                 'danger',
                 $this->trans(
@@ -148,6 +152,7 @@ class CheckoutController extends StorefrontController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/checkout/order", name="frontend.checkout.finish.order", options={"seo"="false"}, methods={"POST"})
      */
     public function order(RequestDataBag $data, SalesChannelContext $context, Request $request): Response
@@ -164,15 +169,7 @@ class CheckoutController extends StorefrontController
             $this->addAffiliateTracking($data, $request->getSession());
             $orderId = $this->orderService->createOrder($data, $context);
             $finishUrl = $this->generateUrl('frontend.checkout.finish.page', ['orderId' => $orderId]);
-            if (Feature::isActive('FEATURE_NEXT_9351')) {
-                $errorUrl = $this->generateUrl('frontend.account.edit-order.page', ['orderId' => $orderId]);
-            } else {
-                $errorUrl = $this->generateUrl('frontend.checkout.finish.page', [
-                    'orderId' => $orderId,
-                    'changedPayment' => false,
-                    'paymentFailed' => true,
-                ]);
-            }
+            $errorUrl = $this->generateUrl('frontend.account.edit-order.page', ['orderId' => $orderId]);
 
             $response = $this->paymentService->handlePaymentByOrder($orderId, $data, $context, $finishUrl, $errorUrl);
 
@@ -188,6 +185,7 @@ class CheckoutController extends StorefrontController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/widgets/checkout/info", name="frontend.checkout.info", methods={"GET"}, defaults={"XmlHttpRequest"=true})
      *
      * @throws CartTokenNotFoundException
@@ -200,6 +198,7 @@ class CheckoutController extends StorefrontController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/checkout/offcanvas", name="frontend.cart.offcanvas", options={"seo"="false"}, methods={"GET"}, defaults={"XmlHttpRequest"=true})
      *
      * @throws CartTokenNotFoundException

@@ -37,6 +37,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
@@ -56,6 +57,7 @@ class RecalculationServiceTest extends TestCase
     use IntegrationTestBehaviour;
     use AdminApiTestBehaviour;
     use TaxAddToSalesChannelTestBehaviour;
+    use CountryAddToSalesChannelTestBehaviour;
 
     /**
      * @var SalesChannelContext
@@ -82,6 +84,7 @@ class RecalculationServiceTest extends TestCase
         $this->customerId = $this->createCustomer();
         $shippingMethodId = $this->createShippingMethod($priceRuleId);
         $paymentMethodId = $this->createPaymentMethod($priceRuleId);
+        $this->addCountriesToSalesChannel([$this->getValidCountryIdWithTaxes()]);
         $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
             Uuid::randomHex(),
             Defaults::SALES_CHANNEL,
@@ -759,13 +762,14 @@ class RecalculationServiceTest extends TestCase
         /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('country.repository');
 
-        $countryId = Uuid::randomHex();
+        $countryId = $this->getValidCountryId();
 
         $data = [
             'id' => $countryId,
             'iso' => 'XX',
             'iso3' => 'XXX',
             'active' => true,
+            'shippingAvailable' => true,
             'taxFree' => false,
             'position' => 10,
             'displayStateInRegistration' => false,

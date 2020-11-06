@@ -13,7 +13,8 @@ Shopware.Service('privileges')
                     'currency:read',
                     'delivery_time:read',
                     'media_folder:read',
-                    Shopware.Service('privileges').getPrivileges('media.viewer')
+                    Shopware.Service('privileges').getPrivileges('media.viewer'),
+                    'tax:read'
                 ],
                 dependencies: []
             },

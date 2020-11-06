@@ -10,7 +10,6 @@ use Shopware\Core\Framework\App\Exception\AppUrlChangeStrategyNotFoundException;
 use Shopware\Core\Framework\App\Exception\NoAppUrlChangeDetectedException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SystemConfigTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -42,7 +41,6 @@ class AbstractStrategyTest extends TestCase
 
     public function setUp(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10286', $this);
         $this->firstStrategy = $this->createMock(AbstractAppUrlChangeStrategy::class);
         $this->firstStrategy->method('getName')
             ->willReturn('FirstStrategy');

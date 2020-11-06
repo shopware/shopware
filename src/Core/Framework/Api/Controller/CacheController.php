@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\Routing\Annotation\Acl;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Storefront\Framework\Cache\CacheWarmer\CacheWarmer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -54,6 +55,7 @@ class CacheController extends AbstractController
     }
 
     /**
+     * @Since("6.2.0.0")
      * @Route("/api/v{version}/_action/cache_info", name="api.action.cache.info", methods={"GET"})
      * @Acl({"system:cache:info"})
      */
@@ -67,6 +69,7 @@ class CacheController extends AbstractController
     }
 
     /**
+     * @Since("6.2.0.0")
      * @Route("/api/v{version}/_action/index", name="api.action.cache.index", methods={"POST"})
      * @Acl({"api_action_cache_index"})
      */
@@ -78,6 +81,7 @@ class CacheController extends AbstractController
     }
 
     /**
+     * @Since("6.2.0.0")
      * @Route("/api/v{version}/_action/cache_warmup", name="api.action.cache.delete_and_warmup", methods={"DELETE"})
      * @Acl({"system:clear:cache"})
      */
@@ -93,6 +97,7 @@ class CacheController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/cache", name="api.action.cache.delete", methods={"DELETE"})
      * @Acl({"system:clear:cache"})
      */
@@ -104,6 +109,7 @@ class CacheController extends AbstractController
     }
 
     /**
+     * @Since("6.2.0.0")
      * @Route("/api/v{version}/_action/cleanup", name="api.action.cache.cleanup", methods={"DELETE"})
      * @Acl({"system:clear:cache"})
      */
@@ -115,6 +121,7 @@ class CacheController extends AbstractController
     }
 
     /**
+     * @Since("6.2.0.0")
      * @Route("/api/v{version}/_action/container_cache", name="api.action.container-cache.delete", methods={"DELETE"})
      * @Acl({"system:clear:cache"})
      */

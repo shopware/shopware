@@ -2,154 +2,63 @@
 
 namespace Shopware\Core\Content\ProductStream\Service;
 
-use Shopware\Core\Content\ProductExport\Exception\MissingRootFilterException;
-use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterCollection;
-use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterEntity;
-use Shopware\Core\Content\ProductStream\Exception\FilterNotFoundException;
 use Shopware\Core\Content\ProductStream\Exception\NoFilterException;
+use Shopware\Core\Content\ProductStream\ProductStreamEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
 
 class ProductStreamBuilder implements ProductStreamBuilderInterface
 {
-    /** @var EntityRepositoryInterface */
-    private $productStreamRepository;
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $repository;
 
-    public function __construct(
-        EntityRepositoryInterface $productStreamRepository
-    ) {
-        $this->productStreamRepository = $productStreamRepository;
-    }
+    /**
+     * @var EntityDefinition
+     */
+    private $productDefinition;
 
-    public function buildFilters(
-        string $productStreamId,
-        Context $context
-    ): array {
-        $criteria = new Criteria([$productStreamId]);
-        $criteria->addAssociation('filters.queries');
-
-        $productStream = $this->productStreamRepository->search(
-            $criteria,
-            $context
-        )->get($productStreamId);
-
-        if ($productStream->getFilters() === null || $productStream->getFilters()->count() === 0) {
-            throw new NoFilterException($productStream->getId());
-        }
-
-        $rootFilter = $this->getRootFilter($productStream->getFilters());
-
-        return $this->buildNested($rootFilter, $productStream->getFilters());
-    }
-
-    private function createFilter(ProductStreamFilterEntity $filterEntity): Filter
+    public function __construct(EntityRepositoryInterface $productStreamRepository, EntityDefinition $productDefinition)
     {
-        $class = $this->getFilterClass($filterEntity->getType());
-
-        switch ($class) {
-            case MultiFilter::class:
-            case NotFilter::class:
-                $queries = [];
-
-                foreach ($filterEntity->getQueries() as $query) {
-                    $queries[] = $this->createFilter($query);
-                }
-
-                return new MultiFilter($filterEntity->getOperator(), $queries);
-
-            case EqualsAnyFilter::class:
-                return new EqualsAnyFilter($filterEntity->getField(), explode('|', $filterEntity->getValue()));
-
-            default:
-                return $class::createFrom($filterEntity);
-        }
+        $this->repository = $productStreamRepository;
+        $this->productDefinition = $productDefinition;
     }
 
-    private function getFilterClass(string $type): string
+    public function buildFilters(string $id, Context $context): array
     {
-        switch ($type) {
-            case 'contains':
-                return ContainsFilter::class;
-            case 'equalsAny':
-                return EqualsAnyFilter::class;
-            case 'equals':
-                return EqualsFilter::class;
-            case 'multi':
-                return MultiFilter::class;
-            case 'not':
-                return NotFilter::class;
-            case 'range':
-                return RangeFilter::class;
-            default:
-                if (!in_array(Filter::class, class_implements($type), true)) {
-                    throw new FilterNotFoundException($type);
-                }
+        $criteria = new Criteria([$id]);
 
-                return $type;
-        }
-    }
+        /** @var ProductStreamEntity|null $stream */
+        $stream = $this->repository
+            ->search($criteria, $context)
+            ->get($id);
 
-    private function buildNested(
-        ProductStreamFilterEntity $filter,
-        ProductStreamFilterCollection $filterCollection
-    ): array {
-        $nestedCollection = [];
-
-        $filter = $filterCollection->get($filter->getId());
-
-        $this->ensureQueries($filter, $filterCollection);
-
-        $nestedFilter = [
-            'filter' => $this->createFilter($filter),
-            'position' => $filter->getPosition(),
-            'children' => [],
-        ];
-
-        foreach ($filter->getQueries() as $query) {
-            $nestedFilter['children'][] = $this->buildNested($query, $filterCollection);
+        if (!$stream) {
+            throw new EntityNotFoundException('product_stream', $id);
         }
 
-        $nestedCollection[] = $nestedFilter;
-
-        usort(
-            $nestedCollection,
-            function (array $a, array $b) {
-                return $a['position'] <=> $b['position'];
-            }
-        );
-
-        return array_column($nestedCollection, 'filter');
-    }
-
-    private function getRootFilter(ProductStreamFilterCollection $filterCollection): ProductStreamFilterEntity
-    {
-        foreach ($filterCollection as $filter) {
-            if ($filter->getParentId() === null) {
-                return $filter;
-            }
+        $data = $stream->getApiFilter();
+        if (!$data) {
+            throw new NoFilterException($id);
         }
 
-        throw new MissingRootFilterException();
-    }
+        $filters = [];
+        $exception = new SearchRequestException();
 
-    private function ensureQueries(
-        ProductStreamFilterEntity $filter,
-        ProductStreamFilterCollection $filterCollection
-    ): void {
-        $queries = new ProductStreamFilterCollection();
-
-        foreach ($filter->getQueries() as $query) {
-            $queries->add($filterCollection->get($query->getId()));
+        foreach ($data as $filter) {
+            $filters[] = QueryStringParser::fromArray($this->productDefinition, $filter, $exception, '');
         }
 
-        $filter->setQueries($queries);
+        if (empty($filters)) {
+            throw new NoFilterException($id);
+        }
+
+        return $filters;
     }
 }

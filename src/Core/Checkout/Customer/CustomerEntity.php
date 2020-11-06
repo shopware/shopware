@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCol
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist\CustomerWishlistCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Promotion\PromotionCollection;
@@ -312,6 +313,13 @@ class CustomerEntity extends Entity
      * @var SalesChannelEntity|null
      */
     protected $boundSalesChannel;
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10549)
+     *
+     * @var CustomerWishlistCollection|null
+     */
+    protected $wishlists;
 
     public function __toString()
     {
@@ -887,5 +895,21 @@ class CustomerEntity extends Entity
     public function setBoundSalesChannel(SalesChannelEntity $boundSalesChannel): void
     {
         $this->boundSalesChannel = $boundSalesChannel;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10549)
+     */
+    public function getWishlists(): ?CustomerWishlistCollection
+    {
+        return $this->wishlists;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10549)
+     */
+    public function setWishlists(CustomerWishlistCollection $wishlists): void
+    {
+        $this->wishlists = $wishlists;
     }
 }

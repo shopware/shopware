@@ -35,6 +35,11 @@ class ProductSortingDefinition extends EntityDefinition
         return ProductSortingCollection::class;
     }
 
+    public function since(): ?string
+    {
+        return '6.3.2.0';
+    }
+
     protected function defineFields(): FieldCollection
     {
         $collection = new FieldCollection([

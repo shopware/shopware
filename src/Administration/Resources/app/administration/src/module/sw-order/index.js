@@ -52,7 +52,10 @@ Module.register('sw-order', {
             },
             path: 'index',
             meta: {
-                privilege: 'order.viewer'
+                privilege: 'order.viewer',
+                appSystem: {
+                    view: 'list'
+                }
             }
         },
 
@@ -84,7 +87,10 @@ Module.register('sw-order', {
                 name: 'sw.order.detail.base'
             },
             meta: {
-                privilege: 'order.viewer'
+                privilege: 'order.viewer',
+                appSystem: {
+                    view: 'detail'
+                }
             },
             children: {
                 base: {
@@ -94,6 +100,11 @@ Module.register('sw-order', {
                         parentPath: 'sw.order.index',
                         privilege: 'order.viewer'
                     }
+                }
+            },
+            props: {
+                default: ($route) => {
+                    return { orderId: $route.params.id };
                 }
             }
         }

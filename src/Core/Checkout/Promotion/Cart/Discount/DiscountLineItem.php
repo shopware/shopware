@@ -52,6 +52,11 @@ class DiscountLineItem
      */
     private $filterUsageKey;
 
+    /**
+     * @var string
+     */
+    private $filterPickerKey;
+
     public function __construct(string $label, PriceDefinitionInterface $priceDefinition, array $payload, ?string $code)
     {
         $this->label = $label;
@@ -61,9 +66,10 @@ class DiscountLineItem
         $this->type = $payload['discountType'];
         $this->payload = $payload;
 
-        $this->filterSorterKey = $payload['filter']['sorterKey'];
-        $this->filterApplierKey = $payload['filter']['applierKey'];
-        $this->filterUsageKey = $payload['filter']['usageKey'];
+        $this->filterSorterKey = $payload['filter']['sorterKey'] ?? '';
+        $this->filterApplierKey = $payload['filter']['applierKey'] ?? '';
+        $this->filterUsageKey = $payload['filter']['usageKey'] ?? '';
+        $this->filterPickerKey = $payload['filter']['pickerKey'] ?? '';
     }
 
     /**
@@ -159,5 +165,10 @@ class DiscountLineItem
     public function getFilterUsageKey(): string
     {
         return $this->filterUsageKey ?? '';
+    }
+
+    public function getFilterPickerKey(): string
+    {
+        return $this->filterPickerKey;
     }
 }

@@ -27,7 +27,7 @@ class FeatureSingleton {
      * @returns {boolean}
      */
     isActive(flagName) {
-        if (!this.flags.hasOwnProperty(flagName)) {
+        if (!Object.prototype.hasOwnProperty.call(this.flags, flagName)) {
             // if not set, its false
             return false;
         }

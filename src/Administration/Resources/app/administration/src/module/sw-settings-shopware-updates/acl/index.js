@@ -5,7 +5,10 @@ Shopware.Service('privileges')
         key: 'system',
         roles: {
             core_update: {
-                privileges: ['system:core:update'],
+                privileges: [
+                    'system:core:update',
+                    'system_config:read'
+                ],
                 dependencies: []
             }
         }

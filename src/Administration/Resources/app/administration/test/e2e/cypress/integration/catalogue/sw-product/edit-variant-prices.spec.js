@@ -80,7 +80,7 @@ describe('Product: Test variants', () => {
         cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--price-EUR .icon--default-lock-open').click();
         cy.get('.sw-data-grid__cell--price-EUR #sw-price-field-net')
             .invoke('val')
-            .should('eq', '84.03361344537815');
+            .should('eq', '84.033613445378');
         cy.get('.icon--custom-uninherited').should('be.visible');
         cy.get('.sw-data-grid__inline-edit-save').click();
 

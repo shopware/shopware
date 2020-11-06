@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -35,10 +36,11 @@ class CustomerRoute extends AbstractCustomerRoute
     }
 
     /**
+     * @Since("6.2.0.0")
      * @Entity("customer")
      * @OA\Get(
      *      path="/account/customer",
-     *      description="Returns informations about the loggedin customer",
+     *      summary="Returns informations about the loggedin customer",
      *      operationId="readCustomer",
      *      tags={"Store API", "Account"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),

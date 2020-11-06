@@ -9,7 +9,6 @@ use Shopware\Core\Framework\App\Lifecycle\Registration\PrivateHandshake;
 use Shopware\Core\Framework\App\Lifecycle\Registration\StoreHandshake;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -18,11 +17,6 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 class HandshakeFactoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
-
-    public function setUp(): void
-    {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10286', $this);
-    }
 
     public function testManifestWithSecretProducesAPrivateHandshake(): void
     {

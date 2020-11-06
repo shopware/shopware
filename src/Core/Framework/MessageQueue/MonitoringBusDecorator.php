@@ -43,7 +43,7 @@ class MonitoringBusDecorator implements MessageBusInterface
         }
 
         try {
-            $ret = $this->innerBus->dispatch($message);
+            $ret = $this->innerBus->dispatch($message, $stamps);
 
             if ($this->isIncoming($message)) {
                 $this->decrementMessageQueueSize($messageName);

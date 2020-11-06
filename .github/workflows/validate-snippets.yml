@@ -1,0 +1,59 @@
+name: Validate Snippets
+
+on:
+    push:
+      branches:
+        - master
+      paths:
+        - 'src/**/snippet/**/*.json'
+    pull_request:
+      paths:
+        - 'src/**/snippet/**/*.json'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: shopware/development:7.4
+    env:
+      DEVELOPMENT_BRANCH: master
+
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+            MYSQL_ROOT_PASSWORD: shopware
+            MYSQL_DATABASE: shopware
+      elasticsearch:
+        image: elastic/elasticsearch:7.1.1
+        env:
+          discovery.type: single-node
+
+    steps:
+    - name: Clone development
+      run: git clone -b $DEVELOPMENT_BRANCH https://github.com/shopware/development.git && cd development && rm -rf platform
+
+    - name: Clone platform
+      uses: actions/checkout@v2
+      with:
+        path: development/platform
+
+    - name: Fix platform for composer
+      run: |
+        cd development/platform
+        git fetch --prune --unshallow
+        git checkout master
+        git checkout -
+        cd ..
+        git reset --hard @
+
+    - name: Install Shopware
+      run: |
+        cd development
+        cp platform/.github/.psh.yaml.override .
+        ./psh.phar init
+
+    - name: Check Snippets
+      run: |
+        cd development
+        php bin/console snippets:validate
+

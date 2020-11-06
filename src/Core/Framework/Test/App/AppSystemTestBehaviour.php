@@ -8,7 +8,6 @@ use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 trait AppSystemTestBehaviour
@@ -26,14 +25,6 @@ trait AppSystemTestBehaviour
         }
 
         $activeAppLoader->resetActiveApps();
-    }
-
-    /**
-     * @before
-     */
-    public function skipTestIfFeatureIsDeactivated(): void
-    {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10286', $this);
     }
 
     abstract protected function getContainer(): ContainerInterface;

@@ -9,8 +9,8 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangePasswordRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractDeleteCustomerRoute;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
@@ -73,6 +73,7 @@ class AccountProfileController extends StorefrontController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/account", name="frontend.account.home.page", methods={"GET"})
      *
      * @throws CustomerNotLoggedInException
@@ -90,6 +91,7 @@ class AccountProfileController extends StorefrontController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/account/profile", name="frontend.account.profile.page", methods={"GET"})
      *
      * @throws CustomerNotLoggedInException
@@ -111,6 +113,7 @@ class AccountProfileController extends StorefrontController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/account/profile", name="frontend.account.profile.save", methods={"POST"})
      *
      * @throws CustomerNotLoggedInException
@@ -133,6 +136,7 @@ class AccountProfileController extends StorefrontController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/account/profile/email", name="frontend.account.profile.email.save", methods={"POST"})
      *
      * @throws CustomerNotLoggedInException
@@ -157,6 +161,7 @@ class AccountProfileController extends StorefrontController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/account/profile/password", name="frontend.account.profile.password.save", methods={"POST"})
      *
      * @throws CustomerNotLoggedInException
@@ -179,16 +184,13 @@ class AccountProfileController extends StorefrontController
     }
 
     /**
+     * @Since("6.3.3.0")
      * @Route("/account/profile/delete", name="frontend.account.profile.delete", methods={"POST"})
      *
      * @throws CustomerNotLoggedInException
      */
     public function deleteProfile(Request $request, SalesChannelContext $context): Response
     {
-        if (!Feature::isActive('FEATURE_NEXT_10077')) {
-            return $this->redirectToRoute('frontend.home.page');
-        }
-
         $this->denyAccessUnlessLoggedIn();
 
         try {

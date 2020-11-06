@@ -113,7 +113,7 @@ class SalesChannelContextRestorerTest extends TestCase
 
         $currentContext = $this->createSalesChannelContext('currentToken', [], $this->customerId);
 
-        $this->contextPersister->save($expectedContext->getToken(), [], $this->customerId);
+        $this->contextPersister->save($expectedContext->getToken(), [], $currentContext->getSalesChannel()->getId(), $this->customerId);
 
         $this->eventDispatcher->addListener(SalesChannelContextRestoredEvent::class, $this->callbackFn);
 
@@ -132,7 +132,7 @@ class SalesChannelContextRestorerTest extends TestCase
 
         $currentContext = $this->createSalesChannelContext($currentContextToken, []);
 
-        $this->contextPersister->save($currentContextToken, [], $this->customerId);
+        $this->contextPersister->save($currentContextToken, [], $currentContext->getSalesChannel()->getId(), $this->customerId);
 
         $cart = new Cart('test', $currentContextToken);
 
@@ -157,7 +157,7 @@ class SalesChannelContextRestorerTest extends TestCase
 
         $customerContext = $this->createSalesChannelContext($customerContextToken, []);
 
-        $this->contextPersister->save($customerContextToken, [], $this->customerId);
+        $this->contextPersister->save($customerContextToken, [], $customerContext->getSalesChannel()->getId(), $this->customerId);
 
         $cart = new Cart('test', $customerContextToken);
 
@@ -217,7 +217,7 @@ class SalesChannelContextRestorerTest extends TestCase
         $customerToken = Random::getAlphanumericString(32);
         $customerContext = $this->createSalesChannelContext($customerToken, []);
 
-        $this->contextPersister->save($customerToken, [], $this->customerId);
+        $this->contextPersister->save($customerToken, [], $currentContext->getSalesChannel()->getId(), $this->customerId);
 
         $cart = new Cart('customer-cart', $customerToken);
 
@@ -338,7 +338,7 @@ class SalesChannelContextRestorerTest extends TestCase
                     'city' => 'Schöppingen',
                     'zipcode' => '12345',
                     'salutationId' => $this->getValidSalutationId(),
-                    'country' => ['name' => 'Germany'],
+                    'countryId' => $this->getValidCountryId(),
                 ],
                 'defaultBillingAddressId' => $addressId,
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),

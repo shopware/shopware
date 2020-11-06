@@ -629,3 +629,84 @@ With this route can you change the default shipping address
 ```
 PATCH /store-api/v3/account/address/default-shipping/{addressId}
 ```
+
+## Add a product into customer wishlist
+To Add a product into customer wishlist you use the following route: `store-api.customer.wishlist.add`
+This route only needs the `productId` parameter. 
+
+**Note** that you need the `sw-context-token` header for this route, which contains the context token of the login route response.
+
+```
+POST /store-api/v3/customer/wishlist/add/{productId}
+```
+
+## Delete a product from a customer wishlist
+To delete a product from a customer wishlist you use the following route: `store-api.customer.wishlist.delete`
+This route only needs the `productId` parameter. 
+
+**Note** that you need the `sw-context-token` header for this route, which contains the context token of the login route response.
+
+```
+DELETE /store-api/v3/customer/wishlist/delete/{productId}
+```
+
+## Load all products from customer wishlist
+To get a product listing of a customer wishlist you use the following route: `store-api.customer.wishlist.load`
+The `page` and `limit` parameters can be used to control pagination.
+The `includes` parameter allows you to restrict the returned fields of product entities.
+
+**Note** that you need the `sw-context-token` header for this route, which contains the context token of the login route response.
+
+```
+POST /store-api/v3/customer/wishlist
+{
+    "limit" : 2,
+    "page" : 1,
+    "includes": {
+        "product": ["id","name"]
+    }
+}
+
+{
+    "apiAlias": "wishlist_products",
+    "wishlist": {
+        "customerId": "c3ba91894b4d4149b2f5a55f90953aa8",
+        "salesChannelId": "23a5ef60c3d34faf9ae319d6ec1cec5e",
+        "customer": null,
+        "salesChannel": null,
+        "products": null,
+        "customFields": null,
+        "_uniqueIdentifier": "442d0c324f314bcf8d74c35d0e15068a",
+        "versionId": null,
+        "translated": [],
+        "createdAt": "2020-10-31T07:31:36.427+00:00",
+        "updatedAt": "2020-10-31T07:46:27.559+00:00",
+        "extensions": {
+            "foreignKeys": {
+                "apiAlias": "array_struct"
+            }
+        },
+        "id": "442d0c324f314bcf8d74c35d0e15068a",
+        "apiAlias": "customer_wishlist"
+    },
+    "products": {
+        "total": 2,
+        "aggregations": [],
+        "page": 1,
+        "limit": null,
+        "elements": [
+            {
+                "name": null,
+                "id": "2805c39c2fc14672b08eee98a4a67903",
+                "apiAlias": "product"
+            },
+            {
+                "name": "Aerodynamic Bronze Stretch n’ Kvetch",
+                "id": "6a75f5f8075e47ac83dd18c92910ffd9",
+                "apiAlias": "product"
+            }
+        ],
+        "apiAlias": "dal_entity_search_result"
+    }
+}
+```

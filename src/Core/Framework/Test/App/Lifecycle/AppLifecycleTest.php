@@ -21,7 +21,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\WebhookEntity;
@@ -60,7 +59,6 @@ class AppLifecycleTest extends TestCase
 
     public function setUp(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10286', $this);
         $this->appRepository = $this->getContainer()->get('app.repository');
         $this->actionButtonRepository = $this->getContainer()->get('app_action_button.repository');
 
@@ -484,6 +482,8 @@ class AppLifecycleTest extends TestCase
     public function testDelete(): void
     {
         $appId = Uuid::randomHex();
+        $roleId = Uuid::randomHex();
+
         $this->appRepository->create([[
             'id' => $appId,
             'name' => 'Test',
@@ -507,12 +507,14 @@ class AppLifecycleTest extends TestCase
                 'secretAccessKey' => 'test',
             ],
             'aclRole' => [
+                'id' => $roleId,
                 'name' => 'SwagApp',
             ],
         ]], $this->context);
 
         $app = [
             'id' => $appId,
+            'roleId' => $roleId,
         ];
 
         $eventWasReceived = false;
@@ -529,6 +531,11 @@ class AppLifecycleTest extends TestCase
         $this->eventDispatcher->removeListener(AppDeletedEvent::class, $onAppDeleted);
         $apps = $this->appRepository->searchIds(new Criteria([$appId]), $this->context)->getIds();
         static::assertCount(0, $apps);
+
+        /** @var EntityRepositoryInterface $aclRoleRepository */
+        $aclRoleRepository = $this->getContainer()->get('acl_role.repository');
+        $roles = $aclRoleRepository->searchIds(new Criteria([$roleId]), $this->context)->getIds();
+        static::assertCount(0, $roles);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('appId', $appId));

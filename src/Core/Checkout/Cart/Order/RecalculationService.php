@@ -210,7 +210,9 @@ class RecalculationService
 
         $orderData = $this->orderConverter->convertToOrder($recalculatedCart, $salesChannelContext, $conversionContext);
         $orderData['id'] = $order->getId();
-        $this->orderRepository->upsert([$orderData], $context);
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($orderData): void {
+            $this->orderRepository->upsert([$orderData], $context);
+        });
     }
 
     /**

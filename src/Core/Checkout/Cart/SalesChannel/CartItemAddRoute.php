@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\Event\LineItemAddedEvent;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -58,9 +59,10 @@ class CartItemAddRoute extends AbstractCartItemAddRoute
     }
 
     /**
+     * @Since("6.3.0.0")
      * @OA\Post(
      *      path="/checkout/cart/line-item",
-     *      description="Add new line item entries",
+     *      summary="Add new line item entries",
      *      operationId="addLineItem",
      *      tags={"Store API", "Cart"},
      *      @OA\RequestBody(@OA\JsonContent(ref="#/definitions/CartItems")),

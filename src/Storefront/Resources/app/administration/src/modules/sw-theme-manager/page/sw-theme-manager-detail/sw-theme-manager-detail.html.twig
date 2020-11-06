@@ -187,7 +187,8 @@
                                                         <sw-container class="sw-theme-manager-detail__content--section_field">
                                                             <div v-for="(field, fieldName) in section.fields"
                                                                  :key="fieldName"
-                                                                 class="sw-theme-manager-detail__content--section_field">
+                                                                 class="sw-theme-manager-detail__content--section_field"
+                                                                 :class="{'sw-theme-manager-detail__content--section_field-full-width': field.fullWidth}">
                                                                 <template v-if="themeConfig[fieldName]">
                                                                     <sw-field
                                                                         v-if="mapSwFieldTypes(field.type) === 'select'"

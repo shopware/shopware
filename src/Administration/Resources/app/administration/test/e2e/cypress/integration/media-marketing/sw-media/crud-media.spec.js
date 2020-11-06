@@ -99,11 +99,18 @@ describe('Media: Test crud operations', () => {
             url: `${Cypress.env('apiPath')}/media/*`,
             method: 'delete'
         }).as('deleteData');
+        cy.route({
+            url: `${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw-login-background`,
+            method: 'post'
+        }).as('saveDataFileUpload');
 
         if (Cypress.isBrowser({family: 'chromium'})) {
             page.uploadImageUsingFileUpload('img/sw-login-background.png', 'sw-login-background.png');
 
-            cy.awaitAndCheckNotification('File has been saved.');
+            cy.wait('@saveDataFileUpload').then((xhr) => {
+                cy.awaitAndCheckNotification('File has been saved.');
+                expect(xhr).to.have.property('status', 204);
+            });
             page.deleteFile('sw-login-background.png');
         }
 
@@ -115,7 +122,10 @@ describe('Media: Test crud operations', () => {
             );
             page.uploadImageUsingUrl('http://assets.shopware.com/sw_logo_white.png');
 
-            cy.awaitAndCheckNotification('File has been saved.');
+            cy.wait('@saveDataFileUpload').then((xhr) => {
+                cy.awaitAndCheckNotification('File has been saved.');
+                expect(xhr).to.have.property('status', 204);
+            });
             page.deleteFile('sw_logo_white.png');
         }
     });

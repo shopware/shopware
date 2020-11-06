@@ -11,7 +11,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Feature;
 
 class ProductTranslationDefinition extends EntityTranslationDefinition
 {
@@ -37,6 +36,11 @@ class ProductTranslationDefinition extends EntityTranslationDefinition
         return ProductTranslationEntity::class;
     }
 
+    public function since(): ?string
+    {
+        return '6.0.0.0';
+    }
+
     protected function getParentDefinitionClass(): string
     {
         return ProductDefinition::class;
@@ -44,7 +48,7 @@ class ProductTranslationDefinition extends EntityTranslationDefinition
 
     protected function defineFields(): FieldCollection
     {
-        $collection = new FieldCollection([
+        return new FieldCollection([
             new StringField('meta_description', 'metaDescription'),
             (new StringField('name', 'name'))->addFlags(new Required()),
             new LongTextField('keywords', 'keywords'),
@@ -52,16 +56,9 @@ class ProductTranslationDefinition extends EntityTranslationDefinition
             new StringField('meta_title', 'metaTitle'),
             new StringField('pack_unit', 'packUnit'),
             new StringField('pack_unit_plural', 'packUnitPlural'),
+            new ListField('custom_search_keywords', 'customSearchKeywords'),
 
             new CustomFields(),
         ]);
-
-        if (Feature::isActive('FEATURE_NEXT_10075')) {
-            $collection->add(
-                new ListField('custom_search_keywords', 'customSearchKeywords')
-            );
-        }
-
-        return $collection;
     }
 }

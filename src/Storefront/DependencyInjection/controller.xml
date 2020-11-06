@@ -124,6 +124,7 @@
         <service id="Shopware\Storefront\Controller\MaintenanceController" public="true">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Storefront\Page\Maintenance\MaintenancePageLoader"/>
+            <argument type="service" id="Shopware\Storefront\Framework\Routing\MaintenanceModeResolver"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -188,6 +189,7 @@
         <service id="Shopware\Storefront\Controller\SearchController">
             <argument type="service" id="Shopware\Storefront\Page\Search\SearchPageLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\Suggest\SuggestPageLoader"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -225,6 +227,13 @@
 
         <service id="Shopware\Storefront\Controller\CountryStateController" public="true">
             <argument type="service" id="sales_channel.country.repository"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
+        <service id="Shopware\Storefront\Controller\DocumentController" public="true">
+            <argument type="service" id="Shopware\Storefront\Page\Account\Document\DocumentPageLoader"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

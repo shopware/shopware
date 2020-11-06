@@ -61,6 +61,8 @@
       "columnActions": "Action(s)",
       "columnAffiliateCode": "Affiliate code",
       "columnCampaignCode": "Campaign code",
+      "columnBoundSalesChannel": "Sales Channel",
+      "emptyBoundSalesChannel": "All",
       "contextMenuView": "View",
       "contextMenuDelete": "Delete",
       "contextMenuDuplicate": "Duplicate",
@@ -118,7 +120,10 @@
       "labelCampaignCode": "Campaign code",
       "contentActive": "Active | Inactive",
       "emptyTextLogin": "No login yet",
-      "emptyTextBirthday": "No information"
+      "emptyTextBirthday": "No information",
+      "labelBoundSalesChannel": "Sales Channel",
+      "emptyBoundSalesChannel": "All",
+      "helpTextBoundSalesChannel": "This customer can log in to the following Sales Channels"
     },
     "detailBase": {
       "labelAccountCard": "Account",

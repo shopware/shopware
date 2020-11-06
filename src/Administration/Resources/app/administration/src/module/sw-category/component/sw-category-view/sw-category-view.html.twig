@@ -7,7 +7,7 @@
         {% endblock %}
 
         {% block sw_category_view_tabs %}
-            <sw-tabs class="sw-customer-detail-page__tabs">
+            <sw-tabs class="sw-customer-detail-page__tabs" v-if="!isLoading">
                 {% block sw_category_view_tabs_general %}
                     <sw-tabs-item
                         class="sw-category-detail__tab-base"
@@ -19,6 +19,12 @@
                 {% block sw_category_view_tabs_cms %}
                     <sw-tabs-item
                         v-if="cmsPage"
+                        :disabled="!acl.can('category.editor')"
+                        v-tooltip="{
+                            message: $tc('sw-privileges.tooltip.warning'),
+                            disabled: acl.can('category.editor'),
+                            showOnDisabledElements: true
+                        }"
                         class="sw-category-detail__tab-cms"
                         :route="{ name: 'sw.category.detail.cms' }"
                         :title="$tc('sw-category.view.cms')">

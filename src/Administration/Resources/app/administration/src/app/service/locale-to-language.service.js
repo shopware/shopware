@@ -13,25 +13,15 @@ export default function createLocaleToLanguageService() {
         const apiContext = Shopware.Context.api;
         const repoFactory = Shopware.Service('repositoryFactory');
         const localeRepo = repoFactory.create('locale', '/locale');
-        const languageRepo = repoFactory.create('language', '/language');
         const localeCriteria = new Criteria();
 
-        localeCriteria.addFilter(Criteria.equals('code', locale));
+        localeCriteria
+            .addFilter(Criteria.equals('code', locale))
+            .addAssociation('languages');
 
         return localeRepo.search(localeCriteria, apiContext)
             .then((data) => {
-                return data.first().id;
-            })
-            .then((id) => {
-                const languageCriteria = new Criteria();
-                languageCriteria.addFilter(
-                    Criteria.equals('language.localeId', id)
-                );
-
-                return languageRepo.search(languageCriteria, apiContext);
-            })
-            .then((languageData) => {
-                return languageData.first().id;
+                return data.first().languages.first().id;
             })
             .catch(() => {
                 // Fallback: System default language

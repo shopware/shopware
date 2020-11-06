@@ -9,7 +9,6 @@ use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
 use Shopware\Core\Framework\Test\App\StorefrontPluginRegistryTestBehaviour;
@@ -23,11 +22,6 @@ class AppActionControllerTest extends TestCase
     use AdminApiTestBehaviour;
     use AppSystemTestBehaviour;
     use StorefrontPluginRegistryTestBehaviour;
-
-    public function setUp(): void
-    {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10286', $this);
-    }
 
     public function testGetActionsPerViewEmpty(): void
     {

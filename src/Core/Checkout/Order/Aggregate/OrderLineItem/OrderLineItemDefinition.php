@@ -50,9 +50,12 @@ class OrderLineItemDefinition extends EntityDefinition
 
     public function getDefaults(): array
     {
-        return [
-            'position' => 1,
-        ];
+        return ['position' => 1];
+    }
+
+    public function since(): ?string
+    {
+        return '6.0.0.0';
     }
 
     protected function getParentDefinitionClass(): ?string

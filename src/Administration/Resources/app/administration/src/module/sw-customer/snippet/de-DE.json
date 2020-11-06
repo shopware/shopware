@@ -61,6 +61,8 @@
       "columnActions": "Aktion(en)",
       "columnAffiliateCode": "Affiliate-Code",
       "columnCampaignCode": "Kampagnen-Code",
+      "columnBoundSalesChannel": "Verkaufskanal",
+      "emptyBoundSalesChannel": "Alle",
       "contextMenuView": "Anzeigen",
       "contextMenuDuplicate": "Duplizieren",
       "contextMenuDelete": "Löschen",
@@ -118,7 +120,10 @@
       "labelCampaignCode": "Kampagnen-Code",
       "contentActive": "Aktiv | Inaktiv",
       "emptyTextLogin": "Noch keine Anmeldung",
-      "emptyTextBirthday": "keine Angabe"
+      "emptyTextBirthday": "keine Angabe",
+      "labelBoundSalesChannel": "Verkaufskanal",
+      "emptyBoundSalesChannel": "Alle",
+      "helpTextBoundSalesChannel": "Dieser Kunde kann sich in folgenden Verkaufskanälen anmelden"
     },
     "detailBase": {
       "labelAccountCard": "Konto",
@@ -214,7 +219,7 @@
       "messageSaveError": "Der Kunde konnte nicht gespeichert werden.",
       "messageSaveSuccess": "Der Kunde \"{name}\" wurde erfolgreich gespeichert.",
       "notificationPasswordErrorMessage": "Die eingegebenen Passwörter stimmen nicht überein.",
-      "notificationPasswordLengthErrorMessage": "Das Losungswort erfüllt nicht die Mindestlänge von 8."
+      "notificationPasswordLengthErrorMessage": "Das Passwort erfüllt nicht die Mindestlänge von 8 Zeichen."
     }
   },
   "sw-privileges": {

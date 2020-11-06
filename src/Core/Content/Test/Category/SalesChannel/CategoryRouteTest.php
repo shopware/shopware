@@ -121,31 +121,6 @@ class CategoryRouteTest extends TestCase
         }
     }
 
-    public function testFilterConsidered(): void
-    {
-        $this->browser->request(
-            'POST',
-            '/store-api/v' . PlatformRequest::API_VERSION . '/category/' . $this->ids->get('category'),
-            [
-                'manufacturer' => $this->ids->get('manufacturer-2'),
-                'reduce-aggregations' => true,
-                'includes' => [
-                    'product_manufacturer' => ['id', 'name', 'options'],
-                    'product' => ['id', 'name', 'tax', 'manufacturerId'],
-                    'product_listing' => ['aggregations', 'elements', 'total'],
-                ],
-            ]
-        );
-
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
-
-        $listing = $response['cmsPage']['sections'][0]['blocks'][0]['slots'][0]['data']['listing'];
-        static::assertCount(1, $listing['elements']);
-        static::assertEquals($this->ids->get('manufacturer-2'), $listing['elements'][0]['manufacturerId']);
-        static::assertCount(1, $listing['aggregations']['manufacturer']['entities']);
-        static::assertEquals($this->ids->get('manufacturer-2'), $listing['aggregations']['manufacturer']['entities'][0]['id']);
-    }
-
     public function testHome(): void
     {
         $this->browser->request(

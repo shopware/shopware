@@ -21,6 +21,19 @@ parameters:
     excludes_analyse:
         - src/Recovery/*
         - src/Storefront/Framework/Cache/CacheDecorator.php
+        - src/Elasticsearch/Product/ElasticsearchProductDefinition.php
+        - src/Elasticsearch/Framework/DataAbstractionLayer/ElasticsearchEntitySearcher.php
+        - src/Core/System/SalesChannel/Context/SalesChannelContextFactory.php
+        - src/Core/Migration/Migration1591253089OrderDeeplinkForMailTemplates.php
+        - src/Core/Migration/Migration1588153272UpdateGermanMailTemplates.php
+        - src/Core/Framework/Routing/ApiRequestContextResolver.php
+        - src/Core/Framework/Api/Sync/SyncService.php
+        - src/Elasticsearch/Test/Product/ElasticsearchProductDefinitionExtension.php
+        - ../src/Command/ConfigDebugCommand.php
+        - ../src/Command/DatabaseDebugViewGenerator.php
+        - src/Core/Checkout/Cart/Order/OrderConverter.php
+        - src/Core/Framework/DataAbstractionLayer/FieldSerializer/CashRoundingConfigFieldSerializer.php
+        - src/Core/Framework/DataAbstractionLayer/Dbal/FieldAccessorBuilder/ListingPriceFieldAccessorBuilder.php
         - src/Docs/Resources/current/60-references-internals/10-core/50-checkout-process/_examples/10-cart-example.php
         - src/Docs/Resources/deprecated/2-internals/1-core/50-checkout-process/_examples/10-cart-example.php
 

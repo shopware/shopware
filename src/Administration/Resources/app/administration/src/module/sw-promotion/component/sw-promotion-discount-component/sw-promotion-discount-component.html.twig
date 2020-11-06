@@ -45,30 +45,21 @@
 
         {% block sw_promotion_discount_condition_rules_form %}
             <template v-if="!shippingScope && discount.considerAdvancedRules === true">
-
-                <sw-promotion-rule-select
-                        class="sw-promotion-discount-component__select-discount-rules"
-                        v-model="discount.discountRules"
-                        :localMode="discount.isNew()"
-                        :criteria="ruleFilter"
-                        :label="$tc('sw-promotion.detail.main.discounts.labelRules')"
-                        :placeholder="$tc('sw-promotion.detail.main.discounts.placeholder')"
-                        :disabled="isEditingDisabled">
-                </sw-promotion-rule-select>
+                <div v-if="!isSetGroup">
+                    <sw-promotion-rule-select
+                            class="sw-promotion-discount-component__select-discount-rules"
+                            v-model="discount.discountRules"
+                            :localMode="discount.isNew()"
+                            :criteria="ruleFilter"
+                            :label="$tc('sw-promotion.detail.main.discounts.labelRules')"
+                            :placeholder="$tc('sw-promotion.detail.main.discounts.placeholder')"
+                            :disabled="isEditingDisabled">
+                    </sw-promotion-rule-select>
+                </div>
 
                 <sw-container columns="1fr 1fr" gap="0px 30px">
-                    {% block sw_promotion_cart_condition_setgroup_filter_sorting_field %}
-                        <sw-select-field :label="$tc('sw-promotion.detail.main.discounts.labelSorting')"
-                                         v-model="discount.sorterKey"
-                                         :disabled="isEditingDisabled">
-                            <option v-for="sorter in graduationSorters"
-                                    :value="sorter.key">
-                                {{ sorter.name }}
-                            </option>
-                        </sw-select-field>
-                    {% endblock %}
                     {% block sw_promotion_cart_condition_setgroup_filter_apply_field %}
-                        <sw-select-field :label="$tc('sw-promotion.detail.main.discounts.labelApplyCount')"
+                        <sw-select-field v-if="!isSet" :label="$tc('sw-promotion.detail.main.discounts.labelApplyCount')"
                                          v-model="discount.applierKey"
                                          :disabled="isEditingDisabled">
                             <option v-for="applier in graduationAppliers"
@@ -77,12 +68,10 @@
                             </option>
                         </sw-select-field>
                     {% endblock %}
-                </sw-container>
-
-                <sw-container columns="1fr 1fr" gap="0px 30px">
                     {% block sw_promotion_cart_condition_setgroup_filter_usage_field %}
                         <sw-select-field :label="$tc('sw-promotion.detail.main.discounts.labelMaxCount')"
                                          v-model="discount.usageKey"
+                                         v-if="isMaxUsageVisible"
                                          :disabled="isEditingDisabled">
                             <option v-for="count in graduationCounts"
                                     :value="count.key">
@@ -90,7 +79,34 @@
                             </option>
                         </sw-select-field>
                     {% endblock %}
+
                 </sw-container>
+
+                <template v-if="discount.applierKey!=='ALL'">
+                    <sw-container columns="1fr 1fr" gap="0px 30px">
+                        {% block sw_promotion_cart_condition_setgroup_filter_sorting_field %}
+                            <sw-select-field :label="$tc('sw-promotion.detail.main.discounts.labelSorting')"
+                                             v-model="discount.sorterKey"
+                                            :disabled="isEditingDisabled">
+                                <option v-for="sorter in graduationSorters"
+                                        :value="sorter.key">
+                                    {{ sorter.name }}
+                                </option>
+                            </sw-select-field>
+                        {% endblock %}
+                        {% block sw_promotion_cart_condition_setgroup_filter_picker_field %}
+                            <sw-select-field :label="$tc('sw-promotion.detail.main.discounts.labelPicking')"
+                                             v-model="discount.pickerKey"
+                                             v-if="isPickingModeVisible"
+                                             :disabled="isEditingDisabled">
+                                <option v-for="picker in graduationPickers"
+                                        :value="picker.key">
+                                    {{ picker.name }}
+                                </option>
+                            </sw-select-field>
+                        {% endblock %}
+                    </sw-container>
+                </template>
 
             </template>
         {% endblock %}

@@ -66,7 +66,7 @@ class ListingPriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
         return sprintf('COALESCE(%s)', implode(',', $select));
     }
 
-    private function getSelect(string $template, string $ruleKey, string $currencyId, float $factor)
+    private function getSelect(string $template, string $ruleKey, string $currencyId, float $factor): string
     {
         $parameters = [
             '#rule_key#' => $ruleKey,

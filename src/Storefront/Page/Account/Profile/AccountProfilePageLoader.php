@@ -59,6 +59,10 @@ class AccountProfilePageLoader
 
         $page = AccountProfilePage::createFrom($page);
 
+        if ($page->getMetaInformation()) {
+            $page->getMetaInformation()->setRobots('noindex,follow');
+        }
+
         $page->setSalutations($this->getSalutations($salesChannelContext, $request));
 
         $this->eventDispatcher->dispatch(

@@ -75,6 +75,29 @@ class StructEncoderTest extends TestCase
         );
     }
 
+    public function testSupportsNullExtensions(): void
+    {
+        $foo = new MyTestStruct('foo', 'bar');
+        $foo->addExtension('myExtension', null);
+
+        $fields = new ResponseFields([
+            'test-struct' => ['foo', 'myExtension'],
+        ]);
+
+        $encoded = $this->encoder->encode($foo, 1, $fields);
+
+        static::assertEquals(
+            [
+                'foo' => 'foo',
+                'extensions' => [
+                    'myExtension' => null,
+                ],
+                'apiAlias' => 'test-struct',
+            ],
+            $encoded
+        );
+    }
+
     public function testCollectionEncoding(): void
     {
         $collection = new StructCollection();

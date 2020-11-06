@@ -1,5 +1,6 @@
 import './extension/sw-admin-menu';
 import './page/sw-profile-index';
+import './acl';
 
 const { Module } = Shopware;
 
@@ -15,7 +16,10 @@ Module.register('sw-profile', {
     routes: {
         index: {
             component: 'sw-profile-index',
-            path: 'index'
+            path: 'index',
+            meta: {
+                privilege: 'user.update_profile'
+            }
         }
     }
 });

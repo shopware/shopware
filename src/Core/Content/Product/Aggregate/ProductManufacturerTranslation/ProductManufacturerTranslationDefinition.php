@@ -30,6 +30,11 @@ class ProductManufacturerTranslationDefinition extends EntityTranslationDefiniti
         return ProductManufacturerTranslationEntity::class;
     }
 
+    public function since(): ?string
+    {
+        return '6.0.0.0';
+    }
+
     protected function getParentDefinitionClass(): string
     {
         return ProductManufacturerDefinition::class;

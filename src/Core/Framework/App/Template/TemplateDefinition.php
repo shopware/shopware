@@ -34,6 +34,11 @@ class TemplateDefinition extends EntityDefinition
         return TemplateCollection::class;
     }
 
+    public function since(): ?string
+    {
+        return '6.3.1.0';
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([

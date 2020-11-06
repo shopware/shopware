@@ -58,6 +58,10 @@ class CheckoutFinishPageLoader
 
         $page = CheckoutFinishPage::createFrom($page);
 
+        if ($page->getMetaInformation()) {
+            $page->getMetaInformation()->setRobots('noindex,follow');
+        }
+
         $page->setOrder($this->getOrder($request, $salesChannelContext));
 
         $page->setChangedPayment((bool) $request->get('changedPayment', false));

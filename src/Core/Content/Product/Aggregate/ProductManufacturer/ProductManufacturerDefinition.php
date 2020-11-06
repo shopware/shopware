@@ -40,6 +40,11 @@ class ProductManufacturerDefinition extends EntityDefinition
         return ProductManufacturerEntity::class;
     }
 
+    public function since(): ?string
+    {
+        return '6.0.0.0';
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([

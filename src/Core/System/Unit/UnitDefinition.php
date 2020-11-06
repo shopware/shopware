@@ -35,11 +35,16 @@ class UnitDefinition extends EntityDefinition
         return UnitEntity::class;
     }
 
+    public function since(): ?string
+    {
+        return '6.0.0.0';
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            (new TranslatedField('shortCode'))->addFlags(new SearchRanking(SearchRanking::LOW_SEARCH_RAKING)),
+            (new TranslatedField('shortCode'))->addFlags(new SearchRanking(SearchRanking::LOW_SEARCH_RANKING)),
             (new TranslatedField('name'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new TranslatedField('customFields'),
             (new OneToManyAssociationField('products', ProductDefinition::class, 'unit_id', 'id'))->addFlags(new RestrictDelete(), new ReverseInherited('unit')),

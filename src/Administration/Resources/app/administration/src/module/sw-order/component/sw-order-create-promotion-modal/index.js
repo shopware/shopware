@@ -8,10 +8,18 @@ const { format } = Utils;
 Component.register('sw-order-create-promotion-modal', {
     template,
 
+    inject: [
+        'feature'
+    ],
+
     props: {
         currency: {
             type: Object,
             required: true
+        },
+        salesChannelId: {
+            type: String,
+            required: false
         }
     },
 
@@ -48,7 +56,9 @@ Component.register('sw-order-create-promotion-modal', {
 
         disableAutomaticPromotions() {
             this.isLoading = true;
-            Service('cartStoreService').disableAutomaticPromotions(this.cart.token).then(() => {
+            const additionalParams = this.feature.isActive('FEATURE_NEXT_10058') ? { salesChannelId: this.salesChannelId } : {};
+
+            Service('cartStoreService').disableAutomaticPromotions(this.cart.token, additionalParams).then(() => {
                 this.isLoading = false;
                 this.$emit('save');
             });

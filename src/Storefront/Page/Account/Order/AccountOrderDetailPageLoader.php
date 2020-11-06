@@ -94,6 +94,10 @@ class AccountOrderDetailPageLoader
         $page->setLineItems($order->getNestedLineItems());
         $page->setOrder($order);
 
+        if ($page->getMetaInformation()) {
+            $page->getMetaInformation()->setRobots('noindex,follow');
+        }
+
         $this->eventDispatcher->dispatch(
             new AccountOrderDetailPageLoadedEvent($page, $salesChannelContext, $request)
         );

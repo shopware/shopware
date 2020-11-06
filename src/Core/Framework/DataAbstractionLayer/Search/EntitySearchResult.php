@@ -33,18 +33,36 @@ class EntitySearchResult extends EntityCollection
      */
     protected $context;
 
+    /**
+     * @internal (flag:FEATURE_NEXT_10549)
+     *
+     * @var int
+     */
+    protected $page;
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10549)
+     *
+     * @var int|null
+     */
+    protected $limit;
+
     final public function __construct(
         int $total,
         EntityCollection $entities,
         ?AggregationResultCollection $aggregations,
         Criteria $criteria,
-        Context $context
+        Context $context,
+        int $page = 1,
+        ?int $limit = null
     ) {
         $this->entities = $entities;
         $this->total = $total;
         $this->aggregations = $aggregations ?? new AggregationResultCollection();
         $this->criteria = $criteria;
         $this->context = $context;
+        $this->page = $page;
+        $this->limit = $limit;
 
         parent::__construct($entities);
     }
@@ -116,6 +134,38 @@ class EntitySearchResult extends EntityCollection
         return 'dal_entity_search_result';
     }
 
+    /**
+     * @internal (flag:FEATURE_NEXT_10549)
+     */
+    public function getPage(): ?int
+    {
+        return $this->page;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10549)
+     */
+    public function setPage(int $page): void
+    {
+        $this->page = $page;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10549)
+     */
+    public function getLimit(): ?int
+    {
+        return $this->limit;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10549)
+     */
+    public function setLimit(int $limit): void
+    {
+        $this->limit = $limit;
+    }
+
     protected function createNew(iterable $elements = [])
     {
         return new static(
@@ -123,7 +173,9 @@ class EntitySearchResult extends EntityCollection
             $elements,
             $this->aggregations,
             $this->criteria,
-            $this->context
+            $this->context,
+            $this->page,
+            $this->limit
         );
     }
 }

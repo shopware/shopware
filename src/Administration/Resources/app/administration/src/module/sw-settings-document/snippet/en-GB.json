@@ -59,7 +59,9 @@
       "buttonSave": "Save",
       "disabledSalesChannel": "There is already another document with the same type with this sales channel.",
       "disabledSalesChannelSelect": "Choose a document type first.",
-      "disabledTypeSelect": "The type of global documents cannot be changed."
+      "disabledTypeSelect": "The type of global documents cannot be changed.",
+      "labelDisplayDocumentInCustomerAccount": "Display document in \"My account\" area",
+      "helpTextDisplayDocumentInCustomerAccount": "The document is displayed to the store customer under Orders in the customer account. Only documents sent to the customer are displayed in the customer account."
     }
   },
   "sw-privileges": {

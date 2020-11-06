@@ -22,7 +22,7 @@
 
         <service id="Shopware\Core\Content\Product\ProductDefinition">
             <tag name="shopware.entity.definition"/>
-            <tag name="shopware.composite_search.definition"  priority="600"/>
+            <tag name="shopware.composite_search.definition" priority="600"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition">
@@ -67,7 +67,7 @@
 
         <service id="Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition">
             <tag name="shopware.entity.definition"/>
-            <tag name="shopware.composite_search.definition"  priority="300"/>
+            <tag name="shopware.composite_search.definition" priority="300"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationDefinition">
@@ -179,6 +179,7 @@
             <argument type="service" id="product_sorting.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingSortingRegistry"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface"
@@ -190,51 +191,6 @@
 
         <service id="Shopware\Core\Content\Product\SalesChannel\ProductReviewService">
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewSaveRoute"/>
-        </service>
-
-        <service id="product_listing.sorting.name_ascending" class="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingSorting">
-            <argument>name-asc</argument>
-            <argument>filter.sortByNameAscending</argument>
-            <argument type="collection">
-                <argument key="product.name">asc</argument>
-            </argument>
-            <tag name="shopware.sales_channel.product_listing.sorting" />
-        </service>
-
-        <service id="product_listing.sorting.name_descending" class="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingSorting">
-            <argument>name-desc</argument>
-            <argument>filter.sortByNameDescending</argument>
-            <argument type="collection">
-                <argument key="product.name">desc</argument>
-            </argument>
-            <tag name="shopware.sales_channel.product_listing.sorting" />
-        </service>
-
-        <service id="product_listing.sorting.price_ascending" class="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingSorting">
-            <argument>price-asc</argument>
-            <argument>filter.sortByPriceAscending</argument>
-            <argument type="collection">
-                <argument key="product.listingPrices">asc</argument>
-            </argument>
-            <tag name="shopware.sales_channel.product_listing.sorting" />
-        </service>
-
-        <service id="product_listing.sorting.price_descending" class="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingSorting">
-            <argument>price-desc</argument>
-            <argument>filter.sortByPriceDescending</argument>
-            <argument type="collection">
-                <argument key="product.listingPrices">desc</argument>
-            </argument>
-            <tag name="shopware.sales_channel.product_listing.sorting" />
-        </service>
-
-        <service id="product_listing.sorting.score" class="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingSorting">
-            <argument>score</argument>
-            <argument>filter.sortByScore</argument>
-            <argument type="collection">
-                <argument key="_score">desc</argument>
-            </argument>
-            <tag name="shopware.sales_channel.product_listing.sorting" />
         </service>
 
         <service id="Shopware\Core\Content\Product\Cart\ProductLineItemCommandValidator">
@@ -329,6 +285,7 @@
             <argument type="service" id="sales_channel.product.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader"/>
+            <argument type="service" id="Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRoute" public="true">

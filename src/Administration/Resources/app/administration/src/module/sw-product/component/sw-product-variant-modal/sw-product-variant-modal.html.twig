@@ -1,0 +1,309 @@
+{% block sw_product_variant_modal %}
+    <sw-modal class="sw-product-variant-modal"
+        :title="modalTitle"
+        variant="full"
+        @modal-close="$emit('modal-close')">
+
+        {% block sw_product_variant_modal_body %}
+            <template>
+
+                {% block sw_product_variant_modal_body_label %}
+                    <sw-label class="sw-product-variant-modal__label">
+                    
+                        {% block sw_product_variant_modal_body_label_search %}
+                            <sw-simple-search-field v-model="searchTerm"
+                                class="sw-product-variant-modal__search"
+                                size="small"
+                                variant="form"
+                                @search-term-change="onSearchTermChange">
+                            </sw-simple-search-field>
+                        {% endblock %}
+                    </sw-label>
+                {% endblock %}
+
+                {% block sw_product_variant_modal_body_grid %}
+                    <sw-data-grid v-if="productVariants.length > 0"
+                        ref="variantGrid"
+                        :columns="gridColumns"
+                        :dataSource="productVariants"
+                        :sortBy="sortBy"
+                        :sortDirection="sortDirection"
+                        @column-sort="onSortColumn"
+                        @inline-edit-save="onInlineEditSave"
+                        @inline-edit-cancel="onInlineEditCancel"
+                        :showSelection="acl.can('product.deleter')"
+                        :allowInlineEdit="acl.can('product.editor')"
+                        showSettings>
+
+                        {% block sw_product_variant_modal_body_grid_bulk %}
+                            <template #bulk>
+                                <span class="link link-danger"
+                                    @click="onClickBulkDelete">
+                                    {{ $tc('global.default.delete') }}
+                                </span>
+                            </template>
+                        {% endblock %}
+
+                        {% block sw_product_variant_modal_body_grid_column_name %}
+                            <template #column-name="{item, isInlineEdit}">
+                            
+                                {% block sw_product_variant_modal_body_grid_column_name_inline_edit %}
+                                    <sw-text-field v-if="isInlineEdit"
+                                        v-model="item.name"
+                                        :placeholder="$tc('sw-product.list.variantModalInlineEditProductNamePlaceholder')"
+                                        size="small">
+                                    </sw-text-field>
+                                {% endblock %}
+
+                                {% block sw_product_variant_modal_body_grid_column_name_content %}
+                                    <template v-else>
+                                        {% block sw_product_variant_modal_body_grid_column_name_content_media_preview %}
+                                            <sw-media-preview-v2 :source="getItemMedia(item)">
+                                            </sw-media-preview-v2>
+                                        {% endblock %}
+
+                                        {% block sw_product_variant_modal_body_grid_column_name_content_name %}
+                                            <router-link :to="{ name: 'sw.product.detail', params: { id: item.id } }">
+                                                <span v-if="item.translated.name"
+                                                    class="sw-product-variant-modal__variant-name">
+                                                    {{ item.translated.name }}
+                                                </span>
+                                                
+                                                <sw-product-variant-info v-else
+                                                    class="sw-product-variant-modal__variant-options"
+                                                    :variations="item.variation"
+                                                    :showTooltip="false"
+                                                    :ommitParenthesis="true"
+                                                    seperator=", ">
+                                                </sw-product-variant-info>
+                                            </router-link>
+                                        {% endblock %}
+
+                                        {% block sw_product_variant_modal_body_grid_column_name_content_options %}
+                                            <sw-product-variant-info v-if="item.translated.name"
+                                                :variations="item.variation"
+                                                :showTooltip="false">
+                                            </sw-product-variant-info>
+                                        {% endblock %}
+                                    </template>
+                                {% endblock %}
+                            </template>
+                        {% endblock %}
+
+                        {% block sw_product_variant_modal_body_grid_column_price %}
+                            <template #column-price="{item, isInlineEdit}">
+                                <template v-if="isInlineEdit">
+                                    <sw-inheritance-switch :isInherited="item.price === null"
+                                        class="sw-product-variant-modal__price-inheritance-switch"
+                                        @inheritance-restore="onInheritanceRestore(item, currency)"
+                                        @inheritance-remove="onInheritanceRemove(item, currency)">
+                                    </sw-inheritance-switch>
+                                
+                                    <sw-price-field :price="item.price ? item.price : []"
+                                        :defaultPrice="productEntity.price[0]"
+                                        :taxRate="productEntity.tax"
+                                        :label="false"
+                                        :compact="true"
+                                        :disableSuffix="true"
+                                        enableInheritance
+                                        :currency="currency">
+                                    </sw-price-field>
+                                </template>
+                            
+                                <template v-else>
+                                    <sw-inheritance-switch :isInherited="item.price === null"
+                                        class="sw-product-variant-modal__price-inheritance-switch"
+                                        disabled>
+                                    </sw-inheritance-switch>
+                                    
+                                    <sw-price-preview :price="item.price ? item.price : []"
+                                        :defaultPrice="productEntity.price[0]"
+                                        :taxRate="productEntity.tax"
+                                        :currency="currency">
+                                    </sw-price-preview>
+                                </template>
+                            </template>
+                        {% endblock %}
+
+                        {% block sw_product_variant_modal_body_grid_column_stock %}
+                            <template #column-stock="{item, isInlineEdit}">
+
+                                {% block sw_product_variant_modal_body_grid_column_stock_inline_edit %}
+                                    <sw-number-field v-if="isInlineEdit"
+                                        v-model="item.stock"
+                                        :placeholder="$tc('sw-product.list.variantModalInlineEditStockPlaceholder')"
+                                        size="small">
+                                    </sw-number-field>
+                                {% endblock %}
+
+                                {% block sw_product_variant_modal_body_grid_column_stock_content %}
+                                    <template v-else>
+                                        {{ item.stock }}
+                                        <sw-color-badge :variant="item.stock | stockColorVariant"></sw-color-badge>
+                                    </template>
+                                {% endblock %}
+                            </template>
+                        {% endblock %}
+
+                        {% block sw_product_variant_modal_body_grid_column_active %}
+                            <template #column-active="{item, isInlineEdit}">
+                            
+                                {% block sw_product_variant_modal_body_grid_column_active_inline_edit %}
+                                    <template v-if="isInlineEdit">
+                                        <sw-checkbox-field v-model="item.active"
+                                            :disabled="item.active === null">
+                                        </sw-checkbox-field>
+
+                                        <sw-inheritance-switch :isInherited="item.active === null"
+                                            class="sw-product-variant-modal__active-inheritance-switch"
+                                            @inheritance-restore="item.active = null"
+                                            @inheritance-remove="item.active = true">
+                                        </sw-inheritance-switch>
+                                    </template>
+                                {% endblock %}
+
+                                {% block sw_product_variant_modal_body_grid_column_active_content %}
+                                    <template v-else>
+                                    
+                                        {% block sw_product_variant_modal_body_grid_column_active_content_icon_active %}
+                                            <sw-icon v-if="item.active === true"
+                                                    name="small-default-checkmark-line-medium"
+                                                    small
+                                                    class="sw-icon--product-status is--active">
+                                            </sw-icon>
+                                        {% endblock %}
+
+                                        {% block sw_product_variant_modal_body_grid_column_active_content_icon_not_active %}
+                                            <sw-icon v-else-if="item.active === false"
+                                                    name="small-default-x-line-medium"
+                                                    small
+                                                    class="sw-icon--product-status is--inactive">
+                                            </sw-icon>
+                                        {% endblock %}
+
+                                        <sw-icon v-else
+                                            key="inherit-icon"
+                                            :multicolor="true"
+                                            name="custom-inherited"
+                                            size="16">
+                                        </sw-icon>
+                                    </template>
+                                {% endblock %}
+                            </template>
+                        {% endblock %}
+
+                        {% block sw_product_variant_modal_body_grid_actions %}
+                            <template #actions="{item}">
+                            
+                                {% block sw_product_variant_modal_body_grid_actions_edit %}
+                                    <sw-context-menu-item @click="visitProduct(item.id)">
+                                        {{ contextMenuEditText }}
+                                    </sw-context-menu-item>
+                                {% endblock %}
+
+                                {% block sw_product_variant_modal_body_grid_actions_delete %}
+                                    <sw-context-menu-item variant="danger"
+                                        @click="onDeleteVariant(item)"
+                                        :disabled="!acl.can('product.deleter')"
+                                        v-tooltip.left="getNoPermissionsTooltip('product.deleter')">
+                                        {{ $tc('global.default.delete') }}
+                                    </sw-context-menu-item>
+                                {% endblock %}
+                            </template>
+                        {% endblock %}
+
+                        {% block sw_product_variant_modal_body_grid_pagination %}
+                            <template #pagination>
+                                <sw-pagination v-if="productVariants.length !== 0"
+                                    ref="pagination"
+                                    :page="paginationPage"
+                                    :limit="paginationLimit"
+                                    :total="productVariants.total"
+                                    @page-change="onPageChange">
+                                </sw-pagination>
+                            </template>
+                        {% endblock %}
+                    </sw-data-grid>
+                {% endblock %}
+
+                {% block sw_product_variant_modal_body_empty_state %}
+                    <sw-empty-state v-else
+                        title=""
+                        :subline="$tc('sw-product.list.variantGridEmptyStateSubline')"
+                        :absolute="false">
+                    </sw-empty-state>
+                {% endblock %}
+
+                {% block sw_product_variant_modal_body_delete_modal %}
+                    <sw-modal v-if="showDeleteModal"
+                        class="sw-product-variant-modal__delete-modal"
+                        :title="$tc('sw-product.list.variantDeleteModalTitle')"
+                        variant="small"
+                        @modal-close="closeDeleteModal">
+                        
+                        {% block sw_product_variant_modal_body_delete_modal_body_multiple %}
+                            <template v-if="toBeDeletedVariants.length > 1">
+
+                                {% block sw_product_variant_modal_body_delete_modal_body_multiple_text %}
+                                    <p>{{ $t('sw-product.list.multipleVariantsDeleteModalText', { amount: toBeDeletedVariants.length }) }}</p>
+                                {% endblock %}
+
+                                {% block sw_product_variant_modal_body_delete_modal_body_multiple_subline %}
+                                    <p class="sw-product-variant-modal__delete-modal-subline">({{ $tc('sw-product.list.multipleVariantsDeleteModalSubline') }})</p>
+                                {% endblock %}
+                            </template>
+                        {% endblock %}
+
+                        {% block sw_product_variant_modal_body_delete_modal_body_single %}
+                            <p v-else>
+                                {{ $t('sw-product.list.variantDeleteModalText', { variantName: buildVariantName(toBeDeletedVariants[0]) }) }}
+                            </p>
+                        {% endblock %}
+
+                        {% block sw_product_variant_modal_body_delete_modal_footer %}
+                            <template #modal-footer>
+                            
+                                {% block sw_product_variant_modal_body_delete_modal_footer_close %}
+                                    <sw-button @click="closeDeleteModal"
+                                        size="small">
+                                        {{ $tc('global.default.cancel') }}
+                                    </sw-button>
+                                {% endblock %}
+
+                                {% block sw_product_variant_modal_body_delete_modal_footer_confirm %}
+                                    <sw-button-process variant="danger"
+                                        size="small"
+                                        :animationTimeout="750"
+                                        :processSuccess="isDeletionOver"
+                                        :isLoading="isDeleteButtonLoading"
+                                        @click="deleteVariants"
+                                        @process-finish="closeDeleteModal">
+                                        {{ $tc('global.default.delete') }}
+                                    </sw-button-process>
+                                {% endblock %}
+                            </template>
+                        {% endblock %}
+                    </sw-modal>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_product_variant_modal_footer %}
+            <template #modal-footer>
+                {% block sw_product_variant_modal_footer_visit_main_product %}
+                    <div class="sw-product-variant-modal__main-product-link"
+                        @click="visitProduct(productEntity.id)">
+                            {{ openMainProductText }}
+                    </div>
+                {% endblock %}
+
+                {% block sw_product_variant_modal_footer_close_button %}
+                    <sw-button size="small"
+                        @click="$emit('modal-close')">
+                        {{ $tc('global.sw-modal.labelClose') }}
+                    </sw-button>
+                {% endblock %}
+            </template>
+        {% endblock %}
+    </sw-modal>
+{% endblock %}

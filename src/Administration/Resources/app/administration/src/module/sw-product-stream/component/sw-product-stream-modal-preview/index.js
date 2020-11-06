@@ -67,7 +67,7 @@ Component.register('sw-product-stream-modal-preview', {
 
     filters: {
         stockColorVariant(value) {
-            if (value > 25) {
+            if (value >= 25) {
                 return 'success';
             }
             if (value < 25 && value > 0) {

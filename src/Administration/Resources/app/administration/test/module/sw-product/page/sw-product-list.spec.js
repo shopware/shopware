@@ -51,6 +51,7 @@ function mockCriteria() {
     return {
         limit: 25,
         page: 1,
+        sortings: [],
         resetSorting() {
             this.sortings = [];
         },
@@ -106,7 +107,8 @@ function getProductData(criteria) {
             ],
             productNumber: 'SW10000',
             name: 'Product 1',
-            id: 'bc5ff49955be4b919053add552c2815d'
+            id: 'bc5ff49955be4b919053add552c2815d',
+            childCount: 8
         }
     ];
 
@@ -356,5 +358,19 @@ describe('module/sw-product/page/sw-product-list', () => {
         };
 
         expect(foundPriceData).toEqual(expectedPriceData);
+    });
+
+    it('should return false if product has no variants', () => {
+        const [product] = getProductData(mockCriteria());
+        const productHasVariants = wrapper.vm.productHasVariants(product);
+
+        expect(productHasVariants).toBe(false);
+    });
+
+    it('should return true if product has variants', () => {
+        const [, product] = getProductData(mockCriteria());
+        const productHasVariants = wrapper.vm.productHasVariants(product);
+
+        expect(productHasVariants).toBe(true);
     });
 });

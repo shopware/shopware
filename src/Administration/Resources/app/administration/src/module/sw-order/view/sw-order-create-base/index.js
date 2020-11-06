@@ -481,7 +481,8 @@ Component.register('sw-order-create-base', {
 
         enableAutomaticPromotions() {
             this.updateLoading(true);
-            const additionalParams = this.feature.isActive('FEATURE_NEXT_10058') ? { salesChannelId: this.customer.salesChannelId } : {};
+            const additionalParams = this.feature.isActive('FEATURE_NEXT_10058') ?
+                { salesChannelId: this.customer.salesChannelId } : {};
             Service('cartStoreService').enableAutomaticPromotions(this.cart.token, additionalParams).then(() => {
                 this.loadCart();
             });

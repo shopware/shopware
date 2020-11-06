@@ -56,7 +56,8 @@ Component.register('sw-order-create-promotion-modal', {
 
         disableAutomaticPromotions() {
             this.isLoading = true;
-            const additionalParams = this.feature.isActive('FEATURE_NEXT_10058') ? { salesChannelId: this.salesChannelId } : {};
+            const additionalParams = this.feature.isActive('FEATURE_NEXT_10058') ?
+                { salesChannelId: this.salesChannelId } : {};
 
             Service('cartStoreService').disableAutomaticPromotions(this.cart.token, additionalParams).then(() => {
                 this.isLoading = false;

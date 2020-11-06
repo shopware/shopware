@@ -8,7 +8,8 @@
 
         {% block sw_condition_value_content %}
             <sw-number-field
-                :step="0.01"
+                :min="0"
+                :digits="20"
                 size="medium"
                 :disabled="disabled"
                 v-model="amount">

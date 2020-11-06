@@ -294,8 +294,8 @@ Component.register('sw-price-field', {
 
         keymonitor(event) {
             if (event.key === ',') {
-                const value = event.currentTarget.value;
-                event.currentTarget.value = value.replace(/.$/, '.');
+                const value = event.target.value;
+                event.target.value = value.replace(/,/, '.');
             }
         }
     }

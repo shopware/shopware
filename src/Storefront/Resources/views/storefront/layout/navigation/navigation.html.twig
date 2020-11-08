@@ -21,6 +21,12 @@
                         {% endblock %}
 
                         {% block layout_main_navigation_menu_items %}
+                            {% if page.product is defined %}
+                                {% set activePath = page.product.categoryTree %}
+                            {% else %}
+                                {% set activePath = page.header.navigation.active.path %}
+                            {% endif %}
+
                             {% for treeItem in page.header.navigation.tree %}
                                 {% set category = treeItem.category %}
                                 {% set name = category.translated.name %}
@@ -38,7 +44,7 @@
                                             </div>
                                         </div>
                                     {% else %}
-                                        <a class="nav-link main-navigation-link{% if categorId is same as(page.header.navigation.active.id) %} active{% endif %}"
+                                        <a class="nav-link main-navigation-link{% if categorId == page.header.navigation.active.id or categorId in activePath %} active{% endif %}"
                                            href="{% if category.translated.externalLink %}{{ category.translated.externalLink }}{% else %}{{ seoUrl('frontend.navigation.page', { navigationId: categorId }) }}{% endif %}"
                                            itemprop="url"
                                             {% if treeItem.children|length > 0 %}

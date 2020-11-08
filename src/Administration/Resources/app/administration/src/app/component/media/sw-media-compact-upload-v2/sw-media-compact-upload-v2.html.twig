@@ -129,7 +129,7 @@
             <form class="sw-media-upload-v2__form" ref="fileForm">
                 <input class="sw-media-upload-v2__file-input"
                        type="file"
-                       id="files"
+                       :id="createUuid"
                        ref="fileInput"
                        :accept="fileAccept"
                        :multiple="multiSelect"

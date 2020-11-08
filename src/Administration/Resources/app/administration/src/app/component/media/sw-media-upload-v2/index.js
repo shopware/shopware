@@ -2,7 +2,7 @@ import template from './sw-media-upload-v2.html.twig';
 import './sw-media-upload-v2.scss';
 
 const { Component, Mixin, Context } = Shopware;
-const { fileReader, debug } = Shopware.Utils;
+const { fileReader, debug, createId } = Shopware.Utils;
 const { Criteria } = Shopware.Data;
 const INPUT_TYPE_FILE_UPLOAD = 'file-upload';
 const INPUT_TYPE_URL_UPLOAD = 'url-upload';
@@ -152,6 +152,10 @@ Component.register('sw-media-upload-v2', {
 
         isFileUpload() {
             return this.inputType === INPUT_TYPE_FILE_UPLOAD;
+        },
+
+        createUuid() {
+            return createId();
         },
 
         // @deprecated tag:v6.4.0

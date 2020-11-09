@@ -1,7 +1,6 @@
 ---
 title: Remove read or write access related elements from access key management interface
 issue: NEXT-10826
-flag: FEATURE_NEXT_7322
 author: Philip Gatzka
 author_email: p.gatzka@shopware.com 
 author_github: @philipgatzka

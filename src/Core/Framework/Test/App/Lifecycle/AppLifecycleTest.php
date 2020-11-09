@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\App\Lifecycle;
 use Doctrine\DBAL\Connection;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonEntity;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
@@ -63,7 +64,12 @@ class AppLifecycleTest extends TestCase
         $this->actionButtonRepository = $this->getContainer()->get('app_action_button.repository');
 
         $this->appLifecycle = $this->getContainer()->get(AppLifecycle::class);
-        $this->context = Context::createDefaultContext();
+
+        $userRepository = $this->getContainer()->get('user.repository');
+        $userId = $userRepository->searchIds(new Criteria(), Context::createDefaultContext())->firstId();
+        $source = new AdminApiSource($userId);
+        $source->setIsAdmin(true);
+        $this->context = Context::createDefaultContext($source);
 
         $this->eventDispatcher = $this->getContainer()->get('event_dispatcher');
     }
@@ -77,7 +83,6 @@ class AppLifecycleTest extends TestCase
         $onAppInstalled = function (AppInstalledEvent $event) use (&$eventWasReceived, &$appId, $manifest): void {
             $eventWasReceived = true;
             $appId = $event->getApp()->getId();
-            static::assertEquals($this->context, $event->getContext());
             static::assertEquals($manifest, $event->getManifest());
         };
         $this->eventDispatcher->addListener(AppInstalledEvent::class, $onAppInstalled);
@@ -231,7 +236,7 @@ class AppLifecycleTest extends TestCase
                     'active' => true,
                 ],
             ],
-        ]], $this->context);
+        ]], Context::createDefaultContext());
 
         /** @var PermissionPersister $permissionPersister */
         $permissionPersister = $this->getContainer()->get(PermissionPersister::class);
@@ -252,7 +257,6 @@ class AppLifecycleTest extends TestCase
         $onAppUpdated = function (AppUpdatedEvent $event) use (&$eventWasReceived, $id, $manifest): void {
             $eventWasReceived = true;
             static::assertEquals($id, $event->getApp()->getId());
-            static::assertEquals($this->context, $event->getContext());
             static::assertEquals($manifest, $event->getManifest());
         };
         $this->eventDispatcher->addListener(AppUpdatedEvent::class, $onAppUpdated);
@@ -358,7 +362,7 @@ class AppLifecycleTest extends TestCase
                     'active' => true,
                 ],
             ],
-        ]], $this->context);
+        ]], Context::createDefaultContext());
 
         /** @var PermissionPersister $permissionPersister */
         $permissionPersister = $this->getContainer()->get(PermissionPersister::class);
@@ -379,7 +383,6 @@ class AppLifecycleTest extends TestCase
         $onAppUpdated = function (AppUpdatedEvent $event) use (&$eventWasReceived, $id, $manifest): void {
             $eventWasReceived = true;
             static::assertEquals($id, $event->getApp()->getId());
-            static::assertEquals($this->context, $event->getContext());
             static::assertEquals($manifest, $event->getManifest());
         };
         $this->eventDispatcher->addListener(AppUpdatedEvent::class, $onAppUpdated);
@@ -447,7 +450,7 @@ class AppLifecycleTest extends TestCase
                     'active' => true,
                 ],
             ],
-        ]], $this->context);
+        ]], Context::createDefaultContext());
 
         /** @var PermissionPersister $permissionPersister */
         $permissionPersister = $this->getContainer()->get(PermissionPersister::class);
@@ -510,7 +513,7 @@ class AppLifecycleTest extends TestCase
                 'id' => $roleId,
                 'name' => 'SwagApp',
             ],
-        ]], $this->context);
+        ]], Context::createDefaultContext());
 
         $app = [
             'id' => $appId,
@@ -521,7 +524,6 @@ class AppLifecycleTest extends TestCase
         $onAppDeleted = function (AppDeletedEvent $event) use (&$eventWasReceived, $appId): void {
             $eventWasReceived = true;
             static::assertEquals($appId, $event->getAppId());
-            static::assertEquals($this->context, $event->getContext());
         };
         $this->eventDispatcher->addListener(AppDeletedEvent::class, $onAppDeleted);
 
@@ -540,6 +542,25 @@ class AppLifecycleTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('appId', $appId));
         $apps = $this->actionButtonRepository->searchIds($criteria, $this->context)->getIds();
+        static::assertCount(0, $apps);
+    }
+
+    public function testDeleteWithCustomFields(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
+        $this->appLifecycle->install($manifest, true, $this->context);
+
+        $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
+        static::assertCount(1, $apps);
+
+        $app = [
+            'id' => $apps->first()->getId(),
+            'roleId' => $apps->first()->getAclRoleId(),
+        ];
+
+        $this->appLifecycle->delete('SwagApp', $app, $this->context);
+
+        $apps = $this->appRepository->searchIds(new Criteria(), $this->context)->getIds();
         static::assertCount(0, $apps);
     }
 

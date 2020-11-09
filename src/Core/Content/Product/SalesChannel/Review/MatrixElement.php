@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Page\Product\Review;
+namespace Shopware\Core\Content\Product\SalesChannel\Review;
 
 /**
- * @feature-deprecated (flag:FEATURE_NEXT_10078) tag:v6.4.0 use Shopware\Core\Content\Product\SalesChannel\Review\MatrixElement instead
+ * @internal (flag:FEATURE_NEXT_10078)
  */
 class MatrixElement
 {

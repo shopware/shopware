@@ -2,10 +2,12 @@
 
 namespace Shopware\Core\System\SalesChannel\Event;
 
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class SalesChannelContextTokenChangeEvent extends Event
+class SalesChannelContextTokenChangeEvent extends Event implements ShopwareSalesChannelEvent
 {
     /**
      * @var SalesChannelContext
@@ -32,6 +34,11 @@ class SalesChannelContextTokenChangeEvent extends Event
     public function getSalesChannelContext(): SalesChannelContext
     {
         return $this->salesChannelContext;
+    }
+
+    public function getContext(): Context
+    {
+        return $this->salesChannelContext->getContext();
     }
 
     public function getPreviousToken(): string

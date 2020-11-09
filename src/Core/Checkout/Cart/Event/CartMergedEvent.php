@@ -6,7 +6,10 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class CartMergedEvent extends Event
+/**
+ * @deprecated tag:v6.4.0 - Will implement Shopware\Core\Framework\Event\ShopwareSalesChannelEvent
+ */
+class CartMergedEvent extends Event /*implements ShopwareSalesChannelEvent*/
 {
     /**
      * @var Cart
@@ -29,7 +32,15 @@ class CartMergedEvent extends Event
         return $this->cart;
     }
 
+    /**
+     * @deprecated tag:v6.4.0 - Will return Shopware\Core\Framework\Context instead
+     */
     public function getContext(): SalesChannelContext
+    {
+        return $this->context;
+    }
+
+    public function getSalesChannelContext(): SalesChannelContext
     {
         return $this->context;
     }

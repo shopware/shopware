@@ -59,7 +59,7 @@ describe('Product: Edit in various ways', () => {
 
         // Inline edit customer
         cy.get('.sw-data-grid__cell--productNumber').dblclick();
-        cy.get('#sw-field--currentValue').clearTypeAndCheck('That\'s not my name');
+        cy.get('#sw-field--item-name').clearTypeAndCheck('That\'s not my name');
         cy.get('.sw-data-grid__inline-edit-save').click();
         cy.awaitAndCheckNotification('Product "That\'s not my name" has been saved.');
 

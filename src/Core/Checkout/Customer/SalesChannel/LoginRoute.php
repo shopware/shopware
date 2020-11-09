@@ -46,6 +46,8 @@ class LoginRoute extends AbstractLoginRoute
     private $customerRepository;
 
     /**
+     * @deprecated tag:v6.4.0 $contextPersister will no longer be used
+     *
      * @var SalesChannelContextPersister
      */
     private $contextPersister;
@@ -56,7 +58,7 @@ class LoginRoute extends AbstractLoginRoute
     private $legacyPasswordVerifier;
 
     /**
-     * @var SalesChannelContextRestorer|null
+     * @var SalesChannelContextRestorer
      */
     private $contextRestorer;
 
@@ -65,7 +67,7 @@ class LoginRoute extends AbstractLoginRoute
         SalesChannelContextPersister $contextPersister,
         EntityRepositoryInterface $customerRepository,
         LegacyPasswordVerifier $legacyPasswordVerifier,
-        ?SalesChannelContextRestorer $contextRestorer
+        SalesChannelContextRestorer $contextRestorer
     ) {
         $this->eventDispatcher = $eventDispatcher;
         $this->contextPersister = $contextPersister;
@@ -133,21 +135,8 @@ class LoginRoute extends AbstractLoginRoute
             throw new InactiveCustomerException($customer->getId());
         }
 
-        if (Feature::isActive('FEATURE_NEXT_10058') && $this->contextRestorer) {
-            $context = $this->contextRestorer->restore($customer->getId(), $context);
-            $newToken = $context->getToken();
-        } else {
-            $newToken = $this->contextPersister->replace($context->getToken(), $context);
-
-            $this->contextPersister->save(
-                $newToken,
-                [
-                    'customerId' => $customer->getId(),
-                    'billingAddressId' => null,
-                    'shippingAddressId' => null,
-                ]
-            );
-        }
+        $context = $this->contextRestorer->restore($customer->getId(), $context);
+        $newToken = $context->getToken();
 
         $this->customerRepository->update([
             [

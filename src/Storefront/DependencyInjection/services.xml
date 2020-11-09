@@ -484,7 +484,6 @@
             <argument type="service" id="translator"/>
 
             <tag name="kernel.event_subscriber"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_10058"/>
         </service>
 
     </services>

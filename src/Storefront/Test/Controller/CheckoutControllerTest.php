@@ -24,7 +24,6 @@ use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -158,7 +157,6 @@ class CheckoutControllerTest extends TestCase
     public function testOffCanvasWithErrorsFlash($errorTypes, $errorKeys): void
     {
         static::markTestSkipped('snippet not working');
-        Feature::skipTestIfInActive('FEATURE_NEXT_10058', $this);
         $contextToken = Uuid::randomHex();
         $productId = Uuid::randomHex();
         /** @var CartService $cartService */

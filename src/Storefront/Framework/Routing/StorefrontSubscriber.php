@@ -11,7 +11,6 @@ use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Event\BeforeSendResponseEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\Framework\Util\Random;
@@ -194,10 +193,6 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
     public function updateSessionAfterLogout(CustomerLogoutEvent $event): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_10058')) {
-            return;
-        }
-
         $newToken = $event->getSalesChannelContext()->getToken();
 
         $this->updateSession($newToken);

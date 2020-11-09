@@ -1,7 +1,6 @@
 ---
 title: After restoring cart, the cart should be recalculated and display hints.
 issue: NEXT-10716
-flag: FEATURE_NEXT_10058
 ---
 # Core
 *  Added `Shopware\Core\Checkout\Promotion\Cart\Error\AutoPromotionNotFoundError`,which be return when the auto-promotion was no longer valid!

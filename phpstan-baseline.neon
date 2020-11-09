@@ -7560,3 +7560,13 @@ parameters:
 			count: 1
 			path: src/Core/Checkout/Customer/SalesChannel/AbstractChangePasswordRoute.php
 
+		-
+			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\AccountService\\:\\:\\$contextPersister is never read\\, only written\\.$#"
+			count: 1
+			path: src/Core/Checkout/Customer/SalesChannel/AccountService.php
+
+		-
+			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\LoginRoute\\:\\:\\$contextPersister is never read\\, only written\\.$#"
+			count: 1
+			path: src/Core/Checkout/Customer/SalesChannel/LoginRoute.php
+

@@ -141,8 +141,6 @@ class LoginRouteTest extends TestCase
 
     public function testLoginSuccessRestoreCustomerContext(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10058', $this);
-
         $email = Uuid::randomHex() . '@example.com';
         $password = 'shopware';
         $customerId = $this->createCustomer($password, $email);
@@ -179,8 +177,6 @@ class LoginRouteTest extends TestCase
 
     public function testCustomerHaveDifferentCartsOnEachSalesChannel(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10058', $this);
-
         $email = Uuid::randomHex() . '@example.com';
         $password = 'shopware';
         $customerId = $this->createCustomer($password, $email);

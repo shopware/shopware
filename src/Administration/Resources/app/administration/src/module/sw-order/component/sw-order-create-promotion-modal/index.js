@@ -8,10 +8,6 @@ const { format } = Utils;
 Component.register('sw-order-create-promotion-modal', {
     template,
 
-    inject: [
-        'feature'
-    ],
-
     props: {
         currency: {
             type: Object,
@@ -56,7 +52,7 @@ Component.register('sw-order-create-promotion-modal', {
 
         disableAutomaticPromotions() {
             this.isLoading = true;
-            const additionalParams = this.feature.isActive('FEATURE_NEXT_10058') ? { salesChannelId: this.salesChannelId } : {};
+            const additionalParams = { salesChannelId: this.salesChannelId };
 
             Service('cartStoreService').disableAutomaticPromotions(this.cart.token, additionalParams).then(() => {
                 this.isLoading = false;

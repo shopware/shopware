@@ -56,17 +56,20 @@ class IdleFeatureFlagTest extends TestCase
         // Find the right files to check
         $finder = new Finder();
         $finder->files()
-            ->in($this->getContainer()->get('kernel')->getProjectDir() . '/vendor/shopware/platform')
+            ->in($this->getContainer()->get('kernel')->getProjectDir() . '/vendor/shopware/*/')
             ->exclude(self::EXCLUDED_DIRS)
             ->notContains(self::EXCLUDE_BY_CONTENT);
 
         foreach ($finder as $file) {
             $contents = $file->getContents();
             $regex = '/FEATURE_NEXT_[0-9]+/';
-            preg_match($regex, $contents, $keys);
+            preg_match_all($regex, $contents, $keys);
+            $availableFlag = array_unique($keys[0]);
 
-            if (isset($keys[0])) {
-                static::assertContains($keys[0], $registeredFlags);
+            if (!empty($availableFlag)) {
+                foreach ($availableFlag as $flag) {
+                    static::assertContains($flag, $registeredFlags);
+                }
             }
         }
     }

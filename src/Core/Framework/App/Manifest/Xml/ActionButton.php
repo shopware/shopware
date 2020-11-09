@@ -48,6 +48,15 @@ class ActionButton extends XmlElement
         return new self(self::parse($element));
     }
 
+    public function toArray(string $defaultLocale): array
+    {
+        $data = parent::toArray($defaultLocale);
+
+        $data['label'] = $this->ensureTranslationForDefaultLanguageExist($data['label'], $defaultLocale);
+
+        return $data;
+    }
+
     public function getLabel(): array
     {
         return $this->label;

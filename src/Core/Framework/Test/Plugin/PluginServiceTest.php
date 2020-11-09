@@ -44,8 +44,6 @@ class PluginServiceTest extends TestCase
      */
     private $context;
 
-    private $systemLanguageId = '2fbb5fe2e29a4d70aa5854ce7ce3e20b';
-
     private $iso = 'nl-NL';
 
     protected function setUp(): void
@@ -353,7 +351,7 @@ class PluginServiceTest extends TestCase
         return new Context(new SystemSource(), [], Defaults::CURRENCY, [$id, Defaults::LANGUAGE_SYSTEM]);
     }
 
-    private function setNewSystemLanguage($iso): void
+    private function setNewSystemLanguage(string $iso): void
     {
         $languageRepository = $this->getContainer()->get('language.repository');
 
@@ -361,7 +359,7 @@ class PluginServiceTest extends TestCase
         $languageRepository->update(
             [
                 [
-                    'id' => $this->systemLanguageId,
+                    'id' => Defaults::LANGUAGE_SYSTEM,
                     'name' => $iso,
                     'localeId' => $localeId,
                     'translationCodeId' => $localeId,

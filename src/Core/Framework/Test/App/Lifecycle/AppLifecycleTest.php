@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\App\Lifecycle;
 use Doctrine\DBAL\Connection;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonEntity;
 use Shopware\Core\Framework\App\AppCollection;
@@ -19,6 +20,7 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Permissions;
 use Shopware\Core\Framework\App\Template\TemplateEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -158,6 +160,20 @@ class AppLifecycleTest extends TestCase
         static::assertCount(0, $apps->first()->getActionButtons());
         static::assertCount(0, $apps->first()->getModules());
         static::assertCount(0, $apps->first()->getWebhooks());
+    }
+
+    public function testInstallWithSystemDefaultLanguageNotProvidedByApp(): void
+    {
+        $this->setNewSystemLanguage('nl-NL');
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
+        $this->appLifecycle->install($manifest, true, $this->context);
+
+        /** @var AppCollection $apps */
+        $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
+
+        static::assertCount(1, $apps);
+        static::assertEquals('SwagApp', $apps->first()->getName());
+        static::assertEquals('Test for App System', $apps->first()->getDescription());
     }
 
     public function testUpdateInactiveApp(): void
@@ -700,5 +716,37 @@ class AppLifecycleTest extends TestCase
             $template->getTemplate()
         );
         static::assertTrue($template->isActive());
+    }
+
+    private function setNewSystemLanguage(string $iso): void
+    {
+        $languageRepository = $this->getContainer()->get('language.repository');
+
+        $localeId = $this->getIsoId($iso);
+        $languageRepository->update(
+            [
+                [
+                    'id' => Defaults::LANGUAGE_SYSTEM,
+                    'name' => $iso,
+                    'localeId' => $localeId,
+                    'translationCodeId' => $localeId,
+                ],
+            ],
+            Context::createDefaultContext()
+        );
+    }
+
+    private function getIsoId(string $iso)
+    {
+        /** @var EntityRepository $localeRepository */
+        $localeRepository = $this->getContainer()->get('locale.repository');
+
+        $criteria = new Criteria();
+
+        $criteria->addFilter(new EqualsFilter('code', $iso));
+
+        $isoId = $localeRepository->search($criteria, Context::createDefaultContext())->first()->getId();
+
+        return $isoId;
     }
 }

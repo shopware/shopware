@@ -22,14 +22,14 @@ class ActionButtonPersister
         $this->actionButtonRepository = $actionButtonRepository;
     }
 
-    public function updateActions(Manifest $manifest, string $appId, Context $context): void
+    public function updateActions(Manifest $manifest, string $appId, string $defaultLocale, Context $context): void
     {
         $existingActionButtons = $this->getExistingActionButtons($appId, $context);
 
         $actionButtons = $manifest->getAdmin() ? $manifest->getAdmin()->getActionButtons() : [];
         $upserts = [];
         foreach ($actionButtons as $actionButton) {
-            $payload = $actionButton->toArray();
+            $payload = $actionButton->toArray($defaultLocale);
             $payload['appId'] = $appId;
 
             /** @var ActionButtonEntity|null $existing */

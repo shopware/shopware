@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\SalesChannel\AbstractCountryRoute;
@@ -114,10 +113,9 @@ class CheckoutCartPageLoader
 
     private function getCountries(SalesChannelContext $context): CountryCollection
     {
-        $criteria = new Criteria();
-        $criteria->addSorting(new FieldSorting('position'));
-        $criteria->addSorting(new FieldSorting('name'));
+        $countries = $this->countryRoute->load(new Criteria(), $context)->getCountries();
+        $countries->sortByPositionAndName();
 
-        return $this->countryRoute->load($criteria, $context)->getCountries();
+        return $countries;
     }
 }

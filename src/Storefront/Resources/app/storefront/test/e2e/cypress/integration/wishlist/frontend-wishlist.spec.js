@@ -67,37 +67,29 @@ describe('Wishlist: for wishlist', () => {
     it.skip('@wishlist does some simple testing of the wishlist', () => {
         // todo handle when @shopware-ag/e2e-testsuite-platform support call `/store-api/v*/*`
 
-        cy.window().then((win) => {
-            if (!win.Feature.isActive('FEATURE_NEXT_10549')) {
-                return ;
-            }
+        cy.onlyOnFeature('FEATURE_NEXT_10549')
 
-            cy.get('#loginMail').typeAndCheckStorefront(customer.email);
-            cy.get('#loginPassword').typeAndCheckStorefront(customer.password);
-            cy.get(`${page.elements.loginSubmit} [type="submit"]`).click();
+        cy.get('#loginMail').typeAndCheckStorefront(customer.email);
+        cy.get('#loginPassword').typeAndCheckStorefront(customer.password);
+        cy.get(`${page.elements.loginSubmit} [type="submit"]`).click();
 
-            cy.get('.cms-listing-row .cms-listing-col').contains(product.name);
-            cy.get(`.cms-listing-row .cms-listing-col`).contains(product.manufacturer.name);
-        });
+        cy.get('.cms-listing-row .cms-listing-col').contains(product.name);
+        cy.get(`.cms-listing-row .cms-listing-col`).contains(product.manufacturer.name);
     });
 
     it.skip('@wishlist remove product of wishlist', () => {
         // todo handle when @shopware-ag/e2e-testsuite-platform support call `/store-api/v*/*`
 
-        cy.window().then((win) => {
-            if (!win.Feature.isActive('FEATURE_NEXT_10549')) {
-                return ;
-            }
+        cy.onlyOnFeature('FEATURE_NEXT_10549')
 
-            cy.get('#loginMail').typeAndCheckStorefront(customer.email);
-            cy.get('#loginPassword').typeAndCheckStorefront(customer.password);
-            cy.get(`${page.elements.loginSubmit} [type="submit"]`).click();
+        cy.get('#loginMail').typeAndCheckStorefront(customer.email);
+        cy.get('#loginPassword').typeAndCheckStorefront(customer.password);
+        cy.get(`${page.elements.loginSubmit} [type="submit"]`).click();
 
-            cy.get('.cms-listing-row .cms-listing-col').contains(product.name);
+        cy.get('.cms-listing-row .cms-listing-col').contains(product.name);
 
-            cy.get('.product-wishlist-form [type="submit"]').click();
+        cy.get('.product-wishlist-form [type="submit"]').click();
 
-            cy.get('.alert-success').contains('You have successfully removed the product from the wishlist.');
-        });
+        cy.get('.alert-success').contains('You have successfully removed the product from the wishlist.');
     })
 });

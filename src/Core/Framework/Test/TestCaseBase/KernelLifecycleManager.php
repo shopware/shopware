@@ -86,11 +86,11 @@ class KernelLifecycleManager
     /**
      * Boots the Kernel for this test.
      */
-    public static function bootKernel(bool $reuseConnection = true): KernelInterface
+    public static function bootKernel(bool $reuseConnection = true, string $cacheId = 'h8f3f0ee9c61829627676afd6294bb029'): KernelInterface
     {
         self::ensureKernelShutdown();
 
-        static::$kernel = static::createKernel(null, $reuseConnection);
+        static::$kernel = static::createKernel(null, $reuseConnection, $cacheId);
         static::$kernel->boot();
         static::$kernel->getContainer()->get(Connection::class)->getConfiguration()->setSQLLogger(new DebugStack());
         MemoryAdapterFactory::resetInstances();
@@ -98,7 +98,7 @@ class KernelLifecycleManager
         return static::$kernel;
     }
 
-    public static function createKernel(?string $kernelClass = null, bool $reuseConnection = true): KernelInterface
+    public static function createKernel(?string $kernelClass = null, bool $reuseConnection = true, string $cacheId = 'h8f3f0ee9c61829627676afd6294bb029'): KernelInterface
     {
         if ($kernelClass === null) {
             if (static::$class === null) {
@@ -127,11 +127,6 @@ class KernelLifecycleManager
         if (self::$classLoader === null) {
             throw new \InvalidArgumentException('No class loader set. Please call KernelLifecycleManager::prepare');
         }
-
-        // This hash MUST be constant as long as NEXT-5273 is not resolved.
-        // Otherwise tests using a dataprovider wither services (such as JsonSalesChannelEntityEncoderTest)
-        // will fail randomly
-        $cacheId = 'h8f3f0ee9c61829627676afd6294bb029';
 
         $existingConnection = null;
         if ($reuseConnection) {

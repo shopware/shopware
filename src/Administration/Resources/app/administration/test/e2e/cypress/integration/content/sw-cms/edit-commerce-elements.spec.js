@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 describe('CMS: Check usage and editing of commerce elements', () => {
     beforeEach(() => {
@@ -39,7 +39,7 @@ describe('CMS: Check usage and editing of commerce elements', () => {
             });
     });
 
-    it('@base @content: use simple product block', () => {
+    it.skip('@base @content: use simple product block', () => {
         cy.server();
         cy.route({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
@@ -118,7 +118,7 @@ describe('CMS: Check usage and editing of commerce elements', () => {
         cy.get('.product-name[title="Third product"]').should('be.visible');
     });
 
-    it('@base @content: use product slider block with dynamic product group', () => {
+    it.skip('@base @content: use product slider block with dynamic product group', () => {
         cy.server();
         cy.route({
             url: `${Cypress.env('apiPath')}/cms-page/*`,

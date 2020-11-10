@@ -14,7 +14,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -39,15 +38,11 @@ class ProductListingFeaturesSubscriberTest extends TestCase
     private $optionIds;
 
     /**
-     * @internal (flag:FEATURE_NEXT_10554)
-     *
      * @var SystemConfigService
      */
     private $systemConfigService;
 
     /**
-     * @internal (flag:FEATURE_NEXT_10554)
-     *
      * @var SalesChannelEntity
      */
     private $salesChannel;
@@ -111,14 +106,12 @@ class ProductListingFeaturesSubscriberTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        if (Feature::isActive('FEATURE_NEXT_10554')) {
-            $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
 
-            $this->salesChannel = $this->getContainer()->get('sales_channel.repository')->search(
-                new Criteria([Defaults::SALES_CHANNEL]),
-                Context::createDefaultContext()
-            )->first();
-        }
+        $this->salesChannel = $this->getContainer()->get('sales_channel.repository')->search(
+            new Criteria([Defaults::SALES_CHANNEL]),
+            Context::createDefaultContext()
+        )->first();
     }
 
     /**
@@ -357,12 +350,10 @@ class ProductListingFeaturesSubscriberTest extends TestCase
      */
     public function testPagination(int $limit, int $offset, Request $request, ?int $systemConfigLimit = null): void
     {
-        if (Feature::isActive('FEATURE_NEXT_10554')) {
-            if ($systemConfigLimit !== null) {
-                $this->systemConfigService->set('core.listing.productsPerPage', $systemConfigLimit);
-            } else {
-                $this->systemConfigService->delete('core.listing.productsPerPage');
-            }
+        if ($systemConfigLimit !== null) {
+            $this->systemConfigService->set('core.listing.productsPerPage', $systemConfigLimit);
+        } else {
+            $this->systemConfigService->delete('core.listing.productsPerPage');
         }
 
         $criteria = new Criteria();
@@ -379,14 +370,10 @@ class ProductListingFeaturesSubscriberTest extends TestCase
     }
 
     /**
-     * @internal (flag:FEATURE_NEXT_10554)
-     *
      * @dataProvider paginationSalesChannelProvider
      */
     public function testPaginationSalesChannel(int $limit, int $offset, Request $request, int $limitChannel, int $offsetChannel, ?int $systemConfigLimit = null): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10554', $this);
-
         $this->systemConfigService->set('core.listing.productsPerPage', 12);
 
         if ($systemConfigLimit !== null) {
@@ -421,40 +408,30 @@ class ProductListingFeaturesSubscriberTest extends TestCase
 
     public function paginationProvider()
     {
-        if (Feature::isActive('FEATURE_NEXT_10554')) {
-            return [
-                [24, 0, new Request()],
-                [12, 0, new Request(), 12],
-                [24, 0, new Request(), -5],
-
-                [20, 80, new Request(['p' => 5, 'limit' => 20])],
-                [20, 80, new Request(['p' => 5, 'limit' => 20]), 12],
-                [20, 80, new Request(['p' => 5, 'limit' => 20]), -5],
-
-                [24, 0, new Request(['p' => -5, 'limit' => -5])],
-                [24, 0, new Request(['p' => -5, 'limit' => -5]), -5],
-                [12, 0, new Request(['p' => -5, 'limit' => -5]), 12],
-
-                [1, 0, new Request(['p' => 0, 'limit' => 1])],
-                [1, 0, new Request(['p' => 0, 'limit' => 1]), 12],
-                [1, 0, new Request(['p' => 0, 'limit' => 1]), -5],
-
-                [20, 80, new Request([], ['p' => 5, 'limit' => 20], [], [], [], ['REQUEST_METHOD' => Request::METHOD_POST])],
-                [20, 80, new Request([], ['p' => 5, 'limit' => 20], [], [], [], ['REQUEST_METHOD' => Request::METHOD_POST]), 12],
-                [20, 80, new Request([], ['p' => 5, 'limit' => 20], [], [], [], ['REQUEST_METHOD' => Request::METHOD_POST]), -5],
-
-                [24, 0, new Request([], ['p' => -5, 'limit' => -5], [], [], [], ['REQUEST_METHOD' => Request::METHOD_POST])],
-                [12, 0, new Request([], ['p' => -5, 'limit' => -5], [], [], [], ['REQUEST_METHOD' => Request::METHOD_POST]), 12],
-                [24, 0, new Request([], ['p' => -5, 'limit' => -5], [], [], [], ['REQUEST_METHOD' => Request::METHOD_POST]), -5],
-            ];
-        }
-
         return [
             [24, 0, new Request()],
+            [12, 0, new Request(), 12],
+            [24, 0, new Request(), -5],
+
             [20, 80, new Request(['p' => 5, 'limit' => 20])],
-            [1, 0, new Request(['p' => 0, 'limit' => 1])],
+            [20, 80, new Request(['p' => 5, 'limit' => 20]), 12],
+            [20, 80, new Request(['p' => 5, 'limit' => 20]), -5],
+
             [24, 0, new Request(['p' => -5, 'limit' => -5])],
+            [24, 0, new Request(['p' => -5, 'limit' => -5]), -5],
+            [12, 0, new Request(['p' => -5, 'limit' => -5]), 12],
+
+            [1, 0, new Request(['p' => 0, 'limit' => 1])],
+            [1, 0, new Request(['p' => 0, 'limit' => 1]), 12],
+            [1, 0, new Request(['p' => 0, 'limit' => 1]), -5],
+
             [20, 80, new Request([], ['p' => 5, 'limit' => 20], [], [], [], ['REQUEST_METHOD' => Request::METHOD_POST])],
+            [20, 80, new Request([], ['p' => 5, 'limit' => 20], [], [], [], ['REQUEST_METHOD' => Request::METHOD_POST]), 12],
+            [20, 80, new Request([], ['p' => 5, 'limit' => 20], [], [], [], ['REQUEST_METHOD' => Request::METHOD_POST]), -5],
+
+            [24, 0, new Request([], ['p' => -5, 'limit' => -5], [], [], [], ['REQUEST_METHOD' => Request::METHOD_POST])],
+            [12, 0, new Request([], ['p' => -5, 'limit' => -5], [], [], [], ['REQUEST_METHOD' => Request::METHOD_POST]), 12],
+            [24, 0, new Request([], ['p' => -5, 'limit' => -5], [], [], [], ['REQUEST_METHOD' => Request::METHOD_POST]), -5],
         ];
     }
 

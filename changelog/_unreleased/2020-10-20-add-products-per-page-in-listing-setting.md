@@ -1,7 +1,6 @@
 ---
 title: Add products per page in listing setting
 issue: NEXT-11285
-flag: FEATURE_NEXT_10554
 author_github: @Dominik28111
 ---
 # Core

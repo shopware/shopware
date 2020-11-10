@@ -369,6 +369,90 @@ class RecalculationServiceTest extends TestCase
         $this->addProductToVersionedOrder($productName, $productPrice, $productTaxRate, $orderId, $versionId, $oldTotal);
     }
 
+    public function testAddProductToOrderWithCustomerComment(): void
+    {
+        // create order
+        $cart = $this->generateDemoCart();
+        $cart->setCustomerComment('test comment');
+        $cart->setAffiliateCode('test_affiliate_code');
+        $cart->setCampaignCode('test_campaign_code');
+        $order = $this->persistCart($cart);
+
+        $orderId = $order['orderId'];
+        $oldTotal = $order['total'];
+
+        // create version of order
+        $versionId = $this->createVersionedOrder($orderId);
+
+        $productName = 'Test';
+        $productPrice = 10.0;
+        $productTaxRate = 19.0;
+
+        $productId = $this->createProduct($productName, $productPrice, $productTaxRate);
+
+        // add product to order
+        $this->getBrowser()->request(
+            'POST',
+            sprintf(
+                '/api/v%s/_action/order/%s/product/%s',
+                PlatformRequest::API_VERSION,
+                $orderId,
+                $productId
+            ),
+            [],
+            [],
+            [
+                'HTTP_' . PlatformRequest::HEADER_VERSION_ID => $versionId,
+            ]
+        );
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
+
+        $this->getBrowser()->request(
+            'POST',
+            sprintf(
+                '/api/v%s/_action/order/%s/recalculate',
+                PlatformRequest::API_VERSION,
+                $orderId
+            ),
+            [],
+            [],
+            [
+                'HTTP_' . PlatformRequest::HEADER_VERSION_ID => $versionId,
+            ]
+        );
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
+
+        // read versioned order
+        $criteria = new Criteria([$orderId]);
+        $criteria->addAssociation('lineItems');
+        /** @var OrderEntity|null $order */
+        $order = $this->getContainer()->get('order.repository')->search($criteria, $this->context->createWithVersionId($versionId))->get($orderId);
+        static::assertNotEmpty($order);
+        static::assertSame('test comment', $order->getCustomerComment());
+        static::assertSame('test_affiliate_code', $order->getAffiliateCode());
+        static::assertSame('test_campaign_code', $order->getCampaignCode());
+
+        $product = null;
+        foreach ($order->getLineItems() as $lineItem) {
+            if ($lineItem->getIdentifier() === $productId) {
+                $product = $lineItem;
+            }
+        }
+
+        static::assertNotNull($product);
+        $productPriceInclTax = 10 + ($productPrice * $productTaxRate / 100);
+        static::assertSame($product->getPrice()->getUnitPrice(), $productPriceInclTax);
+        /** @var TaxRule $taxRule */
+        $taxRule = $product->getPrice()->getTaxRules()->first();
+        static::assertSame($taxRule->getTaxRate(), $productTaxRate);
+
+        static::assertEquals($oldTotal + $productPriceInclTax, $order->getAmountTotal());
+    }
+
     public function testAddProductToOrderTriggersStockUpdate(): void
     {
         // create order

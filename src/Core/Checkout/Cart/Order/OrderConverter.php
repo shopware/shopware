@@ -222,6 +222,9 @@ class OrderConverter
 
         $cart = new Cart(self::CART_TYPE, Uuid::randomHex());
         $cart->setPrice($order->getPrice());
+        $cart->setCustomerComment($order->getCustomerComment());
+        $cart->setAffiliateCode($order->getAffiliateCode());
+        $cart->setCampaignCode($order->getCampaignCode());
         $cart->addExtension(self::ORIGINAL_ID, new IdStruct($order->getId()));
         $orderNumber = $order->getOrderNumber();
         if ($orderNumber === null) {

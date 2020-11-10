@@ -11,11 +11,11 @@
 ## Extending an existing JavaScript plugin
 
 As JavaScript storefront plugins are vanilla JavaScript classes you can simply extend them.
-So in your case you create a `Resources/storefront/my-cookie-permission` folder and put an empty file `my-cookie-permission.plugin.js` in there.
+So in your case you create a `Resources/app/storefront/src/my-cookie-permission` folder and put an empty file `my-cookie-permission.plugin.js` in there.
 Next you create a JavaScript class that extends the original CookiePermission plugin:
 
 ```js
-import CookiePermissionPlugin from 'src/script/plugin/cookie-permission/cookie-permission.plugin';
+import CookiePermissionPlugin from 'src/plugin/cookie/cookie-permission.plugin';
 
 export default class MyCookiePermission extends CookiePermissionPlugin {
 }
@@ -26,8 +26,8 @@ For now you first override the `init()` function to set the cookie value that is
 After that you call the init method of the original plugin.
 
 ```js
-import CookiePermissionPlugin from 'src/script/plugin/cookie-permission/cookie-permission.plugin';
-import CookieStorage from 'src/script/helper/storage/cookie-storage.helper';
+import CookiePermissionPlugin from 'src/plugin/cookie/cookie-permission.plugin';
+import CookieStorage from 'src/helper/storage/cookie-storage.helper';
 
 export default class MyCookiePermission extends CookiePermissionPlugin {
     init() {
@@ -42,8 +42,8 @@ Therefore you override the `_hideCookieBar()` function to show the dialogue and 
 So your whole plugin now looks like this:
 
 ```js
-import CookiePermissionPlugin from 'src/script/plugin/cookie-permission/cookie-permission.plugin';
-import CookieStorage from 'src/script/helper/storage/cookie-storage.helper';
+import CookiePermissionPlugin from 'src/plugin/cookie/cookie-permission.plugin';
+import CookieStorage from 'src/helper/storage/cookie-storage.helper';
 
 export default class MyCookiePermission extends CookiePermissionPlugin {
     init() {

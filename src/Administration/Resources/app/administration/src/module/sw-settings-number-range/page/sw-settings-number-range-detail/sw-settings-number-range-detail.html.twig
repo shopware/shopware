@@ -161,22 +161,14 @@
                                     v-if="numberRange.type"
                                     entity="number_range_type"
                                     v-model="numberRange.typeId"
-                                    :disabled="
-                                            numberRange.type.global ||
-                                            numberRange.global ||
-                                            (
-                                                numberRange.type !== null &&
-                                                numberRange.numberRangeSalesChannels &&
-                                                numberRange.numberRangeSalesChannels.length > 0
-                                            ) ||
-                                            !this.acl.can('number_ranges.editor')"
-                                    :label="$tc('sw-settings-number-range.detail.labelType')"
-                                    id="numberRangeTypes"
-                                    @change="onChangeType"
                                     class="sw-number-range-detail__select-type"
                                     required
+                                    id="numberRangeTypes"
+                                    labelProperty="typeName"
+                                    :disabled="!this.acl.can('number_ranges.editor')"
+                                    :label="$tc('sw-settings-number-range.detail.labelType')"
                                     :criteria="numberRangeTypeCriteria"
-                                    labelProperty="typeName">
+                                    @change="onChangeType">
                                 </sw-entity-single-select>
                             {% endblock %}
 

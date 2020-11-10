@@ -15,6 +15,7 @@ use Shopware\Recovery\Common\Service\JwtCertificateService;
 use Shopware\Recovery\Common\Service\Notification;
 use Shopware\Recovery\Common\Service\UniqueIdGenerator;
 use Shopware\Recovery\Common\SystemLocker;
+use Shopware\Recovery\Install\Service\BlueGreenDeploymentService;
 use Shopware\Recovery\Install\Service\DatabaseService;
 use Shopware\Recovery\Install\Service\EnvConfigWriter;
 use Shopware\Recovery\Install\Service\TranslationService;
@@ -194,6 +195,10 @@ class ContainerProvider implements ServiceProviderInterface
 
         $container['migration.collection.loader'] = static function ($c) {
             return new CoreMigrationCollectionLoader($c['dbal'], $c['migration.runtime'], [$c['migration.source']]);
+        };
+
+        $container['blue.green.deployment.service'] = static function ($c) {
+            return new BlueGreenDeploymentService($c['dbal']);
         };
     }
 }

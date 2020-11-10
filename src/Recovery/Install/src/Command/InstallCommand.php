@@ -11,6 +11,7 @@ use Shopware\Recovery\Common\Service\SystemConfigService;
 use Shopware\Recovery\Install\DatabaseFactory;
 use Shopware\Recovery\Install\DatabaseInteractor;
 use Shopware\Recovery\Install\Service\AdminService;
+use Shopware\Recovery\Install\Service\BlueGreenDeploymentService;
 use Shopware\Recovery\Install\Service\DatabaseService;
 use Shopware\Recovery\Install\Service\EnvConfigWriter;
 use Shopware\Recovery\Install\Service\ShopService;
@@ -94,6 +95,10 @@ class InstallCommand extends Command
 
         $connectionInfo->databaseName = $dbName;
         $databaseService->selectDatabase($connectionInfo->databaseName);
+
+        /** @var BlueGreenDeploymentService $blueGreenDeploymentService */
+        $blueGreenDeploymentService = $container->offsetGet('blue.green.deployment.service');
+        $blueGreenDeploymentService->setEnvironmentVariable();
 
         $skipImport = $databaseService->containsShopwareSchema()
             && $input->getOption('no-skip-import')

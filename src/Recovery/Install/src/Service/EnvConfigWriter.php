@@ -51,7 +51,7 @@ COMPOSER_HOME=%s
 
 INSTANCE_ID=%s
 
-BLUE_GREEN_DEPLOYMENT=1
+BLUE_GREEN_DEPLOYMENT=%s
 
 SHOPWARE_HTTP_CACHE_ENABLED=1
 SHOPWARE_HTTP_DEFAULT_TTL=7200
@@ -80,7 +80,8 @@ SHOPWARE_CDN_STRATEGY_DEFAULT="id"
             'http://' . $shop->host . $shop->basePath,
             $dbUrl,
             SW_PATH . '/var/cache/composer',
-            $this->instanceId
+            $this->instanceId,
+            (int) $_ENV['BLUE_GREEN_DEPLOYMENT']
         );
 
         file_put_contents($this->configPath, $envFile);

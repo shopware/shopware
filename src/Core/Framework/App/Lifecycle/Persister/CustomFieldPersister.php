@@ -23,12 +23,14 @@ class CustomFieldPersister
     }
 
     /**
-     * @internal only for use by the spp-system
+     * @internal only for use by the app-system
      */
     public function updateCustomFields(Manifest $manifest, string $appId, Context $context): void
     {
-        $this->deleteCustomFieldsForApp($appId, $context);
-        $this->addCustomFields($manifest->getCustomFields(), $appId, $context);
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($manifest, $appId): void {
+            $this->deleteCustomFieldsForApp($appId, $context);
+            $this->addCustomFields($manifest->getCustomFields(), $appId, $context);
+        });
     }
 
     private function deleteCustomFieldsForApp(string $appId, Context $context): void

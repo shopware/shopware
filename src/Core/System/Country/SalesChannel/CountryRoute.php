@@ -31,18 +31,17 @@ class CountryRoute extends AbstractCountryRoute
 
     /**
      * @Since("6.3.0.0")
-     * @OA\Get(
+     * @OA\Post(
      *      path="/country",
      *      summary="Loads all available countries",
      *      operationId="readCountry",
      *      tags={"Store API", "Country"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),
-     *      @OA\Parameter(
-     *          parameter="onlyAvailable",
-     *          name="onlyAvailable",
-     *          in="query",
-     *          description="Encoded SwagQL in JSON",
-     *          @OA\Schema(type="int")
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              @OA\Property(property="onlyAvailable", description="Lists only available countries", type="integer")
+     *          )
      *      ),
      *      @OA\Response(
      *          response="200",

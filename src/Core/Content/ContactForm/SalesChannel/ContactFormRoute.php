@@ -76,13 +76,18 @@ class ContactFormRoute extends AbstractContactFormRoute
      *      summary="Send message throught contact form",
      *      operationId="sendContactMail",
      *      tags={"Store API", "Contact Mail"},
-     *      @OA\Parameter(name="salutationId", description="Salutation ID", in="body", @OA\Schema(type="string")),
-     *      @OA\Parameter(name="firstName", description="Firstname", in="body", @OA\Schema(type="string")),
-     *      @OA\Parameter(name="lastName", description="Lastname", in="body", @OA\Schema(type="string")),
-     *      @OA\Parameter(name="email", description="Email", in="body", @OA\Schema(type="string")),
-     *      @OA\Parameter(name="phone", description="Phone", in="body", @OA\Schema(type="string")),
-     *      @OA\Parameter(name="subject", description="Title", in="body", @OA\Schema(type="string")),
-     *      @OA\Parameter(name="comment", description="Message", in="body", @OA\Schema(type="string")),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              @OA\Property(property="salutationId", description="Salutation ID", type="string"),
+     *              @OA\Property(property="firstName", description="Firstname", type="string"),
+     *              @OA\Property(property="lastName", description="Lastname", type="string"),
+     *              @OA\Property(property="email", description="Email", type="string"),
+     *              @OA\Property(property="phone", description="Phone", type="string"),
+     *              @OA\Property(property="subject", description="Title", type="string"),
+     *              @OA\Property(property="comment", description="Message", type="string"),
+     *          )
+     *      ),
      *      @OA\Response(
      *          response="200",
      *          description="Message sent"

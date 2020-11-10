@@ -49,11 +49,10 @@ class DeleteCustomerRoute extends AbstractDeleteCustomerRoute
      *      summary="Delete customer profile",
      *      operationId="deleteCustomer",
      *      tags={"Store API", "Account"},
-     *      @OA\Parameter(name="Api-Basic-Parameters"),
      *      @OA\Response(
-     *          response="200",
-     *          description="Loggedin customer",
-     *          @OA\JsonContent(ref="#/components/schemas/customer_flat")
+     *          response="204",
+     *          description="Successfully deleted the customer",
+     *          @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      * @Route("/store-api/v{version}/account/customer", name="store-api.account.customer.delete", methods={"DELETE"})

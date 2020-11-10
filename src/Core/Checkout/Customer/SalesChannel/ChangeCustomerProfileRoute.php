@@ -75,27 +75,18 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
      *      summary="Change profile information",
      *      operationId="changeProfile",
      *      tags={"Store API", "Account"},
-     *      @OA\Parameter(
-     *        name="salutationId",
-     *        in="body",
-     *        description="Salutation",
-     *        @OA\Schema(type="string"),
-     *      ),
-     *      @OA\Parameter(
-     *        name="fistName",
-     *        in="body",
-     *        description="Firstname",
-     *        @OA\Schema(type="string"),
-     *      ),
-     *      @OA\Parameter(
-     *        name="lastName",
-     *        in="body",
-     *        description="Lastname",
-     *        @OA\Schema(type="string"),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              @OA\Property(property="salutationId", description="Salutation ID", type="string"),
+     *              @OA\Property(property="firstName", description="Firstname", type="string"),
+     *              @OA\Property(property="lastName", description="Firstname", type="string")
+     *          )
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          @OA\JsonContent(ref="#/definitions/SuccessResponse")
+     *          description="Successfully saved",
+     *          @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      * @Route(path="/store-api/v{version}/account/change-profile", name="store-api.account.change-profile", methods={"POST"})

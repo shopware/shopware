@@ -53,11 +53,11 @@ class CartItemUpdateRoute extends AbstractCartItemUpdateRoute
      *      summary="Update line item entries",
      *      operationId="updateLineItem",
      *      tags={"Store API", "Cart"},
-     *      @OA\RequestBody(@OA\JsonContent(ref="#/definitions/CartItems")),
+     *      @OA\RequestBody(@OA\JsonContent(ref="#/components/schemas/CartItems")),
      *      @OA\Response(
      *          response="200",
      *          description="Cart",
-     *          @OA\JsonContent(ref="#/definitions/Cart")
+     *          @OA\JsonContent(ref="#/components/schemas/Cart")
      *     )
      * )
      * @Route("/store-api/v{version}/checkout/cart/line-item", name="store-api.checkout.cart.update-lineitem", methods={"PATCH"})

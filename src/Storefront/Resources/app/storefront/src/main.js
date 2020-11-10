@@ -61,6 +61,7 @@ import FilterMultiSelectPlugin from 'src/plugin/listing/filter-multi-select.plug
 import FilterPropertySelectPlugin from 'src/plugin/listing/filter-property-select.plugin';
 import FilterBooleanPlugin from 'src/plugin/listing/filter-boolean.plugin';
 import FilterRangePlugin from 'src/plugin/listing/filter-range.plugin';
+// @deprecated tag:v6.4.0 - Will be replaced with new rating plugin
 import FilterRatingPlugin from 'src/plugin/listing/filter-rating.plugin';
 import ListingPlugin from 'src/plugin/listing/listing.plugin';
 import OffCanvasFilterPlugin from 'src/plugin/offcanvas-filter/offcanvas-filter.plugin';
@@ -132,6 +133,7 @@ PluginManager.register('FilterBoolean', FilterBooleanPlugin, '[data-filter-boole
 PluginManager.register('FilterRange', FilterRangePlugin, '[data-filter-range]');
 PluginManager.register('FilterMultiSelect', FilterMultiSelectPlugin, '[data-filter-multi-select]');
 PluginManager.register('FilterPropertySelect', FilterPropertySelectPlugin, '[data-filter-property-select]');
+// @deprecated tag:v6.4.0 - Will be replaced with new rating plugin
 PluginManager.register('FilterRating', FilterRatingPlugin, '[data-filter-rating]');
 PluginManager.register('ListingPagination', ListingPaginationPlugin, '[data-listing-pagination]');
 PluginManager.register('ListingSorting', ListingSortingPlugin, '[data-listing-sorting]');

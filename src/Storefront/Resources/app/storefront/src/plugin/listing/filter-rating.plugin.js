@@ -2,6 +2,9 @@ import FilterBasePlugin from 'src/plugin/listing/filter-base.plugin';
 import DomAccess from 'src/helper/dom-access.helper';
 import deepmerge from 'deepmerge';
 
+/**
+ * @deprecated tag:v6.4.0 - The filter rating plugin will be replaced with a new implementation
+ */
 export default class FilterRatingPlugin extends FilterBasePlugin {
 
     static options = deepmerge(FilterBasePlugin.options, {

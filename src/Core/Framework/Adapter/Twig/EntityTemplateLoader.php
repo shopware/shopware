@@ -2,11 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig;
 
-use Shopware\Core\Framework\App\Template\TemplateEntity;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Doctrine\DBAL\Connection;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Twig\Error\LoaderError;
 use Twig\Loader\LoaderInterface;
@@ -15,18 +11,18 @@ use Twig\Source;
 class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface
 {
     /**
-     * @var EntityRepositoryInterface
-     */
-    private $templateRepository;
-
-    /**
      * @var array
      */
     private $databaseTemplateCache = [];
 
-    public function __construct(EntityRepositoryInterface $templateRepository)
+    /**
+     * @var Connection
+     */
+    private $connection;
+
+    public function __construct(Connection $connection)
     {
-        $this->templateRepository = $templateRepository;
+        $this->connection = $connection;
     }
 
     public static function getSubscribedEvents(): array
@@ -47,7 +43,7 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface
             throw new LoaderError(sprintf('Template "%s" is not defined.', $name));
         }
 
-        return new Source($template->getTemplate(), $name);
+        return new Source($template['template'], $name);
     }
 
     public function getCacheKey($name)
@@ -62,7 +58,7 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface
             return false;
         }
 
-        return $template->getUpdatedAt() === null || $template->getUpdatedAt()->getTimestamp() < $time;
+        return $template['updatedAt'] === null || $template['updatedAt']->getTimestamp() < $time;
     }
 
     public function exists($name)
@@ -75,40 +71,39 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface
         return true;
     }
 
-    private function findDatabaseTemplate(string $name): ?TemplateEntity
+    private function findDatabaseTemplate(string $name): ?array
     {
         $templateName = $this->splitTemplateName($name);
         $namespace = $templateName['namespace'];
         $path = $templateName['path'];
 
-        if (array_key_exists($path, $this->databaseTemplateCache)) {
-            if (array_key_exists($namespace, $this->databaseTemplateCache[$path])) {
-                return $this->databaseTemplateCache[$path][$namespace];
+        if (empty($this->databaseTemplateCache)) {
+            $templates = $this->connection->fetchAll('
+                SELECT
+                    `app_template`.`path` AS `path`,
+                    `app_template`.`template` AS `template`,
+                    `app_template`.`updated_at` AS `updatedAt`,
+                    `app`.`name` AS `namespace`
+                FROM `app_template`
+                INNER JOIN `app` ON `app_template`.`app_id` = `app`.`id`
+                WHERE `app_template`.`active` = 1 AND `app`.`active` = 1
+            ');
+
+            /** @var array $template */
+            foreach ($templates as $template) {
+                $this->databaseTemplateCache[$template['path']][$template['namespace']] = [
+                    'template' => $template['template'],
+                    'updatedAt' => $template['updatedAt'] ? new \DateTimeImmutable($template['updatedAt']) : null,
+                ];
             }
-
-            // we have already loaded all DB templates for this path
-            // if the namespace is not included return null
-            return $this->databaseTemplateCache[$path][$namespace] = null;
         }
 
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('path', $path))
-            ->addFilter(new EqualsFilter('active', true))
-            ->addFilter(new EqualsFilter('app.active', true))
-            ->addAssociation('app');
-
-        $templates = $this->templateRepository->search($criteria, Context::createDefaultContext());
-
-        /** @var TemplateEntity $template */
-        foreach ($templates as $template) {
-            $this->databaseTemplateCache[$path][$template->getApp()->getName()] = $template;
-        }
-
-        if (array_key_exists($path, $this->databaseTemplateCache)
-            && array_key_exists($namespace, $this->databaseTemplateCache[$path])) {
+        if (array_key_exists($path, $this->databaseTemplateCache) && array_key_exists($namespace, $this->databaseTemplateCache[$path])) {
             return $this->databaseTemplateCache[$path][$namespace];
         }
 
+        // we have already loaded all DB templates
+        // if the namespace is not included return null
         return $this->databaseTemplateCache[$path][$namespace] = null;
     }
 

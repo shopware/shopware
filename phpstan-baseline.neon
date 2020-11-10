@@ -2751,11 +2751,6 @@ parameters:
 			path: src/Core/Framework/Adapter/Twig/AppTemplateIterator.php
 
 		-
-			message: "#^Cannot call method getName\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Twig/EntityTemplateLoader.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\Filter\\\\CurrencyFilter\\:\\:formatCurrency\\(\\) has no return typehint specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Adapter/Twig/Filter/CurrencyFilter.php

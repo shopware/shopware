@@ -89,7 +89,8 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         $context = $this->salesChannelContextService->get(
             $productExport->getStorefrontSalesChannelId(),
             $contextToken,
-            $productExport->getSalesChannelDomain()->getLanguageId()
+            $productExport->getSalesChannelDomain()->getLanguageId(),
+            $productExport->getSalesChannelDomain()->getCurrencyId()
         );
 
         $this->translator->injectSettings(

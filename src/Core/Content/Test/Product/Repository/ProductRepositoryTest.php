@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Test\Product\Repository;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceEntity;
@@ -25,6 +26,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
@@ -2096,6 +2098,46 @@ class ProductRepositoryTest extends TestCase
 
         static::assertSame($colorId, $red->getOption()->getGroupId());
         static::assertSame($colorId, $blue->getOption()->getGroupId());
+    }
+
+    public function testCreateAndAssignCMSPage(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_10078', $this);
+
+        $id = Uuid::randomHex();
+
+        $cmsPageId = Uuid::randomHex();
+
+        $this->getContainer()->get('cms_page.repository')->create(
+            [
+                [
+                    'id' => $cmsPageId,
+                    'type' => 'product_detail',
+                ],
+            ],
+            $this->context
+        );
+
+        $data = [
+            'id' => $id,
+            'productNumber' => Uuid::randomHex(),
+            'name' => 'test',
+            'stock' => 10,
+            'tax' => ['name' => 'test', 'taxRate' => 15],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+            'manufacturer' => ['name' => 'test'],
+            'cmsPageId' => $cmsPageId,
+        ];
+
+        $this->repository->create([$data], Context::createDefaultContext());
+
+        $criteria = new Criteria([$id]);
+        $criteria->addAssociation('cmsPage');
+        /** @var ProductEntity $product */
+        $product = $this->repository->search($criteria, Context::createDefaultContext())->get($id);
+        static::assertSame($cmsPageId, $product->getCmsPageId());
+        static::assertEquals(CmsPageEntity::class, get_class($product->getCmsPage()));
+        static::assertEquals('product_detail', $product->getCmsPage()->getType());
     }
 
     public function testModifyProductPriceMatrix(): void

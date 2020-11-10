@@ -6,6 +6,7 @@ use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -43,6 +44,13 @@ class CmsPageEntity extends Entity
      * @var CategoryCollection|null
      */
     protected $categories;
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10078)
+     *
+     * @var ProductCollection|null
+     */
+    protected $products;
 
     /**
      * @var array|null
@@ -137,6 +145,22 @@ class CmsPageEntity extends Entity
     public function setCategories(CategoryCollection $categories): void
     {
         $this->categories = $categories;
+    }
+
+    /**
+     *@internal (flag:FEATURE_NEXT_10078)
+     */
+    public function getProducts(): ?ProductCollection
+    {
+        return $this->products;
+    }
+
+    /**
+     *@internal (flag:FEATURE_NEXT_10078)
+     */
+    public function setProducts(ProductCollection $products): void
+    {
+        $this->products = $products;
     }
 
     public function getConfig(): ?array

@@ -72,9 +72,8 @@
                             <div class="container-main">
                                 {% block base_breadcrumb %}
                                     {% sw_include '@Storefront/storefront/layout/breadcrumb.html.twig' with {
-                                        navigationTree: page.header.navigation.tree,
-                                        categoryTree: page.product.categoryTree|last,
-                                        product: page.product
+                                        context: context,
+                                        category: page.product.seoCategory
                                     } only %}
                                 {% endblock %}
 

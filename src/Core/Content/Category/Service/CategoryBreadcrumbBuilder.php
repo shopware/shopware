@@ -16,14 +16,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 class CategoryBreadcrumbBuilder
 {
     /**
-     * @var EntityRepositoryInterface|null
+     * @var EntityRepositoryInterface
      */
     private $categoryRepository;
 
-    /**
-     * @deprecated tag:v6.4.0.0 - EntityRepositoryInterface will be required
-     */
-    public function __construct(?EntityRepositoryInterface $categoryRepository = null)
+    public function __construct(EntityRepositoryInterface $categoryRepository)
     {
         $this->categoryRepository = $categoryRepository;
     }
@@ -69,10 +66,6 @@ class CategoryBreadcrumbBuilder
 
     public function getProductSeoCategory(ProductEntity $product, SalesChannelContext $context): ?CategoryEntity
     {
-        if ($this->categoryRepository === null) {
-            return null;
-        }
-
         if ($product->getCategoryTree() === null || count($product->getCategoryTree()) === 0) {
             return null;
         }
@@ -103,10 +96,6 @@ class CategoryBreadcrumbBuilder
 
     private function getMainCategory(ProductEntity $product, SalesChannelContext $context): ?CategoryEntity
     {
-        if ($this->categoryRepository === null) {
-            return null;
-        }
-
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('mainCategories.productId', $product->getId()));
         $criteria->addFilter(new EqualsFilter('mainCategories.salesChannelId', $context->getSalesChannel()->getId()));

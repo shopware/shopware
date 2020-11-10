@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\Category;
 
 use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTranslationCollection;
-use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -13,7 +12,6 @@ use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
-use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\Tag\TagCollection;
 
 class CategoryEntity extends Entity
@@ -537,16 +535,6 @@ class CategoryEntity extends Entity
     public function setBreadcrumb(?array $breadcrumb): void
     {
         $this->breadcrumb = $breadcrumb;
-    }
-
-    /**
-     * @deprecated tag:v6.4.0.0 - Use CategoryBreadcrumbBuilder instead
-     */
-    public function buildSeoBreadcrumb(?string $navigationCategoryId = null, ?SalesChannelEntity $salesChannel = null): ?array
-    {
-        $builder = new CategoryBreadcrumbBuilder();
-
-        return $builder->build($this, $salesChannel, $navigationCategoryId);
     }
 
     public function jsonSerialize(): array

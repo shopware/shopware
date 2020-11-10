@@ -14,6 +14,7 @@ use Shopware\Storefront\Page\Suggest\SuggestPageLoader;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\EventListener\AbstractSessionListener;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -136,6 +137,9 @@ class SearchController extends StorefrontController
             $mapped[$aggregation->getName()] = $aggregation;
         }
 
-        return new JsonResponse($mapped);
+        $response = new JsonResponse($mapped);
+        $response->headers->set(AbstractSessionListener::NO_AUTO_CACHE_CONTROL_HEADER, '1');
+
+        return $response;
     }
 }

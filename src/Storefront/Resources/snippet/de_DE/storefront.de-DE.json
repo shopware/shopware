@@ -414,6 +414,7 @@
     "filterRatingActiveLabelStart": "Mindestens",
     "filterRatingActiveLabelEndSingular": "Stern",
     "filterRatingActiveLabelEnd": "Sterne",
+    "filterRatingAndMore": "& mehr",
     "filterRangeMinLabel": "Minimal",
     "filterRangeMaxLabel": "Maximal",
     "filterRangeActiveMinLabel": "Preis ab",

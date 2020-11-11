@@ -196,12 +196,11 @@
                     </table><br/>
                 {% endblock %}
             </div>
-
+        </div>
+        <div class="letter-body">
             <div class="document-title-container">
                 {% block document_headline %}{% endblock %}
             </div>
-        </div>
-        <div class="letter-body">
             {% if config.displayLineItems %}
                 {% for lineItemPage in lineItems|batch(itemsPerPage) %}
                     <div class="line-item-container">

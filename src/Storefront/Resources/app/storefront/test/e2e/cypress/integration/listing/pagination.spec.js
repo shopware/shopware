@@ -46,7 +46,7 @@ describe('Listing: Test product pagination', () => {
 
                     for (let i = 1; i < pageCount; i++) {
                         cy.get('.pagination-nav .page-next').eq(0).click();
-                        cy.wait('@loadNextPage').its('status').should('be', 200);
+                        cy.wait('@loadNextPage').should('have.property', 'status', 200);
                         cy.get('.cms-listing-row .card').should('have.length', testCase);
                     }
 
@@ -85,7 +85,7 @@ describe('Listing: Test product pagination', () => {
 
                     for (let i = 1; i < pageCount; i++) {
                         cy.get('.pagination-nav .page-next').eq(0).click();
-                        cy.wait('@loadNextSearchPage').its('status').should('be', 200);
+                        cy.wait('@loadNextSearchPage').should('have.property', 'status', 200);
                         cy.get('.cms-listing-row .card').should('have.length', testCase);
                     }
 

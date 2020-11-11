@@ -155,6 +155,7 @@
         "config": {
           "label": {
             "verticalAlign": "Vertikale Ausrichtung",
+            "alignment": "Ausrichtung",
             "verticalAlignTop": "Oben",
             "verticalAlignCenter": "Mitte",
             "verticalAlignBottom": "Unten",
@@ -169,7 +170,8 @@
           },
           "tab": {
             "content": "Inhalt",
-            "settings": "Einstellungen"
+            "settings": "Einstellungen",
+            "options": "Optionen"
           },
           "infoText": {
             "listingElement": "Die Produktdaten für dieses Element werden automatisiert über die Kategoriezuweisung befüllt. Der Inhalt zeigt nur eine ungefähre Vorschau."
@@ -410,6 +412,24 @@
           "label": {
             "form": "Formular",
             "send": "Senden"
+          }
+        }
+      },
+      "productDescriptionReviews": {
+        "label": "Produktbeschreibung und -bewertungen",
+        "infoText": {
+          "descriptionAndReviewsElement": "Die Daten in diesem Element werden automatisiert über die Kategoriezuweisung geladen. Die hier angezeigten Inhalte sind lediglich Platzhalter."
+        },
+        "component": {
+          "label": {
+            "descriptionAndReviews": "Produktbeschreibung und -bewertungen"
+          }
+        },
+        "preview": {
+          "label": {
+            "descriptionAndReviews": "Produktbeschreibung und -bewertungen",
+            "description": "Beschreibung",
+            "reviews": "Bewertungen"
           }
         }
       }

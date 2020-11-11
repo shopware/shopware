@@ -4,6 +4,7 @@ import 'src/module/sw-cms/component/sw-cms-slot';
 
 function createWrapper() {
     const localVue = createLocalVue();
+    localVue.directive('tooltip', {});
 
     return shallowMount(Shopware.Component.build('sw-cms-slot'), {
         localVue,
@@ -11,7 +12,8 @@ function createWrapper() {
             element: {}
         },
         stubs: {
-            'foo-bar': true
+            'foo-bar': true,
+            'sw-icon': true
         },
         mocks: {
             $tc: (value) => value
@@ -19,7 +21,11 @@ function createWrapper() {
         provide: {
             cmsService: {
                 getCmsElementConfigByName: () => ({
-                    component: 'foo-bar'
+                    component: 'foo-bar',
+                    disabledConfigInfoTextKey: 'lorem',
+                    defaultConfig: {
+                        text: 'lorem'
+                    }
                 })
             }
         }
@@ -51,5 +57,18 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
 
         const customComponent = wrapper.find('foo-bar-stub');
         expect(customComponent.attributes().disabled).toBeUndefined();
+    });
+
+    it('disable the slot setting and show tooltip when element is locked', async () => {
+        const wrapper = createWrapper();
+        await wrapper.setProps({
+            element: {
+                locked: true
+            },
+            active: true
+        });
+
+        expect(wrapper.find('.sw-cms-slot__settings-action').classes()).toContain('is--disabled');
+        expect(wrapper.vm.tooltipDisabled.disabled).toBe(false);
     });
 });

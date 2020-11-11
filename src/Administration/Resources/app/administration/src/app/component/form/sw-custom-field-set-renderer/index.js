@@ -149,6 +149,12 @@ Component.register('sw-custom-field-set-renderer', {
     },
 
     watch: {
+        'entity.customFields': {
+            handler() {
+                this.initializeCustomFields();
+            }
+        },
+
         'entity.customFieldSetSelectionActive': {
             handler(value) {
                 this.onChangeCustomFieldSetSelectionActive(value);

@@ -6,6 +6,8 @@ use OpenApi\Annotations\OpenApi;
 use OpenApi\Annotations\Operation;
 use OpenApi\Annotations\Parameter;
 use OpenApi\Annotations\Schema;
+use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\Event\OpenApiPathsEvent;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\RouterInterface;
 use function OpenApi\scan;
 use const OpenApi\Annotations\UNDEFINED;
@@ -25,15 +27,23 @@ class OpenApiLoader
      */
     private $router;
 
-    public function __construct(RouterInterface $router)
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    public function __construct(RouterInterface $router, EventDispatcherInterface $eventDispatcher)
     {
         $this->router = $router;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function load(string $api): OpenApi
     {
         $pathsToScan = array_unique(iterator_to_array($this->getApiRoutes(), false));
-        $openApi = scan($pathsToScan, ['analysis' => new DeactivateValidationAnalysis()]);
+        $openApiPathsEvent = new OpenApiPathsEvent($pathsToScan);
+        $this->eventDispatcher->dispatch($openApiPathsEvent);
+        $openApi = scan($openApiPathsEvent->getPaths(), ['analysis' => new DeactivateValidationAnalysis()]);
 
         // @see: https://regex101.com/r/XYRxEm/1
         $sinceRegex = '/\@Since\("(.*)"\)/m';

@@ -7461,18 +7461,8 @@ parameters:
 			path: src/Storefront/Theme/ThemeLifecycleService.php
 
 		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeService.php
-
-		-
 			message: "#^Parameter \\#1 \\$name of method Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\StorefrontPluginConfigurationCollection\\:\\:getByTechnicalName\\(\\) expects string, string\\|null given\\.$#"
 			count: 2
-			path: src/Storefront/Theme/ThemeService.php
-
-		-
-			message: "#^Parameter \\#1 \\$themeName of class Shopware\\\\Storefront\\\\Theme\\\\Exception\\\\InvalidThemeException constructor expects string, string\\|null given\\.$#"
-			count: 1
 			path: src/Storefront/Theme/ThemeService.php
 
 		-
@@ -7517,16 +7507,6 @@ parameters:
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeService\\:\\:getSectionLabel\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeService.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeService\\:\\:translateLabels\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeService.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeService\\:\\:translateHelpTexts\\(\\) has no return typehint specified\\.$#"
 			count: 1
 			path: src/Storefront/Theme/ThemeService.php
 

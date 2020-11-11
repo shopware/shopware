@@ -319,6 +319,7 @@ class InstallCommand extends Command
         );
         $question->setErrorMessage('Currency %s is invalid.');
         $shop->currency = $this->IOHelper->ask($question);
+        $shop->country = $this->IOHelper->ask(sprintf('Shop default country (%s): ', $shop->country), $shop->country);
 
         return $shop;
     }
@@ -577,7 +578,8 @@ class InstallCommand extends Command
                 'shop-country',
                 null,
                 InputOption::VALUE_REQUIRED,
-                'Expects an ISO-3166 three-letter country-code. This parameter sets the default country for the default sales-channel.'
+                'Expects an ISO-3166 three-letter country-code. This parameter sets the default country for the default sales-channel.',
+                'GBR'
             )
         ;
     }

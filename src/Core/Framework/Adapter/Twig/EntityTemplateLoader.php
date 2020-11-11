@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Adapter\Twig;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\TwigLoaderConfigCompilerPass;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Twig\Error\LoaderError;
 use Twig\Loader\LoaderInterface;
@@ -20,9 +21,15 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface
      */
     private $connection;
 
-    public function __construct(Connection $connection)
+    /**
+     * @var string
+     */
+    private $environment;
+
+    public function __construct(Connection $connection, string $environment)
     {
         $this->connection = $connection;
+        $this->environment = $environment;
     }
 
     public static function getSubscribedEvents(): array
@@ -73,6 +80,14 @@ class EntityTemplateLoader implements LoaderInterface, EventSubscriberInterface
 
     private function findDatabaseTemplate(string $name): ?array
     {
+        /*
+         * In dev env app templates are directly loaded over the filesystem
+         * @see TwigLoaderConfigCompilerPass::addAppTemplatePaths()
+         */
+        if ($this->environment === 'dev') {
+            return null;
+        }
+
         $templateName = $this->splitTemplateName($name);
         $namespace = $templateName['namespace'];
         $path = $templateName['path'];

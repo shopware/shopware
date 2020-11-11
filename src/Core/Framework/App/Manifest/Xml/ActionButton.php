@@ -9,7 +9,7 @@ class ActionButton extends XmlElement
     /**
      * @var array
      */
-    protected $label;
+    protected $label = [];
 
     /**
      * @var string

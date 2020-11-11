@@ -1,7 +1,7 @@
 {% sw_extends '@Storefront/storefront/component/address/address-personal.html.twig' %}
 
 {% block component_address_personal_account_type %}
-    {% if page.settings.translated.onlyCompanyRegistration %}
+    {% if page.group.translated.registrationOnlyCompanyRegistration %}
         <input type="hidden" name="{% if prefix %}{{ prefix }}[accountType]{% else %}accountType{% endif %}" value="{{ constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') }}">
     {% else %}
         {{ parent() }}

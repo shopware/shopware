@@ -69,17 +69,16 @@ Please add the following section to do so:
 
 Now install this package with the following command:
 ```
-npm install @shopware/e2e-testsuite-platform
+npm install @shopware-ag/e2e-testsuite-platform
 ```
 
 As next step, please create a new file `e2e/cypress/plugins/index.js` with the following content:
 ```javascript
-module.exports = require('@shopware/e2e-testsuite-platform/cypress/plugins');
+module.exports = require('@shopware-ag/e2e-testsuite-platform/cypress/plugins');
 ```
 
 Finally, create a new file e2e/cypress/support/index.js with the following line:
 ```javascript
 // Require test suite commands
-require('@shopware/e2e-testsuite-platform/cypress/support');
+require('@shopware-ag/e2e-testsuite-platform/cypress/support');
 ```
-

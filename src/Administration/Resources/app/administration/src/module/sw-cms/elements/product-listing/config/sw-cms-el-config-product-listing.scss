@@ -1,10 +1,12 @@
+@import "~scss/variables";
+
 .sw-cms-el-config-product-listing {
     div.sw-field--switch {
         margin: 0;
 
         label {
             flex-grow: 0;
-            margin-right: 0px;
+            margin-right: 0;
         }
     }
 
@@ -16,5 +18,18 @@
         > li {
             width: 100%;
         }
+    }
+
+    .spacer {
+        border: none;
+        height: 1px;
+        background-color: $color-gray-300;
+        margin: 20px 0;
+    }
+
+    div.sw-cms-el-config-product-listing-filter_properties_as_filter__description-text {
+        font-size: $font-size-small;
+        margin-bottom: 20px;
+        margin-left: 34px;
     }
 }

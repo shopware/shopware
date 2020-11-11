@@ -10,6 +10,10 @@
                 <sw-tabs-item name="sorting" :activeTab="active">
                     {{ $tc('sw-cms.elements.productListing.config.tab.sorting') }}
                 </sw-tabs-item>
+
+                <sw-tabs-item v-if="feature.isActive('FEATURE_NEXT_10536')" name="filter" :activeTab="active">
+                    {{ $tc('sw-cms.elements.productListing.config.tab.filter') }}
+                </sw-tabs-item>
             </template>
 
             <template slot="content" slot-scope="{ active }">
@@ -101,6 +105,83 @@
                             :productSortings="productSortings"
                             :defaultSorting="defaultSorting">
                         </sw-cms-el-config-product-listing-config-sorting-grid>
+                    {% endblock %}
+                </template>
+
+                <template v-if="active === 'filter'">
+                    {% block sw_cms_element_product_listing_config_filter_info %}
+                        <sw-alert variant="info">{{ $tc('sw-cms.elements.productListing.config.filter.infoText') }}</sw-alert>
+                    {% endblock %}
+
+                    {% block sw_cms_element_product_listing_config_filter_by_wrapper %}
+                        <sw-container columns="1fr 1fr" gap="0px 30px">
+                            {% block sw_cms_element_product_listing_config_filter_by_manufacturer %}
+                                <sw-switch-field v-model="filterByManufacturer"
+                                                 :label="$tc('sw-cms.elements.productListing.config.filter.labelFilterByManufacturer')">
+                                </sw-switch-field>
+                            {% endblock %}
+
+                            {% block sw_cms_element_product_listing_config_filter_by_rating %}
+                                <sw-switch-field v-model="filterByRating"
+                                                 :label="$tc('sw-cms.elements.productListing.config.filter.labelFilterByRating')">
+                                </sw-switch-field>
+                            {% endblock %}
+
+                            {% block sw_cms_element_product_listing_config_filter_by_price %}
+                                <sw-switch-field v-model="filterByPrice"
+                                                 :label="$tc('sw-cms.elements.productListing.config.filter.labelFilterByPrice')">
+                                </sw-switch-field>
+                            {% endblock %}
+
+                            {% block sw_cms_element_product_listing_config_filter_for_free_shipping %}
+                                <sw-switch-field v-model="filterByFreeShipping"
+                                                 :label="$tc('sw-cms.elements.productListing.config.filter.labelFilterForFreeShipping')">
+                                </sw-switch-field>
+                            {% endblock %}
+                        </sw-container>
+                    {% endblock %}
+
+
+                    {% block sw_cms_element_product_listing_config_filter_properties_wrapper %}
+                        <div v-if="showPropertySelection">
+
+                            {% block sw_cms_element_product_listing_config_filter_spacer %}
+                                <hr class="spacer" />
+                            {% endblock %}
+
+                            {% block sw_cms_element_product_listing_config_filter_properties_as_filter %}
+                                {% block sw_cms_element_product_listing_config_filter_properties_as_filter_switch %}
+                                    <sw-switch-field v-model="filterByProperties"
+                                                     :label="$tc('sw-cms.elements.productListing.config.filter.labelUseFilterByProperties')">
+                                    </sw-switch-field>
+                                {% endblock %}
+
+                                {% block sw_cms_element_product_listing_config_filter_properties_as_filter_info_text %}
+                                    <div class="sw-cms-el-config-product-listing-filter_properties_as_filter__description-text"
+                                         v-html="$tc('sw-cms.elements.productListing.config.filter.descriptionTextUseFilterByProperties')">
+                                    </div>
+                                {% endblock %}
+                            {% endblock %}
+
+                            {% block sw_cms_element_product_listing_config_filter_property_search %}
+                                <sw-simple-search-field
+                                    class="sw-cms-element-product-listing-config-filter-property-search"
+                                    variant="form"
+                                    v-model="filterPropertiesTerm"
+                                    :disabled="showFilterGrid"
+                                    @search-term-change="onFilterProperties">
+                                </sw-simple-search-field>
+                            {% endblock %}
+
+                            {% block sw_cms_element_product_listing_config_filter_property_grid %}
+                                <sw-cms-el-config-product-listing-config-filter-properties-grid
+                                    :disabled="showFilterGrid"
+                                    :properties="displayedProperties"
+                                    @property-status-changed="propertyStatusChanged"
+                                    @page-change="onPageChange">
+                                </sw-cms-el-config-product-listing-config-filter-properties-grid>
+                            {% endblock %}
+                        </div>
                     {% endblock %}
                 </template>
             </template>

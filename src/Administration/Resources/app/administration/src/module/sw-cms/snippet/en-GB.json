@@ -147,7 +147,8 @@
       },
       "tooltip": {
         "blockNameField": "Name each block individually to keep track of your work.",
-        "sectionNameField": "Name each section individually to keep track of your work."
+        "sectionNameField": "Name each section individually to keep track of your work.",
+        "cannotSelectProductPageLayout": "You cannot change a layout of type product page to another layout type."
       }
     },
     "elements": {
@@ -447,6 +448,15 @@
         },
         "productThreeColumn": {
           "label": "Three columns, product boxes"
+        },
+        "productDescriptionReviews": {
+          "label": "Product description & reviews",
+          "preview": {
+            "label": {
+              "description": "Description",
+              "reviews": "Reviews"
+            }
+          }
         }
       },
       "image": {

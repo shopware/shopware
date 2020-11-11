@@ -88,6 +88,13 @@ Component.register('sw-cms-sidebar', {
             }
 
             return this.$tc('sw-cms.detail.sidebar.titleSectionSettings');
+        },
+
+        tooltipDisabled() {
+            return {
+                message: this.$tc('sw-cms.detail.tooltip.cannotSelectProductPageLayout'),
+                disabled: this.page.type !== 'product_detail'
+            };
         }
     },
 

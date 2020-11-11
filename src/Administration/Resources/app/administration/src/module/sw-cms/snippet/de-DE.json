@@ -147,7 +147,8 @@
       },
       "tooltip": {
         "blockNameField": "Benenne jeden Block individuell und eindeutig, um einen guten Überblick über Deine Arbeit zu behalten.",
-        "sectionNameField": "Benenne jede Sektion individuell und eindeutig, um einen guten Überblick über Deine Arbeit zu erhalten."
+        "sectionNameField": "Benenne jede Sektion individuell und eindeutig, um einen guten Überblick über Deine Arbeit zu erhalten.",
+        "cannotSelectProductPageLayout": "Du kannst ein Layout vom Typ Produktseite nicht in einen anderen Layout-Typ ändern."
       }
     },
     "elements": {
@@ -447,6 +448,15 @@
         },
         "productThreeColumn": {
           "label": "Drei Spalten, Produkt-Boxen"
+        },
+        "productDescriptionReviews": {
+          "label": "Produktbeschreibung und -bewertungen",
+          "preview": {
+            "label": {
+              "description": "Beschreibung",
+              "reviews": "Bewertungen"
+            }
+          }
         }
       },
       "image": {

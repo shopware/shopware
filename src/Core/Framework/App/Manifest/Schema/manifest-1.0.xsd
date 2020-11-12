@@ -281,7 +281,12 @@
     <xs:simpleType name="view">
         <xs:restriction base="xs:string">
             <xs:enumeration value="detail"/>
-            <xs:enumeration value="index"/>
+            <xs:enumeration value="list"/>
+            <xs:enumeration value="index">
+                <xs:annotation>
+                    <xs:documentation xml:lang="en">@deprecated tag:v6.4.0 - Use `list` instead</xs:documentation>
+                </xs:annotation>
+            </xs:enumeration>
         </xs:restriction>
     </xs:simpleType>
     <xs:complexType name="entity-list">

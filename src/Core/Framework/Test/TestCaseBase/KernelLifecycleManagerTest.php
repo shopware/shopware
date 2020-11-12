@@ -32,7 +32,7 @@ class KernelLifecycleManagerTest extends TestCase
         $oldConnection = Kernel::getConnection();
         $oldContainer = $oldKernel->getContainer();
 
-        KernelLifecycleManager::bootKernel();
+        KernelLifecycleManager::bootKernel(false);
 
         $newKernel = KernelLifecycleManager::getKernel();
         $newConnection = Kernel::getConnection();
@@ -40,5 +40,18 @@ class KernelLifecycleManagerTest extends TestCase
         static::assertNotSame(spl_object_hash($oldKernel), spl_object_hash($newKernel));
         static::assertNotSame(spl_object_hash($oldConnection), spl_object_hash($newConnection));
         static::assertNotSame(spl_object_hash($oldContainer), spl_object_hash($newKernel->getContainer()));
+    }
+
+    /*
+     * regression test - KernelLifecycleManager::bootKernel used to keep all connections open, due to remaining references.
+     * This resulted in case of mariadb in a max connection limit error after 100 connections/calls to bootKernel.
+     */
+    public function testNoConnectionLeak(): void
+    {
+        for ($i = 0; $i < 200; ++$i) {
+            KernelLifecycleManager::bootKernel(true);
+        }
+
+        static::assertTrue(true);
     }
 }

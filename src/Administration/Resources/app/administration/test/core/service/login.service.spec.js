@@ -37,6 +37,7 @@ describe('core/service/login.service.js', () => {
         jest.spyOn(global, 'Date').mockImplementation(() => mockDate);
 
         window.localStorage.removeItem('redirectFromLogin');
+        document.cookie = '';
     });
 
     it('should contain all public functions', async () => {
@@ -91,11 +92,10 @@ describe('core/service/login.service.js', () => {
         });
     });
 
-    it('should clear the cookie succesfully after each test', async () => {
+    it('should clear the cookie successfully after each test', async () => {
         const { loginService } = loginServiceFactory();
 
         const auth = loginService.getBearerAuthentication();
-        console.log('auth', auth);
 
         expect(auth).toBeFalsy();
     });

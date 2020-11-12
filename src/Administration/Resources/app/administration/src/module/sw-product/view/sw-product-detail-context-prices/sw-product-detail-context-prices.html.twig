@@ -104,6 +104,7 @@
                                         <sw-field
                                             type="number"
                                             v-model="item.quantityStart"
+                                            :name="`${item.ruleId}-${item.quantityStart}-quantityStart`"
                                             validation="required"
                                             :min="priceGroup.prices[itemIndex - 1] ? priceGroup.prices[itemIndex - 1].quantityEnd + 1 : 1"
                                             :max="item.quantityEnd ? item.quantityEnd : null"
@@ -123,6 +124,7 @@
                                             :validation="item.quantityEnd === null || item.quantityEnd > item.quantityStart"
                                             placeholder="∞"
                                             @change="onQuantityEndChange(item, priceGroup)"
+                                            :name="`${item.ruleId}-${item.quantityStart}-quantityEnd`"
                                             :min="item.quantityStart"
                                             :max="priceGroup.prices[itemIndex + 1] ? priceGroup.prices[itemIndex + 1].quantityStart - 1 : null"
                                             :size="compact ? 'small' : 'default'"
@@ -154,6 +156,7 @@
                                                 :taxRate="productTaxRate"
                                                 :label="false"
                                                 :compact="compact"
+                                                :name="`${item.ruleId}-${currency.isoCode}-${item.quantityStart}`"
                                                 :currency="currency"
                                                 :disabled="!acl.can('product.editor')">
                                             </sw-price-field>

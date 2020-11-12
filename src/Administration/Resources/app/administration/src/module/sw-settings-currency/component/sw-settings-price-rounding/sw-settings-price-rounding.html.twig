@@ -27,7 +27,8 @@
                         numberType="int"
                         :step="1"
                         :min="0"
-                        :digits="50"
+                        :max="20"
+                        @change="onChangeDecimals($event, 'itemRounding')"
                         v-model="itemRounding.decimals">
                     </sw-number-field>
                 {% endblock %}
@@ -37,6 +38,12 @@
                         class="sw-settings-price-rounding__item-interval-select"
                         :label="$tc('sw-settings-currency.price-rounding.labelInterval')"
                         :helpText="$tc('sw-settings-currency.price-rounding.helpTextInterval')"
+                        :disabled="itemIntervalDisabled"
+                        v-tooltip="{
+                            message: $tc('sw-settings-currency.price-rounding.tooltipIntervalDisabled'),
+                            disabled: !itemIntervalDisabled,
+                            showOnDisabledElements: true
+                        }"
                         required
                         :options="intervalOptions"
                         v-model="itemRounding.interval">
@@ -85,7 +92,8 @@
                         numberType="int"
                         :step="1"
                         :min="0"
-                        :digits="50"
+                        :max="20"
+                        @change="onChangeDecimals($event, 'totalRounding')"
                         v-model="totalRounding.decimals">
                     </sw-number-field>
                 {% endblock %}
@@ -96,6 +104,12 @@
                         :label="$tc('sw-settings-currency.price-rounding.labelInterval')"
                         :helpText="$tc('sw-settings-currency.price-rounding.helpTextInterval')"
                         required
+                        :disabled="totalIntervalDisabled"
+                        v-tooltip="{
+                            message: $tc('sw-settings-currency.price-rounding.tooltipIntervalDisabled'),
+                            disabled: !totalIntervalDisabled,
+                            showOnDisabledElements: true
+                        }"
                         :options="intervalOptions"
                         v-model="totalRounding.interval">
                     </sw-single-select>

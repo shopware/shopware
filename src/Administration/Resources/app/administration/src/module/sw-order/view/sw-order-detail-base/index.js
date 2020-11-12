@@ -11,7 +11,8 @@ Component.register('sw-order-detail-base', {
         'repositoryFactory',
         'orderService',
         'stateStyleDataProviderService',
-        'acl'
+        'acl',
+        'feature'
     ],
 
     props: {
@@ -197,6 +198,23 @@ Component.register('sw-order-detail-base', {
 
         taxStatus() {
             return this.order.price.taxStatus;
+        },
+
+        displayRounded() {
+            if (!this.feature.isActive('FEATURE_NEXT_6059')) {
+                return false;
+            }
+
+            return this.order.totalRounding.interval !== 0.01
+                || this.order.totalRounding.decimals !== this.order.itemRounding.decimals;
+        },
+
+        orderTotal() {
+            if (this.displayRounded) {
+                return this.order.price.rawTotal;
+            }
+
+            return this.order.price.totalPrice;
         }
     },
 

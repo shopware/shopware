@@ -36,6 +36,11 @@ function createWrapper() {
             'sw-order-line-items-grid-sales-channel': true,
             'sw-switch-field': true
         },
+        provide: {
+            feature: {
+                isActive: () => true
+            }
+        },
         mocks: {
             $tc: v => v,
             $store: Shopware.State._store

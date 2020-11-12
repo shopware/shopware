@@ -34,5 +34,28 @@ Component.register('sw-settings-price-rounding', {
                 { label: '1.00', value: 1 }
             ]
         };
+    },
+
+    computed: {
+        itemIntervalDisabled() {
+            return this.itemRounding.decimals > 2;
+        },
+        totalIntervalDisabled() {
+            return this.totalRounding.decimals > 2;
+        }
+    },
+
+    methods: {
+        /**
+         * @param {number} decimals
+         * @param {string} type - Either be itemRounding or totalRounding
+         */
+        onChangeDecimals(decimals, type) {
+            if (decimals <= 2 || !['itemRounding', 'totalRounding'].includes(type)) {
+                return;
+            }
+
+            this[type].interval = 0.01;
+        }
     }
 });

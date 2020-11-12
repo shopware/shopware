@@ -161,7 +161,11 @@
                                             {% block sw_order_detail_base_line_items_summary_amount_total %}
                                                 <template v-if="taxStatus !== 'tax-free'">
                                                     <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmountTotal') }}</strong></dt>
-                                                    <dd><strong>{{ order.amountTotal | currency(order.currency.shortName) }}</strong></dd>
+                                                    <dd><strong>{{ orderTotal | currency(order.currency.shortName) }}</strong></dd>
+                                                    <template v-if="displayRounded">
+                                                        <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmountTotalRounded') }}</strong></dt>
+                                                        <dd><strong>{{ order.price.totalPrice | currency(order.currency.shortName) }}</strong></dd>
+                                                    </template>
                                                 </template>
                                             {% endblock %}
 

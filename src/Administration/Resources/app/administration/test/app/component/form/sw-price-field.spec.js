@@ -8,6 +8,7 @@ const dollarPrice = {
     gross: 123,
     linked: false
 };
+
 const euroPrice = {
     currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
     net: 152.33644859813083,
@@ -62,7 +63,7 @@ describe('components/form/sw-price-field', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should renders correctly', async () => {
+    it('should render correctly', async () => {
         const wrapper = setup();
         expect(wrapper.element).toMatchSnapshot();
     });

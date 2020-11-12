@@ -2,7 +2,6 @@ import template from './sw-price-field.html.twig';
 import './sw-price-field.scss';
 
 const { Component, Application } = Shopware;
-const utils = Shopware.Utils;
 
 /**
  * @public
@@ -198,36 +197,24 @@ Component.register('sw-price-field', {
         },
 
         onPriceGrossChange(value) {
-            this.priceForCurrency.gross = value;
-
             if (this.priceForCurrency.linked) {
                 this.$emit('price-calculate', true);
-                this.onPriceGrossChangeDebounce(value);
+                this.$emit('price-gross-change', value);
+                this.$emit('change', this.priceForCurrency);
+
+                this.convertGrossToNet(value);
             }
         },
-
-        onPriceGrossChangeDebounce: utils.debounce(function onPriceGrossChange(value) {
-            this.$emit('price-gross-change', value);
-            this.$emit('change', this.priceForCurrency);
-
-            this.convertGrossToNet(value);
-        }, 500),
 
         onPriceNetChange(value) {
-            this.priceForCurrency.net = value;
-
             if (this.priceForCurrency.linked) {
                 this.$emit('price-calculate', true);
-                this.onPriceNetChangeDebounce(value);
+                this.$emit('price-net-change', value);
+                this.$emit('change', this.priceForCurrency);
+
+                this.convertNetToGross(value);
             }
         },
-
-        onPriceNetChangeDebounce: utils.debounce(function onPriceNetChange(value) {
-            this.$emit('price-net-change', value);
-            this.$emit('change', this.priceForCurrency);
-
-            this.convertNetToGross(value);
-        }, 500),
 
         convertNetToGross(value) {
             if (!value || typeof value !== 'number') {

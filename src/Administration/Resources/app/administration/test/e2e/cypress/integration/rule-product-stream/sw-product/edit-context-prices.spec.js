@@ -20,6 +20,8 @@ describe('Product: Editing context prices', () => {
         const page = new ProductPageObject();
         const priceGroup = '.context-price-group';
         const priceCell = '.sw-data-grid__cell--price';
+        const quantityEndCell = '.sw-data-grid__cell--quantityEnd';
+        const quantityStartCell = '.sw-data-grid__cell--quantityStart';
         const emptySelectRule = '.sw-product-detail-context-prices__empty-state-select-rule';
 
         // input values
@@ -55,20 +57,21 @@ describe('Product: Editing context prices', () => {
             .typeSingleSelect('All customers', `${emptySelectRule}`);
 
         // change quantityEnd of first rule
-        cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--0 input[name="sw-field--item-quantityEnd"]`)
+        cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--0 ${quantityEndCell} input`)
             .scrollIntoView()
             .type(`${quantityEnd00}{enter}`);
 
         // change quantityEnd of second rule
-        cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--1 input[name="sw-field--item-quantityEnd"]`)
+        cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--1 ${quantityEndCell} input`)
             .scrollIntoView()
             .type(`${quantityEnd01}{enter}`);
 
         // Change price in third rule
-        cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--2 ${priceCell}-EUR input[name="sw-price-field-gross"]`)
+        cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--2 ${priceCell}-EUR .sw-price-field__gross input`)
             .scrollIntoView()
             .clear()
-            .type(`${priceGross02EUR}{enter}`);
+            .type(`${priceGross02EUR}{enter}`)
+            .blur();
 
         // Add price link in third rule
         cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--2 ${priceCell}-EUR .sw-price-field__lock`)
@@ -81,10 +84,11 @@ describe('Product: Editing context prices', () => {
             .click();
 
         // Add custom dollar price to second rule in second price group
-        cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--1 ${priceCell}-USD input[name="sw-price-field-gross"]`)
+        cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--1 ${priceCell}-USD .sw-price-field__gross input`)
             .scrollIntoView()
             .clear()
-            .type(`${priceGross11USD}{enter}`);
+            .type(`${priceGross11USD}{enter}`)
+            .blur();
 
         // Duplicate Price Rule
         cy.get(`${priceGroup}-0 .sw-product-detail-context-prices__toolbar-duplicate`)
@@ -110,15 +114,15 @@ describe('Product: Editing context prices', () => {
                 .should('be.visible');
 
             // check if all fields saved successfully
-            cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--0 input[name="sw-field--item-quantityEnd"]`)
+            cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--0 ${quantityEndCell} input`)
                 .should('be.visible');
-            cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--0 input[name="sw-field--item-quantityEnd"]`)
+            cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--0 ${quantityEndCell} input`)
                 .should('have.value', `${quantityEnd00}`);
 
-            cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--1 input[name="sw-field--item-quantityEnd"]`)
+            cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--1 ${quantityEndCell} input`)
                 .should('have.value', `${quantityEnd01}`);
 
-            cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--2 ${priceCell}-EUR input[name="sw-price-field-gross"]`)
+            cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--2 ${priceCell}-EUR .sw-price-field__gross input`)
                 .scrollIntoView()
                 .should('have.value', `${priceGross02EUR}`);
 
@@ -130,20 +134,20 @@ describe('Product: Editing context prices', () => {
                 .scrollIntoView()
                 .should('be.visible');
 
-            cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--1 ${priceCell}-USD input[name="sw-price-field-gross"]`)
+            cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--1 ${priceCell}-USD .sw-price-field__gross input`)
                 .scrollIntoView()
                 .should('have.value', `${priceGross11USD}`);
         });
 
         // change quantityStart in first price group and third price rule to an unallowed value
-        cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--2 input[name="sw-field--item-quantityStart"]`)
+        cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--2 ${quantityStartCell} input`)
             .clear()
             .type(`${quantityEnd01 / 2}{enter}`);
 
-        cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--2 input[name="sw-field--item-quantityEnd"]`)
+        cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--2 ${quantityEndCell} input`)
             .click();
 
-        cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--2 input[name="sw-field--item-quantityStart"]`)
+        cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--2 ${quantityStartCell} input`)
             .should('have.value', `${quantityEnd01 + 1}`);
 
         // delete a rule in the middle
@@ -154,7 +158,7 @@ describe('Product: Editing context prices', () => {
         );
 
         // check if other values in price group were adjusted to the deletion
-        cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--1 input[name="sw-field--item-quantityStart"]`)
+        cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--1 ${quantityStartCell} input`)
             .should('have.value', `${quantityEnd00 + 1}`);
 
         // delete a rule in the beginning
@@ -165,7 +169,7 @@ describe('Product: Editing context prices', () => {
         );
 
         // check if new first rule in price group were adjusted to the deletion
-        cy.get(`${priceGroup}-1 ${page.elements.dataGridRow}--0 input[name="sw-field--item-quantityStart"]`)
+        cy.get(`${priceGroup}-1 ${page.elements.dataGridRow}--0 ${quantityStartCell} input`)
             .should('have.value', '1');
     });
 });

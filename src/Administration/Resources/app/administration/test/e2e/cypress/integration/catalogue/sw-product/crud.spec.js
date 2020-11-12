@@ -58,12 +58,12 @@ describe('Product: Test crud operations', () => {
 
         // Check net price calculation
         cy.get('select[name=sw-field--product-taxId]').select('Standard rate');
-        cy.get('#sw-price-field-gross').type('10');
+        cy.get('#sw-price-field-gross').type('10').blur();
         cy.wait('@calculatePrice').then(() => {
             cy.get('#sw-price-field-net').should('have.value', '8.4033613445378');
         });
-        cy.window().then((win) => {
-            cy.get('#sw-purchase-price-field-gross').type('1');
+        cy.window().then(() => {
+            cy.get('#sw-purchase-price-field-gross').type('1').blur();
             cy.wait('@calculatePrice').then(() => {
                 cy.get('#sw-purchase-price-field-net').should('have.value', '0.84033613445378');
             });

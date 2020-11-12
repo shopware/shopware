@@ -172,7 +172,7 @@ class EntityTemplateLoaderTest extends TestCase
             ->method('fetchAll')
             ->willReturn([]);
 
-        $templateLoader = new EntityTemplateLoader($connection);
+        $templateLoader = new EntityTemplateLoader($connection, 'prod');
 
         static::assertFalse($templateLoader->exists('@Storefront/storefront/base.html.twig'));
         static::assertFalse($templateLoader->exists('@Storefront/storefront/test.html.twig'));

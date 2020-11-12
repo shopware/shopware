@@ -121,6 +121,15 @@ specific blocks rather than overwriting an entire template you can use the `{% s
 
 Learn more about templates in the [twig section of the theme guide](./../../30-theme-guide/30-twig-templates.md).
 
+#### Testing the changes
+
+The templates of apps are stored in the database on installation or on update of the app.
+This is necessary, because the source files of the app may not be stored locally on the production system.
+That means that it is necessary to reinstall or update the app to see the template changes.
+
+But during development, it is common to quickly try things out, therefore it is necessary, that changes made to the templates are directly visible on the page (after a reload).
+To allow this development workflow the app templates are loaded directly from the filesystem if your shopware installation's environment is set to `dev`.
+
 ### SCSS
 
 In order to provide custom styling for your theme you can add [SCSS](https://sass-lang.com/) files inside the 

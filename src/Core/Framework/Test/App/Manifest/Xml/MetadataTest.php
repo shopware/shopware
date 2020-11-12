@@ -29,4 +29,20 @@ class MetadataTest extends TestCase
             'de-DE' => 'Test für das App System',
         ], $metaData->getDescription());
     }
+
+    public function testFromXmlWithoutDescription(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/manifestWithoutDescription.xml');
+
+        $metaData = $manifest->getMetadata();
+
+        static::assertEquals([
+            'en-GB' => 'Swag App Test',
+            'de-DE' => 'Swag App Test',
+        ], $metaData->getLabel());
+        static::assertEquals([], $metaData->getDescription());
+
+        $array = $metaData->toArray('en-GB');
+        static::assertEquals([], $array['description']);
+    }
 }

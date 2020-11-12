@@ -57,6 +57,10 @@ class XmlElement extends Struct
      */
     protected function ensureTranslationForDefaultLanguageExist(array $translations, string $defaultLocale): array
     {
+        if (empty($translations)) {
+            return $translations;
+        }
+
         if (!array_key_exists($defaultLocale, $translations)) {
             $translations[$defaultLocale] = $this->getFallbackTranslation($translations);
         }

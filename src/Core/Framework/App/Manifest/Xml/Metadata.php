@@ -7,12 +7,12 @@ class Metadata extends XmlElement
     /**
      * @var array
      */
-    protected $label;
+    protected $label = [];
 
     /**
      * @var array
      */
-    protected $description;
+    protected $description = [];
 
     /**
      * @var string

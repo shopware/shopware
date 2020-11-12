@@ -144,6 +144,19 @@ class AppLifecycleTest extends TestCase
         static::assertEquals('SwagAppMinimal', $apps->first()->getName());
     }
 
+    public function testInstallWithoutDescription(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withoutDescription/manifest.xml');
+        $this->appLifecycle->install($manifest, true, $this->context);
+
+        /** @var AppCollection $apps */
+        $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
+
+        static::assertCount(1, $apps);
+        static::assertEquals('SwagApp', $apps->first()->getName());
+        static::assertNull($apps->first()->getDescription());
+    }
+
     public function testInstallDoesNotInstallElementsThatNeedSecretIfNoSetupIsProvided(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/Registration/_fixtures/no-setup/manifest.xml');

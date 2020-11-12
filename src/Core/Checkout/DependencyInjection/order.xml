@@ -107,6 +107,10 @@
         </service>
 
         <!-- events -->
+        <service id="Shopware\Core\Checkout\Order\Listener\OrderLoadedEventListener">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Order\Listener\OrderStateChangeEventListener">
             <argument type="service" id="order.repository"/>
             <argument type="service" id="order_transaction.repository"/>

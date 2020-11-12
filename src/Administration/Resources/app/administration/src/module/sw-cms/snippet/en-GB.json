@@ -7,6 +7,7 @@
       "greeting": "Layouts",
       "createNewLayout": "Create new layout",
       "deleteDisabledToolTip": "The layout you want to delete is still assigned to at least one category.",
+      "deleteDisabledProductToolTip": "The layout you want to delete is still assigned to at least one product.",
       "disabledAddingBlocksToolTip": "Adding blocks only works in your default system language.",
       "buttonDelete": "Delete"
     },
@@ -26,6 +27,7 @@
       "gridHeaderName": "Name",
       "gridHeaderType": "Type",
       "gridHeaderAssignment": "Assigned categories",
+      "gridHeaderAssignments": "Assignments",
       "gridHeaderCreated": "Created"
     },
     "section": {

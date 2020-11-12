@@ -4,9 +4,9 @@ namespace Shopware\Core\Checkout\Payment\SalesChannel;
 
 use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
-use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -81,15 +81,14 @@ class PaymentMethodRoute extends AbstractPaymentMethodRoute
     {
         $criteria
             ->addFilter(new EqualsFilter('active', true))
+            ->addSorting(new FieldSorting('position'))
             ->addAssociation('media');
 
         $result = $this->paymentMethodsRepository->search($criteria, $context);
 
         /** @var PaymentMethodCollection $paymentMethods */
         $paymentMethods = $result->getEntities();
-        $paymentMethods->sort(function (PaymentMethodEntity $a, PaymentMethodEntity $b) {
-            return $a->getPosition() <=> $b->getPosition();
-        });
+        $paymentMethods->sortPaymentMethodsByPreference($context);
 
         if ($request->query->getBoolean('onlyAvailable', false)) {
             $paymentMethods = $paymentMethods->filterByActiveRules($context);

@@ -36,7 +36,8 @@
                                 <input type="hidden" name="redirectTo" value="frontend.account.payment.page">
                                 {% block page_account_payment_fields %}
                                     {% sw_include '@Storefront/storefront/component/payment/payment-fields.html.twig' with {
-                                        'defaultPaymentMethodId': context.customer.defaultPaymentMethodId,
+                                        'visiblePaymentMethodsLimit': null,
+                                        'selectedPaymentMethodId': context.customer.defaultPaymentMethodId
                                     } %}
                                 {% endblock %}
 

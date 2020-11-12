@@ -6,6 +6,7 @@ use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -82,14 +83,22 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
             ->addFilter(new EqualsFilter('active', true))
             ->addAssociation('media');
 
-        $shippingMethods = $this->shippingMethodRepository->search($criteria, $context);
-
-        if ($request->query->getBoolean('onlyAvailable', false)) {
-            /** @var ShippingMethodCollection $collection */
-            $collection = $shippingMethods->getEntities();
-            $shippingMethods->assign(['entities' => $collection->filterByActiveRules($context)]);
+        if (empty($criteria->getSorting())) {
+            $criteria->addSorting(new FieldSorting('name', FieldSorting::ASCENDING));
         }
 
-        return new ShippingMethodRouteResponse($shippingMethods);
+        $result = $this->shippingMethodRepository->search($criteria, $context);
+
+        /** @var ShippingMethodCollection $shippingMethods */
+        $shippingMethods = $result->getEntities();
+        $shippingMethods->sortShippingMethodsByPreference($context);
+
+        if ($request->query->getBoolean('onlyAvailable', false)) {
+            $shippingMethods = $shippingMethods->filterByActiveRules($context);
+        }
+
+        $result->assign(['entities' => $shippingMethods]);
+
+        return new ShippingMethodRouteResponse($result);
     }
 }

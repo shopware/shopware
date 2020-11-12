@@ -393,7 +393,9 @@
     "customerCommentHeader": "Zusätzliche Informationen",
     "customerCommentLabel": "Möchten Sie uns etwas über Ihre Bestellung mitteilen?",
     "customerCommentPlaceholder": "Kommentieren Sie hier ...",
-    "cart-merged-hint": "Der aktuelle Warenkorb enthält u.U. zusätzliche Produkte, die noch von einem früheren Besuch gespeichert waren."
+    "cart-merged-hint": "Der aktuelle Warenkorb enthält u.U. zusätzliche Produkte, die noch von einem früheren Besuch gespeichert waren.",
+    "collapseTriggerMore": "Mehr zeigen",
+    "collapseTriggerLess": "Weniger zeigen"
   },
   "listing": {
     "filterTitleText": "Filter",

@@ -1,14 +1,14 @@
 /*
-Payment method
+Shipping method
 ==============================================
-Custom styling for payment form used e.g. on account and checkout pages.
+Custom styling for shipping form used e.g. on account and checkout pages.
 */
 
-.payment-method-description > p {
+.shipping-method-description > p {
     color: $border-color;
 }
 
-.payment-method-image {
+.shipping-method-image {
     max-height: 24px;
     max-width: 100%;
     margin-right: $spacer-xs;

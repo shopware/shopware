@@ -1,0 +1,9 @@
+{% sw_extends '@Storefront/storefront/page/checkout/confirm/confirm-payment.html.twig' %}
+
+{% block page_checkout_change_payment_form %}
+    {% sw_include '@Storefront/storefront/component/payment/payment-form.html.twig' with {
+        'action': 'frontend.account.edit-order.change-payment-method',
+        'actionPath': path('frontend.account.edit-order.change-payment-method', { 'orderId': page.order.id } ),
+        'redirect': null
+    } %}
+{% endblock %}

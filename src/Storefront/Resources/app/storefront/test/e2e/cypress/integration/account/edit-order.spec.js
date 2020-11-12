@@ -75,16 +75,18 @@ describe('Account: Edit order', () => {
         cy.get('#loginPassword').typeAndCheckStorefront('shopware');
         cy.get('.login-submit [type="submit"]').click();
 
-        // change payment
+        // edit order
         cy.get('.order-table').should('be.visible');
         cy.get('.order-table-header-order-table-body > :nth-child(3)').contains('Invoice');
         cy.get('.order-table-header-context-menu').click();
         cy.get('a.order-table-header-context-menu-content-link').click();
-        cy.get('.confirm-payment .card-body > [data-toggle="modal"]').click();
-        cy.get('label[for~="paymentMethod2"]').click();
-        cy.get('#confirmPaymentForm > .btn-primary').click();
+
+        // change payment
+        cy.get('.payment-methods').should('be.visible');
+        cy.get('.payment-methods > :nth-child(3)').click();
         cy.get('#confirmOrderForm > .btn').scrollIntoView();
         cy.get('#confirmOrderForm > .btn').click();
-        cy.get('.finish-order-details .checkout-card .card-body p:first').contains('Paid in advance');
+        cy.get('.finish-order-details .checkout-card .card-body p:first')
+            .should('contain', 'Paid in advance');
     });
 });

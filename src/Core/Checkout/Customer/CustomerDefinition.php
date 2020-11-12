@@ -140,17 +140,9 @@ class CustomerDefinition extends EntityDefinition
             new ManyToManyIdField('tag_ids', 'tagIds', 'tags'),
             new FkField('requested_customer_group_id', 'requestedGroupId', CustomerGroupDefinition::class),
             new ManyToOneAssociationField('requestedGroup', 'requested_customer_group_id', CustomerGroupDefinition::class, 'id', false),
+            new FkField('bound_sales_channel_id', 'boundSalesChannelId', SalesChannelDefinition::class),
+            new ManyToOneAssociationField('boundSalesChannel', 'bound_sales_channel_id', SalesChannelDefinition::class, 'id', false),
         ]);
-
-        if (Feature::isActive('FEATURE_NEXT_10555')) {
-            $fields->add(
-                new FkField('bound_sales_channel_id', 'boundSalesChannelId', SalesChannelDefinition::class)
-            );
-
-            $fields->add(
-                new ManyToOneAssociationField('boundSalesChannel', 'bound_sales_channel_id', SalesChannelDefinition::class, 'id', false)
-            );
-        }
 
         if (Feature::isActive('FEATURE_NEXT_10549')) {
             $fields->add(

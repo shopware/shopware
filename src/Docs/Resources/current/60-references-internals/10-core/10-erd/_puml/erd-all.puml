@@ -1585,6 +1585,7 @@ Table(ShopwareCoreCheckoutCustomerCustomerDefinition, "customer\n(The sales chan
    remoteAddress remoteAddress
    tagIds manyToManyId
    requestedGroupId foreignKey
+   boundSalesChannelId foreignKey
    not_null(createdAt) createdAt
    updatedAt updatedAt
 }

@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-customer-list', {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'feature'],
+    inject: ['repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -67,11 +67,8 @@ Component.register('sw-customer-list', {
             criteria
                 .addAssociation('defaultBillingAddress')
                 .addAssociation('group')
-                .addAssociation('requestedGroup');
-
-            if (this.feature.isActive('FEATURE_NEXT_10555')) {
-                criteria.addAssociation('salesChannel');
-            }
+                .addAssociation('requestedGroup')
+                .addAssociation('salesChannel');
 
             return criteria;
         },
@@ -197,16 +194,12 @@ Component.register('sw-customer-list', {
                 label: 'sw-customer.list.columnCampaignCode',
                 allowResize: true,
                 visible: false
+            }, {
+                property: 'boundSalesChannelId',
+                label: 'sw-customer.list.columnBoundSalesChannel',
+                allowResize: true,
+                visible: false
             }];
-
-            if (this.feature.isActive('FEATURE_NEXT_10555')) {
-                columns.push({
-                    property: 'boundSalesChannelId',
-                    label: 'sw-customer.list.columnBoundSalesChannel',
-                    allowResize: true,
-                    visible: false
-                });
-            }
 
             return columns;
         },

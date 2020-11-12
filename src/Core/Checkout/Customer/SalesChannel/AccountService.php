@@ -17,7 +17,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
@@ -180,12 +179,10 @@ class AccountService
             $criteria->addFilter(new EqualsFilter('customer.guest', 0));
         }
 
-        if (Feature::isActive('FEATURE_NEXT_10555')) {
-            $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
-                new EqualsFilter('customer.boundSalesChannelId', null),
-                new EqualsFilter('customer.boundSalesChannelId', $context->getSalesChannel()->getId()),
-            ]));
-        }
+        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
+            new EqualsFilter('customer.boundSalesChannelId', null),
+            new EqualsFilter('customer.boundSalesChannelId', $context->getSalesChannel()->getId()),
+        ]));
 
         return $this->customerRepository->search($criteria, $context->getContext());
     }

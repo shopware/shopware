@@ -6,7 +6,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\Feature;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
@@ -41,12 +40,10 @@ class CustomerEmailUniqueValidator extends ConstraintValidator
         $criteria->addFilter(new EqualsFilter('customer.email', $value));
         $criteria->addFilter(new EqualsFilter('customer.guest', false));
 
-        if (Feature::isActive('FEATURE_NEXT_10555')) {
-            $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
-                new EqualsFilter('customer.boundSalesChannelId', null),
-                new EqualsFilter('customer.boundSalesChannelId', $constraint->getSalesChannelContext()->getSalesChannel()->getId()),
-            ]));
-        }
+        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
+            new EqualsFilter('customer.boundSalesChannelId', null),
+            new EqualsFilter('customer.boundSalesChannelId', $constraint->getSalesChannelContext()->getSalesChannel()->getId()),
+        ]));
 
         $result = $this->customerRepository->searchIds($criteria, $constraint->getContext());
 

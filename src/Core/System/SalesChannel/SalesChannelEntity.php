@@ -350,8 +350,6 @@ class SalesChannelEntity extends Entity
     protected $eventActions;
 
     /**
-     * @internal (flag:FEATURE_NEXT_10555)
-     *
      * @var CustomerCollection|null
      */
     protected $boundCustomers;

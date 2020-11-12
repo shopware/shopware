@@ -124,7 +124,7 @@
                     {% endblock %}
 
                     {% block sw_customer_base_metadata_bound_sales_channel %}
-                        <sw-description-list v-if="feature.isActive('FEATURE_NEXT_10555')">
+                        <sw-description-list>
                             {% block sw_customer_base_metadata_bound_sales_channel_label %}
                                 <dt class="sw-customer-base-info__label sw-bound-sales-channel__label">
                                     {{ $tc('sw-customer.baseInfo.labelBoundSalesChannel') }}

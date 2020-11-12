@@ -109,7 +109,7 @@ class ProductListingRoute extends AbstractProductListingRoute
         $categoryCriteria = new Criteria([$categoryId]);
         /** @var CategoryEntity $category */
         $category = $this->categoryRepository->search($categoryCriteria, $salesChannelContext->getContext())->first();
-        if ($category->getProductAssignmentType() === CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM) {
+        if ($category->getProductAssignmentType() === CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM && $category->getProductStreamId() !== null) {
             $filters = $this->productStreamBuilder->buildFilters(
                 $category->getProductStreamId(),
                 $salesChannelContext->getContext()

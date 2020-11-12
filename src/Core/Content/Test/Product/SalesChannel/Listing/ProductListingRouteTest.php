@@ -54,6 +54,23 @@ class ProductListingRouteTest extends TestCase
         static::assertSame('product', $response['elements'][0]['apiAlias']);
     }
 
+    public function testLoadProductsUsingDynamicGroupWithEmptyProductStreamId(): void
+    {
+        $this->createData('product_stream');
+
+        $this->browser->request(
+            'POST',
+            '/store-api/v' . PlatformRequest::API_VERSION . '/product-listing/' . $this->ids->get('category')
+        );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+        static::assertSame('product_listing', $response['apiAlias']);
+        static::assertCount(5, $response['elements']);
+        static::assertSame('product', $response['elements'][0]['apiAlias']);
+    }
+
     public function testIncludes(): void
     {
         $this->browser->request(
@@ -73,7 +90,7 @@ class ProductListingRouteTest extends TestCase
         static::assertArrayHasKey('total', $response);
     }
 
-    private function createData(): void
+    private function createData(string $productAssignmentType = 'product', ?string $productStreamId = null): void
     {
         $product = [
             'name' => 'test',
@@ -100,6 +117,8 @@ class ProductListingRouteTest extends TestCase
         $data = [
             'id' => $this->ids->create('category'),
             'name' => 'Test',
+            'productStreamId' => $productStreamId,
+            'productAssignmentType' => $productAssignmentType,
             'cmsPage' => [
                 'id' => $this->ids->create('cms-page'),
                 'type' => 'product_list',
@@ -123,7 +142,7 @@ class ProductListingRouteTest extends TestCase
         ];
 
         $this->getContainer()->get('category.repository')
-            ->create([$data], $this->ids->context);
+            ->upsert([$data], $this->ids->context);
     }
 
     private function setVisibilities(): void

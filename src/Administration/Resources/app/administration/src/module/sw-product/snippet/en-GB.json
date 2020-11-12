@@ -128,7 +128,8 @@
       "cardTitleReviews": "Reviews",
       "cardTitleMedia": "Media",
       "labelContextMenuAddToProduct": "Add to product",
-      "cardTitleSeo": "SEO"
+      "cardTitleSeo": "SEO",
+      "cardTitleLayout": "Layout assignment"
     },
     "reviewForm": {
       "labelStatus": "Visible",
@@ -366,6 +367,14 @@
       "linkFeatureSetsConfig": "Essential Characteristics",
       "templateSelectFieldLabel": "Template",
       "templateSelectFieldPlaceholder": "Select a template..."
+    },
+    "layoutAssignment": {
+      "title": "Default fallback",
+      "subtitle": "Product page",
+      "textAssignLayout": "Assign layout",
+      "textChangeLayout": "Change layout",
+      "textCreateNewLayout": "Create new layout",
+      "textEditInDesigner": "Edit in designer"
     }
   },
   "sw-privileges": {

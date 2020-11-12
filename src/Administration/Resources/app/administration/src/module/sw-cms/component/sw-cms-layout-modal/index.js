@@ -13,6 +13,22 @@ Component.register('sw-cms-layout-modal', {
         Mixin.getByName('listing')
     ],
 
+    props: {
+        headline: {
+            type: String,
+            required: false,
+            default: ''
+        },
+
+        cmsPageTypes: {
+            type: Array,
+            required: false,
+            default() {
+                return [];
+            }
+        }
+    },
+
     data() {
         return {
             selected: null,
@@ -39,6 +55,10 @@ Component.register('sw-cms-layout-modal', {
                 .addAssociation('sections')
                 .addAssociation('categories')
                 .addSorting(Criteria.sort(this.sortBy, this.sortDirection));
+
+            if (this.cmsPageTypes.length) {
+                criteria.addFilter(Criteria.equalsAny('type', this.cmsPageTypes));
+            }
 
             if (this.term !== null) {
                 criteria.setTerm(this.term);

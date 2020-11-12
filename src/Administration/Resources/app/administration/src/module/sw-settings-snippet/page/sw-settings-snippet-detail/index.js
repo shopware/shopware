@@ -213,12 +213,9 @@ Component.register('sw-settings-snippet-detail', {
                     snippet.translationKey = this.translationKey;
                     snippet.id = null;
                     responses.push(this.snippetService.save(snippet));
-                } else if (snippet.origin !== snippet.value) {
+                } else if (snippet.origin !== snippet.value || snippet.origin.length <= 0) {
                     // Only save if values differs from origin
                     responses.push(this.snippetService.save(snippet));
-                } else if (snippet.hasOwnProperty('id') && snippet.id !== null) {
-                    // There's no need to keep a snippet which is exactly like the file-snippet, so delete
-                    responses.push(this.snippetService.delete(snippet.id));
                 }
             });
 
@@ -297,7 +294,7 @@ Component.register('sw-settings-snippet-detail', {
         checkIsSaveable() {
             let count = 0;
             this.snippets.forEach((snippet) => {
-                if (snippet.value === null || snippet.value.trim() === '') {
+                if (snippet.value === null) {
                     return;
                 }
 
@@ -305,11 +302,7 @@ Component.register('sw-settings-snippet-detail', {
                     count += 1;
                 }
 
-                if (snippet.origin === snippet.value) {
-                    return;
-                }
-
-                if (snippet.value.trim().length > 0) {
+                if (snippet.value.trim().length >= 0) {
                     count += 1;
                 }
             });

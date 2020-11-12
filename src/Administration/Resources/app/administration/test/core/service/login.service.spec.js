@@ -19,13 +19,23 @@ const loginServiceFactory = () => {
     };
 };
 
+let cookieStorageMock = '';
 describe('core/service/login.service.js', () => {
+    beforeAll(() => {
+        Object.defineProperty(document, 'cookie', {
+            set: function (value) {
+                cookieStorageMock = value;
+            },
+            get: function () {
+                return cookieStorageMock;
+            }
+        });
+    });
+
     beforeEach(() => {
         const mockDate = new Date(1577881800000);
         jest.spyOn(global, 'Date').mockImplementation(() => mockDate);
 
-        const name = 'bearerAuth';
-        document.cookie = `${name}=1; expires=1 Jan 1970 00:00:00 GMT;`;
         window.localStorage.removeItem('redirectFromLogin');
     });
 
@@ -85,6 +95,7 @@ describe('core/service/login.service.js', () => {
         const { loginService } = loginServiceFactory();
 
         const auth = loginService.getBearerAuthentication();
+        console.log('auth', auth);
 
         expect(auth).toBeFalsy();
     });

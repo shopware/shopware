@@ -7,28 +7,28 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowEmptyString;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Flag;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\StringFieldSerializer;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\LongTextFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 
-class StringFieldTest extends TestCase
+class LongTextFieldTest extends TestCase
 {
     use KernelTestBehaviour;
 
     /**
-     * @dataProvider stringFieldDataProvider
+     * @dataProvider longTextFieldDataProvider
      *
      * @param string|null $input
      * @param string|null $expected
      * @param Flag[]      $flags
      */
-    public function testStringFieldSerializer(string $type, $input, $expected, array $flags = []): void
+    public function testLongTextFieldSerializer(string $type, $input, $expected, array $flags = []): void
     {
-        $serializer = $this->getContainer()->get(StringFieldSerializer::class);
+        $serializer = $this->getContainer()->get(LongTextFieldSerializer::class);
 
         $data = new KeyValuePair('string', $input, false);
 
@@ -37,7 +37,7 @@ class StringFieldTest extends TestCase
 
             try {
                 $serializer->encode(
-                    $this->getStringField($flags),
+                    $this->getLongTextField($flags),
                     $this->getEntityExisting(),
                     $data,
                     $this->getWriteParameterBagMock()
@@ -55,7 +55,7 @@ class StringFieldTest extends TestCase
             static::assertSame(
                 $expected,
                 $serializer->encode(
-                    $this->getStringField($flags),
+                    $this->getLongTextField($flags),
                     $this->getEntityExisting(),
                     $data,
                     $this->getWriteParameterBagMock()
@@ -69,7 +69,7 @@ class StringFieldTest extends TestCase
      *               Structure:
      *               TestType, input, expected, flags
      */
-    public function stringFieldDataProvider()
+    public function longTextFieldDataProvider()
     {
         return [
             ['writeException', '<test>', 'This value should not be blank.', [new Required()]],
@@ -101,9 +101,9 @@ class StringFieldTest extends TestCase
     /**
      * @param Flag[] $flags
      */
-    private function getStringField(array $flags = []): StringField
+    private function getLongTextField(array $flags = []): LongTextField
     {
-        $field = new StringField('string', 'string');
+        $field = new LongTextField('string', 'string');
 
         if ($flags) {
             $field->addFlags(...$flags);

@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowEmptyString;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
@@ -25,18 +26,19 @@ class LongTextFieldSerializer extends AbstractFieldSerializer
             throw new InvalidSerializerFieldException(LongTextField::class, $field);
         }
 
-        if ($data->getValue() === '') {
+        if ($data->getValue() === '' && !$field->is(AllowEmptyString::class)) {
             $data->setValue(null);
         }
 
         $this->validateIfNeeded($field, $existence, $data, $parameters);
 
-        $value = $data->getValue();
-        if ($value !== null && !$field->is(AllowHtml::class)) {
-            $value = strip_tags((string) $value);
+        if ($data->getValue() !== null && !$field->is(AllowHtml::class)) {
+            $data->setValue(strip_tags((string) $data->getValue()));
         }
 
-        yield $field->getStorageName() => $value;
+        $this->validateIfNeeded($field, $existence, $data, $parameters);
+
+        yield $field->getStorageName() => $data->getValue() !== null ? (string) $data->getValue() : null;
     }
 
     public function decode(Field $field, $value): ?string
@@ -46,9 +48,14 @@ class LongTextFieldSerializer extends AbstractFieldSerializer
 
     protected function getConstraints(Field $field): array
     {
-        return [
-            new NotBlank(),
+        $constraints = [
             new Type('string'),
         ];
+
+        if (!$field->is(AllowEmptyString::class)) {
+            $constraints[] = new NotBlank();
+        }
+
+        return $constraints;
     }
 }

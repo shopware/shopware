@@ -140,6 +140,36 @@ json
         static::assertSame($expectedResult, $result);
     }
 
+    public function testGetStoreFrontSnippetsOverriddenFromDB(): void
+    {
+        $service = $this->getSnippetService(new MockSnippetFile('de-DE'), new MockSnippetFile('en-GB'));
+
+        $snippetSetId = $this->getSnippetSetIdForLocale('en-GB');
+
+        $snippetRepository = $this->getContainer()->get('snippet.repository');
+        $snippetRepository->create([
+            [
+                'translationKey' => 'a',
+                'value' => 'test',
+                'author' => 'test',
+                'setId' => $snippetSetId,
+            ],
+            [
+                'translationKey' => 'b',
+                'value' => '',
+                'author' => 'test',
+                'setId' => $snippetSetId,
+            ],
+        ], Context::createDefaultContext());
+
+        $result = $service->getStorefrontSnippets(
+            new MessageCatalogue('en-GB', ['messages' => ['a' => 'a', 'b' => 'b']]),
+            $snippetSetId
+        );
+
+        static::assertSame(['a' => 'test', 'b' => ''], $result);
+    }
+
     public function testStorefrontSnippetFallback(): void
     {
         $service = $this->getSnippetService(

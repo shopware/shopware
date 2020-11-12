@@ -3,10 +3,17 @@
 namespace Shopware\Storefront\Test\Page\Checkout;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute;
+use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute;
+use Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRouteResponse;
+use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\System\Country\SalesChannel\CountryRoute;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPage;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoadedEvent;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoader;
+use Shopware\Storefront\Page\GenericPageLoader;
 use Shopware\Storefront\Test\Page\StorefrontPageTestBehaviour;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -30,6 +37,30 @@ class CartPageTest extends TestCase
         static::assertSame(0.0, $page->getCart()->getPrice()->getNetPrice());
         static::assertSame($context->getToken(), $page->getCart()->getToken());
         self::assertPageEvent(CheckoutCartPageLoadedEvent::class, $event, $context, $request, $page);
+    }
+
+    public function testAddsCurrentSelectedShippingMethod(): void
+    {
+        $response = new ShippingMethodRouteResponse(new ShippingMethodCollection());
+
+        $route = $this->createMock(ShippingMethodRoute::class);
+        $route->method('load')
+            ->willReturn($response);
+
+        $loader = new CheckoutCartPageLoader(
+            $this->getContainer()->get(GenericPageLoader::class),
+            $this->getContainer()->get('event_dispatcher'),
+            $this->getContainer()->get(CartService::class),
+            $this->getContainer()->get(PaymentMethodRoute::class),
+            $route,
+            $this->getContainer()->get(CountryRoute::class)
+        );
+
+        $context = $this->createSalesChannelContextWithNavigation();
+
+        $result = $loader->load(new Request(), $context);
+
+        static::assertTrue($result->getShippingMethods()->has($context->getShippingMethod()->getId()));
     }
 
     /**

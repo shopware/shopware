@@ -147,9 +147,6 @@ describe('src/module/sw-settings-number-range/page/sw-settings-number-range-deta
 
             expect(el.attributes().disabled).toBeUndefined();
         });
-
-        const numberRangeType = wrapper.find('#numberRangeTypes');
-        expect(numberRangeType.attributes().disabled).toBeTruthy();
     });
 
     it('should not be able to edit the number range', async () => {

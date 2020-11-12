@@ -17,12 +17,6 @@ Component.extend('sw-switch-field', 'sw-checkbox-field', {
     inheritAttrs: false,
 
     props: {
-        bordered: {
-            type: Boolean,
-            required: false,
-            default: false
-        },
-
         noMarginTop: {
             type: Boolean,
             required: false,
@@ -55,7 +49,6 @@ Component.extend('sw-switch-field', 'sw-checkbox-field', {
 
     methods: {
         onInheritanceRestore(event) {
-            this.restoreInheritance();
             this.$emit('inheritance-restore', event);
         }
     }

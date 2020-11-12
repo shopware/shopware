@@ -102,6 +102,10 @@ function createWrapper(privileges = []) {
 describe('module/sw-customer/page/sw-customer-detail', () => {
     let wrapper;
 
+    beforeAll(() => {
+        global.console.warn = jest.fn();
+    });
+
     beforeEach(() => {
         wrapper = createWrapper();
     });

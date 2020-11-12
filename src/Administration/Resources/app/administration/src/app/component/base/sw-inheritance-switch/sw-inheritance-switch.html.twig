@@ -1,5 +1,10 @@
 {% block sw_inheritance_switch %}
-    <div class="sw-inheritance-switch" :class="{ 'sw-inheritance-switch--disabled': disabled }">
+    <div class="sw-inheritance-switch"
+         :class="{
+            'sw-inheritance-switch--disabled': disabled,
+            'sw-inheritance-switch--is-inherited': isInherited,
+            'sw-inheritance-switch--is-not-inherited': !isInherited,
+        }">
         {% block sw_inheritance_switch_inherit_icon %}
             <sw-icon v-if="isInherited"
                      key="inherit-icon"

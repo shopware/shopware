@@ -72,7 +72,8 @@ describe('module/sw-settings-login-registration/page/sw-settings-login-registrat
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should contain the settings card system', () => {
+    it('should contain the settings card system', async () => {
+        await wrapper.vm.$nextTick();
         expect(
             wrapper.find(`.${classes.root}`)
                 .find(`.${classes.cardView}`)

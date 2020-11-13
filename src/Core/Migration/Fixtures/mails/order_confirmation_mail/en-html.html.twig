@@ -48,6 +48,11 @@ You may use this link to edit your order, change the payment method or make addi
 </table>
 
 {% set delivery = order.deliveries.first %}
+{% set displayRounded = order.totalRounding.interval != 0.01 or order.totalRounding.decimals != order.itemRounding.decimals %}
+{% set total = order.price.totalPrice %}
+{% if displayRounded %}
+    {% set total = order.price.rawTotal %}
+{% endif %}
 <p>
     <br>
     <br>
@@ -57,8 +62,10 @@ You may use this link to edit your order, change the payment method or make addi
     {% for calculatedTax in order.price.calculatedTaxes %}
         {% if order.taxStatus is same as('net') %}plus{% else %}including{% endif %} {{ calculatedTax.taxRate }}% VAT. {{ calculatedTax.tax|currency(currencyIsoCode) }}<br>
     {% endfor %}
-    <strong>Total gross: {{ order.amountTotal|currency(currencyIsoCode) }}</strong><br>
-
+    {% if not displayRounded %}<strong>{% endif %}Total gross: {{ total|currency(currencyIsoCode) }}{% if not displayRounded %}</strong>{% endif %}<br>
+    {% if displayRounded %}
+        <strong>Rounded total gross: {{ order.price.totalPrice|currency(currencyIsoCode) }}</strong><br>
+    {% endif %}
     <br>
 
     <strong>Selected shipping type:</strong> {{ delivery.shippingMethod.name }}<br>

@@ -15,14 +15,21 @@ Pos.   Prod. No.			Description			Quantities			Price			Total
 {% endfor %}
 
 {% set delivery = order.deliveries.first %}
+{% set displayRounded = order.totalRounding.interval != 0.01 or order.totalRounding.decimals != order.itemRounding.decimals %}
+{% set total = order.price.totalPrice %}
+{% if displayRounded %}
+    {% set total = order.price.rawTotal %}
+{% endif %}
 
 Shipping costs: {{order.deliveries.first.shippingCosts.totalPrice|currency(currencyIsoCode) }}
 Net total: {{ order.amountNet|currency(currencyIsoCode) }}
     {% for calculatedTax in order.price.calculatedTaxes %}
            {% if order.taxStatus is same as('net') %}plus{% else %}including{% endif %} {{ calculatedTax.taxRate }}% VAT. {{ calculatedTax.tax|currency(currencyIsoCode) }}
     {% endfor %}
-Total gross: {{ order.amountTotal|currency(currencyIsoCode) }}
-
+Total gross: {{ total|currency(currencyIsoCode) }}
+{% if displayRounded %}
+Rounded total gross: {{ order.price.totalPrice|currency(currencyIsoCode) }}
+{% endif %}
 
 Selected payment type: {{ order.transactions.first.paymentMethod.name }}
 {{ order.transactions.first.paymentMethod.description }}

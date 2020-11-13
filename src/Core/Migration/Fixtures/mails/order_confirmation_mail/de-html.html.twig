@@ -49,6 +49,11 @@ Den aktuellen Status Ihrer Bestellung können Sie jederzeit über diesen Link ab
 </table>
 
 {% set delivery = order.deliveries.first %}
+{% set displayRounded = order.totalRounding.interval != 0.01 or order.totalRounding.decimals != order.itemRounding.decimals %}
+{% set total = order.price.totalPrice %}
+{% if displayRounded %}
+    {% set total = order.price.rawTotal %}
+{% endif %}
 <p>
     <br>
     <br>
@@ -57,7 +62,10 @@ Den aktuellen Status Ihrer Bestellung können Sie jederzeit über diesen Link ab
         {% for calculatedTax in order.price.calculatedTaxes %}
             {% if order.taxStatus is same as('net') %}zzgl.{% else %}inkl.{% endif %} {{ calculatedTax.taxRate }}% MwSt. {{ calculatedTax.tax|currency(currencyIsoCode) }}<br>
         {% endfor %}
-    <strong>Gesamtkosten Brutto: {{ order.amountTotal|currency(currencyIsoCode) }}</strong><br>
+    {% if not displayRounded %}<strong>{% endif %}Gesamtkosten Brutto: {{ total|currency(currencyIsoCode) }}{% if not displayRounded %}</strong>{% endif %}<br>
+    {% if displayRounded %}
+        <strong>Gesamtkosten Brutto gerundet: {{ order.price.totalPrice|currency(currencyIsoCode) }}</strong><br>
+    {% endif %}
     <br>
 
     <strong>Gewählte Versandart:</strong> {{ delivery.shippingMethod.name }}<br>

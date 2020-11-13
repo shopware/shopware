@@ -14,6 +14,7 @@ use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -183,9 +184,9 @@ class CartService
      * @throws InvalidOrderException
      * @throws InconsistentCriteriaIdsException
      */
-    public function order(Cart $cart, SalesChannelContext $context): string
+    public function order(Cart $cart, SalesChannelContext $context, ?RequestDataBag $data = null): string
     {
-        $orderId = $this->orderRoute->order($cart, $context)->getOrder()->getId();
+        $orderId = $this->orderRoute->order($cart, $context, $data)->getOrder()->getId();
 
         if (isset($this->cart[$cart->getToken()])) {
             unset($this->cart[$cart->getToken()]);

@@ -48,6 +48,7 @@
             <flag>FEATURE_NEXT_10549</flag>
         </input-field>
 
+        <flag>FEATURE_NEXT_10549</flag>
     </card>
 
 </config>

@@ -46,12 +46,16 @@ class ConfigReader extends XmlReader
     {
         $cardDefinitions = [];
 
-        foreach ($xml->getElementsByTagName('card') as $element) {
+        foreach ($xml->getElementsByTagName('card') as $index => $element) {
             $cardDefinitions[] = [
                 'title' => $this->getCardTitles($element),
                 'name' => $this->getCardName($element),
                 'elements' => $this->getElements($element),
             ];
+
+            if ($this->getCardFlag($element) !== null) {
+                $cardDefinitions[$index]['flag'] = $this->getCardFlag($element);
+            }
         }
 
         return $cardDefinitions;
@@ -74,7 +78,7 @@ class ConfigReader extends XmlReader
         /** @var \DOMElement $element */
         foreach (static::getAllChildren($xml) as $element) {
             $nodeName = $element->nodeName;
-            if ($nodeName === 'title' || $nodeName === 'name') {
+            if ($nodeName === 'title' || $nodeName === 'name' || $nodeName === 'flag') {
                 continue;
             }
 
@@ -94,6 +98,20 @@ class ConfigReader extends XmlReader
             }
 
             return $name->nodeValue;
+        }
+
+        return null;
+    }
+
+    private function getCardFlag(\DOMElement $element): ?string
+    {
+        foreach ($element->getElementsByTagName('flag') as $flag) {
+            $parentNode = $flag->parentNode;
+            if (($parentNode !== null) && $parentNode->nodeName !== 'card') {
+                continue;
+            }
+
+            return $flag->nodeValue;
         }
 
         return null;

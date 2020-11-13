@@ -115,6 +115,7 @@ Component.register('sw-customer-list', {
                 this.total = items.total;
                 this.customers = items;
                 this.isLoading = false;
+                this.selection = {};
 
                 return items;
             }).catch(() => {

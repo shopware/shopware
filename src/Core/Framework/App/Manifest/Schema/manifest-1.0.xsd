@@ -264,6 +264,7 @@
             <xs:enumeration value="order"/>
             <xs:enumeration value="catagory"/>
             <xs:enumeration value="promotion"/>
+            <xs:enumeration value="customer"/>
         </xs:restriction>
     </xs:simpleType>
     <xs:complexType name="option-collection">

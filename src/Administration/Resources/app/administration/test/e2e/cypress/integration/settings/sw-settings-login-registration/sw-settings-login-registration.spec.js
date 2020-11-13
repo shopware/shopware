@@ -16,9 +16,7 @@ describe('Login / Registration: Test show operations on templates', () => {
             url: `${Cypress.env('apiPath')}/_action/system-config/batch`,
             method: 'post'
         }).as('saveSettings');
-
-        cy.get('.sw-system-config__card--0 .sw-card__title').contains('Customer Scope');
-
+        
         cy.get('input[name="core.systemWideLoginRegistration.isCustomerBoundToSalesChannel"]').scrollIntoView();
         cy.get('input[name="core.systemWideLoginRegistration.isCustomerBoundToSalesChannel"]').should('be.visible');
 

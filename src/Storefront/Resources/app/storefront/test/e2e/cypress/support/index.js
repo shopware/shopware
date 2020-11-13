@@ -19,6 +19,7 @@ require('./pages/general.page-object');
 require('./pages/checkout.page-object');
 require('./pages/account.page-object');
 require('./service/fixture/rule-builder.fixture');
+require('./service/fixture/product-wishlist.fixture');
 
 // Custom storefront commands
 require('./commands/commands');

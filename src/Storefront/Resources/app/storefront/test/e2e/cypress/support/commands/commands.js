@@ -1,5 +1,6 @@
 const uuid = require('uuid/v4');
 const RuleBuilderFixture = require('../service/fixture/rule-builder.fixture');
+const ProductWishlistFixture = require('../service/fixture/product-wishlist.fixture');
 
 /**
  * Search for an existing entity using Shopware API at the given endpoint
@@ -205,6 +206,18 @@ Cypress.Commands.add('setAnalyticsFixtureToSalesChannel', (state) => {
             }
         })
     });
+});
+
+/**
+ * Set the product to the wishlist
+ * @memberOf Cypress.Chainable#
+ * @name setProductWishlist
+ * @function
+ */
+Cypress.Commands.add('setProductWishlist', ({productId, customer}) => {
+    const fixture = new ProductWishlistFixture();
+
+    return fixture.setProductWishlist(productId, customer);
 });
 
 // WaitUntil command is from https://www.npmjs.com/package/cypress-wait-until

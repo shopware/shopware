@@ -72,6 +72,7 @@ Skeleton screen for reloading product-listing with subtle shimmer effect
     .product-image-wrapper,
     .product-rating,
     .product-name,
+    .product-variant-characteristics,
     .product-description,
     .product-price-unit,
     .product-price {
@@ -92,5 +93,25 @@ Skeleton screen for reloading product-listing with subtle shimmer effect
 
     .product-price {
         width: 35%;
+    }
+
+    // wishlist page
+    .product-wishlist-info {
+        &-item {
+            border-radius: $border-radius;
+            color: transparent;
+            animation: skeletonShimmer 1.5s linear 0s infinite normal forwards running;
+            background: linear-gradient(to right, $gray-300 8%, $gray-100 18%, $gray-300 28%);
+            background-size: 800px 100px;
+        }
+
+        &-status {
+            display: none;
+        }
+    }
+
+    .product-variant-characteristics-text,
+    .product-wishlist-remove {
+        display: none;
     }
 }

@@ -1,0 +1,119 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Storefront\Test\Page;
+
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotActivatedException;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Storefront\Page\Wishlist\WishlistPage;
+use Shopware\Storefront\Page\Wishlist\WishlistPageLoadedEvent;
+use Shopware\Storefront\Page\Wishlist\WishlistPageLoader;
+use Symfony\Component\HttpFoundation\Request;
+
+class WishlistPageTest extends TestCase
+{
+    use IntegrationTestBehaviour;
+    use StorefrontPageTestBehaviour;
+
+    /**
+     * @var SystemConfigService
+     */
+    private $systemConfigService;
+
+    public function setUp(): void
+    {
+        $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+    }
+
+    public function testLoginRequirement(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_10549', $this);
+        $this->assertLoginRequirement();
+    }
+
+    public function testInActiveWishlist(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_10549', $this);
+
+        $request = new Request();
+        $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
+
+        $this->systemConfigService->set('core.cart.wishlistEnabled', false);
+
+        $this->expectException(CustomerWishlistNotActivatedException::class);
+        $this->getPageLoader()->load($request, $context);
+    }
+
+    public function testWishlistNotFound(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_10549', $this);
+
+        $request = new Request();
+        $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
+
+        $this->systemConfigService->set('core.cart.wishlistEnabled', true);
+
+        $page = $this->getPageLoader()->load($request, $context);
+
+        static::assertInstanceOf(WishlistPage::class, $page);
+        static::assertSame(0, $page->getWishlist()->getProductListing()->getTotal());
+    }
+
+    public function testItLoadsWishlistPage(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_10549', $this);
+
+        $request = new Request();
+        $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
+
+        $this->systemConfigService->set('core.cart.wishlistEnabled', true);
+
+        $product = $this->getRandomProduct($context);
+        $this->createCustomerWishlist($context->getCustomer()->getId(), $product->getId());
+
+        /** @var WishlistPageLoadedEvent $event */
+        $event = null;
+        $this->catchEvent(WishlistPageLoadedEvent::class, $event);
+
+        $page = $this->getPageLoader()->load($request, $context);
+
+        static::assertInstanceOf(WishlistPage::class, $page);
+        static::assertSame(1, $page->getWishlist()->getProductListing()->getTotal());
+        static::assertSame($context->getContext(), $page->getWishlist()->getProductListing()->getContext());
+        self::assertPageEvent(WishlistPageLoadedEvent::class, $event, $context, $request, $page);
+    }
+
+    /**
+     * @return WishlistPageLoader
+     */
+    protected function getPageLoader()
+    {
+        return $this->getContainer()->get(WishlistPageLoader::class);
+    }
+
+    private function createCustomerWishlist(string $customerId, string $productId): string
+    {
+        $customerWishlistId = Uuid::randomHex();
+        $customerWishlistRepository = $this->getContainer()->get('customer_wishlist.repository');
+
+        $customerWishlistRepository->create([
+            [
+                'id' => $customerWishlistId,
+                'customerId' => $customerId,
+                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'products' => [
+                    [
+                        'productId' => $productId,
+                    ],
+                ],
+            ],
+        ], Context::createDefaultContext());
+
+        return $customerWishlistId;
+    }
+}

@@ -25,7 +25,7 @@
         <action-button
             action="doStuffWithProducts"
             entity="product"
-            view="index"
+            view="list"
             url="https://swag-test.com/do-stuff">
             <label>Do Stuff</label>
         </action-button>

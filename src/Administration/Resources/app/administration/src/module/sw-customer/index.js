@@ -33,7 +33,10 @@ Module.register('sw-customer', {
             },
             path: 'index',
             meta: {
-                privilege: 'customer.viewer'
+                privilege: 'customer.viewer',
+                appSystem: {
+                    view: 'list'
+                }
             }
         },
 
@@ -79,7 +82,10 @@ Module.register('sw-customer', {
                 }
             },
             meta: {
-                privilege: 'customer.viewer'
+                privilege: 'customer.viewer',
+                appSystem: {
+                    view: 'detail'
+                }
             },
 
             props: {

@@ -86,22 +86,17 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
      *      summary="Sends a recovery email for password recovery",
      *      operationId="sendRecoveryMail",
      *      tags={"Store API", "Account"},
-     *      @OA\Parameter(
-     *        name="email",
-     *        in="body",
-     *        description="Email",
-     *        @OA\Schema(type="string"),
-     *      ),
-     *      @OA\Parameter(
-     *        name="storefrontUrl",
-     *        in="body",
-     *        description="baseurl for the url in mail",
-     *        @OA\Schema(type="string"),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              @OA\Property(property="email", description="E-Mail", type="string"),
+     *              @OA\Property(property="storefrontUrl", description="BaseUrl for the url in mail", type="string")
+     *          )
      *      ),
      *      @OA\Response(
      *          response="200",
      *          description="",
-     *          @OA\JsonContent(ref="#/definitions/SuccessResponse")
+     *          @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      * @Route(path="/store-api/v{version}/account/recovery-password", name="store-api.account.recovery.send.mail", methods={"POST"})

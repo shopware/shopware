@@ -67,23 +67,24 @@ class NavigationRoute extends AbstractNavigationRoute
     /**
      * @Since("6.2.0.0")
      * @Entity("category")
-     * @OA\Get(
+     * @OA\Post(
      *      path="/navigation/{requestActiveId}/{requestRootId}",
      *      summary="Loads all available navigations",
      *      operationId="readNavigation",
      *      tags={"Store API", "Navigation"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),
-     *      @OA\Parameter(
-     *          parameter="buildTree",
-     *          name="buildTree",
-     *          in="query",
-     *          description="Build category tree",
-     *          @OA\Schema(type="boolean")
+     *      @OA\Parameter(name="requestActiveId", description="Active Category ID", @OA\Schema(type="string"), in="path", required=true),
+     *      @OA\Parameter(name="requestRootId", description="Root Category ID", @OA\Schema(type="string"), in="path", required=true),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              @OA\Property(property="buildTree", description="Build category tree", type="boolean")
+     *          )
      *      ),
      *      @OA\Response(
      *          response="200",
      *          description="All available navigations",
-     *          @OA\JsonContent(ref="#/definitions/NavigationRouteResponse")
+     *          @OA\JsonContent(ref="#/components/schemas/NavigationRouteResponse")
      *     )
      * )
      * @Route("/store-api/v{version}/navigation/{requestActiveId}/{requestRootId}", name="store-api.navigation", methods={"GET", "POST"})

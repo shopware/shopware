@@ -52,7 +52,7 @@ class SitemapRoute extends AbstractSitemapRoute
      *      @OA\Response(
      *          response="200",
      *          description="",
-     *          @OA\JsonContent(type="array", @OA\Items(ref="#/definitions/Sitemap"))
+     *          @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Sitemap"))
      *     )
      * )
      * @Route(path="/store-api/v{version}/sitemap", name="store-api.sitemap", methods={"GET", "POST"})

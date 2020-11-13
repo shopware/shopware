@@ -42,13 +42,15 @@ class CustomerGroupRegistrationSettingsRoute extends AbstractCustomerGroupRegist
      *      tags={"Store API", "Account"},
      *      @OA\Parameter(
      *        name="customerGroupId",
-     *        in="url",
+     *        in="path",
      *        description="Customer Group ID",
      *        @OA\Schema(type="string"),
+     *        required=true
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          @OA\JsonContent(ref="#/definitions/CustomerGroup")
+     *          description="Customer Group",
+     *          @OA\JsonContent(ref="#/components/schemas/CustomerGroup")
      *     )
      * )
      * @Route(path="/store-api/v{version}/customer-group-registration/config/{customerGroupId}", name="store-api.customer-group-registration.config", methods={"GET"})

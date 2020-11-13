@@ -91,10 +91,11 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
      *      summary="This route is used to load the cross sellings for a product. A product has several cross selling definitions in which several products are linked. The route returns the cross sellings together with the linked products",
      *      operationId="readProductCrossSellings",
      *      tags={"Store API","Product"},
+     *      @OA\Parameter(name="productId", description="Product ID", @OA\Schema(type="string"), in="path", required=true),
      *      @OA\Response(
      *          response="200",
      *          description="Found cross sellings",
-     *          @OA\JsonContent(ref="#/definitions/CrossSellingElementCollection")
+     *          @OA\JsonContent(ref="#/components/schemas/CrossSellingElementCollection")
      *     )
      * )
      * @Route("/store-api/v{version}/product/{productId}/cross-selling", name="store-api.product.cross-selling", methods={"POST"})

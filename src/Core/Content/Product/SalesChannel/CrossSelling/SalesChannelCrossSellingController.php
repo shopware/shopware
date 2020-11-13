@@ -72,7 +72,7 @@ class SalesChannelCrossSellingController extends AbstractController
      *      path="/product/{id}/cross-selling",
      *      summary="Get the cross selling products for given product",
      *      operationId="getCrossSelling",
-     *      tags={"Sales Channel Api"},
+     *      tags={"Sales Channel API", "Crosselling"},
      *      @OA\Parameter(
      *          parameter="id",
      *          name="id",
@@ -114,7 +114,6 @@ class SalesChannelCrossSellingController extends AbstractController
      *          ref="#/components/responses/401"
      *      )
      * )
-     *CrossSellingLoader
      * @Route("/sales-channel-api/v{version}/product/{id}/cross-selling", name="sales-channel-api.product.cross-selling", methods={"GET"})
      */
     public function getCrossSelling(string $id, int $version, SalesChannelContext $context): JsonResponse

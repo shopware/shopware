@@ -386,9 +386,6 @@
                         "type": "integer",
                         "format": "int32"
                     },
-                    "payload": {
-                        "type": ""
-                    },
                     "invalid": {
                         "type": "boolean"
                     }

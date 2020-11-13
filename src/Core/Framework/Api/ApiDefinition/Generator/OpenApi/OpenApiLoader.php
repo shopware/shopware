@@ -2,10 +2,12 @@
 
 namespace Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi;
 
+use OpenApi\Annotations\JsonContent;
+use OpenApi\Annotations\MediaType;
 use OpenApi\Annotations\OpenApi;
 use OpenApi\Annotations\Operation;
-use OpenApi\Annotations\Parameter;
-use OpenApi\Annotations\Schema;
+use OpenApi\Annotations\Property;
+use OpenApi\Annotations\RequestBody;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\Event\OpenApiPathsEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Routing\RouterInterface;
@@ -48,9 +50,10 @@ class OpenApiLoader
         // @see: https://regex101.com/r/XYRxEm/1
         $sinceRegex = '/\@Since\("(.*)"\)/m';
 
-        $allUndefined = true;
         $calculatedPaths = [];
         foreach ($openApi->paths as $pathItem) {
+            $allUndefined = true;
+
             foreach (self::OPERATION_KEYS as $key) {
                 /** @var Operation $operation */
                 $operation = $pathItem->$key;
@@ -125,81 +128,163 @@ class OpenApiLoader
                     if ($parameter->name === 'Api-Basic-Parameters') {
                         unset($operation->parameters[$parameterKey]);
 
-                        $limit = new Parameter([
-                            'parameter' => 'limit',
-                            'name' => 'limit',
-                            'in' => 'query',
+                        $limit = new Property([
+                            'property' => 'limit',
                             'description' => 'Limit',
-                            'schema' => new Schema(['type' => 'integer']),
+                            'type' => 'integer',
                         ]);
 
-                        $page = new Parameter([
-                            'parameter' => 'page',
-                            'name' => 'page',
-                            'in' => 'query',
+                        $page = new Property([
+                            'property' => 'page',
                             'description' => 'page',
-                            'schema' => new Schema(['type' => 'integer']),
+                            'type' => 'integer',
                         ]);
 
-                        $term = new Parameter([
-                            'parameter' => 'term',
-                            'name' => 'term',
-                            'in' => 'query',
+                        $term = new Property([
+                            'property' => 'term',
                             'description' => 'The term to search for',
-                            'schema' => new Schema(['type' => 'string']),
+                            'type' => 'string',
                         ]);
 
-                        $filter = new Parameter([
-                            'parameter' => 'filter',
-                            'name' => 'filter',
-                            'in' => 'query',
+                        $filter = new Property([
+                            'property' => 'filter',
+                            'description' => 'SwagQL',
+                            'type' => 'array',
+                            'items' => [
+                                'properties' => [
+                                    'type' => [
+                                        'type' => 'string',
+                                    ],
+                                    'field' => [
+                                        'type' => 'string',
+                                    ],
+                                    'value' => [
+                                        'type' => 'string',
+                                    ],
+                                ],
+                            ],
+                        ]);
+
+                        $postFilter = new Property([
+                            'property' => 'post-filter',
+                            'description' => 'SwagQL',
+                            'type' => 'array',
+                            'items' => [
+                                'properties' => [
+                                    'type' => [
+                                        'type' => 'string',
+                                    ],
+                                    'field' => [
+                                        'type' => 'string',
+                                    ],
+                                    'value' => [
+                                        'type' => 'string',
+                                    ],
+                                ],
+                            ],
+                        ]);
+
+                        $aggregations = new Property([
+                            'property' => 'aggregations',
                             'description' => 'Encoded SwagQL in JSON',
-                            'schema' => new Schema(['type' => 'string']),
+                            'type' => 'array',
+                            'items' => [
+                                'properties' => [
+                                    'name' => [
+                                        'type' => 'string',
+                                    ],
+                                    'type' => [
+                                        'type' => 'string',
+                                    ],
+                                    'field' => [
+                                        'type' => 'string',
+                                    ],
+                                ],
+                            ],
                         ]);
 
-                        $aggregations = new Parameter([
-                            'parameter' => 'aggregations',
-                            'name' => 'aggregations',
-                            'in' => 'query',
+                        $associations = new Property([
+                            'property' => 'associations',
                             'description' => 'Encoded SwagQL in JSON',
-                            'schema' => new Schema(['type' => 'string']),
+                            'type' => 'object',
                         ]);
 
-                        $associations = new Parameter([
-                            'parameter' => 'associations',
-                            'name' => 'associations',
-                            'in' => 'query',
+                        $query = new Property([
+                            'property' => 'query',
                             'description' => 'Encoded SwagQL in JSON',
-                            'schema' => new Schema(['type' => 'string']),
+                            'type' => 'array',
+                            'items' => [
+                                'properties' => [
+                                    'score' => [
+                                        'type' => 'integer',
+                                    ],
+                                    'query' => [
+                                        'type' => 'object',
+                                        'properties' => [
+                                            'type' => [
+                                                'type' => 'string',
+                                            ],
+                                            'field' => [
+                                                'type' => 'string',
+                                            ],
+                                            'value' => [
+                                                'type' => 'string',
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
                         ]);
 
-                        $postFilter = new Parameter([
-                            'parameter' => 'post-filter',
-                            'name' => 'post-filter',
-                            'in' => 'query',
+                        $sorting = new Property([
+                            'property' => 'sort',
                             'description' => 'Encoded SwagQL in JSON',
-                            'schema' => new Schema(['type' => 'string']),
+                            'type' => 'array',
+                            'items' => [
+                                'properties' => [
+                                    'field' => [
+                                        'type' => 'string',
+                                    ],
+                                    'order' => [
+                                        'type' => 'string',
+                                    ],
+                                    'naturalSorting' => [
+                                        'type' => 'boolean',
+                                    ],
+                                ],
+                            ],
                         ]);
 
-                        $query = new Parameter([
-                            'parameter' => 'query',
-                            'name' => 'query',
-                            'in' => 'query',
+                        $grouping = new Property([
+                            'property' => 'grouping',
                             'description' => 'Encoded SwagQL in JSON',
-                            'schema' => new Schema(['type' => 'string']),
+                            'type' => 'array',
+                            'items' => [
+                                'type' => 'string',
+                            ],
                         ]);
 
-                        $grouping = new Parameter([
-                            'parameter' => 'grouping',
-                            'name' => 'grouping',
-                            'in' => 'query',
-                            'description' => 'Encoded SwagQL in JSON',
-                            'schema' => new Schema(['type' => 'string']),
-                        ]);
+                        if ($operation->requestBody === UNDEFINED) {
+                            $operation->requestBody = new RequestBody([
+                                'required' => true,
+                                'content' => [],
+                            ]);
+                        }
 
-                        array_unshift($operation->parameters, $page, $limit, $term, $filter, $postFilter, $associations, $aggregations, $query, $grouping);
+                        if (!isset($operation->requestBody->content['application/json'])) {
+                            $operation->requestBody->content['application/json'] = new MediaType([
+                                'mediaType' => 'application/json',
+                                'schema' => new JsonContent([
+                                    'properties' => [],
+                                ]),
+                            ]);
+                        }
+
+                        array_unshift($operation->requestBody->content['application/json']->schema->properties, $page, $limit, $term, $filter, $sorting, $postFilter, $associations, $aggregations, $query, $grouping);
                     }
                 }
+
+                $operation->parameters = array_values($operation->parameters);
             }
         }
     }

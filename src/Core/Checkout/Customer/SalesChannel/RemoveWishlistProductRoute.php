@@ -67,14 +67,15 @@ class RemoveWishlistProductRoute extends AbstractRemoveWishlistProductRoute
      *      tags={"Store API", "Wishlist"},
      *      @OA\Parameter(
      *        name="productId",
-     *        in="url",
+     *        in="path",
      *        description="Product Id",
      *        @OA\Schema(type="string"),
+     *        required=true
      *      ),
      *      @OA\Response(
      *          response="200",
      *          description="Success",
-     *          @OA\JsonContent(ref="#/definitions/SuccessResponse")
+     *          @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      * @Route("/store-api/v{version}/customer/wishlist/delete/{productId}", name="store-api.customer.wishlist.delete", methods={"DELETE"})

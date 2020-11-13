@@ -87,24 +87,17 @@ class LoginRoute extends AbstractLoginRoute
      *      summary="Login as customer using password",
      *      operationId="loginCustomer",
      *      tags={"Store API", "Account"},
-     *      @OA\Parameter(
-     *          parameter="username",
-     *          name="Email",
-     *          in="body",
-     *          description="Email",
-     *          @OA\Schema(type="string"),
-     *      ),
-     *      @OA\Parameter(
-     *          parameter="password",
-     *          name="Password",
-     *          in="body",
-     *          description="Password",
-     *          @OA\Schema(type="string"),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              @OA\Property(property="username", description="Email", type="string"),
+     *              @OA\Property(property="password", description="Password", type="string")
+     *          )
      *      ),
      *      @OA\Response(
      *          response="200",
      *          description="Context token",
-     *          @OA\JsonContent(ref="#/definitions/ContextTokenResponse")
+     *          @OA\JsonContent(ref="#/components/schemas/ContextTokenResponse")
      *     )
      * )
      * @Route(path="/store-api/v{version}/account/login", name="store-api.account.login", methods={"POST"})

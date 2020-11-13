@@ -96,6 +96,13 @@ class UpsertAddressRoute extends AbstractUpsertAddressRoute
      *      operationId="updateCustomerAddress",
      *      tags={"Store API", "Account", "Address"},
      *      @OA\RequestBody(@OA\JsonContent(ref="#/components/schemas/customer_address_flat")),
+     *      @OA\Parameter(
+     *        name="addressId",
+     *        in="path",
+     *        description="Address ID",
+     *        @OA\Schema(type="string"),
+     *        required=true
+     *      ),
      *      @OA\Response(
      *          response="200",
      *          description="",

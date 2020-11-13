@@ -54,18 +54,17 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
     /**
      * @Since("6.2.0.0")
      * @Entity("shipping_method")
-     * @OA\Get(
+     * @OA\Post(
      *      path="/shipping-method",
      *      summary="Loads all available shipping methods",
      *      operationId="readShippingMethod",
      *      tags={"Store API", "Shipping Method"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),
-     *      @OA\Parameter(
-     *          parameter="onlyAvailable",
-     *          name="onlyAvailable",
-     *          in="query",
-     *          description="Encoded SwagQL in JSON",
-     *          @OA\Schema(type="int")
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              @OA\Property(property="onlyAvailable", description="List only available", type="boolean")
+     *          )
      *      ),
      *      @OA\Response(
      *          response="200",

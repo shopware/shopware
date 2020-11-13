@@ -63,14 +63,14 @@ class CategoryRoute extends AbstractCategoryRoute
      *      summary="Loads a category with the resolved cms page",
      *      operationId="readCategory",
      *      tags={"Store API", "Content"},
-     *      @OA\Parameter(
-     *          parameter="categoryId",
-     *          name="categoryId",
-     *          in="query",
-     *          description="Id of the category",
-     *          @OA\Schema(type="string", format="uuid"),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              @OA\Property(property="categoryId", description="Id of the category", type="string", format="uuid")
+     *          )
      *      ),
      *      @OA\Parameter(name="Api-Basic-Parameters"),
+     *      @OA\Parameter(name="categoryId", description="Category ID", @OA\Schema(type="string"), in="path", required=true),
      *      @OA\Response(
      *          response="200",
      *          description="The loaded category with cms page",

@@ -46,36 +46,17 @@ class HandlePaymentMethodRoute extends AbstractHandlePaymentMethodRoute
 
     /**
      * @Since("6.2.0.0")
-     * @OA\Get(
+     * @OA\Post(
      *      path="/handle-payment",
      *      summary="Handles a payment for an order",
      *      operationId="handlePaymentMethod",
      *      tags={"Store API", "Payment Method"},
-     *      @OA\Parameter(
-     *          name="orderId",
-     *          in="post",
+     *      @OA\RequestBody(
      *          required=true,
-     *          description="The id of the order",
-     *          @OA\Schema(
-     *              type="string"
-     *          )
-     *      ),
-     *      @OA\Parameter(
-     *          name="finishUrl",
-     *          in="post",
-     *          required=false,
-     *          description="URL to which the external payment provider should redirect after successful payment",
-     *          @OA\Schema(
-     *              type="string"
-     *          )
-     *      ),
-     *      @OA\Parameter(
-     *          name="errorUrl",
-     *          in="post",
-     *          required=false,
-     *          description="URL to which the external payment provider should redirect after erroneous payment",
-     *          @OA\Schema(
-     *              type="string"
+     *          @OA\JsonContent(
+     *              @OA\Property(property="orderId", description="Order ID", type="string"),
+     *              @OA\Property(property="finishUrl", description="URL to which the external payment provider should redirect after successful payment", type="string"),
+     *              @OA\Property(property="errorUrl", description="URL to which the external payment provider should redirect after erroneous payment", type="string")
      *          )
      *      ),
      *      @OA\Response(

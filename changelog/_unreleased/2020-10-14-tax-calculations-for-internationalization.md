@@ -1,7 +1,6 @@
 ---
 title: Tax calculations for internationalization
 issue: NEXT-11279
-flag: FEATURE_NEXT_6995
 ---
 # Administration
 * Added `tax_type` and `tax_id` fields to `shipping_method` table

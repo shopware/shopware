@@ -32,7 +32,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyEntity;
@@ -216,6 +215,7 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
         $shippingMethod->setId(Uuid::randomHex());
+        $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
         $price = new ShippingMethodPriceEntity();
         $price->setUniqueIdentifier(Uuid::randomHex());
         $price->setCurrencyPrice(new PriceCollection([
@@ -311,6 +311,7 @@ class DeliveryCalculatorTest extends TestCase
         $validRuleId = Uuid::randomHex();
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId(Uuid::randomHex());
+        $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
         $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
         $prices = new ShippingMethodPriceCollection();
 
@@ -369,6 +370,7 @@ class DeliveryCalculatorTest extends TestCase
         $validRuleId = Uuid::randomHex();
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId(Uuid::randomHex());
+        $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
         $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
         $prices = new ShippingMethodPriceCollection();
 
@@ -444,6 +446,7 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
         $shippingMethod->setId(Uuid::randomHex());
+        $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
         $price = new ShippingMethodPriceEntity();
         $price->setUniqueIdentifier(Uuid::randomHex());
         $price->setCurrencyPrice(
@@ -511,6 +514,7 @@ class DeliveryCalculatorTest extends TestCase
     {
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId(Uuid::randomHex());
+        $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
         $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
         $prices = new ShippingMethodPriceCollection();
         $quantityStart = 0;
@@ -565,6 +569,7 @@ class DeliveryCalculatorTest extends TestCase
     {
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId(Uuid::randomHex());
+        $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
         $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
         $prices = new ShippingMethodPriceCollection();
 
@@ -616,6 +621,7 @@ class DeliveryCalculatorTest extends TestCase
     {
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId(Uuid::randomHex());
+        $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
         $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
         $prices = new ShippingMethodPriceCollection();
         $quantityStart = 0;
@@ -669,6 +675,7 @@ class DeliveryCalculatorTest extends TestCase
     {
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId(Uuid::randomHex());
+        $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
         $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
         $prices = new ShippingMethodPriceCollection();
 
@@ -719,6 +726,7 @@ class DeliveryCalculatorTest extends TestCase
     {
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId(Uuid::randomHex());
+        $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
         $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
         $prices = new ShippingMethodPriceCollection();
         $quantityStart = 0;
@@ -773,6 +781,7 @@ class DeliveryCalculatorTest extends TestCase
     {
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId(Uuid::randomHex());
+        $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
         $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
         $prices = new ShippingMethodPriceCollection();
         $quantityStart = 0;
@@ -828,6 +837,7 @@ class DeliveryCalculatorTest extends TestCase
     {
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId(Uuid::randomHex());
+        $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
         $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
         $prices = new ShippingMethodPriceCollection();
         $quantityStart = 0;
@@ -885,6 +895,7 @@ class DeliveryCalculatorTest extends TestCase
     {
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId(Uuid::randomHex());
+        $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
         $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
         $prices = new ShippingMethodPriceCollection();
 
@@ -937,6 +948,7 @@ class DeliveryCalculatorTest extends TestCase
         $validRuleId = Uuid::randomHex();
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId(Uuid::randomHex());
+        $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
         $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
         $prices = new ShippingMethodPriceCollection();
 
@@ -1057,6 +1069,7 @@ class DeliveryCalculatorTest extends TestCase
         $ruleId = Uuid::randomHex();
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId(Uuid::randomHex());
+        $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
         $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
         $prices = new ShippingMethodPriceCollection();
         $quantityStart = 0;
@@ -1120,6 +1133,7 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
         $shippingMethod->setId(Uuid::randomHex());
+        $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
         $price = new ShippingMethodPriceEntity();
         $price->setUniqueIdentifier(Uuid::randomHex());
         $currency = new CurrencyEntity();
@@ -1175,6 +1189,7 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
         $shippingMethod->setId(Uuid::randomHex());
+        $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
         $price = new ShippingMethodPriceEntity();
         $price->setUniqueIdentifier(Uuid::randomHex());
         $currency = new CurrencyEntity();
@@ -1234,6 +1249,7 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
         $shippingMethod->setId(Uuid::randomHex());
+        $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
         $price = new ShippingMethodPriceEntity();
         $price->setUniqueIdentifier(Uuid::randomHex());
         $currency = new CurrencyEntity();
@@ -1290,6 +1306,7 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
         $shippingMethod->setId(Uuid::randomHex());
+        $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
         $price = new ShippingMethodPriceEntity();
         $price->setUniqueIdentifier(Uuid::randomHex());
         $currency = new CurrencyEntity();
@@ -1344,6 +1361,7 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
         $shippingMethod->setId(Uuid::randomHex());
+        $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
         $currency = new CurrencyEntity();
         $currency->setId(Uuid::randomHex());
 
@@ -1410,6 +1428,7 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
         $shippingMethod->setId(Uuid::randomHex());
+        $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
         $currency = new CurrencyEntity();
         $currency->setId(Uuid::randomHex());
 
@@ -1473,7 +1492,6 @@ class DeliveryCalculatorTest extends TestCase
 
     public function testCalculateByHighestTaxRateFromCartLineItem(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_6995', $this);
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId(Uuid::randomHex());
         $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));
@@ -1550,7 +1568,6 @@ class DeliveryCalculatorTest extends TestCase
 
     public function testCalculateByFixedTaxRate(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_6995', $this);
         $shippingMethod = new ShippingMethodEntity();
         $shippingMethod->setId(Uuid::randomHex());
         $shippingMethod->setDeliveryTime($this->createMock(DeliveryTimeEntity::class));

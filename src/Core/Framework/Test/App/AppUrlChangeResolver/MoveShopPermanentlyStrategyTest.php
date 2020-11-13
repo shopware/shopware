@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SystemConfigTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 
 class MoveShopPermanentlyStrategyTest extends TestCase
 {
@@ -81,7 +82,11 @@ class MoveShopPermanentlyStrategyTest extends TestCase
             );
 
         $moveShopPermanentlyResolver = new MoveShopPermanentlyStrategy(
-            new AppLoader($appDir),
+            new AppLoader(
+                $appDir,
+                $this->getContainer()->getParameter('kernel.project_dir'),
+                $this->getContainer()->get(ConfigReader::class)
+            ),
             $this->getContainer()->get('app.repository'),
             $registrationsService,
             $this->systemConfigService
@@ -112,7 +117,11 @@ class MoveShopPermanentlyStrategyTest extends TestCase
             ->method('registerApp');
 
         $moveShopPermanentlyResolver = new MoveShopPermanentlyStrategy(
-            new AppLoader($appDir),
+            new AppLoader(
+                $appDir,
+                $this->getContainer()->getParameter('kernel.project_dir'),
+                $this->getContainer()->get(ConfigReader::class)
+            ),
             $this->getContainer()->get('app.repository'),
             $registrationsService,
             $this->systemConfigService

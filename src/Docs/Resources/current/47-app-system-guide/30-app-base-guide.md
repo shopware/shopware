@@ -218,7 +218,7 @@ In this case the `shopware-shop-signature` parameter contains an sha256 hmac of 
 
 ### Custom fields
 
-![custom-buttons](./img/custom-fields.png)
+![custom-fields](./img/custom-fields.png)
 
 By using `<custom-fields>` element, you can add custom fields to Shopware.
 And offer you the possibility to add your own fields extending data records. 

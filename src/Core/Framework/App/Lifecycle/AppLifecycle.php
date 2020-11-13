@@ -10,6 +10,7 @@ use Shopware\Core\Framework\App\Event\AppDeletedEvent;
 use Shopware\Core\Framework\App\Event\AppInstalledEvent;
 use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
+use Shopware\Core\Framework\App\Exception\InvalidAppConfigurationException;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ActionButtonPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\CustomFieldPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
@@ -25,10 +26,18 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Locale\LocaleEntity;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class AppLifecycle extends AbstractAppLifecycle
 {
+    private const ALLOWED_APP_CONFIGURATION_COMPONENTS = [
+        'sw-entity-single-select',
+        'sw-entity-multi-id-select',
+        'sw-media-field',
+        'sw-text-editor',
+    ];
+
     /**
      * @var EntityRepositoryInterface
      */
@@ -94,6 +103,11 @@ class AppLifecycle extends AbstractAppLifecycle
      */
     private $languageRepository;
 
+    /*
+     * @var SystemConfigService
+     */
+    private $systemConfigService;
+
     public function __construct(
         EntityRepositoryInterface $appRepository,
         PermissionPersister $permissionPersister,
@@ -107,6 +121,7 @@ class AppLifecycle extends AbstractAppLifecycle
         AppStateService $appStateService,
         EntityRepositoryInterface $aclRoleRepository,
         EntityRepositoryInterface $languageRepository,
+        SystemConfigService $systemConfigService,
         string $projectDir
     ) {
         $this->appRepository = $appRepository;
@@ -122,6 +137,7 @@ class AppLifecycle extends AbstractAppLifecycle
         $this->templatePersister = $templatePersister;
         $this->aclRoleRepository = $aclRoleRepository;
         $this->languageRepository = $languageRepository;
+        $this->systemConfigService = $systemConfigService;
     }
 
     public function getDecorated(): AbstractAppLifecycle
@@ -223,6 +239,22 @@ class AppLifecycle extends AbstractAppLifecycle
         $this->templatePersister->updateTemplates($manifest, $id, $context);
         $this->customFieldPersister->updateCustomFields($manifest, $id, $context);
 
+        $config = $this->appLoader->getConfiguration($app);
+        if ($config) {
+            $this->verifyConfig($config);
+            $this->systemConfigService->saveConfig(
+                $config,
+                $app->getName() . '.config.',
+                $install
+            );
+            $this->appRepository->update([
+                [
+                    'id' => $app->getId(),
+                    'configurable' => true,
+                ],
+            ], $context);
+        }
+
         return $app;
     }
 
@@ -295,5 +327,18 @@ class AppLifecycle extends AbstractAppLifecycle
         $locale = $language->getLocale();
 
         return $locale->getCode();
+    }
+
+    private function verifyConfig(array $config): void
+    {
+        foreach ($config as $card) {
+            foreach ($card['elements'] as $element) {
+                // Rendering of custom admin components via <component> element is not allowed for apps
+                // as it may lead to code execution by apps in the administration
+                if (array_key_exists('componentName', $element) && !in_array($element['componentName'], self::ALLOWED_APP_CONFIGURATION_COMPONENTS, true)) {
+                    throw new InvalidAppConfigurationException($element['componentName']);
+                }
+            }
+        }
     }
 }

@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\App\StorefrontPluginRegistryTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Symfony\Component\Console\Tester\CommandTester;
 
 class RefreshAppCommandTest extends TestCase
@@ -233,7 +234,11 @@ class RefreshAppCommandTest extends TestCase
             new AppService(
                 new AppLifecycleIterator(
                     $this->getContainer()->get('app.repository'),
-                    new AppLoader($appFolder)
+                    new AppLoader(
+                        $appFolder,
+                        $this->getContainer()->getParameter('kernel.project_dir'),
+                        $this->getContainer()->get(ConfigReader::class)
+                    )
                 ),
                 $this->getContainer()->get(AppLifecycle::class)
             ),

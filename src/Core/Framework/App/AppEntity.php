@@ -102,6 +102,11 @@ class AppEntity extends Entity
     protected $active;
 
     /**
+     * @var bool
+     */
+    protected $configurable;
+
+    /**
      * @var IntegrationEntity|null
      */
     protected $integration;
@@ -377,6 +382,16 @@ class AppEntity extends Entity
     public function setActive(bool $active): void
     {
         $this->active = $active;
+    }
+
+    public function isConfigurable(): bool
+    {
+        return $this->configurable;
+    }
+
+    public function setConfigurable(bool $configurable): void
+    {
+        $this->configurable = $configurable;
     }
 
     public function getActionButtons(): ?ActionButtonCollection

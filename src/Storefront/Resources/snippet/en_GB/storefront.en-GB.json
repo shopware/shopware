@@ -517,7 +517,7 @@
     "reviewAvgRateElements": "stars"
   },
   "wishlist": {
-    "headline": "Your wish list",
+    "headline": "Your wishlist",
     "itemDeleteSuccess": "You have successfully removed the product from the wishlist.",
     "currentlyNotAvailable": "Currently not available",
     "manufacturerDisplayName": "Manufacturer",
@@ -552,7 +552,9 @@
     "groupRequiredTimezone": "Timezone",
     "groupStatistical": "Statistics",
     "groupStatisticalDescription": "Cookies used for statistics and shop performance metrics.",
-    "groupStatisticalGoogleAnalytics": "Google Analytics"
+    "groupStatisticalGoogleAnalytics": "Google Analytics",
+    "groupComfortFeatures": "Comfort features",
+    "groupComfortFeaturesWishlist": "Wishlist"
   },
   "ellipsis": {
     "expandLabel": "show more",

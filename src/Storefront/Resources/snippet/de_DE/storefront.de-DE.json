@@ -552,7 +552,9 @@
     "groupRequiredTimezone": "Zeitzone",
     "groupStatistical": "Statistiken",
     "groupStatisticalDescription": "Für Statistiken und Shop-Performance-Metriken genutzte Cookies.",
-    "groupStatisticalGoogleAnalytics": "Google Analytics"
+    "groupStatisticalGoogleAnalytics": "Google Analytics",
+    "groupComfortFeatures": "Komfortfunktionen",
+    "groupComfortFeaturesWishlist": "Merkzettel"
   },
   "ellipsis": {
     "expandLabel": "mehr anzeigen",

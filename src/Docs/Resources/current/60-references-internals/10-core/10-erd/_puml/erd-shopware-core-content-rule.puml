@@ -1,0 +1,83 @@
+@startuml
+' uncomment the line below if you're using computer with a retina display
+' skinparam dpi 300
+!define Table(name,desc) class name as "desc" << (T,#FFAAAA) >>
+!define ForeignTable(name,desc) class name as "desc" << (T,#ada6a6) >>
+!define TranslationTable(name,desc) class name as "desc" << (I,#4286f4) >>
+' we use bold for primary key
+' green color for unique
+' and underscore for not_null
+!define primary_key(x) <b>x</b>
+!define unique(x) <color:green>x</color>
+!define not_null(x) <u>x</u>
+' other tags available:
+' <i></i>
+' <back:COLOR></color>, where color is a color name or html color code
+' (#FFAACC)
+' see: http://plantuml.com/classes.html#More
+hide methods
+hide stereotypes
+hide empty members
+skinparam backgroundColor #FFFFFF
+
+' entities
+
+Table(ShopwareCoreContentRuleRuleDefinition, "rule\n(Rule)") {
+   primary_key(id) id
+   not_null(name) string
+   not_null(priority) int
+   description longText
+   payload blob
+   invalid bool
+   customFields customFields
+   moduleTypes json
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+}
+Table(ShopwareCoreContentRuleAggregateRuleConditionRuleConditionDefinition, "rule_condition\n(Rule condition)") {
+   primary_key(id) id
+   type string
+   not_null(ruleId) foreignKey
+   parentId parentFk
+   value json
+   position int
+   customFields customFields
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+}
+ForeignTable(ShopwareCoreContentProductAggregateProductPriceProductPriceDefinition, "product_price") {
+}
+ForeignTable(ShopwareCoreCheckoutShippingAggregateShippingMethodPriceShippingMethodPriceDefinition, "shipping_method_price") {
+}
+ForeignTable(ShopwareCoreCheckoutShippingShippingMethodDefinition, "shipping_method") {
+}
+ForeignTable(ShopwareCoreCheckoutPaymentPaymentMethodDefinition, "payment_method") {
+}
+ForeignTable(ShopwareCoreCheckoutPromotionAggregatePromotionPersonaRulePromotionPersonaRuleDefinition, "promotion_persona_rule") {
+}
+ForeignTable(ShopwareCoreCheckoutPromotionAggregatePromotionOrderRulePromotionOrderRuleDefinition, "promotion_order_rule") {
+}
+ForeignTable(ShopwareCoreCheckoutPromotionAggregatePromotionCartRulePromotionCartRuleDefinition, "promotion_cart_rule") {
+}
+ForeignTable(ShopwareCoreCheckoutPromotionAggregatePromotionDiscountRulePromotionDiscountRuleDefinition, "promotion_discount_rule") {
+}
+ForeignTable(ShopwareCoreCheckoutPromotionAggregatePromotionSetGroupRulePromotionSetGroupRuleDefinition, "promotion_setgroup_rule") {
+}
+ForeignTable(ShopwareCoreFrameworkEventEventActionAggregateEventActionRuleEventActionRuleDefinition, "event_action_rule") {
+}
+
+' relationshipd
+
+ShopwareCoreContentRuleAggregateRuleConditionRuleConditionDefinition --> ShopwareCoreContentRuleRuleDefinition
+ShopwareCoreContentRuleRuleDefinition --> ShopwareCoreContentProductAggregateProductPriceProductPriceDefinition
+ShopwareCoreContentRuleRuleDefinition --> ShopwareCoreCheckoutShippingAggregateShippingMethodPriceShippingMethodPriceDefinition
+ShopwareCoreContentRuleRuleDefinition --> ShopwareCoreCheckoutShippingShippingMethodDefinition
+ShopwareCoreContentRuleRuleDefinition --> ShopwareCoreCheckoutPaymentPaymentMethodDefinition
+ShopwareCoreContentRuleRuleDefinition --> ShopwareCoreCheckoutPromotionAggregatePromotionPersonaRulePromotionPersonaRuleDefinition
+ShopwareCoreContentRuleRuleDefinition --> ShopwareCoreCheckoutPromotionAggregatePromotionOrderRulePromotionOrderRuleDefinition
+ShopwareCoreContentRuleRuleDefinition --> ShopwareCoreCheckoutPromotionAggregatePromotionCartRulePromotionCartRuleDefinition
+ShopwareCoreContentRuleRuleDefinition --> ShopwareCoreCheckoutPromotionAggregatePromotionDiscountRulePromotionDiscountRuleDefinition
+ShopwareCoreContentRuleRuleDefinition --> ShopwareCoreCheckoutPromotionAggregatePromotionSetGroupRulePromotionSetGroupRuleDefinition
+ShopwareCoreContentRuleRuleDefinition --> ShopwareCoreFrameworkEventEventActionAggregateEventActionRuleEventActionRuleDefinition
+ShopwareCoreContentRuleAggregateRuleConditionRuleConditionDefinition --> ShopwareCoreContentRuleAggregateRuleConditionRuleConditionDefinition
+@enduml

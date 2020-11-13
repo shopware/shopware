@@ -173,7 +173,6 @@ class ProductCartProcessorTest extends TestCase
         );
 
         $payload = $cart->get($product->getId())->getPayload();
-        static::assertEquals(7.5, $payload['purchasePrice']);
         $purchasePrices = json_decode($payload['purchasePrices']);
         static::assertSame(Defaults::CURRENCY, $purchasePrices->currencyId);
         static::assertSame(7.5, $purchasePrices->gross);
@@ -604,7 +603,6 @@ class ProductCartProcessorTest extends TestCase
             'price' => [
                 ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
             ],
-            'purchasePrice' => 7.5,
             'purchasePrices' => [
                 ['currencyId' => Defaults::CURRENCY, 'gross' => 7.5, 'net' => 5, 'linked' => false],
                 ['currencyId' => Uuid::randomHex(), 'gross' => 150, 'net' => 100, 'linked' => false],

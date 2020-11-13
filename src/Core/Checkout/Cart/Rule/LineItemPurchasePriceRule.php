@@ -92,11 +92,6 @@ class LineItemPurchasePriceRule extends Rule
     {
         $purchasePriceAmount = $this->getPurchasePriceAmount($lineItem);
 
-        //@deprecated tag:v6.4.0 - Check for purchasePrice will be removed in 6.4.0 use purchasePrices instead
-        if (!$purchasePriceAmount) {
-            $purchasePriceAmount = $lineItem->getPayloadValue('purchasePrice');
-        }
-
         if (!$purchasePriceAmount) {
             return false;
         }

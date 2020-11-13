@@ -1,0 +1,62 @@
+@startuml
+' uncomment the line below if you're using computer with a retina display
+' skinparam dpi 300
+!define Table(name,desc) class name as "desc" << (T,#FFAAAA) >>
+!define ForeignTable(name,desc) class name as "desc" << (T,#ada6a6) >>
+!define TranslationTable(name,desc) class name as "desc" << (I,#4286f4) >>
+' we use bold for primary key
+' green color for unique
+' and underscore for not_null
+!define primary_key(x) <b>x</b>
+!define unique(x) <color:green>x</color>
+!define not_null(x) <u>x</u>
+' other tags available:
+' <i></i>
+' <back:COLOR></color>, where color is a color name or html color code
+' (#FFAACC)
+' see: http://plantuml.com/classes.html#More
+hide methods
+hide stereotypes
+hide empty members
+skinparam backgroundColor #FFFFFF
+
+' entities
+
+Table(ShopwareCoreContentProductExportProductExportDefinition, "product_export\n(Product exports)") {
+   primary_key(id) id
+   not_null(productStreamId) foreignKey
+   not_null(storefrontSalesChannelId) foreignKey
+   not_null(salesChannelId) foreignKey
+   not_null(salesChannelDomainId) foreignKey
+   not_null(currencyId) foreignKey
+   not_null(fileName) string
+   not_null(accessKey) string
+   not_null(encoding) string
+   not_null(fileFormat) string
+   includeVariants bool
+   not_null(generateByCronjob) bool
+   generatedAt dateTime
+   not_null(interval) int
+   headerTemplate longText
+   bodyTemplate longText
+   footerTemplate longText
+   pausedSchedule bool
+   not_null(createdAt) createdAt
+   updatedAt updatedAt
+}
+ForeignTable(ShopwareCoreContentProductStreamProductStreamDefinition, "product_stream") {
+}
+ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
+}
+ForeignTable(ShopwareCoreSystemSalesChannelAggregateSalesChannelDomainSalesChannelDomainDefinition, "sales_channel_domain") {
+}
+ForeignTable(ShopwareCoreSystemCurrencyCurrencyDefinition, "currency") {
+}
+
+' relationshipd
+
+ShopwareCoreContentProductExportProductExportDefinition --> ShopwareCoreContentProductStreamProductStreamDefinition
+ShopwareCoreContentProductExportProductExportDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
+ShopwareCoreContentProductExportProductExportDefinition --> ShopwareCoreSystemSalesChannelAggregateSalesChannelDomainSalesChannelDomainDefinition
+ShopwareCoreContentProductExportProductExportDefinition --> ShopwareCoreSystemCurrencyCurrencyDefinition
+@enduml

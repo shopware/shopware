@@ -270,8 +270,6 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             'releaseDate' => $product->getReleaseDate() ? $product->getReleaseDate()->format(Defaults::STORAGE_DATE_TIME_FORMAT) : null,
             'isNew' => $product->isNew(),
             'markAsTopseller' => $product->getMarkAsTopseller(),
-            // @deprecated tag:v6.4.0 - purchasePrice Will be removed in 6.4.0
-            'purchasePrice' => $purchasePrices ? $purchasePrices->getGross() : null,
             'purchasePrices' => $purchasePrices ? json_encode($purchasePrices) : null,
             'productNumber' => $product->getProductNumber(),
             'manufacturerId' => $product->getManufacturerId(),

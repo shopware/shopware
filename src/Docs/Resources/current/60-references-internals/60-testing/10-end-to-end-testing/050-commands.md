@@ -69,6 +69,8 @@ In the next paragraph, all Shopware commands provided by
 | clickMainMenuItem | `({ targetPath, mainMenuId, subMenuId })` | Navigate to module by clicking the corresponding main menu item |
 | openUserActionMenu | `({ targetPath, mainMenuId, subMenuId })` | Click user menu to open it up |
 | dragTo | `(target)` | Drags the previous subject element to a target, performing a drag and drop operation |
+| onlyOnFeature | `(feature)` | Only run the test (skip otherwise) if the feature is activated |
+| skipOnFeature | `(feature)` | Skip the test if the feature is activated |
 
 ### Storefront-related / Sales Channel API commands
 

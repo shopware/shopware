@@ -16,7 +16,7 @@ describe('Country: Test crud operations', () => {
             });
     });
 
-    it.skip('@settings: create and read country', () => {
+    it('@settings: create and read country', () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later
@@ -31,9 +31,15 @@ describe('Country: Test crud operations', () => {
         // Create country
         cy.get('input[name=sw-field--country-name]').typeAndCheck('01.Niemandsland');
 
-        // Check tax free companies field exists and clicks
-        cy.get('.sw-settings-country-detail__field-tax-free-companies input').should('be.visible');
-        cy.get('.sw-settings-country-detail__field-tax-free-companies input').click();
+        cy.window().then((win) => {
+            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_10559')) {
+                return;
+            }
+
+            // Check tax free companies field exists and clicks
+            cy.get('.sw-settings-country-detail__field-tax-free-companies input').should('be.visible');
+            cy.get('.sw-settings-country-detail__field-tax-free-companies input').click();
+        });
 
         cy.get(page.elements.countrySaveAction).click();
 

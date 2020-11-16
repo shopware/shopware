@@ -49,7 +49,7 @@ class Feature
     {
         $env = $_ENV['APP_ENV'] ?? $_SERVER['APP_ENV'] ?? 'prod';
         $allEnabled = $_SERVER['FEATURE_ALL'] ?? false;
-        if ($env !== 'prod' && $allEnabled && $allEnabled !== 'false' && $allEnabled !== '0' && $allEnabled !== '') {
+        if ($allEnabled && $allEnabled !== 'false' && $allEnabled !== '0' && $allEnabled !== '') {
             return true;
         }
 

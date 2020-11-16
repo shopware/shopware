@@ -41,6 +41,7 @@ class CmsRoute extends AbstractCmsRoute
      *      operationId="readCms",
      *      tags={"Store API", "Content"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),
+     *      @OA\Parameter(name="id", description="CMS ID", @OA\Schema(type="string"), in="path", required=true),
      *      @OA\Response(
      *          response="200",
      *          description="The loaded cms page",

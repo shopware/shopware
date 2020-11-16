@@ -2,7 +2,8 @@
     <span class="sw-product-variant-info"
           v-tooltip="{
                 message: helpText,
-                width: tooltipWidth
+                width: tooltipWidth,
+                disabled: !showTooltip
               }">
         <span class="sw-product-variant-info__text">
             {% block sw_product_variant_info_product_name %}
@@ -20,14 +21,15 @@
                     v-for="(variation, index) in variations"
                     class="sw-product-variant-info__specification"
                     :key="variation.group">
-                    <template v-if="index === 0">(</template>
+                    <template v-if="index === 0 && !ommitParenthesis">(</template>
 
                     {% block sw_product_variant_info_options_text %}
                         <span>{{ variation.group }}</span>: {{ variation.option }}
                     {% endblock %}
 
-                    <template v-if="index === Object.keys(variations).length - 1">)</template>
-                    <template v-else> | </template>
+                    <template v-if="index !== Object.keys(variations).length - 1">{{ seperator }}</template>
+                    
+                    <template v-if="index === Object.keys(variations).length - 1 && !ommitParenthesis">)</template>
                 </span>
             {% endblock %}
         </span>

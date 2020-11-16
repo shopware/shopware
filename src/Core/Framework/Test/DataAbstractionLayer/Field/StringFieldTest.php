@@ -3,7 +3,9 @@
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Field;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowEmptyString;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Flag;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\StringFieldSerializer;
@@ -22,8 +24,9 @@ class StringFieldTest extends TestCase
      *
      * @param string|null $input
      * @param string|null $expected
+     * @param Flag[]      $flags
      */
-    public function testStringFieldSerializer(string $type, $input, $expected, bool $required = true, bool $htmlAllowed = false): void
+    public function testStringFieldSerializer(string $type, $input, $expected, array $flags = []): void
     {
         $serializer = $this->getContainer()->get(StringFieldSerializer::class);
 
@@ -34,7 +37,7 @@ class StringFieldTest extends TestCase
 
             try {
                 $serializer->encode(
-                    $this->getStringField(),
+                    $this->getStringField($flags),
                     $this->getEntityExisting(),
                     $data,
                     $this->getWriteParameterBagMock()
@@ -52,7 +55,7 @@ class StringFieldTest extends TestCase
             static::assertSame(
                 $expected,
                 $serializer->encode(
-                    $this->getStringField($required, $htmlAllowed),
+                    $this->getStringField($flags),
                     $this->getEntityExisting(),
                     $data,
                     $this->getWriteParameterBagMock()
@@ -64,17 +67,21 @@ class StringFieldTest extends TestCase
     /**
      * @return array
      *               Structure:
-     *               TestType, input, expected, fieldRequired, htmlAllowed
+     *               TestType, input, expected, flags
      */
     public function stringFieldDataProvider()
     {
         return [
-            ['writeException', '<test>', 'This value should not be blank.'],
-            ['writeException', null, 'This value should not be blank.'],
-            ['writeException', true, 'This value should be of type string.'],
-            ['assertion', 'test12-B', 'test12-B'],
-            ['assertion', null, null, false],
-            ['assertion', '<test>', '<test>', true, true],
+            ['writeException', '<test>', 'This value should not be blank.', [new Required()]],
+            ['writeException', null, 'This value should not be blank.', [new Required()]],
+            ['writeException', '', 'This value should not be blank.', [new Required()]],
+            ['writeException', true, 'This value should be of type string.', [new Required()]],
+            ['assertion', 'test12-B', 'test12-B', [new Required()]],
+            ['assertion', null, null, []],
+            ['assertion', '<test>', '<test>', [new Required(), new AllowHtml()]],
+            ['assertion', '', null, []],
+            ['assertion', '', '', [new AllowEmptyString()]],
+            ['assertion', '', '', [new Required(), new AllowEmptyString()]],
         ];
     }
 
@@ -91,14 +98,17 @@ class StringFieldTest extends TestCase
         return new EntityExistence(null, [], true, false, false, []);
     }
 
-    private function getStringField(bool $required = true, bool $htmlAllowed = false): StringField
+    /**
+     * @param Flag[] $flags
+     */
+    private function getStringField(array $flags = []): StringField
     {
         $field = new StringField('string', 'string');
 
-        if ($htmlAllowed) {
-            $field->addFlags(new AllowHtml());
+        if ($flags) {
+            $field->addFlags(...$flags);
         }
 
-        return $required ? $field->addFlags(new Required()) : $field;
+        return $field;
     }
 }

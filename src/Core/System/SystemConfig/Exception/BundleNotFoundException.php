@@ -5,6 +5,9 @@ namespace Shopware\Core\System\SystemConfig\Exception;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @deprecated tag:v6.4.0 will be removed, `ConfigurationNotFoundException` is thrown instead
+ */
 class BundleNotFoundException extends ShopwareHttpException
 {
     public function __construct(string $bundleName)

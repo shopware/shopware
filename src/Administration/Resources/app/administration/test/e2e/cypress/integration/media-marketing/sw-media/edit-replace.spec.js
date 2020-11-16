@@ -2,7 +2,7 @@
 
 import MediaPageObject from '../../../support/pages/module/sw-media.page-object';
 
-describe('Media: Replace media', { browser: '!firefox' }, () => {
+describe('Media: Replace media', () => {
     beforeEach(() => {
         cy.setToInitialState()
             .then(() => {

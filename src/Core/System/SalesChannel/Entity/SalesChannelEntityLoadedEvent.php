@@ -4,9 +4,10 @@ namespace Shopware\Core\System\SalesChannel\Entity;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
+use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-class SalesChannelEntityLoadedEvent extends EntityLoadedEvent
+class SalesChannelEntityLoadedEvent extends EntityLoadedEvent implements ShopwareSalesChannelEvent
 {
     /**
      * @var SalesChannelContext

@@ -2,7 +2,7 @@
 
 import MediaPageObject from '../../../support/pages/module/sw-media.page-object';
 
-describe('CMS: Check usage and editing of image elements', { browser: "!firefox" }, () => {
+describe('CMS: Check usage and editing of image elements', () => {
     beforeEach(() => {
         cy.setToInitialState()
             .then(() => {

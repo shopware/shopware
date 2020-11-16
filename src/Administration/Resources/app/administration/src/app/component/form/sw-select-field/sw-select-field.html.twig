@@ -1,5 +1,8 @@
 {% block sw_block_field %}
-    <sw-block-field class="sw-field--select" :class="swFieldSelectClasses" v-bind="$attrs" :name="formFieldName">
+    <sw-block-field class="sw-field--select"
+                    :class="swFieldSelectClasses"
+                    v-bind="$attrs"
+                    :name="formFieldName">
         <template #sw-field-input="{ identification, helpText, error, disabled, size, setFocusClass, removeFocusClass }">
             <select :name="identification"
                     :id="identification"

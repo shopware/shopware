@@ -151,6 +151,10 @@ Component.register('sw-product-detail', {
                 .addAssociation('customFieldSets')
                 .addAssociation('featureSet');
 
+            if (this.feature.isActive('FEATURE_NEXT_10078')) {
+                criteria.addAssociation('cmsPage');
+            }
+
             return criteria;
         },
 
@@ -217,6 +221,8 @@ Component.register('sw-product-detail', {
 
     methods: {
         createdComponent() {
+            Shopware.State.dispatch('cmsPageState/resetCmsPageState');
+
             // when create
             if (!this.productId) {
                 // set language to system language

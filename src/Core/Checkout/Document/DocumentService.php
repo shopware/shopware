@@ -223,7 +223,7 @@ class DocumentService
         $generatedDocument->setFilename(
             $documentGenerator->getFileName($config) . '.' . $fileGenerator->getExtension()
         );
-        $generatedDocument->setPageOrientation($config->getPageOrientation());
+        $generatedDocument->setPageOrientation($config->getPageOrientation() ?? $documentConfiguration->getPageOrientation());
         $generatedDocument->setPageSize($config->getPageSize());
         $generatedDocument->setFileBlob($fileGenerator->generate($generatedDocument));
         $generatedDocument->setContentType($fileGenerator->getContentType());

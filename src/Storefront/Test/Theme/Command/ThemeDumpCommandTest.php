@@ -44,15 +44,13 @@ class ThemeDumpCommandTest extends TestCase
 
     private function getPluginRegistryMock(): MockObject
     {
-        $storePluginConfiguration1 = new StorefrontPluginConfiguration();
-        $storePluginConfiguration1->setTechnicalName('parentTheme');
+        $storePluginConfiguration1 = new StorefrontPluginConfiguration('parentTheme');
         $storePluginConfiguration1->setThemeConfig([
             'expectedConfig',
         ]);
         $storePluginConfiguration1->setBasePath('');
 
-        $storePluginConfiguration2 = new StorefrontPluginConfiguration();
-        $storePluginConfiguration2->setTechnicalName('childTheme');
+        $storePluginConfiguration2 = new StorefrontPluginConfiguration('childTheme');
         $storePluginConfiguration2->setThemeConfig([
             'unexpectedConfig',
         ]);

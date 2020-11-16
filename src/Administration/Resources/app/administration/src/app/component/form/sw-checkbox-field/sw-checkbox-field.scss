@@ -147,4 +147,10 @@ $sw-field-color-inherited: $color-purple;
             }
         }
     }
+
+    &.is--bordered {
+        border-radius: 4px;
+        border: 1px solid $color-steam-cloud;
+        padding: 16px;
+    }
 }

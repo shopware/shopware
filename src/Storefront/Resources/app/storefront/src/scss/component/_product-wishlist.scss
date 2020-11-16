@@ -1,0 +1,76 @@
+/*
+Product box for wishlist
+==============================================
+Styling for productbox component.
+*/
+
+.product-wishlist {
+    &-btn {
+        height: 40px;
+        width: 40px;
+    }
+
+    &-btn-remove {
+        z-index: 10;
+        position: absolute;
+        background: $gray-100;
+        border-radius: 50%;
+        border-style: none;
+        right: 25px;
+        top: 25px;
+        padding: 0;
+
+        &:focus {
+            outline: none;
+        }
+    }
+
+    .icon-wishlist {
+        width: 20px;
+        height: 20px;
+
+        svg {
+            top: 0;
+        }
+
+        &-remove {
+            color: $gray-800;
+        }
+    }
+}
+
+.product-wishlist-info {
+    &-item {
+        min-height: 2em;
+        font-size: $font-size-sm;
+    }
+
+    &-text {
+        text-transform: capitalize;
+        font-weight: $font-weight-bold;
+    }
+
+    /* stylelint-disable value-no-vendor-prefix, property-no-vendor-prefix */
+    &-manufacturer {
+        display: block;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        height: 3em;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-top: 1em;
+    }
+
+    .product-variant-characteristics-text {
+        text-transform: capitalize;
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}

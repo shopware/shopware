@@ -5,10 +5,11 @@ namespace Shopware\Storefront\Event\RouteRequest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
-abstract class RouteRequestEvent extends NestedEvent
+abstract class RouteRequestEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
     /**
      * @var Request

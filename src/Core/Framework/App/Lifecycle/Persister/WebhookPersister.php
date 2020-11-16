@@ -22,7 +22,7 @@ class WebhookPersister
         $this->webhookRepository = $webhookRepository;
     }
 
-    public function updateWebhooks(Manifest $manifest, string $appId, Context $context): void
+    public function updateWebhooks(Manifest $manifest, string $appId, string $defaultLocale, Context $context): void
     {
         $existingWebhooks = $this->getExistingWebhooks($appId, $context);
 
@@ -30,7 +30,7 @@ class WebhookPersister
         $upserts = [];
 
         foreach ($webhooks as $webhook) {
-            $payload = $webhook->toArray();
+            $payload = $webhook->toArray($defaultLocale);
             $payload['appId'] = $appId;
             $payload['eventName'] = $webhook->getEvent();
 

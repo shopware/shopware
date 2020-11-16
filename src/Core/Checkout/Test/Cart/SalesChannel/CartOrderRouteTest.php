@@ -128,6 +128,96 @@ class CartOrderRouteTest extends TestCase
         static::assertCount(1, $response['lineItems']);
     }
 
+    public function testOrderWithComment(): void
+    {
+        $this->login();
+
+        // Fill product
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/cart/line-item',
+                [
+                    'items' => [
+                        [
+                            'id' => $this->ids->get('p1'),
+                            'type' => 'product',
+                            'referencedId' => $this->ids->get('p1'),
+                        ],
+                    ],
+                ]
+            );
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertSame('cart', $response['apiAlias']);
+        static::assertSame(10, $response['price']['totalPrice']);
+        static::assertCount(1, $response['lineItems']);
+
+        // Order
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/order',
+                [
+                    'customerComment' => '  test comment  ',
+                ]
+            );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertSame('order', $response['apiAlias']);
+        static::assertSame('test comment', $response['customerComment']);
+    }
+
+    public function testOrderWithAffiliateTracking(): void
+    {
+        $this->login();
+
+        // Fill product
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/cart/line-item',
+                [
+                    'items' => [
+                        [
+                            'id' => $this->ids->get('p1'),
+                            'type' => 'product',
+                            'referencedId' => $this->ids->get('p1'),
+                        ],
+                    ],
+                ]
+            );
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertSame('cart', $response['apiAlias']);
+        static::assertSame(10, $response['price']['totalPrice']);
+        static::assertCount(1, $response['lineItems']);
+
+        // Order
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/checkout/order',
+                [
+                    'affiliateCode' => 'test affiliate code',
+                    'campaignCode' => 'test campaign code',
+                ]
+            );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertSame('order', $response['apiAlias']);
+        static::assertSame('test affiliate code', $response['affiliateCode']);
+        static::assertSame('test campaign code', $response['campaignCode']);
+    }
+
     private function createTestData(): void
     {
         $this->addCountriesToSalesChannel();

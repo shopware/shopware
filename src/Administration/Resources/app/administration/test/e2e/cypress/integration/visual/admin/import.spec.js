@@ -1,6 +1,6 @@
 import SettingsPageObject from '../../../support/pages/module/sw-settings.page-object';
 
-describe('Import/Export - Import:  Visual tests', {browser: "!firefox"}, () => {
+describe('Import/Export - Import:  Visual tests', () => {
     let page = null;
 
     beforeEach(() => {

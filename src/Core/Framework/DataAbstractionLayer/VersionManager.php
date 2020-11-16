@@ -769,10 +769,15 @@ class VersionManager
             return $this->resolveMappingParents($definition, $rawData);
         }
 
+        $parentIds = [];
+        if ($definition->isInheritanceAware()) {
+            $parentIds = $this->fetchParentIds($definition, $rawData);
+        }
+
         $parent = $definition->getParentDefinition();
 
         if (!$parent) {
-            return [];
+            return $parentIds;
         }
 
         $fkField = $definition->getFields()->filter(function (Field $field) use ($parent) {
@@ -798,7 +803,7 @@ class VersionManager
 
         $entity = $parent->getEntityName();
 
-        $nested[$entity] = array_merge($nested[$entity] ?? [], $primaryKeys);
+        $nested[$entity] = array_merge($nested[$entity] ?? [], $primaryKeys, $parentIds[$entity] ?? []);
 
         return $nested;
     }
@@ -1014,5 +1019,27 @@ class VersionManager
         }
 
         return $parents;
+    }
+
+    private function fetchParentIds(EntityDefinition $definition, array $rawData): array
+    {
+        $fetchQuery = sprintf(
+            'SELECT DISTINCT LOWER(HEX(parent_id)) as id FROM %s WHERE id IN (:ids)',
+            EntityDefinitionQueryHelper::escape($definition->getEntityName())
+        );
+
+        $parentIds = $this->connection->fetchAll(
+            $fetchQuery,
+            ['ids' => Uuid::fromHexToBytesList(array_column($rawData, 'id'))],
+            ['ids' => Connection::PARAM_STR_ARRAY]
+        );
+
+        $ids = array_unique(array_filter(array_column($parentIds, 'id')));
+
+        if (count($ids) === 0) {
+            return [];
+        }
+
+        return [$definition->getEntityName() => $ids];
     }
 }

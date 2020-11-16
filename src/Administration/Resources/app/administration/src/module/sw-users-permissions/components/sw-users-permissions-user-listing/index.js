@@ -88,9 +88,6 @@ Component.register('sw-users-permissions-user-listing', {
     },
 
     methods: {
-        /** @deprecated tag:6.4.0 will be removed in v.6.4.0 */
-        createdComponent() { /* nth because deprecated */ },
-
         getItemToDelete(item) {
             if (!this.itemToDelete) {
                 return false;

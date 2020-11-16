@@ -38,8 +38,6 @@ class TaxEntity extends Entity
     protected $rules;
 
     /**
-     * @internal (flag:FEATURE_NEXT_6995)
-     *
      * @var ShippingMethodCollection|null
      */
     protected $shippingMethods;
@@ -94,17 +92,11 @@ class TaxEntity extends Entity
         $this->rules = $rules;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_6995)
-     */
     public function getShippingMethods(): ?ShippingMethodCollection
     {
         return $this->shippingMethods;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_6995)
-     */
     public function setShippingMethods(ShippingMethodCollection $shippingMethods): void
     {
         $this->shippingMethods = $shippingMethods;

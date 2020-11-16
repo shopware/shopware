@@ -1,6 +1,6 @@
 import SettingsPageObject from '../../../support/pages/module/sw-settings.page-object';
 
-describe('Import/Export - Check import functionality', { browser: "!firefox" }, () => {
+describe('Import/Export - Check import functionality', () => {
     let page = null;
 
     beforeEach(() => {

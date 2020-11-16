@@ -128,7 +128,8 @@
       "cardTitleReviews": "Bewertungen",
       "cardTitleMedia": "Medien",
       "labelContextMenuAddToProduct": "Zu Produkt hinzufügen",
-      "cardTitleSeo": "SEO"
+      "cardTitleSeo": "SEO",
+      "cardTitleLayout": "Layout-Zuweisung"
     },
     "reviewForm": {
       "labelStatus": "Sichtbar",
@@ -182,6 +183,20 @@
       "contextMenuEdit": "Bearbeiten",
       "contextMenuDelete": "Löschen",
       "contextMenuDuplicate": "Duplizieren",
+      "contextMenuShowVariants": "Varianten anzeigen",
+      "variantIndicatorTooltip": "Dieses Produkt hat Varianten.",
+      "variantModalTitle": "Varianten von \"{productName}\"",
+      "openMainProduct": "\"{productName}\" öffnen",
+      "variantModalInlineEditProductNamePlaceholder": "Vergib einen Variantennamen ...",
+      "variantModalInlineEditStockPlaceholder": "Lagerbestand eingeben ...",
+      "variantGridEmptyStateSubline": "Es wurden keine Varianten gefunden.",
+      "multipleVariantsDeleteModalText": "Bist du dir sicher, dass du {amount} Varianten löschen willst?",
+      "multipleVariantsDeleteModalSubline": "Dies kann eine kurze Zeit dauern.",
+      "notificationVariantDeleteSuccess": "\"{variantName}\" wurde erfolgreich gelöscht. | Erfolgreich {amount} Varianten gelöscht.",
+      "notificationVariantDeleteError": "Beim löschen von \"{variantName}\" ist etwas schiefgelaufen. | Beim löschen mehrerer Varianten ist etwas schiefgelaufen.",
+      "notificationVariantSaveSuccess": "\"{variantName}\" wurde erfolgreich gespeichert.",
+      "variantDeleteModalTitle": "Variante löschen",
+      "variantDeleteModalText": "Bist du dir sicher ob du die Variante \"{variantName}\" löschen willst?",
       "messageEmpty": "Noch keine Produkte",
       "textDeleteConfirm": "Möchtest Du das Produkt \"{name}\" wirklich löschen? | Möchtest Du diese {count} Produkte wirklich löschen?",
       "titleSidebarItemRefresh": "Aktualisieren",
@@ -353,6 +368,14 @@
       "linkFeatureSetsConfig": "Wesentliche Merkmale",
       "templateSelectFieldLabel": "Vorlagen",
       "templateSelectFieldPlaceholder": "Wähle eine Vorlage aus..."
+    },
+    "layoutAssignment": {
+      "title": "Standard fallback",
+      "subtitle": "Produktseite",
+      "textAssignLayout": "Layout zuweisen",
+      "textChangeLayout": "Layout ändern",
+      "textCreateNewLayout": "Neues Layout erstellen",
+      "textEditInDesigner": "Im Designer bearbeiten"
     }
   },
   "sw-privileges": {

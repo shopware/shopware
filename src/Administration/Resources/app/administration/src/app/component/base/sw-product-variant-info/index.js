@@ -20,20 +20,41 @@ Component.register('sw-product-variant-info', {
             required: false,
             default: null
         },
+
         highlighted: {
             type: Boolean,
             required: false,
             default: false
         },
+
         searchTerm: {
             type: String,
             required: false,
             default: ''
         },
+
         titleTerm: {
             type: String,
             required: false,
             default: null
+        },
+
+        showTooltip: {
+            type: Boolean,
+            required: false,
+            default: true
+        },
+
+        ommitParenthesis: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+
+        seperator: {
+            type: String,
+            required: false,
+            default: ' | '
         }
     },
 

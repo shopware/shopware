@@ -28,7 +28,7 @@ export default class BeginCheckoutEvent extends EventAwareAnalyticsEvent
         }
 
         gtag('event', 'begin_checkout', {
-            // @deprecated tag:v6.3.0 - context token will be removed
+            // @deprecated tag:v6.4.0 - context token will be removed
             'transaction_id': window.contextToken,
             'items': LineItemHelper.getLineItems()
         });

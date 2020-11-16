@@ -379,6 +379,7 @@ ShopwareCoreCheckoutOrder --> ShopwareCoreSystemSalutation
 ShopwareCoreContentNewsletter --> ShopwareCoreSystemSalutation
 ShopwareCoreContentProduct --> ShopwareCoreSystemTax
 ShopwareCoreSystemTax --> ShopwareCoreSystemTax
+ShopwareCoreCheckoutShipping --> ShopwareCoreSystemTax
 ShopwareCoreContentProduct --> ShopwareCoreSystemUnit
 ShopwareCoreSystemUnit --> ShopwareCoreSystemUnit
 ShopwareCoreContentMedia --> ShopwareCoreSystemUser

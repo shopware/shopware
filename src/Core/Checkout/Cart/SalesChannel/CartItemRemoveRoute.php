@@ -55,11 +55,11 @@ class CartItemRemoveRoute extends AbstractCartItemRemoveRoute
      *      summary="Remove line item entries",
      *      operationId="removeLineItem",
      *      tags={"Store API", "Cart"},
-     *      @OA\RequestBody(@OA\JsonContent(ref="#/definitions/CartItemsDelete")),
+     *      @OA\RequestBody(@OA\JsonContent(ref="#/components/schemas/CartItemsDelete")),
      *      @OA\Response(
      *          response="200",
      *          description="Cart",
-     *          @OA\JsonContent(ref="#/definitions/Cart")
+     *          @OA\JsonContent(ref="#/components/schemas/Cart")
      *     )
      * )
      * @Route("/store-api/v{version}/checkout/cart/line-item", name="store-api.checkout.cart.remove-item", methods={"DELETE"})

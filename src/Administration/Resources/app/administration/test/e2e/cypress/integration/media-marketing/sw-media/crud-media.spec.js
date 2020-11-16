@@ -1,4 +1,5 @@
 /// <reference types="Cypress" />
+// merge 16.11.2020
 
 import MediaPageObject from '../../../support/pages/module/sw-media.page-object';
 

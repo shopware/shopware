@@ -48,10 +48,6 @@
           "type": {
             "type": "string"
           },
-          "priceDefinition": {
-            "type": "object",
-            "properties": []
-          },
           "good": {
             "type": "boolean"
           },
@@ -74,14 +70,17 @@
       "type": "array",
       "items": {
         "type": "object",
-        "properties": []
-      }
-    },
-    "deliveries": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "properties": []
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "level": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
       }
     },
     "transactions": {
@@ -106,10 +105,6 @@
     },
     "campaignCode": {
       "type": "string"
-    },
-    "data": {
-      "type": "object",
-      "properties": []
     }
   }
 }

@@ -78,9 +78,12 @@ Component.register('sw-property-search', {
         },
 
         propertyGroupOptionCriteria() {
-            const criteria = new Criteria(1, null);
+            const criteria = new Criteria();
 
+            criteria.setPage(this.optionPage);
+            criteria.setLimit(10);
             criteria.setTotalCountMode(1);
+            criteria.setTerm(this.searchTerm);
             criteria.addAssociation('group');
 
             return criteria;

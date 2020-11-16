@@ -53,7 +53,11 @@
                                 {% block sw_multi_select_base_results_list_result %}
                                     <template #result-item="{ item, index }">
                                         <slot name="result-item" v-bind="{ item, index, labelProperty, valueProperty, searchTerm, highlightSearchTerm, isSelected, addItem, getKey }">
-                                            <li is="sw-select-result" :selected="isSelected(item)" @item-select="addItem" v-bind="{ item, index }">
+                                            <li is="sw-select-result"
+                                                :selected="isSelected(item)"
+                                                @item-select="addItem"
+                                                :class="'sw-select-option--' + item.value"
+                                                v-bind="{ item, index }">
                                                 {% block sw_multi_select_base_results_list_result_label %}
                                                     <slot name="result-label-property" v-bind="{ item, index, labelProperty, valueProperty, searchTerm, getKey }">
                                                         <sw-highlight-text v-if="highlightSearchTerm"

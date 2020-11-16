@@ -6,7 +6,7 @@
 
                 {% block sw_cms_layout_modal_header_title %}
                     <div class="sw-cms-layout-modal__header-title">
-                        {{ $tc('sw-cms.components.cmsLayoutModal.headline') }}
+                        {{ headline ? headline : $tc('sw-cms.components.cmsLayoutModal.headline') }}
                     </div>
                 {% endblock %}
 

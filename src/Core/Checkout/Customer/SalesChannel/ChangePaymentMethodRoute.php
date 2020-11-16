@@ -62,10 +62,17 @@ class ChangePaymentMethodRoute extends AbstractChangePaymentMethodRoute
      *      summary="Change payment method",
      *      operationId="changePaymentMethod",
      *      tags={"Store API", "Account"},
+     *      @OA\Parameter(
+     *        name="paymentMethodId",
+     *        in="path",
+     *        description="Payment Method Id",
+     *        @OA\Schema(type="string"),
+     *        required=true
+     *      ),
      *      @OA\Response(
      *          response="200",
      *          description="",
-     *          @OA\JsonContent(ref="#/definitions/SuccessResponse")
+     *          @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      * @Route(path="/store-api/v{version}/account/change-payment-method/{paymentMethodId}", name="store-api.account.set.payment-method", methods={"POST"})

@@ -419,15 +419,13 @@ class SalesChannelContextFactory
         $criteria->addAssociation('defaultShippingAddress.country');
         $criteria->addAssociation('defaultShippingAddress.countryState');
 
-        if (Feature::isActive('FEATURE_NEXT_10555')) {
-            /** @var SalesChannelApiSource $source */
-            $source = $context->getSource();
+        /** @var SalesChannelApiSource $source */
+        $source = $context->getSource();
 
-            $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
-                new EqualsFilter('customer.boundSalesChannelId', null),
-                new EqualsFilter('customer.boundSalesChannelId', $source->getSalesChannelId()),
-            ]));
-        }
+        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
+            new EqualsFilter('customer.boundSalesChannelId', null),
+            new EqualsFilter('customer.boundSalesChannelId', $source->getSalesChannelId()),
+        ]));
 
         $customer = $this->customerRepository->search($criteria, $context)->get($customerId);
 

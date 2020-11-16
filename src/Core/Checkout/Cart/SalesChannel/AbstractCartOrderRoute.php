@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Cart\SalesChannel;
 
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -12,5 +13,8 @@ abstract class AbstractCartOrderRoute
 {
     abstract public function getDecorated(): AbstractCartOrderRoute;
 
-    abstract public function order(Cart $cart, SalesChannelContext $context): CartOrderRouteResponse;
+    /**
+     * @deprecated tag:v6.4.0 - Parameter $data will be mandatory in future implementation
+     */
+    abstract public function order(Cart $cart, SalesChannelContext $context, ?RequestDataBag $data = null): CartOrderRouteResponse;
 }

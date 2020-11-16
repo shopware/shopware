@@ -21,6 +21,7 @@
         "bankIban": "IBAN: %bankIban%",
         "bankBic": "BIC: %bankBic%",
         "placeOfJurisdiction": "Place of jurisdiction: %placeOfJurisdiction%",
+        "serviceDateNotice": "Service date matches invoice date",
         "placeOfFulfillment": "Place of fulfillment: %placeOfFulfillment%",
         "ceo": "CEO",
         "lineItems": {

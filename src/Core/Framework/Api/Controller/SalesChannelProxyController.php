@@ -16,7 +16,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
@@ -211,7 +210,7 @@ class SalesChannelProxyController extends AbstractController
      */
     public function disableAutomaticPromotions(Request $request): JsonResponse
     {
-        if (Feature::isActive('FEATURE_NEXT_10058') && !$request->request->has(self::SALES_CHANNEL_ID)) {
+        if (!$request->request->has(self::SALES_CHANNEL_ID)) {
             throw new MissingRequestParameterException(self::SALES_CHANNEL_ID);
         }
 
@@ -219,7 +218,7 @@ class SalesChannelProxyController extends AbstractController
 
         $salesChannelId = $request->request->get('salesChannelId');
 
-        $this->adminOrderCartService->addPermission($contextToken, PromotionCollector::SKIP_AUTOMATIC_PROMOTIONS, Feature::isActive('FEATURE_NEXT_10058') ? $salesChannelId : null);
+        $this->adminOrderCartService->addPermission($contextToken, PromotionCollector::SKIP_AUTOMATIC_PROMOTIONS, $salesChannelId);
 
         return new JsonResponse();
     }
@@ -230,7 +229,7 @@ class SalesChannelProxyController extends AbstractController
      */
     public function enableAutomaticPromotions(Request $request): JsonResponse
     {
-        if (Feature::isActive('FEATURE_NEXT_10058') && !$request->request->has(self::SALES_CHANNEL_ID)) {
+        if (!$request->request->has(self::SALES_CHANNEL_ID)) {
             throw new MissingRequestParameterException(self::SALES_CHANNEL_ID);
         }
 
@@ -238,7 +237,7 @@ class SalesChannelProxyController extends AbstractController
 
         $salesChannelId = $request->request->get('salesChannelId');
 
-        $this->adminOrderCartService->deletePermission($contextToken, PromotionCollector::SKIP_AUTOMATIC_PROMOTIONS, Feature::isActive('FEATURE_NEXT_10058') ? $salesChannelId : null);
+        $this->adminOrderCartService->deletePermission($contextToken, PromotionCollector::SKIP_AUTOMATIC_PROMOTIONS, $salesChannelId);
 
         return new JsonResponse();
     }
@@ -379,7 +378,7 @@ class SalesChannelProxyController extends AbstractController
                 'languageId' => null,
                 'currencyId' => null,
             ],
-            Feature::isActive('FEATURE_NEXT_10058') ? $context->getSalesChannel()->getId() : null
+            $context->getSalesChannel()->getId()
         );
         $event = new SalesChannelContextSwitchEvent($context, $data);
         $this->eventDispatcher->dispatch($event);
@@ -391,11 +390,11 @@ class SalesChannelProxyController extends AbstractController
 
         $salesChannelId = $request->request->get('salesChannelId');
 
-        $payload = $this->contextPersister->load($contextToken, Feature::isActive('FEATURE_NEXT_10058') ? $salesChannelId : null);
+        $payload = $this->contextPersister->load($contextToken, $salesChannelId);
 
         if (!in_array(SalesChannelContextService::PERMISSIONS, $payload, true)) {
             $payload[SalesChannelContextService::PERMISSIONS] = self::ADMIN_ORDER_PERMISSIONS;
-            $this->contextPersister->save($contextToken, $payload, Feature::isActive('FEATURE_NEXT_10058') ? $salesChannelId : null);
+            $this->contextPersister->save($contextToken, $payload, $salesChannelId);
         }
     }
 

@@ -190,11 +190,9 @@ class CartStoreService extends ApiService {
             'sw-context-token': contextToken
         };
 
-        const data = {};
-
-        if (Shopware.Service('feature').isActive('FEATURE_NEXT_10058')) {
-            data.salesChannelId = additionalParams.salesChannelId;
-        }
+        const data = {
+            salesChannelId: additionalParams.salesChannelId
+        };
 
         return this.httpClient.patch(route, data, { additionalParams, headers });
     }
@@ -206,11 +204,9 @@ class CartStoreService extends ApiService {
             'sw-context-token': contextToken
         };
 
-        const data = {};
-
-        if (Shopware.Service('feature').isActive('FEATURE_NEXT_10058')) {
-            data.salesChannelId = additionalParams.salesChannelId;
-        }
+        const data = {
+            salesChannelId: additionalParams.salesChannelId
+        };
 
         return this.httpClient.patch(route, data, { additionalParams, headers });
     }

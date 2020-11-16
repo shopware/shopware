@@ -2,7 +2,7 @@ import template from './sw-theme-manager-detail.html.twig';
 import './sw-theme-manager-detail.scss';
 
 const { Component, Mixin, StateDeprecated } = Shopware;
-/** @deprecated tag:v6.3.0 - use Shopware.Application instead */
+/** @deprecated tag:v6.4.0 - use Shopware.Application instead */
 // eslint-disable-next-line no-unused-vars
 const { Application } = Shopware;
 const Criteria = Shopware.Data.Criteria;
@@ -23,7 +23,7 @@ Component.register('sw-theme-manager-detail', {
             theme: null,
             parentTheme: null,
             defaultMediaFolderId: null,
-            /** @deprecated tag:v6.3.0 - use structuredThemeFields instead */
+            /** @deprecated tag:v6.4.0 - use structuredThemeFields instead */
             themeFields: {},
             structuredThemeFields: {},
             themeConfig: {},

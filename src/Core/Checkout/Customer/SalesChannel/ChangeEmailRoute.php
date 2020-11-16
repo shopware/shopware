@@ -9,7 +9,6 @@ use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerPasswordMatches;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -72,27 +71,18 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
      *      summary="Change email",
      *      operationId="changeEmail",
      *      tags={"Store API", "Account"},
-     *      @OA\Parameter(
-     *        name="email",
-     *        in="body",
-     *        description="New Email",
-     *        @OA\Schema(type="string"),
-     *      ),
-     *      @OA\Parameter(
-     *        name="emailConfirmation",
-     *        in="body",
-     *        description="New Email",
-     *        @OA\Schema(type="string"),
-     *      ),
-     *      @OA\Parameter(
-     *        name="password",
-     *        in="body",
-     *        description="Current password",
-     *        @OA\Schema(type="string"),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              @OA\Property(property="email", description="New Email", type="string"),
+     *              @OA\Property(property="emailConfirmation", description="New Email", type="string"),
+     *              @OA\Property(property="password", description="Current password", type="string")
+     *          )
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          @OA\JsonContent(ref="#/definitions/SuccessResponse")
+     *          description="Successfully saved",
+     *          @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      * @Route(path="/store-api/v{version}/account/change-email", name="store-api.account.change-email", methods={"POST"})
@@ -119,9 +109,7 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
     {
         $validation = new DataValidationDefinition('customer.email.update');
 
-        $options = Feature::isActive('FEATURE_NEXT_10555')
-            ? ['context' => $context->getContext(), 'salesChannelContext' => $context]
-            : ['context' => $context->getContext()];
+        $options = ['context' => $context->getContext(), 'salesChannelContext' => $context];
 
         $validation
             ->add(

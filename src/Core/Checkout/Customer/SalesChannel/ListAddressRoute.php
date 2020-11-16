@@ -45,18 +45,6 @@ class ListAddressRoute extends AbstractListAddressRoute
     /**
      * @Since("6.3.2.0")
      * @Entity("customer_address")
-     * @OA\Get(
-     *      path="/account/list-address",
-     *      summary="List address",
-     *      operationId="listAddress",
-     *      tags={"Store API", "Account", "Address"},
-     *      @OA\Parameter(name="Api-Basic-Parameters"),
-     *      @OA\Response(
-     *          response="200",
-     *          description="",
-     *          @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/customer_address_flat"))
-     *     )
-     * )
      * @OA\Post(
      *      path="/account/list-address",
      *      summary="List address",

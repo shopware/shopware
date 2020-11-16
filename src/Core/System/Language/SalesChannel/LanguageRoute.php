@@ -36,7 +36,7 @@ class LanguageRoute extends AbstractLanguageRoute
     /**
      * @Since("6.2.0.0")
      * @Entity("language")
-     * @OA\Get(
+     * @OA\Post(
      *      path="/language",
      *      summary="Loads all available languages",
      *      operationId="readLanguages",

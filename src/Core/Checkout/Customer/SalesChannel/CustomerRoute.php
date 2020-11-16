@@ -38,7 +38,7 @@ class CustomerRoute extends AbstractCustomerRoute
     /**
      * @Since("6.2.0.0")
      * @Entity("customer")
-     * @OA\Get(
+     * @OA\Post(
      *      path="/account/customer",
      *      summary="Returns informations about the loggedin customer",
      *      operationId="readCustomer",

@@ -22,8 +22,8 @@ final class StateMachineTransitionActions
     public const ACTION_AUTHORIZE = 'authorize';
     public const ACTION_CHARGEBACK = 'chargeback';
 
-    /** @deprecated tag:v6.3.0 Use ACTION_DO_PAY */
+    /** @deprecated tag:v6.4.0 Use ACTION_DO_PAY */
     public const ACTION_PAY = 'pay';
-    /** @deprecated tag:v6.3.0 Use ACTION_PAID_PARTIALLY */
+    /** @deprecated tag:v6.4.0 Use ACTION_PAID_PARTIALLY */
     public const ACTION_PAY_PARTIALLY = 'pay_partially';
 }

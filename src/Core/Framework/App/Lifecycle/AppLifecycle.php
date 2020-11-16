@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle;
 
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppStateService;
@@ -9,6 +10,7 @@ use Shopware\Core\Framework\App\Event\AppDeletedEvent;
 use Shopware\Core\Framework\App\Event\AppInstalledEvent;
 use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
+use Shopware\Core\Framework\App\Exception\InvalidAppConfigurationException;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ActionButtonPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\CustomFieldPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
@@ -22,10 +24,20 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Core\System\Locale\LocaleEntity;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class AppLifecycle extends AbstractAppLifecycle
 {
+    private const ALLOWED_APP_CONFIGURATION_COMPONENTS = [
+        'sw-entity-single-select',
+        'sw-entity-multi-id-select',
+        'sw-media-field',
+        'sw-text-editor',
+    ];
+
     /**
      * @var EntityRepositoryInterface
      */
@@ -86,6 +98,16 @@ class AppLifecycle extends AbstractAppLifecycle
      */
     private $aclRoleRepository;
 
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $languageRepository;
+
+    /*
+     * @var SystemConfigService
+     */
+    private $systemConfigService;
+
     public function __construct(
         EntityRepositoryInterface $appRepository,
         PermissionPersister $permissionPersister,
@@ -98,6 +120,8 @@ class AppLifecycle extends AbstractAppLifecycle
         AppRegistrationService $registrationService,
         AppStateService $appStateService,
         EntityRepositoryInterface $aclRoleRepository,
+        EntityRepositoryInterface $languageRepository,
+        SystemConfigService $systemConfigService,
         string $projectDir
     ) {
         $this->appRepository = $appRepository;
@@ -112,6 +136,8 @@ class AppLifecycle extends AbstractAppLifecycle
         $this->actionButtonPersister = $actionButtonPersister;
         $this->templatePersister = $templatePersister;
         $this->aclRoleRepository = $aclRoleRepository;
+        $this->languageRepository = $languageRepository;
+        $this->systemConfigService = $systemConfigService;
     }
 
     public function getDecorated(): AbstractAppLifecycle
@@ -121,12 +147,13 @@ class AppLifecycle extends AbstractAppLifecycle
 
     public function install(Manifest $manifest, bool $activate, Context $context): void
     {
-        $metadata = $manifest->getMetadata()->toArray();
+        $defaultLocale = $this->getDefaultLocale($context);
+        $metadata = $manifest->getMetadata()->toArray($defaultLocale);
         $appId = Uuid::randomHex();
         $roleId = Uuid::randomHex();
         $metadata = $this->enrichInstallMetadata($manifest, $metadata, $roleId);
 
-        $app = $this->updateApp($manifest, $metadata, $appId, $roleId, $context, true);
+        $app = $this->updateApp($manifest, $metadata, $appId, $roleId, $defaultLocale, $context, true);
         $this->eventDispatcher->dispatch(
             new AppInstalledEvent($app, $manifest, $context)
         );
@@ -138,8 +165,9 @@ class AppLifecycle extends AbstractAppLifecycle
 
     public function update(Manifest $manifest, array $appData, Context $context): void
     {
-        $metadata = $manifest->getMetadata()->toArray();
-        $app = $this->updateApp($manifest, $metadata, $appData['id'], $appData['roleId'], $context, false);
+        $defaultLocale = $this->getDefaultLocale($context);
+        $metadata = $manifest->getMetadata()->toArray($defaultLocale);
+        $app = $this->updateApp($manifest, $metadata, $appData['id'], $appData['roleId'], $defaultLocale, $context, false);
 
         $this->eventDispatcher->dispatch(
             new AppUpdatedEvent($app, $manifest, $context)
@@ -170,6 +198,7 @@ class AppLifecycle extends AbstractAppLifecycle
         array $metadata,
         string $id,
         string $roleId,
+        string $defaultLocale,
         Context $context,
         bool $install
     ): AppEntity {
@@ -202,13 +231,29 @@ class AppLifecycle extends AbstractAppLifecycle
         // we need a app secret to securely communicate with apps
         // therefore we only install action-buttons, webhooks and modules if we have a secret
         if ($app->getAppSecret()) {
-            $this->actionButtonPersister->updateActions($manifest, $id, $context);
-            $this->webhookPersister->updateWebhooks($manifest, $id, $context);
-            $this->updateModules($manifest, $id, $context);
+            $this->actionButtonPersister->updateActions($manifest, $id, $defaultLocale, $context);
+            $this->webhookPersister->updateWebhooks($manifest, $id, $defaultLocale, $context);
+            $this->updateModules($manifest, $id, $defaultLocale, $context);
         }
 
         $this->templatePersister->updateTemplates($manifest, $id, $context);
         $this->customFieldPersister->updateCustomFields($manifest, $id, $context);
+
+        $config = $this->appLoader->getConfiguration($app);
+        if ($config) {
+            $this->verifyConfig($config);
+            $this->systemConfigService->saveConfig(
+                $config,
+                $app->getName() . '.config.',
+                $install
+            );
+            $this->appRepository->update([
+                [
+                    'id' => $app->getId(),
+                    'configurable' => true,
+                ],
+            ], $context);
+        }
 
         return $app;
     }
@@ -249,7 +294,7 @@ class AppLifecycle extends AbstractAppLifecycle
         return $app;
     }
 
-    private function updateModules(Manifest $manifest, string $id, Context $context): void
+    private function updateModules(Manifest $manifest, string $id, string $defaultLocale, Context $context): void
     {
         if (!$manifest->getAdmin()) {
             return;
@@ -259,8 +304,8 @@ class AppLifecycle extends AbstractAppLifecycle
             'id' => $id,
             'modules' => array_reduce(
                 $manifest->getAdmin()->getModules(),
-                static function (array $modules, Module $module) {
-                    $modules[] = $module->toArray();
+                static function (array $modules, Module $module) use ($defaultLocale) {
+                    $modules[] = $module->toArray($defaultLocale);
 
                     return $modules;
                 },
@@ -269,5 +314,31 @@ class AppLifecycle extends AbstractAppLifecycle
         ];
 
         $this->appRepository->update([$payload], $context);
+    }
+
+    private function getDefaultLocale(Context $context): string
+    {
+        $criteria = new Criteria([Defaults::LANGUAGE_SYSTEM]);
+        $criteria->addAssociation('locale');
+
+        /** @var LanguageEntity $language */
+        $language = $this->languageRepository->search($criteria, $context)->first();
+        /** @var LocaleEntity $locale */
+        $locale = $language->getLocale();
+
+        return $locale->getCode();
+    }
+
+    private function verifyConfig(array $config): void
+    {
+        foreach ($config as $card) {
+            foreach ($card['elements'] as $element) {
+                // Rendering of custom admin components via <component> element is not allowed for apps
+                // as it may lead to code execution by apps in the administration
+                if (array_key_exists('componentName', $element) && !in_array($element['componentName'], self::ALLOWED_APP_CONFIGURATION_COMPONENTS, true)) {
+                    throw new InvalidAppConfigurationException($element['componentName']);
+                }
+            }
+        }
     }
 }

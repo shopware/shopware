@@ -2,7 +2,7 @@
 
 import MediaPageObject from '../../../support/pages/module/sw-media.page-object';
 
-describe('Media: Move folder and image', { browser: "!firefox" },() => {
+describe('Media: Move folder and image', () => {
     beforeEach(() => {
         cy.setToInitialState()
             .then(() => {

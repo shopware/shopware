@@ -4,11 +4,12 @@ namespace Shopware\Storefront\Page\Product\Review;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
 use Symfony\Component\HttpFoundation\Request;
 
-class ProductReviewsLoadedEvent extends NestedEvent
+class ProductReviewsLoadedEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
     /**
      * @var StorefrontSearchResult

@@ -1,0 +1,14 @@
+{% sw_extends '@Storefront/storefront/component/product/card/action.html.twig' %}
+
+{% block component_product_box_action_detail %}
+    {% set noLongerAvailable = product.isCloseout and product.availableStock < product.minPurchase %}
+
+    <span {% if noLongerAvailable %}data-toggle="tooltip"
+        title="{{ "wishlist.noLongerAvailableTooltip"|trans|striptags }}"{% endif %}>
+        <a href="{{ seoUrl('frontend.detail.page', {'productId': id}) }}"
+           class="btn btn-block btn-light {% if not product.available or noLongerAvailable %}disabled{% endif %}"
+           title="{{ "listing.boxProductDetails"|trans|striptags }}">
+            {{ "listing.boxProductDetails"|trans|sw_sanitize }}
+        </a>
+    </span>
+{% endblock %}

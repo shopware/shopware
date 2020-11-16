@@ -4,7 +4,6 @@ namespace Shopware\Core\System\SalesChannel\Context;
 
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class SalesChannelContextService implements SalesChannelContextServiceInterface
@@ -67,7 +66,7 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
 
     public function get(string $salesChannelId, string $token, ?string $languageId = null, ?string $currencyId = null): SalesChannelContext
     {
-        $parameters = $this->contextPersister->load($token, Feature::isActive('FEATURE_NEXT_10058') ? $salesChannelId : null);
+        $parameters = $this->contextPersister->load($token, $salesChannelId);
 
         if ($languageId) {
             $parameters[self::LANGUAGE_ID] = $languageId;

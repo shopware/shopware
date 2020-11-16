@@ -26,7 +26,8 @@ Component.register('sw-product-list', {
             isBulkLoading: false,
             total: 0,
             product: null,
-            cloning: false
+            cloning: false,
+            productEntityVariantModal: false
         };
     },
 
@@ -65,12 +66,16 @@ Component.register('sw-product-list', {
                     useCustomSort: true
                 };
             });
+        },
+
+        showVariantModal() {
+            return !!this.productEntityVariantModal;
         }
     },
 
     filters: {
         stockColorVariant(value) {
-            if (value > 25) {
+            if (value >= 25) {
                 return 'success';
             }
 
@@ -80,6 +85,18 @@ Component.register('sw-product-list', {
 
             return 'error';
         }
+    },
+
+    beforeRouteLeave(to, from, next) {
+        const goingToProductDetailPage = to.name === 'sw.product.detail.base';
+
+        if (goingToProductDetailPage && this.showVariantModal) {
+            this.closeVariantModal();
+        }
+
+        this.$nextTick(() => {
+            next();
+        });
     },
 
     methods: {
@@ -220,6 +237,20 @@ Component.register('sw-product-list', {
 
             return this.$refs.swProductGrid.repository.search(this.$refs.swProductGrid.items.criteria, context)
                 .then(this.$refs.swProductGrid.applyResult);
+        },
+
+        productHasVariants(productEntity) {
+            const childCount = productEntity.childCount;
+
+            return childCount !== null && childCount > 0;
+        },
+
+        openVariantModal(item) {
+            this.productEntityVariantModal = item;
+        },
+
+        closeVariantModal() {
+            this.productEntityVariantModal = null;
         }
     }
 });

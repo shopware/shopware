@@ -7,7 +7,8 @@ const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-product-detail-base', {
     template,
-    inject: ['repositoryFactory', 'acl'],
+
+    inject: ['repositoryFactory', 'acl', 'feature'],
 
     props: {
         productId: {
@@ -24,12 +25,17 @@ Component.register('sw-product-detail-base', {
             reviewItemData: [],
             page: 1,
             limit: 10,
-            total: 0
+            total: 0,
+            showLayoutModal: false
         };
     },
 
     watch: {
         product() {
+            if (this.product.cmsPageId) {
+                this.onLayoutSelect(this.product.cmsPageId);
+            }
+
             this.reloadReviews();
         }
     },
@@ -94,6 +100,14 @@ Component.register('sw-product-detail-base', {
 
         productMediaRepository() {
             return this.repositoryFactory.create(this.product.media.entity);
+        },
+
+        cmsPageRepository() {
+            return this.repositoryFactory.create('cms_page');
+        },
+
+        cmsPage() {
+            return Shopware.State.get('cmsPageState').currentPage;
         }
     },
 
@@ -197,6 +211,36 @@ Component.register('sw-product-detail-base', {
 
         onMainCategoryAdded(mainCategory) {
             this.product.mainCategories.push(mainCategory);
+        },
+
+        openLayoutModal() {
+            this.showLayoutModal = true;
+        },
+
+        closeLayoutModal() {
+            this.showLayoutModal = false;
+        },
+
+        onLayoutSelect(selectedLayout) {
+            this.product.cmsPageId = selectedLayout;
+
+            Shopware.State.commit('swProductDetail/setProduct', this.product);
+
+            this.cmsPageRepository.get(selectedLayout, Shopware.Context.api).then((cmsPage) => {
+                Shopware.State.commit('cmsPageState/setCurrentPage', cmsPage);
+            });
+        },
+
+        openInPageBuilder() {
+            if (!this.cmsPage) {
+                this.$router.push({ name: 'sw.cms.create' });
+            } else {
+                this.$router.push({ name: 'sw.cms.detail', params: { id: this.product.cmsPageId } });
+            }
+        },
+
+        onLayoutReset() {
+            this.onLayoutSelect(null);
         }
     }
 });

@@ -395,7 +395,8 @@
     "customerCommentPlaceholder": "Comment here...",
     "cart-merged-hint": "The current shopping cart might contain additional products that have been added and saved during a previous visit.",
     "collapseTriggerMore": "Show more",
-    "collapseTriggerLess": "Show less"
+    "collapseTriggerLess": "Show less",
+    "product-not-found": "The product could not be found."
   },
   "listing": {
     "filterTitleText": "Filter",
@@ -424,7 +425,9 @@
     "filterRangeErrorMessage": "The minimum price cannot be higher than the maximum price.",
     "filterSubmitText": "Filter",
     "defaultProductSortingLabel": "Name, ascending",
-    "disabledFilterTooltip": "This filter does not display any further results in combination with the selected filters."
+    "disabledFilterTooltip": "This filter does not display any further results in combination with the selected filters.",
+    "beforeListPrice": "",
+    "afterListPrice": ""
   },
   "newsletter": {
     "headline": "Subscribe to newsletter",
@@ -517,6 +520,14 @@
     "reviewAvgRate": "out of",
     "reviewAvgRateElements": "stars"
   },
+  "wishlist": {
+    "headline": "Your wish list",
+    "itemDeleteSuccess": "You have successfully removed the product from the wishlist.",
+    "currentlyNotAvailable": "Currently not available",
+    "manufacturerDisplayName": "Manufacturer",
+    "deliveryTimeAvailable": "Available, delivery time %name%",
+    "noLongerAvailableTooltip": "The product is no longer available."
+  },
   "footer": {
     "serviceHotlineHeadline": "Service hotline",
     "shopServiceHeadline": "Shop service",
@@ -541,6 +552,7 @@
     "groupRequired": "Technically required",
     "groupRequiredDescription": "Cookies required for this shop to function:",
     "groupRequiredSession": "Session",
+    "groupRequiredCsrf": "CSRF protection",
     "groupRequiredTimezone": "Timezone",
     "groupStatistical": "Statistics",
     "groupStatisticalDescription": "Cookies used for statistics and shop performance metrics.",

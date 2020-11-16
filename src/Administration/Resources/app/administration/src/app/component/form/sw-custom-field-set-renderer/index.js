@@ -145,6 +145,10 @@ Component.register('sw-custom-field-set-renderer', {
 
         globalCustomFieldSets() {
             return this.sets.filter((set) => set.global);
+        },
+
+        componentsWithMapInheritanceSupport() {
+            return ['sw-field'];
         }
     },
 
@@ -180,7 +184,55 @@ Component.register('sw-custom-field-set-renderer', {
         },
 
         getInheritedCustomField(customFieldName) {
-            return utils.get(this.parentEntity, `translated.customFields.${customFieldName}`, null);
+            const value = utils.get(this.parentEntity, `translated.customFields.${customFieldName}`, null);
+
+            if (value) {
+                return value;
+            }
+
+            const customFieldInformation = this.getCustomFieldInformation(customFieldName);
+            const customFieldType = customFieldInformation.type;
+
+            switch (customFieldType) {
+                case 'select': {
+                    return [];
+                }
+
+                case 'bool': {
+                    return false;
+                }
+
+                case 'html':
+                case 'datetime':
+                case 'text': {
+                    return '';
+                }
+
+                case 'float':
+                case 'int': {
+                    return 0;
+                }
+
+                default: {
+                    return null;
+                }
+            }
+        },
+
+        getCustomFieldInformation(customFieldName) {
+            let returnValue;
+
+            this.sets.some(set => set.customFields.some(customField => {
+                const isMatching = customField.name === customFieldName;
+
+                if (isMatching) {
+                    returnValue = customField;
+                }
+
+                return isMatching;
+            }));
+
+            return returnValue;
         },
 
         getInheritValue(field) {
@@ -205,12 +257,44 @@ Component.register('sw-custom-field-set-renderer', {
             return null;
         },
 
-        getBind(customField) {
+        supportsMapInheritance(customField) {
+            const componentName = customField.config.componentName;
+
+            if (customField.config.customFieldType === 'date') {
+                return false;
+            }
+
+            return this.componentsWithMapInheritanceSupport.includes(componentName);
+        },
+
+        getBind(customField, props) {
             const customFieldClone = Shopware.Utils.object.cloneDeep(customField);
+
+            if (customFieldClone.type === 'bool') {
+                customFieldClone.config.bordered = true;
+            }
+
+            if (this.supportsMapInheritance(customFieldClone)) {
+                customFieldClone.mapInheritance = props;
+
+                return customFieldClone;
+            }
+
             delete customFieldClone.config.label;
             delete customFieldClone.config.helpText;
 
             return customFieldClone;
+        },
+
+        getInheritWrapperBind(customField) {
+            if (this.supportsMapInheritance(customField)) {
+                return {};
+            }
+
+            return {
+                helpText: this.getInlineSnippet(customField.config.helpText) || '',
+                label: this.getInlineSnippet(customField.config.label) || ' '
+            };
         },
 
         onChangeCustomFieldSets(value, updateFn) {

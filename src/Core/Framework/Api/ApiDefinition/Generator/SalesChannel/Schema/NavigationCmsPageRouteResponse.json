@@ -310,31 +310,38 @@
                         "format": "int32"
                     },
                     "purchaseUnit": {
-                        "type": "float"
+                        "type": "number",
+                        "format": "float"
                     },
                     "referenceUnit": {
-                        "type": "float"
+                      "type": "number",
+                      "format": "float"
                     },
                     "shippingFree": {
                         "type": "boolean"
                     },
                     "purchasePrice": {
-                        "type": "float"
+                      "type": "number",
+                      "format": "float"
                     },
                     "markAsTopseller": {
                         "type": "boolean"
                     },
                     "weight": {
-                        "type": "float"
+                      "type": "number",
+                      "format": "float"
                     },
                     "width": {
-                        "type": "float"
+                      "type": "number",
+                      "format": "float"
                     },
                     "height": {
-                        "type": "float"
+                      "type": "number",
+                      "format": "float"
                     },
                     "length": {
-                        "type": "float"
+                      "type": "number",
+                      "format": "float"
                     },
                     "releaseDate": {
                         "type": "string",
@@ -362,7 +369,8 @@
                         "type": "string"
                     },
                     "ratingAverage": {
-                        "type": "float"
+                      "type": "number",
+                      "format": "float"
                     }
                 }
             }
@@ -441,31 +449,38 @@
                         "format": "int32"
                     },
                     "purchaseUnit": {
-                        "type": "float"
+                      "type": "number",
+                      "format": "float"
                     },
                     "referenceUnit": {
-                        "type": "float"
+                      "type": "number",
+                      "format": "float"
                     },
                     "shippingFree": {
                         "type": "boolean"
                     },
                     "purchasePrice": {
-                        "type": "float"
+                      "type": "number",
+                      "format": "float"
                     },
                     "markAsTopseller": {
                         "type": "boolean"
                     },
                     "weight": {
-                        "type": "float"
+                      "type": "number",
+                      "format": "float"
                     },
                     "width": {
-                        "type": "float"
+                      "type": "number",
+                      "format": "float"
                     },
                     "height": {
-                        "type": "float"
+                      "type": "number",
+                      "format": "float"
                     },
                     "length": {
-                        "type": "float"
+                      "type": "number",
+                      "format": "float"
                     },
                     "releaseDate": {
                         "type": "string",
@@ -493,7 +508,8 @@
                         "type": "string"
                     },
                     "ratingAverage": {
-                        "type": "float"
+                      "type": "number",
+                      "format": "float"
                     }
                 }
             }

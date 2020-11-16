@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Adapter\Twig;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\EntityTemplateLoader;
 use Shopware\Core\Framework\Context;
@@ -162,6 +163,19 @@ class EntityTemplateLoaderTest extends TestCase
         static::assertFalse(
             $this->templateLoader->exists('@StorefrontTheme/storefront/base.html.twig')
         );
+    }
+
+    public function testTemplateLoadingIsCachedWithoutDatabaseTemplates(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->expects(static::once())
+            ->method('fetchAll')
+            ->willReturn([]);
+
+        $templateLoader = new EntityTemplateLoader($connection, 'prod');
+
+        static::assertFalse($templateLoader->exists('@Storefront/storefront/base.html.twig'));
+        static::assertFalse($templateLoader->exists('@Storefront/storefront/test.html.twig'));
     }
 
     private function importTemplates(): void

@@ -10,8 +10,6 @@ const classes = {
 };
 
 function createWrapper() {
-    Shopware.Feature.flags.FEATURE_NEXT_10555 = true;
-
     const localVue = createLocalVue();
 
     return shallowMount(Shopware.Component.build('sw-settings-login-registration'), {
@@ -74,7 +72,8 @@ describe('module/sw-settings-login-registration/page/sw-settings-login-registrat
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should contain the settings card system', () => {
+    it('should contain the settings card system', async () => {
+        await wrapper.vm.$nextTick();
         expect(
             wrapper.find(`.${classes.root}`)
                 .find(`.${classes.cardView}`)

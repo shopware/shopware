@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Product;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlistProduct\CustomerWishlistProductDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Cms\CmsPageDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategoryTree\ProductCategoryTreeDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingDefinition;
@@ -271,6 +272,15 @@ class ProductDefinition extends EntityDefinition
         if (Feature::isActive('FEATURE_NEXT_10549')) {
             $collection->add(
                 (new OneToManyAssociationField('wishlists', CustomerWishlistProductDefinition::class, 'product_id'))->addFlags(new CascadeDelete())
+            );
+        }
+
+        if (Feature::isActive('FEATURE_NEXT_10078')) {
+            $collection->add(
+                new FkField('cms_page_id', 'cmsPageId', CmsPageDefinition::class)
+            );
+            $collection->add(
+                new ManyToOneAssociationField('cmsPage', 'cms_page_id', CmsPageDefinition::class, 'id', false)
             );
         }
 

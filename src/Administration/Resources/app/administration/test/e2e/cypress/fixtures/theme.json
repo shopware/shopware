@@ -37,7 +37,7 @@
     "fields.sw-logo-desktop": "Displayed for viewports of above 991px"
   },
   "customFields": null,
-  "previewMediaId": "9b27f856f5fa40bf88be409f4ee27800",
+  "previewMediaId": null,
   "parentThemeId": "df9761ce76b047cebabc625d5dc9a2e2",
   "baseConfig": {
     "blocks": {

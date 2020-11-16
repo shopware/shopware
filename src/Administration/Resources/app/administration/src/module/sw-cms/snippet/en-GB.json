@@ -158,6 +158,7 @@
           },
           "label": {
             "verticalAlign": "Vertical align",
+            "alignment": "Alignment",
             "verticalAlignTop": "Top",
             "verticalAlignCenter": "Center",
             "verticalAlignBottom": "Bottom",
@@ -169,7 +170,8 @@
           },
           "tab": {
             "content": "Content",
-            "settings": "Settings"
+            "settings": "Settings",
+            "options": "Options"
           },
           "infoText": {
             "listingElement": "This element's product data is automatically loaded by the category associated with this layout. The content just shows a sample preview."
@@ -410,6 +412,24 @@
           "label": {
             "form": "Form",
             "send": "Send"
+          }
+        }
+      },
+      "productDescriptionReviews": {
+        "label": "Product description & reviews",
+        "infoText": {
+          "descriptionAndReviewsElement": "This element's product data is automatically loaded by the product associated with this layout. The content just shows a sample preview."
+        },
+        "component": {
+          "label": {
+            "descriptionAndReviews": "Product description & reviews"
+          }
+        },
+        "preview": {
+          "label": {
+            "descriptionAndReviews": "Product description & reviews",
+            "description": "Description",
+            "reviews": "Reviews"
           }
         }
       }

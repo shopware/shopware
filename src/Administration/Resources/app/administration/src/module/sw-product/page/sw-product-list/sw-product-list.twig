@@ -38,8 +38,7 @@
                                     message: $tc('sw-privileges.tooltip.warning'),
                                     disabled: acl.can('product.creator'),
                                     showOnDisabledElements: true
-                                }"
-                    >
+                                }">
                         {{ $tc('sw-product.list.buttonAddProduct') }}
                     </sw-button>
                 {% endblock %}
@@ -80,6 +79,29 @@
                                         <sw-media-preview-v2 :source="item.cover ? item.cover.media : null"></sw-media-preview-v2>
                                     </template>
                                 {% endblock %}
+                                
+                                <template #column-name="{ item, isInlineEdit }">
+                                    <sw-text-field v-if="isInlineEdit"
+                                        v-model="item.name"
+                                        size="small">
+                                    </sw-text-field>
+                                
+                                    <div v-else>
+                                        <sw-button v-if="productHasVariants(item)"
+                                            class="sw-product-list__variant-indicator"
+                                            size="x-small"
+                                            @click="openVariantModal(item)"
+                                            v-tooltip="{ message: $tc('sw-product.list.variantIndicatorTooltip') }">
+                                                <sw-icon name="default-web-variants"
+                                                    size="14px">
+                                                </sw-icon>
+                                        </sw-button>
+                                        
+                                        <router-link :to="{ name: 'sw.product.detail', params: { id: item.id } }">
+                                            {{ item.translated ? item.translated.name : item.name }}
+                                        </router-link>
+                                    </div>
+                                </template>
 
                                 {% block sw_product_list_grid_columns_active %}
                                     <template #column-active="{ item, isInlineEdit }">
@@ -133,6 +155,13 @@
                                                 {{ $tc('sw-product.list.buttonDuplicate') }}
                                             </sw-context-menu-item>
                                         {% endblock %}
+
+                                        {% block sw_product_list_grid_columns_actions_open_variant %}
+                                            <sw-context-menu-item v-if="productHasVariants(item)"
+                                                @click="openVariantModal(item)">
+                                                {{ $tc('sw-product.list.contextMenuShowVariants') }}
+                                            </sw-context-menu-item>
+                                        {% endblock %}
                                     </template>
                                 {% endblock %}
                             {% endblock %}
@@ -141,7 +170,9 @@
                     {% endblock %}
 
                     {% block sw_product_list_empty_state %}
-                        <sw-empty-state v-if="!isLoading && !total" :title="$tc('sw-product.list.messageEmpty')"></sw-empty-state>
+                        <sw-empty-state v-if="!isLoading && !total"
+                            :title="$tc('sw-product.list.messageEmpty')">
+                        </sw-empty-state>
                     {% endblock %}
 
                     {% block sw_product_list_grid_loader %}
@@ -151,14 +182,24 @@
             {% endblock %}
 
             {% block sw_product_list_content_clone_modal %}
-                <sw-product-clone-modal :product="product" v-if="cloning" @clone-finish="onDuplicateFinish"></sw-product-clone-modal>
+                <sw-product-clone-modal :product="product"
+                    v-if="cloning"
+                    @clone-finish="onDuplicateFinish">
+                </sw-product-clone-modal>
             {% endblock %}
 
+            {% block sw_product_list_content_variant_modal %}
+                <sw-product-variant-modal v-if="showVariantModal"
+                    :productEntity="productEntityVariantModal"
+                    @modal-close="closeVariantModal">
+                </sw-product-variant-modal>
+            {% endblock %}
         </template>
 
         {% block sw_product_list_sidebar %}
             <template #sidebar>
                 <sw-sidebar>
+
                     {% block sw_product_list_sidebar_refresh %}
                         <sw-sidebar-item
                             icon="default-arrow-360-left"

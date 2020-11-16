@@ -50,9 +50,8 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
      */
     public function createPluginConfig(string $name, string $path): StorefrontPluginConfiguration
     {
-        $config = new StorefrontPluginConfiguration();
+        $config = new StorefrontPluginConfiguration($name);
         $config->setIsTheme(false);
-        $config->setTechnicalName($name);
         $config->setStorefrontEntryFilepath($this->getEntryFile($path));
         $config->setBasePath($path);
 
@@ -76,7 +75,7 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
             throw new InvalidThemeBundleException($name);
         }
 
-        $config = new StorefrontPluginConfiguration();
+        $config = new StorefrontPluginConfiguration($name);
 
         try {
             $data = json_decode(file_get_contents($pathname), true);
@@ -90,7 +89,6 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
             $basePath = realpath(pathinfo($pathname, PATHINFO_DIRNAME));
 
             $config->setBasePath($basePath);
-            $config->setTechnicalName($name);
             $config->setStorefrontEntryFilepath($this->getEntryFile($path));
             $config->setIsTheme(true);
             $config->setName($data['name']);

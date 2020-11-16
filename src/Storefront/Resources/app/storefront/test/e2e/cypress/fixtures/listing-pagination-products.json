@@ -1,0 +1,130 @@
+[
+  {
+    "id": "6dfd9dc216ab4ac99598b837ac600368",
+    "name": "Test product 1",
+    "stock": 1,
+    "productNumber": "RS-1",
+    "descriptionLong": "Product description",
+    "price": [
+      {
+        "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
+        "net": 8.40,
+        "linked": false,
+        "gross": 10
+      }
+    ],
+    "url": "/product-name.html"
+  },
+  {
+    "id": "c2d55e89c6cc46a3a559fc43ed0c88f2",
+    "name": "Test product 2",
+    "stock": 1,
+    "productNumber": "RS-2",
+    "descriptionLong": "Product description",
+    "price": [
+      {
+        "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
+        "net": 8.40,
+        "linked": false,
+        "gross": 10
+      }
+    ],
+    "url": "/product-name.html"
+  },
+  {
+    "id": "00c3b0f70ce948f08d5d519598df26fb",
+    "name": "Test product 3",
+    "stock": 1,
+    "productNumber": "RS-3",
+    "descriptionLong": "Product description",
+    "price": [
+      {
+        "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
+        "net": 8.40,
+        "linked": false,
+        "gross": 10
+      }
+    ],
+    "url": "/product-name.html"
+  },
+  {
+    "id": "b08eba118c41453191174c9a13600be8",
+    "name": "Test product 4",
+    "stock": 1,
+    "productNumber": "RS-4",
+    "descriptionLong": "Product description",
+    "price": [
+      {
+        "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
+        "net": 8.40,
+        "linked": false,
+        "gross": 10
+      }
+    ],
+    "url": "/product-name.html"
+  },
+  {
+    "id": "71cb43217c4e4481b3ee07e3bc71ff81",
+    "name": "Test product 5",
+    "stock": 1,
+    "productNumber": "RS-5",
+    "descriptionLong": "Product description",
+    "price": [
+      {
+        "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
+        "net": 8.40,
+        "linked": false,
+        "gross": 10
+      }
+    ],
+    "url": "/product-name.html"
+  },
+  {
+    "id": "890feb83bfee41119d04daafdd30c034",
+    "name": "Test product 6",
+    "stock": 1,
+    "productNumber": "RS-6",
+    "descriptionLong": "Product description",
+    "price": [
+      {
+        "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
+        "net": 8.40,
+        "linked": false,
+        "gross": 10
+      }
+    ],
+    "url": "/product-name.html"
+  },
+  {
+    "id": "98008053f6db4d9c8f1478a982699bbd",
+    "name": "Test product 7",
+    "stock": 1,
+    "productNumber": "RS-7",
+    "descriptionLong": "Product description",
+    "price": [
+      {
+        "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
+        "net": 8.40,
+        "linked": false,
+        "gross": 10
+      }
+    ],
+    "url": "/product-name.html"
+  },
+  {
+    "id": "c2397db2c4b4466fa92ae0d319fc2459",
+    "name": "Test product 8",
+    "stock": 1,
+    "productNumber": "RS-8",
+    "descriptionLong": "Product description",
+    "price": [
+      {
+        "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
+        "net": 8.40,
+        "linked": false,
+        "gross": 10
+      }
+    ],
+    "url": "/product-name.html"
+  }
+]

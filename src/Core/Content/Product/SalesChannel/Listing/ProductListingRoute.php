@@ -72,10 +72,11 @@ class ProductListingRoute extends AbstractProductListingRoute
      *      summary="Loads products from listing",
      *      operationId="readProductListing",
      *      tags={"Store API","Product"},
+     *      @OA\Parameter(name="categoryId", description="Category ID", @OA\Schema(type="string"), in="path", required=true),
      *      @OA\Response(
      *          response="200",
      *          description="Found products",
-     *          @OA\JsonContent(ref="#/definitions/ProductListingResult")
+     *          @OA\JsonContent(ref="#/components/schemas/ProductListingResult")
      *     )
      * )
      * @Route("/store-api/v{version}/product-listing/{categoryId}", name="store-api.product.listing", methods={"POST"})
@@ -89,7 +90,7 @@ class ProductListingRoute extends AbstractProductListingRoute
         $categoryCriteria = new Criteria([$categoryId]);
         /** @var CategoryEntity $category */
         $category = $this->categoryRepository->search($categoryCriteria, $salesChannelContext->getContext())->first();
-        if ($category->getProductAssignmentType() === CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM) {
+        if ($category->getProductAssignmentType() === CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM && $category->getProductStreamId() !== null) {
             $filters = $this->productStreamBuilder->buildFilters(
                 $category->getProductStreamId(),
                 $salesChannelContext->getContext()

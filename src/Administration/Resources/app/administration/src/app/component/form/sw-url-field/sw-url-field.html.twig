@@ -1,6 +1,11 @@
 {% block sw_text_field %}
     {% block sw_url_field %}
-        <sw-contextual-field class="sw-field--url" v-bind="$attrs" :error="combinedError" :name="formFieldName">
+        <sw-contextual-field class="sw-field--url"
+                             v-bind="$attrs"
+                             :error="combinedError"
+                             @inheritance-restore="$emit('inheritance-restore', $event)"
+                             @inheritance-remove="$emit('inheritance-remove', $event)"
+                             :name="formFieldName">
             <template #sw-contextual-field-prefix="{ disabled }">
                 <span class="sw-field__url-input__prefix" :class="prefixClass" @click="changeMode(disabled)">
                     <sw-icon name="default-lock-closed"

@@ -23,9 +23,22 @@
                     <template v-for="element in card.elements">
                         <slot name="card-element" v-bind="{ element: getElementBind(element), config: actualConfigData[currentSalesChannelId], card }">
                             {% block sw_system_config_content_card_field %}
-                                <sw-form-field-renderer v-bind="getElementBind(element)"
-                                                        v-model="actualConfigData[currentSalesChannelId][element.name]">
-                                </sw-form-field-renderer>
+                                <sw-inherit-wrapper v-model="actualConfigData[currentSalesChannelId][element.name]"
+                                                    v-bind="getInheritWrapperBind(element)"
+                                                    :hasParent="isNotDefaultSalesChannel"
+                                                    :inheritedValue="getInheritedValue(element)"
+                                                    :class="'sw-system-config--field-' + kebabCase(getElementBind(element).name)">
+                                    <template #content="props">
+                                        <sw-form-field-renderer
+                                            v-bind="getElementBind(element, props)"
+                                            :disabled="props.isInherited"
+                                            :value="props.currentValue"
+                                            :key="props.isInheritField + props.isInherited"
+                                            @input="props.updateCurrentValue"
+                                            @change="props.updateCurrentValue">
+                                        </sw-form-field-renderer>
+                                    </template>
+                                </sw-inherit-wrapper>
                             {% endblock %}
                         </slot>
                     </template>

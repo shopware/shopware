@@ -26,27 +26,32 @@ class DeprecatedTagTest extends TestCase
         'Common/vendor/',
         'Recovery/vendor',
         'recovery/vendor',
+        'storefront/vendor',
     ];
 
-    public function testAllPhpFilesInPlatformForDeprecated(): void
+    public function testFilesInPlatformForDeprecatedTag(): void
     {
-        $dir = dirname(KernelLifecycleManager::getClassLoader()
-                ->findFile(Kernel::class)) . '/../';
+        $dir = realpath(\dirname(KernelLifecycleManager::getClassLoader()->findFile(Kernel::class)) . '/../');
 
         $return = [];
         $finder = new Finder();
         $finder->in($dir)
             ->files()
             ->name('*.php')
+            ->name('*.js')
+            ->name('*.scss')
+            ->name('*.html.twig')
+            ->name('*.xsd')
             ->contains('@deprecated');
 
         foreach ($this->whiteList as $path) {
             $finder->notPath($path);
         }
 
-        foreach ($finder->getIterator() as $phpFile) {
-            if ($this->hasDeprecationFalseOrNoTag('@deprecated', $phpFile->getPathname())) {
-                $return[] = $phpFile->getPathname();
+        foreach ($finder->getIterator() as $file) {
+            $filePath = $file->getRealPath();
+            if ($this->hasDeprecationFalseOrNoTag('@deprecated', $filePath)) {
+                $return[] = $filePath;
             }
         }
 
@@ -109,7 +114,7 @@ class DeprecatedTagTest extends TestCase
         if (is_string($envVersion) && $envVersion !== '') {
             return $envVersion;
         }
-        $tags = $this->exec('git describe --tags $(git rev-list --tags --max-count=50)');
+        $tags = $this->exec('git tag');
 
         $highest = str_replace('v', '', $tags[0]);
         foreach ($tags as $tag) {

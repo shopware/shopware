@@ -7,7 +7,7 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 Component.register('sw-settings-country-detail', {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: ['repositoryFactory', 'acl', 'feature'],
 
     mixins: [
         Mixin.getByName('notification'),

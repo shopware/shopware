@@ -31,6 +31,7 @@
       "labelActive": "Active",
       "labelShippingAvailable": "Shipping available",
       "labelTaxFree": "Tax free",
+      "labelCompanyTaxFree": "Tax free for companies",
       "labelForceStateInRegistration": "State is required on registration",
       "placeholderName": "Enter name...",
       "placeholderPosition": "1",

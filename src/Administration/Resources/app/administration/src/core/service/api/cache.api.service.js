@@ -17,7 +17,12 @@ class CacheApiService {
 
     clear() {
         const headers = this.getHeaders();
-        return this.httpClient.delete('/_action/cache', { headers });
+        return this.httpClient.delete('/_action/cache', { headers }).then((response) => {
+            if (response.status === 204) {
+                return this.httpClient.delete('/_action/container_cache', { headers });
+            }
+            return Promise.reject();
+        });
     }
 
     cleanupOldCaches() {

@@ -5,6 +5,85 @@ Styling for productbox component.
 */
 
 .product-wishlist {
+    margin-top: 10px;
+
+    .icon-wishlist {
+        width: 20px;
+        height: 20px;
+
+        svg {
+            top: 0;
+        }
+    }
+
+    &-not-added {
+        .icon-wishlist-added,
+        .text-wishlist-added {
+            display: none;
+        }
+
+        .icon-wishlist-not-added,
+        .text-wishlist-not-added {
+            display: inline-flex;
+        }
+
+        .icon-wishlist-not-added {
+            animation: pulse 0.5s alternate;
+        }
+    }
+
+    &-added {
+        .icon-wishlist-added,
+        .text-wishlist-added {
+            display: inline-flex;
+        }
+
+        .icon-wishlist-added {
+            animation: pulse 0.5s alternate;
+        }
+
+        .icon-wishlist-not-added,
+        .text-wishlist-not-added {
+            display: none;
+        }
+    }
+
+    &-action-circle {
+        height: 40px;
+        width: 40px;
+        background: #f9f9f9;
+        border-radius: 50%;
+        border-style: none;
+        position: absolute;
+        bottom: 1rem;
+        right: 1rem;
+        padding: 10px;
+
+        &::before {
+            content: '';
+            position: absolute;
+            width: 120%;
+            height: 120%;
+            left: calc(50% - 24px);
+            top: calc(50% - 24px);
+        }
+
+        &:focus {
+            outline: none;
+        }
+    }
+
+    &-action {
+        background: transparent;
+        border-style: none;
+        padding: 0;
+        display: inline-flex;
+
+        &:focus {
+            outline: none;
+        }
+    }
+
     &-btn {
         height: 40px;
         width: 40px;
@@ -35,6 +114,28 @@ Styling for productbox component.
 
         &-remove {
             color: $gray-800;
+        }
+    }
+
+    &-btn-content {
+        text-decoration: underline;
+
+        &-md {
+            margin-left: 8px;
+            font-size: 14px;
+        }
+
+        &-sm {
+            margin-left: 6px;
+            font-size: 12px;
+        }
+
+        &-disabled {
+            display: none;
+        }
+
+        &-active {
+            display: inline-flex;
         }
     }
 }
@@ -70,6 +171,16 @@ Styling for productbox component.
 
 @keyframes pulse {
     0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.2);
+        opacity: 1;
+    }
+
+    100% {
         transform: scale(1);
         opacity: 1;
     }

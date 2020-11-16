@@ -16,7 +16,7 @@ describe('Country: Test crud operations', () => {
             });
     });
 
-    it('@settings: create and read country', () => {
+    it.skip('@settings: create and read country', () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later

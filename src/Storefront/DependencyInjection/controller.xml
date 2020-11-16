@@ -90,6 +90,7 @@
 
         <service id="Shopware\Storefront\Controller\CookieController">
             <argument type="service" id="Shopware\Storefront\Framework\Cookie\CookieProviderInterface"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
 
         <service id="Shopware\Storefront\Controller\CmsController">

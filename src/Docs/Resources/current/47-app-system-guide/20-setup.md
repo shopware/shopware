@@ -63,8 +63,8 @@ It provides all the information concerning your app, as seen in the minimal vers
         <author>Your Company Ltd.</author>
         <copyright>(c) by Your Company Ltd.</copyright>
         <version>1.0.0</version>
+        <license>MIT</license>
     </meta>
-    <permissions/>
 </manifest>
 ```
 

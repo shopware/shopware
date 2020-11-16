@@ -49,13 +49,6 @@ class CurrencyEntity extends Entity
     protected $position;
 
     /**
-     * @feature-deprecated (flag:FEATURE_NEXT_6059) tag:v6.4.0 - Use `itemRounding` or `totalRounding`
-     *
-     * @var int
-     */
-    protected $decimalPrecision;
-
-    /**
      * @var CurrencyTranslationCollection|null
      */
     protected $translations;
@@ -238,22 +231,6 @@ class CurrencyEntity extends Entity
     public function setCustomFields(?array $customFields): void
     {
         $this->customFields = $customFields;
-    }
-
-    /**
-     * @feature-deprecated (flag:FEATURE_NEXT_6059) tag:v6.4.0 - Use `itemRounding` or `totalRounding`
-     */
-    public function getDecimalPrecision(): int
-    {
-        return $this->decimalPrecision;
-    }
-
-    /**
-     * @feature-deprecated (flag:FEATURE_NEXT_6059) tag:v6.4.0 - Use `itemRounding` or `totalRounding`
-     */
-    public function setDecimalPrecision(int $decimalPrecision): void
-    {
-        $this->decimalPrecision = $decimalPrecision;
     }
 
     public function getShippingMethodPrices(): ?ShippingMethodPriceCollection

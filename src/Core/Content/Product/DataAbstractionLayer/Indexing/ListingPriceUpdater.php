@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\Product\DataAbstractionLayer\Indexing;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
@@ -20,15 +19,9 @@ class ListingPriceUpdater
      */
     private $connection;
 
-    /**
-     * @var CashRounding
-     */
-    private $rounding;
-
-    public function __construct(Connection $connection, CashRounding $rounding)
+    public function __construct(Connection $connection)
     {
         $this->connection = $connection;
-        $this->rounding = $rounding;
     }
 
     public function update(array $ids, Context $context): void
@@ -266,14 +259,8 @@ class ListingPriceUpdater
             $default,
             [
                 'currencyId' => $currency['id'],
-                'gross' => $this->round(
-                    $default['gross'] * $currency['factor'],
-                    (int) $currency['decimal_precision']
-                ),
-                'net' => $this->round(
-                    $default['net'] * $currency['factor'],
-                    (int) $currency['decimal_precision']
-                ),
+                'gross' => $default['gross'] * $currency['factor'],
+                'net' => $default['net'] * $currency['factor'],
             ]
         );
     }
@@ -331,17 +318,5 @@ class ListingPriceUpdater
         }
 
         return $prices;
-    }
-
-    private function round(float $value, int $precision): float
-    {
-        if (Feature::isActive('FEATURE_NEXT_6059')) {
-            return $value;
-        }
-
-        return $this->rounding->mathRound(
-            $value,
-            new CashRoundingConfig($precision, 0.01, true)
-        );
     }
 }

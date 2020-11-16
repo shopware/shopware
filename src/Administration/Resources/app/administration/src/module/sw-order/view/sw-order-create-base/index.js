@@ -224,10 +224,6 @@ Component.register('sw-order-create-base', {
         },
 
         displayRounded() {
-            if (!this.feature.isActive('FEATURE_NEXT_6059')) {
-                return false;
-            }
-
             if (!this.cartPrice) {
                 return false;
             }

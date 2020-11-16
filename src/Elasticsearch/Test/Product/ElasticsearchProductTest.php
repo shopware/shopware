@@ -43,7 +43,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendedProductDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ProductExtension;
@@ -1843,8 +1842,6 @@ class ElasticsearchProductTest extends TestCase
      */
     public function testPriceFilterWithCashRounding(TestDataCollection $data): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_6059', $this);
-
         $searcher = $this->createEntitySearcher();
 
         $expected = array_values($data->getList(['p1', 'p3', 'p4']));
@@ -1871,8 +1868,6 @@ class ElasticsearchProductTest extends TestCase
      */
     public function testPriceAggregationWithCashRounding(TestDataCollection $data): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_6059', $this);
-
         $context = new Context(new SystemSource(), [], $this->currencyId);
 
         $criteria = new Criteria($data->getList(['p1', 'p2', 'p3', 'p4']));

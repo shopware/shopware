@@ -49,6 +49,8 @@ Table(ShopwareCoreCheckoutOrderOrderDefinition, "order\n(Order root table)") {
    not_null(stateId) stateMachineState
    ruleIds list
    customFields customFields
+   itemRounding cashRoundingConfig
+   totalRounding cashRoundingConfig
    not_null(createdAt) createdAt
    updatedAt updatedAt
 }

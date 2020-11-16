@@ -115,24 +115,12 @@
                                     :disabled="currency.isSystemDefault || !acl.can('currencies.editor')">
                                 </sw-number-field>
                             {% endblock %}
-
-                            {% block sw_settings_currency_detail_content_field_decimal_precision %}
-                                <sw-field type="number"
-                                          v-if="!feature.isActive('FEATURE_NEXT_6059')"
-                                          required
-                                          :label="$tc('sw-settings-currency.detail.labelPrecision')"
-                                          :placeholder="$tc('sw-settings-currency.detail.placeholderPrecision')"
-                                          :error="currencyDecimalPrecisionError"
-                                          v-model="currency.decimalPrecision">
-                                </sw-field>
-                            {% endblock %}
                         </sw-container>
                     </sw-card>
                 {% endblock %}
 
                 {% block sw_settings_currency_detail_content_card_price_rounding %}
                     <sw-card
-                        v-if="feature.isActive('FEATURE_NEXT_6059')"
                         :isLoading="isLoading"
                         :title="$tc('sw-settings-currency.detail.titleRoundingCard')">
                         <sw-settings-price-rounding
@@ -145,8 +133,7 @@
                 {% block sw_settings_currency_detail_content_card_country_price_rounding %}
                     <sw-card
                         :title="$tc('sw-settings-currency.detail.titleCountryRoundingCard')"
-                        :isLoading="currencyCountryLoading"
-                        v-if="feature.isActive('FEATURE_NEXT_6059')">
+                        :isLoading="currencyCountryLoading">
                         <template #toolbar v-if="this.currency.id && !this.currency.isNew()">
                             {% block sw_settings_currency_detail_content_card_country_price_rounding_toolbar %}
                                 <div class="sw-settings-currency-detail__currency-country-toolbar">
@@ -185,6 +172,28 @@
                                         <a href="#" @click="onClickEdit(item)">
                                             {{ item.country.name }}
                                         </a>
+                                    </template>
+                                {% endblock %}
+
+                                {% block sw_settings_currency_detail_content_card_country_price_rounding_listing_item_interval_column %}
+                                    <template #column-itemRounding.interval="{ item }">
+                                        <template v-if="item.itemRounding.interval === 0.01">
+                                            {{ $tc('sw-settings-currency.price-rounding.labelIntervalNone') }}
+                                        </template>
+                                        <template v-if="item.itemRounding.interval !== 0.01">
+                                            {{ item.itemRounding.interval }}
+                                        </template>
+                                    </template>
+                                {% endblock %}
+
+                                {% block sw_settings_currency_detail_content_card_country_price_rounding_listing_total_interval_column %}
+                                    <template #column-totalRounding.interval="{ item }">
+                                        <template v-if="item.totalRounding.interval === 0.01">
+                                            {{ $tc('sw-settings-currency.price-rounding.labelIntervalNone') }}
+                                        </template>
+                                        <template v-if="item.totalRounding.interval !== 0.01">
+                                            {{ item.totalRounding.interval }}
+                                        </template>
                                     </template>
                                 {% endblock %}
 

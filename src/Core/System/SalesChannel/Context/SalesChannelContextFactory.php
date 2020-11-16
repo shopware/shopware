@@ -509,13 +509,6 @@ class SalesChannelContextFactory
      */
     private function getCashRounding(CurrencyEntity $currency, ShippingLocation $shippingLocation, Context $context): array
     {
-        if (!Feature::isActive('FEATURE_NEXT_6059')) {
-            return [
-                new CashRoundingConfig($currency->getDecimalPrecision(), 0.01, true),
-                new CashRoundingConfig($currency->getDecimalPrecision(), 0.01, true),
-            ];
-        }
-
         $criteria = new Criteria();
         $criteria->setLimit(1);
         $criteria->addFilter(new EqualsFilter('currencyId', $currency->getId()));

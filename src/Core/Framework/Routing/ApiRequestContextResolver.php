@@ -13,7 +13,6 @@ use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -304,10 +303,6 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             'SELECT item_rounding, decimal_precision FROM currency WHERE id = :id',
             ['id' => Uuid::fromHexToBytes($currencyId)]
         );
-
-        if (!Feature::isActive('FEATURE_NEXT_6059')) {
-            return new CashRoundingConfig((int) $rounding['decimal_precision'], 0.01, true);
-        }
 
         $rounding = json_decode($rounding['item_rounding'], true);
 

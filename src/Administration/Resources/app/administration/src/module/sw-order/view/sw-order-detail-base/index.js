@@ -201,10 +201,6 @@ Component.register('sw-order-detail-base', {
         },
 
         displayRounded() {
-            if (!this.feature.isActive('FEATURE_NEXT_6059')) {
-                return false;
-            }
-
             return this.order.totalRounding.interval !== 0.01
                 || this.order.totalRounding.decimals !== this.order.itemRounding.decimals;
         },

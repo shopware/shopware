@@ -208,9 +208,6 @@ Component.register('sw-settings-currency-detail', {
             return this.currencyRepository.get(this.currencyId, Shopware.Context.api)
                 .then((currency) => {
                     this.currency = currency;
-                    if (!this.feature.isActive('FEATURE_NEXT_6059')) {
-                        return currency;
-                    }
                     return this.loadCurrencyCountryRoundings().then((currencyCountryRoundings) => {
                         return [currency, currencyCountryRoundings];
                     });

@@ -4,7 +4,6 @@ namespace Shopware\Core\Migration;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Migration\Traits\MailUpdate;
 use Shopware\Core\Migration\Traits\UpdateMailTrait;
@@ -20,10 +19,6 @@ class Migration1604585230UpdateOrderMailsForCashRounding extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_6059')) {
-            return;
-        }
-
         $update = new MailUpdate(
             MailTemplateTypes::MAILTYPE_ORDER_CONFIRM,
             (string) file_get_contents(__DIR__ . '/Fixtures/mails/order_confirmation_mail/en-plain.html.twig'),

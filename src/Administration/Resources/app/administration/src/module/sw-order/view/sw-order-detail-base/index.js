@@ -176,6 +176,7 @@ Component.register('sw-order-detail-base', {
                 .addAssociation('tags');
 
             criteria.getAssociation('transactions').addSorting(Criteria.sort('createdAt'));
+            criteria.getAssociation('lineItems').addSorting(Criteria.sort('position'));
 
             return criteria;
         },

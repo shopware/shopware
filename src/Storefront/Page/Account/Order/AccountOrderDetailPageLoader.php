@@ -74,6 +74,9 @@ class AccountOrderDetailPageLoader
         $criteria->getAssociation('transactions')
             ->addSorting(new FieldSorting('createdAt'));
 
+        $criteria->getAssociation('lineItems')
+            ->addSorting(new FieldSorting('position'));
+
         $apiRequest = new Request();
 
         $event = new OrderRouteRequestEvent($request, $apiRequest, $salesChannelContext, $criteria);

@@ -303,5 +303,14 @@
             <tag name="shopware.dal.exception_handler"/>
             <tag name="shopware.feature" flag="FEATURE_NEXT_10549"/>
         </service>
+
+        <service id="Shopware\Core\Checkout\Customer\SalesChannel\MergeWishlistProductsRoute" public="true">
+            <argument type="service" id="customer_wishlist.repository"/>
+            <argument type="service" id="sales_channel.product.repository"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_10549"/>
+        </service>
     </services>
 </container>

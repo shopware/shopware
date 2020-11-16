@@ -12,18 +12,18 @@
                     {% endblock %}
 
                     {% block component_address_personal_account_type_select %}
-                        <select name="{% if prefix %}{{ prefix }}[accountType]{% else %}accountType{% endif %}"
-                                id="{{ prefix }}accountType"
-                                required="required"
-                                class="custom-select contact-select"
-                            {% if shopware.config.core.loginRegistration.showAccountTypeSelection and activeRoute == 'frontend.account.profile.page' %}
-                                data-form-field-toggle="true"
-                                data-form-field-toggle-target=".js-field-toggle-contact-type-company"
-                                data-form-field-toggle-value="{{ constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') }}"
-                                data-form-field-toggle-scope="{% if scope == 'parent' %}parent{% else %}all{% endif %}"
-                                {% if scope == 'parent' %}data-form-field-toggle-parent-selector={{ parentSelector }}{% endif %}
+                            {% if shopware.config.core.loginRegistration.showAccountTypeSelection %}
+                                <select name="{% if prefix %}{{ prefix }}[accountType]{% else %}accountType{% endif %}"
+                                    id="{{ prefix }}accountType"
+                                    required="required"
+                                    class="custom-select contact-select"
+                                    data-form-field-toggle="true"
+                                    data-form-field-toggle-target=".js-field-toggle-contact-type-company"
+                                    data-form-field-toggle-value="{{ constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') }}"
+                                    data-form-field-toggle-scope="{% if scope == 'parent' %}parent{% else %}all{% endif %}"
+                                    {% if scope == 'parent' %}data-form-field-toggle-parent-selector={{ parentSelector }}{% endif %}
+                                >
                             {% endif %}
-                            >
 
                             {% set isCompany = false %}
 

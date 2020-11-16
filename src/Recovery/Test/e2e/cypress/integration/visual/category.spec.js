@@ -3,7 +3,10 @@
 describe('Category: Visual tests', () => {
     beforeEach(() => {
         // Clean previous state and prepare Administration
-        cy.loginViaApi()
+        cy.setLocaleToEnGb()
+            .then(() => {
+                cy.loginViaApi();
+            })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/category/index`);
             });

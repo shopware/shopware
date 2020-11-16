@@ -57,6 +57,7 @@ describe('Promotion: Visual tests', () => {
         });
 
         // Take snapshot for visual testing
+        cy.get('.sw-loader').should('not.exist');
         cy.takeSnapshot('Promotion detail', '.sw-promotion-detail');
 
         cy.get(page.elements.smartBarBack).click();

@@ -20,6 +20,12 @@ describe('Dynamic product groups: Visual tests', () => {
     });
 
     it('@visual: check appearance of basic product stream workflow', () => {
+        cy.server();
+        cy.route({
+            url: `${Cypress.env('apiPath')}/search/product`,
+            method: 'post'
+        }).as('searchProducts');
+
         const page = new ProductStreamObject();
 
         // Take snapshot for visual testing
@@ -55,6 +61,11 @@ describe('Dynamic product groups: Visual tests', () => {
         cy.get('button.sw-button').contains('Preview').click();
         // Take snapshot for visual testing
         cy.get('.sw-data-grid-skeleton').should('not.exist');
+        cy.get('.sw-loader').should('not.exist');
+        cy.wait('@searchProducts').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
+
         cy.takeSnapshot('Product groups -  Preview', '.sw-product-stream-modal-preview');
 
         cy.get('.sw-product-stream-modal-preview').within(() => {

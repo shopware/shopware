@@ -2,7 +2,9 @@ import SettingsPageObject from '../../support/pages/module/sw-settings.page-obje
 
 describe('Import/Export - Profiles:  Visual tests', () => {
     beforeEach(() => {
-        cy.loginViaApi().then(() => {
+        cy.setLocaleToEnGb().then(() => {
+            return cy.loginViaApi();
+        }).then(() => {
             return cy.createDefaultFixture('import-export-profile');
         }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/import-export/index/profiles`);

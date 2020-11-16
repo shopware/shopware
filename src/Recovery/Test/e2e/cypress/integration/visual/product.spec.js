@@ -5,10 +5,11 @@ import ProductStreamObject from '../../support/pages/module/sw-product-stream.pa
 
 describe('Product: Visual tests', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
-            });
+        cy.setLocaleToEnGb().then(() => {
+            cy.loginViaApi();
+        }).then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+        });
     });
 
     it('@base @catalogue: create and read product', () => {

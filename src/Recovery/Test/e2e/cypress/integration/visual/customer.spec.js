@@ -20,7 +20,10 @@ const newAddress = {
 
 describe('Customer:  Visual test', () => {
     beforeEach(() => {
-        cy.loginViaApi()
+        cy.setLocaleToEnGb()
+            .then(() => {
+                cy.loginViaApi();
+            })
             .then(() => {
                 return cy.fixture('customer');
             })

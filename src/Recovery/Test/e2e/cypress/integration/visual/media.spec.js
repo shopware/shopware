@@ -5,10 +5,11 @@ import ProductPageObject from "../../support/pages/module/sw-product.page-object
 
 describe('Media: Visual tests', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/media/index`);
-            });
+        cy.setLocaleToEnGb().then(() => {
+            cy.loginViaApi();
+        }).then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/media/index`);
+        });
     });
 
     it('@visual: check appearance of basic media workflow', () => {

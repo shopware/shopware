@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\BusinessEventCollectorEvent;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
@@ -251,6 +252,7 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
         $criteria->addAssociation('lineItems');
         $criteria->addAssociation('currency');
         $criteria->addAssociation('addresses.country');
+        $criteria->getAssociation('lineItems')->addSorting(new FieldSorting('position'));
 
         $event = new OrderStateChangeCriteriaEvent($orderId, $criteria);
         $this->eventDispatcher->dispatch($event);

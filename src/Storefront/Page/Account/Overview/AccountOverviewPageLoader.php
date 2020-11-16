@@ -101,6 +101,10 @@ class AccountOverviewPageLoader
             ->setLimit(1)
             ->addAssociation('orderCustomer');
 
+        $criteria
+            ->getAssociation('lineItems')
+            ->addSorting(new FieldSorting('position'));
+
         $apiRequest = new Request();
 
         $event = new OrderRouteRequestEvent($request, $apiRequest, $context);

@@ -139,6 +139,10 @@ class AccountOrderPageLoader
             ->addSorting(new FieldSorting('createdAt'));
 
         $criteria
+            ->getAssociation('lineItems')
+            ->addSorting(new FieldSorting('position'));
+
+        $criteria
             ->addSorting(new FieldSorting('orderDateTime', FieldSorting::DESCENDING));
 
         if ($request->get('deepLinkCode')) {

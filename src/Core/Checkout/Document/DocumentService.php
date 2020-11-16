@@ -22,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -473,7 +474,7 @@ class DocumentService
 
     private function getOrderBaseCriteria(string $orderId): Criteria
     {
-        return (new Criteria([$orderId]))
+        $criteria = (new Criteria([$orderId]))
             ->addAssociation('lineItems')
             ->addAssociation('transactions.paymentMethod')
             ->addAssociation('currency')
@@ -481,5 +482,9 @@ class DocumentService
             ->addAssociation('addresses.country')
             ->addAssociation('deliveries.positions')
             ->addAssociation('deliveries.shippingMethod');
+
+        $criteria->getAssociation('lineItems')->addSorting(new FieldSorting('position'));
+
+        return $criteria;
     }
 }

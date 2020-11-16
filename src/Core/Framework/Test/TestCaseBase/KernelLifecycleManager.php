@@ -143,13 +143,7 @@ class KernelLifecycleManager
 
         $pluginLoader = new DbalKernelPluginLoader(self::$classLoader, null, $existingConnection);
 
-        if ($existingConnection !== null && ($kernelClass === Kernel::class || $kernelClass === \Shopware\Development\Kernel::class)) {
-            $kernel = new $kernelClass($env, $debug, $pluginLoader, $cacheId, null, $existingConnection);
-        } else {
-            $kernel = new $kernelClass($env, $debug, $pluginLoader, $cacheId);
-        }
-
-        return $kernel;
+        return new $kernelClass($env, $debug, $pluginLoader, $cacheId, null, $existingConnection);
     }
 
     /**

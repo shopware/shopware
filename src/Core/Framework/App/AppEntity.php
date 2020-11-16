@@ -89,6 +89,11 @@ class AppEntity extends Entity
     /**
      * @var string|null
      */
+    protected $privacyPolicyExtensions;
+
+    /**
+     * @var string|null
+     */
     protected $appSecret;
 
     /**
@@ -422,5 +427,15 @@ class AppEntity extends Entity
     public function setTemplates(TemplateCollection $templates): void
     {
         $this->templates = $templates;
+    }
+
+    public function getPrivacyPolicyExtensions(): ?string
+    {
+        return $this->privacyPolicyExtensions;
+    }
+
+    public function setPrivacyPolicyExtensions(?string $privacyPolicyExtensions): void
+    {
+        $this->privacyPolicyExtensions = $privacyPolicyExtensions;
     }
 }

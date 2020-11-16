@@ -49,6 +49,11 @@ class Metadata extends XmlElement
      */
     protected $privacy;
 
+    /**
+     * @var array
+     */
+    protected $privacyPolicyExtensions = [];
+
     private function __construct(array $data)
     {
         foreach ($data as $property => $value) {
@@ -116,6 +121,11 @@ class Metadata extends XmlElement
         return $this->privacy;
     }
 
+    public function getPrivacyPolicyExtensions(): array
+    {
+        return $this->privacyPolicyExtensions;
+    }
+
     private static function parse(\DOMElement $element): array
     {
         $values = [];
@@ -126,7 +136,7 @@ class Metadata extends XmlElement
             }
 
             // translated
-            if (in_array($child->tagName, ['label', 'description'], true)) {
+            if (in_array($child->tagName, ['label', 'description', 'privacyPolicyExtensions'], true)) {
                 $values = self::mapTranslatedTag($child, $values);
 
                 continue;

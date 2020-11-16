@@ -26,7 +26,7 @@ class XmlElement extends Struct
         // psalm would fail if it can't infer type from nested array
         /** @var array<string, string> $tagValues */
         $tagValues = $values[self::snakeCaseToCamelCase($child->tagName)];
-        $tagValues[self::getLocaleCodeFromElement($child)] = $child->nodeValue;
+        $tagValues[self::getLocaleCodeFromElement($child)] = trim($child->nodeValue);
         $values[self::snakeCaseToCamelCase($child->tagName)] = $tagValues;
 
         return $values;

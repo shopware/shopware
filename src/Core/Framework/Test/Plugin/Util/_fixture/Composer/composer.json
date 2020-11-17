@@ -14,6 +14,10 @@
         "shopware/platform": "6.3.*@dev"
     },
     "extra": {
-        "shopware-plugin-class": "Works\\Works"
+        "shopware-plugin-class": "Works\\Works",
+        "label": {
+            "en-GB": "Test plugin",
+            "de-DE": "Test plugin"
+        }
     }
 }

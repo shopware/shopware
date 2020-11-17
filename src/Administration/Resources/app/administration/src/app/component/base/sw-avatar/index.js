@@ -2,6 +2,7 @@ import template from './sw-avatar.html.twig';
 import './sw-avatar.scss';
 
 const { Component } = Shopware;
+const { cloneDeep } = Shopware.Utils.object;
 
 const colors = [
     '#FFD700',
@@ -134,7 +135,7 @@ Component.register('sw-avatar', {
                 return null;
             }
 
-            const avatarMedia = this.sourceContext.avatarMedia;
+            const avatarMedia = cloneDeep(this.sourceContext.avatarMedia);
             const thumbnailImage = avatarMedia.thumbnails.sort((a, b) => a.width - b.width)[0];
             const previewImageUrl = thumbnailImage ? thumbnailImage.url : avatarMedia.url;
 

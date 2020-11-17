@@ -83,6 +83,14 @@ Thus the path to the `list` route is `swag.plugin.list`.
 
 ## Setting up the menu entry
 
+<p class="alert is--warning">
+    Due to UX reasons, we're <b>not</b> supporting plugin modules to add new menu entries on the first level of the main menu. 
+    Please use the "parent" property inside your navigation object to define the category where you want your menu entry
+    will be appended to.<br>
+    If you're planning to publish your plugin to the <a href="https://store.shopware.com/" title="Shopware Store" target="_blank">Shopware Store</a>
+    keep in mind we're rejecting plugins which have created their own menu entry on the first level.
+</p>
+
 Let's define a menu entry using the `navigation` key in your module configuration. It takes an array of objects, each one configuring a route connected to your module.
 
 In there you have to configure several things:
@@ -93,7 +101,8 @@ navigation: [{
     color: '#ff3d58',
     path: 'swag.plugin.list',
     icon: 'default-shopping-paper-bag-product',
-    position: 100
+    position: 100,
+    parent: 'sw-catalogue'
 }]
 ```
 

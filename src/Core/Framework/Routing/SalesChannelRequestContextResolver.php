@@ -3,9 +3,10 @@
 namespace Shopware\Core\Framework\Routing;
 
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
+use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
 use Shopware\Core\Framework\Routing\Event\SalesChannelContextResolvedEvent;
-use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
@@ -110,6 +111,8 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
             );
         }
 
+        $this->validateLogin($request, $context);
+
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context->getContext());
         $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
 
@@ -145,5 +148,21 @@ class SalesChannelRequestContextResolver implements RequestContextResolverInterf
         $contextTokenRequiredAnnotation = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_TOKEN_REQUIRED);
 
         return $contextTokenRequiredAnnotation->isRequired();
+    }
+
+    private function validateLogin(Request $request, SalesChannelContext $context): void
+    {
+        /** @var LoginRequired|null $loginRequired */
+        $loginRequired = $request->attributes->get(PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED);
+
+        if ($loginRequired === null) {
+            return;
+        }
+
+        if ($loginRequired->isLoggedIn($context)) {
+            return;
+        }
+
+        throw new CustomerNotLoggedInException();
     }
 }

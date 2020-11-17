@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLoadWishlistRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractRemoveWishlistProductRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
@@ -59,12 +60,11 @@ class WishlistController extends StorefrontController
 
     /**
      * @Since("6.3.4.0")
+     * @LoginRequired()
      * @Route("/wishlist", name="frontend.wishlist.page", methods={"GET"})
      */
     public function index(Request $request, SalesChannelContext $context): Response
     {
-        $this->denyAccessUnlessLoggedIn();
-
         $page = $this->wishlistPageLoader->load($request, $context);
 
         return $this->renderStorefront('@Storefront/storefront/page/wishlist/index.html.twig', ['page' => $page]);
@@ -72,12 +72,11 @@ class WishlistController extends StorefrontController
 
     /**
      * @Since("6.3.4.0")
+     * @LoginRequired()
      * @Route("/widgets/wishlist", name="widgets.wishlist.pagelet", methods={"GET", "POST"}, defaults={"XmlHttpRequest"=true})
      */
     public function ajaxPagination(Request $request, SalesChannelContext $context): Response
     {
-        $this->denyAccessUnlessLoggedIn();
-
         $request->request->set('no-aggregations', true);
 
         $page = $this->wishlistPageLoader->load($request, $context);
@@ -95,8 +94,6 @@ class WishlistController extends StorefrontController
             throw new NotFoundHttpException();
         }
 
-        $this->denyAccessUnlessLoggedIn();
-
         try {
             $res = $this->wishlistLoadRoute->load($request, $context, new Criteria());
         } catch (CustomerWishlistNotFoundException $exception) {
@@ -108,12 +105,11 @@ class WishlistController extends StorefrontController
 
     /**
      * @Since("6.3.4.0")
+     * @LoginRequired()
      * @Route("/wishlist/product/delete/{id}", name="frontend.wishlist.product.delete", methods={"POST", "DELETE"}, defaults={"XmlHttpRequest"=true})
      */
     public function remove(string $id, Request $request, SalesChannelContext $context): Response
     {
-        $this->denyAccessUnlessLoggedIn();
-
         if (!$id) {
             throw new MissingRequestParameterException('Parameter id missing');
         }
@@ -131,6 +127,7 @@ class WishlistController extends StorefrontController
 
     /**
      * @Since("6.3.4.0")
+     * @LoginRequired()
      * @Route("/wishlist/add/{productId}", name="frontend.wishlist.product.add", options={"seo"="false"}, methods={"POST"}, defaults={"XmlHttpRequest"=true})
      */
     public function ajaxAdd(string $productId, SalesChannelContext $context): JsonResponse
@@ -150,6 +147,7 @@ class WishlistController extends StorefrontController
 
     /**
      * @Since("6.3.4.0")
+     * @LoginRequired()
      * @Route("/wishlist/remove/{productId}", name="frontend.wishlist.product.remove", options={"seo"="false"}, methods={"POST"}, defaults={"XmlHttpRequest"=true})
      */
     public function ajaxRemove(string $productId, SalesChannelContext $context): JsonResponse
@@ -157,8 +155,6 @@ class WishlistController extends StorefrontController
         if (!Feature::isActive('FEATURE_NEXT_10549')) {
             throw new NotFoundHttpException();
         }
-
-        $this->denyAccessUnlessLoggedIn();
 
         $this->removeWishlistProductRoute->delete($productId, $context);
 

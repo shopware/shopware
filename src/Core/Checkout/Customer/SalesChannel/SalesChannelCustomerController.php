@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
@@ -14,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
+use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
@@ -145,6 +147,7 @@ class SalesChannelCustomerController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
+     * @LoginRequired()
      * @Route("/sales-channel-api/v{version}/customer/logout", name="sales-channel-api.customer.logout", methods={"POST"})
      */
     public function logout(SalesChannelContext $context): JsonResponse
@@ -156,6 +159,7 @@ class SalesChannelCustomerController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
+     * @LoginRequired()
      * @Route("/sales-channel-api/v{version}/customer/order", name="sales-channel-api.customer.order.list", methods={"GET"})
      *
      * @throws CustomerNotLoggedInException
@@ -193,6 +197,7 @@ class SalesChannelCustomerController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
+     * @LoginRequired()
      * @Route("/sales-channel-api/v{version}/customer/email", name="sales-channel-api.customer.email.update", methods={"PATCH"})
      */
     public function saveEmail(RequestDataBag $requestData, SalesChannelContext $context): JsonResponse
@@ -204,6 +209,7 @@ class SalesChannelCustomerController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
+     * @LoginRequired
      * @Route("/sales-channel-api/v{version}/customer/password", name="sales-channel-api.customer.password.update", methods={"PATCH"})
      */
     public function savePassword(RequestDataBag $requestData, SalesChannelContext $context): JsonResponse
@@ -215,6 +221,7 @@ class SalesChannelCustomerController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
+     * @LoginRequired()
      * @Route("/sales-channel-api/v{version}/customer", name="sales-channel-api.customer.update", methods={"PATCH"})
      */
     public function saveProfile(RequestDataBag $requestData, SalesChannelContext $context): JsonResponse
@@ -226,17 +233,15 @@ class SalesChannelCustomerController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
+     * @LoginRequired()
      * @Route("/sales-channel-api/v{version}/customer", name="sales-channel-api.customer.detail", methods={"GET"})
      *
      * @throws CustomerNotLoggedInException
      */
     public function getCustomerDetail(Request $request, SalesChannelContext $context, ResponseFactoryInterface $responseFactory): Response
     {
+        /** @var CustomerEntity $customer */
         $customer = $context->getCustomer();
-
-        if (!$customer) {
-            throw new CustomerNotLoggedInException();
-        }
 
         return $responseFactory->createDetailResponse(
             new Criteria(),
@@ -249,6 +254,7 @@ class SalesChannelCustomerController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
+     * @LoginRequired()
      * @Route("/sales-channel-api/v{version}/customer/address", name="sales-channel-api.customer.address.list", methods={"GET"})
      *
      * @throws CustomerNotLoggedInException
@@ -269,6 +275,7 @@ class SalesChannelCustomerController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
+     * @LoginRequired()
      * @Route("/sales-channel-api/v{version}/customer/address/{id}", name="sales-channel-api.customer.address.detail", methods={"GET"})
      *
      * @throws AddressNotFoundException
@@ -286,6 +293,7 @@ class SalesChannelCustomerController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
+     * @LoginRequired()
      * @Route("/sales-channel-api/v{version}/customer/address", name="sales-channel-api.customer.address.create", methods={"POST", "PATCH"})
      *
      * @throws AddressNotFoundException
@@ -301,6 +309,7 @@ class SalesChannelCustomerController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
+     * @LoginRequired()
      * @Route("/sales-channel-api/v{version}/customer/address/{id}", name="sales-channel-api.customer.address.delete", methods={"DELETE"})
      *
      * @throws AddressNotFoundException
@@ -316,6 +325,7 @@ class SalesChannelCustomerController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
+     * @LoginRequired()
      * @Route("/sales-channel-api/v{version}/customer/address/{id}/default-shipping", name="sales-channel-api.customer.address.set-default-shipping-address", methods={"PATCH"})
      *
      * @throws CustomerNotLoggedInException
@@ -334,6 +344,7 @@ class SalesChannelCustomerController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
+     * @LoginRequired()
      * @Route("/sales-channel-api/v{version}/customer/address/{id}/default-billing", name="sales-channel-api.customer.address.set-default-billing-address", methods={"PATCH"})
      *
      * @throws AddressNotFoundException
@@ -349,10 +360,6 @@ class SalesChannelCustomerController extends AbstractController
 
     private function loadOrders(int $page, int $limit, SalesChannelContext $context): OrderCollection
     {
-        if (!$context->getCustomer()) {
-            throw new CustomerNotLoggedInException();
-        }
-
         --$page;
 
         $criteria = new Criteria();

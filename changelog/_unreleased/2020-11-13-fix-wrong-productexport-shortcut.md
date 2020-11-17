@@ -6,4 +6,4 @@ author_email: hendrik@soebbing.de
 author_github: @soebbing
 ---
 # Core
-* Fixed wrong parameter shortcut for command `product-export:generate`
+* Changed parameter shortcut for command `product-export:generate` to `-i` to fix `-inactive`

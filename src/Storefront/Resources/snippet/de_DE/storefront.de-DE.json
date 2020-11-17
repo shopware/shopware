@@ -523,6 +523,7 @@
   "wishlist": {
     "headline": "Ihr Merkzettel",
     "itemDeleteSuccess": "Sie haben das Produkt erfolgreich vom Merkzettel entfernt.",
+    "itemAddedSuccess": "Sie haben das Produkt erfolgreich in den Merkzettel eingefügt.",
     "currentlyNotAvailable": "Derzeit nicht verfügbar",
     "manufacturerDisplayName": "Hersteller",
     "deliveryTimeAvailable": "Sofort verfügbar, Lieferzeit %name%",

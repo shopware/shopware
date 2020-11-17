@@ -3,6 +3,7 @@
         productId: productId,
         router: {
             add: {
+                afterLoginPath: path('frontend.wishlist.add.after.login', { productId: productId }),
                 path: path('frontend.wishlist.product.add', { productId: productId }),
                 token: sw_csrf('frontend.wishlist.product.add', {"mode": "token"})
             },

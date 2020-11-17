@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotFoundException;
+use Shopware\Core\Checkout\Customer\Exception\DuplicateWishlistProductException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractAddWishlistProductRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLoadWishlistRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractRemoveWishlistProductRoute;
@@ -164,5 +165,30 @@ class WishlistController extends StorefrontController
         return new JsonResponse([
             'success' => true,
         ]);
+    }
+
+    /**
+     * @Since("6.3.4.0")
+     * @Route("/wishlist/add-after-login/{productId}", name="frontend.wishlist.add.after.login", options={"seo"="false"}, methods={"GET"})
+     */
+    public function addAfterLogin(string $productId, SalesChannelContext $context): Response
+    {
+        if (!Feature::isActive('FEATURE_NEXT_10549')) {
+            throw new NotFoundHttpException();
+        }
+
+        $this->denyAccessUnlessLoggedIn();
+
+        try {
+            $this->addWishlistRoute->add($productId, $context);
+
+            $this->addFlash('success', $this->trans('wishlist.itemAddedSuccess'));
+        } catch (DuplicateWishlistProductException $exception) {
+            $this->addFlash('warning', $exception->getMessage());
+        } catch (\Throwable $exception) {
+            $this->addFlash('danger', $this->trans('error.message-default'));
+        }
+
+        return $this->redirectToRoute('frontend.home.page');
     }
 }

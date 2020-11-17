@@ -17,6 +17,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 
 class WishlistControllerTest extends TestCase
@@ -151,6 +152,33 @@ class WishlistControllerTest extends TestCase
 
         static::assertNotEmpty($content);
         static::assertTrue($content['success']);
+    }
+
+    public function testAddAfterLogin(): void
+    {
+        $browser = $this->login();
+
+        $productId = $this->createProduct($browser->getRequest()->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID));
+
+        $browser->request('GET', $_SERVER['APP_URL'] . '/wishlist/add-after-login/' . $productId);
+
+        /** @var RedirectResponse $response */
+        $response = $browser->getResponse();
+
+        static::assertSame(302, $response->getStatusCode());
+        static::assertInstanceOf(RedirectResponse::class, $response);
+        static::assertSame('/', $response->getTargetUrl());
+
+        /** @var FlashBagInterface $flashBag */
+        $flashBag = $this->getContainer()->get('session')->getFlashBag();
+
+        static::assertNotEmpty($successFlash = $flashBag->get('success'));
+        static::assertEquals('You have successfully added the product into the wishlist.', $successFlash[0]);
+
+        $browser->request('GET', $_SERVER['APP_URL'] . '/wishlist/add-after-login/' . $productId);
+
+        static::assertNotEmpty($warningFlash = $flashBag->get('warning'));
+        static::assertEquals('Product with id ' . $productId . ' already added in wishlist', $warningFlash[0]);
     }
 
     private function createCustomer(): CustomerEntity

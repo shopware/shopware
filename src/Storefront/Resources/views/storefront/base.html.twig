@@ -155,7 +155,7 @@
         {% if feature('FEATURE_NEXT_10549') and shopware.config.core.cart.wishlistEnabled %}
             {% block base_script_wishlist_state %}
                 <script>
-                    window.customerLoggedInState = {{ context.customer is not null ? 1 : 0 }};
+                    window.customerLoggedInState = {{ context.customer is not null and not context.customer.guest ? 1 : 0 }};
 
                     window.wishlistEnabled = {{ shopware.config.core.cart.wishlistEnabled }};
                 </script>

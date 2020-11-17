@@ -37,7 +37,7 @@ class ProductExportGenerateCommand extends Command
         $this
             ->setName('product-export:generate')
             ->addOption('force', 'f', InputOption::VALUE_NONE, 'Ignore cache and force generation')
-            ->addOption('include-inactive', 'inactive', InputOption::VALUE_NONE, 'Include inactive exports')
+            ->addOption('include-inactive', 'i', InputOption::VALUE_NONE, 'Include inactive exports')
             ->addArgument('sales-channel-id', InputArgument::REQUIRED, 'Sales channel to generate exports for')
             ->addArgument('product-export-id', InputArgument::OPTIONAL, 'Generate specific export');
     }

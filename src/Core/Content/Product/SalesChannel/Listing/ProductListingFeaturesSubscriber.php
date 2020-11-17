@@ -31,6 +31,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -524,6 +525,32 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         $filters->add($this->getShippingFreeFilter($request));
         $filters->add($this->getPropertyFilter($request));
 
+        if (Feature::isActive('FEATURE_NEXT_10536')) {
+            if (!$request->request->get('manufacturer-filter', true)) {
+                $filters->remove('manufacturer');
+            }
+
+            if (!$request->request->get('price-filter', true)) {
+                $filters->remove('price');
+            }
+
+            if (!$request->request->get('rating-filter', true)) {
+                $filters->remove('rating');
+            }
+
+            if (!$request->request->get('shipping-free-filter', true)) {
+                $filters->remove('shipping-free');
+            }
+
+            if (!$request->request->get('property-filter', true)) {
+                $filters->remove('properties');
+
+                if ($request->request->get('property-whitelist', null)) {
+                    $filters->add($this->getPropertyFilter($request, $request->request->get('property-whitelist')));
+                }
+            }
+        }
+
         $event = new ProductListingCollectFilterEvent($request, $filters, $context);
         $this->dispatcher->dispatch($event);
 
@@ -543,16 +570,26 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         );
     }
 
-    private function getPropertyFilter(Request $request): Filter
+    private function getPropertyFilter(Request $request, ?array $groupIds = null): Filter
     {
         $ids = $this->getPropertyIds($request);
+
+        $aggregation = new TermsAggregation('properties', 'product.properties.id');
+
+        if ($groupIds) {
+            $aggregation = new FilterAggregation(
+                'properties-filter',
+                new TermsAggregation('properties', 'product.properties.id'),
+                [new EqualsAnyFilter('product.properties.group.id', $groupIds)]
+            );
+        }
 
         if (empty($ids)) {
             return new Filter(
                 'properties',
                 false,
                 [
-                    new TermsAggregation('properties', 'product.properties.id'),
+                    $aggregation,
                     new TermsAggregation('options', 'product.options.id'),
                 ],
                 new MultiFilter(MultiFilter::CONNECTION_OR, []),
@@ -588,7 +625,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
             'properties',
             true,
             [
-                new TermsAggregation('properties', 'product.properties.id'),
+                $aggregation,
                 new TermsAggregation('options', 'product.options.id'),
             ],
             new MultiFilter(MultiFilter::CONNECTION_AND, $filters),

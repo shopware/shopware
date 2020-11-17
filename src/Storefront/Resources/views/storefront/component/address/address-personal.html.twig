@@ -31,8 +31,12 @@
                                 {% set isCompany  = true %}
                             {% endif %}
 
+                            {% if accountType and accountType == constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') %}
+                                {% set isCompany  = true %}
+                            {% endif %}
+
                             {% set isLoginPage = false %}
-                            {% if activeRoute in ['frontend.account.login.page', 'frontend.checkout.register.page'] %}
+                            {% if activeRoute == 'frontend.account.login.page' %}
                                 {% set isLoginPage = true %}
                             {% endif %}
 

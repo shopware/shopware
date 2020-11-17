@@ -45,7 +45,8 @@
                             {% block component_account_register_personal_fields %}
                                 {% block component_account_register_personal_address_fields %}
                                     {% sw_include '@Storefront/storefront/component/address/address-personal.html.twig' with {
-                                        'showBirthdayField': shopware.config.core.loginRegistration.showBirthdayField
+                                        'showBirthdayField': shopware.config.core.loginRegistration.showBirthdayField,
+                                        'accountType': data.get('accountType')
                                     } %}
                                 {% endblock %}
 
@@ -299,7 +300,8 @@
                                                         {% sw_include '@Storefront/storefront/component/address/address-personal.html.twig' with {
                                                             'prefix': 'shippingAddress',
                                                             'data': data.get('shippingAddress'),
-                                                            'hideCustomerTypeSelect': true
+                                                            'hideCustomerTypeSelect': true,
+                                                            'accountType': data.get('accountType')
                                                         } %}
                                                     {% endblock %}
 

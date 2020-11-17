@@ -104,12 +104,12 @@ class CurrencyEntity extends Entity
     protected $countryRoundings;
 
     /**
-     * @var CashRoundingConfig|null
+     * @var CashRoundingConfig
      */
     protected $itemRounding;
 
     /**
-     * @var CashRoundingConfig|null
+     * @var CashRoundingConfig
      */
     protected $totalRounding;
 
@@ -283,23 +283,31 @@ class CurrencyEntity extends Entity
         $this->countryRoundings = $countryRoundings;
     }
 
-    public function getItemRounding(): ?CashRoundingConfig
+    public function getItemRounding(): CashRoundingConfig
     {
         return $this->itemRounding;
     }
 
-    public function setItemRounding(?CashRoundingConfig $itemRounding): void
+    public function setItemRounding(CashRoundingConfig $itemRounding): void
     {
         $this->itemRounding = $itemRounding;
     }
 
-    public function getTotalRounding(): ?CashRoundingConfig
+    public function getTotalRounding(): CashRoundingConfig
     {
         return $this->totalRounding;
     }
 
-    public function setTotalRounding(?CashRoundingConfig $totalRounding): void
+    public function setTotalRounding(CashRoundingConfig $totalRounding): void
     {
         $this->totalRounding = $totalRounding;
+    }
+
+    /**
+     * @deprecated tag:v6.5.0 - Use `itemRounding.decimals` or `totalRounding.decimals`
+     */
+    public function getDecimalPrecision(): int
+    {
+        return $this->itemRounding->getDecimals();
     }
 }

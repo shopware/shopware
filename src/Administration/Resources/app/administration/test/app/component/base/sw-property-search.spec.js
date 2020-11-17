@@ -190,7 +190,7 @@ describe('components/base/sw-property-search', () => {
 
         await wrapper.vm.$nextTick();
 
-        const groupElement = wrapper.find('.group_grid__column-name .sw-grid__cell-content');
+        const groupElement = wrapper.find('.group_grid__column-name');
         await groupElement.trigger('click');
 
         await wrapper.vm.$nextTick();
@@ -207,7 +207,6 @@ describe('components/base/sw-property-search', () => {
         await wrapper.vm.$nextTick();
 
         const groupElement = wrapper.find('.group_grid__column-name');
-
         await groupElement.trigger('click');
 
         await wrapper.vm.$nextTick();

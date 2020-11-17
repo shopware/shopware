@@ -59,11 +59,6 @@ export default class ShippingMethodPageObject {
 
     createShippingMethodTax() {
         cy.window().then((win) => {
-            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_6995')) {
-                cy.log('Skipping test of deactivated feature \'FEATURE_NEXT_6995\' flag');
-                return;
-            }
-
             // Fixed
             cy.get('.sw-settings-shipping__tax-type-selection').typeSingleSelectAndCheck(
                 'Fixed',

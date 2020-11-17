@@ -38,7 +38,7 @@ class CurrencyRoute extends AbstractCurrencyRoute
     /**
      * @Since("6.2.0.0")
      * @Entity("currency")
-     * @OA\Get(
+     * @OA\Post(
      *      path="/currency",
      *      summary="Loads all available currency",
      *      operationId="readCurrency",

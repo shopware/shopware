@@ -8,6 +8,7 @@ use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 trait AppSystemTestBehaviour
@@ -34,7 +35,11 @@ trait AppSystemTestBehaviour
         $appService = new AppService(
             new AppLifecycleIterator(
                 $this->getContainer()->get('app.repository'),
-                new AppLoader($appDir)
+                new AppLoader(
+                    $appDir,
+                    $this->getContainer()->getParameter('kernel.project_dir'),
+                    $this->getContainer()->get(ConfigReader::class)
+                )
             ),
             $this->getContainer()->get(AppLifecycle::class)
         );

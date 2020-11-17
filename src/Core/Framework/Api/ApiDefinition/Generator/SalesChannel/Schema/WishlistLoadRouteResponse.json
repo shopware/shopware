@@ -1,0 +1,22 @@
+{
+  "type": "object",
+  "properties": {
+    "wishlist": {
+      "type": "object",
+      "properties": {
+        "customerId": {
+          "type": "string"
+        },
+        "salesChannelId": {
+          "type": "string"
+        }
+      }
+    },
+    "products": {
+      "type": "object",
+      "items": {
+        "$ref": "#/components/schemas/ProductListingResult"
+      }
+    }
+  }
+}

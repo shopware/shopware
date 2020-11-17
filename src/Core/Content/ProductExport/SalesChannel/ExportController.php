@@ -73,6 +73,8 @@ class ExportController
      *      summary="Export product export",
      *      operationId="readProductExport",
      *      tags={"Store API", "Product"},
+     *      @OA\Parameter(name="accessKey", description="Access Key", @OA\Schema(type="string"), in="path", required=true),
+     *      @OA\Parameter(name="fileName", description="File Name", @OA\Schema(type="string"), in="path", required=true),
      *      @OA\Response(
      *          response="200",
      *          description=""

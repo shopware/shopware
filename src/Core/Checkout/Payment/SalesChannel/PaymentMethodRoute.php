@@ -40,18 +40,17 @@ class PaymentMethodRoute extends AbstractPaymentMethodRoute
     /**
      * @Since("6.2.0.0")
      * @Entity("payment_method")
-     * @OA\Get(
+     * @OA\Post (
      *      path="/payment-method",
      *      summary="Loads all available payment methods",
      *      operationId="readPaymentMethod",
      *      tags={"Store API", "Payment Method"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),
-     *      @OA\Parameter(
-     *          parameter="onlyAvailable",
-     *          name="onlyAvailable",
-     *          in="query",
-     *          description="Encoded SwagQL in JSON",
-     *          @OA\Schema(type="int")
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              @OA\Property(property="onlyAvailable", description="List only available", type="boolean")
+     *          )
      *      ),
      *      @OA\Response(
      *          response="200",

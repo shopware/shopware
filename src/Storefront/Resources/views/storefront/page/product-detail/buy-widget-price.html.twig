@@ -99,8 +99,11 @@
 
                     {% block page_product_detail_was_price_wrapper %}
                         <span class="product-detail-list-price-wrapper">
-                            <span class="list-price-price">{{ listPrice.price|currency }}{{ "general.star"|trans|sw_sanitize }}</span>
-
+                            {{"listing.beforeListPrice"|trans|trim}}
+                            <span {% if not ("listing.beforeListPrice"|trans|length > 0 or "listing.afterListPrice"|trans|length > 0) %}class="list-price-price"{% endif %}>
+                                {{ listPrice.price|currency }}{{ "general.star"|trans|sw_sanitize }}
+                            </span>
+                            {{"listing.afterListPrice"|trans|trim}}
                             <span class="list-price-percentage">{{ "detail.listPricePercentage"|trans({'%price%': listPrice.percentage })|sw_sanitize }}</span>
                         </span>
                     {% endblock %}

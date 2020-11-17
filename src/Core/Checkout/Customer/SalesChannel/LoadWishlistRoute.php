@@ -83,7 +83,7 @@ class LoadWishlistRoute extends AbstractLoadWishlistRoute
      *      @OA\Response(
      *          response="200",
      *          description="Success",
-     *          @OA\JsonContent(ref="#/definitions/WishlistLoadRouteResponse")
+     *          @OA\JsonContent(ref="#/components/schemas/WishlistLoadRouteResponse")
      *     )
      * )
      * @Route("/store-api/v{version}/customer/wishlist", name="store-api.customer.wishlist.load", methods={"GET", "POST"})

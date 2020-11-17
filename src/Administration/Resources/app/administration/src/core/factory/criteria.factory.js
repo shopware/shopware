@@ -3,7 +3,7 @@
  * certain fields. The resulting queries can be used in conjunction with our API services.
  *
  * @module core/factory/criteria
- * @deprecated 6.1
+ * @deprecated tag:v6.4.0
  * @example
  * CriteriaFactory.multi(
  *     'AND',

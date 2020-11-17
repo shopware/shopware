@@ -17,4 +17,10 @@ $sw-product-list-color-success: $color-emerald;
     .is--active {
         color: $sw-product-list-color-success;
     }
+
+    .sw-product-list__variant-indicator {
+        padding-top: 4px;
+        padding-bottom: 4px;
+        margin-right: 12px;
+    }
 }

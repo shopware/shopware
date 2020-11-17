@@ -111,6 +111,24 @@ based on: https://github.com/ganlanyuan/tiny-slider
             button {
                 margin: 0 5px;
             }
+
+            &.hide-dots {
+                display: none;
+            }
+        }
+    }
+}
+
+@include media-breakpoint-down(sm) {
+    .base-slider {
+        .tns-nav,
+        .base-slider-dots {
+            width: 55%;
+
+            &.hide-dots,
+            &.hide-dots-mobile {
+                display: none;
+            }
         }
     }
 }

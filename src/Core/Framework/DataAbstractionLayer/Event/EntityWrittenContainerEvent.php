@@ -66,7 +66,9 @@ class EntityWrittenContainerEvent extends NestedEvent
                 continue;
             }
 
-            $entityName = $entityWrittenResults[0]->getEntityName();
+            $writtenEvent = current($entityWrittenResults);
+
+            $entityName = $writtenEvent->getEntityName();
 
             $events->add(
                 new EntityWrittenEvent(
@@ -91,7 +93,9 @@ class EntityWrittenContainerEvent extends NestedEvent
                 continue;
             }
 
-            $entityName = $data[0]->getEntityName();
+            $deleteEvent = current($data);
+
+            $entityName = $deleteEvent->getEntityName();
 
             $events->add(
                 new EntityDeletedEvent(

@@ -7,7 +7,6 @@ use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -129,8 +128,6 @@ class ChangeEmailRouteTest extends TestCase
 
     public function testChangeSuccessWithSameEmailOnDiffSalesChannel(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10555', $this);
-
         $this->getContainer()->get(SystemConfigService::class)->set('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel', true);
 
         $newEmail = 'test@fooware.de';
@@ -179,8 +176,6 @@ class ChangeEmailRouteTest extends TestCase
 
     public function testChangeFailWithSameEmailOnSameSalesChannel(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10555', $this);
-
         $newEmail = 'test@fooware.de';
 
         $this->createCustomerOfSalesChannel($this->ids->get('sales-channel'), $newEmail);
@@ -308,10 +303,8 @@ class ChangeEmailRouteTest extends TestCase
             ],
         ];
 
-        if (Feature::isActive('FEATURE_NEXT_10555')) {
-            $isCustomerBound = $this->getContainer()->get(SystemConfigService::class)->get('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel');
-            $customer['boundSalesChannelId'] = $isCustomerBound ? $salesChannelId : null;
-        }
+        $isCustomerBound = $this->getContainer()->get(SystemConfigService::class)->get('core.systemWideLoginRegistration.isCustomerBoundToSalesChannel');
+        $customer['boundSalesChannelId'] = $isCustomerBound ? $salesChannelId : null;
 
         $this->getContainer()
             ->get('customer.repository')

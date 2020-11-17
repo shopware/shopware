@@ -43,6 +43,13 @@ class DeleteAddressRoute extends AbstractDeleteAddressRoute
      *      summary="Deletes a customer address",
      *      operationId="deleteCustomerAddress",
      *      tags={"Store API", "Account", "Address"},
+     *      @OA\Parameter(
+     *        name="addressId",
+     *        in="path",
+     *        description="Address ID",
+     *        @OA\Schema(type="string"),
+     *        required=true
+     *      ),
      *      @OA\Response(
      *          response="204",
      *          description=""

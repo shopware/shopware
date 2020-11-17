@@ -1,109 +1,111 @@
-<form action="{{ path(action) }}"
-      method="post"
-      data-form-csrf-handler="true"
-      data-form-validation="true">
+{% block cms_form_newsletter %}
+    <form action="{{ path(action) }}"
+          method="post"
+          data-form-csrf-handler="true"
+          data-form-validation="true">
 
-    <div class="form-content">
-    <div class="form-row">
-        {% block cms_form_newsletter_select_action %}
-            <div class="form-group col-12">
-                <label class="form-label" for="newsletterAction">
-                    {{ "newsletter.labelActionSelect"|trans }} {{ "general.required"|trans }}
-                </label>
+        <div class="form-content">
+        <div class="form-row">
+            {% block cms_form_newsletter_select_action %}
+                <div class="form-group col-12">
+                    <label class="form-label" for="newsletterAction">
+                        {{ "newsletter.labelActionSelect"|trans }} {{ "general.required"|trans }}
+                    </label>
 
-                <select name="option"
-                        id="newsletterAction"
-                        required="required"
-                        class="custom-select"
-                        data-form-field-toggle="true"
-                        data-form-field-toggle-target=".js-field-toggle-newsletter-additional"
-                        data-form-field-toggle-value="subscribe">
-                    <option selected="selected"
-                            value="{{ constant('Shopware\\Storefront\\Controller\\FormController::SUBSCRIBE') }}">
-                        {{ "newsletter.subscribeOption"|trans }}
-                    </option>
+                    <select name="option"
+                            id="newsletterAction"
+                            required="required"
+                            class="custom-select"
+                            data-form-field-toggle="true"
+                            data-form-field-toggle-target=".js-field-toggle-newsletter-additional"
+                            data-form-field-toggle-value="subscribe">
+                        <option selected="selected"
+                                value="{{ constant('Shopware\\Storefront\\Controller\\FormController::SUBSCRIBE') }}">
+                            {{ "newsletter.subscribeOption"|trans }}
+                        </option>
 
-                    <option value="{{ constant('Shopware\\Storefront\\Controller\\FormController::UNSUBSCRIBE') }}">
-                        {{ "newsletter.unsubscribeOption"|trans }}
-                    </option>
-                </select>
-            </div>
-        {% endblock %}
-    </div>
-
-    <div class="form-row">
-        {% block cms_form_newsletter_input_email %}
-            {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
-                with {
-                fieldName: 'email',
-                type: 'email',
-                required: true,
-                additionalClass: 'col-12',
-                label: 'newsletter.labelMail',
-                placeholder: 'newsletter.placeholderMail'
-            }
-            %}
-        {% endblock %}
-    </div>
-
-    {% block cms_form_newsletter_additional_fields %}
-        <div class="js-field-toggle-newsletter-additional d-none">
-            <div class="form-row">
-                {% block cms_form_newsletter_select_salutation %}
-                    {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-select-salutation.html.twig'
-                        with { additionalClass: 'col-md-4' }
-                    %}
-                {% endblock %}
-
-                {% block cms_form_newsletter_input_first_name %}
-                    {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
-                        with {
-                        fieldName: 'firstName',
-                        additionalClass: 'col-md-4',
-                        label: 'newsletter.labelFirstName',
-                        placeholder: 'newsletter.placeholderFirstName'
-                    }
-                    %}
-                {% endblock %}
-
-                {% block cms_form_newsletter_input_last_name %}
-                    {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
-                        with {
-                        fieldName: 'lastName',
-                        additionalClass: 'col-md-4',
-                        label: 'newsletter.labelLastName',
-                        placeholder: 'newsletter.placeholderLastName'
-                    }
-                    %}
-                {% endblock %}
-            </div>
-        </div>
-    {% endblock %}
-
-    {% block cms_form_newsletter_captcha %}
-        {% sw_include '@Storefront/storefront/component/captcha/base.html.twig' with { 'captchas': shopware.config.core.basicInformation.activeCaptchas } %}
-    {% endblock %}
-
-    {% block cms_form_newsletter_privacy %}
-        {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-privacy.html.twig' %}
-    {% endblock %}
-
-    {% block cms_form_newsletter_required_fields_info %}
-        {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-info-required.html.twig' %}
-    {% endblock %}
-
-    {% block cms_form_newsletter_submit %}
-        {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-submit.html.twig' %}
-    {% endblock %}
-    </div>
-
-    {% block cms_form_newsletter_hidden_fields %}
-        <div class="form-hidden-fields">
-            {% block cms_form_newsletter_csrf %}
-                {{ sw_csrf(action) }}
+                        <option value="{{ constant('Shopware\\Storefront\\Controller\\FormController::UNSUBSCRIBE') }}">
+                            {{ "newsletter.unsubscribeOption"|trans }}
+                        </option>
+                    </select>
+                </div>
             {% endblock %}
-
-            <input type="submit" class="submit--hidden d-none" />
         </div>
-    {% endblock %}
-</form>
+
+        <div class="form-row">
+            {% block cms_form_newsletter_input_email %}
+                {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
+                    with {
+                    fieldName: 'email',
+                    type: 'email',
+                    required: true,
+                    additionalClass: 'col-12',
+                    label: 'newsletter.labelMail',
+                    placeholder: 'newsletter.placeholderMail'
+                }
+                %}
+            {% endblock %}
+        </div>
+
+        {% block cms_form_newsletter_additional_fields %}
+            <div class="js-field-toggle-newsletter-additional d-none">
+                <div class="form-row">
+                    {% block cms_form_newsletter_select_salutation %}
+                        {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-select-salutation.html.twig'
+                            with { additionalClass: 'col-md-4' }
+                        %}
+                    {% endblock %}
+
+                    {% block cms_form_newsletter_input_first_name %}
+                        {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
+                            with {
+                            fieldName: 'firstName',
+                            additionalClass: 'col-md-4',
+                            label: 'newsletter.labelFirstName',
+                            placeholder: 'newsletter.placeholderFirstName'
+                        }
+                        %}
+                    {% endblock %}
+
+                    {% block cms_form_newsletter_input_last_name %}
+                        {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-input.html.twig'
+                            with {
+                            fieldName: 'lastName',
+                            additionalClass: 'col-md-4',
+                            label: 'newsletter.labelLastName',
+                            placeholder: 'newsletter.placeholderLastName'
+                        }
+                        %}
+                    {% endblock %}
+                </div>
+            </div>
+        {% endblock %}
+
+        {% block cms_form_newsletter_captcha %}
+            {% sw_include '@Storefront/storefront/component/captcha/base.html.twig' with { 'captchas': shopware.config.core.basicInformation.activeCaptchas } %}
+        {% endblock %}
+
+        {% block cms_form_newsletter_privacy %}
+            {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-privacy.html.twig' %}
+        {% endblock %}
+
+        {% block cms_form_newsletter_required_fields_info %}
+            {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-info-required.html.twig' %}
+        {% endblock %}
+
+        {% block cms_form_newsletter_submit %}
+            {% sw_include '@Storefront/storefront/element/cms-element-form/form-components/cms-element-form-submit.html.twig' %}
+        {% endblock %}
+        </div>
+
+        {% block cms_form_newsletter_hidden_fields %}
+            <div class="form-hidden-fields">
+                {% block cms_form_newsletter_csrf %}
+                    {{ sw_csrf(action) }}
+                {% endblock %}
+
+                <input type="submit" class="submit--hidden d-none" />
+            </div>
+        {% endblock %}
+    </form>
+{% endblock %}

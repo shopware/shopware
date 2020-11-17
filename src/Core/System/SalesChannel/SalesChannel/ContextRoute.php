@@ -29,7 +29,7 @@ class ContextRoute extends AbstractContextRoute
      *      @OA\Response(
      *          response="200",
      *          description="Context",
-     *          @OA\JsonContent(ref="#/definitions/SalesChannelContext")
+     *          @OA\JsonContent(ref="#/components/schemas/SalesChannelContext")
      *     )
      * )
      * @Route("/store-api/v{version}/context", name="store-api.context", methods={"GET"})

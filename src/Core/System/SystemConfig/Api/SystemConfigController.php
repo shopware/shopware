@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SystemConfig\Api;
 
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Routing\Annotation\Acl;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
@@ -40,7 +41,7 @@ class SystemConfigController extends AbstractController
      * @Route("/api/v{version}/_action/system-config/check", name="api.action.core.system-config.check", methods={"GET"})
      * @Acl({"system_config:read"})
      */
-    public function checkConfiguration(Request $request): JsonResponse
+    public function checkConfiguration(Request $request, Context $context): JsonResponse
     {
         $domain = $request->query->get('domain');
 
@@ -48,7 +49,7 @@ class SystemConfigController extends AbstractController
             return new JsonResponse(false);
         }
 
-        return new JsonResponse($this->configurationService->checkConfiguration($domain));
+        return new JsonResponse($this->configurationService->checkConfiguration($domain, $context));
     }
 
     /**
@@ -57,7 +58,7 @@ class SystemConfigController extends AbstractController
      *
      * @throws MissingRequestParameterException
      */
-    public function getConfiguration(Request $request): JsonResponse
+    public function getConfiguration(Request $request, Context $context): JsonResponse
     {
         $domain = $request->query->get('domain');
 
@@ -65,7 +66,7 @@ class SystemConfigController extends AbstractController
             throw new MissingRequestParameterException('domain');
         }
 
-        return new JsonResponse($this->configurationService->getConfiguration($domain));
+        return new JsonResponse($this->configurationService->getConfiguration($domain, $context));
     }
 
     /**

@@ -45,7 +45,7 @@ class OpenApi3GeneratorTest extends TestCase
             new OpenApiSchemaBuilder(),
             new OpenApiPathBuilder(),
             new OpenApiDefinitionSchemaBuilder($this->getContainer()->get(ApiVersionConverter::class)),
-            new OpenApiLoader($this->getContainer()->get('router'))
+            new OpenApiLoader($this->getContainer()->get('router'), $this->getContainer()->get('event_dispatcher'))
         );
 
         $this->schema = $openApiGenerator->getSchema($definitionRegistry->getDefinitions(), PlatformRequest::API_VERSION);

@@ -430,6 +430,7 @@ class SalesChannelProxyControllerTest extends TestCase
 
         //create a new shipping method and request to change
         $shippingMethodId = $this->createShippingMethod();
+
         $browser->request('PATCH', $this->getUrl(Defaults::SALES_CHANNEL, '/context'), [
             'shippingMethodId' => $shippingMethodId,
         ]);
@@ -457,9 +458,9 @@ class SalesChannelProxyControllerTest extends TestCase
         $salesChannelContext = $this->createDefaultSalesChannelContext();
 
         $salesChannelContext->setPermissions([ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES]);
-        $payload = $this->contextPersister->load($salesChannelContext->getToken(), Feature::isActive('FEATURE_NEXT_10058') ? $salesChannelContext->getSalesChannel()->getId() : null);
+        $payload = $this->contextPersister->load($salesChannelContext->getToken(), $salesChannelContext->getSalesChannel()->getId());
         $payload[SalesChannelContextService::PERMISSIONS][ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES] = true;
-        $this->contextPersister->save($salesChannelContext->getToken(), $payload, Feature::isActive('FEATURE_NEXT_10058') ? $salesChannelContext->getSalesChannel()->getId() : null);
+        $this->contextPersister->save($salesChannelContext->getToken(), $payload, $salesChannelContext->getSalesChannel()->getId());
 
         $browser = $this->createCart(Defaults::SALES_CHANNEL);
 
@@ -559,9 +560,9 @@ class SalesChannelProxyControllerTest extends TestCase
         $salesChannelContext = $this->createDefaultSalesChannelContext();
 
         $salesChannelContext->setPermissions([ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES]);
-        $payload = $this->contextPersister->load($salesChannelContext->getToken(), Feature::isActive('FEATURE_NEXT_10058') ? $salesChannelContext->getSalesChannel()->getId() : null);
+        $payload = $this->contextPersister->load($salesChannelContext->getToken(), $salesChannelContext->getSalesChannel()->getId());
         $payload[SalesChannelContextService::PERMISSIONS][ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES] = true;
-        $this->contextPersister->save($salesChannelContext->getToken(), $payload, Feature::isActive('FEATURE_NEXT_10058') ? $salesChannelContext->getSalesChannel()->getId() : null);
+        $this->contextPersister->save($salesChannelContext->getToken(), $payload, $salesChannelContext->getSalesChannel()->getId());
 
         $browser = $this->createCart(Defaults::SALES_CHANNEL);
 
@@ -689,9 +690,9 @@ class SalesChannelProxyControllerTest extends TestCase
         $productId = $this->ids->get('p1');
         $salesChannelContext->setPermissions([ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES]);
 
-        $payload = $this->contextPersister->load($salesChannelContext->getToken(), Feature::isActive('FEATURE_NEXT_10058') ? $salesChannelContext->getSalesChannel()->getId() : null);
+        $payload = $this->contextPersister->load($salesChannelContext->getToken(), $salesChannelContext->getSalesChannel()->getId());
         $payload[SalesChannelContextService::PERMISSIONS][ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES] = true;
-        $this->contextPersister->save($salesChannelContext->getToken(), $payload, Feature::isActive('FEATURE_NEXT_10058') ? $salesChannelContext->getSalesChannel()->getId() : null);
+        $this->contextPersister->save($salesChannelContext->getToken(), $payload, $salesChannelContext->getSalesChannel()->getId());
 
         $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer(), $salesChannelContext);
 
@@ -796,7 +797,7 @@ class SalesChannelProxyControllerTest extends TestCase
         $browser->request(
             'PATCH',
             $this->getRootProxyUrl('/disable-automatic-promotions'),
-            Feature::isActive('FEATURE_NEXT_10058') ? ['salesChannelId' => $salesChannelContext->getSalesChannel()->getId()] : []
+            ['salesChannelId' => $salesChannelContext->getSalesChannel()->getId()]
         );
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
 
@@ -834,7 +835,7 @@ class SalesChannelProxyControllerTest extends TestCase
         $browser->request(
             'PATCH',
             $this->getRootProxyUrl('/disable-automatic-promotions'),
-            Feature::isActive('FEATURE_NEXT_10058') ? ['salesChannelId' => $salesChannelContext->getSalesChannel()->getId()] : []
+            ['salesChannelId' => $salesChannelContext->getSalesChannel()->getId()]
         );
 
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
@@ -866,7 +867,7 @@ class SalesChannelProxyControllerTest extends TestCase
         $browser->request(
             'PATCH',
             $this->getRootProxyUrl('/disable-automatic-promotions'),
-            Feature::isActive('FEATURE_NEXT_10058') ? ['salesChannelId' => $salesChannelContext->getSalesChannel()->getId()] : []
+            ['salesChannelId' => $salesChannelContext->getSalesChannel()->getId()]
         );
 
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
@@ -880,7 +881,7 @@ class SalesChannelProxyControllerTest extends TestCase
         $browser->request(
             'PATCH',
             $this->getRootProxyUrl('/enable-automatic-promotions'),
-            Feature::isActive('FEATURE_NEXT_10058') ? ['salesChannelId' => $salesChannelContext->getSalesChannel()->getId()] : []
+            ['salesChannelId' => $salesChannelContext->getSalesChannel()->getId()]
         );
 
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());

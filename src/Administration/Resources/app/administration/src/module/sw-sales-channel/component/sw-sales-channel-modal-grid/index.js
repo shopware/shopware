@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-sales-channel-modal-grid', {
     template,
 
-    inject: { repositoryFactory: 'repositoryFactory' },
+    inject: ['repositoryFactory'],
 
     props: {
         productStreamsExist: {
@@ -49,8 +49,8 @@ Component.register('sw-sales-channel-modal-grid', {
     methods: {
         createdComponent() {
             this.isLoading = true;
-
-            this.salesChannelTypeRepository.search(new Criteria(1, 500), Shopware.Context.api).then((response) => {
+            const context = { ...Shopware.Context.api, languageId: Shopware.State.get('session').languageId };
+            this.salesChannelTypeRepository.search(new Criteria(1, 500), context).then((response) => {
                 this.total = response.total;
                 this.salesChannelTypes = response;
                 this.isLoading = false;
@@ -62,7 +62,7 @@ Component.register('sw-sales-channel-modal-grid', {
         },
 
         onOpenDetail(id) {
-            const detailType = this.salesChannelTypes.find(a => a.id === id);
+            const detailType = this.salesChannelTypes.find(salesChannelType => salesChannelType.id === id);
             this.$emit('grid-detail-open', detailType);
         },
 

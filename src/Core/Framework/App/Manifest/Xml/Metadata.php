@@ -7,12 +7,12 @@ class Metadata extends XmlElement
     /**
      * @var array
      */
-    protected $label;
+    protected $label = [];
 
     /**
      * @var array
      */
-    protected $description;
+    protected $description = [];
 
     /**
      * @var string
@@ -59,6 +59,16 @@ class Metadata extends XmlElement
     public static function fromXml(\DOMElement $element): self
     {
         return new self(self::parse($element));
+    }
+
+    public function toArray(string $defaultLocale): array
+    {
+        $data = parent::toArray($defaultLocale);
+
+        $data['label'] = $this->ensureTranslationForDefaultLanguageExist($data['label'], $defaultLocale);
+        $data['description'] = $this->ensureTranslationForDefaultLanguageExist($data['description'], $defaultLocale);
+
+        return $data;
     }
 
     public function getLabel(): array

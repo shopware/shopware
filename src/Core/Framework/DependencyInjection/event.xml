@@ -43,5 +43,10 @@
         <service id="Shopware\Core\Framework\Event\EventAction\Aggregate\EventActionSalesChannel\EventActionSalesChannelDefinition">
             <tag name="shopware.entity.definition" entity="event_action_sales_channel"/>
         </service>
+
+        <service id="Shopware\Core\Framework\Event\EventAction\EventActionSubscriber">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
     </services>
 </container>

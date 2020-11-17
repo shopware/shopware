@@ -47,6 +47,13 @@ class SwitchDefaultAddressRoute extends AbstractSwitchDefaultAddressRoute
      *      summary="Sets the default shipping address",
      *      operationId="defaultShippingAddress",
      *      tags={"Store API", "Account", "Address"},
+     *      @OA\Parameter(
+     *        name="addressId",
+     *        in="path",
+     *        description="Address ID",
+     *        @OA\Schema(type="string"),
+     *        required=true
+     *      ),
      *      @OA\Response(
      *          response="200",
      *          description=""
@@ -57,6 +64,13 @@ class SwitchDefaultAddressRoute extends AbstractSwitchDefaultAddressRoute
      *      summary="Sets the default billing address",
      *      operationId="defaultBillingAddress",
      *      tags={"Store API", "Account", "Address"},
+     *      @OA\Parameter(
+     *        name="addressId",
+     *        in="path",
+     *        description="Address ID",
+     *        @OA\Schema(type="string"),
+     *        required=true
+     *      ),
      *      @OA\Response(
      *          response="200",
      *          description=""

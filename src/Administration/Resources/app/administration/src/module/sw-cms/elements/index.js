@@ -12,3 +12,4 @@ import './manufacturer-logo';
 import './sidebar-filter';
 import './sidebar-category-navigation';
 import './form';
+import './product-description-reviews';

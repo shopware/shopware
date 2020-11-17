@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist\CustomerWishlistC
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlistProduct\CustomerWishlistProductDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsCollection;
@@ -321,6 +322,18 @@ class ProductEntity extends Entity
      * @var ProductMediaCollection|null
      */
     protected $media;
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10078)
+     *
+     * @var string|null
+     */
+    protected $cmsPageId;
+
+    /**
+     * @var CmsPageEntity|null
+     */
+    protected $cmsPage;
 
     /**
      * @var ProductSearchKeywordCollection|null
@@ -920,6 +933,38 @@ class ProductEntity extends Entity
     public function setCover(ProductMediaEntity $cover): void
     {
         $this->cover = $cover;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10078)
+     */
+    public function getCmsPage(): ?CmsPageEntity
+    {
+        return $this->cmsPage;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10078)
+     */
+    public function setCmsPage(CmsPageEntity $cmsPage): void
+    {
+        $this->cmsPage = $cmsPage;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10078)
+     */
+    public function getCmsPageId(): ?string
+    {
+        return $this->cmsPageId;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10078)
+     */
+    public function setCmsPageId(string $cmsPageId): void
+    {
+        $this->cmsPageId = $cmsPageId;
     }
 
     public function getParent(): ?ProductEntity

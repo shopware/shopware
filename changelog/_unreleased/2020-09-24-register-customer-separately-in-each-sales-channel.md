@@ -1,7 +1,6 @@
 ---
 title: Register Customer separately in each sales channel
 issue: NEXT-10973
-flag: FEATURE_NEXT_10555
 ---
 # Core
 *  Added `SalesChannelContext` getter into `CustomerEmailUnique` constraint.

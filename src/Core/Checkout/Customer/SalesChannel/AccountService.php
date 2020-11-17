@@ -17,7 +17,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
@@ -33,6 +32,8 @@ class AccountService
     private $customerRepository;
 
     /**
+     * @deprecated tag:v6.4.0 $contextRestorer will no longer be used
+     *
      * @var SalesChannelContextPersister
      */
     private $contextPersister;
@@ -53,7 +54,7 @@ class AccountService
     private $switchDefaultAddressRoute;
 
     /**
-     * @var SalesChannelContextRestorer|null
+     * @var SalesChannelContextRestorer
      */
     private $contextRestorer;
 
@@ -63,7 +64,7 @@ class AccountService
         EventDispatcherInterface $eventDispatcher,
         LegacyPasswordVerifier $legacyPasswordVerifier,
         AbstractSwitchDefaultAddressRoute $switchDefaultAddressRoute,
-        ?SalesChannelContextRestorer $contextRestorer
+        SalesChannelContextRestorer $contextRestorer
     ) {
         $this->customerRepository = $customerRepository;
         $this->contextPersister = $contextPersister;
@@ -112,21 +113,8 @@ class AccountService
             throw new UnauthorizedHttpException('json', $exception->getMessage());
         }
 
-        if (Feature::isActive('FEATURE_NEXT_10058') && $this->contextRestorer) {
-            $context = $this->contextRestorer->restore($customer->getId(), $context);
-            $newToken = $context->getToken();
-        } else {
-            $newToken = $this->contextPersister->replace($context->getToken(), $context);
-
-            $this->contextPersister->save(
-                $newToken,
-                [
-                    'customerId' => $customer->getId(),
-                    'billingAddressId' => null,
-                    'shippingAddressId' => null,
-                ]
-            );
-        }
+        $context = $this->contextRestorer->restore($customer->getId(), $context);
+        $newToken = $context->getToken();
 
         $event = new CustomerLoginEvent($context, $customer, $newToken);
         $this->eventDispatcher->dispatch($event);
@@ -191,12 +179,10 @@ class AccountService
             $criteria->addFilter(new EqualsFilter('customer.guest', 0));
         }
 
-        if (Feature::isActive('FEATURE_NEXT_10555')) {
-            $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
-                new EqualsFilter('customer.boundSalesChannelId', null),
-                new EqualsFilter('customer.boundSalesChannelId', $context->getSalesChannel()->getId()),
-            ]));
-        }
+        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
+            new EqualsFilter('customer.boundSalesChannelId', null),
+            new EqualsFilter('customer.boundSalesChannelId', $context->getSalesChannel()->getId()),
+        ]));
 
         return $this->customerRepository->search($criteria, $context->getContext());
     }

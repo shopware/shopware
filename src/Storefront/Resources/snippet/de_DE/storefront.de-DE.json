@@ -395,7 +395,8 @@
     "customerCommentPlaceholder": "Kommentieren Sie hier ...",
     "cart-merged-hint": "Der aktuelle Warenkorb enthält u.U. zusätzliche Produkte, die noch von einem früheren Besuch gespeichert waren.",
     "collapseTriggerMore": "Mehr zeigen",
-    "collapseTriggerLess": "Weniger zeigen"
+    "collapseTriggerLess": "Weniger zeigen",
+    "product-not-found": "Das Produkt wurde nicht gefunden."
   },
   "listing": {
     "filterTitleText": "Filter",
@@ -424,7 +425,9 @@
     "filterRangeErrorMessage": "Der Mindestpreis darf nicht höher sein als der Höchstpreis.",
     "filterSubmitText": "Filter",
     "defaultProductSortingLabel": "Name A-Z",
-    "disabledFilterTooltip": "Dieser Filter zeigt in Kombination mit den ausgewählten Filtern keine weiteren Ergebnisse an."
+    "disabledFilterTooltip": "Dieser Filter zeigt in Kombination mit den ausgewählten Filtern keine weiteren Ergebnisse an.",
+    "beforeListPrice": "",
+    "afterListPrice": ""
   },
   "newsletter": {
     "headline": "Newsletter abonnieren",
@@ -517,6 +520,14 @@
     "reviewAvgRate": "von",
     "reviewAvgRateElements": "Sternen"
   },
+  "wishlist": {
+    "headline": "Ihr Merkzettel",
+    "itemDeleteSuccess": "Sie haben das Produkt erfolgreich vom Merkzettel entfernt.",
+    "currentlyNotAvailable": "Derzeit nicht verfügbar",
+    "manufacturerDisplayName": "Hersteller",
+    "deliveryTimeAvailable": "Sofort verfügbar, Lieferzeit %name%",
+    "noLongerAvailableTooltip": "Das Produkt ist nicht mehr verfügbar."
+  },
   "footer": {
     "serviceHotlineHeadline": "Service-Hotline",
     "shopServiceHeadline": "Shop-Service",
@@ -541,6 +552,7 @@
     "groupRequired": "Technisch erforderlich",
     "groupRequiredDescription": "Für die Funktion des Shops erforderliche Cookies:",
     "groupRequiredSession": "Sitzung",
+    "groupRequiredCsrf": "CSRF-Schutz",
     "groupRequiredTimezone": "Zeitzone",
     "groupStatistical": "Statistiken",
     "groupStatisticalDescription": "Für Statistiken und Shop-Performance-Metriken genutzte Cookies.",

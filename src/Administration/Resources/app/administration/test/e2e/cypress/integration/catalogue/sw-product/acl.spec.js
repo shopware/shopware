@@ -30,9 +30,7 @@ describe('Product: Test ACL privileges', () => {
         cy.get('.sw-admin-menu__navigation-list-item.sw-product').click();
 
         // open product
-        cy.get(`${page.elements.dataGridRow}--0`)
-            .get('.sw-data-grid__cell--name')
-            .get('.sw-data-grid__cell-value')
+        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name div > a`)
             .contains('Product name')
             .click();
 
@@ -93,9 +91,7 @@ describe('Product: Test ACL privileges', () => {
         cy.get('.sw-admin-menu__navigation-list-item.sw-product').click();
 
         // open product
-        cy.get(`${page.elements.dataGridRow}--0`)
-            .get('.sw-data-grid__cell--name')
-            .get('.sw-data-grid__cell-value')
+        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name div > a`)
             .contains('Product name')
             .click();
 

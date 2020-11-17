@@ -21,7 +21,6 @@ use Shopware\Core\Checkout\Promotion\Cart\Error\AutoPromotionNotFoundError;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
@@ -313,7 +312,6 @@ class ProcessorTest extends TestCase
 
     public function testCartHasErrorDataAddedFromPromotionProcessor(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10058', $this);
         $originalCart = new Cart(Uuid::randomHex(), Uuid::randomHex());
 
         $id = Uuid::randomHex();

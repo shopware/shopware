@@ -101,6 +101,15 @@ based on "base-slider" component and "tiny-slider" (https://github.com/ganlanyua
 // Thumbnails
 .gallery-slider-thumbnails-container {
     position: relative;
+
+    .tns-inner {
+        display: flex;
+        justify-content: center;
+    }
+
+    &.hide-thumbs {
+        display: none;
+    }
 }
 
 .gallery-slider-thumbnails-col {

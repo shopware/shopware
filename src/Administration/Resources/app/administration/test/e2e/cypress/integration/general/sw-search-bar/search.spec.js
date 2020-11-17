@@ -132,7 +132,7 @@ describe('Search bar: Check main functionality', () => {
             .contains('Order 10000');
     });
 
-    it('@searchBar @search: search for a media', {browser: "!firefox"}, () => {
+    it('@searchBar @search: search for a media', () => {
         cy.createDefaultFixture('media-folder')
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/media/index`);
@@ -192,7 +192,7 @@ describe('Search bar: Check main functionality', () => {
 
         // navigate down to test if active item also stays the same after refocus
         cy.get('input.sw-search-bar__input').type('{downarrow}');
-        
+
         // capture dom of search result box
         let searchResultsMarkup = undefined;
         cy.get('.sw-search-bar__results').then($el =>

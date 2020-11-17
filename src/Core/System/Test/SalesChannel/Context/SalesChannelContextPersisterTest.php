@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
@@ -53,8 +52,6 @@ class SalesChannelContextPersisterTest extends TestCase
 
     public function testLoadByCustomerId(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10058', $this);
-
         $token = Uuid::randomHex();
         $customerId = $this->createCustomer();
         $this->contextPersister->save($token, [], Defaults::SALES_CHANNEL, $customerId);
@@ -72,8 +69,6 @@ class SalesChannelContextPersisterTest extends TestCase
 
     public function testLoadCustomerNotExisting(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10058', $this);
-
         $customerId = Uuid::randomHex();
         $token = Random::getAlphanumericString(32);
 
@@ -94,8 +89,6 @@ class SalesChannelContextPersisterTest extends TestCase
 
     public function testSaveNewCustomerContextWithoutExistingCustomer(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10058', $this);
-
         $token = Random::getAlphanumericString(32);
         $expected = [
             'key' => 'value',
@@ -145,8 +138,6 @@ class SalesChannelContextPersisterTest extends TestCase
 
     public function testSaveCustomerContextMergesWithExisting(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10058', $this);
-
         $token = Random::getAlphanumericString(32);
 
         $customerId = $this->createCustomer();
@@ -180,8 +171,6 @@ class SalesChannelContextPersisterTest extends TestCase
 
     public function testLoadSameCustomerOnDifferentSalesChannel(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10058', $this);
-
         $customerId = $this->createCustomer();
 
         $salesChannel1 = $this->createSalesChannel([

@@ -5,6 +5,7 @@ namespace Shopware\Core\System\Snippet;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowEmptyString;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -51,7 +52,7 @@ class SnippetDefinition extends EntityDefinition
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new FkField('snippet_set_id', 'setId', SnippetSetDefinition::class))->addFlags(new Required()),
             (new StringField('translation_key', 'translationKey'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
-            (new LongTextField('value', 'value'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING), new AllowHtml()),
+            (new LongTextField('value', 'value'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING), new AllowHtml(), new AllowEmptyString()),
             (new StringField('author', 'author'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new CustomFields(),
             new ManyToOneAssociationField('set', 'snippet_set_id', SnippetSetDefinition::class, 'id', false),

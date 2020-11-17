@@ -4,9 +4,10 @@ namespace Shopware\Core\System\SalesChannel\Event;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-class SalesChannelContextPermissionsChangedEvent extends NestedEvent
+class SalesChannelContextPermissionsChangedEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
     /**
      * @var array

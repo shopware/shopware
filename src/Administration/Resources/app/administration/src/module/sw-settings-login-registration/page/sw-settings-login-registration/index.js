@@ -5,8 +5,6 @@ const { Component, Mixin } = Shopware;
 Component.register('sw-settings-login-registration', {
     template,
 
-    inject: ['feature'],
-
     mixins: [
         Mixin.getByName('notification')
     ],
@@ -33,7 +31,10 @@ Component.register('sw-settings-login-registration', {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            this.$refs.systemConfig.saveAll().then(() => {
+            Promise.all([
+                this.$refs.systemConfig.saveAll(),
+                this.$refs.systemConfigSystemWide.saveAll()
+            ]).then(() => {
                 this.isLoading = false;
                 this.isSaveSuccessful = true;
             }).catch((err) => {

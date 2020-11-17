@@ -322,7 +322,7 @@ Component.register('sw-settings-snippet-detail', {
         checkIsSaveable() {
             let count = 0;
             this.snippets.forEach((snippet) => {
-                if (snippet.value === null || snippet.value.trim() === '') {
+                if (snippet.value === null) {
                     return;
                 }
 
@@ -330,11 +330,7 @@ Component.register('sw-settings-snippet-detail', {
                     count += 1;
                 }
 
-                if (snippet.origin === snippet.value) {
-                    return;
-                }
-
-                if (snippet.value.trim().length > 0) {
+                if (snippet.value.trim().length >= 0) {
                     count += 1;
                 }
             });

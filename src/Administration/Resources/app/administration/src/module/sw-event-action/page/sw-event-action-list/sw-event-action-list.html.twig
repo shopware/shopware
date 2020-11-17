@@ -105,11 +105,11 @@
                             <template #column-mailTemplate="{ item }">
                                 <template v-if="mailTemplates">
                                     <strong
-                                        v-if="renderMailTemplate(item).translated.description"
+                                        v-if="mailTemplateDescription(item)"
                                         class="sw-event-action-list__column-mail-template-title">
-                                        {{ renderMailTemplate(item).translated.description }}
+                                        {{ mailTemplateDescription(item) }}
                                     </strong>
-                                    {{ renderMailTemplate(item).mailTemplateType.translated.name }}
+                                    {{ mailTemplateTypeName(item) }}
                                 </template>
                             </template>
                         {% endblock %}

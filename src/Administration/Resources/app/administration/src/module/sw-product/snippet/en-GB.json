@@ -128,7 +128,8 @@
       "cardTitleReviews": "Reviews",
       "cardTitleMedia": "Media",
       "labelContextMenuAddToProduct": "Add to product",
-      "cardTitleSeo": "SEO"
+      "cardTitleSeo": "SEO",
+      "cardTitleLayout": "Layout assignment"
     },
     "reviewForm": {
       "labelStatus": "Visible",
@@ -182,6 +183,20 @@
       "contextMenuEdit": "Edit",
       "contextMenuDelete": "Delete",
       "contextMenuDuplicate": "Duplicate",
+      "contextMenuShowVariants": "Show variants",
+      "variantIndicatorTooltip": "This product has variants.",
+      "variantGridEmptyStateSubline": "No variants were found.",
+      "multipleVariantsDeleteModalText": "Are you sure you want to delete {amount} variants?",
+      "multipleVariantsDeleteModalSubline": "This may take some seconds.",
+      "variantModalTitle": "Variants of \"{productName}\"",
+      "openMainProduct": "Open \"{productName}\"",
+      "variantModalInlineEditProductNamePlaceholder": "Enter a variant name...",
+      "variantModalInlineEditStockPlaceholder": "Enter stock...",
+      "notificationVariantDeleteSuccess": "Successfully deleted \"{variantName}\". | Successfully deleted {amount} variants.",
+      "notificationVariantDeleteError": "There went something wrong while deleting \"{variantName}\". | Something went wrong while deleting multiple variants.",
+      "notificationVariantSaveSuccess": "Succesfully saved \"{variantName}\".",
+      "variantDeleteModalTitle": "Delete variant",
+      "variantDeleteModalText": "Are your sure you want to delete the variant \"{variantName}\"?",
       "messageEmpty": "No products yet",
       "textDeleteConfirm": "Are you sure you really want to delete the product \"{name}\"? | Are you sure you really want to delete these {count} products?",
       "titleSidebarItemRefresh": "Refresh",
@@ -352,6 +367,14 @@
       "linkFeatureSetsConfig": "Essential Characteristics",
       "templateSelectFieldLabel": "Template",
       "templateSelectFieldPlaceholder": "Select a template..."
+    },
+    "layoutAssignment": {
+      "title": "Default fallback",
+      "subtitle": "Product page",
+      "textAssignLayout": "Assign layout",
+      "textChangeLayout": "Change layout",
+      "textCreateNewLayout": "Create new layout",
+      "textEditInDesigner": "Edit in designer"
     }
   },
   "sw-privileges": {

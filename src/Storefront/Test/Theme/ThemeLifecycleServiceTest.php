@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Storefront\Test\Theme\fixtures\ThemeWithFileAssociations\ThemeWithFileAssociations;
 use Shopware\Storefront\Test\Theme\fixtures\ThemeWithLabels\ThemeWithLabels;
@@ -111,6 +112,33 @@ class ThemeLifecycleServiceTest extends TestCase
         $renamedShopwareLogoId = $this->getMedia('shopware_logo_(1)');
         static::assertNull($this->getMedia('shopware_logo_pink_(1)'));
         static::assertNotNull($themeEntity->getMedia()->get($renamedShopwareLogoId->getId()));
+    }
+
+    public function testItDoesNotOverridePreviewIfSetExclusive(): void
+    {
+        $previewMediaId = Uuid::randomHex();
+        $this->mediaRepository->create([
+            [
+                'id' => $previewMediaId,
+            ],
+        ], $this->context);
+
+        $bundle = $this->getThemeConfig();
+
+        $this->themeLifecycleService->refreshTheme($bundle, $this->context);
+
+        $theme = $this->getTheme($bundle);
+        $this->themeRepository->update([
+            [
+                'id' => $theme->getId(),
+                'previewMediaId' => $previewMediaId,
+            ],
+        ], $this->context);
+
+        $this->themeLifecycleService->refreshTheme($bundle, $this->context);
+
+        $theme = $this->getTheme($bundle);
+        static::assertEquals($previewMediaId, $theme->getPreviewMediaId());
     }
 
     public function testItSkipsTranslationsIfLanguageIsNotAvailable(): void

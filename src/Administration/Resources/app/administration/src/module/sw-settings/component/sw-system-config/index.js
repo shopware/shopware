@@ -2,7 +2,7 @@ import template from './sw-system-config.html.twig';
 import './sw-system-config.scss';
 
 const { Component, Mixin } = Shopware;
-const { object, types } = Shopware.Utils;
+const { object, string: { kebabCase } } = Shopware.Utils;
 
 Component.register('sw-system-config', {
     name: 'sw-system-config',
@@ -58,6 +58,26 @@ Component.register('sw-system-config', {
         }
     },
 
+    computed: {
+        isNotDefaultSalesChannel() {
+            return this.currentSalesChannelId !== null;
+        },
+
+        typesWithMapInheritanceSupport() {
+            return [
+                'text',
+                'textarea',
+                'url',
+                'password',
+                'int',
+                'float',
+                'bool',
+                'checkbox',
+                'colorpicker'
+            ];
+        }
+    },
+
     created() {
         this.createdComponent();
     },
@@ -71,9 +91,9 @@ Component.register('sw-system-config', {
                         this.isLoading = false;
                     });
                 })
-                .catch(({ response: { data } }) => {
-                    if (data && data.errors) {
-                        this.createErrorNotification(data.errors);
+                .catch((error) => {
+                    if (error && error.response && error.response.data && error.response.data.errors) {
+                        this.createErrorNotification(error.response.data.errors);
                     }
                 });
         },
@@ -134,29 +154,25 @@ Component.register('sw-system-config', {
             this.currentSalesChannelId = salesChannelId;
             this.readAll();
         },
-        getElementBind(element) {
+
+        hasMapInheritanceSupport(element) {
+            const componentName = element.config ? element.config.componentName : undefined;
+
+            if (componentName === 'sw-switch-field') {
+                return true;
+            }
+
+            return this.typesWithMapInheritanceSupport.includes(element.type);
+        },
+
+        getElementBind(element, mapInheritance) {
             const bind = object.deepCopyObject(element);
 
-            // Add inherited values
-            if (this.currentSalesChannelId !== null
-                    && this.inherit
-                    && this.actualConfigData.hasOwnProperty('null')
-                    && this.actualConfigData.null[bind.name] !== null) {
-                if (bind.type === 'single-select' || bind.config.componentName === 'sw-entity-single-select') {
-                    // Add inherited placeholder option
-                    bind.placeholder = this.$tc('sw-settings.system-config.inherited');
-                } else if (bind.type === 'bool') {
-                    // Add inheritedValue for checkbox fields to restore the inherited state
-                    bind.config.inheritedValue = this.actualConfigData.null[bind.name] || false;
-                } else if (bind.type === 'password') {
-                    // Add inherited placeholder and mark placeholder as password so the rendering element
-                    // can choose to hide it
-                    bind.placeholderIsPassword = true;
-                    bind.placeholder = `${this.actualConfigData.null[bind.name]}`;
-                } else if (bind.type !== 'multi-select' && !types.isUndefined(this.actualConfigData.null[bind.name])) {
-                    // Add inherited placeholder
-                    bind.placeholder = `${this.actualConfigData.null[bind.name]}`;
-                }
+            if (!this.hasMapInheritanceSupport(element)) {
+                delete bind.config.label;
+                delete bind.config.helpText;
+            } else {
+                bind.mapInheritance = mapInheritance;
             }
 
             // Add select properties
@@ -168,8 +184,70 @@ Component.register('sw-system-config', {
             return bind;
         },
 
+        getInheritWrapperBind(element) {
+            if (this.hasMapInheritanceSupport(element)) {
+                return {};
+            }
+
+            return {
+                label: this.getInlineSnippet(element.config.label),
+                helpText: this.getInlineSnippet(element.config.helpText)
+            };
+        },
+
+        getInheritedValue(element) {
+            const value = this.actualConfigData.null[element.name];
+
+            if (value) {
+                return value;
+            }
+
+            if (element.config && element.config.componentName) {
+                const componentName = element.config.componentName;
+
+                if (componentName === 'sw-switch-field') {
+                    return false;
+                }
+            }
+
+            switch (element.type) {
+                case 'date':
+                case 'datetime':
+                case 'single-select':
+                case 'colorpicker':
+                case 'password':
+                case 'url':
+                case 'text':
+                case 'textarea': {
+                    return '';
+                }
+
+                case 'multi-select': {
+                    return [];
+                }
+
+                case 'checkbox':
+                case 'bool': {
+                    return false;
+                }
+
+                case 'float':
+                case 'int': {
+                    return 0;
+                }
+
+                default: {
+                    return null;
+                }
+            }
+        },
+
         emitConfig() {
             this.$emit('config-changed', this.actualConfigData[this.currentSalesChannelId]);
+        },
+
+        kebabCase(value) {
+            return kebabCase(value);
         }
     }
 });

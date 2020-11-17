@@ -52,7 +52,7 @@ class Vector {
      *
      * @param {Vector|Array<number>|...number} args
      * @returns {Vector}
-     * @deprecated use constructor instead
+     * @deprecated tag:v6.4.0 use constructor instead
      */
     set(...args) {
         const other = argsToVector(args);

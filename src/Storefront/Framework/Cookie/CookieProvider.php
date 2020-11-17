@@ -14,6 +14,10 @@ class CookieProvider implements CookieProviderInterface
                 'cookie' => 'session-',
             ],
             [
+                'snippet_name' => 'cookie.groupRequiredCsrf',
+                'cookie' => 'csrf[',
+            ],
+            [
                 'snippet_name' => 'cookie.groupRequiredTimezone',
                 'cookie' => 'timezone',
             ],

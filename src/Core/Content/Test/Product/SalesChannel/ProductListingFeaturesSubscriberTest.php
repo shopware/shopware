@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Content\Product\Events\ProductListingCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductSearchCriteriaEvent;
 use Shopware\Core\Content\Product\SalesChannel\Exception\ProductSortingNotFoundException;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
@@ -14,13 +15,17 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 
 class ProductListingFeaturesSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
+    use SalesChannelApiTestBehaviour;
 
     /**
      * @var EventDispatcher
@@ -31,6 +36,16 @@ class ProductListingFeaturesSubscriberTest extends TestCase
      * @var string[]
      */
     private $optionIds;
+
+    /**
+     * @var SystemConfigService
+     */
+    private $systemConfigService;
+
+    /**
+     * @var SalesChannelEntity
+     */
+    private $salesChannel;
 
     protected function setUp(): void
     {
@@ -90,6 +105,13 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                 'label' => 'test',
             ],
         ], Context::createDefaultContext());
+
+        $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+
+        $this->salesChannel = $this->getContainer()->get('sales_channel.repository')->search(
+            new Criteria([Defaults::SALES_CHANNEL]),
+            Context::createDefaultContext()
+        )->first();
     }
 
     /**
@@ -326,24 +348,119 @@ class ProductListingFeaturesSubscriberTest extends TestCase
     /**
      * @dataProvider paginationProvider
      */
-    public function testPagination(int $limit, int $offset, Request $request): void
+    public function testPagination(int $limit, int $offset, Request $request, ?int $systemConfigLimit = null): void
     {
+        if ($systemConfigLimit !== null) {
+            $this->systemConfigService->set('core.listing.productsPerPage', $systemConfigLimit);
+        } else {
+            $this->systemConfigService->delete('core.listing.productsPerPage');
+        }
+
         $criteria = new Criteria();
-        $event = new ProductListingCriteriaEvent($request, $criteria, Generator::createSalesChannelContext());
+        $event = new ProductListingCriteriaEvent(
+            $request,
+            $criteria,
+            Generator::createSalesChannelContext(null, null, null)
+        );
+
         $this->eventDispatcher->dispatch($event);
 
         static::assertSame($limit, $criteria->getLimit());
         static::assertSame($offset, $criteria->getOffset());
     }
 
+    /**
+     * @dataProvider paginationSalesChannelProvider
+     */
+    public function testPaginationSalesChannel(int $limit, int $offset, Request $request, int $limitChannel, int $offsetChannel, ?int $systemConfigLimit = null): void
+    {
+        $this->systemConfigService->set('core.listing.productsPerPage', 12);
+
+        if ($systemConfigLimit !== null) {
+            $this->systemConfigService->set('core.listing.productsPerPage', $systemConfigLimit, Defaults::SALES_CHANNEL);
+        } else {
+            $this->systemConfigService->delete('core.listing.productsPerPage', Defaults::SALES_CHANNEL);
+        }
+
+        $criteria = new Criteria();
+        $event = new ProductListingCriteriaEvent(
+            $request,
+            $criteria,
+            Generator::createSalesChannelContext(null, null, null)
+        );
+
+        $this->eventDispatcher->dispatch($event);
+
+        $criteriaChannel = new Criteria();
+        $eventChannel = new ProductListingCriteriaEvent(
+            $request,
+            $criteriaChannel,
+            Generator::createSalesChannelContext(null, null, null, $this->salesChannel)
+        );
+
+        $this->eventDispatcher->dispatch($eventChannel);
+
+        static::assertSame($limit, $criteria->getLimit());
+        static::assertSame($offset, $criteria->getOffset());
+        static::assertSame($limitChannel, $criteriaChannel->getLimit());
+        static::assertSame($offsetChannel, $criteriaChannel->getOffset());
+    }
+
     public function paginationProvider()
     {
         return [
             [24, 0, new Request()],
+            [12, 0, new Request(), 12],
+            [24, 0, new Request(), -5],
+
             [20, 80, new Request(['p' => 5, 'limit' => 20])],
-            [1, 0, new Request(['p' => 0, 'limit' => 1])],
+            [20, 80, new Request(['p' => 5, 'limit' => 20]), 12],
+            [20, 80, new Request(['p' => 5, 'limit' => 20]), -5],
+
             [24, 0, new Request(['p' => -5, 'limit' => -5])],
+            [24, 0, new Request(['p' => -5, 'limit' => -5]), -5],
+            [12, 0, new Request(['p' => -5, 'limit' => -5]), 12],
+
+            [1, 0, new Request(['p' => 0, 'limit' => 1])],
+            [1, 0, new Request(['p' => 0, 'limit' => 1]), 12],
+            [1, 0, new Request(['p' => 0, 'limit' => 1]), -5],
+
             [20, 80, new Request([], ['p' => 5, 'limit' => 20], [], [], [], ['REQUEST_METHOD' => Request::METHOD_POST])],
+            [20, 80, new Request([], ['p' => 5, 'limit' => 20], [], [], [], ['REQUEST_METHOD' => Request::METHOD_POST]), 12],
+            [20, 80, new Request([], ['p' => 5, 'limit' => 20], [], [], [], ['REQUEST_METHOD' => Request::METHOD_POST]), -5],
+
+            [24, 0, new Request([], ['p' => -5, 'limit' => -5], [], [], [], ['REQUEST_METHOD' => Request::METHOD_POST])],
+            [12, 0, new Request([], ['p' => -5, 'limit' => -5], [], [], [], ['REQUEST_METHOD' => Request::METHOD_POST]), 12],
+            [24, 0, new Request([], ['p' => -5, 'limit' => -5], [], [], [], ['REQUEST_METHOD' => Request::METHOD_POST]), -5],
+        ];
+    }
+
+    public function paginationSalesChannelProvider()
+    {
+        return [
+            [12, 0, new Request(), 12, 0],
+            [12, 0, new Request(), 4, 0, 4],
+            [12, 0, new Request(), 24, 0, -5],
+
+            [20, 80, new Request(['p' => 5, 'limit' => 20]), 20, 80],
+            [20, 80, new Request(['p' => 5, 'limit' => 20]), 20, 80, 4],
+            [20, 80, new Request(['p' => 5, 'limit' => 20]), 20, 80, -5],
+
+            [12, 0, new Request(['p' => -5, 'limit' => -5]), 12, 0],
+            [12, 0, new Request(['p' => -5, 'limit' => -5]), 24, 0, -5],
+            [12, 0, new Request(['p' => -5, 'limit' => -5]), 4, 0, 4],
+
+            [1, 0, new Request(['p' => 0, 'limit' => 1]), 1, 0],
+            [1, 0, new Request(['p' => 0, 'limit' => 1]), 1, 0, 4],
+            [1, 0, new Request(['p' => 0, 'limit' => 1]), 1, 0, -5],
+
+            [20, 80, new Request([], ['p' => 5, 'limit' => 20], [], [], [], ['REQUEST_METHOD' => Request::METHOD_POST]), 20, 80],
+            [20, 80, new Request([], ['p' => 5, 'limit' => 20], [], [], [], ['REQUEST_METHOD' => Request::METHOD_POST]), 20, 80, 4],
+            [20, 80, new Request([], ['p' => 5, 'limit' => 20], [], [], [], ['REQUEST_METHOD' => Request::METHOD_POST]), 20, 80, -5],
+
+            [12, 0, new Request([], ['p' => -5, 'limit' => -5], [], [], [], ['REQUEST_METHOD' => Request::METHOD_POST]), 12, 0],
+            [12, 0, new Request([], ['p' => -5, 'limit' => -5], [], [], [], ['REQUEST_METHOD' => Request::METHOD_POST]), 24, 0, -5],
+            [12, 0, new Request([], ['p' => -5, 'limit' => -5], [], [], [], ['REQUEST_METHOD' => Request::METHOD_POST]), 4, 0, 4],
         ];
     }
 

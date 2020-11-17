@@ -189,6 +189,9 @@ POST /store-api/v3/checkout/order
       "apiAlias": "order_line_item"
     }
   ],
+  "customerComment": "comment",
+  "affiliateCode": "affiliate code",
+  "campaignCode": "campaign code",
   "apiAlias": "order"
 }
 ```

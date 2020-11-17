@@ -68,7 +68,7 @@ class PropertyGroupDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            new TranslatedField('name'),
+            (new TranslatedField('name'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new TranslatedField('description'),
             (new StringField('display_type', 'displayType'))->setFlags(new Required()),
             (new StringField('sorting_type', 'sortingType'))->setFlags(new Required()),

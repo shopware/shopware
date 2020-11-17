@@ -21,6 +21,7 @@
         "bankIban": "IBAN %bankIban%",
         "bankBic": "BIC %bankBic%",
         "placeOfJurisdiction": "Gerichtsstand ist %placeOfJurisdiction%",
+        "serviceDateNotice": "Leistungsdatum entspricht Rechnungsdatum",
         "placeOfFulfillment": "Erfüllungsort ist %placeOfFulfillment%",
         "ceo": "Geschäftsführer",
         "lineItems": {

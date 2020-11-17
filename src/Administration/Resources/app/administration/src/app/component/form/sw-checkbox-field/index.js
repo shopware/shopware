@@ -55,6 +55,12 @@ Component.register('sw-checkbox-field', {
             type: Object,
             required: false,
             default: null
+        },
+
+        bordered: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -71,7 +77,8 @@ Component.register('sw-checkbox-field', {
                 'has--error': this.hasError,
                 'is--disabled': this.disabled,
                 'is--inherited': this.isInherited,
-                'sw-field__checkbox--ghost': this.ghostValue
+                'sw-field__checkbox--ghost': this.ghostValue,
+                'is--bordered': this.bordered
             };
         },
 
@@ -84,10 +91,6 @@ Component.register('sw-checkbox-field', {
         },
 
         inputState() {
-            if (this.isInherited) {
-                return this.inheritedValue;
-            }
-
             return this.currentValue || false;
         },
 
@@ -115,6 +118,7 @@ Component.register('sw-checkbox-field', {
             this.$emit('change', changeEvent.target.checked);
         },
 
+        // @deprecated tag:v6.4.0.0
         restoreInheritance() {
             this.$emit('change', null);
         }

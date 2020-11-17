@@ -54,6 +54,7 @@ Table(ShopwareCoreFrameworkAppAppDefinition, "app\n(__EMPTY__)") {
    copyright string
    license string
    not_null(active) bool
+   not_null(configurable) bool
    privacy string
    not_null(version) string
    iconRaw blob
@@ -1593,6 +1594,7 @@ Table(ShopwareCoreCheckoutCustomerCustomerDefinition, "customer\n(The sales chan
    remoteAddress remoteAddress
    tagIds manyToManyId
    requestedGroupId foreignKey
+   boundSalesChannelId foreignKey
    not_null(createdAt) createdAt
    updatedAt updatedAt
 }
@@ -1999,6 +2001,8 @@ Table(ShopwareCoreCheckoutShippingShippingMethodDefinition, "shipping_method\n(S
    not_null(availabilityRuleId) foreignKey
    mediaId foreignKey
    not_null(deliveryTimeId) foreignKey
+   not_null(taxType) string
+   taxId foreignKey
    description translated
    trackingUrl translated
    not_null(createdAt) createdAt
@@ -2208,6 +2212,7 @@ ShopwareCoreCheckoutOrderAggregateOrderAddressOrderAddressDefinition --> Shopwar
 ShopwareCoreContentNewsletterAggregateNewsletterRecipientNewsletterRecipientDefinition --> ShopwareCoreSystemSalutationSalutationDefinition
 ShopwareCoreContentProductProductDefinition --> ShopwareCoreSystemTaxTaxDefinition
 ShopwareCoreSystemTaxAggregateTaxRuleTaxRuleDefinition --> ShopwareCoreSystemTaxTaxDefinition
+ShopwareCoreCheckoutShippingShippingMethodDefinition --> ShopwareCoreSystemTaxTaxDefinition
 ShopwareCoreSystemTaxAggregateTaxRuleTypeTaxRuleTypeDefinition --> ShopwareCoreSystemTaxAggregateTaxRuleTaxRuleDefinition
 ShopwareCoreSystemTaxAggregateTaxRuleTypeTranslationTaxRuleTypeTranslationDefinition --> ShopwareCoreSystemTaxAggregateTaxRuleTypeTaxRuleTypeDefinition
 ShopwareCoreContentProductProductDefinition --> ShopwareCoreSystemUnitUnitDefinition

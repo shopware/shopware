@@ -5,9 +5,10 @@ namespace Shopware\Core\Checkout\Customer\Event;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-class CustomerWishlistLoaderCriteriaEvent extends NestedEvent
+class CustomerWishlistLoaderCriteriaEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
     public const EVENT_NAME = 'checkout.customer.customer_wishlist_loader_criteria';
 

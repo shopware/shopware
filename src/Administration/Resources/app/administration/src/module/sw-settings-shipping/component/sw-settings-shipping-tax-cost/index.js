@@ -6,8 +6,6 @@ const { mapPropertyErrors, mapState, mapGetters } = Shopware.Component.getCompon
 Component.register('sw-settings-shipping-tax-cost', {
     template,
 
-    inject: ['feature'],
-
     mixins: [
         Mixin.getByName('placeholder')
     ],

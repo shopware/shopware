@@ -85,6 +85,7 @@
 
             {% block sw_category_detail_products %}
                 <sw-many-to-many-assignment-card
+                    v-if="category.type !== 'folder'"
                     class="sw-category-detail-base__products"
                     :title="$tc('sw-category.base.products.productAssignmentHeadline')"
                     :entityCollection="category.products"
@@ -192,14 +193,15 @@
             {% endblock %}
 
             {% block sw_category_detail_seo %}
-                <sw-card :title="$tc('sw-category.base.seo.title')"
+                <sw-card v-if="category.type !== 'folder'"
+                         :title="$tc('sw-category.base.seo.title')"
                          :isLoading="isLoading">
                     <sw-category-seo-form :category="category"></sw-category-seo-form>
                 </sw-card>
             {% endblock %}
 
             {% block sw_category_detail_seo_card %}
-                <sw-seo-url v-if="category.seoUrls"
+                <sw-seo-url v-if="category.seoUrls && category.type !=='folder'"
                             :isLoading="isLoading"
                             :hasDefaultTemplate="false"
                             :disabled="!acl.can('category.editor')"
@@ -210,7 +212,7 @@
 
         {% block sw_category_detail_attribute_sets %}
             <sw-card :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
-                     v-if="customFieldSetsArray.length > 0"
+                     v-if="customFieldSetsArray.length > 0 && category.type !=='folder'"
                      :isLoading="isLoading">
                 <sw-custom-field-set-renderer
                         :entity="category"

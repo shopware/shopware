@@ -1,3 +1,4 @@
+// merge 16.11.2020
 /**
  * Shopware End Developer API
  * @module Shopware

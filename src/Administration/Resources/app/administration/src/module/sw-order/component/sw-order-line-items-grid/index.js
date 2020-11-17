@@ -4,6 +4,7 @@ import './sw-order-line-items-grid.scss';
 const { Component, Service, Utils } = Shopware;
 const { get, format } = Utils;
 
+// merge 16.11.2020
 Component.register('sw-order-line-items-grid', {
     template,
 

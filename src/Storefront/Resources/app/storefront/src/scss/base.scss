@@ -71,7 +71,7 @@ https://sass-guidelin.es/#the-7-1-pattern
 @import 'component/ellipsis';
 @import 'component/product-feature';
 @import 'component/notification-dot';
-
+@import 'component/product-wishlist';
 /*
  * Layout-related sections
  * ----------------------- */
@@ -121,3 +121,5 @@ https://sass-guidelin.es/#the-7-1-pattern
 @import 'page/newsletter/newsletter';
 
 @import 'page/search/search';
+
+@import 'page/wishlist/wishlist';

@@ -22,7 +22,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -133,33 +132,21 @@ class OrderRouteTest extends TestCase
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
-        if (Feature::isActive('FEATURE_NEXT_10058')) {
-            /** @var SalesChannelContextFactory $salesChannelContextFactory */
-            $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
-            $salesChannelContext = $salesChannelContextFactory->create($response['contextToken'], Defaults::SALES_CHANNEL);
+        /** @var SalesChannelContextFactory $salesChannelContextFactory */
+        $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
+        $salesChannelContext = $salesChannelContextFactory->create($response['contextToken'], Defaults::SALES_CHANNEL);
 
-            $newToken = $this->contextPersister->replace($response['contextToken'], $salesChannelContext);
-            $this->contextPersister->save(
-                $newToken,
-                [
-                    'customerId' => $this->customerId,
-                    'billingAddressId' => null,
-                    'shippingAddressId' => null,
-                ],
-                Defaults::SALES_CHANNEL,
-                $this->customerId
-            );
-        } else {
-            $newToken = $this->contextPersister->replace($response['contextToken']);
-            $this->contextPersister->save(
-                $newToken,
-                [
-                    'customerId' => $this->customerId,
-                    'billingAddressId' => null,
-                    'shippingAddressId' => null,
-                ]
-            );
-        }
+        $newToken = $this->contextPersister->replace($response['contextToken'], $salesChannelContext);
+        $this->contextPersister->save(
+            $newToken,
+            [
+                'customerId' => $this->customerId,
+                'billingAddressId' => null,
+                'shippingAddressId' => null,
+            ],
+            Defaults::SALES_CHANNEL,
+            $this->customerId
+        );
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $newToken);
     }

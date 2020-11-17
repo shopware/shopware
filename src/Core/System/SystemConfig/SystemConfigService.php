@@ -238,6 +238,11 @@ class SystemConfigService
 
         $prefix = $bundle->getName() . '.config.';
 
+        $this->saveConfig($config, $prefix, $override);
+    }
+
+    public function saveConfig(array $config, string $prefix, bool $override): void
+    {
         foreach ($config as $card) {
             foreach ($card['elements'] as $element) {
                 $key = $prefix . $element['name'];

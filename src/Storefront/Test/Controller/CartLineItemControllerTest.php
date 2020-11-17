@@ -43,7 +43,7 @@ class CartLineItemControllerTest extends TestCase
         );
 
         static::assertSame(
-            ['warning' => ['checkout.product-not-found']],
+            ['warning' => [$this->getContainer()->get('translator')->trans('checkout.product-not-found')]],
             $this->getFlashBag()->all()
         );
         static::assertTrue($response->isRedirect(), $response->getContent());

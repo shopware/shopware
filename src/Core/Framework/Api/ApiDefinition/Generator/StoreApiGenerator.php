@@ -91,7 +91,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
             $name = str_replace('.json', '', $item->getFilename());
 
             $readData = json_decode(file_get_contents($item->getPathname()), true);
-            $data['definitions'][$name] = $readData;
+            $data['components']['schemas'][$name] = $readData;
         }
 
         return $data;

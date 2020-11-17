@@ -109,7 +109,7 @@ describe('Snippets: Test crud operations', () => {
         cy.awaitAndCheckNotification('Snippet "aWonderful.customSnip" has been saved.');
     });
 
-    it('@settings: can save an snippet without a value', () => {
+    it.skip('@settings: can save an snippet without a value', () => {
         const page = new SnippetPageObject();
 
         // Open snippet set

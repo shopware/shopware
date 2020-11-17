@@ -36,6 +36,22 @@ describe('Media: Test crud operations', () => {
         });
         cy.get('.sw-media-base-item__name[title="sw-login-background.png"]')
             .should('be.visible');
+    });
+
+    it('@base @media: "create" via file url and read medium', () => {
+        const page = new MediaPageObject();
+
+        // Request we want to wait for later
+        cy.server();
+        cy.route({
+            url: `${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw-login-background`,
+            method: 'post'
+        }).as('saveDataFileUpload');
+
+        cy.route({
+            url: `${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw_logo_white`,
+            method: 'post'
+        }).as('saveDataUrlUpload');
 
         // Upload medium
         cy.clickContextMenuItem(
@@ -47,6 +63,9 @@ describe('Media: Test crud operations', () => {
         cy.wait('@saveDataUrlUpload').then((xhr) => {
             cy.awaitAndCheckNotification('File has been saved.');
             expect(xhr).to.have.property('status', 204);
+            cy.get('.sw-media-media-item .sw-media-preview-v2__item')
+                .should('have.attr', 'src')
+                .and('match', /sw_logo_white/);
         });
         cy.get('.sw-media-base-item__name[title="sw_logo_white.png"]')
             .should('be.visible');
@@ -82,11 +101,15 @@ describe('Media: Test crud operations', () => {
         // Verify meta data
         cy.wait('@saveData').then((xhr) => {
             expect(xhr).to.have.property('status', 204);
+
+            cy.get('.sw-media-media-item .sw-media-preview-v2__item')
+                .should('have.attr', 'src')
+                .and('match', /sw_logo_white/);
         });
         cy.get('input[placeholder="Cypress example title"]').should('be.visible');
     });
 
-    it.skip('@base @media: delete medium', () => {
+    it('@base @media: delete medium', () => {
         const page = new MediaPageObject();
 
         // Request we want to wait for later
@@ -105,7 +128,15 @@ describe('Media: Test crud operations', () => {
         cy.wait('@saveDataFileUpload').then((xhr) => {
             cy.awaitAndCheckNotification('File has been saved.');
             expect(xhr).to.have.property('status', 204);
+
+            cy.get('.sw-media-media-item').should('be.visible');
+            cy.get('.sw-media-media-item .sw-media-preview-v2__item')
+                .should('have.attr', 'src')
+                .and('match', /sw-login-background/);
         });
+        cy.get('.sw-media-base-item__name[title="sw-login-background.png"]')
+            .should('be.visible');
+        cy.get('.sw-media-media-item').should('be.visible')
         page.deleteFile('sw-login-background.png');
     });
 });

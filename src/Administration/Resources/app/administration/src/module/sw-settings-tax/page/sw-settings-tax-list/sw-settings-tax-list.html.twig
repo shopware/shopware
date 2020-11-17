@@ -68,6 +68,11 @@
                                         :allowEdit="acl.can('tax.editor')"
                                         :allowInlineEdit="acl.can('tax.editor')"
                                         :allowDelete="acl.can('tax.deleter')"
+                                        :disableDataFetching=true
+                                        @column-sort="onSortColumn"
+                                        @page-change="onPageChange"
+                                        :sortBy="sortBy"
+                                        :sortDirection="sortDirection"
                                         @inline-edit-save="onInlineEditSave">
                                         {% block sw_settings_tax_list_grid_column_default_tax_rate %}
                                             <template #column-taxRate="{ item, isInlineEdit, compact }">

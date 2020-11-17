@@ -45,7 +45,12 @@
                         :items="items"
                         :allowEdit="acl.can('review.editor')"
                         :allowDelete="acl.can('review.deleter')"
-                        :showSelection="acl.can('review.deleter')">
+                        :showSelection="acl.can('review.deleter')"
+                        @page-change="onPageChange"
+                        @column-sort="onSortColumn"
+                        :disableDataFetching=true
+                        :sortBy="sortBy"
+                        :sortDirection="sortDirection">
 
                         {% block sw_review_list_content_list_status %}
                             <template #column-status="{ item }">

@@ -58,6 +58,10 @@
                             :items="customers"
                             :columns="customerColumns"
                             :repository="customerRepository"
+                            :sortBy="sortBy"
+                            :sortDirection="sortDirection"
+                            @column-sort="onSortColumn"
+                            @page-change="onPageChange"
                             detailRoute="sw.customer.detail"
                             :showSelection="acl.can('customer.deleter')"
                             :allowInlineEdit="acl.can('customer.editor')"
@@ -65,7 +69,8 @@
                             identifier="sw-customer-list"
                             @selection-change="updateSelection"
                             @inline-edit-save="onInlineEditSave"
-                            @column-sort="onSortColumn">
+                            @column-sort="onSortColumn"
+                            :disableDataFetching=true>
 
                             {% block sw_customer_list_grid_columns %}
 

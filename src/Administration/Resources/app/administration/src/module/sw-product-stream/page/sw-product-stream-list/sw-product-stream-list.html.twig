@@ -62,6 +62,12 @@
                             detailRoute="sw.product.stream.detail"
                             :showSelection="acl.can('product_stream.deleter')"
                             :isLoading="isLoading"
+                            @page-change="onPageChange"
+                            @column-sort="onSortColumn"
+                            :disableDataFetching=true
+                            :sortBy="sortBy"
+                            :sortDirection="sortDirection"
+                            :criteriaLimit="limit"
                             :allowInlineEdit="acl.can('product_stream.editor')"
                             @inline-edit-save="onInlineEditSave"
                             @items-delete-finish="getList">

@@ -67,10 +67,15 @@
                             :showSelection="acl.can('promotion.deleter')"
                             :allowEdit="acl.can('promotion.editor')"
                             :allowView="acl.can('promotion.viewer')"
+                            :sortBy="sortBy"
+                            :sortDirection="sortDirection"
+                            @column-sort="onSortColumn"
+                            @page-change="onPageChange"
                             allowColumnEdit
                             fullPage
                             @selection-change="updateSelection"
-                            @update-records="updateTotal">
+                            @update-records="updateTotal"
+                            :disableDataFetching=true>
 
                             {% block sw_promotion_list_grid_columns %}
                                 {% block sw_promotion_list_grid_columns_active %}

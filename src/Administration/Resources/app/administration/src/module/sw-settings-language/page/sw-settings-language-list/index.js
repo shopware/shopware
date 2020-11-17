@@ -22,7 +22,8 @@ Component.register('sw-settings-language-list', {
             filterRootLanguages: false,
             filterInheritedLanguages: false,
             isLoading: true,
-            sortBy: this.$route.params.sortBy || 'name'
+            sortBy: 'name',
+            sortDirection: 'DESC'
         };
     },
 
@@ -38,7 +39,7 @@ Component.register('sw-settings-language-list', {
             criteria.addAssociation('locale');
 
             if (this.sortBy) {
-                criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection || 'DESC'));
+                criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
             }
 
             if (this.filterRootLanguages) {
@@ -97,12 +98,6 @@ Component.register('sw-settings-language-list', {
 
         allowDelete() {
             return this.acl.can('language.deleter');
-        }
-    },
-
-    watch: {
-        listingCriteria() {
-            this.getList();
         }
     },
 

@@ -343,3 +343,52 @@ Cypress.Commands.add('sortListingViaColumn', (
 
     cy.get(rowZeroSelector).contains(firstEntry);
 });
+
+/**
+ * Test wheter the searchTerm, sorting, page and limt get applied to the URL and the listing
+ * @memberOf Cypress.Chainable#
+ * @name testListing
+ * @function
+ * @param {String} searchTerm - the searchTerm for witch should be searched for
+ * @param {Object} sorting - the sorting to be checked
+ * @param {Number} sorting.location - the column in wich the number is
+ * @param {String} sorting.text - the text in the column header
+ * @param {String} sorting.propertyName - the 'technical' name for the column
+ * @param {('ASC'|'DESC')} sorting.sortDirection - the sort direction
+ * @param {Number} page - the page to be checked
+ * @param {Number} limit - the limit to be checked
+ */
+Cypress.Commands.add('testListing', ({ searchTerm, sorting = { location: undefined, text: undefined, propertyName: undefinded, sortDirection: undefined }, page, limit }) => {
+    cy.get('.sw-data-grid__skeleton').should('not.exist');
+
+    // check searchterm
+    cy.url().should('contain', `term=${searchTerm}`);
+    cy.get('.sw-search-bar__input').should('have.value', searchTerm);
+
+    // check sorting
+    let iconClass = undefined;
+    switch (sorting.sortDirection) {
+        case 'ASC':
+            iconClass = '.icon--small-arrow-small-up';
+            break;
+        case 'DESC':
+            iconClass = '.icon--small-arrow-small-down';
+            break;
+        default: 
+        throw new Error(`${sorting.sortDirection} is not a valid sorting direction`)
+    }
+    cy.url().should('contain', `sortBy=${sorting.propertyName}`);
+    cy.url().should('contain', `sortDirection=${sorting.sortDirection}`);
+    cy.get(`.sw-data-grid__cell--${sorting.location} > .sw-data-grid__cell-content`).contains(sorting.text);
+    cy.get(`.sw-data-grid__cell--${sorting.location} > .sw-data-grid__cell-content`).get(iconClass).should('be.visible')
+
+    // check page  
+    cy.url().should('contain', `page=${page}`);
+    cy.get(`:nth-child(${page}) > .sw-pagination__list-button`).should('have.class', 'is-active');
+
+    // check limit
+    cy.get('#perPage').contains(limit);
+    cy.url().should('contain', `limit=${limit}`);
+    // the following needs a plus 1 because the 'select all' checkbox is counted too
+    cy.get('.sw-data-grid__cell-content > .sw-field--checkbox').should('have.length', (limit + 1));
+})

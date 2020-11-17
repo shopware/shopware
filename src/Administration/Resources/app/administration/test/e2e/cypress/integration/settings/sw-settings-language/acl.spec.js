@@ -66,7 +66,7 @@ describe('Language: Test acl privileges', () => {
         });
 
         cy.get(page.elements.smartBarBack).click();
-        cy.get(`${page.elements.dataGridRow}--2 .sw-data-grid__cell--name`).contains('Japanese');
+        cy.get(`${page.elements.dataGridRow}--1 .sw-data-grid__cell--name`).contains('Japanese');
     });
 
     it('@settings: can update and read language', () => {
@@ -109,7 +109,7 @@ describe('Language: Test acl privileges', () => {
         });
 
         cy.get(page.elements.smartBarBack).click();
-        cy.get(`${page.elements.dataGridRow}--2 .sw-data-grid__cell--name`).contains('Kyoto Japanese');
+        cy.get(`${page.elements.dataGridRow}--1 .sw-data-grid__cell--name`).contains('Kyoto Japanese');
     });
 
     it('@settings: can delete language', () => {
@@ -141,7 +141,7 @@ describe('Language: Test acl privileges', () => {
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--2`
+            `${page.elements.dataGridRow}--0`
         );
 
         cy.get('.sw-modal__body').should('be.visible');

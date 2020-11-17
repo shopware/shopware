@@ -64,6 +64,11 @@
                                     :allowEdit="acl.can('rule.editor')"
                                     :allowDelete="acl.can('rule.deleter')"
                                     detailRoute="sw.settings.rule.detail"
+                                    @column-sort="onSortColumn"
+                                    @page-change="onPageChange"
+                                    disableDataFetching=true
+                                    :sortBy="sortBy"
+                                    :sortDirection="sortDirection"
                                     @inline-edit-save="onInlineEditSave"
                                     @items-delete-finish="getList">
 

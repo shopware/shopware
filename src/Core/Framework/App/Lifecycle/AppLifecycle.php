@@ -9,6 +9,7 @@ use Shopware\Core\Framework\App\AppStateService;
 use Shopware\Core\Framework\App\Event\AppDeletedEvent;
 use Shopware\Core\Framework\App\Event\AppInstalledEvent;
 use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
+use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Exception\InvalidAppConfigurationException;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ActionButtonPersister;
@@ -22,6 +23,7 @@ use Shopware\Core\Framework\App\Manifest\Xml\Module;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
@@ -147,6 +149,12 @@ class AppLifecycle extends AbstractAppLifecycle
 
     public function install(Manifest $manifest, bool $activate, Context $context): void
     {
+        $app = $this->loadAppByName($manifest->getMetadata()->getName(), $context);
+
+        if ($app) {
+            throw new AppAlreadyInstalledException($manifest->getMetadata()->getName());
+        }
+
         $defaultLocale = $this->getDefaultLocale($context);
         $metadata = $manifest->getMetadata()->toArray($defaultLocale);
         $appId = Uuid::randomHex();
@@ -290,6 +298,17 @@ class AppLifecycle extends AbstractAppLifecycle
     {
         /** @var AppEntity $app */
         $app = $this->appRepository->search(new Criteria([$id]), $context)->first();
+
+        return $app;
+    }
+
+    private function loadAppByName(string $name, Context $context): ?AppEntity
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('name', $name));
+
+        /** @var AppEntity|null $app */
+        $app = $this->appRepository->search($criteria, $context)->first();
 
         return $app;
     }

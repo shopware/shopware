@@ -13,6 +13,7 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Event\AppDeletedEvent;
 use Shopware\Core\Framework\App\Event\AppInstalledEvent;
 use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
+use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Exception\InvalidAppConfigurationException;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
@@ -228,6 +229,15 @@ class AppLifecycleTest extends TestCase
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withInvalidConfig/manifest.xml');
 
         static::expectException(InvalidAppConfigurationException::class);
+        $this->appLifecycle->install($manifest, true, $this->context);
+    }
+
+    public function testInstallThrowsIfAppIsAlreadyInstalled(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/withoutDescription/manifest.xml');
+        $this->appLifecycle->install($manifest, true, $this->context);
+
+        static::expectException(AppAlreadyInstalledException::class);
         $this->appLifecycle->install($manifest, true, $this->context);
     }
 

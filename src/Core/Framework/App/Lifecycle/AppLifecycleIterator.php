@@ -3,8 +3,10 @@
 namespace Shopware\Core\Framework\App\Lifecycle;
 
 use Shopware\Core\Framework\App\AppCollection;
+use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Exception\CustomFieldTypeNotFoundException;
+use Shopware\Core\Framework\App\Exception\InvalidAppConfigurationException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -32,8 +34,20 @@ class AppLifecycleIterator
 
     /**
      * @return Manifest[]
+     *
+     * @deprecated tag:v6.4.0 use iterateOverApps() instead
      */
     public function iterate(AbstractAppLifecycle $appLifecycle, bool $activate, Context $context): array
+    {
+        return array_map(function (array $fail): Manifest {
+            return $fail['manifest'];
+        }, $this->iterateOverApps($appLifecycle, $activate, $context));
+    }
+
+    /**
+     * @psalm-return  list<array{manifest: Manifest, exception: \Exception}>
+     */
+    public function iterateOverApps(AbstractAppLifecycle $appLifecycle, bool $activate, Context $context): array
     {
         $appsFromFileSystem = $this->appLoader->load();
         $installedApps = $this->getRegisteredApps($context);
@@ -54,8 +68,11 @@ class AppLifecycleIterator
                     $appLifecycle->update($manifest, $app, $context);
                 }
                 $successfulUpdates[] = $manifest->getMetadata()->getName();
-            } catch (AppRegistrationException | CustomFieldTypeNotFoundException $exception) {
-                $fails[] = $manifest;
+            } catch (AppRegistrationException | CustomFieldTypeNotFoundException | AppAlreadyInstalledException | InvalidAppConfigurationException $exception) {
+                $fails[] = [
+                    'manifest' => $manifest,
+                    'exception' => $exception,
+                ];
 
                 continue;
             }

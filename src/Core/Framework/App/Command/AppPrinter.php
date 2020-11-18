@@ -52,7 +52,7 @@ class AppPrinter
     }
 
     /**
-     * @param Manifest[] $fails
+     * @psalm-param list<array{manifest: Manifest, exception: \Exception}> $fails
      */
     public function printIncompleteInstallations(ShopwareStyle $io, array $fails): void
     {
@@ -64,12 +64,13 @@ class AppPrinter
 
         foreach ($fails as $fail) {
             $appTable[] = [
-                $fail->getMetadata()->getName(),
+                $fail['manifest']->getMetadata()->getName(),
+                $fail['exception']->getMessage(),
             ];
         }
 
         $io->table(
-            ['Failed'],
+            ['Failed', 'Reason'],
             $appTable
         );
     }

@@ -128,7 +128,7 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
         $customerRecovery = $this->customerRecoveryRepository->search($customerIdCriteria, $repoContext)->first();
 
         $hash = $customerRecovery->getHash();
-        $recoverUrl = $data->get('storefrontUrl') . '/account/recover/password?hash=' . $hash;
+        $recoverUrl = rtrim($data->get('storefrontUrl'), '/') . '/account/recover/password?hash=' . $hash;
 
         $event = new CustomerAccountRecoverRequestEvent($context, $customerRecovery, $recoverUrl);
         $this->eventDispatcher->dispatch($event, CustomerAccountRecoverRequestEvent::EVENT_NAME);

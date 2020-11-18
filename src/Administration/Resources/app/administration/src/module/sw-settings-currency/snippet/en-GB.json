@@ -73,7 +73,8 @@
       "helpTextDecimals": "Decimals indicate the maximum number of digits after the decimal separator.",
       "helpTextInterval": "Use rounding intervals to account for markets where the lowest physical denominations of the currency have been abolished and cash roundings are in place. <br><br> Hint: Select \"None\" if you don't want to apply any cash rounding. E.g. when utilising decimals larger than 2.",
       "helpTextRoundForNet": "Activate rounding for net customer groups additionally.",
-      "labelIntervalNone": "None"
+      "labelIntervalNone": "None",
+      "tooltipIntervalDisabled": "Cash rounding is not applied if decimals is larger than 2."
     }
   },
   "sw-privileges": {

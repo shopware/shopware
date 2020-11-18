@@ -17,7 +17,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
@@ -509,13 +508,6 @@ class SalesChannelContextFactory
      */
     private function getCashRounding(CurrencyEntity $currency, ShippingLocation $shippingLocation, Context $context): array
     {
-        if (!Feature::isActive('FEATURE_NEXT_6059')) {
-            return [
-                new CashRoundingConfig($currency->getDecimalPrecision(), 0.01, true),
-                new CashRoundingConfig($currency->getDecimalPrecision(), 0.01, true),
-            ];
-        }
-
         $criteria = new Criteria();
         $criteria->setLimit(1);
         $criteria->addFilter(new EqualsFilter('currencyId', $currency->getId()));

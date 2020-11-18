@@ -6,13 +6,17 @@ Shopware.Service('privileges')
         roles: {
             viewer: {
                 privileges: [
-                    'currency:read'
+                    'currency:read',
+                    'currency_country_rounding:read',
+                    'country:read'
                 ],
                 dependencies: []
             },
             editor: {
                 privileges: [
-                    'currency:update'
+                    'currency:update',
+                    'currency_country_rounding:update',
+                    'currency_country_rounding:delete'
                 ],
                 dependencies: [
                     'currencies.viewer'

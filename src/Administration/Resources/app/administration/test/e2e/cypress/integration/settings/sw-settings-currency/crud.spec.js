@@ -17,7 +17,7 @@ describe('Currency: Test crud operations', () => {
     });
 
     it('@settings: create and read currency', () => {
-        cy.window().then((win) => {
+        cy.window().then(() => {
             const page = new SettingsPageObject();
             // Request we want to wait for later
             cy.server();
@@ -33,19 +33,14 @@ describe('Currency: Test crud operations', () => {
             cy.get('input[name=sw-field--currency-isoCode]').type('D');
             cy.get('input[name=sw-field--currency-shortName]').type('D');
             cy.get('input[name=sw-field--currency-symbol]').type('D¥');
-            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_6059')) {
-                cy.get('input[name=sw-field--currency-decimalPrecision]').type('2');
-            }
             cy.get('input[name=sw-field--currency-factor]').type('1.0076');
 
-            if (win.Shopware.Feature.isActive('FEATURE_NEXT_6059')) {
-                cy.get('input[name=sw-field--itemRounding-decimals]').clearTypeAndCheck('20');
-                cy.get('.sw-settings-price-rounding__item-interval-select')
-                    .typeSingleSelectAndCheck('0.10', '.sw-settings-price-rounding__item-interval-select');
-                cy.get('input[name=sw-field--totalRounding-decimals]').clearTypeAndCheck('15');
-                cy.get('.sw-settings-price-rounding__grand-interval-select')
-                    .typeSingleSelectAndCheck('0.50', '.sw-settings-price-rounding__grand-interval-select');
-            }
+            cy.get('input[name=sw-field--itemRounding-decimals]').clearTypeAndCheck('20');
+            cy.get('.sw-settings-price-rounding__item-interval-select')
+                .typeSingleSelectAndCheck('0.10', '.sw-settings-price-rounding__item-interval-select');
+            cy.get('input[name=sw-field--totalRounding-decimals]').clearTypeAndCheck('15');
+            cy.get('.sw-settings-price-rounding__grand-interval-select')
+                .typeSingleSelectAndCheck('0.50', '.sw-settings-price-rounding__grand-interval-select');
 
             cy.get(page.elements.currencySaveAction).click();
 

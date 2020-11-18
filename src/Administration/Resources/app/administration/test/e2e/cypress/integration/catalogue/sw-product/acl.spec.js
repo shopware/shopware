@@ -151,7 +151,7 @@ describe('Product: Test ACL privileges', () => {
         cy.get('.sw-select-product__select_manufacturer')
             .typeSingleSelectAndCheck('shopware AG', '.sw-select-product__select_manufacturer');
         cy.get('#sw-field--product-taxId').select('Standard rate');
-        cy.get('#sw-price-field-gross').type('10');
+        cy.get('#sw-price-field-gross').type('10').blur();
 
         // Check net price calculation
         cy.wait('@calculatePrice').then(() => {

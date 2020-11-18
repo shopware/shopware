@@ -366,6 +366,7 @@ ShopwareCoreSystemCountry --> ShopwareCoreSystemCountry
 ShopwareCoreCheckoutCustomer --> ShopwareCoreSystemCountry
 ShopwareCoreCheckoutOrder --> ShopwareCoreSystemCountry
 ShopwareCoreSystemTax --> ShopwareCoreSystemCountry
+ShopwareCoreSystemCurrency --> ShopwareCoreSystemCountry
 ShopwareCoreSystemCurrency --> ShopwareCoreSystemCurrency
 ShopwareCoreCheckoutOrder --> ShopwareCoreSystemCurrency
 ShopwareCoreCheckoutPromotion --> ShopwareCoreSystemCurrency

@@ -49,13 +49,6 @@ class CurrencyEntity extends Entity
     protected $position;
 
     /**
-     * @feature-deprecated (flag:FEATURE_NEXT_6059) tag:v6.4.0 - Use `itemRounding` or `totalRounding`
-     *
-     * @var int
-     */
-    protected $decimalPrecision;
-
-    /**
      * @var CurrencyTranslationCollection|null
      */
     protected $translations;
@@ -111,12 +104,12 @@ class CurrencyEntity extends Entity
     protected $countryRoundings;
 
     /**
-     * @var CashRoundingConfig|null
+     * @var CashRoundingConfig
      */
     protected $itemRounding;
 
     /**
-     * @var CashRoundingConfig|null
+     * @var CashRoundingConfig
      */
     protected $totalRounding;
 
@@ -240,22 +233,6 @@ class CurrencyEntity extends Entity
         $this->customFields = $customFields;
     }
 
-    /**
-     * @feature-deprecated (flag:FEATURE_NEXT_6059) tag:v6.4.0 - Use `itemRounding` or `totalRounding`
-     */
-    public function getDecimalPrecision(): int
-    {
-        return $this->decimalPrecision;
-    }
-
-    /**
-     * @feature-deprecated (flag:FEATURE_NEXT_6059) tag:v6.4.0 - Use `itemRounding` or `totalRounding`
-     */
-    public function setDecimalPrecision(int $decimalPrecision): void
-    {
-        $this->decimalPrecision = $decimalPrecision;
-    }
-
     public function getShippingMethodPrices(): ?ShippingMethodPriceCollection
     {
         return $this->shippingMethodPrices;
@@ -306,23 +283,31 @@ class CurrencyEntity extends Entity
         $this->countryRoundings = $countryRoundings;
     }
 
-    public function getItemRounding(): ?CashRoundingConfig
+    public function getItemRounding(): CashRoundingConfig
     {
         return $this->itemRounding;
     }
 
-    public function setItemRounding(?CashRoundingConfig $itemRounding): void
+    public function setItemRounding(CashRoundingConfig $itemRounding): void
     {
         $this->itemRounding = $itemRounding;
     }
 
-    public function getTotalRounding(): ?CashRoundingConfig
+    public function getTotalRounding(): CashRoundingConfig
     {
         return $this->totalRounding;
     }
 
-    public function setTotalRounding(?CashRoundingConfig $totalRounding): void
+    public function setTotalRounding(CashRoundingConfig $totalRounding): void
     {
         $this->totalRounding = $totalRounding;
+    }
+
+    /**
+     * @deprecated tag:v6.5.0 - Use `itemRounding.decimals` or `totalRounding.decimals`
+     */
+    public function getDecimalPrecision(): int
+    {
+        return $this->itemRounding->getDecimals();
     }
 }

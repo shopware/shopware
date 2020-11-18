@@ -38,7 +38,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StateMachineStateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
@@ -124,14 +123,12 @@ class OrderDefinition extends EntityDefinition
             (new ManyToManyAssociationField('tags', TagDefinition::class, OrderTagDefinition::class, 'order_id', 'tag_id'))->addFlags(new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
         ]);
 
-        if (Feature::isActive('FEATURE_NEXT_6059')) {
-            $fields->add(
-                new CashRoundingConfigField('item_rounding', 'itemRounding')
-            );
-            $fields->add(
-                new CashRoundingConfigField('total_rounding', 'totalRounding')
-            );
-        }
+        $fields->add(
+            new CashRoundingConfigField('item_rounding', 'itemRounding')
+        );
+        $fields->add(
+            new CashRoundingConfigField('total_rounding', 'totalRounding')
+        );
 
         return $fields;
     }

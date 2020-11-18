@@ -1,7 +1,6 @@
 ---
 title: Implement cash rounding
 issue: NEXT-10004
-flag: FEATURE_NEXT_6059
 author: Oliver Skroblin
 author_email: o.skroblin@shopware.com 
 author_github: Oliver Skroblin

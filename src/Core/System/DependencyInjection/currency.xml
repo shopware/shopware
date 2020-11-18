@@ -40,11 +40,5 @@
         <service id="Shopware\Core\System\Currency\SalesChannel\CurrencyRoute" public="true">
             <argument type="service" id="sales_channel.currency.repository"/>
         </service>
-
-        <service id="Shopware\Core\System\Currency\CurrencyRoundingDeprecationUpdater">
-            <argument>%shopware.deployment.blue_green%</argument>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <tag name="kernel.event_subscriber"/>
-        </service>
     </services>
 </container>

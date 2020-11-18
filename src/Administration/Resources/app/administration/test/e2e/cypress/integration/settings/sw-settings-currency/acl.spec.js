@@ -126,7 +126,6 @@ describe('Currency: Test acl privileges', () => {
         cy.get('input[name=sw-field--currency-isoCode]').type('D');
         cy.get('input[name=sw-field--currency-shortName]').type('D');
         cy.get('input[name=sw-field--currency-symbol]').type('D¥');
-        cy.get('input[name=sw-field--currency-decimalPrecision]').type('2');
         cy.get('input[name=sw-field--currency-factor]').type('1.0076');
         cy.get(page.elements.currencySaveAction).click();
 

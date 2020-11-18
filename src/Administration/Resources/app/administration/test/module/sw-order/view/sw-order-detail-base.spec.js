@@ -41,6 +41,14 @@ const orderMock = {
     price: {
         calculatedTaxes: [],
         taxStatus: 'gross'
+    },
+    totalRounding: {
+        interval: 0.01,
+        decimals: 2
+    },
+    itemRounding: {
+        interval: 0.01,
+        decimals: 2
     }
 };
 
@@ -96,6 +104,9 @@ function createWrapper(privileges = []) {
                         return Promise.resolve({});
                     }
                 })
+            },
+            feature: {
+                isActive: () => true
             }
         },
         mocks: {

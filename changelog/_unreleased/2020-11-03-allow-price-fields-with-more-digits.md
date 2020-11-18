@@ -8,6 +8,10 @@ author: Timo Altholtmann
 * Added new parameter `additionalOptions` to currency filter
 * Changed fields holding a price to support up to 20 digits
 * Added property `allowEdit` to `sw-product-seo-form`
+* Changed `sw-price-field` component to calculate the linked price on blur
+* Removed method `onPriceGrossChangeDebounce` from `sw-price-field` component
+* Removed method `onPriceNetChangeDebounce` from `sw-price-field` component
+* Removed constant `utils` from `sw-price-field` component
 ___
 # Upgrade Information
 ## Currency filter

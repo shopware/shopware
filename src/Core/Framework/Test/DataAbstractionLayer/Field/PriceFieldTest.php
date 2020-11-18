@@ -17,7 +17,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\PriceFieldDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -241,8 +240,6 @@ EOF;
         CashRoundingConfig $rounding,
         string $currencyId = Defaults::CURRENCY
     ): void {
-        Feature::skipTestIfInActive('FEATURE_NEXT_6059', $this);
-
         $definition = $this->registerDefinition(PriceFieldDefinition::class);
 
         $currency = [
@@ -473,7 +470,6 @@ EOF;
         CashRoundingConfig $rounding,
         string $currencyId = Defaults::CURRENCY
     ): void {
-        Feature::skipTestIfInActive('FEATURE_NEXT_6059', $this);
         $definition = $this->registerDefinition(PriceFieldDefinition::class);
 
         $currency = [

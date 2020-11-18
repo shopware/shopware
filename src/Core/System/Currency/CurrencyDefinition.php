@@ -25,7 +25,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCountryRoundingDefinition;
 use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCurrency\SalesChannelCurrencyDefinition;
@@ -78,24 +77,16 @@ class CurrencyDefinition extends EntityDefinition
             (new OneToManyAssociationField('productExports', ProductExportDefinition::class, 'currency_id', 'id'))->addFlags(new RestrictDelete(), new ReadProtected(SalesChannelApiSource::class)),
         ]);
 
-        if (Feature::isActive('FEATURE_NEXT_6059')) {
-            $fields->add(
-                (new CashRoundingConfigField('item_rounding', 'itemRounding'))->addFlags(new Required())
-            );
-            $fields->add(
-                (new CashRoundingConfigField('total_rounding', 'totalRounding'))->addFlags(new Required())
-            );
-            $fields->add(
-                (new OneToManyAssociationField('countryRoundings', CurrencyCountryRoundingDefinition::class, 'currency_id'))
-                    ->addFlags(new CascadeDelete())
-            );
-
-            $fields->add(new IntField('decimal_precision', 'decimalPrecision'));
-        } else {
-            $fields->add(
-                (new IntField('decimal_precision', 'decimalPrecision'))->addFlags(new Required())
-            );
-        }
+        $fields->add(
+            (new CashRoundingConfigField('item_rounding', 'itemRounding'))->addFlags(new Required())
+        );
+        $fields->add(
+            (new CashRoundingConfigField('total_rounding', 'totalRounding'))->addFlags(new Required())
+        );
+        $fields->add(
+            (new OneToManyAssociationField('countryRoundings', CurrencyCountryRoundingDefinition::class, 'currency_id'))
+                ->addFlags(new CascadeDelete())
+        );
 
         return $fields;
     }

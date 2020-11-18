@@ -37,9 +37,7 @@ use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
-use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -301,17 +299,12 @@ class OrderConverter
         $salesChannelContext = $this->salesChannelContextFactory->create(Uuid::randomHex(), $order->getSalesChannelId(), $options);
         $salesChannelContext->getContext()->addExtensions($context->getExtensions());
 
-        if (Feature::isActive('FEATURE_NEXT_6059')) {
-            if ($order->getItemRounding()) {
-                $salesChannelContext->setItemRounding($order->getItemRounding());
-            }
+        if ($order->getItemRounding()) {
+            $salesChannelContext->setItemRounding($order->getItemRounding());
+        }
 
-            if ($order->getTotalRounding()) {
-                $salesChannelContext->setTotalRounding($order->getTotalRounding());
-            }
-        } else {
-            $salesChannelContext->setItemRounding(new CashRoundingConfig($salesChannelContext->getCurrency()->getDecimalPrecision(), 0.01, true));
-            $salesChannelContext->setTotalRounding(new CashRoundingConfig($salesChannelContext->getCurrency()->getDecimalPrecision(), 0.01, true));
+        if ($order->getTotalRounding()) {
+            $salesChannelContext->setTotalRounding($order->getTotalRounding());
         }
 
         return $salesChannelContext;

@@ -44,7 +44,8 @@
 
     &__placeholder-listing,
     &__detail-listing {
-        width: 50%;
+        width: 100%;
+        max-width: 500px;
         list-style: none;
         margin: 35px 0 0 0;
     }

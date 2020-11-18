@@ -45,7 +45,34 @@ Component.register('sw-cms-detail', {
             selectedBlockSectionId: null,
             currentMappingEntity: null,
             currentMappingEntityRepo: null,
-            demoEntityId: null
+            demoEntityId: null,
+            productDetailBlocks: [
+                {
+                    type: 'product-description-reviews',
+                    elements: [
+                        {
+                            slot: 'content',
+                            type: 'product-description-reviews',
+                            config: {}
+                        }
+                    ]
+                },
+                {
+                    type: 'product-heading',
+                    elements: [
+                        {
+                            slot: 'left',
+                            type: 'product-name',
+                            config: {}
+                        },
+                        {
+                            slot: 'right',
+                            type: 'manufacturer-logo',
+                            config: {}
+                        }
+                    ]
+                }
+            ]
         };
     },
 
@@ -713,16 +740,18 @@ Component.register('sw-cms-detail', {
         onPageTypeChange() {
             if (this.page.type === 'product_list') {
                 this.processProductListingType();
-            } else if (this.page.type === 'product_detail') {
-                this.processProductDetailType();
             } else {
                 this.page.sections.forEach((section) => {
                     section.blocks.forEach((block) => {
-                        if (block.type === 'product-listing' || block.type === 'product-heading') {
+                        if (block.type === 'product-listing') {
                             section.blocks.remove(block.id);
                         }
                     });
                 });
+            }
+
+            if (this.page.type === 'product_detail') {
+                this.processProductDetailType();
             }
 
             this.checkSlotMappings();
@@ -745,28 +774,14 @@ Component.register('sw-cms-detail', {
         },
 
         processProductDetailType() {
-            this.processHeadingBlock();
-        },
+            this.productDetailBlocks.forEach(block => {
+                const newBlock = this.blockRepository.create();
 
-        processHeadingBlock() {
-            const headingBlock = this.blockRepository.create();
-            const headingElements = [
-                {
-                    blockId: headingBlock.id,
-                    slot: 'left',
-                    type: 'product-name',
-                    config: {}
-                },
-                {
-                    blockId: headingBlock.id,
-                    slot: 'right',
-                    type: 'manufacturer-logo',
-                    config: {}
-                }
-            ];
+                block.elements.forEach(el => { el.blockId = newBlock.id; });
 
-            this.processBlock(headingBlock, 'product-heading');
-            this.processElements(headingBlock, headingElements);
+                this.processBlock(newBlock, block.type);
+                this.processElements(newBlock, block.elements);
+            });
         },
 
         processBlock(block, blockType) {

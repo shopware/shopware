@@ -18,10 +18,13 @@ Pos.   Artikel-Nr.			Beschreibung			Menge			Preis			Summe
 {% endfor %}
 
 {% set delivery = order.deliveries.first %}
+
 {% set displayRounded = order.totalRounding.interval != 0.01 or order.totalRounding.decimals != order.itemRounding.decimals %}
+{% set decimals = order.totalRounding.decimals %}
 {% set total = order.price.totalPrice %}
 {% if displayRounded %}
     {% set total = order.price.rawTotal %}
+    {% set decimals = order.itemRounding.decimals %}
 {% endif %}
 
 Versandkosten: {{order.deliveries.first.shippingCosts.totalPrice|currency(currencyIsoCode) }}
@@ -29,9 +32,9 @@ Gesamtkosten Netto: {{ order.amountNet|currency(currencyIsoCode) }}
     {% for calculatedTax in order.price.calculatedTaxes %}
         {% if order.taxStatus is same as('net') %}zzgl.{% else %}inkl.{% endif %} {{ calculatedTax.taxRate }}% MwSt. {{ calculatedTax.tax|currency(currencyIsoCode) }}
     {% endfor %}
-Gesamtkosten Brutto: {{ total|currency(currencyIsoCode) }}
+Gesamtkosten Brutto: {{ total|currency(currencyIsoCode,decimals=decimals) }}
 {% if displayRounded %}
-Gesamtkosten Brutto gerundet: {{ order.price.totalPrice|currency(currencyIsoCode) }}
+Gesamtkosten Brutto gerundet: {{ order.price.totalPrice|currency(currencyIsoCode,decimals=order.totalRounding.decimals) }}
 {% endif %}
 
 Gewählte Versandart: {{ delivery.shippingMethod.name }}

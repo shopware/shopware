@@ -1,11 +1,18 @@
-.sw-cms-el-config-product-description-reviews-config__tab-content {
+@import "~scss/variables";
+
+.sw-cms-el-config-buy-box {
+    &__alignment.sw-block-field,
+    .sw-entity-single-select {
+        margin-bottom: 0;
+    }
+
     .sw-entity-single-select__selection {
         white-space: nowrap;
     }
 
     .sw-entity-single-select__selection-text {
-        width: 100%;
         vertical-align: middle;
         padding-right: 16px;
+        width: 100%;
     }
 }

@@ -1,10 +1,10 @@
-import Criteria from 'src/core/data-new/criteria.data';
-import template from './sw-cms-el-config-product-description-reviews.html.twig';
-import './sw-cms-el-config-product-description-reviews.scss';
+import template from './sw-cms-el-config-buy-box.html.twig';
+import './sw-cms-el-config-buy-box.scss';
 
 const { Component, Mixin } = Shopware;
+const { Criteria } = Shopware.Data;
 
-Component.register('sw-cms-el-config-product-description-reviews', {
+Component.register('sw-cms-el-config-buy-box', {
     template,
 
     mixins: [
@@ -34,7 +34,7 @@ Component.register('sw-cms-el-config-product-description-reviews', {
 
         selectedProductCriteria() {
             const criteria = new Criteria();
-            criteria.addAssociation('properties');
+            criteria.addAssociation('deliveryTime');
 
             return criteria;
         }
@@ -46,7 +46,7 @@ Component.register('sw-cms-el-config-product-description-reviews', {
 
     methods: {
         createdComponent() {
-            this.initElementConfig('product-description-reviews');
+            this.initElementConfig('buy-box');
         },
 
         onProductChange(productId) {

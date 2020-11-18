@@ -4,17 +4,17 @@ import './preview';
 
 const Criteria = Shopware.Data.Criteria;
 const criteria = new Criteria();
-criteria.addAssociation('properties');
+criteria.addAssociation('deliveryTime');
 
 Shopware.Service('cmsService').registerCmsElement({
-    name: 'product-description-reviews',
     flag: Shopware.Service('feature').isActive('FEATURE_NEXT_10078'),
+    name: 'buy-box',
+    label: 'sw-cms.elements.buyBox.label',
     hidden: !Shopware.Service('feature').isActive('FEATURE_NEXT_10078'),
-    label: 'sw-cms.elements.productDescriptionReviews.label',
-    component: 'sw-cms-el-product-description-reviews',
-    configComponent: 'sw-cms-el-config-product-description-reviews',
-    previewComponent: 'sw-cms-el-preview-product-description-reviews',
-    disabledConfigInfoTextKey: 'sw-cms.elements.productDescriptionReviews.infoText.descriptionAndReviewsElement',
+    component: 'sw-cms-el-buy-box',
+    configComponent: 'sw-cms-el-config-buy-box',
+    previewComponent: 'sw-cms-el-preview-buy-box',
+    disabledConfigInfoTextKey: 'sw-cms.elements.buyBox.infoText.tooltipSettingDisabled',
     defaultConfig: {
         product: {
             source: 'static',
@@ -28,6 +28,19 @@ Shopware.Service('cmsService').registerCmsElement({
         alignment: {
             source: 'static',
             value: null
+        }
+    },
+    defaultData: {
+        product: {
+            name: 'Lorem Ipsum dolor',
+            productNumber: 'XXXXXX',
+            minPurchase: 1,
+            deliveryTime: {
+                name: '1-3 days'
+            },
+            price: [
+                { gross: 0.00 }
+            ]
         }
     },
     collect: function collect(elem) {

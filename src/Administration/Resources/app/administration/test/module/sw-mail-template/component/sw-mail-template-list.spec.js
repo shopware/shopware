@@ -58,7 +58,7 @@ const createWrapper = (privileges = []) => {
             'sw-entity-listing': {
                 props: ['items', 'allowEdit', 'allowView', 'allowDelete', 'detailRoute'],
                 template: `
-                    <div>
+                    <div id="mailTemplateGrid">
                         <template v-for="item in items">
                             <slot name="actions" v-bind="{ item }">
                                 <slot name="detail-action" v-bind="{ item }">
@@ -154,5 +154,56 @@ describe('modules/sw-mail-template/component/sw-mail-template-list', () => {
 
         expect(entityList.exists()).toBeTruthy();
         expect(entityList.attributes().showselection).toBeTruthy();
+    });
+
+    it('should return three skeletons when there are no mail templates', () => {
+        const wrapper = createWrapper();
+        const amountOfSkeletons = wrapper.vm.skeletonItemAmount;
+
+        expect(amountOfSkeletons).toBe(3);
+    });
+
+    it('should return the same amount of skeletons as there are mail templates', () => {
+        const wrapper = createWrapper();
+
+        // fill listing with mail templates mocks
+        wrapper.vm.mailTemplates = [
+            { type: 'contact_form', salesChannel: 'Headless' },
+            { type: 'password_recovery', salesChannel: 'Storefront' }
+        ];
+
+        const amountOfSkeletons = wrapper.vm.skeletonItemAmount;
+        expect(amountOfSkeletons).toBe(2);
+    });
+
+    it('should show the listing when there are more than zero mail templates', async () => {
+        const wrapper = createWrapper();
+
+        // wait for vue to fetch data and render the listing
+        await wrapper.vm.$nextTick();
+
+        const isListingVisible = wrapper.vm.showListing;
+        expect(isListingVisible).toBe(true);
+
+        const listing = wrapper.find('#mailTemplateGrid');
+
+        expect(listing.exists()).toBe(true);
+    });
+
+    it('should hide mail templates when there are no mail templates', async () => {
+        const wrapper = createWrapper();
+        // wait for vue to render the listing
+        await wrapper.vm.$nextTick();
+
+        wrapper.vm.mailTemplates = [];
+
+        // wait for vue to remove the grid
+        await wrapper.vm.$nextTick();
+
+        const isListingVisible = wrapper.vm.showListing;
+        expect(isListingVisible).toBe(false);
+
+        const listing = wrapper.find('#mailTemplateGrid');
+        expect(listing.exists()).toBe(false);
     });
 });

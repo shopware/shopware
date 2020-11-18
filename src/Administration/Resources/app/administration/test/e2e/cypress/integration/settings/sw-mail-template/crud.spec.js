@@ -25,6 +25,10 @@ describe('Mail templates: Test crud privileges', () => {
             url: '/api/v*/mail-template',
             method: 'post'
         }).as('createMailTemplate');
+        cy.route({
+            url: '/api/v*/search/mail-template',
+            method: 'post'
+        }).as('searchMailTemplate');
 
         // go to mail template module
         cy.get('.sw-admin-menu__item--sw-settings').click();
@@ -46,13 +50,35 @@ describe('Mail templates: Test crud privileges', () => {
         cy.get(page.elements.mailTemplateSaveAction).click();
 
         // call api to update the mail template
-        cy.wait('@createMailTemplate').then((xhr) => {
+        cy.wait('@createMailTemplate').then(xhr => {
             expect(xhr).to.have.property('status', 204);
         });
 
         cy.get(page.elements.smartBarBack).click();
 
-        // TODO: verify fields will do when NEXT-7072 search function is fixed
+        // check if user is no index page
+        cy.url().should('contain', `${Cypress.config().baseUrl}/admin#/sw/mail/template/index`);
+
+        // filter mail templates by their type
+        cy.get(page.elements.smartBarSearch).typeAndCheck('Contact form');
+
+        // wait for filtered mail template result to be loaded
+        cy.wait('@searchMailTemplate').then(xhr => {
+            expect(xhr).to.have.property('status', 200);
+        });
+
+        // prove that only two mail templates exist with the type 'Contact form'
+        cy.get(page.elements.mailTemplateGridList)
+            .find(`tbody ${page.elements.dataGridRow}`)
+            .should('have.length', 2);
+
+        // verify correct mail template type of newly created template
+        cy.get(`${page.elements.dataGridRow}--1 ${page.elements.dataGridColumn}--mailTemplateType-name`)
+            .contains('Contact form');
+
+        // verify correct description type of newly created template
+        cy.get(`${page.elements.dataGridRow}--1 ${page.elements.dataGridColumn}--description`)
+            .contains('Get feedback');
     });
 
     it('@settings: edit email template', () => {
@@ -64,6 +90,10 @@ describe('Mail templates: Test crud privileges', () => {
             url: '/api/v*/mail-template/*',
             method: 'patch'
         }).as('saveMailTemplate');
+        cy.route({
+            url: '/api/v*/search/mail-template',
+            method: 'post'
+        }).as('searchMailTemplate');
         cy.route({
             url: '/api/v*/search/mail-template',
             method: 'post'
@@ -81,28 +111,37 @@ describe('Mail templates: Test crud privileges', () => {
         );
 
         // wait for data loading
-        cy.wait('@searchMailTemplate').then((xhr) => {
+        cy.wait('@searchMailTemplate').then(xhr => {
             expect(xhr).to.have.property('status', 200);
         });
 
         // update fields
-        cy.get('#sw-field--mailTemplate-description').clear().type('Default description');
-        cy.get('#sw-field--mailTemplate-subject').clear().type('Subject');
-        cy.get('#sw-field--mailTemplate-senderName').clear().type('DemoShop');
+        cy.get('#sw-field--mailTemplate-description').clearTypeAndCheck('Custom description');
+        cy.get('#sw-field--mailTemplate-subject').clearTypeAndCheck('Subject');
+        cy.get('#sw-field--mailTemplate-senderName').clearTypeAndCheck('DemoShop');
 
         // do saving action
         cy.get(page.elements.mailTemplateSaveAction).click();
 
         // call api to update the mail template
-        cy.wait('@saveMailTemplate').then((xhr) => {
+        cy.wait('@saveMailTemplate').then(xhr => {
             expect(xhr).to.have.property('status', 204);
         });
 
         cy.get(page.elements.smartBarBack).click();
 
+        // filter for updated email template
+        cy.get(page.elements.smartBarSearch)
+            .typeAndCheck('Contact form');
+
+        // wait until result of filtered mail templates has been loaded
+        cy.wait('@searchMailTemplate').then(xhr => {
+            expect(xhr).to.have.property('status', 200);
+        });
+
         // verify fields
-        cy.get(`${page.elements.mailTemplateGridList} ${page.elements.dataGridRow}--0 ${page.elements.mailTemplateColumnDescription}`)
-            .contains('Default description');
+        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.mailTemplateColumnDescription}`)
+            .contains('Custom description');
     });
 
     it('@settings: delete email template', () => {
@@ -114,10 +153,30 @@ describe('Mail templates: Test crud privileges', () => {
             url: '/api/v*/mail-template/*',
             method: 'delete'
         }).as('deleteMailTemplate');
+        cy.route({
+            url: '/api/v*/search/mail-template',
+            method: 'post'
+        }).as('searchMailTemplate');
 
         // go to mail template module
         cy.get('.sw-admin-menu__item--sw-settings').click();
         cy.get('#sw-mail-template').click();
+
+        // wait for mail templates to be loaded
+        cy.wait('@searchMailTemplate').then(xhr => {
+            expect(xhr).to.have.property('status', 200);
+        });
+
+        // filter for deleted mail template
+        cy.get(page.elements.smartBarSearch).typeAndCheck('Contact form');
+
+        // wait for filtered mail templates to be loaded
+        cy.wait('@searchMailTemplate').then(xhr => {
+            expect(xhr).to.have.property('status', 200);
+        });
+
+        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.mailTemplateColumnDescription}`)
+            .contains('Contact form received');
 
         cy.clickContextMenuItem(
             '.sw-context-menu-item--danger',
@@ -133,11 +192,13 @@ describe('Mail templates: Test crud privileges', () => {
         cy.get(page.elements.modal).should('not.exist');
 
         // call api to delete mail template
-        cy.wait('@deleteMailTemplate').then((xhr) => {
+        cy.wait('@deleteMailTemplate').then(xhr => {
             expect(xhr).to.have.property('status', 204);
         });
 
-        // TODO: verify fields will do when NEXT-7072 search function is fixed
+        // check if empty state if visible
+        cy.get(':nth-child(1) .sw-card__content .sw-empty-state')
+            .should('be.visible');
     });
 
     it('@settings: duplicate email template', () => {
@@ -163,6 +224,18 @@ describe('Mail templates: Test crud privileges', () => {
         cy.get('.sw-admin-menu__item--sw-settings').click();
         cy.get('#sw-mail-template').click();
 
+        cy.wait('@searchMailTemplate').then(xhr => {
+            expect(xhr).to.have.property('status', 200);
+        });
+
+        // filter for cloned mail template
+        cy.get(page.elements.smartBarSearch).typeAndCheck('Contact form');
+
+        // wait for filtered mail templates to be loaded
+        cy.wait('@searchMailTemplate').then(xhr => {
+            expect(xhr).to.have.property('status', 200);
+        });
+
         cy.clickContextMenuItem(
             '.sw-mail-template-list-grid__duplicate-action',
             page.elements.contextMenuButton,
@@ -170,7 +243,7 @@ describe('Mail templates: Test crud privileges', () => {
         );
 
         // wait for data loading
-        cy.wait('@cloneMailTemplate').then((xhr) => {
+        cy.wait('@cloneMailTemplate').then(xhr => {
             expect(xhr).to.have.property('status', 200);
         });
 
@@ -180,13 +253,28 @@ describe('Mail templates: Test crud privileges', () => {
         cy.get(page.elements.mailTemplateSaveAction).click();
 
         // call api to update the mail template
-        cy.wait('@saveMailTemplate').then((xhr) => {
+        cy.wait('@saveMailTemplate').then(xhr => {
             expect(xhr).to.have.property('status', 204);
         });
 
         cy.get(page.elements.smartBarBack).click();
 
-        // TODO: verify fields will do when NEXT-7072 search function is fixed
+        // filter for cloned mail template
+        cy.get(page.elements.smartBarSearch).typeAndCheck('Contact form');
+
+        // wait for filtered mail templates to be loaded
+        cy.wait('@searchMailTemplate').then(xhr => {
+            expect(xhr).to.have.property('status', 200);
+        });
+
+        // prove that only two mail templates exist with the type 'Contact form'
+        cy.get(page.elements.mailTemplateGridList)
+            .find(`tbody ${page.elements.dataGridRow}`)
+            .should('have.length', 2);
+
+        // check description of duplicated mail template
+        cy.get(`${page.elements.dataGridRow}--1 ${page.elements.mailTemplateColumnDescription}`)
+            .contains('Duplicated description');
     });
 
     it('@settings: create and read email header footer', () => {
@@ -219,13 +307,34 @@ describe('Mail templates: Test crud privileges', () => {
         cy.get(page.elements.mailHeaderFooterSaveAction).click();
 
         // call api to create the mail header footer
-        cy.wait('@createMailHeaderFooter').then((xhr) => {
+        cy.wait('@createMailHeaderFooter').then(xhr => {
             expect(xhr).to.have.property('status', 204);
         });
 
         cy.get(page.elements.smartBarBack).click();
 
-        // TODO: verify fields will do when NEXT-7072 search function is fixed
+        // filter for mail template footers
+        cy.get(page.elements.smartBarSearch).typeAndCheck('Storefront template');
+
+        // wait for filtered mail templates to be loaded
+        cy.wait('@searchMailTemplate').then(xhr => {
+            expect(xhr).to.have.property('status', 200);
+        });
+
+        // prove that only one mail template footer exists
+        cy.get(page.elements.mailHeaderFooterGridList)
+            .scrollIntoView()
+            .find(`tbody ${page.elements.dataGridRow}`)
+            .should('have.length', 1);
+
+        // verify fields
+        // eslint-disable-next-line max-len
+        cy.get(`${page.elements.mailHeaderFooterGridList} ${page.elements.dataGridRow}--0 ${page.elements.mailHeaderFooterColumnName}`)
+            .contains('Storefront template');
+
+        // eslint-disable-next-line max-len
+        cy.get(`${page.elements.mailHeaderFooterGridList} ${page.elements.dataGridRow}--0 ${page.elements.mailHeaderFooterColumnDescription}`)
+            .contains('Default description');
     });
 
     it('@settings: edit email header footer', () => {
@@ -251,7 +360,7 @@ describe('Mail templates: Test crud privileges', () => {
         cy.get('#sw-mail-template').click();
 
         // wait for data loading
-        cy.wait('@searchMailTemplate').then((xhr) => {
+        cy.wait('@searchMailTemplate').then(xhr => {
             expect(xhr).to.have.property('status', 200);
         });
 
@@ -265,7 +374,7 @@ describe('Mail templates: Test crud privileges', () => {
         );
 
         // wait for data loading
-        cy.wait('@searchMailHeaderFooterTemplate').then((xhr) => {
+        cy.wait('@searchMailHeaderFooterTemplate').then(xhr => {
             expect(xhr).to.have.property('status', 200);
         });
 
@@ -281,16 +390,19 @@ describe('Mail templates: Test crud privileges', () => {
         cy.get(page.elements.mailHeaderFooterSaveAction).click();
 
         // call api to update the mail header footer
-        cy.wait('@saveMailHeaderFooter').then((xhr) => {
+        cy.wait('@saveMailHeaderFooter').then(xhr => {
             expect(xhr).to.have.property('status', 204);
         });
 
         cy.get(page.elements.smartBarBack).click();
 
         // verify fields
+        // eslint-disable-next-line max-len
         cy.get(`${page.elements.mailHeaderFooterGridList} ${page.elements.dataGridRow}--0 ${page.elements.mailHeaderFooterColumnDescription}`)
+            .scrollIntoView()
             .contains('Edited description');
 
+        // eslint-disable-next-line max-len
         cy.get(`${page.elements.mailHeaderFooterGridList} ${page.elements.dataGridRow}--0 ${page.elements.mailHeaderFooterColumnSalesChannel}`)
             .contains('Storefront');
     });
@@ -314,7 +426,7 @@ describe('Mail templates: Test crud privileges', () => {
         cy.get('#sw-mail-template').click();
 
         // wait for data loading
-        cy.wait('@searchMailTemplate').then((xhr) => {
+        cy.wait('@searchMailTemplate').then(xhr => {
             expect(xhr).to.have.property('status', 200);
         });
 
@@ -335,11 +447,13 @@ describe('Mail templates: Test crud privileges', () => {
         cy.get(page.elements.modal).should('not.exist');
 
         // call api to delete the mail header footer
-        cy.wait('@deleteMailHeaderFooter').then((xhr) => {
+        cy.wait('@deleteMailHeaderFooter').then(xhr => {
             expect(xhr).to.have.property('status', 204);
         });
 
-        cy.get(`${page.elements.mailHeaderFooterGridList} ${page.elements.dataGridRow}--0 ${page.elements.mailHeaderFooterColumnName}`).should('not.exist');
+        // eslint-disable-next-line max-len
+        cy.get(':nth-child(1) .sw-card__content .sw-empty-state')
+            .should('be.visible');
     });
 
     it('@settings: duplicate email header footer', () => {
@@ -366,7 +480,7 @@ describe('Mail templates: Test crud privileges', () => {
         cy.get('#sw-mail-template').click();
 
         // wait for data loading
-        cy.wait('@searchMailTemplate').then((xhr) => {
+        cy.wait('@searchMailTemplate').then(xhr => {
             expect(xhr).to.have.property('status', 200);
         });
 
@@ -380,26 +494,28 @@ describe('Mail templates: Test crud privileges', () => {
         );
 
         // wait for data loading
-        cy.wait('@cloneMailTemplate').then((xhr) => {
+        cy.wait('@cloneMailTemplate').then(xhr => {
             expect(xhr).to.have.property('status', 200);
         });
 
-        cy.get('#sw-field--mailHeaderFooter-description').clear().type('Duplicated description');
+        cy.get('#sw-field--mailHeaderFooter-description').clearTypeAndCheck('Duplicated description');
 
         // do saving action
         cy.get(page.elements.mailHeaderFooterSaveAction).click();
 
         // call api to save mail header footer
-        cy.wait('@saveMailHeaderFooter').then((xhr) => {
+        cy.wait('@saveMailHeaderFooter').then(xhr => {
             expect(xhr).to.have.property('status', 204);
         });
 
         cy.get(page.elements.smartBarBack).click();
 
         // verify fields
+        // eslint-disable-next-line max-len
         cy.get(`${page.elements.mailHeaderFooterGridList} ${page.elements.dataGridRow}--0 ${page.elements.mailHeaderFooterColumnName}`)
             .contains('Header and Footer');
 
+        // eslint-disable-next-line max-len
         cy.get(`${page.elements.mailHeaderFooterGridList} ${page.elements.dataGridRow}--1 ${page.elements.mailHeaderFooterColumnName}`)
             .contains('Header and Footer');
     });

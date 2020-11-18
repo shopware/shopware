@@ -73,6 +73,41 @@ describe('module/sw-import-export/service/login.service.js', () => {
         ]);
     });
 
+    it('product: should find missing required when parentProduct is existing', async () => {
+        const mapping = mappings.productDuplicateProfileOnlyRequired.filter(field => field.key === 'productNumber');
+        const invalidFields = importExportProfileMappingService.validate(
+            'product',
+            mapping,
+            mappings.productDuplicateProfileOnlyRequired
+        );
+
+        expect(invalidFields.missingRequiredFields).toEqual(['id', 'taxId']);
+    });
+
+    it('product: should not find any missing required when parentProduct is existing', async () => {
+        const invalidFields = importExportProfileMappingService.validate(
+            'product',
+            mappings.productDuplicateProfileOnlyRequired,
+            mappings.productDuplicateProfileOnlyRequired
+        );
+
+        expect(invalidFields.missingRequiredFields.length).toEqual(0);
+    });
+
+    it('product: should find missing required when key.id is existing', async () => {
+        const invalidFields = importExportProfileMappingService.validate('product',
+            [
+                {
+                    id: 'fc416f509b0b46fabb8cd8728cf63531',
+                    key: 'tax.id',
+                    mappedKey: 'tax_id'
+                }
+            ],
+            mappings.productDuplicateProfileOnlyRequired);
+
+        expect(invalidFields.missingRequiredFields).toEqual(['id', 'productNumber']);
+    });
+
     it('media: should not find any missing required fields', async () => {
         const invalidFields = importExportProfileMappingService.validate('media', mappings.mediaProfileOnlyRequired);
 

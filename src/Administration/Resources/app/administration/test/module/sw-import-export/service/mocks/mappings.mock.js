@@ -44,6 +44,22 @@ export const productProfileOnlyRequired = [
     }
 ];
 
+export const productDuplicateProfileOnlyRequired = [
+    {
+        id: 'b36961c5f32c4f4d9e17ed9718f5fca2',
+        key: 'productNumber',
+        mappedKey: 'product_number'
+    }, {
+        id: 'fc416f509b0b46fabb8cd8728cf63531',
+        key: 'taxId',
+        mappedKey: 'tax_id'
+    }, {
+        id: '63fdbdae6cf64b90849b3e0a04677e25',
+        key: 'id',
+        mappedKey: 'id'
+    }
+];
+
 export const mediaProfileOnlyRequired = [
     {
         id: '63fdbdae6cf64b90849b3e0a04677e25',

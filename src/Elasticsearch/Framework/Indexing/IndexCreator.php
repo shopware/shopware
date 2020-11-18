@@ -18,10 +18,16 @@ class IndexCreator
      */
     private $config;
 
-    public function __construct(Client $client, array $config)
+    /**
+     * @var array
+     */
+    private $mapping;
+
+    public function __construct(Client $client, array $config, array $mapping = [])
     {
         $this->client = $client;
         $this->config = $config;
+        $this->mapping = $mapping;
     }
 
     public function createIndex(AbstractElasticsearchDefinition $definition, string $index, Context $context): void
@@ -39,20 +45,7 @@ class IndexCreator
 
         $mapping = $this->addFullText($mapping);
 
-        $mapping['dynamic_templates'][] = [
-            'keywords' => [
-                'match_mapping_type' => 'string',
-                'mapping' => [
-                    'type' => 'keyword',
-                    'normalizer' => 'sw_lowercase_normalizer',
-                    'fields' => [
-                        'text' => [
-                            'type' => 'text',
-                        ],
-                    ],
-                ],
-            ],
-        ];
+        $mapping = array_merge_recursive($mapping, $this->mapping);
 
         $this->client->indices()->putMapping([
             'index' => $index,

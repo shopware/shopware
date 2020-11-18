@@ -298,6 +298,20 @@ Below you can take a look on an extended example on how a full manifest file can
         <icon>icon.png</icon>
         <license>MIT</license>
         <privacy>https://test.com/privacy</privacy>
+        <privacyPolicyExtensions>
+Following personal information will be processed on shopware AG's servers:
+
+- Name
+- Billing address
+- Order value
+        </privacyPolicyExtensions>
+        <privacyPolicyExtensions lang="de-DE">
+Folgende Nutzerdaten werden auf Servern der shopware AG verarbeitet:
+
+- Name
+- Rechnungsadresse
+- Bestellwert
+        </privacyPolicyExtensions>
     </meta>
     <setup>
         <registrationUrl>https://example/</registrationUrl>

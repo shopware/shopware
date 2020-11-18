@@ -91,6 +91,7 @@ class AppDefinition extends EntityDefinition
             ),
             new TranslatedField('label'),
             new TranslatedField('description'),
+            new TranslatedField('privacyPolicyExtensions'),
 
             (new FkField('integration_id', 'integrationId', IntegrationDefinition::class))->addFlags(new Required()),
             new OneToOneAssociationField('integration', 'integration_id', 'id', IntegrationDefinition::class),

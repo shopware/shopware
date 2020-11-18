@@ -8,26 +8,17 @@ import './component/sw-sales-channel-modal-detail';
 import './component/sw-sales-channel-detail-domains';
 import './component/sw-sales-channel-detail-hreflang';
 
-import './component/sw-sales-channel-detail-protect-link';
-import './component/sw-sales-channel-detail-account-connect';
-import './component/sw-sales-channel-detail-account-disconnect';
-
 import './page/sw-sales-channel-detail';
 import './page/sw-sales-channel-create';
 import './view/sw-sales-channel-detail-base';
 import './view/sw-sales-channel-detail-analytics';
-import './view/sw-sales-channel-detail-products';
 import './view/sw-sales-channel-create-base';
 import './view/sw-sales-channel-detail-product-comparison';
 import './view/sw-sales-channel-detail-product-comparison-preview';
 import './service/export-template.service';
 import './product-export-templates';
 
-import './component/sw-sales-channel-google-programs-modal';
-import './component/sw-sales-channel-google-introduction';
-import './component/sw-sales-channel-google-authentication';
-import './component/sw-sales-channel-google-merchant';
-import './component/sw-sales-channel-google-shipping-setting';
+import './acl';
 
 const { Module } = Shopware;
 
@@ -46,6 +37,9 @@ Module.register('sw-sales-channel', {
         detail: {
             component: 'sw-sales-channel-detail',
             path: 'detail/:id',
+            meta: {
+                privilege: 'sales_channel.viewer'
+            },
             redirect: {
                 name: 'sw.sales.channel.detail.base'
             },
@@ -53,36 +47,23 @@ Module.register('sw-sales-channel', {
                 base: {
                     component: 'sw-sales-channel-detail-base',
                     path: 'base',
-                    children: {
-                        'step-1': {
-                            component: 'sw-sales-channel-google-introduction',
-                            path: 'step-1'
-                        },
-                        'step-2': {
-                            component: 'sw-sales-channel-google-authentication',
-                            path: 'step-2'
-                        },
-                        'step-3': {
-                            component: 'sw-sales-channel-google-merchant',
-                            path: 'step-3'
-                        },
-                        'step-7': {
-                            component: 'sw-sales-channel-google-shipping-setting',
-                            path: 'step-7'
-                        }
+                    meta: {
+                        privilege: 'sales_channel.viewer'
                     }
                 },
                 productComparison: {
                     component: 'sw-sales-channel-detail-product-comparison',
-                    path: 'product-comparison'
+                    path: 'product-comparison',
+                    meta: {
+                        privilege: 'sales_channel.viewer'
+                    }
                 },
                 analytics: {
                     component: 'sw-sales-channel-detail-analytics',
-                    path: 'analytics'
-                },
-                products: {
-                    component: 'sw-sales-channel-detail-products',
-                    path: 'products'
+                    path: 'analytics',
+                    meta: {
+                        privilege: 'sales_channel.viewer'
+                    }
                 }
             }
         },
@@ -96,7 +77,10 @@ Module.register('sw-sales-channel', {
             children: {
                 base: {
                     component: 'sw-sales-channel-create-base',
-                    path: 'base'
+                    path: 'base',
+                    meta: {
+                        privilege: 'sales_channel.creator'
+                    }
                 }
             }
         }

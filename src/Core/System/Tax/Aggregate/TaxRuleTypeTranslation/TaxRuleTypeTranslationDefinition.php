@@ -27,6 +27,11 @@ class TaxRuleTypeTranslationDefinition extends EntityTranslationDefinition
         return TaxRuleTypeTranslationEntity::class;
     }
 
+    public function since(): ?string
+    {
+        return '6.1.0.0';
+    }
+
     protected function getParentDefinitionClass(): string
     {
         return TaxRuleTypeDefinition::class;

@@ -1,5 +1,6 @@
 export default {
-    warn
+    warn,
+    error
 };
 
 /**
@@ -13,5 +14,18 @@ export function warn(name = 'Core', ...message) {
     if (process.env.NODE_ENV !== 'production' && typeof console !== 'undefined') {
         message.unshift(`[${name}]`);
         console.warn.apply(this, message);
+    }
+}
+
+/**
+ *
+ * @param {String} [name='Core']
+ * @param {...String|Array|Date|Number|Object} message
+ * @returns {String} Returns a string containing error name and message
+ */
+export function error(name = 'Core', ...message) {
+    if (process.env.NODE_ENV !== 'production' && typeof console !== 'undefined') {
+        message.unshift(`[${name}]`);
+        console.error.apply(this, message);
     }
 }

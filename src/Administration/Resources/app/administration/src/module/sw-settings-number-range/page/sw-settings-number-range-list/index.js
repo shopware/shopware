@@ -7,7 +7,10 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-settings-number-range-list', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [
+        'repositoryFactory',
+        'acl'
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -118,13 +121,11 @@ Component.register('sw-settings-number-range-list', {
         onInlineEditSave(promise, numberRange) {
             promise.then(() => {
                 this.createNotificationSuccess({
-                    title: this.$tc('sw-settings-number-range.detail.titleSaveSuccess'),
                     message: this.$tc('sw-settings-number-range.detail.messageSaveSuccess', 0, { name: numberRange.name })
                 });
             }).catch(() => {
                 this.getList();
                 this.createNotificationError({
-                    title: this.$tc('sw-settings-number-range.detail.titleSaveError'),
                     message: this.$tc('sw-settings-number-range.detail.messageSaveError')
                 });
             });

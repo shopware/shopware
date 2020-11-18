@@ -2,10 +2,11 @@
     <sw-page class="sw-settings-custom-field-set-list">
         {% block sw_settings_custom_field_set_list_search_bar %}
             <template slot="search-bar">
-                <sw-search-bar initialSearchType="custom_field"
-                               :placeholder="$tc('sw-settings-custom-field.general.placeholderSearchBar')"
-                               :initialSearch="term"
-                               @search="onSearch">
+                <sw-search-bar
+                    initialSearchType="custom_field"
+                    :placeholder="$tc('sw-settings-custom-field.general.placeholderSearchBar')"
+                    :initialSearch="term"
+                    @search="onSearch">
                 </sw-search-bar>
             </template>
         {% endblock %}
@@ -20,7 +21,7 @@
                     {{ $tc('sw-settings-custom-field.set.list.textHeadline') }}
 
                     <span v-if="!isLoading" class="sw-page__smart-bar-amount">
-                        ({{ total }})
+                        ({{ items.length }})
                     </span>
                 </h2>
             </template>
@@ -29,7 +30,16 @@
         {% block sw_settings_custom_field_set_list_actions %}
             <template slot="smart-bar-actions">
                 {% block sw_settings_custom_field_set_list_actions_add %}
-                    <sw-button :routerLink="{ name: 'sw.settings.custom.field.create' }" variant="primary">
+                    <sw-button
+                        class="sw-settings-custom-field-set-list__button-create"
+                        :disabled="!acl.can('custom_field.creator')"
+                        :routerLink="{ name: 'sw.settings.custom.field.create' }"
+                        variant="primary"
+                        v-tooltip.bottom="{
+                            message: $tc('sw-privileges.tooltip.warning'),
+                            disabled: acl.can('custom_field.creator'),
+                            showOnDisabledElements: true
+                        }">
                         {{ $tc('sw-settings-custom-field.set.list.buttonAdd') }}
                     </sw-button>
                 {% endblock %}
@@ -53,12 +63,21 @@
                                         {% block sw_settings_custom_field_set_list_grid_column_label %}
                                             <sw-grid-column flex="minmax(180px, 2fr)"
                                                             :label="$tc('sw-settings-custom-field.set.list.columnName')">
-                                                <router-link
-                                                        :title="$tc('sw-settings-custom-field.set.list.contextMenuEdit')"
-                                                         class="sw-custom-field-set-list__column-name"
-                                                         :to="{ name: 'sw.settings.custom.field.detail', params: { id: item.id } }">
+                                                <template v-if="item.global">
                                                     {{ getInlineSnippet(item.config.label) || item.name }}
-                                                </router-link>
+                                                    <sw-help-text
+                                                        class="sw-settings-custom-field-set-list__help-text-global-set"
+                                                        :text="$tc('sw-settings-custom-field.set.list.helpTextGlobalSet')">
+                                                    </sw-help-text>
+                                                </template>
+                                                <template v-else>
+                                                    <router-link
+                                                        :title="$tc('sw-settings-custom-field.set.list.contextMenuEdit')"
+                                                        class="sw-custom-field-set-list__column-name"
+                                                        :to="{ name: 'sw.settings.custom.field.detail', params: { id: item.id } }">
+                                                        {{ getInlineSnippet(item.config.label) || item.name }}
+                                                    </router-link>
+                                                </template>
                                             </sw-grid-column>
                                         {% endblock %}
 
@@ -66,34 +85,48 @@
                                             <sw-grid-column flex="minmax(70px, 70px)"
                                                             align="center"
                                                             label="">
-                                                <sw-context-button>
-                                                    <sw-context-menu-item
-                                                            class="sw-custom-field-set-list__edit-action"
-                                                            :routerLink="{ name: 'sw.settings.custom.field.detail', params: { id: item.id } }">
-                                                        {{ $tc('sw-settings-custom-field.set.list.contextMenuEdit') }}
-                                                    </sw-context-menu-item>
+                                                    <sw-context-button>
+                                                        <sw-context-menu-item
+                                                                v-tooltip="{
+                                                                    message: $tc('sw-settings-custom-field.set.list.helpTextGlobalSet'),
+                                                                    showOnDisabledElements: true,
+                                                                    disabled: !item.global
+                                                                }"
+                                                                :disabled="item.global || !acl.can('custom_field.editor')"
+                                                                class="sw-custom-field-set-list__edit-action"
+                                                                :routerLink="{ name: 'sw.settings.custom.field.detail', params: { id: item.id } }">
+                                                            {{ $tc('sw-settings-custom-field.set.list.contextMenuEdit') }}
+                                                        </sw-context-menu-item>
 
-                                                    <sw-context-menu-item variant="danger"
-                                                                          @click="onDelete(item.id)">
-                                                        {{ $tc('sw-settings-custom-field.set.list.buttonDelete') }}
-                                                    </sw-context-menu-item>
-                                                </sw-context-button>
+                                                        <template v-if="!item.global">
+                                                            <sw-context-menu-item
+                                                                class="sw-settings-custom-field-set-list__delete-action"
+                                                                :disabled="!acl.can('custom_field.deleter')"
+                                                                variant="danger"
+                                                                @click="onDelete(item.id)">
+                                                                {{ $tc('sw-settings-custom-field.set.list.buttonDelete') }}
+                                                            </sw-context-menu-item>
+                                                        </template>
+                                                    </sw-context-button>
                                             </sw-grid-column>
                                         {% endblock %}
 
                                         {% block sw_settings_custom_field_set_list_grid_delete_modal %}
                                             <sw-modal v-if="showDeleteModal === item.id"
                                                       @modal-close="onCloseDeleteModal"
-                                                      :title="$tc('sw-settings-custom-field.set.list.titleModalDelete')"
+                                                      :title="$tc('global.default.warning')"
                                                       variant="small">
+
                                                 {% block sw_settings_custom_field_set_list_grid_delete_modal_text %}
                                                     <p>
-                                                        {{ $tc('sw-settings-custom-field.set.list.textDeleteConfirm', 0, { name: getInlineSnippet(item.config.label) }) }}
+                                                        {{ $tc('sw-settings-custom-field.set.list.textDeleteConfirm', 0,
+                                                            { name: getInlineSnippet(item.config.label) || item.name }) }}
                                                     </p>
                                                 {% endblock %}
 
                                                 {% block sw_settings_custom_field_set_list_grid_delete_modal_footer %}
                                                     <template slot="modal-footer">
+
                                                         {% block sw_settings_custom_field_set_list_grid_delete_modal_cancel %}
                                                             <sw-button @click="onCloseDeleteModal"
                                                                        size="small">
@@ -103,7 +136,7 @@
 
                                                         {% block sw_settings_custom_field_set_list_grid_delete_modal_delete %}
                                                             <sw-button @click="onConfirmDelete(item.id)"
-                                                                       variant="primary"
+                                                                       variant="danger"
                                                                        size="small">
                                                                {{ $tc('sw-settings-custom-field.set.list.buttonDelete') }}
                                                             </sw-button>

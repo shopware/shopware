@@ -40,7 +40,10 @@ public function __construct (EntityRepositoryInterface $productRepository)
 }
 ```
 
-Then, configure the `product.repository` service to be injected:
+If you're using [service autowiring](https://symfony.com/doc/current/service_container/autowiring.html), and the
+type and argument variable names are correct, the repository will be injected automatically.
+
+Alternatively, configure the `product.repository` service to be injected explicitly:
 
 ```xml
 <!-- SwagExamplePlugin/src/Resources/config/service.xml -->
@@ -67,11 +70,14 @@ $this->productRepository->create(
             'stock' => 213,
             'productNumber' => 'swag-5642-0001',
             'price' => [
-                "currencyId" => "b7d2554b0ce847cd82f3ac9bd1c0dfca",
-                "gross"=>317.0,
-                "linked"=>true,
-                "listPrice"=>null,
-                "extensions"=>[]
+                [
+                    'currencyId' => 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+                    'gross' => 317.0,
+                    'net' => 266.39,
+                    'linked' => true,
+                    'listPrice' => null,
+                    'extensions'=>[]
+                ]
             ]
         ],
         [
@@ -81,11 +87,14 @@ $this->productRepository->create(
             'stock' => 49,
             'productNumber' => 'swag-5642-0002',
             'price' => [
-                "currencyId" => "b7d2554b0ce847cd82f3ac9bd1c0dfca",
-                "gross"=>317.0,
-                "linked"=>true,
-                "listPrice"=>null,
-                "extensions"=>[]
+               [
+                   'currencyId' => 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+                   'gross' => 317.0,
+                   'net' => 266.39,
+                   'linked' => true,
+                   'listPrice' => null,
+                   'extensions'=>[]
+               ]
             ]
         ]
     ],

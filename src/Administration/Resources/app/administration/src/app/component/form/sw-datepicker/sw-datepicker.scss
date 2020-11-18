@@ -112,9 +112,12 @@ $sw-datepicker-color-text-selected: $color-white;
     }
 
     .flatpickr-day {
-        color: $sw-datepicker-color-font;
         border-radius: 4px;
         margin-bottom: 6px;
+
+        &:not(.flatpickr-disabled) {
+            color: $sw-datepicker-color-font;
+        }
 
         &:hover {
             @include flatpickr-day-hovered;
@@ -131,7 +134,9 @@ $sw-datepicker-color-text-selected: $color-white;
 
         &.prevMonthDay,
         &.nextMonthDay {
-            color: $sw-datepicker-color-disabled-font;
+            &:not(.flatpickr-disabled) {
+                color: $sw-datepicker-color-disabled-font;
+            }
 
             &:hover {
                 @include flatpickr-day-hovered;

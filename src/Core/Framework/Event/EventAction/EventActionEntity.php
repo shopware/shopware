@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Framework\Event\EventAction;
 
+use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
 class EventActionEntity extends Entity
 {
@@ -15,14 +17,34 @@ class EventActionEntity extends Entity
     protected $eventName;
 
     /**
+     * @var string|null
+     */
+    protected $title;
+
+    /**
      * @var string
      */
     protected $actionName;
 
     /**
+     * @var bool
+     */
+    protected $active = true;
+
+    /**
      * @var array|null
      */
     protected $config;
+
+    /**
+     * @var RuleCollection|null
+     */
+    protected $rules;
+
+    /**
+     * @var SalesChannelCollection|null
+     */
+    protected $salesChannels;
 
     public function getEventName(): string
     {
@@ -54,8 +76,43 @@ class EventActionEntity extends Entity
         $this->config = $config;
     }
 
-    public function getApiAlias(): string
+    public function isActive(): bool
     {
-        return 'dal_event_action';
+        return $this->active;
+    }
+
+    public function setActive(bool $active): void
+    {
+        $this->active = $active;
+    }
+
+    public function getRules(): ?RuleCollection
+    {
+        return $this->rules;
+    }
+
+    public function setRules(RuleCollection $rules): void
+    {
+        $this->rules = $rules;
+    }
+
+    public function getSalesChannels(): ?SalesChannelCollection
+    {
+        return $this->salesChannels;
+    }
+
+    public function setSalesChannels(SalesChannelCollection $salesChannels): void
+    {
+        $this->salesChannels = $salesChannels;
+    }
+
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+    public function setTitle(?string $title): void
+    {
+        $this->title = $title;
     }
 }

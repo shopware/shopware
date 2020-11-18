@@ -85,7 +85,8 @@ class SitemapGenerateTaskHandler extends ScheduledTaskHandler
      */
     public function handle($message): void
     {
-        if ((int) $this->systemConfigService->get('core.sitemap.sitemapRefreshStrategy') !== SitemapExporterInterface::STRATEGY_SCHEDULED_TASK) {
+        $sitemapRefreshStrategy = $this->systemConfigService->getInt('core.sitemap.sitemapRefreshStrategy');
+        if ($sitemapRefreshStrategy !== SitemapExporterInterface::STRATEGY_SCHEDULED_TASK) {
             return;
         }
 

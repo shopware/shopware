@@ -43,6 +43,8 @@
                 {% block sw_settings_salutation_list_actions_create %}
                     <sw-button class="sw-settings-salutation-list__create"
                                variant="primary"
+                               v-tooltip.bottom="tooltipAdd"
+                               :disabled="!acl.can('salutation.creator')"
                                :routerLink="{ name: 'sw.settings.salutation.create' }">
                         {{ $tc('sw-settings-salutation.general.buttonCreate') }}
                     </sw-button>
@@ -68,7 +70,12 @@
                                             :sortBy="sortBy"
                                             :sortDirection="sortDirection"
                                             :fullPage="false"
-                                            detailRoute="sw.settings.salutation.detail">
+                                            detailRoute="sw.settings.salutation.detail"
+                                            :showSelection="acl.can('salutation.deleter')"
+                                            :allowEdit="acl.can('salutation.editor')"
+                                            :allowInlineEdit="acl.can('salutation.editor')"
+                                            :allowView="acl.can('salutation.viewer')"
+                                            :allowDelete="acl.can('salutation.deleter')">
                                     </sw-entity-listing>
                                 </template>
                             {% endblock %}

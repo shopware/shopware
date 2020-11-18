@@ -2,7 +2,6 @@ import template from './sw-product-stream-filter.html.twig';
 import './sw-product-stream-filter.scss';
 
 const { Component, EntityDefinition } = Shopware;
-// const { mapPropertyErrors } = Component.getComponentHelper();
 
 Component.extend('sw-product-stream-filter', 'sw-condition-base', {
     template,
@@ -11,7 +10,8 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
         'createCondition',
         'insertNodeIntoTree',
         'removeNodeFromTree',
-        'productCustomFields'
+        'productCustomFields',
+        'acl'
     ],
 
     computed: {
@@ -156,6 +156,16 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
 
         copyParameters({ field, type, operator, parameters, value }) {
             return { field, type, operator, parameters, value };
+        },
+
+        getNoPermissionsTooltip(role, showOnDisabledElements = true) {
+            return {
+                showDelay: 300,
+                message: this.$tc('sw-privileges.tooltip.warning'),
+                appearance: 'dark',
+                showOnDisabledElements,
+                disabled: this.acl.can(role)
+            };
         }
     }
 });

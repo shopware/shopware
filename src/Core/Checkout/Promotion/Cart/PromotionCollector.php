@@ -139,6 +139,7 @@ class PromotionCollector implements CartDataCollectorInterface
         // and add errors, if a promotion for that code couldn't be found
         foreach ($allCodes as $code) {
             if (!in_array($code, $foundCodes, true)) {
+                $cartExtension->removeCode($code);
                 $this->addPromotionNotFoundError($code, $cart);
             }
         }
@@ -355,13 +356,19 @@ class PromotionCollector implements CartDataCollectorInterface
                 continue;
             }
 
+            $factor = 1.0;
+            if (!$context->getCurrency()->getIsSystemDefault()) {
+                $factor = $context->getCurrency()->getFactor();
+            }
+
             /* @var LineItem $discountItem */
             $discountItem = $this->itemBuilder->buildDiscountLineItem(
                 $code,
                 $promotion,
                 $discount,
                 $context->getContext()->getCurrencyPrecision(),
-                $context->getCurrency()->getId()
+                $context->getCurrency()->getId(),
+                $factor
             );
 
             $lineItems[] = $discountItem;

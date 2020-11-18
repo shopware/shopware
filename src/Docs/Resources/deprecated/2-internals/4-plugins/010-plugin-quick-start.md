@@ -124,7 +124,7 @@ Read [here](./050-plugin-information.md) for more information about the content 
 Now, that you've created the two necessary plugin files, you're able to install the plugin.
 This is done using one of the [plugin commands](./030-plugin-commands.md).
 
-Starting in your **project root** directory, run the command `bin/console plugin:install --activate --clearCache PluginQuickStart` to install and activate the plugin.
+Starting in your **project root** directory, check if your plugin is already known to Shopware by running the command `bin/console plugin:list`. If your new plugin is missing, execute the command `bin/console plugin:refresh`. Afterwards run the command `bin/console plugin:install --activate --clearCache PluginQuickStart` to install and activate the plugin.
 
 ## Plugin configuration
 
@@ -340,7 +340,7 @@ into services. Earlier in this tutorial you already created a `services.xml` fil
 Sticking to the previous examples, you could just name it `MyService` and place it into a `src/Service` directory.
 
 ```php
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace Swag\PluginQuickStart\Service;
 

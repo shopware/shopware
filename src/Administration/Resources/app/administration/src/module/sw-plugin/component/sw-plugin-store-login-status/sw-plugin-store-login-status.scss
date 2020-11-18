@@ -1,19 +1,20 @@
 @import '~scss/variables';
 
 .sw-plugin-store-login-status {
-
-    .sw-plugin-store-login-status__shopware-id {
+    &__shopware-id {
         font-weight: 600;
         font-size: $font-size-small;
         text-overflow: ellipsis;
         white-space: nowrap;
+        overflow: hidden;
+        width: 140px;
     }
 
-    .sw-plugin-store-login-status__text {
+    &__text {
         font-size: $font-size-small;
     }
 
-    .sw-plugin-store-login-status__login {
+    &__login {
         font-weight: 600;
         font-size: $font-size-small;
         text-overflow: ellipsis;
@@ -21,19 +22,19 @@
         cursor: pointer;
         margin: auto;
     }
-    
-    .sw-plugin-store-login-status__title {
+
+    &__title {
         padding-bottom: 4px;
         font-size: $font-size-small;
     }
 
-    .sw-plugin-store-login-status__account-info {
+    &__account-info {
         display: flex;
         flex-direction: column;
         padding-left: 16px;
     }
 
-    .sw-plugin-store-login-status__login-box {
+    &__login-box {
         display: flex;
         justify-content: space-between;
         background: $color-white;
@@ -43,14 +44,18 @@
         padding: 12px;
     }
 
-    .sw-plugin-store-login-status__context-button {
+    &__context-button.sw-context-button {
         align-self: center;
+
+        .sw-context-button__button {
+            padding: 0;
+        }
     }
 
-    .sw-plugin-store-login-status__box-content {
+    &__box-content {
         display: flex;
+        overflow: hidden;
     }
-
 }
 
 .sw-context-menu-item .account-link {

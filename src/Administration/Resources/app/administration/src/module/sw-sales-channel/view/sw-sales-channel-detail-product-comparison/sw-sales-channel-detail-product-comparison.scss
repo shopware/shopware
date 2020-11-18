@@ -1,0 +1,11 @@
+.sw-sales-channel-detail-product-comparison {
+    &__button-group {
+        display: flex;
+    }
+
+    &__button {
+        + .sw-sales-channel-detail-product-comparison__button {
+            margin-left: 8px;
+        }
+    }
+}

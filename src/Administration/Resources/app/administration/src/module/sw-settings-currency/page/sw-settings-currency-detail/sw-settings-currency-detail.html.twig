@@ -20,7 +20,7 @@
                         class="sw-settings-currency-detail__save-action"
                         :isLoading="isLoading"
                         v-model="isSaveSuccessful"
-                        :disabled="isLoading"
+                        :disabled="isLoading || !acl.can('currencies.editor')"
                         variant="primary"
                         @process-finish="saveFinish"
                         v-tooltip.bottom="tooltipSave"
@@ -32,11 +32,12 @@
         {% endblock %}
 
         {% block sw_settings_currency_detail_language_switch %}
-            <sw-language-switch slot="language-switch"
-                                :disabled="currencyId == null"
-                                @on-change="onChangeLanguage"
-                                :saveChangesFunction="saveOnLanguageChange"
-                                :abortChangeFunction="abortOnLanguageChange">
+            <sw-language-switch
+                slot="language-switch"
+                :disabled="currencyId == null"
+                @on-change="onChangeLanguage"
+                :saveChangesFunction="saveOnLanguageChange"
+                :abortChangeFunction="abortOnLanguageChange">
             </sw-language-switch>
         {% endblock %}
 
@@ -45,67 +46,79 @@
 
                 {% block sw_settings_currency_detail_content_language_info %}
                     <sw-language-info
-                            :entityDescription="placeholder(currency, 'name', $tc('sw-settings-currency.detail.textHeadline'))">
+                        :entityDescription="placeholder(currency, 'name', $tc('sw-settings-currency.detail.textHeadline'))">
                     </sw-language-info>
                 {% endblock %}
 
                 {% block sw_settings_currency_detail_content_card %}
-                    <sw-card :title="$tc('sw-settings-currency.detail.titleCard')">
+                    <sw-card
+                        :isLoading="isLoading"
+                        :title="$tc('sw-settings-currency.detail.titleCard')">
                         <sw-container columns="repeat(auto-fit, minmax(250px, 1fr))" gap="0px 30px">
 
                             {% block sw_settings_currency_detail_content_field_name %}
-                                <sw-field type="text"
-                                          required
-                                          :label="$tc('sw-settings-currency.detail.labelName')"
-                                          :placeholder="placeholder(currency, 'name', $tc('sw-settings-currency.detail.placeholderName'))"
-                                          :error="currencyNameError"
-                                          v-model="currency.name">
+                                <sw-field
+                                    type="text"
+                                    required
+                                    :disabled="!acl.can('currencies.editor')"
+                                    :label="$tc('sw-settings-currency.detail.labelName')"
+                                    :placeholder="placeholder(currency, 'name', $tc('sw-settings-currency.detail.placeholderName'))"
+                                    :error="currencyNameError"
+                                    v-model="currency.name">
                                 </sw-field>
                             {% endblock %}
 
                             {% block sw_settings_currency_detail_content_field_iso_code %}
-                                <sw-field type="text"
-                                          required
-                                          :label="$tc('sw-settings-currency.detail.labelIsoCode')"
-                                          :placeholder="placeholder(currency, 'isoCode', $tc('sw-settings-currency.detail.placeholderIsoCode'))"
-                                          :error="currencyIsoCodeError"
-                                          v-model="currency.isoCode">
+                                <sw-field
+                                    type="text"
+                                    required
+                                    :disabled="!acl.can('currencies.editor')"
+                                    :label="$tc('sw-settings-currency.detail.labelIsoCode')"
+                                    :placeholder="placeholder(currency, 'isoCode', $tc('sw-settings-currency.detail.placeholderIsoCode'))"
+                                    :error="currencyIsoCodeError"
+                                    v-model="currency.isoCode">
                                 </sw-field>
                             {% endblock %}
 
                             {% block sw_settings_currency_detail_content_field_short_name %}
-                                <sw-field type="text"
-                                          required
-                                          :label="$tc('sw-settings-currency.detail.labelShortName')"
-                                          :placeholder="placeholder(currency, 'shortName', $tc('sw-settings-currency.detail.placeholderShortName'))"
-                                          :error="currencyShortNameError"
-                                          v-model="currency.shortName">
+                                <sw-field
+                                    type="text"
+                                    required
+                                    :disabled="!acl.can('currencies.editor')"
+                                    :label="$tc('sw-settings-currency.detail.labelShortName')"
+                                    :placeholder="placeholder(currency, 'shortName', $tc('sw-settings-currency.detail.placeholderShortName'))"
+                                    :error="currencyShortNameError"
+                                    v-model="currency.shortName">
                                 </sw-field>
                             {% endblock %}
 
                             {% block sw_settings_currency_detail_content_field_symbol %}
-                                <sw-field type="text"
-                                          required
-                                          :label="$tc('sw-settings-currency.detail.labelSymbol')"
-                                          :placeholder="$tc('sw-settings-currency.detail.placeholderSymbol')"
-                                          :error="currencySymbolError"
-                                          v-model="currency.symbol">
+                                <sw-field
+                                    type="text"
+                                    required
+                                    :disabled="!acl.can('currencies.editor')"
+                                    :label="$tc('sw-settings-currency.detail.labelSymbol')"
+                                    :placeholder="$tc('sw-settings-currency.detail.placeholderSymbol')"
+                                    :error="currencySymbolError"
+                                    v-model="currency.symbol">
                                 </sw-field>
                             {% endblock %}
 
                             {% block sw_settings_currency_detail_content_field_factor %}
-                                <sw-number-field required
-                                                 :digits="14"
-                                                 :label="$tc('sw-settings-currency.detail.labelFactor')"
-                                                 :placeholder="$tc('sw-settings-currency.detail.placeholderFactor')"
-                                                 :error="currencyFactorError"
-                                                 v-model="currency.factor"
-                                                 :disabled="currency.isSystemDefault">
+                                <sw-number-field
+                                    required
+                                    :digits="14"
+                                    :label="$tc('sw-settings-currency.detail.labelFactor')"
+                                    :placeholder="$tc('sw-settings-currency.detail.placeholderFactor')"
+                                    :error="currencyFactorError"
+                                    v-model="currency.factor"
+                                    :disabled="currency.isSystemDefault || !acl.can('currencies.editor')">
                                 </sw-number-field>
                             {% endblock %}
 
                             {% block sw_settings_currency_detail_content_field_decimal_precision %}
                                 <sw-field type="number"
+                                          v-if="!feature.isActive('FEATURE_NEXT_6059')"
                                           required
                                           :label="$tc('sw-settings-currency.detail.labelPrecision')"
                                           :placeholder="$tc('sw-settings-currency.detail.placeholderPrecision')"
@@ -115,6 +128,109 @@
                             {% endblock %}
                         </sw-container>
                     </sw-card>
+                {% endblock %}
+
+                {% block sw_settings_currency_detail_content_card_price_rounding %}
+                    <sw-card
+                        v-if="feature.isActive('FEATURE_NEXT_6059')"
+                        :isLoading="isLoading"
+                        :title="$tc('sw-settings-currency.detail.titleRoundingCard')">
+                        <sw-settings-price-rounding
+                            :itemRounding="currency.itemRounding"
+                            :totalRounding="currency.totalRounding">
+                        </sw-settings-price-rounding>
+                    </sw-card>
+                {% endblock %}
+
+                {% block sw_settings_currency_detail_content_card_country_price_rounding %}
+                    <sw-card
+                        :title="$tc('sw-settings-currency.detail.titleCountryRoundingCard')"
+                        :isLoading="currencyCountryLoading"
+                        v-if="feature.isActive('FEATURE_NEXT_6059')">
+                        <template #toolbar v-if="this.currency.id && !this.currency.isNew()">
+                            {% block sw_settings_currency_detail_content_card_country_price_rounding_toolbar %}
+                                <div class="sw-settings-currency-detail__currency-country-toolbar">
+                                    {% block sw_settings_currency_detail_content_card_country_price_rounding_toolbar_filter %}
+                                        <sw-card-filter
+                                            :placeholder="$tc('sw-settings-currency.detail.searchbarPlaceholder')"
+                                            @sw-card-filter-term-change="onChangeCountrySearch">
+                                        </sw-card-filter>
+                                    {% endblock %}
+                                    {% block sw_settings_currency_detail_content_card_country_price_rounding_toolbar_button %}
+                                        <sw-button
+                                            variant="ghost"
+                                            class="sw-settings-currency-detail__currency-country-toolbar-button"
+                                            @click="onAddCountry"
+                                            size="small">
+                                            {{ $tc('sw-settings-currency.detail.buttonAddCountry') }}
+                                        </sw-button>
+                                    {% endblock %}
+                                </div>
+                            {% endblock %}
+                        </template>
+                        {% block sw_settings_currency_detail_content_card_country_price_rounding_listing %}
+                            <sw-entity-listing
+                                class="sw-settings-currency-detail__currency-country-list"
+                                v-if="currencyCountryRoundings && currencyCountryRoundings.length > 0"
+                                :fullPage="false"
+                                :showSelection="false"
+                                @item-deleted="loadCurrencyCountryRoundings"
+                                @items-delete-finish="loadCurrencyCountryRoundings"
+                                :items="currencyCountryRoundings"
+                                :columns="currencyCountryColumns"
+                                identifier="sw-settings-currency-detail-currency-country-list"
+                                :repository="currencyCountryRoundingRepository">
+                                {% block sw_settings_currency_detail_content_card_country_price_rounding_listing_country_column %}
+                                    <template #column-country="{ item }">
+                                        <a href="#" @click="onClickEdit(item)">
+                                            {{ item.country.name }}
+                                        </a>
+                                    </template>
+                                {% endblock %}
+
+                                {% block sw_settings_currency_detail_content_card_country_price_rounding_listing_item_net_column %}
+                                    <template #column-itemRounding.roundForNet="{ item }">
+                                        <sw-data-grid-column-boolean v-model="item.itemRounding.roundForNet">
+                                        </sw-data-grid-column-boolean>
+                                    </template>
+                                {% endblock %}
+
+                                {% block sw_settings_currency_detail_content_card_country_price_rounding_listing_total_net_column %}
+                                    <template #column-totalRounding.roundForNet="{ item }">
+                                        <sw-data-grid-column-boolean v-model="item.totalRounding.roundForNet">
+                                        </sw-data-grid-column-boolean>
+                                    </template>
+                                {% endblock %}
+
+                                {% block sw_settings_currency_detail_content_card_country_price_rounding_listing_more_actions %}
+                                    <template #more-actions="{ item }">
+                                            <sw-context-menu-item @click="onClickEdit(item)">
+                                                {{ $tc('global.default.edit') }}
+                                            </sw-context-menu-item>
+                                    </template>
+                                {% endblock %}
+
+                            </sw-entity-listing>
+                        {% endblock %}
+
+                        {% block sw_settings_currency_detail_content_card_country_price_rounding_empty %}
+                            <sw-empty-state
+                                v-else
+                                class="sw-settings-currency-detail__currency-country-empty-state"
+                                title=""
+                                :absolute="false"
+                                :subline="emptyStateText">
+                            </sw-empty-state>
+                        {% endblock %}
+                    </sw-card>
+                    {% block sw_settings_currency_detail_content_card_country_price_rounding_modal %}
+                        <sw-settings-currency-country-modal
+                            :currencyCountryRounding="currentCurrencyCountry"
+                            v-if="currentCurrencyCountry"
+                            @save="onSaveCurrencyCountry"
+                            @edit-cancel="onCancelEditCountry">
+                        </sw-settings-currency-country-modal>
+                    {% endblock %}
                 {% endblock %}
             </sw-card-view>
         {% endblock %}

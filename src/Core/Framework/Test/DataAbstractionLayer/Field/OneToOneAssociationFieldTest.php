@@ -80,10 +80,11 @@ DROP TABLE IF EXISTS `root_sub_cascade`;
 
 CREATE TABLE `root` (
   `id` binary(16) NOT NULL,
-  `name` varchar(255) NOT NULL,
   `version_id` binary(16) NOT NULL,
+  `name` varchar(255) NOT NULL,
   `created_at` DATETIME(3) NOT NULL,
-  `updated_at` DATETIME(3) NULL
+  `updated_at` DATETIME(3) NULL,
+  PRIMARY KEY `primary` (`id`, `version_id`)
 );
 CREATE TABLE `root_sub` (
   `id` binary(16) NOT NULL,
@@ -93,7 +94,8 @@ CREATE TABLE `root_sub` (
   `name` varchar(255) NULL,
   `stock` int NULL,
   `created_at` DATETIME(3) NOT NULL,
-  `updated_at` DATETIME(3) NULL
+  `updated_at` DATETIME(3) NULL,
+  PRIMARY KEY `primary` (`id`, `version_id`)
 );
 CREATE TABLE `root_sub_cascade` (
   `id` binary(16) NOT NULL,
@@ -103,7 +105,8 @@ CREATE TABLE `root_sub_cascade` (
   `name` varchar(255) NULL,
   `stock` int NULL,
   `created_at` DATETIME(3) NOT NULL,
-  `updated_at` DATETIME(3) NULL
+  `updated_at` DATETIME(3) NULL,
+  PRIMARY KEY `primary` (`id`, `version_id`)
 );
 
 
@@ -114,7 +117,8 @@ CREATE TABLE `root_sub_many` (
   `root_sub_id` binary(16) NOT NULL,
   `name` varchar(255) NULL,
   `created_at` DATETIME(3) NOT NULL,
-  `updated_at` DATETIME(3) NULL
+  `updated_at` DATETIME(3) NULL,
+  PRIMARY KEY `primary` (`id`, `version_id`)
 );
 
 ALTER TABLE `root_sub`
@@ -133,10 +137,12 @@ ADD FOREIGN KEY (`root_sub_id`, `root_sub_version_id`) REFERENCES `root_sub` (`i
         parent::tearDown();
 
         $this->connection->executeUpdate('
+SET FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS `root`;
 DROP TABLE IF EXISTS `root_sub`;
 DROP TABLE IF EXISTS `root_sub_cascade`;
 DROP TABLE IF EXISTS `root_sub_many`;
+SET FOREIGN_KEY_CHECKS = 1;
         ');
     }
 
@@ -244,11 +250,11 @@ DROP TABLE IF EXISTS `root_sub_many`;
         $sub = $this->subRepository->search($criteria, $context)->first();
         static::assertInstanceOf(ArrayEntity::class, $sub->get('root'));
 
+        /** @var EntityCollection|null $many */
         $many = $sub->get('manies');
         static::assertInstanceOf(EntityCollection::class, $many);
         static::assertCount(2, $many);
 
-        /** @var EntityCollection $many */
         static::assertTrue($many->has($id3));
         static::assertTrue($many->has($id4));
     }
@@ -419,7 +425,7 @@ DROP TABLE IF EXISTS `root_sub_many`;
         $subCascadeEvent = $delete->getEventByEntityName(SubCascadeDefinition::ENTITY_NAME);
         static::assertInstanceOf(EntityDeletedEvent::class, $subCascadeEvent);
         static::assertCount(1, $subCascadeEvent->getWriteResults());
-        static::assertSame([$idRoot], $subCascadeEvent->getIds());
+        static::assertSame([$idSubCascade], $subCascadeEvent->getIds());
     }
 
     public function testRestrictDelete(): void

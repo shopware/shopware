@@ -17,7 +17,7 @@ class CalculatedPriceFieldTestDefinition extends EntityDefinition
     public static function getCreateTable(): string
     {
         return '
-DROP TABLE IF EXISTS calculated_price_field_test;  
+DROP TABLE IF EXISTS calculated_price_field_test;
 CREATE TABLE `calculated_price_field_test` (
   `id` binary(16) NOT NULL,
   `version_id` binary(16) NOT NULL,
@@ -32,7 +32,7 @@ CREATE TABLE `calculated_price_field_test` (
     public static function dropTable(): string
     {
         return '
-            DROP TABLE IF EXISTS calculated_price_field_test;   
+            DROP TABLE IF EXISTS calculated_price_field_test;
         ';
     }
 
@@ -41,12 +41,13 @@ CREATE TABLE `calculated_price_field_test` (
         return self::ENTITY_NAME;
     }
 
+    public function since(): ?string
+    {
+        return '6.0.0.0';
+    }
+
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            new VersionField(),
-            (new CalculatedPriceField('calculated_price', 'price'))->addFlags(new Required()),
-        ]);
+        return new FieldCollection([(new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()), new VersionField(), (new CalculatedPriceField('calculated_price', 'price'))->addFlags(new Required())]);
     }
 }

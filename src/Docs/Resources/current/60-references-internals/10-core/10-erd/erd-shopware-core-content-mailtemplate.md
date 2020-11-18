@@ -1,5 +1,5 @@
 [titleEn]: <>(Mailing)
-[hash]: <>(article:internals_core_erd_content_mail_template)
+[hash]: <>(article:internals_core_erd_content_mailtemplate)
 
 [Back to modules](./../10-modules.md)
 
@@ -16,6 +16,11 @@ A log of rendered and sent mails.
 ### Table `mail_template_type`
 
 Different mail template types.
+
+
+### Table `mail_template_sales_channel`
+
+__EMPTY__
 
 
 ### Table `mail_header_footer`

@@ -4,14 +4,15 @@ namespace Shopware\Core\Framework\Api\Controller;
 
 use OpenApi\Annotations as OA;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Api\Acl\Resource\AclResourceDefinition;
+use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
+use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Api\Converter\Exceptions\ApiConversionException;
 use Shopware\Core\Framework\Api\Exception\InvalidVersionNameException;
 use Shopware\Core\Framework\Api\Exception\LiveVersionDeleteException;
+use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Api\Exception\NoEntityClonedException;
 use Shopware\Core\Framework\Api\Exception\ResourceNotFoundException;
-use Shopware\Core\Framework\Api\OAuth\Scope\WriteScope;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -39,7 +40,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -47,7 +50,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -96,13 +98,19 @@ class ApiController extends AbstractController
      */
     private $entityProtectionValidator;
 
+    /**
+     * @var AclCriteriaValidator
+     */
+    private $criteriaValidator;
+
     public function __construct(
         DefinitionInstanceRegistry $definitionRegistry,
         Serializer $serializer,
         RequestCriteriaBuilder $searchCriteriaBuilder,
         CompositeEntitySearcher $compositeEntitySearcher,
         ApiVersionConverter $apiVersionConverter,
-        EntityProtectionValidator $entityProtectionValidator
+        EntityProtectionValidator $entityProtectionValidator,
+        AclCriteriaValidator $criteriaValidator
     ) {
         $this->definitionRegistry = $definitionRegistry;
         $this->serializer = $serializer;
@@ -110,12 +118,14 @@ class ApiController extends AbstractController
         $this->compositeEntitySearcher = $compositeEntitySearcher;
         $this->apiVersionConverter = $apiVersionConverter;
         $this->entityProtectionValidator = $entityProtectionValidator;
+        $this->criteriaValidator = $criteriaValidator;
     }
 
     /**
+     * @Since("6.0.0.0")
      * @OA\Get(
      *      path="/_search",
-     *      description="Search for multiple entites by a given term",
+     *      summary="Search for multiple entites by a given term",
      *      operationId="compositeSearch",
      *      tags={"Admin Api"},
      *      @OA\Parameter(
@@ -166,7 +176,7 @@ class ApiController extends AbstractController
      *          ref="#/components/responses/401"
      *      )
      * )
-     * @Route("/api/v{version}/_search", name="api.composite.search", methods={"GET"}, requirements={"version"="\d+"})
+     * @Route("/api/v{version}/_search", name="api.composite.search", methods={"GET","POST"}, requirements={"version"="\d+"})
      */
     public function compositeSearch(Request $request, Context $context, int $version): JsonResponse
     {
@@ -190,6 +200,7 @@ class ApiController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/clone/{entity}/{id}", name="api.clone", methods={"POST"}, requirements={
      *     "version"="\d+", "entity"="[a-zA-Z-]+", "id"="[0-9a-f]{32}"
      * })
@@ -198,19 +209,25 @@ class ApiController extends AbstractController
      */
     public function clone(Context $context, string $entity, string $id, int $version, Request $request): JsonResponse
     {
-        $overwrites = $request->request->get('overwrites', []);
+        $behavior = new CloneBehavior(
+            $request->request->get('overwrites', []),
+            $request->request->get('cloneChildren', true)
+        );
 
         $entity = $this->urlToSnakeCase($entity);
         $this->checkIfRouteAvailableInApiVersion($entity, $version);
 
         $definition = $this->definitionRegistry->getByEntityName($entity);
-        $this->validateAclPermissions($context, $definition, AclResourceDefinition::PRIVILEGE_CREATE);
+        $missing = $this->validateAclPermissions($context, $definition, AclRoleDefinition::PRIVILEGE_CREATE);
+        if ($missing) {
+            throw new MissingPrivilegeException([$missing]);
+        }
 
-        $eventContainer = $context->scope(Context::CRUD_API_SCOPE, function (Context $context) use ($definition, $id, $overwrites): EntityWrittenContainerEvent {
+        $eventContainer = $context->scope(Context::CRUD_API_SCOPE, function (Context $context) use ($definition, $id, $behavior): EntityWrittenContainerEvent {
             /** @var EntityRepository $entityRepo */
             $entityRepo = $this->definitionRegistry->getRepository($definition->getEntityName());
 
-            return $entityRepo->clone($id, $context, null, $overwrites);
+            return $entityRepo->clone($id, $context, null, $behavior);
         });
 
         $event = $eventContainer->getEventByEntityName($definition->getEntityName());
@@ -225,6 +242,7 @@ class ApiController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/version/{entity}/{id}", name="api.createVersion", methods={"POST"},
      *     requirements={"version"="\d+", "entity"="[a-zA-Z-]+", "id"="[0-9a-f]{32}"
      * })
@@ -267,6 +285,7 @@ class ApiController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/version/merge/{entity}/{versionId}", name="api.mergeVersion", methods={"POST"},
      *     requirements={"version"="\d+", "entity"="[a-zA-Z-]+", "versionId"="[0-9a-f]{32}"
      * })
@@ -294,6 +313,7 @@ class ApiController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/version/{versionId}/{entity}/{entityId}", name="api.deleteVersion", methods={"POST"},
      *     requirements={"version"="\d+", "entity"="[a-zA-Z-]+", "id"="[0-9a-f]{32}"
      * })
@@ -339,7 +359,7 @@ class ApiController extends AbstractController
     public function detail(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
     {
         $pathSegments = $this->buildEntityPath($entityName, $path, $request->attributes->getInt('version'), $context);
-        $this->validatePathSegments($context, $pathSegments, AclResourceDefinition::PRIVILEGE_DETAIL);
+        $permissions = $this->validatePathSegments($context, $pathSegments, AclRoleDefinition::PRIVILEGE_READ);
 
         $root = $pathSegments[0]['entity'];
         $id = $pathSegments[\count($pathSegments) - 1]['value'];
@@ -366,6 +386,14 @@ class ApiController extends AbstractController
         $criteria = $this->searchCriteriaBuilder->handleRequest($request, $criteria, $definition, $context);
 
         $criteria->setIds([$id]);
+
+        // trigger acl validation
+        $missing = $this->criteriaValidator->validate($definition->getEntityName(), $criteria, $context);
+        $permissions = array_unique(array_filter(array_merge($permissions, $missing)));
+
+        if (!empty($permissions)) {
+            throw new MissingPrivilegeException($permissions);
+        }
 
         $entity = $context->scope(Context::CRUD_API_SCOPE, function (Context $context) use ($repository, $criteria, $id): ?Entity {
             return $repository->search($criteria, $context)->get($id);
@@ -420,28 +448,16 @@ class ApiController extends AbstractController
 
     public function create(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
     {
-        if (!$this->hasScope($request, WriteScope::IDENTIFIER)) {
-            throw new AccessDeniedHttpException(sprintf('This access token does not have the scope "%s" to process this Request', WriteScope::IDENTIFIER));
-        }
-
         return $this->write($request, $context, $responseFactory, $entityName, $path, self::WRITE_CREATE);
     }
 
     public function update(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
     {
-        if (!$this->hasScope($request, WriteScope::IDENTIFIER)) {
-            throw new AccessDeniedHttpException(sprintf('This access token does not have the scope "%s" to process this Request', WriteScope::IDENTIFIER));
-        }
-
         return $this->write($request, $context, $responseFactory, $entityName, $path, self::WRITE_UPDATE);
     }
 
     public function delete(Request $request, Context $context, ResponseFactoryInterface $responseFactory, string $entityName, string $path): Response
     {
-        if (!$this->hasScope($request, WriteScope::IDENTIFIER)) {
-            throw new AccessDeniedHttpException(sprintf('This access token does not have the scope "%s" to process this Request', WriteScope::IDENTIFIER));
-        }
-
         $pathSegments = $this->buildEntityPath($entityName, $path, $request->attributes->getInt('version'), $context, [WriteProtection::class]);
 
         $last = $pathSegments[\count($pathSegments) - 1];
@@ -540,7 +556,7 @@ class ApiController extends AbstractController
     private function resolveSearch(Request $request, Context $context, string $entityName, string $path): array
     {
         $pathSegments = $this->buildEntityPath($entityName, $path, $request->attributes->getInt('version'), $context);
-        $this->validatePathSegments($context, $pathSegments, AclResourceDefinition::PRIVILEGE_LIST);
+        $permissions = $this->validatePathSegments($context, $pathSegments, AclRoleDefinition::PRIVILEGE_READ);
 
         $first = array_shift($pathSegments);
 
@@ -556,6 +572,14 @@ class ApiController extends AbstractController
         $criteria = new Criteria();
         if (empty($pathSegments)) {
             $criteria = $this->searchCriteriaBuilder->handleRequest($request, $criteria, $definition, $context);
+
+            // trigger acl validation
+            $nested = $this->criteriaValidator->validate($definition->getEntityName(), $criteria, $context);
+            $permissions = array_unique(array_filter(array_merge($permissions, $nested)));
+
+            if (!empty($permissions)) {
+                throw new MissingPrivilegeException($permissions);
+            }
 
             return [$criteria, $repository];
         }
@@ -666,7 +690,7 @@ class ApiController extends AbstractController
             /* @var OneToManyAssociationField $reverse */
             $criteria->addFilter(
                 new EqualsFilter(
-                    //filter inverse association to parent value:  order_customer.order_id = xxxx
+                //filter inverse association to parent value:  order_customer.order_id = xxxx
                     sprintf('%s.%s.id', $definition->getEntityName(), $reverse->getPropertyName()),
                     $parent['value']
                 )
@@ -674,6 +698,13 @@ class ApiController extends AbstractController
         }
 
         $repository = $this->definitionRegistry->getRepository($definition->getEntityName());
+
+        $nested = $this->criteriaValidator->validate($definition->getEntityName(), $criteria, $context);
+        $permissions = array_unique(array_filter(array_merge($permissions, $nested)));
+
+        if (!empty($permissions)) {
+            throw new MissingPrivilegeException($permissions);
+        }
 
         return [$criteria, $repository];
     }
@@ -1061,7 +1092,7 @@ class ApiController extends AbstractController
         return $entityDefinition;
     }
 
-    private function validateAclPermissions(Context $context, EntityDefinition $entity, string $privilege): void
+    private function validateAclPermissions(Context $context, EntityDefinition $entity, string $privilege): ?string
     {
         $resource = $entity->getEntityName();
 
@@ -1069,21 +1100,31 @@ class ApiController extends AbstractController
             $resource = $entity->getParentDefinition()->getEntityName();
         }
 
-        if (!$context->isAllowed($resource, $privilege)) {
-            throw new AccessDeniedHttpException(sprintf('Missing privilege "%s" for resource "%s"', $privilege, $resource));
+        if (!$context->isAllowed($resource . ':' . $privilege)) {
+            return $resource . ':' . $privilege;
         }
+
+        return null;
     }
 
-    private function validatePathSegments(Context $context, array $pathSegments, string $privilege): void
+    private function validatePathSegments(Context $context, array $pathSegments, string $privilege): array
     {
         $child = array_pop($pathSegments);
 
+        $missing = [];
+
         foreach ($pathSegments as $segment) {
             // you need detail privileges for every parent entity
-            $this->validateAclPermissions($context, $this->getDefinitionForPathSegment($segment), AclResourceDefinition::PRIVILEGE_DETAIL);
+            $missing[] = $this->validateAclPermissions(
+                $context,
+                $this->getDefinitionForPathSegment($segment),
+                AclRoleDefinition::PRIVILEGE_READ
+            );
         }
 
-        $this->validateAclPermissions($context, $this->getDefinitionForPathSegment($child), $privilege);
+        $missing[] = $this->validateAclPermissions($context, $this->getDefinitionForPathSegment($child), $privilege);
+
+        return array_unique(array_filter($missing));
     }
 
     private function getDefinitionForPathSegment(array $segment): EntityDefinition

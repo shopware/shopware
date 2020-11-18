@@ -1,0 +1,17 @@
+{
+  "sw-my-apps": {
+    "timeout": "Loading your app resulted in a timeout",
+    "general": {
+      "mainMenuItemGeneral": "My apps",
+      "moduleDescription": "Module to show app specific content"
+    },
+    "sw-my-apps-page": {
+      "error": {
+        "heading": "Whoops! You’ve moved too fast and lost orientation.",
+        "phrase": "The page you were looking for is beyond our reach. Maybe the page has moved, no longer exists or you just like our 404-page. We’ll probably never know.",
+        "info": "Don’t worry! We’ve dispatched a rescue space-cat to guide you back to safety.",
+        "lblBackButton": "Go back"
+      }
+    }
+  }
+}

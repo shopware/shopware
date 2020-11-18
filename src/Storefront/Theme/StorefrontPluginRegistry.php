@@ -2,12 +2,11 @@
 
 namespace Shopware\Storefront\Theme;
 
+use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
-use Shopware\Storefront\Framework\ThemeInterface;
-use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
+use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
-use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
@@ -28,19 +27,23 @@ class StorefrontPluginRegistry implements StorefrontPluginRegistryInterface
     private $kernel;
 
     /**
-     * @var StorefrontPluginConfigurationFactory|null
+     * @var AbstractStorefrontPluginConfigurationFactory
      */
     private $pluginConfigurationFactory;
 
     /**
-     * @param StorefrontPluginConfigurationFactory|null $pluginConfigurationFactory will be required in v6.3.0
+     * @var ActiveAppsLoader
      */
+    private $activeAppsLoader;
+
     public function __construct(
         KernelInterface $kernel,
-        ?StorefrontPluginConfigurationFactory $pluginConfigurationFactory = null
+        AbstractStorefrontPluginConfigurationFactory $pluginConfigurationFactory,
+        ActiveAppsLoader $activeAppsLoader
     ) {
         $this->kernel = $kernel;
         $this->pluginConfigurationFactory = $pluginConfigurationFactory;
+        $this->activeAppsLoader = $activeAppsLoader;
     }
 
     public function getConfigurations(): StorefrontPluginConfigurationCollection
@@ -51,20 +54,20 @@ class StorefrontPluginRegistry implements StorefrontPluginRegistryInterface
 
         $this->pluginConfigurations = new StorefrontPluginConfigurationCollection();
 
+        $this->addPluginConfigs();
+        $this->addAppConfigs();
+
+        return $this->pluginConfigurations;
+    }
+
+    private function addPluginConfigs(): void
+    {
         foreach ($this->kernel->getBundles() as $bundle) {
             if (!$bundle instanceof Bundle) {
                 continue;
             }
 
-            if ($this->pluginConfigurationFactory) {
-                $config = $this->pluginConfigurationFactory->createFromBundle($bundle);
-            } else {
-                if ($bundle instanceof ThemeInterface) {
-                    $config = StorefrontPluginConfiguration::createFromConfigFile($bundle);
-                } else {
-                    $config = StorefrontPluginConfiguration::createFromBundle($bundle);
-                }
-            }
+            $config = $this->pluginConfigurationFactory->createFromBundle($bundle);
 
             if (!$config->getIsTheme() && !$config->hasFilesToCompile()) {
                 continue;
@@ -72,7 +75,18 @@ class StorefrontPluginRegistry implements StorefrontPluginRegistryInterface
 
             $this->pluginConfigurations->add($config);
         }
+    }
 
-        return $this->pluginConfigurations;
+    private function addAppConfigs(): void
+    {
+        foreach ($this->activeAppsLoader->getActiveApps() as $app) {
+            $config = $this->pluginConfigurationFactory->createFromApp($app['name'], $app['path']);
+
+            if (!$config->getIsTheme() && !$config->hasFilesToCompile()) {
+                continue;
+            }
+
+            $this->pluginConfigurations->add($config);
+        }
     }
 }

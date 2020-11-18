@@ -12,14 +12,9 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
-use Shopware\Storefront\Page\Product\Configurator\ProductPageConfiguratorLoader;
 use Shopware\Storefront\Page\Product\CrossSelling\CrossSellingLoader;
 use Shopware\Storefront\Page\Product\Review\ProductReviewLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -31,11 +26,6 @@ class ProductPageLoader
      * @var GenericPageLoaderInterface
      */
     private $genericLoader;
-
-    /**
-     * @var SalesChannelRepositoryInterface
-     */
-    private $productRepository;
 
     /**
      * @var EventDispatcherInterface
@@ -51,11 +41,6 @@ class ProductPageLoader
      * @var CmsSlotsDataResolver
      */
     private $slotDataResolver;
-
-    /**
-     * @var ProductPageConfiguratorLoader
-     */
-    private $configuratorLoader;
 
     /**
      * @var ProductDefinition
@@ -79,22 +64,18 @@ class ProductPageLoader
 
     public function __construct(
         GenericPageLoaderInterface $genericLoader,
-        SalesChannelRepositoryInterface $productRepository,
         EventDispatcherInterface $eventDispatcher,
         SalesChannelCmsPageRepository $cmsPageRepository,
         CmsSlotsDataResolver $slotDataResolver,
-        ProductPageConfiguratorLoader $configuratorLoader,
         ProductDefinition $productDefinition,
         ProductLoader $productLoader,
         ProductReviewLoader $productReviewLoader,
         CrossSellingLoader $crossSellingLoader
     ) {
         $this->genericLoader = $genericLoader;
-        $this->productRepository = $productRepository;
         $this->eventDispatcher = $eventDispatcher;
         $this->cmsPageRepository = $cmsPageRepository;
         $this->slotDataResolver = $slotDataResolver;
-        $this->configuratorLoader = $configuratorLoader;
         $this->productDefinition = $productDefinition;
         $this->productLoader = $productLoader;
         $this->productReviewLoader = $productReviewLoader;
@@ -117,20 +98,15 @@ class ProductPageLoader
             throw new MissingRequestParameterException('productId', '/productId');
         }
 
-        $productId = $this->findBestVariant($productId, $salesChannelContext);
-
-        $product = $this->productLoader->load($productId, $salesChannelContext);
+        $product = $this->productLoader->load($productId, $salesChannelContext, ProductPageCriteriaEvent::class);
         $page->setProduct($product);
+        $page->setConfiguratorSettings($product->getConfigurator());
 
         $request->request->set('parentId', $product->getParentId());
         $reviews = $this->productReviewLoader->load($request, $salesChannelContext);
         $reviews->setParentId($product->getParentId() ?? $product->getId());
 
         $page->setReviews($reviews);
-
-        $page->setConfiguratorSettings(
-            $this->configuratorLoader->load($product, $salesChannelContext)
-        );
 
         $page->setCrossSellings(
             $this->crossSellingLoader->load($product->getId(), $salesChannelContext)
@@ -229,25 +205,5 @@ class ProductPageLoader
         $page = $pages->first();
 
         return $page;
-    }
-
-    /**
-     * @throws InconsistentCriteriaIdsException
-     */
-    private function findBestVariant(string $productId, SalesChannelContext $salesChannelContext)
-    {
-        $criteria = (new Criteria())
-            ->addFilter(new EqualsFilter('product.parentId', $productId))
-            ->addSorting(new FieldSorting('product.price'))
-            ->addSorting(new FieldSorting('product.available'))
-            ->setLimit(1);
-
-        $variantId = $this->productRepository->searchIds($criteria, $salesChannelContext);
-
-        if (\count($variantId->getIds()) > 0) {
-            return $variantId->getIds()[0];
-        }
-
-        return $productId;
     }
 }

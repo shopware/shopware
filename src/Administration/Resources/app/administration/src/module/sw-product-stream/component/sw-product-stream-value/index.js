@@ -2,6 +2,7 @@ import template from './sw-product-stream-value.html.twig';
 import './sw-product-stream-value.scss';
 
 const { Component } = Shopware;
+const { Criteria } = Shopware.Data;
 
 Component.register('sw-product-stream-value', {
     template,
@@ -9,7 +10,8 @@ Component.register('sw-product-stream-value', {
     inject: [
         'repositoryFactory',
         'conditionDataProviderService',
-        'productCustomFields'
+        'productCustomFields',
+        'acl'
     ],
 
     props: {
@@ -27,6 +29,12 @@ Component.register('sw-product-stream-value', {
         definition: {
             type: Object,
             required: true
+        },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -44,7 +52,8 @@ Component.register('sw-product-stream-value', {
 
         componentClasses() {
             return [
-                this.growthClass
+                this.growthClass,
+                this.disabledClass
             ];
         },
 
@@ -54,6 +63,10 @@ Component.register('sw-product-stream-value', {
             }
 
             return `sw-product-stream-value--grow-${this.childComponents.length}`;
+        },
+
+        disabledClass() {
+            return this.disabled ? 'is--disabled' : null;
         },
 
         actualCondition() {
@@ -190,9 +203,21 @@ Component.register('sw-product-stream-value', {
         },
 
         context() {
-            const context = { ...Shopware.Context.api, inheritance: true };
+            return { ...Shopware.Context.api, inheritance: true };
+        },
 
-            return context;
+        productCriteria() {
+            const criteria = new Criteria();
+            criteria.addAssociation('options.group');
+
+            return criteria;
+        },
+
+        resultCriteria() {
+            const criteria = new Criteria();
+            criteria.addAssociation('options.group');
+
+            return criteria;
         }
     },
 

@@ -62,14 +62,14 @@ class ReactivatePluginsStep
     {
         $requestTime = time();
 
-        $deactivatedPlugins = $this->systemConfigService->get(self::UPDATE_DEACTIVATED_PLUGINS) ?: [];
-        $failed = $this->systemConfigService->get(self::UPDATE_FAILED_REACTIVATED_PLUGINS) ?: [];
+        $deactivatedPlugins = (array) $this->systemConfigService->get(self::UPDATE_DEACTIVATED_PLUGINS) ?: [];
+        $failed = (array) $this->systemConfigService->get(self::UPDATE_FAILED_REACTIVATED_PLUGINS) ?: [];
 
         $deactivatedPlugins = array_unique($deactivatedPlugins);
 
         $plugins = $this->pluginCompatibility->getPluginsToReactivate($deactivatedPlugins, $this->currentVersion, $this->context);
 
-        $pluginCount = count($deactivatedPlugins);
+        $pluginCount = \count($deactivatedPlugins);
 
         foreach ($plugins as $plugin) {
             ++$offset;

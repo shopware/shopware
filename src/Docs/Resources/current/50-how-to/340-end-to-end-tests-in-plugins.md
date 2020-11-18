@@ -53,7 +53,7 @@ As next step, please create a new file `e2e/cypress/plugins/index.js` with the f
 module.exports = require('@shopware-ag/e2e-testsuite-platform/cypress/plugins');
 ```
 
-Finally, create a new file `e2e/cypress/support/index.js` with the the following line:
+Finally, create a new file `e2e/cypress/support/index.js` with the following line:
 ```javascript
 // Require test suite commands
 require('@shopware-ag/e2e-testsuite-platform/cypress/support');
@@ -112,7 +112,7 @@ Let's assume you want to test if you can edit your plugin's configuration and sa
 start with the basic structure of your test. According to the structure above, our `spec` file will look like this:
 
 ```javascript
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
 
 describe('PluginCypressTests: Test configuration', () => {
   it('edit plugin\'s configuration', () => {
@@ -154,7 +154,7 @@ it('edit plugin\'s configuration', () => {
     // Request we want to wait for later
     cy.server();
     cy.route({
-        url: '/api/v1/_action/system-config/batch',
+        url: '/api/v3/_action/system-config/batch',
         method: 'post'
     }).as('saveData');
 
@@ -187,7 +187,7 @@ more reliable way of waiting for the configuration to be saved.
 ```javascript
 cy.server(); // Start a server to begin routing responses
 cy.route({ // Manage the behavior of network requests
-    url: '/api/v1/_action/system-config/batch', 
+    url: '/api/v3/_action/system-config/batch', 
     method: 'post' // Route POST requests with given URL
 }).as('saveData'); // Save the request as alias to use it later
 ```
@@ -233,7 +233,7 @@ the `beforeEach` hook as well.
 
 Finally, our test spec should be ready to run! Let's look at it in completion:
 ```javascript
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
 
 describe('PluginCypressTests: Test configuration', () => {
     beforeEach(() => {
@@ -247,7 +247,7 @@ describe('PluginCypressTests: Test configuration', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v1/_action/system-config/batch',
+            url: '/api/v3/_action/system-config/batch',
             method: 'post'
         }).as('saveData');
 

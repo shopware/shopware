@@ -5,6 +5,9 @@ namespace Shopware\Core\Content\Product\SalesChannel\Listing;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @deprecated tag:v6.4.0 use \Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingEntity instead
+ */
 class ProductListingSorting extends Struct
 {
     /**

@@ -7,6 +7,9 @@ use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -128,23 +131,32 @@ trait SalesChannelApiTestBehaviour
 
     private function authorizeSalesChannelBrowser(KernelBrowser $salesChannelApiClient, array $salesChannelOverride = []): void
     {
-        $salesChannelOverride['accessKey'] = AccessKeyHelper::generateAccessKey('sales-channel');
         $salesChannel = $this->createSalesChannel($salesChannelOverride);
 
         $this->salesChannelIds[] = $salesChannel['id'];
 
         $header = 'HTTP_' . str_replace('-', '_', mb_strtoupper(PlatformRequest::HEADER_ACCESS_KEY));
-        $salesChannelApiClient->setServerParameter($header, $salesChannelOverride['accessKey']);
+        $salesChannelApiClient->setServerParameter($header, $salesChannel['accessKey']);
         $salesChannelApiClient->setServerParameter('test-sales-channel-id', $salesChannel['id']);
     }
 
     private function createSalesChannel(array $salesChannelOverride = []): array
     {
+        /** @var EntityRepositoryInterface $salesChannelRepository */
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
         $paymentMethod = $this->getAvailablePaymentMethod();
 
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('domains.url', 'http://localhost'));
+        $salesChannelIds = $salesChannelRepository->searchIds($criteria, Context::createDefaultContext());
+
+        if (!isset($salesChannelOverride['domains']) && $salesChannelIds->firstId() !== null) {
+            $salesChannelRepository->delete([['id' => $salesChannelIds->firstId()]], Context::createDefaultContext());
+            echo $salesChannelIds->firstId();
+        }
+
         $salesChannel = array_merge([
-            'id' => Uuid::randomHex(),
+            'id' => $salesChannelOverride['id'] ?? Uuid::randomHex(),
             'typeId' => Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
             'name' => 'API Test case sales channel',
             'accessKey' => AccessKeyHelper::generateAccessKey('sales-channel'),
@@ -155,7 +167,7 @@ trait SalesChannelApiTestBehaviour
             'paymentMethods' => [['id' => $paymentMethod->getId()]],
             'shippingMethodId' => $this->getAvailableShippingMethod()->getId(),
             'navigationCategoryId' => $this->getValidCategoryId(),
-            'countryId' => $this->getValidCountryId(),
+            'countryId' => $this->getValidCountryId(null),
             'currencies' => [['id' => Defaults::CURRENCY]],
             'languages' => [['id' => Defaults::LANGUAGE_SYSTEM]],
             'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
@@ -167,10 +179,26 @@ trait SalesChannelApiTestBehaviour
                     'url' => 'http://localhost',
                 ],
             ],
+            'countries' => [['id' => $this->getValidCountryId(null)]],
         ], $salesChannelOverride);
 
         $salesChannelRepository->upsert([$salesChannel], Context::createDefaultContext());
 
         return $salesChannel;
+    }
+
+    private function assignSalesChannelContext(?KernelBrowser $customBrowser = null): void
+    {
+        $browser = $customBrowser ?: $this->getSalesChannelBrowser();
+        $browser->request('GET', '/store-api/v' . PlatformRequest::API_VERSION . '/context');
+        $response = $browser->getResponse();
+        $content = json_decode($response->getContent(), true);
+        $browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $content['token']);
+    }
+
+    private function getRandomId(string $table)
+    {
+        return $this->getContainer()->get(Connection::class)
+            ->fetchColumn('SELECT LOWER(HEX(id)) FROM ' . $table);
     }
 }

@@ -86,18 +86,47 @@ Next thing you gotta add this translation association to your custom entity.
 namespace Swag\CustomEntityTranslations\Custom;
 
 use Swag\CustomEntityTranslations\Custom\Aggregate\CustomTranslation\CustomEntityTranslationCollection;
-...
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 class CustomEntity extends Entity
 {
-    ...
+    use EntityIdTrait;
+
+    /**
+     * @var string
+     */
+    protected $technicalName;
+
+    /**
+     * @var string
+     */
+    protected $label;
 
     /**
      * @var CustomEntityTranslationCollection|null
      */
     protected $translations;
 
-    ...
+    public function getTechnicalName(): string
+    {
+        return $this->technicalName;
+    }
+
+    public function setTechnicalName(string $technicalName): void
+    {
+        $this->technicalName = $technicalName;
+    }
+
+    public function getLabel(): string
+    {
+        return $this->label;
+    }
+
+    public function setLabel(string $label): void
+    {
+        $this->label = $label;
+    }
 
     public function getTranslations(): ?CustomEntityTranslationCollection
     {
@@ -142,7 +171,7 @@ In this example, the directory structure would look like this:
 Since creating an `EntityCollection` was already explained in the [previous HowTo](./050-custom-entity.md), only the differences are going to be explained here.
 
 ```php
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace Swag\CustomEntityTranslations\Custom\Aggregate\CustomTranslation;
 
@@ -200,7 +229,7 @@ Additional to that you to add your custom translated field(s), `label` in this e
 parent's id, `customEntityId` in this case, as well as a property for the actual `CustomEntity` object.
 
 ```php
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace Swag\CustomEntityTranslations\Custom\Aggregate\CustomTranslation;
 
@@ -279,7 +308,7 @@ class CustomTranslationEntity extends TranslationEntity
 Your custom translation entity also has to come with a respective collection class, which also extends from `EntityCollection`.
 
 ```php
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace Swag\CustomEntityTranslations\Custom\Aggregate\CustomTranslation;
 

@@ -21,7 +21,7 @@
       "columnMax": "Maximum",
       "columnUnit_day": "Tag",
       "columnUnit_week": "Woche",
-      "columnUnit_month": "Woche",
+      "columnUnit_month": "Monat",
       "columnUnit_year": "Jahr",
       "errorLoad": "Die Lieferzeiten konnten nicht geladen werden."
     },
@@ -37,6 +37,13 @@
       "selectionUnitYear": "Jahr",
       "errorLoad": "Die Lieferzeit konnte nicht geladen werden.",
       "errorSave": "Die Lieferzeit konnte nicht gespeichert werden."
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "delivery_times": {
+        "label": "Lieferzeiten"
+      }
     }
   }
 }

@@ -7,6 +7,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
+use Shopware\Core\Content\ImportExport\Event\ImportExportAfterImportRecordEvent;
+use Shopware\Core\Content\ImportExport\Event\ImportExportBeforeExportRecordEvent;
+use Shopware\Core\Content\ImportExport\Event\ImportExportBeforeImportRecordEvent;
+use Shopware\Core\Content\ImportExport\Event\ImportExportExceptionImportRecordEvent;
 use Shopware\Core\Content\ImportExport\ImportExport;
 use Shopware\Core\Content\ImportExport\ImportExportFactory;
 use Shopware\Core\Content\ImportExport\Processing\Pipe\AbstractPipe;
@@ -27,8 +31,10 @@ use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOp
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\FilesystemBehaviour;
@@ -37,7 +43,10 @@ use Shopware\Core\Framework\Test\TestCaseBase\RequestStackTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SessionTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher;
+use Symfony\Contracts\EventDispatcher\Event;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class ImportExportTest extends TestCase
@@ -58,9 +67,16 @@ class ImportExportTest extends TestCase
      */
     private $productRepository;
 
+    /**
+     * @var TraceableEventDispatcher
+     */
+    private $listener;
+
     public function setUp(): void
     {
         $this->productRepository = $this->getContainer()->get('product.repository');
+
+        $this->listener = $this->getContainer()->get(EventDispatcherInterface::class);
 
         $connection = $this->getContainer()->get(Connection::class);
 
@@ -88,6 +104,48 @@ class ImportExportTest extends TestCase
         $connection->rollBack();
 
         $connection->setNestTransactionsWithSavepoints(false);
+    }
+
+    public function testExportEvents(): void
+    {
+        $this->listener->addSubscriber(new StockSubscriber());
+
+        $factory = $this->getContainer()->get(ImportExportFactory::class);
+        $filesystem = $this->getContainer()->get('shopware.filesystem.private');
+
+        /** @var ImportExportService $importExportService */
+        $importExportService = $this->getContainer()->get(ImportExportService::class);
+
+        $profileId = $this->getDefaultProfileId(ProductDefinition::ENTITY_NAME);
+
+        $expireDate = new \DateTimeImmutable('2099-01-01');
+        $logEntity = $importExportService->prepareExport(Context::createDefaultContext(), $profileId, $expireDate);
+
+        $importExport = $factory->create($logEntity->getId());
+
+        $productId = Uuid::randomHex();
+        $product = $this->getTestProduct($productId);
+        $newStock = (int) $product['stock'] + 1;
+
+        $criteria = new Criteria([$productId]);
+        $importExport->export(Context::createDefaultContext(), $criteria, 0);
+
+        $events = array_column($this->listener->getCalledListeners(), 'event');
+        static::assertContains(ImportExportBeforeExportRecordEvent::class, $events);
+
+        $csv = $filesystem->read($logEntity->getFile()->getPath());
+        static::assertStringContainsString(";{$newStock};", $csv);
+    }
+
+    public function testImportEvents(): void
+    {
+        $this->listener->addSubscriber(new TestSubscriber());
+        $this->importCategoryCsv();
+        $events = array_column($this->listener->getCalledListeners(), 'event');
+
+        static::assertContains(ImportExportBeforeImportRecordEvent::class, $events);
+        static::assertContains(ImportExportAfterImportRecordEvent::class, $events);
+        static::assertNotContains(ImportExportExceptionImportRecordEvent::class, $events);
     }
 
     public function testImportExport(): void
@@ -208,6 +266,7 @@ class ImportExportTest extends TestCase
         $categoryRepository->delete([['id' => $childId], ['id' => $betweenId], ['id' => $rootId]], Context::createDefaultContext());
 
         $exportFileTmp = tempnam(sys_get_temp_dir(), '');
+
         \file_put_contents($exportFileTmp, $filesystem->read($logEntity->getFile()->getPath()));
         $file = new UploadedFile($exportFileTmp, 'test.csv', $logEntity->getProfile()->getFileType());
 
@@ -401,6 +460,8 @@ class ImportExportTest extends TestCase
 
     public function importCategoryCsv(): void
     {
+        $context = Context::createDefaultContext();
+        $context->addExtension(EntityIndexerRegistry::DISABLE_INDEXING, new ArrayEntity());
         $factory = $this->getContainer()->get(ImportExportFactory::class);
 
         /** @var ImportExportService $importExportService */
@@ -411,15 +472,15 @@ class ImportExportTest extends TestCase
         $expireDate = new \DateTimeImmutable('2099-01-01');
         $file = new UploadedFile(__DIR__ . '/fixtures/categories.csv', 'categories.csv', 'text/csv');
         $logEntity = $importExportService->prepareImport(
-            Context::createDefaultContext(),
+            $context,
             $profileId,
             $expireDate,
             $file
         );
         $progress = new Progress($logEntity->getId(), Progress::STATE_PROGRESS, 0, null);
+        $importExport = $factory->create($logEntity->getId(), 5, 5);
         do {
-            $importExport = $factory->create($logEntity->getId(), 5, 5);
-            $progress = $importExport->import(Context::createDefaultContext(), $progress->getOffset());
+            $progress = $importExport->import($context, $progress->getOffset());
         } while (!$progress->isFinished());
 
         static::assertSame(Progress::STATE_SUCCEEDED, $progress->getState());
@@ -427,6 +488,8 @@ class ImportExportTest extends TestCase
 
     public function importPropertyCsv(): void
     {
+        $context = Context::createDefaultContext();
+        $context->addExtension(EntityIndexerRegistry::DISABLE_INDEXING, new ArrayEntity());
         $factory = $this->getContainer()->get(ImportExportFactory::class);
 
         /** @var ImportExportService $importExportService */
@@ -437,24 +500,67 @@ class ImportExportTest extends TestCase
         $expireDate = new \DateTimeImmutable('2099-01-01');
         $file = new UploadedFile(__DIR__ . '/fixtures/properties.csv', 'properties.csv', 'text/csv');
         $logEntity = $importExportService->prepareImport(
-            Context::createDefaultContext(),
+            $context,
             $profileId,
             $expireDate,
             $file
         );
         $progress = new Progress($logEntity->getId(), Progress::STATE_PROGRESS, 0, null);
+        $importExport = $factory->create($logEntity->getId(), 5, 5);
         do {
-            $importExport = $factory->create($logEntity->getId(), 5, 5);
-            $progress = $importExport->import(Context::createDefaultContext(), $progress->getOffset());
+            $progress = $importExport->import($context, $progress->getOffset());
         } while (!$progress->isFinished());
 
         static::assertSame(Progress::STATE_SUCCEEDED, $progress->getState());
     }
 
+    public function importPropertyCsvWithoutIds(): void
+    {
+        $context = Context::createDefaultContext();
+        $context->addExtension(EntityIndexerRegistry::DISABLE_INDEXING, new ArrayEntity());
+        $factory = $this->getContainer()->get(ImportExportFactory::class);
+
+        /** @var ImportExportService $importExportService */
+        $importExportService = $this->getContainer()->get(ImportExportService::class);
+
+        $profileId = $this->getDefaultProfileId(PropertyGroupOptionDefinition::ENTITY_NAME);
+
+        $expireDate = new \DateTimeImmutable('2099-01-01');
+        $file = new UploadedFile(__DIR__ . '/fixtures/propertieswithoutid.csv', 'properties.csv', 'text/csv');
+        $logEntity = $importExportService->prepareImport(
+            $context,
+            $profileId,
+            $expireDate,
+            $file
+        );
+        $progress = new Progress($logEntity->getId(), Progress::STATE_PROGRESS, 0, null);
+        $importExport = $factory->create($logEntity->getId(), 5, 5);
+        do {
+            $progress = $importExport->import($context, $progress->getOffset());
+        } while (!$progress->isFinished());
+
+        static::assertSame(Progress::STATE_SUCCEEDED, $progress->getState());
+
+        /** @var EntityRepositoryInterface $propertyRepository */
+        $propertyRepository = $this->getContainer()->get($logEntity->getProfile()->getSourceEntity() . '.repository');
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('name', 'alicebluenew'));
+        $property = $propertyRepository->search($criteria, $context);
+        static::assertCount(1, $property);
+    }
+
+    /**
+     * @group slow
+     */
     public function testProductsCsv(): void
     {
+        $context = Context::createDefaultContext();
+        $context->addExtension(EntityIndexerRegistry::DISABLE_INDEXING, new ArrayEntity());
+
         $this->importCategoryCsv();
         $this->importPropertyCsv();
+        $this->importPropertyCsvWithoutIds();
 
         $factory = $this->getContainer()->get(ImportExportFactory::class);
 
@@ -467,15 +573,16 @@ class ImportExportTest extends TestCase
         $file = new UploadedFile(__DIR__ . '/fixtures/products.csv', 'products.csv', 'text/csv');
 
         $logEntity = $importExportService->prepareImport(
-            Context::createDefaultContext(),
+            $context,
             $profileId,
             $expireDate,
             $file
         );
+
         $progress = new Progress($logEntity->getId(), Progress::STATE_PROGRESS, 0, null);
+        $importExport = $factory->create($logEntity->getId(), 5, 5);
         do {
-            $importExport = $factory->create($logEntity->getId(), 5, 5);
-            $progress = $importExport->import(Context::createDefaultContext(), $progress->getOffset());
+            $progress = $importExport->import($context, $progress->getOffset());
         } while (!$progress->isFinished());
 
         static::assertSame(Progress::STATE_SUCCEEDED, $progress->getState());
@@ -687,7 +794,7 @@ class ImportExportTest extends TestCase
         return $profileRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
     }
 
-    private function getTestProduct($id): array
+    private function getTestProduct(string $id): array
     {
         $manufacturerId = Uuid::randomHex();
         $catId1 = Uuid::randomHex();
@@ -848,3 +955,48 @@ class ImportExportTest extends TestCase
         return new \DateTimeImmutable((new \DateTimeImmutable($str))->format(\DateTime::ATOM));
     }
 }
+
+// phpcs:disable
+class TestSubscriber implements EventSubscriberInterface
+{
+    public static function getSubscribedEvents(): array
+    {
+        return [
+            ImportExportBeforeImportRecordEvent::class => 'foo',
+            ImportExportAfterImportRecordEvent::class => 'foo',
+            ImportExportExceptionImportRecordEvent::class => 'foo',
+        ];
+    }
+
+    public function foo(Event $event): void
+    {
+        //will be called on foo
+    }
+}
+
+class StockSubscriber implements EventSubscriberInterface
+{
+    public static function getSubscribedEvents(): array
+    {
+        return [
+            ImportExportBeforeExportRecordEvent::class => 'onExport',
+        ];
+    }
+
+    public function onExport(ImportExportBeforeExportRecordEvent $event): void
+    {
+        if ($event->getConfig()->get('sourceEntity') !== 'product') {
+            return;
+        }
+
+        $keys = $event->getConfig()->getMapping()->getKeys();
+        if (!in_array('stock', $keys, true)) {
+            return;
+        }
+
+        $record = $event->getRecord();
+        $record['stock'] = $record['stock'] + 1;
+        $event->setRecord($record);
+    }
+}
+// phpcs:enable

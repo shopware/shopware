@@ -208,9 +208,4 @@ class SalesChannelDomainEntity extends Entity
     {
         $this->salesChannelDefaultHreflang = $salesChannelDefaultHreflang;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'sales_channel_domain';
-    }
 }

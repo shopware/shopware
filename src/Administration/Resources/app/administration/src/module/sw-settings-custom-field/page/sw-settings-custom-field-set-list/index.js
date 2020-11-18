@@ -5,6 +5,9 @@ const { Component, Locale, Mixin, Data: { Criteria } } = Shopware;
 
 Component.register('sw-settings-custom-field-set-list', {
     template,
+
+    inject: ['acl', 'feature'],
+
     mixins: [
         Mixin.getByName('sw-inline-snippet'),
         Mixin.getByName('sw-settings-list')
@@ -28,23 +31,25 @@ Component.register('sw-settings-custom-field-set-list', {
     computed: {
         // Settings Listing mixin override
         titleSaveSuccess() {
-            return this.$tc('sw-settings-custom-field.set.list.titleDeleteSuccess');
+            return this.$tc('global.default.success');
         },
+
         // Settings Listing mixin override
         messageSaveSuccess() {
             if (this.deleteEntity) {
                 return this.$tc(
                     'sw-settings-custom-field.set.list.messageDeleteSuccess',
                     0,
-                    { name: this.getInlineSnippet(this.deleteEntity.config.label) }
+                    { name: this.getInlineSnippet(this.deleteEntity.config.label) || this.deleteEntity.name }
                 );
             }
             return '';
         },
+
         listingCriteria() {
             const criteria = new Criteria();
 
-            const params = this.getListingParams();
+            const params = this.getMainListingParams();
 
             criteria.addFilter(Criteria.multi(
                 'OR',
@@ -53,6 +58,8 @@ Component.register('sw-settings-custom-field-set-list', {
                     ...this.getTermCriteria(params.term)
                 ]
             ));
+
+            criteria.addFilter(Criteria.equals('appId', null));
 
             return criteria;
         }
@@ -64,26 +71,26 @@ Component.register('sw-settings-custom-field-set-list', {
                 return [];
             }
 
-            const criterias = [];
+            const criteria = [];
             const locales = Locale.getLocaleRegistry();
 
             locales.forEach((value, key) => {
-                criterias.push(Criteria.contains(
+                criteria.push(Criteria.contains(
                     `config.label.\"${key}\"`, term
                 ));
             });
 
-            return criterias;
+            return criteria;
         },
 
         getTermCriteria(term) {
-            const criterias = [];
+            const criteria = [];
 
             if (term) {
-                criterias.push(Criteria.contains('name', term));
+                criteria.push(Criteria.contains('name', term));
             }
 
-            return criterias;
+            return criteria;
         }
     }
 });

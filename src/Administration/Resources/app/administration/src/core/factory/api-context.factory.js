@@ -17,7 +17,7 @@ export default function createContext(context = {}) {
     Shopware.State.commit('context/setApiApiPath', apiPath);
     Shopware.State.commit('context/setApiApiResourcePath', `${apiPath}/v${apiVersion}`);
     Shopware.State.commit('context/setApiApiVersion', apiVersion);
-    Shopware.State.commit('context/setApiAssetsPath', getAssetsPath(installationPath, isDevMode));
+    Shopware.State.commit('context/setApiAssetsPath', getAssetsPath(context.assetPath, isDevMode));
     Shopware.State.commit('context/setApiLanguageId', languageId);
     Shopware.State.commit('context/setApiInheritance', false);
 

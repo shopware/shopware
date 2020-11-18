@@ -23,14 +23,14 @@ For an entity object, the system automatically creates the following routes thro
 | api.customer_group.search     | POST | /api/v{version}/search/customer-group      | Allows to perform a complex search |
 | api.customer_group.search-ids | POST | /api/v{version}/search-ids/customer-group  | Allows to perform a complex search and fetching only matching ids |
 
-A list of all routes and registered entities in the system can be read via the `/api/v1/_info/*` routes:
-* `/api/v1/_info/openapi3.json`
-* `/api/v1/_info/open-api-schema.json`
-* `/api/v1/_info/entity-schema.json`
+A list of all routes and registered entities in the system can be read via the `/api/v3/_info/*` routes:
+* `/api/v3/_info/openapi3.json`
+* `/api/v3/_info/open-api-schema.json`
+* `/api/v3/_info/entity-schema.json`
 
 ### Search endpoint
 The Admin API supports a wide range of filtering, aggregation and sorting capabilities. However, according to the REST definition, data should only be read via GET,
-we have provided the `/api/v1/search/*` route for this. This working with complex filters or other components that can be mapped via DAL. 
+we have provided the `/api/v3/search/*` route for this. This working with complex filters or other components that can be mapped via DAL. 
 
 ### Parameter overview
 When reading the data, the following parameters are available to influence the result:
@@ -58,7 +58,7 @@ The `includes` parameter allows you to restrict the returned fields.
 
 Endpoint: 
 ```
-POST /api/v1/search/product
+POST /api/v3/search/product
 {
     "includes": {
         "product": ["id", "name"]
@@ -90,7 +90,7 @@ This pattern applies not only to simple fields but also to associations:
 
 Endpoint: 
 ```
-POST /api/v1/search/product
+POST /api/v3/search/product
 {
     "includes": {
         "product": ["id", "name", "manufacturer", "tax"],
@@ -127,7 +127,7 @@ The `ids` parameter allows you to limit the search to a list of Ids.
 * Purpose: Selectively read out several records. Works as a multi get request
 
 ```
-POST /api/v1/search/product
+POST /api/v3/search/product
 {
     "ids": [
         "012cd563cf8e4f0384eed93b5201cc98", 
@@ -177,7 +177,7 @@ This parameter supports the following values:
     * Purpose: Can be used well for infinite scrolling, because with infinite scrolling the information is enough to know if there is a next page to load 
 
 ```
-POST /api/v1/search/product
+POST /api/v3/search/product
 {
     "total-count-mode": 1,
     "includes": {
@@ -203,7 +203,7 @@ The `query` parameter allows a more precise controlling via the API.
 * Purpose: To implement a search function, where the server should decide what to search for.
 
 ```
-POST /api/v1/search/product
+POST /api/v3/search/product
 {
     "term": "Awesome Bronze",
     "includes": {
@@ -244,7 +244,7 @@ The `page` and `limit` parameters can be used to control pagination:
 * Purpose: Listings are implemented with these parameters.
 
 ```
-POST /api/v1/search/product
+POST /api/v3/search/product
 {
     "page": 1,
     "limit": 5,
@@ -297,7 +297,7 @@ The `filter` parameter allows you to filter the result and aggregations. Differe
     * ...
  
 ``` 
-POST /api/v1/search/product
+POST /api/v3/search/product
 {
     "filter": [
         { "type": "equals", "field": "productNumber", "value": "e3572fb623b24424a08ef84279912dc3" }
@@ -492,7 +492,7 @@ The following example shows how filters and post-filters affect the results of a
 1: First, we execute a request in which we want to query a list of products and determine the total count and the average product price:
 
 ```
-POST /api/v1/search/product
+POST /api/v3/search/product
 {
     "limit": 1,
     "total-count-mode": 1,
@@ -657,7 +657,7 @@ The `associations` parameter allows you to load additional data to the minimal d
 The key of the parameter is the property name of the association in the entity. Within this key an almost complete search query can be defined:  
 
 ```
-POST /api/v1/search/category
+POST /api/v3/search/category
 {
     "limit": 1,
     "associations": {
@@ -681,7 +681,7 @@ POST /api/v1/search/category
     "total": 1,
     "data": [
         {
-            "name": "Catalogue #1",
+            "name": "Home",
             "products": [
                 {
                     "active": true,
@@ -726,7 +726,7 @@ POST /api/v1/search/category
 By default, the API delivers the entities via the system language. However, this can be controlled via the `sw-language-id` header.
 
 ```
-POST /api/v1/search/product
+POST /api/v3/search/product
 --header 'sw-language-id: be01bd336c204f20ab86eab45bbdbe45'
 
 {
@@ -754,7 +754,7 @@ However, to avoid sending multiple requests to get the final translation of an e
 In this field, all fields are already translated for the provided language, considering the inheritance:
 
 ```
-POST /api/v1/search/product
+POST /api/v3/search/product
 --header 'sw-language-id: be01bd336c204f20ab86eab45bbdbe45'
 
 {
@@ -786,7 +786,7 @@ However, the Admin API initially only delivers the data of its own record, witho
 To tell the API that the inheritance should be considered, the header `sw-inheritance` must be sent with the data:
 
 ```
-POST /api/v1/search/product
+POST /api/v3/search/product
 --header 'sw-inheritance: 1'
 
 {

@@ -16,13 +16,10 @@
       "buttonBack": "Zurück",
       "buttonCancel": "Abbrechen",
       "titleDescription": "Informationen",
-      "messageNoProductStreams": "Um Produktvergleiche anzulegen, muss zunächst eine dynamische Produktgruppe erstellt werden."
+      "messageNoProductStreams": "Um Produktvergleiche anzulegen, musst Du zunächst eine dynamische Produktgruppe erstellen."
     },
     "detail": {
-      "titleSaveSuccess": "Erfolg",
       "messageSaveSuccess": "Der Verkaufskanal \"{name}\" wurde erfolgreich gespeichert.",
-      "titleSaveError": "Fehler",
-      "titleActivateError": "Aktivierungsfehler",
       "messageSaveError": "Der Verkaufskanal \"{name}\" konnte nicht gespeichert werden. Bitte überprüfe Deine Eingaben.",
       "messageActivateWithoutThemeError": "Der Verkaufskanal \"{name}\" kann noch nicht aktiviert werden. Aktive Verkaufskanäle müssen ein Theme zugeordnet haben.",
       "activateDisable": "Der Verkaufskanal muss gespeichert und anschließend muss ein Theme zugeordnet werden, bevor er aktiviert werden kann.",
@@ -36,8 +33,7 @@
       "titleProductComparisonTemplate": "Template",
       "titleProductComparisonPreview": "Vorschau",
       "titleProductComparisonPreviewErrors": "Fehler bei der Generierung",
-      "labelAccessKeyField": "API-Zugangs-ID",
-      "titleAPIError": "Fehler",
+      "labelAccessKeyField": "API-Zugangsschlüssel",
       "messageAPIError": "Der API-Schlüssel konnte nicht generiert werden.",
       "titleGeneralSettings": "Grundeinstellungen",
       "labelInputName": "Name",
@@ -67,42 +63,40 @@
       "textHeadline": "Neuer Verkaufskanal",
       "placeholderName": "Gib einen Namen für den Verkaufskanal ein ...",
       "placeholderInputCategories": "Kategorien hinzufügen ...",
-      "titleDomains": "Domänen",
+      "titleDomains": "Domains",
       "titleDomainItem": "URL {index}",
       "labelInputCurrency": "Währung",
       "labelInputLanguage": "Sprache",
       "labelInputSnippet": "Textbaustein-Set",
-      "buttonDeleteDomain": "Domäne löschen",
-      "buttonAddDomain": "Domäne hinzufügen",
-      "deleteDomainModalTitle": "Domäne löschen",
-      "textConfirmDeleteDomain": "Möchtest Du diese Domäne wirklich löschen? Der Verkaufskanal ist dann nicht mehr über \"{url}\" zugänglich",
+      "buttonDeleteDomain": "Domain löschen",
+      "buttonAddDomain": "Domain hinzufügen",
+      "deleteDomainModalTitle": "Domain löschen",
+      "textConfirmDeleteDomain": "Möchtest Du diese Domain wirklich löschen? Der Verkaufskanal ist dann nicht mehr über \"{url}\" zugänglich",
       "buttonCloseDeleteDomainModal": "Abbrechen",
       "buttonConfirmDeleteDomain": "Löschen",
       "customerGroup": "Kundengruppe",
       "navigation": "Navigation",
-      "navigationCategoryId": "Einsprungpunkt für die Haupt-Navigation",
+      "navigationCategoryId": "Einstiegspunkt für die Haupt-Navigation",
       "navigationCategoryDepth": "Hauptnavigations-Ebenen",
-      "navigationCategoryHelpText": "Für diesen Einsprungpunkt können keine Kategorien des Typs \"benutzerdefinierter Link\" oder \"Strukturkategorie\" ausgewählt werden.",
-      "footerCategory": "Einsprungpunkt für die Footer-Navigation",
-      "serviceCategory": "Einsprungpunkt für die Service-Navigation",
+      "navigationCategoryHelpText": "Für diesen Einstiegspunkt können keine Kategorien des Typs \"benutzerdefinierter Link\" oder \"Strukturkategorie\" ausgewählt werden.",
+      "footerCategory": "Einstiegspunkt für die Footer-Navigation",
+      "serviceCategory": "Einstiegspunkt für die Service-Navigation",
       "titleOptionsApiKey": "API-Zugang",
-      "titleApiAccess": "API-Zugang",
-      "titleDeleteSalesChannelWarning": "Achtung:",
       "textDeleteSalesChannelWarning": "Das Entfernen dieses Verkaufskanals kann nicht wieder rückgängig gemacht werden.",
       "buttonCopyApiKeyButton": "API-Schlüssel kopieren",
       "titleStatus": "Status",
-      "titleGeneralInformation": "Allgemeine Information",
+      "titleGeneralInformation": "Allgemeine Informationen",
       "titleAccount": "Konto",
       "titleDeleteSalesChannel": "Verkaufskanal löschen",
-      "titleProductSync": "Produkt Synchronisierung",
+      "titleProductSync": "Produkt-Synchronisierung",
       "titleSyncedProducts": "Synchronisierte Produkte",
       "titleCategoryMapping": "Kategoriezuordnung",
       "titleTemplate": "Template",
-      "titleDomainHeadline": "Erstelle Domäne URLs",
-      "buttonEditDomain": "Domäne bearbeiten",
-      "titleCreateDomain": "Neue Domäne erstellen",
-      "titleEditDomain": "Domäne \"{name}\" bearbeiten",
-      "textDomainDescription": "Jede ausgewählte Sprache benötigt eine eigene Domäne im jeweiligen Verkaufskanal. Du kannst darüberhinaus auch noch weitere eigene Domänen für den Verkaufskanal hinzufügen.",
+      "titleDomainHeadline": "Erstelle Domain-URLs",
+      "buttonEditDomain": "Domain bearbeiten",
+      "titleCreateDomain": "Neue Domain erstellen",
+      "titleEditDomain": "Domain \"{name}\" bearbeiten",
+      "textDomainDescription": "Jede ausgewählte Sprache benötigt eine eigene Domain im jeweiligen Verkaufskanal. Du kannst darüberhinaus auch noch weitere eigene Domains für den Verkaufskanal hinzufügen.",
       "textApiAccessDescription": "Um API-Zugriff zu erhalten benötigst Du die unten angezeigte API-Zugangs-ID. Eine Neugenerierung überschreibt die alte API-Zugangs-ID und terminiert alle existierenden Zugriffsrouten. <strong>Diese Aktion kann nicht rückgängig gemacht werden.</strong>",
       "textActiveDescription": "Das Deaktivieren des Verkaufskanals macht ihn für Besucher und API-Verbindungen unzugänglich.",
       "columnDomainUrl": "URL",
@@ -126,25 +120,18 @@
         "placeholderFileName": "shopware.csv",
         "lastGenerationLabel": "Zeitpunkt der letzten Generierung: ",
         "notYetGenerated": "Dieser Export wurde bisher noch nicht generiert.",
-        "encoding": "Verschlüsselung",
-        "placeholderSelectEncoding": "Wähle eine Verschlüsselung aus ...",
+        "encoding": "Zeichenkodierung",
+        "placeholderSelectEncoding": "Wähle eine Zeichenkodierung aus ...",
         "fileFormat": "Dateiformat",
         "placeholderSelectFileFormat": "Wähle ein Dateiformat aus...",
         "accessKey": "Zugangsschlüssel",
         "accessUrl": "Export-URL",
         "buttonCreateNewAccessKey": "Zugangsschlüssel neu generieren",
         "productStream": "Dynamische Produktgruppe",
-        "fileFormatlabels": {
-          "csv": "CSV",
-          "xml": "XML"
-        },
         "includeVariants": "Varianten als eigene Produkte exportieren",
         "interval": "Generierungsintervall",
         "generateByCronjob": "Per Scheduler generieren",
-        "notificationTitleValidateSuccessful": "Erfolg",
         "notificationMessageValidateSuccessful": "Keine Fehler gefunden.",
-        "notificationTitleValidateError": "Test fehlerhaft",
-        "notificationTitlePreviewError": "Vorschau fehlerhaft",
         "intervalLabels": {
           "0": "Live",
           "120": "2 Minuten",
@@ -178,7 +165,6 @@
           "label": "Kundengruppe",
           "help": "Auf Basis des Storefront-Verkaufskanals automatisch gewählt"
         },
-        "titleAccessKeyChanged": "Zugangsschlüssel geändert",
         "messageAccessKeyChanged": "Der Zugangsschlüssel und die geänderte Export-URL werden erst nach dem Speichern aktiv.",
         "templates": {
           "label": "Template",
@@ -193,7 +179,6 @@
           "modal-confirm": "Template übernehmen",
           "modal-cancel": "Abbrechen",
           "message": {
-            "template-applied-title": "Template übernommen",
             "template-applied-message": "Die Daten aus dem Template wurden übernommen. Bitte speichere den Verkaufskanal, um die Änderungen dauerhaft zu übernehmen."
           }
         },
@@ -224,79 +209,38 @@
           "trackingId": {
             "label": "Tracking-ID",
             "placeHolder": "Tracking-ID eingeben ...",
-            "helpText": "Nach der Anmeldung in Ihrem Google-Analytics-Konto erhalten Sie eine Tracking-ID. Tracking-IDs können wie folgt aussehen: UA-12345678-1"
+            "helpText": "Nach der Anmeldung in Deinem Google-Analytics-Konto erhältst Du eine Tracking-ID. Tracking-IDs können wie folgt aussehen: UA-12345678-1"
           },
           "active": {
             "label": "Google Analytics aktivieren"
           },
           "trackOrders": {
-            "label": "Bestellungen tracken"
+            "label": "Bestellungen verfolgen"
           },
           "anonymizeIp": {
-            "label": "Ip-Anonymisierung"
+            "label": "IP-Anonymisierung"
           }
         }
       },
-      "googleShoppingGeneral": {
-        "title": "Wählen Sie eine Storefront für den Checkout-Prozess aus",
-        "description": "Für Verkaufskanäle ohne Storefront ist eine verknüpfte Storefront erforderlich, mit der die Kaufabwicklung abgeschlossen wird."
-      },
-      "googleShoppingAccountConnect": {
-        "title": "Verbinden Sie Ihr Google-Konto, um Google-Programme zu verwenden",
-        "subTitle": "Mit einem Google-Konto können Sie auf Ihre Google-Merchant-Center- und Google-Ads-Konten zugreifen.",
-        "textConnectButton": "Verbinden"
-      },
-      "googleShoppingAccountDisconnect": {
-        "titleProfiles": "Mit diesem Google-Konto kannst Du auf Dein Google-Merchant-Center-Konto zugreifen",
-        "titleLinkProfiles": "merchants.google.com.",
-        "textDisconnectButton": "Trennen",
-        "titleMerchant": "Ein gesperrtes Google-Merchant-Center-Konto kann keine Shopping-Anzeigen schalten. Mehr erfahren:",
-        "titleLinkMerchant": "über Kontosperrungen.",
-        "textGroupMerchant": "Merchant-Center-Konto:",
-        "titleWebsite": "Deine Website ist mit Deinem Google-Merchant-Center-Konto verknüpft. Das Konto muss beansprucht worden sein, um Shopping-Anzeigen zu schalten.",
-        "textGroupWebsite": "Webseite:"
-      }
-    },
-    "modalGooglePrograms": {
-      "title": "Google-Konto verbinden",
-      "buttonNext": "Weiter",
-      "buttonBack": "Zurück",
-      "step-1": {
-        "titleGetStarted": "Starte mit Google Programs",
-        "textGetStartedDescription": "Das Handelsangebot von Google kann Dir dabei helfen, mehr Kunden auf Deiner Website oder in Deinem Geschäft zu begrüßen. Nach der Einrichtung hast Du Zugriff auf Berichte, damit Du sehen kannst, wie gut Deine Anzeigen laufen.",
-        "textLearnMore": "Erfahre mehr",
-        "titleConnectGoogleAccount": "Verbinde Dein Google-Konto, um Google Programs zu nutzen",
-        "textConnectGoogleAccountDescription": "Ein Google-Konto gibt Dir Zugriff auf Dein Google Merchant Center und Google-Ads-Konten.",
-        "buttonConnect": "Konto verbinden"
-      },
-      "step-2": {
-        "titleYourGoogleAccount": "Dein Google-Konto",
-        "buttonDisconnect": "Verbindung trennen",
-        "textDisconnectInfo": "Wenn Du die Verbindung zu Deinem Google-Konto trennst, werden das Google Merchant Center und die Google-Ads-Konten ebenfalls getrennt."
-      },
-      "step-3": {
-        "titleGeneral": "Erstelle oder verbinde Dein Google-Merchant-Center-Konto",
-        "textLearnMore": "Erfahre mehr darüber",
-        "textGoogleMerchantCenter": "Google Merchant Center",
-        "titleConnectExistingMerchant": "Verbinde ein existierendes Google-Merchant-Center-Konto",
-        "textConnectExistingMerchantDescription": "hat bereits Zugriff auf ein oder mehrere Google-Merchant-Center-Konten. Du kannst eines der bereits vorhandenen Google-Merchant-Center-Konten verwenden.",
-        "placeholderSelectMerchant": "Wähle ein existierendes Google-Merchant-Center-Konto ...",
-        "titleCreateMerchant": "Erstelle ein neues Google-Merchant-Center-Konto",
-        "textCreateMerchantDescription": "Erstelle ein neues Google-Merchant-Center-Konto, wenn du möchtest.",
-        "buttonCreateMerchant": "Erstelle ein neuen Google-Merchant-Center-Konto"
-      },
-      "step-7": {
-        "titleSetting": "Versandeinstellungen konfigurieren",
-        "textSettingDescription": "Um Werbung für bestimmte Länder/Regionen zu schalten, musst Du den Versand für diese Gebiete anbieten und Versandkosten konfiguriert haben. Deine Merchant-Center-Versandkosten müssen mit den Kosten auf Deiner Website übereinstimmen.",
-        "textLearnMore": "Erfahre mehr",
-        "linkLearnMore": "https://support.google.com/merchants/answer/7050921?hl=de&ref_topic=7293661",
-        "textCurrentStoreOption": "Verwende die aktuellen Versandeinstellungen des Shops",
-        "textFlatRateOption": "Verwende einen Pauschaltarif für alle Bestellungen",
-        "textSelfSetupOption": "Einstellungen nicht mit Shopware synchronisieren. Ich werde diese selber im Google Merchant Center einrichten."
+      "titleShippingPayment": "Zahlung und Versand",
+      "labelTaxCalculation": "Steuerberechnung",
+      "descriptionTaxCalculation": "Eine Änderung dieser Einstellung könnte zu Abrechnungsproblemen mit externen Zahlungsanbietern führen. \nInformiere Dich, wie die Mehrwertsteuer von Deinem Zahlungsanbieter berechnet wird, bevor Du Änderungen vornimmst.",
+      "taxCalculation": {
+        "verticalName": "Spaltenweise (vertikale) Berechnung",
+        "verticalDescription": "Die Mehrwertsteuersumme wird anhand des Bestellungs-Gesamtbetrags errechnet. Die Mehrwertsteueranteile der einzelnen Positionen werden im Bestellabschluss nicht angezeigt. ",
+        "horizontalName": "Zeilenweise (horizontale) Berechnung",
+        "horizontalDescription": "Die Mehrwertsteuer wird pro Warenkorb-Position berechnet. Die Mehrwertsteueranteile jeder einzelnen Warenkorb-Position werden während des Bestellabschlusses angezeigt. Die Mehrwertsteuersumme berechnet sich aus den Mehrwertsteueranteilen der einzelnen Positionen."
       }
     },
     "sw-sales-channel-defaults-select": {
       "messageError": "Der Wert wird von der Domain \"%{url}\" verwendet."
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "sales_channel": {
+        "label": "Verkaufskanäle"
+      }
     }
   }
 }

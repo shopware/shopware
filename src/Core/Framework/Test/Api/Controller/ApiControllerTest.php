@@ -27,9 +27,10 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Symfony\Component\HttpFoundation\Response;
-use function Flag\next3722;
-use function Flag\skipTestNext3722;
 
+/**
+ * @group slow
+ */
 class ApiControllerTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -117,9 +118,6 @@ EOF;
 
     public function testInsertAuthenticatedWithIntegration(): void
     {
-        if (next3722()) {
-            static::markTestSkipped('Reactivate if Integrations can have their own acls or delete if integrations are finally removed');
-        }
         $id = Uuid::randomHex();
 
         $data = [
@@ -190,14 +188,12 @@ EOF;
 
     public function testOneToManyInsertWithoutPermission(): void
     {
-        skipTestNext3722($this);
-
         $id = Uuid::randomHex();
 
         $data = ['id' => $id, 'name' => $id];
         $browser = $this->getBrowser();
         $connection = $this->getBrowser()->getContainer()->get(Connection::class);
-        $user = TestUser::createNewTestUser($connection, ['country' => ['create', 'detail']]);
+        $user = TestUser::createNewTestUser($connection, ['country:create', 'country:read']);
         $admin = TestUser::getAdmin();
 
         $user->authorizeBrowser($browser);
@@ -227,8 +223,6 @@ EOF;
 
     public function testTranslatedPropertiesWritableWithParentDefinitionPermissions(): void
     {
-        skipTestNext3722($this);
-
         $id = Uuid::randomHex();
 
         $data = ['id' => $id, 'name' => $id];
@@ -241,7 +235,7 @@ EOF;
 
         $browser = $this->getBrowser();
         $connection = $this->getBrowser()->getContainer()->get(Connection::class);
-        $user = TestUser::createNewTestUser($connection, ['country' => ['update', 'detail']]);
+        $user = TestUser::createNewTestUser($connection, ['country:update', 'country:read']);
 
         $user->authorizeBrowser($browser);
 
@@ -263,10 +257,36 @@ EOF;
         $this->assertEntityExists($browser, 'country', $id);
     }
 
+    public function testCreateAndDeleteWithPermissions(): void
+    {
+        $connection = $this->getContainer()->get(Connection::class);
+
+        $user = TestUser::createNewTestUser($connection, ['product:create', 'product:delete', 'tax:create']);
+
+        $browser = $this->getBrowser();
+        $user->authorizeBrowser($browser);
+
+        $id = Uuid::randomHex();
+        $data = [
+            'id' => $id,
+            'name' => 'test',
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 10,
+            'price' => [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
+            ],
+            'tax' => ['id' => $id, 'name' => 'test', 'taxRate' => 15],
+        ];
+
+        $browser->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', $data);
+        static::assertSame(Response::HTTP_NO_CONTENT, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
+
+        $browser->request('DELETE', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id);
+        static::assertSame(Response::HTTP_NO_CONTENT, $browser->getResponse()->getStatusCode(), $browser->getResponse()->getContent());
+    }
+
     public function testTranslatedPropertiesNotWritableWithoutParentDefinitionPermissions(): void
     {
-        skipTestNext3722($this);
-
         $id = Uuid::randomHex();
 
         $data = ['id' => $id, 'name' => $id];
@@ -279,7 +299,7 @@ EOF;
 
         $browser = $this->getBrowser();
         $connection = $this->getBrowser()->getContainer()->get(Connection::class);
-        $user = TestUser::createNewTestUser($connection, ['country' => ['create', 'detail']]);
+        $user = TestUser::createNewTestUser($connection, ['country:create', 'country:read']);
 
         $user->authorizeBrowser($browser);
 
@@ -343,8 +363,6 @@ EOF;
 
     public function testManyToOneInsertWithoutPermission(): void
     {
-        skipTestNext3722($this);
-
         $id = Uuid::randomHex();
         $manufacturer = Uuid::randomHex();
 
@@ -360,7 +378,7 @@ EOF;
 
         $browser = $this->getBrowser();
         $connection = $this->getBrowser()->getContainer()->get(Connection::class);
-        $user = TestUser::createNewTestUser($connection, ['product' => ['create', 'detail']]);
+        $user = TestUser::createNewTestUser($connection, ['product:create', 'product:read']);
         $admin = TestUser::getAdmin();
 
         $browser->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', $data);
@@ -439,8 +457,6 @@ EOF;
 
     public function testManyToManyInsertWithoutPermission(): void
     {
-        skipTestNext3722($this);
-
         $id = Uuid::randomHex();
 
         $data = [
@@ -458,14 +474,7 @@ EOF;
         $connection = $this->getBrowser()->getContainer()->get(Connection::class);
         $user = TestUser::createNewTestUser(
             $connection,
-            [
-                'product' => ['create', 'detail'],
-                'tax' => ['create', 'detail'],
-                'product_manufacturer' => ['create', 'detail'],
-                'product_price' => ['create', 'detail'],
-                'version_commit_data' => ['create'],
-                'version_commit' => ['create'],
-            ]
+            ['product:create', 'product:read', 'tax:create', 'tax:read', 'product_manufacturer:create', 'product_manufacturer:read', 'product_price:create', 'product_price:read', 'version_commit_data:create', ':version_commitcreate']
         );
         $admin = TestUser::getAdmin();
 
@@ -612,8 +621,6 @@ EOF;
 
     public function testDeleteWithoutPermission(): void
     {
-        skipTestNext3722($this);
-
         $id = Uuid::randomHex();
         $data = [
             'id' => $id,
@@ -625,9 +632,7 @@ EOF;
 
         TestUser::createNewTestUser(
             $browser->getContainer()->get(Connection::class),
-            [
-                'tax' => ['detail', 'create'],
-            ]
+            ['tax:read', 'tax:create']
         )->authorizeBrowser($browser);
 
         $browser->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/tax', [], [], [], json_encode($data));
@@ -672,8 +677,6 @@ EOF;
 
     public function testDeleteOneToManyWithoutPermission(): void
     {
-        skipTestNext3722($this);
-
         $id = Uuid::randomHex();
         $stateId = Uuid::randomHex();
 
@@ -689,10 +692,7 @@ EOF;
 
         TestUser::createNewTestUser(
             $browser->getContainer()->get(Connection::class),
-            [
-                'country_state' => ['detail', 'create'],
-                'country' => ['create', 'detail'],
-            ]
+            ['country_state:create', 'country_state:read', 'country:create', 'country:read']
         )->authorizeBrowser($browser);
 
         $browser->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/country', $data);
@@ -784,8 +784,6 @@ EOF;
 
     public function testDeleteManyToManyWithoutPermission(): void
     {
-        skipTestNext3722($this);
-
         $id = Uuid::randomHex();
         $category = Uuid::randomHex();
 
@@ -814,10 +812,7 @@ EOF;
 
         TestUser::createNewTestUser(
             $browser->getContainer()->get(Connection::class),
-            [
-                'product' => ['detail'],
-                'category' => ['detail'],
-            ]
+            ['product:read', 'category:read']
         )->authorizeBrowser($browser);
 
         $browser->request('DELETE', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id . '/categories/' . $category);
@@ -979,8 +974,6 @@ EOF;
 
     public function testSearchWithoutPermission(): void
     {
-        skipTestNext3722($this);
-
         $id = Uuid::randomHex();
 
         $data = [
@@ -997,14 +990,7 @@ EOF;
 
         TestUser::createNewTestUser(
             $browser->getContainer()->get(Connection::class),
-            [
-                'product' => ['create'],
-                'tax' => ['create'],
-                'product_manufacturer' => ['create'],
-                'price' => ['create'],
-                'version_commit_data' => ['create'],
-                'version_commit' => ['create'],
-            ]
+            ['product:create', 'tax:create', 'product_manufacturer:create', 'price:create', 'version_commit_data:create', 'version_commit:create']
         )->authorizeBrowser($browser);
 
         $browser->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/product', $data);
@@ -1169,8 +1155,6 @@ EOF;
 
     public function testNestedSearchOnOneToManyWithoutPermissionOnParent(): void
     {
-        skipTestNext3722($this);
-
         $id = Uuid::randomHex();
 
         $data = [
@@ -1197,9 +1181,7 @@ EOF;
 
         TestUser::createNewTestUser(
             $browser->getContainer()->get(Connection::class),
-            [
-                'country_state' => ['list'],
-            ]
+            ['country_state:list']
         )->authorizeBrowser($browser);
 
         $filter = [
@@ -1220,8 +1202,6 @@ EOF;
 
     public function testNestedSearchOnOneToManyWithoutPermissionOnChild(): void
     {
-        skipTestNext3722($this);
-
         $id = Uuid::randomHex();
 
         $data = [
@@ -1248,9 +1228,7 @@ EOF;
 
         TestUser::createNewTestUser(
             $browser->getContainer()->get(Connection::class),
-            [
-                'country' => ['list'],
-            ]
+            ['country:list']
         )->authorizeBrowser($browser);
 
         $filter = [
@@ -1393,8 +1371,6 @@ EOF;
 
     public function testNestedSearchOnManyToManyWithoutPermissionOnParent(): void
     {
-        skipTestNext3722($this);
-
         $id = Uuid::randomHex();
 
         $data = [
@@ -1429,9 +1405,7 @@ EOF;
 
         TestUser::createNewTestUser(
             $browser->getContainer()->get(Connection::class),
-            [
-                'categories' => ['list'],
-            ]
+            ['category:list']
         )->authorizeBrowser($browser);
 
         $browser->request('POST', $path, $filter);
@@ -1440,8 +1414,6 @@ EOF;
 
     public function testNestedSearchOnManyToManyWithoutPermissionOnChild(): void
     {
-        skipTestNext3722($this);
-
         $id = Uuid::randomHex();
 
         $data = [
@@ -1476,9 +1448,7 @@ EOF;
 
         TestUser::createNewTestUser(
             $browser->getContainer()->get(Connection::class),
-            [
-                'product' => ['list'],
-            ]
+            ['product:list']
         )->authorizeBrowser($browser);
 
         $browser->request('POST', $path, $filter);
@@ -1690,8 +1660,8 @@ EOF;
 
         $data = $respData['data'];
         static::assertEquals('category', $data[0]['type']);
-        static::assertEquals('Catalogue #1', $data[0]['attributes']['name']);
-        static::assertEquals('Catalogue #1', $data[0]['attributes']['translated']['name']);
+        static::assertEquals('Home', $data[0]['attributes']['name']);
+        static::assertEquals('Home', $data[0]['attributes']['translated']['name']);
 
         static::assertEquals('category', $data[1]['type']);
         static::assertEquals($insertData[0]['name'], $data[1]['attributes']['name']);
@@ -1922,8 +1892,6 @@ EOF;
 
     public function testCloneEntityWithoutPermission(): void
     {
-        skipTestNext3722($this);
-
         $id = Uuid::randomHex();
         $data = [
             'id' => $id,
@@ -1939,9 +1907,7 @@ EOF;
         $connection = $browser->getContainer()->get(Connection::class);
         TestUser::createNewTestUser(
             $connection,
-            [
-                'tax' => ['detail'],
-            ]
+            ['tax:read']
         )->authorizeBrowser($browser);
 
         $browser->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/tax/' . $id);
@@ -1959,8 +1925,6 @@ EOF;
 
     public function testUpdateWithoutPermission(): void
     {
-        skipTestNext3722($this);
-
         $id = Uuid::randomHex();
         $data = [
             'id' => $id,
@@ -1970,9 +1934,7 @@ EOF;
         $browser = $this->getBrowser();
         TestUser::createNewTestUser(
             $browser->getContainer()->get(Connection::class),
-            [
-                'tax' => ['detail', 'create'],
-            ]
+            ['tax:read', 'tax:create']
         )->authorizeBrowser($browser);
 
         $browser->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/tax', [], [], [], json_encode($data));

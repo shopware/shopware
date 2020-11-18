@@ -82,6 +82,14 @@ Component.register('sw-tree', {
             default: ''
         },
 
+        routeParamsActiveElementId: {
+            type: String,
+            required: false,
+            default() {
+                return 'id';
+            }
+        },
+
         translationContext: {
             type: String,
             default: 'sw-tree'
@@ -110,6 +118,12 @@ Component.register('sw-tree', {
         checkItemsInitial: {
             type: Boolean,
             default: false
+        },
+
+        allowDeleteCategories: {
+            type: Boolean,
+            default: true,
+            required: false
         }
     },
 
@@ -150,7 +164,7 @@ Component.register('sw-tree', {
 
     computed: {
         activeElementId() {
-            return this.$route.params.id || null;
+            return this.$route.params[this.routeParamsActiveElementId] || null;
         },
 
         isSortable() {
@@ -219,6 +233,7 @@ Component.register('sw-tree', {
                     children: this.getTreeItems(item.id),
                     initialOpened: false,
                     active: false,
+                    activeElementId: this.routeParamsActiveElementId,
                     checked: !!this.checkItemsInitial,
                     [this.afterIdProperty]: item[this.afterIdProperty]
                 });
@@ -253,15 +268,17 @@ Component.register('sw-tree', {
             const newParentId = this.droppedItem.data.parentId;
 
             // item moved into other tree, update count
-            if (this.draggedItem.data.parentId !== this.droppedItem.data.parentId) {
-                if (this.draggedItem.data.parentId !== null) {
-                    const draggedParent = this.findById(this.draggedItem.parentId);
-                    draggedParent.childCount -= 1;
-                    draggedParent.data.childCount -= 1;
+            if (oldParentId !== newParentId) {
+                if (oldParentId !== null) {
+                    const draggedParent = this.findById(oldParentId);
+                    if (draggedParent) {
+                        draggedParent.childCount -= 1;
+                        draggedParent.data.childCount -= 1;
+                    }
                 }
 
-                if (this.droppedItem.data.parentId !== null) {
-                    const droppedParent = this.findById(this.droppedItem.parentId);
+                if (newParentId !== null) {
+                    const droppedParent = this.findById(newParentId);
                     droppedParent.childCount += 1;
                     droppedParent.data.childCount += 1;
                 }

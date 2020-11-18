@@ -16,6 +16,10 @@ export default function addShopwareUpdatesListener(loginService, serviceContaine
     let applicationRoot = null;
 
     loginService.addOnLoginListener(() => {
+        if (!Shopware.Service('acl').can('system.core_update')) {
+            return;
+        }
+
         serviceContainer.updateService.checkForUpdates()
             .then((response) => {
                 if (response.version) {

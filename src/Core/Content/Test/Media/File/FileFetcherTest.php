@@ -190,6 +190,9 @@ class FileFetcherTest extends TestCase
         );
     }
 
+    /**
+     * @group slow
+     */
     public function testFetchFileFromUrlWithUnavailableUrl(): void
     {
         $url = 'http://invalid/host';

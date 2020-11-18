@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Cart\Price\Struct;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\Framework\Util\FloatComparator;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
@@ -36,12 +37,7 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
     /**
      * @var bool
      */
-    protected $isCalculated;
-
-    /**
-     * @var int
-     */
-    protected $precision;
+    protected $isCalculated = true;
 
     /**
      * @var ReferencePriceDefinition|null
@@ -53,27 +49,16 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
      */
     protected $listPrice;
 
-    public function __construct(
-        float $price,
-        TaxRuleCollection $taxRules,
-        int $precision,
-        int $quantity = 1,
-        bool $isCalculated = false,
-        ?ReferencePriceDefinition $referencePrice = null,
-        ?float $listPrice = null
-    ) {
-        $this->price = $price;
+    public function __construct(float $price, TaxRuleCollection $taxRules, int $quantity = 1)
+    {
+        $this->price = FloatComparator::cast($price);
         $this->taxRules = $taxRules;
         $this->quantity = $quantity;
-        $this->isCalculated = $isCalculated;
-        $this->precision = $precision;
-        $this->referencePriceDefinition = $referencePrice;
-        $this->listPrice = $listPrice;
     }
 
     public function getPrice(): float
     {
-        return $this->price;
+        return FloatComparator::cast($this->price);
     }
 
     public function getTaxRules(): TaxRuleCollection
@@ -96,16 +81,6 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
         $this->quantity = $quantity;
     }
 
-    public function getPrecision(): int
-    {
-        return $this->precision;
-    }
-
-    public function setPrecision(int $precision): void
-    {
-        $this->precision = $precision;
-    }
-
     public static function fromArray(array $data): self
     {
         $taxRules = array_map(
@@ -118,15 +93,16 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
             $data['taxRules']
         );
 
-        return new self(
+        $self = new self(
             (float) $data['price'],
             new TaxRuleCollection($taxRules),
-            (int) $data['precision'],
-            array_key_exists('quantity', $data) ? $data['quantity'] : 1,
-            array_key_exists('isCalculated', $data) ? $data['isCalculated'] : false,
-            null,
-            isset($data['listPrice']) ? (float) $data['listPrice'] : null
+            array_key_exists('quantity', $data) ? $data['quantity'] : 1
         );
+
+        $self->setIsCalculated(array_key_exists('isCalculated', $data) ? $data['isCalculated'] : false);
+        $self->setListPrice(isset($data['listPrice']) ? (float) $data['listPrice'] : null);
+
+        return $self;
     }
 
     public function jsonSerialize(): array
@@ -153,7 +129,6 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
             'price' => [new NotBlank(), new Type('numeric')],
             'quantity' => [new Type('int')],
             'isCalculated' => [new Type('bool')],
-            'precision' => [new NotBlank(), new Type('int')],
         ];
     }
 
@@ -164,16 +139,27 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
 
     public function getListPrice(): ?float
     {
-        return $this->listPrice;
+        return $this->listPrice ? FloatComparator::cast($this->listPrice) : null;
     }
 
     public function setListPrice(?float $listPrice): void
     {
+        $listPrice = $listPrice ? FloatComparator::cast($listPrice) : null;
         $this->listPrice = $listPrice;
     }
 
     public function getApiAlias(): string
     {
         return 'cart_price_quantity';
+    }
+
+    public function setIsCalculated(bool $isCalculated): void
+    {
+        $this->isCalculated = $isCalculated;
+    }
+
+    public function setReferencePriceDefinition(?ReferencePriceDefinition $referencePriceDefinition): void
+    {
+        $this->referencePriceDefinition = $referencePriceDefinition;
     }
 }

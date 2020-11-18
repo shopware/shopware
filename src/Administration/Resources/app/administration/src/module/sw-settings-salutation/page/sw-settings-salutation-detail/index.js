@@ -1,6 +1,6 @@
 import template from './sw-settings-salutation-detail.html.twig';
 
-const { Component, Mixin, StateDeprecated } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const ShopwareError = Shopware.Classes.ShopwareError;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
@@ -9,7 +9,7 @@ const utils = Shopware.Utils;
 Component.register('sw-settings-salutation-detail', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -26,7 +26,13 @@ Component.register('sw-settings-salutation-detail', {
     },
 
     shortcuts: {
-        'SYSTEMKEY+S': 'onSave',
+        'SYSTEMKEY+S': {
+            active() {
+                return this.allowSave;
+            },
+            method: 'onSave'
+        },
+
         ESCAPE: 'onCancel'
     },
 
@@ -56,10 +62,6 @@ Component.register('sw-settings-salutation-detail', {
             return this.repositoryFactory.create('salutation');
         },
 
-        languageStore() {
-            return StateDeprecated.getStore('language');
-        },
-
         entityDescription() {
             return this.placeholder(
                 this.salutation,
@@ -75,7 +77,21 @@ Component.register('sw-settings-salutation-detail', {
             return null;
         },
 
+        allowSave() {
+            return this.salutation && this.salutation.isNew()
+                ? this.acl.can('salutation.creator')
+                : this.acl.can('salutation.editor');
+        },
+
         tooltipSave() {
+            if (!this.allowSave) {
+                return {
+                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    disabled: this.allowSave,
+                    showOnDisabledElements: true
+                };
+            }
+
             const systemKey = this.$device.getSystemKey();
 
             return {
@@ -117,7 +133,7 @@ Component.register('sw-settings-salutation-detail', {
                 return;
             }
 
-            this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
+            Shopware.State.commit('context/resetLanguageToDefault');
             this.salutation = this.salutationRepository.create(Shopware.Context.api);
             this.isLoading = false;
         },
@@ -146,7 +162,7 @@ Component.register('sw-settings-salutation-detail', {
                 });
             }).catch(() => {
                 this.createNotificationError({
-                    title: this.$tc('sw-settings-salutation.detail.notificationErrorTitle'),
+                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-settings-salutation.detail.notificationErrorMessage')
                 });
             });

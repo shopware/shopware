@@ -9,11 +9,18 @@ Component.register('sw-category-view', {
         Mixin.getByName('placeholder')
     ],
 
+    inject: ['acl'],
+
     props: {
         isLoading: {
             type: Boolean,
             required: true,
             default: false
+        },
+        type: {
+            type: String,
+            required: false,
+            default: 'page'
         }
     },
 
@@ -23,6 +30,10 @@ Component.register('sw-category-view', {
         },
 
         cmsPage() {
+            if (this.type === 'folder' || this.type === 'link') {
+                return false;
+            }
+
             return Shopware.State.get('cmsPageState').currentPage;
         }
     }

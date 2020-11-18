@@ -35,7 +35,9 @@ class CopyBatch implements PluginInterface
                 $this->filesystem->putStream($targetFile, $handle);
             }
 
-            fclose($handle);
+            if (is_resource($handle)) {
+                fclose($handle);
+            }
         }
     }
 }

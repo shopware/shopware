@@ -35,6 +35,7 @@ return [
     'language-selection_header' => 'Din Shopware-installation',
     'language-selection_info_message' => 'Detta val gäller endast för språket i installationsguiden. Du kan definiera systemets standardspråk i din butik senare.',
     'language-selection_welcome_message' => 'Vi är glada över att du vill vara en del av vår världsomspännande Shopware Community! Nu följer vi dig steg för steg genom installationsprocessen. Om du har frågor, vänligen se först efter svar i vårt <a class="is--nowrap" href="https://forum.shopware.com" target="_blank">Forum</a>, kontakta oss på telefon på telefonnummer <a class="is--nowrap" href="tel:+492555928850">(+49) 2555 928850</a> eller skriv till oss via <a class="is--nowrap" href="mailto:info@shopware.com">e-mail</a>.',
+
     'requirements_header' => 'Systemkrav',
     'requirements_header_files' => 'Filer och kataloger',
     'requirements_header_system' => 'System',
@@ -56,10 +57,12 @@ return [
     'requirements_status_error' => 'Fel',
     'requirements_status_warning' => 'Varning',
     'requirements_status_ready' => 'Klart',
+
     'license_agreement_header' => 'Allmänna affärsvillkor',
     'license_agreement_info' => 'Här hittar du våra allmänna affärsvillkor. Om du vill fortsätta att installera Shopware 6, måste du först läsa och acceptera de allmänna affärsvillkoren. Community Edition av Shopware 6 släpps under villkoren för MIT-licensen.',
     'license_agreement_error' => 'Vänligen godkänn våra allmänna affärsvillkor!',
     'license_agreement_checkbox' => 'Jag godkänner de allmänna affärsvillkoren!',
+
     'database-configuration_header' => 'Konfigurera databasen',
     'database-configuration_field_host' => 'Server:',
     'database-configuration_advanced_settings' => 'Avancerade inställningar',
@@ -82,15 +85,18 @@ return [
     'database_import_install_label' => 'Databasinstallation:',
     'database_import_install_step_text' => 'Steg',
     'database_import_install_from_text' => 'från',
+
     'migration_counter_text_migrations' => 'Databasuppdatering utförs',
     'migration_counter_text_snippets' => 'Textmoduler uppdateras',
     'migration_update_success' => 'Databasen importerades framgångsrikt!',
+
     'edition_header' => 'Har du redan en Shopware-licens?',
     'edition_info' => 'Shopware finns i en gratis <a href="https://de.shopware.com/versionen/" target="_blank">Community Edition </a> samt i en avgiftsbelagd <a href="https://de.shopware.com/versionen/" target="_blank">Professional &amp; Enterprise Edition</a>.',
     'edition_ce' => 'Nej jag vill använda den kostnadsfria versionen <a href="https://de.shopware.com/versionen/" target="_blank">Community Edition</a>.',
     'edition_cm' => 'Ja, jag har en avgiftsbelagd Shopware-licens (<a href="https://de.shopware.com/versionen/" target="_blank">Professional eller Enterprise</a>).',
     'edition_license' => 'Ange din licensnyckel här. Du hittar denna på ditt Shopware-konto under ”Licenser” → ”Produktlicenser” → ”Detaljer/Download”:',
     'edition_license_error' => 'För att installera en betalversion av Shopware krävs en giltig licens.',
+
     'configuration_header' => 'Konfiguration',
     'configuration_sconfig_text' => 'Nästan färdigt. Nu behöver du bara ställa in några grundinställningar för din butik, därefter är installationen klar.',
     'configuration_sconfig_name' => 'Butiksnamn',
@@ -104,6 +110,12 @@ return [
     'configuration_admin_currency_eur' => 'Euro',
     'configuration_admin_currency_usd' => 'Dollar (US)',
     'configuration_admin_currency_gbp' => 'Brittiska pund (GBP)',
+    'configuration_admin_currency_pln' => 'Polsk złoty',
+    'configuration_admin_currency_chf' => 'Schweizisk franc',
+    'configuration_admin_currency_sek' => 'Svensk krona',
+    'configuration_admin_currency_dkk' => 'Dansk krona',
+    'configuration_admin_currency_nok' => 'Norsk krona',
+    'configuration_admin_currency_czk' => 'Tjeckisk krona',
     'configuration_admin_username' => 'Admin-Login-Namn:',
     'configuration_admin_mail' => 'Admin-e-postadress:',
     'configuration_admin_firstName' => 'Admin-förnamn:',
@@ -113,12 +125,13 @@ return [
     'configuration_admin_language_de' => 'Tyska',
     'configuration_admin_language_en' => 'Engelska',
     'configuration_admin_password' => 'Admin-lösenord:',
+
     'finish_header' => 'Installationen slutförd',
     'finish_info' => 'Du har framgångsrikt installerat Shopware!',
     'finish_info_heading' => 'Juhu!',
     'finish_first_steps' => '”Komma igång”-guide',
     'finish_frontend' => 'Till Storefront',
-    'finish_backend' => 'Till administration',
+    'finish_backend' => 'Till Administration',
     'finish_message' => '
 <p>
     <strong>Hjärtligt välkommen till Shopware,</strong>

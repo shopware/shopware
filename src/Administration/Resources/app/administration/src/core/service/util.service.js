@@ -8,6 +8,7 @@ import flattenDeep from 'lodash/flattenDeep';
 import uuidV4 from 'uuid/v4';
 import remove from 'lodash/remove';
 import slice from 'lodash/slice';
+import uniqBy from 'lodash/uniqBy';
 
 import {
     deepCopyObject,
@@ -16,10 +17,13 @@ import {
     getArrayChanges,
     cloneDeep,
     merge,
+    mergeWith,
+    deepMergeObject,
     get,
-    set
+    set,
+    pick
 } from './utils/object.utils';
-import { warn } from './utils/debug.utils';
+import { warn, error } from './utils/debug.utils';
 import { currency, date, fileSize, md5 } from './utils/format.utils';
 import domUtils from './utils/dom.utils';
 import stringUtils from './utils/string.utils';
@@ -34,12 +38,16 @@ export const object = {
     getArrayChanges: getArrayChanges,
     cloneDeep: cloneDeep,
     merge: merge,
+    mergeWith: mergeWith,
+    deepMergeObject: deepMergeObject,
     get: get,
-    set: set
+    set: set,
+    pick: pick
 };
 
 export const debug = {
-    warn: warn
+    warn: warn,
+    error: error
 };
 
 export const format = {
@@ -59,6 +67,7 @@ export const string = {
     capitalizeString: stringUtils.capitalizeString,
     camelCase: stringUtils.camelCase,
     kebabCase: stringUtils.kebabCase,
+    snakeCase: stringUtils.snakeCase,
     md5: md5,
     isEmptyOrSpaces: stringUtils.isEmptyOrSpaces,
     isUrl: stringUtils.isUrl,
@@ -95,7 +104,8 @@ export const sort = {
 export const array = {
     flattenDeep: flattenDeep,
     remove: remove,
-    slice: slice
+    slice: slice,
+    uniqBy: uniqBy
 };
 
 export default {

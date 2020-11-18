@@ -12,8 +12,10 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\EntityAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Tax\TaxEntity;
@@ -32,6 +34,24 @@ class EntityCacheKeyGeneratorTest extends TestCase
         parent::setUp();
         $this->generator = new EntityCacheKeyGenerator(
             $this->getContainer()->getParameter('kernel.cache.hash')
+        );
+    }
+
+    public function testExtensionsAreNotConsidered(): void
+    {
+        $criteria = new Criteria();
+        $extension = new Criteria();
+        $extension->addExtension('test', new ArrayStruct());
+
+        $aggregation = new EntityAggregation('test', 'test', 'test');
+
+        $context = Context::createDefaultContext();
+
+        $definition = $this->getContainer()->get(ProductDefinition::class);
+
+        static::assertSame(
+            $this->generator->getAggregationCacheKey($aggregation, $definition, $criteria, $context),
+            $this->generator->getAggregationCacheKey($aggregation, $definition, $extension, $context)
         );
     }
 

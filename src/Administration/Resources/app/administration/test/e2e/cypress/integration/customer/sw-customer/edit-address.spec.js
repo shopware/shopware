@@ -1,4 +1,4 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
 
 import CustomerPageObject from '../../../support/pages/module/sw-customer.page-object';
 
@@ -50,8 +50,10 @@ describe('Customer: Edit customer\'s addresses', () => {
 
         // Open and add new address
         cy.get('.sw-customer-detail__tab-addresses').click();
+
         cy.get('.sw-customer-detail__open-edit-mode-action').click();
         cy.get('.sw-customer-detail-addresses__add-address-action').click();
+
         page.createBasicAddress(newAddress);
         cy.get(`${page.elements.modal} ${page.elements.primaryButton}`).click();
 
@@ -90,7 +92,7 @@ describe('Customer: Edit customer\'s addresses', () => {
         cy.get(`${page.elements.modal} p`).contains(
             'Are you sure you want to delete this address?'
         );
-        cy.get(`${page.elements.modal}__footer ${page.elements.primaryButton}`).click();
+        cy.get(`${page.elements.modal}__footer ${page.elements.dangerButton}`).click();
 
         // Verify updated customer
         cy.get(`${page.elements.dataGridRow}--1`).should('not.exist');

@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCol
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist\CustomerWishlistCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Promotion\PromotionCollection;
@@ -260,6 +261,11 @@ class CustomerEntity extends Entity
     protected $tags;
 
     /**
+     * @var array|null
+     */
+    protected $tagIds;
+
+    /**
      * @var PromotionCollection|null
      */
     protected $promotions;
@@ -283,6 +289,33 @@ class CustomerEntity extends Entity
      * @var string|null
      */
     protected $remoteAddress;
+
+    /**
+     * @var string|null
+     */
+    protected $requestedGroupId;
+
+    /**
+     * @var CustomerGroupEntity|null
+     */
+    protected $requestedGroup;
+
+    /**
+     * @var string|null
+     */
+    protected $boundSalesChannelId;
+
+    /**
+     * @var SalesChannelEntity|null
+     */
+    protected $boundSalesChannel;
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10549)
+     *
+     * @var CustomerWishlistCollection|null
+     */
+    protected $wishlists;
 
     public function __toString()
     {
@@ -742,6 +775,16 @@ class CustomerEntity extends Entity
         $this->tags = $tags;
     }
 
+    public function getTagIds(): ?array
+    {
+        return $this->tagIds;
+    }
+
+    public function setTagIds(array $tagIds): void
+    {
+        $this->tagIds = $tagIds;
+    }
+
     /**
      * Gets a list of all promotions where the customer
      * is assigned to within the "persona" conditions.
@@ -810,8 +853,59 @@ class CustomerEntity extends Entity
         $this->remoteAddress = $remoteAddress;
     }
 
-    public function getApiAlias(): string
+    public function getRequestedGroupId(): ?string
     {
-        return 'customer';
+        return $this->requestedGroupId;
+    }
+
+    public function setRequestedGroupId(?string $requestedGroupId): void
+    {
+        $this->requestedGroupId = $requestedGroupId;
+    }
+
+    public function getRequestedGroup(): ?CustomerGroupEntity
+    {
+        return $this->requestedGroup;
+    }
+
+    public function setRequestedGroup(?CustomerGroupEntity $requestedGroup): void
+    {
+        $this->requestedGroup = $requestedGroup;
+    }
+
+    public function getBoundSalesChannelId(): ?string
+    {
+        return $this->boundSalesChannelId;
+    }
+
+    public function setBoundSalesChannelId(?string $boundSalesChannelId): void
+    {
+        $this->boundSalesChannelId = $boundSalesChannelId;
+    }
+
+    public function getBoundSalesChannel(): ?SalesChannelEntity
+    {
+        return $this->boundSalesChannel;
+    }
+
+    public function setBoundSalesChannel(SalesChannelEntity $boundSalesChannel): void
+    {
+        $this->boundSalesChannel = $boundSalesChannel;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10549)
+     */
+    public function getWishlists(): ?CustomerWishlistCollection
+    {
+        return $this->wishlists;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10549)
+     */
+    public function setWishlists(CustomerWishlistCollection $wishlists): void
+    {
+        $this->wishlists = $wishlists;
     }
 }

@@ -6,7 +6,7 @@ use Cocur\Slugify\Slugify;
 
 class DocumentMetadata
 {
-    private const INITIAL_VERSION = '6.0.0';
+    private const INITIAL_VERSION = '6.0.0.0';
 
     private const META_TITLE_PREFIX = 'Shopware 6: ';
 

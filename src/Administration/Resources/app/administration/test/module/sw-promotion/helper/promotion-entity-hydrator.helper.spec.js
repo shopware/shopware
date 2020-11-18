@@ -4,7 +4,7 @@ import hydrator from 'src/module/sw-promotion/helper/promotion-entity-hydrator.h
 jest.spyOn(global.console, 'warn').mockImplementation(() => jest.fn());
 
 describe('module/sw-promotion/helper/promotion-entity-hydrator.helper.js', () => {
-    it('should have hasOrders FALSE if 0 orders exist', () => {
+    it('should have hasOrders FALSE if 0 orders exist', async () => {
         const promotion = {
             orderCount: 0
         };
@@ -12,7 +12,7 @@ describe('module/sw-promotion/helper/promotion-entity-hydrator.helper.js', () =>
         expect(promotion.hasOrders).toBe(false);
     });
 
-    it('should have hasOrders FALSE if NULL orders exist', () => {
+    it('should have hasOrders FALSE if NULL orders exist', async () => {
         const promotion = {
             orderCount: null
         };
@@ -20,13 +20,13 @@ describe('module/sw-promotion/helper/promotion-entity-hydrator.helper.js', () =>
         expect(promotion.hasOrders).toBe(false);
     });
 
-    it('should have hasOrders FALSE if no order count property exists', () => {
+    it('should have hasOrders FALSE if no order count property exists', async () => {
         const promotion = {};
         hydrator.hydrate(promotion);
         expect(promotion.hasOrders).toBe(false);
     });
 
-    it('should have hasOrders TRUE if 1 order exists', () => {
+    it('should have hasOrders TRUE if 1 order exists', async () => {
         const promotion = {
             orderCount: 1
         };

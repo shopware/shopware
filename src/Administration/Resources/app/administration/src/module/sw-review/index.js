@@ -1,11 +1,13 @@
 import './page/sw-review-list';
 import './page/sw-review-detail';
+import './acl';
 
 const { Module } = Shopware;
 
 Module.register('sw-review', {
     type: 'core',
     name: 'Reviews',
+    title: 'sw-review.general.mainMenuItemGeneral',
     description: 'sw-review.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',
@@ -19,13 +21,17 @@ Module.register('sw-review', {
             components: {
                 default: 'sw-review-list'
             },
-            path: 'index'
+            path: 'index',
+            meta: {
+                privilege: 'review.viewer'
+            }
         },
         detail: {
             component: 'sw-review-detail',
             path: 'detail/:id',
             meta: {
-                parentPath: 'sw.review.index'
+                parentPath: 'sw.review.index',
+                privilege: 'review.viewer'
             }
         }
     },
@@ -37,7 +43,7 @@ Module.register('sw-review', {
         path: 'sw.review.index',
         icon: 'default-symbol-products',
         parent: 'sw-catalogue',
-        position: 20
+        position: 20,
+        privilege: 'review.viewer'
     }]
-
 });

@@ -20,16 +20,15 @@
                               type="text"
                               name="shopwareId"
                               validation="required"
-                              label="Shopware ID"
-                              :placeholder="$tc('sw-first-run-wizard.shopwareAccount.idPlaceholder')">
+                              :label="$tc('sw-first-run-wizard.shopwareAccount.emailAddressLabel')"
+                              :placeholder="$tc('sw-first-run-wizard.shopwareAccount.emailAddressPlaceholder')">
                     </sw-field>
                 </div>
 
                 <div class="input-fields">
                     <sw-password-field
                         v-model="password"
-                        type="password"
-                        label="Password"
+                        :label="$tc('sw-first-run-wizard.shopwareAccount.passwordLabel')"
                         :placeholder="$tc('sw-first-run-wizard.shopwareAccount.passwordPlaceholder')">
                     </sw-password-field>
                 </div>

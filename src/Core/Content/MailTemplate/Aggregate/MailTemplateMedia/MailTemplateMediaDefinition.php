@@ -33,13 +33,17 @@ class MailTemplateMediaDefinition extends MappingEntityDefinition
         return MailTemplateMediaEntity::class;
     }
 
+    public function since(): ?string
+    {
+        return '6.0.0.0';
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new FkField('mail_template_id', 'mailTemplateId', MailTemplateDefinition::class))->addFlags(new Required()),
-            /* @deprecated tag:v6.3.0  language_id will be required in 6.3.0 */
-            (new FkField('language_id', 'languageId', LanguageDefinition::class)),
+            (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new Required()),
             (new FkField('media_id', 'mediaId', MediaDefinition::class))->addFlags(new Required()),
             new IntField('position', 'position'),
             new ManyToOneAssociationField('mailTemplate', 'mail_template_id', MailTemplateDefinition::class, 'id', false),

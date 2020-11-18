@@ -1,0 +1,59 @@
+{% block sw_settings_listing_option_base %}
+    <sw-page class="sw-settings-listing-base">
+        {% block sw_settings_listing_option_base_smart_bar_heading %}
+            <template #smart-bar-header>
+                <h2>{{ smartBarHeading }}</h2>
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_listing_option_base_language_switch %}
+            <template #language-switch>
+                <sw-language-switch @on-change="onChangeLanguage">
+                </sw-language-switch>
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_listing_option_base_smart_bar_actions %}
+            <template #smart-bar-actions>
+
+                {% block sw_settings_listing_option_base_smart_bar_actions_save %}
+                    <sw-button variant="primary"
+                        @click="onSave"
+                        :disabled="isSaveButtonDisabled">
+                        {{ $t('global.default.save') }}
+                    </sw-button>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_settings_listing_option_base_smart_content %}
+            <template #content>
+
+                {% block sw_settings_listing_option_base_smart_content_general_info %}
+                    <sw-settings-listing-option-general-info v-if="productSortingEntity"
+                        :sortingOption="productSortingEntity"
+                        :isDefaultSorting="isDefaultSorting">
+                    </sw-settings-listing-option-general-info>
+                {% endblock %}
+
+                {% block sw_settings_listing_option_base_smart_bar_actions_grid %}
+                    <sw-settings-listing-option-criteria-grid v-if="productSortingEntity"
+                        :productSortingEntity="productSortingEntity"
+                        @criteria-delete="onDeleteCriteria"
+                        @criteria-add="onAddCriteria"
+                        @inline-edit-save="onSave">
+                    </sw-settings-listing-option-criteria-grid>
+                {% endblock %}
+
+                {% block sw_settings_listing_option_base_smart_bar_actions_grid_delete_modal %}
+                    <sw-settings-listing-delete-modal v-if="toBeDeletedCriteria"
+                        :title="$tc('sw-settings-listing.base.delete.modalTitle')"
+                        :description="$tc('sw-settings-listing.base.delete.modalDescription')"
+                        @cancel="toBeDeletedCriteria = null"
+                        @delete="onConfirmDeleteCriteria">
+                    </sw-settings-listing-delete-modal>
+                {% endblock %}
+            </template>
+        {% endblock %}
+    </sw-page>
+{% endblock %}

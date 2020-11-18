@@ -3,6 +3,9 @@
 namespace Shopware\Storefront\Page\Account\Order;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
+use Shopware\Core\Checkout\Cart\Exception\OrderPaidException;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\SalesChannel\AbstractOrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderRouteResponseStruct;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
@@ -78,9 +81,19 @@ class AccountEditOrderPageLoader
 
         $page = AccountEditOrderPage::createFrom($page);
 
+        if ($page->getMetaInformation()) {
+            $page->getMetaInformation()->setRobots('noindex,follow');
+        }
+
         $orderRouteResponse = $this->getOrder($request, $salesChannelContext);
 
-        $page->setOrder($orderRouteResponse->getOrders()->first());
+        $order = $orderRouteResponse->getOrders()->first();
+
+        if ($this->isOrderPaid($order)) {
+            throw new OrderPaidException($order->getId());
+        }
+
+        $page->setOrder($order);
 
         $page->setPaymentChangeable($orderRouteResponse->getPaymentChangeable($page->getOrder()->getId()));
 
@@ -98,15 +111,16 @@ class AccountEditOrderPageLoader
     private function getOrder(Request $request, SalesChannelContext $context): OrderRouteResponseStruct
     {
         $criteria = $this->createCriteria($request, $context);
-        $routeRequest = new Request();
-        $routeRequest->query->replace($this->requestCriteriaBuilder->toArray($criteria));
-        $routeRequest->query->set('checkPromotion', true);
+        $apiRequest = new Request();
+        $apiRequest->query->set('checkPromotion', true);
 
-        $event = new OrderRouteRequestEvent($request, $routeRequest, $context);
+        $event = new OrderRouteRequestEvent($request, $apiRequest, $context, $criteria);
         $this->eventDispatcher->dispatch($event);
 
         /** @var OrderRouteResponseStruct $responseStruct */
-        $responseStruct = $this->orderRoute->load($event->getStoreApiRequest(), $context)->getObject();
+        $responseStruct = $this->orderRoute
+            ->load($event->getStoreApiRequest(), $context, $criteria)
+            ->getObject();
 
         return $responseStruct;
     }
@@ -149,7 +163,29 @@ class AccountEditOrderPageLoader
 
         return $this->paymentMethodRoute->load(
             $event->getStoreApiRequest(),
-            $context
+            $context,
+            new Criteria()
         )->getPaymentMethods();
+    }
+
+    private function isOrderPaid(OrderEntity $order): bool
+    {
+        $transactions = $order->getTransactions();
+
+        if ($transactions === null) {
+            return false;
+        }
+
+        $transaction = $transactions->last();
+        if ($transaction === null) {
+            return false;
+        }
+
+        $stateMachineState = $transaction->getStateMachineState();
+        if ($stateMachineState === null) {
+            return false;
+        }
+
+        return $stateMachineState->getTechnicalName() === OrderTransactionStates::STATE_PAID;
     }
 }

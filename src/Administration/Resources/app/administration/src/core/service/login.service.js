@@ -38,10 +38,26 @@ export default function createLoginService(httpClient, context, bearerAuth = nul
         addOnTokenChangedListener,
         addOnLogoutListener,
         addOnLoginListener,
-        getLocalStorageKey,
         getStorageKey,
-        notifyOnLoginListener
+        notifyOnLoginListener,
+        verifyUserToken
     };
+
+    /**
+     * Helper function to receive a logged in user token
+     * @returns {response.data.access_token} returns an OAuth token
+     * @param password
+     */
+    function verifyUserToken(password) {
+        return this.verifyUserByUsername(Shopware.State.get('session').currentUser.username, password).then(({ access }) => {
+            if (Shopware.Utils.types.isString(access)) {
+                return access;
+            }
+            throw new Error('access Token should be of type String');
+        }).catch((e) => {
+            throw e;
+        });
+    }
 
     /**
      * Sends an AJAX request to the authentication end point and tries to log in the user with the provided
@@ -182,7 +198,7 @@ export default function createLoginService(httpClient, context, bearerAuth = nul
     }
 
     /**
-     * Saves the bearer authentication object in the cokkies using the {@link storageKey} as the
+     * Saves the bearer authentication object in the cookies using the {@link storageKey} as the
      * object identifier.
      *
      * @memberOf module:core/service/login
@@ -308,14 +324,6 @@ export default function createLoginService(httpClient, context, bearerAuth = nul
     }
 
     /**
-     * @deprecated 6.3.0 - use getStorageKey instead
-     * @returns {String}
-     */
-    function getLocalStorageKey() {
-        return getStorageKey();
-    }
-
-    /**
      * Returns the storage key.
      *
      * @returns {String}
@@ -330,7 +338,16 @@ export default function createLoginService(httpClient, context, bearerAuth = nul
      * @returns {CookieStorage}
      */
     function cookieStorageFactory() {
-        const domain = context.host;
+        let domain;
+
+        if (typeof window === 'object') {
+            domain = window.location.hostname;
+        } else {
+            // eslint-disable-next-line no-restricted-globals
+            const url = new URL(self.location.origin);
+            domain = url.hostname;
+        }
+
         const path = context.basePath + context.pathInfo;
 
         // Set default cookie values
@@ -345,7 +362,7 @@ export default function createLoginService(httpClient, context, bearerAuth = nul
     }
 
     /**
-     * @deprecated 6.3.0
+     * @deprecated tag:v6.4.0
      * It resets the old localStorage implementation of the authentication.
      * Can be removed in 6.3.0 because it is only needed for upgrading from
      * 6.1 to 6.2

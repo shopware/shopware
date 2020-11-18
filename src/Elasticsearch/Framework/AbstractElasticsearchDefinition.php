@@ -59,11 +59,11 @@ abstract class AbstractElasticsearchDefinition
     }
 
     /**
-     * @deprecated tag:v6.3.0 - Removed in 6.3.0, each definition has to handle the update event by itself
+     * Allows to rewrite the document data
      */
-    public function hasNewIndexerPattern(): bool
+    public function extendDocuments(array $documents, Context $context): array
     {
-        return false;
+        return $documents;
     }
 
     public function buildTermQuery(Context $context, Criteria $criteria): BoolQuery

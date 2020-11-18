@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Framework\Routing;
 
 use Shopware\Core\SalesChannelRequest;
+use Symfony\Component\HttpFoundation\IpUtils;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -31,6 +32,14 @@ class MaintenanceModeResolver
             && !$this->isErrorControllerRequest($request)
             && $this->isMaintenanceModeActive($this->requestStack->getMasterRequest())
             && !$this->isClientAllowed($request);
+    }
+
+    public function shouldRedirectToShop(Request $request): bool
+    {
+        return !$this->isXmlHttpRequest($request)
+            && !$this->isErrorControllerRequest($request)
+            && (!$this->isMaintenanceModeActive($this->requestStack->getMasterRequest())
+                || $this->isClientAllowed($request));
     }
 
     private function isSalesChannelRequest(?Request $master): bool
@@ -75,10 +84,9 @@ class MaintenanceModeResolver
 
     private function isClientAllowed(Request $request): bool
     {
-        return in_array(
-            $request->getClientIp(),
-            $this->getMaintenanceWhitelist($this->requestStack->getMasterRequest()),
-            true
+        return IpUtils::checkIp(
+            (string) $request->getClientIp(),
+            $this->getMaintenanceWhitelist($this->requestStack->getMasterRequest())
         );
     }
 

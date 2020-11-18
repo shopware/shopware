@@ -2,6 +2,7 @@ import template from './sw-order-product-select.html.twig';
 import './sw-order-product-select.scss';
 
 const { Component, Service } = Shopware;
+const { Criteria } = Shopware.Data;
 
 Component.register('sw-order-product-select', {
     template,
@@ -14,15 +15,18 @@ Component.register('sw-order-product-select', {
                 return [];
             }
         },
-        /** @deprecated tag:v6.4.0 */
-        displayProductSelection: {
-            type: Boolean,
-            required: false,
-            default() {
-                return true;
-            }
-        }
 
+        salesChannelId: {
+            type: String,
+            required: true,
+            default: ''
+        },
+
+        taxStatus: {
+            type: String,
+            required: true,
+            default: ''
+        }
     },
 
     data() {
@@ -37,11 +41,11 @@ Component.register('sw-order-product-select', {
         },
 
         lineItemTypes() {
-            return Service('cartSalesChannelService').getLineItemTypes();
+            return Service('cartStoreService').getLineItemTypes();
         },
 
         lineItemPriceTypes() {
-            return Service('cartSalesChannelService').getLineItemPriceTypes();
+            return Service('cartStoreService').getLineItemPriceTypes();
         },
 
         isShownProductSelect() {
@@ -54,6 +58,28 @@ Component.register('sw-order-product-select', {
 
         contextWithInheritance() {
             return { ...Shopware.Context.api, inheritance: true };
+        },
+
+        productCriteria() {
+            const criteria = new Criteria();
+
+            criteria.addAssociation('options.group');
+
+            criteria.addFilter(
+                Criteria.multi(
+                    'OR',
+                    [
+                        Criteria.equals('product.childCount', 0),
+                        Criteria.equals('product.childCount', null)
+                    ]
+                )
+            );
+
+            criteria.addFilter(
+                Criteria.equals('product.visibilities.salesChannelId', this.salesChannelId)
+            );
+
+            return criteria;
         }
     },
 
@@ -62,14 +88,17 @@ Component.register('sw-order-product-select', {
             this.productRepository.get(newProductId, this.contextWithInheritance).then((newProduct) => {
                 this.item.identifier = newProduct.id;
                 this.item.label = newProduct.name;
-                this.item.priceDefinition.price = newProduct.price[0].gross;
+                this.item.priceDefinition.price = this.taxStatus === 'gross'
+                    ? newProduct.price[0].gross
+                    : newProduct.price[0].net;
                 this.item.priceDefinition.type = this.lineItemPriceTypes.QUANTITY;
-                this.item.price.unitPrice = newProduct.price[0].gross;
-                this.item.price.totalPrice = 0;
+                this.item.price.unitPrice = '...';
+                this.item.price.totalPrice = '...';
                 this.item.price.quantity = 1;
-                this.item.totalPrice = 0;
+                this.item.unitPrice = '...';
+                this.item.totalPrice = '...';
                 this.item.precision = 2;
-                this.item.priceDefinition.taxRules.taxRate = newProduct.tax.taxRate;
+                this.item.priceDefinition.taxRules[0].taxRate = newProduct.tax.taxRate;
             });
         }
     }

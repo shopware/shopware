@@ -1,13 +1,3 @@
-@import "~scss/variables";
-
-.sw-review-list__stars {
-    font-size: 0;
-
-    .icon--default-review-star-full {
-        color: $color-module-yellow-400;
-    }
-}
-
 .sw-review-text_ellipsis {
     max-width: 200px;
     white-space: nowrap;

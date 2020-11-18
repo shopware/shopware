@@ -1,0 +1,180 @@
+{% block sw_event_action_detail %}
+    <sw-page class="sw-event-action-detail">
+
+        {% block sw_event_action_detail_smart_bar_header %}
+            <template #smart-bar-header>
+                <h2>{{ identifier }}</h2>
+            </template>
+        {% endblock %}
+
+        {% block sw_event_action_detail_smart_bar_actions %}
+            <template #smart-bar-actions>
+                {% block sw_event_action_detail_actions_cancel %}
+                    <sw-button
+                        class="sw-event-action-detail__cancel_action"
+                        :routerLink="{ name: 'sw.event.action.index' }"
+                        v-tooltip.bottom="tooltipCancel">
+                        {{ $tc('global.default.cancel') }}
+                    </sw-button>
+                {% endblock %}
+
+                {% block sw_event_action_detail_actions_save %}
+                    <sw-button-process
+                        class="sw-event-action-detail__save-action"
+                        :isLoading="isLoading"
+                        :processSuccess="isSaveSuccessful"
+                        variant="primary"
+                        @process-finish="saveFinish"
+                        v-tooltip.bottom="tooltipSave"
+                        :disabled="isLoading || !acl.can('event_action.editor')"
+                        @click.prevent="onSave">
+                        {{ $tc('sw-product.detail.buttonSave') }}
+                    </sw-button-process>
+                {% endblock %}
+            </template>
+        {% endblock %}
+
+        {% block sw_event_action_detail_content %}
+            <template #content>
+                <sw-card-view>
+                    {% block sw_event_action_detail_content_base %}
+                        <sw-card
+                            class="sw-event-action-detail__base"
+                            :isLoading="isLoading">
+
+                            <sw-container columns="75% 1fr" gap="30px">
+                                {% block sw_event_action_detail_title_field %}
+                                    <sw-field
+                                        v-if="eventAction"
+                                        type="text"
+                                        :disabled="!acl.can('event_action.editor')"
+                                        :label="$tc('sw-event-action.detail.fieldLabelTitle')"
+                                        :placeholder="$tc('sw-event-action.detail.placeholderTitle')"
+                                        v-model="eventAction.title">
+                                    </sw-field>
+                                {% endblock %}
+
+                                {% block sw_event_action_detail_active_field %}
+                                    <sw-switch-field
+                                        v-if="eventAction"
+                                        class="sw-event-action-detail__active-toggle"
+                                        :disabled="!acl.can('event_action.editor')"
+                                        :label="$tc('sw-event-action.detail.fieldLabelActive')"
+                                        v-model="eventAction.active"
+                                        bordered>
+                                    </sw-switch-field>
+                                {% endblock %}
+                            </sw-container>
+
+                            {% block sw_event_action_detail_mail_template_field %}
+                                {% block sw_event_action_detail_business_event_field %}
+                                    <sw-single-select
+                                        class="sw-event-action-detail__business-event-select"
+                                        v-if="eventAction && businessEvents"
+                                        :label="$tc('sw-event-action.detail.fieldLabelEventName')"
+                                        :placeholder="$tc('sw-event-action.detail.placeholderEventName')"
+                                        :options="businessEvents"
+                                        :error="eventActionEventNameError"
+                                        :disabled="!acl.can('event_action.editor')"
+                                        v-model="eventAction.eventName"
+                                        required
+                                        labelProperty="label"
+                                        valueProperty="name">
+
+                                        <template #selection-label-property="{ item }">
+                                            <strong>{{ item.label }}</strong> - {{ item.name }}
+                                        </template>
+
+                                        <template #result-label-property="{ item, highlightSearchTerm, labelProperty, searchTerm }">
+                                            <strong>
+                                                <sw-highlight-text
+                                                    :text="item.label"
+                                                    :searchTerm="searchTerm">
+                                                </sw-highlight-text>
+                                            </strong>
+                                            {{ item.name }}
+                                        </template>
+                                    </sw-single-select>
+                                {% endblock %}
+
+
+                                <sw-entity-single-select
+                                    v-if="eventAction"
+                                    class="sw-event-action-detail__mail-template-select"
+                                    entity="mail_template"
+                                    :criteria="mailTemplateCriteria"
+                                    :label="$tc('sw-event-action.detail.fieldMailTemplate')"
+                                    :placeholder="$tc('sw-event-action.detail.placeholderMailTemplate')"
+                                    :disabled="!acl.can('event_action.editor')"
+                                    :error="eventActionMailTemplateError"
+                                    valueProperty="title"
+                                    labelProperty="description"
+                                    v-model="eventAction.config.mail_template_id"
+                                    required>
+
+                                    <template #selection-label-property="{ item }">
+                                        <strong>{{ item.translated.description }}</strong>
+                                        <template v-if="item.translated.description">-</template>
+                                        {{ item.mailTemplateType.translated.name }}
+                                    </template>
+
+                                    <template #result-label-property="{ item, highlightSearchTerm, labelProperty, searchTerm }">
+                                        <strong>
+                                            <sw-highlight-text
+                                                :text="item.translated.description"
+                                                :searchTerm="searchTerm">
+                                            </sw-highlight-text>
+                                        </strong>
+                                        {{ item.mailTemplateType.translated.name }}
+                                    </template>
+                                </sw-entity-single-select>
+                            {% endblock %}
+
+                            {% block sw_event_action_detail_mail_template_field_detail_link %}
+                                <div class="sw-event-action-detail__mail-template-detail">
+                                    <router-link
+                                        v-if="eventAction && eventAction.config.mail_template_id"
+                                        :to="{ name: 'sw.mail.template.detail', params: { id: eventAction.config.mail_template_id } }">
+                                        {{ $tc('sw-event-action.detail.fieldMailTemplateDetailLink') }}
+                                        <sw-icon name="default-arrow-simple-right" small></sw-icon>
+                                    </router-link>
+                                </div>
+                            {% endblock %}
+
+                            {% block sw_event_action_detail_sales_channel_field %}
+                                <sw-entity-multi-select
+                                    v-if="eventAction"
+                                    class="sw-event-action-detail__sales-channel-select"
+                                    :label="$tc('sw-event-action.detail.fieldLabelSalesChannel')"
+                                    :placeholder="$tc('sw-event-action.detail.placeholderSalesChannels')"
+                                    :disabled="!acl.can('event_action.editor')"
+                                    v-model="eventAction.salesChannels">
+                                </sw-entity-multi-select>
+                            {% endblock %}
+
+                            {% block sw_event_action_detail_rules_field %}
+                                <sw-select-rule-create v-if="eventAction"
+                                                       :rules="eventAction.rules"
+                                                       :label="$tc('sw-event-action.detail.fieldLabelRules')"
+                                                       :placeholder="$tc('sw-event-action.detail.placeholderRules')"
+                                                       :disabled="!acl.can('event_action.editor')"
+                                                       class="sw-event-action-detail__rule-select">
+                                </sw-select-rule-create>
+
+                            {% endblock %}
+                        </sw-card>
+                    {% endblock %}
+
+                    {% block sw_event_action_detail_recipients %}
+                        <sw-event-action-detail-recipients
+                            v-if="eventAction"
+                            :configRecipients="eventAction.config.recipients"
+                            :isLoading="isLoading"
+                            @update-list="onUpdateRecipientsList">
+                        </sw-event-action-detail-recipients>
+                    {% endblock %}
+                </sw-card-view>
+            </template>
+        {% endblock %}
+    </sw-page>
+{% endblock %}

@@ -35,16 +35,16 @@
                         {% block sw_plugin_store_login_modal_content_login_form_input %}
                             <form role="form">
                                 {% block sw_plugin_store_login_modal_content_login_form_input_shopwareId %}
-                                    <sw-text-field v-model="shopwareId" :label="$tc('sw-plugin.store-login.labelShopwareId')" @keyup.enter="onLoginClick">
+                                    <sw-text-field
+                                        v-model="shopwareId"
+                                        :label="$tc('sw-plugin.store-login.labelEmailAddress')"
+                                        :placeholder="$tc('sw-plugin.store-login.placeholderEmailAddress')"
+                                        @keyup.enter="onLoginClick">
+
                                         {% block sw_plugin_store_login_modal_content_login_form_input_shopwareId_label %}
                                             <template label>
                                                 <div class="shopware-id-label">
                                                     <span>{{ $tc('sw-plugin.store-login.labelShopwareId') }}</span>
-                                                    <a :href="$tc('sw-plugin.store-login.linkShopwareIdHelp')"
-                                                       target="_blank"
-                                                       rel="noopener">
-                                                        {{ $tc('sw-plugin.store-login.labelShopwareIdHelp') }}
-                                                    </a>
                                                 </div>
                                             </template>
                                         {% endblock %}
@@ -53,6 +53,7 @@
                                 {% block sw_plugin_store_login_modal_content_login_form_input_password %}
                                     <sw-password-field v-model="password"
                                                        :label="$tc('sw-plugin.store-login.labelPassword')"
+                                                       :placeholder="$tc('sw-plugin.store-login.placeholderPassword')"
                                                        @keyup.enter="onLoginClick">
                                     </sw-password-field>
                                 {% endblock %}

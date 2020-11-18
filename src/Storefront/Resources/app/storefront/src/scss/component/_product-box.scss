@@ -11,6 +11,20 @@ $box-image-height-img: 332px;
     height: 100%;
 }
 
+.product-variant-characteristics {
+    min-height: 3em;
+
+    .product-variant-characteristics-text {
+        @include truncate-multiline(1.5em, 2, $sw-background-color);
+
+        font-size: $font-size-sm;
+    }
+
+    .product-variant-characteristics-option {
+        font-weight: $font-weight-bold;
+    }
+}
+
 .product-image-wrapper {
     height: $box-standard-height-img;
     flex-grow: 1;
@@ -34,11 +48,8 @@ $box-image-height-img: 332px;
 .product-image {
     display: block;
     max-width: 100%;
-    width: 100%;
     // 'max-height: 100%' not working in firefox
     max-height: $box-standard-height-img;
-    object-fit: contain;
-    font-family: 'object-fit: contain;'; // IE polyfill
 
     &.is-cover,
     &.is-contain {
@@ -67,14 +78,21 @@ $box-image-height-img: 332px;
     height: 25px;
 }
 
+/* stylelint-disable value-no-vendor-prefix, property-no-vendor-prefix */
+// See for further information: https://github.com/postcss/autoprefixer/issues/1141#issuecomment-430938342
 .product-name {
     color: $headings-color;
-    display: block;
-    height: 40px;
+    display: block; // IE11 Fallback to two lines
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    height: 44px;
     margin-bottom: 10px;
     font-size: 18px;
-    line-height: 20px;
+    line-height: 22px;
     overflow: hidden;
+    text-overflow: ellipsis;
 
     &:hover {
         color: var(--text-color-brand-primary);
@@ -88,7 +106,12 @@ $box-image-height-img: 332px;
     font-size: 14px;
     line-height: 18px;
     overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
 }
+/* stylelint-enable value-no-vendor-prefix, property-no-vendor-prefix */
 
 .product-price-info {
     margin-top: 10px;
@@ -107,7 +130,7 @@ $box-image-height-img: 332px;
 
 .product-price {
     color: $headings-color;
-    height: 20px;
+    min-height: 20px;
     margin-top: 10px;
     margin-bottom: 0;
     font-size: 18px;
@@ -125,6 +148,17 @@ $box-image-height-img: 332px;
         padding-left: 5px;
         font-size: 12px;
         text-decoration: line-through;
+    }
+
+    .list-price-no-line-through {
+        text-decoration: none;
+    }
+
+    .strikeprice-text {
+        color: $headings-color;
+        font-weight: $font-weight-normal;
+        padding-left: 5px;
+        font-size: 12px;
     }
 }
 

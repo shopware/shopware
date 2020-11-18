@@ -228,7 +228,7 @@ class ApplicationBootstrapper {
      * @returns {module:core/application.ApplicationBootstrapper}
      */
     initializeFeatureFlags() {
-        Shopware.FeatureConfig.init(Shopware.Context.app.features);
+        Shopware.Feature.init(Shopware.Context.app.features);
 
         return this;
     }
@@ -471,8 +471,7 @@ class ApplicationBootstrapper {
             'baseComponents',
             'locale',
             'apiServices',
-            'svgIcons',
-            'stateDeprecated'
+            'svgIcons'
         ];
 
         const initContainer = this.getContainer('init');

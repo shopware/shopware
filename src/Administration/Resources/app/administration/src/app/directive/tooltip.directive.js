@@ -18,7 +18,7 @@ class Tooltip {
      * @param {string} obj.id
      * @param {string} obj.placement
      * @param {string} obj.message
-     * @param {number} obj.width
+     * @param {number|string} obj.width
      * @param {HTMLElement} obj.element - The original element the tooltip should appear on
      * @param {number} obj.showDelay
      * @param {number} obj.hideDelay
@@ -336,10 +336,14 @@ class Tooltip {
     }
 
     /**
-     * @param {number} width
+     * @param {number|string} width
      * @returns {number}
      */
     static validateWidth(width) {
+        if (width === 'auto') {
+            return width;
+        }
+
         if (typeof width !== 'number' || width < 1) {
             debug.warn('Tooltip Directive', 'The tooltip width has to be a number greater 0');
             return 200;

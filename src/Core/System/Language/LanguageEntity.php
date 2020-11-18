@@ -17,15 +17,19 @@ use Shopware\Core\Content\MailTemplate\MailTemplateCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaTranslation\MediaTranslationCollection;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingTranslation\ProductCrossSellingTranslationCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductFeatureSetTranslation\ProductFeatureSetTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductKeywordDictionary\ProductKeywordDictionaryCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturerTranslation\ProductManufacturerTranslationCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductSearchKeyword\ProductSearchKeywordCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
+use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingTranslationCollection;
 use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamTranslation\ProductStreamTranslationCollection;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOptionTranslation\PropertyGroupOptionTranslationCollection;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupTranslation\PropertyGroupTranslationCollection;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
+use Shopware\Core\Framework\App\Aggregate\ActionButtonTranslation\ActionButtonTranslationCollection;
+use Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Plugin\Aggregate\PluginTranslation\PluginTranslationCollection;
@@ -314,6 +318,26 @@ class LanguageEntity extends Entity
      * @var ImportExportProfileTranslationCollection|null
      */
     protected $importExportProfileTranslations;
+
+    /**
+     * @var ProductFeatureSetTranslationCollection|null
+     */
+    protected $productFeatureSetTranslations;
+
+    /**
+     * @var AppTranslationCollection|null
+     */
+    protected $appTranslations;
+
+    /**
+     * @var ActionButtonTranslationCollection|null
+     */
+    protected $actionButtonTranslations;
+
+    /**
+     * @var ProductSortingTranslationCollection|null
+     */
+    protected $productSortingTranslations;
 
     public function getMailHeaderFooterTranslations(): ?MailHeaderFooterCollection
     {
@@ -843,6 +867,46 @@ class LanguageEntity extends Entity
     public function setImportExportProfileTranslations(ImportExportProfileTranslationCollection $importExportProfileTranslations): void
     {
         $this->importExportProfileTranslations = $importExportProfileTranslations;
+    }
+
+    public function getProductFeatureSetTranslations(): ?ProductFeatureSetTranslationCollection
+    {
+        return $this->productFeatureSetTranslations;
+    }
+
+    public function setProductFeatureSetTranslations(ProductFeatureSetTranslationCollection $productFeatureSetTranslations): void
+    {
+        $this->productFeatureSetTranslations = $productFeatureSetTranslations;
+    }
+
+    public function getAppTranslations(): ?AppTranslationCollection
+    {
+        return $this->appTranslations;
+    }
+
+    public function setAppTranslations(AppTranslationCollection $appTranslations): void
+    {
+        $this->appTranslations = $appTranslations;
+    }
+
+    public function getActionButtonTranslations(): ?ActionButtonTranslationCollection
+    {
+        return $this->actionButtonTranslations;
+    }
+
+    public function setActionButtonTranslations(ActionButtonTranslationCollection $actionButtonTranslations): void
+    {
+        $this->actionButtonTranslations = $actionButtonTranslations;
+    }
+
+    public function getProductSortingTranslations(): ?ProductSortingTranslationCollection
+    {
+        return $this->productSortingTranslations;
+    }
+
+    public function setProductSortingTranslations(ProductSortingTranslationCollection $productSortingTranslations): void
+    {
+        $this->productSortingTranslations = $productSortingTranslations;
     }
 
     public function getApiAlias(): string

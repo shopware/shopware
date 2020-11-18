@@ -38,15 +38,35 @@ export default class CheckoutPageObject {
             alert: '.sw-alert',
             alertClose: '.sw-alert__close',
             notification: '.sw-notifications__notification',
+
             // General cart selectors
             cartItem: '.cart-item',
+            cartItemFeatureList: '.product-feature-list-list',
+            cartItemFeatureListItem: '.product-feature-list-item',
+            cartItemFeatureContainer: '.product-feature-feature',
+            cartItemFeatureLabel: '.product-feature-label',
+            cartItemFeatureValue: '.product-feature-value',
 
             // Cart widget
             cardWidget: '.cart-widget',
 
             // Offcanvas cart
             offCanvasCart: '.offcanvas',
-            cartActions: '.cart-actions'
+            cartActions: '.cart-actions',
+
+            // payment method
+            paymentMethodsContainer: '.payment-methods',
+            paymentMethods: '.payment-method',
+            paymentMethodsCollapseContainer: '.payment-methods > .collapse',
+            paymentMethodsCollapseTrigger: '.payment-methods > .confirm-checkout-collapse-trigger',
+            paymentFormConfirm: '#changeShippingForm',
+
+            // shipping method
+            shippingMethodsContainer: '.shipping-methods',
+            shippingMethods: '.shipping-method',
+            shippingMethodsCollapseContainer: '.shipping-methods > .collapse',
+            shippingMethodsCollapseTrigger: '.shipping-methods > .confirm-checkout-collapse-trigger',
+            shippingFormConfirm: '#changeShippingForm'
         };
     }
 }

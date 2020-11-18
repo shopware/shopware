@@ -9,7 +9,8 @@ Component.register('sw-order-list', {
 
     inject: [
         'repositoryFactory',
-        'stateStyleDataProviderService'
+        'stateStyleDataProviderService',
+        'acl'
     ],
 
     mixins: [
@@ -57,7 +58,9 @@ Component.register('sw-order-list', {
                 criteria.addFilter(Criteria.equalsAny('campaignCode', this.campaignCodeFilter));
             }
 
-            criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
+            this.sortBy.split(',').forEach(sortBy => {
+                criteria.addSorting(Criteria.sort(sortBy, this.sortDirection));
+            });
 
             criteria.addAssociation('addresses');
             criteria.addAssociation('salesChannel');
@@ -133,6 +136,10 @@ Component.register('sw-order-list', {
         },
 
         disableDeletion(order) {
+            if (!this.acl.can('order.deleter')) {
+                return true;
+            }
+
             return order.documents.length > 0;
         },
 
@@ -167,10 +174,12 @@ Component.register('sw-order-list', {
                 allowResize: true
             }, {
                 property: 'transactions.last().stateMachineState.name',
+                dataIndex: 'transactions.stateMachineState.name',
                 label: 'sw-order.list.columnTransactionState',
                 allowResize: true
             }, {
                 property: 'deliveries[0].stateMachineState.name',
+                dataIndex: 'deliveries.stateMachineState.name',
                 label: 'sw-order.list.columnDeliveryState',
                 allowResize: true
             }, {

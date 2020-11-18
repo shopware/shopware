@@ -4,6 +4,37 @@
 ## Navigation
 You can use our store-api to fetch all the categories you need. In the following example we will show you how you can fetch all sorts of navigations, how you can load cms pages with and without categories.
 
+### Fetching categories
+
+To get a list of categories you can use the route : `store-api.category.search`
+Additionally, you can use the api basic parameters (`filter`,  `aggregations`, etc.) for more information look [here](./../40-admin-api-guide/20-reading-entities.md).
+
+```
+POST /store-api/v3/category
+{
+    "includes": {
+        "category": ["id", "name"]
+    }
+}
+{
+  "total": 2,
+  "aggregations": [],
+  "elements": [
+    {
+      "id": "00a284072bcb42ed8fee31e26ea53b60",
+      "name": "Home",
+      "apiAlias": "category"
+    },
+    {
+      "id": "bd835e75afa14b09b7da156d095a9a30",
+      "name": "Outdoors",
+      "apiAlias": "category"
+    }
+  ],
+  "apiAlias": "dal_entity_search_result"
+}
+```
+
 ### Get the main navigation
 To get the main navigation of your Sales Channel you use the following route: `store-api.navigation`.
 
@@ -17,7 +48,7 @@ This route needs some parameters:
 
 Additionally can use the api basic parameters (`filter`,  `aggregations`, etc.) for more information look [here](./../40-admin-api-guide/20-reading-entities.md).
 ```
-POST /store-api/v1/navigation/main-navigation/main-navigation
+POST /store-api/v3/navigation/main-navigation/main-navigation
 
 {
     "includes": {
@@ -51,7 +82,7 @@ Thanks to the aliases (`service-navigation`) for the categories you easily can f
 Beware, that your Sales Channel has a service navigation assigned to it, otherwise you won't get the expected result.
 
 ```
-POST /store-api/v1/navigation/service-navigation/service-navigation
+POST /store-api/v3/navigation/service-navigation/service-navigation
 
 {
     "includes": {
@@ -86,7 +117,7 @@ To get the footer navigation we're using the same route (`store-api.navigation`)
 Note, that your Sales Channel needs a footer-navigation attached to it, otherwise you won't get the data you expected to get.
 
 ```
-POST /store-api/v1/navigation/footer-navigation/footer-navigation
+POST /store-api/v3/navigation/footer-navigation/footer-navigation
 
 {
     "includes": {
@@ -139,7 +170,7 @@ In this route only the data configured in the CMS page is loaded. This route sho
 If the cms page contains a product listing element, this route supports all parameters of the [store-api.product.listing](./30-products.md). route.
 
 ```
-POST /store-api/v1/cms/da05c76975104f39a9f283b0b64db930
+POST /store-api/v3/cms/da05c76975104f39a9f283b0b64db930
 
 {
     "includes": {
@@ -195,7 +226,7 @@ This route supports an alias `home` to load the home page of the sales channel.
 If the cms page contains a product listing element, this route supports all parameters of the [store-api.product.listing](./30-products.md). route.
 
 ```
-POST /store-api/v1/category/04cfc07532344f938d1c88735b54281e
+POST /store-api/v3/category/04cfc07532344f938d1c88735b54281e
 
 {
     "includes": {
@@ -211,7 +242,7 @@ POST /store-api/v1/category/04cfc07532344f938d1c88735b54281e
 {
     "parentId": null,
     "breadcrumb": [
-        "Catalogue #1"
+        "Home"
     ],
     "active": true,
     "cmsPage": {

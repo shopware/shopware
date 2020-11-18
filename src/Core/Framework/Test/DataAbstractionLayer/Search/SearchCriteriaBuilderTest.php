@@ -17,6 +17,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @group slow
+ */
 class SearchCriteriaBuilderTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
@@ -293,6 +296,9 @@ class SearchCriteriaBuilderTest extends TestCase
         static::assertEquals('/page', $content['errors'][0]['source']['pointer']);
     }
 
+    /**
+     * @group slow
+     */
     public function testNonIntegerPage(): void
     {
         $this->getBrowser()->request('GET', $this->url . '/product', ['page' => 'foo']);
@@ -391,7 +397,7 @@ class SearchCriteriaBuilderTest extends TestCase
         $gotError = false;
 
         try {
-            $this->fakeHandleRequest($maxLimit, [], $params);
+            $this->fakeHandleRequest($maxLimit, $params);
         } catch (SearchRequestException $e) {
             $errors = $e->getErrors();
             $current = $errors->current();
@@ -411,10 +417,12 @@ class SearchCriteriaBuilderTest extends TestCase
             'filter' => [
                 ['type' => 'bar'],
                 ['type' => 'equals', 'field' => 'foo', 'value' => ''],
-                ['type' => 'multi', 'queries' => [
-                    ['type' => 'foo'],
-                    ['type' => 'equalsAny', 'value' => 'wusel'],
-                ]],
+                [
+                    'type' => 'multi', 'queries' => [
+                        ['type' => 'foo'],
+                        ['type' => 'equalsAny', 'value' => 'wusel'],
+                    ],
+                ],
             ],
         ];
 
@@ -431,11 +439,11 @@ class SearchCriteriaBuilderTest extends TestCase
         static::assertEquals('/filter/2/queries/1/field', $content['errors'][5]['source']['pointer']);
     }
 
-    private function fakeHandleRequest(int $maxLimit = 0, array $allowedLimits = [], array $params = []): Criteria
+    private function fakeHandleRequest(int $maxLimit = 0, array $params = []): Criteria
     {
         $parser = $this->getContainer()->get(AggregationParser::class);
         $apiVersionConverter = $this->getContainer()->get(ApiVersionConverter::class);
-        $requestBuilder = new RequestCriteriaBuilder($parser, $apiVersionConverter, $maxLimit, $allowedLimits);
+        $requestBuilder = new RequestCriteriaBuilder($parser, $apiVersionConverter, $maxLimit);
         $context = Context::createDefaultContext();
         $definition = $this->getContainer()->get(ProductDefinition::class);
 

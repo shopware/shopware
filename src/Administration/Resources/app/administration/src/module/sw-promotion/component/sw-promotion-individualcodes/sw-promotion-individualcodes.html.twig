@@ -14,6 +14,7 @@
                              numberType="int"
                              :min="0"
                              :digits="2"
+                             :disabled="isEditingDisabled"
                              v-model="generateCount">
             </sw-number-field>
         {% endblock %}
@@ -55,7 +56,7 @@
                 <template slot="actions" slot-scope="{ item }">
                     {% block sw_promotion_individualcodes_grid_actions_open_customer %}
                         <sw-context-menu-item class="sw-promotion-individualcodes__view-action"
-                                              :disabled="!item.isRedeemed"
+                                              :disabled="!item.isRedeemed || isEditingDisabled"
                                               @click="onOpenCustomer(item.customerId)">
                             {{ $tc('sw-promotion.detail.main.general.codes.individual.buttonOpenCustomer') }}
                         </sw-context-menu-item>
@@ -63,7 +64,7 @@
                     {% block sw_promotion_individualcodes_grid_actions_delete_code %}
                         <sw-context-menu-item class="sw-promotion-individualcodes__delete-action"
                                               variant="danger"
-                                              :disabled="item.isRedeemed"
+                                              :disabled="item.isRedeemed || isEditingDisabled"
                                               @click="onDeleteCode(item)">
                             {{ $tc('sw-promotion.detail.main.general.codes.individual.buttonDeleteCode') }}
                         </sw-context-menu-item>
@@ -99,7 +100,7 @@
         {% block sw_promotion_individualcodes_delete_selected_button %}
             <sw-button class="sw-promotion-individualcodes__selected-codes-delete"
                        v-if="gridItemsTotal > 0"
-                       :disabled="isDeleteButtonDisabled"
+                       :disabled="isDeleteButtonDisabled || isEditingDisabled"
                        @click="onDeleteSelectedCodes"
                        size="small"
                        square>

@@ -14,6 +14,11 @@ Component.register('sw-product-cross-selling-form', {
         crossSelling: {
             type: Object,
             required: true
+        },
+        allowEdit: {
+            type: Boolean,
+            required: false,
+            default: true
         }
     },
 
@@ -32,7 +37,7 @@ Component.register('sw-product-cross-selling-form', {
     },
 
     computed: {
-        ...mapPropertyErrors('crossSellings', [
+        ...mapPropertyErrors('crossSelling', [
             'name',
             'type',
             'position'
@@ -155,7 +160,7 @@ Component.register('sw-product-cross-selling-form', {
 
                     const filterRepository = this.repositoryFactory.create(
                         this.productStream.filters.entity,
-                        this.productStream.filters.source,
+                        this.productStream.filters.source
                     );
 
                     const criteria = new Criteria();

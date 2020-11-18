@@ -1,0 +1,17 @@
+{% block sw_condition_value_content %}
+    <div class="sw-condition-customer-tag sw-condition__condition-value">
+        {% block sw_condition_tag_field_operator %}
+            <sw-condition-operator-select v-bind="{ operators, condition }" :disabled="disabled"></sw-condition-operator-select>
+        {% endblock %}
+
+        {% block sw_condition_tag_field_tag_ids %}
+            <sw-entity-tag-select
+                size="medium"
+                entity="tag"
+                :entityCollection="tags"
+                :disabled="disabled"
+                @change="setTags">
+            </sw-entity-tag-select>
+        {% endblock %}
+    </div>
+{% endblock %}

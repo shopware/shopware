@@ -22,7 +22,7 @@ skinparam backgroundColor #FFFFFF
 
 ' entities
 
-Table(ShopwareStorefrontThemeThemeDefinition, "theme\n(__EMPTY__)") {
+Table(ShopwareStorefrontThemeThemeDefinition, "theme\n(Storefront themes)") {
    primary_key(id) id
    technicalName string
    not_null(name) string
@@ -37,7 +37,7 @@ Table(ShopwareStorefrontThemeThemeDefinition, "theme\n(__EMPTY__)") {
    configValues json
    not_null(active) bool
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
    translated json
 }
 TranslationTable(ShopwareStorefrontThemeAggregateThemeTranslationDefinition, "theme_translation\n((Translations))") {
@@ -46,7 +46,7 @@ TranslationTable(ShopwareStorefrontThemeAggregateThemeTranslationDefinition, "th
    helpTexts json
    customFields customFields
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
    primary_key(themeId) foreignKey
    primary_key(languageId) foreignKey
 }
@@ -60,7 +60,7 @@ Table(ShopwareStorefrontThemeAggregateThemeMediaDefinition, "theme_media\n(M:N M
 }
 ForeignTable(ShopwareCoreContentMediaMediaDefinition, "media") {
 }
-ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
+ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
 }
 ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
 }
@@ -72,7 +72,7 @@ ShopwareStorefrontThemeAggregateThemeSalesChannelDefinition --> ShopwareStorefro
 ShopwareStorefrontThemeAggregateThemeMediaDefinition --> ShopwareStorefrontThemeThemeDefinition
 ShopwareStorefrontThemeThemeDefinition --> ShopwareCoreContentMediaMediaDefinition
 ShopwareStorefrontThemeThemeDefinition --> ShopwareStorefrontThemeThemeDefinition
-ShopwareStorefrontThemeAggregateThemeTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
+ShopwareStorefrontThemeAggregateThemeTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
 ShopwareStorefrontThemeAggregateThemeSalesChannelDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareStorefrontThemeAggregateThemeMediaDefinition --> ShopwareCoreContentMediaMediaDefinition
 @enduml

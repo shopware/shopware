@@ -1,7 +1,9 @@
 import objectMerge from 'lodash/merge';
+import objectMergeWith from 'lodash/mergeWith';
 import objectCopy from 'lodash/cloneDeep';
 import objectGet from 'lodash/get';
 import objectSet from 'lodash/set';
+import objectPick from 'lodash/pick';
 import type from 'src/core/service/utils/types.utils';
 
 /**
@@ -13,9 +15,11 @@ export default {
     getObjectDiff,
     getArrayChanges,
     merge: objectMerge,
+    mergeWith: objectMerge,
     cloneDeep: objectCopy,
     get: objectGet,
-    set: objectSet
+    set: objectSet,
+    pick: objectPick
 };
 
 /**
@@ -23,11 +27,15 @@ export default {
  */
 export const merge = objectMerge;
 
+export const mergeWith = objectMergeWith;
+
 export const cloneDeep = objectCopy;
 
 export const get = objectGet;
 
 export const set = objectSet;
+
+export const pick = objectPick;
 
 /**
  * Shorthand method for `Object.prototype.hasOwnProperty`
@@ -48,6 +56,22 @@ export function hasOwnProperty(scope, prop) {
  */
 export function deepCopyObject(copyObject = {}) {
     return JSON.parse(JSON.stringify(copyObject));
+}
+
+/**
+ * Deep merge two objects
+ *
+ * @param {Object} firstObject
+ * @param {Object} secondObject
+ * @returns {Object}
+ */
+export function deepMergeObject(firstObject = {}, secondObject = {}) {
+    return mergeWith(firstObject, secondObject, (objValue, srcValue) => {
+        if (Array.isArray(objValue)) {
+            return objValue.concat(srcValue);
+        }
+        return undefined;
+    });
 }
 
 /**

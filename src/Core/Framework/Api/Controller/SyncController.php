@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Api\Sync\SyncResult;
 use Shopware\Core\Framework\Api\Sync\SyncServiceInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -39,6 +41,7 @@ class SyncController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * Starts a sync process for the list of provided actions.
      * This can be inserts, upserts, updates and deletes on different entities.
      * To continue upcoming actions on errors, please provide a "fail-on-error" header with value FALSE.
@@ -50,9 +53,9 @@ class SyncController extends AbstractController
     public function sync(Request $request, Context $context, int $version): JsonResponse
     {
         $behavior = new SyncBehavior(
-            filter_var($request->headers->get('fail-on-error', 'true'), FILTER_VALIDATE_BOOLEAN),
-            filter_var($request->headers->get('single-operation', 'false'), FILTER_VALIDATE_BOOLEAN),
-            $request->headers->get('indexing-behavior', null)
+            filter_var($request->headers->get(PlatformRequest::HEADER_FAIL_ON_ERROR, 'true'), FILTER_VALIDATE_BOOLEAN),
+            filter_var($request->headers->get(PlatformRequest::HEADER_SINGLE_OPERATION, 'false'), FILTER_VALIDATE_BOOLEAN),
+            $request->headers->get(PlatformRequest::HEADER_INDEXING_BEHAVIOR, null)
         );
 
         $payload = $this->serializer->decode($request->getContent(), 'json');

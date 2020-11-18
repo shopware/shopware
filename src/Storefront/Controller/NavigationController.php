@@ -3,9 +3,10 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Cache\Annotation\HttpCache;
-use Shopware\Storefront\Page\Navigation\NavigationPageLoader;
+use Shopware\Storefront\Page\Navigation\NavigationPageLoaderInterface;
 use Shopware\Storefront\Pagelet\Menu\Offcanvas\MenuOffcanvasPageletLoaderInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,7 +18,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class NavigationController extends StorefrontController
 {
     /**
-     * @var NavigationPageLoader
+     * @var NavigationPageLoaderInterface
      */
     private $navigationPageLoader;
 
@@ -27,7 +28,7 @@ class NavigationController extends StorefrontController
     private $offcanvasLoader;
 
     public function __construct(
-        NavigationPageLoader $navigationPageLoader,
+        NavigationPageLoaderInterface $navigationPageLoader,
         MenuOffcanvasPageletLoaderInterface $offcanvasLoader
     ) {
         $this->navigationPageLoader = $navigationPageLoader;
@@ -35,6 +36,7 @@ class NavigationController extends StorefrontController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @HttpCache()
      * @Route("/", name="frontend.home.page", options={"seo"="true"}, methods={"GET"})
      */
@@ -46,6 +48,7 @@ class NavigationController extends StorefrontController
     }
 
     /**
+     * @Since("6.3.3.0")
      * @HttpCache()
      * @Route("/navigation/{navigationId}", name="frontend.navigation.page", options={"seo"=true}, methods={"GET"})
      */
@@ -57,6 +60,7 @@ class NavigationController extends StorefrontController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @HttpCache()
      * @Route("/widgets/menu/offcanvas", name="frontend.menu.offcanvas", methods={"GET"}, defaults={"XmlHttpRequest"=true})
      */

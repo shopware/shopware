@@ -1,4 +1,4 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
 
 import SettingsPageObject from '../../../support/pages/module/sw-settings.page-object';
 import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
@@ -63,7 +63,7 @@ describe('Language: Test crud operations', () => {
             `${page.elements.dataGridRow}--0`
         );
 
-        productPage.changeTranslation('Japanese', 3);
+        productPage.changeTranslation('Japanese', 2);
 
         cy.get('.sw-language-info').contains('"Product name" displayed in the content language "Japanese".');
     });
@@ -116,7 +116,7 @@ describe('Language: Test crud operations', () => {
 
         cy.get('.sw-modal__body').should('be.visible');
         cy.get('.sw-modal__body').contains('Are you sure you want to delete the language "Philippine English"? This will delete all content in this language and can not be undone!');
-        cy.get(`${page.elements.modal}__footer button${page.elements.primaryButton}`).click();
+        cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
         cy.get(page.elements.modal).should('not.exist');
 
         // Verify and check usage of customer-group

@@ -43,28 +43,32 @@ Module.register('sw-plugin', {
                     component: 'sw-plugin-list',
                     path: 'list',
                     meta: {
-                        parentPath: 'sw.settings.index'
+                        parentPath: 'sw.settings.index',
+                        privilege: 'system.plugin_maintain'
                     }
                 },
                 licenses: {
                     component: 'sw-plugin-license-list',
                     path: 'licenses',
                     meta: {
-                        parentPath: 'sw.settings.index'
+                        parentPath: 'sw.settings.index',
+                        privilege: 'system.plugin_maintain'
                     }
                 },
                 recommendations: {
                     component: 'sw-plugin-recommendation',
                     path: 'recommendations',
                     meta: {
-                        parentPath: 'sw.settings.index'
+                        parentPath: 'sw.settings.index',
+                        privilege: 'system.plugin_maintain'
                     }
                 },
                 updates: {
                     component: 'sw-plugin-updates',
                     path: 'updates',
                     meta: {
-                        parentPath: 'sw.settings.index'
+                        parentPath: 'sw.settings.index',
+                        privilege: 'system.plugin_maintain'
                     }
                 }
             }
@@ -73,7 +77,8 @@ Module.register('sw-plugin', {
             component: 'sw-plugin-config',
             path: 'settings/:namespace',
             meta: {
-                parentPath: 'sw.plugin.index'
+                parentPath: 'sw.plugin.index',
+                privilege: 'system.plugin_maintain'
             },
 
             props: {
@@ -86,7 +91,8 @@ Module.register('sw-plugin', {
             component: 'sw-plugin-description',
             path: 'description/:namespace',
             meta: {
-                parentPath: 'sw.plugin.index'
+                parentPath: 'sw.plugin.index',
+                privilege: 'system.plugin_maintain'
             },
 
             props: {
@@ -101,6 +107,7 @@ Module.register('sw-plugin', {
     },
 
     settingsItem: {
+        privilege: 'system.plugin_maintain',
         group: 'system',
         to: 'sw.plugin.index',
         icon: 'default-object-plug'

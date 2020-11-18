@@ -149,9 +149,4 @@ class SalutationEntity extends Entity
     {
         $this->newsletterRecipients = $newsletterRecipients;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'salutation';
-    }
 }

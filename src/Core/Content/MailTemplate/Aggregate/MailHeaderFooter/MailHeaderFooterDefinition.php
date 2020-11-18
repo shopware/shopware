@@ -28,6 +28,11 @@ class MailHeaderFooterDefinition extends EntityDefinition
         return MailHeaderFooterEntity::class;
     }
 
+    public function since(): ?string
+    {
+        return '6.0.0.0';
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
@@ -44,7 +49,7 @@ class MailHeaderFooterDefinition extends EntityDefinition
             new TranslatedField('footerPlain'),
 
             (new TranslationsAssociationField(MailHeaderFooterTranslationDefinition::class, 'mail_header_footer_id'))->addFlags(new Required()),
-            (new OneToManyAssociationField('salesChannels', SalesChannelDefinition::class, 'mail_header_footer_id')),
+            new OneToManyAssociationField('salesChannels', SalesChannelDefinition::class, 'mail_header_footer_id'),
         ]);
     }
 }

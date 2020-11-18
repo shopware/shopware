@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deprecated;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
@@ -39,9 +40,14 @@ class MailTemplateDefinition extends EntityDefinition
         return MailTemplateCollection::class;
     }
 
+    public function since(): ?string
+    {
+        return '6.0.0.0';
+    }
+
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([
+        $fields = new FieldCollection([
             (new IdField('id', 'id'))->setFlags(new PrimaryKey(), new Required()),
 
             (new FkField('mail_template_type_id', 'mailTemplateTypeId', MailTemplateTypeDefinition::class))->setFlags(new Required()),
@@ -55,10 +61,18 @@ class MailTemplateDefinition extends EntityDefinition
             new TranslatedField('contentPlain'),
             new TranslatedField('customFields'),
 
-            (new TranslationsAssociationField(MailTemplateTranslationDefinition::class, 'mail_template_id'))->addFlags(new Required()),
-            (new OneToManyAssociationField('salesChannels', MailTemplateSalesChannelDefinition::class, 'mail_template_id', 'id'))->addFlags(new CascadeDelete()),
-            (new ManyToOneAssociationField('mailTemplateType', 'mail_template_type_id', MailTemplateTypeDefinition::class, 'id'))->addFlags(new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
-            (new OneToManyAssociationField('media', MailTemplateMediaDefinition::class, 'mail_template_id', 'id'))->addFlags(new CascadeDelete()),
+            (new TranslationsAssociationField(MailTemplateTranslationDefinition::class, 'mail_template_id'))
+                ->addFlags(new Required()),
+            (new OneToManyAssociationField('salesChannels', MailTemplateSalesChannelDefinition::class, 'mail_template_id', 'id'))
+                ->addFlags(new CascadeDelete()),
+            (new ManyToOneAssociationField('mailTemplateType', 'mail_template_type_id', MailTemplateTypeDefinition::class, 'id'))
+                ->addFlags(new SearchRanking(SearchRanking::ASSOCIATION_SEARCH_RANKING)),
+            (new OneToManyAssociationField('media', MailTemplateMediaDefinition::class, 'mail_template_id', 'id'))
+                ->addFlags(new CascadeDelete()),
+            (new OneToManyAssociationField('salesChannels', MailTemplateSalesChannelDefinition::class, 'mail_template_id', 'id'))
+                ->addFlags(new CascadeDelete(), new Deprecated('v3', 'v4', 'event_action entity')),
         ]);
+
+        return $fields;
     }
 }

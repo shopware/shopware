@@ -6,8 +6,10 @@ use Shopware\Core\Checkout\Payment\SalesChannel\AbstractPaymentMethodRoute;
 use Shopware\Core\Checkout\Shipping\SalesChannel\AbstractShippingMethodRoute;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\SalesChannelRequest;
+use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Event\RouteRequest\PaymentMethodRouteRequestEvent;
@@ -17,6 +19,9 @@ use Shopware\Storefront\Pagelet\Header\HeaderPageletLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @Decoratable()
+ */
 class GenericPageLoader implements GenericPageLoaderInterface
 {
     /**
@@ -75,6 +80,10 @@ class GenericPageLoader implements GenericPageLoaderInterface
         $page = new Page();
 
         if ($request->isXmlHttpRequest()) {
+            $this->eventDispatcher->dispatch(
+                new GenericPageLoadedEvent($page, $context, $request)
+            );
+
             return $page;
         }
         $page->setHeader(
@@ -85,24 +94,40 @@ class GenericPageLoader implements GenericPageLoaderInterface
             $this->footerLoader->load($request, $context)
         );
 
-        $shippingMethodRouteRequestEvent = new ShippingMethodRouteRequestEvent($request, new Request(), $context);
-        $this->eventDispatcher->dispatch($shippingMethodRouteRequestEvent);
-        $page->setSalesChannelShippingMethods(
-            $this->shippingMethodRoute->load($shippingMethodRouteRequestEvent->getStoreApiRequest(), $context)->getShippingMethods()
-        );
+        $criteria = new Criteria();
+        $criteria->setTitle('generic-page::shipping-methods');
 
-        $paymentMethodRouteRequestEvent = new PaymentMethodRouteRequestEvent($request, new Request(), $context);
-        $this->eventDispatcher->dispatch($paymentMethodRouteRequestEvent);
-        $page->setSalesChannelPaymentMethods(
-            $this->paymentMethodRoute->load($paymentMethodRouteRequestEvent->getStoreApiRequest(), $context)->getPaymentMethods()
-        );
+        $event = new ShippingMethodRouteRequestEvent($request, new Request(), $context, $criteria);
+        $this->eventDispatcher->dispatch($event);
+
+        $shippingMethods = $this->shippingMethodRoute
+            ->load($event->getStoreApiRequest(), $context, $event->getCriteria())
+            ->getShippingMethods();
+
+        $page->setSalesChannelShippingMethods($shippingMethods);
+
+        $criteria = new Criteria();
+        $criteria->setTitle('generic-page::payment-methods');
+
+        $event = new PaymentMethodRouteRequestEvent($request, new Request(), $context, $criteria);
+        $this->eventDispatcher->dispatch($event);
+
+        $paymentMethods = $this->paymentMethodRoute
+            ->load($event->getStoreApiRequest(), $context, $event->getCriteria())
+            ->getPaymentMethods();
+
+        $page->setSalesChannelPaymentMethods($paymentMethods);
 
         $page->setMetaInformation((new MetaInformation())->assign([
             'revisit' => '15 days',
             'robots' => 'index,follow',
             'xmlLang' => $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_LOCALE) ?? '',
-            'metaTitle' => $this->systemConfigService->get('core.basicInformation.shopName') ?? '',
+            'metaTitle' => $this->systemConfigService->getString('core.basicInformation.shopName', $context->getSalesChannel()->getId()),
         ]));
+
+        $this->eventDispatcher->dispatch(
+            new GenericPageLoadedEvent($page, $context, $request)
+        );
 
         return $page;
     }

@@ -84,6 +84,12 @@ Component.register('sw-code-editor', {
             type: Boolean,
             required: false,
             default: false
+        },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -106,6 +112,20 @@ Component.register('sw-code-editor', {
         }
     },
 
+    computed: {
+        aceConfig() {
+            return {
+                ...{
+                    mode: `ace/mode/${this.mode}`,
+                    showPrintMargin: false,
+                    wrap: this.softWraps,
+                    readOnly: this.disabled
+                },
+                ...this.editorConfig
+            };
+        }
+    },
+
     mounted() {
         this.mountedComponent();
     },
@@ -116,13 +136,7 @@ Component.register('sw-code-editor', {
 
     methods: {
         mountedComponent() {
-            const config = {
-                ...{ mode: `ace/mode/${this.mode}`,
-                    showPrintMargin: false,
-                    wrap: this.softWraps },
-                ...this.editorConfig
-            };
-            this.editor = Ace.edit(this.$refs['editor'.concat(this.editorId)], config);
+            this.editor = Ace.edit(this.$refs['editor'.concat(this.editorId)], this.aceConfig);
 
             this.defineAutocompletion(this.completerFunction);
 

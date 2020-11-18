@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\Listing;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -12,5 +13,5 @@ abstract class AbstractProductListingRoute
 {
     abstract public function getDecorated(): AbstractProductListingRoute;
 
-    abstract public function load(string $categoryId, Request $request, SalesChannelContext $salesChannelContext): ProductListingRouteResponse;
+    abstract public function load(string $categoryId, Request $request, SalesChannelContext $salesChannelContext, Criteria $criteria): ProductListingRouteResponse;
 }

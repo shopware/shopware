@@ -51,19 +51,7 @@ Component.register('sw-select-result-list', {
             default() {
                 return [];
             }
-        },
-
-        /**
-         * @deprecated tag:v6.3.0
-         */
-        popoverConfig: {
-            type: Object,
-            required: false,
-            default() {
-                return {};
-            }
         }
-
     },
 
     data() {

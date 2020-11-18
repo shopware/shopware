@@ -24,7 +24,8 @@ Component.register('sw-shortcut-overview', {
                     {
                         id: utils.createId(),
                         title: this.$tc('sw-shortcut-overview.functionAddProduct'),
-                        content: this.$tc('sw-shortcut-overview.keyboardShortcutAddProduct')
+                        content: this.$tc('sw-shortcut-overview.keyboardShortcutAddProduct'),
+                        privilege: 'product.creator'
                     },
                     {
                         id: utils.createId(),
@@ -71,7 +72,8 @@ Component.register('sw-shortcut-overview', {
                     {
                         id: utils.createId(),
                         title: this.$tc('sw-shortcut-overview.functionGoToProducts'),
-                        content: this.$tc('sw-shortcut-overview.keyboardShortcutGoToProducts')
+                        content: this.$tc('sw-shortcut-overview.keyboardShortcutGoToProducts'),
+                        privilege: 'product.viewer'
                     },
                     {
                         id: utils.createId(),
@@ -151,7 +153,8 @@ Component.register('sw-shortcut-overview', {
                     {
                         id: utils.createId(),
                         title: this.$tc('sw-shortcut-overview.functionGoToPlugins'),
-                        content: this.$tc('sw-shortcut-overview.keyboardShortcutGoToPlugins')
+                        content: this.$tc('sw-shortcut-overview.keyboardShortcutGoToPlugins'),
+                        privilege: 'system.plugin_maintain'
                     }
 
                 ],
@@ -190,17 +193,20 @@ Component.register('sw-shortcut-overview', {
                     {
                         id: utils.createId(),
                         title: this.$tc('sw-shortcut-overview.functionSpecialShortcutClearCacheWindows'),
-                        content: this.$tc('sw-shortcut-overview.keyboardShortcutSpecialShortcutClearCacheWindows')
+                        content: this.$tc('sw-shortcut-overview.keyboardShortcutSpecialShortcutClearCacheWindows'),
+                        privilege: 'system.clear_cache'
                     },
                     {
                         id: utils.createId(),
                         title: this.$tc('sw-shortcut-overview.functionSpecialShortcutClearCacheMac'),
-                        content: this.$tc('sw-shortcut-overview.keyboardShortcutSpecialShortcutClearCacheMac')
+                        content: this.$tc('sw-shortcut-overview.keyboardShortcutSpecialShortcutClearCacheMac'),
+                        privilege: 'system.clear_cache'
                     },
                     {
                         id: utils.createId(),
                         title: this.$tc('sw-shortcut-overview.functionSpecialShortcutClearCacheLinux'),
-                        content: this.$tc('sw-shortcut-overview.keyboardShortcutSpecialShortcutClearCacheLinux')
+                        content: this.$tc('sw-shortcut-overview.keyboardShortcutSpecialShortcutClearCacheLinux'),
+                        privilege: 'system.clear_cache'
                     }
                 ]
             };

@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deprecated;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Since;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -61,7 +62,6 @@ class OpenApiDefinitionSchemaBuilder
         $extensions = [];
         $extensionRelationships = [];
 
-        /** @var Field $field */
         foreach ($definition->getFields() as $field) {
             if (!$this->shouldFieldBeIncluded($definition, $field, $forSalesChannel, $version)) {
                 continue;
@@ -99,7 +99,7 @@ class OpenApiDefinitionSchemaBuilder
                 continue;
             }
 
-            $attr = $this->getPropertyByField(\get_class($field), $field->getPropertyName());
+            $attr = $this->getPropertyByField($field);
 
             if (\in_array($field->getPropertyName(), ['createdAt', 'updatedAt'], true) || $this->isWriteProtected($field)) {
                 $attr->readOnly = true;
@@ -155,6 +155,7 @@ class OpenApiDefinitionSchemaBuilder
                         'properties' => $attributes,
                     ]),
                 ],
+                'description' => 'Added since version: ' . $definition->since(),
             ]);
 
             if (\count($relationships)) {
@@ -183,6 +184,7 @@ class OpenApiDefinitionSchemaBuilder
             'schema' => $schemaName . '_flat',
             'properties' => $attributes,
             'required' => array_unique($requiredAttributes),
+            'description' => 'Added since version: ' . $definition->since(),
         ]);
 
         return $schema;
@@ -365,7 +367,7 @@ class OpenApiDefinitionSchemaBuilder
                 $required[] = $field->getPropertyName();
             }
 
-            $definition->properties[] = $this->getPropertyByField(\get_class($field), $field->getPropertyName());
+            $definition->properties[] = $this->getPropertyByField($field);
         }
 
         if (\count($required)) {
@@ -382,11 +384,13 @@ class OpenApiDefinitionSchemaBuilder
         return $definition;
     }
 
-    private function getPropertyByField(string $fieldClass, string $propertyName): Property
+    private function getPropertyByField(Field $field): Property
     {
+        $fieldClass = get_class($field);
+
         $property = new Property([
             'type' => $this->getType($fieldClass),
-            'property' => $propertyName,
+            'property' => $field->getPropertyName(),
         ]);
 
         if (\is_a($fieldClass, DateTimeField::class, true)) {
@@ -403,10 +407,16 @@ class OpenApiDefinitionSchemaBuilder
             $property->format = 'uuid';
         }
 
+        /* @var Since|null $flag */
+        $flag = $field->getFlag(Since::class);
+        if ($flag instanceof Since) {
+            $property->description = 'Added since version: ' . $flag->getSince();
+        }
+
         return $property;
     }
 
-    private function getPropertyAssocsByField(?string $fieldClass): Object
+    private function getPropertyAssocsByField(?string $fieldClass): object
     {
         $property = new \stdClass();
         if ($fieldClass === null) {
@@ -491,19 +501,5 @@ class OpenApiDefinitionSchemaBuilder
         }
 
         return $entity;
-    }
-
-    private function convertToOperationId(string $name): string
-    {
-        $name = ucfirst($this->convertToHumanReadable($name));
-
-        return str_replace(' ', '', $name);
-    }
-
-    private function convertToHumanReadable(string $name): string
-    {
-        $nameParts = array_map('ucfirst', explode('_', $name));
-
-        return implode(' ', $nameParts);
     }
 }

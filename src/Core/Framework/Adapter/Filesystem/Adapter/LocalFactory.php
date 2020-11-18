@@ -30,7 +30,7 @@ class LocalFactory implements AdapterFactoryInterface
         $options = new OptionsResolver();
 
         $options->setRequired(['root']);
-        $options->setDefined(['file', 'dir']);
+        $options->setDefined(['file', 'dir', 'url']);
 
         $options->setAllowedTypes('root', 'string');
         $options->setAllowedTypes('file', 'array');

@@ -3,7 +3,9 @@
         {% block sw_condition_base_content %}
             <div class="sw-condition__container" :class="conditionClasses">
                 {% block sw_condition_base_field_condition %}
-                    <sw-condition-type-select v-bind="{ condition, availableTypes, hasError }">
+                    <sw-condition-type-select
+                        v-bind="{ condition, availableTypes, hasError }"
+                        :disabled="disabled">
                     </sw-condition-type-select>
                 {% endblock %}
 
@@ -17,21 +19,26 @@
                 {% endblock %}
 
                 {% block sw_condition_base_field_actions %}
-                    <sw-context-button class="sw-condition__context-button">
+                    <sw-context-button class="sw-condition__context-button" :disabled="disabled">
                         {% block sw_condition_base_field_create_before_action %}
-                        <sw-context-menu-item class="sw-condition__create-before-action" @click="onCreateBefore">
+                        <sw-context-menu-item class="sw-condition__create-before-action"
+                                              @click="onCreateBefore"
+                                              :disabled="disabled">
                             {{ $tc('global.sw-condition.condition.createBefore') }}
                         </sw-context-menu-item>
                         {% endblock %}
 
                         {% block sw_condition_base_field_create_after_action %}
-                        <sw-context-menu-item class="sw-condition__create-after-action" @click="onCreateAfter">
+                        <sw-context-menu-item class="sw-condition__create-after-action"
+                                              @click="onCreateAfter"
+                                              :disabled="disabled">
                             {{ $tc('global.sw-condition.condition.createAfter') }}
                         </sw-context-menu-item>
                         {% endblock %}
 
                         {% block sw_condition_base_field_delete_action %}
                         <sw-context-menu-item @click="onDeleteCondition"
+                                              :disabled="disabled"
                                               variant="danger">
                             {{ $tc('global.default.delete') }}
                         </sw-context-menu-item>

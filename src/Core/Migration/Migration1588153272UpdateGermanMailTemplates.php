@@ -27,7 +27,7 @@ class Migration1588153272UpdateGermanMailTemplates extends MigrationStep
             MailTemplateTypes::MAILTYPE_ORDER_CONFIRM,
             $connection,
             $deLangId,
-            $this->getOrderConfirmationHtmlTemplateDe(),
+            $this->getOrderConfirmationHTMLTemplateDe(),
             $this->getOrderConfirmationPlainTemplateDe()
         );
 
@@ -60,7 +60,7 @@ class Migration1588153272UpdateGermanMailTemplates extends MigrationStep
             MailTemplateTypes::MAILTYPE_STATE_ENTER_ORDER_DELIVERY_STATE_SHIPPED,
             $connection,
             $deLangId,
-            $this->getDeliveryShippedHtmlTemplateDe(),
+            $this->getDeliveryShippedHTMLTemplateDe(),
             $this->getDeliveryShippedPlainTemplateDe()
         );
 
@@ -185,18 +185,18 @@ class Migration1588153272UpdateGermanMailTemplates extends MigrationStep
         string $mailTemplateType,
         Connection $connection,
         string $deLangId,
-        $getHtmlTemplateDe,
-        $getPlainTemplateDe
+        string $getHtmlTemplateDe,
+        string $getPlainTemplateDe
     ): void {
         $templateId = $this->fetchSystemMailTemplateIdFromType($connection, $mailTemplateType);
 
         if ($templateId !== null) {
-            // updating available entities of mail template
             $availableEntities = $this->fetchSystemMailTemplateAvailableEntitiesFromType($connection, $mailTemplateType);
-            $newAvaibleEntities = substr($availableEntities, 0, -1) . ',"editOrderUrl": null}';
-
-            $sqlStatement = 'UPDATE `mail_template_type` SET `available_entities` = :availableEntities WHERE `technical_name` = :mailTemplateType AND `updated_at` IS NULL';
-            $connection->executeUpdate($sqlStatement, ['availableEntities' => $newAvaibleEntities, 'mailTemplateType' => $mailTemplateType]);
+            if (!isset($availableEntities['editOrderUrl'])) {
+                $availableEntities['editOrderUrl'] = null;
+                $sqlStatement = 'UPDATE `mail_template_type` SET `available_entities` = :availableEntities WHERE `technical_name` = :mailTemplateType AND `updated_at` IS NULL';
+                $connection->executeUpdate($sqlStatement, ['availableEntities' => json_encode($availableEntities), 'mailTemplateType' => $mailTemplateType]);
+            }
 
             $this->updateMailTemplateTranslation(
                 $connection,
@@ -225,17 +225,18 @@ class Migration1588153272UpdateGermanMailTemplates extends MigrationStep
         return $templateId;
     }
 
-    private function fetchSystemMailTemplateAvailableEntitiesFromType(Connection $connection, string $mailTemplateType): ?string
+    private function fetchSystemMailTemplateAvailableEntitiesFromType(Connection $connection, string $mailTemplateType): array
     {
-        $availableEntities = $connection->executeQuery('
-        SELECT `available_entities` FROM `mail_template_type` WHERE `technical_name` = :mailTemplateType AND updated_at IS NULL;
-        ', ['mailTemplateType' => $mailTemplateType])->fetchColumn();
+        $availableEntities = $connection->executeQuery(
+            'SELECT `available_entities` FROM `mail_template_type` WHERE `technical_name` = :mailTemplateType AND updated_at IS NULL;',
+            ['mailTemplateType' => $mailTemplateType]
+        )->fetchColumn();
 
-        if ($availableEntities === false || !is_string($availableEntities)) {
-            return null;
+        if ($availableEntities === false || !is_string($availableEntities) || json_decode($availableEntities, true) === null) {
+            return [];
         }
 
-        return $availableEntities;
+        return json_decode($availableEntities, true);
     }
 
     private function updateMailTemplateTranslation(

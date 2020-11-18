@@ -61,4 +61,11 @@ class Shop extends Struct
      * @var string
      */
     public $country;
+
+    /**
+     * Additional currencies that will get installed
+     *
+     * @var array|null
+     */
+    public $additionalCurrencies = null;
 }

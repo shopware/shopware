@@ -56,7 +56,7 @@ Component.register('sw-media-modal-delete', {
                     errorOverall: this.$tc(
                         'global.sw-media-modal-delete.notification.errorOverall.message.mediaAndFolder'
                     ),
-                    modalTitle: this.$tc('global.sw-media-modal-delete.titleModal.mediaAndFolder'),
+                    modalTitle: this.$tc('global.default.warning'),
                     deleteMessage: this.$tc(
                         'global.sw-media-modal-delete.deleteMessage.mediaAndFolder',
                         this.itemsToDelete.length,
@@ -72,7 +72,7 @@ Component.register('sw-media-modal-delete', {
                 return {
                     successOverall: 'global.sw-media-modal-delete.notification.successOverall.message.media',
                     errorOverall: this.$tc('global.sw-media-modal-delete.notification.errorOverall.message.media'),
-                    modalTitle: this.$tc('global.sw-media-modal-delete.titleModal.media'),
+                    modalTitle: this.$tc('global.default.warning'),
                     deleteMessage: this.$tc(
                         'global.sw-media-modal-delete.deleteMessage.media',
                         this.mediaItems.length,
@@ -87,7 +87,7 @@ Component.register('sw-media-modal-delete', {
             return {
                 successOverall: 'global.sw-media-modal-delete.notification.successOverall.message.folder',
                 errorOverall: this.$tc('global.sw-media-modal-delete.notification.errorOverall.message.folder'),
-                modalTitle: this.$tc('global.sw-media-modal-delete.titleModal.folder'),
+                modalTitle: this.$tc('global.default.warning'),
                 deleteMessage: this.$tc(
                     'global.sw-media-modal-delete.deleteMessage.folder',
                     this.folders.length,
@@ -161,7 +161,6 @@ Component.register('sw-media-modal-delete', {
                         this.$tc(`${errorSnippet}.folder`, 1, { name: item.name });
 
                     this.createNotificationError({
-                        title: this.$tc('global.default.error'),
                         message
                     });
 
@@ -201,7 +200,6 @@ Component.register('sw-media-modal-delete', {
 
         async updateSuccessNotification(successAmount, failureAmount, totalAmount) {
             const notification = {
-                title: this.$tc('global.default.success'),
                 message: this.$tc(
                     this.snippets.successOverall,
                     successAmount,

@@ -15,6 +15,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @group slow
+ */
 class SyncControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
@@ -238,7 +241,7 @@ class SyncControllerTest extends TestCase
             ],
         ];
 
-        $this->getBrowser()->request('POST', '/api/v1/_action/sync', [], [], [], json_encode($data));
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/sync', [], [], [], json_encode($data));
         static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode(), $this->getBrowser()->getResponse()->getContent());
 
         $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $id);
@@ -288,7 +291,7 @@ class SyncControllerTest extends TestCase
             ],
         ];
 
-        $this->getBrowser()->request('POST', '/api/v1/_action/sync', [], [], [], json_encode($data));
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/sync', [], [], [], json_encode($data));
 
         $response = $this->getBrowser()->getResponse();
         static::assertSame(200, $response->getStatusCode());
@@ -348,7 +351,7 @@ class SyncControllerTest extends TestCase
             ],
         ];
 
-        $this->getBrowser()->request('POST', '/api/v1/_action/sync', [], [], [], json_encode($data));
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/sync', [], [], [], json_encode($data));
 
         $this->getBrowser()->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/product/' . $product . '/categories');
         $responseData = json_decode($this->getBrowser()->getResponse()->getContent(), true);
@@ -405,7 +408,7 @@ class SyncControllerTest extends TestCase
             ],
         ];
 
-        $this->getBrowser()->request('POST', '/api/v1/_action/sync', [], [], [], json_encode($data));
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/sync', [], [], [], json_encode($data));
 
         $exists = $this->connection->fetchAll(
             'SELECT * FROM product WHERE id IN(:id)',
@@ -425,7 +428,7 @@ class SyncControllerTest extends TestCase
             ],
         ];
 
-        $this->getBrowser()->request('POST', '/api/v1/_action/sync', [], [], [], json_encode($data));
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/sync', [], [], [], json_encode($data));
 
         $exists = $this->connection->fetchAll(
             'SELECT * FROM product WHERE id IN (:id)',
@@ -464,7 +467,7 @@ class SyncControllerTest extends TestCase
             ],
         ];
 
-        $this->getBrowser()->request('POST', '/api/v1/_action/sync', [], [], ['HTTP_Fail-On-Error' => 'true'], json_encode($data));
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/sync', [], [], ['HTTP_Fail-On-Error' => 'true'], json_encode($data));
 
         $exists = $this->connection->fetchAll(
             'SELECT * FROM product WHERE id IN(:id)',
@@ -504,7 +507,7 @@ class SyncControllerTest extends TestCase
             ],
         ];
 
-        $this->getBrowser()->request('POST', '/api/v1/_action/sync', [], [], ['HTTP_Fail-On-Error' => 'false'], json_encode($data));
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/sync', [], [], ['HTTP_Fail-On-Error' => 'false'], json_encode($data));
 
         $exists = $this->connection->fetchAll(
             'SELECT * FROM product WHERE id IN(:id)',
@@ -548,7 +551,7 @@ class SyncControllerTest extends TestCase
         $this->connection->executeUpdate('DELETE FROM enqueue;');
         $this->connection->executeUpdate('DELETE FROM message_queue_stats;');
 
-        $this->getBrowser()->request('POST', '/api/v1/_action/sync', [], [], ['HTTP_Fail-On-Error' => 'false', 'HTTP_indexing-behavior' => EntityIndexerRegistry::USE_INDEXING_QUEUE], json_encode($data));
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/sync', [], [], ['HTTP_Fail-On-Error' => 'false', 'HTTP_indexing-behavior' => EntityIndexerRegistry::USE_INDEXING_QUEUE], json_encode($data));
 
         $exists = $this->connection->fetchAll(
             'SELECT * FROM product WHERE id IN(:id)',
@@ -591,7 +594,7 @@ class SyncControllerTest extends TestCase
         $this->connection->executeUpdate('DELETE FROM enqueue;');
         $this->connection->executeUpdate('DELETE FROM message_queue_stats;');
 
-        $this->getBrowser()->request('POST', '/api/v1/_action/sync', [], [], ['HTTP_Fail-On-Error' => 'false'], json_encode($data));
+        $this->getBrowser()->request('POST', '/api/v' . PlatformRequest::API_VERSION . '/_action/sync', [], [], ['HTTP_Fail-On-Error' => 'false'], json_encode($data));
 
         $exists = $this->connection->fetchAll(
             'SELECT * FROM product WHERE id IN(:id)',

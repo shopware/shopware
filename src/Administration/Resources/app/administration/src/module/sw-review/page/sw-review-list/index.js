@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-review-list', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     data() {
         return {
@@ -16,6 +16,12 @@ Component.register('sw-review-list', {
             repository: null,
             items: null,
             term: this.$route.query ? this.$route.query.term : null
+        };
+    },
+
+    metaInfo() {
+        return {
+            title: this.$createTitle()
         };
     },
 
@@ -71,6 +77,10 @@ Component.register('sw-review-list', {
 
     methods: {
         createdComponent() {
+            this.getList();
+        },
+
+        getList() {
             this.repository = this.repositoryFactory.create('product_review');
 
             this.criteria = new Criteria();
@@ -87,18 +97,30 @@ Component.register('sw-review-list', {
 
             const context = { ...Shopware.Context.api, inheritance: true };
 
-            this.repository
-                .search(this.criteria, context)
-                .then((result) => {
-                    this.total = result.total;
-                    this.items = result;
-                    this.isLoading = false;
-                });
+            return this.repository.search(this.criteria, context).then((result) => {
+                this.total = result.total;
+                this.items = result;
+                this.isLoading = false;
+            });
         },
+
         onSearch(term) {
             this.criteria.setTerm(term);
             this.$route.query.term = term;
             this.$refs.listing.doSearch();
+        },
+
+        onDelete(option) {
+            this.$refs.listing.deleteItem(option);
+
+            this.repository.search(this.criteria, { ...Shopware.Context.api, inheritance: true }).then((result) => {
+                this.total = result.total;
+                this.items = result;
+            });
+        },
+
+        onRefresh() {
+            this.getList();
         }
     }
 });

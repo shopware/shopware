@@ -3,6 +3,7 @@
 namespace Shopware\Core\Migration;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DBALException;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -16,7 +17,12 @@ class Migration1572264837AddCacheId extends MigrationStep
     public function update(Connection $connection): void
     {
         $connection->executeUpdate('DELETE FROM app_config');
-        $connection->exec('ALTER TABLE app_config ADD PRIMARY KEY (`key`)');
+
+        try {
+            $connection->exec('ALTER TABLE app_config ADD PRIMARY KEY (`key`)');
+        } catch (DBALException $e) {
+            // PK already exists
+        }
 
         $connection->executeUpdate(
             '

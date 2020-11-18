@@ -58,12 +58,16 @@ class LineItemGroupBuilder
             $sorter = $this->registry->getSorter($groupDefinition->getSorterKey());
             $packager = $this->registry->getPackager($groupDefinition->getPackagerKey());
 
+            // we have to sort our items first
+            // otherwise it would be a "random" order when
+            // adjusting the rest of our cart...
+            $restOfCart = $sorter->sort($restOfCart);
+
             // try as long as groups can be
             // found for the current definition
             while (true) {
                 $itemsToConsider = $this->ruleMatcher->getMatchingItems($groupDefinition, $restOfCart, $context);
-                // sort using our found sorter
-                $itemsToConsider = $sorter->sort($itemsToConsider);
+
                 // now build a package with our packager
                 $group = $packager->buildGroupPackage($groupDefinition->getValue(), $itemsToConsider, $context);
 
@@ -95,49 +99,70 @@ class LineItemGroupBuilder
     private function adjustRestOfCart(array $foundItems, LineItemFlatCollection $restOfCart): LineItemFlatCollection
     {
         // a holder for all foundItems indexed by lineItemId
-        /** @var LineItemQuantity[] $removeLineItemIds */
-        $removeLineItemIds = [];
+        /** @var LineItemQuantity[] $lineItemsToRemove */
+        $lineItemsToRemove = [];
 
         // we prepare the removeLineItemIds array with all LineItemQuantity objects indexed by lineItemId
         foreach ($foundItems as $itemToRemove) {
-            if (isset($removeLineItemIds[$itemToRemove->getLineItemId()])) {
-                $quantity = $removeLineItemIds[$itemToRemove->getLineItemId()];
-                $removeLineItemIds[$itemToRemove->getLineItemId()]->setQuantity($quantity->getQuantity() + $itemToRemove->getQuantity());
+            if (isset($lineItemsToRemove[$itemToRemove->getLineItemId()])) {
+                $quantity = $lineItemsToRemove[$itemToRemove->getLineItemId()];
+                $lineItemsToRemove[$itemToRemove->getLineItemId()]->setQuantity($quantity->getQuantity() + $itemToRemove->getQuantity());
 
                 continue;
             }
-            $removeLineItemIds[$itemToRemove->getLineItemId()] = $itemToRemove;
+            $lineItemsToRemove[$itemToRemove->getLineItemId()] = $itemToRemove;
         }
 
-        // filter the LineItemFlatCollection by all lineItemIds that are not present in removeLineItemIds,
-        // because we want them in our rest cart in any case
-        $filteredCartLineItems = $restOfCart->filter(function (LineItem $addToRest) use ($removeLineItemIds) {
-            return !isset($removeLineItemIds[$addToRest->getId()]);
-        });
+        /** @var array $lineItemsToRemoveIDs */
+        $lineItemsToRemoveIDs = array_keys($lineItemsToRemove);
 
-        // now we iterate over our prepared $removeLineItemIds array
-        // here we are skipping lineItems that have a lineItemId that should be deleted
-        // but we are doing this only in case the quantity is lower
-        // if higher we add, because we want to keep these items
-        foreach ($removeLineItemIds as $lineItemId => $lineItemQuantity) {
-            $removeQuantity = $lineItemQuantity->getQuantity();
+        $newRestOfCart = new LineItemFlatCollection();
 
-            // get all collection lineItems which have the same lineItemId as our lineItemQuantity object
-            $foundItemsCollection = $restOfCart->filter(function (LineItem $addToRest) use ($lineItemId) {
-                return $addToRest->getId() === $lineItemId;
-            });
+        // this is our running buffer
+        // for the items that need to be removed
+        $deleteBuffer = [];
 
-            $foundItemsArray = $foundItemsCollection->getElements();
+        // make sure we have an ID index for
+        // all our delete-items with a qty of 0
+        foreach (array_keys($lineItemsToRemove) as $id) {
+            $deleteBuffer[$id] = 0;
+        }
 
-            $foundItemsQuantity = \count($foundItemsArray);
+        foreach ($restOfCart as $item) {
+            // if its a totally different item
+            // just add it to the rest of our cart
+            if (!in_array($item->getId(), $lineItemsToRemoveIDs, true)) {
+                $newRestOfCart->add($item);
+            } else {
+                // we have an item that should be removed
+                // now we have to calculate how many of the item position (qty diff)
+                // or if we have even reached our max amount of quantities to remove for this item
+                $maxRemoveMeta = $lineItemsToRemove[$item->getId()]->getQuantity();
 
-            // all items that are above the defined quantity have to be added to our result collection
-            for ($i = $foundItemsQuantity; $i > $removeQuantity; --$i) {
-                $filteredCartLineItems->add($foundItemsArray[$i - 1]);
+                $alreadyDeletedCount = $deleteBuffer[$item->getId()];
+
+                // now check if we can remove our current item completely
+                // or if we have a sub quantity that still needs to be
+                // added to the rest of the cart
+                if ($alreadyDeletedCount + $item->getQuantity() <= $maxRemoveMeta) {
+                    // remove completely
+                    $deleteBuffer[$item->getId()] += $item->getQuantity();
+                } else {
+                    $toDeleteCount = $maxRemoveMeta - $alreadyDeletedCount;
+                    $keepCount = $item->getQuantity() - $toDeleteCount;
+
+                    // mark our diff as "deleted"
+                    $deleteBuffer[$item->getId()] += $toDeleteCount;
+
+                    // add the keep count to our item
+                    // and the item to the rest of our cart
+                    $item->setQuantity($keepCount);
+                    $newRestOfCart->add($item);
+                }
             }
         }
 
-        return $filteredCartLineItems;
+        return $newRestOfCart;
     }
 
     private function getCartProducts(Cart $cart): LineItemCollection

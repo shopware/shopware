@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/master/src/Core/System/SystemConfig/Schema/config.xsd">
+    <card>
+        <title>Settings</title>
+        <title lang="de-DE">Einstellungen</title>
+
+        <input-field type="bool">
+            <name>redirectToCanonicalUrl</name>
+            <label>Instead of setting Canonical URLs directly redirect via HTTP 301 to the current URL</label>
+            <label lang="de-DE">Statt Canonical URLs direkt per HTTP 301 auf die aktuellste URL leiten</label>
+            <helpText>This option affects all entities whose name can change. If deactivated, the redirection is initiated by Canonical. Activated it redirects to the current URL directly via HTTP 301.</helpText>
+            <helpText lang="de-DE">Diese Option betrifft alle Entitäten, deren Name sich ändern kann. Die Weiterleitung wird im deaktivierten Zustand per Canonical angestoßen, während im aktiven Zustand direkt bei HTTP 301 auf die aktuellste URL weitergeleitet wird.</helpText>
+        </input-field>
+    </card>
+</config>

@@ -14,10 +14,14 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
@@ -26,6 +30,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @RouteScope(scopes={"store-api"})
+ * @ContextTokenRequired()
  */
 class LoginRoute extends AbstractLoginRoute
 {
@@ -40,6 +45,8 @@ class LoginRoute extends AbstractLoginRoute
     private $customerRepository;
 
     /**
+     * @deprecated tag:v6.4.0 $contextPersister will no longer be used
+     *
      * @var SalesChannelContextPersister
      */
     private $contextPersister;
@@ -49,16 +56,23 @@ class LoginRoute extends AbstractLoginRoute
      */
     private $legacyPasswordVerifier;
 
+    /**
+     * @var SalesChannelContextRestorer
+     */
+    private $contextRestorer;
+
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
         SalesChannelContextPersister $contextPersister,
         EntityRepositoryInterface $customerRepository,
-        LegacyPasswordVerifier $legacyPasswordVerifier
+        LegacyPasswordVerifier $legacyPasswordVerifier,
+        SalesChannelContextRestorer $contextRestorer
     ) {
         $this->eventDispatcher = $eventDispatcher;
         $this->contextPersister = $contextPersister;
         $this->customerRepository = $customerRepository;
         $this->legacyPasswordVerifier = $legacyPasswordVerifier;
+        $this->contextRestorer = $contextRestorer;
     }
 
     public function getDecorated(): AbstractLoginRoute
@@ -67,29 +81,23 @@ class LoginRoute extends AbstractLoginRoute
     }
 
     /**
+     * @Since("6.2.0.0")
      * @OA\Post(
      *      path="/account/login",
-     *      description="Login as customer using password",
+     *      summary="Login as customer using password",
      *      operationId="loginCustomer",
      *      tags={"Store API", "Account"},
-     *      @OA\Parameter(
-     *          parameter="username",
-     *          name="Email",
-     *          in="body",
-     *          description="Email",
-     *          @OA\Schema(type="string"),
-     *      ),
-     *      @OA\Parameter(
-     *          parameter="password",
-     *          name="Password",
-     *          in="body",
-     *          description="Password",
-     *          @OA\Schema(type="string"),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              @OA\Property(property="username", description="Email", type="string"),
+     *              @OA\Property(property="password", description="Password", type="string")
+     *          )
      *      ),
      *      @OA\Response(
      *          response="200",
      *          description="Context token",
-     *          @OA\JsonContent(ref="#/definitions/ContextTokenResponse")
+     *          @OA\JsonContent(ref="#/components/schemas/ContextTokenResponse")
      *     )
      * )
      * @Route(path="/store-api/v{version}/account/login", name="store-api.account.login", methods={"POST"})
@@ -119,15 +127,8 @@ class LoginRoute extends AbstractLoginRoute
             throw new InactiveCustomerException($customer->getId());
         }
 
-        $newToken = $this->contextPersister->replace($context->getToken());
-        $this->contextPersister->save(
-            $newToken,
-            [
-                'customerId' => $customer->getId(),
-                'billingAddressId' => null,
-                'shippingAddressId' => null,
-            ]
-        );
+        $context = $this->contextRestorer->restore($customer->getId(), $context);
+        $newToken = $context->getToken();
 
         $this->customerRepository->update([
             [
@@ -168,6 +169,11 @@ class LoginRoute extends AbstractLoginRoute
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('customer.email', $email));
         $criteria->addFilter(new EqualsFilter('customer.guest', 0));
+
+        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
+            new EqualsFilter('customer.boundSalesChannelId', null),
+            new EqualsFilter('customer.boundSalesChannelId', $context->getSalesChannel()->getId()),
+        ]));
 
         $result = $this->customerRepository->search($criteria, $context->getContext());
 

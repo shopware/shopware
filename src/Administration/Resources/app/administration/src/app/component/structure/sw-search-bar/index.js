@@ -165,17 +165,19 @@ Component.register('sw-search-bar', {
         },
 
         clearSearchTerm() {
-            this.searchTerm = '';
             this.showResultsContainer = false;
             this.activeResultPosition = 0;
-
-            this.results = [];
         },
 
         onFocusInput() {
             this.isActive = true;
             if (!this.searchTerm) {
                 this.showTypeContainer();
+            } else if (
+                this.currentSearchType !== this.initialSearchType ||
+                this.currentSearchType.length <= 0
+            ) {
+                this.showResultsContainer = true;
             }
         },
 
@@ -304,9 +306,7 @@ Component.register('sw-search-bar', {
             this.results = [];
             this.searchService.search({ term: searchTerm }).then((response) => {
                 // filter not yet implemented entities and empty entities
-                this.results = response.data.filter(item => {
-                    return this.searchTypes.hasOwnProperty(item.entity) && item.total > 0;
-                });
+                this.results = response.data.filter(item => this.searchTypes.hasOwnProperty(item.entity) && item.total > 0);
                 this.activeResultColumn = 0;
                 this.activeResultIndex = 0;
                 this.isLoading = false;
@@ -370,7 +370,7 @@ Component.register('sw-search-bar', {
             }
 
             if (this.activeResultColumn > 0) {
-                this.activeResultColumn = this.activeResultColumn - 1;
+                this.activeResultColumn -= 1;
                 const itemsInColumn = this.results[this.activeResultColumn].entities.length;
                 if (this.activeResultIndex + 1 > itemsInColumn) {
                     this.activeResultIndex = itemsInColumn - 1;
@@ -393,7 +393,7 @@ Component.register('sw-search-bar', {
             }
 
             if (this.activeResultColumn < this.results.length - 1) {
-                this.activeResultColumn = this.activeResultColumn + 1;
+                this.activeResultColumn += 1;
                 const itemsInColumn = this.results[this.activeResultColumn].entities.length;
                 if (this.activeResultIndex + 1 > itemsInColumn) {
                     this.activeResultIndex = itemsInColumn - 1;
@@ -417,8 +417,8 @@ Component.register('sw-search-bar', {
 
             if (this.activeResultIndex === 0) {
                 if (this.activeResultColumn > 0) {
-                    this.activeResultColumn = this.activeResultColumn - 1;
-                    const itemsInNewColumn = this.results[this.activeResultColumn].entities.length;
+                    this.activeResultColumn -= 1;
+                    const itemsInNewColumn = Object.keys(this.results[this.activeResultColumn].entities).length;
                     this.activeResultIndex = itemsInNewColumn - 1;
                 }
             } else {
@@ -440,13 +440,13 @@ Component.register('sw-search-bar', {
                 return;
             }
 
-            const itemsInActualColumn = this.results[this.activeResultColumn].entities.length;
+            const itemsInActualColumn = Object.keys(this.results[this.activeResultColumn].entities).length;
 
             if (this.activeResultIndex === itemsInActualColumn - 1 || itemsInActualColumn < 1) {
                 if (this.activeResultColumn < this.results.length - 1) {
                     // Move to the next column if it exists
                     if (this.results[this.activeResultColumn + 1]) {
-                        this.activeResultColumn = this.activeResultColumn + 1;
+                        this.activeResultColumn += 1;
                         this.activeResultIndex = 0;
                     } else {
                         return;
@@ -455,7 +455,6 @@ Component.register('sw-search-bar', {
             } else {
                 this.activeResultIndex += 1;
             }
-
             this.setActiveResultPosition({ index: this.activeResultIndex, column: this.activeResultColumn });
             this.checkScrollPosition();
         },

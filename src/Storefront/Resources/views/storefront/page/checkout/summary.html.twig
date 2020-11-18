@@ -6,87 +6,56 @@
             {% set summary = page.order %}
         {% endif %}
 
-        <dl class="row checkout-aside-summary-list">
+        {% set displayRounded = context.totalRounding.interval != 0.01 or context.totalRounding.decimals != context.itemRounding.decimals %}
+        {% set decimals = context.totalRounding.decimals %}
+        {% set total = summary.price.totalPrice %}
+
+        {% if displayRounded %}
+            {% set decimals = context.itemRounding.decimals %}
+            {% set total = summary.price.rawTotal %}
+        {% endif %}
+
+        <dl class="row checkout-aside-summary-list no-gutters {% if displayRounded %}display-rounded{% endif %}">
             {% block page_checkout_summary_inner %}
-                {% block page_checkout_summary_position %}
-                    {% block page_checkout_summary_position_label %}
-                        <dt class="col-7 checkout-aside-summary-label">
-                            {{ "checkout.summaryPositionPrice"|trans|sw_sanitize }}
-                        </dt>
-                    {% endblock %}
 
-                    {% block page_checkout_summary_position_value %}
-                        <dd class="col-5 checkout-aside-summary-value">
-                            {{ summary.price.positionPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
-                        </dd>
-                    {% endblock %}
-                {% endblock %}
+                {% sw_include '@Storefront/storefront/page/checkout/summary/summary-position.html.twig' with { 'summary': summary } %}
 
-                {% block page_checkout_summary_shippings %}
-                    {% for delivery in summary.deliveries %}
-                        {% block page_checkout_summary_shipping %}
-                            {% block page_checkout_summary_shipping_label %}
-                                <dt class="col-7 checkout-aside-summary-label">
-                                    {{ "checkout.summaryShipping"|trans|sw_sanitize }}
-                                </dt>
-                            {% endblock %}
+                {% sw_include '@Storefront/storefront/page/checkout/summary/summary-shipping.html.twig' with { 'summary': summary } %}
 
-                            {% block page_checkout_summary_shipping_value %}
-                                <dd class="col-5 checkout-aside-summary-value">
-                                    {{ delivery.shippingCosts.totalPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
-                                </dd>
-                            {% endblock %}
-                        {% endblock %}
-                    {% endfor %}
-                {% endblock %}
+                {% if summary.price.taxStatus == 'gross' %}
+                    {% sw_include '@Storefront/storefront/page/checkout/summary/summary-total.html.twig' with {
+                        'total': total,
+                        'decimals': decimals
+                    } %}
 
-                {% block page_checkout_summary_total %}
-                    {% block page_checkout_summary_total_label %}
-                        <dt class="col-7 checkout-aside-summary-label checkout-aside-summary-total">
-                            {{ "checkout.summaryTotalPrice"|trans|sw_sanitize }}
-                        </dt>
-                    {% endblock %}
+                    {% if displayRounded %}
+                        {% sw_include '@Storefront/storefront/page/checkout/summary/summary-total-rounded.html.twig' with {
+                            'summary': summary,
+                            'decimals': context.totalRounding.decimals
+                        } %}
+                    {% endif %}
 
-                    {% block page_checkout_summary_total_value %}
-                        <dd class="col-5 checkout-aside-summary-value checkout-aside-summary-total">
-                            {{ summary.price.totalPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
-                        </dd>
-                    {% endblock %}
-                {% endblock %}
+                    {% sw_include '@Storefront/storefront/page/checkout/summary/summary-net.html.twig' with { 'summary': summary } %}
 
-                {% block page_checkout_summary_net %}
-                    {% block page_checkout_summary_net_label %}
-                        <dt class="col-7 checkout-aside-summary-label">
-                            {{ "checkout.summaryNetPrice"|trans|sw_sanitize }}
-                        </dt>
-                    {% endblock %}
+                    {% sw_include '@Storefront/storefront/page/checkout/summary/summary-tax.html.twig' with { 'summary': summary } %}
+                {% else %}
 
-                    {% block page_checkout_summary_net_value %}
-                        <dd class="col-5 checkout-aside-summary-value">
-                            {{ summary.price.netPrice|currency }}
-                        </dd>
-                    {% endblock %}
-                {% endblock %}
+                    {% sw_include '@Storefront/storefront/page/checkout/summary/summary-net.html.twig' with { 'summary': summary } %}
 
-                {% block page_checkout_summary_taxes %}
-                    {% for taxItem in summary.price.calculatedTaxes %}
-                        {% block page_checkout_summary_tax %}
-                            {% block page_checkout_summary_tax_label %}
-                                <dt class="col-7 checkout-aside-summary-label">
-                                    {{ "checkout.summaryTax"|trans({
-                                        '%rate%': taxItem.taxRate
-                                    })|sw_sanitize }}
-                                </dt>
-                            {% endblock %}
+                    {% sw_include '@Storefront/storefront/page/checkout/summary/summary-tax.html.twig' with { 'summary': summary } %}
 
-                            {% block page_checkout_summary_tax_value %}
-                                <dd class="col-5 checkout-aside-summary-value">
-                                    {{ taxItem.tax|currency }}
-                                </dd>
-                            {% endblock %}
-                        {% endblock %}
-                    {% endfor %}
-                {% endblock %}
+                    {% sw_include '@Storefront/storefront/page/checkout/summary/summary-total.html.twig' with {
+                        'total': total,
+                        'decimals': decimals
+                    } %}
+
+                    {% if displayRounded %}
+                        {% sw_include '@Storefront/storefront/page/checkout/summary/summary-total-rounded.html.twig' with {
+                            'summary': summary,
+                            'decimals': context.totalRounding.decimals
+                        } %}
+                    {% endif %}
+                {% endif %}
             {% endblock %}
         </dl>
     </div>

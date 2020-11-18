@@ -3,6 +3,7 @@ use HansOtt\PSR7Cookies\SetCookie;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
+use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Recovery\Common\HttpClient\Client;
 use Shopware\Recovery\Common\Service\JwtCertificateService;
 use Shopware\Recovery\Common\Service\SystemConfigService;
@@ -411,6 +412,7 @@ $app->any('/configuration/', function (ServerRequestInterface $request, Response
             'name' => $_SESSION['parameters']['c_config_shopName'],
             'locale' => $_SESSION['parameters']['c_config_shop_language'],
             'currency' => $_SESSION['parameters']['c_config_shop_currency'],
+            'additionalCurrencies' => empty($_SESSION['parameters']['c_available_currencies']) ? null : $_SESSION['parameters']['c_available_currencies'],
             'country' => $_SESSION['parameters']['c_config_shop_country'],
             'email' => $_SESSION['parameters']['c_config_mail'],
             'host' => $_SERVER['HTTP_HOST'],
@@ -535,6 +537,7 @@ $app->any('/database-import/importDatabase', function (ServerRequestInterface $r
 
     /** @var MigrationCollectionLoader $migrationCollectionLoader */
     $migrationCollectionLoader = $container->offsetGet('migration.collection.loader');
+    $_SERVER[MigrationStep::INSTALL_ENVIRONMENT_VARIABLE] = true;
 
     $coreMigrations = $migrationCollectionLoader->collect('core');
 

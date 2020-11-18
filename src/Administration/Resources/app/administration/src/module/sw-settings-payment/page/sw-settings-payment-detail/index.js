@@ -13,10 +13,15 @@ Component.register('sw-settings-payment-detail', {
         Mixin.getByName('placeholder')
     ],
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     shortcuts: {
-        'SYSTEMKEY+S': 'onSave',
+        'SYSTEMKEY+S': {
+            active() {
+                return this.acl.can('payment.editor');
+            },
+            method: 'onSave'
+        },
         ESCAPE: 'onCancel'
     },
 
@@ -62,6 +67,13 @@ Component.register('sw-settings-payment-detail', {
         },
 
         tooltipSave() {
+            if (!this.acl.can('payment.editor')) {
+                return {
+                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    disabled: this.acl.can('payment.editor'),
+                    showOnDisabledElements: true
+                };
+            }
             const systemKey = this.$device.getSystemKey();
 
             return {
@@ -143,10 +155,9 @@ Component.register('sw-settings-payment-detail', {
         },
 
         onSave() {
-            const paymentMethodName = this.paymentMethod.name || this.placeholder(this.paymentMethod, 'name');
             const titleSaveError = this.$tc('global.default.error');
             const messageSaveError = this.$tc(
-                'global.notification.notificationSaveErrorMessage', 0, { entityName: paymentMethodName }
+                'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'
             );
             this.isSaveSuccessful = false;
             this.isLoading = true;

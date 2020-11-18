@@ -24,6 +24,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry"/>
             <argument type="service" id="order_transaction.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
+            <argument type="service" id="logger"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Payment\Controller\PaymentController" public="true">
@@ -96,12 +97,11 @@
         <!-- Sales Channel API -->
         <service id="Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute" public="true">
             <argument type="service" id="sales_channel.payment_method.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
-            <argument type="service" id="Shopware\Core\Checkout\Payment\SalesChannel\SalesChannelPaymentMethodDefinition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Payment\SalesChannel\HandlePaymentMethodRoute" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Payment\PaymentService"/>
+            <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
         </service>
     </services>
 </container>

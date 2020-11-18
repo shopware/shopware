@@ -6,8 +6,9 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
 use Shopware\Core\Content\Newsletter\Exception\NewsletterRecipientNotFoundException;
-use Shopware\Core\Content\Newsletter\NewsletterSubscriptionService;
-use Shopware\Core\Content\Newsletter\NewsletterSubscriptionServiceInterface;
+use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterConfirmRoute;
+use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
+use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterUnsubscribeRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -36,7 +37,9 @@ class NewsletterRecipientServiceTest extends TestCase
 
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
-        $this->getService()->subscribe($dataBag, $context);
+
+        $this->getContainer()->get(NewsletterSubscribeRoute::class)
+            ->subscribe($dataBag, $context, false);
     }
 
     public function dataProvider_testSubscribeNewsletterExpectsConstraintViolationException(): array
@@ -83,6 +86,7 @@ class NewsletterRecipientServiceTest extends TestCase
         $this->installTestData();
         $email = 'valid@email.foo';
         $dataBag = new RequestDataBag([
+            'storefrontUrl' => '',
             'email' => $email,
             'salutationId' => 'ad165c1faac14059832b6258ac0a7339',
             'baseUrl' => '',
@@ -121,7 +125,9 @@ class NewsletterRecipientServiceTest extends TestCase
 
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), $id);
-        $this->getService()->subscribe($dataBag, $context);
+        $this->getContainer()
+            ->get(NewsletterSubscribeRoute::class)
+            ->subscribe($dataBag, $context, false);
 
         /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('newsletter_recipient.repository');
@@ -144,7 +150,9 @@ class NewsletterRecipientServiceTest extends TestCase
 
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
-        $this->getService()->confirm($dataBag, $context);
+        $this->getContainer()
+            ->get(NewsletterConfirmRoute::class)
+            ->confirm($dataBag, $context);
     }
 
     public function testConfirmSubscribeNewsletterExpectsConstraintViolationException(): void
@@ -157,7 +165,9 @@ class NewsletterRecipientServiceTest extends TestCase
 
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
-        $this->getService()->confirm($dataBag, $context);
+        $this->getContainer()
+            ->get(NewsletterConfirmRoute::class)
+            ->confirm($dataBag, $context);
     }
 
     public function testConfirmSubscribeNewsletterExpectedUpdatedDatabaseRow(): void
@@ -175,7 +185,9 @@ class NewsletterRecipientServiceTest extends TestCase
         $property = ReflectionHelper::getProperty(Context::class, 'languageIdChain');
         $property->setValue($context, [Defaults::LANGUAGE_SYSTEM]);
 
-        $this->getService()->confirm($dataBag, $context);
+        $this->getContainer()
+            ->get(NewsletterConfirmRoute::class)
+            ->confirm($dataBag, $context);
 
         /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('newsletter_recipient.repository');
@@ -189,7 +201,7 @@ class NewsletterRecipientServiceTest extends TestCase
         static::assertInstanceOf(NewsletterRecipientEntity::class, $result);
         static::assertNotNull($result->getConfirmedAt());
         static::assertSame((new \DateTime())->format('y-m-d'), $result->getConfirmedAt()->format('y-m-d'));
-        static::assertSame(NewsletterSubscriptionServiceInterface::STATUS_OPT_IN, $result->getStatus());
+        static::assertSame('optIn', $result->getStatus());
     }
 
     public function testUnsubscribeNewsletterExpectsNewsletterRecipientNotFoundException(): void
@@ -206,7 +218,9 @@ class NewsletterRecipientServiceTest extends TestCase
 
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
-        $this->getService()->unsubscribe($dataBag, $context);
+        $this->getContainer()
+            ->get(NewsletterUnsubscribeRoute::class)
+            ->unsubscribe($dataBag, $context);
     }
 
     public function testConfirmSubscribeNewsletterExpectsUpdatedDatabaseRow(): void
@@ -222,7 +236,9 @@ class NewsletterRecipientServiceTest extends TestCase
 
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
-        $this->getService()->unsubscribe($dataBag, $context);
+        $this->getContainer()
+            ->get(NewsletterUnsubscribeRoute::class)
+            ->unsubscribe($dataBag, $context);
 
         /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('newsletter_recipient.repository');
@@ -255,10 +271,5 @@ class NewsletterRecipientServiceTest extends TestCase
 
         $templateSql = file_get_contents(__DIR__ . '/../fixtures/template.sql');
         $this->getContainer()->get(Connection::class)->exec($templateSql);
-    }
-
-    private function getService(): NewsletterSubscriptionService
-    {
-        return $this->getContainer()->get(NewsletterSubscriptionService::class);
     }
 }

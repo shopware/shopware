@@ -1,0 +1,19 @@
+{#
+
+Notice for plugins and theme developer:     Do not extend this template!
+
+This template will be rendered over the `block` function.
+Templates which are rendered over the `block` function can not be extended.
+Instead of extending this template, simply extend the `base.html.twig` (or the document specific template) and override the block you want.
+All blocks of this template are available in the template which renders this template over the `block` function.
+
+#}
+
+{% block table_close %}
+    {# opened in table_open.html.twig #}
+        {% if config.displayLineItems %}
+                    </table>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

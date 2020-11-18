@@ -1,33 +1,10 @@
+<!--- @deprecated tag:v6.4.0 -->
+
 CHANGELOG for 6.2.x
 ===================
+This file is **deprecated** and no longer in use. You will find the changelog in the [main changelog file](CHANGELOG.md).
 
-This changelog references the relevant changes (bug and security fixes) done
-in 6.2 minor versions.
-
-To get the diff for a specific change, go to https://github.com/shopware/platform/commit/XXX where XXX is the change hash
-To get the diff between two versions, go to https://github.com/shopware/platform/compare/v6.1.0...6.2
-
-### 6.2.4
-
-**Addition / Changes**
-    
-* Administration
-    * Fixed active state in the flyout navigation
-    * Fixed `sw-modal` styles for `variant="full"` to stay at fullpage size
-    * Custom fields assigned to a category entity can now also be configured in categories of type "link"
-    * Added block `sw_customer_list_sidebar_filter_items` to `sw-customer-list` allow easier adding filters to the sidebar
-    * Added block `sw_corder_list_sidebar_filter_items` to `sw-order-list` allow easier adding filters to the sidebar
-
-* Core
-    * Added `ProductCartProcessor::ALLOW_PRODUCT_LABEL_OVERWRITES`
-    * Added `user:change-password` command to set the password of an administration user
-    * Added `HttpCacheGenerateKeyEvent` to allow changing the hash
-    
-* Storefront
-    * Deprecated twig variable `accounTypeRequired` in `address-form.html.twig`, use `accountTypeRequired` instead
-    * Fixed property sorting for multi language shops
-    * Added an additional class to the cart offcanvas called `cart-offcanvas`
-    * Added all language flags according to language packs
+If you want to learn more about writing or using the changelog, have a look [here](/adr/2020-08-03-Implement-New-Changelog.md). 
 
 ### 6.2.3
 
@@ -114,7 +91,6 @@ To get the diff between two versions, go to https://github.com/shopware/platform
         * `sw_product_detail_sidebar`
         * `sw_product_detail_sidebar_additional_items`
     * Fixed snippet merging when plugins override existing snippets, which already exist in that specific locale 
- 
     * Fixed the administration multi-inheritance if a component was overriden and extended by multiple components
     * Added new filterable field to `sw-property-list` and `sw-property-filter`
     * Added string for `packUnitPlural` to `sw-product-stream/snippet/en-EN.json` and `sw-product-stream/snippet/de-DE.json` 
@@ -690,6 +666,8 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Added `definition` parameter in `\Shopware\Elasticsearch\Framework\ElasticsearchHelper::addTerm`
     * Deprecated `\Shopware\Storefront\Controller\SearchController::pagelet`, use `\Shopware\Storefront\Controller\SearchController::ajax` instead
     * Deprecated `widgets.search.pagelet` route, use `widgets.search.pagelet.v2` instead
+    * Added `definition` parameter in `\Shopware\Elasticsearch\Framework\ElasticsearchHelper::addTerm` 
+    * Allow additional sorting after the `_score` sorting when using a search term or score query in `\Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria`
 
 * Storefront
     * Added `\Shopware\Core\Framework\Api\Controller\CaptchaController` which provides a list of all available captchas to the administration
@@ -896,15 +874,3 @@ To get the diff between two versions, go to https://github.com/shopware/platform
     * Deprecated `page_checkout_confirm_payment_cancel` in `src/Storefront/Resources/views/storefront/page/checkout/confirm/confirm-payment.html.twig`
     * Deprecated `window.accessKey` and `window.contextToken`, the variables contains now an empty string
     * Removed `HttpClient()` constructor parameters in `src/Storefront/Resources/app/storefront/src/service/http-client.service.js`
-
-
-### 6.2.1
-
-**Addition / Changes**
-
-* Administration
-    * Added `zIndex` prop on `sw-context-button` component, to allow overriding the default z-index
-    * Fix timezone of `orderDate` in ordergrid
-    * Added image lazy loading capability to the `ZoomModalPlugin` which allows to load images only if the zoom modal was opened
-    * Fix wrong behavior in `AddToCartPlugin` if user clicks on add to cart button before the js plugin is completely loaded
-    

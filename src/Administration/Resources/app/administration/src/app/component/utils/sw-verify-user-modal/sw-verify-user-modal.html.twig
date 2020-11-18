@@ -1,0 +1,39 @@
+{% block sw_settings_user_detail_content_confirm_password_modal %}
+    <sw-modal @modal-close="onCloseConfirmPasswordModal"
+              :title="$tc('sw-settings-user.user-detail.passwordConfirmation.titleConfirmPasswordModal')"
+              variant="small">
+
+        {% block sw_settings_user_detail_content_confirm_password_modal_input__confirm_password %}
+            <sw-password-field
+                class="sw-settings-user-detail__confirm-password"
+                v-model="confirmPassword"
+                name="sw-field--confirm-password"
+                :passwordToggleAble="true"
+                :copyAble="false"
+                @keypress.enter="onSubmitConfirmPassword"
+                :label="$tc('sw-settings-user.user-detail.passwordConfirmation.labelConfirmPassword')"
+                :placeholder="$tc('sw-settings-user.user-detail.passwordConfirmation.placeholderConfirmPassword')">
+            </sw-password-field>
+        {% endblock %}
+
+        {% block sw_settings_user_detail_content_confirm_password_modal_footer %}
+            <template #modal-footer>
+                {% block sw_settings_user_detail_content_confirm_password_modal_actions_cancel %}
+                    <sw-button @click="onCloseConfirmPasswordModal"
+                               size="small">
+                        {{ $tc('sw-settings-user.user-detail.passwordConfirmation.labelButtonCancel') }}
+                    </sw-button>
+                {% endblock %}
+
+                {% block sw_settings_user_detail_content_confirm_password_modal_actions_change %}
+                    <sw-button @click="onSubmitConfirmPassword"
+                               variant="primary"
+                               :disabled="!confirmPassword"
+                               size="small">
+                        {{ $tc('sw-settings-user.user-detail.passwordConfirmation.labelButtonConfirm') }}
+                    </sw-button>
+                {% endblock %}
+            </template>
+        {% endblock %}
+    </sw-modal>
+{% endblock %}

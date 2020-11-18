@@ -32,7 +32,17 @@
         {% block sw_promotion_list_smart_bar_actions %}
             <template slot="smart-bar-actions">
                 {% block sw_promotion_list_smart_bar_actions_add %}
-                    <sw-button :routerLink="{ name: 'sw.promotion.create' }" variant="primary">
+                    <sw-button
+                        class="sw-promotion-list__button-add-promotion"
+                        :routerLink="{ name: 'sw.promotion.create' }"
+                        :disabled="!acl.can('promotion.creator')"
+                        v-tooltip="{
+                            message: $tc('sw-privileges.tooltip.warning'),
+                            disabled: acl.can('promotion.creator'),
+                            showOnDisabledElements: true,
+                            position: 'bottom'
+                        }"
+                        variant="primary">
                         {{ $tc('sw-promotion.list.buttonAddPromotion') }}
                     </sw-button>
                 {% endblock %}
@@ -47,15 +57,20 @@
             {% block sw_promotion_list_content %}
                 <div class="sw-promotion-list__content">
                     {% block sw_promotion_list_grid %}
-                        <sw-entity-listing :repository="promotionRepository"
-                                           :columns="promotionColumns"
-                                           :items="promotions"
-                                           detailRoute="sw.promotion.detail"
-                                           :isLoading="isLoading"
-                                           allowInlineEdit
-                                           allowColumnEdit
-                                           fullPage
-                                           @update-records="updateTotal">
+                        <sw-entity-listing
+                            :repository="promotionRepository"
+                            :columns="promotionColumns"
+                            :items="promotions"
+                            detailRoute="sw.promotion.detail"
+                            :isLoading="isLoading"
+                            :allowInlineEdit="acl.can('promotion.editor')"
+                            :showSelection="acl.can('promotion.deleter')"
+                            :allowEdit="acl.can('promotion.editor')"
+                            :allowView="acl.can('promotion.viewer')"
+                            allowColumnEdit
+                            fullPage
+                            @selection-change="updateSelection"
+                            @update-records="updateTotal">
 
                             {% block sw_promotion_list_grid_columns %}
                                 {% block sw_promotion_list_grid_columns_active %}
@@ -79,7 +94,10 @@
                             {% endblock %}
 
                             <template #delete-action="{ item, showDelete }">
-                                <sw-context-menu-item @click="showDelete(item.id)" :disabled="item.hasOrders" variant="danger">
+                                <sw-context-menu-item
+                                    @click="showDelete(item.id)"
+                                    :disabled="item.hasOrders || !acl.can('promotion.deleter')"
+                                    variant="danger">
                                     {{ $tc('global.default.delete') }}
                                 </sw-context-menu-item>
                             </template>

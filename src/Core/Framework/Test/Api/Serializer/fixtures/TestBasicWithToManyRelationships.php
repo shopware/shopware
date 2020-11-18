@@ -21,7 +21,7 @@ class TestBasicWithToManyRelationships extends SerializationFixture
         $user->setActive(true);
         $user->setAdmin(true);
         $user->setEmail('user1@shop.de');
-        $user->setCreatedAt(new \DateTime('2018-01-15T08:01:16+00:00'));
+        $user->setCreatedAt(new \DateTime('2018-01-15T08:01:16.000+00:00'));
         $user->internalSetEntityName('user');
 
         $media = new MediaEntity();
@@ -31,8 +31,8 @@ class TestBasicWithToManyRelationships extends SerializationFixture
         $media->setFileExtension('jpg');
         $media->setFileSize(93889);
         $media->setTitle('2');
-        $media->setCreatedAt(new \DateTime('2012-08-31T00:00:00+00:00'));
-        $media->setUpdatedAt(new \DateTime('2017-11-21T11:25:34+00:00'));
+        $media->setCreatedAt(new \DateTime('2012-08-31T00:00:00.000+00:00'));
+        $media->setUpdatedAt(new \DateTime('2017-11-21T11:25:34.000+00:00'));
         $media->setUser(clone $user);
         $media->internalSetEntityName('media');
         $mediaCollection = new MediaCollection([$media]);
@@ -56,9 +56,10 @@ class TestBasicWithToManyRelationships extends SerializationFixture
                     'email' => 'user1@shop.de',
                     'active' => true,
                     'customFields' => null,
-                    'createdAt' => '2018-01-15T08:01:16+00:00',
+                    'createdAt' => '2018-01-15T08:01:16.000+00:00',
                     'updatedAt' => null,
                     'admin' => true,
+                    'title' => null,
                 ],
                 'links' => [
                     'self' => sprintf('%s/user/6f51622eb3814c75ae0263cece27ce72', $baseUrl),
@@ -134,8 +135,8 @@ class TestBasicWithToManyRelationships extends SerializationFixture
                         'fileSize' => 93889,
                         'metaData' => null,
                         'mediaType' => null,
-                        'createdAt' => '2012-08-31T00:00:00+00:00',
-                        'updatedAt' => '2017-11-21T11:25:34+00:00',
+                        'createdAt' => '2012-08-31T00:00:00.000+00:00',
+                        'updatedAt' => '2017-11-21T11:25:34.000+00:00',
                         'alt' => null,
                         'title' => '2',
                         'url' => '',
@@ -290,7 +291,7 @@ class TestBasicWithToManyRelationships extends SerializationFixture
             'email' => 'user1@shop.de',
             'active' => true,
             'customFields' => null,
-            'createdAt' => '2018-01-15T08:01:16+00:00',
+            'createdAt' => '2018-01-15T08:01:16.000+00:00',
             'updatedAt' => null,
             'media' => [
                 [
@@ -304,8 +305,8 @@ class TestBasicWithToManyRelationships extends SerializationFixture
                     'fileSize' => 93889,
                     'metaData' => null,
                     'mediaType' => null,
-                    'createdAt' => '2012-08-31T00:00:00+00:00',
-                    'updatedAt' => '2017-11-21T11:25:34+00:00',
+                    'createdAt' => '2012-08-31T00:00:00.000+00:00',
+                    'updatedAt' => '2017-11-21T11:25:34.000+00:00',
                     'alt' => null,
                     'title' => '2',
                     'url' => '',
@@ -333,10 +334,11 @@ class TestBasicWithToManyRelationships extends SerializationFixture
                         '_uniqueIdentifier' => '6f51622eb3814c75ae0263cece27ce72',
                         'versionId' => null,
                         'translated' => [],
-                        'createdAt' => '2018-01-15T08:01:16+00:00',
+                        'createdAt' => '2018-01-15T08:01:16.000+00:00',
                         'updatedAt' => null,
                         'extensions' => [],
                         'admin' => true,
+                        'title' => null,
                         'aclRoles' => null,
                         'apiAlias' => 'user',
                     ],
@@ -376,6 +378,7 @@ class TestBasicWithToManyRelationships extends SerializationFixture
             'translated' => [],
             'extensions' => [],
             'admin' => true,
+            'title' => null,
             'aclRoles' => null,
             'apiAlias' => 'user',
         ];

@@ -36,13 +36,14 @@ For general admin user interaction you can use app action buttons.
 
 >What about Errorhandling?
 
-Once the the app system is running asynchronous it will come with retry logic. 
+Once the app system is running asynchronous it will come with retry logic. 
 Should the request to the app fail there is no need to manually retry it, it will be automatically retried 
 by the message system in the Shopware core.
 
 >Can we use the app system into Community Edition?
 
-Yes, you just install the app system plugin and you are ready to go:
+Yes, since shopware 6.3.3.0 the app-system is directly built into the shopware core.
+If you run an older version of shopware you can install the app system plugin and you are ready to go:
 https://github.com/shopware/app-system
 
 
@@ -84,3 +85,9 @@ as powerful as they can be.
 >Can app developers use platform.sh for free?
 
 There is a free trial period for new customers of platform.sh.
+
+
+>How can i identify the shop, when i send request directly from the storefront to my app backends?
+
+You can use the twig variable `swagShopId` for this use case. This is the same shopId that is send with every request the Shopware backend makes against your app backend.
+However keep in mind that this variable may be null, for example when the shop is running under a different URL, than the one it registered your app with.

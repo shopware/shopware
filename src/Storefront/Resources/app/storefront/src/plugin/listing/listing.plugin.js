@@ -5,6 +5,7 @@ import DomAccess from 'src/helper/dom-access.helper';
 import querystring from 'query-string';
 import ElementReplaceHelper from 'src/helper/element-replace.helper';
 import HistoryUtil from 'src/utility/history/history.util';
+import Debouncer from 'src/helper/debouncer.helper';
 
 export default class ListingPlugin extends Plugin {
 
@@ -14,6 +15,7 @@ export default class ListingPlugin extends Plugin {
         params: {},
         filterPanelSelector: '.filter-panel',
         cmsProductListingSelector: '.cms-element-product-listing',
+        cmsProductListingWrapperSelector: '.cms-element-product-listing-wrapper',
         activeFilterContainerSelector: '.filter-panel-active-container',
         activeFilterLabelClass: 'filter-active',
         activeFilterLabelRemoveClass: 'filter-active-remove',
@@ -21,9 +23,15 @@ export default class ListingPlugin extends Plugin {
         resetAllFilterButtonClasses: 'filter-reset-all btn btn-sm btn-outline-danger',
         resetAllFilterButtonSelector: '.filter-reset-all',
         loadingIndicatorClass: 'is-loading',
+        loadingElementLoaderClass: 'has-element-loader',
+        disableEmptyFilter: false,
         snippets: {
             resetAllButtonText: 'Reset all'
-        }
+        },
+        //if the window should be scrolled to top of to the listingWrapper element
+        scrollTopListingWrapper: true,
+        // how much px the scrolling should be offset
+        scrollOffset: 15
     };
 
     init() {
@@ -44,6 +52,11 @@ export default class ListingPlugin extends Plugin {
                 this.options.activeFilterContainerSelector
             );
         }
+
+        this._cmsProductListingWrapper = DomAccess.querySelector(document, this.options.cmsProductListingWrapperSelector, false);
+        this._cmsProductListingWrapperActive = !!this._cmsProductListingWrapper;
+
+        this._allFiltersInitializedDebounce = Debouncer.debounce(this.sendDisabledFiltersRequest.bind(this), 100);
     }
 
     /**
@@ -82,6 +95,10 @@ export default class ListingPlugin extends Plugin {
         this._registry.push(filterItem);
 
         this._setFilterState(filterItem);
+
+        if (this.options.disableEmptyFilter) {
+            this._allFiltersInitializedDebounce();
+        }
     }
 
     _setFilterState(filterItem) {
@@ -109,14 +126,14 @@ export default class ListingPlugin extends Plugin {
     /**
      * @private
      */
-    _buildRequest() {
+    _fetchValuesOfRegisteredFilters() {
         const filters = {};
 
         this._registry.forEach((filterPlugin) => {
             const values = filterPlugin.getValues();
 
             Object.keys(values).forEach((key) => {
-                if (filters.hasOwnProperty(key)) {
+                if (Object.prototype.hasOwnProperty.call(filters, key)) {
                     Object.values(values[key]).forEach((value) => {
                         filters[key].push(value);
                     });
@@ -126,6 +143,13 @@ export default class ListingPlugin extends Plugin {
             });
         });
 
+        return filters;
+    }
+
+    /**
+     * @private
+     */
+    _mapFilters(filters) {
         const mapped = {};
         Object.keys(filters).forEach((key) => {
             let value = filters[key];
@@ -139,6 +163,16 @@ export default class ListingPlugin extends Plugin {
                 mapped[key] = value;
             }
         });
+
+        return mapped;
+    }
+
+    /**
+     * @private
+     */
+    _buildRequest() {
+        const filters = this._fetchValuesOfRegisteredFilters();
+        const mapped = this._mapFilters(filters);
 
         if (this._filterPanelActive) {
             this._showResetAll = !!Object.keys(mapped).length;
@@ -160,6 +194,35 @@ export default class ListingPlugin extends Plugin {
         query = querystring.stringify(mapped);
 
         this._updateHistory(query);
+
+        if (this.options.scrollTopListingWrapper) {
+            this._scrollTopOfListing();
+        }
+    }
+
+    _scrollTopOfListing() {
+        const elemRect = this._cmsProductListingWrapper.getBoundingClientRect();
+        if (elemRect.top >= 0) {
+            return;
+        }
+
+        const top = elemRect.top + window.scrollY - this.options.scrollOffset;
+        window.scrollTo({
+            top: top,
+            behavior: 'smooth'
+        });
+    }
+
+    /**
+     * @private
+     */
+    _getDisabledFiltersParamsFromParams(params) {
+        const filterParams = Object.assign({}, {'only-aggregations': 1, 'reduce-aggregations': 1}, params);
+        delete filterParams['p'];
+        delete filterParams['order'];
+        delete filterParams['no-aggregations'];
+
+        return filterParams;
     }
 
     _updateHistory(query) {
@@ -309,6 +372,20 @@ export default class ListingPlugin extends Plugin {
     }
 
     /**
+     * Add classes to add loading styling for product listing
+     */
+    addLoadingElementLoaderClass() {
+        this._cmsProductListingWrapper.classList.add(this.options.loadingElementLoaderClass);
+    }
+
+    /**
+     * Remove loading styling classes for product listing
+     */
+    removeLoadingElementLoaderClass() {
+        this._cmsProductListingWrapper.classList.remove(this.options.loadingElementLoaderClass);
+    }
+
+    /**
      * Send request to get filtered product data.
      *
      * @param {String} filterParams - active filters as querystring
@@ -318,13 +395,52 @@ export default class ListingPlugin extends Plugin {
             this.addLoadingIndicatorClass();
         }
 
-        this.httpClient.abort();
+        if (this._cmsProductListingWrapperActive) {
+            this.addLoadingElementLoaderClass();
+        }
+
+        if (this.options.disableEmptyFilter) {
+            this.sendDisabledFiltersRequest();
+        }
+
         this.httpClient.get(`${this.options.dataUrl}?${filterParams}`, (response) => {
             this.renderResponse(response);
 
             if (this._filterPanelActive) {
                 this.removeLoadingIndicatorClass();
             }
+
+            if (this._cmsProductListingWrapperActive) {
+                this.removeLoadingElementLoaderClass();
+            }
+        });
+    }
+
+    /**
+     * Send request to get disabled filters data
+     */
+    sendDisabledFiltersRequest() {
+        const filters = this._fetchValuesOfRegisteredFilters();
+        const mapped = this._mapFilters(filters);
+        if (this.options.params) {
+            Object.keys(this.options.params).forEach((key) => {
+                mapped[key] = this.options.params[key];
+            });
+        }
+
+        // unset the debounce function after first execution
+        this._allFiltersInitializedDebounce = () => {};
+
+        const filterParams = this._getDisabledFiltersParamsFromParams(mapped);
+
+        this.httpClient.get(`${this.options.filterUrl}?${querystring.stringify(filterParams)}`, (response) => {
+            const filter =  JSON.parse(response);
+
+            this._registry.forEach((item) => {
+                if (typeof item.refreshDisabledState === 'function') {
+                    item.refreshDisabledState(filter, filterParams);
+                }
+            });
         });
     }
 

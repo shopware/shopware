@@ -7,6 +7,8 @@ const { hasOwnProperty } = Shopware.Utils.object;
 Component.register('sw-settings-index', {
     template,
 
+    inject: ['acl'],
+
     metaInfo() {
         return {
             title: this.$createTitle()
@@ -31,10 +33,13 @@ Component.register('sw-settings-index', {
            see ./sw-settings-index.html.twig
         */
         defaultSettingsGroups() {
-            const settingsGroups = this.settingsGroups;
             return {
-                shop: settingsGroups.shop,
-                system: settingsGroups.system
+                shop: this.settingsGroups.shop
+                    ? this.settingsGroups.shop.filter(setting => this.acl.can(setting.privilege))
+                    : [],
+                system: this.settingsGroups.system
+                    ? this.settingsGroups.system.filter(setting => this.acl.can(setting.privilege))
+                    : []
             };
         },
 
@@ -44,7 +49,16 @@ Component.register('sw-settings-index', {
          */
         pluginSettingsGroup() {
             const settingsGroups = this.settingsGroups;
-            return hasOwnProperty(settingsGroups, 'plugins') ? settingsGroups.plugins : [];
+
+            if (!hasOwnProperty(settingsGroups, 'plugins')) {
+                return [];
+            }
+
+            return settingsGroups.plugins.filter(setting => this.acl.can(setting.privilege));
+        },
+
+        pluginSettingsGroupExist() {
+            return this.pluginSettingsGroup.length > 0;
         }
     },
 
@@ -53,6 +67,10 @@ Component.register('sw-settings-index', {
             return (hasOwnProperty(this.settingsGroups, 'plugins') && this.settingsGroups.plugins.length > 0)
                 // @deprecated tag:v6.4.0
                 || (this.$refs.pluginConfig && this.$refs.pluginConfig.childElementCount > 0);
+        },
+
+        shouldSettingGroupExist(settingsGroup) {
+            return this.defaultSettingsGroups[settingsGroup] && this.defaultSettingsGroups[settingsGroup].length > 0;
         }
     }
 });

@@ -1,12 +1,11 @@
-import LocalStore from 'src/core/data/LocalStore';
 import template from './sw-custom-field-detail-base.html.twig';
 
-const { Component, StateDeprecated } = Shopware;
+const { Component } = Shopware;
 
 Component.register('sw-custom-field-set-detail-base', {
     template,
 
-    inject: ['customFieldDataProviderService'],
+    inject: ['customFieldDataProviderService', 'acl'],
 
     props: {
         set: {
@@ -22,8 +21,7 @@ Component.register('sw-custom-field-set-detail-base', {
         return {
             propertyNames: {
                 label: this.$tc('sw-settings-custom-field.customField.detail.labelLabel')
-            },
-            entityNameStore: {}
+            }
         };
     },
 
@@ -35,11 +33,52 @@ Component.register('sw-custom-field-set-detail-base', {
 
             return [this.$root.$i18n.fallbackLocale];
         },
-        localeStore() {
-            return StateDeprecated.getStore('locale');
+
+        customFieldSetRelationRepository() {
+            if (!this.set.relations) {
+                return undefined;
+            }
+
+            return Shopware.Service('repositoryFactory').create(
+                this.set.relations.entity,
+                this.set.relations.source
+            );
         },
-        customFieldSetRelationStore() {
-            return this.set.getAssociation('relations');
+
+        selectedRelationEntityNames() {
+            if (!this.set.relations) {
+                return [];
+            }
+
+            return this.set.relations.map(relation => relation.entityName);
+        },
+
+        relationEntityNames() {
+            if (!this.set.relations) {
+                return [];
+            }
+
+            const entityNames = this.customFieldDataProviderService.getEntityNames();
+
+            return entityNames.map(entityName => {
+                const relation = this.customFieldSetRelationRepository.create();
+                relation.entityName = entityName;
+                this.$set(relation, 'searchField', {});
+
+                Object.keys(this.$root.$i18n.messages).forEach(locale => {
+                    if (!this.$te(`global.entities.${entityName}`)) {
+                        return;
+                    }
+
+                    this.$set(
+                        relation.searchField,
+                        locale,
+                        this.$tc(`global.entities.${entityName}`, 2, locale)
+                    );
+                });
+
+                return relation;
+            });
         }
     },
 
@@ -48,29 +87,33 @@ Component.register('sw-custom-field-set-detail-base', {
     },
 
     methods: {
-        createdComponent() {
-            this.createEntityNameStore();
+        // @deprecated tag:v6.4.0
+        createdComponent() {},
+
+        onAddRelation(relation) {
+            this.set.relations.push(relation);
         },
-        createEntityNameStore() {
-            const entityNames = this.customFieldDataProviderService.getEntityNames();
-            const entityNameStoreEntities = [];
 
-            entityNames.forEach((name) => {
-                let entity = this.customFieldSetRelationStore.create();
-                this.customFieldSetRelationStore.removeById(entity.id);
-                entity.entityName = name;
-                const searchField = { name: name };
-                Object.keys(this.$root.$i18n.messages).forEach(locale => {
-                    if (this.$te(`global.entities.${name}`)) {
-                        searchField[locale] = this.$tc(`global.entities.${name}`, 2, locale);
-                    }
-                });
-
-                entity = Object.assign({}, entity, { searchField: searchField });
-                entityNameStoreEntities.push(entity);
+        onRemoveRelation(relationToRemove) {
+            const matchingRelation = this.set.relations.find(relation => {
+                return relation.entityName === relationToRemove.entityName;
             });
 
-            this.entityNameStore = new LocalStore(entityNameStoreEntities, 'id', 'searchField');
+            if (!matchingRelation) {
+                return;
+            }
+
+            this.set.relations.remove(matchingRelation.id);
+        },
+
+        searchRelationEntityNames({ options, searchTerm }) {
+            const lowerSearchTerm = searchTerm.toLowerCase();
+
+            return options.filter(option => {
+                return Object.values(option.searchField).some(label => {
+                    return label.toLowerCase().includes(lowerSearchTerm);
+                });
+            });
         }
     }
 });

@@ -85,9 +85,4 @@ class PromotionDiscountPriceEntity extends Entity
     {
         $this->promotionDiscount = $promotionDiscount;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'promotion_discount_price';
-    }
 }

@@ -54,17 +54,24 @@ class Migration1580746806AddPaymentStates extends MigrationStep
 
         $germanId = $this->fetchLanguageId('de-DE', $connection);
 
-        $englishId = $this->fetchLanguageId('en-GB', $connection);
+        $defaultLangId = $this->fetchLanguageId('en-GB', $connection);
 
+        $translationEN = [];
+        if ($defaultLangId !== $germanId) {
+            $translationEN = ['language_id' => $defaultLangId, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)];
+        }
         $translationDE = [];
         if ($germanId) {
             $translationDE = ['language_id' => $germanId, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)];
         }
-        $translationEN = ['language_id' => $englishId, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)];
 
         // states
         $connection->insert('state_machine_state', ['id' => $stateInProgressId, 'state_machine_id' => $stateMachineId, 'technical_name' => OrderTransactionStates::STATE_IN_PROGRESS, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
-        $connection->insert('state_machine_state_translation', array_merge($translationEN, ['state_machine_state_id' => $stateInProgressId, 'name' => 'In Progress']));
+
+        if ($defaultLangId !== $germanId) {
+            $connection->insert('state_machine_state_translation', array_merge($translationEN, ['state_machine_state_id' => $stateInProgressId, 'name' => 'In Progress']));
+        }
+
         if ($germanId) {
             $connection->insert(
                 'state_machine_state_translation',
@@ -76,7 +83,10 @@ class Migration1580746806AddPaymentStates extends MigrationStep
         }
 
         $connection->insert('state_machine_state', ['id' => $stateFailedId, 'state_machine_id' => $stateMachineId, 'technical_name' => OrderTransactionStates::STATE_FAILED, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
-        $connection->insert('state_machine_state_translation', array_merge($translationEN, ['state_machine_state_id' => $stateFailedId, 'name' => 'Failed']));
+        if ($defaultLangId !== $germanId) {
+            $connection->insert('state_machine_state_translation', array_merge($translationEN, ['state_machine_state_id' => $stateFailedId, 'name' => 'Failed']));
+        }
+
         if ($germanId) {
             $connection->insert(
                 'state_machine_state_translation',
@@ -91,16 +101,16 @@ class Migration1580746806AddPaymentStates extends MigrationStep
         $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => StateMachineTransitionActions::ACTION_CANCEL, 'from_state_id' => $stateInProgressId, 'to_state_id' => $stateCancelledId, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
         $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'paid', 'from_state_id' => $stateInProgressId, 'to_state_id' => $statePaidId, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
         $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'paid_partially', 'from_state_id' => $stateInProgressId, 'to_state_id' => $statePaidPartiallyId, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
-        $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => StateMachineTransitionActions::ACTION_PAY_PARTIALLY, 'from_state_id' => $stateInProgressId, 'to_state_id' => $statePaidPartiallyId, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
+        $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'pay_partially', 'from_state_id' => $stateInProgressId, 'to_state_id' => $statePaidPartiallyId, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
 
         // from "failed" to *
         $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => StateMachineTransitionActions::ACTION_REOPEN, 'from_state_id' => $stateFailedId, 'to_state_id' => $stateOpenId, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
         $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'do_pay', 'from_state_id' => $stateFailedId, 'to_state_id' => $stateInProgressId, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
-        $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => StateMachineTransitionActions::ACTION_PAY, 'from_state_id' => $stateFailedId, 'to_state_id' => $statePaidId, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
+        $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'pay', 'from_state_id' => $stateFailedId, 'to_state_id' => $statePaidId, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
         $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'fail', 'from_state_id' => $stateFailedId, 'to_state_id' => $stateFailedId, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
         $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'paid', 'from_state_id' => $stateFailedId, 'to_state_id' => $statePaidId, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
         $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'paid_partially', 'from_state_id' => $stateFailedId, 'to_state_id' => $statePaidPartiallyId, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
-        $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => StateMachineTransitionActions::ACTION_PAY_PARTIALLY, 'from_state_id' => $stateFailedId, 'to_state_id' => $statePaidPartiallyId, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
+        $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'pay_partially', 'from_state_id' => $stateFailedId, 'to_state_id' => $statePaidPartiallyId, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
 
         // from "open" to *
         $connection->insert('state_machine_transition', ['id' => Uuid::randomBytes(), 'state_machine_id' => $stateMachineId, 'action_name' => 'do_pay', 'from_state_id' => $stateOpenId, 'to_state_id' => $stateInProgressId, 'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)]);
@@ -128,8 +138,12 @@ class Migration1580746806AddPaymentStates extends MigrationStep
             'SELECT `language`.`id` FROM `language` INNER JOIN `locale` ON `language`.`translation_code_id` = `locale`.`id` WHERE `code` = :code LIMIT 1',
             ['code' => $code]
         );
-        if ($langId === false) {
+        if (!$langId && $code !== 'en-GB') {
             return null;
+        }
+
+        if (!$langId) {
+            return Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
         }
 
         return (string) $langId;
@@ -138,8 +152,8 @@ class Migration1580746806AddPaymentStates extends MigrationStep
     private function fetchStateId(string $technicalName, string $stateMachineId, Connection $connection): ?string
     {
         $stateId = $connection->fetchColumn(
-            'SELECT `id` FROM `state_machine_state` WHERE 
-            `technical_name` = :technical_name AND 
+            'SELECT `id` FROM `state_machine_state` WHERE
+            `technical_name` = :technical_name AND
             `state_machine_id` = :state_machine_id
             LIMIT 1',
             [

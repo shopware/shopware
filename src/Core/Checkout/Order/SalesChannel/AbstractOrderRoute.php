@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Order\SalesChannel;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -13,5 +14,5 @@ abstract class AbstractOrderRoute
 {
     abstract public function getDecorated(): AbstractOrderRoute;
 
-    abstract public function load(Request $request, SalesChannelContext $context): OrderRouteResponse;
+    abstract public function load(Request $request, SalesChannelContext $context, Criteria $criteria): OrderRouteResponse;
 }

@@ -5,9 +5,13 @@ namespace Shopware\Storefront\Page\Product;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-class ProductLoaderCriteriaEvent extends NestedEvent
+/**
+ * @deprecated tag:v6.4.0 - Use `ProductPageCriteriaEvent` or `MinimalQuickViewPageCriteriaEvent` event instead
+ */
+class ProductLoaderCriteriaEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
     /**
      * @var Criteria

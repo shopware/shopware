@@ -76,6 +76,9 @@ class EntitySearcher implements EntitySearcherInterface
             if ($field instanceof ReferenceVersionField || $field instanceof VersionField) {
                 continue;
             }
+            if (!$field instanceof StorageAware) {
+                continue;
+            }
             /* @var StorageAware $field */
             $query->addSelect(
                 EntityDefinitionQueryHelper::escape($table) . '.' . EntityDefinitionQueryHelper::escape($field->getStorageName())
@@ -85,7 +88,7 @@ class EntitySearcher implements EntitySearcherInterface
         $query = $this->buildQueryByCriteria($query, $definition, $criteria, $context);
 
         if (!empty($criteria->getIds())) {
-            $this->addIdCondition($criteria, $definition, $query);
+            $this->queryHelper->addIdCondition($criteria, $definition, $query);
         }
 
         $this->addGroupBy($definition, $criteria, $context, $query, $table);
@@ -99,6 +102,10 @@ class EntitySearcher implements EntitySearcherInterface
         }
 
         $this->addTotalCountMode($criteria, $query);
+
+        if ($criteria->getTitle()) {
+            $query->setTitle($criteria->getTitle() . '::search-ids');
+        }
 
         //execute and fetch ids
         $rows = $query->execute()->fetchAll();

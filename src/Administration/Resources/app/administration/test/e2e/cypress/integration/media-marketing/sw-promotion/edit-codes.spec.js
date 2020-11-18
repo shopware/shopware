@@ -1,4 +1,4 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
 
 import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
 
@@ -77,7 +77,6 @@ describe('Promotion: Test promotion with codes', () => {
         cy.get('#addPromotionOffcanvasCartInput').type('funicular');
         cy.get('#addPromotionOffcanvasCart').click();
         cy.get('.alert-success .icon-checkmark-circle').should('be.visible');
-        cy.contains('Code has been added.');
         cy.get('.cart-item-promotion .cart-item-label').contains('Thunder Tuesday');
     });
 

@@ -3,7 +3,7 @@
 {% endblock %}
 
 {% block sw_data_grid_bulk_selected_actions_content %}
-    <a class="link link-danger" @click="showBulkDeleteModal = true">
+    <a class="link link-danger" v-if="allowDelete" @click="showBulkDeleteModal = true">
         {{ $tc('global.default.delete') }}
     </a>
 {% endblock %}
@@ -11,7 +11,7 @@
 {% block sw_data_grid_slot_bulk_modals %}
     <sw-modal v-if="showBulkDeleteModal"
               @modal-close="showBulkDeleteModal = false"
-              :title="$tc('global.entity-components.deleteTitle')"
+              :title="$tc('global.default.warning')"
               variant="small">
         <p class="sw-data-grid__confirm-bulk-delete-text">
             {{ $tc('global.entity-components.deleteMessage', selectionCount, { count: selectionCount }) }}
@@ -25,7 +25,7 @@
             </slot>
 
             <slot name="bulk-modal-delete-items">
-                <sw-button @click="deleteItems" variant="primary" size="small" :isLoading="isBulkLoading">
+                <sw-button @click="deleteItems" variant="danger" size="small" :isLoading="isBulkLoading">
                     {{ $tc('global.default.delete') }}
                 </sw-button>
             </slot>
@@ -35,22 +35,28 @@
 
 {% block sw_data_grid_slot_actions %}
     <slot name="detail-action" v-bind="{ item }">
-        <sw-context-menu-item class="sw-entity-listing__context-menu-edit-action" v-if="detailRoute" :routerLink="{ name: detailRoute, params: { id: item.id } }">
-            {{ $tc('global.default.edit') }}
+        <sw-context-menu-item class="sw-entity-listing__context-menu-edit-action"
+                              v-if="detailRoute"
+                              :disabled="!allowEdit && !allowView"
+                              :routerLink="{ name: detailRoute, params: { id: item.id } }">
+            {{ detailPageLinkText }}
         </sw-context-menu-item>
     </slot>
 
     <slot name="more-actions" v-bind="{ item }"></slot>
 
-    <slot name="delete-action" v-bind="{ item, showDelete }">
-        <sw-context-menu-item @click="showDelete(item.id)" variant="danger">
+    <slot name="delete-action" v-bind="{ item, showDelete, allowDelete }">
+        <sw-context-menu-item @click="showDelete(item.id)"
+                              :disabled="!allowDelete"
+                              class="sw-entity-listing__context-menu-edit-delete"
+                              variant="danger">
             {{ $tc('global.default.delete') }}
         </sw-context-menu-item>
     </slot>
 {% endblock %}
 
 {% block sw_data_grid_slot_action_modals %}
-    <sw-modal v-if="deleteId === item.id" @modal-close="closeModal" :title="$tc('global.entity-components.deleteTitle')" variant="small">
+    <sw-modal v-if="deleteId === item.id" @modal-close="closeModal" :title="$tc('global.default.warning')" variant="small">
         <p class="sw-listing__confirm-delete-text">
             <slot name="delete-confirm-text" v-bind="{ item }">
                 {{ $tc('global.entity-components.deleteMessage') }}
@@ -66,7 +72,7 @@
                 </slot>
 
                 <slot name="delete-modal-delete-item" v-bind="{ item }">
-                    <sw-button @click="deleteItem(item.id)" variant="primary" size="small">
+                    <sw-button @click="deleteItem(item.id)" variant="danger" size="small">
                         {{ $tc('global.default.delete') }}
                     </sw-button>
                 </slot>

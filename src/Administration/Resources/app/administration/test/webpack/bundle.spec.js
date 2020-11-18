@@ -1,12 +1,17 @@
+// eslint-disable-next-line
 const util = require('util');
 const fs = require('fs');
+// eslint-disable-next-line
 const path = require('path');
+// eslint-disable-next-line
 const { sep } = require('path');
 const dircompare = require('dir-compare');
 const exec = util.promisify(require('child_process').exec);
 
 const rootPath = `${path.resolve(__dirname, '../../../../../../../..')}${sep}`;
 const readdir = util.promisify(fs.readdir);
+
+jest.spyOn(global.console, 'info').mockImplementation(() => jest.fn());
 
 describe('webpack/bundle', () => {
     beforeEach(async () => {

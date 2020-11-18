@@ -57,7 +57,9 @@ export default function createShortcutService(shortcutFactory, keystrokeDelay = 
         const combination = buffer.join('');
         const path = shortcutFactory.getPathByCombination(combination);
 
-        if (!path) {
+        const acl = Shopware.Service('acl');
+
+        if (!path || !acl.hasAccessToRoute(path)) {
             return false;
         }
 

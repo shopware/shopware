@@ -26,7 +26,7 @@ Table(ShopwareCoreSystemTagTagDefinition, "tag\n(Taxonomy)") {
    primary_key(id) id
    not_null(name) string
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
 }
 ForeignTable(ShopwareCoreContentProductAggregateProductTagProductTagDefinition, "product_tag") {
 }

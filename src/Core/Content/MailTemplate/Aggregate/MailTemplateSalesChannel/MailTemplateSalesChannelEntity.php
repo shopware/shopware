@@ -7,6 +7,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
+/**
+ * @deprecated tag:v6.4.0 - Will be removed, sales channel specific templates will be handled by business events
+ */
 class MailTemplateSalesChannelEntity extends Entity
 {
     use EntityIdTrait;
@@ -99,10 +102,5 @@ class MailTemplateSalesChannelEntity extends Entity
     public function setSalesChannel(?SalesChannelEntity $salesChannel): void
     {
         $this->salesChannel = $salesChannel;
-    }
-
-    public function getApiAlias(): string
-    {
-        return 'mail_template_sales_channel';
     }
 }

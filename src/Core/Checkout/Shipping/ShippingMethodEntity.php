@@ -12,10 +12,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\Tag\TagCollection;
+use Shopware\Core\System\Tax\TaxEntity;
 
 class ShippingMethodEntity extends Entity
 {
     use EntityIdTrait;
+
+    public const TAX_TYPE_AUTO = 'auto';
+    public const TAX_TYPE_FIXED = 'fixed';
+    public const TAX_TYPE_HIGHEST = 'highest';
 
     /**
      * @var string|null
@@ -93,6 +98,11 @@ class ShippingMethodEntity extends Entity
     protected $mediaId;
 
     /**
+     * @var string|null
+     */
+    protected $taxId;
+
+    /**
      * @var MediaEntity|null
      */
     protected $media;
@@ -101,6 +111,16 @@ class ShippingMethodEntity extends Entity
      * @var TagCollection|null
      */
     protected $tags;
+
+    /**
+     * @var string
+     */
+    protected $taxType;
+
+    /**
+     * @var TaxEntity|null
+     */
+    protected $tax;
 
     public function __construct()
     {
@@ -257,6 +277,16 @@ class ShippingMethodEntity extends Entity
         $this->mediaId = $mediaId;
     }
 
+    public function getTaxId(): ?string
+    {
+        return $this->taxId;
+    }
+
+    public function setTaxId(?string $taxId): void
+    {
+        $this->taxId = $taxId;
+    }
+
     public function getMedia(): ?MediaEntity
     {
         return $this->media;
@@ -277,8 +307,23 @@ class ShippingMethodEntity extends Entity
         $this->tags = $tags;
     }
 
-    public function getApiAlias(): string
+    public function getTaxType(): string
     {
-        return 'shipping_method';
+        return $this->taxType;
+    }
+
+    public function setTaxType(string $taxType): void
+    {
+        $this->taxType = $taxType;
+    }
+
+    public function getTax(): ?TaxEntity
+    {
+        return $this->tax;
+    }
+
+    public function setTax(TaxEntity $tax): void
+    {
+        $this->tax = $tax;
     }
 }

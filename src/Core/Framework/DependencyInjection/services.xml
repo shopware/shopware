@@ -15,7 +15,7 @@
         <parameter key="shopware.routing.registered_api_prefixes" type="collection"/>
 
         <!-- Migration config -->
-        <parameter key="core.migration.directories" type="collection" />
+        <parameter key="core.migration.directories" type="collection"/>
         <parameter key="migration.active" type="collection"/>
 
         <parameter key="shopware.security.csp_templates" type="collection">
@@ -29,7 +29,7 @@ object-src 'none';
 script-src 'strict-dynamic' 'nonce-%%nonce%%' 'unsafe-inline' 'unsafe-eval' https: http:;
 base-uri 'self';
             </parameter>
-            <parameter key="storefront" />
+            <parameter key="storefront"/>
         </parameter>
     </parameters>
 
@@ -37,9 +37,9 @@ base-uri 'self';
         <monolog:channel>business_events</monolog:channel>
 
         <monolog:handler
-                name="business_event_handler_buffer"
-                type="buffer"
-                handler="business_event_handler">
+            name="business_event_handler_buffer"
+            type="buffer"
+            handler="business_event_handler">
             <monolog:channels>
                 <monolog:channel>business_events</monolog:channel>
             </monolog:channels>
@@ -61,6 +61,7 @@ base-uri 'self';
         <!-- Asset -->
         <service id="Shopware\Core\Framework\Adapter\Asset\AssetPackageService" public="true">
             <argument type="service" id="assets.packages"/>
+            <argument type="service" id="shopware.asset.asset"/>
         </service>
 
         <!-- Database / Doctrine -->
@@ -85,17 +86,17 @@ base-uri 'self';
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
-
-
         <!-- Migration -->
-        <service id="Shopware\Core\Framework\Migration\MigrationSource.core" class="Shopware\Core\Framework\Migration\MigrationSource">
+        <service id="Shopware\Core\Framework\Migration\MigrationSource.core"
+                 class="Shopware\Core\Framework\Migration\MigrationSource">
             <argument type="string">core</argument>
             <tag name="shopware.migration_source"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Migration\MigrationSource.null" class="Shopware\Core\Framework\Migration\MigrationSource">
+        <service id="Shopware\Core\Framework\Migration\MigrationSource.null"
+                 class="Shopware\Core\Framework\Migration\MigrationSource">
             <argument type="string">null</argument>
-            <argument type="collection" />
+            <argument type="collection"/>
 
             <tag name="shopware.migration_source"/>
         </service>
@@ -113,7 +114,6 @@ base-uri 'self';
 
         <service id="Shopware\Core\Framework\Migration\Command\CreateMigrationCommand">
             <argument type="service" id="Shopware\Core\Framework\Plugin\KernelPluginCollection"/>
-            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginService"/>
             <argument>%kernel.project_dir%</argument>
 
             <tag name="console.command"/>
@@ -125,7 +125,6 @@ base-uri 'self';
 
         <service id="Shopware\Core\Framework\Migration\Command\MigrationCommand">
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationCollectionLoader"/>
-            <argument type="service" id="Shopware\Core\Framework\Migration\MigrationRuntime"/>
             <argument type="service" id="cache.object"/>
 
             <tag name="console.command"/>
@@ -140,7 +139,6 @@ base-uri 'self';
 
         <service id="Shopware\Core\Framework\Migration\Command\MigrationDestructiveCommand">
             <argument type="service" id="Shopware\Core\Framework\Migration\MigrationCollectionLoader"/>
-            <argument type="service" id="Shopware\Core\Framework\Migration\MigrationRuntime"/>
             <argument type="service" id="cache.object"/>
 
             <tag name="console.command"/>
@@ -190,6 +188,10 @@ base-uri 'self';
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Routing\CanonicalRedirectService" public="true">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+        </service>
+
         <!-- Translation -->
         <service id="Shopware\Core\Framework\Adapter\Translation\Translator"
                  decorates="translator">
@@ -229,10 +231,17 @@ base-uri 'self';
         <service id="Shopware\Core\System\Snippet\Files\SnippetFileLoader">
             <argument type="service" id="kernel"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\System\Snippet\Files\AppSnippetFileLoader"/>
+            <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader"/>
         </service>
 
-        <service id="Shopware\Core\System\Snippet\Files\SnippetFileCollection" public="true">
-            <factory service="Shopware\Core\System\Snippet\Files\SnippetFileCollectionFactory" method="createSnippetFileCollection"/>
+        <service id="Shopware\Core\System\Snippet\Files\AppSnippetFileLoader">
+            <argument>%kernel.project_dir%</argument>
+        </service>
+
+        <service id="Shopware\Core\System\Snippet\Files\SnippetFileCollection" public="true" lazy="true">
+            <factory service="Shopware\Core\System\Snippet\Files\SnippetFileCollectionFactory"
+                     method="createSnippetFileCollection"/>
         </service>
 
         <service id="Shopware\Core\System\Snippet\Files\SnippetFileCollectionFactory">
@@ -278,10 +287,8 @@ base-uri 'self';
             <argument type="service" id="twig"/>
             <argument type="service" id="twig.loader"/>
             <argument>%kernel.cache_dir%</argument>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder"/>
-            <call method="registerBundles">
-                <argument type="service" id="kernel" />
-            </call>
+            <argument type="service"
+                      id="Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder"/>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder">
@@ -290,6 +297,7 @@ base-uri 'self';
 
         <service id="Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\BundleHierarchyBuilder">
             <argument type="service" id="kernel"/>
+            <argument type="service" id="app.repository"/>
 
             <tag name="shopware.twig.hierarchy_builder" priority="1000"/>
         </service>
@@ -333,9 +341,26 @@ base-uri 'self';
             <argument type="service" id="twig"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Adapter\Twig\TemplateIterator" decorates="twig.template_iterator" public="true">
+        <service id="Shopware\Core\Framework\Adapter\Twig\TemplateIterator"
+                 decorates="twig.template_iterator"
+                 public="true">
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\TemplateIterator.inner"/>
             <argument>%kernel.bundles%</argument>
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Twig\EntityTemplateLoader">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument>%kernel.environment%</argument>
+
+            <tag name="twig.loader"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Twig\AppTemplateIterator"
+                 decorates="twig.template_iterator"
+                 public="true">
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\AppTemplateIterator.inner"/>
+            <argument type="service" id="app_template.repository"/>
         </service>
 
         <service id="Shopware\Core\Framework\Routing\ApiRequestContextResolver">
@@ -349,6 +374,7 @@ base-uri 'self';
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\Routing\RouteScopeRegistry"/>
+            <argument type="service" id="logger"/>
         </service>
 
         <service id="Shopware\Administration\Service\AdminOrderCartService">
@@ -361,7 +387,6 @@ base-uri 'self';
             <argument type="service" id="sales_channel.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
-            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
             <argument type="service" id="Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
             <argument type="service" id="event_dispatcher"/>
@@ -376,10 +401,6 @@ base-uri 'self';
         </service>
 
         <service id="Shopware\Core\Framework\Routing\ApiRouteScope">
-            <tag name="shopware.route_scope"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Routing\SalesChannelApiRouteScope">
             <tag name="shopware.route_scope"/>
         </service>
 
@@ -406,31 +427,22 @@ base-uri 'self';
             <tag name="shopware.entity.definition"/>
         </service>
 
-        <!-- Feature Flags -->
-        <service id="Shopware\Core\Framework\FeatureFlag\FeatureFlagGenerator"/>
-
-        <service id="Shopware\Core\Framework\FeatureFlag\Command\FeatureFlagCreateCommand">
-            <argument type="service" id="Shopware\Core\Framework\FeatureFlag\FeatureFlagGenerator"/>
-
-            <tag name="console.command"/>
-        </service>
-
         <service id="Shopware\Core\Framework\Adapter\Cache\CacheIdLoader" public="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="cache.messenger.restart_workers_signal" />
+            <argument type="service" id="cache.messenger.restart_workers_signal"/>
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Cache\CacheClearer">
             <argument type="collection">
-                <argument type="service" id="cache.object" />
-                <argument type="service" id="cache.http" />
+                <argument type="service" id="cache.object"/>
+                <argument type="service" id="cache.http"/>
             </argument>
             <argument type="service" id="cache_clearer"/>
             <argument type="service" id="filesystem"/>
             <argument>%kernel.cache_dir%</argument>
             <argument>%kernel.environment%</argument>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
-            <argument type="service" id="messenger.bus.shopware" />
+            <argument type="service" id="messenger.bus.shopware"/>
 
             <tag name="messenger.message_handler"/>
         </service>
@@ -442,9 +454,73 @@ base-uri 'self';
             <tag name="messenger.message_handler"/>
         </service>
 
+        <!-- Changelog -->
+        <service id="Shopware\Core\Framework\Changelog\Processor\ChangelogGenerator" public="false">
+            <argument type="service" id="Shopware\Core\Framework\Changelog\ChangelogParser"/>
+            <argument type="service" id="validator"/>
+            <argument type="service" id="filesystem"/>
+            <argument>%kernel.project_dir%</argument>
+        </service>
+
+        <service id="Shopware\Core\Framework\Changelog\Processor\ChangelogReleaseCreator">
+            <argument type="service" id="Shopware\Core\Framework\Changelog\ChangelogParser"/>
+            <argument type="service" id="validator"/>
+            <argument type="service" id="filesystem"/>
+            <argument>%kernel.project_dir%</argument>
+        </service>
+
+        <service id="Shopware\Core\Framework\Changelog\Processor\ChangelogReleaseExporter">
+            <argument type="service" id="Shopware\Core\Framework\Changelog\ChangelogParser"/>
+            <argument type="service" id="validator"/>
+            <argument type="service" id="filesystem"/>
+            <argument>%kernel.project_dir%</argument>
+        </service>
+
+        <service id="Shopware\Core\Framework\Changelog\Processor\ChangelogValidator">
+            <argument type="service" id="Shopware\Core\Framework\Changelog\ChangelogParser"/>
+            <argument type="service" id="validator"/>
+            <argument type="service" id="filesystem"/>
+            <argument>%kernel.project_dir%</argument>
+        </service>
+
+        <service id="Shopware\Core\Framework\Changelog\ChangelogParser" public="false" />
+
+        <service id="Shopware\Core\Framework\Changelog\Command\ChangelogCreateCommand">
+            <argument type="service" id="Shopware\Core\Framework\Changelog\Processor\ChangelogGenerator"/>
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Changelog\Command\ChangelogReleaseCommand">
+            <argument type="service" id="Shopware\Core\Framework\Changelog\Processor\ChangelogReleaseCreator"/>
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Changelog\Command\ChangelogChangeCommand">
+            <argument type="service" id="Shopware\Core\Framework\Changelog\Processor\ChangelogReleaseExporter"/>
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Changelog\Command\ChangelogCheckCommand">
+            <argument type="service" id="Shopware\Core\Framework\Changelog\Processor\ChangelogValidator"/>
+            <tag name="console.command"/>
+        </service>
+
         <!-- Util -->
         <service id="Shopware\Core\Framework\Log\LoggerFactory">
             <argument type="string">%kernel.logs_dir%/%%s_%kernel.environment%.log</argument>
+        </service>
+
+        <service id="Shopware\Core\Framework\Routing\Annotation\CriteriaValueResolver">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
+            <tag name="controller.argument_value_resolver"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Feature\Command\FeatureDumpCommand">
+            <argument type="service" id="kernel"/>
+
+            <tag name="console.command"/>
+            <tag name="console.command" command="administration:dump:features"/>
         </service>
     </services>
 </container>

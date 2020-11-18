@@ -14,8 +14,6 @@
       "columnAssignment": "Assignment",
       "buttonAddDocument": "Add document",
       "contextMenuEdit": "Edit",
-      "modalTitleDelete": "Delete document",
-      "titleDeleteSuccess": "Success",
       "messageDeleteSuccess": "Document \"{name}\" has been deleted.",
       "buttonCancel": "Cancel",
       "buttonDelete": "Delete",
@@ -26,7 +24,6 @@
       "configCard": "Settings",
       "companyCard": "Company settings",
       "assignmentCard": "Assignment",
-      "titleSaveSuccess": "Success",
       "messageSaveSuccess": "Document \"{name}\" has been saved.",
       "labelName": "Technical name",
       "labelFileNamePrefix": "Filename prefix",
@@ -53,13 +50,26 @@
       "labelType": "Document type",
       "labelSalesChannel": "Sales channel",
       "labelDisplayFooter": "Display footer",
-      "labelPlaceOfJurisdiction": "Place of jurisdiction",
+      "labelPlaceOfJurisdiction": "Place of jurisdiction / HBR",
       "labelPlaceOfFulfillment": "Place of fulfillment",
       "labelExecutiveDirector": "Executive director",
       "labelOptionMedia": "Company logo",
       "placeholderName": "Enter name...",
       "buttonCancel": "Cancel",
-      "buttonSave": "Save"
+      "buttonSave": "Save",
+      "disabledSalesChannel": "There is already another document with the same type with this sales channel.",
+      "disabledSalesChannelSelect": "Choose a document type first.",
+      "disabledTypeSelect": "The type of global documents cannot be changed.",
+      "labelDisplayDocumentInCustomerAccount": "Display document in \"My account\" area",
+      "helpTextDisplayDocumentInCustomerAccount": "The document is displayed to the store customer under Orders in the customer account. Only documents sent to the customer are displayed in the customer account."
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "document": {
+        "label": "Documents"
+      }
     }
   }
 }
+

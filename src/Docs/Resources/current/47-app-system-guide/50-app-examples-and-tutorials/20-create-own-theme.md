@@ -11,7 +11,7 @@ purposes. This file controls which resources the theme should load and which cor
 ...
 └── DemoTheme
     ├── Resources
-    │   └── theme.json <--
+    │   └── theme.json <--
     └── manifest.xml
 ```
 
@@ -84,7 +84,7 @@ is similar to the structure of the core storefront.
     ├── Resources
     │   ├── views 
     │   │   └── storefront <-- Your Twig templates go here
-    │   └── theme.json
+    │   └── theme.json
     └── manifest.xml
 ```
 
@@ -101,7 +101,7 @@ views directory:
     │   │       └── layout
     │   │           └── header
     │   │               └── logo.html.twig <-- Override core logo template
-    │   └── theme.json
+    │   └── theme.json
     └── manifest.xml
 ```
 When taking a look at our theme the whole logo template should be overwritten with empty content. In order to modify
@@ -121,6 +121,15 @@ specific blocks rather than overwriting an entire template you can use the `{% s
 
 Learn more about templates in the [twig section of the theme guide](./../../30-theme-guide/30-twig-templates.md).
 
+#### Testing the changes
+
+The templates of apps are stored in the database on installation or on update of the app.
+This is necessary, because the source files of the app may not be stored locally on the production system.
+That means that it is necessary to reinstall or update the app to see the template changes.
+
+But during development, it is common to quickly try things out, therefore it is necessary, that changes made to the templates are directly visible on the page (after a reload).
+To allow this development workflow the app templates are loaded directly from the filesystem if your shopware installation's environment is set to `dev`.
+
 ### SCSS
 
 In order to provide custom styling for your theme you can add [SCSS](https://sass-lang.com/) files inside the 
@@ -137,7 +146,7 @@ your theme where you can find all JavaScript and SCSS files.
     │   │           └── scss
     │   │               └── base.scss <-- SCSS entry point file
     │   ├── views
-    │   └── theme.json
+    │   └── theme.json
     └── manifest.xml
 ```
 
@@ -190,7 +199,7 @@ You can add custom JavaScript to your theme by creating a `main.js` file which i
     │   │       └── src
     │   │           └── main.js <-- JavaScript entry point file
     │   ├── views
-    │   └── theme.json
+    │   └── theme.json
     └── manifest.xml
 ```
 
@@ -221,3 +230,59 @@ You can compile the JavaScript with the `./psh.phar storefront:build` command. T
 be found inside the `app/storefront/dist/storefront/js/` directory.
 
 Find out more about JavaScript in the [JavaScript section of the theme guide](./../../30-theme-guide/60-javascript.md).
+
+### Snippets
+
+**Note that this feature is only available from v6.2.3 onward**.
+In order to include custom storefront snippets in your app, simply make use of the autoloading snippet feature.
+Therefore place your snippet files under a snippet folder in your Resources folder:
+
+```
+...
+└── DemoTheme
+    ├── Resources
+    │   ├── app
+    │   ├── views
+    │   ├── snippet
+    │   │   ├── storefront.de-DE.json <-- snippets with german translations
+    │   │   └── storefront.en-GB.json <-- snippets with english translations
+    │   └── theme.json
+    └── manifest.xml
+```
+
+For a detailed explanation on how the snippet files are loaded, take a look into the according section of the [Theme Guide](./../../30-theme-guide/40-snippets.md).
+
+
+### Preview image
+
+To add a preview image to your theme, that shows up in the users theme manager, 
+you can add it to your theme files under `app/storefront/src/assets`:
+
+```
+...
+└── DemoTheme
+    ├── Resources
+    │   ├── app
+    │   │   └── storefront
+    |   |       ├── src
+    │   │       └── assets
+    │   │           └── preview.jpg
+    │   ├── views
+    │   ├── snippet
+    │   └── theme.json
+    └── manifest.xml
+```
+
+And then you can set your image as a preview in the theme.json:
+
+```json
+{
+  ...,
+
+  "previewMedia": "app/storefront/assets/preview.jpg",
+  "style": [
+  ...
+}
+```
+
+**Note:** Setting a preview image is required for your theme, if you want to release it via the community store.

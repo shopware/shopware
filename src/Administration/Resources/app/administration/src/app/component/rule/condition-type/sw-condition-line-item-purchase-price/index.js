@@ -1,4 +1,5 @@
 import template from './sw-condition-line-item-purchase-price.html.twig';
+import './sw-condition-line-item-purchase-price.scss';
 
 const { Component } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
@@ -6,9 +7,15 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 Component.extend('sw-condition-line-item-purchase-price', 'sw-condition-base', {
     template,
 
+    inject: ['feature'],
+
     computed: {
         operators() {
             return this.conditionDataProviderService.getOperatorSet('number');
+        },
+
+        isNetOperators() {
+            return this.conditionDataProviderService.getOperatorSet('isNet');
         },
 
         amount: {
@@ -25,7 +32,9 @@ Component.extend('sw-condition-line-item-purchase-price', 'sw-condition-base', {
         ...mapPropertyErrors('condition', ['value.operator', 'value.amount']),
 
         currentError() {
-            return this.conditionValueOperatorError || this.conditionValueAmountError;
+            return this.conditionValueIsNetError
+                || this.conditionValueOperatorError
+                || this.conditionValueAmountError;
         }
     }
 });

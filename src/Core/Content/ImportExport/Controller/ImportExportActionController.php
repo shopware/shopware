@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -92,6 +93,7 @@ class ImportExportActionController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/import-export/features", name="api.action.import_export.features", methods={"GET"})
      */
     public function features(): JsonResponse
@@ -104,6 +106,7 @@ class ImportExportActionController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/import-export/prepare", name="api.action.import_export.initiate", methods={"POST"})
      */
     public function initiate(int $version, Request $request, Context $context): JsonResponse
@@ -143,6 +146,7 @@ class ImportExportActionController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/import-export/process", name="api.action.import_export.process", methods={"POST"})
      */
     public function process(Request $request, Context $context): JsonResponse
@@ -171,6 +175,7 @@ class ImportExportActionController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/import-export/file/download", name="api.action.import_export.file.download", defaults={"auth_required"=false}, methods={"GET"})
      */
     public function download(Request $request, Context $context): Response
@@ -187,6 +192,7 @@ class ImportExportActionController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/import-export/cancel", name="api.action.import_export.cancel", methods={"POST"})
      */
     public function cancel(Request $request, Context $context): Response

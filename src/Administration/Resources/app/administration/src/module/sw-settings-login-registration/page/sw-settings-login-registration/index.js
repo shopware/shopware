@@ -31,13 +31,15 @@ Component.register('sw-settings-login-registration', {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            this.$refs.systemConfig.saveAll().then(() => {
+            Promise.all([
+                this.$refs.systemConfig.saveAll(),
+                this.$refs.systemConfigSystemWide.saveAll()
+            ]).then(() => {
                 this.isLoading = false;
                 this.isSaveSuccessful = true;
             }).catch((err) => {
                 this.isLoading = false;
                 this.createNotificationError({
-                    title: this.$tc('sw-settings-login-registration.general.titleSaveError'),
                     message: err
                 });
             });

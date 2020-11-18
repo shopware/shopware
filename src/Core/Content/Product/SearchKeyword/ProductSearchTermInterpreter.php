@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchPattern;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTerm;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\TokenizerInterface;
@@ -55,7 +56,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
 
         $scoring = $this->score($tokens, $matches);
 
-        $scoring = \array_slice($scoring, 0, 8);
+        $scoring = \array_slice($scoring, 0, 8, true);
 
         foreach ($scoring as $keyword => $score) {
             $this->logger->info('Search match: ' . $keyword . ' with score ' . (float) $score);
@@ -137,9 +138,11 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
 
     private function fetchKeywords(Context $context, array $slops): array
     {
-        $query = $this->connection->createQueryBuilder();
+        $query = new QueryBuilder($this->connection);
         $query->select('keyword');
         $query->from('product_keyword_dictionary');
+
+        $query->setTitle('search::detect-keywords');
 
         $counter = 0;
         $wheres = [];

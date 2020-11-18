@@ -19,21 +19,32 @@
                         {% endblock %}
 
                         {% block sw_property_option_list_toolbar_delete %}
-                            <sw-button :disabled="deleteButtonDisabled" @click="onDeleteOptions" square size="small"
-                                       class="sw-property-option-list__delete-button">
+                            <sw-button :disabled="deleteButtonDisabled || !acl.can('property.editor')"
+                                @click="onDeleteOptions"
+                                square
+                                size="small"
+                                class="sw-property-option-list__delete-button"
+                                v-tooltip="{
+                                    message: $tc('sw-privileges.tooltip.warning'),
+                                    disabled: acl.can('property.editor'),
+                                    showOnDisabledElements: true
+                                }">
                                 <sw-icon name="default-action-trash" small/>
                             </sw-button>
                         {% endblock %}
 
                         {% block sw_property_option_list_toolbar_add %}
-                            <sw-container v-tooltip="{
-                                                            message: $tc('sw-property.detail.addOptionNotPossible'),
-                                                            disabled: isSystemLanguage
-                                                        }">
-                                <sw-button :disabled="propertyGroup.isLoading || !isSystemLanguage"
-                                           @click="onAddOption(propertyGroup)"
-                                           size="small"
-                                           class="sw-property-option-list__add-button">
+                            <sw-container v-tooltip="tooltipAdd">
+                                <sw-button
+                                    :disabled="disableAddButton"
+                                    @click="onAddOption(propertyGroup)"
+                                    size="small"
+                                    class="sw-property-option-list__add-button"
+                                    v-tooltip="{
+                                        message: $tc('sw-privileges.tooltip.warning'),
+                                        disabled: acl.can('property.editor'),
+                                        showOnDisabledElements: true
+                                    }">
                                     {{ $tc('sw-property.detail.addOption') }}
                                 </sw-button>
                             </sw-container>
@@ -52,10 +63,11 @@
                 :columns="getGroupColumns()"
                 :fullPage="false"
                 :localMode="propertyGroup.isNew()"
-                :allowInlineEdit="true"
+                :allowInlineEdit="allowInlineEdit"
                 :sortBy="sortBy"
                 :sortDirection="sortDirection"
                 @selection-change="onGridSelectionChanged">
+
                 <template #column-name="{ item, isInlineEdit }">
                     <template v-if="isInlineEdit">
                        <sw-field v-model="item.name" size="small"></sw-field>
@@ -66,15 +78,28 @@
                         {{ item.translated.name }}
                     </a>
                 </template>
+
                 {% block sw_settings_property_list_grid_columns_actions %}
                     <template #more-actions="{ item }">
                         {% block sw_settings_property_list_grid_columns_actions_edit %}
                             <sw-context-menu-item
                                 @click="onOptionEdit(item)"
-                                class="sw-property-option-list__edit-action">
+                                class="sw-property-option-list__edit-action"
+                                :disabled="!acl.can('property.editor')">
                                 {{ $tc('sw-property.list.contextMenuView') }}
                             </sw-context-menu-item>
                         {% endblock %}
+                    </template>
+                {% endblock %}
+
+                {% block sw_property_list_grid_columns_actions_delete %}
+                    <template #delete-action="{ item }">
+                        <sw-context-menu-item
+                            variant="danger"
+                            @click="onSingleOptionDelete(item.id)"
+                            :disabled="!acl.can('property.editor')">
+                            {{ $tc('sw-property.list.contextMenuDelete') }}
+                        </sw-context-menu-item>
                     </template>
                 {% endblock %}
             </sw-one-to-many-grid>
@@ -84,6 +109,7 @@
             <sw-property-option-detail
                 v-if="currentOption"
                 :currentOption="currentOption"
+                :allowEdit="acl.can('property.editor')"
                 @save-option-edit="onSaveOption"
                 @cancel-option-edit="onCancelOption">
             </sw-property-option-detail>

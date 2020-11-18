@@ -89,10 +89,6 @@ abstract class KernelPluginLoader extends Bundle
             $additionalBundleParameters = new AdditionalBundleParameters($this->classLoader, $copy, $kernelParameters);
             $additionalBundles = $plugin->getAdditionalBundles($additionalBundleParameters);
 
-            if (empty($additionalBundles)) {
-                $additionalBundles = $plugin->getExtraBundles($this->classLoader);
-            }
-
             foreach ($additionalBundles as $bundle) {
                 if (!in_array($bundle->getName(), $loadedBundles, true)) {
                     yield $bundle;

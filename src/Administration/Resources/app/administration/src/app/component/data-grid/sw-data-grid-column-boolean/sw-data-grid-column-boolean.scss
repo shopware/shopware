@@ -1,0 +1,11 @@
+@import "~scss/variables";
+
+.sw-data-grid-column-boolean {
+    .is--active {
+        color: $color-emerald-500;
+    }
+
+    .is--inactive {
+        color: $color-crimson-500;
+    }
+}

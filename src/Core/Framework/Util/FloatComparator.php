@@ -6,6 +6,11 @@ class FloatComparator
 {
     private const EPSILON = 0.00000001;
 
+    public static function cast(float $a): float
+    {
+        return (float) (string) $a;
+    }
+
     public static function equals(float $a, float $b): bool
     {
         return abs($a - $b) < self::EPSILON;

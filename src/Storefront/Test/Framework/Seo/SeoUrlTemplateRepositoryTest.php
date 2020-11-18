@@ -40,17 +40,11 @@ class SeoUrlTemplateRepositoryTest extends TestCase
         static::assertCount(1, $event->getPayloads());
     }
 
-    public function testUpdate(): void
+    /**
+     * @dataProvider templateUpdateDataProvider
+     */
+    public function testUpdate(string $id, array $template): void
     {
-        $id = Uuid::randomHex();
-        $template = [
-            'id' => $id,
-            'salesChannelId' => Defaults::SALES_CHANNEL,
-            'routeName' => ProductPageSeoUrlRoute::ROUTE_NAME,
-            'entityName' => $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
-            'template' => ProductPageSeoUrlRoute::DEFAULT_TEMPLATE,
-        ];
-
         $context = Context::createDefaultContext();
         /** @var EntityRepositoryInterface $repo */
         $repo = $this->getContainer()->get('seo_url_template.repository');
@@ -94,5 +88,35 @@ class SeoUrlTemplateRepositoryTest extends TestCase
         /** @var SeoUrlTemplateEntity|null $first */
         $first = $repo->search(new Criteria([$id]), $context)->first();
         static::assertNull($first);
+    }
+
+    public function templateUpdateDataProvider(): iterable
+    {
+        $templates = [
+            [
+                'id' => null,
+                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'routeName' => ProductPageSeoUrlRoute::ROUTE_NAME,
+                'entityName' => $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
+                'template' => ProductPageSeoUrlRoute::DEFAULT_TEMPLATE,
+            ],
+            [
+                'id' => null,
+                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'routeName' => ProductPageSeoUrlRoute::ROUTE_NAME,
+                'entityName' => $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
+                'template' => '',
+            ],
+        ];
+
+        foreach ($templates as $template) {
+            $id = Uuid::randomHex();
+            $template['id'] = $id;
+
+            yield [
+                'id' => $id,
+                'template' => $template,
+            ];
+        }
     }
 }

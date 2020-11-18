@@ -46,7 +46,7 @@ class ResponseTypeRegistryTest extends TestCase
         $id = Uuid::randomHex();
         $accept = 'application/json';
         $context = $this->getAdminContext();
-        $response = $this->getDetailResponse($context, $id, '/api/v1/category/' . $id, 1, $accept, false);
+        $response = $this->getDetailResponse($context, $id, '/api/v' . PlatformRequest::API_VERSION . '/category/' . $id, 1, $accept, false);
 
         static::assertEquals($accept, $response->headers->get('content-type'));
         $content = json_decode($response->getContent(), true);
@@ -57,9 +57,9 @@ class ResponseTypeRegistryTest extends TestCase
     {
         $id = Uuid::randomHex();
         $accept = 'application/vnd.api+json';
-        $self = 'http://localhost/api/v1/category/' . $id;
+        $self = 'http://localhost/api/v' . PlatformRequest::API_VERSION . '/category/' . $id;
         $context = $this->getAdminContext();
-        $response = $this->getDetailResponse($context, $id, $self, 1, $accept, false);
+        $response = $this->getDetailResponse($context, $id, $self, PlatformRequest::API_VERSION, $accept, false);
 
         static::assertEquals($accept, $response->headers->get('content-type'));
         $content = json_decode($response->getContent(), true);
@@ -74,9 +74,9 @@ class ResponseTypeRegistryTest extends TestCase
     {
         $id = Uuid::randomHex();
         $accept = '*/*';
-        $self = 'http://localhost/api/v1/category/' . $id;
+        $self = 'http://localhost/api/v' . PlatformRequest::API_VERSION . '/category/' . $id;
         $context = $this->getAdminContext();
-        $response = $this->getDetailResponse($context, $id, $self, 1, $accept, false);
+        $response = $this->getDetailResponse($context, $id, $self, PlatformRequest::API_VERSION, $accept, false);
 
         static::assertEquals('application/vnd.api+json', $response->headers->get('content-type'));
         $content = json_decode($response->getContent(), true);
@@ -92,88 +92,18 @@ class ResponseTypeRegistryTest extends TestCase
         $this->expectException(UnsupportedMediaTypeHttpException::class);
         $id = Uuid::randomHex();
         $accept = 'text/plain';
-        $self = 'http://localhost/api/v1/category/' . $id;
+        $self = 'http://localhost/api/' . PlatformRequest::API_VERSION . '/category/' . $id;
         $context = $this->getAdminContext();
         $this->getDetailResponse($context, $id, $self, 1, $accept, false);
-    }
-
-    public function testSalesChannelApi(): void
-    {
-        $id = Uuid::randomHex();
-        $accept = 'application/json';
-        $context = $this->getSalesChannelContext();
-        $response = $this->getDetailResponse($context, $id, '/sales-channel-api/category/' . $id, '', $accept, false);
-
-        static::assertEquals($accept, $response->headers->get('content-type'));
-        $content = json_decode($response->getContent(), true);
-        static::assertEquals($id, $content['data']['name']);
-    }
-
-    public function testSalesChannelJsonApi(): void
-    {
-        $id = Uuid::randomHex();
-        $accept = 'application/vnd.api+json';
-        $self = 'http://localhost/sales-channel-api/category/' . $id;
-        $context = $this->getSalesChannelContext();
-        $response = $this->getDetailResponse($context, $id, $self, '', $accept, false);
-
-        static::assertEquals($accept, $response->headers->get('content-type'));
-        $content = json_decode($response->getContent(), true);
-
-        $this->assertDetailJsonApiStructure($content);
-        static::assertEquals($id, $content['data']['attributes']['name']);
-        static::assertEquals($self, $content['links']['self']);
-        static::assertEquals($self, $content['data']['links']['self']);
-    }
-
-    public function testSSalesChannelDefaultContentType(): void
-    {
-        $id = Uuid::randomHex();
-        $accept = '*/*';
-        $self = 'http://localhost/sales-channel-api/category/' . $id;
-        $context = $this->getSalesChannelContext();
-        $response = $this->getDetailResponse($context, $id, $self, '', $accept, false);
-
-        static::assertEquals('application/json', $response->headers->get('content-type'));
-        $content = json_decode($response->getContent(), true);
-        static::assertEquals($id, $content['data']['name']);
-    }
-
-    public function testSalesChannelApiUnsupportedContentType(): void
-    {
-        $this->expectException(UnsupportedMediaTypeHttpException::class);
-        $id = Uuid::randomHex();
-        $accept = 'text/plain';
-        $self = 'http://localhost/sales-channel-api/category/' . $id;
-        $context = $this->getSalesChannelContext();
-        $this->getDetailResponse($context, $id, $self, '', $accept, false);
-    }
-
-    public function testSalesChannelJsonApiList(): void
-    {
-        $id = Uuid::randomHex();
-        $accept = 'application/vnd.api+json';
-        $self = 'http://localhost/sales-channel-api/category';
-        $context = $this->getSalesChannelContext();
-        $response = $this->getListResponse($context, $id, $self, '', $accept);
-
-        static::assertEquals($accept, $response->headers->get('content-type'));
-        $content = json_decode($response->getContent(), true);
-
-        $this->assertDetailJsonApiStructure($content);
-        static::assertNotEmpty($content['data']);
-        static::assertEquals($id, $content['data'][0]['attributes']['name']);
-        static::assertEquals($self, $content['links']['self']);
-        static::assertEquals($self . '/' . $id, $content['data'][0]['links']['self']);
     }
 
     public function testAdminJsonApiList(): void
     {
         $id = Uuid::randomHex();
         $accept = 'application/vnd.api+json';
-        $self = 'http://localhost/api/v1/category';
+        $self = 'http://localhost/api/v' . PlatformRequest::API_VERSION . '/category';
         $context = $this->getAdminContext();
-        $response = $this->getListResponse($context, $id, $self, 1, $accept);
+        $response = $this->getListResponse($context, $id, $self, PlatformRequest::API_VERSION, $accept);
 
         static::assertEquals($accept, $response->headers->get('content-type'));
         $content = json_decode($response->getContent(), true);
@@ -197,7 +127,7 @@ class ResponseTypeRegistryTest extends TestCase
         return new Context(new SalesChannelApiSource(Defaults::SALES_CHANNEL));
     }
 
-    private function getDetailResponse(Context $context, $id, $path, $version = '', $accept, $setLocationHeader): Response
+    private function getDetailResponse(Context $context, string $id, string $path, ?int $version, string $accept, bool $setLocationHeader): Response
     {
         $category = $this->getTestCategory($id);
 
@@ -209,7 +139,7 @@ class ResponseTypeRegistryTest extends TestCase
         return $this->getFactory($request)->createDetailResponse(new Criteria(), $category, $definition, $request, $context, $setLocationHeader);
     }
 
-    private function getListResponse($context, $id, $path, $version = '', $accept): Response
+    private function getListResponse(Context $context, string $id, string $path, ?int $version, string $accept): Response
     {
         $category = $this->getTestCategory($id);
 
@@ -235,9 +165,9 @@ class ResponseTypeRegistryTest extends TestCase
         return $category;
     }
 
-    private function setVersionHack(Request $request, $version): void
+    private function setVersionHack(Request $request, ?int $version): void
     {
-        if ($version) {
+        if ($version !== null) {
             $this->setRequestAttributeHack($request, 'version', $version);
         }
     }
@@ -247,6 +177,9 @@ class ResponseTypeRegistryTest extends TestCase
         $this->setRequestAttributeHack($request, PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context);
     }
 
+    /**
+     * @param Context|int $value
+     */
     private function setRequestAttributeHack(Request $request, string $key, $value): void
     {
         $r = new \ReflectionProperty(Request::class, 'attributes');

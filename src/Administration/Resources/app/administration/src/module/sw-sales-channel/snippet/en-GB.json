@@ -1,4 +1,9 @@
 {
+  "global": {
+    "error-codes": {
+      "DUPLICATED_PRODUCT_EXPORT_FILE_NAME": "This file name is already in use. Please choose another one."
+    }
+  },
   "sw-sales-channel": {
     "general": {
       "titleMenuItems": "Sales Channel"
@@ -14,10 +19,7 @@
       "messageNoProductStreams": "In order to use product comparisons a dynamic product group has to be created first."
     },
     "detail": {
-      "titleSaveSuccess": "Success",
-      "messageSaveSuccess": "Sales Channel \"{name}\" has been saved.",
-      "titleSaveError": "Error",
-      "titleActivateError": "Activation error",
+      "messageSaveSuccess": "Sales Channel \"{name}\" saved.",
       "messageSaveError": "The Sales Channel \"{name}\" could not be saved. Please check your entries.",
       "messageActivateWithoutThemeError": "Sales Channel \"{name}\" could not be activated. Active Sales Channels need to have a theme associated.",
       "activateDisable": "Please assign a theme before activating and saving the Sales Channel.",
@@ -32,7 +34,6 @@
       "titleProductComparisonPreview": "Preview",
       "titleProductComparisonPreviewErrors": "Errors during generation",
       "labelAccessKeyField": "API access key",
-      "titleAPIError": "Error",
       "messageAPIError": "Unable to generate API access key.",
       "titleGeneralSettings": "General Settings",
       "labelInputName": "Name",
@@ -77,11 +78,10 @@
       "navigation": "Navigation",
       "navigationCategoryId": "Entry point main navigation",
       "navigationCategoryDepth": "Navigation levels",
-      "navigationCategoryHelpText": "For this entry point, you can not select categories of the type \"customizable link\" or \"structuring element\".",
+      "navigationCategoryHelpText": "For this entry point, you can not select categories of the type \"customisable link\" or \"structuring element\".",
       "footerCategory": "Entry point footer navigation",
       "serviceCategory": "Entry point service navigation",
       "titleOptionsApiKey": "API access",
-      "titleDeleteSalesChannelWarning": "Warning:",
       "textDeleteSalesChannelWarning": "Removing this Sales Channel will be permanent.",
       "buttonCopyApiKeyButton": "Copy API key",
       "titleStatus": "Status",
@@ -135,10 +135,7 @@
         "includeVariants": "Export variants as discrete products",
         "interval": "Interval",
         "generateByCronjob": "Generate via scheduler",
-        "notificationTitleValidateSuccessful": "Success",
         "notificationMessageValidateSuccessful": "No errors occurred.",
-        "notificationTitleValidateError": "Validation failed",
-        "notificationTitlePreviewError": "Preview failed",
         "intervalLabels": {
           "0": "Live",
           "120": "2 minutes",
@@ -172,7 +169,6 @@
           "label": "Customer Group",
           "help": "Automatically selected by Sales Channel"
         },
-        "titleAccessKeyChanged": "Access key changed",
         "messageAccessKeyChanged": "Access key and export URL are active only after saving the Sales Channel.",
         "templates": {
           "label": "Template",
@@ -187,7 +183,6 @@
           "modal-confirm": "Apply template",
           "modal-cancel": "Cancel",
           "message": {
-            "template-applied-title": "Info",
             "template-applied-message": "Template data has been applied, but not yet saved. Please save this Sales Channel to keep the changes."
           }
         }
@@ -223,70 +218,29 @@
             "label": "Track orders"
           },
           "anonymizeIp": {
-            "label": "Anonymize Ip"
+            "label": "Anonymise IP"
           }
         }
       },
-      "googleShoppingGeneral": {
-        "title": "Select a storefront for the checkout process",
-        "description": "Sales Channels that don’t have a storefront require another linked storefront, which will be used to complete the checkout process."
-      },
-      "googleShoppingAccountConnect": {
-        "title": "Connect your Google Account to use Google Programs",
-        "subTitle": "A Google Account lets you access your Google Merchant Center and Google Ads accounts.",
-        "textConnectButton": "Connect"
-      },
-      "googleShoppingAccountDisconnect": {
-        "titleProfiles": "This Google Account can be used to access your Google Merchant Center account at",
-        "titleLinkProfiles": "merchants.google.com.",
-        "textDisconnectButton": "Disconnect",
-        "titleMerchant": "A suspended Google Merchant Center account cannot run shopping ads. Learn more.",
-        "titleLinkMerchant": "about account suspensions.",
-        "textGroupMerchant": "Merchant Center Account:",
-        "titleWebsite": "Your website is associated with your Google Merchant Center account. It must be claimed to run Shopping ads.",
-        "textGroupWebsite": "Website:"
+      "titleShippingPayment": "Payment and shipping",
+      "labelTaxCalculation": "Tax calculation",
+      "descriptionTaxCalculation": "Changing this setting could lead to acounting problems with external payment providers. Check back on how VAT is calculated by payment providers you employ, before you make any changes.",
+      "taxCalculation": {
+        "verticalName": "Column by column (vertical) calculation",
+        "verticalDescription": "VAT is calculated from the order total. No individual VAT values are displayed during checkout.",
+        "horizontalName": "Line by line (horizontal) calculation",
+        "horizontalDescription": "VAT is calculated for each shopping cart position. During checkout each position's individual VAT is displayed. The total VAT amount is calculated by adding up all individual VAT values."
       }
     },
-    "modalGooglePrograms": {
-      "title": "Connect Google Account",
-      "buttonNext": "Next",
-      "buttonBack": "Back",
-      "step-1": {
-        "titleGetStarted": "Get started with Google Programs",
-        "textGetStartedDescription": "Google’s retail solutions can help you welcome more customers to your site or your store. After you get set up, you’ll have access to reports so you can see how well your ads are doing.",
-        "textLearnMore": "Learn more",
-        "titleConnectGoogleAccount": "Connect your Google Account to use Google Programs",
-        "textConnectGoogleAccountDescription": "A Google Account lets you access your Google Merchant Center and Google Ads accounts.",
-        "buttonConnect": "Connect Account"
-      },
-      "step-2": {
-        "titleYourGoogleAccount": "Your Google Account",
-        "buttonDisconnect": "Disconnect",
-        "textDisconnectInfo": "If you disconnect your Google account, your Google Merchant Center and Google Ads accounts will also be disconnected."
-      },
-      "step-3": {
-        "titleGeneral": "Create or connect your Google Merchant Center account",
-        "textLearnMore": "Learn more about",
-        "textGoogleMerchantCenter": "Google Merchant Center",
-        "titleConnectExistingMerchant": "Connect an existing Google Merchant Center account",
-        "textConnectExistingMerchantDescription": "already has access to one or more Google Merchant Center accounts. You can choose to use one of these existing Google Merchant Center accounts if you wish.",
-        "placeholderSelectMerchant": "Select an existing Google Merchant Center account...",
-        "titleCreateMerchant": "Create a new Google Merchant Center account",
-        "textCreateMerchantDescription": "Create a new Google Merchant Center account, if you wish.",
-        "buttonCreateMerchant": "Create a new Merchant Center account"
-      },
-      "step-7": {
-        "titleSetting": "Set up your shipping settings",
-        "textSettingDescription": "To show ads to a particular country or region, you must offer shipping and set up shipping costs for that area. Your Merchant Center shipping costs must match the costs you charge on your website.",
-        "textLearnMore": "Learn more",
-        "linkLearnMore": "https://support.google.com/merchants/answer/7050921?hl=en&ref_topic=7293661",
-        "textCurrentStoreOption": "Use current store shipping settings",
-        "textFlatRateOption": "Use a flat rate for all orders",
-        "textSelfSetupOption": "Don’t sync settings from Shopware. I’ll set this up myself in Google Merchant Center"
-      }
-    },
-    "sw-sales-channel-defaults-select": {
+     "sw-sales-channel-defaults-select": {
       "messageError": "The value is in use by this domain: \"%{url}\"."
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "sales_channel": {
+        "label": "Sales Channels"
+      }
     }
   }
 }

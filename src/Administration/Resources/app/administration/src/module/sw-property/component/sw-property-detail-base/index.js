@@ -21,13 +21,17 @@ Component.register('sw-property-detail-base', {
         isLoading: {
             type: Boolean,
             default: false
+        },
+        allowEdit: {
+            type: Boolean,
+            required: false,
+            default: true
         }
     },
 
     data() {
         return {
             sortingTypes: [
-                { value: 'numeric', label: this.$tc('sw-property.detail.numericSortingType') },
                 { value: 'alphanumeric', label: this.$tc('sw-property.detail.alphanumericSortingType') },
                 { value: 'position', label: this.$tc('sw-property.detail.positionSortingType') }
             ],

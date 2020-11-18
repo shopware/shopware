@@ -41,6 +41,7 @@ Component.register('sw-order-address-modal', {
             default: {}
         }
     },
+
     data() {
         return {
             availableAddresses: [],
@@ -48,6 +49,7 @@ Component.register('sw-order-address-modal', {
             isLoading: false
         };
     },
+
     computed: {
         customerCriteria() {
             const criteria = new Criteria({ page: 1, limit: 1 });
@@ -69,11 +71,19 @@ Component.register('sw-order-address-modal', {
             return this.order.orderCustomer;
         }
     },
+
     created() {
         this.createdComponent();
     },
+
     methods: {
         createdComponent() {
+            if (this.orderCustomer && this.orderCustomer.customerId) {
+                this.getCustomerInfo();
+            }
+        },
+
+        getCustomerInfo() {
             this.isLoading = true;
 
             this.customerRepository.search(this.customerCriteria, Shopware.Context.api).then((customer) => {
@@ -108,8 +118,7 @@ Component.register('sw-order-address-modal', {
             const isShippingAvailable = this.order.addresses[0].country.shippingAvailable;
             if (!isShippingAvailable && typeof isShippingAvailable === 'boolean') {
                 this.createNotificationError({
-                    title: this.$tc('sw-order.detail.notification.shippingNotAvailable.title'),
-                    message: this.$tc('sw-order.detail.notification.shippingNotAvailable.message')
+                    message: this.$tc('sw-order.detail.messageShippingNotAvailable')
                 });
 
                 this.isLoading = false;
@@ -131,7 +140,6 @@ Component.register('sw-order-address-modal', {
                         this.$emit('save');
                     }).catch(() => {
                         this.createNotificationError({
-                            title: this.$tc('sw-order.detail.titleSaveError'),
                             message: this.$tc('sw-order.detail.messageSaveError')
                         });
                     }).finally(() => {

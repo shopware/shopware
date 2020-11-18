@@ -50,10 +50,16 @@
             <template slot="smart-bar-actions">
                 {% block sw_media_index_smart_bar_media_upload %}
                     <sw-media-upload-v2
+                        :disabled="!acl.can('media.creator')"
                         variant="compact"
                         :fileAccept="fileAccept"
                         :targetFolderId="routeFolderId"
-                        :uploadTag="uploadTag">
+                        :uploadTag="uploadTag"
+                        v-tooltip="{
+                            message: $tc('sw-privileges.tooltip.warning'),
+                            disabled: acl.can('media.creator'),
+                            showOnDisabledElements: true
+                        }">
                     </sw-media-upload-v2>
                 {% endblock %}
             </template>

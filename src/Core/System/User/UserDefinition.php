@@ -53,11 +53,14 @@ class UserDefinition extends EntityDefinition
         return UserEntity::class;
     }
 
+    public function since(): ?string
+    {
+        return '6.0.0.0';
+    }
+
     protected function defineProtections(): EntityProtectionCollection
     {
-        return new EntityProtectionCollection([
-            new WriteProtection(Context::SYSTEM_SCOPE),
-        ]);
+        return new EntityProtectionCollection([new WriteProtection(Context::SYSTEM_SCOPE)]);
     }
 
     protected function defineFields(): FieldCollection
@@ -70,6 +73,7 @@ class UserDefinition extends EntityDefinition
             (new PasswordField('password', 'password'))->addFlags(new Required(), new ReadProtected(SalesChannelApiSource::class, AdminApiSource::class)),
             (new StringField('first_name', 'firstName'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new StringField('last_name', 'lastName'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
+            (new StringField('title', 'title'))->addFlags(new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             (new StringField('email', 'email'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new BoolField('active', 'active'),
             new BoolField('admin', 'admin'),

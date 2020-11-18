@@ -102,7 +102,6 @@ Component.register('sw-settings-cache-index', {
 
         clearCache() {
             this.createNotificationInfo({
-                title: this.$tc('global.default.info'),
                 message: this.$tc('sw-settings-cache.notifications.clearCache.started')
             });
 
@@ -111,14 +110,12 @@ Component.register('sw-settings-cache-index', {
                 this.processSuccess.normalClearCache = true;
 
                 this.createNotificationSuccess({
-                    title: this.$tc('global.default.success'),
                     message: this.$tc('sw-settings-cache.notifications.clearCache.success')
                 });
             }).catch(() => {
                 this.processSuccess.normalClearCache = false;
 
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
                     message: this.$tc('sw-settings-cache.notifications.clearCache.error')
                 });
             }).finally(() => {
@@ -135,7 +132,6 @@ Component.register('sw-settings-cache-index', {
                 }, 30000);
 
                 this.createNotificationInfo({
-                    title: this.$tc('global.default.info'),
                     message: this.$tc('sw-settings-cache.notifications.clearCacheAndWarmup.started')
                 });
 
@@ -152,7 +148,6 @@ Component.register('sw-settings-cache-index', {
             this.cacheApiService.index().then(() => {
                 this.decreaseWorkerPoll();
                 this.createNotificationInfo({
-                    title: this.$tc('global.default.info'),
                     message: this.$tc('sw-settings-cache.notifications.index.started')
                 });
                 this.processSuccess.updateIndexes = true;

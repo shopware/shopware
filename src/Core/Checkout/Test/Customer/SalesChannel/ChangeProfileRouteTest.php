@@ -4,18 +4,17 @@ namespace Shopware\Core\Checkout\Test\Customer\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\AsyncTestPaymentHandler;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 
 class ChangeProfileRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    use SalesChannelApiTestBehaviour;
+    use CustomerTestTrait;
 
     /**
      * @var \Symfony\Bundle\FrameworkBundle\KernelBrowser
@@ -41,7 +40,7 @@ class ChangeProfileRouteTest extends TestCase
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
         ]);
-
+        $this->assignSalesChannelContext($this->browser);
         $this->customerRepository = $this->getContainer()->get('customer.repository');
 
         $email = Uuid::randomHex() . '@example.com';
@@ -50,7 +49,7 @@ class ChangeProfileRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v1/account/login',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/account/login',
                 [
                     'email' => $email,
                     'password' => 'shopware',
@@ -67,7 +66,7 @@ class ChangeProfileRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v1/account/change-profile',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/account/change-profile',
                 [
                 ]
             );
@@ -87,7 +86,7 @@ class ChangeProfileRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v1/account/change-profile',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/account/change-profile',
                 [
                     'salutationId' => $this->getValidSalutationId(),
                     'firstName' => 'Max',
@@ -99,46 +98,12 @@ class ChangeProfileRouteTest extends TestCase
 
         static::assertTrue($response['success']);
 
-        $this->browser->request('GET', '/store-api/v1/account/customer');
+        $this->browser->request('GET', '/store-api/v' . PlatformRequest::API_VERSION . '/account/customer');
         $customer = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame('Max', $customer['firstName']);
         static::assertSame('Mustermann', $customer['lastName']);
         static::assertSame($this->getValidSalutationId(), $customer['salutationId']);
-    }
-
-    private function createCustomer(string $password, ?string $email = null): string
-    {
-        $customerId = Uuid::randomHex();
-        $addressId = Uuid::randomHex();
-
-        $this->customerRepository->create([
-            [
-                'id' => $customerId,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
-                'defaultShippingAddress' => [
-                    'id' => $addressId,
-                    'firstName' => 'Max',
-                    'lastName' => 'Mustermann',
-                    'street' => 'Musterstraße 1',
-                    'city' => 'Schoöppingen',
-                    'zipcode' => '12345',
-                    'salutationId' => $this->getValidSalutationId(),
-                    'country' => ['name' => 'Germany'],
-                ],
-                'defaultBillingAddressId' => $addressId,
-                'defaultPaymentMethodId' => $this->ids->get('payment'),
-                'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-                'email' => $email,
-                'password' => $password,
-                'firstName' => 'Max',
-                'lastName' => 'Mustermann',
-                'salutationId' => $this->getValidSalutationId(),
-                'customerNumber' => '12345',
-            ],
-        ], $this->ids->context);
-
-        return $customerId;
     }
 
     private function createData(): void

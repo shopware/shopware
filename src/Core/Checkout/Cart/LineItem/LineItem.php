@@ -21,6 +21,7 @@ class LineItem extends Struct
     public const CREDIT_LINE_ITEM_TYPE = 'credit';
     public const PRODUCT_LINE_ITEM_TYPE = 'product';
     public const CUSTOM_LINE_ITEM_TYPE = 'custom';
+    public const PROMOTION_LINE_ITEM_TYPE = 'promotion';
 
     /**
      * @var string
@@ -256,6 +257,8 @@ class LineItem extends Struct
     }
 
     /**
+     * @param array|bool|float|int|string|null $value
+     *
      * @throws InvalidPayloadException
      */
     public function setPayloadValue(string $key, $value): self

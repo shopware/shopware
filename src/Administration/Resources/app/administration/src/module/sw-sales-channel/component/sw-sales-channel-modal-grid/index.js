@@ -1,12 +1,13 @@
 import template from './sw-sales-channel-modal-grid.html.twig';
 import './sw-sales-channel-modal-grid.scss';
 
-const { Component, StateDeprecated } = Shopware;
+const { Component, Defaults } = Shopware;
+const { Criteria } = Shopware.Data;
 
 Component.register('sw-sales-channel-modal-grid', {
     template,
 
-    inject: { repositoryFactory: 'repositoryFactory' },
+    inject: ['repositoryFactory'],
 
     props: {
         productStreamsExist: {
@@ -19,6 +20,11 @@ Component.register('sw-sales-channel-modal-grid', {
             type: Boolean,
             required: false,
             default: false
+        },
+
+        addChannelAction: {
+            type: Object,
+            required: true
         }
     },
 
@@ -31,8 +37,8 @@ Component.register('sw-sales-channel-modal-grid', {
     },
 
     computed: {
-        salesChannelTypeStore() {
-            return StateDeprecated.getStore('sales_channel_type');
+        salesChannelTypeRepository() {
+            return this.repositoryFactory.create('sales_channel_type');
         }
     },
 
@@ -42,17 +48,11 @@ Component.register('sw-sales-channel-modal-grid', {
 
     methods: {
         createdComponent() {
-            const params = {
-                limit: 500,
-                page: 1
-            };
-            const { languageId } = Shopware.State.get('session');
-
             this.isLoading = true;
-
-            this.salesChannelTypeStore.getList(params, false, languageId).then((response) => {
+            const context = { ...Shopware.Context.api, languageId: Shopware.State.get('session').languageId };
+            this.salesChannelTypeRepository.search(new Criteria(1, 500), context).then((response) => {
                 this.total = response.total;
-                this.salesChannelTypes = response.items;
+                this.salesChannelTypes = response;
                 this.isLoading = false;
             });
         },
@@ -62,16 +62,12 @@ Component.register('sw-sales-channel-modal-grid', {
         },
 
         onOpenDetail(id) {
-            const detailType = this.salesChannelTypes.find(a => a.id === id);
+            const detailType = this.salesChannelTypes.find(salesChannelType => salesChannelType.id === id);
             this.$emit('grid-detail-open', detailType);
         },
 
         isProductComparisonSalesChannelType(salesChannelTypeId) {
-            return salesChannelTypeId === 'ed535e5722134ac1aa6524f73e26881b';
-        },
-
-        isGoogleShoppingSalesChannelType(salesChannelTypeId) {
-            return salesChannelTypeId === 'eda0a7980ee745fbbb7e58202dcdc04f';
+            return salesChannelTypeId === Defaults.productComparisonTypeId;
         }
     }
 });

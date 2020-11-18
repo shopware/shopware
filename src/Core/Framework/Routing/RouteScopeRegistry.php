@@ -8,7 +8,7 @@ namespace Shopware\Core\Framework\Routing;
 class RouteScopeRegistry
 {
     /**
-     * @var RouteScopeInterface[]|AbstractRouteScope[]
+     * @var AbstractRouteScope[]
      */
     private $routeScopes;
 
@@ -19,10 +19,8 @@ class RouteScopeRegistry
 
     /**
      * @throws \InvalidArgumentException
-     *
-     * @return AbstractRouteScope|RouteScopeInterface
      */
-    public function getRouteScope(string $id)
+    public function getRouteScope(string $id): AbstractRouteScope
     {
         foreach ($this->routeScopes as $routeScope) {
             if ($routeScope->getId() === $id) {

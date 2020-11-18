@@ -13,8 +13,8 @@ import './component/sidebar/sw-media-tag';
 import './component/sw-media-display-options';
 import './component/sw-media-breadcrumbs';
 import './component/sw-media-library';
-import './component/sw-media-modal';
 import './component/sw-media-modal-v2';
+import './acl';
 
 const { Module } = Shopware;
 
@@ -42,6 +42,9 @@ Module.register('sw-media', {
                         routeFolderId: route.params.folderId
                     };
                 }
+            },
+            meta: {
+                privilege: 'media.viewer'
             }
         }
     },
@@ -53,6 +56,7 @@ Module.register('sw-media', {
         icon: 'default-object-image',
         path: 'sw.media.index',
         position: 20,
-        parent: 'sw-content'
+        parent: 'sw-content',
+        privilege: 'media.viewer'
     }]
 });

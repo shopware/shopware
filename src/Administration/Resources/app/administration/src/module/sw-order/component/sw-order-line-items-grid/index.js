@@ -1,17 +1,20 @@
 import template from './sw-order-line-items-grid.html.twig';
 import './sw-order-line-items-grid.scss';
 
-const { Component, Service } = Shopware;
+const { Component, Service, Utils } = Shopware;
+const { get, format } = Utils;
 
+// merge 16.11.2020
 Component.register('sw-order-line-items-grid', {
     template,
 
-    inject: ['orderService'],
+    inject: ['orderService', 'acl'],
 
     data() {
         return {
             isLoading: false,
-            selectedItems: {}
+            selectedItems: {},
+            searchTerm: ''
         };
     },
     props: {
@@ -30,16 +33,48 @@ Component.register('sw-order-line-items-grid', {
         }
     },
     computed: {
+        canCreateDiscounts() {
+            return this.acl.can('orders.create_discounts');
+        },
+
         orderLineItemRepository() {
             return Service('repositoryFactory').create('order_line_item');
         },
 
         orderLineItems() {
-            return this.order.lineItems;
+            if (!this.searchTerm) {
+                return this.order.lineItems;
+            }
+
+            // Filter based on the product label is not blank and contains the search term or not
+            const keyWords = this.searchTerm.split(/[\W_]+/ig);
+            return this.order.lineItems.filter(item => {
+                if (!item.label) {
+                    return false;
+                }
+
+                return keyWords.every(key => item.label.toLowerCase().includes(key.toLowerCase()));
+            });
         },
 
         lineItemTypes() {
-            return Service('cartSalesChannelService').getLineItemTypes();
+            return Service('cartStoreService').getLineItemTypes();
+        },
+
+        taxStatus() {
+            return get(this.order, 'taxStatus', '');
+        },
+
+        unitPriceLabel() {
+            if (this.taxStatus === 'net') {
+                return this.$tc('sw-order.detailBase.columnPriceNet');
+            }
+
+            if (this.taxStatus === 'tax-free') {
+                return this.$tc('sw-order.detailBase.columnPriceTaxFree');
+            }
+
+            return this.$tc('sw-order.detailBase.columnPriceGross');
         },
 
         getLineItemColumns() {
@@ -54,9 +89,7 @@ Component.register('sw-order-line-items-grid', {
             }, {
                 property: 'unitPrice',
                 dataIndex: 'unitPrice',
-                label: this.order.taxStatus === 'net' ?
-                    'sw-order.detailBase.columnPriceNet' :
-                    'sw-order.detailBase.columnPriceGross',
+                label: this.unitPriceLabel,
                 allowResize: false,
                 align: 'right',
                 inlineEdit: true,
@@ -72,7 +105,7 @@ Component.register('sw-order-line-items-grid', {
             }, {
                 property: 'totalPrice',
                 dataIndex: 'totalPrice',
-                label: this.order.taxStatus === 'net' ?
+                label: this.taxStatus === 'net' ?
                     'sw-order.detailBase.columnTotalPriceNet' :
                     'sw-order.detailBase.columnTotalPriceGross',
                 allowResize: false,
@@ -80,20 +113,22 @@ Component.register('sw-order-line-items-grid', {
                 width: '80px'
             }];
 
-            if (this.order.price.taxStatus !== 'tax-free') {
-                columnDefinitions.push(
-                    {
-                        property: 'price.taxRules[0]',
-                        label: 'sw-order.detailBase.columnTax',
-                        allowResize: false,
-                        align: 'right',
-                        inlineEdit: true,
-                        width: '100px'
-                    }
-                );
+            if (this.taxStatus !== 'tax-free') {
+                return [...columnDefinitions, {
+                    property: 'price.taxRules[0]',
+                    label: 'sw-order.detailBase.columnTax',
+                    allowResize: false,
+                    align: 'right',
+                    inlineEdit: true,
+                    width: '100px'
+                }];
             }
 
             return columnDefinitions;
+        },
+
+        salesChannelId() {
+            return Utils.get(this.order, 'salesChannelId', '');
         }
     },
     methods: {
@@ -157,8 +192,8 @@ Component.register('sw-order-line-items-grid', {
                 totalPrice: 0
             };
             item.quantity = 1;
-            item.unitPrice = 0;
-            item.totalPrice = 0;
+            item.unitPrice = '...';
+            item.totalPrice = '...';
             item.precision = 2;
             item.label = '';
 
@@ -207,9 +242,8 @@ Component.register('sw-order-line-items-grid', {
             return item.isNew() && item.type === this.lineItemTypes.PRODUCT;
         },
 
-        /** @deprecated:v6.4.0 use isCreditItem instead */
-        itemIsCredit(id) {
-            return this.isCreditItem(id);
+        onSearchTermChange(searchTerm) {
+            this.searchTerm = searchTerm.toLowerCase();
         },
 
         isCreditItem(id) {
@@ -232,17 +266,41 @@ Component.register('sw-order-line-items-grid', {
             return 0;
         },
 
-        getMaxItemPrice(id) {
-            if (!this.isCreditItem(id)) {
-                return null;
-            }
-            return 0;
-        },
-
         showTaxValue(item) {
             return (this.isCreditItem(item.id) || this.isPromotionItem(item)) && (item.price.taxRules.length > 1)
                 ? this.$tc('sw-order.detailBase.textCreditTax')
                 : `${item.price.taxRules[0].taxRate} %`;
+        },
+
+        checkItemPrice(price, item) {
+            if (this.isCreditItem(item.id)) {
+                item.priceDefinition.price = Math.abs(price) * -1;
+                return;
+            }
+
+            item.priceDefinition.price = price;
+        },
+
+        tooltipTaxDetail(item) {
+            const sortTaxes = [...item.price.calculatedTaxes].sort((prev, current) => {
+                return prev.taxRate - current.taxRate;
+            });
+
+            const decorateTaxes = sortTaxes.map((taxItem) => {
+                return this.$tc('sw-order.detailBase.taxDetail', 0, {
+                    taxRate: taxItem.taxRate,
+                    tax: format.currency(taxItem.tax, this.order.currency.shortName)
+                });
+            });
+
+            return {
+                showDelay: 300,
+                message: `${this.$tc('sw-order.detailBase.tax')}<br>${decorateTaxes.join('<br>')}`
+            };
+        },
+
+        hasMultipleTaxes(item) {
+            return get(item, 'price.calculatedTaxes') && item.price.calculatedTaxes.length > 1;
         }
     }
 });

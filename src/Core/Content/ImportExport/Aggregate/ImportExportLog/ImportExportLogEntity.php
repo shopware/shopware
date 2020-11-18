@@ -250,9 +250,4 @@ class ImportExportLogEntity extends Entity
     {
         $this->failedImportLog = $failedImportLog;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'import_export_profile_log';
-    }
 }

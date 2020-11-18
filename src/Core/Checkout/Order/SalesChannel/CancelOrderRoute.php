@@ -6,6 +6,7 @@ use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,22 +33,21 @@ class CancelOrderRoute extends AbstractCancelOrderRoute
     }
 
     /**
+     * @Since("6.2.0.0")
      * @OA\Post(
      *      path="/order/state/cancel",
-     *      description="Cancel a order",
+     *      summary="Cancel a order",
      *      operationId="cancelOrder",
      *      tags={"Store API", "Order"},
-     *      @OA\Parameter(
-     *          name="orderId",
-     *          in="post",
+     *      @OA\RequestBody(
      *          required=true,
-     *          description="The id of the order to be changed",
-     *          @OA\Schema(
-     *              type="string"
+     *          @OA\JsonContent(
+     *              @OA\Property(property="orderId", description="The id of the order to be changed", type="string")
      *          )
      *      ),
      *      @OA\Response(
      *          response="200",
+     *          description="State Machine",
      *          @OA\JsonContent(ref="#/components/schemas/state_machine_state_flat")
      *     )
      * )
@@ -62,8 +62,7 @@ class CancelOrderRoute extends AbstractCancelOrderRoute
             $request->get('orderId'),
             'cancel',
             new ParameterBag(),
-            $context->getContext(),
-            $context->getCustomer()->getId()
+            $context->getContext()
         );
 
         return new CancelOrderRouteResponse($newState);

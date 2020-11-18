@@ -18,9 +18,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @experimental We might break this with v6.2
- */
 class ImportExportFactory
 {
     /**

@@ -2,7 +2,7 @@ import pageState from './state';
 import template from './sw-category-detail.html.twig';
 import './sw-category-detail.scss';
 
-const { Component, Mixin, StateDeprecated } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria, ChangesetGenerator } = Shopware.Data;
 const { cloneDeep, merge } = Shopware.Utils.object;
 const type = Shopware.Utils.types;
@@ -11,6 +11,7 @@ Component.register('sw-category-detail', {
     template,
 
     inject: [
+        'acl',
         'cmsPageService',
         'cmsService',
         'repositoryFactory',
@@ -29,7 +30,12 @@ Component.register('sw-category-detail', {
     ],
 
     shortcuts: {
-        'SYSTEMKEY+S': 'onSave',
+        'SYSTEMKEY+S': {
+            active() {
+                return this.acl.can('category.editor');
+            },
+            method: 'onSave'
+        },
         ESCAPE: 'cancelEdit'
     },
 
@@ -76,6 +82,10 @@ Component.register('sw-category-detail', {
         },
 
         category() {
+            if (!Shopware.State.get('swCategoryDetail')) {
+                return {};
+            }
+
             return Shopware.State.get('swCategoryDetail').category;
         },
 
@@ -106,10 +116,6 @@ Component.register('sw-category-detail', {
             return this.repositoryFactory.create('media');
         },
 
-        languageStore() {
-            return StateDeprecated.getStore('language');
-        },
-
         pageClasses() {
             return {
                 'has--category': !!this.category,
@@ -118,6 +124,14 @@ Component.register('sw-category-detail', {
         },
 
         tooltipSave() {
+            if (!this.acl.can('category.editor')) {
+                return {
+                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    disabled: this.acl.can('category.editor'),
+                    showOnDisabledElements: true
+                };
+            }
+
             const systemKey = this.$device.getSystemKey();
 
             return {
@@ -256,6 +270,8 @@ Component.register('sw-category-detail', {
             this.isLoading = true;
 
             if (this.categoryId === null) {
+                Shopware.State.commit('shopwareApps/setSelectedIds', []);
+
                 return Shopware.State.dispatch('swCategoryDetail/setActiveCategory', { category: null })
                     .then(() => Shopware.State.dispatch('cmsPageState/resetCmsPageState'))
                     .then(() => {
@@ -263,10 +279,16 @@ Component.register('sw-category-detail', {
                     });
             }
 
-            return Shopware.State.dispatch('swCategoryDetail/loadActiveCategory', {
-                repository: this.categoryRepository,
-                apiContext: Shopware.Context.api,
-                id: this.categoryId
+
+            return Shopware.State.dispatch(
+                'shopwareApps/setSelectedIds',
+                [this.categoryId]
+            ).then(() => {
+                return Shopware.State.dispatch('swCategoryDetail/loadActiveCategory', {
+                    repository: this.categoryRepository,
+                    apiContext: Shopware.Context.api,
+                    id: this.categoryId
+                });
             }).then(() => Shopware.State.dispatch('cmsPageState/resetCmsPageState'))
                 .then(this.getAssignedCmsPage)
                 .then(this.loadCustomFieldSet)
@@ -364,13 +386,9 @@ Component.register('sw-category-detail', {
             }).catch(() => {
                 this.isLoading = false;
 
-                const categoryName = this.category.name || this.category.translated.name;
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
                     message: this.$tc(
-                        'global.notification.notificationSaveErrorMessage',
-                        0,
-                        { entityName: categoryName }
+                        'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'
                     )
                 });
             });

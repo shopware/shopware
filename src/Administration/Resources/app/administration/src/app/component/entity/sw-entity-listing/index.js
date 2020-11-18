@@ -56,6 +56,24 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
             type: Number,
             required: false,
             default: 25
+        },
+
+        allowEdit: {
+            type: Boolean,
+            required: false,
+            default: true
+        },
+
+        allowView: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+
+        allowDelete: {
+            type: Boolean,
+            required: false,
+            default: true
         }
     },
 
@@ -66,8 +84,18 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
             isBulkLoading: false,
             page: 1,
             limit: this.criteriaLimit,
-            total: 10
+            total: 10,
+            lastSortedColumn: null
         };
+    },
+    computed: {
+        detailPageLinkText() {
+            if (!this.allowEdit && this.allowView) {
+                return this.$tc('global.default.view');
+            }
+
+            return this.$tc('global.default.edit');
+        }
     },
 
     watch: {
@@ -101,6 +129,7 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
             // send delete request to the server, immediately
             return this.repository.delete(id, this.items.context).then(() => {
                 this.resetSelection();
+                this.$emit('delete-item-finish', id);
                 return this.doSearch();
             }).catch((errorResponse) => {
                 this.$emit('delete-item-failed', { id, errorResponse });
@@ -155,25 +184,31 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
         },
 
         sort(column) {
+            this.lastSortedColumn = column;
             this.items.criteria.resetSorting();
 
             let direction = 'ASC';
-            if (this.currentSortBy === column.dataIndex) {
+            if (this.currentSortBy === this.lastSortedColumn.dataIndex) {
                 if (this.currentSortDirection === direction) {
                     direction = 'DESC';
                 }
             }
 
-            column.dataIndex.split(',').forEach((field) => {
+            this.lastSortedColumn.dataIndex.split(',').forEach((field) => {
                 this.items.criteria.addSorting(
-                    Criteria.sort(field, direction, column.naturalSorting)
+                    Criteria.sort(field, direction, this.lastSortedColumn.naturalSorting)
                 );
             });
 
-            this.currentSortBy = column.dataIndex;
+            this.currentSortBy = this.lastSortedColumn.dataIndex;
             this.currentSortDirection = direction;
-            this.currentNaturalSorting = column.naturalSorting;
-            this.$emit('column-sort', column);
+            this.currentNaturalSorting = this.lastSortedColumn.naturalSorting;
+
+            this.$emit('column-sort', this.lastSortedColumn);
+
+            if (this.lastSortedColumn.useCustomSort) {
+                return false;
+            }
 
             return this.doSearch();
         },
@@ -181,6 +216,12 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
         paginate({ page = 1, limit = 25 }) {
             this.items.criteria.setPage(page);
             this.items.criteria.setLimit(limit);
+
+            this.$emit('paginate', this.lastSortedColumn);
+
+            if (this.lastSortedColumn && this.lastSortedColumn.useCustomSort) {
+                return false;
+            }
 
             return this.doSearch();
         },

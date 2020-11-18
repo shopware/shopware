@@ -19,6 +19,24 @@ Component.register('sw-category-tree', {
         currentLanguageId: {
             type: String,
             required: true
+        },
+
+        allowEdit: {
+            type: Boolean,
+            required: false,
+            default: true
+        },
+
+        allowCreate: {
+            type: Boolean,
+            required: false,
+            default: true
+        },
+
+        allowDelete: {
+            type: Boolean,
+            required: false,
+            default: true
         }
     },
 
@@ -50,7 +68,19 @@ Component.register('sw-category-tree', {
         },
 
         disableContextMenu() {
+            if (!this.allowEdit) {
+                return true;
+            }
+
             return this.currentLanguageId !== Shopware.Context.api.systemLanguageId;
+        },
+
+        contextMenuTooltipText() {
+            if (!this.allowEdit) {
+                return this.$tc('sw-privileges.tooltip.warning');
+            }
+
+            return null;
         }
     },
 
@@ -256,6 +286,10 @@ Component.register('sw-category-tree', {
         },
 
         addCategory(category) {
+            if (!category) {
+                return;
+            }
+
             this.loadedCategories = { ...this.loadedCategories, [category.id]: category };
         },
 

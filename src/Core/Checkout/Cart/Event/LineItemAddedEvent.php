@@ -7,7 +7,10 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class LineItemAddedEvent extends Event
+/**
+ * @deprecated tag:v6.4.0 - Will implement Shopware\Core\Framework\Event\ShopwareSalesChannelEvent
+ */
+class LineItemAddedEvent extends Event /*implements ShopwareSalesChannelEvent*/
 {
     /**
      * @var LineItem
@@ -24,11 +27,17 @@ class LineItemAddedEvent extends Event
      */
     protected $context;
 
-    public function __construct(LineItem $lineItem, Cart $cart, SalesChannelContext $context)
+    /**
+     * @var bool
+     */
+    protected $merged;
+
+    public function __construct(LineItem $lineItem, Cart $cart, SalesChannelContext $context, bool $merged = false)
     {
         $this->lineItem = $lineItem;
         $this->cart = $cart;
         $this->context = $context;
+        $this->merged = $merged;
     }
 
     public function getLineItem(): LineItem
@@ -41,8 +50,21 @@ class LineItemAddedEvent extends Event
         return $this->cart;
     }
 
+    /**
+     * @deprecated tag:v6.4.0 - Will return Shopware\Core\Framework\Context instead
+     */
     public function getContext(): SalesChannelContext
     {
         return $this->context;
+    }
+
+    public function getSalesChannelContext(): SalesChannelContext
+    {
+        return $this->context;
+    }
+
+    public function isMerged(): bool
+    {
+        return $this->merged;
     }
 }

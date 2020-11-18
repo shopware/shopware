@@ -19,7 +19,7 @@ abstract class AbstractCmsElementResolver implements CmsElementResolverInterface
     protected function resolveEntityValue(?Entity $entity, string $path)
     {
         if ($entity === null) {
-            return $entity;
+            return null;
         }
 
         $value = $entity;
@@ -42,7 +42,7 @@ abstract class AbstractCmsElementResolver implements CmsElementResolverInterface
                 // if we are at the destination entity and it does not have a value for the field
                 // on it's on, then try to get the translation fallback
                 if ($value === null) {
-                    $value = $entity->getTranslation($part);
+                    $value = $entity->getTranslation((string) $part);
                 }
             } catch (\InvalidArgumentException $ex) {
                 if (!$smartDetect) {

@@ -10,7 +10,6 @@ use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\Api\Exception\UnsupportedEncoderInputException;
 use Shopware\Core\Framework\Api\Serializer\JsonApiEncoder;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\Api\Serializer\fixtures\SerializationFixture;
@@ -21,7 +20,6 @@ use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestBasicWithToManyRela
 use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestBasicWithToOneRelationship;
 use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestCollectionWithSelfReference;
 use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestCollectionWithToOneRelationship;
-use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestEncodeWithSourceFields;
 use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestInternalFieldsAreFiltered;
 use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestMainResourceShouldNotBeInIncluded;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
@@ -85,10 +83,10 @@ class JsonApiEncoderTest extends TestCase
         $actual = json_decode($actual, true);
 
         // remove extensions from test
-        $actual = $this->array_remove($actual, 'extensions');
+        $actual = $this->arrayRemove($actual, 'extensions');
         $actual['included'] = $this->removeIncludedExtensions($actual['included']);
 
-        static::assertEquals($fixture->getAdminJsonApiFixtures(), $actual);
+        $this->assertValues($fixture->getAdminJsonApiFixtures(), $actual);
     }
 
     /**
@@ -112,7 +110,7 @@ class JsonApiEncoderTest extends TestCase
         static::assertStringNotContainsString('"links":[]', $actual);
         static::assertStringContainsString('"links":{}', $actual);
 
-        static::assertEquals($fixture->getAdminJsonApiFixtures(), json_decode($actual, true));
+        $this->assertValues($fixture->getAdminJsonApiFixtures(), json_decode($actual, true));
     }
 
     /**
@@ -139,62 +137,14 @@ class JsonApiEncoderTest extends TestCase
         static::assertStringNotContainsString('"attributes":[]', $actual);
         static::assertStringContainsString('"attributes":{}', $actual);
 
-        static::assertEquals($fixture->getAdminJsonApiFixtures(), json_decode($actual, true));
+        $this->assertValues($fixture->getAdminJsonApiFixtures(), json_decode($actual, true));
     }
 
-    public function testEncodeWithSourceField(): void
-    {
-        $case = new TestEncodeWithSourceFields();
-
-        $entity = $case->getEntity();
-
-        $criteria = $case->getCriteria();
-
-        $encoder = $this->getContainer()->get(JsonApiEncoder::class);
-
-        $definition = $this->getContainer()->get(ProductDefinition::class);
-        $actual = $encoder->encode(
-            $criteria,
-            $definition,
-            new EntityCollection([$entity]),
-            SerializationFixture::API_BASE_URL,
-            SerializationFixture::API_VERSION
-        );
-        $actual = json_decode($actual, true);
-
-        static::assertArrayHasKey('data', $actual);
-        static::assertCount(1, $actual['data']);
-        static::assertArrayHasKey('attributes', $actual['data'][0]);
-        static::assertArrayHasKey('name', $actual['data'][0]['attributes']);
-        static::assertArrayNotHasKey('taxId', $actual['data'][0]['attributes']);
-        static::assertArrayNotHasKey('description', $actual['data'][0]['attributes']);
-
-        foreach ($actual['included'] as $include) {
-            if ($include['type'] === 'tax') {
-                // all expected
-                $expected = json_decode(json_encode($entity->getTax()), true);
-                $expected = array_keys($expected);
-            } elseif ($include['type'] === 'product_manufacturer') {
-                $expected = ['name'];
-            } elseif ($include['type'] === 'product_price') {
-                $expected = ['quantityStart', 'price'];
-            } else {
-                continue;
-            }
-
-            $fields = array_keys($include['attributes']);
-
-            foreach ($fields as $field) {
-                static::assertContains($field, $expected, sprintf('Field %s was not to be expected in entity %s', $field, $include['type']));
-            }
-        }
-    }
-
-    private function array_remove($haystack, $keyToRemove): array
+    private function arrayRemove($haystack, string $keyToRemove): array
     {
         foreach ($haystack as $key => $value) {
             if (is_array($value)) {
-                $haystack[$key] = $this->array_remove($haystack[$key], $keyToRemove);
+                $haystack[$key] = $this->arrayRemove($haystack[$key], $keyToRemove);
             }
 
             if ($key === $keyToRemove) {
@@ -215,5 +165,18 @@ class JsonApiEncoderTest extends TestCase
         }
 
         return $filtered;
+    }
+
+    private function assertValues(array $expected, array $actual): void
+    {
+        foreach ($expected as $key => $value) {
+            static::assertArrayHasKey($key, $actual);
+
+            if (is_array($value)) {
+                $this->assertValues($value, $actual[$key]);
+            } else {
+                static::assertEquals($value, $actual[$key]);
+            }
+        }
     }
 }

@@ -10,4 +10,8 @@
     .sw-condition-operator-select__select {
         height: 100%;
     }
+
+    &.is--disabled {
+        background-color: transparent;
+    }
 }

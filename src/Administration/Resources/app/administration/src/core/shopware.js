@@ -1,3 +1,4 @@
+// merge 16.11.2020
 /**
  * Shopware End Developer API
  * @module Shopware
@@ -10,7 +11,6 @@ const ComponentFactory = require('src/core/factory/component.factory').default;
 const TemplateFactory = require('src/core/factory/template.factory').default;
 const EntityFactory = require('src/core/factory/entity.factory').default;
 const StateFactory = require('src/core/factory/state.factory').default;
-const StateFactoryDeprecated = require('src/core/factory/state-deprecated.factory').default;
 const ServiceFactory = require('src/core/factory/service.factory').default;
 const ClassesFactory = require('src/core/factory/classes-factory').default;
 const MixinFactory = require('src/core/factory/mixin.factory').default;
@@ -23,22 +23,20 @@ const ApiServiceFactory = require('src/core/factory/api-service.factory').defaul
 const EntityDefinitionFactory = require('src/core/factory/entity-definition.factory').default;
 const WorkerNotificationFactory = require('src/core/factory/worker-notification.factory').default;
 
-const FeatureConfig = require('src/core/feature-config').default;
+const Feature = require('src/core/feature').default;
 const ShopwareError = require('src/core/data/ShopwareError').default;
 const ApiService = require('src/core/service/api.service').default;
 const utils = require('src/core/service/util.service').default;
 const FlatTreeHelper = require('src/core/helper/flattree.helper').default;
-const InfiniteScrollingHelper = require('src/core/helper/infinite-scrolling.helper').default;
 const SanitizerHelper = require('src/core/helper/sanitizer.helper').default;
 const DeviceHelper = require('src/core/helper/device.helper').default;
 const MiddlewareHelper = require('src/core/helper/middleware.helper').default;
-const data = require('src/core/data-new/index').default;
-const dataDeprecated = require('src/core/data/index').default;
+const data = require('src/core/data/index').default;
 const ApplicationBootstrapper = require('src/core/application').default;
 
 const RefreshTokenHelper = require('src/core/helper/refresh-token.helper').default;
 const HttpFactory = require('src/core/factory/http.factory').default;
-const RepositoryFactory = require('src/core/data-new/repository-factory.data').default;
+const RepositoryFactory = require('src/core/data/repository-factory.data').default;
 const ApiContextFactory = require('src/core/factory/api-context.factory').default;
 const AppContextFactory = require('src/core/factory/app-context.factory').default;
 const RouterFactory = require('src/core/factory/router.factory').default;
@@ -65,9 +63,6 @@ application
     })
     .addFactory('state', () => {
         return StateFactory;
-    })
-    .addFactory('stateDeprecated', () => {
-        return StateFactoryDeprecated;
     })
     .addFactory('serviceFactory', () => {
         return ServiceFactory;
@@ -241,9 +236,9 @@ const Shopware = function Shopware() {
 
     /**
      * @memberOf module:Shopware
-     * @type {module:core/feature-config}
+     * @type {module:core/feature}
      */
-    this.FeatureConfig = FeatureConfig;
+    this.Feature = Feature;
 
     /**
      * @memberOf module:Shopware
@@ -296,7 +291,6 @@ const Shopware = function Shopware() {
         versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
         storefrontSalesChannelTypeId: '8a243080f92e4c719546314b577cf82b',
         productComparisonTypeId: 'ed535e5722134ac1aa6524f73e26881b',
-        googleShoppingTypeId: 'eda0a7980ee745fbbb7e58202dcdc04f',
         apiSalesChannelTypeId: 'f183ee5650cf4bdb8a774337575067a6'
     };
 
@@ -335,7 +329,6 @@ const Shopware = function Shopware() {
      */
     this.Helper = {
         FlatTreeHelper: FlatTreeHelper,
-        InfiniteScrollingHelper: InfiniteScrollingHelper,
         MiddlewareHelper: MiddlewareHelper,
         RefreshTokenHelper: RefreshTokenHelper,
         SanitizerHelper: SanitizerHelper,
@@ -360,24 +353,6 @@ Shopware.prototype = {
      */
     _private: {
         ApiServices: ApiServices
-    },
-
-    /**
-     * @memberOf module:Shopware
-     * @type {Object}
-     * @deprecated 6.1
-     */
-    DataDeprecated: dataDeprecated,
-
-    /**
-     * @memberOf module:Shopware
-     * @type {Object}
-     * @deprecated 6.1
-     */
-    StateDeprecated: {
-        registerStore: StateFactoryDeprecated.registerStore,
-        getStore: StateFactoryDeprecated.getStore,
-        getStoreRegistry: StateFactoryDeprecated.getStoreRegistry
     }
 };
 

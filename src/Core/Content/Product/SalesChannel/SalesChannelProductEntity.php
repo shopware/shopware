@@ -4,12 +4,16 @@ namespace Shopware\Core\Content\Product\SalesChannel;
 
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
+use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CalculatedListingPrice;
 
 class SalesChannelProductEntity extends ProductEntity
 {
+    /**
+     * @deprecated tag:v6.4.0 - Will be removed
+     */
     public const VISIBILITY_FILTERED = 'product-visibility';
 
     /**
@@ -41,6 +45,18 @@ class SalesChannelProductEntity extends ProductEntity
      * @var int
      */
     protected $calculatedMaxPurchase;
+
+    /**
+     * @deprecated tag:v6.4.0 - Only used for backward compatibility
+     *
+     * @var PropertyGroupCollection|null
+     */
+    protected $configurator;
+
+    /**
+     * @var CategoryEntity|null
+     */
+    protected $seoCategory;
 
     public function getCalculatedListingPrice(): CalculatedListingPrice
     {
@@ -105,5 +121,31 @@ class SalesChannelProductEntity extends ProductEntity
     public function setCalculatedMaxPurchase(int $calculatedMaxPurchase): void
     {
         $this->calculatedMaxPurchase = $calculatedMaxPurchase;
+    }
+
+    /**
+     * @deprecated tag:v6.4.0 - Only used for backward compatibility
+     */
+    public function getConfigurator(): ?PropertyGroupCollection
+    {
+        return $this->configurator;
+    }
+
+    /**
+     * @deprecated tag:v6.4.0 - Only used for backward compatibility
+     */
+    public function setConfigurator(PropertyGroupCollection $configurator): void
+    {
+        $this->configurator = $configurator;
+    }
+
+    public function getSeoCategory(): ?CategoryEntity
+    {
+        return $this->seoCategory;
+    }
+
+    public function setSeoCategory(?CategoryEntity $category): void
+    {
+        $this->seoCategory = $category;
     }
 }

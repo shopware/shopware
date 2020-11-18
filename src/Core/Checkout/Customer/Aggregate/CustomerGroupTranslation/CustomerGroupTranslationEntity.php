@@ -30,6 +30,26 @@ class CustomerGroupTranslationEntity extends TranslationEntity
      */
     protected $customFields;
 
+    /**
+     * @var string
+     */
+    protected $registrationTitle;
+
+    /**
+     * @var string
+     */
+    protected $registrationIntroduction;
+
+    /**
+     * @var bool
+     */
+    protected $registrationOnlyCompanyRegistration;
+
+    /**
+     * @var string
+     */
+    protected $registrationSeoMetaDescription;
+
     public function getCustomerGroupId(): string
     {
         return $this->customerGroupId;
@@ -70,8 +90,43 @@ class CustomerGroupTranslationEntity extends TranslationEntity
         $this->customFields = $customFields;
     }
 
-    public function getApiAlias(): string
+    public function getRegistrationTitle(): ?string
     {
-        return 'customer_group_translation';
+        return $this->registrationTitle;
+    }
+
+    public function setRegistrationTitle(string $registrationTitle): void
+    {
+        $this->registrationTitle = $registrationTitle;
+    }
+
+    public function getRegistrationIntroduction(): ?string
+    {
+        return $this->registrationIntroduction;
+    }
+
+    public function setRegistrationIntroduction(string $registrationIntroduction): void
+    {
+        $this->registrationIntroduction = $registrationIntroduction;
+    }
+
+    public function getRegistrationOnlyCompanyRegistration(): ?bool
+    {
+        return $this->registrationOnlyCompanyRegistration;
+    }
+
+    public function setRegistrationOnlyCompanyRegistration(bool $registrationOnlyCompanyRegistration): void
+    {
+        $this->registrationOnlyCompanyRegistration = $registrationOnlyCompanyRegistration;
+    }
+
+    public function getRegistrationSeoMetaDescription(): ?string
+    {
+        return $this->registrationSeoMetaDescription;
+    }
+
+    public function setRegistrationSeoMetaDescription(string $registrationSeoMetaDescription): void
+    {
+        $this->registrationSeoMetaDescription = $registrationSeoMetaDescription;
     }
 }

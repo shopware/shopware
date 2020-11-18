@@ -7,12 +7,15 @@ use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartDataCollectorInterface;
 use Shopware\Core\Checkout\Cart\CartProcessorInterface;
 use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInterface
 {
+    public const MANUAL_SHIPPING_COSTS = 'manualShippingCosts';
+
     public const SKIP_DELIVERY_PRICE_RECALCULATION = 'skipDeliveryPriceRecalculation';
 
     public const SKIP_DELIVERY_TAX_RECALCULATION = 'skipDeliveryTaxRecalculation';
@@ -70,6 +73,8 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
         $criteria = new Criteria($ids);
         $criteria->addAssociation('prices');
         $criteria->addAssociation('deliveryTime');
+        $criteria->addAssociation('tax');
+        $criteria->setTitle('cart::shipping-methods');
 
         $shippingMethods = $this->shippingMethodRepository->search($criteria, $context->getContext());
 
@@ -86,23 +91,26 @@ class DeliveryProcessor implements CartProcessorInterface, CartDataCollectorInte
 
     public function process(CartDataCollection $data, Cart $original, Cart $calculated, SalesChannelContext $context, CartBehavior $behavior): void
     {
-        if ($behavior->hasPermission(self::SKIP_DELIVERY_PRICE_RECALCULATION)
-            && $behavior->hasPermission(self::SKIP_DELIVERY_TAX_RECALCULATION)) {
-            $deliveries = $original->getDeliveries();
+        if ($behavior->hasPermission(self::SKIP_DELIVERY_PRICE_RECALCULATION)) {
+            $originalDeliveries = $original->getDeliveries();
+            $deliveriesWithNewShippingMethod = $this->builder->build($calculated, $data, $context, $behavior);
 
-            $this->deliveryCalculator->calculate($data, $calculated, $deliveries, $context);
+            if ($originalDeliveries->count() > 0 && $deliveriesWithNewShippingMethod->count() > 0) {
+                $originalDeliveries->first()->setShippingMethod($deliveriesWithNewShippingMethod->first()->getShippingMethod());
+            }
 
-            $calculated->setDeliveries($deliveries);
+            // New shipping method (if changed) but with old prices
+            $calculated->setDeliveries($originalDeliveries);
 
             return;
         }
 
         $deliveries = $this->builder->build($calculated, $data, $context, $behavior);
 
-        if ($behavior->hasPermission(self::SKIP_DELIVERY_PRICE_RECALCULATION)
-            && $deliveries->count() > 0
-            && $original->getDeliveries()->count() > 0) {
-            $deliveries->first()->setShippingCosts($original->getDeliveries()->first()->getShippingCosts());
+        $delivery = $deliveries->first();
+        $manualShippingCosts = $original->getExtension(self::MANUAL_SHIPPING_COSTS);
+        if ($delivery !== null && $manualShippingCosts instanceof CalculatedPrice) {
+            $delivery->setShippingCosts($manualShippingCosts);
         }
 
         $this->deliveryCalculator->calculate($data, $calculated, $deliveries, $context);

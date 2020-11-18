@@ -31,6 +31,27 @@ class UserApiService extends ApiService {
                 return ApiService.handleResponse(response);
             });
     }
+
+    /**
+     * Update information of the logged in user
+     *
+     * @param {Object} [additionalParams = {}]
+     * @param {Object} [additionalHeaders = {}]
+     * @returns {Promise<T>}
+     */
+    updateUser(additionalParams = {}, additionalHeaders = {}) {
+        const data = additionalParams;
+        const headers = this.getBasicHeaders(additionalHeaders);
+
+        return this.httpClient
+            .patch('/_info/me', data,
+                {
+                    headers
+                })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
 }
 
 export default UserApiService;

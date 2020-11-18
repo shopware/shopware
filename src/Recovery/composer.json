@@ -5,22 +5,27 @@
     "license": "MIT",
     "minimum-stability": "stable",
     "require": {
-        "php": "^7.2"
+        "php": "~7.4"
     },
     "scripts": {
         "pre-install-cmd": [
             "composer install -d Common --no-interaction --optimize-autoloader --no-suggest"
         ]
     },
-  "autoload-dev": {
-    "psr-4": {
-      "Shopware\\Recovery\\Test\\": "Test"
-    }
-  },
+    "autoload-dev": {
+        "psr-4": {
+            "Shopware\\Recovery\\Test\\": "Test"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "6.4.x-dev"
+        }
+    },
     "config": {
         "autoloader-suffix": "ShopwareRecovery",
         "platform": {
-            "php": "7.2.9"
+            "php": "7.4.0"
         }
     },
     "require-dev": {

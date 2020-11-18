@@ -4,7 +4,7 @@
 
 ## Local installation on mac (MAMP)
 
-For quick and easy installation you can also use **MAMP** on mac.
+For quick and easy installation you can also use **MAMP** on mac. As an additional option, there is a [Valet+](./25-valet-plus.md) guide.
 
 ### Preparation
 

@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Migration\Exception\MigrateException;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -28,6 +29,7 @@ class MigrationController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/database/sync-migration", name="api.action.database.sync-migration", methods={"POST"})
      */
     public function syncMigrations(Request $request): Response
@@ -38,6 +40,7 @@ class MigrationController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/database/migrate", name="api.action.database.migrate", methods={"POST"})
      */
     public function migrate(Request $request): Response
@@ -62,6 +65,7 @@ class MigrationController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/database/migrate-destructive", name="api.action.database.migrate-destructive", methods={"POST"})
      */
     public function migrateDestructive(Request $request): Response

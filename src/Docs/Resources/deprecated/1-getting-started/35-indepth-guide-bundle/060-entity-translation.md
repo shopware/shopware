@@ -217,7 +217,7 @@ All of those properties need a getter and a setter again, so add those too.
 
 Here's the example `BundleTranslationEntity`:
 ```php
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace Swag\BundleExample\Core\Content\Bundle\Aggregate\BundleTranslation;
 
@@ -286,7 +286,7 @@ any field related stuff, there's no `TranslatedEntityCollection` or something al
 Just like in the `BundleCollection`, override the method `getExpectedClass` and return the FQCN for your `BundleTranslationEntity` here.
 
 ```php
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace Swag\BundleExample\Core\Content\Bundle\Aggregate\BundleTranslation;
 

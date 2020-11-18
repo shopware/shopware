@@ -1,4 +1,4 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
 
 import CategoryPageObject from '../../../support/pages/module/sw-category.page-object';
 
@@ -50,6 +50,7 @@ describe('Category: Create several categories', () => {
         // Save and verify category
         cy.wait('@saveData').then((xhr) => {
             expect(xhr).to.have.property('status', 204);
+            cy.get('.sw-loader').should('not.exist');
         });
         cy.get('.sw-confirm-field__button-list').then((btn) => {
             if (btn.attr('style').includes('display: none;')) {
@@ -67,9 +68,12 @@ describe('Category: Create several categories', () => {
         });
         cy.get('.sw-category-detail-base').should('be.visible');
         cy.get('input[name="categoryActive"]').click();
+
         cy.get('.sw-category-detail__save-action').click();
         cy.wait('@editCategory').then((xhr) => {
             expect(xhr).to.have.property('status', 204);
+            cy.get('.sw-category-detail__save-action')
+                .should('have.css', 'background-color', 'rgb(24, 158, 255)');
         });
 
         // Verify category in Storefront

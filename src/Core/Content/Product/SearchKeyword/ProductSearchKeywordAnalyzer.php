@@ -32,7 +32,7 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
             }
         }
 
-        if ($product->getManufacturer()) {
+        if ($product->getManufacturer() && $product->getManufacturer()->getTranslation('name') !== null) {
             $keywords->add(new AnalyzedKeyword((string) $product->getManufacturer()->getTranslation('name'), 500));
         }
         if ($product->getManufacturerNumber()) {
@@ -40,6 +40,11 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
         }
         if ($product->getEan()) {
             $keywords->add(new AnalyzedKeyword($product->getEan(), 500));
+        }
+        if (!empty($product->getCustomSearchKeywords())) {
+            foreach ($product->getCustomSearchKeywords() as $keyword) {
+                $keywords->add(new AnalyzedKeyword($keyword, 800));
+            }
         }
 
         return $keywords;

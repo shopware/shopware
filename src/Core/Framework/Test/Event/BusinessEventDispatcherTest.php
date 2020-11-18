@@ -14,6 +14,8 @@ use Shopware\Core\Framework\Event\BusinessEvents;
 use Shopware\Core\Framework\Event\EventAction\EventActionCollection;
 use Shopware\Core\Framework\Event\EventAction\EventActionDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestDataCollection;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class BusinessEventDispatcherTest extends TestCase
@@ -95,6 +97,106 @@ class BusinessEventDispatcherTest extends TestCase
         static::assertEquals(1, $this->testSubscriber->actions['unit_test_action'] ?? 0);
     }
 
+    public function testInativeEventIsNotDispatched(): void
+    {
+        $context = Context::createDefaultContext();
+        $event = new TestBusinessEvent($context);
+
+        $this->eventActionRepository->create([[
+            'eventName' => TestBusinessEvent::EVENT_NAME,
+            'actionName' => 'unit_test_action',
+            'active' => false,
+        ]], $context);
+
+        $this->dispatcher->dispatch($event);
+
+        static::assertEquals(1, $this->testSubscriber->events[BusinessEvents::GLOBAL_EVENT] ?? 0);
+        static::assertEquals(0, $this->testSubscriber->actions['unit_test_action'] ?? 0);
+    }
+
+    public function testNotMatchingRulesNotDispatched(): void
+    {
+        $context = Context::createDefaultContext();
+        $event = new TestBusinessEvent($context);
+
+        $id = Uuid::randomHex();
+        $this->getContainer()->get('rule.repository')
+            ->create([[
+                'id' => $id,
+                'name' => 'test',
+                'priority' => 100,
+            ]], Context::createDefaultContext());
+
+        $this->eventActionRepository->create([[
+            'eventName' => TestBusinessEvent::EVENT_NAME,
+            'actionName' => 'unit_test_action',
+            'rules' => [
+                ['id' => $id],
+            ],
+        ]], $context);
+
+        $this->dispatcher->dispatch($event);
+
+        static::assertEquals(1, $this->testSubscriber->events[BusinessEvents::GLOBAL_EVENT] ?? 0);
+        static::assertEquals(0, $this->testSubscriber->actions['unit_test_action'] ?? 0);
+    }
+
+    public function testMatchingRuleDispatched(): void
+    {
+        $id = Uuid::randomHex();
+        $this->getContainer()->get('rule.repository')
+            ->create([[
+                'id' => $id,
+                'name' => 'test',
+                'priority' => 100,
+            ]], Context::createDefaultContext());
+
+        $this->eventActionRepository->create([[
+            'eventName' => TestBusinessEvent::EVENT_NAME,
+            'actionName' => 'unit_test_action',
+            'rules' => [
+                ['id' => $id],
+            ],
+        ]], Context::createDefaultContext());
+
+        $context = Context::createDefaultContext();
+        $context->setRuleIds([$id]);
+        $event = new TestBusinessEvent($context);
+
+        $this->dispatcher->dispatch($event);
+
+        static::assertEquals(1, $this->testSubscriber->events[BusinessEvents::GLOBAL_EVENT] ?? 0);
+        static::assertEquals(1, $this->testSubscriber->actions['unit_test_action'] ?? 0);
+    }
+
+    public function testOneMatchingRuleDispatched(): void
+    {
+        $ids = new TestDataCollection();
+
+        $this->getContainer()->get('rule.repository')
+            ->create([
+                ['id' => $ids->create('rule-a'), 'name' => 'test', 'priority' => 100],
+                ['id' => $ids->create('rule-b'), 'name' => 'test', 'priority' => 100],
+            ], Context::createDefaultContext());
+
+        $this->eventActionRepository->create([[
+            'eventName' => TestBusinessEvent::EVENT_NAME,
+            'actionName' => 'unit_test_action',
+            'rules' => [
+                ['id' => $ids->get('rule-a')],
+            ],
+        ]], Context::createDefaultContext());
+
+        $context = Context::createDefaultContext();
+        $context->setRuleIds([$ids->get('rule-a')]);
+        $event = new TestBusinessEvent($context);
+
+        $this->dispatcher->dispatch($event);
+
+        static::assertEquals(1, $this->testSubscriber->events[BusinessEvents::GLOBAL_EVENT] ?? 0);
+        static::assertEquals(1, $this->testSubscriber->actions['unit_test_action'] ?? 0);
+    }
+
     public function testMultipleEventActionIsDispatched(): void
     {
         $context = Context::createDefaultContext();
@@ -160,5 +262,58 @@ class BusinessEventDispatcherTest extends TestCase
         static::assertEquals(1, $this->testSubscriber->actions['unit_test_action'] ?? 0);
 
         static::assertEquals($eventConfig, $this->testSubscriber->lastActionConfig);
+    }
+
+    public function testEventPropagation(): void
+    {
+        $context = Context::createDefaultContext();
+        $event = new TestBusinessEvent($context);
+
+        $this->eventActionRepository->create([
+            [
+                'eventName' => TestBusinessEvent::EVENT_NAME,
+                'actionName' => 'unit_test_action',
+            ],
+        ], $context);
+
+        $eventDispatcherMock = static::createMock(EventDispatcherInterface::class);
+        $eventDispatcherMock->expects(static::exactly(3))
+            ->method('dispatch')
+            ->willReturn($event);
+
+        $dispatcher = new BusinessEventDispatcher(
+            $eventDispatcherMock,
+            $this->getContainer()->get(DefinitionInstanceRegistry::class),
+            $this->getContainer()->get(EventActionDefinition::class)
+        );
+
+        $dispatcher->dispatch($event, $event->getName());
+    }
+
+    public function testEventPropagationStopped(): void
+    {
+        $context = Context::createDefaultContext();
+        $event = new TestBusinessEvent($context);
+
+        $this->eventActionRepository->create([
+            [
+                'eventName' => TestBusinessEvent::EVENT_NAME,
+                'actionName' => 'unit_test_action',
+            ],
+        ], $context);
+
+        $eventDispatcherMock = static::createMock(EventDispatcherInterface::class);
+        $eventDispatcherMock->expects(static::once())
+            ->method('dispatch')
+            ->willReturn($event);
+
+        $dispatcher = new BusinessEventDispatcher(
+            $eventDispatcherMock,
+            $this->getContainer()->get(DefinitionInstanceRegistry::class),
+            $this->getContainer()->get(EventActionDefinition::class)
+        );
+
+        $event->stopPropagation();
+        $dispatcher->dispatch($event);
     }
 }

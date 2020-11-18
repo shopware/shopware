@@ -10,6 +10,14 @@ Component.register('sw-product-packaging-form', {
         Mixin.getByName('placeholder')
     ],
 
+    props: {
+        allowEdit: {
+            type: Boolean,
+            required: false,
+            default: true
+        }
+    },
+
     computed: {
         ...mapGetters('swProductDetail', [
             'isLoading'

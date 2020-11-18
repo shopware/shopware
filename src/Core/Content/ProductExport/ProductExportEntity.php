@@ -81,6 +81,11 @@ class ProductExportEntity extends Entity
     /** @var string|null */
     protected $footerTemplate;
 
+    /**
+     * @var bool|null
+     */
+    protected $pausedSchedule;
+
     public function getProductStreamId(): string
     {
         return $this->productStreamId;
@@ -291,8 +296,13 @@ class ProductExportEntity extends Entity
         $this->footerTemplate = $footerTemplate;
     }
 
-    public function getApiAlias(): string
+    public function isPausedSchedule(): ?bool
     {
-        return 'product_export';
+        return $this->pausedSchedule;
+    }
+
+    public function setPausedSchedule(?bool $pausedSchedule): void
+    {
+        $this->pausedSchedule = $pausedSchedule;
     }
 }

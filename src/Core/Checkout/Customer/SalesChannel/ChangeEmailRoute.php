@@ -10,7 +10,9 @@ use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerPasswordMatche
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -28,6 +30,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @RouteScope(scopes={"store-api"})
+ * @ContextTokenRequired()
  */
 class ChangeEmailRoute extends AbstractChangeEmailRoute
 {
@@ -62,32 +65,24 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
     }
 
     /**
+     * @Since("6.2.0.0")
      * @OA\Post(
      *      path="/account/change-email",
-     *      description="Change email",
+     *      summary="Change email",
      *      operationId="changeEmail",
      *      tags={"Store API", "Account"},
-     *      @OA\Parameter(
-     *        name="email",
-     *        in="body",
-     *        description="New Email",
-     *        @OA\Schema(type="string"),
-     *      ),
-     *      @OA\Parameter(
-     *        name="emailConfirmation",
-     *        in="body",
-     *        description="New Email",
-     *        @OA\Schema(type="string"),
-     *      ),
-     *      @OA\Parameter(
-     *        name="password",
-     *        in="body",
-     *        description="Current password",
-     *        @OA\Schema(type="string"),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              @OA\Property(property="email", description="New Email", type="string"),
+     *              @OA\Property(property="emailConfirmation", description="New Email", type="string"),
+     *              @OA\Property(property="password", description="Current password", type="string")
+     *          )
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          @OA\JsonContent(ref="#/definitions/SuccessResponse")
+     *          description="Successfully saved",
+     *          @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      * @Route(path="/store-api/v{version}/account/change-email", name="store-api.account.change-email", methods={"POST"})
@@ -114,12 +109,14 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
     {
         $validation = new DataValidationDefinition('customer.email.update');
 
+        $options = ['context' => $context->getContext(), 'salesChannelContext' => $context];
+
         $validation
             ->add(
                 'email',
                 new Email(),
                 new EqualTo(['propertyPath' => 'emailConfirmation']),
-                new CustomerEmailUnique(['context' => $context->getContext()])
+                new CustomerEmailUnique($options)
             )
             ->add('password', new CustomerPasswordMatches(['context' => $context]));
 

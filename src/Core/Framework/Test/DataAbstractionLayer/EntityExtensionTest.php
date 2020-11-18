@@ -124,11 +124,11 @@ class EntityExtensionTest extends TestCase
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('myTax');
 
+        /** @var ProductEntity|null $product */
         $product = $this->productRepository->search($criteria, Context::createDefaultContext())->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
 
-        /** @var ProductEntity $product */
         static::assertTrue($product->hasExtension('myTax'));
 
         /** @var TaxEntity $tax */

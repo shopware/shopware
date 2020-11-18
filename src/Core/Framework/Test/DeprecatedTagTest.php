@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Kernel;
 use Symfony\Component\Finder\Finder;
 
+/**
+ * @group slow
+ */
 class DeprecatedTagTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -23,27 +26,32 @@ class DeprecatedTagTest extends TestCase
         'Common/vendor/',
         'Recovery/vendor',
         'recovery/vendor',
+        'storefront/vendor',
     ];
 
-    public function testAllPhpFilesInPlatformForDeprecated(): void
+    public function testFilesInPlatformForDeprecatedTag(): void
     {
-        $dir = dirname(KernelLifecycleManager::getClassLoader()
-                ->findFile(Kernel::class)) . '/../';
+        $dir = realpath(\dirname(KernelLifecycleManager::getClassLoader()->findFile(Kernel::class)) . '/../');
 
         $return = [];
         $finder = new Finder();
         $finder->in($dir)
             ->files()
             ->name('*.php')
+            ->name('*.js')
+            ->name('*.scss')
+            ->name('*.html.twig')
+            ->name('*.xsd')
             ->contains('@deprecated');
 
         foreach ($this->whiteList as $path) {
             $finder->notPath($path);
         }
 
-        foreach ($finder->getIterator() as $phpFile) {
-            if ($this->hasDeprecationFalseOrNoTag('@deprecated', $phpFile->getPathname())) {
-                $return[] = $phpFile->getPathname();
+        foreach ($finder->getIterator() as $file) {
+            $filePath = $file->getRealPath();
+            if ($this->hasDeprecationFalseOrNoTag('@deprecated', $filePath)) {
+                $return[] = $filePath;
             }
         }
 
@@ -106,11 +114,24 @@ class DeprecatedTagTest extends TestCase
         if (is_string($envVersion) && $envVersion !== '') {
             return $envVersion;
         }
+        $tags = $this->exec('git tag');
 
-        return str_replace('v', '', $this->exec('git describe --tags $(git rev-list --tags --max-count=1)'));
+        $highest = str_replace('v', '', $tags[0]);
+        foreach ($tags as $tag) {
+            if (strlen($tag) > 8) {
+                continue;
+            }
+            $tag = str_replace('v', '', $tag);
+
+            if (version_compare($highest, $tag) === -1) {
+                $highest = $tag;
+            }
+        }
+
+        return $tag;
     }
 
-    private function exec(string $command): string
+    private function exec(string $command): array
     {
         $result = [];
         $exitCode = 0;
@@ -121,6 +142,6 @@ class DeprecatedTagTest extends TestCase
             throw new \Exception("Could not execute {$command} successfully. EXITING \n");
         }
 
-        return $result[0];
+        return $result;
     }
 }

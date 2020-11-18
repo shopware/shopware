@@ -7,13 +7,14 @@ use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
 use Shopware\Core\Checkout\Payment\Exception\PaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\PaymentService;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
@@ -69,11 +70,6 @@ class CheckoutController extends StorefrontController
      */
     private $offcanvasCartPageLoader;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $orderRepository;
-
     public function __construct(
         CartService $cartService,
         CheckoutCartPageLoader $cartPageLoader,
@@ -81,8 +77,7 @@ class CheckoutController extends StorefrontController
         CheckoutFinishPageLoader $finishPageLoader,
         OrderService $orderService,
         PaymentService $paymentService,
-        OffcanvasCartPageLoader $offcanvasCartPageLoader,
-        EntityRepositoryInterface $orderRepository
+        OffcanvasCartPageLoader $offcanvasCartPageLoader
     ) {
         $this->cartService = $cartService;
         $this->cartPageLoader = $cartPageLoader;
@@ -91,10 +86,10 @@ class CheckoutController extends StorefrontController
         $this->orderService = $orderService;
         $this->paymentService = $paymentService;
         $this->offcanvasCartPageLoader = $offcanvasCartPageLoader;
-        $this->orderRepository = $orderRepository;
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/checkout/cart", name="frontend.checkout.cart.page", options={"seo"="false"}, methods={"GET"})
      */
     public function cartPage(Request $request, SalesChannelContext $context): Response
@@ -105,6 +100,7 @@ class CheckoutController extends StorefrontController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/checkout/confirm", name="frontend.checkout.confirm.page", options={"seo"="false"}, methods={"GET"}, defaults={"XmlHttpRequest"=true})
      */
     public function confirmPage(Request $request, SalesChannelContext $context): Response
@@ -123,6 +119,7 @@ class CheckoutController extends StorefrontController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/checkout/finish", name="frontend.checkout.finish.page", options={"seo"="false"}, methods={"GET"})
      *
      * @throws CustomerNotLoggedInException
@@ -138,6 +135,7 @@ class CheckoutController extends StorefrontController
         $page = $this->finishPageLoader->load($request, $context);
 
         if ($page->isPaymentFailed() === true) {
+            // @deprecated tag:v6.4.0 - errors will be redirected immediately to the edit order page
             $this->addFlash(
                 'danger',
                 $this->trans(
@@ -153,6 +151,7 @@ class CheckoutController extends StorefrontController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/checkout/order", name="frontend.checkout.finish.order", options={"seo"="false"}, methods={"POST"})
      */
     public function order(RequestDataBag $data, SalesChannelContext $context, Request $request): Response
@@ -169,17 +168,14 @@ class CheckoutController extends StorefrontController
             $this->addAffiliateTracking($data, $request->getSession());
             $orderId = $this->orderService->createOrder($data, $context);
             $finishUrl = $this->generateUrl('frontend.checkout.finish.page', ['orderId' => $orderId]);
-            $errorUrl = $this->generateUrl('frontend.checkout.finish.page', [
-                'orderId' => $orderId,
-                'changedPayment' => false,
-                'paymentFailed' => true,
-            ]);
+            $errorUrl = $this->generateUrl('frontend.account.edit-order.page', ['orderId' => $orderId]);
 
             $response = $this->paymentService->handlePaymentByOrder($orderId, $data, $context, $finishUrl, $errorUrl);
 
             return $response ?? new RedirectResponse($finishUrl);
         } catch (ConstraintViolationException $formViolations) {
         } catch (Error $blockedError) {
+        } catch (EmptyCartException $blockedError) {
         } catch (PaymentProcessException | InvalidOrderException | UnknownPaymentMethodException $e) {
             return $this->forwardToRoute('frontend.checkout.finish.page', ['orderId' => $orderId, 'changedPayment' => false, 'paymentFailed' => true]);
         }
@@ -188,6 +184,7 @@ class CheckoutController extends StorefrontController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/widgets/checkout/info", name="frontend.checkout.info", methods={"GET"}, defaults={"XmlHttpRequest"=true})
      *
      * @throws CartTokenNotFoundException
@@ -200,6 +197,7 @@ class CheckoutController extends StorefrontController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/checkout/offcanvas", name="frontend.cart.offcanvas", options={"seo"="false"}, methods={"GET"}, defaults={"XmlHttpRequest"=true})
      *
      * @throws CartTokenNotFoundException
@@ -207,6 +205,11 @@ class CheckoutController extends StorefrontController
     public function offcanvas(Request $request, SalesChannelContext $context): Response
     {
         $page = $this->offcanvasCartPageLoader->load($request, $context);
+        if ($request->cookies->get('sf_redirect') === null) {
+            $cart = $page->getCart();
+            $this->addCartErrors($cart);
+            $cart->getErrors()->clear();
+        }
 
         return $this->renderStorefront('@Storefront/storefront/component/checkout/offcanvas-cart.html.twig', ['page' => $page]);
     }

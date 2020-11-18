@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
-use Shopware\Core\System\SalesChannel\NoContentResponse;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -12,5 +12,9 @@ abstract class AbstractLogoutRoute
 {
     abstract public function getDecorated(): AbstractLogoutRoute;
 
-    abstract public function logout(SalesChannelContext $context): NoContentResponse;
+    /**
+     * @deprecated tag:v6.4.0 - Parameter $data will be mandatory in future implementation
+     * @deprecated tag:v6.4.0 - Return typehint will be set to ContextTokenResponse in v6.4.0
+     */
+    abstract public function logout(SalesChannelContext $context/*, ?RequestDataBag $data = null*/);
 }

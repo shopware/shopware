@@ -52,6 +52,28 @@ class NavigationPageTest extends TestCase
         $this->getPageLoader()->load($request, $context);
     }
 
+    public function testItDoesHaveCanonicalTag(): void
+    {
+        $request = new Request();
+        $context = $this->createSalesChannelContextWithNavigation();
+        $seoUrlHandler = $this->getContainer()->get('Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface');
+
+        /** @var NavigationPageLoadedEvent $event */
+        $event = null;
+        $this->catchEvent(NavigationPageLoadedEvent::class, $event);
+
+        $page = $this->getPageLoader()->load($request, $context);
+
+        static::assertInstanceOf(NavigationPage::class, $page);
+
+        $meta = $page->getMetaInformation()->getVars();
+        $canonical = $meta['canonical'];
+
+        $seoUrl = $seoUrlHandler->replace($canonical, $request->getHost(), $context);
+
+        static::assertEquals('/', $seoUrl);
+    }
+
     /**
      * @return NavigationPageLoader
      */

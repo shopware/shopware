@@ -16,7 +16,9 @@ Component.register('sw-cms-detail', {
         'loginService',
         'cmsPageService',
         'cmsService',
-        'cmsDataResolverService'
+        'cmsDataResolverService',
+        'acl',
+        'feature'
     ],
 
     mixins: [
@@ -138,6 +140,14 @@ Component.register('sw-cms-detail', {
         },
 
         tooltipSave() {
+            if (!this.acl.can('cms.editor')) {
+                return {
+                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    disabled: this.acl.can('cms.editor'),
+                    showOnDisabledElements: true
+                };
+            }
+
             const systemKey = this.$device.getSystemKey();
 
             return {
@@ -190,7 +200,7 @@ Component.register('sw-cms-detail', {
         createdComponent() {
             Shopware.State.commit('adminMenu/collapseSidebar');
 
-            const isSystemDefaultLanguage = Shopware.Context.api.languageId === Shopware.Context.api.systemLanguageId;
+            const isSystemDefaultLanguage = Shopware.State.getters['context/isSystemDefaultLanguage'];
             this.$store.commit('cmsPageState/setIsSystemDefaultLanguage', isSystemDefaultLanguage);
 
             this.resetCmsPageState();
@@ -326,6 +336,10 @@ Component.register('sw-cms-detail', {
         },
 
         onDeviceViewChange(view) {
+            if (view === 'form' && !this.acl.can('cms.editor')) {
+                return;
+            }
+
             Shopware.State.commit('cmsPageState/setCurrentCmsDeviceView', view);
 
             if (view === 'form') {
@@ -343,7 +357,7 @@ Component.register('sw-cms-detail', {
 
             return this.salesChannelRepository.search(new Criteria(), Shopware.Context.api).then((response) => {
                 this.salesChannels = response;
-                const isSystemDefaultLanguage = Shopware.Context.api.languageId === Shopware.Context.api.systemLanguageId;
+                const isSystemDefaultLanguage = Shopware.State.getters['context/isSystemDefaultLanguage'];
                 this.$store.commit('cmsPageState/setIsSystemDefaultLanguage', isSystemDefaultLanguage);
                 return this.loadPage(this.pageId);
             });
@@ -429,10 +443,8 @@ Component.register('sw-cms-detail', {
             if ((this.isSystemDefaultLanguage && !this.page.name) || !this.page.type) {
                 this.pageConfigOpen();
 
-                const warningTitle = this.$tc('sw-cms.detail.notification.titleMissingFields');
                 const warningMessage = this.$tc('sw-cms.detail.notification.messageMissingFields');
                 this.createNotificationError({
-                    title: warningTitle,
                     message: warningMessage
                 });
 
@@ -452,7 +464,6 @@ Component.register('sw-cms-detail', {
 
                 if (!foundListingBlock) {
                     this.createNotificationError({
-                        title: this.$tc('sw-cms.detail.notification.titleMissingProductListing'),
                         message: this.$tc('sw-cms.detail.notification.messageMissingProductListing')
                     });
 
@@ -467,8 +478,7 @@ Component.register('sw-cms-detail', {
             const sections = this.page.sections;
 
             if (sections.length < 1) {
-                this.createNotificationWarning({
-                    title: this.$tc('sw-cms.detail.notification.titleMissingSections'),
+                this.createNotificationError({
                     message: this.$tc('sw-cms.detail.notification.messageMissingSections')
                 });
 
@@ -476,8 +486,7 @@ Component.register('sw-cms-detail', {
             }
 
             if (sections.length === 1 && sections[0].blocks.length === 0) {
-                this.createNotificationWarning({
-                    title: this.$tc('sw-cms.detail.notification.titleMissingBlocks'),
+                this.createNotificationError({
                     message: this.$tc('sw-cms.detail.notification.messageMissingBlocks')
                 });
 
@@ -498,10 +507,8 @@ Component.register('sw-cms-detail', {
             });
 
             if (foundEmptyRequiredField.length > 0) {
-                const warningTitle = this.$tc('sw-cms.detail.notification.titleMissingBlockFields');
                 const warningMessage = this.$tc('sw-cms.detail.notification.messageMissingBlockFields');
-                this.createNotificationWarning({
-                    title: warningTitle,
+                this.createNotificationError({
                     message: warningMessage
                 });
 
@@ -521,7 +528,7 @@ Component.register('sw-cms-detail', {
             }).catch((exception) => {
                 this.isLoading = false;
 
-                const errorNotificationTitle = this.$tc('sw-cms.detail.notification.titlePageError');
+                const errorNotificationTitle = this.$tc('global.default.error');
                 this.createNotificationError({
                     title: errorNotificationTitle,
                     message: exception.message
@@ -537,10 +544,8 @@ Component.register('sw-cms-detail', {
                 }
 
                 if (hasEmptyConfig === true) {
-                    const warningTitle = this.$tc('sw-cms.detail.notification.titleMissingElements');
-                    const warningMessage = this.$tc('sw-cms.detail.notificationM.messageMissingElements');
-                    this.createNotificationWarning({
-                        title: warningTitle,
+                    const warningMessage = this.$tc('sw-cms.detail.notification.messageMissingElements');
+                    this.createNotificationError({
                         message: warningMessage,
                         duration: 10000
                     });
@@ -651,34 +656,13 @@ Component.register('sw-cms-detail', {
 
         onPageTypeChange() {
             if (this.page.type === 'product_list') {
-                const listingBlock = this.blockRepository.create();
-                const blockConfig = this.cmsBlocks['product-listing'];
-
-                listingBlock.type = 'product-listing';
-                listingBlock.position = 0;
-
-                listingBlock.sectionId = this.page.sections[0].id;
-                listingBlock.setionPosition = 'main';
-
-                Object.assign(
-                    listingBlock,
-                    cloneDeep(this.blockConfigDefaults),
-                    cloneDeep(blockConfig.defaultConfig || {})
-                );
-
-                const listingEl = this.slotRepository.create();
-                listingEl.blockId = listingBlock.id;
-                listingEl.slot = 'content';
-                listingEl.type = 'product-listing';
-                listingEl.config = {};
-
-                listingBlock.slots.push(listingEl);
-
-                this.page.sections[0].blocks.splice(0, 0, listingBlock);
+                this.processProductListingType();
+            } else if (this.page.type === 'product_detail') {
+                this.processProductDetailType();
             } else {
                 this.page.sections.forEach((section) => {
                     section.blocks.forEach((block) => {
-                        if (block.type === 'product-listing') {
+                        if (block.type === 'product-listing' || block.type === 'product-heading') {
                             section.blocks.remove(block.id);
                         }
                     });
@@ -687,6 +671,77 @@ Component.register('sw-cms-detail', {
 
             this.checkSlotMappings();
             this.onPageUpdate();
+        },
+
+        processProductListingType() {
+            const listingBlock = this.blockRepository.create();
+            const listingElements = [
+                {
+                    blockId: listingBlock.id,
+                    slot: 'content',
+                    type: 'product-listing',
+                    config: {}
+                }
+            ];
+
+            this.processBlock(listingBlock, 'product-listing');
+            this.processElements(listingBlock, listingElements);
+        },
+
+        processProductDetailType() {
+            this.processHeadingBlock();
+        },
+
+        processHeadingBlock() {
+            const headingBlock = this.blockRepository.create();
+            const headingElements = [
+                {
+                    blockId: headingBlock.id,
+                    slot: 'left',
+                    type: 'product-name',
+                    config: {}
+                },
+                {
+                    blockId: headingBlock.id,
+                    slot: 'right',
+                    type: 'manufacturer-logo',
+                    config: {}
+                }
+            ];
+
+            this.processBlock(headingBlock, 'product-heading');
+            this.processElements(headingBlock, headingElements);
+        },
+
+        processBlock(block, blockType) {
+            const cmsBlock = this.cmsBlocks[blockType];
+
+            block.type = blockType;
+            block.position = 0;
+
+            block.sectionId = this.page.sections[0].id;
+            block.sectionPosition = 'main';
+
+            Object.assign(
+                block,
+                cloneDeep(this.blockConfigDefaults),
+                cloneDeep(cmsBlock.defaultConfig || {})
+            );
+        },
+
+        processElements(block, elements) {
+            elements.forEach((element) => {
+                const slot = this.slotRepository.create();
+
+                slot.blockId = element.blockId;
+                slot.slot = element.slot;
+                slot.type = element.type;
+                slot.config = element.config;
+
+                block.slots.push(slot);
+            });
+
+            this.page.sections[0].blocks.splice(0, 0, block);
         },
 
         checkSlotMappings() {

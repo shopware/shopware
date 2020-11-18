@@ -12,11 +12,15 @@ use Shopware\Core\Content\Category\Tree\TreeItem;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @Decoratable()
+ */
 class NavigationLoader implements NavigationLoaderInterface
 {
     /**
@@ -61,7 +65,12 @@ class NavigationLoader implements NavigationLoaderInterface
         $request->query->set('buildTree', false);
         $request->query->set('depth', $depth);
 
-        $categories = $this->navigationRoute->load($activeId, $rootId, $request, $context)->getCategories();
+        $criteria = new Criteria();
+        $criteria->setTitle('header::navigation');
+
+        $categories = $this->navigationRoute
+            ->load($activeId, $rootId, $request, $context, $criteria)
+            ->getCategories();
 
         $navigation = $this->getTree($rootId, $categories, $categories->get($activeId));
 
@@ -73,6 +82,7 @@ class NavigationLoader implements NavigationLoaderInterface
     }
 
     /**
+     * @deprecated tag:v6.4.0 - use load with $depth 1 instead
      * {@inheritdoc}
      *
      * @throws CategoryNotFoundException

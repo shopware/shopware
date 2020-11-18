@@ -40,14 +40,34 @@ Component.register('sw-media-folder-item', {
         mediaFolderRepository() {
             return this.repositoryFactory.create('media_folder');
         },
+
         mediaDefaultFolderRepository() {
             return this.repositoryFactory.create('media_default_folder');
         },
+
         moduleFactory() {
             return Application.getContainer('factory').module;
         },
+
         mediaFolder() {
             return this.$attrs.item;
+        },
+
+        iconName() {
+            switch (this.iconConfig.name) {
+                case 'default-package-closed':
+                    return 'multicolor-folder-thumbnail--green';
+                case 'default-symbol-products':
+                    return 'multicolor-folder-thumbnail--green';
+                case 'default-device-database':
+                    return 'multicolor-folder-thumbnail--grey';
+                case 'default-symbol-content':
+                    return 'multicolor-folder-thumbnail--pink';
+                case 'default-action-settings':
+                    return 'multicolor-folder-thumbnail--grey';
+                default:
+                    return 'multicolor-folder-thumbnail';
+            }
         }
     },
 

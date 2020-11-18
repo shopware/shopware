@@ -3,6 +3,7 @@
 namespace Shopware\Administration\Service;
 
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\Delivery\DeliveryProcessor;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
@@ -31,30 +32,34 @@ class AdminOrderCartService
     {
         $cart = $this->cartService->getCart($context->getToken(), $context);
 
-        $delivery = $cart->getDeliveries()->first();
-
-        if ($delivery) {
-            $delivery->setShippingCosts($calculatedPrice);
-        }
+        $cart->addExtension(DeliveryProcessor::MANUAL_SHIPPING_COSTS, $calculatedPrice);
 
         return $this->cartService->recalculate($cart, $context);
     }
 
-    public function addPermission(string $token, string $permission): void
+    /**
+     * @deprecated tag:v6.4.0 - $salesChannelId will be required
+     */
+    public function addPermission(string $token, string $permission, ?string $salesChannelId = null): void
     {
-        $payload = $this->contextPersister->load($token);
+        $payload = $this->contextPersister->load($token, $salesChannelId);
+
         if (!array_key_exists(SalesChannelContextService::PERMISSIONS, $payload)) {
             $payload[SalesChannelContextService::PERMISSIONS] = [];
         }
 
         $payload[SalesChannelContextService::PERMISSIONS][$permission] = true;
-        $this->contextPersister->save($token, $payload);
+        $this->contextPersister->save($token, $payload, $salesChannelId);
     }
 
-    public function deletePermission(string $token, string $permission): void
+    /**
+     * @deprecated tag:v6.4.0 - $salesChannelId will be required
+     */
+    public function deletePermission(string $token, string $permission, ?string $salesChannelId = null): void
     {
-        $payload = $this->contextPersister->load($token);
+        $payload = $this->contextPersister->load($token, $salesChannelId);
         $payload[SalesChannelContextService::PERMISSIONS][$permission] = false;
-        $this->contextPersister->save($token, $payload);
+
+        $this->contextPersister->save($token, $payload, $salesChannelId);
     }
 }

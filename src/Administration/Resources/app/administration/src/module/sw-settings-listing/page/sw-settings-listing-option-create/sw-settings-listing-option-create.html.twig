@@ -1,0 +1,15 @@
+{% block sw_settings_listing_option_edit_smart_bar_actions_grid %}
+    <sw-settings-listing-option-criteria-grid v-if="productSortingEntity"
+          :productSortingEntity="productSortingEntity"
+          @criteria-delete="onDeleteCriteria"
+          @criteria-add="onAddCriteria">
+    </sw-settings-listing-option-criteria-grid>
+{% endblock %}
+
+{% block sw_settings_listing_option_base_language_switch %}
+    <template #language-switch>
+        <sw-language-switch @on-change="onChangeLanguage"
+            :disabled="isNewProductSorting">
+        </sw-language-switch>
+    </template>
+{% endblock %}

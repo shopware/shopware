@@ -28,5 +28,9 @@
         <service id="Shopware\Core\System\Country\Aggregate\CountryTranslation\CountryTranslationDefinition">
             <tag name="shopware.entity.definition"/>
         </service>
+
+        <service id="Shopware\Core\System\Country\SalesChannel\CountryRoute" public="true">
+            <argument type="service" id="sales_channel.country.repository"/>
+        </service>
     </services>
 </container>

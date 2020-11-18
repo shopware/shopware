@@ -5,9 +5,7 @@
       "textHeadline": "Shopware Account",
       "description": "Change your Shopware Account settings here.",
       "buttonSave": "Save",
-      "titleSaveSuccess": "Success",
-      "messageSaveSuccess": "Your Shopware Account information have been saved.",
-      "titleSaveError": "Error"
+      "messageSaveSuccess": "Your Shopware Account information have been saved."
     },
     "detail": {
       "titleCard": "Settings",

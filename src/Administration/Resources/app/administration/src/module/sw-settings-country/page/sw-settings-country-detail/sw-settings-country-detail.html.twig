@@ -10,22 +10,29 @@
         {% block sw_settings_country_detail_actions %}
             <template #smart-bar-actions>
                 {% block sw_settings_country_detail_actions_abort %}
-                    <sw-button :disabled="isLoading" :routerLink="{ name: 'sw.settings.country.index' }">
+                    <sw-button
+                        v-tooltip.bottom="{
+                            message: 'ESC',
+                            appearance: 'light'
+                        }"
+                        :disabled="isLoading"
+                        @click="onCancel">
                         {{ $tc('sw-settings-country.detail.buttonCancel') }}
                     </sw-button>
                 {% endblock %}
 
                 {% block sw_settings_country_detail_actions_save %}
-                <sw-button-process
+                    <sw-button-process
+                        v-tooltip.bottom="tooltipSave"
                         class="sw-settings-country-detail__save-action"
                         :isLoading="isLoading"
                         :processSuccess="isSaveSuccessful"
-                        :disabled="!country"
+                        :disabled="!country || !allowSave"
                         variant="primary"
                         @process-finish="saveFinish"
                         @click.prevent="onSave">
-                    {{ $tc('sw-settings-country.detail.buttonSave') }}
-                </sw-button-process>
+                        {{ $tc('sw-settings-country.detail.buttonSave') }}
+                    </sw-button-process>
                 {% endblock %}
             </template>
         {% endblock %}
@@ -56,6 +63,7 @@
                                 {% block sw_settings_country_detail_content_field_name %}
                                     <sw-field type="text"
                                               required
+                                              :disabled="!acl.can('country.editor')"
                                               :label="$tc('sw-settings-country.detail.labelName')"
                                               :placeholder="placeholder(country, 'name', $tc('sw-settings-country.detail.placeholderName'))"
                                               v-model="country.name"
@@ -66,6 +74,7 @@
                                 {% block sw_settings_country_detail_content_field_position %}
                                     <sw-field type="number"
                                               numberType="int"
+                                              :disabled="!acl.can('country.editor')"
                                               :label="$tc('sw-settings-country.detail.labelPosition')"
                                               :placeholder="placeholder(country, 'position', $tc('sw-settings-country.detail.placeholderPosition'))"
                                               v-model="country.position">
@@ -74,6 +83,7 @@
 
                                 {% block sw_settings_country_detail_content_field_iso %}
                                     <sw-field type="text"
+                                              :disabled="!acl.can('country.editor')"
                                               :label="$tc('sw-settings-country.detail.labelIso')"
                                               :placeholder="placeholder(country, 'iso', $tc('sw-settings-country.detail.placeholderIso'))"
                                               v-model="country.iso">
@@ -82,6 +92,7 @@
 
                                 {% block sw_settings_country_detail_content_field_iso3 %}
                                     <sw-field type="text"
+                                              :disabled="!acl.can('country.editor')"
                                               :label="$tc('sw-settings-country.detail.labelIso3')"
                                               :placeholder="placeholder(country, 'iso3', $tc('sw-settings-country.detail.placeholderIso3'))"
                                               v-model="country.iso3">
@@ -91,6 +102,7 @@
                                 {% block sw_settings_country_detail_content_field_active %}
                                     <sw-field type="switch"
                                               bordered
+                                              :disabled="!acl.can('country.editor')"
                                               :label="$tc('sw-settings-country.detail.labelActive')"
                                               v-model="country.active">
                                     </sw-field>
@@ -99,6 +111,7 @@
                                 {% block sw_settings_country_detail_content_field_shipping_available %}
                                     <sw-field type="switch"
                                               bordered
+                                              :disabled="!acl.can('country.editor')"
                                               :label="$tc('sw-settings-country.detail.labelShippingAvailable')"
                                               v-model="country.shippingAvailable">
                                     </sw-field>
@@ -107,6 +120,7 @@
                                 {% block sw_settings_country_detail_content_field_tax_free %}
                                     <sw-field type="switch"
                                               bordered
+                                              :disabled="!acl.can('country.editor')"
                                               :label="$tc('sw-settings-country.detail.labelTaxFree')"
                                               v-model="country.taxFree">
                                     </sw-field>
@@ -115,6 +129,7 @@
                                 {% block sw_settings_country_detail_content_field_force_state_on_registration %}
                                     <sw-field type="switch"
                                               bordered
+                                              :disabled="!acl.can('country.editor')"
                                               :label="$tc('sw-settings-country.detail.labelForceStateInRegistration')"
                                               v-model="country.forceStateInRegistration">
                                     </sw-field>
@@ -137,7 +152,12 @@
 
                                     {% block sw_country_state_list_toolbar_delete %}
                                         <sw-button
-                                                :disabled="deleteButtonDisabled"
+                                                v-tooltip.bottom="{
+                                                    message: $tc('sw-privileges.tooltip.warning'),
+                                                    disabled: acl.can('country.editor'),
+                                                    showOnDisabledElements: true
+                                                }"
+                                                :disabled="deleteButtonDisabled || !acl.can('country.editor')"
                                                 @click="onDeleteCountryStates"
                                                 square
                                                 size="small"
@@ -148,10 +168,16 @@
 
                                     {% block sw_country_state_list_toolbar_add %}
                                         <sw-button
+                                                v-tooltip.bottom="{
+                                                    message: $tc('sw-privileges.tooltip.warning'),
+                                                    disabled: acl.can('country.editor'),
+                                                    showOnDisabledElements: true
+                                                }"
+                                                class="sw-settings-country-detail__add-country-state-button"
+                                                :disabled="!acl.can('country.editor')"
                                                 @click="onAddCountryState"
                                                 size="x-small"
-                                                variant="primary"
-                                                class="sw-settings-country-detail__add-country-state-button">
+                                                variant="primary">
                                             {{ $tc('sw-settings-country.detail.buttonAddCountryState') }}
                                         </sw-button>
                                     {% endblock %}
@@ -161,13 +187,20 @@
                             <template #grid>
                                 {% block sw_settings_country_detail_state_list_listing %}
                                     <sw-one-to-many-grid
+                                            class="sw-country-state-list__content"
                                             :isLoading="countryStateLoading"
                                             ref="countryStateGrid"
                                             :collection="country.states"
                                             :fullPage="false"
                                             :localMode="country.isNew()"
                                             @selection-change="countryStateSelectionChanged"
-                                            :columns="stateColumns">
+                                            :columns="stateColumns"
+                                            :allowDelete="acl.can('country.editor')"
+                                            :tooltipDelete="{
+                                                message: $tc('sw-privileges.tooltip.warning'),
+                                                disabled: acl.can('country.editor'),
+                                                showOnDisabledElements: true
+                                            }">
                                         <template #column-name="{ item }">
                                             {% block sw_settings_country_detail_state_list_listing_column_name %}
                                                 <a class="sw-settings-country-detail__link"
@@ -179,7 +212,15 @@
 
                                         <template #more-actions="{ item }">
                                             {% block sw_settings_country_detail_state_list_listing_action_edit %}
-                                                <sw-context-menu-item @click="onClickCountryState(item)">
+                                                <sw-context-menu-item
+                                                    v-tooltip.top="{
+                                                        message: $tc('sw-privileges.tooltip.warning'),
+                                                        disabled: acl.can('country.editor'),
+                                                        showOnDisabledElements: true
+                                                    }"
+                                                    class="sw-settings-country-detail__edit-country-state-action"
+                                                    :disabled="!acl.can('country.editor')"
+                                                    @click="onClickCountryState(item)">
                                                     {{ $tc('sw-settings-country.detail.editAction') }}
                                                 </sw-context-menu-item>
                                             {% endblock %}

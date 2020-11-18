@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
 use Shopware\Core\Checkout\Cart\Exception\MissingOrderRelationException;
 use Shopware\Core\Checkout\Cart\Exception\MixedLineItemTypeException;
+use Shopware\Core\Checkout\Cart\Exception\OrderInconsistentException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Order\Transformer\AddressTransformer;
 use Shopware\Core\Checkout\Cart\Order\Transformer\CartTransformer;
@@ -36,7 +37,9 @@ use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -61,6 +64,7 @@ class OrderConverter
         DeliveryProcessor::SKIP_DELIVERY_PRICE_RECALCULATION => true,
         DeliveryProcessor::SKIP_DELIVERY_TAX_RECALCULATION => true,
         PromotionCollector::SKIP_PROMOTION => true,
+        ProductCartProcessor::SKIP_PRODUCT_STOCK_VALIDATION => true,
     ];
 
     /**
@@ -140,8 +144,7 @@ class OrderConverter
 
         $data['languageId'] = $context->getSalesChannel()->getLanguageId();
 
-        $convertedLineItems = LineItemTransformer::transformCollection($cart->getLineItems());
-
+        $convertedLineItems = LineItemTransformer::transformCollection($cart->getLineItems(), null);
         $shippingAddresses = [];
 
         if ($conversionContext->shouldIncludeDeliveries()) {
@@ -194,6 +197,8 @@ class OrderConverter
             );
         }
 
+        $data['ruleIds'] = $context->getRuleIds();
+
         $event = new CartConvertedEvent($cart, $data, $context, $conversionContext);
         $this->eventDispatcher->dispatch($event);
 
@@ -219,8 +224,16 @@ class OrderConverter
 
         $cart = new Cart(self::CART_TYPE, Uuid::randomHex());
         $cart->setPrice($order->getPrice());
+        $cart->setCustomerComment($order->getCustomerComment());
+        $cart->setAffiliateCode($order->getAffiliateCode());
+        $cart->setCampaignCode($order->getCampaignCode());
         $cart->addExtension(self::ORIGINAL_ID, new IdStruct($order->getId()));
-        $cart->addExtension(self::ORIGINAL_ORDER_NUMBER, new IdStruct($order->getOrderNumber()));
+        $orderNumber = $order->getOrderNumber();
+        if ($orderNumber === null) {
+            throw new OrderInconsistentException($order->getId(), 'orderNumber is required');
+        }
+
+        $cart->addExtension(self::ORIGINAL_ORDER_NUMBER, new IdStruct($orderNumber));
         /* NEXT-708 support:
             - transactions
         */
@@ -243,6 +256,13 @@ class OrderConverter
      */
     public function assembleSalesChannelContext(OrderEntity $order, Context $context): SalesChannelContext
     {
+        if ($order->getTransactions() === null) {
+            throw new MissingOrderRelationException('transactions');
+        }
+        if ($order->getOrderCustomer() === null) {
+            throw new MissingOrderRelationException('orderCustomer');
+        }
+
         $customerId = $order->getOrderCustomer()->getCustomerId();
         $customerGroupId = null;
 
@@ -262,10 +282,11 @@ class OrderConverter
             SalesChannelContextService::COUNTRY_STATE_ID => $billingAddress->getCountryStateId(),
             SalesChannelContextService::CUSTOMER_GROUP_ID => $customerGroupId,
             SalesChannelContextService::PERMISSIONS => self::ADMIN_EDIT_ORDER_PERMISSIONS,
+            SalesChannelContextService::VERSION_ID => $context->getVersionId(),
         ];
 
         //get the first not paid transaction or, if all paid, the last transaction
-        if ($order->getTransactions()) {
+        if ($order->getTransactions() !== null) {
             foreach ($order->getTransactions() as $transaction) {
                 $options[SalesChannelContextService::PAYMENT_METHOD_ID] = $transaction->getPaymentMethodId();
                 if (
@@ -277,7 +298,23 @@ class OrderConverter
             }
         }
 
-        return $this->salesChannelContextFactory->create(Uuid::randomHex(), $order->getSalesChannelId(), $options);
+        $salesChannelContext = $this->salesChannelContextFactory->create(Uuid::randomHex(), $order->getSalesChannelId(), $options);
+        $salesChannelContext->getContext()->addExtensions($context->getExtensions());
+
+        if (Feature::isActive('FEATURE_NEXT_6059')) {
+            if ($order->getItemRounding()) {
+                $salesChannelContext->setItemRounding($order->getItemRounding());
+            }
+
+            if ($order->getTotalRounding()) {
+                $salesChannelContext->setTotalRounding($order->getTotalRounding());
+            }
+        } else {
+            $salesChannelContext->setItemRounding(new CashRoundingConfig($salesChannelContext->getCurrency()->getDecimalPrecision(), 0.01, true));
+            $salesChannelContext->setTotalRounding(new CashRoundingConfig($salesChannelContext->getCurrency()->getDecimalPrecision(), 0.01, true));
+        }
+
+        return $salesChannelContext;
     }
 
     private function convertDeliveries(OrderDeliveryCollection $orderDeliveries, LineItemCollection $lineItems): DeliveryCollection

@@ -277,11 +277,11 @@ class MediaUploadControllerTest extends TestCase
         return $media;
     }
 
-    private function assertMediaApiResponse($width = 499): void
+    private function assertMediaApiResponse(int $width = 499): void
     {
         $this->getBrowser()->request(
             'GET',
-            "/api/v1/media/{$this->mediaId}"
+            '/api/v' . PlatformRequest::API_VERSION . '/media/' . $this->mediaId
         );
 
         $responseData = json_decode($this->getBrowser()->getResponse()->getContent(), true);

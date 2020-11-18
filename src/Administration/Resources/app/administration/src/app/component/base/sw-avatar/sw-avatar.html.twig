@@ -1,5 +1,6 @@
 {% block sw_avatar %}
     <span class="sw-avatar"
+          :class="'sw-avatar__' + variant"
           :style="[avatarImage, avatarColor, avatarSize, avatarInitialsSize]"
           ref="swAvatar"
           role="img">

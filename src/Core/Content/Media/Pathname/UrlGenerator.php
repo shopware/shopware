@@ -114,8 +114,7 @@ class UrlGenerator implements UrlGeneratorInterface
             return rtrim($basePath, '/');
         }
 
-        //todo@next: resolve default shop path
-        return '';
+        return $_SERVER['APP_URL'];
     }
 
     private function toPathString(array $parts): string

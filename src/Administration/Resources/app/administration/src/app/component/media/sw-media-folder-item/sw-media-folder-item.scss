@@ -5,7 +5,7 @@ $sw-media-folder-item-border-radius-preview: $border-radius-default;
 $sw-media-folder-item-border-color-preview: $color-steam-cloud;
 $sw-media-folder-item-border-color-highlighted-preview: $color-shopware-blue;
 
-.sw-media-folder-item{
+.sw-media-folder-item {
     position: relative;
 
     .sw-media-folder-item__folder-thumbnails {
@@ -16,12 +16,17 @@ $sw-media-folder-item-border-color-highlighted-preview: $color-shopware-blue;
         max-width: 64px;
 
         &.is--inner {
-            max-width: 32px;
-            transform: translate(-50%, -47%);
+            max-width: 20px;
+            transform: translate(-50%, -30%);
         }
     }
 
-    .is--list {
+    &.is--list {
+        .sw-media-folder-item__folder-thumbnails.is--inner {
+            max-width: 15px;
+            transform: translate(-50%, -40%);
+        }
+
         .sw-media-base-item__preview-container {
             border: none;
         }

@@ -1,12 +1,15 @@
 @import "~scss/variables";
 
 .sw-empty-state {
-    position: absolute;
     display: flex;
     width: 100%;
     height: 100%;
     overflow-x: hidden;
     overflow-y: auto;
+
+    &.sw-empty-state--absolute {
+        position: absolute;
+    }
 
     .sw-empty-state__element {
         max-width: 600px;

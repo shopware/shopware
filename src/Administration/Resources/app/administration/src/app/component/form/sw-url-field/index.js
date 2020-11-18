@@ -17,6 +17,13 @@ Component.extend('sw-url-field', 'sw-text-field', {
     template,
     inheritAttrs: false,
 
+    props: {
+        error: {
+            type: Object,
+            required: false
+        }
+    },
+
     data() {
         return {
             sslActive: true,
@@ -49,6 +56,10 @@ Component.extend('sw-url-field', 'sw-text-field', {
             }
 
             return `${this.urlPrefix}${trimmedValue}`;
+        },
+
+        combinedError() {
+            return this.errorUrl || this.error;
         }
     },
 
@@ -89,7 +100,8 @@ Component.extend('sw-url-field', 'sw-text-field', {
                 try {
                     const url = new URL(`${this.urlPrefix}${this.currentValue}`);
                     const path = this.currentValue.endsWith('/') ? url.pathname : url.pathname.replace(/\/$/, '');
-                    this.currentValue = url.hostname + path;
+                    const host = url.host + (this.currentValue.endsWith(':') && url.port === '' && path === '' ? ':' : '');
+                    this.currentValue = host + path;
                     this.errorUrl = null;
                 } catch {
                     this.errorUrl = new ShopwareError({

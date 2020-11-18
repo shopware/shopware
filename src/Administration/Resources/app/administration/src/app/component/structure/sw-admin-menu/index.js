@@ -1,7 +1,7 @@
 import template from './sw-admin-menu.html.twig';
 import './sw-admin-menu.scss';
 
-const { Component, StateDeprecated, Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { dom } = Shopware.Utils;
 
 /**
@@ -11,11 +11,16 @@ Component.register('sw-admin-menu', {
     template,
 
     mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('salutation')
+        Mixin.getByName('notification')
     ],
 
-    inject: ['menuService', 'loginService', 'userService'],
+    inject: [
+        'menuService',
+        'loginService',
+        'userService',
+        'appModulesService',
+        'feature'
+    ],
 
     data() {
         return {
@@ -41,16 +46,45 @@ Component.register('sw-admin-menu', {
             return Shopware.State.get('adminMenu').isExpanded;
         },
 
-        userStore() {
-            return StateDeprecated.getStore('user');
+        userTitle() {
+            if (this.currentUser && this.currentUser.admin) {
+                return this.$tc('global.sw-admin-menu.administrator');
+            }
+
+            if (this.currentUser && this.currentUser.title && this.currentUser.title.length > 0) {
+                return this.currentUser.title;
+            }
+
+            if (this.currentUser && this.currentUser.aclRoles && this.currentUser.aclRoles.length > 0) {
+                return this.currentUser.aclRoles[0].name;
+            }
+
+            if (this.currentUser && this.currentUser.title) {
+                return this.currentUser.title;
+            }
+
+            return '';
         },
 
         currentLocale() {
             return Shopware.State.get('session').currentLocale;
         },
 
+        appEntries() {
+            return Shopware.State.getters['shopwareApps/navigation'];
+        },
+
         mainMenuEntries() {
-            return this.menuService.getMainMenu();
+            const mainMenu = this.menuService.getMainMenu();
+
+            // save menu entry for reactivity purposes
+            const myAppsEntry = mainMenu.find((entry) => entry.id === 'sw-my-apps');
+
+            if (myAppsEntry && this.appEntries.length > 0) {
+                myAppsEntry.children = [...myAppsEntry.children, ...this.appEntries];
+            }
+
+            return mainMenu;
         },
 
         sidebarCollapseIcon() {
@@ -77,7 +111,11 @@ Component.register('sw-admin-menu', {
         },
 
         userName() {
-            return this.salutation(this.currentUser);
+            if (!this.currentUser) {
+                return '';
+            }
+
+            return `${this.currentUser.firstName} ${this.currentUser.lastName}`;
         },
 
         avatarUrl() {
@@ -112,12 +150,20 @@ Component.register('sw-admin-menu', {
 
     methods: {
         createdComponent() {
-            Shopware.Service('loginService').notifyOnLoginListener();
+            this.loginService.notifyOnLoginListener();
 
             this.collapseMenuOnSmallViewports();
             this.getUser();
             this.$root.$on('toggle-offcanvas', (state) => {
                 this.isOffCanvasShown = state;
+            });
+
+            this.refreshApps();
+        },
+
+        refreshApps() {
+            return this.appModulesService.fetchAppModules().then((modules) => {
+                return Shopware.State.dispatch('shopwareApps/setAppModules', modules);
             });
         },
 
@@ -278,7 +324,7 @@ Component.register('sw-admin-menu', {
 
         onLogoutUser() {
             this.loginService.logout();
-            Shopware.State.commit('session/removeCurrentUser');
+            Shopware.State.commit('removeCurrentUser');
             Shopware.State.commit('notification/setNotifications', {});
             Shopware.State.commit('notification/clearGrowlNotificationsForCurrentUser');
             Shopware.State.commit('notification/clearNotificationsForCurrentUser');

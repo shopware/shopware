@@ -28,6 +28,11 @@ class MediaTranslationDefinition extends EntityTranslationDefinition
         return MediaTranslationEntity::class;
     }
 
+    public function since(): ?string
+    {
+        return '6.0.0.0';
+    }
+
     protected function getParentDefinitionClass(): string
     {
         return MediaDefinition::class;

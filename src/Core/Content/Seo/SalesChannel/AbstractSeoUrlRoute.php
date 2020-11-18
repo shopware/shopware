@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Seo\SalesChannel;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -13,5 +14,5 @@ abstract class AbstractSeoUrlRoute
 {
     abstract public function getDecorated(): AbstractSeoUrlRoute;
 
-    abstract public function load(Request $request, SalesChannelContext $context): SeoUrlRouteResponse;
+    abstract public function load(Request $request, SalesChannelContext $context, Criteria $criteria): SeoUrlRouteResponse;
 }

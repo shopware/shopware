@@ -6,6 +6,17 @@ use Shopware\Core\Framework\Struct\Collection;
 
 class EntityCollection extends Collection
 {
+    public function __construct(iterable $elements = [])
+    {
+        parent::__construct([]);
+
+        foreach ($elements as $element) {
+            $this->validateType($element);
+            /* @var Entity $element */
+            $this->set($element->getUniqueIdentifier(), $element);
+        }
+    }
+
     /**
      * @param Entity $entity
      */

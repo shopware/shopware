@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowEmptyString;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
@@ -26,20 +27,20 @@ class StringFieldSerializer extends AbstractFieldSerializer
             throw new InvalidSerializerFieldException(StringField::class, $field);
         }
 
-        if ($data->getValue() === '') {
+        if ($data->getValue() === '' && !$field->is(AllowEmptyString::class)) {
             $data->setValue(null);
         }
 
         $this->validateIfNeeded($field, $existence, $data, $parameters);
 
-        $value = $data->getValue();
-
-        if ($value !== null && !$field->is(AllowHtml::class)) {
-            $value = strip_tags((string) $value);
+        if ($data->getValue() !== null && !$field->is(AllowHtml::class)) {
+            $data->setValue(strip_tags((string) $data->getValue()));
         }
 
+        $this->validateIfNeeded($field, $existence, $data, $parameters);
+
         /* @var StringField $field */
-        yield $field->getStorageName() => $value !== null ? (string) $value : null;
+        yield $field->getStorageName() => $data->getValue() !== null ? (string) $data->getValue() : null;
     }
 
     public function decode(Field $field, $value): ?string
@@ -52,10 +53,15 @@ class StringFieldSerializer extends AbstractFieldSerializer
      */
     protected function getConstraints(Field $field): array
     {
-        return [
-            new NotBlank(),
+        $constraints = [
             new Type('string'),
             new Length(['max' => $field->getMaxLength()]),
         ];
+
+        if (!$field->is(AllowEmptyString::class)) {
+            $constraints[] = new NotBlank();
+        }
+
+        return $constraints;
     }
 }

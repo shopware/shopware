@@ -3,7 +3,6 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Cart\Cart;
-use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
@@ -12,14 +11,13 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCartAddedInformationError;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
-use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
-use Shopware\Core\Checkout\Promotion\Subscriber\Storefront\StorefrontCartSubscriber;
 use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
@@ -66,6 +64,7 @@ class CartLineItemController extends StorefrontController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/checkout/line-item/delete/{id}", name="frontend.checkout.line-item.delete", methods={"POST", "DELETE"}, defaults={"XmlHttpRequest": true})
      */
     public function deleteLineItem(Cart $cart, string $id, Request $request, SalesChannelContext $salesChannelContext): Response
@@ -88,6 +87,7 @@ class CartLineItemController extends StorefrontController
     }
 
     /**
+     * @Since("6.0.0.0")
      * This is the storefront controller action for adding a promotion.
      * It has some individual code for the storefront layouts, like visual
      * error and success messages.
@@ -132,6 +132,7 @@ class CartLineItemController extends StorefrontController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/checkout/line-item/change-quantity/{id}", name="frontend.checkout.line-item.change-quantity", defaults={"XmlHttpRequest": true}, methods={"POST"})
      */
     public function changeQuantity(Cart $cart, string $id, Request $request, SalesChannelContext $salesChannelContext): Response
@@ -160,6 +161,7 @@ class CartLineItemController extends StorefrontController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/checkout/product/add-by-number", name="frontend.checkout.product.add-by-number", methods={"POST"})
      *
      * @throws InconsistentCriteriaIdsException
@@ -186,6 +188,7 @@ class CartLineItemController extends StorefrontController
             return $this->createActionResponse($request);
         }
 
+        /** @var string $productId */
         $productId = array_shift($data);
 
         $product = $this->productLineItemFactory->create($productId);
@@ -202,6 +205,7 @@ class CartLineItemController extends StorefrontController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/checkout/line-item/add", name="frontend.checkout.line-item.add", methods={"POST"}, defaults={"XmlHttpRequest"=true})
      *
      * requires the provided items in the following form
@@ -234,6 +238,7 @@ class CartLineItemController extends StorefrontController
         $count = 0;
 
         try {
+            $items = [];
             /** @var RequestDataBag $lineItemData */
             foreach ($lineItems as $lineItemData) {
                 $lineItem = new LineItem(
@@ -248,8 +253,10 @@ class CartLineItemController extends StorefrontController
 
                 $count += $lineItem->getQuantity();
 
-                $cart = $this->cartService->add($cart, $lineItem, $salesChannelContext);
+                $items[] = $lineItem;
             }
+
+            $cart = $this->cartService->add($cart, $items, $salesChannelContext);
 
             if (!$this->traceErrors($cart)) {
                 $this->addFlash('success', $this->trans('checkout.addToCartSuccess', ['%count%' => $count]));
@@ -261,66 +268,15 @@ class CartLineItemController extends StorefrontController
         return $this->createActionResponse($request);
     }
 
-    /**
-     * This function verifies if our cart has the provided promotion.
-     * This is necessary to see if adding the code did work in the end.
-     */
-    private function hasPromotion(Cart $cart, string $code): bool
-    {
-        foreach ($cart->getLineItems() as $lineItem) {
-            if ($lineItem->getType() !== PromotionProcessor::LINE_ITEM_TYPE) {
-                continue;
-            }
-
-            if ($code === $lineItem->getReferencedId()) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * function validates if a code has at least been added
-     * to our cart.
-     */
-    private function codeExistsInCart(string $code): bool
-    {
-        /** @var array $allCodes */
-        $allCodes = $this->container->get('session')->get(StorefrontCartSubscriber::SESSION_KEY_PROMOTION_CODES);
-
-        return in_array($code, $allCodes, true);
-    }
-
     private function traceErrors(Cart $cart): bool
     {
         if ($cart->getErrors()->count() <= 0) {
             return false;
         }
-
-        $this->addCartErrorsToFlashBag($cart->getErrors()->getNotices(), 'info');
-        $this->addCartErrorsToFlashBag($cart->getErrors()->getWarnings(), 'warning');
-        $this->addCartErrorsToFlashBag($cart->getErrors()->getErrors(), 'danger');
+        $this->addCartErrors($cart);
 
         $cart->getErrors()->clear();
 
         return true;
-    }
-
-    /**
-     * @param Error[] $errors
-     */
-    private function addCartErrorsToFlashBag(array $errors, string $type): void
-    {
-        foreach ($errors as $error) {
-            $parameters = [];
-            foreach ($error->getParameters() as $key => $value) {
-                $parameters['%' . $key . '%'] = $value;
-            }
-
-            $message = $this->trans('checkout.' . $error->getMessageKey(), $parameters);
-
-            $this->addFlash($type, $message);
-        }
     }
 }

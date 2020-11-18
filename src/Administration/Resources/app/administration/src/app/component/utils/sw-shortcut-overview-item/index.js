@@ -6,6 +6,8 @@ const { Component } = Shopware;
 Component.register('sw-shortcut-overview-item', {
     template,
 
+    inject: ['acl'],
+
     props: {
         title: {
             type: String,
@@ -14,10 +16,19 @@ Component.register('sw-shortcut-overview-item', {
         content: {
             type: String,
             required: true
+        },
+        privilege: {
+            type: String,
+            required: false,
+            default: null
         }
     },
 
     computed: {
+        showItem() {
+            return this.acl.can(this.privilege);
+        },
+
         keys() {
             return this.content.split(' ') || [];
         }

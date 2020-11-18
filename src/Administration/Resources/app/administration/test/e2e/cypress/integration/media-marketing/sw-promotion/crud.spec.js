@@ -1,4 +1,4 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
 
 import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
 
@@ -28,7 +28,7 @@ describe('Promotion: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: `/api/v*/promotion`,
+            url: `${Cypress.env('apiPath')}/promotion`,
             method: 'post'
         }).as('saveData');
         cy.route({
@@ -49,6 +49,7 @@ describe('Promotion: Test crud operations', () => {
         cy.wait('@saveData').then((xhr) => {
             expect(xhr).to.have.property('status', 204);
         });
+
         cy.get(page.elements.smartBarBack).click();
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)
             .contains('Funicular prices');
@@ -59,6 +60,7 @@ describe('Promotion: Test crud operations', () => {
         cy.get(page.elements.loader).should('not.exist');
         cy.get('a[title="Discounts"]').click();
         cy.get(page.elements.loader).should('not.exist');
+
         cy.get('.sw-button--ghost').should('be.visible');
         cy.contains('.sw-button--ghost', 'Add discount').click();
         cy.wait('@filteredResultCall').then((xhr) => {
@@ -72,7 +74,7 @@ describe('Promotion: Test crud operations', () => {
             .clear()
             .type('54');
 
-        cy.get('#sw-field--discount-type').select('Fixed unit price');
+        cy.get('#sw-field--discount-type').select('Fixed item price');
 
         // Save final promotion
         cy.get('.sw-promotion-detail__save-action').click();
@@ -105,7 +107,7 @@ describe('Promotion: Test crud operations', () => {
         cy.contains('Login').click();
 
         // Finish order
-        cy.get('.confirm-tos .card-title').contains('Terms, conditions and cancellation policy');
+        cy.get('.confirm-tos .card-title').contains('Terms and conditions and cancellation policy');
         cy.get('.confirm-tos .custom-checkbox label').scrollIntoView();
         cy.get('.confirm-tos .custom-checkbox label').click(1, 1);
         cy.get('.confirm-tos .custom-checkbox label').scrollIntoView();
@@ -139,7 +141,7 @@ describe('Promotion: Test crud operations', () => {
         cy.get(`${page.elements.modal} .sw-listing__confirm-delete-text`).contains(
             'Are you sure you want to delete this item?'
         );
-        cy.get(`${page.elements.modal}__footer ${page.elements.primaryButton}`).click();
+        cy.get(`${page.elements.modal}__footer ${page.elements.dangerButton}`).click();
 
         // Verify updated product
         cy.wait('@deleteData').then((xhr) => {

@@ -1,5 +1,6 @@
 const uuid = require('uuid/v4');
 const RuleBuilderFixture = require('../service/fixture/rule-builder.fixture');
+const ProductWishlistFixture = require('../service/fixture/product-wishlist.fixture');
 
 /**
  * Search for an existing entity using Shopware API at the given endpoint
@@ -47,14 +48,14 @@ Cypress.Commands.add('setCustomerGroup', (customerNumber, customerGroupData) => 
 /**
  * Creates an entity using Shopware API at the given endpoint
  * @memberOf Cypress.Chainable#
- * @name createViaAdminApi
+ * @name requestAdminApiStorefront
  * @function
  * @param {Object} data - Necessary  for the API request
  */
-Cypress.Commands.add('createViaAdminApi', (data) => {
+Cypress.Commands.add('requestAdminApiStorefront', (data) => {
     return cy.requestAdminApi(
         'POST',
-        `${Cypress.env('apiPath')}/${data.endpoint}?response=true`,
+        `api/${Cypress.env('apiVersion')}/${data.endpoint}?response=true`,
         data
     ).then((responseData) => {
         return responseData;
@@ -150,7 +151,7 @@ Cypress.Commands.add('createCustomerFixtureStorefront', (userData) => {
     }).then((result) => {
         return Cypress._.merge(result, finalAddressRawData);
     }).then((result) => {
-        return cy.createViaAdminApi({
+        return cy.requestAdminApiStorefront({
             endpoint: 'customer',
             data: result
         });
@@ -205,6 +206,18 @@ Cypress.Commands.add('setAnalyticsFixtureToSalesChannel', (state) => {
             }
         })
     });
+});
+
+/**
+ * Set the product to the wishlist
+ * @memberOf Cypress.Chainable#
+ * @name setProductWishlist
+ * @function
+ */
+Cypress.Commands.add('setProductWishlist', ({productId, customer}) => {
+    const fixture = new ProductWishlistFixture();
+
+    return fixture.setProductWishlist(productId, customer);
 });
 
 // WaitUntil command is from https://www.npmjs.com/package/cypress-wait-until

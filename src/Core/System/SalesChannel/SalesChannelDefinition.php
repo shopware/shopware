@@ -3,6 +3,8 @@
 namespace Shopware\Core\System\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroupRegistrationSalesChannel\CustomerGroupRegistrationSalesChannelDefinition;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist\CustomerWishlistDefinition;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
@@ -10,7 +12,6 @@ use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSalesChannel\PromotionSalesChannelDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
-use Shopware\Core\Content\GoogleShopping\GoogleShoppingAccountDefinition;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterDefinition;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateSalesChannel\MailTemplateSalesChannelDefinition;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition;
@@ -42,6 +43,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Event\EventAction\Aggregate\EventActionSalesChannel\EventActionSalesChannelDefinition;
+use Shopware\Core\Framework\Event\EventAction\EventActionDefinition;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\Language\LanguageDefinition;
@@ -56,11 +60,12 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelShippingMethod\Sales
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation\SalesChannelTranslationDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeDefinition;
 use Shopware\Core\System\SystemConfig\SystemConfigDefinition;
-use function Flag\next6050;
 
 class SalesChannelDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'sales_channel';
+    public const CALCULATION_TYPE_VERTICAL = 'vertical';
+    public const CALCULATION_TYPE_HORIZONTAL = 'horizontal';
 
     public function getEntityName(): string
     {
@@ -77,15 +82,19 @@ class SalesChannelDefinition extends EntityDefinition
         return SalesChannelEntity::class;
     }
 
-    public function hasManyToManyIdFields(): bool
+    public function getDefaults(): array
     {
-        // disable old indexing process
-        return false;
+        return ['taxCalculationType' => self::CALCULATION_TYPE_HORIZONTAL];
+    }
+
+    public function since(): ?string
+    {
+        return '6.0.0.0';
     }
 
     protected function defineFields(): FieldCollection
     {
-        $collection = new FieldCollection([
+        $fields = new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new FkField('type_id', 'typeId', SalesChannelTypeDefinition::class))->addFlags(new Required()),
             (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new Required()),
@@ -112,6 +121,7 @@ class SalesChannelDefinition extends EntityDefinition
 
             new TranslatedField('name'),
             new StringField('short_name', 'shortName'),
+            new StringField('tax_calculation_type', 'taxCalculationType'),
             (new StringField('access_key', 'accessKey'))->addFlags(new Required()),
             new JsonField('configuration', 'configuration'),
             new BoolField('active', 'active'),
@@ -163,14 +173,19 @@ class SalesChannelDefinition extends EntityDefinition
             (new OneToManyAssociationField('mainCategories', MainCategoryDefinition::class, 'sales_channel_id'))->addFlags(new CascadeDelete()),
             (new OneToManyAssociationField('productExports', ProductExportDefinition::class, 'sales_channel_id', 'id'))->addFlags(new ReadProtected(SalesChannelApiSource::class)),
             (new OneToOneAssociationField('analytics', 'analytics_id', 'id', SalesChannelAnalyticsDefinition::class, true))->addFlags(new CascadeDelete()),
+            new ManyToManyAssociationField('customerGroupsRegistrations', CustomerGroupDefinition::class, CustomerGroupRegistrationSalesChannelDefinition::class, 'sales_channel_id', 'customer_group_id', 'id', 'id'),
+            (new ManyToManyAssociationField('eventActions', EventActionDefinition::class, EventActionSalesChannelDefinition::class, 'sales_channel_id', 'event_action_id'))
+                ->addFlags(new CascadeDelete(), new ReadProtected(SalesChannelApiSource::class)),
         ]);
 
-        if (next6050()) {
-            $collection->add(
-                (new OneToOneAssociationField('googleShoppingAccount', 'id', 'sales_channel_id', GoogleShoppingAccountDefinition::class, false))->addFlags(new CascadeDelete())
+        $fields->add((new OneToManyAssociationField('boundCustomers', CustomerDefinition::class, 'bound_sales_channel_id', 'id'))->addFlags(new ReadProtected(SalesChannelApiSource::class)));
+
+        if (Feature::isActive('FEATURE_NEXT_10549')) {
+            $fields->add(
+                (new OneToManyAssociationField('wishlists', CustomerWishlistDefinition::class, 'sales_channel_id'))->addFlags(new CascadeDelete())
             );
         }
 
-        return $collection;
+        return $fields;
     }
 }

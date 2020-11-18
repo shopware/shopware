@@ -30,9 +30,12 @@ Table(ShopwareCoreCheckoutShippingShippingMethodDefinition, "shipping_method\n(S
    not_null(availabilityRuleId) foreignKey
    mediaId foreignKey
    not_null(deliveryTimeId) foreignKey
+   not_null(taxType) string
+   taxId foreignKey
    description translated
+   trackingUrl translated
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
    translated json
 }
 Table(ShopwareCoreCheckoutShippingAggregateShippingMethodTagShippingMethodTagDefinition, "shipping_method_tag\n(M:N Mapping)") {
@@ -42,27 +45,27 @@ Table(ShopwareCoreCheckoutShippingAggregateShippingMethodTagShippingMethodTagDef
 Table(ShopwareCoreCheckoutShippingAggregateShippingMethodPriceShippingMethodPriceDefinition, "shipping_method_price\n(Prices of a shipping method)") {
    primary_key(id) id
    not_null(shippingMethodId) foreignKey
-   not_null(currencyId) foreignKey
    ruleId foreignKey
    calculation int
    calculationRuleId foreignKey
    quantityStart float
    quantityEnd float
-   not_null(price) float
+   currencyPrice price
    customFields customFields
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
 }
 TranslationTable(ShopwareCoreCheckoutShippingAggregateShippingMethodTranslationShippingMethodTranslationDefinition, "shipping_method_translation\n((Translations))") {
    not_null(name) string
    description longText
+   trackingUrl longText
    customFields customFields
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
    primary_key(shippingMethodId) foreignKey
    primary_key(languageId) foreignKey
 }
-ForeignTable(ShopwareCoreContentDeliveryTimeDeliveryTimeDefinition, "delivery_time") {
+ForeignTable(ShopwareCoreSystemDeliveryTimeDeliveryTimeDefinition, "delivery_time") {
 }
 ForeignTable(ShopwareCoreContentRuleRuleDefinition, "rule") {
 }
@@ -74,16 +77,16 @@ ForeignTable(ShopwareCoreSystemSalesChannelAggregateSalesChannelShippingMethodSa
 }
 ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
 }
+ForeignTable(ShopwareCoreSystemTaxTaxDefinition, "tax") {
+}
 ForeignTable(ShopwareCoreSystemTagTagDefinition, "tag") {
 }
-ForeignTable(ShopwareCoreSystemCurrencyCurrencyDefinition, "currency") {
-}
-ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
+ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
 }
 
 ' relationshipd
 
-ShopwareCoreCheckoutShippingShippingMethodDefinition --> ShopwareCoreContentDeliveryTimeDeliveryTimeDefinition
+ShopwareCoreCheckoutShippingShippingMethodDefinition --> ShopwareCoreSystemDeliveryTimeDeliveryTimeDefinition
 ShopwareCoreCheckoutShippingAggregateShippingMethodTranslationShippingMethodTranslationDefinition --> ShopwareCoreCheckoutShippingShippingMethodDefinition
 ShopwareCoreCheckoutShippingShippingMethodDefinition --> ShopwareCoreContentRuleRuleDefinition
 ShopwareCoreCheckoutShippingAggregateShippingMethodPriceShippingMethodPriceDefinition --> ShopwareCoreCheckoutShippingShippingMethodDefinition
@@ -92,8 +95,8 @@ ShopwareCoreCheckoutShippingAggregateShippingMethodTagShippingMethodTagDefinitio
 ShopwareCoreCheckoutShippingShippingMethodDefinition --> ShopwareCoreCheckoutOrderAggregateOrderDeliveryOrderDeliveryDefinition
 ShopwareCoreCheckoutShippingShippingMethodDefinition --> ShopwareCoreSystemSalesChannelAggregateSalesChannelShippingMethodSalesChannelShippingMethodDefinition
 ShopwareCoreCheckoutShippingShippingMethodDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
+ShopwareCoreCheckoutShippingShippingMethodDefinition --> ShopwareCoreSystemTaxTaxDefinition
 ShopwareCoreCheckoutShippingAggregateShippingMethodTagShippingMethodTagDefinition --> ShopwareCoreSystemTagTagDefinition
-ShopwareCoreCheckoutShippingAggregateShippingMethodPriceShippingMethodPriceDefinition --> ShopwareCoreSystemCurrencyCurrencyDefinition
 ShopwareCoreCheckoutShippingAggregateShippingMethodPriceShippingMethodPriceDefinition --> ShopwareCoreContentRuleRuleDefinition
-ShopwareCoreCheckoutShippingAggregateShippingMethodTranslationShippingMethodTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
+ShopwareCoreCheckoutShippingAggregateShippingMethodTranslationShippingMethodTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
 @enduml

@@ -7,7 +7,6 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStat
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\SynchronousPaymentHandlerInterface;
-use Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterface;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenFactoryInterfaceV2;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct;
 use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
@@ -28,7 +27,7 @@ use Symfony\Component\Routing\RouterInterface;
 class PaymentTransactionChainProcessor
 {
     /**
-     * @var TokenFactoryInterfaceV2|TokenFactoryInterface
+     * @var TokenFactoryInterfaceV2
      */
     private $tokenFactory;
 
@@ -52,11 +51,8 @@ class PaymentTransactionChainProcessor
      */
     private $orderCustomerRepository;
 
-    /**
-     * @deprecated tag:v6.3.0 parameter $tokenFactory needs to implement TokenFactoryInterfaceV2 in v6.3.0
-     */
     public function __construct(
-        $tokenFactory,
+        TokenFactoryInterfaceV2 $tokenFactory,
         EntityRepositoryInterface $orderRepository,
         RouterInterface $router,
         PaymentHandlerRegistry $paymentHandlerRegistry,
@@ -125,21 +121,18 @@ class PaymentTransactionChainProcessor
                 return null;
             }
 
-            if ($this->tokenFactory instanceof TokenFactoryInterfaceV2) {
-                $tokenStruct = new TokenStruct(
-                    null,
-                    null,
-                    $transaction->getPaymentMethodId(),
-                    $transaction->getId(),
-                    $finishUrl,
-                    null,
-                    $errorUrl
-                );
+            $tokenStruct = new TokenStruct(
+                null,
+                null,
+                $transaction->getPaymentMethodId(),
+                $transaction->getId(),
+                $finishUrl,
+                null,
+                $errorUrl
+            );
 
-                $token = $this->tokenFactory->generateToken($tokenStruct);
-            } else {
-                $token = $this->tokenFactory->generateToken($transaction, $finishUrl);
-            }
+            $token = $this->tokenFactory->generateToken($tokenStruct);
+
             $returnUrl = $this->assembleReturnUrl($token);
             $paymentTransaction = new AsyncPaymentTransactionStruct($transaction, $order, $returnUrl);
 

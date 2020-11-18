@@ -5,8 +5,6 @@ namespace Shopware\Core\Framework\Api\Route;
 use Shopware\Core\Framework\Api\Controller\ApiController;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelApiController;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Symfony\Component\Config\Loader\Loader;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
@@ -17,17 +15,10 @@ class ApiRouteLoader extends Loader
 
     private $isLoaded = false;
 
-    /**
-     * @var SalesChannelDefinitionInstanceRegistry
-     */
-    private $salesChannelDefinitionRegistry;
-
     public function __construct(
-        DefinitionInstanceRegistry $definitionRegistry,
-        SalesChannelDefinitionInstanceRegistry $salesChannelDefinitionRegistry
+        DefinitionInstanceRegistry $definitionRegistry
     ) {
         $this->definitionRegistry = $definitionRegistry;
-        $this->salesChannelDefinitionRegistry = $salesChannelDefinitionRegistry;
     }
 
     public function load($resource, $type = null): RouteCollection
@@ -40,8 +31,6 @@ class ApiRouteLoader extends Loader
 
         $this->loadAdminRoutes($routes);
 
-        $this->loadSalesChannelRoutes($routes);
-
         $this->isLoaded = true;
 
         return $routes;
@@ -50,43 +39,6 @@ class ApiRouteLoader extends Loader
     public function supports($resource, $type = null): bool
     {
         return $type === 'api';
-    }
-
-    private function loadSalesChannelRoutes(RouteCollection $routes): void
-    {
-        $class = SalesChannelApiController::class;
-
-        $elements = $this->salesChannelDefinitionRegistry->getSalesChannelDefinitions();
-        usort($elements, function (EntityDefinition $a, EntityDefinition $b) {
-            return $a->getEntityName() <=> $b->getEntityName();
-        });
-
-        /** @var EntityDefinition $definition */
-        foreach ($elements as $definition) {
-            $entityName = $definition->getEntityName();
-            $resourceName = str_replace('_', '-', $definition->getEntityName());
-
-            $route = new Route('/sales-channel-api/v{version}/' . $resourceName . '/{id}');
-            $route->setMethods(['GET']);
-            $route->setDefault('_controller', $class . '::detail');
-            $route->setDefault('entity', $resourceName);
-            $route->addRequirements(['version' => '\d+']);
-            $routes->add('sales-channel-api.' . $entityName . '.detail', $route);
-
-            $route = new Route('/sales-channel-api/v{version}/search-ids/' . $resourceName);
-            $route->setMethods(['POST']);
-            $route->setDefault('_controller', $class . '::searchIds');
-            $route->setDefault('entity', $resourceName);
-            $route->addRequirements(['version' => '\d+']);
-            $routes->add('sales-channel-api.' . $entityName . '.search-ids', $route);
-
-            $route = new Route('/sales-channel-api/v{version}/' . $resourceName);
-            $route->setMethods(['POST', 'GET']);
-            $route->setDefault('_controller', $class . '::search');
-            $route->setDefault('entity', $resourceName);
-            $route->addRequirements(['version' => '\d+']);
-            $routes->add('sales-channel-api.' . $entityName . '.search', $route);
-        }
     }
 
     private function loadAdminRoutes(RouteCollection $routes): void

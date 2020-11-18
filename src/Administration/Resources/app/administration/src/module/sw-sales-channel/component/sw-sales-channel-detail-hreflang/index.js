@@ -9,6 +9,12 @@ Component.register('sw-sales-channel-detail-hreflang', {
     props: {
         salesChannel: {
             required: true
+        },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 

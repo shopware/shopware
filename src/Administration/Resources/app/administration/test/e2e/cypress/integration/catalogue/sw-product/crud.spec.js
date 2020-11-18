@@ -1,4 +1,4 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
 
 import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
 
@@ -36,11 +36,8 @@ describe('Product: Test crud operations', () => {
         cy.get('input[name=sw-field--product-name]').typeAndCheck('Product with file upload image');
         cy.get('.sw-select-product__select_manufacturer')
             .typeSingleSelectAndCheck('shopware AG', '.sw-select-product__select_manufacturer');
-        cy.get('select[name=sw-field--product-taxId]').select('Standard rate');
-        cy.get('#sw-price-field-gross').type('10');
 
-
-        runOn('chrome', () => {
+        if (Cypress.isBrowser({ family: 'chromium' })) {
             // Add image to product
             cy.fixture('img/sw-login-background.png').then(fileContent => {
                 cy.get('#files').upload(
@@ -57,11 +54,19 @@ describe('Product: Test crud operations', () => {
                 .should('have.attr', 'src')
                 .and('match', /sw-login-background/);
             cy.awaitAndCheckNotification('File has been saved.');
-        });
+        }
 
         // Check net price calculation
+        cy.get('select[name=sw-field--product-taxId]').select('Standard rate');
+        cy.get('#sw-price-field-gross').type('10');
         cy.wait('@calculatePrice').then(() => {
-            cy.get('#sw-price-field-net').should('have.value', '8.4');
+            cy.get('#sw-price-field-net').should('have.value', '8.4033613445378');
+        });
+        cy.window().then((win) => {
+            cy.get('#sw-purchase-price-field-gross').type('1');
+            cy.wait('@calculatePrice').then(() => {
+                cy.get('#sw-purchase-price-field-net').should('have.value', '0.84033613445378');
+            });
         });
 
         cy.get('input[name=sw-field--product-stock]').type('100');
@@ -89,6 +94,7 @@ describe('Product: Test crud operations', () => {
         cy.get('.search-suggest-product-name')
             .contains('Product with file upload image')
             .click();
+
         cy.get('.product-detail-name').contains('Product with file upload image');
         cy.get('.product-detail-price').contains('10.00');
     });
@@ -111,7 +117,7 @@ describe('Product: Test crud operations', () => {
         );
 
         cy.get('input[name=sw-field--product-name]').clearTypeAndCheck('What remains of Edith Finch');
-        cy.get('input[name=sw-field--product-active]').click();
+        cy.get('.sw-field--product-active input').click();
         cy.get(page.elements.productSaveAction).click();
 
         // Verify updated product
@@ -142,7 +148,7 @@ describe('Product: Test crud operations', () => {
         cy.get(`${page.elements.modal} .sw-listing__confirm-delete-text`).contains(
             'Are you sure you want to delete this item?'
         );
-        cy.get(`${page.elements.modal}__footer ${page.elements.primaryButton}`).click();
+        cy.get(`${page.elements.modal}__footer ${page.elements.dangerButton}`).click();
 
         // Verify updated product
         cy.wait('@deleteData').then((xhr) => {

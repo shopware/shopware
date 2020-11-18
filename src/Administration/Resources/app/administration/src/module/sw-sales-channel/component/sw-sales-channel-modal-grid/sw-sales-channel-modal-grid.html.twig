@@ -5,7 +5,7 @@
              :selectable="false"
              :header="false"
              :table="true">
-        <template v-if="!(isGoogleShoppingSalesChannelType(item.id) && !next6050)" slot="columns" slot-scope="{ item }">
+        <template slot="columns" slot-scope="{ item }">
             {% block sw_sales_channel_grid_columns %}
                 {% block sw_sales_channel_grid_columns_icon %}
                     <sw-grid-column flex="85px" dataIndex="icon" class="sw-sales-channel-modal-grid__icon-column">
@@ -37,12 +37,12 @@
                         size="small"
                         variant="primary"
                         @click="onAddChannel(item.id)"
-                        :isLoading="isProductComparisonSalesChannelType(item.id) && productStreamsLoading"
-                        :disabled="isProductComparisonSalesChannelType(item.id) && !productStreamsExist"
+                        :isLoading="addChannelAction.loading(item.id)"
+                        :disabled="addChannelAction.disabled(item.id)"
                         v-tooltip="{
                             message: $tc('sw-sales-channel.modal.messageNoProductStreams'),
                             showOnDisabledElements: true,
-                            disabled: !isProductComparisonSalesChannelType(item.id) && !productStreamsExist
+                            disabled: !addChannelAction.disabled(item.id)
                         }">
                         {{ $tc('sw-sales-channel.modal.buttonAddChannel') }}
                     </sw-button>

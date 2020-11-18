@@ -14,17 +14,6 @@ class SnippetApiService extends ApiService {
     /**
      * @returns {Promise<T>}
      */
-    save(snippet) {
-        if (!snippet.hasOwnProperty('id') || snippet.id === null) {
-            return this.create(snippet);
-        }
-
-        return this.updateById(snippet.id, snippet);
-    }
-
-    /**
-     * @returns {Promise<T>}
-     */
     getByKey(translationKey, page, limit, isCustom = false) {
         const headers = this.getBasicHeaders();
 

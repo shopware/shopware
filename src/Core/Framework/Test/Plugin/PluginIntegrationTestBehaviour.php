@@ -91,6 +91,25 @@ trait PluginIntegrationTestBehaviour
         return $installed;
     }
 
+    protected function getInstalledInactivePluginRebuildDisabled(): PluginEntity
+    {
+        $plugin = new PluginEntity();
+        $plugin->assign([
+            'id' => Uuid::randomHex(),
+            'name' => 'SwagTestSkipRebuild',
+            'baseClass' => 'SwagTestSkipRebuild\\SwagTestSkipRebuild',
+            'version' => '1.0.1',
+            'active' => false,
+            'path' => __DIR__ . '/_fixture/plugins/SwagTestSkipRebuild',
+            'autoload' => ['psr-4' => ['SwagTestSkipRebuild\\' => 'src/']],
+            'createdAt' => new \DateTimeImmutable('2019-01-01'),
+            'managedByComposer' => false,
+        ]);
+        $plugin->setInstalledAt(new \DateTimeImmutable());
+
+        return $plugin;
+    }
+
     protected function getActivePlugin(): PluginEntity
     {
         $active = $this->getInstalledInactivePlugin();

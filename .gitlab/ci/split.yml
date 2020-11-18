@@ -1,0 +1,28 @@
+Repository Split:
+    stage: Deploy
+    image: debian:buster-slim
+    before_script: []
+    dependencies: []
+    rules:
+      # only split on nightly master or saas-release
+      - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_BRANCH == "master"'
+      - if: '$CI_COMMIT_BRANCH == "saas-release"'
+    environment:
+        name: Github
+        url: https://github.com/shopware
+    script:
+        - apt update && apt install -y wget git
+
+        # download tool
+        - wget https://github.com/splitsh/lite/releases/download/v1.0.1/lite_linux_amd64.tar.gz
+        - tar xvfz lite_linux_amd64.tar.gz
+        - chmod +x splitsh-lite
+
+        # split repositories
+        - >
+            for pkg in Administration Docs Storefront Core Elasticsearch Recovery; do
+              echo "Splitting ${pkg}"
+              SHA1=`./splitsh-lite --prefix=src/$pkg/ --target=refs/heads/$pkg`
+              git remote set-url origin https://bot:${PERSONAL_TOKEN}@gitlab.shopware.com/shopware/6/product/many-repositories/$(echo $pkg | awk '{print tolower($0)}').git
+              git push origin $SHA1:$CI_COMMIT_BRANCH -f
+            done

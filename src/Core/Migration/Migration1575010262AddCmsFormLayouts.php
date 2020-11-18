@@ -9,10 +9,10 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 class Migration1575010262AddCmsFormLayouts extends MigrationStep
 {
-    const CONTACT = 'contact';
-    const NEWSLETTER = 'newsletter';
-    const CONTACT_DE = 'Kontakt';
-    const NEWSLETTER_DE = 'Newsletter';
+    private const CONTACT = 'contact';
+    private const NEWSLETTER = 'newsletter';
+    private const CONTACT_DE = 'Kontakt';
+    private const NEWSLETTER_DE = 'Newsletter';
 
     public function getCreationTimestamp(): int
     {

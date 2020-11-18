@@ -7,9 +7,27 @@
 {% set orderState = page.order.stateMachineState.technicalName %}
 
 {% block page_checkout_confirm_header %}
+    {% if page.errorCode == 'CHECKOUT__CUSTOMER_CANCELED_EXTERNAL_PAYMENT' %}
+        {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+            type: 'danger',
+            content: 'account.externalPaymentCanceled'|trans|sw_sanitize
+        } %}
+    {% elseif page.errorCode is not null %}
+        {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+            type: 'danger',
+            content: 'account.externalPaymentFailure'|trans|sw_sanitize
+        } %}
+    {% endif %}
+
     <h1 class="confirm-main-header">
-        {{ "account.editOrder"|trans|sw_sanitize }}
+        {{ "account.completePayment"|trans|sw_sanitize }}
     </h1>
+{% endblock %}
+
+{% block page_checkout_confirm_tos_control %}
+    {{ "checkout.confirmTermsReminder"|trans({
+        '%url%': path('frontend.cms.page', { id: shopware.config.core.basicInformation.tosPage })
+    })|raw }}
 {% endblock %}
 
 {% block page_checkout_confirm_address %}
@@ -20,13 +38,13 @@
 
 {% block page_checkout_confirm_payment %}
     <div class="col-sm-6 confirm-payment">
-        {% sw_include '@Storefront/storefront/page/account/order/payment.html.twig' %}
+        {% sw_include '@Storefront/storefront/page/account/order/confirm-payment.html.twig' %}
     </div>
 {% endblock %}
 
 {% block page_checkout_confirm_shipping %}
     <div class="col-sm-6 confirm-shipping">
-        {% sw_include '@Storefront/storefront/page/account/order/shipping.html.twig' %}
+        {% sw_include '@Storefront/storefront/page/account/order/confirm-shipping.html.twig' %}
     </div>
 {% endblock %}
 

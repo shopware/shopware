@@ -24,6 +24,9 @@ class CheckoutConfirmPage extends Page
      */
     protected $shippingMethods;
 
+    /**
+     * @deprecated tag:v6.4.0 use CheckoutConfirmPage::createFrom instead
+     */
     public function __construct(PaymentMethodCollection $paymentMethods, ShippingMethodCollection $shippingMethods)
     {
         $this->paymentMethods = $paymentMethods;

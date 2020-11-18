@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Test\Product\DataAbstractionLayer\Indexing;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
-use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingGateway;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -42,16 +41,10 @@ class VariantListingIndexerTest extends TestCase
      */
     private $connection;
 
-    /**
-     * @var ProductListingGateway
-     */
-    private $listingGateway;
-
     protected function setUp(): void
     {
         $this->repository = $this->getContainer()->get('product.repository');
         $this->connection = $this->getContainer()->get(Connection::class);
-        $this->listingGateway = $this->getContainer()->get(ProductListingGateway::class);
 
         parent::setUp();
     }

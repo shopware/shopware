@@ -66,9 +66,4 @@ class CmsSlotTranslationEntity extends TranslationEntity
     {
         $this->customFields = $customFields;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'cms_page_slot_translation';
-    }
 }

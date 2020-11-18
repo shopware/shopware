@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
@@ -19,7 +20,6 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\EqualTo;
 use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @RouteScope(scopes={"store-api"})
@@ -36,19 +36,12 @@ class NewsletterUnsubscribeRoute extends AbstractNewsletterUnsubscribeRoute
      */
     private $validator;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
-
     public function __construct(
         EntityRepositoryInterface $newsletterRecipientRepository,
-        DataValidator $validator,
-        EventDispatcherInterface $eventDispatcher
+        DataValidator $validator
     ) {
         $this->newsletterRecipientRepository = $newsletterRecipientRepository;
         $this->validator = $validator;
-        $this->eventDispatcher = $eventDispatcher;
     }
 
     public function getDecorated(): AbstractNewsletterUnsubscribeRoute
@@ -57,9 +50,10 @@ class NewsletterUnsubscribeRoute extends AbstractNewsletterUnsubscribeRoute
     }
 
     /**
+     * @Since("6.2.0.0")
      * @OA\Post(
      *      path="/newsletter/unsubscribe",
-     *      description="Unsubscribe to newsletter",
+     *      summary="Unsubscribe to newsletter",
      *      operationId="unsubscribeToNewsletter",
      *      tags={"Store API", "Newsletter"},
      *      @OA\Parameter(name="email", description="Email", in="query", @OA\Schema(type="string")),

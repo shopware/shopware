@@ -12,8 +12,10 @@ use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
-use function Flag\next3722;
 
+/**
+ * @group slow
+ */
 class AuthControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
@@ -411,9 +413,6 @@ class AuthControllerTest extends TestCase
 
     public function testIntegrationAuth(): void
     {
-        if (next3722()) {
-            static::markTestSkipped('Reactivate if Integrations can have their own acls');
-        }
         $client = $this->getBrowser(false);
 
         $accessKey = AccessKeyHelper::generateAccessKey('integration');
@@ -450,7 +449,7 @@ class AuthControllerTest extends TestCase
          * Access protected routes
          */
         $client->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['access_token']));
-        $client->request('GET', '/api/v1/tax');
+        $client->request('GET', '/api/v' . PlatformRequest::API_VERSION . '/tax');
 
         static::assertEquals(Response::HTTP_OK, $client->getResponse()->getStatusCode());
     }

@@ -6,7 +6,7 @@ const { Component } = Shopware;
 Component.register('sw-product-modal-delivery', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     props: {
         product: {

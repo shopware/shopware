@@ -16,7 +16,7 @@ Component.register('sw-select-selection-list', {
         selections: {
             type: Array,
             required: false,
-            default: []
+            default: () => []
         },
         labelProperty: {
             type: String,
@@ -56,6 +56,22 @@ Component.register('sw-select-selection-list', {
             type: String,
             required: false,
             default: ''
+        },
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+        hideLabels: {
+            type: Boolean,
+            required: false,
+            default: false
+        }
+    },
+
+    computed: {
+        showPlaceholder() {
+            return (this.selections.length > 0 && !this.hideLabels) ? '' : this.placeholder;
         }
     },
 

@@ -59,7 +59,24 @@ class CustomerTokenSubscriber implements EventSubscriberInterface
 
         foreach ($payloads as $payload) {
             if ($this->customerCredentialsChanged($payload)) {
-                $this->contextPersister->revokeAllCustomerTokens($payload['id'], $token);
+                $newToken = $this->contextPersister->replace($token, $context);
+
+                $context->assign([
+                    'token' => $newToken,
+                ]);
+
+                if (!$master->hasSession()) {
+                    return;
+                }
+
+                $session = $master->getSession();
+                $session->migrate();
+                $session->set('sessionId', $session->getId());
+
+                $session->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $newToken);
+                $master->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $newToken);
+
+                return;
             }
         }
     }

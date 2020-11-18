@@ -77,7 +77,13 @@ class SnippetFinder implements SnippetFinderInterface
         $snippets = [[]];
 
         foreach ($files as $file) {
-            $snippets[] = json_decode(file_get_contents($file), true) ?? [];
+            if (is_file($file) === false) {
+                continue;
+            }
+            $content = file_get_contents($file);
+            if ($content !== false) {
+                $snippets[] = json_decode($content, true) ?? [];
+            }
         }
 
         $snippets = array_replace_recursive(...$snippets);

@@ -13,7 +13,7 @@ Shopware 6 is split into two repositories the [development template](https://git
 Let's start by cloning the development template:
 
 ```bash
-> git clone git@github.com:shopware/development.git
+> git clone https://github.com/shopware/development.git
 ```
 
 You now have the application template for Shopware 6 in the directory `development`, we now change into it:
@@ -32,7 +32,7 @@ Before doing so, remove the existing platform directory.
 
 ```bash
 > rm -rf platform
-> git clone git@github.com:shopware/platform.git
+> git clone https://github.com/shopware/platform.git
 ```
 
 Otherwise, the Shopware platform code would be placed into a `vendor/shopware/platform` directory, where you don't want to change any code.
@@ -45,7 +45,8 @@ There's a good reason, why many IDEs try to prevent you from changing code in th
     Instead take a closer look at our
     <a href="https://docs.shopware.com/en/shopware-platform-dev-en/system-guide/system-installation-guides/vagrant">vagrant guide</a>
     or the <a href="https://docs.shopware.com/en/shopware-platform-dev-en/system-guide/system-installation-guides/mac-os-x">MacOS using MAMP installation guide</a>
-    or install <a href="https://docs.shopware.com/en/shopware-platform-dev-en/system-guide/system-installation-guides/docker-sync">docker-sync</a> to use native mounting with Docker volumes. 
+    or install <a href="https://docs.shopware.com/en/shopware-platform-dev-en/system-guide/system-installation-guides/docker-sync">docker-sync</a>
+     or <a href="https://docs.shopware.com/en/shopware-platform-dev-en/system-guide/system-installation-guides/dockware">dockware</a> to use native mounting with Docker volumes. 
 </p>
 
 The docker installation is the easiest way to get a running Shopware 6. This way you can setup Shopware 6 with just three easy commands: 

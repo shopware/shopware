@@ -1,6 +1,8 @@
 {
   "global": {
     "error-codes": {
+      "FRAMEWORK__MISSING_PRIVILEGE_ERROR": "Fehlende Berechtigungen",
+      "FRAMEWORK__DELETE_RESTRICTED": "Löschen fehlgeschlagen",
       "c1051bb4-d103-4f74-8988-acbcafc7fdc3": "Dieses Feld darf nicht leer sein",
       "INVALID_MEDIA_URL": "Bitte gib eine valide URL ein, um eine Datei hochzuladen.",
       "CONTENT__MISSING_RULE_TYPE_EXCEPTION": "Du musst einen Typ für diese Regel auswählen.",
@@ -19,12 +21,19 @@
       "success": "Erfolg",
       "info": "Info",
       "yes": "Ja",
-      "no": "Nein"
+      "no": "Nein",
+      "confirm": "Bestätigen",
+      "view": "Anzeigen",
+      "ascending": "Aufsteigend",
+      "descending": "Absteigend"
     },
     "notification": {
       "notificationSaveErrorMessage": "Beim Speichern der Entität \"{entityName}\" ist ein Fehler aufgetreten.",
+      "notificationSaveErrorMessageRequiredFieldsInvalid": "Bitte fülle alle Pflichtfelder aus.",
       "unspecifiedSaveErrorMessage": "Ein Fehler ist aufgetreten.",
-      "notificationSaveSuccessMessage": "Die Entität \"{entityName}\" wurde erfolgreich gespeichert."
+      "notificationSaveSuccessMessage": "Die Entität \"{entityName}\" wurde erfolgreich gespeichert.",
+      "messageDeleteSuccess": "\"{name}\" gelöscht.",
+      "messageDeleteFailed": "wird verwendet von: "
     },
     "notification-center": {
       "title": "Mitteilungen",
@@ -56,7 +65,7 @@
           "message": "Dynamische Produktgruppe indexiert. | Noch eine dynamische Produktgruppe verbleibend ... | Circa {n} dynamische Produktgruppe verbleibend ...",
           "messageSuccess": "Dynamische Produktgruppen indexiert."
         },
-        "category":  {
+        "category": {
           "title": "Kategorie-Indexierung",
           "message": "Kategorie indexiert. | Noch eine Kategorie verbleibend ... | Circa {n} Kategorien verbleibend ...",
           "messageSuccess": "Kategorien indexiert."
@@ -71,7 +80,7 @@
           "message": "Verkaufskanal indexiert. | Noch ein Verkaufskanal verbleibend ... | Circa {n} Verkaufskanal verbleibend ...",
           "messageSuccess": "Verkaufskanäle indexiert."
         },
-        "rule":  {
+        "rule": {
           "title": "Regel-Indexierung",
           "message": "Regeln indexiert. | Noch eine Regel verbleibend ... | Circa {n} Regeln verbleibend ...",
           "messageSuccess": "Regeln indexiert."
@@ -102,6 +111,7 @@
       "linkMinimizeMenu": "Menü minimieren",
       "textShopwareAdmin": "Shopware Administration",
       "textProjectName": "Administration",
+      "administrator": "Administrator",
       "navigation": {
         "mainMenuItemCatalogue": "Kataloge",
         "mainMenuItemContent": "Inhalte",
@@ -112,7 +122,12 @@
       "deleteMessage": "Soll der Eintrag wirklich gelöscht werden? | Sollen diese {count} Einträge wirklich gelöscht werden?",
       "deleteTitle": "Eintrag löschen",
       "placeholderToManyAssociationCard": "Nach Assoziationen suchen ...",
-      "labelRemoveAssociation": "Zuweisung aufheben"
+      "labelRemoveAssociation": "Zuweisung aufheben",
+      "productStreamPreview": {
+        "emptyMessageNoStream": "Keine dynamische Produktgruppe ausgewählt",
+        "emptyMessageNoProducts": "Keine Produkte gefunden",
+        "emptyMessageNoSearchResults": "Keine Produkte gefunden für \"{term}\""
+      }
     },
     "sw-field": {
       "notification": {
@@ -134,11 +149,9 @@
       "buttonChoose": "Datei auswählen",
       "notification": {
         "invalidFileType": {
-          "title": "Nicht unterstützter Dateityp",
           "message": "Die gewählte Datei \"{name}\" hat ein nicht unterstütztes Format. Bitte benutze eins der folgenden Formate: {supportedTypes}."
         },
         "invalidFileSize": {
-          "title": "Dateigröße überschreitet das Upload-Limit",
           "message": "Die gewählte Datei \"{name}\" ist zu groß für den Upload. Die maximale Dateigröße ist {limit}."
         }
       },
@@ -229,7 +242,7 @@
         "folder": "Möchtest Du den Ordner \"{name}\" wirklich löschen?<br>Es werden auch alle Unterordner und Medien in diesem Ordner gelöscht. | Möchtest Du diese {count} Ordner wirklich löschen?<br>Es werden auch alle Unterordner und Medien in diesem Ordner gelöscht.",
         "mediaAndFolder": "Möchtest Du {mediaCount} Dateien und {folderCount} Ordner wirklich löschen?<br>Es werden auch alle Unterordner und Dateien aus den Ordner gelöscht."
       },
-      "mediaQuickInfoMessage": "Die Mediendatei wird derzeit noch verwendet und ist wie folgt verknüpft",
+      "mediaQuickInfoMessage": "Diese Mediendatei wird derzeit verwendet von",
       "mediaInUsagesMessage": "Die folgenden Mediendateien werden derzeit noch verwendet",
       "notification": {
         "errorSingle": {
@@ -255,7 +268,6 @@
       }
     },
     "sw-media-modal-folder-dissolve": {
-      "titleModal": "Ordner auflösen",
       "dissolveMessage": "Möchtest Du \"{folderName}\" wirklich auflösen? | Möchtest Du diese {count} Ordner wirklich auflösen?",
       "buttonDissolve": "Auflösen",
       "notification": {
@@ -341,14 +353,12 @@
       "buttonOpenMedia": "Medien öffnen",
       "notification": {
         "success": {
-          "title": "Medienupload",
           "message": "Keine Datei erfolgreich gespeichert | Eine Datei erfolgreich gespeichert | {count} / {total} Dateien erfolgreich gespeichert."
         },
         "failure": {
           "message": "Fehler beim Hochladen."
         },
         "illegalFilename": {
-          "title": "Ungültiger Dateiname",
           "message": "Der Dateiname \"{fileName}\" enthält ungültige Sonderzeichen."
         },
         "illegalFileUrl": {
@@ -406,7 +416,8 @@
           "message": "Fehler beim Speichern der Einstellungen."
         }
       },
-      "labelDefaultFolder": "Standardspeicherort für:"
+      "labelDefaultFolder": "Standardspeicherort für:",
+      "placeholderDefaultFolder": "Wähle einen Standardspeicherort ..."
     },
     "sw-media-add-thumbnail-form": {
       "labelMaximumSize": "Maximalmaße"
@@ -441,7 +452,10 @@
     },
     "sw-multi-tag-ip-select": {
       "enterValidIp": "Bitte gib eine valide IPv4- oder IPv6-Adresse ein",
-      "addIpAdress": "IP-Adresse hinzufügen"
+      "addIpAdress": "IP-Adresse hinzufügen",
+      "knownIps": {
+        "you": "Du"
+      }
     },
     "sw-multi-ip-select": {
       "enterValidIp": "Bitte gib eine valide IPv4- oder IPv6-Adresse ein",
@@ -486,7 +500,9 @@
         "greaterThan": "Größer",
         "notEquals": "Ungleich",
         "isOneOf": "Ist eine von",
-        "isNoneOf": "Ist keine von"
+        "isNoneOf": "Ist keine von",
+        "gross": "Brutto",
+        "net": "Netto"
       },
       "placeholderErrorMessage": "Platzhalter können nicht gespeichert werden.",
       "dataErrorMessage": "Es wurden nicht alle Pflichtfelder befüllt.",
@@ -503,6 +519,7 @@
         "billingStreetRule": "Rechnungsstraße",
         "billingZipCodeRule": "Rechnungsadresse-PLZ",
         "customerGroupRule": "Kundengruppe",
+        "customerTagRule": "Kunden Tag",
         "customerNumberRule": "Kundennummer",
         "differentAddressesRule": "Abweichende Adressen",
         "isNewCustomerRule": "Neuer Kunde",
@@ -646,7 +663,10 @@
       "theme": "Theme | Themes",
       "unit": "Maßeinheit | Maßeinheiten",
       "user": "Benutzer",
-      "delivery_time": "Lieferzeit | Lieferzeiten"
+      "delivery_time": "Lieferzeit | Lieferzeiten",
+      "import_export_profile": "Import/Export-Profil | Import/Export-Profile",
+      "feature_set": "Template | Templates",
+      "event_action": "Business-Events"
     },
     "day-of-week": {
       "monday": "Montag",
@@ -656,6 +676,72 @@
       "friday": "Freitag",
       "saturday": "Samstag",
       "sunday": "Sonntag"
+    },
+    "businessEvents": {
+      "checkout_customer_before_login": "Kunde hat Anmeldungsanfrage gestellt",
+      "checkout_customer_changed-payment-method": "Kunde ändert Zahlungsart",
+      "checkout_customer_deleted": "Kundenkonto wurde gelöscht",
+      "checkout_customer_double_opt_in_guest_order": "Gastbestellerkonto wurde registriert mit Double-Opt-in",
+      "checkout_customer_double_opt_in_registration": "Kundenkonto wurde registriert mit Double-Opt-in",
+      "checkout_customer_guest_register": "Gastbestellerkonto wurde registriert",
+      "checkout_customer_login": "Kunde meldet sich an",
+      "checkout_customer_logout": "Kunde meldet sich ab",
+      "checkout_customer_register": "Kundenkonto wurde registriert",
+      "checkout_order_placed": "Bestellung ist eingegangen",
+      "contact_form_send":  "Kontaktformular wurde verschickt",
+      "customer_group_registration_accepted": "Kundengruppen-Registrierung wurde akzeptiert",
+      "customer_group_registration_declined": "Kundengruppen-Registrierung wurde abgelehnt",
+      "customer_recovery_request": "Kunde fordert neues Passwort an",
+      "mail_after_create_message":  "E-Mail wurde erzeugt",
+      "mail_before_send": "E-Mail wird gesendet",
+      "mail_sent":  "E-Mail wurde gesendet",
+      "newsletter_confirm": "Newsletteranmeldung wurde bestätigt",
+      "newsletter_register": "Newsletteranmeldung wurde registriert",
+      "newsletter_update": "Newsletteranmeldung wurde aktualisiert",
+      "product_export_log": "Produktexport wurde aufgeführt",
+      "state_enter_order_state_cancelled": "Bestellung erreicht Status abgebrochen",
+      "state_enter_order_state_completed": "Bestellung erreicht Status abgeschlossen",
+      "state_enter_order_state_in_progress": "Bestellung erreicht Status in Bearbeitung",
+      "state_enter_order_state_open": "Bestellung erreicht Status offen",
+      "state_enter_order_delivery_state_cancelled": "Lieferung erreicht Status abgebrochen",
+      "state_enter_order_delivery_state_open": "Lieferung erreicht Status offen",
+      "state_enter_order_delivery_state_returned": "Lieferung erreicht Status zurückgesendet",
+      "state_enter_order_delivery_state_returned_partially": "Lieferung erreicht Status teilweise zurückgesendet",
+      "state_enter_order_delivery_state_shipped": "Lieferung erreicht Status versandt",
+      "state_enter_order_delivery_state_shipped_partially": "Lieferung erreicht Status teilweise versandt",
+      "state_enter_order_transaction_state_authorized": "Zahlung erreicht Status autorisiert",
+      "state_enter_order_transaction_state_cancelled": "Zahlung erreicht Status abgebrochen",
+      "state_enter_order_transaction_state_chargeback": "Zahlung erreicht Status erstattet",
+      "state_enter_order_transaction_state_failed": "Zahlung erreicht Status fehlgeschlagen",
+      "state_enter_order_transaction_state_in_progress": "Zahlung erreicht Status in Bearbeitung",
+      "state_enter_order_transaction_state_open": "Zahlung erreicht Status offen",
+      "state_enter_order_transaction_state_paid": "Zahlung erreicht Status bezahlt",
+      "state_enter_order_transaction_state_paid_partially": "Zahlung erreicht Status teilweise bezahlt",
+      "state_enter_order_transaction_state_refunded": "Zahlung erreicht Status erstattet",
+      "state_enter_order_transaction_state_refunded_partially": "Zahlung erreicht Status teilweise erstattet",
+      "state_enter_order_transaction_state_reminded": "Zahlung erreicht Status Erinnerung versandt",
+      "state_leave_order_state_cancelled": "Bestellung verlässt Status abgebrochen",
+      "state_leave_order_state_completed": "Bestellung verlässt Status abgeschlossen",
+      "state_leave_order_state_in_progress": "Bestellung verlässt Status in Bearbeitung",
+      "state_leave_order_state_open": "Bestellung verlässt Status offen",
+      "state_leave_order_delivery_state_cancelled": "Lieferung verlässt Status abgebrochen",
+      "state_leave_order_delivery_state_open": "Lieferung verlässt Status offen",
+      "state_leave_order_delivery_state_returned": "Lieferung verlässt Status zurückgesendet",
+      "state_leave_order_delivery_state_returned_partially": "Lieferung verlässt Status teilweise zurückgesendet",
+      "state_leave_order_delivery_state_shipped": "Lieferung verlässt Status versandt",
+      "state_leave_order_delivery_state_shipped_partially": "Lieferung verlässt Status teilweise versandt",
+      "state_leave_order_transaction_state_authorized": "Zahlung verlässt Status autorisiert",
+      "state_leave_order_transaction_state_cancelled": "Zahlung verlässt Status abgebrochen",
+      "state_leave_order_transaction_state_chargeback": "Zahlung verlässt Status erstattet",
+      "state_leave_order_transaction_state_failed": "Zahlung verlässt Status fehlgeschlagen",
+      "state_leave_order_transaction_state_in_progress": "Zahlung verlässt Status in Bearbeitung",
+      "state_leave_order_transaction_state_open": "Zahlung verlässt Status offen",
+      "state_leave_order_transaction_state_paid": "Zahlung verlässt Status bezahlt",
+      "state_leave_order_transaction_state_paid_partially": "Zahlung verlässt Status teilweise bezahlt",
+      "state_leave_order_transaction_state_refunded": "Zahlung verlässt Status erstattet",
+      "state_leave_order_transaction_state_refunded_partially": "Zahlung verlässt Status teilweise erstattet",
+      "state_leave_order_transaction_state_reminded": "Zahlung verlässt Status Erinnerung versandt",
+      "user_recovery_request": "Benutzer-Wiederherstellungsanfrage gestellt"
     }
   },
   "sw-text-editor-toolbar": {
@@ -722,7 +808,6 @@
       }
     },
     "modal": {
-      "modalTitleDelete": "Element löschen",
       "textDeleteConfirm": "Möchtest Du das Element \"{name}\" wirklich löschen?",
       "textDeleteMultipleConfirm": "Möchtest Du die \"{count}\" gewählten Elemente wirklich löschen?",
       "textDeleteChildrenConfirm": "Alle unterliegenden Kategorien werden auch gelöscht."
@@ -739,7 +824,9 @@
   },
   "sw-property-search": {
     "placeholderSearch": "Suche nach Eigenschaften ...",
-    "selected": "{count} Option ausgewählt | {count} Optionen ausgewählt"
+    "selected": "{count} Option ausgewählt | {count} Optionen ausgewählt",
+    "noPropertiesFound": "Keine Optionen gefunden",
+    "noPropertiesFoundDescription": "Versuche es mit einem anderen Suchbegriff."
   },
   "sw-property-assignment": {
     "columnGroup": "Eigenschaft",
@@ -784,12 +871,14 @@
   "sw-config-form-renderer": {
     "placeholder": "Bitte \"{name}\" ausfüllen ...",
     "option": "Für die Sprache \"{locale}\" wurde kein Label gesetzt ...",
-    "configLoadErrorMessage": "Beim Laden der Konfiguration ist ein Fehler aufgetreten: | Beim Laden der Konfiguration sind Fehler aufgetreten:",
-    "configLoadErrorTitle": "Fehler beim Laden der Konfiguration."
+    "configLoadErrorMessage": "Beim Laden der Konfiguration ist ein Fehler aufgetreten: | Beim Laden der Konfiguration sind Fehler aufgetreten:"
   },
   "locale": {
     "de-DE": "Deutsch",
     "en-GB": "Englisch"
+  },
+  "sw-image-slider": {
+    "imageAlt": "Bild {index} / {total}"
   },
   "sw-rule-modal": {
     "modalTitleNew": "Neue globale Regel erstellen",
@@ -899,5 +988,52 @@
     "title": "Währungen pflegen",
     "columnPrice": "Preise (Brutto / Netto)",
     "columnListPriceHeader": "Streichpreise (Brutto / Netto)"
+  },
+  "sw-privileges": {
+    "tooltip": {
+      "warning": "Du hast nicht die erforderlichen Berechtigungen."
+    },
+    "error": {
+      "description": "Für diese Aktion fehlen Dir die nötigen Berechtigungen, bitte frage diese bei Deinem Administrator an. Die benötigten Berechtigungen sind:"
+    }
+  },
+  "sw-custom-field-set-renderer": {
+    "labelCustomFieldSetSelectSwitch": "Zusatzfeld-Sets auswählen",
+    "placeholderCustomFieldSetSelect": "Wähle Zusatzfeld-Sets aus...",
+    "labelCustomFieldSetSelect": "Zusatzfeld-Sets",
+    "messagePluginSets": "Plugin Zusatzfeld-Sets (Können nicht entfernt werden)"
+  },
+  "sw-rating-stars": {
+    "ratingTooltipText": "{actual} von {max} Sternen"
+  },
+  "sw-app": {
+    "component": {
+      "sw-app-actions": {
+        "messageErrorFetchButtons": "Es ist ein Fehler beim Laden Deiner Appactions aufgetreten."
+      },
+      "sw-app-app-url-changed-modal": {
+        "move-shop-permanently": {
+          "name": "Migriere Deine Apps zur neuen Domain",
+          "description": "Verbindet Deine Apps mit der neuen Domain. Dadurch werden alle Apps für die alte Domain deaktiviert."
+        },
+        "reinstall-apps": {
+          "name": "Installiere Deine Apps neu",
+          "description": "Verbindet Deine Apps mit der neuen und der alten Domain. Für kostenpflichtige Apps können zusätzliche Gebühren anfallen."
+        },
+        "uninstall-apps": {
+          "name": "Deinstalliere Deine Apps",
+          "description": "Löscht alle App-Daten der neuen Domain. Die mit der alten Domain verbundenen Apps funktionieren weiterhin."
+        },
+        "title": "Domain-Änderung wurde festgestellt",
+        "oldLabel": "Alte Domain: ",
+        "newLabel": "Neue Domain: ",
+        "explanationHeader": "Deine Shop-Domain hat sich geändert.",
+        "explanation": "Die installierten Apps sind immer noch mit der alten Domain verbunden und funktionieren mit der neuen Domain noch nicht. Du hast drei Optionen um fortzufahren:",
+        "confirmation": "Bestätigen",
+        "cancellation": "Abbrechen",
+        "success": "Domain Änderung erfolgreich durchgeführt.",
+        "error": "Keine Änderung durchgeführt."
+      }
+    }
   }
 }

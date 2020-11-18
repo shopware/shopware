@@ -8,12 +8,14 @@ Component.register('sw-settings-cart', {
     mixins: [
         Mixin.getByName('notification')
     ],
+
     data() {
         return {
             isLoading: false,
             isSaveSuccessful: false
         };
     },
+
     methods: {
         saveFinish() {
             this.isSaveSuccessful = false;
@@ -28,7 +30,6 @@ Component.register('sw-settings-cart', {
             }).catch((err) => {
                 this.isLoading = false;
                 this.createNotificationError({
-                    title: this.$tc('sw-settings-cart.general.titleSaveError'),
                     message: err
                 });
             });

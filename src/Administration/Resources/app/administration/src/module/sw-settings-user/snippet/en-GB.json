@@ -50,6 +50,7 @@
       "labelNewPassword": "New password",
       "labelNewUser": "New user",
       "placeholderNewPassword": "Enter new password...",
+      "placeholderNewPasswordConfirm": "Re-enter new password...",
       "labelButtonCancel": "Cancel",
       "labelButtonChangePassword": "Change",
       "labelButtonSave": "Save",
@@ -62,7 +63,6 @@
       "labelAccessKey": "Access key",
       "labelPermissions": "Permissions",
       "modal": {
-        "deleteModalTitle": "Delete",
         "detailModalTitle": "Create integration",
         "detailModalTitleEdit": "Edit",
         "confirmDelete": "Are you sure you want to delete this integration?",
@@ -79,11 +79,8 @@
         "permissions": "Permissions",
         "readAccessFieldLabel": "Read (default)",
         "writeAccessFieldLabel": "Write (optional)",
-        "titleSaveSuccess": "Success",
         "messageSaveSuccess": "Integration has been saved.",
-        "titleSaveError": "Error",
         "messageSaveError": "Integration could not be saved.",
-        "titleCreateNewError": "Error",
         "messageCreateNewError": "Integration could not be saved."
       },
       "notification": {
@@ -100,7 +97,7 @@
       "passwordConfirmation": {
         "titleConfirmPasswordModal": "Enter your current password to confirm",
         "labelConfirmPassword": "Password",
-        "placeholderConfirmPassword": "Please enter your current password.",
+        "placeholderConfirmPassword": "Please enter your current password...",
         "labelButtonCancel": "Cancel",
         "labelButtonConfirm": "Confirm",
         "notificationPasswordErrorTitle": "Error",

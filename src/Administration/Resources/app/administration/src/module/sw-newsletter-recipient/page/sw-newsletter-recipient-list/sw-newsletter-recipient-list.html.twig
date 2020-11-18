@@ -39,7 +39,11 @@
                             :items="items"
                             :columns="columns"
                             :repository="repository"
-                            detailRoute="sw.newsletter.recipient.detail">
+                            detailRoute="sw.newsletter.recipient.detail"
+                            :allowView="acl.can('newsletter_recipient.viewer')"
+                            :allowEdit="acl.can('newsletter_recipient.editor')"
+                            :allowInlineEdit="acl.can('newsletter_recipient.editor')"
+                            :allowDelete="acl.can('newsletter_recipient.deleter')">
 
                             {% block sw_newsletter_recipientlist_list_grid_name %}
                                 <template slot="column-firstName" slot-scope="{ item, compact, isInlineEdit }">
@@ -216,7 +220,7 @@
                                 <template slot="header">{{ $tc('sw-newsletter-recipient.general.tags') }}</template>
                                 <template slot="content">
                                     {% block sw_newsletter_recipient_list_sidebar_filter_sales_tags_select %}
-                                        <sw-entity-multi-select v-model="tagCollection" @input="onChange"></sw-entity-multi-select>
+                                        <sw-entity-multi-select v-model="tagCollection" @change="onChange"></sw-entity-multi-select>
                                     {% endblock %}
                                 </template>
                             </sw-sidebar-collapse>

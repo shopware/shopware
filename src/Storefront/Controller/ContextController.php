@@ -6,6 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -66,6 +67,7 @@ class ContextController extends StorefrontController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/checkout/configure", name="frontend.checkout.configure", methods={"POST"}, options={"seo"="false"}, defaults={"XmlHttpRequest": true})
      */
     public function configure(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
@@ -76,6 +78,7 @@ class ContextController extends StorefrontController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/checkout/language", name="frontend.checkout.switch-language", methods={"POST"})
      */
     public function switchLanguage(Request $request, SalesChannelContext $context): RedirectResponse
@@ -132,22 +135,20 @@ class ContextController extends StorefrontController
          * http://localhost/development/public/de
          * http://localhost/development/public/en
          * http://localhost/development/public/fr
+         * http://localhost/development/public/de-DE
          *
          * http://localhost:8080
          * http://localhost:8080/en
          * http://localhost:8080/fr
+         * http://localhost:8080/de-DE
          */
-        $url = str_replace(
-            ['http://', 'https://'],
-            '',
-            $domain->getUrl()
-        );
+        $parsedUrl = parse_url($domain->getUrl());
 
         $routerContext = $this->router->getContext();
-        $routerContext->setHttpPort(80);
+        $routerContext->setHttpPort($parsedUrl['port'] ?? 80);
         $routerContext->setMethod('GET');
-        $routerContext->setHost($url);
-        $routerContext->setBaseUrl('');
+        $routerContext->setHost($parsedUrl['host']);
+        $routerContext->setBaseUrl(rtrim($parsedUrl['path'] ?? '', '/'));
 
         $this->requestStack->getMasterRequest()
             ->attributes->set(RequestTransformer::SALES_CHANNEL_BASE_URL, '');

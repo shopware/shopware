@@ -4,15 +4,15 @@ namespace Shopware\Storefront\Page\Checkout\Cart;
 
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
-use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
+use Shopware\Core\Checkout\Payment\SalesChannel\AbstractPaymentMethodRoute;
+use Shopware\Core\Checkout\Shipping\SalesChannel\AbstractShippingMethodRoute;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\Country\CountryCollection;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Shopware\Core\System\Country\SalesChannel\AbstractCountryRoute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -36,34 +36,34 @@ class CheckoutCartPageLoader
     private $cartService;
 
     /**
-     * @var SalesChannelRepositoryInterface
+     * @var AbstractPaymentMethodRoute
      */
-    private $paymentMethodRepository;
+    private $paymentMethodRoute;
 
     /**
-     * @var SalesChannelRepositoryInterface
+     * @var AbstractShippingMethodRoute
      */
-    private $shippingMethodRepository;
+    private $shippingMethodRoute;
 
     /**
-     * @var SalesChannelRepositoryInterface
+     * @var AbstractCountryRoute
      */
-    private $countryRepository;
+    private $countryRoute;
 
     public function __construct(
         GenericPageLoaderInterface $genericLoader,
         EventDispatcherInterface $eventDispatcher,
         CartService $cartService,
-        SalesChannelRepositoryInterface $paymentMethodRepository,
-        SalesChannelRepositoryInterface $shippingMethodRepository,
-        SalesChannelRepositoryInterface $countryRepository
+        AbstractPaymentMethodRoute $paymentMethodRoute,
+        AbstractShippingMethodRoute $shippingMethodRoute,
+        AbstractCountryRoute $countryRoute
     ) {
         $this->genericLoader = $genericLoader;
         $this->eventDispatcher = $eventDispatcher;
         $this->cartService = $cartService;
-        $this->paymentMethodRepository = $paymentMethodRepository;
-        $this->shippingMethodRepository = $shippingMethodRepository;
-        $this->countryRepository = $countryRepository;
+        $this->paymentMethodRoute = $paymentMethodRoute;
+        $this->shippingMethodRoute = $shippingMethodRoute;
+        $this->countryRoute = $countryRoute;
     }
 
     /**
@@ -76,6 +76,10 @@ class CheckoutCartPageLoader
         $page = $this->genericLoader->load($request, $salesChannelContext);
 
         $page = CheckoutCartPage::createFrom($page);
+
+        if ($page->getMetaInformation()) {
+            $page->getMetaInformation()->setRobots('noindex,follow');
+        }
 
         $page->setCountries($this->getCountries($salesChannelContext));
 
@@ -92,47 +96,35 @@ class CheckoutCartPageLoader
         return $page;
     }
 
-    /**
-     * @throws InconsistentCriteriaIdsException
-     */
-    private function getPaymentMethods(SalesChannelContext $salesChannelContext): PaymentMethodCollection
+    private function getPaymentMethods(SalesChannelContext $context): PaymentMethodCollection
     {
-        $criteria = (new Criteria())
-            ->addFilter(new EqualsFilter('active', true));
+        $request = new Request();
+        $request->query->set('onlyAvailable', true);
 
-        /** @var PaymentMethodCollection $paymentMethods */
-        $paymentMethods = $this->paymentMethodRepository->search($criteria, $salesChannelContext)->getEntities();
-
-        $paymentMethods->sort(function (PaymentMethodEntity $a, PaymentMethodEntity $b) {
-            return $a->getPosition() <=> $b->getPosition();
-        });
-
-        return $paymentMethods->filterByActiveRules($salesChannelContext);
+        return $this->paymentMethodRoute->load($request, $context, new Criteria())->getPaymentMethods();
     }
 
-    /**
-     * @throws InconsistentCriteriaIdsException
-     */
-    private function getShippingMethods(SalesChannelContext $salesChannelContext): ShippingMethodCollection
+    private function getShippingMethods(SalesChannelContext $context): ShippingMethodCollection
     {
-        $criteria = (new Criteria())->addFilter(new EqualsFilter('active', true));
+        $request = new Request();
+        $request->query->set('onlyAvailable', true);
 
-        /** @var ShippingMethodCollection $shippingMethods */
-        $shippingMethods = $this->shippingMethodRepository->search($criteria, $salesChannelContext)->getEntities();
+        /* @var ShippingMethodCollection $shippingMethods */
+        $shippingMethods = $this->shippingMethodRoute
+            ->load($request, $context, new Criteria())
+            ->getShippingMethods();
 
-        return $shippingMethods->filterByActiveRules($salesChannelContext);
+        if (!$shippingMethods->has($context->getShippingMethod()->getId())) {
+            $shippingMethods->add($context->getShippingMethod());
+        }
+
+        return $shippingMethods;
     }
 
-    /**
-     * @throws InconsistentCriteriaIdsException
-     */
-    private function getCountries(SalesChannelContext $salesChannelContext): CountryCollection
+    private function getCountries(SalesChannelContext $context): CountryCollection
     {
-        $criteria = (new Criteria())
-            ->addFilter(new EqualsFilter('active', true));
-
-        /** @var CountryCollection $countries */
-        $countries = $this->countryRepository->search($criteria, $salesChannelContext)->getEntities();
+        $countries = $this->countryRoute->load(new Criteria(), $context)->getCountries();
+        $countries->sortByPositionAndName();
 
         return $countries;
     }

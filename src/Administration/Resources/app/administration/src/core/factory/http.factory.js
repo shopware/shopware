@@ -18,6 +18,13 @@ export default function createHTTPClient(context) {
 }
 
 /**
+ * Provides CancelToken so a request's promise from Http Client could be canceled.
+ *
+ * @returns { CancelToken, isCancel, Cancel}
+ */
+export const { CancelToken, isCancel, Cancel } = Axios;
+
+/**
  * Creates the HTTP client with the provided context.
  *
  * @param {Context} context Information about the environment
@@ -80,7 +87,7 @@ function changeVersion(config) {
 }
 
 function checkVersionDeprecation(version) {
-    if (version >= Shopware.Context.api.apiVersion || Shopware.Context.api.apiVersion <= 1) {
+    if (version >= Shopware.Context.api.apiVersion) {
         return;
     }
 
@@ -92,12 +99,12 @@ function checkVersionDeprecation(version) {
 
 /**
  * Returns the base path of the version
- * @param version
+ * @param {number} version
  * @returns {string}
  */
 function getBasePath(version = Shopware.Context.api.apiVersion) {
     if (version <= 0) {
-        return `${Shopware.Context.api.apiPath}/v1`;
+        version = Shopware.Context.api.apiVersion;
     }
 
     return `${Shopware.Context.api.apiPath}/v${version}`;
@@ -110,7 +117,79 @@ function getBasePath(version = Shopware.Context.api.apiVersion) {
  */
 function globalErrorHandlingInterceptor(client) {
     client.interceptors.response.use(response => response, error => {
+        // Get $tc for translations and bind the Vue component scope to make it working
+        const viewRoot = Shopware.Application.view.root;
+        const $tc = viewRoot.$tc.bind(viewRoot);
+
         const { response: { status, data: { errors } } } = error;
+
+        if (status === 403) {
+            // create a fallback if the backend structure does not match the convention
+            try {
+                const missingPrivilegeErrors = errors.filter(e => e.code === 'FRAMEWORK__MISSING_PRIVILEGE_ERROR');
+                missingPrivilegeErrors.forEach(missingPrivilegeError => {
+                    const detail = JSON.parse(missingPrivilegeError.detail);
+                    let missingPrivileges = detail.missingPrivileges;
+
+                    // check if response is an object and not an array. If yes, then convert it
+                    if (!Array.isArray(missingPrivileges) && typeof missingPrivileges === 'object') {
+                        missingPrivileges = Object.values(missingPrivileges);
+                    }
+
+                    const missingPrivilegesMessage = missingPrivileges.reduce((message, privilege) => {
+                        return `${message}<br>"${privilege}"`;
+                    }, '');
+
+                    Shopware.State.dispatch('notification/createNotification', {
+                        variant: 'error',
+                        system: true,
+                        autoClose: false,
+                        growl: true,
+                        title: $tc('global.error-codes.FRAMEWORK__MISSING_PRIVILEGE_ERROR'),
+                        message: `${$tc('sw-privileges.error.description')} <br> ${missingPrivilegesMessage}`
+                    });
+                });
+            } catch (e) {
+                Shopware.Utils.debug.error(e);
+
+                errors.forEach(singleError => {
+                    Shopware.State.dispatch('notification/createNotification', {
+                        variant: 'error',
+                        system: true,
+                        autoClose: false,
+                        growl: true,
+                        title: singleError.title,
+                        message: singleError.detail
+                    });
+                });
+            }
+        }
+
+        if (status === 409) {
+            try {
+                if (errors[0].code === 'FRAMEWORK__DELETE_RESTRICTED') {
+                    const parameters = errors[0].meta.parameters;
+
+                    const entityName = Shopware.Utils.string.capitalizeString(parameters.entity);
+                    const blockingEntities = parameters.usages.reduce((message, entity) => `${message}<br>${entity}`, '');
+                    Shopware.State.dispatch('notification/createNotification', {
+                        variant: 'error',
+                        title: $tc('global.default.error'),
+                        message: `"${entityName}" ${$tc('global.notification.messageDeleteFailed')}${blockingEntities}`
+                    });
+                }
+            } catch (e) {
+                Shopware.Utils.debug.error(e);
+
+                errors.forEach(singleError => {
+                    Shopware.State.dispatch('notification/createNotification', {
+                        variant: 'error',
+                        title: singleError.title,
+                        message: singleError.detail
+                    });
+                });
+            }
+        }
 
         if (status === 412) {
             const frameworkLanguageNotFound = errors.find((e) => e.code === 'FRAMEWORK__LANGUAGE_NOT_FOUND');

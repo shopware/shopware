@@ -1,4 +1,5 @@
 import template from './sw-data-grid-column-boolean.html.twig';
+import './sw-data-grid-column-boolean.scss';
 
 const { Component } = Shopware;
 
@@ -10,6 +11,11 @@ Component.register('sw-data-grid-column-boolean', {
 
     props: {
         isInlineEdit: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
+        disabled: {
             type: Boolean,
             required: false,
             default: false

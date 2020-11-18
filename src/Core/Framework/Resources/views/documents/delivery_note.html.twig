@@ -1,3 +1,12 @@
+{#
+
+Notice for plugins and theme developer:
+
+This template can be extended over sw_extends.
+The blocks from the templates in the /includes folder can be overwritten directly in this template
+
+#}
+
 {% sw_extends '@Framework/documents/base.html.twig' %}
 
 {% block document_title_tag %}
@@ -5,13 +14,17 @@
 {% endblock %}
 
 {% block document_headline %}
-    <h1>{% trans with {'%deliveryNoteNumber%': config.custom.deliveryNoteNumber, '%orderNumber%': order.orderNumber} %}document.deliveryNoteHeadline{% endtrans %}</h1>
+    <h1 class="headline">
+        {% trans with {'%deliveryNoteNumber%': config.custom.deliveryNoteNumber, '%orderNumber%': order.orderNumber} %}document.deliveryNoteHeadline{% endtrans %}
+        ({{ counter.page }}/{{ pages }})
+    </h1>
 {% endblock %}
 
-{% block document_recipient %}
     {% set firstDelivery = order.deliveries|first %}
     {% set deliveryAddressId = firstDelivery.shippingOrderAddressId %}
     {% set deliveryAddress = order.addresses.get(deliveryAddressId) %}
+
+{% block document_recipient %}
     <span class="sender-address-small">
         {% block document_recipient_sender %}
             {{ config.companyAddress }}<br><br>
@@ -22,6 +35,12 @@
     {% endif %}
     {{ deliveryAddress.firstName }} {{ deliveryAddress.lastName }}<br>
     {{ deliveryAddress.street }}<br>
+    {% if deliveryAddress.additionalAddressLine1 %}
+        {{ deliveryAddress.additionalAddressLine1 }}<br>
+    {% endif %}
+    {% if deliveryAddress.additionalAddressLine2 %}
+        {{ deliveryAddress.additionalAddressLine2 }}<br>
+    {% endif %}
     {{ deliveryAddress.zipcode }} {{ deliveryAddress.city }}<br>
     {{ deliveryAddress.country.name }}<br>
 {% endblock %}
@@ -32,6 +51,8 @@
 {% endblock %}
 
 {% block document_line_item_table_shipping %}
+    {% if deliveryAddress.additionalAddressLine1 %}<br>{% endif %}
+    {% if deliveryAddress.additionalAddressLine2 %}<br>{% endif %}
 {% endblock %}
 
 {% block document_sum %}

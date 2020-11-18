@@ -78,7 +78,7 @@ export default class ViewportDetection {
     }
 
     /**
-     * Determine whether the the viewport has changed
+     * Determine whether the viewport has changed
      * @param newViewport
      * @returns {boolean}
      * @private

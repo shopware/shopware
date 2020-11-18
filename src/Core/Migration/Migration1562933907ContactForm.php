@@ -37,25 +37,44 @@ class Migration1562933907ContactForm extends MigrationStep
             ]
         );
 
-        $connection->insert(
-            'mail_template_type_translation',
-            [
-                'mail_template_type_id' => $mailTemplateTypeId,
-                'name' => $contactFormEmailTemplate['name'],
-                'language_id' => $this->getLanguageIdByLocale($connection, 'en-GB'),
-                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-            ]
-        );
+        $defaultLangId = $this->getLanguageIdByLocale($connection, 'en-GB');
+        $deLangId = $this->getLanguageIdByLocale($connection, 'de-DE');
 
-        $connection->insert(
-            'mail_template_type_translation',
-            [
-                'mail_template_type_id' => $mailTemplateTypeId,
-                'name' => $contactFormEmailTemplate['nameDe'],
-                'language_id' => $this->getLanguageIdByLocale($connection, 'de-DE'),
-                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-            ]
-        );
+        if ($defaultLangId !== $deLangId) {
+            $connection->insert(
+                'mail_template_type_translation',
+                [
+                    'mail_template_type_id' => $mailTemplateTypeId,
+                    'name' => $contactFormEmailTemplate['name'],
+                    'language_id' => $defaultLangId,
+                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                ]
+            );
+        }
+
+        if ($defaultLangId !== Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)) {
+            $connection->insert(
+                'mail_template_type_translation',
+                [
+                    'mail_template_type_id' => $mailTemplateTypeId,
+                    'name' => $contactFormEmailTemplate['name'],
+                    'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
+                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                ]
+            );
+        }
+
+        if ($deLangId) {
+            $connection->insert(
+                'mail_template_type_translation',
+                [
+                    'mail_template_type_id' => $mailTemplateTypeId,
+                    'name' => $contactFormEmailTemplate['nameDe'],
+                    'language_id' => $deLangId,
+                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                ]
+            );
+        }
 
         $connection->insert(
             'event_action',
@@ -73,19 +92,23 @@ class Migration1562933907ContactForm extends MigrationStep
     {
     }
 
-    private function getLanguageIdByLocale(Connection $connection, string $locale): string
+    private function getLanguageIdByLocale(Connection $connection, string $locale): ?string
     {
         $sql = <<<SQL
-SELECT `language`.`id` 
-FROM `language` 
+SELECT `language`.`id`
+FROM `language`
 INNER JOIN `locale` ON `locale`.`id` = `language`.`locale_id`
 WHERE `locale`.`code` = :code
 SQL;
 
         /** @var string|false $languageId */
         $languageId = $connection->executeQuery($sql, ['code' => $locale])->fetchColumn();
+        if (!$languageId && $locale !== 'en-GB') {
+            return null;
+        }
+
         if (!$languageId) {
-            throw new \RuntimeException(sprintf('Language for locale "%s" not found.', $locale));
+            return Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
         }
 
         return $languageId;

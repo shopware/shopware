@@ -32,11 +32,6 @@ class RequestCriteriaBuilder
     private $maxLimit;
 
     /**
-     * @var int[]
-     */
-    private $allowedLimits;
-
-    /**
      * @var AggregationParser
      */
     private $aggregationParser;
@@ -46,10 +41,9 @@ class RequestCriteriaBuilder
      */
     private $apiVersionConverter;
 
-    public function __construct(AggregationParser $aggregationParser, ApiVersionConverter $apiVersionConverter, int $maxLimit, array $availableLimits = [])
+    public function __construct(AggregationParser $aggregationParser, ApiVersionConverter $apiVersionConverter, int $maxLimit)
     {
         $this->maxLimit = $maxLimit;
-        $this->allowedLimits = $availableLimits;
         $this->aggregationParser = $aggregationParser;
         $this->apiVersionConverter = $apiVersionConverter;
     }
@@ -68,14 +62,6 @@ class RequestCriteriaBuilder
     public function getMaxLimit(): int
     {
         return $this->maxLimit;
-    }
-
-    /**
-     * @deprecated tag:v6.3.0 - The `shopware.api.allowed_limits` config will be removed
-     */
-    public function getAllowedLimits(): array
-    {
-        return $this->allowedLimits;
     }
 
     public function toArray(Criteria $criteria): array
@@ -98,10 +84,6 @@ class RequestCriteriaBuilder
 
         if ($criteria->getIncludes()) {
             $array['includes'] = $criteria->getIncludes();
-        }
-
-        if ($criteria->getSource()) {
-            $array['source'] = $criteria->getSource();
         }
 
         if (count($criteria->getIds())) {
@@ -190,8 +172,6 @@ class RequestCriteriaBuilder
 
         if (isset($payload['includes'])) {
             $criteria->setIncludes($payload['includes']);
-        } elseif (isset($payload['source'])) {
-            $criteria->setSource($payload['source']);
         }
 
         if (isset($payload['filter'])) {
@@ -465,6 +445,12 @@ class RequestCriteriaBuilder
 
     private function buildFieldName(EntityDefinition $definition, string $fieldName): string
     {
+        if ($fieldName === '_score') {
+            // Do not prefix _score fields because they are not actual entity properties but a calculated field in the
+            // SQL selection.
+            return $fieldName;
+        }
+
         $prefix = $definition->getEntityName() . '.';
 
         if (mb_strpos($fieldName, $prefix) === false) {

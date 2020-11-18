@@ -4,8 +4,9 @@ namespace Shopware\Core\Migration;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
-use Shopware\Core\Content\Newsletter\NewsletterSubscriptionServiceInterface;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class Migration1570621541UpdateDefaultMailTemplates extends MigrationStep
 {
@@ -17,39 +18,65 @@ class Migration1570621541UpdateDefaultMailTemplates extends MigrationStep
     public function update(Connection $connection): void
     {
         // implement update
-        $enLangId = $this->fetchLanguageId('en-GB', $connection);
+        $defaultLangId = $this->fetchLanguageId('en-GB', $connection);
         $deLangId = $this->fetchLanguageId('de-DE', $connection);
 
         // update order confirmation
         $templateId = $this->fetchSystemMailTemplateIdFromType($connection, MailTemplateTypes::MAILTYPE_ORDER_CONFIRM);
         if ($templateId !== null) {
-            $this->updateMailTemplateTranslation(
-                $connection,
-                $templateId,
-                $enLangId,
-                $this->getOrderConfirmationHtmlTemplateEn(),
-                $this->getOrderConfirmationPlainTemplateEn()
-            );
+            if ($defaultLangId !== $deLangId) {
+                $this->updateMailTemplateTranslation(
+                    $connection,
+                    $templateId,
+                    $defaultLangId,
+                    $this->getOrderConfirmationHtmlTemplateEn(),
+                    $this->getOrderConfirmationPlainTemplateEn()
+                );
+            }
 
-            $this->updateMailTemplateTranslation(
-                $connection,
-                $templateId,
-                $deLangId,
-                $this->getOrderConfirmationHtmlTemplateDe(),
-                $this->getOrderConfirmationPlainTemplateDe()
-            );
+            if ($defaultLangId !== Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)) {
+                $this->updateMailTemplateTranslation(
+                    $connection,
+                    $templateId,
+                    Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
+                    $this->getOrderConfirmationHtmlTemplateEn(),
+                    $this->getOrderConfirmationPlainTemplateEn()
+                );
+            }
+
+            if ($deLangId) {
+                $this->updateMailTemplateTranslation(
+                    $connection,
+                    $templateId,
+                    $deLangId,
+                    $this->getOrderConfirmationHtmlTemplateDe(),
+                    $this->getOrderConfirmationPlainTemplateDe()
+                );
+            }
         }
 
         // update customer registration
         $templateId = $this->fetchSystemMailTemplateIdFromType($connection, MailTemplateTypes::MAILTYPE_CUSTOMER_REGISTER);
         if ($templateId !== null) {
-            $this->updateMailTemplateTranslation(
-                $connection,
-                $templateId,
-                $enLangId,
-                $this->getRegistrationHtmlTemplateEn(),
-                $this->getRegistrationPlainTemplateEn()
-            );
+            if ($defaultLangId !== $deLangId) {
+                $this->updateMailTemplateTranslation(
+                    $connection,
+                    $templateId,
+                    $defaultLangId,
+                    $this->getRegistrationHtmlTemplateEn(),
+                    $this->getRegistrationPlainTemplateEn()
+                );
+            }
+
+            if ($defaultLangId !== Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)) {
+                $this->updateMailTemplateTranslation(
+                    $connection,
+                    $templateId,
+                    Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
+                    $this->getRegistrationHtmlTemplateEn(),
+                    $this->getRegistrationPlainTemplateEn()
+                );
+            }
 
             $this->updateMailTemplateTranslation(
                 $connection,
@@ -63,13 +90,25 @@ class Migration1570621541UpdateDefaultMailTemplates extends MigrationStep
         // update password change
         $templateId = $this->fetchSystemMailTemplateIdFromType($connection, MailTemplateTypes::MAILTYPE_PASSWORD_CHANGE);
         if ($templateId !== null) {
-            $this->updateMailTemplateTranslation(
-                $connection,
-                $templateId,
-                $enLangId,
-                $this->getPasswordChangeHtmlTemplateEn(),
-                $this->getPasswordChangePlainTemplateEn()
-            );
+            if ($defaultLangId !== $deLangId) {
+                $this->updateMailTemplateTranslation(
+                    $connection,
+                    $templateId,
+                    $defaultLangId,
+                    $this->getPasswordChangeHtmlTemplateEn(),
+                    $this->getPasswordChangePlainTemplateEn()
+                );
+            }
+
+            if ($defaultLangId !== Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)) {
+                $this->updateMailTemplateTranslation(
+                    $connection,
+                    $templateId,
+                    Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
+                    $this->getPasswordChangeHtmlTemplateEn(),
+                    $this->getPasswordChangePlainTemplateEn()
+                );
+            }
 
             $this->updateMailTemplateTranslation(
                 $connection,
@@ -81,16 +120,29 @@ class Migration1570621541UpdateDefaultMailTemplates extends MigrationStep
         }
 
         // update newsletter register
-        $templateId = $this->fetchSystemMailTemplateIdFromType($connection, NewsletterSubscriptionServiceInterface::MAIL_TYPE_REGISTER);
+        $templateId = $this->fetchSystemMailTemplateIdFromType($connection, 'newsletterRegister');
         if ($templateId !== null) {
-            $this->updateMailTemplateTranslation(
-                $connection,
-                $templateId,
-                $enLangId,
-                $this->getRegisterTemplate_HTML_EN(),
-                $this->getRegisterTemplate_PLAIN_EN(),
-                '{{ salesChannel.name }}'
-            );
+            if ($defaultLangId !== $deLangId) {
+                $this->updateMailTemplateTranslation(
+                    $connection,
+                    $templateId,
+                    $defaultLangId,
+                    $this->getRegisterTemplate_HTML_EN(),
+                    $this->getRegisterTemplate_PLAIN_EN(),
+                    '{{ salesChannel.name }}'
+                );
+            }
+
+            if ($defaultLangId !== Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)) {
+                $this->updateMailTemplateTranslation(
+                    $connection,
+                    $templateId,
+                    Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
+                    $this->getRegisterTemplate_HTML_EN(),
+                    $this->getRegisterTemplate_PLAIN_EN(),
+                    '{{ salesChannel.name }}'
+                );
+            }
 
             $this->updateMailTemplateTranslation(
                 $connection,
@@ -103,16 +155,29 @@ class Migration1570621541UpdateDefaultMailTemplates extends MigrationStep
         }
 
         // update newsletter opt in
-        $templateId = $this->fetchSystemMailTemplateIdFromType($connection, NewsletterSubscriptionServiceInterface::MAIL_TYPE_OPT_IN);
+        $templateId = $this->fetchSystemMailTemplateIdFromType($connection, 'newsletterDoubleOptIn');
         if ($templateId !== null) {
-            $this->updateMailTemplateTranslation(
-                $connection,
-                $templateId,
-                $enLangId,
-                $this->getOptInTemplate_HTML_EN(),
-                $this->getOptInTemplate_PLAIN_EN(),
-                '{{ salesChannel.name }}'
-            );
+            if ($defaultLangId !== $deLangId) {
+                $this->updateMailTemplateTranslation(
+                    $connection,
+                    $templateId,
+                    $defaultLangId,
+                    $this->getOptInTemplate_HTML_EN(),
+                    $this->getOptInTemplate_PLAIN_EN(),
+                    '{{ salesChannel.name }}'
+                );
+            }
+
+            if ($defaultLangId !== Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)) {
+                $this->updateMailTemplateTranslation(
+                    $connection,
+                    $templateId,
+                    Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
+                    $this->getOptInTemplate_HTML_EN(),
+                    $this->getOptInTemplate_PLAIN_EN(),
+                    '{{ salesChannel.name }}'
+                );
+            }
 
             $this->updateMailTemplateTranslation(
                 $connection,
@@ -146,11 +211,19 @@ class Migration1570621541UpdateDefaultMailTemplates extends MigrationStep
         return $templateId;
     }
 
-    private function fetchLanguageId(string $code, Connection $connection)
+    private function fetchLanguageId(string $code, Connection $connection): ?string
     {
         $langId = $connection->fetchColumn('
         SELECT `language`.`id` FROM `language` INNER JOIN `locale` ON `language`.`locale_id` = `locale`.`id` WHERE `code` = :code LIMIT 1
         ', ['code' => $code]);
+
+        if (!$langId && $code !== 'en-GB') {
+            return null;
+        }
+
+        if (!$langId) {
+            return Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
+        }
 
         return $langId;
     }
@@ -196,7 +269,7 @@ class Migration1570621541UpdateDefaultMailTemplates extends MigrationStep
     private function getOrderConfirmationHtmlTemplateEn(): string
     {
         return '<div style="font-family:arial; font-size:12px;">
-    
+
 {% set currencyIsoCode = order.currency.isoCode %}
 {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},<br>
 <br>
@@ -241,15 +314,15 @@ Thank you for your order at {{ salesChannel.name }} (Number: {{order.orderNumber
         <strong>Total gross: {{ order.amountTotal|currency(currencyIsoCode) }}</strong><br>
     {% endif %}
     <br>
-    
+
     <strong>Selected payment type:</strong> {{ order.transactions.first.paymentMethod.name }}<br>
     {{ order.transactions.first.paymentMethod.description }}<br>
     <br>
-    
+
     <strong>Selected shipping type:</strong> {{ delivery.shippingMethod.name }}<br>
     {{ delivery.shippingMethod.description }}<br>
     <br>
-    
+
     {% set billingAddress = order.addresses.get(order.billingAddressId) %}
     <strong>Billing address:</strong><br>
     {{ billingAddress.company }}<br>
@@ -258,7 +331,7 @@ Thank you for your order at {{ salesChannel.name }} (Number: {{order.orderNumber
     {{ billingAddress.zipcode }} {{ billingAddress.city }}<br>
     {{ billingAddress.country.name }}<br>
     <br>
-    
+
     <strong>Shipping address:</strong><br>
     {{ delivery.shippingOrderAddress.company }}<br>
     {{ delivery.shippingOrderAddress.firstName }} {{ delivery.shippingOrderAddress.lastName }}<br>
@@ -270,7 +343,7 @@ Thank you for your order at {{ salesChannel.name }} (Number: {{order.orderNumber
         Your VAT-ID: {{ billingAddress.vatId }}
         In case of a successful order and if you are based in one of the EU countries, you will receive your goods exempt from turnover tax.<br>
     {% endif %}
-    
+
     If you have any questions, do not hesitate to contact us.
 
 </p>
@@ -287,7 +360,7 @@ Thank you for your order at {{ salesChannel.name }} (Number: {{order.orderNumber
 
 Information on your order:
 
-Pos.   Art.No.			Description			Quantities			Price			Total 
+Pos.   Art.No.			Description			Quantities			Price			Total
 
 {% for lineItem in order.lineItems %}
 {{ loop.index }}      {{ lineItem.payload.productNumber|wordwrap(80) }}				{{ lineItem.label|wordwrap(80) }}			{{ lineItem.quantity }}			{{ lineItem.unitPrice|currency(currencyIsoCode) }}			{{ lineItem.totalPrice|currency(currencyIsoCode) }}
@@ -321,7 +394,7 @@ Billing address:
 Shipping address:
 {{ delivery.shippingOrderAddress.company }}
 {{ delivery.shippingOrderAddress.firstName }} {{ delivery.shippingOrderAddress.lastName }}
-{{ delivery.shippingOrderAddress.street }} 
+{{ delivery.shippingOrderAddress.street }}
 {{ delivery.shippingOrderAddress.zipcode}} {{ delivery.shippingOrderAddress.city }}
 {{ delivery.shippingOrderAddress.country.name }}
 
@@ -338,7 +411,7 @@ If you have any questions, do not hesitate to contact us.
     private function getOrderConfirmationHtmlTemplateDe(): string
     {
         return '<div style="font-family:arial; font-size:12px;">
-    
+
 {% set currencyIsoCode = order.currency.isoCode %}
 Hallo {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},<br>
 <br>
@@ -383,15 +456,15 @@ vielen Dank für Ihre Bestellung im {{ salesChannel.name }} (Nummer: {{order.ord
         <strong>Gesamtkosten Brutto: {{ order.amountTotal|currency(currencyIsoCode) }}</strong><br>
     {% endif %}
     <br>
-    
+
     <strong>Gewählte Zahlungsart:</strong> {{ order.transactions.first.paymentMethod.name }}<br>
     {{ order.transactions.first.paymentMethod.description }}<br>
     <br>
-    
+
     <strong>Gewählte Versandtart:</strong> {{ delivery.shippingMethod.name }}<br>
     {{ delivery.shippingMethod.description }}<br>
     <br>
-    
+
     {% set billingAddress = order.addresses.get(order.billingAddressId) %}
     <strong>Rechnungsaddresse:</strong><br>
     {{ billingAddress.company }}<br>
@@ -400,7 +473,7 @@ vielen Dank für Ihre Bestellung im {{ salesChannel.name }} (Nummer: {{order.ord
     {{ billingAddress.zipcode }} {{ billingAddress.city }}<br>
     {{ billingAddress.country.name }}<br>
     <br>
-    
+
     <strong>Lieferadresse:</strong><br>
     {{ delivery.shippingOrderAddress.company }}<br>
     {{ delivery.shippingOrderAddress.firstName }} {{ delivery.shippingOrderAddress.lastName }}<br>
@@ -413,7 +486,7 @@ vielen Dank für Ihre Bestellung im {{ salesChannel.name }} (Nummer: {{order.ord
         Bei erfolgreicher Prüfung und sofern Sie aus dem EU-Ausland
         bestellen, erhalten Sie Ihre Ware umsatzsteuerbefreit. <br>
     {% endif %}
-    
+
     Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
 
 </p>
@@ -463,7 +536,7 @@ Rechnungsadresse:
 Lieferadresse:
 {{ delivery.shippingOrderAddress.company }}
 {{ delivery.shippingOrderAddress.firstName }} {{ delivery.shippingOrderAddress.lastName }}
-{{ delivery.shippingOrderAddress.street }} 
+{{ delivery.shippingOrderAddress.street }}
 {{ delivery.shippingOrderAddress.zipcode}} {{ delivery.shippingOrderAddress.city }}
 {{ delivery.shippingOrderAddress.country.name }}
 
@@ -494,10 +567,10 @@ Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
     private function getRegistrationPlainTemplateEn(): string
     {
         return '{{ customer.salutation.letterName }} {{customer.firstName}} {{ customer.lastName }},
-                
+
                 thank you for your registration with our Shop.
                 You will gain access via the email address {{ customer.email }} and the password you have chosen.
-                You can change your password anytime.        
+                You can change your password anytime.
         ';
     }
 
@@ -517,7 +590,7 @@ Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
     private function getRegistrationPlainTemplateDe(): string
     {
         return 'Hallo {{ customer.salutation.letterName }} {{customer.firstName}} {{ customer.lastName }},
-                
+
                 vielen Dank für Ihre Anmeldung in unserem Shop.
                 Sie erhalten Zugriff über Ihre E-Mail-Adresse {{ customer.email }} und dem von Ihnen gewählten Kennwort.
                 Sie können Ihr Kennwort jederzeit nachträglich ändern.
@@ -577,7 +650,7 @@ Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
     {
         return '
         Hallo {{ customer.salutation.letterName }} {{customer.firstName}} {{ customer.lastName }},
-    
+
         im Shop {{ salesChannel.name }} wurde eine Anfrage gestellt, um Ihr Passwort zurück zu setzen.
         Bitte bestätigen Sie den unten stehenden Link, um ein neues Passwort zu definieren.
 
@@ -588,7 +661,7 @@ Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
 ';
     }
 
-    private function getRegisterTemplate_HTML_EN()
+    private function getRegisterTemplate_HTML_EN(): string
     {
         return '<h3>Hello {{ newsletterRecipient.firstName }} {{ newsletterRecipient.lastName }}</h3>
                 <p>thank you very much for your registration.</p>
@@ -596,17 +669,17 @@ Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
         ';
     }
 
-    private function getRegisterTemplate_PLAIN_EN()
+    private function getRegisterTemplate_PLAIN_EN(): string
     {
         return 'Hello {{ newsletterRecipient.firstName }} {{ newsletterRecipient.lastName }}
-            
+
                 thank you very much for your registration.
-            
+
                 You have successfully subscribed to our newsletter.
         ';
     }
 
-    private function getRegisterTemplate_HTML_DE()
+    private function getRegisterTemplate_HTML_DE(): string
     {
         return '<h3>Hallo {{ newsletterRecipient.firstName }} {{ newsletterRecipient.lastName }}</h3>
                 <p>vielen Dank für Ihre Anmeldung.</p>
@@ -614,17 +687,17 @@ Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
         ';
     }
 
-    private function getRegisterTemplate_PLAIN_DE()
+    private function getRegisterTemplate_PLAIN_DE(): string
     {
         return 'Hallo {{ newsletterRecipient.firstName }} {{ newsletterRecipient.lastName }}
-            
+
                 vielen Dank für Ihre Anmeldung.
-            
+
                 Sie haben sich erfolgreich zu unserem Newsletter angemeldet.
         ';
     }
 
-    private function getOptInTemplate_HTML_EN()
+    private function getOptInTemplate_HTML_EN(): string
     {
         return '<h3>Hello {{ newsletterRecipient.firstName }} {{ newsletterRecipient.lastName }}</h3>
                 <p>Thank you for your interest in our newsletter!</p>
@@ -633,19 +706,19 @@ Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
         ';
     }
 
-    private function getOptInTemplate_PLAIN_EN()
+    private function getOptInTemplate_PLAIN_EN(): string
     {
         return 'Hello {{ newsletterRecipient.firstName }} {{ newsletterRecipient.lastName }}
-        
+
                 Thank you for your interest in our newsletter!
-                
+
                 In order to prevent misuse of your email address, we have sent you this confirmation email. Confirm that you wish to receive the newsletter regularly by clicking on the link: {{ url }}
-                
+
                 If you have not subscribed to the newsletter, please ignore this email.
         ';
     }
 
-    private function getOptInTemplate_HTML_DE()
+    private function getOptInTemplate_HTML_DE(): string
     {
         return '<h3>Hallo {{ newsletterRecipient.firstName }} {{ newsletterRecipient.lastName }}</h3>
                 <p>Schön, dass Sie sich für unseren Newsletter interessieren!</p>
@@ -654,14 +727,14 @@ Für Rückfragen stehen wir Ihnen jederzeit gerne zur Verfügung.
         ';
     }
 
-    private function getOptInTemplate_PLAIN_DE()
+    private function getOptInTemplate_PLAIN_DE(): string
     {
         return 'Hallo {{ newsletterRecipient.firstName }} {{ newsletterRecipient.lastName }}
-        
-                Schön, dass Sie sich für unseren Newsletter interessieren! 
-                
-                Um einem Missbrauch Ihrer E-Mail-Adresse vorzubeugen, haben wir Ihnen diese Bestätigungsmail gesendet. Bestätigen Sie, dass Sie den Newsletter regelmäßig erhalten wollen, indem Sie auf den folgenden Link klicken: {{ url }} 
-                
+
+                Schön, dass Sie sich für unseren Newsletter interessieren!
+
+                Um einem Missbrauch Ihrer E-Mail-Adresse vorzubeugen, haben wir Ihnen diese Bestätigungsmail gesendet. Bestätigen Sie, dass Sie den Newsletter regelmäßig erhalten wollen, indem Sie auf den folgenden Link klicken: {{ url }}
+
                 Sollten Sie den Newsletter nicht angefordert haben, ignorieren Sie diese E-Mail.
         ';
     }

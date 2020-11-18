@@ -2,7 +2,7 @@ import { email } from 'src/core/service/validation.service';
 import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-profile-index.html.twig';
 
-const { Component, Mixin, State } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Component.getComponentHelper();
 const types = Shopware.Utils.types;
@@ -10,7 +10,7 @@ const types = Shopware.Utils.types;
 Component.register('sw-profile-index', {
     template,
 
-    inject: ['userService', 'loginService', 'repositoryFactory'],
+    inject: ['userService', 'loginService', 'repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('notification')
@@ -234,26 +234,6 @@ Component.register('sw-profile-index', {
             });
         },
 
-
-        verifyUserToken() {
-            const { username } = State.get('session').currentUser;
-
-            return this.loginService.verifyUserByUsername(username, this.confirmPassword).then(({ access }) => {
-                this.confirmPassword = '';
-
-                if (types.isString(access)) {
-                    return access;
-                }
-
-                return false;
-            }).catch(() => {
-                this.confirmPassword = '';
-                this.createErrorMessage(this.$tc('sw-profile.index.notificationOldPasswordErrorMessage'));
-
-                return false;
-            });
-        },
-
         createErrorMessage(errorMessage) {
             this.createNotificationError({
                 title: this.$tc('sw-profile.index.notificationPasswordErrorTitle'),
@@ -262,6 +242,19 @@ Component.register('sw-profile-index', {
         },
 
         saveUser(authToken) {
+            if (!this.acl.can('user:editor')) {
+                const changes = this.userRepository.getSyncChangeset([this.user]);
+
+                this.userService.updateUser(changes.changeset[0].changes).then(() => {
+                    this.isLoading = false;
+                    this.isSaveSuccessful = true;
+
+                    Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId);
+                });
+
+                return;
+            }
+
             const context = { ...Shopware.Context.api };
             context.authToken.access = authToken;
 
@@ -273,10 +266,11 @@ Component.register('sw-profile-index', {
                 if (this.newPassword) {
                     // re-issue a valid jwt token, as all user tokens were invalidated on password change
                     this.loginService.loginByUsername(this.user.username, this.newPassword).then(() => {
-                        this.isLoading = false;
                         this.isSaveSuccessful = true;
                     }).catch(() => {
                         this.handleUserSaveError();
+                    }).finally(() => {
+                        this.isLoading = false;
                     });
                 } else {
                     this.isLoading = false;
@@ -302,18 +296,31 @@ Component.register('sw-profile-index', {
             this.setMediaItem({ targetId: mediaItem.id });
         },
 
-        async onSubmitConfirmPassword() {
-            const verifiedToken = await this.verifyUserToken();
+        onSubmitConfirmPassword() {
+            return this.loginService.verifyUserToken(this.confirmPassword).then((verifiedToken) => {
+                if (!verifiedToken) {
+                    return;
+                }
 
-            if (!verifiedToken) {
-                return;
-            }
+                const authObject = {
+                    ...this.loginService.getBearerAuthentication(),
+                    ...{
+                        access: verifiedToken
+                    }
+                };
 
-            this.confirmPasswordModal = false;
-            this.isSaveSuccessful = false;
-            this.isLoading = true;
+                this.loginService.setBearerAuthentication(authObject);
 
-            this.saveUser(verifiedToken);
+                this.confirmPasswordModal = false;
+                this.isSaveSuccessful = false;
+                this.isLoading = true;
+
+                this.saveUser(verifiedToken);
+            }).catch(() => {
+                this.createErrorMessage(this.$tc('sw-profile.index.notificationOldPasswordErrorMessage'));
+            }).finally(() => {
+                this.confirmPassword = '';
+            });
         },
 
         onCloseConfirmPasswordModal() {

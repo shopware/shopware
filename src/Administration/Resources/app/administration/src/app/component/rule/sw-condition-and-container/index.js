@@ -19,6 +19,8 @@ Component.register('sw-condition-and-container', {
         Mixin.getByName('ruleContainer')
     ],
 
+    inject: ['acl'],
+
     created() {
         this.createdComponent();
     },
@@ -59,6 +61,16 @@ Component.register('sw-condition-and-container', {
 
         onDeleteAll() {
             this.removeNodeFromTree(this.parentCondition, this.condition);
+        },
+
+        getNoPermissionsTooltip(role, showOnDisabledElements = true) {
+            return {
+                showDelay: 300,
+                message: this.$tc('sw-privileges.tooltip.warning'),
+                appearance: 'dark',
+                showOnDisabledElements,
+                disabled: this.acl.can(role)
+            };
         }
     }
 });

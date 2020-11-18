@@ -1,16 +1,21 @@
-import CriteriaFactory from 'src/core/factory/criteria.factory';
 import template from './sw-custom-field-list.html.twig';
 import './sw-custom-field-list.scss';
 
-const { Component, StateDeprecated, Mixin } = Shopware;
+const { Criteria } = Shopware.Data;
+const { Component, Mixin } = Shopware;
 const types = Shopware.Utils.types;
 
 Component.register('sw-custom-field-list', {
     template,
 
+    inject: [
+        'repositoryFactory',
+        'acl'
+    ],
+
     mixins: [
-        Mixin.getByName('listing'),
-        Mixin.getByName('sw-inline-snippet')
+        Mixin.getByName('sw-inline-snippet'),
+        Mixin.getByName('notification')
     ],
 
     provide() {
@@ -28,158 +33,130 @@ Component.register('sw-custom-field-list', {
 
     data() {
         return {
-            limit: 10,
-            customFields: [],
+            term: '',
             isLoading: false,
             currentCustomField: null,
             deleteButtonDisabled: true,
-            disableRouteParams: true
+            disableRouteParams: true,
+            deleteCustomField: null,
+            customFields: null,
+            page: 1,
+            total: 0,
+            limit: 10
         };
     },
 
-    computed: {
-        customFieldAssociationStore() {
-            return this.set.getAssociation('customFields');
-        },
-        customFieldStore() {
-            return StateDeprecated.getStore('custom_field');
+    watch: {
+        term() {
+            this.loadCustomFields();
         }
     },
 
+    computed: {
+        /**
+         * @deprecated tag:v6.4.0.0 - The search is now done via request against the API.
+         */
+        filteredCustomFields() {
+            if (!this.set.customFields) {
+                return [];
+            }
+
+            return this.set.customFields.filter((customField) => customField.name.includes(this.term));
+        },
+
+        customFieldRepository() {
+            return this.repositoryFactory.create(
+                this.set.customFields.entity,
+                this.set.customFields.source
+            );
+        },
+
+        globalCustomFieldRepository() {
+            return this.repositoryFactory.create('custom_field');
+        }
+    },
+
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
-        onSearch(value) {
-            if (!this.hasExistingCustomFields()) {
-                this.term = '';
-                return;
-            }
-
-            this.term = value;
-
-            this.page = 1;
-            this.getList();
+        createdComponent() {
+            this.loadCustomFields();
         },
 
-        hasExistingCustomFields() {
-            return Object.values(this.customFieldAssociationStore.store).some((item) => {
-                return !item.isLocal;
-            });
-        },
-
-        getList() {
+        loadCustomFields() {
             this.isLoading = true;
-            const params = this.getListingParams();
-            params.sortBy = 'config.customFieldPosition';
 
-            if (params.term) {
-                params.criteria = CriteriaFactory.multi(
-                    'OR',
-                    ...this.getLocaleCriterias(params.term),
-                    CriteriaFactory.contains('name', params.term)
-                );
+            const criteria = new Criteria();
 
-                params.term = '';
+            criteria.addFilter(Criteria.equals('customFieldSetId', this.set.id));
+            criteria.addSorting(Criteria.sort('config.customFieldPosition', 'ASC', true));
+            criteria.setPage(this.page);
+            criteria.setLimit(this.limit);
+
+            if (this.term) {
+                criteria.setTerm(this.term);
             }
 
-            this.customFields = [];
-            return this.customFieldAssociationStore.getList(params).then((response) => {
+            return this.customFieldRepository.search(
+                criteria,
+                Shopware.Context.api
+            ).then((response) => {
+                this.customFields = response;
                 this.total = response.total;
-                this.customFields = response.items;
+
+                return response;
+            }).finally(() => {
                 this.isLoading = false;
-
-                this.buildGridArray();
-
-                return this.customFields;
             });
         },
 
-        getLocaleCriterias(term) {
-            const criterias = [];
-            const locales = Object.keys(this.$root.$i18n.messages);
-
-            locales.forEach(locale => {
-                criterias.push(CriteriaFactory.contains(`config.label.\"${locale}\"`, term));
-            });
-
-            return criterias;
-        },
-
-        selectionChanged() {
-            const selection = this.$refs.grid.getSelection();
+        selectionChanged(selection) {
             this.deleteButtonDisabled = Object.keys(selection).length <= 0;
         },
 
-        newItems() {
-            const items = [];
-            this.customFieldAssociationStore.forEach((item) => {
-                if (item.isLocal) {
-                    items.push(item);
-                }
-            });
-            return items;
-        },
-
         onCustomFieldDelete(customField) {
-            customField.delete();
-
-            if (customField.isLocal) {
-                this.customFieldAssociationStore.removeById(customField.id);
-
-                this.customFields.forEach((item, index) => {
-                    if (item.id === customField.id) {
-                        this.customFields.splice(index, 1);
-                    }
-                });
-
-                this.buildGridArray();
-            }
+            this.deleteCustomField = customField;
         },
 
         onDeleteCustomFields() {
-            const selection = this.$refs.grid.getSelection();
-
-            Object.values(selection).forEach((customField) => {
-                this.onCustomFieldDelete(customField);
-                this.$refs.grid.selectItem(false, customField);
-            });
+            this.deleteCustomField = Array.from(Object.values(this.$refs.grid.getSelection()));
         },
 
         onAddCustomField() {
-            const customField = this.customFieldAssociationStore.create();
-            this.customFieldAssociationStore.removeById(customField.id);
+            const customField = this.customFieldRepository.create(Shopware.Context.api);
             this.onCustomFieldEdit(customField);
         },
 
         onCancelCustomField() {
+            this.customFieldRepository.discard(this.currentCustomField);
             this.currentCustomField = null;
         },
 
-        onSaveCustomField() {
-            this.removeEmptyProperties(this.currentCustomField.config);
-            if (!this.customFieldAssociationStore.hasId(this.currentCustomField.id)) {
-                this.customFieldAssociationStore.add(this.currentCustomField);
-                this.buildGridArray();
-            }
-
-            this.currentCustomField = null;
+        onInlineEditFinish(item) {
+            this.onSaveCustomField(item);
         },
 
-        onCustomFieldResetDelete(customField) {
-            customField.isDeleted = false;
+        onSaveCustomField(field = this.currentCustomField) {
+            this.removeEmptyProperties(field.config);
+
+            return this.customFieldRepository.save(field, Shopware.Context.api).finally(() => {
+                this.currentCustomField = null;
+
+                // Wait for modal to be closed
+                this.$nextTick(() => {
+                    this.loadCustomFields();
+                });
+            });
         },
 
         onInlineEditCancel(customField) {
-            customField.discardChanges();
+            this.customFieldRepository.discard(customField);
         },
 
         onCustomFieldEdit(customField) {
             this.currentCustomField = customField;
-        },
-
-        buildGridArray() {
-            this.customFields = this.customFields.filter((value) => {
-                return value.isLocal === false;
-            });
-            this.customFields.unshift(...this.newItems());
         },
 
         removeEmptyProperties(config) {
@@ -197,23 +174,45 @@ Component.register('sw-custom-field-list', {
                 }
             });
         },
-        isCustomFieldNameUnique(customField) {
-            // Search in local customField list for name
-            const isUnique = !this.customFields.some((attr) => {
-                if (customField.id === attr.id) {
-                    return false;
-                }
-                return attr.name === customField.name;
-            });
 
-            if (!isUnique) {
-                return Promise.resolve(false);
+        isCustomFieldNameUnique(customField) {
+            // Search the server for the customField name
+            const criteria = new Criteria();
+            criteria.addFilter(Criteria.equals('name', customField.name));
+            return this.globalCustomFieldRepository.search(criteria, Shopware.Context.api).then((res) => {
+                return res.length === 0;
+            });
+        },
+
+        onPageChange(event) {
+            this.page = event.page;
+
+            this.loadCustomFields();
+        },
+
+        onCancelDeleteCustomField() {
+            this.deleteCustomField = null;
+        },
+
+        onDeleteCustomField() {
+            // contains an array with custom field id's
+            const toBeDeletedCustomFields = [];
+            const isArray = Array.isArray(this.deleteCustomField);
+
+            if (isArray) {
+                this.deleteCustomField.forEach(customField => toBeDeletedCustomFields.push(customField.id));
+            } else {
+                toBeDeletedCustomFields.push(this.deleteCustomField.id);
             }
 
-            // Search the server for the customField name
-            const criteria = CriteriaFactory.equals('name', customField.name);
-            return this.customFieldStore.getList({ criteria }).then((res) => {
-                return res.total === 0;
+            return this.globalCustomFieldRepository.syncDeleted(toBeDeletedCustomFields, Shopware.Context.api).then(() => {
+                this.deleteButtonDisabled = true;
+                this.deleteCustomField = null;
+
+                // Wait for modal to be closed
+                this.$nextTick(() => {
+                    this.loadCustomFields();
+                });
             });
         }
     }

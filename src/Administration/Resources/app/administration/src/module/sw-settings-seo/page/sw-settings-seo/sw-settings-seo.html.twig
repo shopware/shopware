@@ -34,6 +34,10 @@
                             <sw-seo-url-template-card ref="seoUrlTemplateCard"></sw-seo-url-template-card>
                         {% endblock %}
 
+                        {% block sw_settings_seo_content_inner_redirect %}
+                            <sw-system-config ref="systemConfig" domain="core.seo"></sw-system-config>
+                        {% endblock %}
+
                     {% endblock %}
                 </sw-card-view>
             </template>

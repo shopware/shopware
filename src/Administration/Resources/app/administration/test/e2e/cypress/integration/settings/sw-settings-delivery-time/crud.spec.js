@@ -1,4 +1,4 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
 
 import SettingsPageObject from '../../../support/pages/module/sw-settings.page-object';
 
@@ -96,7 +96,7 @@ describe('Delivery times group: Test crud operations', () => {
         // Check if all empty required fields have error messages
         cy.get('.sw-card__content .sw-field .sw-field__error')
             .should('be.visible')
-            .should('contain', 'This value should not be blank');
+            .should('contain', 'This field must not be empty.');
     });
 
     it('@settings: Update and read delivery time', () => {
@@ -163,7 +163,7 @@ describe('Delivery times group: Test crud operations', () => {
 
         cy.get('.sw-modal__body')
             .contains('Are you sure you want to delete this item?');
-        cy.get(`${page.elements.modal}__footer button${page.elements.primaryButton}`).click();
+        cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
         cy.get(page.elements.modal).should('not.exist');
 
         cy.wait('@deleteData').then((xhr) => {

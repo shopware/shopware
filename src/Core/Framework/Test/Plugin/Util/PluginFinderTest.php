@@ -32,7 +32,6 @@ class PluginFinderTest extends TestCase
             new ExceptionCollection(),
             new NullIO()
         );
-
         static::assertCount(1, $plugins);
         static::assertSame($plugins['Works\Works']->getBaseClass(), 'Works\Works');
     }

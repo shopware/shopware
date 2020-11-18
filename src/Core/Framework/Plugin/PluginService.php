@@ -146,7 +146,10 @@ class PluginService
                 $pluginData['id'] = $currentPluginId;
 
                 $currentPluginVersion = $currentPluginEntity->getVersion();
-                if ($this->hasPluginUpdate($pluginVersion, $currentPluginVersion)) {
+                if (!$currentPluginEntity->getInstalledAt()) {
+                    $pluginData['version'] = $pluginVersion;
+                    $pluginData['upgradeVersion'] = null;
+                } elseif ($this->hasPluginUpdate($pluginVersion, $currentPluginVersion)) {
                     $pluginData['version'] = $currentPluginVersion;
                     $pluginData['upgradeVersion'] = $pluginVersion;
                 } else {

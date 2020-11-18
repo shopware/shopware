@@ -12,6 +12,10 @@ Component.register('sw-order-create-promotion-modal', {
         currency: {
             type: Object,
             required: true
+        },
+        salesChannelId: {
+            type: String,
+            required: false
         }
     },
 
@@ -48,7 +52,9 @@ Component.register('sw-order-create-promotion-modal', {
 
         disableAutomaticPromotions() {
             this.isLoading = true;
-            Service('cartSalesChannelService').disableAutomaticPromotions(this.cart.token).then(() => {
+            const additionalParams = { salesChannelId: this.salesChannelId };
+
+            Service('cartStoreService').disableAutomaticPromotions(this.cart.token, additionalParams).then(() => {
                 this.isLoading = false;
                 this.$emit('save');
             });

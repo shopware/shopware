@@ -33,7 +33,12 @@
                     {% block sw_order_detail_actions_edit %}
                         <sw-button class="sw-order-detail__smart-bar-edit-button"
                                    v-if="!isEditing"
-                                   :disabled="isLoading"
+                                   :disabled="isLoading || !acl.can('order.editor')"
+                                   v-tooltip="{
+                                        message: $tc('sw-privileges.tooltip.warning'),
+                                        disabled: acl.can('order.editor'),
+                                        showOnDisabledElements: true
+                                    }"
                                    variant="primary"
                                    @click="onStartEditing">
                             {{ $tc('sw-order.detail.buttonEdit') }}

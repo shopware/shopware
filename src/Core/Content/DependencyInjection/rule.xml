@@ -11,9 +11,6 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
-        <service id="Shopware\Core\Content\Rule\DataAbstractionLayer\Indexing\RulePayloadIndexer">
-        </service>
-
         <service id="Shopware\Core\Content\Rule\RuleValidator">
             <argument type="service" id="validator"/>
             <argument type="service" id="Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry"/>
@@ -34,6 +31,7 @@
             <argument type="service" id="rule.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
             <argument type="service" id="Shopware\Core\Content\Rule\DataAbstractionLayer\RulePayloadUpdater"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartRuleLoader"/>
             <tag name="shopware.entity_indexer"/>
             <tag name="kernel.event_subscriber" />
             <argument type="service" id="event_dispatcher"/>

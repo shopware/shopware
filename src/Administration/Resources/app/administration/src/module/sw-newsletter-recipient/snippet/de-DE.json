@@ -12,9 +12,7 @@
       "tags": "Tags"
     },
     "detail": {
-      "titleSaveSuccess": "Erfolg",
       "messageSaveSuccess": "Die Daten für \"{key}\" wurden erfolgreich gespeichert.",
-      "titleSaveError": "Fehler",
       "messageSaveError": "Die Daten für \"{key}\" konnten nicht gespeichert werden."
     },
     "list": {
@@ -38,6 +36,18 @@
       "optOut": "Warten auf Löschung",
       "direct": "Sofort aktiv",
       "messageEmpty": "Noch keine Newsletter-Empfänger"
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "newsletter_recipient": {
+        "label": "Newsletter Empfänger"
+      }
+    },
+    "additional_permissions": {
+      "marketing": {
+        "send_newsletter": "Newsletter versenden"
+      }
     }
   }
 }

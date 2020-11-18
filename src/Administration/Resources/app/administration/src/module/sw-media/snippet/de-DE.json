@@ -6,7 +6,6 @@
       "placeholderSearchBar": "Durchsuche den aktuellen Ordner ...",
       "notification": {
         "urlCopied": {
-          "title": "Erfolg",
           "message": "URL in Zwischenablage kopiert."
         }
       }
@@ -97,6 +96,13 @@
       "labelTabItemUpload": "Dateien hochladen",
       "labelButtonCancel": "Abbrechen",
       "labelButtonSaveSelection": "Medien hinzufügen"
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "media": {
+        "label": "Medien"
+      }
     }
   }
 }

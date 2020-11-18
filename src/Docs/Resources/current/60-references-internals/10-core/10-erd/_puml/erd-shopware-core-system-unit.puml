@@ -28,7 +28,7 @@ Table(ShopwareCoreSystemUnitUnitDefinition, "unit\n(Measuring unit)") {
    name translated
    customFields translated
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
    translated json
 }
 TranslationTable(ShopwareCoreSystemUnitAggregateUnitTranslationUnitTranslationDefinition, "unit_translation\n((Translations))") {
@@ -36,18 +36,18 @@ TranslationTable(ShopwareCoreSystemUnitAggregateUnitTranslationUnitTranslationDe
    not_null(name) string
    customFields customFields
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
    primary_key(unitId) foreignKey
    primary_key(languageId) foreignKey
 }
 ForeignTable(ShopwareCoreContentProductProductDefinition, "product") {
 }
-ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
+ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
 }
 
 ' relationshipd
 
 ShopwareCoreSystemUnitUnitDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreSystemUnitAggregateUnitTranslationUnitTranslationDefinition --> ShopwareCoreSystemUnitUnitDefinition
-ShopwareCoreSystemUnitAggregateUnitTranslationUnitTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
+ShopwareCoreSystemUnitAggregateUnitTranslationUnitTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
 @enduml

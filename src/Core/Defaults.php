@@ -30,8 +30,6 @@ final class Defaults
 
     public const SALES_CHANNEL_TYPE_PRODUCT_COMPARISON = 'ed535e5722134ac1aa6524f73e26881b';
 
-    public const SALES_CHANNEL_TYPE_GOOGLE_SHOPPING = 'eda0a7980ee745fbbb7e58202dcdc04f';
-
     public const STORAGE_DATE_TIME_FORMAT = 'Y-m-d H:i:s.v';
 
     /**

@@ -53,6 +53,9 @@ class DownloadTest extends TestCase
         static::assertEquals(filesize(__DIR__ . '/../_fixtures/sw_logo_white.png'), filesize($tempfile));
     }
 
+    /**
+     * @group slow
+     */
     public function testExpectExceptionOnInvalidUrl(): void
     {
         $download = new Download();
@@ -103,6 +106,9 @@ class DownloadTest extends TestCase
         );
     }
 
+    /**
+     * @group slow
+     */
     public function testDownload100MiB(): void
     {
         $size = 1024 * 1024 * 100;

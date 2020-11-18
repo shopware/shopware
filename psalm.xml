@@ -9,7 +9,6 @@
 >
     <projectFiles>
         <directory name="platform/src"/>
-        <directory name="src"/>
         <ignoreFiles>
             <directory name="vendor"/>
             <directory name="platform/src/Recovery"/>
@@ -43,17 +42,6 @@
                 <file name="platform/src/Core/Framework/Test/Plugin/KernelPluginIntegrationTest.php"/>
             </errorLevel>
         </UndefinedConstant>
-        <InvalidScope>
-            <errorLevel type="info">
-                <directory name="platform/src/Core/Flag"/>
-                <directory name="platform/src/Core/Framework/Test/FeatureFlag"/>
-            </errorLevel>
-        </InvalidScope>
-        <MissingFile>
-            <errorLevel type="info">
-                <file name="platform/src/Core/Framework/Test/FeatureFlag/FeatureTest.php"/>
-            </errorLevel>
-        </MissingFile>
         <UnusedParam>
             <errorLevel type="info">
                 <file name="platform/src/Core/Framework/DataAbstractionLayer/Doctrine/RetryableQuery.php"/>
@@ -69,8 +57,23 @@
                 <file name="platform/src/Core/Framework/Test/Update/UpdateControllerTest.php"/>
             </errorLevel>
         </InaccessibleMethod>
+        <UnusedVariable>
+            <errorLevel type="info">
+                <file name="platform/src/Storefront/Test/Theme/ThemeTest.php"/>
+            </errorLevel>
+        </UnusedVariable>
 
         <LessSpecificImplementedReturnType errorLevel="info"/>
+
+        <UnusedMethodCall>
+            <errorLevel type="info">
+                <referencedMethod name="Symfony\Component\Config\Definition\Builder\NodeDefinition::end"/>
+                <referencedMethod name="Symfony\Component\Config\Definition\Builder\NodeBuilder::end"/>
+            </errorLevel>
+        </UnusedMethodCall>
+
+        <ParamNameMismatch errorLevel="info"/>
+        <UnsafeInstantiation errorLevel="info"/>
 
         <!-- Issue in Psalm https://github.com/vimeo/psalm/issues/2706 -->
         <InaccessibleProperty>
@@ -78,6 +81,13 @@
                 <file name="platform/src/Core/Framework/Api/Controller/CacheController.php"/>
             </errorLevel>
         </InaccessibleProperty>
+
+        <UnnecessaryVarAnnotation>
+            <errorLevel type="info">
+                <!-- Needed for a smooth transition of the PHPStan update. Could be removed once PHPStan is updated to 0.12.49 -->
+                <file name="platform/src/Elasticsearch/Framework/DataAbstractionLayer/ElasticsearchEntitySearcher.php"/>
+            </errorLevel>
+        </UnnecessaryVarAnnotation>
 
         <!-- level 3 issues - slightly lazy code writing, but provably low false-negatives -->
 

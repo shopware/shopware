@@ -17,6 +17,9 @@ Component.register('sw-order-state-change-modal', {
             required: true
         },
 
+        /**
+         * @deprecated tag:v6.4.0 - Will be removed. Mail template assignment will be done via "sw-event-action".
+         */
         mailTemplatesExist: {
             required: false
         },
@@ -32,6 +35,7 @@ Component.register('sw-order-state-change-modal', {
             showModal: false,
             assignMailTemplatesOptions: [],
             userCanConfirm: false,
+            /** @deprecated tag:v6.4.0 - Will be removed. Mail template assignment will be done via "sw-event-action". */
             userHasAssignedMailTemplate: false
         };
     },
@@ -39,10 +43,15 @@ Component.register('sw-order-state-change-modal', {
     computed: {
         modalTitle() {
             return this.mailTemplatesExist || this.userHasAssignedMailTemplate ?
-                this.$tc('sw-order.documentCard.cardTitle') :
+                this.$tc('sw-order.documentCard.modalTitle') :
                 this.$tc('sw-order.assignMailTemplateCard.cardTitle');
         },
 
+        /**
+         * @deprecated tag:v6.4.0 - Will be removed. The check for mail templates is no longer needed.
+         * Documents modal content will always be visible by default.
+         * Mail template assignment will be done via "sw-event-action".
+         */
         showDocuments() {
             return this.mailTemplatesExist || this.userHasAssignedMailTemplate;
         }
@@ -53,14 +62,20 @@ Component.register('sw-order-state-change-modal', {
             this.$emit('page-leave');
         },
 
-        onDocsConfirm(docIds) {
-            this.$emit('page-leave-confirm', docIds);
+        onDocsConfirm(docIds, sendMail = true) {
+            this.$emit('page-leave-confirm', docIds, sendMail);
         },
 
+        /**
+         * @deprecated tag:v6.4.0 - Will be removed. Mail template assignment will be done via "sw-event-action".
+         */
         onNoMailConfirm() {
             this.$emit('page-leave-confirm', []);
         },
 
+        /**
+         * @deprecated tag:v6.4.0 - Will be removed. Mail template assignment will be done via "sw-event-action".
+         */
         onAssignMailTemplate() {
             this.userHasAssignedMailTemplate = true;
         }

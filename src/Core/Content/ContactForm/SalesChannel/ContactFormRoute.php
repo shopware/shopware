@@ -9,12 +9,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
-use Shopware\Core\Framework\Validation\ValidationServiceInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Routing\Annotation\Route;
@@ -26,7 +26,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class ContactFormRoute extends AbstractContactFormRoute
 {
     /**
-     * @var ValidationServiceInterface|DataValidationFactoryInterface
+     * @var DataValidationFactoryInterface
      */
     private $contactFormValidationFactory;
 
@@ -50,11 +50,8 @@ class ContactFormRoute extends AbstractContactFormRoute
      */
     private $cmsSlotRepository;
 
-    /**
-     * @param ValidationServiceInterface|DataValidationFactoryInterface $contactFormValidationFactory
-     */
     public function __construct(
-        $contactFormValidationFactory,
+        DataValidationFactoryInterface $contactFormValidationFactory,
         DataValidator $validator,
         EventDispatcherInterface $eventDispatcher,
         SystemConfigService $systemConfigService,
@@ -73,18 +70,24 @@ class ContactFormRoute extends AbstractContactFormRoute
     }
 
     /**
+     * @Since("6.2.0.0")
      * @OA\Post(
      *      path="/contact-form",
-     *      description="Send message throught contact form",
+     *      summary="Send message throught contact form",
      *      operationId="sendContactMail",
      *      tags={"Store API", "Contact Mail"},
-     *      @OA\Parameter(name="salutationId", description="Salutation ID", in="body", @OA\Schema(type="string")),
-     *      @OA\Parameter(name="firstName", description="Firstname", in="body", @OA\Schema(type="string")),
-     *      @OA\Parameter(name="lastName", description="Lastname", in="body", @OA\Schema(type="string")),
-     *      @OA\Parameter(name="email", description="Email", in="body", @OA\Schema(type="string")),
-     *      @OA\Parameter(name="phone", description="Phone", in="body", @OA\Schema(type="string")),
-     *      @OA\Parameter(name="subject", description="Title", in="body", @OA\Schema(type="string")),
-     *      @OA\Parameter(name="comment", description="Message", in="body", @OA\Schema(type="string")),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              @OA\Property(property="salutationId", description="Salutation ID", type="string"),
+     *              @OA\Property(property="firstName", description="Firstname", type="string"),
+     *              @OA\Property(property="lastName", description="Lastname", type="string"),
+     *              @OA\Property(property="email", description="Email", type="string"),
+     *              @OA\Property(property="phone", description="Phone", type="string"),
+     *              @OA\Property(property="subject", description="Title", type="string"),
+     *              @OA\Property(property="comment", description="Message", type="string"),
+     *          )
+     *      ),
      *      @OA\Response(
      *          response="200",
      *          description="Message sent"
@@ -102,8 +105,9 @@ class ContactFormRoute extends AbstractContactFormRoute
             if ($slotId) {
                 $criteria = new Criteria([$slotId]);
                 $slot = $this->cmsSlotRepository->search($criteria, $context->getContext());
-                $receivers = $slot->getEntities()->first()->get('config')['mailReceiver']['value'];
-                $message = $slot->getEntities()->first()->get('config')['confirmationText']['value'];
+
+                $receivers = $slot->getEntities()->first()->getTranslated()['config']['mailReceiver']['value'];
+                $message = $slot->getEntities()->first()->getTranslated()['config']['confirmationText']['value'];
             }
         }
 
@@ -137,11 +141,7 @@ class ContactFormRoute extends AbstractContactFormRoute
 
     private function validateContactForm(DataBag $data, SalesChannelContext $context): void
     {
-        if ($this->contactFormValidationFactory instanceof DataValidationFactoryInterface) {
-            $definition = $this->contactFormValidationFactory->create($context);
-        } else {
-            $definition = $this->contactFormValidationFactory->buildCreateValidation($context->getContext());
-        }
+        $definition = $this->contactFormValidationFactory->create($context);
         $violations = $this->validator->getViolations($data->all(), $definition);
 
         if ($violations->count() > 0) {

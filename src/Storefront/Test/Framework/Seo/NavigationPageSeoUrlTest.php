@@ -4,20 +4,20 @@ namespace Shopware\Storefront\Test\Framework\Seo;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
 
+/**
+ * @group slow
+ */
 class NavigationPageSeoUrlTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -342,19 +342,6 @@ class NavigationPageSeoUrlTest extends TestCase
 
         // new url of a/ points to the category b
         static::assertSame($urls['a/'], $urls['a/a/']);
-    }
-
-    public function testExtractIdsNoEventsNoIds(): void
-    {
-        $seoUrlRoute = new NavigationPageSeoUrlRoute(
-            $this->createMock(CategoryDefinition::class),
-            $this->connection
-        );
-
-        $event = new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection(), []);
-        $actual = $seoUrlRoute->extractIdsToUpdate($event);
-
-        static::assertEmpty($actual->getIds());
     }
 
     private function createSalesChannel(

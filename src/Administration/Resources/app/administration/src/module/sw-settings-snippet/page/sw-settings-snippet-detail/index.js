@@ -1,14 +1,19 @@
 import Sanitizer from 'src/core/helper/sanitizer.helper';
 import template from './sw-settings-snippet-detail.html.twig';
 
-const { Component, Mixin, StateDeprecated } = Shopware;
+const { Component, Mixin, Data: { Criteria } } = Shopware;
 const ShopwareError = Shopware.Classes.ShopwareError;
 const utils = Shopware.Utils;
 
 Component.register('sw-settings-snippet-detail', {
     template,
 
-    inject: ['snippetService', 'snippetSetService', 'userService'],
+    inject: [
+        'snippetSetService',
+        'userService',
+        'repositoryFactory',
+        'acl'
+    ],
 
     mixins: [
         Mixin.getByName('notification')
@@ -45,8 +50,20 @@ Component.register('sw-settings-snippet-detail', {
             return this.translationKey;
         },
 
-        snippetSetStore() {
-            return StateDeprecated.getStore('snippet_set');
+        snippetRepository() {
+            return this.repositoryFactory.create('snippet');
+        },
+
+        snippetSetRepository() {
+            return this.repositoryFactory.create('snippet_set');
+        },
+
+        snippetSetCriteria() {
+            const criteria = new Criteria();
+
+            criteria.addSorting(Criteria.sort('name', 'ASC'));
+
+            return criteria;
         },
 
         backPath() {
@@ -91,15 +108,11 @@ Component.register('sw-settings-snippet-detail', {
                 this.onNewKeyRedirect();
             }
             this.translationKey = this.$route.params.key || '';
-            this.snippetSetStore.getList({ sortBy: 'name', sortDirection: 'ASC' }).then((response) => {
-                const sets = [];
 
-                response.items.forEach((set) => {
-                    sets[set.id] = set;
-                });
+            this.snippetSetRepository.search(this.snippetSetCriteria, Shopware.Context.api).then((sets) => {
                 this.sets = sets;
-            }).then(() => {
                 this.initializeSnippet();
+            }).finally(() => {
                 this.isLoading = false;
             });
         },
@@ -111,35 +124,49 @@ Component.register('sw-settings-snippet-detail', {
                     this.isAddedSnippet = true;
                     return;
                 }
+
                 this.applySnippetsToDummies(response.data[this.translationKey]);
             });
         },
 
-        applySnippetsToDummies(data) {
-            const snippets = this.snippets;
-            const patchedSnippets = [];
-            snippets.forEach((snippet) => {
-                const newSnippet = data.find(item => item.setId === snippet.setId);
-                if (newSnippet) {
-                    snippet = newSnippet;
+        applySnippetsToDummies(snippets) {
+            const dummySnippets = this.snippets;
+
+            dummySnippets.forEach(dummySnippet => {
+                const realSnippet = snippets.find(snippet => dummySnippet.setId === snippet.setId);
+
+                if (realSnippet) {
+                    dummySnippet.author = realSnippet.author;
+                    dummySnippet.id = realSnippet.id;
+                    dummySnippet.value = realSnippet.value;
+                    dummySnippet.origin = realSnippet.origin;
+                    dummySnippet.translationKey = realSnippet.translationKey;
+                    dummySnippet.setId = realSnippet.setId;
+
+                    if (realSnippet.id) {
+                        dummySnippet._isNew = false;
+                    }
                 }
-                patchedSnippets.push(snippet);
+
+                return dummySnippet;
             });
-            this.snippets = patchedSnippets;
-            this.isAddedSnippet = data.some(item => item.author.startsWith('user/') || item.author === '');
+
+            this.isAddedSnippet = snippets.some(snippet => snippet.author.startsWith('user/') || snippet.author === '');
         },
 
         createSnippetDummy() {
             const snippets = [];
-            Object.values(this.sets).forEach((set) => {
-                snippets.push({
-                    author: this.currentAuthor,
-                    id: null,
-                    value: null,
-                    origin: null,
-                    translationKey: this.translationKey,
-                    setId: set.id
-                });
+            this.sets.forEach((set) => {
+                const snippetDummy = this.snippetRepository.create(Shopware.Context.api);
+
+                snippetDummy.author = this.currentAuthor;
+                snippetDummy.id = null;
+                snippetDummy.value = null;
+                snippetDummy.origin = null;
+                snippetDummy.translationKey = this.translationKey;
+                snippetDummy.setId = set.id;
+
+                snippets.push(snippetDummy);
             });
 
             return snippets;
@@ -169,7 +196,7 @@ Component.register('sw-settings-snippet-detail', {
             if (!this.isSaveable) {
                 this.isLoading = false;
                 this.createNotificationError({
-                    title: this.$tc('sw-settings-snippet.detail.titleSaveError'),
+                    title: this.$tc('global.default.error'),
                     message: this.$tc(
                         'sw-settings-snippet.detail.messageSaveError',
                         0,
@@ -192,7 +219,9 @@ Component.register('sw-settings-snippet-detail', {
                 if (snippet.translationKey !== this.translationKey) {
                     // On TranslationKey change, delete old snippets, but insert a copy with the new translationKey
                     if (snippet.id !== null) {
-                        responses.push(this.snippetService.delete(snippet.id));
+                        responses.push(
+                            this.snippetRepository.delete(snippet.id, Shopware.Context.api)
+                        );
                     }
 
                     if (snippet.value === null || snippet.value === '') {
@@ -201,13 +230,20 @@ Component.register('sw-settings-snippet-detail', {
 
                     snippet.translationKey = this.translationKey;
                     snippet.id = null;
-                    responses.push(this.snippetService.save(snippet));
+
+                    responses.push(
+                        this.snippetRepository.save(snippet, Shopware.Context.api)
+                    );
                 } else if (snippet.origin !== snippet.value) {
                     // Only save if values differs from origin
-                    responses.push(this.snippetService.save(snippet));
+                    responses.push(
+                        this.snippetRepository.save(snippet, Shopware.Context.api)
+                    );
                 } else if (snippet.hasOwnProperty('id') && snippet.id !== null) {
                     // There's no need to keep a snippet which is exactly like the file-snippet, so delete
-                    responses.push(this.snippetService.delete(snippet.id));
+                    responses.push(
+                        this.snippetRepository.delete(snippet.id, Shopware.Context.api)
+                    );
                 }
             });
 
@@ -223,7 +259,7 @@ Component.register('sw-settings-snippet-detail', {
                     errormsg = '<br/>Error Message: "'.concat(error.response.data.errors[0].detail).concat('"');
                 }
                 this.createNotificationError({
-                    title: this.$tc('sw-settings-snippet.detail.titleSaveError'),
+                    title: this.$tc('global.default.error'),
                     message: this.$tc(
                         'sw-settings-snippet.detail.messageSaveError',
                         0,
@@ -286,7 +322,7 @@ Component.register('sw-settings-snippet-detail', {
         checkIsSaveable() {
             let count = 0;
             this.snippets.forEach((snippet) => {
-                if (snippet.value === null || snippet.value.trim() === '') {
+                if (snippet.value === null) {
                     return;
                 }
 
@@ -294,16 +330,22 @@ Component.register('sw-settings-snippet-detail', {
                     count += 1;
                 }
 
-                if (snippet.origin === snippet.value) {
-                    return;
-                }
-
-                if (snippet.value.trim().length > 0) {
+                if (snippet.value.trim().length >= 0) {
                     count += 1;
                 }
             });
 
             return count > 0;
+        },
+
+        getNoPermissionsTooltip(role, showOnDisabledElements = true) {
+            return {
+                showDelay: 300,
+                appearance: 'dark',
+                showOnDisabledElements,
+                disabled: this.acl.can(role),
+                message: this.$tc('sw-privileges.tooltip.warning')
+            };
         }
     }
 });

@@ -60,7 +60,12 @@ class TwigCacheTest extends TestCase
             $twig,
             $loader,
             $this->getKernel()->getCacheDir(),
-            new NamespaceHierarchyBuilder([new BundleHierarchyBuilder($kernel)])
+            new NamespaceHierarchyBuilder([
+                new BundleHierarchyBuilder(
+                    $kernel,
+                    $this->getContainer()->get('app.repository')
+                ),
+            ])
         );
 
         return [$twig, $templateFinder];

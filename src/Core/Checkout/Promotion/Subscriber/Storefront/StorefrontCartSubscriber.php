@@ -10,9 +10,11 @@ use Shopware\Core\Checkout\Cart\Exception\LineItemNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotRemovableException;
 use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\Cart\Extension\CartExtension;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Session\Session;
 
@@ -25,9 +27,15 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
      */
     private $session;
 
-    public function __construct(Session $session)
+    /**
+     * @var CartService
+     */
+    private $cartService;
+
+    public function __construct(Session $session, CartService $cartService)
     {
         $this->session = $session;
+        $this->cartService = $cartService;
     }
 
     public static function getSubscribedEvents(): array
@@ -82,6 +90,8 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
         if (!empty($code)) {
             // promotion with code
             $this->checkFixedDiscountItems($cart, $lineItem);
+            //remove other discounts of the promotion that should be deleted
+            $this->removeOtherDiscountsOfPromotion($cart, $lineItem, $event->getSalesChannelContext());
             $this->removeCode($code, $cart);
 
             return;
@@ -127,6 +137,32 @@ class StorefrontCartSubscriber implements EventSubscriberInterface
 
         foreach ($removeThisDiscounts as $discountItem) {
             $cart->remove($discountItem->getId());
+        }
+    }
+
+    private function removeOtherDiscountsOfPromotion(Cart $cart, LineItem $lineItem, SalesChannelContext $context): void
+    {
+        // ge all promotions from cart
+        $lineItems = $cart->getLineItems()->filterType(PromotionProcessor::LINE_ITEM_TYPE);
+        if ($lineItems->count() < 1) {
+            return;
+        }
+
+        //filter them by the promotion which discounts should be deleted
+        $lineItems = $lineItems->filter(function (LineItem $promotionLineItem) use ($lineItem) {
+            return $promotionLineItem->getPayloadValue('promotionId') === $lineItem->getPayloadValue('promotionId');
+        });
+
+        if ($lineItems->count() < 1) {
+            return;
+        }
+
+        $promotionLineItem = $lineItems->first();
+
+        if ($promotionLineItem instanceof LineItem) {
+            // this is recursive because we are listening on LineItemRemovedEvent, it will stop if there
+            // are no discounts in the cart, that belong to the promotion that should be deleted
+            $this->cartService->remove($cart, $promotionLineItem->getId(), $context);
         }
     }
 

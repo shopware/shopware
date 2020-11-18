@@ -5,7 +5,7 @@
             <sw-sidebar-item icon="default-action-settings"
                              :title="$tc('sw-cms.detail.sidebar.titlePageSettings')"
                              ref="pageConfigSidebar"
-                             :disabled="page.locked">
+                             :disabled="page.locked || disabled">
 
                 {% block sw_cms_sidebar_page_settings_content %}
                     <sw-sidebar-collapse :expandOnLoading="true">
@@ -40,10 +40,11 @@
                                                 <option value="product_list">
                                                     {{ $tc('sw-cms.detail.label.pageTypeCategory') }}
                                                 </option>
-                                                {# Will be implemented in the future #}
-{#                                                <option value="product_detail" disabled>#}
-{#                                                    {{ $tc('sw-cms.detail.label.pageTypeProduct') }}#}
-{#                                                </option>#}
+                                                <template v-if="feature.isActive('FEATURE_NEXT_10078')">
+                                                    <option value="product_detail">
+                                                        {{ $tc('sw-cms.detail.label.pageTypeProduct') }}
+                                                    </option>
+                                                </template>
                                             {% endblock %}
                                     </sw-select-field>
                                 {% endblock %}
@@ -55,7 +56,7 @@
                                         :label="$tc('sw-cms.detail.label.demoEntity')"
                                         :placeholder="$tc('sw-cms.detail.placeholder.demoEntity')"
                                         :entity="demoEntity"
-                                        @input="onDemoEntityChange"
+                                        @change="onDemoEntityChange"
                                         v-model="demoEntityId">
                                     </sw-entity-single-select>
                                 {% endblock %}
@@ -69,7 +70,7 @@
         {% block sw_cms_sidebar_block_overview %}
             <sw-sidebar-item icon="default-basic-plus-circle"
                              :title="addBlockTitle"
-                             :disabled="currentDeviceView === 'form' || !isSystemDefaultLanguage || page.locked"
+                             :disabled="currentDeviceView === 'form' || !isSystemDefaultLanguage || page.locked || disabled"
                              ref="blockSelectionSidebar">
                 {% block sw_cms_sidebar_block_overview_content %}
                     <div class="sw-cms-sidebar__block-overview">
@@ -124,7 +125,7 @@
             <sw-sidebar-item icon="default-documentation-paper-pencil"
                          :title="sidebarItemSettings"
                          ref="itemConfigSidebar"
-                         :disabled="(selectedBlock === null && selectedSection === null) || page.locked"
+                         :disabled="(selectedBlock === null && selectedSection === null) || page.locked || disabled"
                          @close-content="onCloseBlockConfig">
 
                 {% block sw_cms_sidebar_block_settings %}
@@ -199,7 +200,7 @@
         {% block sw_cms_sidebar_navigator %}
             <sw-sidebar-item icon="default-os-layers"
                              :title="$tc('sw-cms.detail.sidebar.titleNavigator')"
-                             :disabled="!page.sections.length === 0 || currentDeviceView === 'form' || page.locked"
+                             :disabled="!page.sections.length === 0 || currentDeviceView === 'form' || page.locked || disabled"
                              ref="blockNavigator">
                 {% block sw_cms_sidebar_navigator_content %}
                     <div class="sw-cms-sidebar__navigator">

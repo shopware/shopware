@@ -31,24 +31,13 @@ Component.register('sw-popover', {
             default: ''
         },
         /**
-         * @deprecated tag:v6.2.0
+         * @deprecated tag:v6.4.0
          */
         isPopover: {
             type: Boolean,
             required: false,
             default: true
-        },
-        /**
-         * @deprecated tag:v6.3.0
-         */
-        popoverConfigExtension: {
-            type: Object,
-            required: false,
-            default() {
-                return {};
-            }
         }
-
     },
 
     computed: {

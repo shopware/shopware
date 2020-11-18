@@ -22,6 +22,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -31,6 +32,7 @@ use Shopware\Core\System\StateMachine\StateMachineRegistry;
 class OrderRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
+    use CountryAddToSalesChannelTestBehaviour;
 
     /**
      * @var EntityRepositoryInterface
@@ -124,6 +126,8 @@ class OrderRepositoryTest extends TestCase
         );
 
         $customerId = $this->createCustomer();
+
+        $this->addCountriesToSalesChannel();
 
         $context = $this->salesChannelContextFactory->create(
             Uuid::randomHex(),
@@ -242,7 +246,7 @@ class OrderRepositoryTest extends TestCase
                         'type' => 'test',
                         'label' => 'test',
                         'price' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
-                        'priceDefinition' => new QuantityPriceDefinition(10, new TaxRuleCollection(), 2),
+                        'priceDefinition' => new QuantityPriceDefinition(10, new TaxRuleCollection()),
                         'good' => true,
                     ],
                 ],

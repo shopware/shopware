@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Cart\Price\Struct;
 
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\Framework\Util\FloatComparator;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
@@ -28,16 +29,10 @@ class AbsolutePriceDefinition extends Struct implements PriceDefinitionInterface
      */
     protected $filter;
 
-    /**
-     * @var int
-     */
-    protected $precision;
-
-    public function __construct(float $price, int $precision, ?Rule $filter = null)
+    public function __construct(float $price, ?Rule $filter = null)
     {
-        $this->price = $price;
+        $this->price = FloatComparator::cast($price);
         $this->filter = $filter;
-        $this->precision = $precision;
     }
 
     public function getFilter(): ?Rule
@@ -47,12 +42,7 @@ class AbsolutePriceDefinition extends Struct implements PriceDefinitionInterface
 
     public function getPrice(): float
     {
-        return $this->price;
-    }
-
-    public function getPrecision(): int
-    {
-        return $this->precision;
+        return FloatComparator::cast($this->price);
     }
 
     public function getType(): string

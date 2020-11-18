@@ -85,7 +85,7 @@ the [directory structure](./../../60-references-internals/70-other/10-directory-
 | :---- | :---- | :----
 | Backend | The symfony stack of the core application | `platform/src/Core`
 | Storefront  | The symfony stack of the storefront | `platform/src/Storefront`
-| Storefront template | The template for the storefront| | `platform/src/Storefront/Resources`
+| Storefront template | The template for the storefront| `platform/src/Storefront/Resources`
 | Administration | The symfony stack of the administration | `platform/src/Administration/`
 | Administration application | The Vue.js administration | `platform/src/Administration/Resources/app/administration`
 

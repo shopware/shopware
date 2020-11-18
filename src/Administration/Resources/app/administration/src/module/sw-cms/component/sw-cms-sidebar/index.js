@@ -11,7 +11,8 @@ Component.register('sw-cms-sidebar', {
 
     inject: [
         'cmsService',
-        'repositoryFactory'
+        'repositoryFactory',
+        'feature'
     ],
 
     mixins: [
@@ -35,6 +36,12 @@ Component.register('sw-cms-sidebar', {
             type: String,
             required: false,
             default: null
+        },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -178,7 +185,6 @@ Component.register('sw-cms-sidebar', {
             const newBlock = this.blockRepository.create();
 
             const blockClone = cloneDeep(block);
-            blockClone.id = newBlock.id;
             blockClone.position = block.position + 1;
             blockClone.sectionId = sectionId;
             blockClone.sectionPosition = block.sectionPosition;
@@ -192,8 +198,9 @@ Component.register('sw-cms-sidebar', {
         },
 
         cloneSlotsInBlock(block, newBlock) {
-            block.slots.forEach((slot) => {
+            block.slots.forEach(slot => {
                 const element = this.slotRepository.create();
+                element.id = slot.id;
                 element.blockId = newBlock.id;
                 element.slot = slot.slot;
                 element.type = slot.type;

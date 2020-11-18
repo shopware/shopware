@@ -41,7 +41,6 @@ Component.register('sw-plugin-file-upload', {
             return this.pluginService.upload(formData).then(() => {
                 State.dispatch('swPlugin/updatePluginList', searchData).then(() => {
                     return this.createNotificationSuccess({
-                        title: this.$tc('sw-plugin.fileUpload.titleUploadSuccess'),
                         message: this.$tc('sw-plugin.fileUpload.messageUploadSuccess')
                     });
                 });
@@ -54,7 +53,6 @@ Component.register('sw-plugin-file-upload', {
                     }
 
                     this.createNotificationError({
-                        title: this.$tc(error.title),
                         message: this.$tc(error.message)
                     });
                 });
@@ -64,7 +62,6 @@ Component.register('sw-plugin-file-upload', {
         showStoreError(error) {
             const docLink = this.$tc('sw-plugin.errors.messageToTheShopwareDocumentation', 0, error.parameters);
             this.createNotificationError({
-                title: error.title,
                 message: `${error.message} ${docLink}`,
                 autoClose: false
             });

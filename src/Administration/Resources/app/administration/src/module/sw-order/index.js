@@ -29,6 +29,7 @@ import './component/sw-order-new-customer-modal';
 import './component/sw-order-promotion-tag-field';
 import './component/sw-order-create-invalid-promotion-modal';
 import './component/sw-order-create-promotion-modal';
+import './acl';
 
 const { Module } = Shopware;
 
@@ -49,7 +50,13 @@ Module.register('sw-order', {
             components: {
                 default: 'sw-order-list'
             },
-            path: 'index'
+            path: 'index',
+            meta: {
+                privilege: 'order.viewer',
+                appSystem: {
+                    view: 'list'
+                }
+            }
         },
 
         create: {
@@ -58,12 +65,16 @@ Module.register('sw-order', {
             redirect: {
                 name: 'sw.order.create.base'
             },
+            meta: {
+                privilege: 'order.creator'
+            },
             children: {
                 base: {
                     component: 'sw-order-create-base',
                     path: 'base',
                     meta: {
-                        parentPath: 'sw.order.index'
+                        parentPath: 'sw.order.index',
+                        privilege: 'order.creator'
                     }
                 }
             }
@@ -75,13 +86,25 @@ Module.register('sw-order', {
             redirect: {
                 name: 'sw.order.detail.base'
             },
+            meta: {
+                privilege: 'order.viewer',
+                appSystem: {
+                    view: 'detail'
+                }
+            },
             children: {
                 base: {
                     component: 'sw-order-detail-base',
                     path: 'base',
                     meta: {
-                        parentPath: 'sw.order.index'
+                        parentPath: 'sw.order.index',
+                        privilege: 'order.viewer'
                     }
+                }
+            },
+            props: {
+                default: ($route) => {
+                    return { orderId: $route.params.id };
                 }
             }
         }
@@ -93,10 +116,12 @@ Module.register('sw-order', {
         color: '#A092F0',
         path: 'sw.order.index',
         icon: 'default-shopping-paper-bag',
-        position: 30
+        position: 30,
+        privilege: 'order.viewer'
     }, {
         path: 'sw.order.index',
         label: 'sw-order.general.mainMenuItemList',
-        parent: 'sw-order'
+        parent: 'sw-order',
+        privilege: 'order.viewer'
     }]
 });

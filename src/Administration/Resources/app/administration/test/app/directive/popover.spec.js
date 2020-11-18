@@ -13,11 +13,11 @@ describe('directives/popover', () => {
         });
     });
 
-    it('should be empty', () => {
+    it('should be empty', async () => {
         expect(popover.virtualScrollingElements.size).toBe(0);
     });
 
-    it('should add an element', () => {
+    it('should add an element', async () => {
         const mockElement = document.createElement('h1');
         const mockContext = {
             _uid: 123,
@@ -31,7 +31,7 @@ describe('directives/popover', () => {
         popover.virtualScrollingElements.delete(123);
     });
 
-    it('should remove an element', () => {
+    it('should remove an element', async () => {
         const mockElement = document.createElement('h1');
         const mockContext = {
             _uid: 123,
@@ -47,11 +47,11 @@ describe('directives/popover', () => {
         expect(popover.virtualScrollingElements.size).toBe(0);
     });
 
-    it('should not have an event listener', () => {
+    it('should not have an event listener', async () => {
         expect(eventListener).not.toHaveProperty('scroll');
     });
 
-    it('should add an event listener', () => {
+    it('should add an event listener', async () => {
         const mockElement = document.createElement('h1');
         const mockContext = {
             _uid: 123,
@@ -66,7 +66,7 @@ describe('directives/popover', () => {
         popover.unregisterVirtualScrollingElement(mockContext._uid);
     });
 
-    it('should remove an event listener', () => {
+    it('should remove an event listener', async () => {
         const mockElement = document.createElement('h1');
         const mockContext = {
             _uid: 123,

@@ -22,7 +22,7 @@ export default class VueAdapter extends ViewAdapter {
     }
 
     /**
-     * Creates the main instance for the view layer.
+     * Creates the main instance dfsffor the view layer.
      * Is used on startup process of the main application.
      *
      * @param renderElement
@@ -43,13 +43,6 @@ export default class VueAdapter extends ViewAdapter {
 
         // Enable performance measurements in development mode
         Vue.config.performance = process.env.NODE_ENV !== 'production';
-
-        // make all features globally available to templates
-        Vue.mixin({
-            data() {
-                return Shopware.FeatureConfig.getAll();
-            }
-        });
 
         this.root = new Vue({
             el: renderElement,
@@ -103,6 +96,7 @@ export default class VueAdapter extends ViewAdapter {
      */
     initComponents() {
         const componentRegistry = this.componentFactory.getComponentRegistry();
+        this.componentFactory.resolveComponentTemplates();
 
         componentRegistry.forEach((component) => {
             this.createComponent(component.name);

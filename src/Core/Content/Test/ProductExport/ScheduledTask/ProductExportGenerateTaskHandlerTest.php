@@ -20,6 +20,9 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelD
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @group slow
+ */
 class ProductExportGenerateTaskHandlerTest extends TestCase
 {
     use QueueTestBehaviour;

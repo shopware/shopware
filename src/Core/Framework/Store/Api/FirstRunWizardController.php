@@ -4,20 +4,17 @@ namespace Shopware\Core\Framework\Store\Api;
 
 use GuzzleHttp\Exception\ClientException;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
-use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Store\Exception\StoreApiException;
 use Shopware\Core\Framework\Store\Exception\StoreInvalidCredentialsException;
-use Shopware\Core\Framework\Store\Exception\StoreTokenMissingException;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardClient;
 use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\System\User\UserEntity;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -25,7 +22,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @RouteScope(scopes={"api"})
  */
-class FirstRunWizardController extends AbstractController
+class FirstRunWizardController extends AbstractStoreController
 {
     /**
      * @var FirstRunWizardClient
@@ -37,19 +34,18 @@ class FirstRunWizardController extends AbstractController
      */
     private $pluginRepo;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $userRepository;
-
-    public function __construct(FirstRunWizardClient $frwClient, EntityRepositoryInterface $pluginRepo, EntityRepositoryInterface $userRepository)
-    {
+    public function __construct(
+        FirstRunWizardClient $frwClient,
+        EntityRepositoryInterface $pluginRepo,
+        EntityRepositoryInterface $userRepository
+    ) {
         $this->frwClient = $frwClient;
         $this->pluginRepo = $pluginRepo;
-        $this->userRepository = $userRepository;
+        parent::__construct($userRepository);
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/store/frw/start", name="api.custom.store.frw.start", methods={"POST"})
      */
     public function frwStart(Context $context): JsonResponse
@@ -64,6 +60,7 @@ class FirstRunWizardController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/store/language-plugins", name="api.custom.store.language-plugins", methods={"GET"})
      */
     public function getLanguagePluginList(Request $request, Context $context): JsonResponse
@@ -81,11 +78,12 @@ class FirstRunWizardController extends AbstractController
 
         return new JsonResponse([
             'items' => $languagePlugins,
-            'total' => count($languagePlugins),
+            'total' => \count($languagePlugins),
         ]);
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/store/demo-data-plugins", name="api.custom.store.demo-data-plugins", methods={"GET"})
      */
     public function getDemoDataPluginList(Request $request, Context $context): JsonResponse
@@ -103,11 +101,12 @@ class FirstRunWizardController extends AbstractController
 
         return new JsonResponse([
             'items' => $languagePlugins,
-            'total' => count($languagePlugins),
+            'total' => \count($languagePlugins),
         ]);
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/store/recommendation-regions", name="api.custom.store.recommendation-regions", methods={"GET"})
      */
     public function getRecommendationRegions(Request $request): JsonResponse
@@ -122,11 +121,12 @@ class FirstRunWizardController extends AbstractController
 
         return new JsonResponse([
             'items' => $recommendationRegions,
-            'total' => count($recommendationRegions),
+            'total' => \count($recommendationRegions),
         ]);
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/store/recommendations", name="api.custom.store.recommendations", methods={"GET"})
      */
     public function getRecommendations(Request $request, Context $context): JsonResponse
@@ -146,11 +146,12 @@ class FirstRunWizardController extends AbstractController
 
         return new JsonResponse([
             'items' => $recommendations,
-            'total' => count($recommendations),
+            'total' => \count($recommendations),
         ]);
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/store/frw/login", name="api.custom.store.frw.login", methods={"POST"})
      */
     public function frwLogin(RequestDataBag $requestDataBag, QueryDataBag $queryDataBag, Context $context): JsonResponse
@@ -163,12 +164,10 @@ class FirstRunWizardController extends AbstractController
             throw new StoreInvalidCredentialsException();
         }
 
-        if (!$context->getSource() instanceof AdminApiSource) {
-            throw new InvalidContextSourceException(AdminApiSource::class, \get_class($context->getSource()));
-        }
+        $contextSource = $this->ensureAdminApiSource($context);
 
         try {
-            $accessTokenStruct = $this->frwClient->frwLogin($shopwareId, $password, $language, $context->getSource()->getUserId());
+            $accessTokenStruct = $this->frwClient->frwLogin($shopwareId, $password, $language, $contextSource->getUserId());
         } catch (ClientException $exception) {
             throw new StoreApiException($exception);
         }
@@ -183,6 +182,7 @@ class FirstRunWizardController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/store/license-domains", name="api.custom.store.license-domains", methods={"GET"})
      */
     public function getDomainList(QueryDataBag $params, Context $context): JsonResponse
@@ -198,11 +198,12 @@ class FirstRunWizardController extends AbstractController
 
         return new JsonResponse([
             'items' => $domains,
-            'total' => count($domains),
+            'total' => \count($domains),
         ]);
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/store/verify-license-domain", name="api.custom.store.verify-license-domain", methods={"POST"})
      */
     public function verifyDomain(QueryDataBag $params, Context $context): JsonResponse
@@ -222,6 +223,7 @@ class FirstRunWizardController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/store/frw/finish", name="api.custom.store.frw.finish", methods={"POST"})
      */
     public function frwFinish(QueryDataBag $params, Context $context): JsonResponse
@@ -230,17 +232,19 @@ class FirstRunWizardController extends AbstractController
         $failed = $params->getBoolean('failed');
         $this->frwClient->finishFrw($failed, $context);
 
-        $userId = null;
         $newStoreToken = '';
 
         try {
-            $userId = $context->getSource() instanceof AdminApiSource ? $context->getSource()->getUserId() : null;
             $storeToken = $this->getUserStoreToken($context);
             $accessToken = $this->frwClient->upgradeAccessToken($storeToken, $language);
-            $newStoreToken = $accessToken->getShopUserToken()->getToken();
+            if ($accessToken !== null) {
+                $newStoreToken = $accessToken->getShopUserToken()->getToken();
+            }
         } catch (\Exception $e) {
         }
 
+        $contextSource = $context->getSource();
+        $userId = $contextSource instanceof AdminApiSource ? $contextSource->getUserId() : null;
         if ($userId) {
             $context->scope(Context::SYSTEM_SCOPE, function ($context) use ($userId, $newStoreToken): void {
                 $this->userRepository->update([['id' => $userId, 'storeToken' => $newStoreToken]], $context);
@@ -248,23 +252,5 @@ class FirstRunWizardController extends AbstractController
         }
 
         return new JsonResponse();
-    }
-
-    private function getUserStoreToken(Context $context): string
-    {
-        if (!$context->getSource() instanceof AdminApiSource) {
-            throw new InvalidContextSourceException(AdminApiSource::class, \get_class($context->getSource()));
-        }
-
-        $userId = $context->getSource()->getUserId();
-
-        /** @var UserEntity|null $user */
-        $user = $this->userRepository->search(new Criteria([$userId]), $context)->first();
-
-        if ($user->getStoreToken() === null) {
-            throw new StoreTokenMissingException();
-        }
-
-        return $user->getStoreToken();
     }
 }

@@ -52,11 +52,12 @@ class DocumentApiService extends ApiService {
 
     generateDocumentPreviewLink(orderId, orderDeepLink, documentTypeName, config, context) {
         // eslint-disable-next-line max-len
-        return `${context.apiPath}/v1/_action/order/${orderId}/${orderDeepLink}/document/${documentTypeName}/preview?config=${config}`;
+        return `${context.apiPath}/v${this.getApiVersion()}/_action/order/${orderId}/${orderDeepLink}/document/${documentTypeName}/preview?config=${config}`;
     }
 
     generateDocumentLink(documentId, documentDeepLink, context, download = false) {
-        return `${context.apiPath}/v1/_action/document/${documentId}/${documentDeepLink}${download ? '?download=1' : ''}`;
+        // eslint-disable-next-line max-len
+        return `${context.apiPath}/v${this.getApiVersion()}/_action/document/${documentId}/${documentDeepLink}${download ? '?download=1' : ''}`;
     }
 }
 

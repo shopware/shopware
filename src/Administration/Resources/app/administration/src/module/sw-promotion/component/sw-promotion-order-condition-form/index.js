@@ -9,6 +9,8 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-promotion-order-condition-form', {
     template,
 
+    inject: ['acl'],
+
     props: {
         promotion: {
             type: Object,
@@ -38,6 +40,10 @@ Component.register('sw-promotion-order-condition-form', {
         },
 
         isEditingDisabled() {
+            if (!this.acl.can('promotion.editor')) {
+                return true;
+            }
+
             return !PromotionPermissions.isEditingAllowed(this.promotion);
         }
     }

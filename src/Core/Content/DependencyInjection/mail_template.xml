@@ -85,6 +85,10 @@
             <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\MailService"/>
             <argument type="service" id="mail_template.repository"/>
             <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>
+            <argument type="service" id="media.repository"/>
+            <argument type="service" id="document.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Document\DocumentService"/>
+            <argument type="service" id="logger"/>
         </service>
 
         <!-- Commands -->
@@ -96,8 +100,6 @@
         </service>
 
         <service id="core_mailer" alias="mailer" />
-
-        <service id="Shopware\Core\Content\MailTemplate\Service\MailerFactory" />
 
         <service id="Shopware\Core\Content\MailTemplate\Service\MailerTransportFactory" />
 

@@ -396,7 +396,8 @@ class SyncServiceTest extends TestCase
                     new DeprecatedConverter(),
                 ],
                 $defaultConverter
-            )
+            ),
+            $this->getContainer()->get('request_stack')
         );
 
         $syncService = new SyncService(
@@ -454,7 +455,8 @@ class SyncServiceTest extends TestCase
                     new DeprecatedConverter(),
                 ],
                 $defaultConverter
-            )
+            ),
+            $this->getContainer()->get('request_stack')
         );
 
         $syncService = new SyncService(
@@ -522,7 +524,8 @@ class SyncServiceTest extends TestCase
                     new DeprecatedConverter(),
                 ],
                 $defaultConverter
-            )
+            ),
+            $this->getContainer()->get('request_stack')
         );
 
         $syncService = new SyncService(

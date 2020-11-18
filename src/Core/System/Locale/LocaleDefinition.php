@@ -39,6 +39,11 @@ class LocaleDefinition extends EntityDefinition
         return LocaleEntity::class;
     }
 
+    public function since(): ?string
+    {
+        return '6.0.0.0';
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
@@ -50,7 +55,7 @@ class LocaleDefinition extends EntityDefinition
             (new OneToManyAssociationField('languages', LanguageDefinition::class, 'locale_id', 'id'))->addFlags(new CascadeDelete()),
             (new TranslationsAssociationField(LocaleTranslationDefinition::class, 'locale_id'))->addFlags(new Required()),
 
-            // Reverse Associations not available in sales-channel-api
+            // Reverse Associations not available in store-api
             (new OneToManyAssociationField('users', UserDefinition::class, 'locale_id', 'id'))->addFlags(new RestrictDelete(), new ReadProtected(SalesChannelApiSource::class)),
         ]);
     }

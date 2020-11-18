@@ -1,0 +1,58 @@
+{% set currencyIsoCode = order.currency.isoCode %}
+                {{order.orderCustomer.salutation.letterName }} {{order.orderCustomer.firstName}} {{order.orderCustomer.lastName}},
+
+Thank you for your order at {{ salesChannel.name }} (Number: {{order.orderNumber}}) on {{ order.orderDateTime|date }}.
+
+Information on your order:
+
+Pos.   Prod. No.			Description			Quantities			Price			Total
+{% for lineItem in order.lineItems %}
+    {{ loop.index }}      {% if lineItem.payload.productNumber is defined %}{{ lineItem.payload.productNumber|u.wordwrap(80) }}{% endif %}				{{ lineItem.label|u.wordwrap(80) }}{% if lineItem.payload.options|length >= 1 %}, {% for option in lineItem.payload.options %}{{ option.group }}: {{ option.option }}{% if lineItem.payload.options|last != option %}{{ " | " }}{% endif %}{% endfor %}{% endif %}				{{ lineItem.quantity }}			{{ lineItem.unitPrice|currency(currencyIsoCode) }}			{{ lineItem.totalPrice|currency(currencyIsoCode) }}
+{% endfor %}
+
+                {% set delivery = order.deliveries.first %}
+
+Shipping costs: {{order.deliveries.first.shippingCosts.totalPrice|currency(currencyIsoCode) }}
+Net total: {{ order.amountNet|currency(currencyIsoCode) }}
+                    {% for calculatedTax in order.price.calculatedTaxes %}
+                        {% if order.taxStatus is same as('net') %}plus{% else %}including{% endif %} {{ calculatedTax.taxRate }}% VAT. {{ calculatedTax.tax|currency(currencyIsoCode) }}
+                    {% endfor %}
+
+{% set displayRounded = order.totalRounding.interval != 0.01 or order.totalRounding.decimals != order.itemRounding.decimals %}
+{% if displayRounded %}
+    Total gross: {{ order.price.rawTotal|currency(currencyIsoCode) }}
+    Rounded total gross: {{ order.price.totalPrice|currency(currencyIsoCode=currencyIsoCode, decimals=order.totalRounding.decimals) }}
+{% else %}
+    Total gross: {{ order.amountTotal|currency(currencyIsoCode) }}
+{% endif %}
+
+Selected payment type: {{ order.transactions.first.paymentMethod.name }}
+                {{ order.transactions.first.paymentMethod.description }}
+
+Selected shipping type: {{ delivery.shippingMethod.name }}
+                {{ delivery.shippingMethod.description }}
+
+                {% set billingAddress = order.addresses.get(order.billingAddressId) %}
+Billing address:
+{{ billingAddress.company }}
+                {{ billingAddress.firstName }} {{ billingAddress.lastName }}
+                {{ billingAddress.street }}
+                {{ billingAddress.zipcode }} {{ billingAddress.city }}
+                {{ billingAddress.country.name }}
+
+Shipping address:
+{{ delivery.shippingOrderAddress.company }}
+                {{ delivery.shippingOrderAddress.firstName }} {{ delivery.shippingOrderAddress.lastName }}
+                {{ delivery.shippingOrderAddress.street }}
+                {{ delivery.shippingOrderAddress.zipcode}} {{ delivery.shippingOrderAddress.city }}
+                {{ delivery.shippingOrderAddress.country.name }}
+
+                {% if billingAddress.vatId %}
+                    Your VAT-ID: {{ billingAddress.vatId }}
+                    In case of a successful order and if you are based in one of the EU countries, you will receive your goods exempt from turnover tax.
+                {% endif %}
+
+You can check the current status of your order on our website under "My account" - "My orders" anytime: {{ rawUrl('frontend.account.order.single.page', { 'deepLinkCode': order.deepLinkCode}, salesChannel.domains|first.url) }}
+If you have any questions, do not hesitate to contact us.
+
+However, in case you have purchased without a registration or a customer account, you do not have this option.

@@ -10,6 +10,7 @@
                         <slot name="toolbar-search-field">
                             <sw-field class="sw-property-search__search-field"
                                       v-model="searchTerm"
+                                      :disabled="disabled"
                                       ref="searchField"
                                       :placeholder="$tc('sw-property-search.placeholderSearch')"
                                       autocomplete="off"
@@ -47,7 +48,7 @@
                                     <template slot="columns" slot-scope="{ item }">
 
                                         {% block sw_property_search_tree_group_grid_columns_name %}
-                                            <sw-grid-column truncate class="group_grid__column-name" flex="minmax(200px, 1fr)" dataIndex="name" @click="selectGroup(item)">
+                                            <sw-grid-column truncate class="group_grid__column-name" flex="auto" dataIndex="name" @click="selectGroup(item)">
                                                 <sw-icon name="multicolor-folder-breadcrumbs" size="16px" multicolor></sw-icon>
                                                 {{ item.translated.name }}
                                             </sw-grid-column>
@@ -88,8 +89,13 @@
 
                                 {% block sw_property_search_tree_option_grid_columns %}
                                     <template slot="columns" slot-scope="{ item }">
+
                                         {% block sw_property_search_tree_option_grid_columns_name %}
-                                            <sw-grid-column truncate flex="200px" dataIndex="name">
+                                            <sw-grid-column class="sw-property-search__tree-selection__option_grid--option-value"
+                                                truncate
+                                                flex="minmax(0, 1fr)"
+                                                dataIndex="name"
+                                                :title="item.translated.name">
                                                 {{ item.translated.name }}
                                             </sw-grid-column>
                                         {% endblock %}
@@ -102,7 +108,6 @@
                                                        :limit="10"
                                                        :total="optionTotal"
                                                        :total-visible="7"
-                                                       :autoHide="false"
                                                        @page-change="onOptionPageChange"
                                                        :steps="[10]" >
                                         </sw-pagination>
@@ -119,9 +124,9 @@
 
         {% block sw_property_search_option_search %}
             <div class="sw-property-search__search-selection" v-if="displaySearch">
-
                 {% block sw_property_search_option_search_grid %}
                     <sw-grid class="sw-property-search__search-selection__option_grid"
+                             v-if="groupOptions.length > 0"
                              ref="optionSearchGrid"
                              :items="groupOptions"
                              :header="false"
@@ -147,13 +152,17 @@
                                                :total="optionTotal"
                                                :total-visible="7"
                                                @page-change="onOptionSearchPageChange"
-                                               :steps="[10]"
-                                               :autoHide="false">
+                                               :steps="[10]">
                                 </sw-pagination>
                             {% endblock %}
                         </template>
                     </sw-grid>
                 {% endblock %}
+                <sw-empty-state v-else
+                                :title="$tc('sw-property-search.noPropertiesFound')"
+                                :subline="$tc('sw-property-search.noPropertiesFoundDescription')">
+                </sw-empty-state>
+
             </div>
         {% endblock %}
 

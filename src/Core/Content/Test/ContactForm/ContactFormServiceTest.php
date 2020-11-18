@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\Test\ContactForm;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\ContactForm\ContactFormService;
+use Shopware\Core\Content\ContactForm\SalesChannel\ContactFormRoute;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -19,13 +19,13 @@ class ContactFormServiceTest extends TestCase
     use MailTemplateTestBehaviour;
 
     /**
-     * @var ContactFormService|null
+     * @var ContactFormRoute
      */
-    private $contactFormService;
+    private $contactFormRoute;
 
     protected function setUp(): void
     {
-        $this->contactFormService = $this->getContainer()->get(ContactFormService::class);
+        $this->contactFormRoute = $this->getContainer()->get(ContactFormRoute::class);
     }
 
     public function testContactFormSendMail(): void
@@ -60,7 +60,7 @@ class ContactFormServiceTest extends TestCase
             'comment' => 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.',
         ]);
 
-        $this->contactFormService->sendContactForm($dataBag, $context);
+        $this->contactFormRoute->load($dataBag->toRequestDataBag(), $context);
 
         $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
 

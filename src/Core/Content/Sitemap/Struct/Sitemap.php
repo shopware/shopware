@@ -9,12 +9,12 @@ class Sitemap extends Struct
     /**
      * @var string
      */
-    private $filename;
+    protected $filename;
 
     /**
      * @var \DateTimeInterface
      */
-    private $created;
+    protected $created;
 
     /**
      * @var int

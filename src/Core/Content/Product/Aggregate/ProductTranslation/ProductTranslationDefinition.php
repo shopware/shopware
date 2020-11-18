@@ -7,6 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
@@ -35,6 +36,11 @@ class ProductTranslationDefinition extends EntityTranslationDefinition
         return ProductTranslationEntity::class;
     }
 
+    public function since(): ?string
+    {
+        return '6.0.0.0';
+    }
+
     protected function getParentDefinitionClass(): string
     {
         return ProductDefinition::class;
@@ -50,6 +56,7 @@ class ProductTranslationDefinition extends EntityTranslationDefinition
             new StringField('meta_title', 'metaTitle'),
             new StringField('pack_unit', 'packUnit'),
             new StringField('pack_unit_plural', 'packUnitPlural'),
+            new ListField('custom_search_keywords', 'customSearchKeywords'),
 
             new CustomFields(),
         ]);

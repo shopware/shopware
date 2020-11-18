@@ -60,7 +60,7 @@ class PromotionExclusionUpdater
                 $firstResult = array_shift($exclusions);
                 if (array_key_exists('exclusion_ids', $firstResult)) {
                     // if there are exclusions, set them in array
-                    $promotionExclusions = (json_decode($firstResult['exclusion_ids']));
+                    $promotionExclusions = json_decode($firstResult['exclusion_ids']);
                 }
             }
 

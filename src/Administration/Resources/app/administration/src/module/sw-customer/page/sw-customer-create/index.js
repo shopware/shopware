@@ -1,11 +1,11 @@
 import template from './sw-customer-create.html.twig';
 
-const { Component, Mixin, StateDeprecated } = Shopware;
+const { Component, Mixin } = Shopware;
 
 Component.register('sw-customer-create', {
     template,
 
-    inject: ['repositoryFactory', 'numberRangeService'],
+    inject: ['repositoryFactory', 'numberRangeService', 'systemConfigApiService'],
 
     mixins: [
         Mixin.getByName('notification')
@@ -25,10 +25,6 @@ Component.register('sw-customer-create', {
     computed: {
         customerRepository() {
             return this.repositoryFactory.create('customer');
-        },
-
-        languageStore() {
-            return StateDeprecated.getStore('language');
         }
     },
 
@@ -36,9 +32,20 @@ Component.register('sw-customer-create', {
         this.createdComponent();
     },
 
+    watch: {
+        'customer.salesChannelId'(salesChannelId) {
+            this.systemConfigApiService
+                .getValues('core.systemWideLoginRegistration').then(response => {
+                    if (response['core.systemWideLoginRegistration.isCustomerBoundToSalesChannel']) {
+                        this.customer.boundSalesChannelId = salesChannelId;
+                    }
+                });
+        }
+    },
+
     methods: {
         createdComponent() {
-            this.languageStore.setCurrentId(Shopware.Context.api.systemLanguageId);
+            Shopware.State.commit('context/resetLanguageToDefault');
 
             this.customer = this.customerRepository.create(Shopware.Context.api);
 
@@ -79,7 +86,6 @@ Component.register('sw-customer-create', {
                     this.isSaveSuccessful = true;
                 }).catch(() => {
                     this.createNotificationError({
-                        title: this.$tc('sw-customer.detail.titleSaveError'),
                         message: this.$tc('sw-customer.detail.messageSaveError')
                     });
                     this.isLoading = false;

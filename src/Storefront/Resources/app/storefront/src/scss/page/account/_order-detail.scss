@@ -6,10 +6,16 @@
     display: none;
 }
 
+.document-detail-content-header {
+    display: block;
+    border-bottom: 1px solid $gray-300;
+    padding-bottom: $spacer-sm;
+}
+
 .order-detail-content-header,
 .order-item-detail-footer {
-    padding-left: $grid-gutter-width / 2;
-    padding-right: $grid-gutter-width / 2;
+    padding-left: $order-grid-gutter-width / 2;
+    padding-right: $order-grid-gutter-width / 2;
 }
 
 .order-detail-content-body {
@@ -25,8 +31,8 @@
 
 .order-detail-content-header,
 .order-detail-content-row {
-    margin-right: $grid-gutter-width / 2;
-    margin-left: $grid-gutter-width / 2;
+    margin-right: $order-grid-gutter-width;
+    margin-left: $order-grid-gutter-width;
 }
 
 .order-detail-content-row {
@@ -35,20 +41,27 @@
     padding-bottom: $spacer;
     border-bottom: 1px solid $border-color;
 
-    .order-item:last-of-type {
+    .document-item {
+        padding-left: $spacer-sm;
+        padding-right: $spacer-sm;
+    }
+
+    .order-item:last-of-type,
+    .document-item:last-of-type {
         padding-right: 0;
     }
 
-    .order-item:first-of-type {
+    .order-item:first-of-type,
+    .document-item:first-of-type {
         padding-left: 0;
     }
 }
 
 @include media-breakpoint-down(md) {
-    .order-detail-content-row {
-        .order-item:last-of-type {
-            padding-right: 20px;
-        }
+    .order-item,
+    .document-item {
+        padding-left: 0;
+        padding-right: 0;
     }
 }
 
@@ -63,8 +76,8 @@
     &.is-child {
         border-left: 3px solid $border-color;
         border-bottom-color: transparent;
-        margin: 0 $grid-gutter-width/-2;
-        padding: 0 $grid-gutter-width/2;
+        margin: 0 $order-grid-gutter-width/-2;
+        padding: 0 $order-grid-gutter-width/2;
     }
 
     &.is-discount {
@@ -104,8 +117,7 @@
 }
 
 .order-item-detail-footer {
-    padding-bottom: $spacer;
-    padding-top: $spacer;
+    padding: $spacer;
 }
 
 .order-item-detail-footer dl {
@@ -168,6 +180,10 @@
     float: right;
 }
 
+.document-item-view-file {
+    text-align: right;
+}
+
 @include media-breakpoint-up(md) {
     .order-detail-content-header {
         display: block;
@@ -209,5 +225,19 @@
         dd {
             text-align: right;
         }
+    }
+
+    .document-item-view-file-icon-btn {
+        display: none;
+    }
+}
+
+@include media-breakpoint-down(sm) {
+    .document-header-date {
+        display: none;
+    }
+
+    .document-item-view-file-text-btn {
+        display: none;
     }
 }

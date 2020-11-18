@@ -11,6 +11,14 @@ Component.register('sw-product-price-form', {
         Mixin.getByName('placeholder')
     ],
 
+    props: {
+        allowEdit: {
+            type: Boolean,
+            required: false,
+            default: true
+        }
+    },
+
     data() {
         return {
             displayMaintainCurrencies: false
@@ -32,7 +40,7 @@ Component.register('sw-product-price-form', {
             'currencies'
         ]),
 
-        ...mapPropertyErrors('product', ['taxId', 'price', 'purchasePrice'])
+        ...mapPropertyErrors('product', ['taxId', 'price', 'purchasePrices'])
     },
 
     methods: {

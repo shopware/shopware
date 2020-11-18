@@ -8,7 +8,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-promotion-cart-condition-form', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     props: {
         promotion: {
@@ -22,8 +22,7 @@ Component.register('sw-promotion-cart-condition-form', {
             syncService: null,
             httpClient: null,
             packagerKeys: [],
-            sorterKeys: [],
-            allowExperimentalFeatures: false
+            sorterKeys: []
         };
     },
     computed: {
@@ -73,7 +72,7 @@ Component.register('sw-promotion-cart-condition-form', {
         },
 
         isEditingDisabled() {
-            if (this.promotion === null) {
+            if (this.promotion === null || !this.acl.can('promotion.editor')) {
                 return true;
             }
 
@@ -83,13 +82,6 @@ Component.register('sw-promotion-cart-condition-form', {
     watch: {
         promotion() {
             this.loadSetGroups();
-        },
-        allowExperimentalFeatures(newValue) {
-            if (newValue !== false) {
-                return;
-            }
-
-            this.promotion.useSetGroups = false;
         }
     },
     created() {

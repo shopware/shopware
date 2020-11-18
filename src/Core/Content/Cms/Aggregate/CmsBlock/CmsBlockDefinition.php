@@ -38,6 +38,11 @@ class CmsBlockDefinition extends EntityDefinition
         return CmsBlockCollection::class;
     }
 
+    public function since(): ?string
+    {
+        return '6.0.0.0';
+    }
+
     protected function getParentDefinitionClass(): ?string
     {
         return CmsSectionDefinition::class;

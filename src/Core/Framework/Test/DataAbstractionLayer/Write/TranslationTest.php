@@ -20,9 +20,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\MissingTranslationLanguageException;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
-use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Test\TestCaseBase\AssertArraySubsetBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -87,6 +87,8 @@ class TranslationTest extends TestCase
             'symbol' => '$',
             'decimalPrecision' => 2,
             'isoCode' => 'FOO',
+            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
+            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
             'translations' => [
                 'en-GB' => [
                     'name' => 'US Dollar',
@@ -120,6 +122,8 @@ class TranslationTest extends TestCase
             'decimalPrecision' => 2,
             'symbol' => '$',
             'isoCode' => 'FOO',
+            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
+            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
             'translations' => [
                 [
                     'languageId' => Defaults::LANGUAGE_SYSTEM,
@@ -155,6 +159,8 @@ class TranslationTest extends TestCase
             'decimalPrecision' => 2,
             'symbol' => '$',
             'isoCode' => 'FOO',
+            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
+            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
             'translations' => [
                 'en-GB' => [
                     'name' => $name,
@@ -191,6 +197,8 @@ class TranslationTest extends TestCase
             'decimalPrecision' => 2,
             'symbol' => '$',
             'isoCode' => 'FOO',
+            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
+            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
             'translations' => [
                 'en-GB' => [
                     'name' => $name,
@@ -250,6 +258,8 @@ class TranslationTest extends TestCase
             'factor' => 1,
             'decimalPrecision' => 2,
             'symbol' => '$',
+            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
+            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
             'isoCode' => 'FOO',
             'translations' => [
                 'en-GB' => [
@@ -305,6 +315,8 @@ class TranslationTest extends TestCase
             'symbol' => '$',
             'decimalPrecision' => 2,
             'isoCode' => 'FOO',
+            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
+            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
             'translations' => [
                 'en-GB' => [
                     'name' => $englishName,
@@ -349,6 +361,8 @@ class TranslationTest extends TestCase
             'symbol' => '$',
             'decimalPrecision' => 2,
             'isoCode' => 'BAR',
+            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
+            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
             'translations' => [
                 Defaults::LANGUAGE_SYSTEM => [
                     'name' => 'default',
@@ -380,21 +394,33 @@ class TranslationTest extends TestCase
         $this->silentAssertArraySubset(['shortName' => $nlShortName], $payload[1]);
     }
 
-    public function testCurrencyTranslationWithInvalidLocaleCode(): void
+    public function testTranslationsOfUnknownLanguageCodesAreSkipped(): void
     {
         $data = [
             'factor' => 1,
             'symbol' => '$',
+            'decimalPrecision' => 2,
+            'isoCode' => 'TST',
+            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
+            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
             'translations' => [
-                'en-UK' => [
+                Defaults::LANGUAGE_SYSTEM => [
+                    'name' => 'US Dollar',
+                    'shortName' => 'DEF',
+                ],
+                'en-US' => [
                     'name' => 'US Dollar',
                     'shortName' => 'FOO',
                 ],
             ],
         ];
 
-        $this->expectException(LanguageNotFoundException::class);
-        $this->currencyRepository->create([$data], $this->context);
+        $events = $this->currencyRepository->create([$data], $this->context);
+        $writtenCurrencies = $events->getEventByEntityName('currency');
+        $writtenCurrencyTranslations = $events->getEventByEntityName('currency_translation');
+
+        static::assertCount(1, $writtenCurrencies->getIds());
+        static::assertCount(1, $writtenCurrencyTranslations->getIds());
     }
 
     public function testProductWithDifferentTranslations(): void
@@ -426,57 +452,62 @@ class TranslationTest extends TestCase
         static::assertContains($germanLanguageId, $languages->getIds());
 
         $data = [
-            [
-                'id' => '79dc5e0b5bd1404a9dec7841f6254c7e',
-                'productNumber' => Uuid::randomHex(),
-                'manufacturer' => [
-                    'id' => 'e4e8988334a34bb48d397b41a611084f',
-                    'name' => 'Das blaue Haus',
-                    'link' => 'http://www.blaueshaus-shop.de',
+            'id' => '79dc5e0b5bd1404a9dec7841f6254c7e',
+            'productNumber' => Uuid::randomHex(),
+            'manufacturer' => [
+                'id' => 'e4e8988334a34bb48d397b41a611084f',
+                'name' => 'Das blaue Haus',
+                'link' => 'http://www.blaueshaus-shop.de',
+            ],
+            'tax' => [
+                'id' => 'fe4eb0fd92a7417ebf8720a5148aae64',
+                'taxRate' => 19,
+                'name' => '19%',
+            ],
+            'price' => [
+                [
+                    'currencyId' => Defaults::CURRENCY, 'gross' => 7.9899999999999824,
+                    'net' => 6.7142857142857,
+                    'linked' => false,
                 ],
-                'tax' => [
-                    'id' => 'fe4eb0fd92a7417ebf8720a5148aae64',
-                    'taxRate' => 19,
-                    'name' => '19%',
-                ],
-                'price' => [
-                    [
-                        'currencyId' => Defaults::CURRENCY, 'gross' => 7.9899999999999824,
-                        'net' => 6.7142857142857,
-                        'linked' => false,
-                    ],
-                ],
-                'translations' => [
-                    $germanLanguageId => [
-                        'id' => '4f1bcf3bc0fb4e62989e88b3bd37d1a2',
-                        'productId' => '79dc5e0b5bd1404a9dec7841f6254c7e',
-                        'name' => 'Backform gelb',
-                        'description' => 'inflo decertatio. His Manus dilabor do, eia lumen, sed Desisto qua evello sono hinc, ars his misericordite.',
-                    ],
-                    Defaults::LANGUAGE_SYSTEM => [
-                        'name' => 'Test En',
-                    ],
-                ],
-                'cover' => [
-                    'id' => 'd610dccf27754a7faa5c22d7368e6d8f',
+            ],
+            'translations' => [
+                $germanLanguageId => [
+                    'id' => '4f1bcf3bc0fb4e62989e88b3bd37d1a2',
                     'productId' => '79dc5e0b5bd1404a9dec7841f6254c7e',
-                    'position' => 1,
-                    'media' => [
-                        'id' => '4b2252d11baa49f3a62e292888f5e439',
-                        'title' => 'Backform-gelb',
-                    ],
+                    'name' => 'Backform gelb',
+                    'description' => 'inflo decertatio. His Manus dilabor do, eia lumen, sed Desisto qua evello sono hinc, ars his misericordite.',
                 ],
-                'active' => true,
-                'markAsTopseller' => false,
-                'stock' => 45,
-                'weight' => 0,
-                'minPurchase' => 1,
-                'shippingFree' => false,
-                'purchasePrice' => 0,
+                Defaults::LANGUAGE_SYSTEM => [
+                    'name' => 'Test En',
+                ],
+            ],
+            'cover' => [
+                'id' => 'd610dccf27754a7faa5c22d7368e6d8f',
+                'productId' => '79dc5e0b5bd1404a9dec7841f6254c7e',
+                'position' => 1,
+                'media' => [
+                    'id' => '4b2252d11baa49f3a62e292888f5e439',
+                    'title' => 'Backform-gelb',
+                ],
+            ],
+            'active' => true,
+            'markAsTopseller' => false,
+            'stock' => 45,
+            'weight' => 0,
+            'minPurchase' => 1,
+            'shippingFree' => false,
+            'purchasePrices' => [
+                [
+                    'currencyId' => Defaults::CURRENCY,
+                    'gross' => 0,
+                    'net' => 0,
+                    'linked' => true,
+                ],
             ],
         ];
 
-        $result = $this->productRepository->create($data, $this->context);
+        $result = $this->productRepository->create([$data], $this->context);
 
         $products = $result->getEventByEntityName(ProductDefinition::ENTITY_NAME);
         static::assertCount(1, $products->getIds());
@@ -525,74 +556,80 @@ class TranslationTest extends TestCase
     public function testUpsert(): void
     {
         $data = [
-            [
-                'id' => '79dc5e0b5bd1404a9dec7841f6254c7e',
-                'productNumber' => Uuid::randomHex(),
-                'manufacturer' => [
-                    'id' => 'e4e8988334a34bb48d397b41a611084f',
-                    'name' => 'Das blaue Haus',
-                    'link' => 'http://www.blaueshaus-shop.de',
+            'id' => '79dc5e0b5bd1404a9dec7841f6254c7e',
+            'productNumber' => Uuid::randomHex(),
+            'manufacturer' => [
+                'id' => 'e4e8988334a34bb48d397b41a611084f',
+                'name' => 'Das blaue Haus',
+                'link' => 'http://www.blaueshaus-shop.de',
+            ],
+            'tax' => [
+                'id' => 'fe4eb0fd92a7417ebf8720a5148aae64',
+                'taxRate' => 19,
+                'name' => '19%',
+            ],
+            'price' => [
+                [
+                    'currencyId' => Defaults::CURRENCY, 'gross' => 7.9899999999999824,
+                    'net' => 6.7142857142857,
+                    'linked' => false,
                 ],
-                'tax' => [
-                    'id' => 'fe4eb0fd92a7417ebf8720a5148aae64',
-                    'taxRate' => 19,
-                    'name' => '19%',
-                ],
-                'price' => [
-                    [
-                        'currencyId' => Defaults::CURRENCY, 'gross' => 7.9899999999999824,
-                        'net' => 6.7142857142857,
-                        'linked' => false,
+            ],
+            'translations' => [
+                [
+                    'productId' => '79dc5e0b5bd1404a9dec7841f6254c7e',
+                    'name' => 'Backform gelb',
+                    'description' => 'inflo decertatio. His Manus dilabor do, eia lumen, sed Desisto qua evello sono hinc, ars his misericordite.',
+                    'descriptionLong' => '
+sors capulus se Quies, mox qui Sentus dum confirmo do iam. Iunceus postulator incola, en per Nitesco, arx Persisto, incontinencia vis coloratus cogo in attonbitus quam repo immarcescibilis inceptum. Ego Vena series sudo ac Nitidus. Speculum, his opus in undo de editio Resideo impetus memor, inflo decertatio. His Manus dilabor do, eia lumen, sed Desisto qua evello sono hinc, ars his misericordite.
+',
+                    'language' => [
+                        'id' => Defaults::LANGUAGE_SYSTEM,
+                        'name' => 'system',
                     ],
                 ],
-                'translations' => [
-                    [
-                        'productId' => '79dc5e0b5bd1404a9dec7841f6254c7e',
-                        'name' => 'Backform gelb',
-                        'description' => 'inflo decertatio. His Manus dilabor do, eia lumen, sed Desisto qua evello sono hinc, ars his misericordite.',
-                        'descriptionLong' => '
-    sors capulus se Quies, mox qui Sentus dum confirmo do iam. Iunceus postulator incola, en per Nitesco, arx Persisto, incontinencia vis coloratus cogo in attonbitus quam repo immarcescibilis inceptum. Ego Vena series sudo ac Nitidus. Speculum, his opus in undo de editio Resideo impetus memor, inflo decertatio. His Manus dilabor do, eia lumen, sed Desisto qua evello sono hinc, ars his misericordite.
-    ',
-                        'language' => [
-                            'id' => Defaults::LANGUAGE_SYSTEM,
-                            'name' => 'system',
+            ],
+            'media' => [
+                [
+                    'id' => 'd610dccf27754a7faa5c22d7368e6d8f',
+                    'productId' => '79dc5e0b5bd1404a9dec7841f6254c7e',
+                    'isCover' => true,
+                    'position' => 1,
+                    'media' => [
+                        'id' => '4b2252d11baa49f3a62e292888f5e439',
+                        'name' => 'Backform-gelb',
+                        'album' => [
+                            'id' => 'a7104eb19fc649fa86cf6fe6c26ad65a',
+                            'name' => 'Artikel',
+                            'position' => 2,
+                            'createThumbnails' => false,
+                            'thumbnailSize' => '200x200;600x600;1280x1280',
+                            'icon' => 'sprite-inbox',
+                            'thumbnailHighDpi' => true,
+                            'thumbnailQuality' => 90,
+                            'thumbnailHighDpiQuality' => 60,
                         ],
                     ],
                 ],
-                'media' => [
-                    [
-                        'id' => 'd610dccf27754a7faa5c22d7368e6d8f',
-                        'productId' => '79dc5e0b5bd1404a9dec7841f6254c7e',
-                        'isCover' => true,
-                        'position' => 1,
-                        'media' => [
-                            'id' => '4b2252d11baa49f3a62e292888f5e439',
-                            'name' => 'Backform-gelb',
-                            'album' => [
-                                'id' => 'a7104eb19fc649fa86cf6fe6c26ad65a',
-                                'name' => 'Artikel',
-                                'position' => 2,
-                                'createThumbnails' => false,
-                                'thumbnailSize' => '200x200;600x600;1280x1280',
-                                'icon' => 'sprite-inbox',
-                                'thumbnailHighDpi' => true,
-                                'thumbnailQuality' => 90,
-                                'thumbnailHighDpiQuality' => 60,
-                            ],
-                        ],
-                    ],
+            ],
+            'active' => true,
+            'markAsTopseller' => false,
+            'stock' => 45,
+            'weight' => 0,
+            'minPurchase' => 1,
+            'shippingFree' => false,
+            'purchasePrices' => [
+                [
+                    'currencyId' => Defaults::CURRENCY,
+                    'gross' => 0,
+                    'net' => 0,
+                    'linked' => true,
                 ],
-                'active' => true,
-                'markAsTopseller' => false,
-                'stock' => 45,
-                'weight' => 0,
-                'minPurchase' => 1,
-                'shippingFree' => false,
-                'purchasePrice' => 0,
             ],
         ];
+
         $productRepo = $this->getContainer()->get('product.repository');
-        $affected = $productRepo->upsert($data, Context::createDefaultContext());
+        $affected = $productRepo->upsert([$data], Context::createDefaultContext());
 
         static::assertNotNull($affected->getEventByEntityName(LanguageDefinition::ENTITY_NAME));
 

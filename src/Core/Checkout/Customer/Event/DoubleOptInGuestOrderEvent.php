@@ -10,10 +10,11 @@ use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\MailActionInterface;
+use Shopware\Core\Framework\Event\SalesChannelAware;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class DoubleOptInGuestOrderEvent extends Event implements MailActionInterface
+class DoubleOptInGuestOrderEvent extends Event implements MailActionInterface, SalesChannelAware
 {
     public const EVENT_NAME = 'checkout.customer.double_opt_in_guest_order';
 
@@ -31,6 +32,11 @@ class DoubleOptInGuestOrderEvent extends Event implements MailActionInterface
      * @var string
      */
     private $confirmUrl;
+
+    /**
+     * @var MailRecipientStruct
+     */
+    private $mailRecipientStruct;
 
     public function __construct(
         CustomerEntity $customer,
@@ -56,11 +62,13 @@ class DoubleOptInGuestOrderEvent extends Event implements MailActionInterface
 
     public function getMailStruct(): MailRecipientStruct
     {
-        return new MailRecipientStruct(
-            [
+        if (!$this->mailRecipientStruct instanceof MailRecipientStruct) {
+            $this->mailRecipientStruct = new MailRecipientStruct([
                 $this->customer->getEmail() => $this->customer->getFirstName() . ' ' . $this->customer->getLastName(),
-            ]
-        );
+            ]);
+        }
+
+        return $this->mailRecipientStruct;
     }
 
     public function getCustomer(): CustomerEntity
@@ -73,7 +81,7 @@ class DoubleOptInGuestOrderEvent extends Event implements MailActionInterface
         return $this->confirmUrl;
     }
 
-    public function getSalesChannelId(): ?string
+    public function getSalesChannelId(): string
     {
         return $this->salesChannelContext->getSalesChannel()->getId();
     }

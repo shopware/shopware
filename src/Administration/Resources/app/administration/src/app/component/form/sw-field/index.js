@@ -22,6 +22,7 @@ Component.register('sw-field', {
                 colorpicker: 'sw-colorpicker',
                 compactColorpicker: 'sw-compact-colorpicker',
                 date: 'sw-datepicker',
+                email: 'sw-email-field',
                 number: 'sw-number-field',
                 password: 'sw-password-field',
                 radio: 'sw-radio-field',
@@ -58,7 +59,8 @@ Component.register('sw-field', {
                 'compactColorpicker',
                 'confirm',
                 'password',
-                'url'
+                'url',
+                'email'
             ],
             validator(value) {
                 return [
@@ -74,7 +76,8 @@ Component.register('sw-field', {
                     'compactColorpicker',
                     'confirm',
                     'password',
-                    'url'
+                    'url',
+                    'email'
                 ].includes(value);
             }
         }

@@ -51,7 +51,7 @@ class PromotionDiscountEntity extends Entity
     public const TYPE_ABSOLUTE = 'absolute';
 
     /**
-     * This type defines an fixed unit price
+     * This type defines an fixed item price
      * definition of the discount.
      */
     public const TYPE_FIXED_UNIT = 'fixed_unit';
@@ -121,6 +121,11 @@ class PromotionDiscountEntity extends Entity
      * @var string
      */
     protected $usageKey;
+
+    /**
+     * @var string|null
+     */
+    protected $pickerKey;
 
     public function getPromotionId(): string
     {
@@ -308,8 +313,13 @@ class PromotionDiscountEntity extends Entity
         $this->usageKey = $usageKey;
     }
 
-    public function getApiAlias(): string
+    public function getPickerKey(): string
     {
-        return 'promotion_discount';
+        return (string) $this->pickerKey;
+    }
+
+    public function setPickerKey(string $pickerKey): void
+    {
+        $this->pickerKey = $pickerKey;
     }
 }

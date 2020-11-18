@@ -15,6 +15,11 @@ export default class FormFieldTogglePlugin extends Plugin {
         showCls: 'd-block',
 
         /**
+         * The default value for the scope
+         */
+        scopeAll: 'all',
+
+        /**
          * the attribute for the target selector
          */
         targetDataAttribute: 'data-form-field-toggle-target',
@@ -34,7 +39,22 @@ export default class FormFieldTogglePlugin extends Plugin {
          * the class which gets applied
          * when the field previously had the disabled attribute
          */
-        wasDisabledCls: 'js-field-toggle-was-disabled'
+        wasDisabledCls: 'js-field-toggle-was-disabled',
+
+        /**
+         * The data attribute which contains the scope.
+         * The scope defines on which element the selector from `targetDataAttribute` applies.
+         * In case of 'all', the selector is queried against the whole document.
+         * In case of 'parent', the selector is queried against the given selector.
+         */
+        scopeDataAttribute: 'data-form-field-toggle-scope',
+
+        /**
+         * The data attribute to contain the selector for the parent element.
+         * This is only used if the scope, defined in the data attribute of `scopeDataAttribute`, is not set to 'all',
+         * which is the default.
+         */
+        parentSelectorDataAttribute: 'data-form-field-toggle-parent-selector'
     };
 
     init() {
@@ -55,7 +75,16 @@ export default class FormFieldTogglePlugin extends Plugin {
      */
     _getTargets() {
         const selector = DomAccess.getDataAttribute(this.el, this.options.targetDataAttribute);
-        this._targets = DomAccess.querySelectorAll(document, selector);
+        const scope = DomAccess.getDataAttribute(this.el, this.options.scopeDataAttribute, false) || this.options.scopeAll;
+
+        if (scope === this.options.scopeAll) {
+            this._targets = DomAccess.querySelectorAll(document, selector);
+
+            return;
+        }
+
+        const parentEl = this.el.closest(DomAccess.getDataAttribute(this.el, this.options.parentSelectorDataAttribute));
+        this._targets = DomAccess.querySelectorAll(parentEl, selector);
     }
 
     /**

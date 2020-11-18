@@ -15,8 +15,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolation;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -82,11 +84,7 @@ class MediaRepositoryDecorator implements EntityRepositoryInterface
         // check delete restrictions before files get removed.
         $restrictions = $this->foreignKeyResolver->getAffectedDeleteRestrictions($this->innerRepo->getDefinition(), $ids, $context);
         if (!empty($restrictions)) {
-            $restrictions = array_map(function ($restriction) {
-                return new RestrictDeleteViolation($restriction['pk'], $restriction['restrictions']);
-            }, $restrictions);
-
-            throw new RestrictDeleteViolationException($this->innerRepo->getDefinition(), $restrictions);
+            throw new RestrictDeleteViolationException($this->innerRepo->getDefinition(), [new RestrictDeleteViolation(Uuid::randomHex(), $restrictions)]);
         }
 
         $filesToDelete = [];
@@ -126,9 +124,9 @@ class MediaRepositoryDecorator implements EntityRepositoryInterface
         return $this->innerRepo->searchIds($criteria, $context);
     }
 
-    public function clone(string $id, Context $context, ?string $newId = null): EntityWrittenContainerEvent
+    public function clone(string $id, Context $context, ?string $newId = null, ?CloneBehavior $behavior = null): EntityWrittenContainerEvent
     {
-        return $this->innerRepo->clone($id, $context, $newId);
+        return $this->innerRepo->clone($id, $context, $newId, $behavior);
     }
 
     public function search(Criteria $criteria, Context $context): EntitySearchResult

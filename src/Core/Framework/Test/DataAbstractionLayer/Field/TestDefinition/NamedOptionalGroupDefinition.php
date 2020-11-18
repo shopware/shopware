@@ -19,14 +19,13 @@ class NamedOptionalGroupDefinition extends EntityDefinition
         return self::ENTITY_NAME;
     }
 
+    public function since(): ?string
+    {
+        return '6.0.0.0';
+    }
+
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
-
-            (new StringField('name', 'name'))->addFlags(new Required()),
-
-            new OneToManyAssociationField('nameds', NamedDefinition::class, 'optional_group_id', 'id'),
-        ]);
+        return new FieldCollection([(new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()), (new StringField('name', 'name'))->addFlags(new Required()), new OneToManyAssociationField('nameds', NamedDefinition::class, 'optional_group_id', 'id')]);
     }
 }

@@ -14,7 +14,7 @@
                     variant="primary"
                     :isLoading="isLoading || isUserLoading"
                     :processSuccess="isSaveSuccessful"
-                    :disabled="isLoading || isUserLoading"
+                    :disabled="isLoading || isUserLoading || !acl.can('user.update_profile')"
                     @process-finish="saveFinish"
                     @click.prevent="onSave">
                     {{ $tc('sw-profile.index.buttonSaveLabel') }}
@@ -33,14 +33,14 @@
                                 {% block sw_profile_index_info_card_first_name_field %}
                                     <sw-text-field v-model="user.firstName"
                                                    :label="$tc('sw-profile.index.labelFirstNameField')"
-                                                   :disabled="isDisabled">
+                                                   :disabled="isDisabled || !acl.can('user.update_profile')">
                                     </sw-text-field>
                                 {% endblock %}
 
                                 {% block sw_profile_index_info_card_last_name_field %}
                                     <sw-text-field v-model="user.lastName"
                                                    :label="$tc('sw-profile.index.labelLastNameField')"
-                                                   :disabled="isDisabled">
+                                                   :disabled="isDisabled || !acl.can('user.update_profile')">
                                     </sw-text-field>
                                 {% endblock %}
                             </sw-container>
@@ -49,7 +49,7 @@
                                 {% block sw_profile_index_info_card_username_field %}
                                     <sw-text-field v-model="user.username"
                                                    :label="$tc('sw-profile.index.labelUsernameField')"
-                                                   :disabled="isDisabled">
+                                                   :disabled="isDisabled || !acl.can('user.update_profile')">
                                     </sw-text-field>
                                 {% endblock %}
 
@@ -58,7 +58,8 @@
                                         v-model="user.localeId"
                                         class="sw-profile__language"
                                         :label="$tc('sw-settings-user.user-detail.labelLanguage')"
-                                        :placeholder="$tc('sw-settings-user.user-detail.labelLanguagePlaceholder')">
+                                        :placeholder="$tc('sw-settings-user.user-detail.labelLanguagePlaceholder')"
+                                        :disabled="!acl.can('user.update_profile')">
                                         <option v-for="language in languages"
                                                 :value="language.locale.id"
                                                 :selected="user.localeId === language.locale.id">
@@ -75,16 +76,19 @@
                                     required
                                     name="sw-field--email"
                                     :error="userEmailError"
-                                    :label="$tc('sw-profile.index.labelEmailField')">
+                                    :label="$tc('sw-profile.index.labelEmailField')"
+                                    :disabled="!acl.can('user.update_profile')">
                                 </sw-text-field>
                             {% endblock %}
                         </sw-card>
                     {% endblock %}
 
                     {% block sw_profile_index_image_card %}
-                        <sw-card class="sw-profile__card"
-                                 :title="$tc('sw-profile.index.titleImageCard')"
-                                 :isLoading="isUserLoading || !languageId">
+                        <sw-card
+                            v-if="acl.can('media.creator')"
+                            class="sw-profile__card"
+                            :title="$tc('sw-profile.index.titleImageCard')"
+                            :isLoading="isUserLoading || !languageId">
                             {% block sw_profile_index_image_card_image %}
                                 <sw-upload-listener
                                     :uploadTag="uploadTag"
@@ -100,6 +104,7 @@
                                     :label="$tc('sw-profile.index.labelUploadAvatar')"
                                     :defaultFolder="userRepository.schema.entity"
                                     :sourceContext="user"
+                                    :disabled="!acl.can('user.update_profile')"
                                     @media-drop="onDropMedia"
                                     @media-upload-sidebar-open="openMediaSidebar"
                                     @media-upload-remove-image="onUnlinkAvatar">
@@ -120,7 +125,8 @@
                                 <sw-password-field v-model="newPassword"
                                                    autocomplete="off"
                                                    :label="$tc('sw-profile.index.labelNewPassword')"
-                                                   :placeholder="$tc('sw-profile.index.placeholderNewPassword')">
+                                                   :placeholder="$tc('sw-profile.index.placeholderNewPassword')"
+                                                   :disabled="!acl.can('user.update_profile')">
                                 </sw-password-field>
                             {% endblock %}
 
@@ -129,7 +135,8 @@
                                                    autocomplete="off"
                                                    :label="$tc('sw-profile.index.labelNewPasswordConfirm')"
                                                    :placeholder="$tc('sw-profile.index.placeholderNewPasswordConfirm')"
-                                                   :validation="newPassword === newPasswordConfirm">
+                                                   :validation="newPassword === newPasswordConfirm"
+                                                   :disabled="!acl.can('user.update_profile')">
                                 </sw-password-field>
                             {% endblock %}
                         </sw-card>
@@ -139,13 +146,14 @@
 
             {% block sw_profile_index_content_confirm_password_modal %}
                 <sw-modal v-if="confirmPasswordModal"
-                      @modal-close="onCloseConfirmPasswordModal"
-                      :title="$tc('sw-profile.index.titleConfirmPasswordModal')"
-                      variant="small">
+                          @modal-close="onCloseConfirmPasswordModal"
+                          :title="$tc('sw-profile.index.titleConfirmPasswordModal')"
+                          variant="small">
                     {% block sw_profile_index_content_confirm_password_modal_input__confirm_password %}
                         <sw-password-field
                             class="sw-settings-user-detail__confirm-password"
                             v-model="confirmPassword"
+                            @keypress.enter="onSubmitConfirmPassword"
                             required
                             name="sw-field--confirm-password"
                             :passwordToggleAble="true"
@@ -180,7 +188,7 @@
 
         {% block sw_profile_index_sidebar %}
             <template #sidebar>
-                <sw-sidebar :propagateWidth="true" >
+                <sw-sidebar v-if="acl.can('media.editor')" :propagateWidth="true" >
                     <sw-sidebar-media-item ref="mediaSidebarItem"
                                            :isParentLoading="isUserLoading"
                                            :additionalSearchCriteria="userMediaCriteria">

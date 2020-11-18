@@ -72,7 +72,7 @@ Component.register('sw-inherit-wrapper', {
         hasParent: {
             type: Boolean,
             required: false,
-            default: false
+            default: undefined
         },
 
         // custom inheritation check which returns true or false
@@ -92,6 +92,12 @@ Component.register('sw-inherit-wrapper', {
         // custom remove inheritance function
         customRemoveInheritanceFunction: {
             type: Function,
+            required: false,
+            default: null
+        },
+
+        helpText: {
+            type: String,
             required: false,
             default: null
         }
@@ -121,8 +127,8 @@ Component.register('sw-inherit-wrapper', {
 
         isInheritField() {
             // manual check if parent exists
-            if (this.hasParent) {
-                return true;
+            if (this.hasParent !== undefined) {
+                return this.hasParent;
             }
 
             // automatic check if parent for inheritation exists
@@ -145,7 +151,7 @@ Component.register('sw-inherit-wrapper', {
                 return this.value.length <= 0;
             }
 
-            return this.value === null;
+            return this.value === null || this.value === undefined;
         }
     },
 

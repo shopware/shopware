@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Write\Validation;
 class RestrictDeleteViolation
 {
     /**
-     * Contains the
+     * @deprecated tag:v6.4.0 - Will be removed
      *
      * @var string
      */
@@ -37,6 +37,9 @@ class RestrictDeleteViolation
         $this->restrictions = $restrictions;
     }
 
+    /**
+     * @deprecated tag:v6.4.0 - Will be removed
+     */
     public function getId(): string
     {
         return $this->id;

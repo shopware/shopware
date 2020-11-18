@@ -86,7 +86,7 @@ class SeoUrlUpdater
         foreach ($templates as $config) {
             $salesChannelId = $config['salesChannelId'];
             $languageId = $config['languageId'];
-            $template = $config['template'];
+            $template = $config['template'] ?? '';
 
             $chain = $languageChains[$languageId];
             $context = new Context(new SystemSource(), [], Defaults::CURRENCY, $chain);
@@ -114,6 +114,10 @@ class SeoUrlUpdater
                AND sales_channel.active = 1'
         );
 
+        if ($routes === []) {
+            return [];
+        }
+
         $modified = $this->connection->fetchAll(
             'SELECT LOWER(HEX(sales_channel_id)) as sales_channel_id, route_name, template
              FROM seo_url_template
@@ -121,6 +125,10 @@ class SeoUrlUpdater
             ['routes' => $routes],
             ['routes' => Connection::PARAM_STR_ARRAY]
         );
+
+        if ($modified === []) {
+            return [];
+        }
 
         $grouped = [];
         foreach ($modified as $template) {

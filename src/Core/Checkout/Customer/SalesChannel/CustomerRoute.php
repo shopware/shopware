@@ -4,12 +4,12 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
-use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -20,28 +20,14 @@ use Symfony\Component\Routing\Annotation\Route;
 class CustomerRoute extends AbstractCustomerRoute
 {
     /**
-     * @var CustomerDefinition
-     */
-    private $customerDefinition;
-
-    /**
      * @var EntityRepositoryInterface
      */
     private $customerRepository;
 
-    /**
-     * @var RequestCriteriaBuilder
-     */
-    private $requestCriteriaBuilder;
-
     public function __construct(
-        CustomerDefinition $customerDefinition,
-        EntityRepositoryInterface $customerRepository,
-        RequestCriteriaBuilder $requestCriteriaBuilder
+        EntityRepositoryInterface $customerRepository
     ) {
-        $this->customerDefinition = $customerDefinition;
         $this->customerRepository = $customerRepository;
-        $this->requestCriteriaBuilder = $requestCriteriaBuilder;
     }
 
     public function getDecorated(): AbstractCustomerRoute
@@ -50,9 +36,11 @@ class CustomerRoute extends AbstractCustomerRoute
     }
 
     /**
-     * @OA\Get(
+     * @Since("6.2.0.0")
+     * @Entity("customer")
+     * @OA\Post(
      *      path="/account/customer",
-     *      description="Returns informations about the loggedin customer",
+     *      summary="Returns informations about the loggedin customer",
      *      operationId="readCustomer",
      *      tags={"Store API", "Account"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),
@@ -62,21 +50,15 @@ class CustomerRoute extends AbstractCustomerRoute
      *          @OA\JsonContent(ref="#/components/schemas/customer_flat")
      *     )
      * )
-     * @Route("/store-api/v{version}/account/customer", name="store-api.account.customer", methods={"GET"})
+     * @Route("/store-api/v{version}/account/customer", name="store-api.account.customer", methods={"GET", "POST"})
      */
-    public function load(Request $request, SalesChannelContext $context): CustomerResponse
+    public function load(Request $request, SalesChannelContext $context, Criteria $criteria): CustomerResponse
     {
         if (!$context->getCustomer()) {
             throw new CustomerNotLoggedInException();
         }
 
-        $criteria = new Criteria([$context->getCustomer()->getId()]);
-        $criteria = $this->requestCriteriaBuilder->handleRequest(
-            $request,
-            $criteria,
-            $this->customerDefinition,
-            $context->getContext()
-        );
+        $criteria->setIds([$context->getCustomer()->getId()]);
 
         $customer = $this->customerRepository->search($criteria, $context->getContext())->first();
 

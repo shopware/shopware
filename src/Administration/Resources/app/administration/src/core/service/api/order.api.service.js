@@ -39,6 +39,7 @@ class OrderApiService extends ApiService {
 
         const dummyPrice = deepCopyObject(item.priceDefinition);
         dummyPrice.taxRules = item.priceDefinition.taxRules;
+        dummyPrice.isCalculated = true;
 
         return this.httpClient
             .post(route,

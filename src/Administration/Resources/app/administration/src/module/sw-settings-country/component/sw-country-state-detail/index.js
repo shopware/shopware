@@ -5,6 +5,8 @@ const { Component, Mixin } = Shopware;
 Component.register('sw-country-state-detail', {
     template,
 
+    inject: ['acl'],
+
     mixins: [
         Mixin.getByName('placeholder')
     ],
@@ -23,6 +25,21 @@ Component.register('sw-country-state-detail', {
             }
 
             return this.$tc('sw-country-state-detail.titleEdit');
+        },
+
+        tooltipSave() {
+            if (!this.acl.can('country.editor')) {
+                return {
+                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    disabled: this.acl.can('country.editor'),
+                    showOnDisabledElements: true
+                };
+            }
+
+            return {
+                message: '',
+                disabled: true
+            };
         }
     },
 

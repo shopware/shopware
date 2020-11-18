@@ -29,11 +29,13 @@ class EntitySearcherProfiler implements EntitySearcherInterface
 
     public function search(EntityDefinition $definition, Criteria $criteria, Context $context): IdSearchResult
     {
-        $this->stopwatch->start('search.' . $definition->getEntityName());
+        $title = $criteria->getTitle() ?? $definition->getEntityName();
+
+        $this->stopwatch->start('search:' . $title);
 
         $data = $this->decorated->search($definition, $criteria, $context);
 
-        $this->stopwatch->stop('search.' . $definition->getEntityName());
+        $this->stopwatch->stop('search:' . $title);
 
         return $data;
     }

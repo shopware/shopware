@@ -42,7 +42,7 @@ class AnyRuleMatcherTest extends TestCase
 
     /**
      * This test verifies that our line item matching works correctly with 1 rule.
-     * We create a group with a rule for minimum unit price of 50.
+     * We create a group with a rule for minimum item price of 50.
      * This means, that only line items with 50 or higher, are matched
      * with a positive result.
      *
@@ -87,7 +87,7 @@ class AnyRuleMatcherTest extends TestCase
 
     /**
      * This test verifies that our line item matching works correctly with 2 rule combinations.
-     * We create a group with a rule for minimum unit price of 50 and minimum quantity of 3.
+     * We create a group with a rule for minimum item price of 50 and minimum quantity of 3.
      * We have 4 combinations within our products. The multi rules work with a OR condition, so we
      * should get 3 out of our 4 products that match. Only the product with neither quantity nor price condition
      * should not match our group rules.

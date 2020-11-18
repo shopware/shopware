@@ -28,12 +28,16 @@
         "PRICE_DESC": "Preis absteigend"
       },
       "applier": {
-        "ALL": "Jedes Ergebnis",
-        "SELECT": "Jedes {count}. Ergebnis"
+        "ALL": "Jedes Produkt",
+        "SELECT": "{count}. Produkt"
       },
       "counter": {
         "ALL": "Unbegrenzt",
         "SELECT": "{count} x"
+      },
+      "picker": {
+        "VERTICAL": "Vertikal",
+        "HORIZONTAL": "Horizontal"
       }
     },
     "general": {
@@ -57,7 +61,6 @@
       "contextMenuDuplicate": "Duplizieren",
       "contextMenuEdit": "Bearbeiten",
       "messageEmpty": "Noch keine Rabattaktionen",
-      "modalTitleDelete": "Rabattaktion löschen",
       "placeholderSearchBar": "Durchsuche alle Rabattaktionen ...",
       "textDeleteConfirm": "Möchtest Du die Rabattaktion \"{name}\" wirklich löschen?",
       "titleSidebarItemRefresh": "Aktualisieren"
@@ -68,7 +71,6 @@
         "titleEdit": "Aktion",
         "buttonCancel": "Abbrechen",
         "buttonSave": "Speichern",
-        "titleSaveSuccess": "Erfolg",
         "messageSaveSuccess": "Die Rabattaktion \"{name}\" wurde gespeichert."
       },
       "tabs": {
@@ -161,7 +163,6 @@
             "rulesPlaceholder": "Warenkorbregel zuweisen ...",
             "setgroups": {
               "switchGroupsEnabled": "Aktion auf Produkt-Sets anwenden",
-              "switchGroupsExperimental": "Experimentelle Features aktivieren",
               "buttonAddGroup": "Set-Gruppe hinzufügen",
               "titleName": "Set-Gruppe",
               "labelMode": "Modus",
@@ -201,6 +202,7 @@
             "buttonDelete": "Rabatt entfernen"
           },
           "labelSorting": "Sortieren nach",
+          "labelPicking": "Produktauswahl Modus",
           "labelApplyCount": "Anwenden auf",
           "labelMaxCount": "Maximale Anwendung",
           "linkAdvancedPrices": "Erweiterte Preisansicht öffnen",
@@ -211,6 +213,13 @@
             "labelPrice": "Wert"
           }
         }
+      }
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "promotion": {
+        "label": "Rabatte & Aktionen"
       }
     }
   }

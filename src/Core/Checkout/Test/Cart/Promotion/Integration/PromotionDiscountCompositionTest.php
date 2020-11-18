@@ -13,6 +13,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -24,6 +25,7 @@ class PromotionDiscountCompositionTest extends TestCase
     use IntegrationTestBehaviour;
     use PromotionTestFixtureBehaviour;
     use PromotionIntegrationTestBehaviour;
+    use CountryAddToSalesChannelTestBehaviour;
 
     /**
      * @var EntityRepositoryInterface
@@ -52,6 +54,8 @@ class PromotionDiscountCompositionTest extends TestCase
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->promotionRepository = $this->getContainer()->get('promotion.repository');
         $this->cartService = $this->getContainer()->get(CartService::class);
+
+        $this->addCountriesToSalesChannel();
 
         $this->context = $this->getContainer()
             ->get(SalesChannelContextFactory::class)
@@ -157,6 +161,9 @@ class PromotionDiscountCompositionTest extends TestCase
         static::assertEquals(100 * 0.25, $composition[1]['discount']);
     }
 
+    /**
+     * @group slow
+     */
     public function testPromotionRedemption(): void
     {
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)

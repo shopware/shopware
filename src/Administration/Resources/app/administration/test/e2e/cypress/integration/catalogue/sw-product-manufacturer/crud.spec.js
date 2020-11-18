@@ -1,4 +1,4 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
 
 import ManufacturerPageObject from '../../../support/pages/module/sw-manufacturer.page-object';
 
@@ -56,6 +56,7 @@ describe('Manufacturer: Test crud operations', () => {
         cy.get('input[name=name]').clearTypeAndCheck('be.visible');
         cy.get('input[name=name]').clear().type('What does it means?(TM)');
         cy.get('input[name=link]').clear().type('https://google.com/doodles');
+
         cy.get(page.elements.manufacturerSave).click();
 
         // Verify updated manufacturer
@@ -84,7 +85,7 @@ describe('Manufacturer: Test crud operations', () => {
         cy.get(`${page.elements.modal} ${page.elements.modal}__body p`).contains(
             'Are you sure you want to delete this item?'
         );
-        cy.get(`${page.elements.modal}__footer ${page.elements.primaryButton}`).click();
+        cy.get(`${page.elements.modal}__footer ${page.elements.dangerButton}`).click();
         cy.get(page.elements.modal).should('not.exist');
 
         // Verify updated manufacturer

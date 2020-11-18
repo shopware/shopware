@@ -3,11 +3,15 @@
 namespace Shopware\Core\Content\Product;
 
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist\CustomerWishlistCollection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlistProduct\CustomerWishlistProductDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSellingAssignedProducts\ProductCrossSellingAssignedProductsCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
@@ -24,6 +28,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\ListingPriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
+use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\Tax\TaxEntity;
@@ -87,6 +92,11 @@ class ProductEntity extends Entity
      * @var string|null
      */
     protected $ean;
+
+    /**
+     * @var int
+     */
+    protected $sales;
 
     /**
      * @var string
@@ -159,9 +169,9 @@ class ProductEntity extends Entity
     protected $shippingFree;
 
     /**
-     * @var float|null
+     * @var PriceCollection|null
      */
-    protected $purchasePrice;
+    protected $purchasePrices;
 
     /**
      * @var bool|null
@@ -264,6 +274,11 @@ class ProductEntity extends Entity
     protected $mainVariantId;
 
     /**
+     * @var array
+     */
+    protected $variation = [];
+
+    /**
      * @var TaxEntity|null
      */
     protected $tax;
@@ -309,6 +324,18 @@ class ProductEntity extends Entity
     protected $media;
 
     /**
+     * @internal (flag:FEATURE_NEXT_10078)
+     *
+     * @var string|null
+     */
+    protected $cmsPageId;
+
+    /**
+     * @var CmsPageEntity|null
+     */
+    protected $cmsPage;
+
+    /**
      * @var ProductSearchKeywordCollection|null
      */
     protected $searchKeywords;
@@ -322,6 +349,11 @@ class ProductEntity extends Entity
      * @var CategoryCollection|null
      */
     protected $categories;
+
+    /**
+     * @var CustomFieldSetCollection|null
+     */
+    protected $customFieldSets;
 
     /**
      * @var TagCollection|null
@@ -412,6 +444,40 @@ class ProductEntity extends Entity
      * @var ProductCrossSellingAssignedProductsCollection|null
      */
     protected $crossSellingAssignedProducts;
+
+    /**
+     * @var string|null
+     */
+    protected $featureSetId;
+
+    /**
+     * @var ProductFeatureSetEntity|null
+     */
+    protected $featureSet;
+
+    /**
+     * @var bool|null
+     */
+    protected $customFieldSetSelectionActive;
+
+    /**
+     * @var string[]|null
+     */
+    protected $customSearchKeywords;
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10549)
+     *
+     * @var CustomerWishlistCollection|null
+     */
+    protected $customerWishlists;
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10549)
+     *
+     * @var CustomerWishlistProductDefinition|null
+     */
+    protected $wishlists;
 
     public function __construct()
     {
@@ -522,6 +588,16 @@ class ProductEntity extends Entity
         $this->ean = $ean;
     }
 
+    public function getSales(): int
+    {
+        return $this->sales;
+    }
+
+    public function setSales(int $sales): void
+    {
+        $this->sales = $sales;
+    }
+
     public function getStock(): int
     {
         return $this->stock;
@@ -602,14 +678,14 @@ class ProductEntity extends Entity
         $this->shippingFree = $shippingFree;
     }
 
-    public function getPurchasePrice(): ?float
+    public function getPurchasePrices(): ?PriceCollection
     {
-        return $this->purchasePrice;
+        return $this->purchasePrices;
     }
 
-    public function setPurchasePrice(?float $purchasePrice): void
+    public function setPurchasePrices(?PriceCollection $purchasePrices): void
     {
-        $this->purchasePrice = $purchasePrice;
+        $this->purchasePrices = $purchasePrices;
     }
 
     public function getMarkAsTopseller(): ?bool
@@ -859,6 +935,38 @@ class ProductEntity extends Entity
         $this->cover = $cover;
     }
 
+    /**
+     * @internal (flag:FEATURE_NEXT_10078)
+     */
+    public function getCmsPage(): ?CmsPageEntity
+    {
+        return $this->cmsPage;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10078)
+     */
+    public function setCmsPage(CmsPageEntity $cmsPage): void
+    {
+        $this->cmsPage = $cmsPage;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10078)
+     */
+    public function getCmsPageId(): ?string
+    {
+        return $this->cmsPageId;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10078)
+     */
+    public function setCmsPageId(string $cmsPageId): void
+    {
+        $this->cmsPageId = $cmsPageId;
+    }
+
     public function getParent(): ?ProductEntity
     {
         return $this->parent;
@@ -917,6 +1025,16 @@ class ProductEntity extends Entity
     public function setCategories(CategoryCollection $categories): void
     {
         $this->categories = $categories;
+    }
+
+    public function getCustomFieldSets(): ?CustomFieldSetCollection
+    {
+        return $this->customFieldSets;
+    }
+
+    public function setCustomFieldSets(CustomFieldSetCollection $customFieldSets): void
+    {
+        $this->customFieldSets = $customFieldSets;
     }
 
     public function getTags(): ?TagCollection
@@ -1089,6 +1207,16 @@ class ProductEntity extends Entity
         $this->mainVariantId = $mainVariantId;
     }
 
+    public function getVariation(): array
+    {
+        return $this->variation;
+    }
+
+    public function setVariation(array $variation): void
+    {
+        $this->variation = $variation;
+    }
+
     public function getAvailableStock(): ?int
     {
         return $this->availableStock;
@@ -1219,8 +1347,75 @@ class ProductEntity extends Entity
         $this->crossSellingAssignedProducts = $crossSellingAssignedProducts;
     }
 
-    public function getApiAlias(): string
+    public function getFeatureSetId(): ?string
     {
-        return 'product';
+        return $this->featureSetId;
+    }
+
+    public function setFeatureSetId(?string $featureSetId): void
+    {
+        $this->featureSetId = $featureSetId;
+    }
+
+    public function getFeatureSet(): ?ProductFeatureSetEntity
+    {
+        return $this->featureSet;
+    }
+
+    public function setFeatureSet(ProductFeatureSetEntity $featureSet): void
+    {
+        $this->featureSet = $featureSet;
+    }
+
+    public function getCustomFieldSetSelectionActive(): ?bool
+    {
+        return $this->customFieldSetSelectionActive;
+    }
+
+    public function setCustomFieldSetSelectionActive(?bool $customFieldSetSelectionActive): void
+    {
+        $this->customFieldSetSelectionActive = $customFieldSetSelectionActive;
+    }
+
+    public function getCustomSearchKeywords(): ?array
+    {
+        return $this->customSearchKeywords;
+    }
+
+    public function setCustomSearchKeywords(?array $customSearchKeywords): void
+    {
+        $this->customSearchKeywords = $customSearchKeywords;
+    }
+
+    /**
+     *  @internal (flag:FEATURE_NEXT_10549)
+     */
+    public function getCustomerWishlists(): ?CustomerWishlistCollection
+    {
+        return $this->customerWishlists;
+    }
+
+    /**
+     *  @internal (flag:FEATURE_NEXT_10549)
+     */
+    public function setCustomerWishlists(CustomerWishlistCollection $customerWishlists): void
+    {
+        $this->customerWishlists = $customerWishlists;
+    }
+
+    /**
+     *  @internal (flag:FEATURE_NEXT_10549)
+     */
+    public function getWishlists(): ?CustomerWishlistProductDefinition
+    {
+        return $this->wishlists;
+    }
+
+    /**
+     *  @internal (flag:FEATURE_NEXT_10549)
+     */
+    public function setWishlists(CustomerWishlistProductDefinition $wishlists): void
+    {
+        $this->wishlists = $wishlists;
     }
 }

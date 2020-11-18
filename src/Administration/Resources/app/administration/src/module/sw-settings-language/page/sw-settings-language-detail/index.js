@@ -1,13 +1,13 @@
 import template from './sw-settings-language-detail.html.twig';
 import './sw-settings-language-detail.scss';
 
-const { Component, StateDeprecated, Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 Component.register('sw-settings-language-detail', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -15,7 +15,12 @@ Component.register('sw-settings-language-detail', {
     ],
 
     shortcuts: {
-        'SYSTEMKEY+S': 'onSave',
+        'SYSTEMKEY+S': {
+            active() {
+                return this.allowSave;
+            },
+            method: 'onSave'
+        },
         ESCAPE: 'onCancel'
     },
 
@@ -52,10 +57,6 @@ Component.register('sw-settings-language-detail', {
             return this.repositoryFactory.create('language');
         },
 
-        languageStore() {
-            return StateDeprecated.getStore('language');
-        },
-
         isIsoCodeRequired() {
             return !this.language.parentId;
         },
@@ -65,7 +66,9 @@ Component.register('sw-settings-language-detail', {
         },
 
         isNewLanguage() {
-            return this.language && this.language.isNew();
+            return this.language && typeof this.language.isNew === 'function'
+                ? this.language.isNew()
+                : false;
         },
 
         usedLocaleCriteria() {
@@ -74,7 +77,21 @@ Component.register('sw-settings-language-detail', {
             );
         },
 
+        allowSave() {
+            return this.isNewLanguage
+                ? this.acl.can('language.creator')
+                : this.acl.can('language.editor');
+        },
+
         tooltipSave() {
+            if (!this.allowSave) {
+                return {
+                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    disabled: this.allowSave,
+                    showOnDisabledElements: true
+                };
+            }
+
             const systemKey = this.$device.getSystemKey();
 
             return {
@@ -125,7 +142,7 @@ Component.register('sw-settings-language-detail', {
     methods: {
         createdComponent() {
             if (!this.languageId) {
-                this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
+                Shopware.State.commit('context/resetLanguageToDefault');
                 this.language = this.languageRepository.create(Shopware.Context.api);
             } else {
                 this.loadEntityData();

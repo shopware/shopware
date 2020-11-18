@@ -32,7 +32,7 @@ Here's an example `services.xml`:
 
 And the related example service:
 ```php
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace Swag\CustomService\Service;
 

@@ -30,12 +30,26 @@ Component.register('sw-entity-multi-id-select', {
             required: true
         },
 
+        criteria: {
+            type: Object,
+            required: false,
+            default() {
+                return new Criteria();
+            }
+        },
+
         context: {
             type: Object,
             required: false,
             default() {
                 return Context.api;
             }
+        },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -61,7 +75,7 @@ Component.register('sw-entity-multi-id-select', {
                 return Promise.resolve(this.collection);
             }
 
-            const criteria = new Criteria();
+            const criteria = Criteria.fromCriteria(this.criteria);
             criteria.setIds(this.ids);
 
             return this.repository.search(criteria, this.context).then((entities) => {

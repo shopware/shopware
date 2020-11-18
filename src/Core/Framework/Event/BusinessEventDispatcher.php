@@ -2,10 +2,13 @@
 
 namespace Shopware\Core\Framework\Event;
 
+use Psr\EventDispatcher\StoppableEventInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\Event\EventAction\EventActionCollection;
 use Shopware\Core\Framework\Event\EventAction\EventActionDefinition;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -42,9 +45,15 @@ class BusinessEventDispatcher implements EventDispatcherInterface
     {
         $event = $this->dispatcher->dispatch($event, $eventName);
 
-        if ($event instanceof BusinessEventInterface) {
-            $this->callActions($event);
+        if (!$event instanceof BusinessEventInterface) {
+            return $event;
         }
+
+        if ($event instanceof StoppableEventInterface && $event->isPropagationStopped()) {
+            return $event;
+        }
+
+        $this->callActions($event);
 
         return $event;
     }
@@ -84,10 +93,25 @@ class BusinessEventDispatcher implements EventDispatcherInterface
         return $this->dispatcher->hasListeners($eventName);
     }
 
-    private function getActions(string $eventName, Context $context): EventActionCollection
+    private function getActions(BusinessEventInterface $event, Context $context): EventActionCollection
     {
+        $name = $event->getName();
+
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('event_action.eventName', $eventName));
+        $criteria->addFilter(new EqualsFilter('event_action.eventName', $name));
+        $criteria->addFilter(new EqualsFilter('event_action.active', true));
+
+        $criteria->addFilter(new OrFilter([
+            new EqualsFilter('event_action.rules.id', null),
+            new EqualsAnyFilter('event_action.rules.id', $context->getRuleIds()),
+        ]));
+
+        if ($event instanceof SalesChannelAware) {
+            $criteria->addFilter(new OrFilter([
+                new EqualsFilter('salesChannels.id', $event->getSalesChannelId()),
+                new EqualsFilter('salesChannels.id', null),
+            ]));
+        }
 
         /** @var EventActionCollection $events */
         $events = $this->definitionRegistry
@@ -100,7 +124,7 @@ class BusinessEventDispatcher implements EventDispatcherInterface
 
     private function callActions(BusinessEventInterface $event): void
     {
-        $actions = $this->getActions($event->getName(), $event->getContext());
+        $actions = $this->getActions($event, $event->getContext());
 
         foreach ($actions as $action) {
             $actionEvent = new BusinessEvent($action->getActionName(), $event, $action->getConfig());

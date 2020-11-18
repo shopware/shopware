@@ -613,9 +613,4 @@ class PromotionEntity extends Entity
             || !array_key_exists($customerId, $this->getOrdersPerCustomerCount())
             || $this->getOrdersPerCustomerCount()[$customerId] < $this->getMaxRedemptionsPerCustomer();
     }
-
-    public function getApiAlias(): string
-    {
-        return 'promotion';
-    }
 }

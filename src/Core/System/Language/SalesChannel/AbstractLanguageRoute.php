@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Language\SalesChannel;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -13,5 +14,5 @@ abstract class AbstractLanguageRoute
 {
     abstract public function getDecorated(): AbstractLanguageRoute;
 
-    abstract public function load(Request $request, SalesChannelContext $context): LanguageRouteResponse;
+    abstract public function load(Request $request, SalesChannelContext $context, Criteria $criteria): LanguageRouteResponse;
 }

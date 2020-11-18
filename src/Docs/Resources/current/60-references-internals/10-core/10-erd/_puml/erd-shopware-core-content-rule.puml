@@ -32,7 +32,7 @@ Table(ShopwareCoreContentRuleRuleDefinition, "rule\n(Rule)") {
    customFields customFields
    moduleTypes json
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
 }
 Table(ShopwareCoreContentRuleAggregateRuleConditionRuleConditionDefinition, "rule_condition\n(Rule condition)") {
    primary_key(id) id
@@ -43,7 +43,7 @@ Table(ShopwareCoreContentRuleAggregateRuleConditionRuleConditionDefinition, "rul
    position int
    customFields customFields
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
 }
 ForeignTable(ShopwareCoreContentProductAggregateProductPriceProductPriceDefinition, "product_price") {
 }
@@ -63,6 +63,8 @@ ForeignTable(ShopwareCoreCheckoutPromotionAggregatePromotionDiscountRulePromotio
 }
 ForeignTable(ShopwareCoreCheckoutPromotionAggregatePromotionSetGroupRulePromotionSetGroupRuleDefinition, "promotion_setgroup_rule") {
 }
+ForeignTable(ShopwareCoreFrameworkEventEventActionAggregateEventActionRuleEventActionRuleDefinition, "event_action_rule") {
+}
 
 ' relationshipd
 
@@ -76,5 +78,6 @@ ShopwareCoreContentRuleRuleDefinition --> ShopwareCoreCheckoutPromotionAggregate
 ShopwareCoreContentRuleRuleDefinition --> ShopwareCoreCheckoutPromotionAggregatePromotionCartRulePromotionCartRuleDefinition
 ShopwareCoreContentRuleRuleDefinition --> ShopwareCoreCheckoutPromotionAggregatePromotionDiscountRulePromotionDiscountRuleDefinition
 ShopwareCoreContentRuleRuleDefinition --> ShopwareCoreCheckoutPromotionAggregatePromotionSetGroupRulePromotionSetGroupRuleDefinition
+ShopwareCoreContentRuleRuleDefinition --> ShopwareCoreFrameworkEventEventActionAggregateEventActionRuleEventActionRuleDefinition
 ShopwareCoreContentRuleAggregateRuleConditionRuleConditionDefinition --> ShopwareCoreContentRuleAggregateRuleConditionRuleConditionDefinition
 @enduml

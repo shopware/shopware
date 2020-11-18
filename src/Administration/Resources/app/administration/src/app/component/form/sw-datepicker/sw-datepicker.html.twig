@@ -10,13 +10,14 @@
             @inheritance-remove="$emit('inheritance-remove', $event)"
             v-on="additionalEventListeners">
 
-        <template #sw-field-input="{ identification }">
+        <template #sw-field-input="{ identification, disabled }">
             <input type="text"
                 ref="flatpickrInput"
                 :name="identification"
                 :id="identification"
+                :disabled="disabled"
                 :placeholder="placeholder">
-                <sw-icon v-if="!required && value"
+                <sw-icon v-if="!required && value && !disabled"
                         class="sw-field--datepicker__button-reset-value"
                         name="small-default-x-line-small"
                         @click="unsetValue"

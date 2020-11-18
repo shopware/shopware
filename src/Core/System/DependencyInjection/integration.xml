@@ -8,5 +8,9 @@
         <service id="Shopware\Core\System\Integration\IntegrationDefinition">
             <tag name="shopware.entity.definition"/>
         </service>
+
+        <service id="Shopware\Core\System\Integration\Aggregate\IntegrationRole\IntegrationRoleDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
     </services>
 </container>

@@ -1,6 +1,7 @@
 import template from './sw-settings-custom-field-set-detail.html.twig';
 
-const { Component, StateDeprecated, Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
+const { Criteria } = Shopware.Data;
 
 Component.register('sw-settings-custom-field-set-detail', {
     template,
@@ -12,9 +13,19 @@ Component.register('sw-settings-custom-field-set-detail', {
     ],
 
     shortcuts: {
-        'SYSTEMKEY+S': 'onSave',
+        'SYSTEMKEY+S': {
+            active() {
+                return this.acl.can('custom_field.editor');
+            },
+            method: 'onSave'
+        },
         ESCAPE: 'onCancel'
     },
+
+    inject: [
+        'repositoryFactory',
+        'acl'
+    ],
 
     data() {
         return {
@@ -33,16 +44,43 @@ Component.register('sw-settings-custom-field-set-detail', {
 
     computed: {
         identifier() {
-            return this.set.config && this.set.config.label
+            return this.set.config && this.getInlineSnippet(this.set.config.label)
                 ? this.getInlineSnippet(this.set.config.label)
                 : this.set.name;
         },
 
-        customFieldSetStore() {
-            return StateDeprecated.getStore('custom_field_set');
+        customFieldSetRepository() {
+            return this.repositoryFactory.create('custom_field_set');
+        },
+
+        customFieldRepository() {
+            return this.repositoryFactory.create('custom_field');
+        },
+
+        customFieldCriteria() {
+            const criteria = new Criteria();
+            criteria.addFilter(Criteria.equals('customFieldSetId', this.setId));
+
+            return criteria;
+        },
+
+        customFieldSetCriteria() {
+            const criteria = new Criteria();
+
+            criteria.addAssociation('relations');
+
+            return criteria;
         },
 
         tooltipSave() {
+            if (!this.acl.can('custom_field.editor')) {
+                return {
+                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    disabled: this.acl.can('custom_field.editor'),
+                    showOnDisabledElements: true
+                };
+            }
+
             const systemKey = this.$device.getSystemKey();
 
             return {
@@ -71,8 +109,12 @@ Component.register('sw-settings-custom-field-set-detail', {
             }
         },
 
-        loadEntityData() {
-            this.set = this.customFieldSetStore.getById(this.setId);
+        async loadEntityData() {
+            this.set = await this.customFieldSetRepository.get(
+                this.setId,
+                Shopware.Context.api,
+                this.customFieldSetCriteria
+            );
         },
 
         saveFinish() {
@@ -81,7 +123,7 @@ Component.register('sw-settings-custom-field-set-detail', {
 
         onSave() {
             const setLabel = this.identifier;
-            const titleSaveSuccess = this.$tc('sw-settings-custom-field.set.detail.titleSaveSuccess');
+            const titleSaveSuccess = this.$tc('global.default.success');
             const messageSaveSuccess = this.$tc('sw-settings-custom-field.set.detail.messageSaveSuccess', 0, {
                 name: setLabel
             });
@@ -99,16 +141,22 @@ Component.register('sw-settings-custom-field-set-detail', {
                 this.set.relations = [];
             }
 
-            return this.set.save().then(() => {
-                this.isLoading = false;
+            this.customFieldSetRepository.save(this.set, Shopware.Context.api).then(() => {
                 this.isSaveSuccessful = true;
+
                 this.createNotificationSuccess({
                     title: titleSaveSuccess,
                     message: messageSaveSuccess
                 });
 
-                this.$refs.customFieldList.getList();
-            }).then(() => {
+                return this.loadEntityData();
+            }).catch((error) => {
+                const errorMessage = Shopware.Utils.get(error, 'response.data.errors[0].detail', 'Error');
+
+                this.createNotificationError({
+                    message: errorMessage
+                });
+            }).finally(() => {
                 this.isLoading = false;
             });
         },
@@ -118,7 +166,7 @@ Component.register('sw-settings-custom-field-set-detail', {
         },
 
         abortOnLanguageChange() {
-            return Object.keys(this.set.getChanges()).length > 0;
+            return this.customFieldSetRepository.hasChanges(this.set);
         },
 
         saveOnLanguageChange() {

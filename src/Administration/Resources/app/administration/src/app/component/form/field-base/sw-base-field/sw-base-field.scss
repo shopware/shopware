@@ -2,7 +2,7 @@
 
 .sw-field {
     width: 100%;
-    margin-bottom: 22px;
+    margin-bottom: 32px;
 
     .sw-field__label {
         display: flex;
@@ -16,9 +16,9 @@
         }
     }
 
-    .sw-field__label .is--required::after{
+    .sw-field__label .is--required::after {
         content: "*";
-        color: $color-shopware-blue
+        color: $color-shopware-brand-500;
     }
 
     .sw-field__inheritance-icon {
@@ -44,5 +44,9 @@
         .sw-field__label {
             color: $color-purple;
         }
+    }
+
+    &.has--error {
+        margin-bottom: 12px;
     }
 }

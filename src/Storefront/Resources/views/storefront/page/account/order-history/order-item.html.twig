@@ -1,3 +1,9 @@
+{% set ORDER_TRANSACTION_STATE_OPEN = constant('Shopware\\Core\\Checkout\\Order\\Aggregate\\OrderTransaction\\OrderTransactionStates::STATE_OPEN') %}
+{% set ORDER_TRANSACTION_STATE_FAILED = constant('Shopware\\Core\\Checkout\\Order\\Aggregate\\OrderTransaction\\OrderTransactionStates::STATE_FAILED') %}
+{% set ORDER_TRANSACTION_STATE_REMINDED = constant('Shopware\\Core\\Checkout\\Order\\Aggregate\\OrderTransaction\\OrderTransactionStates::STATE_REMINDED') %}
+{% set ORDER_TRANSACTION_STATE_CANCELLED = constant('Shopware\\Core\\Checkout\\Order\\Aggregate\\OrderTransaction\\OrderTransactionStates::STATE_CANCELLED') %}
+{% set ORDER_STATE_CANCELLED = constant('Shopware\\Core\\Checkout\\Order\\OrderStates::STATE_CANCELLED') %}
+
 {% block page_account_order_item_overview %}
     <div class="order-wrapper">
         <div class="order-item-header">
@@ -52,28 +58,51 @@
                     {% endblock %}
                 {% endblock %}
 
+                {% set states = [
+                    ORDER_TRANSACTION_STATE_FAILED,
+                    ORDER_TRANSACTION_STATE_REMINDED,
+                    ORDER_TRANSACTION_STATE_CANCELLED
+                ] %}
+
+                {% set state = order.transactions.last.stateMachineState.technicalName %}
+
+                {% set isPaymentNeeded = state in states %}
+
                 <div class="row flex-wrap">
                     {% block page_account_order_item_heading %}
-                        <h2 class="col order-table-header-heading">{{ "account.orderHeadline"|trans|sw_sanitize }} {{ order.orderDateTime|format_date('short', locale=app.request.locale) }}</h2>
+                        <h3 class="col-auto order-table-header-heading">{{ "account.orderHeadline"|trans|sw_sanitize }} {{ order.orderDateTime|format_date('short', locale=app.request.locale) }}</h3>
                     {% endblock %}
 
                     {% block page_account_order_item_status_col %}
-                        <div class="col">
+                        <div class="col-12 col-sm">
                             {% block page_account_order_item_status %}
-                                <span class="order-table-header-order-status">
-                                    {{ "account.orderStatus"|trans|sw_sanitize }}
-                                    {% if order.transactions.last.stateMachineState.technicalName == 'failed' or order.transactions.last.stateMachineState.technicalName == 'reminded' %}
-                                        {{ "account.orderStatusActionRequired"|trans|sw_sanitize }}
-                                        {% else %}
-                                        {{ order.stateMachineState.translated.name }}
+                                <div class="order-table-header-order-status">
+                                    {% if isPaymentNeeded %}
+                                        {% block page_account_order_item_status_badge_payment_process_needed %}
+                                            <a href="{{ path('frontend.account.edit-order.page', { 'orderId': order.id }) }}"
+                                               class="badge badge-lg order-item-status-badge badge-danger">
+                                                {{ "account.orderStatusActionCompletePayment"|trans|sw_sanitize }}
+                                                {% sw_icon 'arrow-medium-right' style { 'size': 'sm', 'pack': 'solid' } %}
+                                            </a>
+                                        {% endblock %}
+                                    {% else %}
+                                        {% block page_account_order_item_status_badge %}
+                                            <span class="badge badge-lg order-item-status-badge order-item-status-badge-{{ order.stateMachineState.technicalName}}">
+                                                {{ order.stateMachineState.translated.name }}
+                                            </span>
+                                        {% endblock %}
                                     {% endif %}
-                                </span>
+                                </div>
                             {% endblock %}
                         </div>
                     {% endblock %}
 
                     {% block page_account_order_item_context_menu_col %}
                         <div class="col-1 order-table-header-context-menu-wrapper">
+
+                            {% if isPaymentNeeded %}
+                                <span class="order-table-header-context-menu-indicator notification-dot notification-dot-danger"></span>
+                            {% endif %}
 
                             {% block page_account_order_item_context_menu %}
 
@@ -95,12 +124,19 @@
                                         {% set orderState = order.stateMachineState.technicalName %}
                                         {% set orderPaymentState = order.transactions.last.stateMachineState.technicalName %}
 
-                                        {% if orderState != 'cancelled' and (orderPaymentState == 'open' or orderPaymentState == 'failed' or orderPaymentState == 'reminded') %}
+                                        {% if orderState != ORDER_STATE_CANCELLED and (orderPaymentState == ORDER_TRANSACTION_STATE_OPEN or orderPaymentState == ORDER_TRANSACTION_STATE_FAILED or orderPaymentState == ORDER_TRANSACTION_STATE_REMINDED) %}
                                             {% block page_account_order_item_context_menu_content_change_payment_button %}
-                                                <a class="order-table-header-context-menu-content-link"
-                                                   href="{{ path('frontend.account.edit-order.page', { 'orderId': order.id }) }}">
-                                                    {{ "account.orderContextMenuChangePayment"|trans|sw_sanitize }}
-                                                </a>
+                                                {% if isPaymentNeeded %}
+                                                    <a class="order-table-header-context-menu-content-link"
+                                                       href="{{ path('frontend.account.edit-order.page', { 'orderId': order.id }) }}">
+                                                        <strong>{{ "account.orderStatusActionCompletePayment"|trans|sw_sanitize }}</strong>
+                                                    </a>
+                                                {% else %}
+                                                    <a class="order-table-header-context-menu-content-link"
+                                                       href="{{ path('frontend.account.edit-order.page', { 'orderId': order.id }) }}">
+                                                        {{ "account.orderContextMenuChangePayment"|trans|sw_sanitize }}
+                                                    </a>
+                                                {% endif %}
                                             {% endblock %}
                                         {% endif %}
 
@@ -161,7 +197,7 @@
                                         {% endblock %}
 
                                         {% block page_account_order_item_context_menu_cancel_order %}
-                                            {% if orderState != 'cancelled' and shopware.config.core.cart.enableOrderRefunds %}
+                                            {% if orderState != ORDER_STATE_CANCELLED and shopware.config.core.cart.enableOrderRefunds %}
                                                 <button type="button"
                                                         class="order-table-header-context-menu-content-link"
                                                         data-toggle="modal"
@@ -174,7 +210,7 @@
                                </div>
                             {% endblock %}
 
-                            {% if orderState != 'cancelled' %}
+                            {% if orderState != ORDER_STATE_CANCELLED %}
                                 <div class="tester">
                                     {% sw_include '@Storefront/storefront/page/account/order-history/cancel-order-modal.html.twig' %}
                                 </div>
@@ -184,10 +220,10 @@
                     {% endblock %}
 
                     {% block page_account_order_item_order_number_col %}
-                        <div class="col-12">
-
+                        <div class="col-12 order-table-header-order-number">
                             {% block page_account_order_item_order_number %}
-                                <span class="order-table-header-order-number">{{ "account.orderNumber"|trans|sw_sanitize }} {{ order.orderNumber|sw_sanitize }}</span>
+                                <strong class="order-table-header-label">{{ "account.orderNumber"|trans|sw_sanitize }}</strong>
+                                <span class="order-table-body-value">{{ order.orderNumber|sw_sanitize }}</span>
                             {% endblock %}
                         </div>
                     {% endblock %}
@@ -199,23 +235,23 @@
                             <div class="col-12 row order-table-header-order-table-header">
 
                                 {% block page_account_order_item_order_table_header_cell_shipping_status %}
-                                    <div class="col order-table-header-order-table-header-cell">{{ "account.orderShippingStatus"|trans|sw_sanitize }}</div>
+                                    <div class="col-12 col-sm order-table-header-order-table-header-cell">{{ "account.orderShippingStatus"|trans|sw_sanitize }}</div>
                                 {% endblock %}
 
                                 {% block page_account_order_item_order_table_header_cell_payment_status %}
-                                    <div class="col order-table-header-order-table-header-cell">{{ "account.orderPaymentStatus"|trans|sw_sanitize }}</div>
+                                    <div class="col-12 col-sm order-table-header-order-table-header-cell">{{ "account.orderPaymentStatus"|trans|sw_sanitize }}</div>
                                 {% endblock %}
 
                                 {% block page_account_order_item_order_table_header_cell_payment_method %}
-                                    <div class="col order-table-header-order-table-header-cell">{{ "account.orderPaymentMethod"|trans|sw_sanitize }}</div>
+                                    <div class="col-12 col-sm order-table-header-order-table-header-cell">{{ "account.orderPaymentMethod"|trans|sw_sanitize }}</div>
                                 {% endblock %}
 
                                 {% block page_account_order_item_order_table_header_cell_shipping_method %}
-                                    <div class="col order-table-header-order-table-header-cell">{{ "account.orderShippingMethod"|trans|sw_sanitize }}</div>
+                                    <div class="col-12 col-sm order-table-header-order-table-header-cell">{{ "account.orderShippingMethod"|trans|sw_sanitize }}</div>
                                 {% endblock %}
 
                                 {% block page_account_order_item_order_table_header_cell_placeholder %}
-                                    <div class="col-3 order-table-header-order-table-header-cell"></div>
+                                    <div class="col-2 order-table-header-order-table-header-cell"></div>
                                 {% endblock %}
                             </div>
                         {% endblock %}
@@ -226,23 +262,43 @@
                             <div class="col-12 row order-table-header-order-table-body">
 
                                 {% block page_account_order_item_order_table_body_cell_shipping_status %}
-                                    <div class="col order-table-header-order-table-body-cell">{{ order.deliveries|first.stateMachineState.translated.name }}</div>
+                                    <div class="col-12 col-sm order-table-header-order-table-body-cell">
+                                        <strong class="order-table-header-label">
+                                            {{ "account.orderShippingStatus"|trans|sw_sanitize }}{{ "account.colonCharacter"|trans|sw_sanitize }}
+                                        </strong>
+                                        <span class="order-table-body-value">{{ order.deliveries|first.stateMachineState.translated.name }}</span>
+                                    </div>
                                 {% endblock %}
 
                                 {% block page_account_order_item_order_table_body_cell_payment_status %}
-                                    <div class="col order-table-header-order-table-body-cell">{{ order.transactions|last.stateMachineState.translated.name }}</div>
+                                    <div class="col-12 col-sm order-table-header-order-table-body-cell">
+                                        <strong class="order-table-header-label">
+                                            {{ "account.orderPaymentStatus"|trans|sw_sanitize }}{{ "account.colonCharacter"|trans|sw_sanitize }}
+                                        </strong>
+                                        <span class="order-table-body-value">{{ order.transactions|last.stateMachineState.translated.name }}</span>
+                                    </div>
                                 {% endblock %}
 
                                 {% block page_account_order_item_order_table_body_cell_payment_method %}
-                                    <div class="col order-table-header-order-table-body-cell">{{ order.transactions|last.paymentMethod.translated.name }}</div>
+                                    <div class="col-12 col-sm order-table-header-order-table-body-cell">
+                                        <strong class="order-table-header-label">
+                                            {{ "account.orderPaymentMethod"|trans|sw_sanitize }}{{ "account.colonCharacter"|trans|sw_sanitize }}
+                                        </strong>
+                                        <span class="order-table-body-value">{{ order.transactions|last.paymentMethod.translated.name }}</span>
+                                    </div>
                                 {% endblock %}
 
                                 {% block page_account_order_item_order_table_body_cell_shipping_method %}
-                                    <div class="col order-table-header-order-table-body-cell">{{ order.deliveries|first.shippingMethod.translated.name }}</div>
+                                    <div class="col-12 col-sm order-table-header-order-table-body-cell">
+                                        <strong class="order-table-header-label">
+                                            {{ "account.orderShippingMethod"|trans|sw_sanitize }}{{ "account.colonCharacter"|trans|sw_sanitize }}
+                                        </strong>
+                                        <span class="order-table-body-value">{{ order.deliveries|first.shippingMethod.translated.name }}</span>
+                                    </div>
                                 {% endblock %}
 
                                 {% block page_account_order_item_order_table_body_cell_toggle_order_details %}
-                                    <div class="col-3 order-item order-item-actions order-table-header-order-table-body-cell">
+                                    <div class="col-12 col-sm-2 order-item order-item-actions order-table-header-order-table-body-cell">
 
                                         {% block page_account_order_item_order_table_body_cell_toggle_order_details_button %}
                                             <button class="btn btn-light btn-sm order-hide-btn collapsed"

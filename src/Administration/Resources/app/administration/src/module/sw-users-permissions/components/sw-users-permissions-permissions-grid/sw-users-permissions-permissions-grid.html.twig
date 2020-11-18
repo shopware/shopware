@@ -1,0 +1,128 @@
+{% block sw_users_permissions_permissions_grid %}
+    <sw-card class="sw-users-permissions-permissions-grid"
+             :title="$tc('sw-users-permissions.roles.grid.title')">
+        <div class="sw-users-permissions-permissions-grid__grid">
+            {% block sw_users_permissions_permissions_grid_header %}
+                <div class="sw-users-permissions-permissions-grid__entry sw-users-permissions-permissions-grid__entry-header">
+                    {% block sw_users_permissions_permissions_grid_header_title %}
+                        <div class="sw-users-permissions-permissions-grid__title">
+                            {% block sw_users_permissions_permissions_grid_header_title_content %}
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+
+                    {% block sw_users_permissions_permissions_grid_header_roles %}
+                        <div v-for="role in roles"
+                             class="sw-users-permissions-permissions-grid__checkbox-wrapper">
+                            {% block sw_users_permissions_permissions_grid_header_roles_name %}
+                                {{ $tc('sw-privileges.roles.' + role) }}
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+
+                    {% block sw_users_permissions_permissions_grid_header_all_roles %}
+                        <div class="sw-users-permissions-permissions-grid__all">
+                            {% block sw_users_permissions_permissions_grid_header_all_roles_name %}
+                                {{ $tc('sw-privileges.roles.all') }}
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+                </div>
+            {% endblock %}
+
+            {% block sw_users_permissions_permissions_grid_permissions %}
+                <template v-for="permission in permissionsWithParents">
+                    <div v-if="permission.type === 'parent'"
+                         :class="'sw-users-permissions-permissions-grid__parent_' + permission.value"
+                         class="sw-users-permissions-permissions-grid__entry
+                                sw-users-permissions-permissions-grid__parent">
+                        {% block sw_users_permissions_permissions_grid_parent_title %}
+                            <div class="sw-users-permissions-permissions-grid__title">
+                                {% block sw_users_permissions_permissions_grid_parent_title_content %}
+                                    {{ $tc('sw-privileges.permissions.parents.' + (permission.value || 'other')) }}
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+
+                        {% block sw_users_permissions_permissions_grid_parent_roles %}
+                            <div v-for="role in roles"
+                                 :class="'sw-users-permissions-permissions-grid__role_' + role"
+                                 class="sw-users-permissions-permissions-grid__checkbox-wrapper">
+                                {% block sw_users_permissions_permissions_grid_parent_roles_field %}
+                                    <sw-checkbox-field
+                                        :value="areAllChildrenRolesSelected(permission.value, role)"
+                                        :ghostValue="areSomeChildrenRolesSelected(permission.value, role)"
+                                        @change="toggleAllChildrenWithRole(permission.value, role)"
+                                        :disabled="isParentRoleDisabled(permission.value, role) || disabled"
+                                        type="checkbox">
+                                    </sw-checkbox-field>
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+
+                        {% block sw_users_permissions_permissions_grid_parent_all_roles %}
+                            <div class="sw-users-permissions-permissions-grid__all sw-users-permissions-permissions-grid__role_all">
+                                {% block sw_users_permissions_permissions_grid_parent_all_roles_field %}
+                                    <sw-checkbox-field
+                                        :value="areAllChildrenWithAllRolesSelected(permission.value)"
+                                        :ghostValue="areSomeChildrenWithAllRolesSelected(permission.value)"
+                                        @change="toggleAllChildrenWithAllRoles(permission.value)"
+                                        :disabled="disabled"
+                                        type="checkbox">
+                                    </sw-checkbox-field>
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+                    </div>
+
+                    <div v-else
+                         :class="'sw-users-permissions-permissions-grid__entry_' + permission.key"
+                         class="sw-users-permissions-permissions-grid__entry">
+                        {% block sw_users_permissions_permissions_grid_permissions_title %}
+                            <div class="sw-users-permissions-permissions-grid__title">
+                                {% block sw_users_permissions_permissions_grid_permissions_title_content %}
+                                    {{ $tc('sw-privileges.permissions.' + permission.key + '.label') }}
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+
+                        {% block sw_users_permissions_permissions_grid_permissions_roles %}
+                            <div v-for="role in roles"
+                                 :class="'sw-users-permissions-permissions-grid__role_' + role"
+                                 class="sw-users-permissions-permissions-grid__checkbox-wrapper">
+                                {% block sw_users_permissions_permissions_grid_permissions_roles_field %}
+                                    <sw-checkbox-field
+                                        v-if="permission.roles[role]"
+                                        :value="isPermissionSelected(permission.key, role)"
+                                        :disabled="isPermissionDisabled(permission.key, role) || disabled"
+                                        v-tooltip="{
+                                        message: $tc('sw-users-permissions.roles.grid.disabledCheckboxMessage'),
+                                        disabled: !isPermissionDisabled(permission.key, role) || disabled,
+                                        showOnDisabledElements: false
+                                    }"
+                                        @change="changePermission(permission.key, role)"
+                                        type="checkbox">
+                                    </sw-checkbox-field>
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+
+                        {% block sw_users_permissions_permissions_grid_permissions_all_roles %}
+                            <div class="sw-users-permissions-permissions-grid__all sw-users-permissions-permissions-grid__role_all">
+                                {% block sw_users_permissions_permissions_grid_permissions_all_roles_field %}
+                                    <sw-checkbox-field
+                                        v-if="Object.keys(permission.roles).length > 0"
+                                        :value="allPermissionsForKeySelected(permission.key)"
+                                        @change="changeAllPermissionsForKey(permission.key)"
+                                        :disabled="disabled"
+                                        type="checkbox">
+                                    </sw-checkbox-field>
+                                {% endblock %}
+                            </div>
+                        {% endblock %}
+                    </div>
+                </template>
+            {% endblock %}
+        </div>
+    </sw-card>
+{% endblock %}

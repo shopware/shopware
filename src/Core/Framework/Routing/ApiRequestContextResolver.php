@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Routing;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\ContextSource;
@@ -11,12 +12,13 @@ use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Symfony\Component\HttpFoundation\Request;
-use function Flag\next3722;
 
 class ApiRequestContextResolver implements RequestContextResolverInterface
 {
@@ -53,6 +55,8 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         $params = $this->getContextParameters($request);
         $languageIdChain = $this->getLanguageIdChain($params);
 
+        $rounding = $this->getCashRounding($params['currencyId']);
+
         $context = new Context(
             $this->resolveContextSource($request),
             [],
@@ -60,8 +64,9 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             $languageIdChain,
             $params['versionId'] ?? Defaults::LIVE_VERSION,
             $params['currencyFactory'],
-            $params['currencyPrecision'],
-            $params['considerInheritance']
+            $params['considerInheritance'],
+            CartPrice::TAX_STATE_GROSS,
+            $rounding
         );
 
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context);
@@ -102,6 +107,14 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             }
         }
 
+        if ($request->headers->has(PlatformRequest::HEADER_CURRENCY_ID)) {
+            $currencyHeader = $request->headers->get(PlatformRequest::HEADER_CURRENCY_ID);
+
+            if ($currencyHeader !== null) {
+                $parameters['currencyId'] = $currencyHeader;
+            }
+        }
+
         if ($request->headers->has(PlatformRequest::HEADER_INHERITANCE)) {
             $parameters['considerInheritance'] = true;
         }
@@ -116,11 +129,7 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
         }
 
         if ($userId = $request->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_USER_ID)) {
-            $hasAdminScope = in_array('admin', $request->attributes->get('oauth_scopes'), true);
-            $adminApiSource = $this->getAdminApiSource($userId);
-            $adminApiSource->setIsAdmin($hasAdminScope || $adminApiSource->isAdmin());
-
-            return $adminApiSource;
+            return $this->getAdminApiSource($userId);
         }
 
         if (!$request->attributes->has(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID)) {
@@ -225,38 +234,127 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
 
     private function getAdminApiSource(?string $userId, ?string $integrationId = null): AdminApiSource
     {
-        $adminApiSource = new AdminApiSource($userId, $integrationId);
-        if (!next3722()) {
-            $adminApiSource->setIsAdmin(true);
+        $source = new AdminApiSource($userId, $integrationId);
 
-            return $adminApiSource;
+        // Use the permissions associated to that app, if the request is made by an integration associated to an app
+        $appPermissions = $this->fetchPermissionsIntegrationByApp($integrationId);
+        if ($appPermissions !== null) {
+            $source->setIsAdmin(false);
+            $source->setPermissions($appPermissions);
+
+            return $source;
         }
+
         if ($userId !== null) {
-            $this->enrichAdminApiSourceWithAclPermissions($adminApiSource);
+            $source->setPermissions($this->fetchPermissions($userId));
+            $source->setIsAdmin($this->isAdmin($userId));
+
+            return $source;
         }
 
-        return $adminApiSource;
-    }
+        if ($integrationId !== null) {
+            $source->setIsAdmin($this->isAdminIntegration($integrationId));
+            $source->setPermissions($this->fetchIntegrationPermissions($integrationId));
 
-    private function enrichAdminApiSourceWithAclPermissions(AdminApiSource $source): AdminApiSource
-    {
-        $source->addPermissions($this->fetchPermissions($source->getUserId()));
+            return $source;
+        }
 
         return $source;
+    }
+
+    private function isAdmin(string $userId): bool
+    {
+        return (bool) $this->connection->fetchColumn(
+            'SELECT admin FROM `user` WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($userId)]
+        );
+    }
+
+    private function isAdminIntegration(string $integrationId): bool
+    {
+        return (bool) $this->connection->fetchColumn(
+            'SELECT admin FROM `integration` WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($integrationId)]
+        );
     }
 
     private function fetchPermissions(string $userId): array
     {
         $permissions = $this->connection->createQueryBuilder()
-            ->select(['resource', 'privilege'])
+            ->select(['role.privileges'])
             ->from('acl_user_role', 'mapping')
             ->innerJoin('mapping', 'acl_role', 'role', 'mapping.acl_role_id = role.id')
-            ->innerJoin('role', 'acl_resource', 'res', 'res.acl_role_id = role.id')
             ->where('mapping.user_id = :userId')
             ->setParameter('userId', Uuid::fromHexToBytes($userId))
             ->execute()
-            ->fetchAll(FetchMode::ASSOCIATIVE);
+            ->fetchAll(FetchMode::COLUMN);
 
-        return $permissions;
+        $list = [];
+        foreach ($permissions as $privileges) {
+            $privileges = json_decode((string) $privileges, true);
+            $list = array_merge($list, $privileges);
+        }
+
+        return array_unique(array_filter($list));
+    }
+
+    private function getCashRounding($currencyId): CashRoundingConfig
+    {
+        $rounding = $this->connection->fetchAssoc(
+            'SELECT item_rounding, decimal_precision FROM currency WHERE id = :id',
+            ['id' => Uuid::fromHexToBytes($currencyId)]
+        );
+
+        if (!Feature::isActive('FEATURE_NEXT_6059')) {
+            return new CashRoundingConfig((int) $rounding['decimal_precision'], 0.01, true);
+        }
+
+        $rounding = json_decode($rounding['item_rounding'], true);
+
+        return new CashRoundingConfig(
+            (int) $rounding['decimals'],
+            (float) $rounding['interval'],
+            (bool) $rounding['roundForNet']
+        );
+    }
+
+    private function fetchPermissionsIntegrationByApp(?string $integrationId): ?array
+    {
+        if (!$integrationId) {
+            return null;
+        }
+
+        $privileges = $this->connection->fetchColumn('
+            SELECT `acl_role`.`privileges`
+            FROM `acl_role`
+            INNER JOIN `app` ON `app`.`acl_role_id` = `acl_role`.`id`
+            WHERE `app`.`integration_id` = :integrationId
+        ', ['integrationId' => Uuid::fromHexToBytes($integrationId)]);
+
+        if ($privileges === false) {
+            return null;
+        }
+
+        return json_decode($privileges, true);
+    }
+
+    private function fetchIntegrationPermissions(string $integrationId): array
+    {
+        $permissions = $this->connection->createQueryBuilder()
+            ->select(['role.privileges'])
+            ->from('integration_role', 'mapping')
+            ->innerJoin('mapping', 'acl_role', 'role', 'mapping.acl_role_id = role.id')
+            ->where('mapping.integration_id = :integrationId')
+            ->setParameter('integrationId', Uuid::fromHexToBytes($integrationId))
+            ->execute()
+            ->fetchAll(FetchMode::COLUMN);
+
+        $list = [];
+        foreach ($permissions as $privileges) {
+            $privileges = json_decode((string) $privileges, true);
+            $list = array_merge($list, $privileges);
+        }
+
+        return array_unique(array_filter($list));
     }
 }

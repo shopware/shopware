@@ -17,20 +17,19 @@
       "contextMenuDelete": "Löschen",
       "contextMenuDuplicate": "Duplizieren",
       "messageEmpty": "Noch keine Versandarten",
-      "modalTitleDelete": "Versandart",
       "textDeleteConfirm": "Möchtest Du die Versandart \"{name}\" wirklich löschen?",
       "titleSidebarItemRefresh": "Aktualisieren",
-      "titleSaveSuccess": "Erfolg",
-      "titleDeleteSuccess": "Erfolg",
       "messageSaveSuccess": "Die Versandart \"{name}\" wurde erfolgreich gespeichert.",
       "messageSaveError": "Die Versandart \"{name}\" konnte nicht gespeichert werden.",
       "messageDeleteError": "Die Versandart \"{name}\" konnte nicht gelöscht werden.",
-      "messageDeleteSuccess": "Die Versandart \"{name}\" wurde erfolgreich gelöscht."
+      "messageDeleteSuccess": "Die Versandart \"{name}\" wurde erfolgreich gelöscht.",
+      "columnTaxType": "Steuer-Typ",
+      "columnTaxRate": "Steuersatz",
+      "placeholderTaxType": "Wähle einen Steuer-Typ"
     },
     "detail": {
       "textHeadline": "Neue Versandart",
       "titleCard": "Einstellungen",
-      "titleSaveSuccess": "Erfolg",
       "messageSaveSuccess": "Die Versandart \"{name}\" wurde erfolgreich gespeichert.",
       "labelName": "Name",
       "labelDescription": "Beschreibung",
@@ -48,7 +47,14 @@
       "labelLogoUpload": "Logo hochladen",
       "labelTrackingUrl": "Tracking-URL",
       "placeholderTrackingUrl": "Tracking-URL hier eingeben ...",
-      "helpTextTrackingUrl": "Hier kannst du die Tracking-URL des Versanddienstleisters eintragen. Statt der tatsächlichen Sendungsnummer, nutze bitte '%s' als Platzhalter. Shopware wird dann automatisch den korrekten Code für jede Bestellung an dieser Stelle einfügen, wenn dieser in der Bestelldetails gepflegt ist."
+      "helpTextTrackingUrl": "Hier kannst du die Tracking-URL des Versanddienstleisters eintragen. Statt der tatsächlichen Sendungsnummer, nutze bitte '%s' als Platzhalter. Shopware wird dann automatisch den korrekten Code für jede Bestellung an dieser Stelle einfügen, wenn dieser in der Bestelldetails gepflegt ist.",
+      "tax": {
+        "fieldName": "Steuern",
+        "labelTaxType": "Steuer-Typ",
+        "labelTaxRate": "Steuersatz",
+        "placeholderTaxType": "Wähle einen Steuer-Typ...",
+        "placeholderTaxRate": "Wähle einen Steuersatz..."
+      }
     },
     "constants": {
       "weight": "Gewicht",
@@ -87,19 +93,15 @@
       "any": "∞",
       "buttonCancel": "Abbrechen",
       "buttonDelete": "Löschen",
-      "modalTitleDelete": "Preismatrix löschen",
       "textDeleteConfirm": "Möchtest Du die Preismatrix \"{name}\" wirklich löschen? | Möchtest Du die Preismatrix wirklich löschen?",
-      "deletionNotPossibleTitle": "Fehler",
       "deletionNotPossibleMessage": "Es muss immer mindestens eine Preisstaffel vorhanden sein. Versuche alternativ, die gesamte Preisregel zu löschen.",
       "labelGrossNet": "(Brutto / Netto)",
       "ruleAlreadyUsed": "Diese Regel wird bereits für eine Preismatrix genutzt",
       "ruleAlreadyUsedInMatrix": "Diese Regel wird bereits in dieser Preismatrix genutzt",
       "textOr": "oder",
       "chooseOrCreateRule": "Wähle oder erstelle eine Regel",
-      "unrestrictedRuleAlreadyExistsTitle": "Zuweisung kann nicht entfernt werden",
       "unrestrictedRuleAlreadyExistsMessage": "Es gibt bereits eine Preismatrix ohne Einschränkungen.",
       "newMatrixAlreadyExists": "Es existiert bereits eine neue Preismatrix ohne zugewiesene Regel.",
-      "newMatrixAlertTitle": "Achtung",
       "newMatrixAlertMessage": "Um diese Preismatrix zu speichern muss eine Regel zugewiesen werden."
     },
     "sidebar": {
@@ -107,6 +109,18 @@
     },
     "shippingPriceModal": {
       "modalTitle": "Abstufung hinzufügen"
+    },
+    "shippingCostOptions": {
+      "auto": "Auto",
+      "highest": "Höchster Satz",
+      "fixed": "Fester Satz"
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "shipping": {
+        "label": "Versand"
+      }
     }
   }
 }

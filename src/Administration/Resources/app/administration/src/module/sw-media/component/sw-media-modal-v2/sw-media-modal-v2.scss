@@ -54,6 +54,11 @@ $sw-media-modal-v2-non-grid-margin: 0 24px;
 
     .sw-media-modal-v2__breadcrumbs-and-search--compact {
         margin: $sw-media-modal-v2-non-grid-margin;
+        flex-direction: column-reverse;
+
+        .sw-simple-search-field {
+            margin-bottom: 16px;
+        }
     }
 
     .sw-media-modal-v2__breadcrumbs-and-search {
@@ -67,14 +72,6 @@ $sw-media-modal-v2-non-grid-margin: 0 24px;
 
         .sw-simple-search-field {
             margin-bottom: 0;
-        }
-    }
-
-    .sw-media-modal-v2__breadcrumbs-and-search--compact {
-        flex-direction: column-reverse;
-
-        .sw-simple-search-field {
-            margin-bottom: 16px;
         }
     }
 }

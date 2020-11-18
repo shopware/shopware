@@ -2,54 +2,15 @@
 
 namespace Shopware\Storefront\Page\Product\CrossSelling;
 
-use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingEntity;
-use Shopware\Core\Content\Product\ProductCollection;
-use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\Content\Product\SalesChannel\CrossSelling\CrossSellingElement as CoreCrossSellingElement;
 
-class CrossSellingElement extends Struct
+/**
+ * @deprecated tag:v6.4.0 - Use `Shopware\Core\Content\Product\SalesChannel\CrossSelling\CrossSellingElement` instead
+ */
+class CrossSellingElement extends CoreCrossSellingElement
 {
-    /**
-     * @var ProductCrossSellingEntity
-     */
-    protected $crossSelling;
-
-    /**
-     * @var ProductCollection
-     */
-    protected $products;
-
-    /**
-     * @var int
-     */
-    protected $total;
-
-    public function getCrossSelling(): ProductCrossSellingEntity
+    public function getApiAlias(): string
     {
-        return $this->crossSelling;
-    }
-
-    public function setCrossSelling(ProductCrossSellingEntity $crossSelling): void
-    {
-        $this->crossSelling = $crossSelling;
-    }
-
-    public function getProducts(): ProductCollection
-    {
-        return $this->products;
-    }
-
-    public function setProducts(ProductCollection $products): void
-    {
-        $this->products = $products;
-    }
-
-    public function getTotal(): int
-    {
-        return $this->total;
-    }
-
-    public function setTotal(int $total): void
-    {
-        $this->total = $total;
+        return 'storefront_cross_selling_element';
     }
 }

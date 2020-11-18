@@ -152,7 +152,19 @@ class Entity extends Struct
 
     public function getApiAlias(): string
     {
-        return $this->_entityName;
+        if ($this->_entityName !== null) {
+            return $this->_entityName;
+        }
+
+        $class = static::class;
+        $class = \explode('\\', $class);
+        $class = (string) \end($class);
+
+        return $this->_entityName = \preg_replace(
+            '/_entity$/',
+            '',
+            \ltrim(\mb_strtolower((string) \preg_replace('/[A-Z]/', '_$0', $class)), '_')
+        );
     }
 
     /**

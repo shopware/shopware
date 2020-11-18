@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\Snippet\Files;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Plugin;
@@ -30,15 +31,38 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
      */
     private $pluginAuthors;
 
-    public function __construct(KernelInterface $kernel, Connection $connection)
-    {
+    /**
+     * @var AppSnippetFileLoader
+     */
+    private $appSnippetFileLoader;
+
+    /**
+     * @var ActiveAppsLoader
+     */
+    private $activeAppsLoader;
+
+    public function __construct(
+        KernelInterface $kernel,
+        Connection $connection,
+        AppSnippetFileLoader $appSnippetFileLoader,
+        ActiveAppsLoader $activeAppsLoader
+    ) {
         $this->kernel = $kernel;
         // use Connection directly as this gets executed so early on kernel boot
         // using the DAL would result in CircularReferences
         $this->connection = $connection;
+        $this->appSnippetFileLoader = $appSnippetFileLoader;
+        $this->activeAppsLoader = $activeAppsLoader;
     }
 
     public function loadSnippetFilesIntoCollection(SnippetFileCollection $snippetFileCollection): void
+    {
+        $this->loadPluginSnippets($snippetFileCollection);
+
+        $this->loadAppSnippets($snippetFileCollection);
+    }
+
+    private function loadPluginSnippets(SnippetFileCollection $snippetFileCollection): void
     {
         foreach ($this->kernel->getBundles() as $bundle) {
             if (!$bundle instanceof Bundle) {
@@ -56,6 +80,16 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
                     continue;
                 }
 
+                $snippetFileCollection->add($snippetFile);
+            }
+        }
+    }
+
+    private function loadAppSnippets(SnippetFileCollection $snippetFileCollection): void
+    {
+        foreach ($this->activeAppsLoader->getActiveApps() as $app) {
+            $snippetFiles = $this->appSnippetFileLoader->loadSnippetFilesFromApp($app['author'] ?? '', $app['path']);
+            foreach ($snippetFiles as $snippetFile) {
                 $snippetFileCollection->add($snippetFile);
             }
         }

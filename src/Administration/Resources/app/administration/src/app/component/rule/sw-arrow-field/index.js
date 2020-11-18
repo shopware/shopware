@@ -13,18 +13,34 @@ Component.register('sw-arrow-field', {
             type: String,
             required: false,
             default: '#d1d9e0'
+        },
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
     render(h) {
         return h('div', {
             class: {
-                'sw-arrow-field': true
+                'sw-arrow-field': true,
+                'is--disabled': this.disabled
             }
         }, [
             this.$slots.default,
             this.getArrow(h)
         ]);
+    },
+
+    computed: {
+        arrowFill() {
+            if (this.primary === '#ffffff' || !this.primary) {
+                return 'transparent';
+            }
+
+            return this.primary;
+        }
     },
 
     methods: {
@@ -44,7 +60,7 @@ Component.register('sw-arrow-field', {
                     h('path', {
                         attrs: {
                             d: 'M 0 0 L 12 50 L 0 100 Z',
-                            fill: this.primary,
+                            fill: this.arrowFill,
                             stroke: 'none'
                         }
                     }),

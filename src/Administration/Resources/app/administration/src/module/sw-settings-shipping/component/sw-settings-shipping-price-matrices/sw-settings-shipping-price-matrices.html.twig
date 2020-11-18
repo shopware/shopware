@@ -4,6 +4,7 @@
             <sw-settings-shipping-price-matrix v-for="priceGroup in shippingPriceGroups"
                                                :key="priceGroup.ruleId"
                                                :priceGroup="priceGroup"
+                                               :disabled="disabled"
                                                @duplicate-price-matrix="onDuplicatePriceMatrix"
                                                @delete-price-matrix="onDeletePriceMatrix">
             </sw-settings-shipping-price-matrix>
@@ -12,7 +13,7 @@
         {% block sw_settings_shipping_detail_advanced_prices_actions %}
             <div class="sw-settings-shipping-price-matrices__actions">
                 {% block sw_settings_shipping_detail_advanced_prices_actions_add_button %}
-                    <sw-button :disabled="newPriceMatrixExists"
+                    <sw-button :disabled="newPriceMatrixExists || disabled"
                                class="sw-settings-shipping-price-matrices__actions-add-matrix"
                                v-tooltip="{
                                     showDelay: 300,

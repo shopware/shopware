@@ -6,7 +6,7 @@ use GuzzleHttp\Client;
 
 class WikiApiService
 {
-    private const INITIAL_VERSION = '6.0.0';
+    private const INITIAL_VERSION = '6.0.0.0';
     private const DOC_VERSION = '1.0.0';
 
     /**
@@ -446,7 +446,7 @@ class WikiApiService
         ];
     }
 
-    private function createArticleLocale($seo, string $articleLocalizationUrl, array $locale): array
+    private function createArticleLocale(string $seo, string $articleLocalizationUrl, array $locale): array
     {
         $response = $this->client->post(
             $articleLocalizationUrl,
@@ -548,6 +548,10 @@ class WikiApiService
 
     private function deleteArticle(int $articleId): void
     {
+        if ($this->hasArticleRatings($articleId)) {
+            return;
+        }
+
         $this->client->delete(
             vsprintf('/wiki/entries/%d', [$articleId]),
             ['headers' => $this->getBasicHeaders()]
@@ -583,7 +587,7 @@ class WikiApiService
         }
     }
 
-    private function deleteCategory($categoryId): void
+    private function deleteCategory(string $categoryId): void
     {
         $this->client->delete(
             vsprintf('/wiki/categories/%s', [$categoryId]),
@@ -812,7 +816,8 @@ class WikiApiService
 
         foreach ($hashesOnServer as $hashToBeDeleted => $mappedId) {
             $this->articleHandler->deleteEntityHash($hashToBeDeleted);
-            $this->deleteArticle($mappedId);
+            $this->disableArticle((int) $mappedId);
+            $this->deleteArticle((int) $mappedId);
         }
     }
 
@@ -833,18 +838,41 @@ class WikiApiService
 
         foreach ($hashesOnServer as $hashToBeDeleted => $mappedId) {
             $this->categoryHandler->deleteEntityHash($hashToBeDeleted);
-            $this->deleteCategory($mappedId);
+            $this->deleteCategory((string) $mappedId);
         }
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function buildAssocArray(array $entities): array
     {
         $rebuiltArray = [];
 
         foreach ($entities as $entity) {
-            $rebuiltArray[$entity['hash']] = $entity['mapped_id'];
+            $rebuiltArray[(string) $entity['hash']] = $entity['mapped_id'];
         }
 
         return $rebuiltArray;
+    }
+
+    private function hasArticleRatings(int $articleId): bool
+    {
+        $articleVersionUrl = $this->buildArticleVersionUrl($this->getArticleInfo($articleId));
+
+        $response = $this->client->get(
+            sprintf('%s/ratings', $articleVersionUrl),
+            [
+                'headers' => $this->getBasicHeaders(),
+            ]
+        );
+
+        $ratings = json_decode($response->getBody()->getContents(), true);
+
+        if (!$ratings) {
+            return false;
+        }
+
+        return true;
     }
 }

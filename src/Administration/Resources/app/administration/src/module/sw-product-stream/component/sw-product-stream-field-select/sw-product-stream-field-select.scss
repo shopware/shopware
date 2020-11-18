@@ -3,12 +3,11 @@
 .sw-arrow-field.sw-product-stream-field-select {
     flex-basis: 0;
     flex-grow: 1;
-
     background-color: $color-gray-900;
 
     .sw-single-select.sw-block-field {
         &.has--focus .sw-block-field__block {
-             box-shadow: none;
+            box-shadow: none;
         }
 
         .sw-block-field__block {
@@ -19,7 +18,7 @@
         .sw-single-select__selection-text,
         .sw-single-select__selection-input {
             background: none;
-            color: $color-white
+            color: $color-white;
         }
     }
 

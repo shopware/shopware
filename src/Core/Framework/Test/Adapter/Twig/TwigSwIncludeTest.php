@@ -121,7 +121,12 @@ class TwigSwIncludeTest extends TestCase
             $twig,
             $loader,
             $this->getContainer()->getParameter('kernel.cache_dir') . '/' . microtime(),
-            new NamespaceHierarchyBuilder([new BundleHierarchyBuilder($kernel)])
+            new NamespaceHierarchyBuilder([
+                new BundleHierarchyBuilder(
+                    $kernel,
+                    $this->getContainer()->get('app.repository')
+                ),
+            ])
         );
 
         $twig->addExtension(new InheritanceExtension($templateFinder));

@@ -2,13 +2,11 @@ import template from './sw-integration-list.html.twig';
 import './sw-integration-list.scss';
 
 const { Component, Mixin, Data: { Criteria } } = Shopware;
-/** @deprecated tag:v6.4.0 */
-const { StateDeprecated } = Shopware;
 
 Component.register('sw-integration-list', {
     template,
 
-    inject: ['integrationService', 'repositoryFactory'],
+    inject: ['integrationService', 'repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('notification')
@@ -37,11 +35,6 @@ Component.register('sw-integration-list', {
             return this.$vnode.tag;
         },
 
-        /** @deprecated tag:v6.4.0 */
-        integrationStore() {
-            return StateDeprecated.getStore('integration');
-        },
-
         integrationRepository() {
             return this.repositoryFactory.create('integration');
         },
@@ -50,6 +43,7 @@ Component.register('sw-integration-list', {
             const criteria = new Criteria(1, 25);
 
             criteria.addSorting(Criteria.sort('label', 'ASC'));
+            criteria.addAssociation('aclRoles');
 
             return criteria;
         },
@@ -146,14 +140,12 @@ Component.register('sw-integration-list', {
 
         createSavedSuccessNotification() {
             this.createNotificationSuccess({
-                title: this.$tc('sw-integration.detail.titleSaveSuccess'),
                 message: this.$tc('sw-integration.detail.messageSaveSuccess')
             });
         },
 
         createSavedErrorNotification() {
             this.createNotificationError({
-                title: this.$tc('sw-integration.detail.titleSaveError'),
                 message: this.$tc('sw-integration.detail.messageSaveError')
             });
         },
@@ -166,13 +158,13 @@ Component.register('sw-integration-list', {
             this.isModalLoading = true;
 
             this.integrationService.generateKey().then((response) => {
+                this.currentIntegration = this.currentIntegration || this.integrationRepository.create();
                 this.currentIntegration.accessKey = response.accessKey;
                 this.currentIntegration.secretAccessKey = response.secretAccessKey;
                 this.showSecretAccessKey = true;
                 this.isModalLoading = false;
             }).catch(() => {
                 this.createNotificationError({
-                    title: this.$tc('sw-integration.detail.titleCreateNewError'),
                     message: this.$tc('sw-integration.detail.messageCreateNewError')
                 });
             });

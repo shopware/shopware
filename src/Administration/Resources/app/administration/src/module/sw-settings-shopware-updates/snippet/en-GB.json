@@ -15,7 +15,6 @@
       "updating": "Updating..."
     },
     "notifications": {
-      "title": "Shopware update",
       "updateStarted": "Update started.",
       "updateStopped": "Update stopped.",
       "downloadFailed": "Download has failed.",
@@ -75,6 +74,14 @@
       "messageOkay": "All prerequisites fulfilled. Don't forget to create a backup before updating.",
       "messageUpdateCheck": "Your current version can be updated to {version}. What do you want to do?",
       "backupLabel": "Yes, I've already created a backup."
+    }
+  },
+  "sw-privileges": {
+    "additional_permissions": {
+      "system": {
+        "core_update": "Run updates",
+        "plugin_maintain": "Maintain plugins"
+      }
     }
   }
 }

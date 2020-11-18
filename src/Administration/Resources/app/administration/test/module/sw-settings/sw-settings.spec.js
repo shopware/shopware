@@ -26,7 +26,7 @@ beforeEach(() => {
 });
 
 describe('src/module/sw-settings', () => {
-    it('should not contain any registered settings items', () => {
+    it('should not contain any registered settings items', async () => {
         register('sw-settings-foo', settingsIndex);
 
         const settingsGroups = Shopware.State.get('settingsItems').settingsGroups;
@@ -34,7 +34,7 @@ describe('src/module/sw-settings', () => {
         expect(settingsGroups).toEqual({});
     });
 
-    it('should contain registered settings items group', () => {
+    it('should contain registered settings items group', async () => {
         settingsIndex.settingsItem = [
             {
                 group: 'shop',
@@ -49,7 +49,7 @@ describe('src/module/sw-settings', () => {
         expect(hasOwnProperty(settingsGroups, 'shop')).toBe(true);
     });
 
-    it('should register a specific key for the defined group property in the settings items', () => {
+    it('should register a specific key for the defined group property in the settings items', async () => {
         settingsIndex.settingsItem = [
             {
                 group: 'shop',
@@ -85,7 +85,7 @@ describe('src/module/sw-settings', () => {
         expect(settingsGroups.plugins.length).toEqual(1);
     });
 
-    it('should only allow unique settings items name per group', () => {
+    it('should only allow unique settings items name per group', async () => {
         settingsIndex.settingsItem = [
             {
                 group: 'shop',
@@ -107,7 +107,7 @@ describe('src/module/sw-settings', () => {
         expect(settingsGroups.shop.length).toEqual(1);
     });
 
-    it('should allow to add settings items with duplicate name in different groups', () => {
+    it('should allow to add settings items with duplicate name in different groups', async () => {
         settingsIndex.settingsItem = [
             {
                 group: 'shop',

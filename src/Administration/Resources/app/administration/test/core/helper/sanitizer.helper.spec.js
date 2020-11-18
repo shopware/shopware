@@ -9,7 +9,7 @@ jest.spyOn(global.console, 'warn').mockImplementation(() => jest.fn());
 
 describe('core/helper/sanitizer.helper.js', () => {
     // See for payload list: https://github.com/s0md3v/AwesomeXSS
-    it('should sanitize the html', () => {
+    it('should sanitize the html', async () => {
         expect(Sanitizer.sanitize('<A/hREf="j%0aavas%09cript%0a:%09con%0afirm%0d``">z'))
             .toBe('<a href="j%0aavas%09cript%0a:%09con%0afirm%0d``">z</a>');
 
@@ -77,7 +77,7 @@ describe('core/helper/sanitizer.helper.js', () => {
             .toBe('<svg></svg>');
     });
 
-    it('should ensure a persistent configuration can be set and cleared', () => {
+    it('should ensure a persistent configuration can be set and cleared', async () => {
         const dirtyContent = '<my-component>abc</my-component>';
 
         expect(Sanitizer.sanitize(dirtyContent)).toBe('abc');
@@ -90,7 +90,7 @@ describe('core/helper/sanitizer.helper.js', () => {
         expect(Sanitizer.sanitize(dirtyContent)).toBe('abc');
     });
 
-    it('should be able to modify the output using a middleware', () => {
+    it('should be able to modify the output using a middleware', async () => {
         Sanitizer.addMiddleware('afterSanitizeElements', (node) => {
             if (node.nodeType && node.nodeType === document.TEXT_NODE) {
                 node.textContent = 'foo';
@@ -103,19 +103,19 @@ describe('core/helper/sanitizer.helper.js', () => {
         expect(Sanitizer.sanitize(content)).toBe(expected);
     });
 
-    it('should register a middleware with a valid name only', () => {
+    it('should register a middleware with a valid name only', async () => {
         expect(Sanitizer.addMiddleware('foo', () => {})).toBe(false);
         expect(Sanitizer.addMiddleware('afterSanitizeElements', () => {})).toBe(true);
 
         expect(Sanitizer.removeMiddleware('afterSanitizeElements')).toBe(true);
     });
 
-    it('should remove a middleware with a valid name only', () => {
+    it('should remove a middleware with a valid name only', async () => {
         expect(Sanitizer.removeMiddleware('foo')).toBe(false);
         expect(Sanitizer.removeMiddleware('afterSanitizeElements')).toBe(true);
     });
 
-    it('should sanitize untrusted HTML in a component', () => {
+    it('should sanitize untrusted HTML in a component', async () => {
         const localVue = createLocalVue();
         localVue.use(SanitizePlugin);
 

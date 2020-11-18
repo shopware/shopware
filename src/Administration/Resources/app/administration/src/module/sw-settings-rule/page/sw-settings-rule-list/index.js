@@ -8,7 +8,8 @@ Component.register('sw-settings-rule-list', {
     template,
 
     inject: [
-        'repositoryFactory'
+        'repositoryFactory',
+        'acl'
     ],
 
     mixins: [
@@ -73,13 +74,11 @@ Component.register('sw-settings-rule-list', {
                 this.isLoading = false;
 
                 this.createNotificationSuccess({
-                    title: this.$tc('sw-settings-rule.detail.titleSaveSuccess'),
                     message: this.$tc('sw-settings-rule.detail.messageSaveSuccess', 0, { name: rule.name })
                 });
             }).catch(() => {
                 this.getList();
                 this.createNotificationError({
-                    title: this.$tc('sw-settings-rule.detail.titleSaveError'),
                     message: this.$tc('sw-settings-rule.detail.messageSaveError')
                 });
             });

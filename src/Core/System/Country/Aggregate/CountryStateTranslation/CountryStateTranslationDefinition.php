@@ -28,6 +28,11 @@ class CountryStateTranslationDefinition extends EntityTranslationDefinition
         return CountryStateTranslationEntity::class;
     }
 
+    public function since(): ?string
+    {
+        return '6.0.0.0';
+    }
+
     protected function getParentDefinitionClass(): string
     {
         return CountryStateDefinition::class;

@@ -17,11 +17,10 @@
  *
  */
 
-/* global PluginManager, window */
+/* global PluginManager */
 
 import Plugin from 'src/plugin-system/plugin.class';
 import CookieStorage from 'src/helper/storage/cookie-storage.helper';
-import DeviceDetection from 'src/helper/device-detection.helper';
 import AjaxOffCanvas from 'src/plugin/offcanvas/ajax-offcanvas.plugin';
 import OffCanvas from 'src/plugin/offcanvas/offcanvas.plugin';
 import AjaxModalExtension from 'src/utility/modal-extension/ajax-modal-extension.util';
@@ -33,11 +32,13 @@ export default class CookieConfiguration extends Plugin {
 
     static options = {
         offCanvasPosition: 'left',
-        submitEvent: (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click',
+        submitEvent: 'click',
         cookiePreference: 'cookie-preference',
         cookieSelector: '[data-cookie]',
         buttonOpenSelector: '.js-cookie-configuration-button button',
         buttonSubmitSelector: '.js-offcanvas-cookie-submit',
+        buttonAcceptAllSelector: '.js-offcanvas-cookie-accept-all',
+        globalButtonAcceptAllSelector: '.js-cookie-accept-all-button',
         wrapperToggleSelector: '.offcanvas-cookie-entries span',
         parentInputSelector: '.offcanvas-cookie-parent-input',
         customLinkSelector: `[href="${window.router['frontend.cookie.offcanvas']}"]`,
@@ -65,7 +66,7 @@ export default class CookieConfiguration extends Plugin {
      * @private
      */
     _registerEvents() {
-        const { submitEvent, buttonOpenSelector, customLinkSelector } = this.options;
+        const { submitEvent, buttonOpenSelector, customLinkSelector, globalButtonAcceptAllSelector } = this.options;
 
         Array.from(document.querySelectorAll(buttonOpenSelector)).forEach(button => {
             button.addEventListener(submitEvent, this.openOffCanvas.bind(this));
@@ -73,6 +74,10 @@ export default class CookieConfiguration extends Plugin {
 
         Array.from(document.querySelectorAll(customLinkSelector)).forEach(customLink => {
             customLink.addEventListener(submitEvent, this._handleCustomLink.bind(this));
+        });
+
+        Array.from(document.querySelectorAll(globalButtonAcceptAllSelector)).forEach(customLink => {
+            customLink.addEventListener(submitEvent, this.acceptAllCookies.bind(this));
         });
     }
 
@@ -82,16 +87,21 @@ export default class CookieConfiguration extends Plugin {
      * @private
      */
     _registerOffCanvasEvents() {
-        const { submitEvent, buttonSubmitSelector, wrapperToggleSelector } = this.options;
+        const { submitEvent, buttonSubmitSelector, buttonAcceptAllSelector, wrapperToggleSelector } = this.options;
         const offCanvas = this._getOffCanvas();
 
         if (offCanvas) {
             const button = offCanvas.querySelector(buttonSubmitSelector);
+            const buttonAcceptAll = offCanvas.querySelector(buttonAcceptAllSelector);
             const checkboxes = Array.from(offCanvas.querySelectorAll('input[type="checkbox"]'));
             const wrapperTrigger = Array.from(offCanvas.querySelectorAll(wrapperToggleSelector));
 
             if (button) {
-                button.addEventListener(submitEvent, this._handleSubmit.bind(this));
+                button.addEventListener(submitEvent, this._handleSubmit.bind(this, CookieStorage));
+            }
+
+            if (buttonAcceptAll) {
+                buttonAcceptAll.addEventListener(submitEvent, this._handleAcceptAll.bind(this, CookieStorage));
             }
 
             checkboxes.forEach(checkbox => {
@@ -410,6 +420,35 @@ export default class CookieConfiguration extends Plugin {
         CookieStorage.setItem(cookiePreference, '1', '30');
 
         this._handleUpdateListener(activeCookieNames, inactiveCookieNames);
+        this.closeOffCanvas();
+    }
+
+    acceptAllCookies() {
+        this.openOffCanvas(() => {
+            this._handleAcceptAll();
+        });
+    }
+
+    /**
+     * Event handler for the 'Allow all'-button in the off canvas view.
+     *
+     * This will set and refresh all registered cookies.
+     *
+     * @private
+     */
+    _handleAcceptAll() {
+        const allCookies = this._getCookies('all');
+        const { cookiePreference } = this.options;
+
+        allCookies.forEach(({ cookie, value, expiration }) => {
+            if (cookie && value) {
+                CookieStorage.setItem(cookie, value, expiration);
+            }
+        });
+
+        CookieStorage.setItem(cookiePreference, '1', '30');
+
+        this._handleUpdateListener(allCookies.map(({ cookie }) => cookie), []);
         this.closeOffCanvas();
     }
 

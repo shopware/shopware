@@ -4,10 +4,12 @@ namespace Shopware\Core\System\Test\Snippet\Files;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Kernel;
+use Shopware\Core\System\Snippet\Files\AppSnippetFileLoader;
 use Shopware\Core\System\Snippet\Files\GenericSnippetFile;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Files\SnippetFileLoader;
@@ -31,7 +33,9 @@ class SnippetFileLoaderTest extends TestCase
 
         $snippetFileLoader = new SnippetFileLoader(
             $kernel,
-            $this->getContainer()->get(Connection::class)
+            $this->getContainer()->get(Connection::class),
+            $this->getContainer()->get(AppSnippetFileLoader::class),
+            $this->getContainer()->get(ActiveAppsLoader::class)
         );
 
         $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
@@ -86,7 +90,9 @@ class SnippetFileLoaderTest extends TestCase
 
         $snippetFileLoader = new SnippetFileLoader(
             $kernel,
-            $this->getContainer()->get(Connection::class)
+            $this->getContainer()->get(Connection::class),
+            $this->getContainer()->get(AppSnippetFileLoader::class),
+            $this->getContainer()->get(ActiveAppsLoader::class)
         );
 
         $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
@@ -141,7 +147,9 @@ class SnippetFileLoaderTest extends TestCase
 
         $snippetFileLoader = new SnippetFileLoader(
             $kernel,
-            $this->getContainer()->get(Connection::class)
+            $this->getContainer()->get(Connection::class),
+            $this->getContainer()->get(AppSnippetFileLoader::class),
+            $this->getContainer()->get(ActiveAppsLoader::class)
         );
 
         $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
@@ -196,7 +204,9 @@ class SnippetFileLoaderTest extends TestCase
 
         $snippetFileLoader = new SnippetFileLoader(
             $kernel,
-            $this->getContainer()->get(Connection::class)
+            $this->getContainer()->get(Connection::class),
+            $this->getContainer()->get(AppSnippetFileLoader::class),
+            $this->getContainer()->get(ActiveAppsLoader::class)
         );
 
         $snippetFileLoader->loadSnippetFilesIntoCollection($collection);

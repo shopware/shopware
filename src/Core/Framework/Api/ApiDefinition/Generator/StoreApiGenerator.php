@@ -67,7 +67,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
     {
         $openApi = $this->openApiLoader->load($api);
         $this->openApiBuilder->enrich($openApi, $api, $version);
-        $forSalesChannel = in_array($api, [DefinitionService::SALES_CHANNEL_API, DefinitionService::STORE_API], true);
+        $forSalesChannel = $api === DefinitionService::STORE_API;
 
         ksort($definitions);
 
@@ -91,7 +91,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
             $name = str_replace('.json', '', $item->getFilename());
 
             $readData = json_decode(file_get_contents($item->getPathname()), true);
-            $data['definitions'][$name] = $readData;
+            $data['components']['schemas'][$name] = $readData;
         }
 
         return $data;

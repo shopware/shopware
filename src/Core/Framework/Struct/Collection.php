@@ -11,8 +11,8 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
 
     public function __construct(iterable $elements = [])
     {
-        foreach ($elements as $element) {
-            $this->add($element);
+        foreach ($elements as $key => $element) {
+            $this->set($key, $element);
         }
     }
 
@@ -134,6 +134,9 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
         return array_values($this->elements)[\count($this->elements) - 1] ?? null;
     }
 
+    /**
+     * @param int|string $key
+     */
     public function remove($key): void
     {
         unset($this->elements[$key]);

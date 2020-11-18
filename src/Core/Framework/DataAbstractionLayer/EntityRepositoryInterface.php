@@ -8,6 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Aggreg
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 
 interface EntityRepositoryInterface
 {
@@ -17,7 +18,10 @@ interface EntityRepositoryInterface
 
     public function searchIds(Criteria $criteria, Context $context): IdSearchResult;
 
-    public function clone(string $id, Context $context, ?string $newId = null): EntityWrittenContainerEvent;
+    /**
+     * @param CloneBehavior|null $behavior - @deprecated tag:v6.4.0 - Will be implemented in 6.4.0
+     */
+    public function clone(string $id, Context $context, ?string $newId = null/*, CloneBehavior $behavior = null*/): EntityWrittenContainerEvent;
 
     public function search(Criteria $criteria, Context $context): EntitySearchResult;
 

@@ -1,4 +1,5 @@
 import template from './sw-property-detail.html.twig';
+import './sw-property-detail.scss';
 
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -7,7 +8,8 @@ Component.register('sw-property-detail', {
     template,
 
     inject: [
-        'repositoryFactory'
+        'repositoryFactory',
+        'acl'
     ],
 
     mixins: [
@@ -16,7 +18,12 @@ Component.register('sw-property-detail', {
     ],
 
     shortcuts: {
-        'SYSTEMKEY+S': 'onSave',
+        'SYSTEMKEY+S': {
+            active() {
+                return this.acl.can('product.editor');
+            },
+            method: 'onSave'
+        },
         ESCAPE: 'onCancel'
     },
 
@@ -63,6 +70,14 @@ Component.register('sw-property-detail', {
         },
 
         tooltipSave() {
+            if (!this.acl.can('property.editor')) {
+                return {
+                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    disabled: this.acl.can('property.editor'),
+                    showOnDisabledElements: true
+                };
+            }
+
             const systemKey = this.$device.getSystemKey();
 
             return {
@@ -80,8 +95,9 @@ Component.register('sw-property-detail', {
 
         defaultCriteria() {
             const criteria = new Criteria(this.page, this.limit);
-
+            criteria.addAssociation('options');
             criteria.setTerm(this.term);
+
             return criteria;
         },
 
@@ -137,7 +153,6 @@ Component.register('sw-property-detail', {
                 this.isSaveSuccessful = true;
             }).catch((exception) => {
                 this.createNotificationError({
-                    title: this.$tc('sw-property.detail.titleSaveError'),
                     message: this.$tc('sw-property.detail.messageSaveError')
                 });
                 this.isLoading = false;

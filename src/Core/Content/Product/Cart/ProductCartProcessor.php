@@ -29,6 +29,8 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
     public const SKIP_PRODUCT_RECALCULATION = 'skipProductRecalculation';
 
+    public const SKIP_PRODUCT_STOCK_VALIDATION = 'skipProductStockValidation';
+
     /**
      * @var ProductGatewayInterface
      */
@@ -44,14 +46,21 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
      */
     private $calculator;
 
+    /**
+     * @var ProductFeatureBuilder
+     */
+    private $featureBuilder;
+
     public function __construct(
         ProductGatewayInterface $productGateway,
         QuantityPriceCalculator $calculator,
-        ProductPriceDefinitionBuilderInterface $priceDefinitionBuilder
+        ProductPriceDefinitionBuilderInterface $priceDefinitionBuilder,
+        ProductFeatureBuilder $featureBuilder
     ) {
         $this->productGateway = $productGateway;
         $this->priceDefinitionBuilder = $priceDefinitionBuilder;
         $this->calculator = $calculator;
+        $this->featureBuilder = $featureBuilder;
     }
 
     public function collect(
@@ -81,6 +90,8 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             // enrich all products in original cart
             $this->enrich($original, $lineItem, $data, $context, $behavior);
         }
+
+        $this->featureBuilder->prepare($lineItems, $data, $context);
     }
 
     /**
@@ -105,8 +116,9 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                 throw new MissingLineItemPriceException($lineItem->getId());
             }
 
-            if ($behavior->hasPermission(self::ALLOW_PRODUCT_PRICE_OVERWRITES)) {
-                $definition->setQuantity($lineItem->getQuantity());
+            $definition->setQuantity($lineItem->getQuantity());
+
+            if ($behavior->hasPermission(self::SKIP_PRODUCT_STOCK_VALIDATION)) {
                 $lineItem->setPrice($this->calculator->calculate($definition, $context));
                 $toCalculate->add($lineItem);
 
@@ -123,12 +135,18 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                 continue;
             }
 
+            $minPurchase = $product->getMinPurchase() ?? 1;
+            if ($lineItem->getQuantity() < $minPurchase) {
+                $lineItem->setQuantity($minPurchase);
+                $definition->setQuantity($minPurchase);
+            }
+
             $available = $product->getCalculatedMaxPurchase() ?? $lineItem->getQuantity();
 
-            if ($available <= 0 || $available < $product->getMinPurchase()) {
+            if ($available <= 0 || $available < $minPurchase) {
                 $original->remove($lineItem->getId());
 
-                $original->addErrors(
+                $toCalculate->addErrors(
                     new ProductOutOfStockError($product->getId(), (string) $product->getTranslation('name'))
                 );
 
@@ -145,9 +163,21 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
                 );
             }
 
+            $fixedQuantity = $this->fixQuantity($minPurchase, $lineItem->getQuantity(), $product->getPurchaseSteps() ?? 1);
+            if ($lineItem->getQuantity() !== $fixedQuantity) {
+                $lineItem->setQuantity($fixedQuantity);
+                $definition->setQuantity($fixedQuantity);
+                $toCalculate->addErrors(
+                    new PurchaseStepsError($product->getId(), (string) $product->getTranslation('name'), $fixedQuantity)
+                );
+            }
+
             $lineItem->setPrice($this->calculator->calculate($definition, $context));
+
             $toCalculate->add($lineItem);
         }
+
+        $this->featureBuilder->add($lineItems, $data, $context);
     }
 
     private function enrich(
@@ -227,14 +257,20 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
 
         $lineItem->setQuantityInformation($quantityInformation);
 
-        $lineItem->replacePayload([
+        $purchasePrices = null;
+        $purchasePricesCollection = $product->getPurchasePrices();
+        if ($purchasePricesCollection !== null) {
+            $purchasePrices = $purchasePricesCollection->getCurrencyPrice(Defaults::CURRENCY);
+        }
+
+        $payload = [
             'isCloseout' => $product->getIsCloseout(),
             'customFields' => $product->getCustomFields(),
             'createdAt' => $product->getCreatedAt()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             'releaseDate' => $product->getReleaseDate() ? $product->getReleaseDate()->format(Defaults::STORAGE_DATE_TIME_FORMAT) : null,
             'isNew' => $product->isNew(),
             'markAsTopseller' => $product->getMarkAsTopseller(),
-            'purchasePrice' => $product->getPurchasePrice(),
+            'purchasePrices' => $purchasePrices ? json_encode($purchasePrices) : null,
             'productNumber' => $product->getProductNumber(),
             'manufacturerId' => $product->getManufacturerId(),
             'taxId' => $product->getTaxId(),
@@ -243,7 +279,11 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             'propertyIds' => $product->getPropertyIds(),
             'optionIds' => $product->getOptionIds(),
             'options' => $this->getOptions($product),
-        ]);
+        ];
+
+        $payload['options'] = $product->getVariation();
+
+        $lineItem->replacePayload($payload);
     }
 
     private function getNotCompleted(CartDataCollection $data, array $lineItems): array
@@ -325,5 +365,10 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
         }
 
         return $options;
+    }
+
+    private function fixQuantity(int $min, int $current, int $steps): int
+    {
+        return (int) (floor(($current - $min) / $steps) * $steps + $min);
     }
 }

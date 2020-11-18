@@ -2,14 +2,10 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
-use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\InvalidSortingDirectionException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AntiJoinFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -21,7 +17,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter;
-use Shopware\Core\Framework\Uuid\Uuid;
 
 trait CriteriaQueryHelper
 {
@@ -50,15 +45,10 @@ trait CriteriaQueryHelper
             $criteria->addQuery(...$queries);
         }
 
+        $filters = array_merge($criteria->getFilters(), $criteria->getPostFilters());
         $filter = $this->antiJoinTransform(
             $definition,
-            new MultiFilter(
-                'AND',
-                array_merge(
-                    $criteria->getFilters(),
-                    $criteria->getPostFilters()
-                )
-            )
+            count($filters) === 1 ? $filters[0] : new MultiFilter('AND', $filters)
         );
 
         $criteria->resetFilters();
@@ -95,44 +85,12 @@ trait CriteriaQueryHelper
         return $query;
     }
 
+    /**
+     * @deprecated tag:v6.4.0 - Use \Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper::addIdCondition
+     */
     protected function addIdCondition(Criteria $criteria, EntityDefinition $definition, QueryBuilder $query): void
     {
-        $primaryKeys = $criteria->getIds();
-
-        $primaryKeys = array_values($primaryKeys);
-
-        if (empty($primaryKeys)) {
-            return;
-        }
-
-        if (!\is_array($primaryKeys[0]) || \count($primaryKeys[0]) === 1) {
-            $primaryKeyField = $definition->getPrimaryKeys()->first();
-            if ($primaryKeyField instanceof IdField) {
-                $primaryKeys = array_map(function ($id) {
-                    if (is_array($id)) {
-                        return Uuid::fromHexToBytes($id[0]);
-                    }
-
-                    return Uuid::fromHexToBytes($id);
-                }, $primaryKeys);
-            }
-
-            if (!$primaryKeyField instanceof StorageAware) {
-                throw new \RuntimeException('Primary key fields has to be an instance of StorageAware');
-            }
-
-            $query->andWhere(sprintf(
-                '%s.%s IN (:ids)',
-                EntityDefinitionQueryHelper::escape($definition->getEntityName()),
-                EntityDefinitionQueryHelper::escape($primaryKeyField->getStorageName())
-            ));
-
-            $query->setParameter('ids', array_values($primaryKeys), Connection::PARAM_STR_ARRAY);
-
-            return;
-        }
-
-        $this->addIdConditionWithOr($criteria, $definition, $query);
+        $this->getDefinitionHelper()->addIdCondition($criteria, $definition, $query);
     }
 
     protected function addFilter(EntityDefinition $definition, ?Filter $filter, QueryBuilder $query, Context $context): void
@@ -153,41 +111,6 @@ trait CriteriaQueryHelper
         }
     }
 
-    private function addIdConditionWithOr(Criteria $criteria, EntityDefinition $definition, QueryBuilder $query): void
-    {
-        $wheres = [];
-
-        foreach ($criteria->getIds() as $primaryKey) {
-            if (!is_array($primaryKey)) {
-                $primaryKey = ['id' => $primaryKey];
-            }
-
-            $where = [];
-
-            foreach ($primaryKey as $storageName => $value) {
-                $field = $definition->getFields()->getByStorageName($storageName);
-
-                if ($field instanceof IdField || $field instanceof FkField) {
-                    $value = Uuid::fromHexToBytes($value);
-                }
-
-                $key = 'pk' . Uuid::randomHex();
-
-                $accessor = EntityDefinitionQueryHelper::escape($definition->getEntityName()) . '.' . EntityDefinitionQueryHelper::escape($storageName);
-
-                $where[] = $accessor . ' = :' . $key;
-
-                $query->setParameter($key, $value);
-            }
-
-            $wheres[] = '(' . implode(' AND ', $where) . ')';
-        }
-
-        $wheres = implode(' OR ', $wheres);
-
-        $query->andWhere($wheres);
-    }
-
     private function addQueries(EntityDefinition $definition, Criteria $criteria, QueryBuilder $query, Context $context): void
     {
         $queries = $this->getParser()->parseRanking(
@@ -205,8 +128,9 @@ trait CriteriaQueryHelper
         $select = 'SUM(' . implode(' + ', $queries->getWheres()) . ')';
         $query->addSelect($select . ' as _score');
 
-        if (empty($criteria->getSorting())) {
-            $query->addOrderBy('_score', 'DESC');
+        // Sort by _score primarily if the criteria has a score query or search term
+        if (!$this->hasScoreSorting($criteria)) {
+            $criteria->addSorting(new FieldSorting('_score', FieldSorting::DESCENDING));
         }
 
         $minScore = array_map(function (ScoreQuery $query) {
@@ -230,6 +154,13 @@ trait CriteriaQueryHelper
             $this->validateSortingDirection($sorting->getDirection());
 
             if ($sorting->getField() === '_score') {
+                if (!$this->hasQueriesOrTerm($criteria)) {
+                    continue;
+                }
+
+                // Only add manual _score sorting if the query contains a _score calculation and selection (i.e. the
+                // criteria has a term or queries). Otherwise the SQL selection would fail because no _score field
+                // exists in any entity.
                 $query->addOrderBy('_score', $sorting->getDirection());
                 $query->addState('_score');
 
@@ -294,6 +225,22 @@ trait CriteriaQueryHelper
         }
 
         return array_unique(array_merge(...$fields));
+    }
+
+    private function hasScoreSorting(Criteria $criteria): bool
+    {
+        foreach ($criteria->getSorting() as $sorting) {
+            if ($sorting->getField() === '_score') {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function hasQueriesOrTerm(Criteria $criteria): bool
+    {
+        return !empty($criteria->getQueries()) || $criteria->getTerm();
     }
 
     /**

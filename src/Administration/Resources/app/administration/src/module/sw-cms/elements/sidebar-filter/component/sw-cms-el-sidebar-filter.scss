@@ -3,6 +3,10 @@
 .sw-cms-element-sidebar-filter {
     cursor: pointer;
 
+    &.is--disabled {
+        cursor: not-allowed;
+    }
+
     .sw-cms-element-sidebar-filter__element {
         display: inline-block;
         border: 1px solid #d4e2e2;

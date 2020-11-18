@@ -1,0 +1,15 @@
+{
+  "type": "object",
+  "properties": {
+    "apiAlias": {
+      "type": "string"
+    },
+    "filename": {
+      "type": "string"
+    },
+    "created": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

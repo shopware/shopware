@@ -37,6 +37,8 @@ exports[`components/form/sw-radio-field should renders correctly with children s
         </span>
          
         <!---->
+         
+        <!---->
       </label>
        
       <input
@@ -75,6 +77,8 @@ exports[`components/form/sw-radio-field should renders correctly with children s
         </span>
          
         <!---->
+         
+        <!---->
       </label>
        
     </div>
@@ -104,10 +108,14 @@ exports[`components/form/sw-radio-field should renders correctly with children s
         </span>
          
         <!---->
+         
+        <!---->
       </label>
        
     </div>
   </div>
+   
+  <!---->
    
   <div />
 </div>

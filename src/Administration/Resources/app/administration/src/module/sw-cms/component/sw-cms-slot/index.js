@@ -21,6 +21,12 @@ Component.register('sw-cms-slot', {
             type: Boolean,
             required: false,
             default: false
+        },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -40,8 +46,14 @@ Component.register('sw-cms-slot', {
             return this.cmsService.getCmsElementRegistry();
         },
 
+        componentClasses() {
+            return {
+                'is--disabled': this.disabled
+            };
+        },
+
         cmsSlotSettingsClasses() {
-            if (this.elementConfig.defaultConfig) {
+            if (this.elementConfig.defaultConfig && !this.element.locked) {
                 return null;
             }
             return 'is--disabled';
@@ -50,7 +62,8 @@ Component.register('sw-cms-slot', {
         tooltipDisabled() {
             if (this.elementConfig.disabledConfigInfoTextKey) {
                 return {
-                    message: this.$tc(this.elementConfig.disabledConfigInfoTextKey)
+                    message: this.$tc(this.elementConfig.disabledConfigInfoTextKey),
+                    disabled: !!this.elementConfig.defaultConfig && !this.element.locked
                 };
             }
             return {
@@ -84,6 +97,7 @@ Component.register('sw-cms-slot', {
             this.element.data = {};
             this.element.config = {};
             this.element.type = elementType;
+            this.element.locked = false;
             this.showElementSelection = false;
         }
     }

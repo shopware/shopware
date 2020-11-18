@@ -210,7 +210,8 @@ class ThumbnailService
 
     private function ensureConfigIsLoaded(MediaEntity $media, Context $context): void
     {
-        if (!$media->getMediaFolderId()) {
+        $mediaFolderId = $media->getMediaFolderId();
+        if ($mediaFolderId === null) {
             return;
         }
 
@@ -218,10 +219,10 @@ class ThumbnailService
             return;
         }
 
-        $criteria = new Criteria([$media->getMediaFolderId()]);
+        $criteria = new Criteria([$mediaFolderId]);
         $criteria->addAssociation('configuration.mediaThumbnailSizes');
         /** @var MediaFolderEntity $folder */
-        $folder = $this->mediaFolderRepository->search($criteria, $context)->get($media->getMediaFolderId());
+        $folder = $this->mediaFolderRepository->search($criteria, $context)->get($mediaFolderId);
         $media->setMediaFolder($folder);
     }
 
@@ -258,6 +259,9 @@ class ThumbnailService
         return $image;
     }
 
+    /**
+     * @param resource $image
+     */
     private function getOriginalImageSize($image): array
     {
         return [
@@ -272,30 +276,56 @@ class ThumbnailService
         MediaFolderConfigurationEntity $config
     ): array {
         if (!$config->getKeepAspectRatio() || $preferredThumbnailSize->getWidth() !== $preferredThumbnailSize->getHeight()) {
-            return [
-                'width' => $preferredThumbnailSize->getWidth(),
-                'height' => $preferredThumbnailSize->getHeight(),
+            $calculatedWidth = $preferredThumbnailSize->getWidth();
+            $calculatedHeight = $preferredThumbnailSize->getHeight();
+
+            $useOriginalSizeInThumbnails = $imageSize['width'] < $calculatedWidth || $imageSize['height'] < $calculatedHeight;
+
+            return $useOriginalSizeInThumbnails ? [
+                'width' => $imageSize['width'],
+                'height' => $imageSize['height'],
+            ] : [
+                'width' => $calculatedWidth,
+                'height' => $calculatedHeight,
             ];
         }
 
         if ($imageSize['width'] >= $imageSize['height']) {
             $aspectRatio = $imageSize['height'] / $imageSize['width'];
 
-            return [
-                'width' => $preferredThumbnailSize->getWidth(),
-                'height' => (int) ceil($preferredThumbnailSize->getHeight() * $aspectRatio),
+            $calculatedWidth = $preferredThumbnailSize->getWidth();
+            $calculatedHeight = (int) ceil($preferredThumbnailSize->getHeight() * $aspectRatio);
+
+            $useOriginalSizeInThumbnails = $imageSize['width'] < $calculatedWidth || $imageSize['height'] < $calculatedHeight;
+
+            return $useOriginalSizeInThumbnails ? [
+                'width' => $imageSize['width'],
+                'height' => $imageSize['height'],
+            ] : [
+                'width' => $calculatedWidth,
+                'height' => $calculatedHeight,
             ];
         }
 
         $aspectRatio = $imageSize['width'] / $imageSize['height'];
 
-        return [
-            'width' => (int) ceil($preferredThumbnailSize->getWidth() * $aspectRatio),
-            'height' => $preferredThumbnailSize->getHeight(),
+        $calculatedWidth = (int) ceil($preferredThumbnailSize->getWidth() * $aspectRatio);
+        $calculatedHeight = $preferredThumbnailSize->getHeight();
+
+        $useOriginalSizeInThumbnails = $imageSize['width'] < $calculatedWidth || $imageSize['height'] < $calculatedHeight;
+
+        return $useOriginalSizeInThumbnails ? [
+            'width' => $imageSize['width'],
+            'height' => $imageSize['height'],
+        ] : [
+            'width' => $calculatedWidth,
+            'height' => $calculatedHeight,
         ];
     }
 
     /**
+     * @param resource $mediaImage
+     *
      * @return resource
      */
     private function createNewImage($mediaImage, MediaType $type, array $originalImageSize, array $thumbnailSize)
@@ -327,6 +357,8 @@ class ThumbnailService
     }
 
     /**
+     * @param resource $thumbnail
+     *
      * @throws ThumbnailCouldNotBeSavedException
      */
     private function writeThumbnail($thumbnail, MediaEntity $media, string $url, int $quality): void

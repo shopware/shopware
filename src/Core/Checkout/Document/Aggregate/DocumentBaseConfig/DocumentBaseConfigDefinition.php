@@ -39,6 +39,11 @@ class DocumentBaseConfigDefinition extends EntityDefinition
         return DocumentBaseConfigEntity::class;
     }
 
+    public function since(): ?string
+    {
+        return '6.0.0.0';
+    }
+
     protected function getParentDefinitionClass(): ?string
     {
         return DocumentTypeDefinition::class;
@@ -60,7 +65,7 @@ class DocumentBaseConfigDefinition extends EntityDefinition
             new JsonField('config', 'config'),
             new CreatedAtField(),
 
-            (new ManyToOneAssociationField('documentType', 'document_type_id', DocumentTypeDefinition::class, 'id'))->addFlags(new Required()),
+            (new ManyToOneAssociationField('documentType', 'document_type_id', DocumentTypeDefinition::class, 'id')),
             new ManyToOneAssociationField('logo', 'logo_id', MediaDefinition::class, 'id'),
             (new OneToManyAssociationField('salesChannels', DocumentBaseConfigSalesChannelDefinition::class, 'document_base_config_id', 'id'))->addFlags(new CascadeDelete()),
         ]);

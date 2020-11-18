@@ -119,7 +119,8 @@ $sw-page-smart-bar-headline-font-weight: 600;
         white-space: nowrap;
 
         .sw-button,
-        .sw-button-group {
+        .sw-button-group,
+        .sw-tooltip--wrapper {
             margin-left: 8px;
 
             &:first-child {

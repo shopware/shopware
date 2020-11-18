@@ -10,9 +10,12 @@ const { hasOwnProperty } = Shopware.Utils.object;
 Component.register('sw-desktop', {
     template,
 
+    inject: ['feature', 'appUrlChangeService'],
+
     data() {
         return {
-            noNavigation: false
+            noNavigation: false,
+            urlDiff: null
         };
     },
 
@@ -37,6 +40,7 @@ Component.register('sw-desktop', {
     methods: {
         createdComponent() {
             this.checkRouteSettings();
+            this.updateShowUrlChangedModal();
         },
 
         checkRouteSettings() {
@@ -45,6 +49,16 @@ Component.register('sw-desktop', {
             } else {
                 this.noNavigation = false;
             }
+        },
+
+        updateShowUrlChangedModal() {
+            this.appUrlChangeService.getUrlDiff().then((diff) => {
+                this.urlDiff = diff;
+            });
+        },
+
+        closeModal() {
+            this.urlDiff = null;
         }
     }
 });

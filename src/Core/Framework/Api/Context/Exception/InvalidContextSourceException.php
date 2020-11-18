@@ -12,7 +12,6 @@ class InvalidContextSourceException extends ShopwareHttpException
             'Expected ContextSource of "{{expected}}", but got "{{actual}}".',
             ['expected' => $expected, 'actual' => $actual]
         );
-        parent::__construct('Store actions not available outside of AdminApiContext.');
     }
 
     public function getErrorCode(): string

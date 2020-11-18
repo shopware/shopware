@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="../../../../../../../src/Core/Content/App/Manifest/Schema/manifest-1.0.xsd">
+    <meta>
+        <name>SwagAppPrivate</name>
+        <label>Swag App Test</label>
+        <label lang="de-DE">Swag App Test</label>
+        <description>Test for private App authentication</description>
+        <description lang="de-DE">Test für die private App Authentifizierung</description>
+        <author>shopware AG</author>
+        <copyright>(c) by shopware AG</copyright>
+        <version>1.0.0</version>
+        <license>MIT</license>
+    </meta>
+    <setup>
+        <registrationUrl>https://my.app.com/SwagAppPrivate/registration</registrationUrl>
+    </setup>
+</manifest>

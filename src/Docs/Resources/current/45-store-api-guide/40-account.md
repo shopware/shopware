@@ -14,7 +14,7 @@ This route needs two parameters:
 For this example we are using the account credentials for the dummy user.
 
 ```
-POST /store-api/v1/account/login
+POST /store-api/v3/account/login
 
 {
     "username": "test@example.com",
@@ -46,7 +46,7 @@ The `store-api.account.register` needs the following parameters:
 * `storefrontUrl`: the url to your storefront 
 
 ```
-POST /store-api/v1/account/register
+POST /store-api/v3/account/register
 
 {
     "guest": false,
@@ -93,8 +93,9 @@ POST /store-api/v1/account/register
 ```
 
 Whether you have double opt in registration enabled or not the account of your customer is enabled or not.
+This route gives a loggedin `sw-context-token` when double optin is disabled, otherwise the confirmation returns the loggedin token.
 
-If double opt in registration is enabled you need to use this route: `store-api.account.register.confirm` to active the account of you customer.
+If double opt in registration is enabled you need to use this route: `/store-api/v{version}/account/register-confirm` to activate the account of your customer.
 
 This route needs two parameters: 
 * `hash`: the hast to verify the user account
@@ -131,7 +132,7 @@ This route does not need any parameter.
 **Note** that you need the `sw-context-token` header for this route, which contains the context token of the login route response.
 
 ```
-POST /store-api/v1/account/logout
+POST /store-api/v3/account/logout
 
 // when you get a 204 http reponse code you successfully logged out your customer.
 
@@ -148,7 +149,7 @@ Additionally can use the api basic parameters (`filter`,  `aggregations`, etc.) 
 **Note** that you need the `sw-context-token` header for this route, which contains the context token of the login route response.
 
 ```
-POST /store-api/v1/account/customer
+POST /store-api/v3/account/customer
 
 {
     "includes": {
@@ -179,7 +180,7 @@ This route takes three parameters:
 **Note** that you need the `sw-context-token` header for this route, which contains the context token of the login route response.
 
 ```
-POST /store-api/v1/account/change-profile
+POST /store-api/v3/account/change-profile
 
 {
     "salutationId": "99362bce5d764c959289e65039d8d625",
@@ -204,7 +205,7 @@ It takes in three parameters:
 **Note** that you need the `sw-context-token` header for this route, which contains the context token of the login route response.
 
 ```
-POST /store-api/v1/account/change-email
+POST /store-api/v3/account/change-email
 
 {
     "email": "jon.doe@example.com",
@@ -231,7 +232,7 @@ The parameters for this route are:
 In this example we change the password with a new password that is more secure than the old one.
 
 ```
-POST /store-api/v1/account/change-password
+POST /store-api/v3/account/change-password
 
 {
     "password": "password",
@@ -255,7 +256,7 @@ The `store-api.account.recovery.send.mail` has two parameters:
 * `storefrontUrl`: for this parameter you enter the base path to the Sales Channel
 
 ```
-POST /store-api/v1/account/recovery-password
+POST /store-api/v3/account/recovery-password
 
 {
     "email": "jon.doe@example.com",
@@ -278,7 +279,7 @@ It needs the following parameters:
 * `storefrontUrl`: this parameters needs the base url of the Sales Channel
 
 ```
-POST /store-api/v1/account/recovery-password-confirm
+POST /store-api/v3/account/recovery-password-confirm
 
 {
     "hash": "J18339ctUmiD82fSxsPU0VnOmhEG4XXt",
@@ -302,12 +303,22 @@ This route has a parameter the following parameter:
 **Note** that you need the `sw-context-token` header for this route, which contains the context token of the login route response.
 
 ```
-POST /store-api/v1/account/change-payment-method/da4aa20cd7b9417094a0eb51426f0912
+POST /store-api/v3/account/change-payment-method/da4aa20cd7b9417094a0eb51426f0912
 
 {
     "success": true,
     "apiAlias": "array_struct"
 }
+```
+
+
+### Delete profile
+You can delete your customer profile with this route: `store-api.account.customer.delete`
+
+**Note** that you need the `sw-context-token` header for this route, which contains the context token of the login route response.
+
+```
+DELETE /store-api/v3/account/customer
 ```
 
 ### Order overview
@@ -318,7 +329,7 @@ Additionally can use the api basic parameters (`filter`,  `aggregations`, etc.) 
 **Note** that you need the `sw-context-token` header for this route, which contains the context token of the login route response.
 
 ```
-GET /store-api/v1/order
+GET /store-api/v3/order
 
 {
     "includes": {
@@ -373,7 +384,7 @@ This route has a few parameters:
 * `storefrontUrl`: url to your storefront
 
 ```
-POST /store-api/v1/newsletter/subscribe
+POST /store-api/v3/newsletter/subscribe
 
 {
     "email": "test@example.com",
@@ -400,7 +411,7 @@ This route has only one parameter:
 * `email`: the email of the customer
 
 ```
-POST /store-api/v1/newsletter/unsubscribe
+POST /store-api/v3/newsletter/unsubscribe
 
 {
     "email": "test@example.com"
@@ -424,7 +435,7 @@ This route needs a few parameters:
 * `comment`: this parameters takes the actual message the customer wants to send you
 
 ```
-POST /store-api/v1/contact-form
+POST /store-api/v3/contact-form
 
 {
     "salutationId": "99362bce5d764c959289e65039d8d625",
@@ -439,5 +450,263 @@ POST /store-api/v1/contact-form
 {
     "individualSuccessMessage": "",
     "apiAlias": "contact_form_result"
+}
+```
+
+# Address
+
+## List all addresses
+
+With the following route you can get all user created addresses.
+
+Additionally can use the api basic parameters (`filter`,  `aggregations`, etc.) for more information look [here](./../40-admin-api-guide/20-reading-entities.md).
+
+```
+POST /store-api/v3/account/list-address
+{
+	"includes": {
+		"customer_address": ["firstName", "lastName", "zipcode", "city", "street", "country"],
+		"country": ["name"]
+	}
+}
+
+{
+  "total": 1,
+  "aggregations": [],
+  "elements": [
+    {
+      "firstName": "Max",
+      "lastName": "Mustermann",
+      "zipcode": "10332",
+      "city": "Berlin",
+      "street": "Bahnhofstraße 27",
+      "country": {
+        "name": "El Salvador",
+        "apiAlias": "country"
+      },
+      "apiAlias": "customer_address"
+    }
+  ],
+  "apiAlias": "dal_entity_search_result"
+}
+```
+
+## Create a new address
+
+With this route can you create a new address.
+
+```
+POST /store-api/v3/account/address
+
+{
+	"countryId": "0c59074b53604fe3a5e7f7cff740fc32",
+	"countryStateId": null,
+	"salutationId": "8453c050373d4b2b9fc7a2341c9acc6a",
+	"firstName": "Max",
+	"lastName": "Mustermann",
+	"zipcode": "48624",
+	"city": "Schöppingen",
+	"company": null,
+	"department": null,
+	"title": null,
+	"street": "Ebbinghoff 10"
+}
+
+{
+  "customerId": "c9b38d7eccea40a68322961ec2cfaaf6",
+  "countryId": "0c59074b53604fe3a5e7f7cff740fc32",
+  "countryStateId": null,
+  "salutationId": "8453c050373d4b2b9fc7a2341c9acc6a",
+  "firstName": "Max",
+  "lastName": "Mustermann",
+  "zipcode": "48624",
+  "city": "Schöppingen",
+  "company": null,
+  "department": null,
+  "title": null,
+  "street": "Ebbinghoff 10",
+  "vatId": null,
+  "phoneNumber": null,
+  "additionalAddressLine1": null,
+  "additionalAddressLine2": null,
+  "country": null,
+  "countryState": null,
+  "salutation": null,
+  "customer": null,
+  "customFields": null,
+  "_uniqueIdentifier": "1be2f5897dd94cc3947cf50001fbb438",
+  "versionId": null,
+  "translated": [],
+  "createdAt": "2020-08-18T09:44:43.750+00:00",
+  "updatedAt": null,
+  "extensions": {
+    "foreignKeys": {
+      "apiAlias": "array_struct"
+    }
+  },
+  "id": "1be2f5897dd94cc3947cf50001fbb438",
+  "apiAlias": "customer_address"
+}
+```
+
+## Update an existing address
+
+With this route can you update a single address
+
+```
+PATCH /store-api/v3/account/address/{addressId}
+{
+	"countryId": "0c59074b53604fe3a5e7f7cff740fc32",
+	"countryStateId": null,
+	"salutationId": "8453c050373d4b2b9fc7a2341c9acc6a",
+	"firstName": "Max",
+	"lastName": "Mustermann",
+	"zipcode": "48624",
+	"city": "Schöppingen",
+	"company": null,
+	"department": null,
+	"title": null,
+	"street": "Ebbinghoff 10"
+}
+
+{
+  "customerId": "c9b38d7eccea40a68322961ec2cfaaf6",
+  "countryId": "0c59074b53604fe3a5e7f7cff740fc32",
+  "countryStateId": null,
+  "salutationId": "8453c050373d4b2b9fc7a2341c9acc6a",
+  "firstName": "Max",
+  "lastName": "Mustermann",
+  "zipcode": "48624",
+  "city": "Schöppingen",
+  "company": null,
+  "department": null,
+  "title": null,
+  "street": "Ebbinghoff 10",
+  "vatId": null,
+  "phoneNumber": null,
+  "additionalAddressLine1": null,
+  "additionalAddressLine2": null,
+  "country": null,
+  "countryState": null,
+  "salutation": null,
+  "customer": null,
+  "customFields": null,
+  "_uniqueIdentifier": "1be2f5897dd94cc3947cf50001fbb438",
+  "versionId": null,
+  "translated": [],
+  "createdAt": "2020-08-18T09:44:43.750+00:00",
+  "updatedAt": null,
+  "extensions": {
+    "foreignKeys": {
+      "apiAlias": "array_struct"
+    }
+  },
+  "id": "1be2f5897dd94cc3947cf50001fbb438",
+  "apiAlias": "customer_address"
+}
+```
+
+## Delete an existing address
+
+With this route can you delete a single address. Default addresses cannot be deleted.
+
+```
+DELETE /store-api/v3/account/address/{addressId}
+```
+
+## Switch default billing address
+
+With this route can you change the default billing address
+
+```
+PATCH /store-api/v3/account/address/default-billing/{addressId}
+```
+
+## Switch default shipping address
+
+With this route can you change the default shipping address
+
+```
+PATCH /store-api/v3/account/address/default-shipping/{addressId}
+```
+
+## Add a product into customer wishlist
+To Add a product into customer wishlist you use the following route: `store-api.customer.wishlist.add`
+This route only needs the `productId` parameter. 
+
+**Note** that you need the `sw-context-token` header for this route, which contains the context token of the login route response.
+
+```
+POST /store-api/v3/customer/wishlist/add/{productId}
+```
+
+## Delete a product from a customer wishlist
+To delete a product from a customer wishlist you use the following route: `store-api.customer.wishlist.delete`
+This route only needs the `productId` parameter. 
+
+**Note** that you need the `sw-context-token` header for this route, which contains the context token of the login route response.
+
+```
+DELETE /store-api/v3/customer/wishlist/delete/{productId}
+```
+
+## Load all products from customer wishlist
+To get a product listing of a customer wishlist you use the following route: `store-api.customer.wishlist.load`
+The `page` and `limit` parameters can be used to control pagination.
+The `includes` parameter allows you to restrict the returned fields of product entities.
+
+**Note** that you need the `sw-context-token` header for this route, which contains the context token of the login route response.
+
+```
+POST /store-api/v3/customer/wishlist
+{
+    "limit" : 2,
+    "page" : 1,
+    "includes": {
+        "product": ["id","name"]
+    }
+}
+
+{
+    "apiAlias": "wishlist_products",
+    "wishlist": {
+        "customerId": "c3ba91894b4d4149b2f5a55f90953aa8",
+        "salesChannelId": "23a5ef60c3d34faf9ae319d6ec1cec5e",
+        "customer": null,
+        "salesChannel": null,
+        "products": null,
+        "customFields": null,
+        "_uniqueIdentifier": "442d0c324f314bcf8d74c35d0e15068a",
+        "versionId": null,
+        "translated": [],
+        "createdAt": "2020-10-31T07:31:36.427+00:00",
+        "updatedAt": "2020-10-31T07:46:27.559+00:00",
+        "extensions": {
+            "foreignKeys": {
+                "apiAlias": "array_struct"
+            }
+        },
+        "id": "442d0c324f314bcf8d74c35d0e15068a",
+        "apiAlias": "customer_wishlist"
+    },
+    "products": {
+        "total": 2,
+        "aggregations": [],
+        "page": 1,
+        "limit": null,
+        "elements": [
+            {
+                "name": null,
+                "id": "2805c39c2fc14672b08eee98a4a67903",
+                "apiAlias": "product"
+            },
+            {
+                "name": "Aerodynamic Bronze Stretch n’ Kvetch",
+                "id": "6a75f5f8075e47ac83dd18c92910ffd9",
+                "apiAlias": "product"
+            }
+        ],
+        "apiAlias": "dal_entity_search_result"
+    }
 }
 ```

@@ -68,11 +68,11 @@ describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
         wrapper.destroy();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.isVueInstance()).toBeTruthy();
+    it('should be a Vue.js component', async () => {
+        expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should be correct to show media in used information when user select a media', () => {
+    it('should be correct to show media in used information when user select a media', async () => {
         register('sw-product', moduleMock);
         const productMediaMock = {
             id: '98hhh7gh31d2d23dj292hjd7b',
@@ -81,11 +81,11 @@ describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
             }
         };
 
-        wrapper.setProps({ item: itemDeleteMock({ productMedia: [productMediaMock] }) });
+        await wrapper.setProps({ item: itemDeleteMock({ productMedia: [productMediaMock] }) });
         expect(wrapper.vm.getUsages.some(usage => usage.name === productMediaMock.product.translated.name)).toBeTruthy();
     });
 
-    it('should be correct show all of media in used information', () => {
+    it('should be correct show all of media in used information', async () => {
         register('sw-settings-user', moduleMock);
         const avatarUserMock = { username: 'abc123' };
 
@@ -118,7 +118,7 @@ describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
         register('sw-settings-shipping', moduleMock);
         const shippingMock = { translated: { name: 'shipping test' } };
 
-        wrapper.setProps({
+        await wrapper.setProps({
             item: itemDeleteMock({
                 avatarUser: avatarUserMock,
                 productMedia: [productMediaMock],

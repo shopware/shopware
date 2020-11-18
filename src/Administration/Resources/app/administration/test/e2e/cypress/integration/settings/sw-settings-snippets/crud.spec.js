@@ -1,4 +1,4 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
 
 import SnippetPageObject from '../../../support/pages/module/sw-snippet.page-object';
 
@@ -57,7 +57,7 @@ describe('Snippets: Test crud operations', () => {
         );
         cy.get(`${page.elements.modal}__body`).contains('Are you sure you want to delete the snippets');
 
-        cy.get(`${page.elements.modalFooter} button${page.elements.primaryButton}`).click();
+        cy.get(`${page.elements.modalFooter} button${page.elements.dangerButton}`).click();
         cy.get(page.elements.modal).should('not.exist');
         cy.get(`${page.elements.dataGridRow}--0`).should('not.have.value', 'a.Woodech');
     });
@@ -89,5 +89,50 @@ describe('Snippets: Test crud operations', () => {
         cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
         cy.get(page.elements.smartBarBack).click();
         cy.get(`${page.elements.dataGridRow}--0`).contains('Mine yours theirs');
+    });
+
+    it('@settings: can save an snippet without a value', () => {
+        const page = new SnippetPageObject();
+
+        // Open snippet set
+        cy.get(`${page.elements.gridRow}--1 .sw-field__checkbox input`).click();
+        cy.get(page.elements.editSetAction).should('be.enabled');
+
+        cy.get(page.elements.editSetAction).click();
+        cy.get(page.elements.smartBarHeader).contains('Snippets of "BASE en-GB"');
+        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--id`).contains('aWonderful.customSnip');
+
+        // Edit inline value
+        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell`).eq(1).dblclick();
+        cy.get(`${page.elements.dataGridRow}--0 input`).clear();
+        cy.get('.sw-data-grid__inline-edit-save').click();
+        cy.awaitAndCheckNotification('Snippet "aWonderful.customSnip" has been saved.');
+    });
+
+    it('@settings: can save an snippet without a value', () => {
+        const page = new SnippetPageObject();
+
+        // Open snippet set
+        cy.get(`${page.elements.gridRow}--1 .sw-field__checkbox input`).click();
+        cy.get(page.elements.editSetAction).should('be.enabled');
+
+        cy.get(page.elements.editSetAction).click();
+        cy.get(page.elements.smartBarHeader).contains('Snippets of "BASE en-GB"');
+        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--id`).contains('aWonderful.customSnip');
+
+        // Edit snippet
+        cy.clickContextMenuItem(
+            '.sw-settings-snippet-list__edit-action',
+            page.elements.contextMenuButton,
+            `${page.elements.dataGridRow}--0`
+        );
+        cy.get(page.elements.smartBarHeader).contains('aWonderful.customSnip');
+        cy.get('.sw-settings-snippet-detail__translation-field--1 input[name=sw-field--snippet-value]')
+            .clear();
+        cy.get(page.elements.snippetSaveAction).click();
+        cy.get(page.elements.loader).should('not.exist');
+        cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
+        cy.get(page.elements.smartBarBack).click();
+        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell`).eq(1).should('not.contain', 'MineSnip');
     });
 });

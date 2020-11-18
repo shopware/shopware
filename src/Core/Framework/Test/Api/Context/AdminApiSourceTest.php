@@ -10,15 +10,15 @@ class AdminApiSourceTest extends TestCase
     public function testPermissions(): void
     {
         $apiSource = new AdminApiSource(null, null);
-        $apiSource->addPermissions([
-            ['resource' => 'product', 'privilege' => 'list'],
-            ['resource' => 'order', 'privilege' => 'delete'],
+        $apiSource->setPermissions([
+            'product:list',
+            'order:delete',
         ]);
 
-        static::assertTrue($apiSource->isAllowed('product', 'list'));
-        static::assertTrue($apiSource->isAllowed('order', 'delete'));
+        static::assertTrue($apiSource->isAllowed('product:list'));
+        static::assertTrue($apiSource->isAllowed('order:delete'));
 
-        static::assertFalse($apiSource->isAllowed('product', 'delete'));
-        static::assertFalse($apiSource->isAllowed('order', 'list'));
+        static::assertFalse($apiSource->isAllowed('product:delete'));
+        static::assertFalse($apiSource->isAllowed('order:list'));
     }
 }

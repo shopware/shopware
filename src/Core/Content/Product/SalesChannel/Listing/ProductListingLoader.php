@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -55,18 +54,18 @@ class ProductListingLoader
 
         $ids = $this->repository->searchIds($criteria, $context);
 
+        $aggregations = $this->repository->aggregate($criteria, $context);
+
         // no products found, no need to continue
         if (empty($ids->getIds())) {
             return new EntitySearchResult(
                 0,
                 new ProductCollection(),
-                new AggregationResultCollection(),
+                $aggregations,
                 $origin,
                 $context->getContext()
             );
         }
-
-        $aggregations = $this->repository->aggregate($criteria, $context);
 
         $variantIds = $ids->getIds();
 
@@ -77,6 +76,7 @@ class ProductListingLoader
         }
 
         $read = $criteria->cloneForRead($variantIds);
+        $read->addAssociation('options.group');
 
         $entities = $this->repository->search($read, $context);
 
@@ -148,7 +148,8 @@ class ProductListingLoader
         $ids = array_combine($ids, $ids);
 
         $config = $this->connection->fetchAll(
-            'SELECT parent.configurator_group_config,
+            '# product-listing-loader::resolve-previews
+            SELECT parent.configurator_group_config,
                         LOWER(HEX(parent.main_variant_id)) as mainVariantId,
                         LOWER(HEX(child.id)) as id
              FROM product as child

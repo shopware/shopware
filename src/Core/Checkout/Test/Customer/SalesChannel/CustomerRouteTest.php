@@ -3,19 +3,17 @@
 namespace Shopware\Core\Checkout\Test\Customer\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Test\Payment\Handler\SyncTestPaymentHandler;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 
 class CustomerRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    use SalesChannelApiTestBehaviour;
+    use CustomerTestTrait;
 
     /**
      * @var \Symfony\Bundle\FrameworkBundle\KernelBrowser
@@ -39,7 +37,7 @@ class CustomerRouteTest extends TestCase
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
         ]);
-
+        $this->assignSalesChannelContext($this->browser);
         $this->customerRepository = $this->getContainer()->get('customer.repository');
     }
 
@@ -48,7 +46,7 @@ class CustomerRouteTest extends TestCase
         $this->browser
             ->request(
                 'GET',
-                '/store-api/v1/account/customer',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/account/customer',
                 [
                 ]
             );
@@ -68,7 +66,7 @@ class CustomerRouteTest extends TestCase
         $this->browser
             ->request(
                 'POST',
-                '/store-api/v1/account/login',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/account/login',
                 [
                     'email' => $email,
                     'password' => $password,
@@ -84,7 +82,7 @@ class CustomerRouteTest extends TestCase
         $this->browser
             ->request(
                 'GET',
-                '/store-api/v1/account/customer',
+                '/store-api/v' . PlatformRequest::API_VERSION . '/account/customer',
                 [
                 ]
             );
@@ -92,63 +90,5 @@ class CustomerRouteTest extends TestCase
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame($id, $response['id']);
-    }
-
-    private function createCustomer(string $password, ?string $email = null): string
-    {
-        $customerId = Uuid::randomHex();
-        $addressId = Uuid::randomHex();
-
-        $this->customerRepository->create([
-            [
-                'id' => $customerId,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
-                'defaultShippingAddress' => [
-                    'id' => $addressId,
-                    'firstName' => 'Max',
-                    'lastName' => 'Mustermann',
-                    'street' => 'Musterstraße 1',
-                    'city' => 'Schoöppingen',
-                    'zipcode' => '12345',
-                    'salutationId' => $this->getValidSalutationId(),
-                    'country' => ['name' => 'Germany'],
-                ],
-                'defaultBillingAddressId' => $addressId,
-                'defaultPaymentMethod' => [
-                    'name' => 'Invoice',
-                    'active' => true,
-                    'description' => 'Default payment method',
-                    'handlerIdentifier' => SyncTestPaymentHandler::class,
-                    'availabilityRule' => [
-                        'id' => Uuid::randomHex(),
-                        'name' => 'true',
-                        'priority' => 0,
-                        'conditions' => [
-                            [
-                                'type' => 'cartCartAmount',
-                                'value' => [
-                                    'operator' => '>=',
-                                    'amount' => 0,
-                                ],
-                            ],
-                        ],
-                    ],
-                    'salesChannels' => [
-                        [
-                            'id' => Defaults::SALES_CHANNEL,
-                        ],
-                    ],
-                ],
-                'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-                'email' => $email,
-                'password' => $password,
-                'firstName' => 'Max',
-                'lastName' => 'Mustermann',
-                'salutationId' => $this->getValidSalutationId(),
-                'customerNumber' => '12345',
-            ],
-        ], $this->ids->context);
-
-        return $customerId;
     }
 }

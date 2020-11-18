@@ -159,3 +159,34 @@ This gives you the ability to use the Bootstrap SCSS without the Shopware Storef
 * All theme variables like `$sw-color-brand-primary` are also available when using the Bootstrap option.
 * You can only use either `@StorefrontBootstrap` or `@Storefront`. They should not be used at the same time. The `@Storefront` bundle **includes** the Bootstrap SCSS already.
 
+### Declaring new mixins and variables
+
+Shopware imports the Bootstrap SCSS in order to provide the Bootstrap mixins and variables. 
+This means that those SCSS features are available throughout the SCSS source code of your theme or regular plugin (if configured in the theme.json).
+However, you can also create your own variables, mixins and helper functions inside your SCSS code base.
+When you declare e.g. new mixins inside your theme or plugin you should be aware these can effect/override existing mixins from Bootsrap or other plugins.
+
+```scss
+// Not recommended
+// This has a naming conflict with Bootstraps own `border-radius` mixin.
+// Use with caution if you REALLY want to override existing Bootstrap mixins.
+@mixin border-radius($radius) {
+  ...
+}
+
+// Better
+@mixin my-plugin-name-border-radius($radius) {
+  ...
+}
+
+// Not recommended
+// This has a very generic naming which may be used in other plugins or themes.
+@mixin animate($radius) {
+  ...
+}
+
+// Better
+@mixin my-plugin-header-animate($radius) {
+  ...
+}
+```

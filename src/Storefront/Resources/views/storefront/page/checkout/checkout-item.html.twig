@@ -90,41 +90,43 @@
                                                            data-url="{{ path('widgets.quickview.minimal',{ 'productId': lineItem.referencedId }) }}"
                                                            {% endif %}
                                                         >
-                                                            {{ lineItem.label|u.truncate(60) }}
+                                                            {{ lineItem.label|u.truncate(60, '...', false) }}
                                                         </a>
                                                     {% else %}
                                                         <div class="cart-item-label">
-                                                            {{ lineItem.label|u.truncate(60) }}
+                                                            {{ lineItem.label|u.truncate(60, '...', false) }}
                                                         </div>
                                                     {% endif %}
                                                 {% endblock %}
+
+                                                {% block page_checkout_item_info_variant_characteristics %}
+                                                    <div class="cart-item-details-characteristics">
+                                                        {% for option in lineItem.payload.options %}
+                                                            {{ option.group }}:
+                                                            <span class="cart-item-details-characteristics-option">{{ option.option }}</span>
+
+                                                            {% if lineItem.payload.options|last != option %}
+                                                                {{ " | " }}
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    </div>
+                                                {% endblock %}
+
+                                                {% block page_checkout_item_info_features %}
+                                                    {% if lineItem.type == 'product' and lineItem.payload.features is not null %}
+                                                        {% sw_include '@Storefront/storefront/component/product/feature/list.html.twig' with {
+                                                            'features': lineItem.payload.features
+                                                        } %}
+                                                    {% endif %}
+                                                {% endblock %}
+
+                                                {# @deprecated tag:v6.4.0.0 #}
+                                                {% block page_checkout_item_info_variants %}{% endblock %}
 
                                                 {% block page_checkout_item_info_ordernumber %}
                                                     {% if lineItem.payload.productNumber %}
                                                         <div class="cart-item-ordernumber">
                                                             {{ "checkout.cartItemInfoId"|trans|sw_sanitize }} {{ lineItem.payload.productNumber }}
-                                                        </div>
-                                                    {% endif %}
-                                                {% endblock %}
-
-                                                {% if lineItem.type == 'product' and lineItem.price.referencePrice is not null %}
-                                                    {% set price = lineItem.price %}
-                                                    {{ "checkout.priceUnitName"|trans|sw_sanitize }}
-                                                    <span class="price-unit-reference">
-                                                        {{ price.referencePrice.purchaseUnit }} {{ price.referencePrice.unitName }}
-                                                        ({{ price.referencePrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} / {{ price.referencePrice.referenceUnit }} {{ price.referencePrice.unitName }})
-                                                    </span>
-                                                {% endif %}
-
-                                                {% block page_checkout_item_info_variants %}
-                                                    {% if lineItem.payload.options|length >= 1 %}
-                                                        <div class="cart-item-variants">
-                                                            {% for option in lineItem.payload.options %}
-                                                                <div class="cart-item-variants-properties">
-                                                                    <div class="cart-item-variants-properties-name">{{ option.group }}:</div>
-                                                                    <div class="cart-item-variants-properties-value">{{ option.option }}</div>
-                                                                </div>
-                                                            {% endfor %}
                                                         </div>
                                                     {% endif %}
                                                 {% endblock %}
@@ -160,7 +162,7 @@
                             {% block page_checkout_item_quantity_select %}
                                 <div class="col-4 col-sm-12">
                                     {% block page_checkout_item_quantity_form %}
-                                        {% if lineItem.quantityInformation and lineItem.stackable %}
+                                        {% if lineItem.quantityInformation and lineItem.stackable and not isChild %}
                                             <form action="{{ path('frontend.checkout.line-item.change-quantity', {'id': lineItem.id}) }}"
                                                   class="cart-item-quantity-container"
                                                   method="post"
@@ -196,8 +198,12 @@
                                                     </select>
                                                 {% endblock %}
                                             </form>
-                                        {% else %}
-                                            {{ lineItem.quantity }}
+                                        {% elseif lineItem.type != "promotion" %}
+                                            {% block page_checkout_item_quantity_number %}
+                                                <div class="d-flex justify-content-end cart-item-quantity">
+                                                    {{ lineItem.quantity }}
+                                                </div>
+                                            {% endblock %}
                                         {% endif %}
                                     {% endblock %}
                                 </div>

@@ -6,22 +6,26 @@
 
     <services>
         <!-- Theme -->
-        <service id="Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory"/>
+        <service id="Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory">
+            <argument>%kernel.project_dir%</argument>
+        </service>
 
         <service id="Shopware\Storefront\Theme\StorefrontPluginRegistry" public="true">
             <argument type="service" id="kernel"/>
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory"/>
+            <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeCompiler">
-            <argument type="service" id="shopware.filesystem.public"/>
+            <argument type="service" id="shopware.filesystem.theme"/>
             <argument type="service" id="shopware.filesystem.temp"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeFileResolver" />
-            <argument>%kernel.cache_dir%</argument>
             <argument>%kernel.debug%</argument>
             <argument type="service" id="Symfony\Component\EventDispatcher\EventDispatcherInterface" />
             <argument type="service" id="Shopware\Storefront\Theme\ThemeFileImporter"/>
             <argument type="service" id="media.repository"/>
+            <argument type="tagged" tag="shopware.asset"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeFileImporter"/>
@@ -35,6 +39,7 @@
             <argument type="service" id="Shopware\Core\Content\Media\File\FileSaver"/>
             <argument type="service" id="Shopware\Core\Content\Media\File\FileNameProvider"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeFileImporter"/>
+            <argument type="service" id="language.repository"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeFileResolver">
@@ -54,6 +59,16 @@
             <argument type="service" id="Shopware\Storefront\Theme\ThemeService"/>
             <argument type="service" id="sales_channel.repository"/>
             <argument type="service" id="theme.repository"/>
+            <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>
+        </service>
+
+
+        <service id="Shopware\Storefront\Theme\ThemeAppLifecycleHandler">
+            <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>
+            <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory"/>
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeLifecycleHandler"/>
+
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <!-- Entity definitions -->
@@ -123,7 +138,7 @@
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeFileResolver"/>
             <argument type="service" id="theme.repository"/>
-            <argument>%kernel.cache_dir%</argument>
+            <argument>%kernel.project_dir%</argument>
 
             <tag name="console.command"/>
         </service>
@@ -146,28 +161,10 @@
 
         <service id="Shopware\Storefront\Theme\Twig\ThemeInheritanceBuilderInterface"
                  class="Shopware\Storefront\Theme\Twig\ThemeInheritanceBuilder">
-            <argument type="service" id="kernel"/>
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>
         </service>
 
         <!-- Twig -->
-        <service id="Shopware\Storefront\Theme\Twig\ThemeTemplateFinder" public="true"
-                 decorates="Shopware\Core\Framework\Adapter\Twig\TemplateFinder">
-
-            <argument type="service" id="twig"/>
-            <argument type="service" id="twig.loader"/>
-            <argument>%kernel.cache_dir%</argument>
-            <argument type="service" id="Shopware\Storefront\Theme\Twig\ThemeInheritanceBuilderInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder"/>
-
-            <call method="registerBundles">
-                <argument type="service" id="kernel" />
-            </call>
-
-            <tag name="kernel.event_subscriber" />
-            <deprecated>tag:v6.3.0 the %service_id% service will be removed, use ThemeNamespaceHierarchyBuilder instead</deprecated>
-        </service>
-
         <service id="Shopware\Storefront\Theme\Twig\ThemeNamespaceHierarchyBuilder">
             <argument type="service" id="Shopware\Storefront\Theme\Twig\ThemeInheritanceBuilderInterface"/>
 

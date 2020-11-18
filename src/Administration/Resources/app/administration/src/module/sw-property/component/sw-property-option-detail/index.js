@@ -3,7 +3,7 @@ import template from './sw-property-option-detail.html.twig';
 Shopware.Component.register('sw-property-option-detail', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     props: {
         currentOption: {
@@ -11,6 +11,11 @@ Shopware.Component.register('sw-property-option-detail', {
             default() {
                 return {};
             }
+        },
+        allowEdit: {
+            type: Boolean,
+            required: false,
+            default: true
         }
     },
 

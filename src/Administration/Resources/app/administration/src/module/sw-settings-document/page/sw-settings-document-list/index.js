@@ -6,6 +6,8 @@ const { Component, Mixin, Data: { Criteria } } = Shopware;
 Component.register('sw-settings-document-list', {
     template,
 
+    inject: ['acl'],
+
     mixins: [
         Mixin.getByName('sw-settings-list')
     ],
@@ -48,6 +50,8 @@ Component.register('sw-settings-document-list', {
                 .addAssociation('documentType')
                 .getAssociation('salesChannels')
                 .addAssociation('salesChannel');
+
+            criteria.addSorting(Criteria.sort('name', 'ASC', false));
 
             return criteria;
         }

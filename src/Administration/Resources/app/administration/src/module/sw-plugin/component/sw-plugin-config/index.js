@@ -34,12 +34,10 @@ Shopware.Component.register('sw-plugin-config', {
         onSave() {
             this.$refs.systemConfig.saveAll().then(() => {
                 this.createNotificationSuccess({
-                    title: this.$tc('sw-plugin-config.titleSaveSuccess'),
                     message: this.$tc('sw-plugin-config.messageSaveSuccess')
                 });
             }).catch((err) => {
                 this.createNotificationError({
-                    title: this.$tc('sw-plugin-config.titleSaveError'),
                     message: err
                 });
             });

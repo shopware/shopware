@@ -13,7 +13,6 @@
       "placeholderUsername": "Enter your username...",
       "placeholderPassword": "Enter your password...",
       "buttonLogin": "Log in",
-      "titleErrorMessage": "Error",
       "messageUnsupportedGrantType": "Authorization grant type not supported by authorization server.",
       "messageInvalidRequest": "Invalid request.",
       "messageInvalidClient": "Client authentication failed.",
@@ -50,9 +49,6 @@
       "email": {
         "label": "Email address:",
         "placeholder": "shop@example.com"
-      },
-      "error": {
-        "passwordUpdateTitle": "There was an error updating your password:"
       },
       "submit": "Send recovery link"
     }

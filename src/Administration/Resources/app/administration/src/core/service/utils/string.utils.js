@@ -4,11 +4,13 @@
 import capitalizeString from 'lodash/capitalize';
 import camelCase from 'lodash/camelCase';
 import kebabCase from 'lodash/kebabCase';
+import snakeCase from 'lodash/snakeCase';
 
 export default {
     capitalizeString,
     camelCase,
     kebabCase,
+    snakeCase,
     isEmptyOrSpaces,
     isUrl,
     isValidIp

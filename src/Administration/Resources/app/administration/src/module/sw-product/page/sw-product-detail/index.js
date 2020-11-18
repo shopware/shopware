@@ -3,7 +3,7 @@ import swProductDetailState from './state';
 import errorConfiguration from './error.cfg.json';
 import './sw-product-detail.scss';
 
-const { Component, Mixin, StateDeprecated } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { hasOwnProperty } = Shopware.Utils.object;
 const { mapPageErrors, mapState, mapGetters } = Shopware.Component.getComponentHelper();
@@ -11,7 +11,7 @@ const { mapPageErrors, mapState, mapGetters } = Shopware.Component.getComponentH
 Component.register('sw-product-detail', {
     template,
 
-    inject: ['mediaService', 'repositoryFactory', 'numberRangeService', 'seoUrlService'],
+    inject: ['mediaService', 'repositoryFactory', 'numberRangeService', 'seoUrlService', 'acl', 'feature'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -19,7 +19,12 @@ Component.register('sw-product-detail', {
     ],
 
     shortcuts: {
-        'SYSTEMKEY+S': 'onSave',
+        'SYSTEMKEY+S': {
+            active() {
+                return this.acl.can('product.editor');
+            },
+            method: 'onSave'
+        },
         ESCAPE: 'onCancel'
     },
 
@@ -34,7 +39,8 @@ Component.register('sw-product-detail', {
     data() {
         return {
             productNumberPreview: '',
-            isSaveSuccessful: false
+            isSaveSuccessful: false,
+            cloning: false
         };
     },
 
@@ -55,7 +61,8 @@ Component.register('sw-product-detail', {
             'productRepository',
             'isLoading',
             'isChild',
-            'defaultCurrency'
+            'defaultCurrency',
+            'defaultFeatureSet'
         ]),
 
         ...mapPageErrors(errorConfiguration),
@@ -72,10 +79,6 @@ Component.register('sw-product-detail', {
 
             // return name
             return this.placeholder(this.product, 'name', this.$tc('sw-product.detail.textHeadline'));
-        },
-
-        languageStore() {
-            return StateDeprecated.getStore('language');
         },
 
         productRepository() {
@@ -104,6 +107,10 @@ Component.register('sw-product-detail', {
             return null;
         },
 
+        featureSetRepository() {
+            return this.repositoryFactory.create('product_feature_set');
+        },
+
         productCriteria() {
             const criteria = new Criteria();
 
@@ -126,7 +133,9 @@ Component.register('sw-product-detail', {
                 .addSorting(Criteria.sort('position', 'ASC'))
                 .getAssociation('assignedProducts')
                 .addSorting(Criteria.sort('position', 'ASC'))
-                .addAssociation('product');
+                .addAssociation('product')
+                .getAssociation('product')
+                .addAssociation('options.group');
 
             criteria
                 .addAssociation('cover')
@@ -137,7 +146,14 @@ Component.register('sw-product-detail', {
                 .addAssociation('unit')
                 .addAssociation('productReviews')
                 .addAssociation('seoUrls')
-                .addAssociation('mainCategories');
+                .addAssociation('mainCategories')
+                .addAssociation('options.group')
+                .addAssociation('customFieldSets')
+                .addAssociation('featureSet');
+
+            if (this.feature.isActive('FEATURE_NEXT_10078')) {
+                criteria.addAssociation('cmsPage');
+            }
 
             return criteria;
         },
@@ -149,6 +165,16 @@ Component.register('sw-product-detail', {
             criteria
                 .getAssociation('customFields')
                 .addSorting(Criteria.sort('config.customFieldPosition', 'ASC', true));
+
+            return criteria;
+        },
+
+        defaultFeatureSetCriteria() {
+            const criteria = new Criteria(1, 1);
+
+            criteria
+                .addSorting(Criteria.sort('createdAt', 'ASC'))
+                .addFilter(Criteria.equalsAny('name', ['Default', 'Standard']));
 
             return criteria;
         },
@@ -167,14 +193,6 @@ Component.register('sw-product-detail', {
                 message: 'ESC',
                 appearance: 'light'
             };
-        },
-
-        duplicationDisabledTitle() {
-            if (this.product.childCount > 0) {
-                return this.$tc('sw-product.general.variantDuplication');
-            }
-
-            return '';
         }
     },
 
@@ -203,11 +221,13 @@ Component.register('sw-product-detail', {
 
     methods: {
         createdComponent() {
+            Shopware.State.dispatch('cmsPageState/resetCmsPageState');
+
             // when create
             if (!this.productId) {
                 // set language to system language
-                if (this.languageStore.getCurrentId() !== this.languageStore.systemLanguageId) {
-                    this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
+                if (!Shopware.State.getters['context/isSystemDefaultLanguage']) {
+                    Shopware.State.commit('context/resetLanguageToDefault');
                 }
             }
 
@@ -250,6 +270,7 @@ Component.register('sw-product-detail', {
         loadState() {
             Shopware.State.commit('swProductDetail/setLocalMode', false);
             Shopware.State.commit('swProductDetail/setProductId', this.productId);
+            Shopware.State.commit('shopwareApps/setSelectedIds', [this.productId]);
 
             return this.loadAll();
         },
@@ -266,6 +287,7 @@ Component.register('sw-product-detail', {
         createState() {
             // set local mode
             Shopware.State.commit('swProductDetail/setLocalMode', true);
+            Shopware.State.commit('shopwareApps/setSelectedIds', []);
 
             Shopware.State.commit('swProductDetail/setLoading', ['product', true]);
 
@@ -283,15 +305,20 @@ Component.register('sw-product-detail', {
             return Promise.all([
                 this.loadCurrencies(),
                 this.loadTaxes(),
-                this.loadAttributeSet()
+                this.loadAttributeSet(),
+                this.loadDefaultFeatureSet()
             ]).then(() => {
-                // set default product price
+                // set default product price and empty purchase price
                 this.product.price = [{
                     currencyId: this.defaultCurrency.id,
                     net: null,
                     linked: true,
                     gross: null
                 }];
+
+                this.product.purchasePrices = [];
+
+                this.product.featureSet = this.defaultFeatureSet;
 
                 Shopware.State.commit('swProductDetail/setLoading', ['product', false]);
             });
@@ -302,13 +329,14 @@ Component.register('sw-product-detail', {
 
             this.productRepository.get(
                 this.productId || this.product.id,
-                {
-                    ...Shopware.Context.api,
-                    inheritance: true
-                },
+                Shopware.Context.api,
                 this.productCriteria
             ).then((res) => {
                 Shopware.State.commit('swProductDetail/setProduct', res);
+
+                // Initialize an empty price collection if the product has no purchase prices
+                this.product.purchasePrices = this.product.purchasePrices || [];
+
 
                 if (this.product.parentId) {
                     this.loadParentProduct();
@@ -361,6 +389,16 @@ Component.register('sw-product-detail', {
             });
         },
 
+        loadDefaultFeatureSet() {
+            Shopware.State.commit('swProductDetail/setLoading', ['defaultFeatureSet', true]);
+
+            return this.featureSetRepository.search(this.defaultFeatureSetCriteria, Shopware.Context.api).then((res) => {
+                Shopware.State.commit('swProductDetail/setDefaultFeatureSet', res);
+            }).then(() => {
+                Shopware.State.commit('swProductDetail/setLoading', ['defaultFeatureSet', false]);
+            });
+        },
+
         abortOnLanguageChange() {
             return Shopware.State.getters['swProductDetail/hasChanges'];
         },
@@ -370,7 +408,7 @@ Component.register('sw-product-detail', {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.StateDeprecated.getStore('language').setCurrentId(languageId);
+            Shopware.State.commit('context/setApiLanguageId', languageId);
             this.initState();
         },
 
@@ -392,6 +430,14 @@ Component.register('sw-product-detail', {
         },
 
         onSave() {
+            if (!this.validateProductPurchase()) {
+                this.createNotificationError({
+                    message: this.$tc('sw-product.detail.errorMinMaxPurchase')
+                });
+
+                return new Promise((res) => res());
+            }
+
             if (!this.productId) {
                 if (this.productNumberPreview === this.product.productNumber) {
                     this.numberRangeService.reserve('product').then((response) => {
@@ -400,6 +446,7 @@ Component.register('sw-product-detail', {
                     });
                 }
             }
+
 
             this.isSaveSuccessful = false;
 
@@ -448,10 +495,9 @@ Component.register('sw-product-detail', {
                     }
 
                     default: {
-                        const productName = this.product.translated ? this.product.translated.name : this.product.name;
                         const titleSaveError = this.$tc('global.default.error');
                         const messageSaveError = this.$tc(
-                            'global.notification.notificationSaveErrorMessage', 0, { entityName: productName }
+                            'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'
                         );
 
                         this.createNotificationError({
@@ -593,18 +639,20 @@ Component.register('sw-product-detail', {
         },
 
         onDuplicate() {
-            return this.onSave().then(() => {
-                return this.numberRangeService.reserve('product');
-            }).then((response) => {
-                return this.productRepository.clone(this.product.id, Shopware.Context.api, {
-                    productNumber: response.number,
-                    name: `${this.product.name} ${this.$tc('sw-product.general.copy')}`,
-                    productReviews: null,
-                    active: false
-                });
-            }).then((duplicate) => {
-                this.$router.push({ name: 'sw.product.detail', params: { id: duplicate.id } });
-            });
+            this.cloning = true;
+        },
+
+        onDuplicateFinish(duplicate) {
+            this.cloning = false;
+            this.$router.push({ name: 'sw.product.detail', params: { id: duplicate.id } });
+        },
+
+        validateProductPurchase() {
+            if (this.product.maxPurchase && this.product.minPurchase > this.product.maxPurchase) {
+                return false;
+            }
+
+            return true;
         }
     }
 });

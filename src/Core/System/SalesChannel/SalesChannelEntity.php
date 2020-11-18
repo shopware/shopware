@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\System\SalesChannel;
 
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist\CustomerWishlistCollection;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition;
 use Shopware\Core\Checkout\Order\OrderCollection;
@@ -12,7 +14,6 @@ use Shopware\Core\Checkout\Promotion\Aggregate\PromotionSalesChannel\PromotionSa
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Category\CategoryEntity;
-use Shopware\Core\Content\GoogleShopping\GoogleShoppingAccountEntity;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterEntity;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailTemplateSalesChannel\MailTemplateSalesChannelCollection;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
@@ -24,6 +25,7 @@ use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Event\EventAction\EventActionCollection;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyCollection;
@@ -136,6 +138,11 @@ class SalesChannelEntity extends Entity
      * @var string
      */
     protected $maintenanceIpWhitelist;
+
+    /**
+     * @var string
+     */
+    protected $taxCalculationType;
 
     /**
      * @var SalesChannelTypeEntity|null
@@ -333,9 +340,26 @@ class SalesChannelEntity extends Entity
     protected $analytics;
 
     /**
-     * @var GoogleShoppingAccountEntity|null
+     * @var CustomerGroupCollection|null
      */
-    protected $googleShoppingAccount;
+    protected $customerGroupsRegistrations;
+
+    /**
+     * @var EventActionCollection|null
+     */
+    protected $eventActions;
+
+    /**
+     * @var CustomerCollection|null
+     */
+    protected $boundCustomers;
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10549)
+     *
+     * @var CustomerWishlistCollection|null
+     */
+    protected $wishlists;
 
     public function getMailHeaderFooter(): ?MailHeaderFooterEntity
     {
@@ -923,18 +947,59 @@ class SalesChannelEntity extends Entity
         $this->analytics = $analytics;
     }
 
-    public function getGoogleShoppingAccount(): ?GoogleShoppingAccountEntity
+    public function getTaxCalculationType(): string
     {
-        return $this->googleShoppingAccount;
+        return $this->taxCalculationType;
     }
 
-    public function setGoogleShoppingAccount(?GoogleShoppingAccountEntity $googleShoppingAccount): void
+    public function setTaxCalculationType(string $taxCalculationType): void
     {
-        $this->googleShoppingAccount = $googleShoppingAccount;
+        $this->taxCalculationType = $taxCalculationType;
     }
 
-    public function getApiAlias(): string
+    public function getCustomerGroupsRegistrations(): ?CustomerGroupCollection
     {
-        return 'sales_channel';
+        return $this->customerGroupsRegistrations;
+    }
+
+    public function setCustomerGroupsRegistrations(CustomerGroupCollection $customerGroupsRegistrations): void
+    {
+        $this->customerGroupsRegistrations = $customerGroupsRegistrations;
+    }
+
+    public function getEventActions(): ?EventActionCollection
+    {
+        return $this->eventActions;
+    }
+
+    public function setEventActions(EventActionCollection $eventActions): void
+    {
+        $this->eventActions = $eventActions;
+    }
+
+    public function getBoundCustomers(): ?CustomerCollection
+    {
+        return $this->boundCustomers;
+    }
+
+    public function setBoundCustomers(CustomerCollection $boundCustomers): void
+    {
+        $this->boundCustomers = $boundCustomers;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10549)
+     */
+    public function getWishlists(): ?CustomerWishlistCollection
+    {
+        return $this->wishlists;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_10549)
+     */
+    public function setWishlists(CustomerWishlistCollection $wishlists): void
+    {
+        $this->wishlists = $wishlists;
     }
 }

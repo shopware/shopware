@@ -42,7 +42,7 @@
                       content="{{ shopware.theme['sw-logo-desktop'] }}"/>
 
                 <meta name="twitter:card"
-                      content="website"/>
+                      content="summary"/>
                 <meta name="twitter:site"
                       content="{{ basicConfig.shopName }}"/>
                 <meta name="twitter:title"
@@ -90,7 +90,11 @@
                   content="{{ shopware.theme['sw-color-brand-primary'] }}"/>
         {% endblock %}
 
-        {% block layout_head_canonical %}{% endblock %}
+        {% block layout_head_canonical %}
+            {% if page.metaInformation.canonical %}
+                <link rel="canonical" href="{{ page.metaInformation.canonical }}" />
+            {% endif %}
+        {% endblock %}
 
         {% block layout_head_title %}
             <title itemprop="name">
@@ -106,9 +110,13 @@
             {% else %}
                 {% for file in shopware.theme.assets.css %}
                     <link rel="stylesheet"
-                      href="{{ asset(file) }}">
+                      href="{{ asset(file, 'theme') }}">
                 {% endfor %}
             {% endif %}
+        {% endblock %}
+
+        {% block layout_head_javascript_feature %}
+            {% sw_include "@Storefront/storefront/component/feature.html.twig" %}
         {% endblock %}
 
         {# Block for tracking scripts which are required to include in the `head` section of the document #}

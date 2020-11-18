@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Test\Product\Repository;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceEntity;
@@ -16,13 +17,18 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -32,9 +38,16 @@ use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\System\Tax\TaxEntity;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @group slow
+ */
 class ProductRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
+
+    public const TEST_LANGUAGE_ID = 'cc72c24b82684d72a4ce91054da264bf';
+    public const TEST_LOCALE_ID = 'cf735c44dc7b4428bb3870fe4ffea2df';
+    public const TEST_LANGUAGE_LOCALE_CODE = 'sw-AG';
 
     /**
      * @var EntityRepositoryInterface
@@ -109,6 +122,8 @@ class ProductRepositoryTest extends TestCase
                     'symbol' => 'A',
                     'isoCode' => 'A',
                     'decimalPrecision' => 2,
+                    'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
+                    'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
                 ],
             ],
             $this->context
@@ -195,6 +210,57 @@ class ProductRepositoryTest extends TestCase
         static::assertNull($variant->getName());
     }
 
+    public function testUpdatedProductChildCountOnVariantDeletion(): void
+    {
+        $parentId = Uuid::randomHex();
+        $variantId = Uuid::randomHex();
+        $secondVariantId = Uuid::randomHex();
+
+        $products = [
+            [
+                'id' => $parentId,
+                'productNumber' => Uuid::randomHex(),
+                'stock' => 10,
+                'price' => [
+                    ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
+                ],
+                'manufacturer' => ['name' => 'test'],
+                'tax' => ['name' => 'test', 'taxRate' => 15],
+                // name should be required
+                'name' => 'parent',
+            ],
+            [
+                'id' => $variantId,
+                'productNumber' => Uuid::randomHex(),
+                'parentId' => $parentId,
+                'stock' => 15,
+            ],
+            [
+                'id' => $secondVariantId,
+                'productNumber' => Uuid::randomHex(),
+                'parentId' => $parentId,
+                'stock' => 15,
+            ],
+        ];
+
+        $this->repository->create($products, $this->context);
+        $delete = $this->repository->delete([['id' => $secondVariantId]], $this->context);
+        static::assertInstanceOf(EntityWrittenContainerEvent::class, $delete);
+
+        $ids = $delete->getPrimaryKeys('product');
+
+        static::assertCount(2, $ids);
+        static::assertContains($parentId, $ids);
+        static::assertContains($secondVariantId, $ids);
+
+        $product = $this->repository
+            ->search(new Criteria([$parentId]), $this->context)
+            ->first();
+
+        static::assertInstanceOf(ProductEntity::class, $product);
+        static::assertEquals(1, $product->getChildCount());
+    }
+
     public function testNameIsRequiredForParent(): void
     {
         $id = Uuid::randomHex();
@@ -246,13 +312,13 @@ class ProductRepositoryTest extends TestCase
         ];
         $this->repository->create([$data], $this->context);
 
+        /** @var ProductEntity|null $variant */
         $variant = $this->repository
             ->search(new Criteria([$variantId]), $this->context)
             ->get($variantId);
 
         static::assertInstanceOf(ProductEntity::class, $variant);
 
-        /** @var ProductEntity $variant */
         static::assertNull($variant->getName());
     }
 
@@ -275,13 +341,13 @@ class ProductRepositoryTest extends TestCase
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('searchKeywords');
 
+        /** @var ProductEntity|null $product */
         $product = $this->repository
             ->search($criteria, $this->context)
             ->get($id);
 
         static::assertInstanceOf(ProductEntity::class, $product);
 
-        /** @var ProductEntity $product */
         static::assertInstanceOf(ProductSearchKeywordCollection::class, $product->getSearchKeywords());
 
         $keywords = $product->getSearchKeywords()->map(static function (ProductSearchKeywordEntity $entity) {
@@ -298,13 +364,13 @@ class ProductRepositoryTest extends TestCase
 
         $this->repository->update([$update], $this->context);
 
+        /** @var ProductEntity|null $product */
         $product = $this->repository
             ->search($criteria, $this->context)
             ->get($id);
 
         static::assertInstanceOf(ProductEntity::class, $product);
 
-        /** @var ProductEntity $product */
         static::assertInstanceOf(ProductSearchKeywordCollection::class, $product->getSearchKeywords());
 
         $keywords = $product->getSearchKeywords()->map(static function (ProductSearchKeywordEntity $entity) {
@@ -1324,6 +1390,64 @@ class ProductRepositoryTest extends TestCase
         static::assertSame($greenMedia, Uuid::fromBytesToHex($row['media_id']));
     }
 
+    public function testActiveInheritance(): void
+    {
+        $ids = new IdsCollection();
+
+        $products = [
+            [
+                'id' => $ids->create('parent'),
+                'productNumber' => Uuid::randomHex(),
+                'name' => 'T-shirt',
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+                'tax' => ['name' => 'test', 'taxRate' => 15],
+                'stock' => 10,
+            ],
+            [
+                'id' => $ids->create('red'),
+                'productNumber' => Uuid::randomHex(),
+                'parentId' => $ids->get('parent'),
+                'name' => 'red',
+                'stock' => 10,
+            ],
+            [
+                'id' => $ids->create('green'),
+                'productNumber' => Uuid::randomHex(),
+                'parentId' => $ids->get('parent'),
+                'stock' => 10,
+                'name' => 'green',
+                'active' => false,
+            ],
+            [
+                'id' => $ids->create('blue'),
+                'productNumber' => Uuid::randomHex(),
+                'parentId' => $ids->get('parent'),
+                'stock' => 10,
+                'name' => 'green',
+                'active' => true,
+            ],
+        ];
+
+        $context = Context::createDefaultContext();
+        $this->getContainer()
+            ->get('product.repository')
+            ->create($products, $context);
+
+        $context->setConsiderInheritance(true);
+
+        $criteria = new Criteria($ids->getList(['red', 'green', 'blue']));
+        $criteria->addFilter(new EqualsFilter('active', true));
+
+        /** @var IdSearchResult $products */
+        $products = $this->getContainer()
+            ->get('product.repository')
+            ->searchIds($criteria, $context);
+
+        static::assertTrue($products->has($ids->get('red')));
+        static::assertTrue($products->has($ids->get('blue')));
+        static::assertFalse($products->has($ids->get('green')));
+    }
+
     public function testVariantInheritanceWithCategories(): void
     {
         $redId = Uuid::randomHex();
@@ -1979,6 +2103,46 @@ class ProductRepositoryTest extends TestCase
         static::assertSame($colorId, $blue->getOption()->getGroupId());
     }
 
+    public function testCreateAndAssignCMSPage(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_10078', $this);
+
+        $id = Uuid::randomHex();
+
+        $cmsPageId = Uuid::randomHex();
+
+        $this->getContainer()->get('cms_page.repository')->create(
+            [
+                [
+                    'id' => $cmsPageId,
+                    'type' => 'product_detail',
+                ],
+            ],
+            $this->context
+        );
+
+        $data = [
+            'id' => $id,
+            'productNumber' => Uuid::randomHex(),
+            'name' => 'test',
+            'stock' => 10,
+            'tax' => ['name' => 'test', 'taxRate' => 15],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+            'manufacturer' => ['name' => 'test'],
+            'cmsPageId' => $cmsPageId,
+        ];
+
+        $this->repository->create([$data], Context::createDefaultContext());
+
+        $criteria = new Criteria([$id]);
+        $criteria->addAssociation('cmsPage');
+        /** @var ProductEntity $product */
+        $product = $this->repository->search($criteria, Context::createDefaultContext())->get($id);
+        static::assertSame($cmsPageId, $product->getCmsPageId());
+        static::assertEquals(CmsPageEntity::class, get_class($product->getCmsPage()));
+        static::assertEquals('product_detail', $product->getCmsPage()->getType());
+    }
+
     public function testModifyProductPriceMatrix(): void
     {
         $ruleA = Uuid::randomHex();
@@ -2293,8 +2457,405 @@ class ProductRepositoryTest extends TestCase
         );
     }
 
+    public function customFieldVariantsProvider(): array
+    {
+        return [
+            'Test own values' => [
+                [
+                    'parent' => [
+                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'parent'], 'name' => 'A'],
+                    ],
+                    'child' => [
+                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'child'], 'name' => 'A'],
+                    ],
+                ],
+                [
+                    'parent' => ['foo' => 'parent'],
+                    'child' => ['foo' => 'child'],
+                ],
+                $this->createLanguageContext([Defaults::LANGUAGE_SYSTEM], true),
+            ],
+            'Test merged with parent' => [
+                [
+                    'parent' => [
+                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'parent', 'bar' => 'parent'], 'name' => 'A'],
+                    ],
+                    'child' => [
+                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'child'], 'name' => 'A'],
+                    ],
+                ],
+                [
+                    'parent' => ['foo' => 'parent', 'bar' => 'parent'],
+                    'child' => ['foo' => 'child', 'bar' => 'parent'],
+                ],
+                $this->createLanguageContext([Defaults::LANGUAGE_SYSTEM], true),
+            ],
+            'Test not merged with parent, no inheritance' => [
+                [
+                    'parent' => [
+                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'parent', 'bar' => 'parent'], 'name' => 'A'],
+                    ],
+                    'child' => [
+                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'child'], 'name' => 'A'],
+                    ],
+                ],
+                [
+                    'parent' => ['foo' => 'parent', 'bar' => 'parent'],
+                    'child' => ['foo' => 'child'],
+                ],
+                $this->createLanguageContext([Defaults::LANGUAGE_SYSTEM], false),
+            ],
+            'Test inheritance child null value' => [
+                [
+                    'parent' => [
+                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'parent'], 'name' => 'A'],
+                    ],
+                    'child' => [
+                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => null], 'name' => 'A'],
+                    ],
+                ],
+                [
+                    'parent' => ['foo' => 'parent'],
+                    'child' => ['foo' => 'parent'],
+                ],
+                $this->createLanguageContext([Defaults::LANGUAGE_SYSTEM], true),
+            ],
+            'Test child null value no inheritance' => [
+                [
+                    'parent' => [
+                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'parent'], 'name' => 'A'],
+                    ],
+                    'child' => [
+                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => null], 'name' => 'A'],
+                    ],
+                ],
+                [
+                    'parent' => ['foo' => 'parent'],
+                    'child' => [],
+                ],
+                $this->createLanguageContext([Defaults::LANGUAGE_SYSTEM], false),
+            ],
+            'Test child and parent null value no inheritance' => [
+                [
+                    'parent' => [
+                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => null], 'name' => 'A'],
+                    ],
+                    'child' => [
+                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => null], 'name' => 'A'],
+                    ],
+                ],
+                [
+                    'parent' => [],
+                    'child' => [],
+                ],
+                $this->createLanguageContext([Defaults::LANGUAGE_SYSTEM], false),
+            ],
+            'Test only parent null value with inheritance' => [
+                [
+                    'parent' => [
+                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => null], 'name' => 'A'],
+                    ],
+                    'child' => [
+                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'child'], 'name' => 'A'],
+                    ],
+                ],
+                [
+                    'parent' => [],
+                    'child' => ['foo' => 'child'],
+                ],
+                $this->createLanguageContext([Defaults::LANGUAGE_SYSTEM], true),
+            ],
+            'Test inheritance with language chain' => [
+                [
+                    'parent' => [
+                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'parent'], 'name' => 'A'],
+                        self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => 'parent translated']],
+                    ],
+                    'child' => [
+                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'child'], 'name' => 'A'],
+                        self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => 'child translated']],
+                    ],
+                ],
+                [
+                    'parent' => ['foo' => 'parent translated'],
+                    'child' => ['foo' => 'child translated'],
+                ],
+                $this->createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], true),
+            ],
+            'Test inheritance with language chain merged with parent' => [
+                [
+                    'parent' => [
+                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'parent'], 'name' => 'A'],
+                        self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => 'parent translated']],
+                    ],
+                    'child' => [
+                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'child'], 'name' => 'A'],
+                        self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => null]],
+                    ],
+                ],
+                [
+                    'parent' => ['foo' => 'parent translated'],
+                    'child' => ['foo' => 'parent translated'],
+                ],
+                $this->createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], true),
+            ],
+            'Test inheritance with language chain no translation for language' => [
+                [
+                    'parent' => [
+                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'parent'], 'name' => 'A'],
+                        self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => null]],
+                    ],
+                    'child' => [
+                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'child'], 'name' => 'A'],
+                        self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => null]],
+                    ],
+                ],
+                [
+                    'parent' => ['foo' => 'parent'],
+                    'child' => ['foo' => 'child'],
+                ],
+                $this->createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], true),
+            ],
+            'Test inheritance with language chain no translation for language and child at all' => [
+                [
+                    'parent' => [
+                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'parent'], 'name' => 'A'],
+                        self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => null]],
+                    ],
+                    'child' => [
+                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => null], 'name' => 'A'],
+                        self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => null]],
+                    ],
+                ],
+                [
+                    'parent' => ['foo' => 'parent'],
+                    'child' => ['foo' => 'parent'],
+                ],
+                $this->createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], true),
+            ],
+            'Test language chain without inheritance' => [
+                [
+                    'parent' => [
+                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'parent'], 'name' => 'A'],
+                        self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => null]],
+                    ],
+                    'child' => [
+                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => null], 'name' => 'A'],
+                        self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => null]],
+                    ],
+                ],
+                [
+                    'parent' => ['foo' => 'parent'],
+                    'child' => [],
+                ],
+                $this->createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], false),
+            ],
+            'Test language chain without inheritance but language is set' => [
+                [
+                    'parent' => [
+                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'parent'], 'name' => 'A'],
+                        self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => 'parent translated']],
+                    ],
+                    'child' => [
+                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => null], 'name' => 'A'],
+                        self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => null]],
+                    ],
+                ],
+                [
+                    'parent' => ['foo' => 'parent translated'],
+                    'child' => [],
+                ],
+                $this->createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], false),
+            ],
+            'Test language chain without inheritance but language is set, main is not' => [
+                [
+                    'parent' => [
+                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => null], 'name' => 'A'],
+                        self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => 'parent translated']],
+                    ],
+                    'child' => [
+                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => null], 'name' => 'A'],
+                        self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => null]],
+                    ],
+                ],
+                [
+                    'parent' => ['foo' => 'parent translated'],
+                    'child' => [],
+                ],
+                $this->createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], false),
+            ],
+            'Test language chain without inheritance and only main language set' => [
+                [
+                    'parent' => [
+                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'parent'], 'name' => 'A'],
+                        self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => null]],
+                    ],
+                    'child' => [
+                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'child'], 'name' => 'A'],
+                        self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => null]],
+                    ],
+                ],
+                [
+                    'parent' => ['foo' => 'parent'],
+                    'child' => ['foo' => 'child'],
+                ],
+                $this->createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], false),
+            ],
+            'Test language with inheritance and merge with parent and languages' => [
+                [
+                    'parent' => [
+                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'parent', 'bar' => 'parent'], 'name' => 'A'],
+                        self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => 'parent translated']],
+                    ],
+                    'child' => [
+                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'child'], 'name' => 'A'],
+                        self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => 'child translated']],
+                    ],
+                ],
+                [
+                    'parent' => ['foo' => 'parent translated', 'bar' => 'parent'],
+                    'child' => ['foo' => 'child translated', 'bar' => 'parent'],
+                ],
+                $this->createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], true),
+            ],
+            'Test language with inheritance and merge with parent and languages, child own values' => [
+                [
+                    'parent' => [
+                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'parent', 'bar' => 'parent'], 'name' => 'A'],
+                        self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => 'parent translated']],
+                    ],
+                    'child' => [
+                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'child'], 'name' => 'A'],
+                        self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => 'child translated', 'bar' => 'child translated']],
+                    ],
+                ],
+                [
+                    'parent' => ['foo' => 'parent translated', 'bar' => 'parent'],
+                    'child' => ['foo' => 'child translated', 'bar' => 'child translated'],
+                ],
+                $this->createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], true),
+            ],
+            'Test language with inheritance and merge with parent and languages, main child has values' => [
+                [
+                    'parent' => [
+                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'parent', 'bar' => 'parent'], 'name' => 'A'],
+                        self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => 'parent translated']],
+                    ],
+                    'child' => [
+                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'child', 'bar' => 'child'], 'name' => 'A'],
+                        self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => 'child translated']],
+                    ],
+                ],
+                [
+                    'parent' => ['foo' => 'parent translated', 'bar' => 'parent'],
+                    'child' => ['foo' => 'child translated', 'bar' => 'child'],
+                ],
+                $this->createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], true),
+            ],
+            'Test language with inheritance and merge with parent and languages, main child has values and parent language has values' => [
+                [
+                    'parent' => [
+                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'parent', 'bar' => 'parent'], 'name' => 'A'],
+                        self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => 'parent translated', 'bar' => 'parent translated']],
+                    ],
+                    'child' => [
+                        Defaults::LANGUAGE_SYSTEM => ['customFields' => ['foo' => 'child', 'bar' => 'child'], 'name' => 'A'],
+                        self::TEST_LANGUAGE_ID => ['customFields' => ['foo' => 'child translated']],
+                    ],
+                ],
+                [
+                    'parent' => ['foo' => 'parent translated', 'bar' => 'parent translated'],
+                    'child' => ['foo' => 'child translated', 'bar' => 'parent translated'],
+                ],
+                $this->createLanguageContext([self::TEST_LANGUAGE_ID, Defaults::LANGUAGE_SYSTEM], true),
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider customFieldVariantsProvider
+     * @group slow
+     */
+    public function testVariantCustomFieldInheritance(array $translations, array $expected, Context $context): void
+    {
+        $ids = new TestDataCollection();
+
+        $products = [
+            [
+                'id' => $ids->create('parent'),
+                'name' => 'Insert',
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+                'tax' => ['name' => 'test', 'taxRate' => 10],
+                'stock' => 1,
+                'productNumber' => Uuid::randomHex(),
+                'translations' => $translations['parent'],
+            ],
+            [
+                'id' => $ids->create('child'),
+                'parentId' => $ids->get('parent'),
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 12, 'net' => 11, 'linked' => false]],
+                'stock' => 2,
+                'productNumber' => Uuid::randomHex(),
+                'translations' => $translations['child'],
+            ],
+        ];
+
+        $this->createLanguage(self::TEST_LANGUAGE_ID);
+
+        $this->repository->create($products, Context::createDefaultContext());
+
+        $criteria = new Criteria($ids->getList(['parent', 'child']));
+
+        $products = $this->repository->search($criteria, $context);
+
+        foreach ($expected as $key => $customFields) {
+            $id = $ids->get('parent');
+            if ($key === 'child') {
+                $id = $ids->get('child');
+            }
+
+            $translation = $products->get($id)->getTranslation('customFields');
+            static::assertEquals($customFields, $translation);
+        }
+    }
+
+    private function createLanguageContext(array $languages, bool $inheritance)
+    {
+        return new Context(new SystemSource(), [], Defaults::CURRENCY, $languages, Defaults::LIVE_VERSION, 1.0, $inheritance);
+    }
+
     private function createContext(array $ruleIds = []): Context
     {
         return new Context(new SystemSource(), $ruleIds);
+    }
+
+    private function createLanguage(string $id, ?string $parentId = Defaults::LANGUAGE_SYSTEM): void
+    {
+        /* @var EntityRepositoryInterface $languageRepository */
+        $languageRepository = $this->getContainer()->get('language.repository');
+
+        $languageRepository->upsert(
+            [
+                [
+                    'id' => $id,
+                    'name' => sprintf('name-%s', $id),
+                    'localeId' => $this->getLocaleIdOfSystemLanguage(),
+                    'parentId' => $parentId,
+                    'translationCode' => [
+                        'id' => self::TEST_LOCALE_ID,
+                        'code' => self::TEST_LANGUAGE_LOCALE_CODE,
+                        'name' => 'Test locale',
+                        'territory' => 'test',
+                    ],
+                    'salesChannels' => [
+                        ['id' => Defaults::SALES_CHANNEL],
+                    ],
+                    'salesChannelDefaultAssignments' => [
+                        ['id' => Defaults::SALES_CHANNEL],
+                    ],
+                ],
+            ],
+            Context::createDefaultContext()
+        );
     }
 }

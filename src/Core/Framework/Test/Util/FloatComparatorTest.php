@@ -15,6 +15,14 @@ class FloatComparatorTest extends TestCase
         static::assertSame($expected, FloatComparator::equals($a, $b));
     }
 
+    public function testCast(): void
+    {
+        $x = 0.631 * 5;
+
+        static::assertFalse($x === 3.155);
+        static::assertTrue(FloatComparator::cast($x) === 3.155);
+    }
+
     public function equalsDataProvider(): array
     {
         return [

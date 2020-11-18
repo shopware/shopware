@@ -9,6 +9,14 @@ Component.register('sw-product-category-form', {
 
     inject: ['repositoryFactory'],
 
+    props: {
+        allowEdit: {
+            type: Boolean,
+            required: false,
+            default: true
+        }
+    },
+
     data() {
         return {
             displayVisibilityDetail: false,

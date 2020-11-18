@@ -12,6 +12,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceCollection;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Event\EventAction\EventActionCollection;
 use Shopware\Core\Framework\Rule\Rule;
 
 class RuleEntity extends Entity
@@ -57,6 +58,11 @@ class RuleEntity extends Entity
      * @var PaymentMethodCollection|null
      */
     protected $paymentMethods;
+
+    /**
+     * @var EventActionCollection|null
+     */
+    protected $eventActions;
 
     /**
      * @var RuleConditionCollection|null
@@ -312,8 +318,13 @@ class RuleEntity extends Entity
         $this->cartPromotions = $cartPromotions;
     }
 
-    public function getApiAlias(): string
+    public function getEventActions(): ?EventActionCollection
     {
-        return 'rule';
+        return $this->eventActions;
+    }
+
+    public function setEventActions(EventActionCollection $eventActions): void
+    {
+        $this->eventActions = $eventActions;
     }
 }

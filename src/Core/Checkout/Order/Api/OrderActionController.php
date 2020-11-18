@@ -4,11 +4,13 @@ namespace Shopware\Core\Checkout\Order\Api;
 
 use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
+use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriber;
+use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\StateMachine\StateMachineDefinition;
-use Shopware\Core\System\StateMachine\Transition;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -42,6 +44,7 @@ class OrderActionController extends AbstractController
     }
 
     /**
+     * @Since("6.1.0.0")
      * @Route("/api/v{version}/_action/order/{orderId}/state/{transition}", name="api.action.order.state_machine.order.transition_state", methods={"POST"})
      *
      * @throws OrderNotFoundException
@@ -53,6 +56,15 @@ class OrderActionController extends AbstractController
         Request $request,
         Context $context
     ): JsonResponse {
+        $context->addExtension(
+            MailSendSubscriber::MAIL_CONFIG_EXTENSION,
+            new MailSendSubscriberConfig(
+                $request->request->get('sendMail', true) === false,
+                $request->request->get('documentIds', []),
+                $request->request->get('mediaIds', [])
+            )
+        );
+
         $toPlace = $this->orderService->orderStateTransition(
             $orderId,
             $transition,
@@ -70,6 +82,7 @@ class OrderActionController extends AbstractController
     }
 
     /**
+     * @Since("6.1.0.0")
      * @Route("/api/v{version}/_action/order_transaction/{orderTransactionId}/state/{transition}", name="api.action.order.state_machine.order_transaction.transition_state", methods={"POST"})
      *
      * @throws OrderNotFoundException
@@ -81,6 +94,15 @@ class OrderActionController extends AbstractController
         Request $request,
         Context $context
     ): JsonResponse {
+        $context->addExtension(
+            MailSendSubscriber::MAIL_CONFIG_EXTENSION,
+            new MailSendSubscriberConfig(
+                $request->request->get('sendMail', true) === false,
+                $request->request->get('documentIds', []),
+                $request->request->get('mediaIds', [])
+            )
+        );
+
         $toPlace = $this->orderService->orderTransactionStateTransition(
             $orderTransactionId,
             $transition,
@@ -98,6 +120,7 @@ class OrderActionController extends AbstractController
     }
 
     /**
+     * @Since("6.1.0.0")
      * @Route("/api/v{version}/_action/order_delivery/{orderDeliveryId}/state/{transition}", name="api.action.order.state_machine.order_delivery.transition_state", methods={"POST"})
      *
      * @throws OrderNotFoundException
@@ -109,6 +132,15 @@ class OrderActionController extends AbstractController
         Request $request,
         Context $context
     ): JsonResponse {
+        $context->addExtension(
+            MailSendSubscriber::MAIL_CONFIG_EXTENSION,
+            new MailSendSubscriberConfig(
+                $request->request->get('sendMail', true) === false,
+                $request->request->get('documentIds', []),
+                $request->request->get('mediaIds', [])
+            )
+        );
+
         $toPlace = $this->orderService->orderDeliveryStateTransition(
             $orderDeliveryId,
             $transition,

@@ -50,6 +50,7 @@
       "labelNewPassword": "Neues Passwort",
       "labelNewUser": "Neuer Benutzer",
       "placeholderNewPassword": "Neues Passwort eingeben ...",
+      "placeholderNewPasswordConfirm": "Neues Passwort erneut eingeben ...",
       "labelButtonCancel": "Abbrechen",
       "labelButtonChangePassword": "Ändern",
       "labelButtonSave": "Speichern",
@@ -62,7 +63,6 @@
       "labelAccessKey": "Zugangsschlüssel",
       "labelPermissions": "Berechtigungen",
       "modal": {
-        "deleteModalTitle": "Löschen",
         "detailModalTitle": "Integration anlegen",
         "detailModalTitleEdit": "Bearbeiten",
         "confirmDelete": "Möchtest Du diese Integration wirklich löschen?",
@@ -79,11 +79,8 @@
         "permissions": "Berechtigungen",
         "readAccessFieldLabel": "Lesen (Standard)",
         "writeAccessFieldLabel": "Schreiben (optional)",
-        "titleSaveSuccess": "Erfolg",
         "messageSaveSuccess": "Integration erfolgreich gespeichert.",
-        "titleSaveError": "Fehler",
         "messageSaveError": "Die Integration konnte nicht gespeichert werden.",
-        "titleCreateNewError": "Fehler",
         "messageCreateNewError": "Die Integration konnte nicht erstellt werden."
       },
       "notification": {

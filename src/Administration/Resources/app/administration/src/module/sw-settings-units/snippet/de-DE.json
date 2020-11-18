@@ -16,10 +16,15 @@
       "subline": "Verwaltung von Maßeinheiten."
     },
     "notification": {
-      "successTitle": "Maßeinheit gespeichert",
       "successMessage": "Die Maßeinheit wurde erfolgreich gespeichert.",
-      "errorTitle": "Fehler",
       "errorMessage": "Die Maßeinheit konnte nicht gespeichert werden. Überprüfe, ob alle Felder ausgefüllt sind."
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "scale_unit": {
+        "label": "Maßeinheiten"
+      }
     }
   }
 }

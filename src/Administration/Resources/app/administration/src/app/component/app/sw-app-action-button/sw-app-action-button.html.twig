@@ -1,0 +1,19 @@
+{% block sw_connect_action_button %}
+    <component
+        :is="openInNewTab ? 'a' : 'div'"
+        class="sw-app-action-button sw-context-menu-item"
+        :class="{ 'sw-context-menu-item--icon': !!action.icon }"
+        @click="runAction"
+        v-bind="linkData">
+
+        <img
+            v-if="action.icon"
+            class="sw-app-action-button__icon"
+            :src="`data:image/png;base64, ${action.icon}`">
+
+        <span class="sw-context-menu-item__text">
+            {{ buttonLabel }}
+            <sw-icon v-if="openInNewTab" name="default-action-external" size="12px"></sw-icon>
+        </span>
+    </component>
+{% endblock %}

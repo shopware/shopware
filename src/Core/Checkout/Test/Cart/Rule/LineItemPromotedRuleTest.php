@@ -152,7 +152,7 @@ class LineItemPromotedRuleTest extends TestCase
 
     private function createLineItem(bool $markAsTopseller): LineItem
     {
-        $item = (new LineItem(Uuid::randomHex(), 'product', null, 3));
+        $item = new LineItem(Uuid::randomHex(), 'product', null, 3);
         $item->setPayloadValue(self::PAYLOAD_KEY, $markAsTopseller);
 
         return $item;

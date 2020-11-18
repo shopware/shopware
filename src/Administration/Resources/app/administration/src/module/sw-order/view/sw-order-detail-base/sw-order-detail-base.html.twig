@@ -25,6 +25,12 @@
                             <sw-order-state-select v-if="!isLoading && this.transaction"
                                                    roundedStyle
                                                    class="sw-order-state-select__payment-state"
+                                                   :disabled="!acl.can('order.editor')"
+                                                   v-tooltip="{
+                                                        message: $tc('sw-privileges.tooltip.warning'),
+                                                        disabled: acl.can('order.editor'),
+                                                        showOnDisabledElements: true
+                                                    }"
                                                    :transitionOptions="transactionOptions"
                                                    @state-select="onQuickTransactionStatusChange"
                                                    :placeholder="transactionOptionPlaceholder"
@@ -36,6 +42,12 @@
                             <sw-order-state-select
                                 class="sw-order-state-select__delivery-state"
                                 :transitionOptions="deliveryOptions"
+                                :disabled="!acl.can('order.editor')"
+                                v-tooltip="{
+                                    message: $tc('sw-privileges.tooltip.warning'),
+                                    disabled: acl.can('order.editor'),
+                                    showOnDisabledElements: true
+                                }"
                                 roundedStyle
                                 v-if="!isLoading && this.delivery"
                                 @state-select="onQuickDeliveryStatusChange"
@@ -48,6 +60,12 @@
                             <sw-order-state-select
                                 class="sw-order-state-select__order-state"
                                 :transitionOptions="orderOptions"
+                                :disabled="!acl.can('order.editor')"
+                                v-tooltip="{
+                                    message: $tc('sw-privileges.tooltip.warning'),
+                                    disabled: acl.can('order.editor'),
+                                    showOnDisabledElements: true
+                                }"
                                 roundedStyle
                                 v-if="!isLoading"
                                 @state-select="onQuickOrderStatusChange"
@@ -122,14 +140,18 @@
                                             {% endblock %}
 
                                             {% block sw_order_detail_base_line_items_summary_amount_without_tax %}
-                                                <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmountWithoutTaxes') }}</strong></dt>
-                                                <dd><strong>{{ order.amountNet | currency(order.currency.translated.shortName) }}</strong></dd>
+                                                <template v-if="taxStatus !== 'tax-free'">
+                                                    <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmountWithoutTaxes') }}</strong></dt>
+                                                    <dd><strong>{{ order.amountNet | currency(order.currency.translated.shortName) }}</strong></dd>
+                                                </template>
                                             {% endblock %}
 
                                             {% block sw_order_detail_base_line_items_summary_taxes %}
-                                                <template v-for="calculatedTax in sortedCalculatedTaxes">
-                                                    <dt>{{ $tc('sw-order.detailBase.summaryLabelTaxes', 1, { taxRate: calculatedTax.taxRate }) }}</dt>
-                                                    <dd>{{ calculatedTax.tax | currency(order.currency.translated.shortName) }}</dd>
+                                                <template v-if="taxStatus !== 'tax-free'">
+                                                    <template v-for="calculatedTax in sortedCalculatedTaxes">
+                                                        <dt>{{ $tc('sw-order.detailBase.summaryLabelTaxes', 1, { taxRate: calculatedTax.taxRate }) }}</dt>
+                                                        <dd>{{ calculatedTax.tax | currency(order.currency.translated.shortName) }}</dd>
+                                                    </template>
                                                 </template>
                                             {% endblock %}
 
@@ -137,8 +159,17 @@
                                             {% endblock %}
 
                                             {% block sw_order_detail_base_line_items_summary_amount_total %}
-                                                <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmountTotal') }}</strong></dt>
-                                                <dd><strong>{{ order.amountTotal | currency(order.currency.shortName) }}</strong></dd>
+                                                <template v-if="taxStatus !== 'tax-free'">
+                                                    <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmountTotal') }}</strong></dt>
+                                                    <dd><strong>{{ order.amountTotal | currency(order.currency.shortName) }}</strong></dd>
+                                                </template>
+                                            {% endblock %}
+
+                                            {% block sw_order_detail_base_line_items_summary_amount_free_tax %}
+                                                <template v-if="taxStatus === 'tax-free'">
+                                                    <dt><strong>{{ $tc('sw-order.detailBase.summaryLabelAmount') }}</strong></dt>
+                                                    <dd><strong>{{ order.positionPrice | currency(order.currency.translated.shortName) }}</strong></dd>
+                                                </template>
                                             {% endblock %}
                                         {% endblock %}
                                     </sw-description-list>
@@ -186,7 +217,7 @@
                      :isLoading="isLoading">
                 <sw-custom-field-set-renderer
                     :entity="order"
-                    :disabled="!isEditing"
+                    :disabled="!isEditing || !acl.can('order.editor')"
                     :sets="customFieldSets">
                 </sw-custom-field-set-renderer>
             </sw-card>

@@ -1,7 +1,7 @@
 {% block sw_cms_el_config_form %}
      <sw-tabs class="sw-cms-el-config-form__tabs"
               defaultItem="content">
-    
+
         <template slot-scope="{ active }">
             {% block sw_cms_el_config_form_tab_content %}
                 <sw-tabs-item :title="$tc('sw-cms.elements.general.config.tab.content')"
@@ -29,9 +29,11 @@
                     {% block sw_cms_el_form_config_content_form_type %}
                         <sw-select-field :label="$tc('sw-cms.elements.form.config.label.type')"
                                          v-model="element.config.type.value">
-                            <option value="" disabled>{{ $tc('sw-cms.elements.form.config.label.type') }}</option>
-                            <option value="contact">{{ $tc('sw-cms.elements.form.config.label.typeContact') }}</option>
-                            <option value="newsletter">{{ $tc('sw-cms.elements.form.config.label.typeNewsletter') }}</option>
+                            {% block sw_cms_el_form_config_content_form_type_options %}
+                                <option value="" disabled>{{ $tc('sw-cms.elements.form.config.label.type') }}</option>
+                                <option value="contact">{{ $tc('sw-cms.elements.form.config.label.typeContact') }}</option>
+                                <option value="newsletter">{{ $tc('sw-cms.elements.form.config.label.typeNewsletter') }}</option>
+                            {% endblock %}
                         </sw-select-field>
                     {% endblock %}
 

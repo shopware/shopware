@@ -4,7 +4,15 @@
             <sw-card slot="content" hero :isLoading="isLoading">
                 <div>
                     {% block sw_promotion_detail_discounts_actions_add %}
-                        <sw-button variant="ghost" @click="onAddDiscount" :disabled="promotion && promotion.hasOrders">
+                        <sw-button
+                            variant="ghost"
+                            @click="onAddDiscount"
+                            :disabled="(promotion && promotion.hasOrders) || !acl.can('promotion.editor')"
+                            v-tooltip="{
+                                message: $tc('sw-privileges.tooltip.warning'),
+                                disabled: acl.can('promotion.editor'),
+                                showOnDisabledElements: true
+                            }">
                             {{ $tc('sw-promotion.detail.main.discounts.buttonAddDiscount') }}
                         </sw-button>
                     {% endblock %}

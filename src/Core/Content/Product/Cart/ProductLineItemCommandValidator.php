@@ -65,7 +65,7 @@ class ProductLineItemCommandValidator implements EventSubscriberInterface
                 continue;
             }
 
-            $somethingChanged = ($productIdChanged || $referenceIdChanged || $orderNumberChanged);
+            $somethingChanged = $productIdChanged || $referenceIdChanged || $orderNumberChanged;
 
             $allChanged = $productIdChanged && $referenceIdChanged && $orderNumberChanged;
 

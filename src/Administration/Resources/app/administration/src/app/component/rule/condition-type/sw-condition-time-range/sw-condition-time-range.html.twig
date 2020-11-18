@@ -1,12 +1,13 @@
 {% block sw_condition_value_content %}
     <div class="sw-condition-time-range">
         {% block sw_condition_time_range_field_from_time %}
-            <sw-arrow-field primary="#F9FAFB">
+            <sw-arrow-field :primary="disabled ? null : '#F9FAFB'" :disabled="disabled">
                 <sw-datepicker
                     size="medium"
                     dateType="time"
                     required
                     :config="datepickerConfig"
+                    :disabled="disabled"
                     v-model="fromTime">
                 </sw-datepicker>
             </sw-arrow-field>
@@ -17,6 +18,7 @@
                 size="medium"
                 dateType="time"
                 required
+                :disabled="disabled"
                 :config="datepickerConfig"
                 v-model="toTime">
             </sw-datepicker>

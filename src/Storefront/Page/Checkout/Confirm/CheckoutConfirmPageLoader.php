@@ -4,12 +4,11 @@ namespace Shopware\Storefront\Page\Checkout\Confirm;
 
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
-use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
+use Shopware\Core\Checkout\Payment\SalesChannel\AbstractPaymentMethodRoute;
+use Shopware\Core\Checkout\Shipping\SalesChannel\AbstractShippingMethodRoute;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -17,16 +16,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 class CheckoutConfirmPageLoader
 {
-    /**
-     * @var SalesChannelRepositoryInterface
-     */
-    private $paymentMethodRepository;
-
-    /**
-     * @var SalesChannelRepositoryInterface
-     */
-    private $shippingMethodRepository;
-
     /**
      * @var EventDispatcherInterface
      */
@@ -38,22 +27,32 @@ class CheckoutConfirmPageLoader
     private $cartService;
 
     /**
+     * @var AbstractShippingMethodRoute
+     */
+    private $shippingMethodRoute;
+
+    /**
+     * @var AbstractPaymentMethodRoute
+     */
+    private $paymentMethodRoute;
+
+    /**
      * @var GenericPageLoaderInterface
      */
-    private $genericLoader;
+    private $genericPageLoader;
 
     public function __construct(
-        SalesChannelRepositoryInterface $paymentMethodRepository,
-        SalesChannelRepositoryInterface $shippingMethodRepository,
         EventDispatcherInterface $eventDispatcher,
         CartService $cartService,
+        AbstractShippingMethodRoute $shippingMethodRoute,
+        AbstractPaymentMethodRoute $paymentMethodRoute,
         GenericPageLoaderInterface $genericPageLoader
     ) {
-        $this->paymentMethodRepository = $paymentMethodRepository;
-        $this->shippingMethodRepository = $shippingMethodRepository;
         $this->eventDispatcher = $eventDispatcher;
         $this->cartService = $cartService;
-        $this->genericLoader = $genericPageLoader;
+        $this->shippingMethodRoute = $shippingMethodRoute;
+        $this->paymentMethodRoute = $paymentMethodRoute;
+        $this->genericPageLoader = $genericPageLoader;
     }
 
     /**
@@ -61,9 +60,12 @@ class CheckoutConfirmPageLoader
      */
     public function load(Request $request, SalesChannelContext $salesChannelContext): CheckoutConfirmPage
     {
-        $page = $this->genericLoader->load($request, $salesChannelContext);
-
+        $page = $this->genericPageLoader->load($request, $salesChannelContext);
         $page = CheckoutConfirmPage::createFrom($page);
+
+        if ($page->getMetaInformation()) {
+            $page->getMetaInformation()->setRobots('noindex,follow');
+        }
 
         $page->setPaymentMethods($this->getPaymentMethods($salesChannelContext));
         $page->setShippingMethods($this->getShippingMethods($salesChannelContext));
@@ -76,37 +78,21 @@ class CheckoutConfirmPageLoader
         return $page;
     }
 
-    /**
-     * @throws InconsistentCriteriaIdsException
-     */
-    private function getPaymentMethods(SalesChannelContext $salesChannelContext): PaymentMethodCollection
+    private function getPaymentMethods(SalesChannelContext $context): PaymentMethodCollection
     {
-        $criteria = (new Criteria())
-            ->addFilter(new EqualsFilter('active', true))
-            ->addAssociation('media');
+        $request = new Request();
+        $request->query->set('onlyAvailable', true);
 
-        /** @var PaymentMethodCollection $paymentMethods */
-        $paymentMethods = $this->paymentMethodRepository->search($criteria, $salesChannelContext)->getEntities();
-
-        $paymentMethods->sort(function (PaymentMethodEntity $a, PaymentMethodEntity $b) {
-            return $a->getPosition() <=> $b->getPosition();
-        });
-
-        return $paymentMethods->filterByActiveRules($salesChannelContext);
+        return $this->paymentMethodRoute->load($request, $context, new Criteria())->getPaymentMethods();
     }
 
-    /**
-     * @throws InconsistentCriteriaIdsException
-     */
-    private function getShippingMethods(SalesChannelContext $salesChannelContext): ShippingMethodCollection
+    private function getShippingMethods(SalesChannelContext $context): ShippingMethodCollection
     {
-        $criteria = (new Criteria())
-            ->addFilter(new EqualsFilter('active', true))
-            ->addAssociation('media');
+        $request = new Request();
+        $request->query->set('onlyAvailable', true);
 
-        /** @var ShippingMethodCollection $shippingMethods */
-        $shippingMethods = $this->shippingMethodRepository->search($criteria, $salesChannelContext)->getEntities();
-
-        return $shippingMethods->filterByActiveRules($salesChannelContext);
+        return $this->shippingMethodRoute
+            ->load($request, $context, new Criteria())
+            ->getShippingMethods();
     }
 }

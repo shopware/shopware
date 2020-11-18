@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterfac
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
@@ -82,14 +83,14 @@ class EntityRepository implements EntityRepositoryInterface
         if ($criteria->getAggregations()) {
             $aggregations = $this->aggregate($criteria, $context);
         }
-
+        $page = !$criteria->getLimit() ? 1 : (int) ceil(($criteria->getOffset() ?? 0 + 1) / $criteria->getLimit());
         if (!RepositorySearchDetector::isSearchRequired($this->definition, $criteria)) {
             $this->eventDispatcher->dispatch(
                 new EntitySearchedEvent($criteria, $this->definition, $context)
             );
             $entities = $this->read($criteria, $context);
 
-            return new EntitySearchResult($entities->count(), $entities, $aggregations, $criteria, $context);
+            return new EntitySearchResult($entities->count(), $entities, $aggregations, $criteria, $context, $page, $criteria->getLimit());
         }
 
         $ids = $this->searchIds($criteria, $context);
@@ -116,7 +117,7 @@ class EntityRepository implements EntityRepositoryInterface
             $element->addExtension('search', new ArrayEntity($data));
         }
 
-        $result = new EntitySearchResult($ids->getTotal(), $entities, $aggregations, $criteria, $context);
+        $result = new EntitySearchResult($ids->getTotal(), $entities, $aggregations, $criteria, $context, $page, $criteria->getLimit());
 
         $event = new EntitySearchResultLoadedEvent($this->definition, $result);
         $this->eventDispatcher->dispatch($event, $event->getName());
@@ -126,7 +127,9 @@ class EntityRepository implements EntityRepositoryInterface
 
     public function aggregate(Criteria $criteria, Context $context): AggregationResultCollection
     {
-        $result = $this->aggregator->aggregate($this->definition, $criteria, $context);
+        $criteria = clone $criteria;
+
+        $result = $this->aggregator->aggregate($this->definition, clone $criteria, $context);
 
         $event = new EntityAggregationResultLoadedEvent($this->definition, $result, $context);
         $this->eventDispatcher->dispatch($event, $event->getName());
@@ -136,6 +139,8 @@ class EntityRepository implements EntityRepositoryInterface
 
     public function searchIds(Criteria $criteria, Context $context): IdSearchResult
     {
+        $criteria = clone $criteria;
+
         $this->eventDispatcher->dispatch(
             new EntitySearchedEvent($criteria, $this->definition, $context)
         );
@@ -207,14 +212,22 @@ class EntityRepository implements EntityRepositoryInterface
         $this->versionManager->merge($versionId, WriteContext::createFromContext($context));
     }
 
-    public function clone(string $id, Context $context, ?string $newId = null, array $overwrites = []): EntityWrittenContainerEvent
+    public function clone(string $id, Context $context, ?string $newId = null, ?CloneBehavior $behavior = null): EntityWrittenContainerEvent
     {
         $newId = $newId ?? Uuid::randomHex();
         if (!Uuid::isValid($newId)) {
             throw new InvalidUuidException($newId);
         }
 
-        $affected = $this->versionManager->clone($this->definition, $id, $newId, $context->getVersionId(), WriteContext::createFromContext($context), true, $overwrites);
+        $affected = $this->versionManager->clone(
+            $this->definition,
+            $id,
+            $newId,
+            $context->getVersionId(),
+            WriteContext::createFromContext($context),
+            $behavior ?? new CloneBehavior()
+        );
+
         $event = EntityWrittenContainerEvent::createWithWrittenEvents($affected, $context, []);
         $this->eventDispatcher->dispatch($event);
 

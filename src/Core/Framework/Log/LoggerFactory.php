@@ -21,8 +21,8 @@ class LoggerFactory
         $filepath = sprintf($this->rotatingFilePathPattern, $filePrefix);
 
         $result = new Logger($filePrefix);
-        $result->pushHandler((new RotatingFileHandler($filepath, $fileRotationCount ?? 14)));
-        $result->pushProcessor((new PsrLogMessageProcessor()));
+        $result->pushHandler(new RotatingFileHandler($filepath, $fileRotationCount ?? 14));
+        $result->pushProcessor(new PsrLogMessageProcessor());
 
         return $result;
     }

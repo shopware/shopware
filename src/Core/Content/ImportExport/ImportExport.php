@@ -5,6 +5,10 @@ namespace Shopware\Core\Content\ImportExport;
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Content\ImportExport\Event\EnrichExportCriteriaEvent;
+use Shopware\Core\Content\ImportExport\Event\ImportExportAfterImportRecordEvent;
+use Shopware\Core\Content\ImportExport\Event\ImportExportBeforeExportRecordEvent;
+use Shopware\Core\Content\ImportExport\Event\ImportExportBeforeImportRecordEvent;
+use Shopware\Core\Content\ImportExport\Event\ImportExportExceptionImportRecordEvent;
 use Shopware\Core\Content\ImportExport\Exception\ProcessingException;
 use Shopware\Core\Content\ImportExport\Processing\Mapping\CriteriaBuilder;
 use Shopware\Core\Content\ImportExport\Processing\Pipe\AbstractPipe;
@@ -16,13 +20,12 @@ use Shopware\Core\Content\ImportExport\Struct\Progress;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @experimental We might break this in v6.2
- */
 class ImportExport
 {
     private const PART_FILE_SUFFIX = '.offset_';
@@ -138,15 +141,28 @@ class ImportExport
             }
 
             try {
-                // TODO: event before import record
-                $this->repository->upsert([$record], $context);
+                $record = $this->ensurePrimaryKeys($record);
+
+                $event = new ImportExportBeforeImportRecordEvent($record, $row, $config, $context);
+                $this->eventDispatcher->dispatch($event);
+
+                $record = $event->getRecord();
+
+                $result = $this->repository->upsert([$record], $context);
                 $progress->addProcessedRecords(1);
 
-                // TODO: event after import record
+                $afterRecord = new ImportExportAfterImportRecordEvent($result, $record, $row, $config, $context);
+                $this->eventDispatcher->dispatch($afterRecord);
             } catch (\Throwable $exception) {
-                // TODO: event on exception - can rethrow
-                $record['_error'] = mb_convert_encoding($exception->getMessage(), 'UTF-8', 'UTF-8');
-                $failedRecords[] = $record;
+                $event = new ImportExportExceptionImportRecordEvent($exception, $record, $row, $config, $context);
+                $this->eventDispatcher->dispatch($event);
+
+                $exception = $event->getException();
+
+                if ($exception) {
+                    $record['_error'] = mb_convert_encoding($exception->getMessage(), 'UTF-8', 'UTF-8');
+                    $failedRecords[] = $record;
+                }
             }
             $this->importExportService->saveProgress($progress);
 
@@ -294,7 +310,9 @@ class ImportExport
         // copy final file into filesystem
         $this->filesystem->putStream($target, $tmp);
 
-        fclose($tmp);
+        if (is_resource($tmp)) {
+            fclose($tmp);
+        }
         unlink($tmpFile);
 
         foreach ($partFiles as $p) {
@@ -329,7 +347,11 @@ class ImportExport
             }
 
             if ($record !== []) {
-                // TODO: event before export record
+                $event = new ImportExportBeforeExportRecordEvent($config, $record, $originalRecord);
+                $this->eventDispatcher->dispatch($event);
+
+                $record = $event->getRecord();
+
                 $this->writer->append($config, $record, $offset);
                 ++$exportedRecords;
             }
@@ -400,5 +422,20 @@ class ImportExport
         );
 
         return $progress;
+    }
+
+    private function ensurePrimaryKeys(array $data): array
+    {
+        foreach ($this->repository->getDefinition()->getPrimaryKeys() as $primaryKey) {
+            if (!($primaryKey instanceof IdField)) {
+                continue;
+            }
+
+            if (!isset($data[$primaryKey->getPropertyName()])) {
+                $data[$primaryKey->getPropertyName()] = Uuid::randomHex();
+            }
+        }
+
+        return $data;
     }
 }

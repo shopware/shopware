@@ -62,6 +62,18 @@ Component.register('sw-media-quickinfo-multiple', {
     methods: {
         onRemoveItemFromSelection(event) {
             this.$emit('media-item-selection-remove', event);
+        },
+
+        quickActionClassesDelete(disabled) {
+            return ['sw-media-sidebar__quickaction', {
+                'sw-media-sidebar__quickaction--disabled': disabled
+            }];
+        },
+
+        quickActionClasses(disabled) {
+            return ['sw-media-sidebar__quickaction', {
+                'sw-media-sidebar__quickaction--disabled': disabled
+            }];
         }
     }
 });

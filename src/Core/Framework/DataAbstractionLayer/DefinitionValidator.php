@@ -42,6 +42,8 @@ class DefinitionValidator
         'customer.activeShippingAddress',
         'customer.activeBillingAddress',
         'product_configurator_setting.selected',
+        'sales_channel.wishlists',
+        'product.wishlists',
     ];
 
     private const PLURAL_EXCEPTIONS = [
@@ -169,6 +171,8 @@ class DefinitionValidator
                 continue;
             }
 
+            $notices = array_merge_recursive($notices, $this->validateColumn($definition));
+
             $struct = $definition->getEntityClass();
 
             if ($struct !== ArrayEntity::class) {
@@ -177,6 +181,7 @@ class DefinitionValidator
                     $this->findEntityNotices($struct, $definition)
                 );
             }
+
             $notices[$definition->getClass()] = array_merge_recursive(
                 $notices[$definition->getClass()],
                 $this->validateDataFieldNotPrefixedByEntityName($definition)
@@ -550,6 +555,14 @@ class DefinitionValidator
             );
         }
 
+        if ($association->getAutoload() && $reverseSide->getAutoload()) {
+            $associationViolations[$definition->getClass()][] = sprintf(
+                'Remove autoload flag in definition %s association: %s. One to One association should only have one side defined as autoload, otherwise it leads to endless loops inside the DAL.',
+                $definition->getClass(),
+                $association->getPropertyName()
+            );
+        }
+
         return $associationViolations;
     }
 
@@ -686,7 +699,6 @@ class DefinitionValidator
             );
         }
 
-        /** @var EntityDefinition $definition */
         if ($definition->isVersionAware() && $reference->isVersionAware()) {
             $versionField = $mapping->getFields()->filter(function (Field $field) use ($definition) {
                 return $field instanceof ReferenceVersionField && $field->getVersionReferenceDefinition() === $definition;
@@ -746,11 +758,6 @@ class DefinitionValidator
 
                 continue;
             }
-
-            $violations[] = sprintf(
-                'Column %s has no configured field',
-                $column->getName()
-            );
         }
 
         foreach (array_diff($definition->getFields()->getKeys(), $mappedFieldNames) as $notMapped) {
@@ -771,6 +778,36 @@ class DefinitionValidator
         }
 
         return [$definition->getClass() => $violations];
+    }
+
+    private function validateColumn(EntityDefinition $definition): array
+    {
+        $manager = $this->connection->getSchemaManager();
+        $columns = $manager->listTableColumns($definition->getEntityName());
+
+        $notices = [];
+
+        foreach ($columns as $column) {
+            $field = $definition->getFields()->getByStorageName($column->getName());
+
+            if ($field) {
+                continue;
+            }
+
+            /** @var Field $association */
+            $association = $definition->getFields()->get($column->getName());
+
+            if ($association instanceof AssociationField && $association->is(Inherited::class)) {
+                continue;
+            }
+
+            $notices[] = sprintf(
+                'Column %s has no configured field',
+                $column->getName()
+            );
+        }
+
+        return [$definition->getClass() => $notices];
     }
 
     private function validateIsPlural(EntityDefinition $definition, AssociationField $association): array
@@ -794,13 +831,14 @@ class DefinitionValidator
             return [];
         }
 
-        return [$definition->getClass() => [
-            sprintf(
-                'Association %s.%s does not end with a \'s\'.',
-                $definition->getEntityName(),
-                $association->getPropertyName()
-            ),
-        ],
+        return [
+            $definition->getClass() => [
+                sprintf(
+                    'Association %s.%s does not end with a \'s\'.',
+                    $definition->getEntityName(),
+                    $association->getPropertyName()
+                ),
+            ],
         ];
     }
 
@@ -848,17 +886,18 @@ class DefinitionValidator
             mb_stripos($prop, $ref) === false && mb_stripos($prop, $refPlural) === false
             && mb_stripos($prop, $refSalesChannelPart) === false && mb_stripos($prop, $refSalesChannelPartPlural) === false
         ) {
-            $ret = [$definition->getClass() => [
-                sprintf(
-                    'Association %s.%s does not contain reference class name `%s` or `%s` or `%s` or `%s`',
-                    $definition->getEntityName(),
-                    $association->getPropertyName(),
-                    $ref,
-                    $refPlural,
-                    $refSalesChannelPart,
-                    $refSalesChannelPartPlural
-                ),
-            ],
+            $ret = [
+                $definition->getClass() => [
+                    sprintf(
+                        'Association %s.%s does not contain reference class name `%s` or `%s` or `%s` or `%s`',
+                        $definition->getEntityName(),
+                        $association->getPropertyName(),
+                        $ref,
+                        $refPlural,
+                        $refSalesChannelPart,
+                        $refSalesChannelPartPlural
+                    ),
+                ],
             ];
 
             return $ret;

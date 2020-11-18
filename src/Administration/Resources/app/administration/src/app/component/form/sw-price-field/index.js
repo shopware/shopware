@@ -79,16 +79,6 @@ Component.register('sw-price-field', {
             default: false
         },
 
-        /**
-         * @deprecated tag:v6.3.0
-         */
-        enableInheritance: {
-            type: Boolean,
-            required: false,
-            default: false,
-            deprecated: '6.3.0'
-        },
-
         disableSuffix: {
             type: Boolean,
             required: false,
@@ -105,18 +95,24 @@ Component.register('sw-price-field', {
             type: String,
             required: false,
             default: null
+        },
+
+        name: {
+            type: String,
+            required: false,
+            default: null
         }
     },
 
     watch: {
         'priceForCurrency.linked': function priceLinkedWatcher(value) {
-            if (value === true) {
+            if (value === true && this.priceForCurrency.gross !== null) {
                 this.convertGrossToNet(this.priceForCurrency.gross);
             }
         },
 
         'taxRate.id': function taxRateWatcher() {
-            if (this.priceForCurrency.linked === true) {
+            if (this.priceForCurrency.linked === true && this.priceForCurrency.gross !== null) {
                 this.convertGrossToNet(this.priceForCurrency.gross);
             }
         }
@@ -180,6 +176,14 @@ Component.register('sw-price-field', {
 
         netError() {
             return this.error ? this.error.net : null;
+        },
+
+        grossFieldName() {
+            return this.name ? `${this.name}-gross` : 'sw-price-field-gross';
+        },
+
+        netFieldName() {
+            return this.name ? `${this.name}-net` : 'sw-price-field-net';
         }
     },
 
@@ -271,7 +275,13 @@ Component.register('sw-price-field', {
                     price: this.priceForCurrency[outputType],
                     output: outputType
                 }).then(({ data }) => {
-                    resolve(data.calculatedTaxes[0].tax);
+                    let tax = 0;
+
+                    data.calculatedTaxes.forEach((item) => {
+                        tax += item.tax;
+                    });
+
+                    resolve(tax);
                     this.$emit('price-calculate', false);
                 });
                 return true;
@@ -279,15 +289,13 @@ Component.register('sw-price-field', {
         },
 
         convertPrice(value) {
-            const calculatedPrice = value * this.currency.factor;
-            const priceRounded = calculatedPrice.toFixed(this.currency.decimalPrecision);
-            return Number(priceRounded);
+            return value * this.currency.factor;
         },
 
         keymonitor(event) {
             if (event.key === ',') {
-                const value = event.currentTarget.value;
-                event.currentTarget.value = value.replace(/.$/, '.');
+                const value = event.target.value;
+                event.target.value = value.replace(/,/, '.');
             }
         }
     }

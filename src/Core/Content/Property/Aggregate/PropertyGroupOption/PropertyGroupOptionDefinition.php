@@ -45,6 +45,11 @@ class PropertyGroupOptionDefinition extends EntityDefinition
         return PropertyGroupOptionEntity::class;
     }
 
+    public function since(): ?string
+    {
+        return '6.0.0.0';
+    }
+
     protected function getParentDefinitionClass(): ?string
     {
         return PropertyGroupDefinition::class;

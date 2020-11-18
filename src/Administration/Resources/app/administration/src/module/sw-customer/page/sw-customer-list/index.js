@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-customer-list', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -27,7 +27,8 @@ Component.register('sw-customer-list', {
             availableAffiliateCodes: [],
             affiliateCodeFilter: [],
             availableCampaignCodes: [],
-            campaignCodeFilter: []
+            campaignCodeFilter: [],
+            showOnlyCustomerGroupRequests: false
         };
     },
 
@@ -57,8 +58,17 @@ Component.register('sw-customer-list', {
             if (this.campaignCodeFilter.length > 0) {
                 criteria.addFilter(Criteria.equalsAny('campaignCode', this.campaignCodeFilter));
             }
+
+            if (this.showOnlyCustomerGroupRequests) {
+                criteria.addFilter(Criteria.not('OR', [Criteria.equals('requestedGroupId', null)]));
+            }
+
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
-            criteria.addAssociation('defaultBillingAddress');
+            criteria
+                .addAssociation('defaultBillingAddress')
+                .addAssociation('group')
+                .addAssociation('requestedGroup')
+                .addAssociation('salesChannel');
 
             return criteria;
         },
@@ -88,13 +98,11 @@ Component.register('sw-customer-list', {
         onInlineEditSave(promise, customer) {
             promise.then(() => {
                 this.createNotificationSuccess({
-                    title: this.$tc('sw-customer.detail.titleSaveSuccess'),
                     message: this.$tc('sw-customer.detail.messageSaveSuccess', 0, { name: this.salutation(customer) })
                 });
             }).catch(() => {
                 this.getList();
                 this.createNotificationError({
-                    title: this.$tc('sw-customer.detail.titleSaveError'),
                     message: this.$tc('sw-customer.detail.messageSaveError')
                 });
             });
@@ -107,6 +115,7 @@ Component.register('sw-customer-list', {
                 this.total = items.total;
                 this.customers = items;
                 this.isLoading = false;
+                this.selection = {};
 
                 return items;
             }).catch(() => {
@@ -131,7 +140,7 @@ Component.register('sw-customer-list', {
         },
 
         getCustomerColumns() {
-            return [{
+            const columns = [{
                 property: 'firstName',
                 dataIndex: 'firstName,lastName',
                 inlineEdit: 'string',
@@ -162,6 +171,14 @@ Component.register('sw-customer-list', {
                 inlineEdit: 'string',
                 align: 'right'
             }, {
+                property: 'group',
+                dataIndex: 'group',
+                naturalSorting: true,
+                label: 'sw-customer.list.columnGroup',
+                allowResize: true,
+                inlineEdit: 'string',
+                align: 'right'
+            }, {
                 property: 'email',
                 inlineEdit: 'string',
                 label: 'sw-customer.list.columnEmail',
@@ -178,7 +195,14 @@ Component.register('sw-customer-list', {
                 label: 'sw-customer.list.columnCampaignCode',
                 allowResize: true,
                 visible: false
+            }, {
+                property: 'boundSalesChannelId',
+                label: 'sw-customer.list.columnBoundSalesChannel',
+                allowResize: true,
+                visible: false
             }];
+
+            return columns;
         },
 
         loadFilterValues() {
@@ -203,6 +227,11 @@ Component.register('sw-customer-list', {
 
         onChangeCampaignCodeFilter(value) {
             this.campaignCodeFilter = value;
+            this.getList();
+        },
+
+        onChangeRequestedGroupFilter(value) {
+            this.showOnlyCustomerGroupRequests = value;
             this.getList();
         }
     }

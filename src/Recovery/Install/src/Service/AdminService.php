@@ -24,9 +24,9 @@ class AdminService
 
         $sql = <<<'EOT'
 INSERT INTO user
-(id,first_name,last_name,email,username,`password`,locale_id,active,created_at)
+(id,first_name,last_name,email,username,`password`,locale_id,active,admin,created_at)
 VALUES
-(?,?,?,?,?,?,?,1,NOW());
+(?,?,?,?,?,?,?,1,1,NOW());
 EOT;
 
         $prepareStatement = $this->connection->prepare($sql);

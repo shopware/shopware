@@ -43,6 +43,21 @@ class PaymentMethodCollection extends EntityCollection
         });
     }
 
+    /**
+     * Sorts the selected payment method first
+     * If a different default payment method is defined, it will be sorted second
+     * All other payment methods keep their respective sorting
+     */
+    public function sortPaymentMethodsByPreference(SalesChannelContext $context): void
+    {
+        $ids = array_merge(
+            [$context->getPaymentMethod()->getId(), $context->getSalesChannel()->getPaymentMethodId()],
+            $this->getIds()
+        );
+
+        $this->sortByIdArray($ids);
+    }
+
     public function getApiAlias(): string
     {
         return 'payment_method_collection';

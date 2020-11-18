@@ -1,5 +1,6 @@
 import Sanitizer from 'src/core/helper/sanitizer.helper';
 import template from './sw-settings-snippet-list.html.twig';
+import './sw-settings-snippet-list.scss';
 
 const { Component, Mixin, Data: { Criteria } } = Shopware;
 
@@ -10,7 +11,8 @@ Component.register('sw-settings-snippet-list', {
         'snippetSetService',
         'snippetService',
         'userService',
-        'repositoryFactory'
+        'repositoryFactory',
+        'acl'
     ],
 
     mixins: [
@@ -59,6 +61,10 @@ Component.register('sw-settings-snippet-list', {
 
         columns() {
             return this.getColumns();
+        },
+
+        snippetRepository() {
+            return this.repositoryFactory.create('snippet');
         },
 
         snippetSetRepository() {
@@ -112,6 +118,12 @@ Component.register('sw-settings-snippet-list', {
             }
 
             return filter;
+        },
+
+        contextMenuEditSnippet() {
+            return this.acl.can('snippet.editor') ?
+                this.$tc('global.default.edit') :
+                this.$tc('global.default.view');
         }
     },
 
@@ -183,7 +195,6 @@ Component.register('sw-settings-snippet-list', {
             this.snippetSetService.getCustomList(this.page, this.limit, this.filter, sort).then((response) => {
                 this.metaId = this.queryIds[0];
                 this.total = response.total;
-
                 this.grid = this.prepareGrid(response.data);
                 this.isLoading = false;
             });
@@ -227,7 +238,7 @@ Component.register('sw-settings-snippet-list', {
                 const snippet = result[item.id];
                 snippet.value = Sanitizer.sanitize(snippet.value);
 
-                if (!snippet.value || snippet.value.length === 0) {
+                if (!snippet.value && typeof snippet.value !== 'string') {
                     snippet.value = snippet.origin;
                 }
 
@@ -236,9 +247,26 @@ Component.register('sw-settings-snippet-list', {
                 }
 
                 if (snippet.origin !== snippet.value) {
-                    responses.push(this.snippetService.save(snippet));
+                    const snippetEntity = this.snippetRepository.create(Shopware.Context.api);
+
+                    if (snippet.id) {
+                        snippetEntity._isNew = false;
+                    }
+
+                    snippetEntity.author = snippet.author;
+                    snippetEntity.id = snippet.id;
+                    snippetEntity.value = snippet.value;
+                    snippetEntity.origin = snippet.origin;
+                    snippetEntity.translationKey = snippet.translationKey;
+                    snippetEntity.setId = snippet.setId;
+
+                    responses.push(
+                        this.snippetRepository.save(snippetEntity, Shopware.Context.api)
+                    );
                 } else if (snippet.id !== null && !snippet.author.startsWith('user/')) {
-                    responses.push(this.snippetService.delete(snippet.id));
+                    responses.push(
+                        this.snippetRepository.delete(snippet.id, Shopware.Context.api)
+                    );
                 }
             });
 
@@ -278,13 +306,12 @@ Component.register('sw-settings-snippet-list', {
             this.$router.push({ name: 'sw.settings.snippet.index' });
 
             this.createNotificationError({
-                title: this.$tc('sw-settings-snippet.general.errorBackRoutingTitle'),
                 message: this.$tc('sw-settings-snippet.general.errorBackRoutingMessage')
             });
         },
 
         inlineSaveSuccessMessage(key) {
-            const titleSaveSuccess = this.$tc('sw-settings-snippet.list.titleSaveSuccess');
+            const titleSaveSuccess = this.$tc('global.default.success');
             const messageSaveSuccess = this.$tc(
                 'sw-settings-snippet.list.messageSaveSuccess',
                 this.queryIdCount,
@@ -298,7 +325,7 @@ Component.register('sw-settings-snippet-list', {
         },
 
         inlineSaveErrorMessage(key) {
-            const titleSaveError = this.$tc('sw-settings-snippet.list.titleSaveError');
+            const titleSaveError = this.$tc('global.default.error');
             const messageSaveError = this.$tc(
                 'sw-settings-snippet.list.messageSaveError',
                 this.queryIdCount,
@@ -381,11 +408,14 @@ Component.register('sw-settings-snippet-list', {
                     }
                     item.isCustomSnippet = fullSelection.isCustomSnippet;
                     this.isLoading = true;
-                    promises.push(this.snippetService.delete(item.id).then(() => {
-                        this.createSuccessMessage(item);
-                    }).catch(() => {
-                        this.createResetErrorNote(item);
-                    }));
+
+                    promises.push(
+                        this.snippetRepository.delete(item.id, Shopware.Context.api).then(() => {
+                            this.createSuccessMessage(item);
+                        }).catch(() => {
+                            this.createResetErrorNote(item);
+                        })
+                    );
                 });
                 Promise.all(promises).then(() => {
                     this.isLoading = false;
@@ -398,13 +428,12 @@ Component.register('sw-settings-snippet-list', {
         },
 
         createSuccessMessage(item) {
-            const title = this.$tc('sw-settings-snippet.list.titleDeleteSuccess');
+            const title = this.$tc('global.default.success');
             const message = this.$tc(
                 'sw-settings-snippet.list.resetSuccessMessage',
                 !item.isCustomSnippet,
                 {
-                    key: item.value,
-                    value: item.origin
+                    key: item.value
                 }
             );
 
@@ -415,7 +444,7 @@ Component.register('sw-settings-snippet-list', {
         },
 
         createResetErrorNote(item) {
-            const title = this.$tc('sw-settings-snippet.list.titleSaveError');
+            const title = this.$tc('global.default.error');
             const message = this.$tc(
                 'sw-settings-snippet.list.resetErrorMessage',
                 item.isCustomSnippet ? 2 : 0,
@@ -500,6 +529,16 @@ Component.register('sw-settings-snippet-list', {
             }, {
                 ids: this.$route.query.ids
             });
+        },
+
+        getNoPermissionsTooltip(role, showOnDisabledElements = true) {
+            return {
+                showDelay: 300,
+                appearance: 'dark',
+                showOnDisabledElements,
+                disabled: this.acl.can(role),
+                message: this.$tc('sw-privileges.tooltip.warning')
+            };
         }
     }
 });

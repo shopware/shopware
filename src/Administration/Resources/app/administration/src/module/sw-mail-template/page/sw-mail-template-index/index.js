@@ -9,6 +9,8 @@ Component.register('sw-mail-template-index', {
         Mixin.getByName('listing')
     ],
 
+    inject: ['acl'],
+
     metaInfo() {
         return {
             title: this.$createTitle()
@@ -17,7 +19,7 @@ Component.register('sw-mail-template-index', {
 
     methods: {
         onChangeLanguage(languageId) {
-            Shopware.StateDeprecated.getStore('language').setCurrentId(languageId);
+            Shopware.State.commit('context/setApiLanguageId', languageId);
             this.$refs.mailHeaderFooterList.getList();
             this.$refs.mailTemplateList.getList();
         }

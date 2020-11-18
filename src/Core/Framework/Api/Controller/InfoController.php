@@ -7,8 +7,11 @@ use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\BusinessEventRegistry;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Kernel;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -59,12 +62,18 @@ class InfoController extends AbstractController
      */
     private $cspTemplates;
 
+    /**
+     * @var BusinessEventCollector
+     */
+    private $eventCollector;
+
     public function __construct(
         DefinitionService $definitionService,
         ParameterBagInterface $params,
         BusinessEventRegistry $actionEventRegistry,
         Kernel $kernel,
         Packages $packages,
+        BusinessEventCollector $eventCollector,
         bool $enableUrlFeature = true,
         array $cspTemplates = []
     ) {
@@ -75,9 +84,11 @@ class InfoController extends AbstractController
         $this->kernel = $kernel;
         $this->enableUrlFeature = $enableUrlFeature;
         $this->cspTemplates = $cspTemplates;
+        $this->eventCollector = $eventCollector;
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_info/openapi3.json", defaults={"auth_required"="%shopware.api.api_browser.auth_required_str%"}, name="api.info.openapi3", methods={"GET"})
      *
      * @throws \Exception
@@ -90,6 +101,7 @@ class InfoController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_info/open-api-schema.json", defaults={"auth_required"="%shopware.api.api_browser.auth_required_str%"}, name="api.info.open-api-schema", methods={"GET"})
      */
     public function openApiSchema(int $version): JsonResponse
@@ -100,6 +112,7 @@ class InfoController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_info/entity-schema.json", name="api.info.entity-schema", methods={"GET"})
      */
     public function entitySchema(int $version): JsonResponse
@@ -110,6 +123,18 @@ class InfoController extends AbstractController
     }
 
     /**
+     * @Since("6.3.2.0")
+     * @Route("/api/v{version}/_info/events.json", name="api.info.business-events", methods={"GET"})
+     */
+    public function businessEvents(Context $context): JsonResponse
+    {
+        $events = $this->eventCollector->collect($context);
+
+        return $this->json($events);
+    }
+
+    /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_info/swagger.html", defaults={"auth_required"="%shopware.api.api_browser.auth_required_str%"}, name="api.info.swagger", methods={"GET"})
      */
     public function infoHtml(Request $request, int $version): Response
@@ -136,6 +161,7 @@ class InfoController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_info/config", name="api.info.config", methods={"GET"})
      */
     public function config(): JsonResponse
@@ -155,6 +181,10 @@ class InfoController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
+     *
+     * @deprecated tag:v6.4.0 - use `\Shopware\Core\Framework\Api\Controller\InfoController::businessEvents` instead
+     *
      * @Route("/api/v{version}/_info/business-events.json", name="api.info.events", methods={"GET"})
      */
     public function events(): JsonResponse
@@ -169,7 +199,7 @@ class InfoController extends AbstractController
     private function getBundles(): array
     {
         $assets = [];
-        $package = $this->packages->getPackage();
+        $package = $this->packages->getPackage('asset');
 
         foreach ($this->kernel->getBundles() as $bundle) {
             if (!$bundle instanceof Bundle) {

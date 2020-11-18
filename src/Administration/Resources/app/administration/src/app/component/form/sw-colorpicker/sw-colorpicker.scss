@@ -312,6 +312,10 @@
             cursor: pointer;
         }
     }
+
+    .is--disabled &__previewWrapper {
+        cursor: default;
+    }
 }
 
 .sw-field__addition {

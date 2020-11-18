@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\Tax;
 
+use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -35,6 +36,11 @@ class TaxEntity extends Entity
      * @var TaxRuleCollection|null
      */
     protected $rules;
+
+    /**
+     * @var ShippingMethodCollection|null
+     */
+    protected $shippingMethods;
 
     public function getTaxRate(): float
     {
@@ -86,8 +92,13 @@ class TaxEntity extends Entity
         $this->rules = $rules;
     }
 
-    public function getApiAlias(): string
+    public function getShippingMethods(): ?ShippingMethodCollection
     {
-        return 'tax';
+        return $this->shippingMethods;
+    }
+
+    public function setShippingMethods(ShippingMethodCollection $shippingMethods): void
+    {
+        $this->shippingMethods = $shippingMethods;
     }
 }

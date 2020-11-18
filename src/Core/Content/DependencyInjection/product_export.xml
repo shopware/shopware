@@ -104,5 +104,14 @@
             <argument type="service" id="shopware.filesystem.private"/>
             <tag name="kernel.event_subscriber"/>
         </service>
+
+        <service id="Shopware\Core\Content\ProductExport\SalesChannel\ExportController" public="true">
+            <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExporter"/>
+            <argument type="service" id="Shopware\Core\Content\ProductExport\Service\ProductExportFileHandler"/>
+            <argument type="service" id="shopware.filesystem.private"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="product_export.repository"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory"/>
+        </service>
     </services>
 </container>

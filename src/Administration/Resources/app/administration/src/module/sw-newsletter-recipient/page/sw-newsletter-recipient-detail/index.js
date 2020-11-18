@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-newsletter-recipient-detail', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -60,7 +60,6 @@ Component.register('sw-newsletter-recipient-detail', {
         onClickSave() {
             this.newsletterRecipientStore.save(this.newsletterRecipient, Shopware.Context.api).then(() => {
                 this.createNotificationSuccess({
-                    title: this.$tc('sw-newsletter-recipient.detail.titleSaveSuccess'),
                     message: this.$tc(
                         'sw-newsletter-recipient.detail.messageSaveSuccess',
                         0,

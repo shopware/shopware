@@ -41,7 +41,7 @@ export default function addPluginUpdatesListener(loginService, serviceContainer)
                 'global.notification-center.plugin-updates-listener.updatesAvailableTitle'
             ),
             message: getApplicationRootReference().$tc(
-                'global.notification-center.plugin-updates-listener.updatesAvailableMessage',
+                'global.notification-center.plugin-updates-listener.updatesAvailableMessage'
             ),
             variant: 'info',
             growl: true,

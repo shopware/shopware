@@ -22,20 +22,27 @@ export default class ShippingMethodPageObject {
             'Cart >= 0',
             '.sw-settings-shipping-detail__top-rule'
         );
+        this.createShippingMethodTax();
         this.createShippingMethodPriceRule();
     }
 
     createShippingMethodPriceRule() {
-        cy.get('.sw-settings-shipping-price-matrices__actions').scrollIntoView();
-        cy.get('.sw-settings-shipping-price-matrices__actions .sw-button').click();
+        cy.get('.sw-settings-shipping-price-matrices').then(($el) => {
+            if ($el.find('.sw-settings-shipping-price-matrix').length <= 0) {
+                cy.get('.sw-settings-shipping-price-matrices__actions').scrollIntoView();
+                cy.get('.sw-settings-shipping-price-matrices__actions .sw-button').click();
 
-        cy.get('.sw-settings-shipping-price-matrices').scrollIntoView();
-        cy.get('.sw-settings-shipping-price-matrix__empty--select-property').typeSingleSelect(
-            'Product quantity',
-            '.sw-settings-shipping-price-matrix__empty--select-property'
-        );
+                cy.get('.sw-settings-shipping-price-matrices').scrollIntoView();
+                cy.get('.sw-settings-shipping-price-matrix__empty--select-property').typeSingleSelect(
+                    'Product quantity',
+                    '.sw-settings-shipping-price-matrix__empty--select-property'
+                );
 
-        cy.get('.sw-settings-shipping-price-matrix__empty--select-property').should('not.exist');
+                cy.get('.sw-settings-shipping-price-matrix__empty--select-property').should('not.exist');
+            }
+        });
+
+
         cy.get(`${this.elements.dataGridRow}--0 .sw-data-grid__cell--quantityStart input`).type('0');
         cy.get(`${this.elements.dataGridRow}--0 .sw-data-grid__cell--quantityEnd input`).type('12');
 
@@ -48,5 +55,34 @@ export default class ShippingMethodPageObject {
 
         cy.get(this.elements.shippingSaveAction).click();
         cy.get(this.elements.successIcon).should('be.visible');
+    }
+
+    createShippingMethodTax() {
+        cy.window().then((win) => {
+            // Fixed
+            cy.get('.sw-settings-shipping__tax-type-selection').typeSingleSelectAndCheck(
+                'Fixed',
+                '.sw-settings-shipping__tax-type-selection'
+            );
+            cy.get('.sw-settings-shipping__tax-rate').should('exist');
+            cy.get('.sw-settings-shipping__tax-rate').typeSingleSelectAndCheck(
+                'Standard rate',
+                '.sw-settings-shipping__tax-rate'
+            );
+
+            // Auto
+            cy.get('.sw-settings-shipping__tax-type-selection').typeSingleSelectAndCheck(
+                'Auto',
+                '.sw-settings-shipping__tax-type-selection'
+            );
+            cy.get('.sw-settings-shipping__tax-rate').should('not.exist');
+
+            // Highest
+            cy.get('.sw-settings-shipping__tax-type-selection').typeSingleSelectAndCheck(
+                'Highest',
+                '.sw-settings-shipping__tax-type-selection'
+            );
+            cy.get('.sw-settings-shipping__tax-rate').should('not.exist');
+        });
     }
 }

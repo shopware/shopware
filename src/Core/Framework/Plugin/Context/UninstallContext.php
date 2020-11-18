@@ -14,6 +14,8 @@ class UninstallContext extends InstallContext
     private $keepUserData;
 
     /**
+     * @deprecated tag:v6.4.0 - Will be removed. Use $keepUserData instead
+     *
      * @var bool
      */
     private $keepMigrations;
@@ -25,24 +27,25 @@ class UninstallContext extends InstallContext
         string $currentPluginVersion,
         MigrationCollection $migrationCollection,
         bool $keepUserData,
-        bool $keepMigrations = false
+        /* @deprecated tag:v6.4.0 - Will be removed. Set $keepUserData instead*/
+        bool $keepMigrations = true
     ) {
         parent::__construct($plugin, $context, $currentShopwareVersion, $currentPluginVersion, $migrationCollection);
         $this->keepUserData = $keepUserData;
         $this->keepMigrations = $keepMigrations;
     }
 
+    /**
+     * If true is returned, migrations of the plugin will also be removed
+     */
     public function keepUserData(): bool
     {
         return $this->keepUserData;
     }
 
     /**
-     * By default the executed migrations for plugins are deleted during uninstall.
-     *
-     * Call `enableKeepMigrations` to opt-out from the deletion
-     *
-     * The default will change to true in v6.3.0
+     * @deprecated tag:v6.4.0 - Will be removed, use keepUserData() instead.
+     * Starting with v6.4.0, migrations will be removed if keepUserData() returns false.
      */
     public function keepMigrations(): bool
     {
@@ -50,10 +53,11 @@ class UninstallContext extends InstallContext
     }
 
     /**
-     * This will be the default in v6.3.0
+     * @deprecated tag:v6.4.0  - Will be removed. If migrations should be removed or not, is handled by the keepUserData parameter
      */
     public function enableKeepMigrations(): void
     {
+        trigger_error('Do not use enableKeepMigrations() anymore, it will be removed in v6.4.0. See UPGRADE-6.3.md for further information.', E_USER_DEPRECATED);
         $this->keepMigrations = true;
     }
 }

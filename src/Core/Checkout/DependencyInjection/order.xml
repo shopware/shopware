@@ -58,9 +58,6 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Order\Validation\OrderValidationFactory"/>
-        <service id="Shopware\Core\Checkout\Order\Validation\OrderValidationService" alias="Shopware\Core\Checkout\Order\Validation\OrderValidationFactory">
-            <deprecated>tag:v6.3.0: The "%alias_id%" service is deprecated and will be removed in 6.3.0. Use "Shopware\Core\Checkout\Order\Validation\OrderValidationFactory" instead</deprecated>
-        </service>
 
         <service id="Shopware\Core\Checkout\Cart\Order\OrderPersister">
             <argument type="service" id="order.repository"/>
@@ -93,8 +90,6 @@
 
         <service id="Shopware\Core\Checkout\Order\SalesChannel\OrderRoute" public="true">
             <argument type="service" id="order.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
-            <argument type="service" id="Shopware\Core\Checkout\Order\OrderDefinition"/>
             <argument type="service" id="promotion.repository"/>
         </service>
 
@@ -115,9 +110,10 @@
             <argument type="service" id="order_transaction.repository"/>
             <argument type="service" id="order_delivery.repository"/>
             <argument type="service" id="event_dispatcher"/>
-            <tag name="kernel.event_listener" event="state_machine.order.state_changed" method="onOrderStateChange"/>
-            <tag name="kernel.event_listener" event="state_machine.order_delivery.state_changed" method="onOrderDeliveryStateChange"/>
-            <tag name="kernel.event_listener" event="state_machine.order_transaction.state_changed" method="onOrderTransactionStateChange"/>
+            <tag name="kernel.event_subscriber"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter"/>
+            <argument type="service" id="Shopware\Core\Framework\Event\BusinessEventCollector"/>
+            <argument type="service" id="state_machine_state.repository"/>
         </service>
     </services>
 </container>

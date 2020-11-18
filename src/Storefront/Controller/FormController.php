@@ -2,14 +2,18 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Content\ContactForm\ContactFormService;
-use Shopware\Core\Content\Newsletter\NewsletterSubscriptionServiceInterface;
+use Shopware\Core\Content\ContactForm\SalesChannel\AbstractContactFormRoute;
+use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterSubscribeRoute;
+use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterUnsubscribeRoute;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Captcha\Annotation\Captcha;
+use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -17,28 +21,36 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class FormController extends StorefrontController
 {
-    const SUBSCRIBE = 'subscribe';
-    const UNSUBSCRIBE = 'unsubscribe';
+    public const SUBSCRIBE = 'subscribe';
+    public const UNSUBSCRIBE = 'unsubscribe';
 
     /**
-     * @var ContactFormService
+     * @var AbstractContactFormRoute
      */
-    private $contactFormService;
+    private $contactFormRoute;
 
     /**
-     * @var NewsletterSubscriptionServiceInterface
+     * @var AbstractNewsletterSubscribeRoute
      */
-    private $newsletterService;
+    private $subscribeRoute;
+
+    /**
+     * @var AbstractNewsletterUnsubscribeRoute
+     */
+    private $unsubscribeRoute;
 
     public function __construct(
-        ContactFormService $contactFormService,
-        NewsletterSubscriptionServiceInterface $newsletterService
+        AbstractContactFormRoute $contactFormRoute,
+        AbstractNewsletterSubscribeRoute $subscribeRoute,
+        AbstractNewsletterUnsubscribeRoute $unsubscribeRoute
     ) {
-        $this->contactFormService = $contactFormService;
-        $this->newsletterService = $newsletterService;
+        $this->contactFormRoute = $contactFormRoute;
+        $this->subscribeRoute = $subscribeRoute;
+        $this->unsubscribeRoute = $unsubscribeRoute;
     }
 
     /**
+     * @Since("6.1.0.0")
      * @Route("/form/contact", name="frontend.form.contact.send", methods={"POST"}, defaults={"XmlHttpRequest"=true})
      * @Captcha
      */
@@ -47,7 +59,11 @@ class FormController extends StorefrontController
         $response = [];
 
         try {
-            $message = $this->contactFormService->sendContactForm($data, $context);
+            $message = $this->contactFormRoute
+                ->load($data->toRequestDataBag(), $context)
+                ->getResult()
+                ->getIndividualSuccessMessage();
+
             if (!$message) {
                 $message = $this->trans('contact.success');
             }
@@ -73,15 +89,16 @@ class FormController extends StorefrontController
     }
 
     /**
+     * @Since("6.1.0.0")
      * @Route("/form/newsletter", name="frontend.form.newsletter.register.handle", methods={"POST"}, defaults={"XmlHttpRequest"=true})
      * @Captcha
      */
-    public function handleNewsletter(RequestDataBag $data, SalesChannelContext $context): JsonResponse
+    public function handleNewsletter(Request $request, RequestDataBag $data, SalesChannelContext $context): JsonResponse
     {
         $subscribe = $data->get('option') === self::SUBSCRIBE;
 
         if ($subscribe) {
-            $response = $this->handleSubscribe($data, $context);
+            $response = $this->handleSubscribe($request, $data, $context);
         } else {
             $response = $this->handleUnsubscribe($data, $context);
         }
@@ -89,10 +106,12 @@ class FormController extends StorefrontController
         return new JsonResponse($response);
     }
 
-    private function handleSubscribe(RequestDataBag $data, SalesChannelContext $context): array
+    private function handleSubscribe(Request $request, RequestDataBag $data, SalesChannelContext $context): array
     {
         try {
-            $this->newsletterService->subscribe($data, $context);
+            $data->set('storefrontUrl', $request->attributes->get(RequestTransformer::STOREFRONT_URL));
+
+            $this->subscribeRoute->subscribe($data, $context, false);
             $response[] = [
                 'type' => 'success',
                 'alert' => $this->trans('newsletter.subscriptionPersistedSuccess'),
@@ -132,7 +151,7 @@ class FormController extends StorefrontController
     private function handleUnsubscribe(RequestDataBag $data, SalesChannelContext $context): array
     {
         try {
-            $this->newsletterService->unsubscribe($data, $context);
+            $this->unsubscribeRoute->unsubscribe($data, $context);
             $response[] = [
                 'type' => 'success',
                 'alert' => $this->trans('newsletter.subscriptionRevokeSuccess'),

@@ -33,6 +33,11 @@ class PluginUpdateCommand extends AbstractPluginLifecycleCommand
 
         $updatedPluginCount = 0;
         foreach ($plugins as $plugin) {
+            if ($plugin->getInstalledAt() === null) {
+                $io->note(sprintf('Plugin "%s" is not installed. Skipping.', $plugin->getName()));
+
+                continue;
+            }
             $this->pluginLifecycleService->updatePlugin($plugin, $context);
             ++$updatedPluginCount;
 

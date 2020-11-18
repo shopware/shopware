@@ -10,6 +10,7 @@ import './component/sw-customer-address-form';
 import './component/sw-customer-address-form-options';
 import './component/sw-customer-default-addresses';
 import './component/sw-customer-card';
+import './acl';
 
 const { Module } = Shopware;
 
@@ -30,14 +31,21 @@ Module.register('sw-customer', {
             components: {
                 default: 'sw-customer-list'
             },
-            path: 'index'
+            path: 'index',
+            meta: {
+                privilege: 'customer.viewer',
+                appSystem: {
+                    view: 'list'
+                }
+            }
         },
 
         create: {
             component: 'sw-customer-create',
             path: 'create',
             meta: {
-                parentPath: 'sw.customer.index'
+                parentPath: 'sw.customer.index',
+                privilege: 'customer.creator'
             }
         },
 
@@ -52,22 +60,31 @@ Module.register('sw-customer', {
                     component: 'sw-customer-detail-base',
                     path: 'base',
                     meta: {
-                        parentPath: 'sw.customer.index'
+                        parentPath: 'sw.customer.index',
+                        privilege: 'customer.viewer'
                     }
                 },
                 addresses: {
                     component: 'sw-customer-detail-addresses',
                     path: 'addresses',
                     meta: {
-                        parentPath: 'sw.customer.index'
+                        parentPath: 'sw.customer.index',
+                        privilege: 'customer.viewer'
                     }
                 },
                 order: {
                     component: 'sw-customer-detail-order',
                     path: 'order',
                     meta: {
-                        parentPath: 'sw.customer.index'
+                        parentPath: 'sw.customer.index',
+                        privilege: 'customer.viewer'
                     }
+                }
+            },
+            meta: {
+                privilege: 'customer.viewer',
+                appSystem: {
+                    view: 'detail'
                 }
             },
 
@@ -87,12 +104,14 @@ Module.register('sw-customer', {
         color: '#F88962',
         path: 'sw.customer.index',
         icon: 'default-avatar-multiple',
-        position: 40
+        position: 40,
+        privilege: 'customer.viewer'
     }, {
         path: 'sw.customer.index',
         label: 'sw-customer.general.mainMenuItemList',
         color: '#F88962',
         icon: 'default-avatar-multiple',
-        parent: 'sw-customer'
+        parent: 'sw-customer',
+        privilege: 'customer.viewer'
     }]
 });

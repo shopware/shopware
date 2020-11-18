@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Customer\Validation\Constraint;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Exception\MissingOptionsException;
 
@@ -21,6 +22,11 @@ class CustomerEmailUnique extends Constraint
      */
     public $context;
 
+    /**
+     * @var SalesChannelContext
+     */
+    public $salesChannelContext;
+
     protected static $errorNames = [
         self::CUSTOMER_EMAIL_NOT_UNIQUE => 'CUSTOMER_EMAIL_NOT_UNIQUE',
     ];
@@ -28,7 +34,10 @@ class CustomerEmailUnique extends Constraint
     public function __construct(array $options)
     {
         $options = array_merge(
-            ['context' => null],
+            [
+                'context' => null,
+                'salesChannelContext' => null,
+            ],
             $options
         );
 
@@ -37,10 +46,19 @@ class CustomerEmailUnique extends Constraint
         if ($this->context === null) {
             throw new MissingOptionsException(sprintf('Option "context" must be given for constraint %s', self::class), ['context']);
         }
+
+        if ($this->salesChannelContext === null) {
+            throw new MissingOptionsException(sprintf('Option "salesChannelContext" must be given for constraint %s', self::class), ['salesChannelContext']);
+        }
     }
 
     public function getContext(): Context
     {
         return $this->context;
+    }
+
+    public function getSalesChannelContext(): SalesChannelContext
+    {
+        return $this->salesChannelContext;
     }
 }

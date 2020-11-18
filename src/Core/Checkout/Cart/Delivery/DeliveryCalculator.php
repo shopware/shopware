@@ -68,6 +68,7 @@ class DeliveryCalculator
         $costs = null;
         if ($delivery->getShippingCosts()->getUnitPrice() > 0) {
             $costs = $this->calculateShippingCosts(
+                $delivery->getShippingMethod(),
                 new PriceCollection([
                     new Price(
                         Defaults::CURRENCY,
@@ -85,8 +86,9 @@ class DeliveryCalculator
             return;
         }
 
-        if ($this->hasDeliveryShippingFreeItems($delivery)) {
+        if ($this->hasDeliveryWithOnlyShippingFreeItems($delivery)) {
             $costs = $this->calculateShippingCosts(
+                $delivery->getShippingMethod(),
                 new PriceCollection([new Price(Defaults::CURRENCY, 0, 0, false)]),
                 $delivery->getPositions()->getLineItems(),
                 $context
@@ -134,15 +136,15 @@ class DeliveryCalculator
         $delivery->setShippingCosts($costs);
     }
 
-    private function hasDeliveryShippingFreeItems(Delivery $delivery): bool
+    private function hasDeliveryWithOnlyShippingFreeItems(Delivery $delivery): bool
     {
         foreach ($delivery->getPositions()->getLineItems()->getIterator() as $lineItem) {
-            if ($lineItem->getDeliveryInformation() && $lineItem->getDeliveryInformation()->getFreeDelivery()) {
-                return true;
+            if ($lineItem->getDeliveryInformation() && !$lineItem->getDeliveryInformation()->getFreeDelivery()) {
+                return false;
             }
         }
 
-        return false;
+        return true;
     }
 
     private function matches(Delivery $delivery, ShippingMethodPriceEntity $shippingMethodPrice, SalesChannelContext $context): bool
@@ -177,15 +179,33 @@ class DeliveryCalculator
         return ($value >= $start) && (!$end || $value <= $end);
     }
 
-    private function calculateShippingCosts(PriceCollection $priceCollection, LineItemCollection $calculatedLineItems, SalesChannelContext $context): CalculatedPrice
+    private function calculateShippingCosts(ShippingMethodEntity $shippingMethod, PriceCollection $priceCollection, LineItemCollection $calculatedLineItems, SalesChannelContext $context): CalculatedPrice
     {
-        $rules = $this->percentageTaxRuleBuilder->buildRules(
-            $calculatedLineItems->getPrices()->sum()
-        );
+        switch ($shippingMethod->getTaxType()) {
+            case ShippingMethodEntity::TAX_TYPE_HIGHEST:
+                $rules = $calculatedLineItems->getPrices()->getHighestTaxRule();
+
+                break;
+
+            case ShippingMethodEntity::TAX_TYPE_FIXED:
+                $tax = $shippingMethod->getTax();
+
+                if ($tax !== null) {
+                    $rules = $context->buildTaxRules($tax->getId());
+
+                    break;
+                }
+
+                // no break
+            default:
+                $rules = $this->percentageTaxRuleBuilder->buildRules(
+                    $calculatedLineItems->getPrices()->sum()
+                );
+        }
 
         $price = $this->getCurrencyPrice($priceCollection, $context);
 
-        $definition = new QuantityPriceDefinition($price, $rules, $context->getContext()->getCurrencyPrecision(), 1, true);
+        $definition = new QuantityPriceDefinition($price, $rules, 1);
 
         return $this->priceCalculator->calculate($definition, $context);
     }
@@ -218,17 +238,9 @@ class DeliveryCalculator
     {
         $shippingPrices->sort(
             function (ShippingMethodPriceEntity $priceEntityA, ShippingMethodPriceEntity $priceEntityB) use ($context) {
-                $priceA = null;
-                $priceB = null;
+                $priceA = $this->getCurrencyPrice($priceEntityA->getCurrencyPrice(), $context);
 
-                /* @deprecated tag:v6.3.0 currencyPrice  will be mandatory in 6.3.0 */
-                if ($priceEntityA->getCurrencyPrice()) {
-                    $priceA = $this->getCurrencyPrice($priceEntityA->getCurrencyPrice(), $context);
-                }
-
-                if ($priceEntityB->getCurrencyPrice()) {
-                    $priceB = $this->getCurrencyPrice($priceEntityB->getCurrencyPrice(), $context);
-                }
+                $priceB = $this->getCurrencyPrice($priceEntityB->getCurrencyPrice(), $context);
 
                 return $priceA <=> $priceB;
             }
@@ -244,6 +256,7 @@ class DeliveryCalculator
                 continue;
             }
             $costs = $this->calculateShippingCosts(
+                $delivery->getShippingMethod(),
                 $price,
                 $delivery->getPositions()->getLineItems(),
                 $context

@@ -43,16 +43,14 @@ class MediaFolderDefinition extends EntityDefinition
         return MediaFolderEntity::class;
     }
 
-    public function isChildCountAware(): bool
-    {
-        return false;
-    }
-
     public function getDefaults(): array
     {
-        return [
-            'useParentConfiguration' => true,
-        ];
+        return ['useParentConfiguration' => true];
+    }
+
+    public function since(): ?string
+    {
+        return '6.0.0.0';
     }
 
     protected function defineFields(): FieldCollection

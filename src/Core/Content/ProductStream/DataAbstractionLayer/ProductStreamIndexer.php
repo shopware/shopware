@@ -155,6 +155,10 @@ class ProductStreamIndexer extends EntityIndexer
 
     private function buildPayload($filter): string
     {
+        usort($filter, function (array $a, array $b) {
+            return $a['position'] <=> $b['position'];
+        });
+
         $nested = $this->buildNested($filter, null);
 
         $searchException = new SearchRequestException();

@@ -15,7 +15,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
-use Shopware\Core\Checkout\Test\Payment\Handler\SyncTestPaymentHandler;
+use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceEntity;
@@ -43,6 +43,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
@@ -52,11 +53,15 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Tax\TaxDefinition;
 
+/**
+ * @group slow
+ */
 class VersioningTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
     use TaxAddToSalesChannelTestBehaviour;
+    use CountryAddToSalesChannelTestBehaviour;
 
     /**
      * @var EntityRepositoryInterface
@@ -1808,6 +1813,7 @@ class VersioningTest extends TestCase
         $ruleId = Uuid::randomHex();
         $customerId = $this->createCustomer();
         $paymentMethodId = $this->createPaymentMethod($ruleId);
+        $this->addCountriesToSalesChannel();
 
         $context = $this->salesChannelContextFactory->create(
             Uuid::randomHex(),
@@ -1830,6 +1836,52 @@ class VersioningTest extends TestCase
         $versionId = $this->orderRepository->createVersion($id, $this->context);
 
         static::assertTrue(Uuid::isValid($versionId));
+    }
+
+    public function testCascadeDeleteFlag(): void
+    {
+        $id = Uuid::randomHex();
+        $data = [
+            'id' => $id,
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 1,
+            'name' => 'test',
+            'ean' => 'EAN',
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 100, 'net' => 10, 'linked' => false]],
+            'tax' => ['name' => 'create', 'taxRate' => 1],
+            'productReviews' => [
+                [
+                    'id' => $id,
+                    'customerId' => $this->createCustomer(),
+                    'salesChannelId' => Defaults::SALES_CHANNEL,
+                    'title' => 'Title',
+                    'content' => 'Content',
+                ],
+            ],
+        ];
+
+        $this->getContainer()->get('product.repository')
+            ->create([$data], Context::createDefaultContext());
+
+        $version = Uuid::randomHex();
+
+        static::assertEquals(1, $this->getReviewCount($id, Defaults::LIVE_VERSION));
+
+        $this->productRepository->createVersion($id, Context::createDefaultContext(), 'test', $version);
+
+        static::assertEquals(1, $this->getReviewCount($id, Defaults::LIVE_VERSION));
+
+        static::assertEquals(0, $this->getReviewCount($id, $version));
+    }
+
+    private function getReviewCount(string $productId, string $versionId): int
+    {
+        return (int) $this->getContainer()
+            ->get(Connection::class)
+            ->fetchColumn(
+                'SELECT COUNT(*) FROM product_review WHERE product_id = :id AND product_version_id = :version',
+                ['id' => Uuid::fromHexToBytes($productId), 'version' => Uuid::fromHexToBytes($versionId)]
+            );
     }
 
     private function createDemoCart(SalesChannelContext $salesChannelContext): Cart

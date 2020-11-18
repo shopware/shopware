@@ -20,6 +20,12 @@ Mixin.register('cms-element', {
             type: Object,
             required: false,
             default: null
+        },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 

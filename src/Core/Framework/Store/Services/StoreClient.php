@@ -36,9 +36,10 @@ class StoreClient
     private const SBP_API_URL_PLUGIN_COMPATIBILITY = '/swplatform/autoupdate';
     private const SBP_API_URL_PLUGIN_DOWNLOAD_INFO = '/swplatform/pluginfiles/{pluginName}';
     private const SBP_API_URL_UPDATE_PERMISSIONS = '/swplatform/autoupdate/permission';
+    private const SBP_API_URL_GENERATE_SIGNATURE = '/swplatform/generatesignature';
 
     /**
-     * @var Client
+     * @var Client|null
      */
     private $client;
 
@@ -65,13 +66,11 @@ class StoreClient
         $this->storeService = $storeService;
         $this->configService = $configService;
         $this->pluginRepo = $pluginRepo;
-
-        $this->client = $this->storeService->createClient();
     }
 
     public function ping(): void
     {
-        $this->client->get(self::SBP_API_URL_PING);
+        $this->getClient()->get(self::SBP_API_URL_PING);
     }
 
     public function loginWithShopwareId(string $shopwareId, string $password, string $language, Context $context): AccessTokenStruct
@@ -80,7 +79,7 @@ class StoreClient
             throw new InvalidContextSourceException(AdminApiSource::class, \get_class($context->getSource()));
         }
 
-        $response = $this->client->post(
+        $response = $this->getClient()->post(
             self::SBP_API_URL_LOGIN,
             [
                 'body' => \json_encode([
@@ -109,7 +108,7 @@ class StoreClient
      */
     public function getLicenseList(string $storeToken, string $language, Context $context): array
     {
-        $response = $this->client->get(
+        $response = $this->getClient()->get(
             self::SBP_API_URL_PLUGIN_LICENSES,
             [
                 'query' => $this->storeService->getDefaultQueryParameters($language),
@@ -177,7 +176,7 @@ class StoreClient
         $query = $this->storeService->getDefaultQueryParameters($language, false);
         $query['hostName'] = $hostName;
 
-        $response = $this->client->post(
+        $response = $this->getClient()->post(
             self::SBP_API_URL_PLUGIN_UPDATES,
             [
                 'query' => $query,
@@ -238,7 +237,7 @@ class StoreClient
         $query = $this->storeService->getDefaultQueryParameters($language, false);
         $query['hostName'] = $hostName;
 
-        $response = $this->client->post(
+        $response = $this->getClient()->post(
             self::SBP_API_URL_PLUGIN_VIOLATIONS,
             [
                 'query' => $query,
@@ -254,7 +253,7 @@ class StoreClient
 
     public function getDownloadDataForPlugin(string $pluginName, string $storeToken, string $language, bool $checkLicenseDomain = true): PluginDownloadDataStruct
     {
-        $response = $this->client->get(
+        $response = $this->getClient()->get(
             str_replace('{pluginName}', $pluginName, self::SBP_API_URL_PLUGIN_DOWNLOAD_INFO),
             [
                 'query' => $this->storeService->getDefaultQueryParameters($language, $checkLicenseDomain),
@@ -280,7 +279,7 @@ class StoreClient
             ];
         }
 
-        $response = $this->client->post(
+        $response = $this->getClient()->post(
             self::SBP_API_URL_PLUGIN_COMPATIBILITY,
             [
                 'query' => $this->storeService->getDefaultQueryParameters($language, false),
@@ -297,12 +296,34 @@ class StoreClient
 
     public function isShopUpgradeable(): bool
     {
-        $response = $this->client->get(self::SBP_API_URL_UPDATE_PERMISSIONS, [
+        $response = $this->getClient()->get(self::SBP_API_URL_UPDATE_PERMISSIONS, [
             'query' => $this->storeService->getDefaultQueryParameters('en-GB', false),
             'headers' => $this->getHeaders(),
         ]);
 
         return json_decode((string) $response->getBody(), true)['updateAllowed'];
+    }
+
+    public function signPayloadWithAppSecret(string $payload, string $appName): string
+    {
+        $response = $this->getClient()->post(self::SBP_API_URL_GENERATE_SIGNATURE, [
+            'headers' => $this->getHeaders(),
+            'json' => [
+                'payload' => $payload,
+                'appName' => $appName,
+            ],
+        ]);
+
+        return json_decode((string) $response->getBody(), true)['signature'];
+    }
+
+    private function getClient(): Client
+    {
+        if ($this->client === null) {
+            $this->client = $this->storeService->createClient();
+        }
+
+        return $this->client;
     }
 
     /**
@@ -339,7 +360,7 @@ class StoreClient
 
     private function getHeaders(?string $storeToken = null): array
     {
-        $headers = $this->client->getConfig('headers');
+        $headers = $this->getClient()->getConfig('headers');
 
         if ($storeToken) {
             $headers[self::SHOPWARE_PLATFORM_TOKEN_HEADER] = $storeToken;

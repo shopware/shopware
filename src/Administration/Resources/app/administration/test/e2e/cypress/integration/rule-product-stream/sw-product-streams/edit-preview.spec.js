@@ -1,4 +1,4 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
 
 import ProductStreamObject from '../../../support/pages/module/sw-product-stream.page-object';
 
@@ -45,6 +45,7 @@ describe('Dynamic product groups: Test dynamic product group preview', () => {
 
         cy.get('button.sw-button').contains('Preview').click();
         cy.get('.sw-product-stream-modal-preview').should('be.visible');
+        cy.get('.sw-data-grid-skeleton').should('not.exist');
 
         cy.get('.sw-product-stream-modal-preview').within(() => {
             cy.get('.sw-modal__header').contains('Preview (1)');
@@ -62,6 +63,8 @@ describe('Dynamic product groups: Test dynamic product group preview', () => {
         );
 
         cy.get('button.sw-button').contains('Preview').click();
+        cy.get('.sw-modal').should('be.visible');
+
         cy.get('.sw-product-stream-modal-preview').should('be.visible');
 
         cy.get('.sw-product-stream-modal-preview').within(() => {

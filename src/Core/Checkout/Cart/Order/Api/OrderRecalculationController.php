@@ -21,6 +21,7 @@ use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Rule\Rule;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -44,6 +45,7 @@ class OrderRecalculationController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/order/{orderId}/recalculate", name="api.action.order.recalculate", methods={"POST"})
      *
      * @throws CustomerNotLoggedInException
@@ -65,6 +67,7 @@ class OrderRecalculationController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/order/{orderId}/product/{productId}", name="api.action.order.add-product", methods={"POST"})
      *
      * @throws DeliveryWithoutAddressException
@@ -87,6 +90,7 @@ class OrderRecalculationController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/order/{orderId}/creditItem", name="api.action.order.add-credit-item", methods={"POST"})
      *
      * */
@@ -113,7 +117,6 @@ class OrderRecalculationController extends AbstractController
         $lineItem->setPriceDefinition(
             new AbsolutePriceDefinition(
                 $priceDefinition['price'],
-                $priceDefinition['precision'] ?? $context->getCurrencyPrecision(),
                 new LineItemOfTypeRule(Rule::OPERATOR_NEQ, $type)
             )
         );
@@ -124,6 +127,7 @@ class OrderRecalculationController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/order/{orderId}/lineItem", name="api.action.order.add-line-item", methods={"POST"})
      *
      * @throws DeliveryWithoutAddressException
@@ -145,7 +149,7 @@ class OrderRecalculationController extends AbstractController
         $lineItem = (new LineItem($identifier, $type, null, $quantity))
             ->setStackable(true)
             ->setRemovable(true);
-        $this->updateLineItemByRequest($request, $lineItem, $context);
+        $this->updateLineItemByRequest($request, $lineItem);
 
         $this->recalculationService->addCustomLineItem($orderId, $lineItem, $context);
 
@@ -153,6 +157,7 @@ class OrderRecalculationController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/order-address/{orderAddressId}/customer-address/{customerAddressId}", name="api.action.order.replace-order-address", methods={"POST"})
      *
      * @throws OrderRecalculationException
@@ -168,7 +173,7 @@ class OrderRecalculationController extends AbstractController
     /**
      * @throws InvalidPayloadException
      */
-    private function updateLineItemByRequest(Request $request, LineItem $lineItem, Context $context): void
+    private function updateLineItemByRequest(Request $request, LineItem $lineItem): void
     {
         $label = $request->request->get('label');
         $description = $request->request->get('description');
@@ -183,7 +188,6 @@ class OrderRecalculationController extends AbstractController
         $lineItem->setStackable($stackable);
         $lineItem->setPayload($payload);
 
-        $priceDefinition['precision'] = $priceDefinition['precision'] ?? $context->getCurrencyPrecision();
         $lineItem->setPriceDefinition(QuantityPriceDefinition::fromArray($priceDefinition));
     }
 }

@@ -111,6 +111,10 @@ class MailService implements MailServiceInterface
         $mailBeforeValidateEvent = new MailBeforeValidateEvent($data, $context, $templateData);
         $this->eventDispatcher->dispatch($mailBeforeValidateEvent);
 
+        if ($mailBeforeValidateEvent->isPropagationStopped()) {
+            return null;
+        }
+
         $definition = $this->getValidationDefinition($context);
         $this->dataValidator->validate($data, $definition);
 
@@ -133,43 +137,37 @@ class MailService implements MailServiceInterface
             $salesChannel = $templateData['salesChannel'];
         }
 
-        $senderEmail = $this->systemConfigService->get('core.basicInformation.email', $salesChannelId);
+        $senderEmail = $this->getSender($data, $salesChannelId);
 
-        $senderEmail = $senderEmail ?? $this->systemConfigService->get('core.mailerSettings.senderAddress');
+        $contents = $this->buildContents($data, $salesChannel);
+        if (isset($data['testMode']) && (bool) $data['testMode'] === true) {
+            $this->templateRenderer->enableTestMode();
+        }
 
-        if ($senderEmail === null) {
-            $this->logger->error('senderMail not configured for salesChannel: ' . $salesChannelId . '. Please check system_config \'core.basicInformation.email\'');
+        $template = $data['subject'];
+
+        try {
+            $data['subject'] = $this->templateRenderer->render($template, $templateData, $context);
+            $template = $data['senderName'];
+            $data['senderName'] = $this->templateRenderer->render($template, $templateData, $context);
+            foreach ($contents as $index => $template) {
+                $contents[$index] = $this->templateRenderer->render($template, $templateData, $context);
+            }
+        } catch (\Exception $e) {
+            $this->logger->error(
+                "Could not render Mail-Template with error message:\n"
+                . $e->getMessage() . "\n"
+                . 'Error Code:' . $e->getCode() . "\n"
+                . 'Template source:'
+                . $template . "\n"
+                . "Template data: \n"
+                . json_encode($templateData) . "\n"
+            );
 
             return null;
         }
-
-        $contents = $this->buildContents($data, $salesChannel);
-        foreach ($contents as $index => $template) {
-            try {
-                if (isset($data['testMode']) && (bool) $data['testMode'] === true) {
-                    $this->templateRenderer->enableTestMode();
-                }
-
-                $contents[$index] = $this->templateRenderer->render($template, $templateData, $context);
-                $data['subject'] = $this->templateRenderer->render($data['subject'], $templateData, $context);
-                $data['senderName'] = $this->templateRenderer->render($data['senderName'], $templateData, $context);
-
-                if (isset($data['testMode']) && (bool) $data['testMode'] === true) {
-                    $this->templateRenderer->disableTestMode();
-                }
-            } catch (\Exception $e) {
-                $this->logger->error(
-                    "Could not render Mail-Template with error message:\n"
-                    . $e->getMessage() . "\n"
-                    . 'Error Code:' . $e->getCode() . "\n"
-                    . 'Template source:'
-                    . $template . "\n"
-                    . "Template data: \n"
-                    . json_encode($templateData) . "\n"
-                );
-
-                return null;
-            }
+        if (isset($data['testMode']) && (bool) $data['testMode'] === true) {
+            $this->templateRenderer->disableTestMode();
         }
 
         $mediaUrls = $this->getMediaUrls($data, $context);
@@ -185,6 +183,19 @@ class MailService implements MailServiceInterface
             $binAttachments
         );
 
+        if ($message === null) {
+            $this->logger->error(
+                "message is null:\n"
+                . 'Data:'
+                . json_encode($data) . "\n"
+                . "Template data: \n"
+                . json_encode($templateData) . "\n"
+            );
+
+            return null;
+        }
+
+        $this->enrichMessage($message, $data);
         $mailBeforeSentEvent = new MailBeforeSentEvent($data, $message, $context);
         $this->eventDispatcher->dispatch($mailBeforeSentEvent);
 
@@ -200,6 +211,46 @@ class MailService implements MailServiceInterface
         return $message;
     }
 
+    private function getSender($data, ?string $salesChannelId): ?string
+    {
+        $senderEmail = $data['senderEmail'] ?? null;
+
+        if ($senderEmail === null || trim($senderEmail) === '') {
+            $senderEmail = $this->systemConfigService->get('core.basicInformation.email', $salesChannelId);
+        }
+
+        if ($senderEmail === null || trim($senderEmail) === '') {
+            $senderEmail = $this->systemConfigService->get('core.mailerSettings.senderAddress', $salesChannelId);
+        }
+
+        if ($senderEmail === null || trim($senderEmail) === '') {
+            $this->logger->error('senderMail not configured for salesChannel: ' . $salesChannelId . '. Please check system_config \'core.basicInformation.email\'');
+
+            return null;
+        }
+
+        return $senderEmail;
+    }
+
+    private function enrichMessage(\Swift_Message $message, $data): void
+    {
+        if (isset($data['recipientsCc'])) {
+            $message->setCc($data['recipientsCc']);
+        }
+
+        if (isset($data['recipientsBcc'])) {
+            $message->setBcc($data['recipientsBcc']);
+        }
+
+        if (isset($data['replyTo'])) {
+            $message->setReplyTo($data['replyTo']);
+        }
+
+        if (isset($data['returnPath'])) {
+            $message->setReturnPath($data['returnPath']);
+        }
+    }
+
     /**
      * Attaches header and footer to given email bodies
      *
@@ -208,10 +259,8 @@ class MailService implements MailServiceInterface
      * @return array e.g. ['text/plain' => '{{foobar}}', 'text/html' => '<h1>{{foobar}}</h1>']
      *
      * @internal
-     *
-     * @deprecated tag:v6.3.0 will be private in 6.3.0
      */
-    public function buildContents(array $data, ?SalesChannelEntity $salesChannel): array
+    private function buildContents(array $data, ?SalesChannelEntity $salesChannel): array
     {
         if ($salesChannel && $mailHeaderFooter = $salesChannel->getMailHeaderFooter()) {
             return [
@@ -255,7 +304,6 @@ class MailService implements MailServiceInterface
 
         $urls = [];
         foreach ($media as $mediaItem) {
-            $urls[] = $mediaItem->getUrl();
             $urls[] = $this->urlGenerator->getRelativeMediaUrl($mediaItem);
         }
 

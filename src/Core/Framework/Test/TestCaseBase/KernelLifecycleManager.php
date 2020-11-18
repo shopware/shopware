@@ -6,6 +6,8 @@ use Composer\Autoload\ClassLoader;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Test\Filesystem\Adapter\MemoryAdapterFactory;
+use Shopware\Core\Framework\Test\TestCaseHelper\TestBrowser;
+use Shopware\Core\Kernel;
 use Shopware\Core\Profiling\Doctrine\DebugStack;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -27,6 +29,11 @@ class KernelLifecycleManager
      * @var ClassLoader
      */
     protected static $classLoader;
+
+    /**
+     * @var Connection|null
+     */
+    protected static $connection;
 
     public static function prepare(ClassLoader $classLoader): void
     {
@@ -55,7 +62,7 @@ class KernelLifecycleManager
     /**
      * Create a web client with the default kernel and disabled reboots
      */
-    public static function createBrowser(KernelInterface $kernel, bool $enableReboot = false): KernelBrowser
+    public static function createBrowser(KernelInterface $kernel, bool $enableReboot = false, bool $disableCsrf = false): KernelBrowser
     {
         /** @var KernelBrowser $apiBrowser */
         $apiBrowser = $kernel->getContainer()->get('test.browser');
@@ -65,6 +72,13 @@ class KernelLifecycleManager
         } else {
             $apiBrowser->disableReboot();
         }
+        if ($apiBrowser instanceof TestBrowser) {
+            if ($disableCsrf) {
+                $apiBrowser->disableCsrf();
+            } else {
+                $apiBrowser->enableCsrf();
+            }
+        }
 
         return $apiBrowser;
     }
@@ -72,11 +86,11 @@ class KernelLifecycleManager
     /**
      * Boots the Kernel for this test.
      */
-    public static function bootKernel(): KernelInterface
+    public static function bootKernel(bool $reuseConnection = true): KernelInterface
     {
         self::ensureKernelShutdown();
 
-        static::$kernel = static::createKernel();
+        static::$kernel = static::createKernel(null, $reuseConnection);
         static::$kernel->boot();
         static::$kernel->getContainer()->get(Connection::class)->getConfiguration()->setSQLLogger(new DebugStack());
         MemoryAdapterFactory::resetInstances();
@@ -84,7 +98,7 @@ class KernelLifecycleManager
         return static::$kernel;
     }
 
-    public static function createKernel(?string $kernelClass = null): KernelInterface
+    public static function createKernel(?string $kernelClass = null, bool $reuseConnection = true): KernelInterface
     {
         if ($kernelClass === null) {
             if (static::$class === null) {
@@ -114,14 +128,28 @@ class KernelLifecycleManager
             throw new \InvalidArgumentException('No class loader set. Please call KernelLifecycleManager::prepare');
         }
 
-        $pluginLoader = new DbalKernelPluginLoader(self::$classLoader, null, $kernelClass::getConnection());
-
         // This hash MUST be constant as long as NEXT-5273 is not resolved.
         // Otherwise tests using a dataprovider wither services (such as JsonSalesChannelEntityEncoderTest)
         // will fail randomly
         $cacheId = 'h8f3f0ee9c61829627676afd6294bb029';
 
-        return new $kernelClass($env, $debug, $pluginLoader, $cacheId);
+        $existingConnection = null;
+        if ($reuseConnection) {
+            $existingConnection = self::$connection;
+        }
+        if ($existingConnection === null) {
+            $existingConnection = self::$connection = $kernelClass::getConnection();
+        }
+
+        $pluginLoader = new DbalKernelPluginLoader(self::$classLoader, null, $existingConnection);
+
+        if ($existingConnection !== null && ($kernelClass === Kernel::class || $kernelClass === \Shopware\Development\Kernel::class)) {
+            $kernel = new $kernelClass($env, $debug, $pluginLoader, $cacheId, null, $existingConnection);
+        } else {
+            $kernel = new $kernelClass($env, $debug, $pluginLoader, $cacheId);
+        }
+
+        return $kernel;
     }
 
     /**

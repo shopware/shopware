@@ -40,7 +40,6 @@ class DefaultApiConverter
             return $payload;
         }
 
-        /** @var Field $field */
         foreach ($fields as $field) {
             /** @var Deprecated $deprecated */
             $deprecated = $field->getFlag(Deprecated::class);
@@ -86,7 +85,6 @@ class DefaultApiConverter
 
             $fields = $definition->getFields()->filterByFlag(Deprecated::class);
 
-            /** @var Field $field */
             foreach ($fields as $field) {
                 /** @var Deprecated $deprecated */
                 $deprecated = $field->getFlag(Deprecated::class);

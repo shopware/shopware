@@ -10,6 +10,7 @@ export default {
             taxes: [],
             variants: [],
             customFieldSets: [],
+            defaultFeatureSet: {},
             loading: {
                 init: false,
                 product: false,
@@ -20,7 +21,8 @@ export default {
                 customFieldSets: false,
                 media: false,
                 rules: false,
-                variants: false
+                variants: false,
+                defaultFeatureSet: false
             },
             localMode: false
         };
@@ -60,12 +62,28 @@ export default {
             });
         },
 
+        defaultFeatureSet(state) {
+            if (!state.defaultFeatureSet) {
+                return {};
+            }
+
+            return state.defaultFeatureSet;
+        },
+
         productTaxRate(state) {
             if (!state.taxes) {
                 return {};
             }
 
             return state.taxes.find((tax) => {
+                if (!state.product.taxId) {
+                    if (!state.parentProduct.taxId) {
+                        return {};
+                    }
+
+                    return tax.id === state.parentProduct.taxId;
+                }
+
                 return tax.id === state.product.taxId;
             });
         },
@@ -137,6 +155,10 @@ export default {
 
         setAttributeSet(state, newAttributeSets) {
             state.customFieldSets = newAttributeSets;
+        },
+
+        setDefaultFeatureSet(state, newDefaultFeatureSet) {
+            state.defaultFeatureSet = newDefaultFeatureSet;
         }
     }
 };

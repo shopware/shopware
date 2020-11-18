@@ -1,0 +1,77 @@
+{
+  "sw-settings-product-feature-sets": {
+    "general": {
+      "mainMenuItemGeneral": "Essential characteristics",
+      "placeholderSearchBar": "Search templates...",
+      "searchType": "Essential characteristics"
+    },
+    "list": {
+      "textHeadline": "Essential characteristics",
+      "textDeleteConfirm": "Are you sure you want to delete the essential characteristic \"{name}\"?",
+      "columnValues": "Values",
+      "columnTemplate": "Template",
+      "columnDescription": "Description",
+      "buttonAddEssentialCharacteristics": "Create new",
+      "contextMenuEdit": "Edit",
+      "contextMenuDelete": "Delete",
+      "messageDeleteSuccess": "Essential characteristic \"{name}\" has been deleted.",
+      "buttonCancel": "Cancel",
+      "buttonDelete": "Delete"
+    },
+    "detail": {
+      "textHeadline": "New template",
+      "titleCard": "General information",
+      "titleCardValues": "Values",
+      "messageSaveSuccess": "Characteristic template \"{name}\" has been saved.",
+      "messageSaveError": "An error occurred while saving your product essential characteristic template.",
+      "labelName": "Name",
+      "labelDescription": "Description",
+      "labelValues": "Values",
+      "placeholderName": "Enter a template name...",
+      "placeholderDescription": "Enter a description...",
+      "buttonSave": "Save",
+      "notificationErrorMessage": "An error occurred while saving your product essential characteristic template.",
+      "labelCreateNew": "Add values"
+    },
+    "valuesCard": {
+      "createStateDescription": "Add values to define essential characteristics that are custom-tailored to your product range.",
+      "labelCreateNew": "Add field",
+      "cardTitle": "Values",
+      "labelValue": "Value",
+      "labelType": "Type",
+      "labelPosition": "Position",
+      "emptyStateDescription": "Add values to define essential characteristics that are custom-tailored to your product range."
+    },
+    "modal": {
+      "buttonAdd": "Add",
+      "textPropertyLabel": "Property",
+      "textCustomFieldLabel": "Custom field",
+      "textProductInfoLabel": "Product information",
+      "textReferencePriceLabel": "Unit price",
+      "labelTitlePageOne": "Choose a field type you want to add to your template",
+      "labelTitleModal": "Add values",
+      "labelName": "Name",
+      "buttonNext": "Next",
+      "buttonCancel": "Cancel",
+      "label": {
+        "property": "Property",
+        "width": "Width",
+        "height": "Height",
+        "length": "Length",
+        "weight": "Weight",
+        "releaseDate": "Release date",
+        "description": "Description",
+        "manufacturerNumber": "Manufacturer product number",
+        "ean": "EAN",
+        "referencePrice": "Unit price"
+      }
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "product_feature_sets": {
+        "label": "Essential characteristics"
+      }
+    }
+  }
+}

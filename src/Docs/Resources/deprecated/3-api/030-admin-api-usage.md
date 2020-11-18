@@ -14,12 +14,12 @@ const headers = {
     "Authorization": "Bearer " + token,
     "Accept": "application/json"
 };
-fetch(`${baseUrl}/api/v1/product`, { headers })
+fetch(`${baseUrl}/api/v3/product`, { headers })
     .then((response) => response.json())
     .then((products) => console.log('Products', products));
 ```
 
-### GET /api/v1/category?limit=1
+### GET /api/v3/category?limit=1
 
 Get a list of categories with a limit of 1.
 
@@ -48,7 +48,7 @@ Get a list of categories with a limit of 1.
             "sortingIds": null,
             "facetIds": null,
             "childCount": 0,
-            "createdAt": "2018-09-14T09:38:35+02:00",
+            "createdAt": "2018-09-14T09:38:35.324+02:00",
             "updatedAt": null,
             "pathNames": "||",
             "metaKeywords": null,
@@ -88,7 +88,7 @@ Get a list of categories with a limit of 1.
 ```
  
 
-### GET /api/v1/category/{id}
+### GET /api/v3/category/{id}
 
 Get a single category.
 
@@ -115,7 +115,7 @@ Get a single category.
         "sortingIds": null,
         "facetIds": null,
         "childCount": 0,
-        "createdAt": "2018-09-14T09:38:35+02:00",
+        "createdAt": "2018-09-14T09:38:35.542+02:00",
         "updatedAt": null,
         "pathNames": "||",
         "metaKeywords": null,
@@ -149,7 +149,7 @@ Get a single category.
 }
 ```
 
-### POST /api/v1/category
+### POST /api/v3/category
 
 Add a new category.
 
@@ -163,10 +163,10 @@ Add a new category.
 **Response:**
 
     Status 204 No Content
-    Location: http://localhost:8000/api/v1/category/20080911ffff4fffafffffff19830531
+    Location: http://localhost:8000/api/v3/category/20080911ffff4fffafffffff19830531
  
 
-### PATCH /api/v1/category/{id}
+### PATCH /api/v3/category/{id}
 
 Change attributes of the category.
 
@@ -179,9 +179,9 @@ Change attributes of the category.
 **Response:**
 
     Status 204 No Content
-    Location: http://localhost:8000/api/v1/category/20080911ffff4fffafffffff19830531
+    Location: http://localhost:8000/api/v3/category/20080911ffff4fffafffffff19830531
 
-### DELETE /api/v1/category/{id}
+### DELETE /api/v3/category/{id}
 
 Delete the category.
 
@@ -189,7 +189,7 @@ Delete the category.
 
     Status 204 No Content
 
-### GET /api/v1/category/{id}/products?limit=1
+### GET /api/v3/category/{id}/products?limit=1
 
 Get a list of products belonging to the category.
 ```json
@@ -236,7 +236,7 @@ Get a list of products belonging to the category.
             "template": null,
             "allowNotification": false,
             "releaseDate": null,
-            "createdAt": "2018-09-14T09:38:37+02:00",
+            "createdAt": "2018-09-14T09:38:37.192+02:00",
             "updatedAt": null,
             "categoryTree": [],
             "optionIds": [],
@@ -251,7 +251,7 @@ Get a list of products belonging to the category.
             "tax": {
                 "taxRate": 19,
                 "name": "19%",
-                "createdAt": "2018-09-14T09:29:16+02:00",
+                "createdAt": "2018-09-14T09:29:16.984+02:00",
                 "updatedAt": null,
                 "areaRules": null,
                 "products": null,
@@ -266,7 +266,7 @@ Get a list of products belonging to the category.
                 "name": "Niemann",
                 "link": "https://keil.net/tenetur-beatae-consequatur-dolor-aut.html",
                 "updatedAt": null,
-                "createdAt": "2018-09-14T09:38:35+02:00",
+                "createdAt": "2018-09-14T09:38:35.442+02:00",
                 "description": null,
                 "metaTitle": null,
                 "metaDescription": null,
@@ -296,7 +296,7 @@ Get a list of products belonging to the category.
                 "mediaId": "e3c6f1e1faac418d9c56a5328bb287c1",
                 "catalogId": "20080911ffff4fffafffffff19830531",
                 "position": 1,
-                "createdAt": "2018-09-14T09:38:37+02:00",
+                "createdAt": "2018-09-14T09:38:37.592+02:00",
                 "updatedAt": null,
                 "media": {
                     "catalogId": "20080911ffff4fffafffffff19830531",
@@ -337,8 +337,8 @@ Get a list of products belonging to the category.
                         },
                         "extensions": []
                     },
-                    "createdAt": "2018-09-14T09:38:37+02:00",
-                    "updatedAt": "2018-09-14T09:38:58+02:00",
+                    "createdAt": "2018-09-14T09:38:37.333+02:00",
+                    "updatedAt": "2018-09-14T09:38:58.590+02:00",
                     "description": null,
                     "url": "http://localhost:8000/media/a9/83/d1/e3c6f1e1faac418d9c56a5328bb287c1.jpg",
                     "user": null,
@@ -355,7 +355,7 @@ Get a list of products belonging to the category.
                             "url": "http://localhost:8000/thumbnail/a9/83/d1/e3c6f1e1faac418d9c56a5328bb287c1_140x140.jpg",
                             "mediaId": "e3c6f1e1faac418d9c56a5328bb287c1",
                             "media": null,
-                            "createdAt": "2018-09-14T09:38:58+02:00",
+                            "createdAt": "2018-09-14T09:38:58.435+02:00",
                             "updatedAt": null,
                             "id": "1b6147466c30453599e30af7bb11e3cf",
                             "extensions": [],
@@ -368,7 +368,7 @@ Get a list of products belonging to the category.
                             "url": "http://localhost:8000/thumbnail/a9/83/d1/e3c6f1e1faac418d9c56a5328bb287c1_300x300.jpg",
                             "mediaId": "e3c6f1e1faac418d9c56a5328bb287c1",
                             "media": null,
-                            "createdAt": "2018-09-14T09:38:58+02:00",
+                            "createdAt": "2018-09-14T09:38:58.102+02:00",
                             "updatedAt": null,
                             "id": "6a3dcd659d174f6b9051d6211cf3020c",
                             "extensions": [],
@@ -482,7 +482,7 @@ Get a list of products belonging to the category.
 }
 ```
 
-### GET /api/v1/product?associations[media][]&limit=1
+### GET /api/v3/product?associations[media][]&limit=1
 
 Not all associations are loaded by default if you request an entity.
 If you want to load product images with your product, add the `associations` parameter.
@@ -557,7 +557,7 @@ List of products with their media associations limited to one.
                 "_uniqueIdentifier": "26c8e711050e4f33afcf19dd23660e13",
                 "versionId": null,
                 "translated": [],
-                "createdAt": "2019-07-15T06:44:32+00:00",
+                "createdAt": "2019-07-15T06:44:32.534+00:00",
                 "updatedAt": null,
                 "extensions": {
                     "internal_mapping_storage": {
@@ -619,7 +619,7 @@ List of products with their media associations limited to one.
                             "flags": [],
                             "extensions": []
                         },
-                        "uploadedAt": "2019-07-15T06:44:51+00:00",
+                        "uploadedAt": "2019-07-15T06:44:51.943+00:00",
                         "alt": null,
                         "url": "http:\/\/shopware.local\/media\/43\/b3\/53\/1563173091\/69baf3fb3d3669519ace29782e4ccd60.jpg",
                         "fileName": "69baf3fb3d3669519ace29782e4ccd60",
@@ -653,8 +653,8 @@ List of products with their media associations limited to one.
                             "title": null,
                             "customFields": []
                         },
-                        "createdAt": "2019-07-15T06:44:51+00:00",
-                        "updatedAt": "2019-07-15T06:44:51+00:00",
+                        "createdAt": "2019-07-15T06:44:51.434+00:00",
+                        "updatedAt": "2019-07-15T06:44:51.434+00:00",
                         "extensions": {
                             "internal_mapping_storage": {
                                 "_uniqueIdentifier": null,
@@ -672,7 +672,7 @@ List of products with their media associations limited to one.
                     "_uniqueIdentifier": "0592e61d824c4d34992b7a2fa3fcb532",
                     "versionId": "0fa91ce3e96a4bc2be4bd9ce752c3425",
                     "translated": [],
-                    "createdAt": "2019-07-15T06:45:02+00:00",
+                    "createdAt": "2019-07-15T06:45:02.397+00:00",
                     "updatedAt": null,
                     "extensions": [],
                     "id": "0592e61d824c4d34992b7a2fa3fcb532",
@@ -704,7 +704,7 @@ List of products with their media associations limited to one.
                 "packUnit": null,
                 "customFields": []
             },
-            "createdAt": "2019-07-15T06:45:02+00:00",
+            "createdAt": "2019-07-15T06:45:02.398+00:00",
             "updatedAt": null,
             "extensions": [],
             "id": "02bd7ff16e3c41c8ac79ac562522d3f9",
@@ -719,5 +719,5 @@ List of products with their media associations limited to one.
 
 ## Full schema
 
-The full schema can be explored with swagger: `/api/v1/_info/swagger.html`
+The full schema can be explored with swagger: `/api/v3/_info/swagger.html`
 To access the full schema, you have to make sure, that the `APP_ENV` is set to `dev`.

@@ -1,3 +1,4 @@
+// merge 16.11.2020
 /*
 import polyfills
  */
@@ -11,6 +12,7 @@ import 'bootstrap';
 /*
 import helpers
  */
+import Feature from 'src/helper/feature.helper';
 import PluginManager from 'src/plugin-system/plugin.manager';
 import ViewportDetection from 'src/helper/viewport-detection.helper';
 import NativeEventEmitter from 'src/helper/emitter.helper';
@@ -34,6 +36,7 @@ import CookiePermissionPlugin from 'src/plugin/cookie/cookie-permission.plugin';
 import CookieConfigurationPlugin from 'src/plugin/cookie/cookie-configuration.plugin';
 import ScrollUpPlugin from 'src/plugin/scroll-up/scroll-up.plugin';
 import CollapseFooterColumnsPlugin from 'src/plugin/collapse/collapse-footer-columns.plugin';
+import CollapseCheckoutConfirmMethodsPlugin from 'src/plugin/collapse/collapse-checkout-confirm-methods.plugin';
 import FlyoutMenuPlugin from 'src/plugin/main-menu/flyout-menu.plugin';
 import OffcanvasMenuPlugin from 'src/plugin/main-menu/offcanvas-menu.plugin';
 import FormAutoSubmitPlugin from 'src/plugin/forms/form-auto-submit.plugin';
@@ -49,7 +52,6 @@ import GallerySliderPlugin from 'src/plugin/slider/gallery-slider.plugin';
 import ProductSliderPlugin from 'src/plugin/slider/product-slider.plugin';
 import ZoomModalPlugin from 'src/plugin/zoom-modal/zoom-modal.plugin';
 import MagnifierPlugin from 'src/plugin/magnifier/magnifier.plugin';
-import ImageZoomPlugin from 'src/plugin/image-zoom/image-zoom.plugin';
 import VariantSwitchPlugin from 'src/plugin/variant-switch/variant-switch.plugin';
 import CmsSlotReloadPlugin from 'src/plugin/cms-slot-reload/cms-slot-reload.plugin';
 import CmsSlotHistoryReloadPlugin from 'src/plugin/cms-slot-reload/cms-slot-history-reload.plugin';
@@ -61,7 +63,7 @@ import FilterMultiSelectPlugin from 'src/plugin/listing/filter-multi-select.plug
 import FilterPropertySelectPlugin from 'src/plugin/listing/filter-property-select.plugin';
 import FilterBooleanPlugin from 'src/plugin/listing/filter-boolean.plugin';
 import FilterRangePlugin from 'src/plugin/listing/filter-range.plugin';
-import FilterRatingPlugin from 'src/plugin/listing/filter-rating.plugin';
+import FilterRatingSelectPlugin from 'src/plugin/listing/filter-rating-select.plugin';
 import ListingPlugin from 'src/plugin/listing/listing.plugin';
 import OffCanvasFilterPlugin from 'src/plugin/offcanvas-filter/offcanvas-filter.plugin';
 import RatingSystemPlugin from 'src/plugin/rating-system/rating-system.plugin';
@@ -75,6 +77,9 @@ import CountryStateSelectPlugin from 'src/plugin/forms/form-country-state-select
 import EllipsisPlugin from 'src/plugin/ellipsis/ellipsis.plugin';
 import GoogleAnalyticsPlugin from 'src/plugin/google-analytics/google-analytics.plugin';
 import SwagBlockLink from 'src/helper/block-link.helper';
+import StoreApiClient from 'src/service/store-api-client.service';
+import ClearInputPlugin from 'src/plugin/clear-input-button/clear-input.plugin';
+import CmsGdprVideoElement from 'src/plugin/cms-gdpr-video-element/cms-gdpr-video-element.plugin';
 
 window.eventEmitter = new NativeEventEmitter();
 
@@ -100,6 +105,7 @@ PluginManager.register('CartWidget', CartWidgetPlugin, '[data-cart-widget]');
 PluginManager.register('OffCanvasCart', OffCanvasCartPlugin, '[data-offcanvas-cart]');
 PluginManager.register('AddToCart', AddToCartPlugin, '[data-add-to-cart]');
 PluginManager.register('CollapseFooterColumns', CollapseFooterColumnsPlugin, '[data-collapse-footer]');
+PluginManager.register('CollapseCheckoutConfirmMethods', CollapseCheckoutConfirmMethodsPlugin, '[data-collapse-checkout-confirm-methods]');
 PluginManager.register('FlyoutMenu', FlyoutMenuPlugin, '[data-flyout-menu]');
 PluginManager.register('OffcanvasMenu', OffcanvasMenuPlugin, '[data-offcanvas-menu]');
 PluginManager.register('FormValidation', FormValidationPlugin, '[data-form-validation]');
@@ -116,7 +122,6 @@ PluginManager.register('GallerySlider', GallerySliderPlugin, '[data-gallery-slid
 PluginManager.register('ProductSlider', ProductSliderPlugin, '[data-product-slider]');
 PluginManager.register('ZoomModal', ZoomModalPlugin, '[data-zoom-modal]');
 PluginManager.register('Magnifier', MagnifierPlugin, '[data-magnifier]');
-PluginManager.register('ImageZoom', ImageZoomPlugin, '[data-image-zoom]');
 PluginManager.register('VariantSwitch', VariantSwitchPlugin, '[data-variant-switch]');
 PluginManager.register('CmsSlotReload', CmsSlotReloadPlugin, '[data-cms-slot-reload]');
 PluginManager.register('CmsSlotHistoryReload', CmsSlotHistoryReloadPlugin, document);
@@ -130,7 +135,7 @@ PluginManager.register('FilterBoolean', FilterBooleanPlugin, '[data-filter-boole
 PluginManager.register('FilterRange', FilterRangePlugin, '[data-filter-range]');
 PluginManager.register('FilterMultiSelect', FilterMultiSelectPlugin, '[data-filter-multi-select]');
 PluginManager.register('FilterPropertySelect', FilterPropertySelectPlugin, '[data-filter-property-select]');
-PluginManager.register('FilterRating', FilterRatingPlugin, '[data-filter-rating]');
+PluginManager.register('FilterRatingSelect', FilterRatingSelectPlugin, '[data-filter-rating-select]');
 PluginManager.register('ListingPagination', ListingPaginationPlugin, '[data-listing-pagination]');
 PluginManager.register('ListingSorting', ListingSortingPlugin, '[data-listing-sorting]');
 PluginManager.register('CrossSelling', CrossSellingPlugin, '[data-cross-selling]');
@@ -139,6 +144,8 @@ PluginManager.register('FormCmsHandler', FormCmsHandlerPlugin, '.cms-element-for
 PluginManager.register('CountryStateSelect', CountryStateSelectPlugin, '[data-country-state-select]');
 PluginManager.register('Ellipsis', EllipsisPlugin, '[data-ellipsis]');
 PluginManager.register('SwagBlockLink', SwagBlockLink, '[href="#not-found"]');
+PluginManager.register('ClearInput', ClearInputPlugin, '[data-clear-input]');
+PluginManager.register('CmsGdprVideoElement', CmsGdprVideoElement, '[data-cms-gdpr-video-element]');
 
 if (window.csrf.enabled && window.csrf.mode === 'ajax') {
     PluginManager.register('FormCsrfHandler', FormCsrfHandlerPlugin, '[data-form-csrf-handler]');
@@ -148,6 +155,10 @@ if (window.csrf.enabled && window.csrf.mode === 'ajax') {
 if (window.gtagActive) {
     PluginManager.register('GoogleAnalytics', GoogleAnalyticsPlugin);
 }
+
+window.storeApiClient = StoreApiClient;
+
+window.Feature = Feature;
 
 /*
 run plugins

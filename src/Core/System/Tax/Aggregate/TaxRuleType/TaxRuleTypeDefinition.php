@@ -37,6 +37,11 @@ class TaxRuleTypeDefinition extends EntityDefinition
         return TaxRuleTypeEntity::class;
     }
 
+    public function since(): ?string
+    {
+        return '6.1.0.0';
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([

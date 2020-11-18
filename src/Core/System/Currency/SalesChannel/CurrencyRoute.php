@@ -4,9 +4,10 @@ namespace Shopware\Core\System\Currency\SalesChannel;
 
 use OpenApi\Annotations as OA;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -23,24 +24,10 @@ class CurrencyRoute extends AbstractCurrencyRoute
      */
     private $currencyRepository;
 
-    /**
-     * @var RequestCriteriaBuilder
-     */
-    private $criteriaBuilder;
-
-    /**
-     * @var SalesChannelCurrencyDefinition
-     */
-    private $currencyDefinition;
-
     public function __construct(
-        SalesChannelRepositoryInterface $currencyRepository,
-        RequestCriteriaBuilder $criteriaBuilder,
-        SalesChannelCurrencyDefinition $currencyDefinition
+        SalesChannelRepositoryInterface $currencyRepository
     ) {
         $this->currencyRepository = $currencyRepository;
-        $this->criteriaBuilder = $criteriaBuilder;
-        $this->currencyDefinition = $currencyDefinition;
     }
 
     public function getDecorated(): AbstractCurrencyRoute
@@ -49,9 +36,11 @@ class CurrencyRoute extends AbstractCurrencyRoute
     }
 
     /**
-     * @OA\Get(
+     * @Since("6.2.0.0")
+     * @Entity("currency")
+     * @OA\Post(
      *      path="/currency",
-     *      description="Loads all available currency",
+     *      summary="Loads all available currency",
      *      operationId="readCurrency",
      *      tags={"Store API", "Currency"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),
@@ -63,15 +52,8 @@ class CurrencyRoute extends AbstractCurrencyRoute
      * )
      * @Route("/store-api/v{version}/currency", name="store-api.currency", methods={"GET", "POST"})
      */
-    public function load(Request $request, SalesChannelContext $context): CurrencyRouteResponse
+    public function load(Request $request, SalesChannelContext $context, Criteria $criteria): CurrencyRouteResponse
     {
-        $criteria = $this->criteriaBuilder->handleRequest(
-            $request,
-            new Criteria(),
-            $this->currencyDefinition,
-            $context->getContext()
-        );
-
         /** @var CurrencyCollection $currencyCollection */
         $currencyCollection = $this->currencyRepository->search($criteria, $context)->getEntities();
 

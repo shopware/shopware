@@ -39,7 +39,7 @@ Table(ShopwareCoreContentNewsletterAggregateNewsletterRecipientNewsletterRecipie
    not_null(languageId) foreignKey
    not_null(salesChannelId) foreignKey
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
 }
 Table(ShopwareCoreContentNewsletterAggregateNewsletterRecipientTagNewsletterRecipientTagDefinition, "newsletter_recipient_tag\n(M:N Mapping)") {
    primary_key(newsletterRecipientId) foreignKey
@@ -47,7 +47,7 @@ Table(ShopwareCoreContentNewsletterAggregateNewsletterRecipientTagNewsletterReci
 }
 ForeignTable(ShopwareCoreSystemSalutationSalutationDefinition, "salutation") {
 }
-ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
+ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
 }
 ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
 }
@@ -58,7 +58,7 @@ ForeignTable(ShopwareCoreSystemTagTagDefinition, "tag") {
 
 ShopwareCoreContentNewsletterAggregateNewsletterRecipientTagNewsletterRecipientTagDefinition --> ShopwareCoreContentNewsletterAggregateNewsletterRecipientNewsletterRecipientDefinition
 ShopwareCoreContentNewsletterAggregateNewsletterRecipientNewsletterRecipientDefinition --> ShopwareCoreSystemSalutationSalutationDefinition
-ShopwareCoreContentNewsletterAggregateNewsletterRecipientNewsletterRecipientDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
+ShopwareCoreContentNewsletterAggregateNewsletterRecipientNewsletterRecipientDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
 ShopwareCoreContentNewsletterAggregateNewsletterRecipientNewsletterRecipientDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
 ShopwareCoreContentNewsletterAggregateNewsletterRecipientTagNewsletterRecipientTagDefinition --> ShopwareCoreSystemTagTagDefinition
 @enduml

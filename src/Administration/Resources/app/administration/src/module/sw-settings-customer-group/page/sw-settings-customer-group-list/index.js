@@ -6,7 +6,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-settings-customer-group-list', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -41,9 +41,6 @@ Component.register('sw-settings-customer-group-list', {
 
         allCustomerGroupsCriteria() {
             const criteria = new Criteria(this.page, this.limit);
-
-            criteria.addAssociation('salesChannels')
-                .addAssociation('customers');
 
             criteria.setTerm(this.term);
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
@@ -94,15 +91,11 @@ Component.register('sw-settings-customer-group-list', {
                 Criteria.equalsAny('id', idsOfSelectedCustomerGroups)
             );
 
-            criteria.addAssociation('salesChannels')
-                .addAssociation('customers');
-
             return criteria;
         },
 
         createErrorNotification() {
             return this.createNotificationError({
-                title: this.$tc('sw-settings-customer-group.notification.errorTitleCannotDeleteCustomerGroup'),
                 message: this.$tc('sw-settings-customer-group.notification.errorMessageCannotDeleteCustomerGroup')
             });
         },

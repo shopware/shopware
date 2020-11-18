@@ -25,6 +25,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createSitemapSection())
                 ->append($this->createDeploymentSection())
                 ->append($this->createMediaSection())
+                ->append($this->createFeatureSection())
             ->end();
 
         return $treeBuilder;
@@ -47,6 +48,7 @@ class Configuration implements ConfigurationInterface
                     ->performNoDeepMerging()
                     ->children()
                         ->scalarNode('type')->end()
+                        ->scalarNode('url')->end()
                         ->variableNode('config')->end()
                     ->end()
                 ->end()
@@ -54,6 +56,30 @@ class Configuration implements ConfigurationInterface
                     ->performNoDeepMerging()
                     ->children()
                         ->scalarNode('type')->end()
+                        ->variableNode('config')->end()
+                    ->end()
+                ->end()
+                ->arrayNode('theme')
+                    ->performNoDeepMerging()
+                    ->children()
+                        ->scalarNode('type')->end()
+                        ->scalarNode('url')->end()
+                        ->variableNode('config')->end()
+                    ->end()
+                ->end()
+                ->arrayNode('asset')
+                    ->performNoDeepMerging()
+                    ->children()
+                        ->scalarNode('type')->end()
+                        ->scalarNode('url')->end()
+                        ->variableNode('config')->end()
+                    ->end()
+                ->end()
+                ->arrayNode('sitemap')
+                    ->performNoDeepMerging()
+                    ->children()
+                        ->scalarNode('type')->end()
+                        ->scalarNode('url')->end()
                         ->variableNode('config')->end()
                     ->end()
                 ->end()
@@ -85,7 +111,8 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
             ->arrayNode('allowed_limits')
-                ->prototype('scalar')->end()
+                /* @deprecated tag:v6.4.0 - The `shopware.api.allowed_limits` config will be fully removed */
+                ->setDeprecated('The "%node%" is deprecated and will be fully removed with v6.4.0')
             ->end()
             ->integerNode('max_limit')->end()
             ->arrayNode('api_browser')
@@ -93,7 +120,6 @@ class Configuration implements ConfigurationInterface
                 ->booleanNode('auth_required')
                     ->defaultTrue()
                 ->end()
-            ->end()
             ->end();
 
         return $rootNode;
@@ -209,6 +235,20 @@ class Configuration implements ConfigurationInterface
             ->children()
                 ->booleanNode('enable_url_upload_feature')->end()
                 ->booleanNode('enable_url_validation')->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createFeatureSection(): ArrayNodeDefinition
+    {
+        /** @var ArrayNodeDefinition $rootNode */
+        $rootNode = (new TreeBuilder('feature'))->getRootNode();
+        $rootNode
+            ->children()
+            ->arrayNode('flags')
+                ->prototype('scalar')->end()
+                ->end()
             ->end();
 
         return $rootNode;

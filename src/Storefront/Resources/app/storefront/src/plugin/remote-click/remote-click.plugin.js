@@ -14,7 +14,7 @@ export default class RemoteClickPlugin extends Plugin {
         selector: false,
 
         /**
-         * if the the window should be scrolled to the remotely clicked element
+         * if the window should be scrolled to the remotely clicked element
          */
         scrollToElement: true,
 

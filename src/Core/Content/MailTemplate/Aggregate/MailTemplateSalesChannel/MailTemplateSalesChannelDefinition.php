@@ -13,6 +13,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
+/**
+ * @deprecated tag:v6.4.0 - Will be removed, sales channel specific templates will be handled by business events
+ */
 class MailTemplateSalesChannelDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'mail_template_sales_channel';
@@ -30,6 +33,11 @@ class MailTemplateSalesChannelDefinition extends EntityDefinition
     public function getEntityName(): string
     {
         return self::ENTITY_NAME;
+    }
+
+    public function since(): ?string
+    {
+        return '6.0.0.0';
     }
 
     protected function getParentDefinitionClass(): ?string

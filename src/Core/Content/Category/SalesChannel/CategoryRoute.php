@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -56,19 +57,20 @@ class CategoryRoute extends AbstractCategoryRoute
     }
 
     /**
+     * @Since("6.2.0.0")
      * @OA\Post(
      *      path="/category/{categoryId}",
-     *      description="Loads a category with the resolved cms page",
+     *      summary="Loads a category with the resolved cms page",
      *      operationId="readCategory",
      *      tags={"Store API", "Content"},
-     *      @OA\Parameter(
-     *          parameter="categoryId",
-     *          name="categoryId",
-     *          in="query",
-     *          description="Id of the category",
-     *          @OA\Schema(type="string", format="uuid"),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              @OA\Property(property="categoryId", description="Id of the category", type="string", format="uuid")
+     *          )
      *      ),
      *      @OA\Parameter(name="Api-Basic-Parameters"),
+     *      @OA\Parameter(name="categoryId", description="Category ID", @OA\Schema(type="string"), in="path", required=true),
      *      @OA\Response(
      *          response="200",
      *          description="The loaded category with cms page",
@@ -122,6 +124,8 @@ class CategoryRoute extends AbstractCategoryRoute
     private function loadCategory(string $categoryId, SalesChannelContext $context): CategoryEntity
     {
         $criteria = new Criteria([$categoryId]);
+        $criteria->setTitle('category::data');
+
         $criteria->addAssociation('media');
 
         $category = $this->categoryRepository
@@ -138,6 +142,7 @@ class CategoryRoute extends AbstractCategoryRoute
     private function createCriteria(string $pageId, Request $request): Criteria
     {
         $criteria = new Criteria([$pageId]);
+        $criteria->setTitle('category::cms-page');
 
         $slots = $request->get('slots');
 

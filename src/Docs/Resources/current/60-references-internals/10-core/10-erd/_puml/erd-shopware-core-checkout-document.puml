@@ -36,14 +36,14 @@ Table(ShopwareCoreCheckoutDocumentDocumentDefinition, "document\n(Document)") {
    not_null(deepLinkCode) string
    customFields customFields
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
 }
 Table(ShopwareCoreCheckoutDocumentAggregateDocumentTypeDocumentTypeDefinition, "document_type\n(Type)") {
    primary_key(id) id
    name translated
    not_null(technicalName) string
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
    customFields translated
    translated json
 }
@@ -51,7 +51,7 @@ TranslationTable(ShopwareCoreCheckoutDocumentAggregateDocumentTypeTranslationDoc
    not_null(name) string
    customFields customFields
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
    primary_key(documentTypeId) foreignKey
    primary_key(languageId) foreignKey
 }
@@ -66,7 +66,7 @@ Table(ShopwareCoreCheckoutDocumentAggregateDocumentBaseConfigDocumentBaseConfigD
    documentNumber numberRange
    config json
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
 }
 Table(ShopwareCoreCheckoutDocumentAggregateDocumentBaseConfigSalesChannelDocumentBaseConfigSalesChannelDefinition, "document_base_config_sales_channel\n(SalesChannel Configuration)") {
    primary_key(id) id
@@ -74,13 +74,13 @@ Table(ShopwareCoreCheckoutDocumentAggregateDocumentBaseConfigSalesChannelDocumen
    salesChannelId foreignKey
    documentTypeId foreignKey
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
 }
 ForeignTable(ShopwareCoreCheckoutOrderOrderDefinition, "order") {
 }
 ForeignTable(ShopwareCoreContentMediaMediaDefinition, "media") {
 }
-ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
+ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
 }
 ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
 }
@@ -94,7 +94,7 @@ ShopwareCoreCheckoutDocumentDocumentDefinition --> ShopwareCoreContentMediaMedia
 ShopwareCoreCheckoutDocumentAggregateDocumentTypeTranslationDocumentTypeTranslationDefinition --> ShopwareCoreCheckoutDocumentAggregateDocumentTypeDocumentTypeDefinition
 ShopwareCoreCheckoutDocumentAggregateDocumentBaseConfigDocumentBaseConfigDefinition --> ShopwareCoreCheckoutDocumentAggregateDocumentTypeDocumentTypeDefinition
 ShopwareCoreCheckoutDocumentAggregateDocumentBaseConfigSalesChannelDocumentBaseConfigSalesChannelDefinition --> ShopwareCoreCheckoutDocumentAggregateDocumentTypeDocumentTypeDefinition
-ShopwareCoreCheckoutDocumentAggregateDocumentTypeTranslationDocumentTypeTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
+ShopwareCoreCheckoutDocumentAggregateDocumentTypeTranslationDocumentTypeTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
 ShopwareCoreCheckoutDocumentAggregateDocumentBaseConfigDocumentBaseConfigDefinition --> ShopwareCoreContentMediaMediaDefinition
 ShopwareCoreCheckoutDocumentAggregateDocumentBaseConfigSalesChannelDocumentBaseConfigSalesChannelDefinition --> ShopwareCoreCheckoutDocumentAggregateDocumentBaseConfigDocumentBaseConfigDefinition
 ShopwareCoreCheckoutDocumentAggregateDocumentBaseConfigSalesChannelDocumentBaseConfigSalesChannelDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition

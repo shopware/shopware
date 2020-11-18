@@ -9,14 +9,13 @@
 
         <service id="Shopware\Storefront\Controller\AccountOrderController">
             <argument type="service" id="Shopware\Storefront\Page\Account\Order\AccountOrderPageLoader"/>
-            <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderRoute"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
             <argument type="service" id="Shopware\Storefront\Page\Account\Order\AccountEditOrderPageLoader"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\SalesChannel\ContextSwitchRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\CancelOrderRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\SetPaymentOrderRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\SalesChannel\HandlePaymentMethodRoute"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Storefront\Page\Account\Order\AccountOrderDetailPageLoader"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -24,16 +23,19 @@
 
         <service id="Shopware\Storefront\Controller\AccountPaymentController">
             <argument type="service" id="Shopware\Storefront\Page\Account\PaymentMethod\AccountPaymentMethodPageLoader"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\ChangePaymentMethodRoute"/>
         </service>
 
         <service id="Shopware\Storefront\Controller\AccountProfileController">
             <argument type="service" id="Shopware\Storefront\Page\Account\Overview\AccountOverviewPageLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\Account\Profile\AccountProfilePageLoader"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\ChangeCustomerProfileRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\ChangePasswordRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\ChangeEmailRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\DeleteCustomerRoute"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -51,12 +53,16 @@
 
         <service id="Shopware\Storefront\Controller\AuthController">
             <argument type="service" id="Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
+            <argument type="service" id="customer_recovery.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\SendPasswordRecoveryMailRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\ResetPasswordRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
         </service>
 
         <service id="Shopware\Storefront\Controller\CartLineItemController">
@@ -77,7 +83,6 @@
             <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderService"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\PaymentService"/>
             <argument type="service" id="Shopware\Storefront\Page\Checkout\Offcanvas\OffcanvasCartPageLoader"/>
-            <argument type="service" id="order.repository"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -88,17 +93,18 @@
         </service>
 
         <service id="Shopware\Storefront\Controller\CmsController">
-            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingGateway"/>
             <argument type="service" id="Shopware\Core\Content\Cms\SalesChannel\CmsRoute"/>
             <argument type="service" id="Shopware\Core\Content\Category\SalesChannel\CategoryRoute"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute"/>
         </service>
 
         <service id="Shopware\Storefront\Controller\FormController">
-            <argument type="service" id="Shopware\Core\Content\ContactForm\ContactFormService"/>
-            <argument type="service" id="Shopware\Core\Content\Newsletter\NewsletterSubscriptionService"/>
+            <argument type="service" id="Shopware\Core\Content\ContactForm\SalesChannel\ContactFormRoute"/>
+            <argument type="service" id="Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute"/>
+            <argument type="service" id="Shopware\Core\Content\Newsletter\SalesChannel\NewsletterUnsubscribeRoute"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -118,12 +124,13 @@
         <service id="Shopware\Storefront\Controller\MaintenanceController" public="true">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Storefront\Page\Maintenance\MaintenancePageLoader"/>
+            <argument type="service" id="Shopware\Storefront\Framework\Routing\MaintenanceModeResolver"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
         </service>
 
-        <service id="Shopware\Storefront\Controller\ErrorController">
+        <service id="Shopware\Storefront\Controller\ErrorController" lazy="true">
             <argument type="service" id="Shopware\Storefront\Framework\Twig\ErrorTemplateResolver"/>
             <argument type="service" id="session.flash_bag"/>
             <argument type="service" id="Shopware\Storefront\Pagelet\Header\HeaderPageletLoader"/>
@@ -143,10 +150,11 @@
         </service>
 
         <service id="Shopware\Storefront\Controller\NewsletterController">
-            <argument type="service" id="Shopware\Storefront\Page\Newsletter\Register\NewsletterRegisterPageLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\Newsletter\Subscribe\NewsletterSubscribePageLoader"/>
-            <argument type="service" id="Shopware\Core\Content\Newsletter\NewsletterSubscriptionService"/>
             <argument type="service" id="customer.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute"/>
+            <argument type="service" id="Shopware\Core\Content\Newsletter\SalesChannel\NewsletterConfirmRoute"/>
+            <argument type="service" id="Shopware\Core\Content\Newsletter\SalesChannel\NewsletterUnsubscribeRoute"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -167,12 +175,12 @@
 
         <service id="Shopware\Storefront\Controller\RegisterController">
             <argument type="service" id="Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader"/>
-            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountService"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountRegistrationService"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
             <argument type="service" id="Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoader"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="customer.repository"/>
+            <argument type="service" id="Shopware\Storefront\Page\Account\CustomerGroupRegistration\CustomerGroupRegistrationPageLoader"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -181,6 +189,7 @@
         <service id="Shopware\Storefront\Controller\SearchController">
             <argument type="service" id="Shopware\Storefront\Page\Search\SearchPageLoader"/>
             <argument type="service" id="Shopware\Storefront\Page\Suggest\SuggestPageLoader"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Search\ProductSearchRoute"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -194,7 +203,7 @@
         </service>
 
         <service id="Shopware\Storefront\Page\Product\Review\ProductReviewLoader">
-            <argument type="service" id="product_review.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRoute"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
 
@@ -221,6 +230,27 @@
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
+        </service>
+
+        <service id="Shopware\Storefront\Controller\DocumentController" public="true">
+            <argument type="service" id="Shopware\Storefront\Page\Account\Document\DocumentPageLoader"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
+        <service id="Shopware\Storefront\Controller\StoreApiProxyController" public="true">
+            <argument type="service" id="Symfony\Component\HttpKernel\KernelInterface"/>
+            <argument type="service" id="Symfony\Component\HttpFoundation\RequestStack"/>
+        </service>
+
+        <service id="Shopware\Storefront\Controller\WishlistController" public="true">
+            <argument type="service" id="Shopware\Storefront\Page\Wishlist\WishlistPageLoader"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\RemoveWishlistProductRoute"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_10549"/>
         </service>
     </services>
 </container>

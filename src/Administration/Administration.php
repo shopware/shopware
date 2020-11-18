@@ -9,6 +9,9 @@ use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
 class Administration extends Bundle
 {
+    /**
+     * @var string
+     */
     protected $name = 'Administration';
 
     public function build(ContainerBuilder $container): void

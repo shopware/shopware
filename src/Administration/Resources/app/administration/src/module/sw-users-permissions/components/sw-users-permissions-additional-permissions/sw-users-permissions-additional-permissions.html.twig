@@ -1,0 +1,37 @@
+{% block sw_users_permissions_additional_permissions %}
+    <sw-card class="sw-users-permissions-additional-permissions"
+             :title="$tc('sw-users-permissions.roles.additional-permissions.title')">
+        {% block sw_users_permissions_additional_permissions_additional_privileges %}
+            <template v-for="privilege in additionalPermissions">
+                {% block sw_users_permissions_additional_permissions_additional_privileges_headline %}
+                    <h4 :class="'sw-users-permissions-additional-permissions_' + privilege.key">
+                        {% block sw_users_permissions_additional_permissions_additional_privileges_headline_content %}
+                            <strong>
+                                {{ $tc('sw-privileges.additional_permissions.' + privilege.key + '.label') }}
+                            </strong>
+                        {% endblock %}
+                    </h4>
+                {% endblock %}
+
+                {% block sw_users_permissions_additional_permissions_additional_privileges_switches %}
+                    <div class="sw-users-permissions-additional-permissions__switches">
+                        {% block sw_users_permissions_additional_permissions_additional_privileges_switches_content %}
+                            <template v-for="(value, roleName) in privilege.roles">
+                                {% block sw_users_permissions_additional_permissions_additional_privileges_switches_content_switch %}
+                                    <sw-field type="switch"
+                                              :disabled="disabled"
+                                              :class="'sw_users_permissions_additional_permissions_' + privilege.key + '_' + roleName"
+                                              :value="isPrivilegeSelected(privilege.key + '.' + roleName)"
+                                              @change="onSelectPrivilege(privilege.key + '.' + roleName, $event)"
+                                              :label="$tc('sw-privileges.additional_permissions.' + privilege.key + '.' + roleName)"
+                                              :bordered="true">
+                                    </sw-field>
+                                {% endblock %}
+                            </template>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </template>
+        {% endblock %}
+    </sw-card>
+{% endblock %}

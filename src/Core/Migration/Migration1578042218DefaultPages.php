@@ -74,7 +74,7 @@ class Migration1578042218DefaultPages extends MigrationStep
         $blockId = Uuid::randomBytes();
         $slotId = Uuid::randomBytes();
         $versionId = $connection->fetchColumn('SELECT version_id FROM cms_slot LIMIT 1');
-        $languageIdEn = $this->getLanguageIdByLocale($connection, 'en-GB');
+        $languageIdDefault = $this->getLanguageIdByLocale($connection, 'en-GB');
         $languageIdDe = $this->getLanguageIdByLocale($connection, 'de-DE');
 
         $connection->insert('cms_page', [
@@ -87,21 +87,25 @@ class Migration1578042218DefaultPages extends MigrationStep
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
-        $connection->insert('cms_page_translation', [
-            'cms_page_id' => $id,
-            'language_id' => $languageIdEn,
-            'name' => $titleEn,
-            'custom_fields' => null,
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ]);
+        if ($languageIdDefault !== $languageIdDe) {
+            $connection->insert('cms_page_translation', [
+                'cms_page_id' => $id,
+                'language_id' => $languageIdDefault,
+                'name' => $titleEn,
+                'custom_fields' => null,
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ]);
+        }
 
-        $connection->insert('cms_page_translation', [
-            'cms_page_id' => $id,
-            'language_id' => $languageIdDe,
-            'name' => $titleDe,
-            'custom_fields' => null,
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ]);
+        if ($languageIdDe) {
+            $connection->insert('cms_page_translation', [
+                'cms_page_id' => $id,
+                'language_id' => $languageIdDe,
+                'name' => $titleDe,
+                'custom_fields' => null,
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ]);
+        }
 
         $connection->insert('cms_section', [
             'id' => $sectionId,
@@ -162,21 +166,25 @@ class Migration1578042218DefaultPages extends MigrationStep
             ],
         ];
 
-        $connection->insert('cms_slot_translation', [
-            'cms_slot_id' => $slotId,
-            'cms_slot_version_id' => $versionId,
-            'language_id' => $languageIdEn,
-            'config' => json_encode($contentEn),
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ]);
+        if ($languageIdDefault !== $languageIdDe) {
+            $connection->insert('cms_slot_translation', [
+                'cms_slot_id' => $slotId,
+                'cms_slot_version_id' => $versionId,
+                'language_id' => $languageIdDefault,
+                'config' => json_encode($contentEn),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ]);
+        }
 
-        $connection->insert('cms_slot_translation', [
-            'cms_slot_id' => $slotId,
-            'cms_slot_version_id' => $versionId,
-            'language_id' => $languageIdDe,
-            'config' => json_encode($contentDe),
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ]);
+        if ($languageIdDe) {
+            $connection->insert('cms_slot_translation', [
+                'cms_slot_id' => $slotId,
+                'cms_slot_version_id' => $versionId,
+                'language_id' => $languageIdDe,
+                'config' => json_encode($contentDe),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ]);
+        }
 
         return $id;
     }
@@ -199,7 +207,7 @@ class Migration1578042218DefaultPages extends MigrationStep
         }
     }
 
-    private function getLanguageIdByLocale(Connection $connection, string $locale): string
+    private function getLanguageIdByLocale(Connection $connection, string $locale): ?string
     {
         $sql = <<<SQL
 SELECT `language`.`id`
@@ -210,8 +218,12 @@ SQL;
 
         /** @var string|false $languageId */
         $languageId = $connection->executeQuery($sql, ['code' => $locale])->fetchColumn();
+        if (!$languageId && $locale !== 'en-GB') {
+            return null;
+        }
+
         if (!$languageId) {
-            throw new \RuntimeException(sprintf('Language for locale "%s" not found.', $locale));
+            return Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
         }
 
         return $languageId;

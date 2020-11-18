@@ -54,6 +54,7 @@ describe('Shipping: Test crud operations', () => {
         // Edit base data
         cy.get('.sw-data-grid__cell-value').contains('Luftpost').click();
         cy.get('input[name=sw-field--shippingMethod-name]').clearTypeAndCheck('Wasserpost');
+        page.createShippingMethodTax();
         page.createShippingMethodPriceRule();
 
         cy.get(page.elements.shippingSaveAction).click();
@@ -89,7 +90,7 @@ describe('Shipping: Test crud operations', () => {
         cy.get('.sw-modal__body').should('be.visible');
         cy.get('.sw-modal__body')
             .contains('Are you sure you really want to delete the shipping method "Luftpost"?');
-        cy.get(`${page.elements.modal}__footer button${page.elements.primaryButton}`).click();
+        cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
         cy.get(page.elements.modal).should('not.exist');
 
         cy.wait('@deleteData').then((xhr) => {
@@ -97,5 +98,18 @@ describe('Shipping: Test crud operations', () => {
         });
 
         cy.awaitAndCheckNotification('Shipping method "Luftpost" has been deleted.');
+    });
+
+    it('@base @settings: new shipping method should show default price matrix', () => {
+        // Request we want to wait for later
+        cy.server();
+        cy.route({
+            url: '/api/v*/shipping-method',
+            method: 'post'
+        }).as('saveData');
+
+        // Create shipping method
+        cy.get('a[href="#/sw/settings/shipping/create"]').click();
+        cy.get('.sw-settings-shipping-price-matrix__top-container').should('exist');
     });
 });

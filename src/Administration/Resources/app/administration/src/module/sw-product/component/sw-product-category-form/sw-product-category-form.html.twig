@@ -2,17 +2,19 @@
     <div class="sw-product-category-form">
 
         {% block sw_product_category_form_category_field %}
-            <sw-inherit-wrapper v-model="product.categories"
-                                :inheritedValue="parentProduct.categories"
-                                isAssociation
-                                :label="$tc('sw-product.categoryForm.labelCategory')">
+            <sw-inherit-wrapper
+                v-model="product.categories"
+                :inheritedValue="parentProduct.categories"
+                isAssociation
+                :label="$tc('sw-product.categoryForm.labelCategory')">
                 <template #content="{ currentValue, isInherited }">
 
-                    <sw-category-tree-field :categoriesCollection="currentValue ? currentValue : []"
-                                            class="sw-product-detail__select-category"
-                                            :disabled="isInherited"
-                                            :key="isInherited"
-                                            :placeholder="$tc('sw-product.categoryForm.placeholderCategory')">
+                    <sw-category-tree-field
+                        :categoriesCollection="currentValue ? currentValue : []"
+                        class="sw-product-detail__select-category"
+                        :disabled="isInherited || !allowEdit"
+                        :key="isInherited"
+                        :placeholder="$tc('sw-product.categoryForm.placeholderCategory')">
                     </sw-category-tree-field>
 
                 </template>
@@ -20,19 +22,21 @@
         {% endblock %}
 
         {% block sw_product_category_form_visibility_field %}
-            <sw-inherit-wrapper v-model="product.visibilities"
-                                :inheritedValue="parentProduct.visibilities"
-                                isAssociation>
+            <sw-inherit-wrapper
+                v-model="product.visibilities"
+                :inheritedValue="parentProduct.visibilities"
+                :label="$tc('sw-product.visibility.labelVisibility')"
+                isAssociation>
                 <template #content="{ currentValue, isInherited, updateCurrentValue }">
-                    <sw-product-visibility-select v-if="!loading.product && !loading.parentProduct && multiSelectVisible"
-                                                  :label="$tc('sw-product.visibility.labelVisibility')"
-                                                  class="sw-product-detail__select-visibility"
-                                                  :entityCollection="currentValue"
-                                                  @change="updateCurrentValue"
-                                                  :placeholder="$tc('sw-product.visibility.placeholderVisibility')"
-                                                  :disabled="isInherited"
-                                                  :key="isInherited"
-                                                  ref="productVisibility">
+                    <sw-product-visibility-select
+                        v-if="!loading.product && !loading.parentProduct && multiSelectVisible"
+                        class="sw-product-detail__select-visibility"
+                        :entityCollection="currentValue"
+                        @change="updateCurrentValue"
+                        :placeholder="$tc('sw-product.visibility.placeholderVisibility')"
+                        :disabled="isInherited || !allowEdit"
+                        :key="isInherited"
+                        ref="productVisibility">
                     </sw-product-visibility-select>
                 </template>
             </sw-inherit-wrapper>
@@ -46,7 +50,7 @@
             </sw-container>
 
             <sw-modal v-if="displayVisibilityDetail" @modal-close="closeAdvancedVisibility" :title="$tc('sw-product.visibility.textHeadline')" class="sw-product-category-form__visibility_modal">
-                <sw-product-visibility-detail></sw-product-visibility-detail>
+                <sw-product-visibility-detail :disabled="!allowEdit"></sw-product-visibility-detail>
 
                 <template slot="modal-footer">
                     <sw-button variant="primary" size="small" @click="closeAdvancedVisibility">
@@ -57,22 +61,45 @@
         {% endblock %}
 
         {% block sw_product_category_form_tags_field %}
-            <sw-inherit-wrapper v-model="product.tags"
-                                :inheritedValue="parentProduct.tags"
-                                isAssociation
-                                :label="$tc('global.sw-tag-field.title')">
+            <sw-inherit-wrapper
+                v-model="product.tags"
+                :inheritedValue="parentProduct.tags"
+                isAssociation
+                :label="$tc('global.sw-tag-field.title')">
 
                 <template #content="{ currentValue, isInherited, updateCurrentValue }">
                     <sw-entity-tag-select
-                                      class="sw-product-category-form__tag-field"
-                                      v-if="!loading.product && !loading.parentProduct"
-                                      :disabled="isInherited"
-                                      :key="isInherited"
-                                      :placeholder="$tc('sw-product.categoryForm.placeholderTags')"
-                                      :error="productTagsError"
-                                      @change="updateCurrentValue"
-                                      :entityCollection="currentValue ? currentValue : {}">
+                        class="sw-product-category-form__tag-field"
+                        v-if="!loading.product && !loading.parentProduct"
+                        :disabled="isInherited || !allowEdit"
+                        :key="isInherited"
+                        :placeholder="$tc('sw-product.categoryForm.placeholderTags')"
+                        :error="productTagsError"
+                        @change="updateCurrentValue"
+                        :entityCollection="currentValue ? currentValue : {}">
                     </sw-entity-tag-select>
+                </template>
+            </sw-inherit-wrapper>
+        {% endblock %}
+
+        {% block sw_product_category_form_search_keyword_field %}
+            <sw-inherit-wrapper v-model="product.customSearchKeywords"
+                                :helpText="$tc('sw-product.categoryForm.helpTextSearchKeyword')"
+                                :inheritedValue="parentProduct.customSearchKeywords"
+                                :label="$tc('sw-product.categoryForm.labelSearchKeyword')">
+                <template #content="{ currentValue, isInherited, updateCurrentValue }">
+                    <sw-multi-tag-select
+                        class="sw-product-category-form__search-keyword-field"
+                        :value="currentValue ? currentValue : []"
+                        :placeholder="$tc('sw-product.categoryForm.placeholderSearchKeywords')"
+                        @change="updateCurrentValue">
+                        <template #message-add-data>
+                            <span>{{ $tc('sw-product.categoryForm.textAddSearchKeyword') }}</span>
+                        </template>
+                        <template #message-enter-valid-data>
+                            <span>{{ $tc('sw-product.categoryForm.textEnterValidSearchKeyword') }}</span>
+                        </template>
+                    </sw-multi-tag-select>
                 </template>
             </sw-inherit-wrapper>
         {% endblock %}

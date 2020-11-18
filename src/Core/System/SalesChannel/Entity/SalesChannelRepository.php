@@ -68,13 +68,15 @@ class SalesChannelRepository implements SalesChannelRepositoryInterface
      */
     public function search(Criteria $criteria, SalesChannelContext $salesChannelContext): EntitySearchResult
     {
+        $criteria = clone $criteria;
+
         $aggregations = null;
         if ($criteria->getAggregations()) {
             $aggregations = $this->aggregate($criteria, $salesChannelContext);
         } else {
             $this->processCriteria($criteria, $salesChannelContext);
         }
-
+        $page = !$criteria->getLimit() ? 1 : (int) ceil(($criteria->getOffset() ?? 0 + 1) / $criteria->getLimit());
         if (!RepositorySearchDetector::isSearchRequired($this->definition, $criteria)) {
             $entities = $this->read($criteria, $salesChannelContext);
 
@@ -83,7 +85,9 @@ class SalesChannelRepository implements SalesChannelRepositoryInterface
                 $entities,
                 $aggregations,
                 $criteria,
-                $salesChannelContext->getContext()
+                $salesChannelContext->getContext(),
+                $page,
+                $criteria->getLimit()
             );
         }
 
@@ -116,7 +120,9 @@ class SalesChannelRepository implements SalesChannelRepositoryInterface
             $entities,
             $aggregations,
             $criteria,
-            $salesChannelContext->getContext()
+            $salesChannelContext->getContext(),
+            $page,
+            $criteria->getLimit()
         );
 
         $event = new EntitySearchResultLoadedEvent($this->definition, $result);
@@ -130,6 +136,8 @@ class SalesChannelRepository implements SalesChannelRepositoryInterface
 
     public function aggregate(Criteria $criteria, SalesChannelContext $salesChannelContext): AggregationResultCollection
     {
+        $criteria = clone $criteria;
+
         $this->processCriteria($criteria, $salesChannelContext);
 
         $result = $this->aggregator->aggregate($this->definition, $criteria, $salesChannelContext->getContext());
@@ -142,6 +150,8 @@ class SalesChannelRepository implements SalesChannelRepositoryInterface
 
     public function searchIds(Criteria $criteria, SalesChannelContext $salesChannelContext): IdSearchResult
     {
+        $criteria = clone $criteria;
+
         $this->processCriteria($criteria, $salesChannelContext);
 
         return $this->doSearch($criteria, $salesChannelContext);
@@ -149,6 +159,8 @@ class SalesChannelRepository implements SalesChannelRepositoryInterface
 
     private function read(Criteria $criteria, SalesChannelContext $salesChannelContext): EntityCollection
     {
+        $criteria = clone $criteria;
+
         $entities = $this->reader->read($this->definition, $criteria, $salesChannelContext->getContext());
 
         $event = new EntityLoadedEvent($this->definition, $entities->getElements(), $salesChannelContext->getContext());
@@ -186,11 +198,10 @@ class SalesChannelRepository implements SalesChannelRepositoryInterface
 
         // process all associations breadth-first
         while (!empty($queue) && --$maxCount > 0) {
+            /** @var array{'definition': EntityDefinition, 'criteria': Criteria} $cur */
             $cur = array_shift($queue);
 
-            /** @var EntityDefinition $definition */
             $definition = $cur['definition'];
-            /** @var Criteria $criteria */
             $criteria = $cur['criteria'];
 
             if (isset($processed[get_class($definition)])) {

@@ -18,7 +18,8 @@
                                                   @item-remove="remove"
                                                   @last-item-delete="removeLastItem"
                                                   @search-term-change="onSearchTermChange"
-                                                  v-bind="{ size, labelProperty, placeholder, searchTerm }">
+                                                  v-bind="{ size, labelProperty, placeholder, searchTerm, disabled }"
+                                                  :hideLabels="hideLabels">
                             {% block sw_entity_multi_select_base_selection_list %}
                                 {% block sw_entity_multi_select_base_selection_list_label %}
                                     <template #label-property="{ item, index, labelProperty, valueProperty }">
@@ -60,7 +61,7 @@
                                                 @item-select="addItem"
                                                 v-bind="{ item, index }">
                                                 {% block sw_entity_multi_select_base_results_list_result_label %}
-                                                    <slot name="result-label-property" v-bind="{ item, index, labelProperty, valueProperty: 'id', searchTerm, getKey }">
+                                                    <slot name="result-label-property" v-bind="{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, getKey }">
                                                         <sw-highlight-text v-if="highlightSearchTerm"
                                                                            :text="getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`)"
                                                                            :searchTerm="searchTerm">

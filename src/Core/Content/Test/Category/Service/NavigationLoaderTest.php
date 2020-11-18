@@ -9,6 +9,7 @@ use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Category\SalesChannel\NavigationRoute;
 use Shopware\Core\Content\Category\Service\NavigationLoader;
+use Shopware\Core\Content\Category\Service\NavigationLoaderInterface;
 use Shopware\Core\Content\Category\Tree\Tree;
 use Shopware\Core\Content\Category\Tree\TreeItem;
 use Shopware\Core\Framework\Context;
@@ -30,7 +31,7 @@ class NavigationLoaderTest extends TestCase
     private $repository;
 
     /**
-     * @var NavigationLoader
+     * @var NavigationLoaderInterface
      */
     private $navigationLoader;
 
@@ -173,15 +174,23 @@ class NavigationLoaderTest extends TestCase
         $categories = [
             [
                 'id' => $data->create('root'), 'name' => 'root', 'children' => [
-                    ['id' => $data->create('a'), 'name' => 'a', 'children' => [
-                        ['id' => $data->create('b'), 'name' => 'b', 'children' => [
-                            ['id' => $data->create('c'), 'name' => 'c', 'children' => [
-                                ['id' => $data->create('d'), 'name' => 'd', 'children' => [
-                                    ['id' => $data->create('e'), 'name' => 'e'],
-                                ]],
-                            ]],
-                        ]],
-                    ]],
+                    [
+                        'id' => $data->create('a'), 'name' => 'a', 'children' => [
+                            [
+                                'id' => $data->create('b'), 'name' => 'b', 'children' => [
+                                    [
+                                        'id' => $data->create('c'), 'name' => 'c', 'children' => [
+                                            [
+                                                'id' => $data->create('d'), 'name' => 'd', 'children' => [
+                                                    ['id' => $data->create('e'), 'name' => 'e'],
+                                                ],
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
                 ],
             ],
         ];

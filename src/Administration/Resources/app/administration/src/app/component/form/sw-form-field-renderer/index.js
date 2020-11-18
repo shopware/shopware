@@ -1,7 +1,6 @@
 import template from './sw-form-field-renderer.html.twig';
 
 const { Component, Mixin } = Shopware;
-const { LocalStore } = Shopware.DataDeprecated;
 const { types } = Shopware.Utils;
 
 /**
@@ -9,7 +8,7 @@ const { types } = Shopware.Utils;
  * @status ready
  * @description
  * Dynamically renders components with a given configuration. The rendered component can be forced by defining
- * the config.componentName porperty. If not set the form-field-renderer will guess a suitable
+ * the config.componentName property. If not set the form-field-renderer will guess a suitable
  * component for the type. Everything inside the config prop will be passed to the rendered child prop as properties.
  * Also all additional props will be passed to the child.
  * @example-type code-only
@@ -108,11 +107,6 @@ Component.register('sw-form-field-renderer', {
                 ...this.translations,
                 ...this.optionTranslations
             };
-
-            // create stores for sw-select
-            if (this.componentName === 'sw-select') {
-                this.addSwSelectStores(bind);
-            }
 
             if (this.componentName === 'sw-entity-multi-id-select') {
                 bind.repository = this.createRepository(this.config.entity);
@@ -213,14 +207,6 @@ Component.register('sw-form-field-renderer', {
         },
         value() {
             this.currentValue = this.value;
-            // Recreate select association store on value changes and reload selections,
-            // this is necessary for languages changes for example
-            if (this.componentName === 'sw-select') {
-                if (this.bind.multi) {
-                    this.addSwSelectAssociationStore(this.bind, true);
-                }
-                this.refreshSwSelectSelections();
-            }
         }
     },
 
@@ -250,48 +236,6 @@ Component.register('sw-form-field-renderer', {
             }
 
             return 'sw-field';
-        },
-
-        addSwSelectStores(bind) {
-            if (bind.store) {
-                return;
-            }
-
-            if (this.config.options.length < 1) {
-                throw new Error('sw-form-field-renderer - sw-select component needs options or a store');
-            }
-
-            bind.store = new LocalStore([], 'id', 'name');
-            this.config.options.forEach(({ id, name }) => {
-                bind.store.add({ id, name: this.getInlineSnippet(name) });
-            });
-
-            if (bind.multi) {
-                this.addSwSelectAssociationStore(bind, false);
-            }
-
-            this.refreshSwSelectSelections();
-        },
-
-        addSwSelectAssociationStore(bind, override) {
-            if (bind.associationStore && override === false) {
-                return;
-            }
-            const entities = [];
-            if (this.value && this.value.length > 0) {
-                this.value.forEach((value) => {
-                    entities.push(bind.store.getById(value));
-                });
-            }
-            bind.associationStore = new LocalStore(entities);
-        },
-
-        refreshSwSelectSelections() {
-            this.$nextTick(() => {
-                if (this.$refs.component) {
-                    this.$refs.component.loadSelected(true);
-                }
-            });
         },
 
         createRepository(entity) {

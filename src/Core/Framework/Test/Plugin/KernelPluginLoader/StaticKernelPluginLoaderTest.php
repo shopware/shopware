@@ -49,7 +49,7 @@ class StaticKernelPluginLoaderTest extends TestCase
     public function testNonExistingPluginIsSkipped(): void
     {
         $active = $this->getActivePlugin();
-        $active->setPath(TEST_PROJECT_DIR . '/platform/src/Core/Framework/Test/Plugin/_fixture/plugins/SwagTestNonExisting');
+        $active->setBaseClass('SomeNotExistingBaseClass');
 
         $plugins = [$active->jsonSerialize()];
         $loader = new StaticKernelPluginLoader($this->classLoader, null, $plugins);

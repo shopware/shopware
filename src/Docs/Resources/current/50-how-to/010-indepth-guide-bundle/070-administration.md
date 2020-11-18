@@ -12,7 +12,7 @@ to learn more about the framework itself.
 
 Of course any Shopware 6 specific code will be explained, don't worry about that.
 
-## Setting up the the administration
+## Setting up the administration
 
 Each plugin has a main entry point to add custom javascript code to the administration. By default, Shopware 6 is looking for a 
 `main.js` file inside a `Resources/app/administration/src` directory in your plugin.
@@ -360,7 +360,7 @@ The `page` imports in the first few lines will be created in the next few steps.
 Let's start with the main component for now: The list of bundles. You've already linked it in your module file and it's supposed to be named `swag-bundle-list` inside
 a directory called `page`, so go ahead and create that directory.
 
-Once again create a new file `index.js` in there as the main entry point for this component. To register a module, you used the code `Module.register()`,
+Once again create a new file `index.js` in there as the main entry point for this component. Modules get their own directory, so the `index.js` lives in `page/swag-bundle-list/index.js`. To register a module, you used the code `Module.register()`,
 now guess what you're going to use to register a new component.
 
 ```js

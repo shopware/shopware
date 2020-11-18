@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
@@ -13,11 +14,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Inherited;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
@@ -231,14 +234,12 @@ class EntityDefinitionQueryHelper
 
         $query->from(self::escape($table));
 
-        $useVersionFallback = (
-            // only applies for versioned entities
-            $definition->isVersionAware()
+        $useVersionFallback // only applies for versioned entities
+            = $definition->isVersionAware()
             // only add live fallback if the current version isn't the live version
             && $context->getVersionId() !== Defaults::LIVE_VERSION
             // sub entities have no live fallback
-            && $definition->getParentDefinition() === null
-        );
+            && $definition->getParentDefinition() === null;
 
         if ($useVersionFallback) {
             $this->joinVersion($query, $definition, $definition->getEntityName(), $context);
@@ -414,16 +415,27 @@ class EntityDefinitionQueryHelper
      * Considers the parent-child inheritance and provided context language inheritance.
      * The raw parameter allows to skip the parent-child inheritance.
      */
-    public function addTranslationSelect(
-        string $root,
-        EntityDefinition $definition,
-        QueryBuilder $query,
-        Context $context
-    ): void {
+    public function addTranslationSelect(string $root, EntityDefinition $definition, QueryBuilder $query, Context $context): void
+    {
         $translationDefinition = $definition->getTranslationDefinition();
 
+        if (!$translationDefinition) {
+            return;
+        }
+
         $fields = $translationDefinition->getFields();
-        $chain = self::buildTranslationChain($root, $context, $definition->isInheritanceAware() && $context->considerInheritance());
+
+        $inherited = $context->considerInheritance() && $definition->isInheritanceAware();
+
+        $alias = $root . '.' . $translationDefinition->getEntityName();
+        $query->addSelect(self::escape($alias) . '.*');
+
+        if ($inherited) {
+            $alias = $root . '.' . $translationDefinition->getEntityName() . '.parent';
+            $query->addSelect(self::escape($alias) . '.*');
+        }
+
+        $chain = self::buildTranslationChain($root, $context, $inherited);
 
         /** @var TranslatedField $field */
         foreach ($fields as $field) {
@@ -431,23 +443,33 @@ class EntityDefinitionQueryHelper
                 continue;
             }
 
-            foreach ($chain as $tableAccessor) {
-                $name = $field->getPropertyName();
-                $query->addSelect(
-                    self::escape($tableAccessor['alias']) . '.' . self::escape($field->getStorageName()) . ' as '
-                    . self::escape($tableAccessor['alias'] . '.' . $name)
+            $selects = [];
+            foreach ($chain as $select) {
+                $vars = [
+                    '#root#' => $select,
+                    '#field#' => $field->getPropertyName(),
+                ];
+
+                $selects[] = str_replace(
+                    array_keys($vars),
+                    array_values($vars),
+                    self::escape('#root#.#field#')
                 );
             }
 
             //check if current field is a translated field of the origin definition
             $origin = $definition->getFields()->get($field->getPropertyName());
-            if ($origin instanceof TranslatedField) {
-                //add selection for resolved parent-child and language inheritance
-                $query->addSelect(
-                    $this->getTranslationFieldSelectExpr($field, $chain) . ' as '
-                    . self::escape($root . '.' . $field->getPropertyName())
-                );
+            if (!$origin instanceof TranslatedField) {
+                continue;
             }
+
+            $selects[] = self::escape($root . '.translation.' . $field->getPropertyName());
+
+            //add selection for resolved parent-child and language inheritance
+            $query->addSelect(
+                sprintf('COALESCE(%s)', implode(',', $selects)) . ' as '
+                . self::escape($root . '.' . $field->getPropertyName())
+            );
         }
     }
 
@@ -501,45 +523,99 @@ class EntityDefinitionQueryHelper
 
     public static function buildTranslationChain(string $root, Context $context, bool $includeParent): array
     {
-        // the first one is the most specify and always selected
-        $idChain = $context->getLanguageIdChain();
-        $id = array_shift($idChain);
+        $count = count($context->getLanguageIdChain()) - 1;
 
-        $chain = [[
-            'id' => $id,
-            'name' => 'translation',
-            'alias' => $root . '.translation',
-            'root' => $root,
-        ]];
-        if ($includeParent) {
-            $chain[] = [
-                'id' => $id,
-                'name' => 'parent.translation',
-                'alias' => $root . '.parent.translation',
-                'root' => $root . '.parent',
-            ];
-        }
-
-        $i = 1;
-        foreach ($idChain as $id) {
-            $name = 'translation.fallback_' . $i++;
-            $chain[] = [
-                'id' => $id,
-                'name' => $name,
-                'alias' => $root . '.' . $name,
-                'root' => $root,
-            ];
+        for ($i = $count; $i >= 1; --$i) {
+            $chain[] = $root . '.translation.fallback_' . $i;
             if ($includeParent) {
-                $chain[] = [
-                    'id' => $id,
-                    'name' => 'parent.' . $name,
-                    'alias' => $root . '.parent.' . $name,
-                    'root' => $root . '.parent',
-                ];
+                $chain[] = $root . '.parent.translation.fallback_' . $i;
             }
         }
 
+        $chain[] = $root . '.translation';
+        if ($includeParent) {
+            $chain[] = $root . '.parent.translation';
+        }
+
         return $chain;
+    }
+
+    public function addIdCondition(Criteria $criteria, EntityDefinition $definition, QueryBuilder $query): void
+    {
+        $primaryKeys = $criteria->getIds();
+
+        $primaryKeys = array_values($primaryKeys);
+
+        if (empty($primaryKeys)) {
+            return;
+        }
+
+        if (!\is_array($primaryKeys[0]) || \count($primaryKeys[0]) === 1) {
+            $primaryKeyField = $definition->getPrimaryKeys()->first();
+            if ($primaryKeyField instanceof IdField) {
+                $primaryKeys = array_map(function ($id) {
+                    if (\is_array($id)) {
+                        /** @var string $shiftedId */
+                        $shiftedId = array_shift($id);
+
+                        return Uuid::fromHexToBytes($shiftedId);
+                    }
+
+                    return Uuid::fromHexToBytes($id);
+                }, $primaryKeys);
+            }
+
+            if (!$primaryKeyField instanceof StorageAware) {
+                throw new \RuntimeException('Primary key fields has to be an instance of StorageAware');
+            }
+
+            $query->andWhere(sprintf(
+                '%s.%s IN (:ids)',
+                EntityDefinitionQueryHelper::escape($definition->getEntityName()),
+                EntityDefinitionQueryHelper::escape($primaryKeyField->getStorageName())
+            ));
+
+            $query->setParameter('ids', array_values($primaryKeys), Connection::PARAM_STR_ARRAY);
+
+            return;
+        }
+
+        $this->addIdConditionWithOr($criteria, $definition, $query);
+    }
+
+    private function addIdConditionWithOr(Criteria $criteria, EntityDefinition $definition, QueryBuilder $query): void
+    {
+        $wheres = [];
+
+        foreach ($criteria->getIds() as $primaryKey) {
+            if (!is_array($primaryKey)) {
+                $primaryKey = ['id' => $primaryKey];
+            }
+
+            $where = [];
+
+            foreach ($primaryKey as $storageName => $value) {
+                $field = $definition->getFields()->getByStorageName($storageName);
+
+                if ($field instanceof IdField || $field instanceof FkField) {
+                    $value = Uuid::fromHexToBytes($value);
+                }
+
+                $key = 'pk' . Uuid::randomHex();
+
+                $accessor = EntityDefinitionQueryHelper::escape($definition->getEntityName()) . '.' . EntityDefinitionQueryHelper::escape($storageName);
+
+                $where[] = $accessor . ' = :' . $key;
+
+                $query->setParameter($key, $value);
+            }
+
+            $wheres[] = '(' . implode(' AND ', $where) . ')';
+        }
+
+        $wheres = implode(' OR ', $wheres);
+
+        $query->andWhere($wheres);
     }
 
     private function getAssociations(string $fieldName, EntityDefinition $definition, string $root): array
@@ -641,36 +717,32 @@ class EntityDefinitionQueryHelper
         return $definition->isInheritanceAware() && $field->is(Inherited::class) && $context->considerInheritance();
     }
 
-    private function getTranslationFieldSelectExpr(StorageAware $field, array $chain): string
-    {
-        if (\count($chain) === 1) {
-            return self::escape($chain[0]['alias']) . '.' . self::escape($field->getStorageName());
-        }
-
-        $chainSelect = [];
-        foreach ($chain as $part) {
-            $chainSelect[] = self::escape($part['alias']) . '.' . self::escape($field->getStorageName());
-        }
-
-        return sprintf('COALESCE(%s)', implode(',', $chainSelect));
-    }
-
     private function getTranslationFieldAccessor(Field $field, string $accessor, array $chain, Context $context): string
     {
-        $sqlExps = [];
+        if (!$field instanceof StorageAware) {
+            throw new \RuntimeException('Only storage aware fields are supported as translated field');
+        }
+
+        $selects = [];
         foreach ($chain as $part) {
-            $sqlExps[] = $this->buildFieldSelector($part['alias'], $field, $context, $accessor);
+            $select = $this->buildFieldSelector($part, $field, $context, $accessor);
+
+            $selects[] = str_replace(
+                '`.' . self::escape($field->getStorageName()),
+                '.' . $field->getPropertyName() . '`',
+                $select
+            );
         }
 
         /*
          * Simplified Example:
          * COALESCE(
-             JSON_UNQUOTE(JSON_EXTRACT(`tbl.translation`.`translated_attributes`, '$.path')) AS datetime(3), # child language
+             JSON_UNQUOTE(JSON_EXTRACT(`tbl.translation.fallback_2`.`translated_attributes`, '$.path')) AS datetime(3), # child language
              JSON_UNQUOTE(JSON_EXTRACT(`tbl.translation.fallback_1`.`translated_attributes`, '$.path')) AS datetime(3), # root language
-             JSON_UNQUOTE(JSON_EXTRACT(`tbl.translation.fallback_2`.`translated_attributes`, '$.path')) AS datetime(3) # system language
+             JSON_UNQUOTE(JSON_EXTRACT(`tbl.translation`.`translated_attributes`, '$.path')) AS datetime(3) # system language
            );
          */
-        return sprintf('COALESCE(%s)', implode(',', $sqlExps));
+        return sprintf('COALESCE(%s)', implode(',', $selects));
     }
 
     private function buildInheritedAccessor(
@@ -682,6 +754,7 @@ class EntityDefinitionQueryHelper
     ): string {
         if ($field instanceof TranslatedField) {
             $inheritedChain = self::buildTranslationChain($root, $context, $definition->isInheritanceAware() && $context->considerInheritance());
+
             /** @var Field|StorageAware $translatedField */
             $translatedField = self::getTranslatedField($definition, $field);
 

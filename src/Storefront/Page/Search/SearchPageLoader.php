@@ -5,9 +5,9 @@ namespace Shopware\Storefront\Page\Search;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Product\SalesChannel\Search\AbstractProductSearchRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Framework\Page\StorefrontSearchResult;
 use Shopware\Storefront\Page\GenericPageLoaderInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -49,14 +49,22 @@ class SearchPageLoader
         $page = $this->genericLoader->load($request, $salesChannelContext);
         $page = SearchPage::createFrom($page);
 
+        if ($page->getMetaInformation()) {
+            $page->getMetaInformation()->setRobots('noindex,follow');
+        }
+
         if (!$request->query->has('search')) {
             throw new MissingRequestParameterException('search');
         }
 
-        $result = $this->productSearchRoute->load($request, $salesChannelContext)->getListingResult();
+        $criteria = new Criteria();
+        $criteria->setTitle('search-page');
+
+        $result = $this->productSearchRoute
+            ->load($request, $salesChannelContext, $criteria)
+            ->getListingResult();
 
         $page->setListing($result);
-        $page->setSearchResult(StorefrontSearchResult::createFrom($result));
 
         $page->setSearchTerm(
             (string) $request->query->get('search')

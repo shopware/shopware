@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Routing;
 
 use Symfony\Component\HttpFoundation\Request;
 
-abstract class AbstractRouteScope implements RouteScopeInterface
+abstract class AbstractRouteScope
 {
     /**
      * @var string[]

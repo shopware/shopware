@@ -64,6 +64,7 @@ class ClientRepository implements ClientRepositoryInterface
 
     private function getUserByAccessKey(string $clientIdentifier, string $clientSecret): ClientEntityInterface
     {
+        // @deprecated tag:v6.4.0 - write_access will be removed
         $key = $this->connection->createQueryBuilder()
             ->select(['user_id', 'secret_access_key', 'write_access'])
             ->from('user_access_key')
@@ -80,18 +81,16 @@ class ClientRepository implements ClientRepositoryInterface
             throw OAuthServerException::invalidCredentials();
         }
 
-        return new ApiClient(
-            $clientIdentifier,
-            (bool) $key['write_access'],
-            Uuid::fromBytesToHex($key['user_id'])
-        );
+        return new ApiClient($clientIdentifier, true, Uuid::fromBytesToHex($key['user_id']));
     }
 
     private function getIntegrationByAccessKey(string $clientIdentifier, string $clientSecret): ClientEntityInterface
     {
+        // @deprecated tag:v6.4.0 - write_access will be removed
         $key = $this->connection->createQueryBuilder()
-            ->select(['id', 'label', 'secret_access_key', 'write_access'])
+            ->select(['integration.id AS id', 'label', 'secret_access_key', 'write_access', 'app.active as active'])
             ->from('integration')
+            ->leftJoin('integration', 'app', 'app', 'app.integration_id = integration.id')
             ->where('access_key = :accessKey')
             ->setParameter('accessKey', $clientIdentifier)
             ->execute()
@@ -101,14 +100,16 @@ class ClientRepository implements ClientRepositoryInterface
             throw OAuthServerException::invalidCredentials();
         }
 
+        // inactive apps cannot access the api
+        // if the integration is not associated to an app `active` will be null
+        if ($key['active'] === '0') {
+            throw OAuthServerException::invalidCredentials();
+        }
+
         if (!password_verify($clientSecret, $key['secret_access_key'])) {
             throw OAuthServerException::invalidCredentials();
         }
 
-        return new ApiClient(
-            $clientIdentifier,
-            (bool) $key['write_access'],
-            $key['label']
-        );
+        return new ApiClient($clientIdentifier, true, $key['label']);
     }
 }

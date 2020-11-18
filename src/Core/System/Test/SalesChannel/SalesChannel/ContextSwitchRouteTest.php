@@ -4,7 +4,7 @@ namespace Shopware\Core\System\Test\SalesChannel\SalesChannel;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Test\Payment\Handler\SyncTestPaymentHandler;
+use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
 
 class ContextSwitchRouteTest extends TestCase
@@ -49,22 +50,22 @@ class ContextSwitchRouteTest extends TestCase
         /*
          * Shipping method
          */
-        $this->getSalesChannelBrowser()->request('PATCH', '/store-api/v1/context', ['shippingMethodId' => $testId]);
+        $this->getSalesChannelBrowser()->request('PATCH', '/store-api/v' . PlatformRequest::API_VERSION . '/context', ['shippingMethodId' => $testId]);
         $content = json_decode($this->getSalesChannelBrowser()->getResponse()->getContent(), true);
 
         static::assertEquals(
-            sprintf('The "shipping_method" entity with id "%s" does not exists.', $testId),
+            sprintf('The "shipping_method" entity with id "%s" does not exist.', $testId),
             $content['errors'][0]['detail'] ?? null
         );
 
         /*
          * Payment method
          */
-        $this->getSalesChannelBrowser()->request('PATCH', '/store-api/v1/context', ['paymentMethodId' => $testId]);
+        $this->getSalesChannelBrowser()->request('PATCH', '/store-api/v' . PlatformRequest::API_VERSION . '/context', ['paymentMethodId' => $testId]);
         $content = json_decode($this->getSalesChannelBrowser()->getResponse()->getContent(), true);
 
         static::assertEquals(
-            sprintf('The "payment_method" entity with id "%s" does not exists.', $testId),
+            sprintf('The "payment_method" entity with id "%s" does not exist.', $testId),
             $content['errors'][0]['detail'] ?? null
         );
     }
@@ -76,7 +77,7 @@ class ContextSwitchRouteTest extends TestCase
         /*
          * Billing address
          */
-        $this->getSalesChannelBrowser()->request('PATCH', '/store-api/v1/context', ['billingAddressId' => $testId]);
+        $this->getSalesChannelBrowser()->request('PATCH', '/store-api/v' . PlatformRequest::API_VERSION . '/context', ['billingAddressId' => $testId]);
         $content = json_decode($this->getSalesChannelBrowser()->getResponse()->getContent(), true);
         static::assertSame(Response::HTTP_FORBIDDEN, $this->getSalesChannelBrowser()->getResponse()->getStatusCode());
 
@@ -88,7 +89,7 @@ class ContextSwitchRouteTest extends TestCase
         /*
          * Shipping address
          */
-        $this->getSalesChannelBrowser()->request('PATCH', '/store-api/v1/context', ['shippingAddressId' => $testId]);
+        $this->getSalesChannelBrowser()->request('PATCH', '/store-api/v' . PlatformRequest::API_VERSION . '/context', ['shippingAddressId' => $testId]);
         $content = json_decode($this->getSalesChannelBrowser()->getResponse()->getContent(), true);
         static::assertSame(Response::HTTP_FORBIDDEN, $this->getSalesChannelBrowser()->getResponse()->getStatusCode());
 
@@ -107,25 +108,25 @@ class ContextSwitchRouteTest extends TestCase
         /*
          * Billing address
          */
-        $this->getSalesChannelBrowser()->request('PATCH', '/store-api/v1/context', ['billingAddressId' => $testId]);
+        $this->getSalesChannelBrowser()->request('PATCH', '/store-api/v' . PlatformRequest::API_VERSION . '/context', ['billingAddressId' => $testId]);
 
         static::assertSame(Response::HTTP_BAD_REQUEST, $this->getSalesChannelBrowser()->getResponse()->getStatusCode());
         $content = json_decode($this->getSalesChannelBrowser()->getResponse()->getContent(), true);
 
         static::assertEquals(
-            sprintf('The "customer_address" entity with id "%s" does not exists.', $testId),
+            sprintf('The "customer_address" entity with id "%s" does not exist.', $testId),
             $content['errors'][0]['detail'] ?? null
         );
 
         /*
          * Shipping address
          */
-        $this->getSalesChannelBrowser()->request('PATCH', '/store-api/v1/context', ['shippingAddressId' => $testId]);
+        $this->getSalesChannelBrowser()->request('PATCH', '/store-api/v' . PlatformRequest::API_VERSION . '/context', ['shippingAddressId' => $testId]);
         static::assertSame(Response::HTTP_BAD_REQUEST, $this->getSalesChannelBrowser()->getResponse()->getStatusCode());
         $content = json_decode($this->getSalesChannelBrowser()->getResponse()->getContent(), true);
 
         static::assertEquals(
-            sprintf('The "customer_address" entity with id "%s" does not exists.', $testId),
+            sprintf('The "customer_address" entity with id "%s" does not exist.', $testId),
             $content['errors'][0]['detail'] ?? null
         );
     }
@@ -140,14 +141,14 @@ class ContextSwitchRouteTest extends TestCase
          * Billing address
          */
         $this->getSalesChannelBrowser()
-            ->request('PATCH', '/store-api/v1/context', ['billingAddressId' => $billingId]);
+            ->request('PATCH', '/store-api/v' . PlatformRequest::API_VERSION . '/context', ['billingAddressId' => $billingId]);
         static::assertSame(Response::HTTP_OK, $this->getSalesChannelBrowser()->getResponse()->getStatusCode());
 
         /*
          * Shipping address
          */
         $this->getSalesChannelBrowser()
-            ->request('PATCH', '/store-api/v1/context', ['shippingAddressId' => $shippingId]);
+            ->request('PATCH', '/store-api/v' . PlatformRequest::API_VERSION . '/context', ['shippingAddressId' => $shippingId]);
         static::assertSame(Response::HTTP_OK, $this->getSalesChannelBrowser()->getResponse()->getStatusCode());
     }
 
@@ -156,7 +157,7 @@ class ContextSwitchRouteTest extends TestCase
         $id = Uuid::randomHex();
 
         $this->getSalesChannelBrowser()
-            ->request('PATCH', '/store-api/v1/context', ['languageId' => $id]);
+            ->request('PATCH', '/store-api/v' . PlatformRequest::API_VERSION . '/context', ['languageId' => $id]);
 
         $response = $this->getSalesChannelBrowser()->getResponse();
 
@@ -165,7 +166,7 @@ class ContextSwitchRouteTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), print_r($content, true));
 
         static::assertEquals(
-            sprintf('The "language" entity with id "%s" does not exists.', $id),
+            sprintf('The "language" entity with id "%s" does not exist.', $id),
             $content['errors'][0]['detail'] ?? null
         );
     }
@@ -175,7 +176,7 @@ class ContextSwitchRouteTest extends TestCase
         $id = Defaults::LANGUAGE_SYSTEM;
 
         $this->getSalesChannelBrowser()
-            ->request('PATCH', '/store-api/v1/context', ['languageId' => $id]);
+            ->request('PATCH', '/store-api/v' . PlatformRequest::API_VERSION . '/context', ['languageId' => $id]);
 
         $response = $this->getSalesChannelBrowser()->getResponse();
         $content = json_decode($response->getContent(), true);
@@ -188,7 +189,7 @@ class ContextSwitchRouteTest extends TestCase
         $id = Defaults::CURRENCY;
 
         $this->getSalesChannelBrowser()
-            ->request('PATCH', '/store-api/v1/context', ['currencyId' => $id]);
+            ->request('PATCH', '/store-api/v' . PlatformRequest::API_VERSION . '/context', ['currencyId' => $id]);
 
         $response = $this->getSalesChannelBrowser()->getResponse();
         $content = json_decode($response->getContent(), true);
@@ -201,7 +202,7 @@ class ContextSwitchRouteTest extends TestCase
         $id = Uuid::randomHex();
 
         $this->getSalesChannelBrowser()
-            ->request('PATCH', '/store-api/v1/context', ['currencyId' => $id]);
+            ->request('PATCH', '/store-api/v' . PlatformRequest::API_VERSION . '/context', ['currencyId' => $id]);
 
         $response = $this->getSalesChannelBrowser()->getResponse();
 
@@ -210,7 +211,7 @@ class ContextSwitchRouteTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), print_r($content, true));
 
         static::assertEquals(
-            sprintf('The "currency" entity with id "%s" does not exists.', $id),
+            sprintf('The "currency" entity with id "%s" does not exist.', $id),
             $content['errors'][0]['detail'] ?? null
         );
     }
@@ -220,7 +221,9 @@ class ContextSwitchRouteTest extends TestCase
         $email = $email ?? Uuid::randomHex() . '@example.com';
         $customerId = $this->createCustomer($password, $email);
 
-        $this->getSalesChannelBrowser()->request('POST', '/store-api/v1/account/login', [
+        $this->assignSalesChannelContext();
+
+        $this->getSalesChannelBrowser()->request('POST', '/store-api/v' . PlatformRequest::API_VERSION . '/account/login', [
             'username' => $email,
             'password' => $password,
         ]);
@@ -252,7 +255,7 @@ class ContextSwitchRouteTest extends TestCase
                     'city' => 'Schoöppingen',
                     'zipcode' => '12345',
                     'salutationId' => $this->getValidSalutationId(),
-                    'country' => ['name' => 'Germany'],
+                    'countryId' => $this->getValidCountryId(),
                 ],
                 'defaultBillingAddressId' => $addressId,
                 'defaultPaymentMethod' => [
@@ -285,7 +288,7 @@ class ContextSwitchRouteTest extends TestCase
             'city' => 'Cologne',
             'zipcode' => '89563',
             'salutationId' => $this->getValidSalutationId(),
-            'country' => ['name' => 'Germany'],
+            'countryId' => $this->getValidCountryId(),
         ];
 
         $this->customerAddressRepository

@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Test\Controller;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -17,6 +18,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Controller\RegisterController;
+use Shopware\Storefront\Page\Account\CustomerGroupRegistration\CustomerGroupRegistrationPageLoader;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
 use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoader;
 use Symfony\Component\HttpFoundation\Request;
@@ -67,12 +69,12 @@ class RegisterControllerTest extends TestCase
 
         $registerController = new RegisterController(
             $container->get(AccountLoginPageLoader::class),
-            $this->accountService,
             $container->get(AccountRegistrationService::class),
             $container->get(CartService::class),
             $container->get(CheckoutRegisterPageLoader::class),
             $mock,
-            $customerRepository
+            $customerRepository,
+            $this->createMock(CustomerGroupRegistrationPageLoader::class)
         );
 
         $data = $this->getRegistrationData();
@@ -81,7 +83,8 @@ class RegisterControllerTest extends TestCase
 
         $response = $registerController->register($request, $data, $this->salesChannelContext);
 
-        $customers = $this->accountService->getCustomersByEmail($data->get('email'), $this->salesChannelContext);
+        $customers = $this->getContainer()->get(Connection::class)
+            ->fetchAll('SELECT * FROM customer WHERE email = :mail', ['mail' => $data->get('email')]);
 
         static::assertEquals(200, $response->getStatusCode());
         static::assertCount(1, $customers);
@@ -95,7 +98,8 @@ class RegisterControllerTest extends TestCase
 
         $response = $this->getContainer()->get(RegisterController::class)->register($request, $data, $this->salesChannelContext);
 
-        $customers = $this->accountService->getCustomersByEmail($data->get('email'), $this->salesChannelContext);
+        $customers = $this->getContainer()->get(Connection::class)
+            ->fetchAll('SELECT * FROM customer WHERE email = :mail', ['mail' => $data->get('email')]);
 
         static::assertEquals(200, $response->getStatusCode());
         static::assertCount(1, $customers);

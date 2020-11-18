@@ -11,7 +11,6 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 class DefinitionService
 {
     public const API = 'api';
-    public const SALES_CHANNEL_API = 'sales-channel-api';
     public const STORE_API = 'store-api';
 
     /**
@@ -82,7 +81,7 @@ class DefinitionService
             return $this->definitionRegistry->getDefinitions();
         }
 
-        if ($type === self::SALES_CHANNEL_API || $type === self::STORE_API) {
+        if ($type === self::STORE_API) {
             return $this->salesChannelDefinitionRegistry->getDefinitions();
         }
 

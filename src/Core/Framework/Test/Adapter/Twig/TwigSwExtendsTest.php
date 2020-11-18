@@ -138,7 +138,12 @@ class TwigSwExtendsTest extends TestCase
             $twig,
             $loader,
             $this->cacheDir,
-            new NamespaceHierarchyBuilder([new BundleHierarchyBuilder($kernel)])
+            new NamespaceHierarchyBuilder([
+                new BundleHierarchyBuilder(
+                    $kernel,
+                    $this->getContainer()->get('app.repository')
+                ),
+            ])
         );
 
         $twig->addExtension(new InheritanceExtension($templateFinder));

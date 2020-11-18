@@ -1,6 +1,6 @@
 const { string } = Shopware.Utils;
 
-/** @deprecated tag:v.6.4.0 use mapPropertyError instead */
+/** @deprecated tag:v6.4.0 use mapPropertyError instead */
 export function mapApiErrors(subject, properties = []) {
     Shopware.Utils.debug.warn(
         'mapApiErrors',

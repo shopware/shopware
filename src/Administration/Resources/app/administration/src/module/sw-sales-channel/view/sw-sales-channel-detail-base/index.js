@@ -20,7 +20,9 @@ Component.register('sw-sales-channel-detail-base', {
     inject: [
         'salesChannelService',
         'productExportService',
-        'repositoryFactory'
+        'repositoryFactory',
+        'knownIpsService',
+        'acl'
     ],
 
     props: {
@@ -56,7 +58,7 @@ Component.register('sw-sales-channel-detail-base', {
 
         templateOptions: {
             type: Array,
-            default: []
+            default: () => []
         },
 
         showTemplateModal: {
@@ -87,9 +89,14 @@ Component.register('sw-sales-channel-detail-base', {
             invalidFileName: false,
             isFileNameChecking: false,
             disableGenerateByCronjob: false,
-            isGoogleAccountConnected: false,
-            showGoogleProgramsModal: false
+            knownIps: []
         };
+    },
+
+    created() {
+        this.knownIpsService.getKnownIps().then(ips => {
+            this.knownIps = ips;
+        });
     },
 
     computed: {
@@ -112,14 +119,6 @@ Component.register('sw-sales-channel-detail-base', {
 
         isProductComparison() {
             return this.salesChannel && this.salesChannel.typeId === Defaults.productComparisonTypeId;
-        },
-
-        isGoogleShopping() {
-            return this.salesChannel && this.salesChannel.typeId === Defaults.googleShoppingTypeId;
-        },
-
-        isGoogleShoppingCreate() {
-            return this.isGoogleShopping && this.$route.path.includes(Defaults.googleShoppingTypeId);
         },
 
         storefrontSalesChannelDomainCriteria() {
@@ -273,6 +272,21 @@ Component.register('sw-sales-channel-detail-base', {
             return null;
         },
 
+        taxCalculationTypeOptions() {
+            return [
+                {
+                    value: 'horizontal',
+                    name: this.$tc('sw-sales-channel.detail.taxCalculation.horizontalName'),
+                    description: this.$tc('sw-sales-channel.detail.taxCalculation.horizontalDescription')
+                },
+                {
+                    value: 'vertical',
+                    name: this.$tc('sw-sales-channel.detail.taxCalculation.verticalName'),
+                    description: this.$tc('sw-sales-channel.detail.taxCalculation.verticalDescription')
+                }
+            ];
+        },
+
         maintenanceIpWhitelist: {
             get() {
                 return this.salesChannel.maintenanceIpWhitelist ? this.salesChannel.maintenanceIpWhitelist : [];
@@ -284,8 +298,19 @@ Component.register('sw-sales-channel-detail-base', {
 
         ...mapPropertyErrors('salesChannel',
             [
+                'name',
                 'customerGroupId',
                 'navigationCategoryId'
+            ]),
+
+        ...mapPropertyErrors('productExport',
+            [
+                'productStreamId',
+                'encoding',
+                'fileName',
+                'fileFormat',
+                'salesChannelDomainId',
+                'currencyId'
             ])
     },
 
@@ -295,7 +320,6 @@ Component.register('sw-sales-channel-detail-base', {
                 this.salesChannel.accessKey = response.accessKey;
             }).catch(() => {
                 this.createNotificationError({
-                    title: this.$tc('sw-sales-channel.detail.titleAPIError'),
                     message: this.$tc('sw-sales-channel.detail.messageAPIError')
                 });
             });
@@ -308,39 +332,18 @@ Component.register('sw-sales-channel-detail-base', {
 
                 if (displaySaveNotification) {
                     this.createNotificationInfo({
-                        title: this.$tc('sw-sales-channel.detail.productComparison.titleAccessKeyChanged'),
                         message: this.$tc('sw-sales-channel.detail.productComparison.messageAccessKeyChanged')
                     });
                 }
             }).catch(() => {
                 this.createNotificationError({
-                    title: this.$tc('sw-sales-channel.detail.titleAPIError'),
                     message: this.$tc('sw-sales-channel.detail.messageAPIError')
                 });
             });
         },
 
-        /**
-         * @deprecated tag:v6.3.0
-         */
-        onDefaultItemAdd(item, ref, property) {
-            if (!this.salesChannel[property].has(item.id)) {
-                this.salesChannel[property].push(item);
-            }
-        },
-
-        /**
-         * @deprecated tag:v6.3.0
-         */
-        onRemoveItem(item, ref, property) {
-            const defaultSelection = this.$refs[ref].singleSelection;
-            if (defaultSelection !== null && item.id === defaultSelection.id) {
-                this.salesChannel[property] = null;
-            }
-        },
-
         onToggleActive() {
-            if (this.salesChannel.active !== true || this.isProductComparison || this.isGoogleShopping) {
+            if (this.salesChannel.active !== true || this.isProductComparison) {
                 return;
             }
 
@@ -356,7 +359,6 @@ Component.register('sw-sales-channel-detail-base', {
 
                     this.salesChannel.active = false;
                     this.createNotificationError({
-                        title: this.$tc('sw-sales-channel.detail.titleActivateError'),
                         message: this.$tc('sw-sales-channel.detail.messageActivateWithoutThemeError', 0, {
                             name: this.salesChannel.name || this.placeholder(this.salesChannel, 'name')
                         })
@@ -468,19 +470,6 @@ Component.register('sw-sales-channel-detail-base', {
             if (this.disableGenerateByCronjob) {
                 this.productExport.generateByCronjob = false;
             }
-        },
-
-        onConnectToGoogle() {
-            this.showGoogleProgramsModal = true;
-            this.isGoogleAccountConnected = true;
-        },
-
-        onCloseGoogleProgramsModal() {
-            this.showGoogleProgramsModal = false;
-        },
-
-        onDisconnectToGoogle() {
-            this.isGoogleAccountConnected = false;
         }
     }
 });

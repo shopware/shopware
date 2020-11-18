@@ -4,7 +4,7 @@ const { warn } = Shopware.Utils.debug;
  * This plugin allows you to generate deprecations for components and properties.
  *
  * Usage in component:
- * // @deprecated v.6.4.0
+ * // @deprecated tag:v6.4.0
  * {
  *     name: 'example-component',
  *     deprecated: '6.4.0'
@@ -12,7 +12,7 @@ const { warn } = Shopware.Utils.debug;
  *
  * or
  *
- * // @deprecated v.6.4.0
+ * // @deprecated tag:v6.4.0
  * {
  *     name: 'example-component',
  *     deprecated: {
@@ -23,7 +23,7 @@ const { warn } = Shopware.Utils.debug;
  *
  * Usage in properties:
  *
- * // @deprecated v.6.4.0
+ * // @deprecated tag:v6.4.0
  * {
  *     name: 'example-component',
  *     props: {
@@ -38,7 +38,7 @@ const { warn } = Shopware.Utils.debug;
  *
  * or
  *
- * // @deprecated v.6.4.0
+ * // @deprecated tag:v6.4.0
  * {
  *     name: 'example-component',
  *     props: {

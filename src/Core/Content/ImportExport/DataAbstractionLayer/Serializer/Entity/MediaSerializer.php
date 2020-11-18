@@ -44,11 +44,6 @@ class MediaSerializer extends EntitySerializer implements EventSubscriberInterfa
      */
     private $mediaFiles = [];
 
-    /**
-     * @var string[]
-     */
-    private $urlMediaIdMapping = [];
-
     public function __construct(
         MediaService $mediaService,
         FileSaver $fileSaver,

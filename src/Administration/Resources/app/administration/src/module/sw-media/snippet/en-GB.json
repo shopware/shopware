@@ -6,7 +6,6 @@
       "placeholderSearchBar": "Search current folder...",
       "notification": {
         "urlCopied": {
-          "title": "Success",
           "message": "URL has been copied to clipboard."
         }
       }
@@ -97,6 +96,13 @@
       "labelTabItemUpload": "Upload files",
       "labelButtonCancel": "Cancel",
       "labelButtonSaveSelection": "Add media"
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "media": {
+        "label": "Media"
+      }
     }
   }
 }

@@ -1,5 +1,7 @@
 Shopware.Mixin.register('media-sidebar-modal-mixin', {
 
+    inject: ['mediaService', 'acl'],
+
     data() {
         return {
             showModalReplace: false,
@@ -12,6 +14,9 @@ Shopware.Mixin.register('media-sidebar-modal-mixin', {
 
     methods: {
         openModalReplace() {
+            if (!this.acl.can('media.editor')) {
+                return;
+            }
             this.showModalReplace = true;
         },
 
@@ -20,6 +25,10 @@ Shopware.Mixin.register('media-sidebar-modal-mixin', {
         },
 
         openModalDelete() {
+            if (!this.acl.can('media.deleter')) {
+                return;
+            }
+
             this.showModalDelete = true;
         },
 
@@ -36,6 +45,10 @@ Shopware.Mixin.register('media-sidebar-modal-mixin', {
         },
 
         openFolderDissolve() {
+            if (!this.acl.can('media.editor')) {
+                return;
+            }
+
             this.showFolderDissolve = true;
         },
 
@@ -44,6 +57,10 @@ Shopware.Mixin.register('media-sidebar-modal-mixin', {
         },
 
         openModalMove() {
+            if (!this.acl.can('media.editor')) {
+                return;
+            }
+
             this.showModalMove = true;
         },
 

@@ -4,6 +4,11 @@
     }
 
     .sw-custom-field-detail__switch {
-        margin: auto;
+        margin-right: auto;
+    }
+
+    .sw-custom-field-detail__info {
+        grid-column: span 2;
+        margin-bottom: 24px;
     }
 }

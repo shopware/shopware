@@ -7,6 +7,8 @@ const Criteria = Shopware.Data.Criteria;
 Component.register('sw-theme-manager-list', {
     template,
 
+    inject: ['acl'],
+
     mixins: [
         Mixin.getByName('notification'),
         Mixin.getByName('listing'),
@@ -146,11 +148,19 @@ Component.register('sw-theme-manager-list', {
         },
 
         onPreviewChange(theme) {
+            if (!this.acl.can('theme.editor')) {
+                return;
+            }
+
             this.showMediaModal = true;
             this.currentTheme = theme;
         },
 
         onPreviewImageRemove(theme) {
+            if (!this.acl.can('theme.editor')) {
+                return;
+            }
+
             theme.previewMediaId = null;
             theme.previewMedia = null;
             this.saveTheme(theme);

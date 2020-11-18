@@ -70,7 +70,12 @@ class CustomerMetaFieldSubscriber implements EventSubscriberInterface
                 continue;
             }
 
-            $customerId = $order->getOrderCustomer()->getCustomerId();
+            $orderCustomer = $order->getOrderCustomer();
+            if ($orderCustomer === null) {
+                continue;
+            }
+            $customerId = $orderCustomer->getCustomerId();
+
             // happens if the customer was deleted
             if (!$customerId) {
                 continue;

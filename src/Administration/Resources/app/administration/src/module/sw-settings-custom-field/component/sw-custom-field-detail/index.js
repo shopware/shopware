@@ -6,7 +6,7 @@ const { Component, Mixin } = Shopware;
 Component.register('sw-custom-field-detail', {
     template,
 
-    inject: ['customFieldDataProviderService', 'SwCustomFieldListIsCustomFieldNameUnique'],
+    inject: ['customFieldDataProviderService', 'SwCustomFieldListIsCustomFieldNameUnique', 'acl'],
 
     mixins: [
         Mixin.getByName('notification')
@@ -17,6 +17,7 @@ Component.register('sw-custom-field-detail', {
             type: Object,
             required: true
         },
+
         set: {
             type: Object,
             required: true
@@ -45,14 +46,14 @@ Component.register('sw-custom-field-detail', {
             return this.fieldTypes[this.currentCustomField.config.customFieldType].configRenderComponent;
         },
         modalTitle() {
-            if (this.currentCustomField.isLocal) {
+            if (this.currentCustomField._isNew) {
                 return this.$tc('sw-settings-custom-field.customField.detail.titleNewCustomField');
             }
 
             return this.$tc('sw-settings-custom-field.customField.detail.titleEditCustomField');
         },
         labelSaveButton() {
-            if (this.currentCustomField.isLocal) {
+            if (this.currentCustomField._isNew) {
                 return this.$tc('sw-settings-custom-field.customField.detail.buttonSaveApply');
             }
 
@@ -64,6 +65,7 @@ Component.register('sw-custom-field-detail', {
         required(value) {
             if (value) {
                 this.currentCustomField.config.validation = 'required';
+
                 return;
             }
 
@@ -81,6 +83,10 @@ Component.register('sw-custom-field-detail', {
         createdComponent() {
             this.fieldTypes = this.customFieldDataProviderService.getTypes();
 
+            if (!this.currentCustomField.config) {
+                this.$set(this.currentCustomField, 'config', {});
+            }
+
             if (!this.currentCustomField.config.hasOwnProperty('customFieldType')) {
                 this.$set(this.currentCustomField.config, 'customFieldType', '');
             }
@@ -97,29 +103,33 @@ Component.register('sw-custom-field-detail', {
                 this.$set(this.currentCustomField.config, 'customFieldPosition', 1);
             }
         },
+
         onCancel() {
-            if (this.currentCustomField !== null && !this.currentCustomField.isLocal) {
-                this.currentCustomField.discardChanges();
-            }
             this.$emit('custom-field-edit-cancel', this.currentCustomField);
         },
+
         onSave() {
             this.applyTypeConfiguration();
-            if (!this.currentCustomField.isLocal) {
+
+            if (!this.currentCustomField._isNew) {
                 this.$emit('custom-field-edit-save', this.currentCustomField);
+
                 return;
             }
 
             this.SwCustomFieldListIsCustomFieldNameUnique(this.currentCustomField).then(isUnique => {
                 if (isUnique) {
                     this.$emit('custom-field-edit-save', this.currentCustomField);
+
                     return;
                 }
+
                 this.createNameNotUniqueNotification();
             });
         },
+
         createNameNotUniqueNotification() {
-            const titleSaveSuccess = this.$tc('sw-settings-custom-field.set.detail.titleNameNotUnique');
+            const titleSaveSuccess = this.$tc('global.default.success');
             const messageSaveSuccess = this.$tc('sw-settings-custom-field.set.detail.messageNameNotUnique');
 
             this.createNotificationError({
@@ -127,12 +137,14 @@ Component.register('sw-custom-field-detail', {
                 message: messageSaveSuccess
             });
         },
+
         applyTypeConfiguration() {
             const customFieldType = this.currentCustomField.config.customFieldType;
 
             if (!this.currentCustomField.type) {
                 this.currentCustomField.type = this.fieldTypes[customFieldType].type || customFieldType;
             }
+
             this.currentCustomField.config = {
                 ...this.fieldTypes[customFieldType].config,
                 ...this.currentCustomField.config

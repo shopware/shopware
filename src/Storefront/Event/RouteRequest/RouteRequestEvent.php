@@ -3,11 +3,13 @@
 namespace Shopware\Storefront\Event\RouteRequest;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
-abstract class RouteRequestEvent extends NestedEvent
+abstract class RouteRequestEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
     /**
      * @var Request
@@ -24,14 +26,21 @@ abstract class RouteRequestEvent extends NestedEvent
      */
     private $salesChannelContext;
 
+    /**
+     * @var Criteria
+     */
+    private $criteria;
+
     public function __construct(
         Request $storefrontRequest,
         Request $storeApiRequest,
-        SalesChannelContext $salesChannelContext
+        SalesChannelContext $salesChannelContext,
+        ?Criteria $criteria = null
     ) {
         $this->storefrontRequest = $storefrontRequest;
         $this->storeApiRequest = $storeApiRequest;
         $this->salesChannelContext = $salesChannelContext;
+        $this->criteria = $criteria ?? new Criteria();
     }
 
     public function getStorefrontRequest(): Request
@@ -52,5 +61,10 @@ abstract class RouteRequestEvent extends NestedEvent
     public function getContext(): Context
     {
         return $this->salesChannelContext->getContext();
+    }
+
+    public function getCriteria(): Criteria
+    {
+        return $this->criteria;
     }
 }

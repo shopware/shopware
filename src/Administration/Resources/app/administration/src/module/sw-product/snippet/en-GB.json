@@ -19,7 +19,9 @@
       "inheritanceModuleName": "This product",
       "backToParent": "Go back to variant overview",
       "copy": "Copy",
-      "variantDuplication": "Duplication of variants is currently not supported"
+      "cloneSuffix": "variants",
+      "cloneNotice": "The product variants are duplicated. If this process is interrupted, it is possible that not all variants are duplicated completely. In this case you can generate the variants in the new product again.",
+      "cloneTitle": "Duplicate variants"
     },
     "basicForm": {
       "labelTitle": "Title",
@@ -34,11 +36,17 @@
     "categoryForm": {
       "labelCategory": "Categories",
       "placeholderCategory": "Select category...",
-      "placeholderTags": "Enter a tag..."
+      "placeholderTags": "Enter a tag...",
+      "labelSearchKeyword": "Search Keywords",
+      "placeholderSearchKeywords": "Enter keywords that find this product...",
+      "textAddSearchKeyword": "Click here to add search keyword",
+      "textEnterValidSearchKeyword": "Searchable keywords",
+      "helpTextSearchKeyword": "The product in the Storefront can also be found using these keywords."
     },
     "priceForm": {
       "labelTaxRate": "Tax rate",
-      "labelPurchasePriceGross": "Purchasing price (gross)",
+      "labelPurchasePriceGross": "Purchase price (gross)",
+      "labelPurchasePriceNet": "Purchase price (net)",
       "labelUnit": "Unit of measurement",
       "labelPurchaseUnit": "Selling unit",
       "labelReferenceUnit": "Basic unit",
@@ -103,7 +111,7 @@
     "packagingForm": {
       "placeholderUnit": "Select...",
       "labelUnit": "Scale unit",
-      "referenceUnitHelpText": "Value used to calculate a base price for a given product. Depending on the chosen scale unit, you will most likely want to put a '1' here. E.g. if the selling unit is measured in 'litres' a '1' will calculate the base price for 1 liter of product. '0.1' would calculate the base price for 100 milliliters and so on.",
+      "referenceUnitHelpText": "Value used to calculate a unit price for a given product. Depending on the chosen scale unit, you will most likely want to put a '1' here. E.g. if the selling unit is measured in 'litres' a '1' will calculate the unit price for 1 liter of product. '0.1' would calculate the unit price for 100 milliliters and so on.",
       "packUnitHelpText": "Type of packing: e.g. bottle, crate, tin...",
       "packUnitPluralHelpText": "Type of packing in plural: e.g. bottles, crates ...",
       "purchaseUnitHelpText": "State the aggregate contents of a selling unit. For a sixpack of cans (6 x 0.5 l = 3 l), put '3'. Don't forget to put 'sixpack' as the packaging unit and add the scale unit 'litres' in 'Settings > Shop' accordingly."
@@ -120,7 +128,8 @@
       "cardTitleReviews": "Reviews",
       "cardTitleMedia": "Media",
       "labelContextMenuAddToProduct": "Add to product",
-      "cardTitleSeo": "SEO"
+      "cardTitleSeo": "SEO",
+      "cardTitleLayout": "Layout assignment"
     },
     "reviewForm": {
       "labelStatus": "Visible",
@@ -169,16 +178,28 @@
       "columnActive": "Active",
       "columnPrice": "Price",
       "columnInStock": "In stock",
-      "columnAvailableStock": "Still available",
+      "columnAvailableStock": "Available",
       "columnActions": "Action(s)",
       "contextMenuEdit": "Edit",
       "contextMenuDelete": "Delete",
       "contextMenuDuplicate": "Duplicate",
+      "contextMenuShowVariants": "Show variants",
+      "variantIndicatorTooltip": "This product has variants.",
+      "variantGridEmptyStateSubline": "No variants were found.",
+      "multipleVariantsDeleteModalText": "Are you sure you want to delete {amount} variants?",
+      "multipleVariantsDeleteModalSubline": "This may take some seconds.",
+      "variantModalTitle": "Variants of \"{productName}\"",
+      "openMainProduct": "Open \"{productName}\"",
+      "variantModalInlineEditProductNamePlaceholder": "Enter a variant name...",
+      "variantModalInlineEditStockPlaceholder": "Enter stock...",
+      "notificationVariantDeleteSuccess": "Successfully deleted \"{variantName}\". | Successfully deleted {amount} variants.",
+      "notificationVariantDeleteError": "There went something wrong while deleting \"{variantName}\". | Something went wrong while deleting multiple variants.",
+      "notificationVariantSaveSuccess": "Succesfully saved \"{variantName}\".",
+      "variantDeleteModalTitle": "Delete variant",
+      "variantDeleteModalText": "Are your sure you want to delete the variant \"{variantName}\"?",
       "messageEmpty": "No products yet",
-      "modalTitleDelete": "Product",
       "textDeleteConfirm": "Are you sure you really want to delete the product \"{name}\"? | Are you sure you really want to delete these {count} products?",
       "titleSidebarItemRefresh": "Refresh",
-      "titleSaveSuccess": "Success",
       "messageSaveSuccess": "Product \"{name}\" has been saved."
     },
     "detail": {
@@ -192,11 +213,10 @@
       "tabVariation": "Variants",
       "tabCrossSelling": "Cross Selling",
       "tabProperties": "Property assignment",
-      "titleSaveSuccess": "Success",
       "messageSaveSuccess": "Product \"{name}\" has been saved.",
       "messageUploadSuccess": "{count} of {total} files saved.",
-      "titleSaveWarning": "Info",
-      "messageSaveWarning": "No changes detected."
+      "messageSaveWarning": "No changes detected.",
+      "errorMinMaxPurchase": "Could not save product, the min purchase quantity is larger than max purchase quantity."
     },
     "mediaForm": {
       "errorHeadline": "Error",
@@ -205,20 +225,28 @@
       "coverSubline": "Cover"
     },
     "advancedPrices": {
-      "deletionNotPossibleTitle": "Error",
       "deletionNotPossibleMessage": "At least one price tier needed. Try deleting the entire pricing rule instead.",
       "newRuleWarning": "In order to create a new pricing rule, select a conditional rule first.",
       "advancedPricesNotExisting": "No advanced prices available for this product yet.",
       "columnFrom": "Quantity from...",
       "columnTo": "to...",
-      "selectRule": "Select a conditional rule..."
+      "selectRule": "Select a conditional rule...",
+      "advancedPricesInherited": "This product has inherited prices from its parent.",
+      "linkAdvancedPricesOfParent": "Show prices of parent product",
+      "inheritSwitchLabel": "Use advanced prices from parent product",
+      "advancedPricesNotInherited": "You can now use custom pricing rules for this variant."
     },
     "properties": {
       "cardTitleProperties": "Available properties",
       "emptyStateNoOptionsTitle": "No values available",
       "emptyStateNoOptionsDescription": "Create properties and property values first, then return here to assign them.",
       "emptyStateNoSelectedOptionsTitle": "No values selected",
-      "emptyStateNoSelectedOptionsDescription": "Please select values from the search above."
+      "emptyStateNoSelectedOptionsDescription": "Please select values from the search above.",
+      "propertiesInherited": "This product has inherited properties from its parent.",
+      "linkPropertiesOfParent": "Show properties of parent product",
+      "inheritSwitchLabel": "Use properties from parent product",
+      "propertiesNotInherited": "You can now use custom properties for this variant.",
+      "propertiesNotExisting": "No properties have been assigned to this product yet."
     },
     "variations": {
       "emptyStateDescription": "This product has no variants yet.",
@@ -250,12 +278,8 @@
       "generatedListDeleteModalMessage": "Do you really want to delete this variant?",
       "generatedListDeleteModalButtonCancel": "Cancel",
       "generatedListDeleteModalButtonDelete": "Delete",
-      "generatedListDeleteModalTitle": "Variant",
-      "generatedListTitleSaveSuccess": "Saved",
-      "generatedListTitleSaveError": "Error",
       "generatedListMessageSaveSuccess": "Variant has been saved.",
       "generatedListMessageSaveError": "Variant could not be saved.",
-      "generatedListTitleDeleteError": "Deleted",
       "generatedListMessageDeleteSuccess": "Variant has been deleted.",
       "overview": {
         "filterReset": "Reset",
@@ -334,6 +358,30 @@
       "emptyStateDescription": "There is no Cross Selling configured for this product, yet.",
       "assignEmptyStateDescription": "Save the Cross Selling in order to add products to it.",
       "assignPlaceholder": "Search products..."
+    },
+    "featureSets": {
+      "cardTitle": "Essential Characteristics",
+      "descriptionTitle": "Essential Characteristics",
+      "descriptionBody": "Essential Characteristics help you to define what is important about your products. These characteristics are shown prominently in your customers' shopping carts and during checkout.",
+      "configInformation": "Create {0} templates first and assign them to each of your products by using the dropdown below.",
+      "linkFeatureSetsConfig": "Essential Characteristics",
+      "templateSelectFieldLabel": "Template",
+      "templateSelectFieldPlaceholder": "Select a template..."
+    },
+    "layoutAssignment": {
+      "title": "Default fallback",
+      "subtitle": "Product page",
+      "textAssignLayout": "Assign layout",
+      "textChangeLayout": "Change layout",
+      "textCreateNewLayout": "Create new layout",
+      "textEditInDesigner": "Edit in designer"
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "product": {
+        "label": "Products"
+      }
     }
   }
 }

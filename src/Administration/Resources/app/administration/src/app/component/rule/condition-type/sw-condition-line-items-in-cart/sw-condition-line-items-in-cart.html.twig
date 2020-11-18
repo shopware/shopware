@@ -1,11 +1,14 @@
 {% block sw_condition_value_content %}
     <div class="sw-condition-line-items-in-cart sw-condition__condition-value">
         {% block sw_condition_line_items_in_cart_field_operator %}
-            <sw-condition-operator-select v-bind="{ operators, condition }"></sw-condition-operator-select>
+            <sw-condition-operator-select v-bind="{ operators, condition }"
+                                          :disabled="disabled">
+            </sw-condition-operator-select>
         {% endblock %}
 
         {% block sw_condition_line_items_in_cart_field_identifiers %}
             <sw-entity-multi-select
+                :disabled="disabled"
                 size="medium"
                 entity="product"
                 :entityCollection="products"

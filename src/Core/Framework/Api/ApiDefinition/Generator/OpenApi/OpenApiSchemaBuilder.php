@@ -28,11 +28,6 @@ class OpenApiSchemaBuilder
             'url' => '/store-api/v%d',
             'apiKey' => true,
         ],
-        DefinitionService::SALES_CHANNEL_API => [
-            'name' => 'Sales Channel API',
-            'url' => '/sales-channel-api/v%d',
-            'apiKey' => true,
-        ],
     ];
 
     public function enrich(OpenApi $openApi, string $api, int $version): void

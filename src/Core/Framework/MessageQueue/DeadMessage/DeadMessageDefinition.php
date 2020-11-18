@@ -42,10 +42,12 @@ class DeadMessageDefinition extends EntityDefinition
 
     public function getDefaults(): array
     {
-        return [
-            'errorCount' => 1,
-            'encrypted' => false,
-        ];
+        return ['errorCount' => 1, 'encrypted' => false];
+    }
+
+    public function since(): ?string
+    {
+        return '6.0.0.0';
     }
 
     protected function defineFields(): FieldCollection

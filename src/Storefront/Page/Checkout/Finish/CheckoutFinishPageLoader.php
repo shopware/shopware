@@ -5,8 +5,8 @@ namespace Shopware\Storefront\Page\Checkout\Finish;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Order\SalesChannel\AbstractOrderRoute;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -26,23 +26,23 @@ class CheckoutFinishPageLoader
     private $eventDispatcher;
 
     /**
-     * @var EntityRepositoryInterface
-     */
-    private $orderRepository;
-
-    /**
      * @var GenericPageLoaderInterface
      */
     private $genericLoader;
 
+    /**
+     * @var AbstractOrderRoute
+     */
+    private $orderRoute;
+
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
-        EntityRepositoryInterface $orderRepository,
-        GenericPageLoaderInterface $genericLoader
+        GenericPageLoaderInterface $genericLoader,
+        AbstractOrderRoute $orderRoute
     ) {
         $this->eventDispatcher = $eventDispatcher;
-        $this->orderRepository = $orderRepository;
         $this->genericLoader = $genericLoader;
+        $this->orderRoute = $orderRoute;
     }
 
     /**
@@ -58,6 +58,10 @@ class CheckoutFinishPageLoader
 
         $page = CheckoutFinishPage::createFrom($page);
 
+        if ($page->getMetaInformation()) {
+            $page->getMetaInformation()->setRobots('noindex,follow');
+        }
+
         $page->setOrder($this->getOrder($request, $salesChannelContext));
 
         $page->setChangedPayment((bool) $request->get('changedPayment', false));
@@ -67,6 +71,14 @@ class CheckoutFinishPageLoader
         $this->eventDispatcher->dispatch(
             new CheckoutFinishPageLoadedEvent($page, $salesChannelContext, $request)
         );
+
+        if ($page->getOrder()->getItemRounding()) {
+            $salesChannelContext->setItemRounding($page->getOrder()->getItemRounding());
+            $salesChannelContext->getContext()->setRounding($page->getOrder()->getItemRounding());
+        }
+        if ($page->getOrder()->getTotalRounding()) {
+            $salesChannelContext->setTotalRounding($page->getOrder()->getTotalRounding());
+        }
 
         return $page;
     }
@@ -98,7 +110,9 @@ class CheckoutFinishPageLoader
         $criteria->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
 
         try {
-            $searchResult = $this->orderRepository->search($criteria, $salesChannelContext->getContext());
+            $searchResult = $this->orderRoute
+                ->load(new Request(), $salesChannelContext, $criteria)
+                ->getOrders();
         } catch (InvalidUuidException $e) {
             throw new OrderNotFoundException($orderId);
         }

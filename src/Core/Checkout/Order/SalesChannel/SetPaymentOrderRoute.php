@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
@@ -65,31 +66,23 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
     }
 
     /**
+     * @Since("6.2.0.0")
      * @OA\Post(
-     *      path="/order/set-payment",
-     *      description="set payment for an order",
+     *      path="/order/payment",
+     *      summary="set payment for an order",
      *      operationId="orderSetPayment",
      *      tags={"Store API", "Account"},
-     *      @OA\Parameter(
-     *          name="paymentMethodId",
-     *          in="post",
+     *      @OA\RequestBody(
      *          required=true,
-     *          description="The id of the paymentMethod to be set",
-     *          @OA\Schema(
-     *              type="string"
-     *          )
-     *      ),
-     *      @OA\Parameter(
-     *          name="orderId",
-     *          in="post",
-     *          required=true,
-     *          description="The id of the order",
-     *          @OA\Schema(
-     *              type="string"
+     *          @OA\JsonContent(
+     *              @OA\Property(property="paymentMethodId", description="The id of the paymentMethod to be set", type="string"),
+     *              @OA\Property(property="orderId", description="The id of the order", type="string")
      *          )
      *      ),
      *      @OA\Response(
-     *          response="200"
+     *          response="200",
+     *          description="Successfully set a payment",
+     *          @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      * @Route(path="/store-api/v{version}/order/payment", name="store-api.order.set-payment", methods={"POST"})
@@ -105,11 +98,8 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
         return new SetPaymentOrderRouteResponse();
     }
 
-    public function setPaymentMethod(
-        string $paymentMethodId,
-        string $orderId,
-        SalesChannelContext $salesChannelContext
-    ): void {
+    private function setPaymentMethod(string $paymentMethodId, string $orderId, SalesChannelContext $salesChannelContext): void
+    {
         $context = $salesChannelContext->getContext();
         $initialState = $this->stateMachineRegistry->getInitialState(
             OrderTransactionStates::STATE_MACHINE,
@@ -177,7 +167,7 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
         $paymentRequest = new Request();
         $paymentRequest->query->set('onlyAvailable', 1);
 
-        $availablePayments = $this->paymentRoute->load($paymentRequest, $salesChannelContext);
+        $availablePayments = $this->paymentRoute->load($paymentRequest, $salesChannelContext, new Criteria());
 
         if ($availablePayments->getPaymentMethods()->get($paymentMethodId) === null) {
             throw new UnknownPaymentMethodException($paymentMethodId);

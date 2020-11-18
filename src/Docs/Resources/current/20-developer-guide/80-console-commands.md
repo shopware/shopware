@@ -36,8 +36,8 @@ Available commands:
   about                                   Displays information about the curr...
   help                                    Displays help for a command
   list                                    Lists commands
- administration
-  administration:dump:features            Creating json file with feature con...
+ feature
+  feature:dump                            Creating json file with feature con...
  assets
   assets:install                          Installs bundles web assets under a...
  bundle
@@ -85,7 +85,7 @@ Your command's class should extend from the
 ```php
 // SwagExamplePlugin/src/Command/ExampleCommand.php
 
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace Swag\ExamplePlugin\Command;
 

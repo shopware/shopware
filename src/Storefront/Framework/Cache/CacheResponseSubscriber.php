@@ -35,10 +35,16 @@ class CacheResponseSubscriber implements EventSubscriberInterface
      */
     private $defaultTtl;
 
-    public function __construct(CartService $cartService, int $defaultTtl)
+    /**
+     * @var bool
+     */
+    private $httpCacheEnabled;
+
+    public function __construct(CartService $cartService, int $defaultTtl, bool $httpCacheEnabled)
     {
         $this->cartService = $cartService;
         $this->defaultTtl = $defaultTtl;
+        $this->httpCacheEnabled = $httpCacheEnabled;
     }
 
     public static function getSubscribedEvents()
@@ -52,6 +58,10 @@ class CacheResponseSubscriber implements EventSubscriberInterface
 
     public function setResponseCache(ResponseEvent $event): void
     {
+        if (!$this->httpCacheEnabled) {
+            return;
+        }
+
         $response = $event->getResponse();
 
         $request = $event->getRequest();

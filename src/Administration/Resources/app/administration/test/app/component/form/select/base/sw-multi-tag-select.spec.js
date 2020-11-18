@@ -28,7 +28,9 @@ const createMultiDataSelect = (customOptions) => {
             'sw-field-error': Shopware.Component.build('sw-field-error'),
             'sw-select-selection-list': Shopware.Component.build('sw-select-selection-list'),
             'sw-popover': Shopware.Component.build('sw-popover'),
-            'sw-icon': '<div></div>'
+            'sw-icon': {
+                template: '<div></div>'
+            }
         },
         mocks: { $tc: key => key },
         propsData: {
@@ -52,35 +54,35 @@ const pressEnter = el => pressKey(el, 'Enter');
 const pressEspace = el => pressKey(el, 'Escape');
 
 describe('components/sw-multi-tag-select', () => {
-    it('should be a Vue.js component', () => {
-        expect(createMultiDataSelect().isVueInstance()).toBeTruthy();
+    it('should be a Vue.js component', async () => {
+        expect(createMultiDataSelect().vm).toBeTruthy();
     });
 
-    it('should open the options popover when the user click on .sw-select__selection', () => {
+    it('should open the options popover when the user click on .sw-select__selection', async () => {
         const multiDataSelect = createMultiDataSelect();
-        multiDataSelect.find(selector.multiDataSelect.container).trigger('click');
+        await multiDataSelect.find(selector.multiDataSelect.container).trigger('click');
 
         const selectOptionsPopover = multiDataSelect.find(selector.multiDataSelect.popover);
         expect(selectOptionsPopover.isVisible()).toBeTruthy();
     });
 
-    it('should show the select field\'s options popover', () => {
+    it('should show the select field\'s options popover', async () => {
         const messageAddData = 'global.sw-multi-tag-select.addData';
         const messageEnterValidData = 'global.sw-multi-tag-select.enterValidData';
 
         const multiDataSelect = createMultiDataSelect();
-        multiDataSelect.find(selector.multiDataSelect.container).trigger('click');
+        await multiDataSelect.find(selector.multiDataSelect.container).trigger('click');
 
         const selectOptionsPopover = multiDataSelect.find(selector.multiDataSelect.popover);
         expect(selectOptionsPopover.text()).toBe(messageEnterValidData);
 
         const input = multiDataSelect.find(selector.multiDataSelect.input);
-        input.setValue('anything');
+        await input.setValue('anything');
 
         expect(selectOptionsPopover.text()).toBe(messageAddData);
     });
 
-    it('should add a new item when the user selects one using the enter key', () => {
+    it('should add a new item when the user selects one using the enter key', async () => {
         const changeSpy = jest.fn();
         const value = 'a16d4da0-4ba5-4c75-973b-515e23e6498a';
 
@@ -91,7 +93,7 @@ describe('components/sw-multi-tag-select', () => {
         });
 
         const input = multiDataSelect.find(selector.multiDataSelect.input);
-        input.setValue(value);
+        await input.setValue(value);
 
         expect(multiDataSelect.vm.searchTerm).toBe(value);
 
@@ -101,7 +103,7 @@ describe('components/sw-multi-tag-select', () => {
         expect(multiDataSelect.vm.searchTerm).toBe('');
     });
 
-    it('should add a new item when the user selects one using the popover', () => {
+    it('should add a new item when the user selects one using the popover', async () => {
         const changeSpy = jest.fn();
         const value = '5f8c8049-ee9f-4f10-b8b6-5daa9536e0c4';
 
@@ -111,21 +113,21 @@ describe('components/sw-multi-tag-select', () => {
             }
         });
 
-        multiDataSelect.find(selector.multiDataSelect.container).trigger('click');
+        await multiDataSelect.find(selector.multiDataSelect.container).trigger('click');
 
         const input = multiDataSelect.find(selector.multiDataSelect.input);
-        input.setValue(value);
+        await input.setValue(value);
 
         expect(multiDataSelect.vm.searchTerm).toBe(value);
 
         const addItemPopover = multiDataSelect.find('.sw-multi-tag-select-valid');
-        addItemPopover.trigger('click');
+        await addItemPopover.trigger('click');
 
         expect(changeSpy).toHaveBeenCalledWith([value]);
         expect(multiDataSelect.vm.searchTerm).toBe('');
     });
 
-    it('should set inputIsValid to false, when there\'s no searchTerm given', () => {
+    it('should set inputIsValid to false, when there\'s no searchTerm given', async () => {
         const value = 'a676344c-c0dd-49e5-8fbb-5f570c27762c';
 
         const multiDataSelect = createMultiDataSelect();
@@ -134,18 +136,18 @@ describe('components/sw-multi-tag-select', () => {
         expect(multiDataSelect.vm.inputIsValid).toBeFalsy();
         expect(multiDataSelect.vm.errorObject).toBeNull();
 
-        input.setValue(value);
+        await input.setValue(value);
 
         expect(multiDataSelect.vm.searchTerm).toBe(value);
         expect(multiDataSelect.vm.inputIsValid).toBeTruthy();
 
-        input.setValue('');
+        await input.setValue('');
 
         expect(multiDataSelect.vm.inputIsValid).toBeFalsy();
         expect(multiDataSelect.vm.errorObject).toBeNull();
     });
 
-    it('should return the correct property or fallback-value when getKey is used', () => {
+    it('should return the correct property or fallback-value when getKey is used', async () => {
         const subject = {
             lorem: 'f5534067-8e2e-4091-a49b-4e0f65a5c588',
             ipsum: {
@@ -164,7 +166,7 @@ describe('components/sw-multi-tag-select', () => {
         expect(multiDataSelect.vm.getKey(subject, 'lorem.ipsum.dolor.sit.amet', 'Whoops!')).toBe('Whoops!');
     });
 
-    it('should add a new value when the option popover is blurred', () => {
+    it('should add a new value when the option popover is blurred', async () => {
         const changeSpy = jest.fn();
         const value = 'df8777d8-5969-475e-bbc2-f55a14d49ed7';
 
@@ -173,10 +175,10 @@ describe('components/sw-multi-tag-select', () => {
                 change: changeSpy
             }
         });
-        multiDataSelect.find(selector.multiDataSelect.container).trigger('click');
+        await multiDataSelect.find(selector.multiDataSelect.container).trigger('click');
 
         const input = multiDataSelect.find(selector.multiDataSelect.input);
-        input.setValue(value);
+        await input.setValue(value);
 
         expect(multiDataSelect.vm.searchTerm).toBe(value);
 

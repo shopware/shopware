@@ -35,6 +35,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommit
 use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommitData\VersionCommitDataEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DeleteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
@@ -218,7 +219,7 @@ class VersionManager
             $this->entityWriter->upsert($this->versionDefinition, [$versionData], $context);
         });
 
-        $affected = $this->cloneEntity($definition, $primaryKey['id'], $primaryKey['id'], $versionId, $context, false, false);
+        $affected = $this->cloneEntity($definition, $primaryKey['id'], $primaryKey['id'], $versionId, $context, new CloneBehavior(), false);
 
         $versionContext = $context->createWithVersionId($versionId);
 
@@ -360,9 +361,15 @@ class VersionManager
         }
     }
 
-    public function clone(EntityDefinition $definition, string $id, string $newId, string $versionId, WriteContext $context, bool $cloneChildren = true, array $overwrites = []): array
-    {
-        return $this->cloneEntity($definition, $id, $newId, $versionId, $context, $cloneChildren, true, $overwrites);
+    public function clone(
+        EntityDefinition $definition,
+        string $id,
+        string $newId,
+        string $versionId,
+        WriteContext $context,
+        CloneBehavior $behavior
+    ): array {
+        return $this->cloneEntity($definition, $id, $newId, $versionId, $context, $behavior, true);
     }
 
     private function cloneEntity(
@@ -371,12 +378,11 @@ class VersionManager
         string $newId,
         string $versionId,
         WriteContext $context,
-        bool $cloneChildren = true,
-        bool $writeAuditLog = false,
-        array $overwrites = []
+        CloneBehavior $behavior,
+        bool $writeAuditLog = false
     ): array {
         $criteria = new Criteria([$id]);
-        $this->addCloneAssociations($definition, $criteria, $cloneChildren);
+        $this->addCloneAssociations($definition, $criteria, $behavior->cloneChildren());
 
         $detail = $this->entityReader->read($definition, $criteria, $context->getContext())->first();
 
@@ -391,7 +397,7 @@ class VersionManager
         $data = $this->filterPropertiesForClone($definition, $data, $keepIds, $id, $definition, $context->getContext());
         $data['id'] = $newId;
 
-        $data = array_replace_recursive($data, $overwrites);
+        $data = array_replace_recursive($data, $behavior->getOverwrites());
 
         $versionContext = $context->createWithVersionId($versionId);
         $result = null;
@@ -413,7 +419,6 @@ class VersionManager
 
         $fields = $definition->getFields();
 
-        /** @var Field $field */
         foreach ($fields as $field) {
             /** @var WriteProtected|null $writeProtection */
             $writeProtection = $field->getFlag(WriteProtected::class);
@@ -466,7 +471,9 @@ class VersionManager
                 continue;
             }
 
-            if (!$field->is(CascadeDelete::class)) {
+            /** @var CascadeDelete|null $flag */
+            $flag = $field->getFlag(CascadeDelete::class);
+            if (!$flag || !$flag->isCloneRelevant()) {
                 continue;
             }
 
@@ -670,7 +677,12 @@ class VersionManager
         int $childCounter = 1
     ): void {
         //add all cascade delete associations
-        $cascades = $definition->getFields()->filterByFlag(CascadeDelete::class);
+        $cascades = $definition->getFields()->filter(function (Field $field) {
+            /** @var CascadeDelete|null $flag */
+            $flag = $field->getFlag(CascadeDelete::class);
+
+            return $flag ? $flag->isCloneRelevant() : false;
+        });
 
         /** @var AssociationField $cascade */
         foreach ($cascades as $cascade) {
@@ -698,6 +710,8 @@ class VersionManager
             if ($cascade instanceof ChildrenAssociationField) {
                 //break endless loop
                 if ($childCounter >= 30 || !$cloneChildren) {
+                    $criteria->removeAssociation($cascade->getPropertyName());
+
                     continue;
                 }
 
@@ -755,10 +769,15 @@ class VersionManager
             return $this->resolveMappingParents($definition, $rawData);
         }
 
+        $parentIds = [];
+        if ($definition->isInheritanceAware()) {
+            $parentIds = $this->fetchParentIds($definition, $rawData);
+        }
+
         $parent = $definition->getParentDefinition();
 
         if (!$parent) {
-            return [];
+            return $parentIds;
         }
 
         $fkField = $definition->getFields()->filter(function (Field $field) use ($parent) {
@@ -784,7 +803,7 @@ class VersionManager
 
         $entity = $parent->getEntityName();
 
-        $nested[$entity] = array_merge($nested[$entity] ?? [], $primaryKeys);
+        $nested[$entity] = array_merge($nested[$entity] ?? [], $primaryKeys, $parentIds[$entity] ?? []);
 
         return $nested;
     }
@@ -827,15 +846,20 @@ class VersionManager
         $query->from(EntityDefinitionQueryHelper::escape($definition->getEntityName()));
 
         foreach ($definition->getPrimaryKeys() as $index => $primaryKey) {
+            $property = $primaryKey->getPropertyName();
+
             if ($primaryKey instanceof VersionField || $primaryKey instanceof ReferenceVersionField) {
                 continue;
             }
 
-            /** @var Field|StorageAware $primaryKey */
-            if (!isset($rawData[$primaryKey->getPropertyName()])) {
+            /* @var Field|StorageAware $primaryKey */
+            if (!isset($rawData[$property])) {
                 throw new \RuntimeException(
-                    sprintf('Missing primary key %s for definition %s', $primaryKey->getPropertyName(), $definition->getClass())
+                    sprintf('Missing primary key %s for definition %s', $property, $definition->getClass())
                 );
+            }
+            if (!$primaryKey instanceof StorageAware) {
+                continue;
             }
             $key = 'primaryKey' . $index;
 
@@ -843,7 +867,7 @@ class VersionManager
                 EntityDefinitionQueryHelper::escape($primaryKey->getStorageName()) . ' = :' . $key
             );
 
-            $query->setParameter($key, Uuid::fromHexToBytes($rawData[$primaryKey->getPropertyName()]));
+            $query->setParameter($key, Uuid::fromHexToBytes($rawData[$property]));
         }
 
         $fk = $query->execute()->fetchColumn();
@@ -995,5 +1019,27 @@ class VersionManager
         }
 
         return $parents;
+    }
+
+    private function fetchParentIds(EntityDefinition $definition, array $rawData): array
+    {
+        $fetchQuery = sprintf(
+            'SELECT DISTINCT LOWER(HEX(parent_id)) as id FROM %s WHERE id IN (:ids)',
+            EntityDefinitionQueryHelper::escape($definition->getEntityName())
+        );
+
+        $parentIds = $this->connection->fetchAll(
+            $fetchQuery,
+            ['ids' => Uuid::fromHexToBytesList(array_column($rawData, 'id'))],
+            ['ids' => Connection::PARAM_STR_ARRAY]
+        );
+
+        $ids = array_unique(array_filter(array_column($parentIds, 'id')));
+
+        if (count($ids) === 0) {
+            return [];
+        }
+
+        return [$definition->getEntityName() => $ids];
     }
 }

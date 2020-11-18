@@ -107,6 +107,19 @@
     margin-bottom: $spacer-sm;
 }
 
+.cart-item-quantity {
+    margin-bottom: $spacer-sm;
+}
+
+.cart-item-details-characteristics {
+    margin: $spacer-sm 0;
+    font-size: $font-size-sm;
+
+    .cart-item-details-characteristics-option {
+        font-weight: $font-weight-bold;
+    }
+}
+
 .cart-item-variants {
     margin-bottom: $spacer-sm;
 }

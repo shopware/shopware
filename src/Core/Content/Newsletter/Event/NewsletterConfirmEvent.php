@@ -10,10 +10,11 @@ use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\MailActionInterface;
+use Shopware\Core\Framework\Event\SalesChannelAware;
 use Shopware\Core\Framework\Struct\JsonSerializableTrait;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class NewsletterConfirmEvent extends Event implements MailActionInterface
+class NewsletterConfirmEvent extends Event implements MailActionInterface, SalesChannelAware
 {
     use JsonSerializableTrait;
 
@@ -69,18 +70,16 @@ class NewsletterConfirmEvent extends Event implements MailActionInterface
 
     public function getMailStruct(): MailRecipientStruct
     {
-        if ($this->mailRecipientStruct) {
-            return $this->mailRecipientStruct;
+        if (!$this->mailRecipientStruct instanceof MailRecipientStruct) {
+            $this->mailRecipientStruct = new MailRecipientStruct([
+                $this->newsletterRecipient->getEmail() => $this->newsletterRecipient->getFirstName() . ' ' . $this->newsletterRecipient->getLastName(),
+            ]);
         }
 
-        return new MailRecipientStruct(
-            [
-                $this->newsletterRecipient->getEmail() => $this->newsletterRecipient->getFirstName() . ' ' . $this->newsletterRecipient->getLastName(),
-            ]
-        );
+        return $this->mailRecipientStruct;
     }
 
-    public function getSalesChannelId(): ?string
+    public function getSalesChannelId(): string
     {
         return $this->salesChannelId;
     }

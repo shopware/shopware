@@ -8,10 +8,11 @@ use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\EventData\ObjectType;
 use Shopware\Core\Framework\Event\MailActionInterface;
+use Shopware\Core\Framework\Event\SalesChannelAware;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Symfony\Contracts\EventDispatcher\Event;
 
-final class ContactFormEvent extends Event implements BusinessEventInterface, MailActionInterface
+final class ContactFormEvent extends Event implements BusinessEventInterface, MailActionInterface, SalesChannelAware
 {
     public const EVENT_NAME = 'contact_form.send';
 

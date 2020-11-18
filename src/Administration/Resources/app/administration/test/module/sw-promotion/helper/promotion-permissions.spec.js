@@ -5,15 +5,15 @@ import { PromotionPermissions } from 'src/module/sw-promotion/helper/promotion.h
 jest.spyOn(global.console, 'warn').mockImplementation(() => jest.fn());
 
 describe('module/sw-promotion/helper/promotion-permissions.js', () => {
-    it('should not be allowed to edit a promotion that does not exist', () => {
+    it('should not be allowed to edit a promotion that does not exist', async () => {
         expect(PromotionPermissions.isEditingAllowed(null)).toBe(false);
     });
 
-    it('should not be allowed to edit a promotion that is undefined', () => {
+    it('should not be allowed to edit a promotion that is undefined', async () => {
         expect(PromotionPermissions.isEditingAllowed(undefined)).toBe(false);
     });
 
-    it('should throw an exception if promotion has not been hydrated and thus has no hasOrders property', () => {
+    it('should throw an exception if promotion has not been hydrated and thus has no hasOrders property', async () => {
         expect(() => {
             const promotion = {
             };
@@ -21,14 +21,14 @@ describe('module/sw-promotion/helper/promotion-permissions.js', () => {
         }).toThrow();
     });
 
-    it('should not be allowed to edit a promotion that has been used in orders', () => {
+    it('should not be allowed to edit a promotion that has been used in orders', async () => {
         const promotion = {
             hasOrders: true
         };
         expect(PromotionPermissions.isEditingAllowed(promotion)).toBe(false);
     });
 
-    it('should be allowed to edit a promotion that has not been used in orders', () => {
+    it('should be allowed to edit a promotion that has not been used in orders', async () => {
         const promotion = {
             hasOrders: false
         };

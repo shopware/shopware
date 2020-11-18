@@ -15,7 +15,8 @@ Component.register('sw-order-state-history-card', {
         'orderService',
         'stateMachineService',
         'orderStateMachineService',
-        'repositoryFactory'
+        'repositoryFactory',
+        'acl'
     ],
     props: {
         title: {
@@ -45,6 +46,7 @@ Component.register('sw-order-state-history-card', {
             modalConfirmed: false,
             currentActionName: null,
             currentStateType: null,
+            /** @deprecated tag:v6.4.0 - Will be removed. Mail template assignment will be done via "sw-event-action". */
             mailTemplatesExist: false,
             technicalName: ''
         };
@@ -377,13 +379,13 @@ Component.register('sw-order-state-history-card', {
             this.removeLastMailTemplate();
         },
 
-        onLeaveModalConfirm(docIds) {
+        onLeaveModalConfirm(docIds, sendMail = true) {
             this.showModal = false;
             if (this.currentStateType === 'orderTransactionState') {
                 this.orderStateMachineService.transitionOrderTransactionState(
                     this.transaction.id,
                     this.currentActionName,
-                    { documentIds: docIds }
+                    { documentIds: docIds, sendMail }
                 ).then(() => {
                     this.$emit('order-state-change');
                     this.loadHistory();
@@ -394,7 +396,7 @@ Component.register('sw-order-state-history-card', {
                 this.orderStateMachineService.transitionOrderState(
                     this.order.id,
                     this.currentActionName,
-                    { documentIds: docIds }
+                    { documentIds: docIds, sendMail }
                 ).then(() => {
                     this.$emit('order-state-change');
                     this.loadHistory();
@@ -405,7 +407,7 @@ Component.register('sw-order-state-history-card', {
                 this.orderStateMachineService.transitionOrderDeliveryState(
                     this.delivery.id,
                     this.currentActionName,
-                    { documentIds: docIds }
+                    { documentIds: docIds, sendMail }
                 ).then(() => {
                     this.$emit('order-state-change');
                     this.loadHistory();
@@ -419,7 +421,6 @@ Component.register('sw-order-state-history-card', {
 
         createStateChangeErrorNotification(errorMessage) {
             this.createNotificationError({
-                title: this.$tc('sw-order.stateCard.headlineErrorStateChange'),
                 message: this.$tc('sw-order.stateCard.labelErrorStateChange') + errorMessage
             });
         }

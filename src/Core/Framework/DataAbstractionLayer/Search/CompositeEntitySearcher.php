@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 
+use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -39,7 +40,7 @@ class CompositeEntitySearcher
         $entities = [];
 
         foreach ($this->definitions as $definition) {
-            if (!$context->isAllowed($definition->getEntityName(), 'list')) {
+            if (!$context->isAllowed($definition->getEntityName() . ':' . AclRoleDefinition::PRIVILEGE_READ)) {
                 continue;
             }
 

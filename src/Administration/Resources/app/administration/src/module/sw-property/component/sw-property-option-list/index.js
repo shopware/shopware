@@ -7,7 +7,8 @@ Component.register('sw-property-option-list', {
     template,
 
     inject: [
-        'repositoryFactory'
+        'repositoryFactory',
+        'acl'
     ],
 
     props: {
@@ -43,6 +44,21 @@ Component.register('sw-property-option-list', {
 
         currentLanguage() {
             return State.get('context').api.languageId;
+        },
+
+        allowInlineEdit() {
+            return !!this.acl.can('property.editor');
+        },
+
+        tooltipAdd() {
+            return {
+                message: this.$tc('sw-property.detail.addOptionNotPossible'),
+                disabled: this.isSystemLanguage
+            };
+        },
+
+        disableAddButton() {
+            return this.propertyGroup.isLoading || !this.isSystemLanguage || !this.acl.can('property.editor');
         }
     },
 
@@ -68,7 +84,12 @@ Component.register('sw-property-option-list', {
                 this.propertyGroup.options.remove(option.id);
                 return Promise.resolve();
             }
+
             return this.optionRepository.delete(option.id, Shopware.Context.api);
+        },
+
+        onSingleOptionDelete(option) {
+            this.$refs.grid.deleteItem(option);
         },
 
         onDeleteOptions() {
@@ -76,6 +97,7 @@ Component.register('sw-property-option-list', {
                 Object.values(this.selection).forEach((option) => {
                     this.onOptionDelete(option);
                 });
+
                 this.refreshOptionList();
             }
         },
@@ -84,13 +106,17 @@ Component.register('sw-property-option-list', {
             if (!this.isSystemLanguage) {
                 return false;
             }
+
             this.currentOption = this.optionRepository.create();
 
             return true;
         },
 
         onCancelOption() {
+            // close modal
             this.currentOption = null;
+
+            this.$refs.grid.load();
         },
 
         onSaveOption() {
@@ -106,13 +132,16 @@ Component.register('sw-property-option-list', {
                 if (!this.propertyGroup.options.has(this.currentOption.id)) {
                     this.propertyGroup.options.add(this.currentOption);
                 }
+
                 this.currentOption = null;
             }
+
             return Promise.resolve();
         },
 
         saveGroupRemote() {
             return this.optionRepository.save(this.currentOption, Shopware.Context.api).then(() => {
+                // closing modal
                 this.currentOption = null;
                 this.$refs.grid.load();
             });
@@ -127,8 +156,7 @@ Component.register('sw-property-option-list', {
         },
 
         onOptionEdit(option) {
-            const localCopy = this.optionRepository.create(Shopware.Context.api, option.id);
-            Object.assign(localCopy, option);
+            const localCopy = option;
             localCopy._isNew = false;
 
             this.currentOption = localCopy;

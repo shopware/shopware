@@ -67,6 +67,11 @@ class Delivery extends Struct
         return $this->shippingMethod;
     }
 
+    public function setShippingMethod(ShippingMethodEntity $shippingMethod): void
+    {
+        $this->shippingMethod = $shippingMethod;
+    }
+
     public function getShippingCosts(): CalculatedPrice
     {
         return $this->shippingCosts;

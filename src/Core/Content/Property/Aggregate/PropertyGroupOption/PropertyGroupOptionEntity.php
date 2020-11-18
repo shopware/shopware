@@ -26,7 +26,7 @@ class PropertyGroupOptionEntity extends Entity
     protected $name;
 
     /**
-     * @var int
+     * @var int|null
      */
     protected $position;
 
@@ -134,7 +134,7 @@ class PropertyGroupOptionEntity extends Entity
         return $this->group;
     }
 
-    public function setGroup(PropertyGroupEntity $group): void
+    public function setGroup(?PropertyGroupEntity $group): void
     {
         $this->group = $group;
     }
@@ -189,12 +189,12 @@ class PropertyGroupOptionEntity extends Entity
         $this->media = $media;
     }
 
-    public function getPosition(): int
+    public function getPosition(): ?int
     {
         return $this->position;
     }
 
-    public function setPosition(int $position): void
+    public function setPosition(?int $position): void
     {
         $this->position = $position;
     }
@@ -227,10 +227,5 @@ class PropertyGroupOptionEntity extends Entity
     public function setCombinable(bool $combinable): void
     {
         $this->combinable = $combinable;
-    }
-
-    public function getApiAlias(): string
-    {
-        return 'product_group_option';
     }
 }

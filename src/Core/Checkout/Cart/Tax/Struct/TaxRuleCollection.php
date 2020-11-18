@@ -5,7 +5,6 @@ namespace Shopware\Core\Checkout\Cart\Tax\Struct;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @method void         set(string $key, TaxRule $entity)
  * @method TaxRule[]    getIterator()
  * @method TaxRule[]    getElements()
  * @method TaxRule|null first()
@@ -13,9 +12,21 @@ use Shopware\Core\Framework\Struct\Collection;
  */
 class TaxRuleCollection extends Collection
 {
+    /**
+     * @param TaxRule $taxRule
+     */
     public function add($taxRule): void
     {
         $this->set($this->getKey($taxRule), $taxRule);
+    }
+
+    /**
+     * @param string|int $key
+     * @param TaxRule    $taxRule
+     */
+    public function set($key, $taxRule): void
+    {
+        parent::set($this->getKey($taxRule), $taxRule);
     }
 
     public function removeElement(TaxRule $taxRule): void
@@ -52,6 +63,13 @@ class TaxRuleCollection extends Collection
         );
 
         return $new;
+    }
+
+    public function highestRate(): ?TaxRule
+    {
+        return $this->reduce(function ($result, $item) {
+            return $result === null || $item->getTaxRate() > $result->getTaxRate() ? $item : $result;
+        });
     }
 
     public function getApiAlias(): string

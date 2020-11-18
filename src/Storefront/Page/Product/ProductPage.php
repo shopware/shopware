@@ -3,11 +3,11 @@
 namespace Shopware\Storefront\Page\Product;
 
 use Shopware\Core\Content\Cms\CmsPageEntity;
+use Shopware\Core\Content\Product\SalesChannel\CrossSelling\CrossSellingElementCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Storefront\Page\Page;
-use Shopware\Storefront\Page\Product\CrossSelling\CrossSellingLoaderResult;
 use Shopware\Storefront\Page\Product\Review\ReviewLoaderResult;
 
 class ProductPage extends Page
@@ -38,7 +38,7 @@ class ProductPage extends Page
     protected $selectedOptions;
 
     /**
-     * @var CrossSellingLoaderResult
+     * @var CrossSellingElementCollection
      */
     protected $crossSellings;
 
@@ -92,12 +92,12 @@ class ProductPage extends Page
         $this->selectedOptions = $selectedOptions;
     }
 
-    public function getCrossSellings(): CrossSellingLoaderResult
+    public function getCrossSellings(): CrossSellingElementCollection
     {
         return $this->crossSellings;
     }
 
-    public function setCrossSellings(CrossSellingLoaderResult $crossSellings): void
+    public function setCrossSellings(CrossSellingElementCollection $crossSellings): void
     {
         $this->crossSellings = $crossSellings;
     }

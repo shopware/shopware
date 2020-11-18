@@ -4,12 +4,13 @@ namespace Shopware\Core\Checkout\Payment\SalesChannel;
 
 use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
-use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,24 +26,10 @@ class PaymentMethodRoute extends AbstractPaymentMethodRoute
      */
     private $paymentMethodsRepository;
 
-    /**
-     * @var RequestCriteriaBuilder
-     */
-    private $criteriaBuilder;
-
-    /**
-     * @var SalesChannelPaymentMethodDefinition
-     */
-    private $paymentMethodDefinition;
-
     public function __construct(
-        SalesChannelRepositoryInterface $paymentMethodsRepository,
-        RequestCriteriaBuilder $criteriaBuilder,
-        SalesChannelPaymentMethodDefinition $paymentMethodDefinition
+        SalesChannelRepositoryInterface $paymentMethodsRepository
     ) {
         $this->paymentMethodsRepository = $paymentMethodsRepository;
-        $this->criteriaBuilder = $criteriaBuilder;
-        $this->paymentMethodDefinition = $paymentMethodDefinition;
     }
 
     public function getDecorated(): AbstractPaymentMethodRoute
@@ -51,50 +38,63 @@ class PaymentMethodRoute extends AbstractPaymentMethodRoute
     }
 
     /**
-     * @OA\Get(
+     * @Since("6.2.0.0")
+     * @Entity("payment_method")
+     * @OA\Post (
      *      path="/payment-method",
-     *      description="Loads all available payment methods",
+     *      summary="Loads all available payment methods",
      *      operationId="readPaymentMethod",
      *      tags={"Store API", "Payment Method"},
      *      @OA\Parameter(name="Api-Basic-Parameters"),
-     *      @OA\Parameter(
-     *          parameter="onlyAvailable",
-     *          name="onlyAvailable",
-     *          in="query",
-     *          description="Encoded SwagQL in JSON",
-     *          @OA\Schema(type="int")
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              @OA\Property(property="onlyAvailable", description="List only available", type="boolean")
+     *          )
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          description="All available payment methods",
-     *          @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/payment_method_flat"))
-     *     )
+     *          description="",
+     *          @OA\JsonContent(type="object",
+     *              @OA\Property(
+     *                  property="total",
+     *                  type="integer",
+     *                  description="Total amount"
+     *              ),
+     *              @OA\Property(
+     *                  property="aggregations",
+     *                  type="object",
+     *                  description="aggregation result"
+     *              ),
+     *              @OA\Property(
+     *                  property="elements",
+     *                  type="array",
+     *                  @OA\Items(ref="#/components/schemas/payment_method_flat")
+     *              )
+     *       )
+     *    )
      * )
      * @Route("/store-api/v{version}/payment-method", name="store-api.payment.method", methods={"GET", "POST"})
      */
-    public function load(Request $request, SalesChannelContext $context): PaymentMethodRouteResponse
+    public function load(Request $request, SalesChannelContext $context, Criteria $criteria): PaymentMethodRouteResponse
     {
-        $paymentMethodsCriteria = (new Criteria())
+        $criteria
             ->addFilter(new EqualsFilter('active', true))
+            ->addSorting(new FieldSorting('position'))
             ->addAssociation('media');
 
-        $paymentMethodsCriteria = $this->criteriaBuilder->handleRequest(
-            $request,
-            $paymentMethodsCriteria,
-            $this->paymentMethodDefinition,
-            $context->getContext()
-        );
+        $result = $this->paymentMethodsRepository->search($criteria, $context);
 
         /** @var PaymentMethodCollection $paymentMethods */
-        $paymentMethods = $this->paymentMethodsRepository->search($paymentMethodsCriteria, $context)->getEntities();
-        $paymentMethods->sort(function (PaymentMethodEntity $a, PaymentMethodEntity $b) {
-            return $a->getPosition() <=> $b->getPosition();
-        });
+        $paymentMethods = $result->getEntities();
+        $paymentMethods->sortPaymentMethodsByPreference($context);
 
         if ($request->query->getBoolean('onlyAvailable', false)) {
             $paymentMethods = $paymentMethods->filterByActiveRules($context);
         }
 
-        return new PaymentMethodRouteResponse($paymentMethods);
+        $result->assign(['entities' => $paymentMethods]);
+
+        return new PaymentMethodRouteResponse($result);
     }
 }

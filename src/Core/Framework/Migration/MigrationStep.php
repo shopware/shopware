@@ -3,10 +3,12 @@
 namespace Shopware\Core\Framework\Migration;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\DBALException;
 
 abstract class MigrationStep
 {
     public const MIGRATION_VARIABLE_FORMAT = '@MIGRATION_%s_IS_ACTIVE';
+    public const INSTALL_ENVIRONMENT_VARIABLE = 'SHOPWARE_INSTALL';
 
     /**
      * get creation timestamp
@@ -25,7 +27,22 @@ abstract class MigrationStep
 
     public function removeTrigger(Connection $connection, string $name): void
     {
-        $connection->executeUpdate(sprintf('DROP TRIGGER %s', $name));
+        try {
+            $connection->executeUpdate(sprintf('DROP TRIGGER IF EXISTS %s', $name));
+        } catch (DBALException $e) {
+        }
+    }
+
+    public function isInstallation(): bool
+    {
+        $install = $_SERVER[self::INSTALL_ENVIRONMENT_VARIABLE] ?? false;
+        if ($install) {
+            return $install;
+        }
+
+        return $_ENV[self::INSTALL_ENVIRONMENT_VARIABLE]
+            ?? $_SERVER[self::INSTALL_ENVIRONMENT_VARIABLE]
+            ?? false;
     }
 
     /**

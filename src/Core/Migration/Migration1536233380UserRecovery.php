@@ -21,6 +21,7 @@ class Migration1536233380UserRecovery extends MigrationStep
                 `hash` VARCHAR(255) NOT NULL,
                 `created_at` DATETIME(3) NOT NULL,
                 `updated_at` DATETIME(3) NULL,
+                PRIMARY KEY (`id`),
                 CONSTRAINT `uniq.user_recovery.user_id` UNIQUE (`user_id`),
                 CONSTRAINT `fk.user_recovery.user_id` FOREIGN KEY (`user_id`)
                     REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE

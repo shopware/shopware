@@ -1,4 +1,5 @@
 import template from './sw-condition-tree-node.html.twig';
+import './sw-condition-tree-node.scss';
 
 const { Component } = Shopware;
 
@@ -27,6 +28,12 @@ Component.register('sw-condition-tree-node', {
             type: Object,
             required: false,
             default: null
+        },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 

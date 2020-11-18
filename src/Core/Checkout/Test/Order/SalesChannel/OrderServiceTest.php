@@ -13,6 +13,8 @@ use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
+use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriber;
+use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -20,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -30,10 +33,14 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
+/**
+ * @group slow
+ */
 class OrderServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use MailTemplateTestBehaviour;
+    use CountryAddToSalesChannelTestBehaviour;
 
     /**
      * @var SalesChannelContext
@@ -58,12 +65,13 @@ class OrderServiceTest extends TestCase
 
         $this->orderRepository = $this->getContainer()->get('order.repository');
 
+        $this->addCountriesToSalesChannel();
+
         $contextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $this->salesChannelContext = $contextFactory->create(
             '',
             Defaults::SALES_CHANNEL,
-            [SalesChannelContextService::CUSTOMER_ID => $this->createCustomer('Jon', 'Doe'),
-            ]
+            [SalesChannelContextService::CUSTOMER_ID => $this->createCustomer('Jon', 'Doe')]
         );
     }
 
@@ -134,6 +142,53 @@ class OrderServiceTest extends TestCase
         $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
 
         static::assertTrue($eventDidRun, 'The mail.sent Event did not run');
+    }
+
+    public function testSkipOrderDeliveryStateTransitionSendsMail(): void
+    {
+        $orderId = $this->performOrder();
+
+        // getting the id of the order delivery
+        $criteria = new Criteria([$orderId]);
+        $criteria->addAssociation('deliveries');
+
+        /** @var OrderEntity $order */
+        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $orderDeliveryId = $order->getDeliveries()->first()->getId();
+
+        $domain = 'http://shopware.' . Uuid::randomHex();
+        $this->setDomainForSalesChannel($domain, Defaults::LANGUAGE_SYSTEM);
+
+        $this->assignMailtemplatesToSalesChannel(Defaults::SALES_CHANNEL, $this->salesChannelContext->getContext());
+
+        /** @var EventDispatcher $dispatcher */
+        $dispatcher = $this->getContainer()->get('event_dispatcher');
+
+        $url = $domain . '/account/order/' . $order->getDeepLinkCode();
+        $phpunit = $this;
+        $eventDidRun = false;
+        $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun, $phpunit, $url): void {
+            $phpunit->assertStringContainsString('The new status is as follows: Cancelled.', $event->getContents()['text/html']);
+            $phpunit->assertStringContainsString($url, $event->getContents()['text/html']);
+            $eventDidRun = true;
+        };
+
+        $dispatcher->addListener(MailSentEvent::class, $listenerClosure);
+
+        $this->salesChannelContext
+            ->getContext()
+            ->addExtension(MailSendSubscriber::MAIL_CONFIG_EXTENSION, new MailSendSubscriberConfig(true, [], []));
+
+        $this->orderService->orderDeliveryStateTransition(
+            $orderDeliveryId,
+            'cancel',
+            new RequestDataBag(['sendMail' => false]),
+            $this->salesChannelContext->getContext()
+        );
+
+        $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
+
+        static::assertFalse($eventDidRun, 'The mail.sent Event did run');
     }
 
     public function testOrderDeliveryStateTransitionSendsMailDe(): void
@@ -257,6 +312,53 @@ class OrderServiceTest extends TestCase
         $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
 
         static::assertTrue($eventDidRun, 'The mail.sent Event did not run');
+    }
+
+    public function testSkipOrderTransactionStateTransitionSendsMail(): void
+    {
+        $orderId = $this->performOrder();
+
+        // getting the id of the order transaction
+        $criteria = new Criteria([$orderId]);
+        $criteria->addAssociation('transactions');
+
+        /** @var OrderEntity $order */
+        $order = $this->orderRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $orderTransactionId = $order->getTransactions()->first()->getId();
+
+        $domain = 'http://shopware.' . Uuid::randomHex();
+        $this->setDomainForSalesChannel($domain, Defaults::LANGUAGE_SYSTEM);
+
+        $this->assignMailtemplatesToSalesChannel(Defaults::SALES_CHANNEL, $this->salesChannelContext->getContext());
+
+        /** @var EventDispatcher $dispatcher */
+        $dispatcher = $this->getContainer()->get('event_dispatcher');
+
+        $url = $domain . '/account/order/' . $order->getDeepLinkCode();
+        $phpunit = $this;
+        $eventDidRun = false;
+        $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun, $phpunit, $url): void {
+            $phpunit->assertStringContainsString('The new status is as follows: Paid (partially).', $event->getContents()['text/html']);
+            $phpunit->assertStringContainsString($url, $event->getContents()['text/html']);
+            $eventDidRun = true;
+        };
+
+        $dispatcher->addListener(MailSentEvent::class, $listenerClosure);
+
+        $this->salesChannelContext
+            ->getContext()
+            ->addExtension(MailSendSubscriber::MAIL_CONFIG_EXTENSION, new MailSendSubscriberConfig(true, [], []));
+
+        $this->orderService->orderTransactionStateTransition(
+            $orderTransactionId,
+            'pay_partially',
+            new RequestDataBag(['sendMail' => false]),
+            $this->salesChannelContext->getContext()
+        );
+
+        $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
+
+        static::assertFalse($eventDidRun, 'The mail.sent Event did not run');
     }
 
     public function testCreateOrder(): void

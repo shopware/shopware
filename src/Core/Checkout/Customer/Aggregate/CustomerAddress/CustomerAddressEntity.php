@@ -327,9 +327,4 @@ class CustomerAddressEntity extends Entity
     {
         $this->customFields = $customFields;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'customer_address';
-    }
 }

@@ -3,22 +3,26 @@
 namespace Shopware\Core\Checkout\Shipping\SalesChannel;
 
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
 class ShippingMethodRouteResponse extends StoreApiResponse
 {
     /**
-     * @var ShippingMethodCollection
+     * @var EntitySearchResult
      */
     protected $object;
 
-    public function __construct(ShippingMethodCollection $shippingMethods)
+    public function __construct(EntitySearchResult $shippingMethods)
     {
         parent::__construct($shippingMethods);
     }
 
     public function getShippingMethods(): ShippingMethodCollection
     {
-        return $this->object;
+        /** @var ShippingMethodCollection $collection */
+        $collection = $this->object->getEntities();
+
+        return $collection;
     }
 }

@@ -3,12 +3,12 @@
 namespace Shopware\Core\Checkout\Test\Cart\Promotion\Integration\Calculation;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionIntegrationTestBehaviour;
+use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionSetGroupTestFixtureBehaviour;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -23,6 +23,7 @@ class PromotionMixedCalculationTest extends TestCase
     use IntegrationTestBehaviour;
     use PromotionTestFixtureBehaviour;
     use PromotionIntegrationTestBehaviour;
+    use PromotionSetGroupTestFixtureBehaviour;
 
     /**
      * @var EntityRepositoryInterface
@@ -188,5 +189,600 @@ class PromotionMixedCalculationTest extends TestCase
         // our correct values are based on a distribution of 2 + 3 instead of 5 + 3
         static::assertEquals(-24.4, $tax1);
         static::assertEquals(-13.49, $tax2);
+    }
+
+    /**
+     * function tests that a promotion with two discount of type setGroup are correctly built and calculated
+     * We also check here that only complete sets may be discounted. This means, that setGroups are not only considered as
+     * precondition (and afterwards all matching groups will be discounted). They are the definition of the set and only
+     * complete sets will be discounted
+     * In this test it would be possible to discount a second setGroup2. Because we cannot build two complete setGroups,
+     * only setGroup1 and setGroup2 is discounted once (the cheapest items because it is the standard sorting)
+     *
+     * @group promotions
+     */
+    public function testSetGroupDiscountOnlyOnCompleteSets(): void
+    {
+        $set1ProductId1 = Uuid::randomHex();
+        $set1ProductId2 = Uuid::randomHex();
+        $set2ProductId1 = Uuid::randomHex();
+        $set2ProductId2 = Uuid::randomHex();
+
+        $promotionId = Uuid::randomHex();
+        $code = 'BF' . Random::getAlphanumericString(5);
+
+        // add 4 test products
+        $this->createTestFixtureProduct($set1ProductId1, 10, 10, $this->getContainer(), $this->context);
+        $this->createTestFixtureProduct($set1ProductId2, 20, 10, $this->getContainer(), $this->context);
+        $this->createTestFixtureProduct($set2ProductId1, 30, 10, $this->getContainer(), $this->context);
+        $this->createTestFixtureProduct($set2ProductId2, 40, 10, $this->getContainer(), $this->context);
+
+        // add 2 test rules
+        $ruleId1 = $this->createRule('Group1Rule', [$set1ProductId1, $set1ProductId2], $this->getContainer());
+        $ruleId2 = $this->createRule('Group2Rule', [$set2ProductId1, $set2ProductId2], $this->getContainer());
+
+        $groupId1 = 'c5dd14614714432cb145a2642d80fd23';
+        $groupId2 = 'c1fb8da6d041481c962a1a9f62639c87';
+
+        // add a new promotion and two setGroup discounts
+        $this->createTestFixtureSetGroupPromotion($promotionId, $code, $this->getContainer());
+        $this->createSetGroupWithRuleFixture($groupId1, 'COUNT', 4, 'PRICE_ASC', $promotionId, $ruleId1, $this->getContainer());
+        $this->createSetGroupWithRuleFixture($groupId2, 'COUNT', 4, 'PRICE_ASC', $promotionId, $ruleId2, $this->getContainer());
+        $discountId1 = $this->createSetGroupDiscount($promotionId, 1, $this->getContainer(), 100, null);
+        $discountId2 = $this->createSetGroupDiscount($promotionId, 2, $this->getContainer(), 100, null);
+
+        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+
+        // create first product and add to cart
+        $cart = $this->addProduct($set1ProductId1, 2, $cart, $this->cartService, $this->context);
+        $cart = $this->addProduct($set1ProductId2, 2, $cart, $this->cartService, $this->context);
+        $cart = $this->addProduct($set2ProductId1, 4, $cart, $this->cartService, $this->context);
+        $cart = $this->addProduct($set2ProductId2, 4, $cart, $this->cartService, $this->context);
+
+        // create promotion and add to cart
+        $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
+
+        $group1DiscountPrice = $cart->getLineItems()->get($discountId1)->getPrice();
+        $group2DiscountPrice = $cart->getLineItems()->get($discountId2)->getPrice();
+
+        static::assertEquals(-120.0, $group1DiscountPrice->getTotalPrice(), 'Error in calculating expected discount for setGroup1');
+        static::assertEquals(-60.0, $group2DiscountPrice->getTotalPrice(), 'Error in calculating expected discount for setGroup2');
+    }
+
+    /**
+     * The Parameter buyminimum defines that there have to be bought a minimum of products to get a discount on the setGroup
+     * we always add a count of 30 products to the cart where 10 products of 10 Euro are eligible and 10 products of 20 Euro
+     * The 10 products of 50 euro in the cart are disallowed by the setgroup rule and therefore should be never
+     * regarded for the discount
+     * We may test here price sorting of the 20 products
+     * e.g. picking the first, second third ... product
+     * e.g. Applying maximum amount of discounted products
+     * the percent rate
+     * and the type of picking (vertical or horizontal)
+     *
+     * @dataProvider setGroupPackageAndPickerTestData
+     * @group promotions
+     */
+    public function testSetGroupPackageAndPickerCombinations(
+        float $expectedDiscount,
+        string $applyTo,
+        string $maximumUsage,
+        float $percentage,
+        string $sorting,
+        string $pickerKey,
+        int $groupCount,
+        string $groupSorting
+    ): void {
+        $setProductId1 = Uuid::randomHex();
+        $setProductId2 = Uuid::randomHex();
+        $fooProductId = Uuid::randomHex();
+
+        $promotionId = Uuid::randomHex();
+        $code = 'BF' . Random::getAlphanumericString(5);
+
+        // add 3 test products
+        $this->createTestFixtureProduct($setProductId1, 10, 10, $this->getContainer(), $this->context);
+        $this->createTestFixtureProduct($setProductId2, 20, 10, $this->getContainer(), $this->context);
+        $this->createTestFixtureProduct($fooProductId, 50, 10, $this->getContainer(), $this->context);
+
+        // add test rules
+        $ruleId = $this->createRule('Group1Rule', [$setProductId1, $setProductId2], $this->getContainer());
+
+        // add a new promotion and two setGroup discounts
+        $this->createTestFixtureSetGroupPromotion($promotionId, $code, $this->getContainer());
+        $this->createSetGroupWithRuleFixture(Uuid::randomHex(), 'COUNT', $groupCount, $groupSorting, $promotionId, $ruleId, $this->getContainer());
+
+        $discountId = $this->createSetGroupDiscount(
+            $promotionId,
+            1,
+            $this->getContainer(),
+            $percentage,
+            null,
+            PromotionDiscountEntity::TYPE_PERCENTAGE,
+            $sorting,
+            $applyTo,
+            $maximumUsage,
+            $pickerKey
+        );
+
+        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+
+        // create first product and add to cart
+        $cart = $this->addProduct($setProductId1, 10, $cart, $this->cartService, $this->context);
+        $cart = $this->addProduct($setProductId2, 10, $cart, $this->cartService, $this->context);
+        $cart = $this->addProduct($fooProductId, 10, $cart, $this->cartService, $this->context);
+
+        // create promotion and add to cart
+        $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
+
+        $group1DiscountPrice = $cart->getLineItems()->get($discountId)->getPrice();
+
+        static::assertEquals($expectedDiscount, $group1DiscountPrice->getTotalPrice());
+    }
+
+    /**
+     * @return array
+     *
+     * expectedDiscount,
+     * applyTo,
+     * maximumUsage,
+     * percentage,
+     * sorting,
+     * pickerKey,
+     * groupCount,
+     * groupSorting
+     */
+    public function setGroupPackageAndPickerTestData(): array
+    {
+        return [
+            /*
+             * For every 4 items, get 1 first most expensive item
+             * vertical => within each built group of items
+             * max 6 items may be discounted, because only 5 groups may be built, max discounted items is set to 5
+             * groups are built sorted by cheapest items
+             *
+             * discount: 10% off
+             */
+            'Vertical, most expensive #1' => [
+                -8.0, '1', '6', 10.0, 'PRICE_DESC', 'VERTICAL', 4, 'PRICE_ASC',
+            ],
+            /*
+             * For every 4 items, get 1 second most expensive item
+             * vertical => within each built group of items
+             * max 6 items may be discounted, because only 5 groups may be built, max discounted items is set to 5
+             * groups are built sorted by cheapest items
+             *
+             * discount: 10% off
+             */
+            'Vertical, most expensive #2' => [
+                -8.0, '2', '6', 10.0, 'PRICE_DESC', 'VERTICAL', 4, 'PRICE_ASC',
+            ],
+            /*
+             * For every 4 items, get 1 third most expensive item
+             * vertical => within each built group of items
+             * groups are built sorted by cheapest items
+             * max 6 items may be discounted, because only 5 groups may be built, max discounted items is set to 5
+             *
+             * discount: 10% off
+             */
+            'Vertical, most expensive #3' => [
+                -7.0, '3', '6', 10.0, 'PRICE_DESC', 'VERTICAL', 4, 'PRICE_ASC',
+            ],
+            /*
+             * For every 4 items, get 1 forth most expensive item
+             * vertical => within each built group of items
+             * groups are built sorted by cheapest items
+             * max 6 items may be discounted, because only 5 groups may be built, max discounted items is set to 5
+             *
+             * discount: 10% off
+             */
+            'Vertical, most expensive #4' => [
+                -7.0, '4', '6', 10.0, 'PRICE_DESC', 'VERTICAL', 4, 'PRICE_ASC',
+            ],
+            /*
+             * For every 4 items, get 1 first most expensive item
+             * horizontal => across all items
+             * groups are built sorted by cheapest items
+             * max 6 items may be discounted, because only 5 groups may be built, max discounted items is set to 5
+             *
+             * discount: 10% off
+             */
+            'Horizontal, most expensive #1' => [
+                -10.0, '1', '6', 10.0, 'PRICE_DESC', 'HORIZONTAL', 4, 'PRICE_ASC',
+            ],
+            /*
+             * For every 4 items, get 1 second most expensive item
+             * horizontal => across all items
+             * groups are built sorted by cheapest items
+             * max 6 items may be discounted, because only 5 groups may be built, max discounted items is set to 5
+             *
+             * discount: 10% off
+             */
+            'Horizontal, most expensive #2' => [
+                -10.0, '2', '6', 10.0, 'PRICE_DESC', 'HORIZONTAL', 4, 'PRICE_ASC',
+            ],
+            /*
+             * For every 4 items, get 1 third most expensive item
+             * horizontal => across all items
+             * groups are built sorted by cheapest items
+             * max 6 items may be discounted, because only 5 groups may be built, max discounted items is set to 5
+             *
+             * discount: 10% off
+             */
+            'Horizontal, most expensive #3' => [
+                -5.0, '3', '6', 10.0, 'PRICE_DESC', 'HORIZONTAL', 4, 'PRICE_ASC',
+            ],
+            /*
+             * For every 4 items, get 1 forth most expensive item
+             * horizontal => across all items
+             * groups are built sorted by cheapest items
+             * max 6 items may be discounted, because only 5 groups may be built, max discounted items is set to 5
+             *
+             * discount: 10% off
+             */
+            'Horizontal, most expensive #4' => [
+                -5.0, '4', '6', 10.0, 'PRICE_DESC', 'HORIZONTAL', 4, 'PRICE_ASC',
+            ],
+            /*
+             * For every 4 items, get 1 first cheapest item
+             * vertical => within each built group of items
+             * groups are built sorted by cheapest items
+             * max 6 items may be discounted, because only 5 groups may be built, max discounted items is set to 5
+             *
+             * discount: 10% off
+             */
+            'Vertical, cheapest #1' => [
+                -7.0, '1', '6', 10.0, 'PRICE_ASC', 'VERTICAL', 4, 'PRICE_ASC',
+            ],
+            /*
+             * For every 4 items, get 1 second cheapest item
+             * vertical => within each built group of items
+             * groups are built sorted by cheapest items
+             * max 6 items may be discounted, because only 5 groups may be built, max discounted items is set to 5
+             *
+             * discount: 10% off
+             */
+            'Vertical, cheapest #2' => [
+                -7.0, '2', '6', 10.0, 'PRICE_ASC', 'VERTICAL', 4, 'PRICE_ASC',
+            ],
+            /*
+             * For every 4 items, get 1 third cheapest item
+             * vertical => within each built group of items
+             * groups are built sorted by cheapest items
+             * max 6 items may be discounted, because only 5 groups may be built, max discounted items is set to 5
+             *
+             * discount: 10% off
+             */
+            'Vertical, cheapest #3' => [
+                -8.0, '3', '6', 10.0, 'PRICE_ASC', 'VERTICAL', 4, 'PRICE_ASC',
+            ],
+            /*
+             * For every 4 items, get 1 forth cheapest item
+             * vertical => within each built group of items
+             * groups are built sorted by cheapest items
+             * max 6 items may be discounted, because only 5 groups may be built, max discounted items is set to 5
+             *
+             * discount: 10% off
+             */
+            'Vertical, cheapest #4' => [
+                -8.0, '4', '6', 10.0, 'PRICE_ASC', 'VERTICAL', 4, 'PRICE_ASC',
+            ],
+            /*
+             * For every 4 items, get 1 first cheapest item
+             * horizontal => across all items
+             * groups are built sorted by cheapest items
+             * max 6 items may be discounted, because only 5 groups may be built, max discounted items is set to 5
+             *
+             * discount: 10% off
+             */
+            'Horizontal, cheapest #1' => [
+                -5.0, '1', '6', 10.0, 'PRICE_ASC', 'HORIZONTAL', 4, 'PRICE_ASC',
+            ],
+            /*
+             * For every 4 items, get 1 second cheapest item
+             * horizontal => across all items
+             * groups are built sorted by cheapest items
+             * max 6 items may be discounted, because only 5 groups may be built, max discounted items is set to 5
+             *
+             * discount: 10% off
+             */
+            'Horizontal, cheapest #2' => [
+                -5.0, '2', '6', 10.0, 'PRICE_ASC', 'HORIZONTAL', 4, 'PRICE_ASC',
+            ],
+            /*
+             * For every 4 items, get 1 third cheapest item
+             * horizontal => across all items
+             * groups are built sorted by cheapest items
+             * max 6 items may be discounted, because only 5 groups may be built, max discounted items is set to 5
+             *
+             * discount: 10% off
+             */
+            'Horizontal, cheapest #3' => [
+                -10.0, '3', '6', 10.0, 'PRICE_ASC', 'HORIZONTAL', 4, 'PRICE_ASC',
+            ],
+            /*
+             * For every 4 items, get 1 forth cheapest item
+             * horizontal => across all items
+             * groups are built sorted by cheapest items
+             * max 6 items may be discounted, because only 5 groups may be built, max discounted items is set to 5
+             *
+             * discount: 10% off
+             */
+            'Horizontal, cheapest #4' => [
+                -10.0, '4', '6', 10.0, 'PRICE_ASC', 'HORIZONTAL', 4, 'PRICE_ASC',
+            ],
+            /*
+             * For every 5 items, get 1 first most expensive item
+             * vertical => within each built group of items
+             * groups are built sorted by cheapest items
+             * max 1 item is discounted
+             *
+             * discount: 10% off
+             */
+            'Vertical, most expensive #5' => [
+                -1.0, '1', '1', 10.0, 'PRICE_DESC', 'VERTICAL', 5, 'PRICE_ASC',
+            ],
+            /*
+             * For every 5 items, get 1 first most expensive item
+             * vertical => within each built group of items
+             * groups are built sorted by cheapest items
+             * max 1 item is discounted
+             *
+             * discount: 10% off
+             */
+            'Vertical, cheapest #5' => [
+                -1.0, '1', '1', 10.0, 'PRICE_ASC', 'VERTICAL', 5, 'PRICE_ASC',
+            ],
+            /*
+             * For every 5 items, get 1 first most expensive item
+             * horizontal => across all items
+             * groups are built sorted by cheapest items
+             * max 1 item is discounted
+             *
+             * discount: 10% off
+             */
+            'Horizontal, most expensive #5' => [
+                -2.0, '1', '1', 10.0, 'PRICE_DESC', 'HORIZONTAL', 5, 'PRICE_ASC',
+            ],
+            /*
+             * For every 5 items, get 1 first cheapest item
+             * horizontal => across all items
+             * groups are built sorted by cheapest items
+             * max 1 item is discounted
+             *
+             * discount: 10% off
+             */
+            'Horizontal, cheapest #5' => [
+                -1.0, '1', '1', 10.0, 'PRICE_ASC', 'HORIZONTAL', 5, 'PRICE_ASC',
+            ],
+            /*
+             * For every 5 items, get 1 first most expensive item
+             * vertical => within each built group of items
+             * groups are built sorted by cheapest items
+             * all possible items are discounted (up to 4, because only 4 groups may be built)
+             *
+             * discount: 10% off
+             */
+            'Vertical, most expensive #6' => [
+                -6.0, '1', 'ALL', 10.0, 'PRICE_DESC', 'VERTICAL', 5, 'PRICE_ASC',
+            ],
+            /*
+             * For every 5 items, get 1 first cheapest item
+             * vertical => within each built group of items
+             * groups are built sorted by cheapest items
+             * all possible items are discounted (up to 4, because only 4 groups may be built)
+             *
+             * discount: 10% off
+             */
+            'Vertical, cheapest #6' => [
+                -6.0, '1', 'ALL', 10.0, 'PRICE_ASC', 'VERTICAL', 5, 'PRICE_ASC',
+            ],
+            /*
+             * For every 5 items, get 1 first most expensive item
+             * horizontal => across all items
+             * groups are built sorted by cheapest items
+             * all possible items are discounted (up to 4, because only 4 groups may be built)
+             *
+             * discount: 10% off
+             */
+            'Horizontal, most expensive #6' => [
+                -8.0, '1', 'ALL', 10.0, 'PRICE_DESC', 'HORIZONTAL', 5, 'PRICE_ASC',
+            ],
+            /*
+             * For every 5 items, get 1 first cheapest item
+             * horizontal => across all items
+             * groups are built sorted by cheapest items
+             * all possible items are discounted (up to 4, because only 4 groups may be built)
+             *
+             * discount: 10% off
+             */
+            'Horizontal, cheapest #6' => [
+                -4.0, '1', 'ALL', 10.0, 'PRICE_ASC', 'HORIZONTAL', 5, 'PRICE_ASC',
+            ],
+            /*
+             * Edge case for 'Vertical, most expensive #5' (here: group sorting desc)
+             * For every 5 items, get 1 first most expensive item
+             * vertical => within each built group of items
+             * groups are built sorted by most expensive items
+             * max 1 item is discounted
+             *
+             * discount: 10% off
+             */
+            'Vertical, most expensive #5-1' => [
+                -2.0, '1', '1', 10.0, 'PRICE_DESC', 'VERTICAL', 5, 'PRICE_DESC',
+            ],
+            /*
+             * Edge case for 'Vertical, cheapest #5-1' (here: group sorting desc)
+             * For every 5 items, get 1 first most expensive item
+             * vertical => within each built group of items
+             * groups are built sorted by most expensive items
+             * max 1 item is discounted
+             *
+             * discount: 10% off
+             */
+            'Vertical, cheapest #5-1' => [
+                -2.0, '1', '1', 10.0, 'PRICE_ASC', 'VERTICAL', 5, 'PRICE_DESC',
+            ],
+        ];
+    }
+
+    /**
+     * buy 3 t-shirts get first one free. Test vertical and horizontal picking
+     *
+     * @group promotions
+     * @dataProvider getBuyThreeTshirtsGetFirstOneFreeTestData
+     */
+    public function testBuy3TshirtsGetFirstOneFree(float $expectedDiscount, string $pickingType): void
+    {
+        $tshirt1 = Uuid::randomHex();
+        $tshirt2 = Uuid::randomHex();
+        $tshirt3 = Uuid::randomHex();
+        $tshirt4 = Uuid::randomHex();
+        $tshirt5 = Uuid::randomHex();
+        $tshirt6 = Uuid::randomHex();
+        $tshirt7 = Uuid::randomHex();
+        $tshirt8 = Uuid::randomHex();
+        $tshirt9 = Uuid::randomHex();
+
+        $promotionId = Uuid::randomHex();
+        $code = 'BF' . Random::getAlphanumericString(5);
+
+        // add 4 test products
+        $this->createTestFixtureProduct($tshirt1, 5, 10, $this->getContainer(), $this->context);
+        $this->createTestFixtureProduct($tshirt2, 10, 10, $this->getContainer(), $this->context);
+        $this->createTestFixtureProduct($tshirt3, 15, 10, $this->getContainer(), $this->context);
+        $this->createTestFixtureProduct($tshirt4, 20, 10, $this->getContainer(), $this->context);
+        $this->createTestFixtureProduct($tshirt5, 25, 10, $this->getContainer(), $this->context);
+        $this->createTestFixtureProduct($tshirt6, 30, 10, $this->getContainer(), $this->context);
+        $this->createTestFixtureProduct($tshirt7, 35, 10, $this->getContainer(), $this->context);
+        $this->createTestFixtureProduct($tshirt8, 40, 10, $this->getContainer(), $this->context);
+        $this->createTestFixtureProduct($tshirt9, 45, 10, $this->getContainer(), $this->context);
+
+        // add test rules
+        $ruleId = $this->createRule('Group1Rule', [$tshirt1, $tshirt2, $tshirt3, $tshirt4, $tshirt5, $tshirt6, $tshirt7, $tshirt8, $tshirt9], $this->getContainer());
+
+        // add a new promotion and two setGroup discounts
+        $this->createTestFixtureSetGroupPromotion($promotionId, $code, $this->getContainer());
+        $this->createSetGroupWithRuleFixture(Uuid::randomHex(), 'COUNT', 3, 'PRICE_ASC', $promotionId, $ruleId, $this->getContainer());
+        $discountId = $this->createSetGroupDiscount(
+            $promotionId,
+            1,
+            $this->getContainer(),
+            100,
+            null,
+            PromotionDiscountEntity::TYPE_PERCENTAGE,
+            'PRICE_ASC',
+            '1',
+            'ALL',
+            $pickingType
+        );
+
+        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+
+        // create first product and add to cart
+        $cart = $this->addProduct($tshirt1, 1, $cart, $this->cartService, $this->context);
+        $cart = $this->addProduct($tshirt2, 1, $cart, $this->cartService, $this->context);
+        $cart = $this->addProduct($tshirt3, 1, $cart, $this->cartService, $this->context);
+        $cart = $this->addProduct($tshirt4, 1, $cart, $this->cartService, $this->context);
+        $cart = $this->addProduct($tshirt5, 1, $cart, $this->cartService, $this->context);
+        $cart = $this->addProduct($tshirt6, 1, $cart, $this->cartService, $this->context);
+        $cart = $this->addProduct($tshirt7, 1, $cart, $this->cartService, $this->context);
+        $cart = $this->addProduct($tshirt8, 1, $cart, $this->cartService, $this->context);
+        $cart = $this->addProduct($tshirt9, 1, $cart, $this->cartService, $this->context);
+
+        // create promotion and add to cart
+        $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
+
+        $groupDiscountPrice = $cart->getLineItems()->get($discountId)->getPrice();
+
+        static::assertEquals($expectedDiscount, $groupDiscountPrice->getTotalPrice());
+    }
+
+    public function getBuyThreeTshirtsGetFirstOneFreeTestData(): array
+    {
+        return [
+            'Buy 3 t-shirts, get one free, horizontal picking' => [-(5.0 + 10.0 + 15.0), 'HORIZONTAL'],
+            'Buy 3 t-shirts, get one free, vertical picking' => [-(5.0 + 20.0 + 35.0), 'VERTICAL'],
+        ];
+    }
+
+    /**
+     * buy 3 t-shirts get second one free. Test vertical and horizontal picking
+     *
+     * @group promotions
+     * @dataProvider getBuyThreeTshirtsGetSecondOneFreeTestData
+     */
+    public function testBuy3TshirtsGetSecondOneFree(float $expectedDiscount, string $pickingType): void
+    {
+        $tshirt1 = Uuid::randomHex();
+        $tshirt2 = Uuid::randomHex();
+        $tshirt3 = Uuid::randomHex();
+        $tshirt4 = Uuid::randomHex();
+        $tshirt5 = Uuid::randomHex();
+        $tshirt6 = Uuid::randomHex();
+        $tshirt7 = Uuid::randomHex();
+        $tshirt8 = Uuid::randomHex();
+        $tshirt9 = Uuid::randomHex();
+
+        $promotionId = Uuid::randomHex();
+        $code = 'BF' . Random::getAlphanumericString(5);
+
+        // add 4 test products
+        $this->createTestFixtureProduct($tshirt1, 5, 10, $this->getContainer(), $this->context);
+        $this->createTestFixtureProduct($tshirt2, 10, 10, $this->getContainer(), $this->context);
+        $this->createTestFixtureProduct($tshirt3, 15, 10, $this->getContainer(), $this->context);
+        $this->createTestFixtureProduct($tshirt4, 20, 10, $this->getContainer(), $this->context);
+        $this->createTestFixtureProduct($tshirt5, 25, 10, $this->getContainer(), $this->context);
+        $this->createTestFixtureProduct($tshirt6, 30, 10, $this->getContainer(), $this->context);
+        $this->createTestFixtureProduct($tshirt7, 35, 10, $this->getContainer(), $this->context);
+        $this->createTestFixtureProduct($tshirt8, 40, 10, $this->getContainer(), $this->context);
+        $this->createTestFixtureProduct($tshirt9, 45, 10, $this->getContainer(), $this->context);
+
+        // add test rules
+        $ruleId = $this->createRule('Group1Rule', [$tshirt1, $tshirt2, $tshirt3, $tshirt4, $tshirt5, $tshirt6, $tshirt7, $tshirt8, $tshirt9], $this->getContainer());
+
+        // add a new promotion and two setGroup discounts
+        $this->createTestFixtureSetGroupPromotion($promotionId, $code, $this->getContainer());
+        $this->createSetGroupWithRuleFixture(Uuid::randomHex(), 'COUNT', 3, 'PRICE_ASC', $promotionId, $ruleId, $this->getContainer());
+        $discountId = $this->createSetGroupDiscount(
+            $promotionId,
+            1,
+            $this->getContainer(),
+            100,
+            null,
+            PromotionDiscountEntity::TYPE_PERCENTAGE,
+            'PRICE_ASC',
+            '2',
+            'ALL',
+            $pickingType
+        );
+
+        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+
+        // create first product and add to cart
+        $cart = $this->addProduct($tshirt1, 1, $cart, $this->cartService, $this->context);
+        $cart = $this->addProduct($tshirt2, 1, $cart, $this->cartService, $this->context);
+        $cart = $this->addProduct($tshirt3, 1, $cart, $this->cartService, $this->context);
+        $cart = $this->addProduct($tshirt4, 1, $cart, $this->cartService, $this->context);
+        $cart = $this->addProduct($tshirt5, 1, $cart, $this->cartService, $this->context);
+        $cart = $this->addProduct($tshirt6, 1, $cart, $this->cartService, $this->context);
+        $cart = $this->addProduct($tshirt7, 1, $cart, $this->cartService, $this->context);
+        $cart = $this->addProduct($tshirt8, 1, $cart, $this->cartService, $this->context);
+        $cart = $this->addProduct($tshirt9, 1, $cart, $this->cartService, $this->context);
+
+        // create promotion and add to cart
+        $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
+
+        $groupDiscountPrice = $cart->getLineItems()->get($discountId)->getPrice();
+
+        static::assertEquals($expectedDiscount, $groupDiscountPrice->getTotalPrice());
+    }
+
+    public function getBuyThreeTshirtsGetSecondOneFreeTestData(): array
+    {
+        return [
+            'Buy 3 t-shirts, get one free, horizontal picking' => [-(10.0 + 25.0 + 40.0), 'HORIZONTAL'],
+            'Buy 3 t-shirts, get one free, vertical picking' => [-(20.0 + 25.0 + 30.0), 'VERTICAL'],
+        ];
     }
 }

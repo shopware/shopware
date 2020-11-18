@@ -36,7 +36,7 @@ Here's an example `services.xml`:
 
 And the related example services:
 ```php
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace Swag\ServiceDecoration\Service;
 

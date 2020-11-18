@@ -14,8 +14,16 @@ export default {
     getComponentRegistry,
     getOverrideRegistry,
     getComponentHelper,
-    registerComponentHelper
+    registerComponentHelper,
+    resolveComponentTemplates,
+    markComponentTemplatesAsNotResolved
 };
+
+/**
+ * Indicates if the templates of the components are resolved.
+ * @type {boolean}
+ */
+let templatesResolved = false;
 
 /**
  * Registry which holds all components
@@ -149,7 +157,7 @@ function register(componentName, componentConfiguration = {}) {
  * @param {Object} componentConfiguration
  * @returns {Object} config
  */
-function extend(componentName, extendComponentName, componentConfiguration) {
+function extend(componentName, extendComponentName, componentConfiguration = {}) {
     const config = componentConfiguration;
 
     if (config.template) {
@@ -221,6 +229,9 @@ function override(componentName, componentConfiguration, overrideIndex = null) {
  * @returns {string}
  */
 function getComponentTemplate(componentName) {
+    if (!templatesResolved) {
+        resolveComponentTemplates();
+    }
     return TemplateFactory.getRenderedTemplate(componentName);
 }
 
@@ -232,8 +243,14 @@ function getComponentTemplate(componentName) {
  * @returns {*}
  */
 function build(componentName, skipTemplate = false) {
+    if (!templatesResolved) {
+        resolveComponentTemplates();
+    }
+
     if (!componentRegistry.has(componentName)) {
-        return false;
+        throw new Error(
+            `The component registry has not found a component with the name "${componentName}".`
+        );
     }
 
     let config = Object.create(componentRegistry.get(componentName));
@@ -272,12 +289,25 @@ function build(componentName, skipTemplate = false) {
     }
 
     /**
+     * if config has a render function it will ignore template
+     */
+    if (typeof config.render === 'function') {
+        delete config.template;
+        return config;
+    }
+
+    if (skipTemplate) {
+        delete config.template;
+        return config;
+    }
+
+    /**
      * Get the final template result including all overrides or extensions.
      */
-    if (skipTemplate !== true) {
-        config.template = getComponentTemplate(componentName);
-    } else {
-        delete config.template;
+    config.template = getComponentTemplate(componentName);
+
+    if (typeof config.template !== 'string') {
+        return false;
     }
 
     return config;
@@ -543,4 +573,25 @@ function isAnOverride(config) {
  */
 function isNotEmptyObject(obj) {
     return (Object.keys(obj).length !== 0 && obj.constructor === Object);
+}
+
+/**
+ * Resolves the component templates using the template factory.
+ * @returns {boolean}
+ */
+function resolveComponentTemplates() {
+    TemplateFactory.resolveTemplates();
+    templatesResolved = true;
+    return true;
+}
+
+/**
+ * Helper method which clears the normalized templates and marks
+ * the indicator as `false`, so another resolve run is possible
+ * @returns {boolean}
+ */
+function markComponentTemplatesAsNotResolved() {
+    TemplateFactory.getNormalizedTemplateRegistry().clear();
+    templatesResolved = false;
+    return true;
 }

@@ -9,6 +9,7 @@ use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCategoryTree\ProductCategoryTreeDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
 use Shopware\Core\Content\Seo\MainCategory\MainCategoryDefinition;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlDefinition;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
@@ -52,6 +53,10 @@ class CategoryDefinition extends EntityDefinition
 
     public const TYPE_FOLDER = 'folder';
 
+    public const PRODUCT_ASSIGNMENT_TYPE_PRODUCT = 'product';
+
+    public const PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM = 'product_stream';
+
     public function getEntityName(): string
     {
         return self::ENTITY_NAME;
@@ -72,17 +77,13 @@ class CategoryDefinition extends EntityDefinition
         return [
             'displayNestedProducts' => true,
             'type' => self::TYPE_PAGE,
+            'productAssignmentType' => self::PRODUCT_ASSIGNMENT_TYPE_PRODUCT,
         ];
     }
 
-    public function isChildCountAware(): bool
+    public function since(): ?string
     {
-        return false;
-    }
-
-    public function isTreeAware(): bool
-    {
-        return false;
+        return '6.0.0.0';
     }
 
     protected function defineFields(): FieldCollection
@@ -108,6 +109,7 @@ class CategoryDefinition extends EntityDefinition
             new ChildCountField(),
 
             (new StringField('type', 'type'))->addFlags(new Required()),
+            (new StringField('product_assignment_type', 'productAssignmentType'))->addFlags(new Required()),
             new BoolField('visible', 'visible'),
             new BoolField('active', 'active'),
 
@@ -133,7 +135,10 @@ class CategoryDefinition extends EntityDefinition
             new FkField('cms_page_id', 'cmsPageId', CmsPageDefinition::class),
             new ManyToOneAssociationField('cmsPage', 'cms_page_id', CmsPageDefinition::class, 'id', false),
 
-            // Reverse Associations not available in sales-channel-api
+            new FkField('product_stream_id', 'productStreamId', ProductStreamDefinition::class),
+            new ManyToOneAssociationField('productStream', 'product_stream_id', ProductStreamDefinition::class, 'id', false),
+
+            // Reverse Associations not available in store-api
             (new OneToManyAssociationField('navigationSalesChannels', SalesChannelDefinition::class, 'navigation_category_id'))->addFlags(new ReadProtected(SalesChannelApiSource::class)),
             (new OneToManyAssociationField('footerSalesChannels', SalesChannelDefinition::class, 'footer_category_id'))->addFlags(new ReadProtected(SalesChannelApiSource::class)),
             (new OneToManyAssociationField('serviceSalesChannels', SalesChannelDefinition::class, 'service_category_id'))->addFlags(new ReadProtected(SalesChannelApiSource::class)),

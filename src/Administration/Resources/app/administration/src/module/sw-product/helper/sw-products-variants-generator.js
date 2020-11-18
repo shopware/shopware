@@ -1,7 +1,5 @@
-import EntityStore from 'src/core/data/EntityStore';
 import EventEmitter from 'events';
 
-const { StateDeprecated } = Shopware;
 const { deepCopyObject } = Shopware.Utils.object;
 const { md5 } = Shopware.Utils.format;
 
@@ -13,13 +11,10 @@ export default class VariantsGenerator extends EventEmitter {
 
         // set dependencies
         this.syncService = Shopware.Service('syncService');
-        this.EntityStore = EntityStore;
-        this.StateDeprecated = StateDeprecated;
         this.httpClient = this.syncService.httpClient;
 
         // local data
         this.languageId = null;
-        this.languageStore = this.StateDeprecated.getStore('language');
     }
 
     createNewVariants(forceGenerating, currencies, product) {
@@ -92,7 +87,7 @@ export default class VariantsGenerator extends EventEmitter {
             const numbers = {};
             const numberMap = {};
 
-            // eslint-disable-next-line no-restricted-syntax
+            // eslint-disable-next-line
             for (const [key, variant] of Object.entries(variationOnServer)) {
                 const hash = md5(JSON.stringify(variant.options.sort()));
                 hashed[hash] = key;
@@ -236,8 +231,7 @@ export default class VariantsGenerator extends EventEmitter {
                     parentId: this.product.id,
                     options: variations,
                     stock: 0,
-                    productNumber: generated.number,
-                    taxId: this.product.taxId
+                    productNumber: generated.number
                 };
 
                 variationPrice = Object.values(variationPrice);
@@ -391,15 +385,17 @@ export default class VariantsGenerator extends EventEmitter {
         }];
 
         // Send the payload to the server
-        const header = this.EntityStore.getLanguageHeader(this.getLanguageId());
-        header['single-operation'] = 1;
+        const header = { 'single-operation': 1 };
 
         this.syncService.sync(payload, {}, header).then(() => {
             this.processQueue(type, queue, offset + limit, limit, resolve);
         });
     }
 
+    /**
+     * @deprecated tag:v6.4.0
+     */
     getLanguageId() {
-        return this.languageStore.getCurrentId();
+        return Shopware.Context.api.languageId;
     }
 }

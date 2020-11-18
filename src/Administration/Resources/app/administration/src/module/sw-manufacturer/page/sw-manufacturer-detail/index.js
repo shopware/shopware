@@ -3,14 +3,12 @@ import './sw-manufacturer-detail.scss';
 
 const { Component, Mixin, Data: { Criteria } } = Shopware;
 
-/* @deprecated tag:v6.4.0 */
-const { StateDeprecated } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-manufacturer-detail', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('placeholder'),
@@ -60,22 +58,8 @@ Component.register('sw-manufacturer-detail', {
             return this.repositoryFactory.create('product_manufacturer');
         },
 
-        languageStore() {
-            return StateDeprecated.getStore('language');
-        },
-
-        /* @deprecated tag:v6.4.0 */
-        mediaStore() {
-            return StateDeprecated.getStore('media');
-        },
-
         mediaRepository() {
             return this.repositoryFactory.create('media');
-        },
-
-        /* @deprecated tag:v6.4.0 */
-        customFieldSetStore() {
-            return StateDeprecated.getStore('custom_field_set');
         },
 
         customFieldSetRepository() {
@@ -102,11 +86,20 @@ Component.register('sw-manufacturer-detail', {
         },
 
         tooltipSave() {
-            const systemKey = this.$device.getSystemKey();
+            if (this.acl.can('product_manufacturer.editor')) {
+                const systemKey = this.$device.getSystemKey();
+
+                return {
+                    message: `${systemKey} + S`,
+                    appearance: 'light'
+                };
+            }
 
             return {
-                message: `${systemKey} + S`,
-                appearance: 'light'
+                showDelay: 300,
+                message: this.$tc('sw-privileges.tooltip.warning'),
+                disabled: this.acl.can('order.editor'),
+                showOnDisabledElements: true
             };
         },
 
@@ -137,7 +130,7 @@ Component.register('sw-manufacturer-detail', {
                 return;
             }
 
-            this.languageStore.setCurrentId(this.languageStore.systemLanguageId);
+            Shopware.State.commit('context/resetLanguageToDefault');
             this.manufacturer = this.manufacturerRepository.create(Shopware.Context.api);
         },
 
@@ -189,6 +182,10 @@ Component.register('sw-manufacturer-detail', {
         },
 
         onSave() {
+            if (!this.acl.can('product_manufacturer.editor')) {
+                return;
+            }
+
             this.isLoading = true;
 
             this.manufacturerRepository.save(this.manufacturer, Shopware.Context.api).then(() => {
@@ -202,11 +199,9 @@ Component.register('sw-manufacturer-detail', {
                 this.loadEntityData();
             }).catch((exception) => {
                 this.isLoading = false;
-                const manufacturerName = this.manufacturer.name || this.manufacturer.translated.name;
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
                     message: this.$tc(
-                        'global.notification.notificationSaveErrorMessage', 0, { entityName: manufacturerName }
+                        'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'
                     )
                 });
                 throw exception;

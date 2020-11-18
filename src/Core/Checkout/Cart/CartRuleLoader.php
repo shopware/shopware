@@ -6,17 +6,13 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 
 class CartRuleLoader
 {
     public const CHECKOUT_RULE_LOADER_CACHE_KEY = 'all-rules';
-    private const MAX_ITERATION = 5;
+    private const MAX_ITERATION = 7;
 
     /**
      * @var CartPersisterInterface
@@ -24,12 +20,7 @@ class CartRuleLoader
     private $cartPersister;
 
     /**
-     * @var EntityRepositoryInterface
-     */
-    private $repository;
-
-    /**
-     * @var RuleCollection
+     * @var RuleCollection|null
      */
     private $rules;
 
@@ -48,18 +39,23 @@ class CartRuleLoader
      */
     private $cache;
 
+    /**
+     * @var RuleLoader
+     */
+    private $ruleLoader;
+
     public function __construct(
         CartPersisterInterface $cartPersister,
         Processor $processor,
-        EntityRepositoryInterface $repository,
         LoggerInterface $logger,
-        TagAwareAdapterInterface $cache
+        TagAwareAdapterInterface $cache,
+        RuleLoader $loader
     ) {
         $this->cartPersister = $cartPersister;
-        $this->repository = $repository;
         $this->processor = $processor;
         $this->logger = $logger;
         $this->cache = $cache;
+        $this->ruleLoader = $loader;
     }
 
     public function loadByToken(SalesChannelContext $context, string $cartToken): RuleLoaderResult
@@ -78,31 +74,53 @@ class CartRuleLoader
         return $this->load($context, $cart, $behaviorContext);
     }
 
+    public function reset(): void
+    {
+        $this->rules = null;
+        $this->cache->deleteItem(self::CHECKOUT_RULE_LOADER_CACHE_KEY);
+    }
+
     private function load(SalesChannelContext $context, Cart $cart, CartBehavior $behaviorContext): RuleLoaderResult
     {
         $rules = $this->loadRules($context->getContext());
 
+        // save all rules for later usage
+        $all = $rules;
+
+        // update rules in current context
         $context->setRuleIds($rules->getIds());
 
         $iteration = 1;
 
+        // start first cart calculation to have all objects enriched
+        $cart = $this->processor->process($cart, $context, $behaviorContext);
+
         do {
+            $compare = $cart;
+
             if ($iteration > self::MAX_ITERATION) {
                 break;
             }
 
-            //find rules which matching current cart and context state
+            // filter rules which matches to current scope
             $rules = $rules->filterMatchingRules($cart, $context);
 
-            //place rules into context for further usages
+            // update matching rules in context
             $context->setRuleIds($rules->getIds());
 
-            //recalculate cart for new context rules
-            $new = $this->processor->process($cart, $context, $behaviorContext);
+            // calculate cart again
+            $cart = $this->processor->process($cart, $context, $behaviorContext);
 
-            $recalculate = $this->cartChanged($cart, $new);
+            // check if the cart changed, in this case we have to recalculate the cart again
+            $recalculate = $this->cartChanged($cart, $compare);
 
-            $cart = $new;
+            // check if rules changed for the last calculated cart, in this case we have to recalculate
+            $ruleCompare = $all->filterMatchingRules($cart, $context);
+
+            if (!$rules->equals($ruleCompare)) {
+                $recalculate = true;
+                $rules = $ruleCompare;
+            }
 
             ++$iteration;
         } while ($recalculate);
@@ -138,18 +156,7 @@ class CartRuleLoader
             return $this->rules = $rules;
         }
 
-        $criteria = new Criteria();
-        $criteria->addSorting(new FieldSorting('priority', FieldSorting::DESCENDING));
-        $criteria->setLimit(500);
-        $repositoryIterator = new RepositoryIterator($this->repository, $context, $criteria);
-        $rules = new RuleCollection();
-        while (($result = $repositoryIterator->fetch()) !== null) {
-            foreach ($result->getEntities() as $rule) {
-                if (!$rule->isInvalid() && $rule->getPayload()) {
-                    $rules->add($rule);
-                }
-            }
-        }
+        $rules = $this->ruleLoader->load($context);
 
         $item->set($rules);
 

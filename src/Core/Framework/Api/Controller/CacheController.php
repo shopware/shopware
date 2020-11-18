@@ -4,8 +4,9 @@ namespace Shopware\Core\Framework\Api\Controller;
 
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IndexerMessageSender;
+use Shopware\Core\Framework\Routing\Annotation\Acl;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Storefront\Framework\Cache\CacheWarmer\CacheWarmer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -32,11 +33,6 @@ class CacheController extends AbstractController
     private $adapter;
 
     /**
-     * @var IndexerMessageSender
-     */
-    private $indexerMessageSender;
-
-    /**
      * @var CacheWarmer|null
      */
     private $cacheWarmer;
@@ -49,19 +45,19 @@ class CacheController extends AbstractController
     public function __construct(
         CacheClearer $cacheClearer,
         AdapterInterface $adapter,
-        IndexerMessageSender $indexerMessageSender,
         ?CacheWarmer $cacheWarmer,
         EntityIndexerRegistry $indexerRegistry
     ) {
         $this->cacheClearer = $cacheClearer;
         $this->adapter = $adapter;
-        $this->indexerMessageSender = $indexerMessageSender;
         $this->cacheWarmer = $cacheWarmer;
         $this->indexerRegistry = $indexerRegistry;
     }
 
     /**
+     * @Since("6.2.0.0")
      * @Route("/api/v{version}/_action/cache_info", name="api.action.cache.info", methods={"GET"})
+     * @Acl({"system:cache:info"})
      */
     public function info(): JsonResponse
     {
@@ -73,19 +69,21 @@ class CacheController extends AbstractController
     }
 
     /**
+     * @Since("6.2.0.0")
      * @Route("/api/v{version}/_action/index", name="api.action.cache.index", methods={"POST"})
+     * @Acl({"api_action_cache_index"})
      */
     public function index(): Response
     {
-        $this->indexerMessageSender->partial(new \DateTime());
-
         $this->indexerRegistry->sendIndexingMessage();
 
         return new Response('', Response::HTTP_NO_CONTENT);
     }
 
     /**
+     * @Since("6.2.0.0")
      * @Route("/api/v{version}/_action/cache_warmup", name="api.action.cache.delete_and_warmup", methods={"DELETE"})
+     * @Acl({"system:clear:cache"})
      */
     public function clearCacheAndScheduleWarmUp(): Response
     {
@@ -99,7 +97,9 @@ class CacheController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/cache", name="api.action.cache.delete", methods={"DELETE"})
+     * @Acl({"system:clear:cache"})
      */
     public function clearCache(): Response
     {
@@ -109,7 +109,9 @@ class CacheController extends AbstractController
     }
 
     /**
+     * @Since("6.2.0.0")
      * @Route("/api/v{version}/_action/cleanup", name="api.action.cache.cleanup", methods={"DELETE"})
+     * @Acl({"system:clear:cache"})
      */
     public function clearOldCacheFolders(): Response
     {
@@ -119,7 +121,9 @@ class CacheController extends AbstractController
     }
 
     /**
+     * @Since("6.2.0.0")
      * @Route("/api/v{version}/_action/container_cache", name="api.action.container-cache.delete", methods={"DELETE"})
+     * @Acl({"system:clear:cache"})
      */
     public function clearContainerCache(): Response
     {

@@ -92,6 +92,7 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
         $criteria->addFilter(new EqualsFilter('isCanonical', true));
         $criteria->addFilter(new EqualsAnyFilter('pathInfo', $mapping));
         $criteria->addSorting(new FieldSorting('salesChannelId'));
+        $criteria->setTitle('seo-url::replacement');
 
         /** @var SeoUrlCollection $seoUrls */
         $seoUrls = $this->seoUrlRepository->search($criteria, $context)->getEntities();

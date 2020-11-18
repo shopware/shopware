@@ -8,7 +8,7 @@ const utils = Shopware.Utils;
 Component.register('sw-settings-payment-list', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -65,20 +65,18 @@ Component.register('sw-settings-payment-list', {
         },
 
         onChangeLanguage(languageId) {
-            Shopware.StateDeprecated.getStore('language').setCurrentId(languageId);
+            Shopware.State.commit('context/setApiLanguageId', languageId);
             this.getList();
         },
 
         onInlineEditSave(promise, payment) {
             promise.then(() => {
                 this.createNotificationSuccess({
-                    title: this.$tc('sw-settings-payment.detail.titleSaveSuccess'),
                     message: this.$tc('sw-settings-payment.detail.messageSaveSuccess', 0, { name: payment.name })
                 });
             }).catch(() => {
                 this.getList();
                 this.createNotificationError({
-                    title: this.$tc('sw-settings-payment.detail.titleSaveError'),
                     message: this.$tc('sw-settings-payment.detail.messageSaveError')
                 });
             });
@@ -108,7 +106,6 @@ Component.register('sw-settings-payment-list', {
                 .catch(() => {
                     this.getList();
                     this.createNotificationError({
-                        title: this.$tc('global.default.error'),
                         message: this.$tc('global.notification.unspecifiedSaveErrorMessage')
                     });
                 });

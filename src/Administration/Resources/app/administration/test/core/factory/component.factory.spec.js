@@ -10,13 +10,15 @@ beforeEach(() => {
     ComponentFactory.getComponentRegistry().clear();
     ComponentFactory.getOverrideRegistry().clear();
     TemplateFactory.getTemplateRegistry().clear();
+    TemplateFactory.getNormalizedTemplateRegistry().clear();
     TemplateFactory.disableTwigCache();
+    ComponentFactory.markComponentTemplatesAsNotResolved();
 });
 
 describe('core/factory/component.factory.js', () => {
     it(
         'should register a component and it should be registered in the component registry',
-        () => {
+        async () => {
             const component = ComponentFactory.register('test-component', {
                 template: '<div>This is a test template.</div>'
             });
@@ -31,7 +33,7 @@ describe('core/factory/component.factory.js', () => {
 
     it(
         'should not be possible to register a component with the same name twice',
-        () => {
+        async () => {
             const compDefinition = {
                 template: '<div>This is a test template.</div>'
             };
@@ -43,7 +45,7 @@ describe('core/factory/component.factory.js', () => {
         }
     );
 
-    it('should not be possible to register a component without a name', () => {
+    it('should not be possible to register a component without a name', async () => {
         const component = ComponentFactory.register('', {
             template: '<div>This is a test template.</div>'
         });
@@ -53,7 +55,7 @@ describe('core/factory/component.factory.js', () => {
 
     it(
         'should not be possible to register a component without a template',
-        () => {
+        async () => {
             const component = ComponentFactory.register('test-component', {});
 
             expect(component).toBe(false);
@@ -62,7 +64,7 @@ describe('core/factory/component.factory.js', () => {
 
     it(
         'should not have a template property after registering a component',
-        () => {
+        async () => {
             const component = ComponentFactory.register('test-component', {
                 template: '<div>This is a test template.</div>'
             });
@@ -71,7 +73,7 @@ describe('core/factory/component.factory.js', () => {
         }
     );
 
-    it('should extend a given component & should register a new component (without template)', () => {
+    it('should extend a given component & should register a new component (without template)', async () => {
         ComponentFactory.register('test-component', {
             created() {},
             template: '<div>This is a test template.</div>'
@@ -90,7 +92,7 @@ describe('core/factory/component.factory.js', () => {
         expect(typeof registry.get('test-component-extension')).toBe('object');
     });
 
-    it('should extend a given component & should register a new component (with template)', () => {
+    it('should extend a given component & should register a new component (with template)', async () => {
         ComponentFactory.register('test-component', {
             created() {},
             template: '<div>This is a test template.</div>'
@@ -113,7 +115,7 @@ describe('core/factory/component.factory.js', () => {
 
     it(
         'should register an override of an existing component in the override registry (without index)',
-        () => {
+        async () => {
             ComponentFactory.register('test-component', {
                 created() {},
                 methods: {
@@ -149,7 +151,7 @@ describe('core/factory/component.factory.js', () => {
 
     it(
         'should register two overrides of an existing component in the override registry (with index)',
-        () => {
+        async () => {
             ComponentFactory.register('test-component', {
                 created() {},
                 methods: {
@@ -199,25 +201,21 @@ describe('core/factory/component.factory.js', () => {
 
     it(
         'should provide the rendered template of a component including overrides',
-        () => {
+        async () => {
             ComponentFactory.register('test-component', {
                 template: '{% block content %}<div>This is a test template.</div>{% endblock %}'
             });
-
-            const renderedTemplate = ComponentFactory.getComponentTemplate('test-component');
 
             ComponentFactory.override('test-component', {
                 template: '{% block content %}<div>This is a template override.</div>{% endblock %}'
             });
 
             const overriddenTemplate = ComponentFactory.getComponentTemplate('test-component');
-
-            expect(renderedTemplate).toBe('<div>This is a test template.</div>');
             expect(overriddenTemplate).toBe('<div>This is a template override.</div>');
         }
     );
 
-    it('should extend a block within a component', () => {
+    it('should extend a block within a component', async () => {
         ComponentFactory.register('test-component', {
             template: '{% block content %}<div>This is the {% block name %}base{% endblock %} component</div>{% endblock %}'
         });
@@ -233,13 +231,13 @@ describe('core/factory/component.factory.js', () => {
         expect(extendedTemplate).toBe('<div>This is the extended component</div>');
     });
 
-    it('should be able to extend a component before itself was registered', () => {
+    it('should be able to extend a component before itself was registered', async () => {
         ComponentFactory.extend('test-component-extension', 'test-component', {
-            template: '<div>This is a template override.</div>'
+            template: '{% block base %}<div>This is a template override.</div>{% endblock %}'
         });
 
         ComponentFactory.register('test-component', {
-            template: '<div>This is a test template.</div>'
+            template: '{% block base %}<div>This is a test template.</div>{% endblock %}'
         });
 
         const renderedTemplate = ComponentFactory.getComponentTemplate('test-component');
@@ -249,7 +247,7 @@ describe('core/factory/component.factory.js', () => {
         expect(extendedTemplate).toBe('<div>This is a template override.</div>');
     });
 
-    it('should be able to extend a component with blocks before itself was registered', () => {
+    it('should be able to extend a component with blocks before itself was registered', async () => {
         ComponentFactory.extend('test-component-extension', 'test-component', {
             template: '{% block content %}<div>This is a template override.</div>{% endblock %}'
         });
@@ -265,7 +263,7 @@ describe('core/factory/component.factory.js', () => {
         expect(extendedTemplate).toBe('<div>This is a template override.</div>');
     });
 
-    it('should be able to override a component before itself was registered', () => {
+    it('should be able to override a component before itself was registered', async () => {
         ComponentFactory.override('test-component', {
             template: '{% block content %}<div>This is a template override.</div>{% endblock %}'
         });
@@ -274,12 +272,11 @@ describe('core/factory/component.factory.js', () => {
             template: '{% block content %}<div>This is a test template.</div>{% endblock %}'
         });
 
-        const overriddenTemplate = ComponentFactory.getComponentTemplate('test-component');
-
-        expect(overriddenTemplate).toBe('<div>This is a template override.</div>');
+        const template = ComponentFactory.getComponentTemplate('test-component');
+        expect(template).toBe('<div>This is a template override.</div>');
     });
 
-    it('should ignore overrides if block does not exists', () => {
+    it('should ignore overrides if block does not exists', async () => {
         ComponentFactory.override('test-component', {
             template: '{% block name %}<div>This is a template override.</div>{% endblock %}'
         });
@@ -293,7 +290,7 @@ describe('core/factory/component.factory.js', () => {
         expect(overriddenTemplate).toBe('<div>This is a test template.</div>');
     });
 
-    it('should ignore overrides if override has no blocks', () => {
+    it('should ignore overrides if override has no blocks', async () => {
         ComponentFactory.override('test-component', {
             template: '{% block name %}<div>This is a template override.</div>{% endblock %}'
         });
@@ -307,7 +304,7 @@ describe('core/factory/component.factory.js', () => {
         expect(overriddenTemplate).toBe('<div>This is a test template.</div>');
     });
 
-    it('should build the final component structure with extension', () => {
+    it('should build the final component structure with extension', async () => {
         ComponentFactory.register('test-component', {
             created() {},
             methods: {
@@ -349,31 +346,31 @@ describe('core/factory/component.factory.js', () => {
         expect(extension.extends.methods.testMethod()).toBe('This is a test method.');
     });
 
-    it('should build multiple extended component with parent template', () => {
+    it('should build multiple extended component with parent template', async () => {
         ComponentFactory.register('test-component', {
             template: '{% block content %}<div>This is a test template.</div>{% endblock %}'
         });
-
-        const base = ComponentFactory.build('test-component');
 
         ComponentFactory.extend('test-component-child', 'test-component', {
             template: '{% block content %}<div>{% parent %}I am a child.</div>{% endblock %}'
         });
 
-        const child = ComponentFactory.build('test-component-child');
-
         ComponentFactory.extend('test-component-grandchild', 'test-component-child', {
             template: '{% block content %}<div>{% parent %}I am a grandchild.</div>{% endblock %}'
         });
 
+        const base = ComponentFactory.build('test-component');
+        const child = ComponentFactory.build('test-component-child');
         const grandchild = ComponentFactory.build('test-component-grandchild');
 
         expect(base.template).toBe('<div>This is a test template.</div>');
         expect(child.template).toBe('<div><div>This is a test template.</div>I am a child.</div>');
-        expect(grandchild.template).toBe('<div><div>This is a test template.</div>I am a grandchild.</div>');
+
+        // eslint-disable-next-line max-len
+        expect(grandchild.template).toBe('<div><div><div>This is a test template.</div>I am a child.</div>I am a grandchild.</div>');
     });
 
-    it('should build the final component structure with an override', () => {
+    it('should build the final component structure with an override', async () => {
         ComponentFactory.register('test-component', {
             created() {},
             methods: {
@@ -408,7 +405,7 @@ describe('core/factory/component.factory.js', () => {
         expect(component.extends.methods.testMethod()).toBe('This is a test method.');
     });
 
-    it('should build the final component structure with an override with parent', () => {
+    it('should build the final component structure with an override with parent', async () => {
         ComponentFactory.register('test-component', {
             created() {},
             methods: {
@@ -443,7 +440,7 @@ describe('core/factory/component.factory.js', () => {
         expect(component.extends.methods.testMethod()).toBe('This is a test method.');
     });
 
-    it('should build the final component structure with multiple overrides', () => {
+    it('should build the final component structure with multiple overrides', async () => {
         ComponentFactory.register('test-component', {
             created() {},
             methods: {
@@ -470,6 +467,7 @@ describe('core/factory/component.factory.js', () => {
         });
 
         const componentAfterFirstOverride = ComponentFactory.build('test-component');
+        ComponentFactory.markComponentTemplatesAsNotResolved();
 
         ComponentFactory.override('test-component', {
             methods: {
@@ -502,7 +500,7 @@ describe('core/factory/component.factory.js', () => {
         expect(componentAfterSecondOverride.extends.methods).toBeInstanceOf(Object);
     });
 
-    it('should build the final component structure with an extend and super-call', () => {
+    it('should build the final component structure with an extend and super-call', async () => {
         ComponentFactory.register('test-component', {
             methods: {
                 testMethod() {
@@ -525,11 +523,11 @@ describe('core/factory/component.factory.js', () => {
 
         const component = shallowMount(ComponentFactory.build('extended-component'));
 
-        expect(component.isVueInstance()).toBe(true);
+        expect(component.vm).toBeTruthy();
         expect(component.vm.testMethod()).toBe('This is an override. This is a test method.');
     });
 
-    it('should build the final component structure with an override and super-call', () => {
+    it('should build the final component structure with an override and super-call', async () => {
         ComponentFactory.register('test-component', {
             methods: {
                 testMethod() {
@@ -551,11 +549,11 @@ describe('core/factory/component.factory.js', () => {
 
         const component = shallowMount(ComponentFactory.build('test-component'));
 
-        expect(component.isVueInstance()).toBe(true);
+        expect(component.vm).toBeTruthy();
         expect(component.vm.testMethod()).toBe('This is an override. This is a test method.');
     });
 
-    it('should build the final component structure with an overriden override and super-call', () => {
+    it('should build the final component structure with an overriden override and super-call', async () => {
         ComponentFactory.register('test-component', {
             methods: {
                 testMethod() {
@@ -587,12 +585,12 @@ describe('core/factory/component.factory.js', () => {
 
         const component = shallowMount(ComponentFactory.build('test-component'));
 
-        expect(component.isVueInstance()).toBe(true);
+        expect(component.vm).toBeTruthy();
         expect(component.vm.testMethod())
             .toBe('This is an overridden override. This is an override. This is a test method.');
     });
 
-    it('should build the final component structure with multiple inheritance and super-call', () => {
+    it('should build the final component structure with multiple inheritance and super-call', async () => {
         ComponentFactory.register('test-component', {
             methods: {
                 testMethod() {
@@ -626,12 +624,12 @@ describe('core/factory/component.factory.js', () => {
 
         const component = shallowMount(ComponentFactory.build('extension-2'));
 
-        expect(component.isVueInstance()).toBe(true);
+        expect(component.vm).toBeTruthy();
         expect(component.vm.testMethod())
             .toBe('This is an extended extension. This is an extension. This is a test method.');
     });
 
-    it('should build the final component structure extending a component with computed properties', () => {
+    it('should build the final component structure extending a component with computed properties', async () => {
         ComponentFactory.register('test-component', {
             computed: {
                 fooBar() {
@@ -697,7 +695,7 @@ describe('core/factory/component.factory.js', () => {
 
         const component = shallowMount(ComponentFactory.build('extension-2'));
 
-        expect(component.isVueInstance()).toBe(true);
+        expect(component.vm).toBeTruthy();
         expect(typeof component.vm.fooBar).toBe('string');
         expect(typeof component.vm.$super).toBe('function');
         expect(component.vm.$super('fooBar')).toBe('fooBarBaz');
@@ -706,7 +704,7 @@ describe('core/factory/component.factory.js', () => {
         expect(component.vm.$super('getterSetter.get')).toBe('fooBarBaz!');
     });
 
-    it('should build the final component structure overriding a component with computed properties', () => {
+    it('should build the final component structure overriding a component with computed properties', async () => {
         ComponentFactory.register('test-component', {
             computed: {
                 fooBar() {
@@ -770,7 +768,7 @@ describe('core/factory/component.factory.js', () => {
 
         const component = shallowMount(ComponentFactory.build('test-component'));
 
-        expect(component.isVueInstance()).toBe(true);
+        expect(component.vm).toBeTruthy();
         expect(typeof component.vm.fooBar).toBe('string');
         expect(typeof component.vm.$super).toBe('function');
         expect(component.vm.$super('fooBar')).toBe('fooBarBaz');
@@ -779,7 +777,7 @@ describe('core/factory/component.factory.js', () => {
         expect(component.vm.$super('getterSetter.get')).toBe('fooBarBaz!');
     });
 
-    it('should build the final component structure overriding a component only with a template', () => {
+    it('should build the final component structure overriding a component only with a template', async () => {
         ComponentFactory.register('test-component', {
             methods: {
                 fooBar() {
@@ -805,7 +803,7 @@ describe('core/factory/component.factory.js', () => {
 
         const component = shallowMount(ComponentFactory.build('test-component'));
 
-        expect(component.isVueInstance()).toBe(true);
+        expect(component.vm).toBeTruthy();
         expect(typeof component.vm.fooBar).toBe('function');
         expect(typeof component.vm.$super).toBe('function');
         expect(component.vm.$super('fooBar')).toBe('fooBar');
@@ -813,7 +811,7 @@ describe('core/factory/component.factory.js', () => {
         expect(component.html()).toContain('<div>This is a template override.</div>');
     });
 
-    it('should build the $super-call-stack when $super-call is inside an promise chain', () => {
+    it('should build the $super-call-stack when $super-call is inside an promise chain', async () => {
         ComponentFactory.register('test-component', {
             methods: {
                 fooBar() {
@@ -842,16 +840,230 @@ describe('core/factory/component.factory.js', () => {
 
         const component = shallowMount(ComponentFactory.build('test-component'));
 
-        expect(component.isVueInstance()).toBe(true);
+        expect(component.vm).toBeTruthy();
         expect(typeof component.vm.fooBar).toBe('function');
         expect(typeof component.vm.$super).toBe('function');
         expect(component.vm.$super('fooBar')).toBe('fooBar');
     });
 
+    it('should extend an extended component and all three components get build before with usage of parent', async () => {
+        ComponentFactory.register('first-component', {
+            template: '{% block first %}<div>First.</div>{% endblock %}'
+        });
+        ComponentFactory.extend('second-component', 'first-component', {
+            template: '{% block first %}{% block second %}<div>Second.</div>{% endblock %}{% endblock %}'
+        });
+        ComponentFactory.extend('third-component', 'second-component', {
+            // eslint-disable-next-line max-len
+            template: '{% block second %}<div>{% parent %}{% block third %}<div>Third.</div>{% endblock %}</div>{% endblock %}'
+        });
+        ComponentFactory.build('first-component');
+        ComponentFactory.build('second-component');
+        const thirdComponent = ComponentFactory.build('third-component');
+        expect(thirdComponent.template).toBe('<div><div>Second.</div><div>Third.</div></div>');
+    });
+
+    it('should extend an extended component and all four components get build before with multiple usage of parent',
+        async () => {
+            ComponentFactory.register('first-component', {
+                template: '{% block first %}<div>First.</div>{% endblock %}'
+            });
+            ComponentFactory.extend('second-component', 'first-component', {
+                template: '{% block first %}{% block second %}<div>Second.</div>{% endblock %}{% endblock %}'
+            });
+            ComponentFactory.extend('third-component', 'second-component', {
+                // eslint-disable-next-line max-len
+                template: '{% block second %}<div>{% parent %}{% block third %}<div>Third.</div>{% endblock %}</div>{% endblock %}'
+            });
+            ComponentFactory.extend('fourth-component', 'third-component', {
+                // eslint-disable-next-line max-len
+                template: '{% block second %}<div>{% block fourth %}<div>Fourth.</div>{% parent %}{% endblock %}</div>{% endblock %}'
+            });
+
+            ComponentFactory.build('first-component');
+            ComponentFactory.build('second-component');
+            ComponentFactory.build('third-component');
+            const fourthComponent = ComponentFactory.build('fourth-component');
+            // eslint-disable-next-line max-len
+            expect(fourthComponent.template).toBe('<div><div>Fourth.</div><div><div>Second.</div><div>Third.</div></div></div>');
+        });
+
+    it('should extend an extended component and all five components get build before with multiple usage of parent',
+        async () => {
+            ComponentFactory.register('first-component', {
+                template: '{% block first %}<div>First.</div>{% endblock %}'
+            });
+            ComponentFactory.extend('second-component', 'first-component', {
+                template: '{% block first %}{% block second %}<div>Second.</div>{% endblock %}{% endblock %}'
+            });
+            ComponentFactory.extend('third-component', 'second-component', {
+                // eslint-disable-next-line max-len
+                template: '{% block second %}<div>{% parent %}{% block third %}<div>Third.</div>{% endblock %}</div>{% endblock %}'
+            });
+            ComponentFactory.extend('fourth-component', 'third-component', {
+                // eslint-disable-next-line max-len
+                template: '{% block second %}<div>{% block fourth %}<div>Fourth.</div>{% endblock %}{% parent %}</div>{% endblock %}'
+            });
+            ComponentFactory.extend('fifth-component', 'fourth-component', {
+                // eslint-disable-next-line max-len
+                template: '{% block second %}<div>{% block fifth %}<div>Fifth.</div>{% endblock %}{% parent %}</div>{% endblock %}'
+            });
+
+            ComponentFactory.build('first-component');
+            ComponentFactory.build('second-component');
+            ComponentFactory.build('third-component');
+            ComponentFactory.build('fourth-component');
+            const fifthComponent = ComponentFactory.build('fifth-component');
+
+            // eslint-disable-next-line max-len
+            expect(fifthComponent.template).toBe('<div><div>Fifth.</div><div><div>Fourth.</div><div><div>Second.</div><div>Third.</div></div></div></div>');
+        });
+
+    it('should extend an extended component', async () => {
+        ComponentFactory.register('first-component', {
+            template: '{% block first %}<div>First.</div>{% endblock %}'
+        });
+
+        ComponentFactory.extend('second-component', 'first-component', {
+            template: '{% block first %}{% block second %}<div>Second.</div>{% endblock %}{% endblock %}'
+        });
+
+        ComponentFactory.extend('third-component', 'second-component', {
+            template: '{% block second %}{% block third %}<div>Third.</div>{% endblock %}{% endblock %}'
+        });
+
+        const thirdComponent = ComponentFactory.build('third-component');
+        expect(thirdComponent.template).toBe('<div>Third.</div>');
+    });
+
+    it('should extend an extended component and all components get build before', async () => {
+        ComponentFactory.register('first-component', {
+            template: '{% block first %}<div>First.</div>{% endblock %}'
+        });
+
+        ComponentFactory.extend('second-component', 'first-component', {
+            template: '{% block first %}{% block second %}<div>Second.</div>{% endblock %}{% endblock %}'
+        });
+
+        ComponentFactory.extend('third-component', 'second-component', {
+            template: '{% block second %}{% block third %}<div>Third.</div>{% endblock %}{% endblock %}'
+        });
+
+        ComponentFactory.build('first-component');
+        ComponentFactory.build('second-component');
+        const thirdComponent = ComponentFactory.build('third-component');
+        expect(thirdComponent.template).toBe('<div>Third.</div>');
+    });
+
+    it('should ignore a parent call when the block was not defined in the upper template', async () => {
+        ComponentFactory.register('first-component', {
+            template: '{% block first %}<div>First.</div>{% endblock %}'
+        });
+
+        ComponentFactory.extend('second-component', 'first-component', {
+            template: '{% block first %}{% block second %}{% parent %}{% endblock %}{% endblock %}'
+        });
+
+        ComponentFactory.register('third-component', {
+            template: '{% block first %}{% parent %}{% endblock %}'
+        });
+
+        const secondComponent = ComponentFactory.build('second-component');
+        const thirdComponent = ComponentFactory.build('third-component');
+
+        // The parent here the block named "first"
+        expect(secondComponent.template).toBe('<div>First.</div>');
+        expect(thirdComponent.template).toBe('');
+    });
+
+    it('should render a component which extends a component with an override', async () => {
+        ComponentFactory.register('first-component', {
+            template: '<div>{% block first %}<div>First.</div>{% endblock %}</div>'
+        });
+
+        ComponentFactory.override('first-component', {
+            template: '{% block first %}{% parent %}<div>First overridden.</div>{% endblock %}'
+        });
+
+        ComponentFactory.extend('second-component', 'first-component', {
+            template: '{% block first %}{% parent %}<div>Second.</div>{% endblock %}'
+        });
+
+        const firstComponent = ComponentFactory.build('first-component');
+        const secondComponent = ComponentFactory.build('second-component');
+
+        expect(firstComponent.template).toBe('<div><div>First.</div><div>First overridden.</div></div>');
+        expect(secondComponent.template).toBe('<div><div>First.</div><div>Second.</div></div>');
+    });
+
+    it('should render a component which extends a component with an override using a mixed order', async () => {
+        ComponentFactory.override('first-component', {
+            template: '{% block first %}{% parent %}<div>First overridden.</div>{% endblock %}'
+        });
+
+        ComponentFactory.extend('second-component', 'first-component', {
+            template: '{% block first %}{% parent %}<div>Second.</div>{% endblock %}'
+        });
+
+        ComponentFactory.register('first-component', {
+            template: '<div>{% block first %}<div>First.</div>{% endblock %}</div>'
+        });
+
+        const firstComponent = ComponentFactory.build('first-component');
+        const secondComponent = ComponentFactory.build('second-component');
+
+        expect(firstComponent.template).toBe('<div><div>First.</div><div>First overridden.</div></div>');
+        expect(secondComponent.template).toBe('<div><div>First.</div><div>Second.</div></div>');
+    });
+
+    it('should fix the Social Shopping chain bug', async () => {
+        // Social Shopping - sw-sales-channel-detail (override)
+        ComponentFactory.override('detail-component', {
+            template: '{% block first %}{% parent %}<div>First overridden.</div>{% endblock %}'
+        });
+
+        // Storefront - sw-sales-channel-detail (override)
+        ComponentFactory.override('detail-component', {
+            template: '{% block first %}{% parent %}<div>Second overridden.</div>{% endblock %}'
+        });
+
+        // Social Shopping - sw-sales-channel-create (override)
+        ComponentFactory.override('create-component', {
+            template: '{% block first %}{% parent %}<div>First overridden.</div>{% endblock %}'
+        });
+
+        // Administration - sw-sales-channel-create (extend)
+        ComponentFactory.extend('create-component', 'detail-component', {
+            template: '{% block first %}foobar{% endblock %}'
+        });
+
+        // Administation - sw-sales-channel-detail (register)
+        ComponentFactory.register('detail-component', {
+            template: '{% block base %}<div>{% block first %}<div>First.</div>{% endblock %}</div>{% endblock %}'
+        });
+
+        //  <div>foobar<div>First overridden.</div></div>
+        const firstComponent = ComponentFactory.build('detail-component');
+        const secondComponent = ComponentFactory.build('create-component');
+
+        // eslint-disable-next-line max-len
+        expect(firstComponent.template).toBe('<div><div>First.</div><div>First overridden.</div><div>Second overridden.</div></div>');
+        expect(secondComponent.template).toBe('<div>foobar<div>First overridden.</div></div>');
+    });
+
+    it('should replace all parent placeholders with an empty string when parent was used incorrectly', async () => {
+        ComponentFactory.register('first-component', {
+            template: '<div>{% block first %}{% parent %}{% parent %}{% parent %}{% parent %}{% endblock %}</div>'
+        });
+
+        const firstComponent = ComponentFactory.build('first-component');
+        expect(firstComponent.template).toBe('<div></div>');
+    });
+
     it(
         // eslint-disable-next-line max-len
         'correctly builds the super call stack when root component of the inheritance chain does not implement an overridden method',
-        () => {
+        async () => {
             ComponentFactory.register('grandparent-component', {
                 template: '<div>This is a test template.</div>'
             });
@@ -881,7 +1093,7 @@ describe('core/factory/component.factory.js', () => {
     it(
         // eslint-disable-next-line max-len
         'correctly builds the super call stack when one component of the inheritance chain does not implement an overridden method',
-        () => {
+        async () => {
             ComponentFactory.register('grandparent-component', {
                 template: '<div>This is a test template.</div>',
                 methods: {
@@ -911,7 +1123,7 @@ describe('core/factory/component.factory.js', () => {
     it(
         // eslint-disable-next-line max-len
         'correctly builds the super call stack when components in the beginning of the inheritance chain do not implement an overridden method',
-        () => {
+        async () => {
             ComponentFactory.register('great-grandparent-component', {
                 template: '<div>This is a test template.</div>'
             });
@@ -938,13 +1150,13 @@ describe('core/factory/component.factory.js', () => {
             const childComponent = shallowMount(ComponentFactory.build('child-component'));
 
             expect(childComponent.vm.fooBar()).toBe('called');
-        },
+        }
     );
 
     it(
         // eslint-disable-next-line max-len
         'correctly builds the super call stack when components in the beginning of the inheritance chain do not implement an overridden method when super is called from another super call',
-        () => {
+        async () => {
             let createdData = [];
             ComponentFactory.register('root-component', {
                 template: '<div>This is a test template.</div>',
@@ -993,7 +1205,7 @@ describe('core/factory/component.factory.js', () => {
     it(
         // eslint-disable-next-line max-len
         'correctly builds the super call stack when components in the beginning of the inheritance chain do not implement an overridden method when super is called from another super call',
-        () => {
+        async () => {
             let createdData = [];
             ComponentFactory.register('root-component', {
                 template: '<div>This is a test template.</div>',
@@ -1044,7 +1256,7 @@ describe('core/factory/component.factory.js', () => {
 
     it(
         'does not modify the override registry for extended components',
-        () => {
+        async () => {
             ComponentFactory.register('root-component', {
                 template: '<div>This is a test template.</div>',
                 created() {
@@ -1091,11 +1303,142 @@ describe('core/factory/component.factory.js', () => {
             ComponentFactory.extend('child-component', 'root-component', {
                 template: '<div>This is a test template.</div>'
             });
-            shallowMount(ComponentFactory.build('child-component'));
+            ComponentFactory.build('child-component');
 
             const actual = cloneDeep(ComponentFactory.getOverrideRegistry().get('root-component'));
 
             expect(expected).toEqual(actual);
         }
     );
+
+    it('overrides template and use these blocks', async () => {
+        ComponentFactory.register('component', {
+            template: '<div>{% block test %}This is a test template.{% endblock %}</div>'
+        });
+        ComponentFactory.override('component', {
+            template: '{% block test %}Override{% block new_block %}foo{% endblock %}{% endblock %}'
+        });
+        ComponentFactory.override('component', {
+            template: '{% block new_block %}<div>Test</div>{% endblock %}'
+        });
+
+        const component = ComponentFactory.build('component');
+        expect(component.template).toBe('<div>Override<div>Test</div></div>');
+    });
+
+    it('extends a component which is also an extension without a template', async () => {
+        ComponentFactory.register('root-component', {
+            template: '{% block sw_settings_user_detail %}<h1>Foo</h1>{% endblock %}'
+        });
+        ComponentFactory.extend('child-component', 'root-component', {
+            template: '{% block sw_settings_user_detail %}<h1>Test</h1>{% endblock %}'
+        });
+        ComponentFactory.extend('grandchild-component', 'child-component');
+
+        const component = ComponentFactory.build('grandchild-component');
+        expect(component.template).toBe('<h1>Test</h1>');
+    });
+
+    it('extends a component with wrapping template', async () => {
+        ComponentFactory.register('text-field-component', {
+            template: '{% block text_field %}<input type="text">{% endblock %}'
+        });
+        ComponentFactory.extend('password-field-component', 'text-field-component', {
+            template: '{% block password_field %}{% block text_field %}<input type="password">{% endblock %}{% endblock %}'
+        });
+
+        const component = ComponentFactory.build('password-field-component');
+        expect(component.template).toBe('<input type="password">');
+    });
+
+    it('override should redeclare blocks if parent is used', async () => {
+        ComponentFactory.register('base-component', {
+            // eslint-disable-next-line max-len
+            template: '{% block base_component %}<div>{% block content %}This is the base content.{% endblock %}</div>{% endblock %}'
+        });
+
+        ComponentFactory.override('base-component', {
+            template: '{% block content %}{% parent %} This is the inner override.{% endblock %}'
+        });
+
+        ComponentFactory.override('base-component', {
+            template: '{% block base_component %}<div>This is the outer override. {% parent %}</div>{% endblock %}'
+        });
+
+        const component = ComponentFactory.build('base-component');
+        // eslint-disable-next-line max-len
+        const expected = '<div>This is the outer override. <div>This is the base content. This is the inner override.</div></div>';
+
+        expect(component.template).toBe(expected);
+    });
+
+    it('allows to override nested blocks', async () => {
+        ComponentFactory.register('root-component', {
+            // eslint-disable-next-line max-len
+            template: '<div class="root-component">{% block outer_block %}{% block nested_block %}<div>I\'m nested</div>{% endblock %}{% endblock %}</div>'
+        });
+
+        ComponentFactory.override('root-component', {
+            template:
+                '{% block outer_block %}Overriding outer block {% parent %} {% endblock %}' +
+                '{% block nested_block %}Overriding inner block {% parent %} {% endblock %}'
+        });
+
+        const component = ComponentFactory.build('root-component');
+        // eslint-disable-next-line max-len
+        const expected = '<div class="root-component">Overriding outer block Overriding inner block <div>I\'m nested</div>  </div>';
+
+        expect(component.template).toEqual(expected);
+    });
+
+    it('allows to override nested blocks with parent call', async () => {
+        ComponentFactory.register('root-component', {
+            // eslint-disable-next-line max-len
+            template: '<div class="root-component">{% block outer_block %}Im the outer block {% block nested_block %}<div>I\'m nested</div>{% endblock %}{% endblock %}</div>'
+        });
+
+        ComponentFactory.override('root-component', {
+            template:
+                '{% block outer_block %}Overriding outer block {% parent %} {% endblock %}' +
+                '{% block nested_block %}Overriding inner block {% parent %} {% endblock %}'
+        });
+
+        const component = ComponentFactory.build('root-component');
+        // eslint-disable-next-line max-len
+        const expected = '<div class="root-component">Overriding outer block Im the outer block Overriding inner block <div>I\'m nested</div>  </div>';
+
+        expect(component.template).toEqual(expected);
+    });
+
+    it('ignores component overrides or extensions of components that are not registered', async () => {
+        ComponentFactory.override('override-without-register', {
+            template: '{% block text_field %}<div>Not registered</div>{% endblock %}'
+        });
+
+        ComponentFactory.extend('extended-component', 'not-registered', {
+            template: '{% block text_field %}<div>Not registered</div>{% endblock %}'
+        });
+
+        const overriden = () => ComponentFactory.build('override-without-register');
+        const extended = () => ComponentFactory.build('extended-component');
+
+        expect(overriden).toThrowError();
+        expect(extended).toThrowError();
+    });
+
+    it('returns a component if it has no template but a render function', async () => {
+        ComponentFactory.override('not-registered-with-render-function', {
+            render(h) { return h('div', {}, 'i was not registered'); }
+        });
+
+        ComponentFactory.register('with-render-function', {
+            render(h) { return h('div', {}, 'registered component'); }
+        });
+
+        const overriden = () => ComponentFactory.build('not-registered-with-render-function');
+        const registered = () => ComponentFactory.build('with-render-function');
+
+        expect(overriden).toThrowError();
+        expect(registered).not.toThrowError();
+    });
 });

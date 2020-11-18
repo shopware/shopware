@@ -41,7 +41,9 @@ Component.register('sw-plugin-list', {
             sortDirection: 'desc',
             sortType: 'upgradedAt:desc',
             showDeleteModal: false,
-            activePagePlugins: null
+            activePagePlugins: null,
+            showUninstallModal: false,
+            removePluginData: false
         };
     },
 
@@ -171,7 +173,6 @@ Component.register('sw-plugin-list', {
 
             return pluginService.activate(plugin.name).then(() => {
                 this.createNotificationSuccess({
-                    title: this.$tc('sw-plugin.list.titleActivateSuccess'),
                     message: this.$tc('sw-plugin.list.messageActivateSuccess')
                 });
             }).then(() => {
@@ -182,7 +183,6 @@ Component.register('sw-plugin-list', {
                 const context = { message: e.response.data.errors[0].detail };
 
                 this.createNotificationError({
-                    title: this.$tc('sw-plugin.errors.titlePluginActivationFailed'),
                     message: this.$tc('sw-plugin.errors.messagePluginActivationFailed', 0, context)
                 });
                 plugin.active = false;
@@ -194,7 +194,6 @@ Component.register('sw-plugin-list', {
 
             return pluginService.deactivate(plugin.name).then(() => {
                 this.createNotificationSuccess({
-                    title: this.$tc('sw-plugin.list.titleDeactivateSuccess'),
                     message: this.$tc('sw-plugin.list.messageDeactivateSuccess')
                 });
             }).then(() => {
@@ -210,20 +209,13 @@ Component.register('sw-plugin-list', {
 
                 if (context.code === 'FRAMEWORK__PLUGIN_HAS_DEPENDANTS') {
                     this.createNotificationWarning({
-                        title: this.$tc('sw-plugin.errors.titlePluginDeactivationFailed'),
-                        message: this.$tc(
-                            'sw-plugin.errors.messageDeactivationFailedBecauseOfActiveDependants',
-                            null,
-                            null,
-                            {
-                                dependency: context.meta.parameters.dependency,
-                                dependantNames: context.meta.parameters.dependantNames
-                            }
-                        )
+                        message: this.$tc('sw-plugin.errors.messageDeactivationFailedDependencies', null, null, {
+                            dependency: context.meta.parameters.dependency,
+                            dependantNames: context.meta.parameters.dependantNames
+                        })
                     });
                 } else {
                     this.createNotificationError({
-                        title: this.$tc('sw-plugin.errors.titlePluginDeactivationFailed'),
                         message: this.$tc('sw-plugin.errors.messagePluginDeactivationFailed', 0, context)
                     });
                 }
@@ -237,7 +229,6 @@ Component.register('sw-plugin-list', {
 
             pluginService.install(plugin.name).then(() => {
                 this.createNotificationSuccess({
-                    title: this.$tc('sw-plugin.list.titleInstallSuccess'),
                     message: this.$tc('sw-plugin.list.messageInstallSuccess')
                 });
             }).then(() => {
@@ -247,18 +238,27 @@ Component.register('sw-plugin-list', {
                 const context = { message: e.response.data.errors[0].detail };
 
                 this.createNotificationError({
-                    title: this.$tc('sw-plugin.errors.titlePluginInstallationFailed'),
                     message: this.$tc('sw-plugin.errors.messagePluginInstallationFailed', 0, context)
                 });
             });
         },
 
+        onShowUninstallPluginModal(plugin) {
+            this.showUninstallModal = plugin.id;
+        },
+
+        onCloseUninstallModal() {
+            this.showUninstallModal = false;
+            this.removePluginData = false;
+        },
+
         onUninstallPlugin(plugin) {
             this.isLoading = true;
 
-            pluginService.uninstall(plugin.name).then(() => {
+            pluginService.uninstall(plugin.name, { keepUserData: !this.removePluginData }).then(() => {
+                // Hide the uninstall modal right away before reloading the plugin list
+                this.showUninstallModal = false;
                 this.createNotificationSuccess({
-                    title: this.$tc('sw-plugin.list.titleUninstallSuccess'),
                     message: this.$tc('sw-plugin.list.messageUninstallSuccess')
                 });
 
@@ -268,14 +268,15 @@ Component.register('sw-plugin-list', {
 
                 return this.getList();
             }).catch((e) => {
-                this.isLoading = false;
-
                 const context = { message: e.response.data.errors[0].detail };
 
                 this.createNotificationError({
-                    title: this.$tc('sw-plugin.errors.titlePluginUninstallationFailed'),
                     message: this.$tc('sw-plugin.errors.messagePluginUninstallationFailed', 0, context)
                 });
+            }).finally(() => {
+                this.isLoading = false;
+                this.showUninstallModal = false;
+                this.removePluginData = false;
             });
         },
 
@@ -283,7 +284,6 @@ Component.register('sw-plugin-list', {
             this.isLoading = true;
             return pluginService.update(plugin.name).then(() => {
                 this.createNotificationSuccess({
-                    title: this.$tc('sw-plugin.list.titleUpdateSuccess'),
                     message: this.$tc('sw-plugin.list.messageUpdateSuccess')
                 });
             }).then(() => {
@@ -305,7 +305,6 @@ Component.register('sw-plugin-list', {
                 };
 
                 this.createNotificationError({
-                    title: this.$tc('sw-plugin.errors.titlePluginUpdateFailed'),
                     message: this.$tc('sw-plugin.errors.messagePluginUpdateFailed', 0, context)
                 });
 
@@ -323,7 +322,6 @@ Component.register('sw-plugin-list', {
             this.isLoading = true;
             pluginService.delete(plugin.name).then(() => {
                 this.createNotificationSuccess({
-                    title: this.$tc('sw-plugin.list.titleDeleteSuccess'),
                     message: this.$tc('sw-plugin.list.messageDeleteSuccess')
                 });
                 this.showDeleteModal = false;

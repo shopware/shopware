@@ -13,6 +13,12 @@ Component.register('sw-property-assignment', {
         propertyCollection: {
             type: Array,
             required: true
+        },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 

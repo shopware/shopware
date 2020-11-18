@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Cart\Price\Struct;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\Framework\Util\FloatComparator;
 
 class CartPrice extends Struct
 {
@@ -42,30 +43,38 @@ class CartPrice extends Struct
      */
     protected $taxStatus;
 
+    /**
+     * @var float
+     */
+    protected $rawTotal;
+
     public function __construct(
         float $netPrice,
         float $totalPrice,
         float $positionPrice,
         CalculatedTaxCollection $calculatedTaxes,
         TaxRuleCollection $taxRules,
-        string $taxStatus
+        string $taxStatus,
+        ?float $rawTotal = null
     ) {
-        $this->netPrice = $netPrice;
-        $this->totalPrice = $totalPrice;
+        $this->netPrice = FloatComparator::cast($netPrice);
+        $this->totalPrice = FloatComparator::cast($totalPrice);
         $this->calculatedTaxes = $calculatedTaxes;
         $this->taxRules = $taxRules;
         $this->positionPrice = $positionPrice;
         $this->taxStatus = $taxStatus;
+        $rawTotal = $rawTotal ?? $totalPrice;
+        $this->rawTotal = $rawTotal;
     }
 
     public function getNetPrice(): float
     {
-        return $this->netPrice;
+        return FloatComparator::cast($this->netPrice);
     }
 
     public function getTotalPrice(): float
     {
-        return $this->totalPrice;
+        return FloatComparator::cast($this->totalPrice);
     }
 
     public function getCalculatedTaxes(): CalculatedTaxCollection
@@ -106,5 +115,10 @@ class CartPrice extends Struct
     public function getApiAlias(): string
     {
         return 'cart_price';
+    }
+
+    public function getRawTotal(): float
+    {
+        return $this->rawTotal;
     }
 }

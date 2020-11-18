@@ -1,5 +1,4 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\Checkout\Promotion\Aggregate\PromotionSetGroup;
 
@@ -35,6 +34,11 @@ class PromotionSetGroupDefinition extends EntityDefinition
     public function getCollectionClass(): string
     {
         return PromotionSetGroupCollection::class;
+    }
+
+    public function since(): ?string
+    {
+        return '6.0.0.0';
     }
 
     protected function getParentDefinitionClass(): ?string

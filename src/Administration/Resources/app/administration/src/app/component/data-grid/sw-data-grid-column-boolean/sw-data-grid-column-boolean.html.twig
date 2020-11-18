@@ -1,14 +1,14 @@
 {% block sw_data_grid_column_boolean %}
-    <div>
-        <template>
-            <template v-if="isInlineEdit">
-                <sw-checkbox-field v-model="currentValue"></sw-checkbox-field>
-            </template>
+    <div class="sw-data-grid-column-boolean">
+        <sw-checkbox-field
+            v-if="isInlineEdit"
+            v-model="currentValue"
+            :disabled="disabled">
+        </sw-checkbox-field>
 
-            <template v-else>
-                <sw-icon v-if="currentValue" name="small-default-checkmark-line-medium" small class="is--active"></sw-icon>
-                <sw-icon v-else name="small-default-x-line-medium" small class="is--inactive"></sw-icon>
-            </template>
+        <template v-else>
+            <sw-icon v-if="currentValue" name="small-default-checkmark-line-medium" small class="is--active"></sw-icon>
+            <sw-icon v-else name="small-default-x-line-medium" small class="is--inactive"></sw-icon>
         </template>
     </div>
 {% endblock %}

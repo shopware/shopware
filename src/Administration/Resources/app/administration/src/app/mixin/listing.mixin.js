@@ -1,5 +1,4 @@
 const { Mixin } = Shopware;
-const { CriteriaFactory } = Shopware.DataDeprecated;
 const types = Shopware.Utils.types;
 const { debug } = Shopware.Utils;
 
@@ -75,6 +74,10 @@ Mixin.register('listing', {
 
             // Fetch new list
             this.getList();
+        },
+
+        selection() {
+            Shopware.State.commit('shopwareApps/setSelectedIds', Object.keys(this.selection));
         }
     },
 
@@ -130,7 +133,7 @@ Mixin.register('listing', {
             });
         },
 
-        getListingParams() {
+        getMainListingParams() {
             if (this.disableRouteParams) {
                 return {
                     limit: this.limit,
@@ -144,7 +147,7 @@ Mixin.register('listing', {
             // Get actual query parameter
             const query = this.$route.query;
 
-            const params = {
+            return {
                 limit: query.limit,
                 page: query.page,
                 term: query.term,
@@ -152,35 +155,6 @@ Mixin.register('listing', {
                 sortDirection: query.sortDirection || this.sortDirection,
                 naturalSorting: query.naturalSorting || this.naturalSorting
             };
-
-            const criteria = this.generateCriteriaFromFilters(this.filters);
-
-            if (criteria) {
-                params.criteria = criteria;
-            }
-
-            return params;
-        },
-
-        generateCriteriaFromFilters(filters, operator = 'AND') {
-            const terms = [];
-
-            this.filters.forEach((filter) => {
-                if (!filter.active) {
-                    return;
-                }
-
-                const criteria = filter.criteria;
-                const term = CriteriaFactory[criteria.type](criteria.field, criteria.options);
-
-                terms.push(term);
-            });
-
-            if (!terms.length) {
-                return null;
-            }
-
-            return CriteriaFactory.multi(operator, ...terms);
         },
 
         updateSelection(selection) {

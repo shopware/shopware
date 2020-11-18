@@ -31,7 +31,6 @@
       "titleSidebarItemFilterCampaignCode": "Kampagnen-Code",
       "buttonDelete": "Löschen",
       "buttonCancel": "Abbrechen",
-      "modalTitleDelete": "Bestellung löschen",
       "textDeleteConfirm": "Möchten Sie diese Bestellung ({orderNumber}) wirklich löschen?"
     },
     "detail": {
@@ -43,23 +42,14 @@
       "textHeadline": "Bestellung",
       "textHeadlineNew": "Neue Bestellung",
       "tabGeneral": "Allgemein",
-      "titleRecalculationError": "Fehler",
       "messageRecalculationError": "Bei der Preisberechnung ist ein Fehler aufgetreten: <br>",
-      "titleSaveError": "Fehler",
       "messageSaveError": "Beim Speichern ist ein Fehler aufgetreten",
-      "notification": {
-        "shippingNotAvailable": {
-          "title": "Fehler",
-          "message": "Lieferung in das Zielland nicht möglich."
-        }
-      }
+      "messageShippingNotAvailable": "Lieferung in das Zielland nicht möglich."
     },
     "create": {
       "textNewOrder": "Neue Bestellung",
       "buttonSaveOrder": "Bestellung speichern",
       "buttonCancelOrder": "Abbrechen",
-      "titleSaveError": "Fehler",
-      "titleFetchError": "Fehler",
       "messageSaveError": "Bestellung konnte nicht gespeichert werden",
       "messageSwitchCustomerError": "Beim Kundenwechsel ist ein Fehler aufgetreten",
       "messageFetchCustomerAddressesError": "Beim Abrufen der Kundenadresse ist ein Fehler aufgetreten"
@@ -99,13 +89,15 @@
       "columnProductName": "Name",
       "columnQuantity": "Menge",
       "columnPriceGross": "Bruttopreis",
+      "columnPriceTaxFree": "Preis (steuerfrei)",
       "columnPrice": "Preis",
       "columnTotalPrice": "Gesamt",
       "columnTotalPriceGross": "Gesamt",
       "columnTax": "Steuersatz",
-      "textCreditTax": "auto",
       "columnPriceNet": "Nettopreis",
       "columnTotalPriceNet": "Gesamt",
+      "textCreditTax": "auto",
+      "taxDetail": "{taxRate}%: {tax}",
       "contextMenuShowProduct": "Produkt anzeigen",
       "messageEmptyItem": "Noch keine Positionen vorhanden",
       "buttonAddProduct": "Produkt hinzufügen",
@@ -155,6 +147,7 @@
       "columnProductName": "Name",
       "columnQuantity": "Menge",
       "columnPriceGross": "Bruttopreis",
+      "columnPriceTaxFree": "Preis (steuerfrei)",
       "columnPrice": "Preis",
       "columnTotalPrice": "Gesamt",
       "columnTotalPriceGross": "Gesamt",
@@ -206,7 +199,8 @@
       "placeholderTrackingCodeSelect": "Tracking-Code hinzufügen ...",
       "addTrackingCode": "Zum Hinzufügen hier klicken",
       "enterValidTrackingCode": "Tracking-Code eingeben",
-      "textCreditTax": "auto"
+      "textCreditTax": "auto",
+      "taxDetail": "{taxRate}%: {tax}"
     },
     "addressSelection": {
       "modalTitleEditAddress": "Adressen",
@@ -248,8 +242,8 @@
       "labelLastEditedBy": "Zuletzt geändert von",
       "labelSystemUser": "System",
       "labelSelectStatePlaceholder": "Bitte wählen ...",
-      "labelSelectStateButton": "Status ändern und E-Mail versenden",
-      "headlineErrorStateChange": "Fehler",
+      "labelSelectStateButton": "Status aktualisieren",
+      "labelSendMailSwitch": "E-Mail an Kunden senden",
       "labelErrorStateChange": "Beim Setzen des Status ist ein Fehler aufgetreten:",
       "labelErrorNoAction": "Kein neuer Zustand gewählt.",
       "labelNoTransactionState": "Keine Transaktionen vorhanden",
@@ -270,6 +264,7 @@
     "documentCard": {
       "searchBarPlaceholder": "Belege durchsuchen ...",
       "cardTitle": "Belege",
+      "modalTitle": "Status aktualisieren",
       "labelDate": "Datum",
       "labelNumber": "Nummer",
       "labelType": "Typ",
@@ -316,8 +311,20 @@
     "promotionModal": {
       "labelTitle": "Automatische Werbeaktionen deaktivieren",
       "message": "Die folgenden automatischen Werbeaktionen werden deaktiviert:",
-      "messageNoItems": "Noch keine automatischen Werbeaktionen aktiv.",
+      "messageNoItems": "Keine automatischen Werbeaktionen aktiv.",
       "buttonDisable": "Deaktivieren"
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "order": {
+        "label": "Bestellungen"
+      }
+    },
+    "additional_permissions": {
+      "orders": {
+        "create_discounts": "Rabatte erstellen"
+      }
     }
   }
 }

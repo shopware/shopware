@@ -3,8 +3,18 @@
 
         {% block sw_order_line_items_grid_actions %}
             <sw-container class="sw-order-line-items-grid__actions-container"
-                          columns="1fr"
+                          columns="1fr auto"
+                          gap="16px"
                           v-show="editable">
+
+                {% block sw_order_line_items_grid_line_item_filter %}
+                    <div align="left">
+                        <sw-card-filter ref="itemFilter"
+                                        :placeholder="$tc('sw-order.createBase.placeholderSearchBarItem')"
+                                        @sw-card-filter-term-change="onSearchTermChange">
+                        </sw-card-filter>
+                    </div>
+                {% endblock %}
 
                 {% block sw_order_line_items_grid_create_actions %}
                     <div align="right">
@@ -36,7 +46,15 @@
                                             <sw-context-menu-item @click="onInsertBlankItem">
                                                 {{ $tc('sw-order.detailBase.buttonAddBlankProduct') }}
                                             </sw-context-menu-item>
-                                            <sw-context-menu-item @click="onInsertCreditItem">
+                                            <sw-context-menu-item
+                                                class="sw-order-line-items-grid__can-create-discounts-button"
+                                                :disabled="!canCreateDiscounts"
+                                                v-tooltip="{
+                                                    message: $tc('sw-privileges.tooltip.warning'),
+                                                    disabled: canCreateDiscounts,
+                                                    showOnDisabledElements: true
+                                                }"
+                                                @click="onInsertCreditItem">
                                                 {{ $tc('sw-order.detailBase.buttonAddCredit') }}
                                             </sw-context-menu-item>
                                         {% endblock %}
@@ -59,7 +77,7 @@
                           :isLoading="isLoading"
                           :allowColumnEdit="false"
                           :allowInlineEdit="editable"
-                          :compactMode="!editable"
+                          :compactMode="false"
                           identifier="sw-order-line-item-grid"
                           class="sw-order-line-items-grid__data-grid"
                           @inline-edit-cancel="onInlineEditCancel"
@@ -73,6 +91,8 @@
 
                             {% block sw_order_line_items_grid_grid_columns_label_inline_edit %}
                                 <sw-order-product-select v-if="isInlineEdit"
+                                                         :salesChannelId="salesChannelId"
+                                                         :taxStatus="taxStatus"
                                                          :item="item">
                                 </sw-order-product-select>
                             {% endblock %}
@@ -80,9 +100,15 @@
                             {% block sw_order_line_items_grid_grid_columns_label_link %}
                                 <router-link v-else-if="!isInlineEdit && isProductItem(item)"
                                              :title="$tc('sw-order.detailBase.contextMenuShowProduct')"
-                                             :to="{ name: 'sw.product.detail', params: { id: item.identifier } }">
-                                    {% block sw_order_line_items_grid_columns_name_label %}
-                                        {{ item.label }}
+                                             :to="{ name: 'sw.product.detail', params: { id: item.productId } }">
+
+                                    {% block sw_order_line_items_grid_column_payload_options %}
+                                        <div v-if="item.payload && item.payload.options"
+                                             class="sw-order-line-items-grid__item-payload-options">
+                                            <sw-product-variant-info :variations="item.payload.options">
+                                                {{ item.label }}
+                                            </sw-product-variant-info>
+                                        </div>
                                     {% endblock %}
                                 </router-link>
                             {% endblock %}
@@ -105,7 +131,7 @@
                                                  placeholder="0"
                                                  size="small"
                                                  :min="getMinItemPrice(item.id)"
-                                                 :max="getMaxItemPrice(item.id)">
+                                                 @change="checkItemPrice($event, item)">
                                 </sw-number-field>
                             {% endblock %}
 
@@ -161,6 +187,14 @@
                                                  size="small"
                                                  placeholder="0">
                                 </sw-number-field>
+                            {% endblock %}
+
+                            {% block sw_order_line_items_grid_grid_columns_tax_content_tooltip %}
+                                <span v-else-if="hasMultipleTaxes(item)"
+                                      v-tooltip="tooltipTaxDetail(item)"
+                                      class="sw-order-line-items-grid__item-tax-tooltip">
+                                    {{ showTaxValue(item) }}
+                                </span>
                             {% endblock %}
 
                             {% block sw_order_line_items_grid_grid_columns_tax_content %}

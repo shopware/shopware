@@ -327,7 +327,7 @@ class AntiJoinSearchTest extends TestCase
         static::assertContains($greenGruenId, $ids);
         static::assertCount(1, $ids);
 
-        $deContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM], Defaults::LIVE_VERSION, 1.0, 2, true);
+        $deContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM], Defaults::LIVE_VERSION, 1.0, true);
         $ids = $productRepository->searchIds((new Criteria($ids))->addFilter($notGreenFilter), $deContext)->getIds();
         static::assertContains($greenGruenId, $ids);
         static::assertCount(1, $ids);
@@ -343,7 +343,7 @@ class AntiJoinSearchTest extends TestCase
         $ids = $productRepository->searchIds((new Criteria($ids))->addFilter($notGruenFilter), $rawDeContext)->getIds();
         static::assertEmpty($ids);
 
-        $deContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM], Defaults::LIVE_VERSION, 1.0, 2, true);
+        $deContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM], Defaults::LIVE_VERSION, 1.0, true);
         $ids = $productRepository->searchIds((new Criteria($ids))->addFilter($notGruenFilter), $deContext)->getIds();
         static::assertContains($onlyGreenId, $ids);
         static::assertCount(1, $ids);

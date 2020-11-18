@@ -68,11 +68,22 @@
                         {% endblock %}
 
                         {% block sw_product_variants_overview_option_list_toolbar_buttons %}
-                            <sw-button variant="ghost" class="sw-product-variants__generate-action" @click="$emit('generator-open')">
+                            <sw-button variant="ghost"
+                                       :disabled="!acl.can('product.creator')"
+                                       v-tooltip="{
+                                            message: $tc('sw-privileges.tooltip.warning'),
+                                            disabled: acl.can('product.creator'),
+                                            showOnDisabledElements: true
+                                        }"
+                                       class="sw-product-variants__generate-action"
+                                       @click="$emit('generator-open')">
                                 {{ $tc('sw-product.variations.overview.generateVariants') }}
                             </sw-button>
 
-                            <sw-button variant="ghost" class="sw-product-variants__configure-storefront-action" @click="$emit('delivery-open')">
+                            <sw-button variant="ghost"
+                                       class="sw-product-variants__configure-storefront-action"
+                                       :disabled="!acl.can('product.editor')"
+                                       @click="$emit('delivery-open')">
                                 {{ $tc('sw-product.variations.overview.storefrontDelivery') }}
                             </sw-button>
                         {% endblock %}
@@ -94,7 +105,7 @@
                 :sortDirection="sortDirection"
                 :isLoading="isLoading"
                 :skeletonItemAmount="limit"
-                :allowInlineEdit="true"
+                :allowInlineEdit="acl.can('product.editor')"
                 identifier="product-variants-overview"
                 @column-sort="onSortColumn"
                 @inline-edit-save="onInlineEditSave"
@@ -103,13 +114,21 @@
                 {% block sw_product_variants_overview_data_grid_column_name %}
                     <template slot="column-name" slot-scope="{ item }">
                         <template v-if="item.options">
-                            <a @click="onOptionEdit(item)" class="sw-product-variants-overview__variation-link">
+                            {# @deprecated tag:v6.4.0 will be removed user router link element instead #}
+                            <a class="sw-product-variants-overview__variation-link"></a>
+
+                            <router-link
+                                @click="onOptionEdit(item)"
+                                :to="{ name: 'sw.product.detail.base', params: { id: item.id } }"
+                                class="sw-product-variants-overview__variation-link">
+
                                 <sw-icon name="default-text-editor-link"></sw-icon>
+
                                 <span v-for="singleVariation in item.options"
                                       class="sw-product-variants-overview__single-variation">
                                     {{ singleVariation.translated.name }}
                                 </span>
-                            </a>
+                            </router-link>
                         </template>
                     </template>
                 {% endblock %}
@@ -200,7 +219,21 @@
 
                 {% block sw_product_variants_overview_data_grid_column_active %}
                     <template slot="column-active" slot-scope="{ item, isInlineEdit }">
-                        <sw-data-grid-column-boolean v-model="item.active" :isInlineEdit="isInlineEdit" />
+                        <template v-if="isInlineEdit">
+                            <sw-data-grid-column-boolean v-model="item.active" :isInlineEdit="isInlineEdit" :disabled="isActiveFieldInherited(item)" />
+
+                            <sw-inheritance-switch :isInherited="isActiveFieldInherited(item)"
+                                                   class="sw-product-variants-overview__active-inherited-icon"
+                                                   @inheritance-restore="onActiveInheritanceRestore(item)"
+                                                   @inheritance-remove="onActiveInheritanceRemove(item)">
+                            </sw-inheritance-switch>
+                        </template>
+
+                        <template v-else>
+                            <sw-icon v-if="item.active === true" name="small-default-checkmark-line-medium" small class="is--active"></sw-icon>
+                            <sw-icon v-else-if="item.active === false" name="small-default-x-line-medium" small class="is--inactive"></sw-icon>
+                            <sw-icon v-else key="inherit-icon" :multicolor="true" name="custom-inherited" size="16"></sw-icon>
+                        </template>
                     </template>
                 {% endblock %}
 
@@ -208,7 +241,7 @@
                     <template slot="action-modals" slot-scope="{ item }">
                         <sw-modal v-if="showDeleteModal === item.id"
                                   @modal-close="onCloseDeleteModal"
-                                  :title="$tc('sw-product.variations.generatedListDeleteModalTitle')"
+                                  :title="$tc('global.default.warning')"
                                   variant="small">
 
                             <p class="sw-product-variants-overview__modal--confirm-delete-text">
@@ -223,7 +256,7 @@
                                         {{ $tc('sw-product.variations.generatedListDeleteModalButtonCancel') }}
                                     </sw-button>
                                     <sw-button @click="onConfirmDelete(item)"
-                                               variant="primary"
+                                               variant="danger"
                                                size="small"
                                                :disabled="modalLoading">
                                         {{ $tc('sw-product.variations.generatedListDeleteModalButtonDelete') }}
@@ -237,11 +270,24 @@
                 {% block sw_product_variants_overview_actions %}
                     <template slot="actions" slot-scope="{ item }">
                         {% block sw_product_variants_overview_actions_items %}
-                            <sw-context-menu-item @click="onOptionEdit(item)">
+                            <sw-context-menu-item @click="onOptionEdit(item)"
+                                                  :disabled="!acl.can('product.editor')"
+                                                  v-tooltip="{
+                                                        message: $tc('sw-privileges.tooltip.warning'),
+                                                        disabled: acl.can('product.editor'),
+                                                        showOnDisabledElements: true
+                                                  }">
                                 {{ $tc('sw-product.variations.generatedListContextMenuEdit') }}
                             </sw-context-menu-item>
 
-                            <sw-context-menu-item variant="danger" @click="onVariationDelete(item)">
+                            <sw-context-menu-item variant="danger"
+                                                  @click="onVariationDelete(item)"
+                                                  :disabled="!acl.can('product.deleter')"
+                                                  v-tooltip="{
+                                                        message: $tc('sw-privileges.tooltip.warning'),
+                                                        disabled: acl.can('product.deleter'),
+                                                        showOnDisabledElements: true
+                                                  }">
                             {{ $tc('sw-product.variations.generatedListContextMenuDelete') }}
                             </sw-context-menu-item>
                         {% endblock %}

@@ -10,12 +10,19 @@ Component.register('sw-order-detail', {
         Mixin.getByName('notification')
     ],
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
+
+    props: {
+        orderId: {
+            type: String,
+            required: false,
+            default: null
+        }
+    },
 
     data() {
         return {
             identifier: '',
-            orderId: null,
             isEditing: false,
             isLoading: true,
             isSaveSuccessful: false
@@ -35,7 +42,7 @@ Component.register('sw-order-detail', {
     },
 
     watch: {
-        '$route.params.id'() {
+        orderId() {
             this.createdComponent();
         }
     },
@@ -46,7 +53,10 @@ Component.register('sw-order-detail', {
 
     methods: {
         createdComponent() {
-            this.orderId = this.$route.params.id;
+            Shopware.State.commit(
+                'shopwareApps/setSelectedIds',
+                this.orderId ? [this.orderId] : []
+            );
         },
 
         updateIdentifier(identifier) {
@@ -92,7 +102,6 @@ Component.register('sw-order-detail', {
             }
 
             this.createNotificationError({
-                title: this.$tc('sw-order.detail.titleRecalculationError'),
                 message: this.$tc('sw-order.detail.messageRecalculationError') + errorDetails
             });
         }

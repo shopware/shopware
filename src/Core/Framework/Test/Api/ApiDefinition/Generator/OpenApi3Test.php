@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
+/**
+ * @group slow
+ */
 class OpenApi3Test extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -13,10 +16,9 @@ class OpenApi3Test extends TestCase
 
     public function apiVersionDataProvider(): array
     {
-        return array_map(
-            static function ($v) { return [$v]; },
-            $this->getContainer()->getParameter('kernel.supported_api_versions')
-        );
+        return array_map(static function ($v) {
+            return [$v];
+        }, $this->getContainer()->getParameter('kernel.supported_api_versions'));
     }
 
     /**
@@ -28,6 +30,8 @@ class OpenApi3Test extends TestCase
 
         $response = $this->getBrowser()->getResponse();
 
-        static::assertSame(200, $response->getStatusCode());
+        $content = json_decode($response->getContent(), true);
+
+        static::assertSame(200, $response->getStatusCode(), print_r($content, true));
     }
 }

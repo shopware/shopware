@@ -1,0 +1,43 @@
+{% set collapseTriggerLabels = {
+    collapseTriggerMoreLabel: "checkout.collapseTriggerMore"|trans|sw_sanitize,
+    collapseTriggerLessLabel: "checkout.collapseTriggerLess"|trans|sw_sanitize
+} %}
+
+{% block component_shipping_methods %}
+    <div class="shipping-methods">
+        {% block component_shipping_method %}
+            {% for shipping in page.shippingMethods[:visibleShippingMethodsLimit] %}
+                {% sw_include '@Storefront/storefront/component/shipping/shipping-method.html.twig' %}
+            {% endfor %}
+
+            {% block component_shipping_method_collapse %}
+                {% if page.shippingMethods | length > visibleShippingMethodsLimit and visibleShippingMethodsLimit is not same as(null) %}
+                    <div class="collapse">
+                        {% for shipping in page.shippingMethods[visibleShippingMethodsLimit:] %}
+                            {% sw_include '@Storefront/storefront/component/shipping/shipping-method.html.twig' %}
+                        {% endfor %}
+                    </div>
+
+                    {% block component_shipping_method_collapse_trigger %}
+                        <div class="btn btn-link confirm-checkout-collapse-trigger"
+                             data-collapse-checkout-confirm-methods="true"
+                             data-collapse-checkout-confirm-methods-options='{{ collapseTriggerLabels|json_encode }}'>
+                            <span class="confirm-checkout-collapse-trigger-label">
+                                {% block component_shipping_method_collapse_trigger_label %}
+                                    {{ collapseTriggerLabels.collapseTriggerMoreLabel }}
+                                {% endblock %}
+                            </span>
+                            {% block component_shipping_method_collapse_trigger_icon %}
+                                {% sw_icon 'arrow-down' style {
+                                    'class': 'confirm-checkout-chevron',
+                                    'size': 'xs',
+                                    'pack' : 'solid'
+                                } %}
+                            {% endblock %}
+                        </div>
+                    {% endblock %}
+                {% endif %}
+            {% endblock %}
+        {% endblock %}
+    </div>
+{% endblock %}

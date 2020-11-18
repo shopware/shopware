@@ -7,7 +7,8 @@
             :options="options"
             :value="field"
             :placeholder="$tc('sw-product-stream.filter.placeholderFieldSelect')"
-            @change="changeField">
+            @change="changeField"
+            :disabled="disabled">
         </sw-single-select>
     </sw-arrow-field>
 {% endblock %}

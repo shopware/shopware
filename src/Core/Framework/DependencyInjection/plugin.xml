@@ -21,7 +21,7 @@
 
         <service id="Shopware\Core\Framework\Plugin\BundleConfigDumper">
             <argument type="service" id="Shopware\Core\Framework\Plugin\BundleConfigGenerator" />
-            <argument>%kernel.cache_dir%</argument>
+            <argument>%kernel.project_dir%</argument>
 
             <tag name="kernel.event_subscriber" />
         </service>
@@ -29,6 +29,7 @@
         <service id="Shopware\Core\Framework\Plugin\BundleConfigGenerator">
             <argument type="service" id="kernel" />
             <argument type="service" id="plugin.repository" />
+            <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader" />
         </service>
 
         <service id="Shopware\Core\Framework\Plugin\PluginDefinition">
@@ -94,6 +95,13 @@
 
         <service id="Shopware\Core\Framework\Plugin\Command\PluginListCommand">
             <argument type="service" id="plugin.repository"/>
+
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Plugin\Command\PluginZipImportCommand">
+            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManagementService"/>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\PluginService"/>
 
             <tag name="console.command"/>
         </service>
@@ -164,9 +172,10 @@
         </service>
 
         <service id="Shopware\Core\Framework\Plugin\Util\AssetService">
-            <argument type="service" id="shopware.filesystem.public"/>
+            <argument type="service" id="shopware.filesystem.asset"/>
             <argument type="service" id="kernel"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\KernelPluginCollection"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
         </service>
 
         <!-- Requirement -->

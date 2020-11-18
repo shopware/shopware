@@ -66,9 +66,4 @@ class SalesChannelTranslationEntity extends TranslationEntity
     {
         $this->customFields = $customFields;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'sales_channel_translation';
-    }
 }

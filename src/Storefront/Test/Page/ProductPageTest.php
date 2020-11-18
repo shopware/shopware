@@ -4,12 +4,18 @@ namespace Shopware\Storefront\Test\Page;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
+use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Page\Product\ProductPage;
+use Shopware\Storefront\Page\Product\ProductPageCriteriaEvent;
 use Shopware\Storefront\Page\Product\ProductPageLoadedEvent;
 use Shopware\Storefront\Page\Product\ProductPageLoader;
+use Shopware\Storefront\Page\Product\Review\RatingMatrix;
+use Shopware\Storefront\Page\Product\Review\ReviewLoaderResult;
 use Symfony\Component\HttpFoundation\Request;
 
 class ProductPageTest extends TestCase
@@ -66,6 +72,23 @@ class ProductPageTest extends TestCase
         self::assertPageEvent(ProductPageLoadedEvent::class, $event, $context, $request, $page);
     }
 
+    public function testItDispatchPageCriteriaEvent(): void
+    {
+        $context = $this->createSalesChannelContextWithNavigation();
+        $product = $this->getRandomProduct($context);
+
+        $request = new Request([], [], ['productId' => $product->getId()]);
+
+        /** @var ProductPageLoadedEvent $event */
+        $event = null;
+        $this->catchEvent(ProductPageCriteriaEvent::class, $event);
+
+        $page = $this->getPageLoader()->load($request, $context);
+
+        static::assertInstanceOf(ProductPage::class, $page);
+        static::assertInstanceOf(ProductPageCriteriaEvent::class, $event);
+    }
+
     public function testItDoesLoadACloseProductWithHideCloseEnabled(): void
     {
         $context = $this->createSalesChannelContextWithNavigation();
@@ -109,11 +132,60 @@ class ProductPageTest extends TestCase
         $this->getPageLoader()->load($request, $context);
     }
 
+    public function testItLoadsReviews(): void
+    {
+        $context = $this->createSalesChannelContextWithNavigation();
+        $product = $this->getRandomProduct($context);
+
+        $this->createReviews($product, $context);
+
+        $request = new Request([], [], ['productId' => $product->getId()]);
+
+        $page = $this->getPageLoader()->load($request, $context);
+
+        static::assertInstanceOf(ReviewLoaderResult::class, $page->getReviews());
+        static::assertCount(6, $page->getReviews());
+        static::assertInstanceOf(RatingMatrix::class, $page->getReviews()->getMatrix());
+
+        $matrix = $page->getReviews()->getMatrix();
+        static::assertEquals(3.3333333333333, $matrix->getAverageRating());
+        static::assertEquals(6, $matrix->getTotalReviewCount());
+    }
+
     /**
      * @return ProductPageLoader
      */
     protected function getPageLoader()
     {
         return $this->getContainer()->get(ProductPageLoader::class);
+    }
+
+    private function createReviews(ProductEntity $product, SalesChannelContext $context): void
+    {
+        $reviews = [];
+        for ($i = 1; $i <= 5; ++$i) {
+            $reviews[] = [
+                'languageId' => $context->getContext()->getLanguageId(),
+                'salesChannelId' => $context->getSalesChannel()->getId(),
+                'productId' => $product->getId(),
+                'title' => 'Test',
+                'content' => 'test',
+                'points' => $i,
+                'status' => true,
+            ];
+        }
+
+        $reviews[] = [
+            'languageId' => $context->getContext()->getLanguageId(),
+            'salesChannelId' => $context->getSalesChannel()->getId(),
+            'productId' => $product->getId(),
+            'title' => 'Test',
+            'content' => 'test',
+            'points' => 5,
+            'status' => true,
+        ];
+
+        $this->getContainer()->get('product_review.repository')
+            ->create($reviews, Context::createDefaultContext());
     }
 }

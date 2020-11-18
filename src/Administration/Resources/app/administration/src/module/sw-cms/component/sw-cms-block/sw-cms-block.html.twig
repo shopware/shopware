@@ -7,7 +7,11 @@
         {% endblock %}
 
         {% block sw_cms_block_overlay %}
-            <div class="sw-cms-block__config-overlay" :class="overlayClasses" @click="onBlockOverlayClick"></div>
+            <div class="sw-cms-block__config-overlay"
+                 v-if="!disabled"
+                 :class="overlayClasses"
+                 @click="onBlockOverlayClick">
+            </div>
         {% endblock %}
     </div>
 {% endblock %}

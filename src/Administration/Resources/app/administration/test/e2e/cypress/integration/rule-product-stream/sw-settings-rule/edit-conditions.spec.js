@@ -1,4 +1,4 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
 
 import RulePageObject from '../../../support/pages/module/sw-rule.page-object';
 
@@ -29,7 +29,9 @@ describe('Rule builder: Test crud operations', () => {
             `${page.elements.dataGridRow}--0`
         );
 
-        cy.get('.sw-condition-tree .sw-condition-or-container .sw-condition-and-container').first().as('first-and-container');
+        cy.get('.sw-condition-tree .sw-condition-or-container .sw-condition-and-container')
+            .first()
+            .as('first-and-container');
         cy.get('@first-and-container').should('be.visible');
 
         cy.get('@first-and-container').within(() => {
@@ -39,7 +41,7 @@ describe('Rule builder: Test crud operations', () => {
                 selector: '@condition-general',
                 type: 'Free shipping',
                 operator: null,
-                value: 'No',
+                value: 'No'
             });
 
             cy.get('button.sw-button').contains('And').click();
@@ -51,7 +53,7 @@ describe('Rule builder: Test crud operations', () => {
                 type: 'Cart amount',
                 operator: 'Is greater than',
                 inputName: 'amount',
-                value: '100',
+                value: '100'
             });
 
             cy.get('@second-condition').within(() => {

@@ -2,7 +2,7 @@ import template from './sw-theme-manager-detail.html.twig';
 import './sw-theme-manager-detail.scss';
 
 const { Component, Mixin, StateDeprecated } = Shopware;
-/** @deprecated tag:v6.3.0 - use Shopware.Application instead */
+/** @deprecated tag:v6.4.0 - use Shopware.Application instead */
 // eslint-disable-next-line no-unused-vars
 const { Application } = Shopware;
 const Criteria = Shopware.Data.Criteria;
@@ -10,6 +10,8 @@ const { getObjectDiff, cloneDeep } = Shopware.Utils.object;
 
 Component.register('sw-theme-manager-detail', {
     template,
+
+    inject: ['acl'],
 
     mixins: [
         Mixin.getByName('theme'),
@@ -21,7 +23,7 @@ Component.register('sw-theme-manager-detail', {
             theme: null,
             parentTheme: null,
             defaultMediaFolderId: null,
-            /** @deprecated tag:v6.3.0 - use structuredThemeFields instead */
+            /** @deprecated tag:v6.4.0 - use structuredThemeFields instead */
             themeFields: {},
             structuredThemeFields: {},
             themeConfig: {},
@@ -84,10 +86,6 @@ Component.register('sw-theme-manager-detail', {
                 message: this.$tc('sw-theme-manager.actions.deleteDisabledToolTip'),
                 disabled: this.theme.salesChannels.length === 0
             };
-        },
-
-        mediaStore() {
-            return StateDeprecated.getStore('media');
         },
 
         themeId() {
@@ -191,10 +189,12 @@ Component.register('sw-theme-manager-detail', {
         },
 
         successfulUpload(mediaItem, context) {
-            this.mediaStore.getByIdAsync(mediaItem.targetId).then((media) => {
-                this.setMediaItem(media, context);
-                return true;
-            });
+            this.mediaRepository
+                .get(mediaItem.targetId, Shopware.Context.api)
+                .then((media) => {
+                    this.setMediaItem(media, context);
+                    return true;
+                });
         },
 
         removeMediaItem(field) {
@@ -202,6 +202,10 @@ Component.register('sw-theme-manager-detail', {
         },
 
         onReset() {
+            if (!this.acl.can('theme.editor')) {
+                return;
+            }
+
             if (this.theme.configValues === null) {
                 return;
             }
@@ -218,6 +222,10 @@ Component.register('sw-theme-manager-detail', {
         },
 
         onConfirmThemeReset() {
+            if (!this.acl.can('theme.editor')) {
+                return;
+            }
+
             this.themeService.resetTheme(this.themeId).then(() => {
                 this.getTheme();
             });
@@ -244,6 +252,10 @@ Component.register('sw-theme-manager-detail', {
         },
 
         onSaveTheme() {
+            if (!this.acl.can('theme.editor')) {
+                return;
+            }
+
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
@@ -267,7 +279,7 @@ Component.register('sw-theme-manager-detail', {
                 }
 
                 this.createNotificationError({
-                    title: this.$tc('sw-theme-manager.detail.titleSaveError'),
+                    title: this.$tc('global.default.error'),
                     message: error.toString(),
                     autoClose: false,
                     actions: [...actions]

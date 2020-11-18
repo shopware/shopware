@@ -33,6 +33,7 @@ class JsonSalesChannelEntityEncoderTest extends TestCase
 {
     use KernelTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
+    use AssertValuesTrait;
 
     public function emptyInputProvider(): array
     {
@@ -80,7 +81,7 @@ class JsonSalesChannelEntityEncoderTest extends TestCase
         $encoder = $this->getContainer()->get(JsonEntityEncoder::class);
         $actual = $encoder->encode(new Criteria(), $definition, $fixture->getInput(), SerializationFixture::SALES_CHANNEL_API_BASE_URL, SerializationFixture::API_VERSION);
 
-        static::assertEquals($fixture->getSalesChannelJsonFixtures(), $actual);
+        $this->assertValues($fixture->getSalesChannelJsonFixtures(), $actual);
     }
 
     /**
@@ -101,7 +102,7 @@ class JsonSalesChannelEntityEncoderTest extends TestCase
         $actual = $encoder->encode(new Criteria(), $extendableDefinition, $fixture->getInput(), SerializationFixture::SALES_CHANNEL_API_BASE_URL, SerializationFixture::API_VERSION);
         unset($actual['apiAlias']);
 
-        static::assertEquals($fixture->getSalesChannelJsonFixtures(), $actual);
+        $this->assertValues($fixture->getSalesChannelJsonFixtures(), $actual);
     }
 
     /**
@@ -121,6 +122,6 @@ class JsonSalesChannelEntityEncoderTest extends TestCase
         $actual = $encoder->encode(new Criteria(), $extendableDefinition, $fixture->getInput(), SerializationFixture::SALES_CHANNEL_API_BASE_URL, SerializationFixture::API_VERSION);
         unset($actual['apiAlias']);
 
-        static::assertEquals($fixture->getSalesChannelJsonFixtures(), $actual);
+        $this->assertValues($fixture->getSalesChannelJsonFixtures(), $actual);
     }
 }

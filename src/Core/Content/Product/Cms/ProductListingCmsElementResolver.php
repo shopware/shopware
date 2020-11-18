@@ -8,18 +8,21 @@ use Shopware\Core\Content\Cms\DataResolver\Element\AbstractCmsElementResolver;
 use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductListingStruct;
-use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingGatewayInterface;
+use Shopware\Core\Content\Product\SalesChannel\Listing\AbstractProductListingRoute;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\HttpFoundation\Request;
 
 class ProductListingCmsElementResolver extends AbstractCmsElementResolver
 {
     /**
-     * @var ProductListingGatewayInterface
+     * @var AbstractProductListingRoute
      */
-    private $listingGateway;
+    private $listingRoute;
 
-    public function __construct(ProductListingGatewayInterface $listingGateway)
+    public function __construct(AbstractProductListingRoute $listingRoute)
     {
-        $this->listingGateway = $listingGateway;
+        $this->listingRoute = $listingRoute;
     }
 
     public function getType(): string
@@ -37,8 +40,83 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
         $data = new ProductListingStruct();
         $slot->setData($data);
 
-        $listing = $this->listingGateway->search($resolverContext->getRequest(), $resolverContext->getSalesChannelContext());
+        $request = $resolverContext->getRequest();
+        $context = $resolverContext->getSalesChannelContext();
+
+        if ($this->isCustomSorting($slot)) {
+            $this->restrictSortings($request, $slot);
+            $this->addDefaultSorting($request, $slot);
+        }
+
+        $navigationId = $this->getNavigationId($request, $context);
+
+        $criteria = new Criteria();
+        $criteria->setTitle('cms::product-listing');
+
+        $listing = $this->listingRoute
+            ->load($navigationId, $request, $context, $criteria)
+            ->getResult();
 
         $data->setListing($listing);
+    }
+
+    private function getNavigationId(Request $request, SalesChannelContext $salesChannelContext): string
+    {
+        if ($navigationId = $request->get('navigationId')) {
+            return $navigationId;
+        }
+
+        $params = $request->attributes->get('_route_params');
+
+        if ($params && isset($params['navigationId'])) {
+            return $params['navigationId'];
+        }
+
+        return $salesChannelContext->getSalesChannel()->getNavigationCategoryId();
+    }
+
+    private function isCustomSorting(CmsSlotEntity $slot): bool
+    {
+        $config = $slot->getTranslation('config');
+
+        if ($config && isset($config['useCustomSorting']) && isset($config['useCustomSorting']['value'])) {
+            return $config['useCustomSorting']['value'];
+        }
+
+        return false;
+    }
+
+    private function addDefaultSorting(Request $request, CmsSlotEntity $slot): void
+    {
+        if ($request->get('order')) {
+            return;
+        }
+
+        $config = $slot->getTranslation('config');
+
+        if ($config && isset($config['defaultSorting']) && isset($config['defaultSorting']['value']) && $config['defaultSorting']['value']) {
+            $request->request->set('order', $config['defaultSorting']['value']);
+
+            return;
+        }
+
+        // if we have no specific order given at this point, set the order to be the highest's priority available sorting
+        if ($request->get('availableSortings')) {
+            $availableSortings = $request->get('availableSortings');
+            arsort($availableSortings, SORT_DESC | SORT_NUMERIC);
+
+            $request->request->set('order', \array_key_first($availableSortings));
+        }
+    }
+
+    private function restrictSortings(Request $request, CmsSlotEntity $slot): void
+    {
+        $config = $slot->getTranslation('config');
+
+        if (!$config || !isset($config['availableSortings']) || !isset($config['availableSortings']['value'])) {
+            return;
+        }
+
+        $request->request->set('availableSortings', $config['availableSortings']['value']);
     }
 }

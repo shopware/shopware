@@ -36,6 +36,11 @@ class DeliveryTimeDefinition extends EntityDefinition
         return DeliveryTimeCollection::class;
     }
 
+    public function since(): ?string
+    {
+        return '6.0.0.0';
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([

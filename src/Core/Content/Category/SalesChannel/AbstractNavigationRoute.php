@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Category\SalesChannel;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -19,6 +20,7 @@ abstract class AbstractNavigationRoute
         string $requestActiveId,
         string $requestRootId,
         Request $request,
-        SalesChannelContext $context
+        SalesChannelContext $context,
+        Criteria $criteria
     ): NavigationRouteResponse;
 }

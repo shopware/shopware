@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\Request;
@@ -40,6 +41,7 @@ class DocumentController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/api/v{version}/_action/document/{documentId}/{deepLinkCode}", defaults={"auth_required"=false}, name="api.action.download.document", methods={"GET"})
      */
     public function downloadDocument(Request $request, string $documentId, string $deepLinkCode, Context $context): Response
@@ -71,6 +73,7 @@ class DocumentController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route(
      *     "/api/v{version}/_action/order/{orderId}/{deepLinkCode}/document/{documentTypeName}/preview",
      *     defaults={"auth_required"=false},

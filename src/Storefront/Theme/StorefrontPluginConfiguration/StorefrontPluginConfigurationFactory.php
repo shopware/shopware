@@ -3,13 +3,29 @@
 namespace Shopware\Storefront\Theme\StorefrontPluginConfiguration;
 
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Storefront\Framework\ThemeInterface;
 use Shopware\Storefront\Theme\Exception\InvalidThemeBundleException;
 use Shopware\Storefront\Theme\Exception\ThemeCompileException;
 use Symfony\Component\Finder\Finder;
 
-class StorefrontPluginConfigurationFactory
+class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfigurationFactory
 {
+    /**
+     * @var string
+     */
+    private $projectDir;
+
+    public function __construct(string $projectDir)
+    {
+        $this->projectDir = $projectDir;
+    }
+
+    public function getDecorated(): AbstractStorefrontPluginConfigurationFactory
+    {
+        throw new DecorationPatternException(self::class);
+    }
+
     public function createFromBundle(Bundle $bundle): StorefrontPluginConfiguration
     {
         if ($bundle instanceof ThemeInterface) {
@@ -19,11 +35,23 @@ class StorefrontPluginConfigurationFactory
         return $this->createPluginConfig($bundle->getName(), $bundle->getPath());
     }
 
+    public function createFromApp(string $appName, string $appPath): StorefrontPluginConfiguration
+    {
+        $absolutePath = $this->projectDir . '/' . $appPath;
+        if (file_exists($absolutePath . '/Resources/theme.json')) {
+            return $this->createThemeConfig($appName, $absolutePath);
+        }
+
+        return $this->createPluginConfig($appName, $absolutePath);
+    }
+
+    /**
+     * @deprecated tag:v6.4.0 will be private in the future, use `createFromBundle()` or `createFromApp()`
+     */
     public function createPluginConfig(string $name, string $path): StorefrontPluginConfiguration
     {
-        $config = new StorefrontPluginConfiguration();
+        $config = new StorefrontPluginConfiguration($name);
         $config->setIsTheme(false);
-        $config->setTechnicalName($name);
         $config->setStorefrontEntryFilepath($this->getEntryFile($path));
         $config->setBasePath($path);
 
@@ -36,6 +64,9 @@ class StorefrontPluginConfigurationFactory
         return $config;
     }
 
+    /**
+     * @deprecated tag:v6.4.0 will be private in the future, use `createFromBundle()` or `createFromApp()`
+     */
     public function createThemeConfig(string $name, string $path): StorefrontPluginConfiguration
     {
         $pathname = $path . DIRECTORY_SEPARATOR . 'Resources/theme.json';
@@ -44,7 +75,7 @@ class StorefrontPluginConfigurationFactory
             throw new InvalidThemeBundleException($name);
         }
 
-        $config = new StorefrontPluginConfiguration();
+        $config = new StorefrontPluginConfiguration($name);
 
         try {
             $data = json_decode(file_get_contents($pathname), true);
@@ -58,7 +89,6 @@ class StorefrontPluginConfigurationFactory
             $basePath = realpath(pathinfo($pathname, PATHINFO_DIRNAME));
 
             $config->setBasePath($basePath);
-            $config->setTechnicalName($name);
             $config->setStorefrontEntryFilepath($this->getEntryFile($path));
             $config->setIsTheme(true);
             $config->setName($data['name']);

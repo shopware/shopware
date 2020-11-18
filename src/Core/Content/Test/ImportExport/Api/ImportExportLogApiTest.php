@@ -64,11 +64,7 @@ class ImportExportLogApiTest extends TestCase
         foreach ($data as $entry) {
             $this->getBrowser()->request('POST', $this->prepareRoute(), $entry);
             $response = $this->getBrowser()->getResponse();
-            static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
-
-            $content = json_decode($response->getContent());
-            $firstError = array_shift($content->errors);
-            static::assertEquals($firstError->code, 'CONTENT__IMPORT_EXPORT_LOG_NOT_WRITABLE');
+            static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode());
         }
     }
 
@@ -127,11 +123,7 @@ class ImportExportLogApiTest extends TestCase
                 'HTTP_ACCEPT' => 'application/json',
             ]);
             $response = $this->getBrowser()->getResponse();
-            static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
-
-            $content = json_decode($response->getContent());
-            $firstError = array_shift($content->errors);
-            static::assertEquals($firstError->code, 'CONTENT__IMPORT_EXPORT_LOG_NOT_WRITABLE');
+            static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode());
         }
 
         $this->getBrowser()->request('GET', $this->prepareRoute(), [], [], [
@@ -233,7 +225,7 @@ class ImportExportLogApiTest extends TestCase
             'HTTP_ACCEPT' => 'application/json',
         ]);
         $response = $this->getBrowser()->getResponse();
-        static::assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+        static::assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode());
 
         $records = $this->connection->fetchAll('SELECT * FROM import_export_log');
         static::assertEquals($num, count($records));
@@ -242,7 +234,7 @@ class ImportExportLogApiTest extends TestCase
             'HTTP_ACCEPT' => 'application/json',
         ]);
         $response = $this->getBrowser()->getResponse();
-        static::assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        static::assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode());
 
         $records = $this->connection->fetchAll('SELECT * FROM import_export_log');
         static::assertEquals($num, count($records));
@@ -278,16 +270,16 @@ class ImportExportLogApiTest extends TestCase
 
         for ($i = 1; $i <= $num; ++$i) {
             $uuid = Uuid::randomHex();
-            $profile = $profiles[Uuid::fromHexToBytes($profileIds[($i % 2)])];
+            $profile = $profiles[Uuid::fromHexToBytes($profileIds[$i % 2])];
 
             $data[Uuid::fromHexToBytes($uuid)] = [
                 'id' => $uuid,
-                'activity' => $activities[($i % 2)],
+                'activity' => $activities[$i % 2],
                 'state' => sprintf('state %s', $i),
-                'userId' => $userIds[($i % 2)],
-                'profileId' => $profileIds[($i % 2)],
-                'fileId' => $fileIds[($i % 2)],
-                'username' => $users[Uuid::fromHexToBytes($userIds[($i % 2)])]['username'],
+                'userId' => $userIds[$i % 2],
+                'profileId' => $profileIds[$i % 2],
+                'fileId' => $fileIds[$i % 2],
+                'username' => $users[Uuid::fromHexToBytes($userIds[$i % 2])]['username'],
                 'profileName' => $profile['label'],
                 'records' => 10 * $i,
                 'config' => ['profile' => $profile],

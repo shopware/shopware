@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Migration\Command;
 
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
-use Shopware\Core\Framework\Plugin\PluginService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -21,20 +20,14 @@ class CreateMigrationCommand extends Command
     private $projectDir;
 
     /**
-     * @var PluginService
-     */
-    private $pluginService;
-
-    /**
      * @var KernelPluginCollection
      */
     private $kernelPluginCollection;
 
-    public function __construct(KernelPluginCollection $kernelPluginCollection, PluginService $pluginService, string $projectDir)
+    public function __construct(KernelPluginCollection $kernelPluginCollection, string $projectDir)
     {
         parent::__construct();
         $this->projectDir = $projectDir;
-        $this->pluginService = $pluginService;
         $this->kernelPluginCollection = $kernelPluginCollection;
     }
 
@@ -70,12 +63,17 @@ class CreateMigrationCommand extends Command
         // Both dir and namespace were given
         if ($directory) {
             $this->createMigrationFile($name, $output, realpath($directory), $namespace);
+
+            return 0;
         }
 
         $pluginName = $input->getOption('plugin');
         if ($pluginName) {
+            if (\is_array($pluginName)) {
+                $pluginName = implode(' ', $pluginName);
+            }
             $pluginBundles = array_filter($this->kernelPluginCollection->all(), function (Plugin $value) use ($pluginName) {
-                return (int) (mb_strpos($value->getName(), $pluginName) === 0);
+                return (int) (mb_strpos($value->getName(), (string) $pluginName) === 0);
             });
 
             if (count($pluginBundles) === 0) {

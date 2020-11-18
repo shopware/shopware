@@ -23,21 +23,14 @@ class WriteProtectedDefinition extends EntityDefinition
         return self::ENTITY_NAME;
     }
 
+    public function since(): ?string
+    {
+        return '6.0.0.0';
+    }
+
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
-            (new StringField('protected', 'protected'))->addFlags(new WriteProtected()),
-            (new StringField('system_protected', 'systemProtected'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
-
-            new FkField('relation_id', 'relationId', WriteProtectedRelationDefinition::class),
-            (new ManyToOneAssociationField('relation', 'relation_id', WriteProtectedRelationDefinition::class, 'id', false))->addFlags(new WriteProtected()),
-            (new ManyToManyAssociationField('relations', WriteProtectedRelationDefinition::class, WriteProtectedReferenceDefinition::class, 'wp_id', 'relation_id'))->addFlags(new WriteProtected()),
-
-            new FkField('system_relation_id', 'systemRelationId', WriteProtectedRelationDefinition::class),
-            (new ManyToOneAssociationField('systemRelation', 'system_relation_id', WriteProtectedRelationDefinition::class, 'id', false))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
-            (new ManyToManyAssociationField('systemRelations', WriteProtectedRelationDefinition::class, WriteProtectedReferenceDefinition::class, 'wp_id', 'relation_id'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
-        ]);
+        return new FieldCollection([(new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()), (new StringField('protected', 'protected'))->addFlags(new WriteProtected()), (new StringField('system_protected', 'systemProtected'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)), new FkField('relation_id', 'relationId', WriteProtectedRelationDefinition::class), (new ManyToOneAssociationField('relation', 'relation_id', WriteProtectedRelationDefinition::class, 'id', false))->addFlags(new WriteProtected()), (new ManyToManyAssociationField('relations', WriteProtectedRelationDefinition::class, WriteProtectedReferenceDefinition::class, 'wp_id', 'relation_id'))->addFlags(new WriteProtected()), new FkField('system_relation_id', 'systemRelationId', WriteProtectedRelationDefinition::class), (new ManyToOneAssociationField('systemRelation', 'system_relation_id', WriteProtectedRelationDefinition::class, 'id', false))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)), (new ManyToManyAssociationField('systemRelations', WriteProtectedRelationDefinition::class, WriteProtectedReferenceDefinition::class, 'wp_id', 'relation_id'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE))]);
     }
 
     protected function defaultFields(): array

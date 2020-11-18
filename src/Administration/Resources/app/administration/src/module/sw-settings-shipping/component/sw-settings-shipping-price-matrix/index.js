@@ -19,6 +19,12 @@ Component.register('sw-settings-shipping-price-matrix', {
         priceGroup: {
             type: Object,
             required: true
+        },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -276,7 +282,6 @@ Component.register('sw-settings-shipping-price-matrix', {
             // RuleId can not set to null if there is already an unrestricted rule
             if (!ruleId && this.unrestrictedPriceMatrixExists && this.priceGroup.ruleId !== ruleId) {
                 this.createNotificationError({
-                    title: this.$tc('sw-settings-shipping.priceMatrix.unrestrictedRuleAlreadyExistsTitle'),
                     message: this.$tc('sw-settings-shipping.priceMatrix.unrestrictedRuleAlreadyExistsMessage')
                 });
                 return;
@@ -337,7 +342,6 @@ Component.register('sw-settings-shipping-price-matrix', {
             // if it is the only item in the priceGroup
             if (this.priceGroup.prices.length <= 1) {
                 this.createNotificationInfo({
-                    title: this.$tc('sw-settings-shipping.priceMatrix.deletionNotPossibleTitle'),
                     message: this.$tc('sw-settings-shipping.priceMatrix.deletionNotPossibleMessage')
                 });
 
@@ -427,17 +431,12 @@ Component.register('sw-settings-shipping-price-matrix', {
         },
 
         convertPrice(value, currency) {
-            const price = {
+            return {
                 net: value.net * currency.factor,
                 gross: value.gross * currency.factor,
                 currencyId: currency.id,
                 linked: false
             };
-
-            price.net = Number(price.net.toFixed(currency.decimalPrecision));
-            price.gross = Number(price.gross.toFixed(currency.decimalPrecision));
-
-            return price;
         },
 
         onQuantityEndChange(price) {

@@ -1,3 +1,4 @@
+import { mapPropertyErrors } from 'src/app/service/map-errors.service';
 import template from './sw-settings-shipping-detail.html.twig';
 import './sw-settings-shipping-detail.scss';
 import swShippingDetailState from './state';
@@ -10,7 +11,7 @@ const { warn } = Shopware.Utils.debug;
 Component.register('sw-settings-shipping-detail', {
     template,
 
-    inject: ['ruleConditionDataProviderService', 'repositoryFactory'],
+    inject: ['ruleConditionDataProviderService', 'repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -52,6 +53,11 @@ Component.register('sw-settings-shipping-detail', {
             'shippingMethod',
             'currencies'
         ]),
+        ...mapPropertyErrors('shippingMethod', [
+            'name',
+            'deliveryTimeId',
+            'availabilityRuleId'
+        ]),
 
         identifier() {
             return this.placeholder(this.shippingMethod, 'name');
@@ -59,6 +65,10 @@ Component.register('sw-settings-shipping-detail', {
 
         shippingMethodRepository() {
             return this.repositoryFactory.create('shipping_method');
+        },
+
+        shippingMethodPricesRepository() {
+            return this.repositoryFactory.create('shipping_method_price');
         },
 
         currencyRepository() {
@@ -154,11 +164,15 @@ Component.register('sw-settings-shipping-detail', {
     methods: {
         createdComponent() {
             if (!this.shippingMethodId) {
-                Shopware.StateDeprecated.getStore('language').setCurrentId(
-                    Shopware.StateDeprecated.getStore('language').systemLanguageId
-                );
+                Shopware.State.commit('context/resetLanguageToDefault');
 
                 const shippingMethod = this.shippingMethodRepository.create(Shopware.Context.api);
+                const shippingMethodPrice = this.shippingMethodPricesRepository.create(Shopware.Context.api);
+                shippingMethodPrice.calculation = 1;
+                shippingMethodPrice.quantityStart = 1;
+                shippingMethodPrice.shippingMethodId = shippingMethod.id;
+                shippingMethodPrice.ruleId = null;
+                shippingMethod.prices.add(shippingMethodPrice);
                 Shopware.State.commit('swShippingDetail/setShippingMethod', shippingMethod);
             } else {
                 this.loadEntityData();
@@ -204,10 +218,9 @@ Component.register('sw-settings-shipping-detail', {
         },
 
         onSave() {
-            const shippingMethodName = this.shippingMethod.name || this.placeholder(this.shippingMethod, 'name');
             const titleSaveError = this.$tc('global.default.error');
             const messageSaveError = this.$tc(
-                'global.notification.notificationSaveErrorMessage', 0, { entityName: shippingMethodName }
+                'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'
             );
 
             this.filterIncompletePrices();

@@ -59,7 +59,7 @@ class DocsDumpErd extends Command
 
         $descriptionsShort = new ArrayWriter(__DIR__ . '/../Resources/erd-short-description.php');
         $descriptionsLong = new ArrayWriter(__DIR__ . '/../Resources/erd-long-description.php');
-        $destPath = __DIR__ . '/../Resources/current/2-internals/1-core/10-erd';
+        $destPath = __DIR__ . '/../Resources/current/60-references-internals/10-core/10-erd';
 
         $fs = new Filesystem();
         $fs->remove(glob($destPath . '/erd-*'));
@@ -115,27 +115,49 @@ class DocsDumpErd extends Command
          * @var ErdDefinition[]
          */
         foreach ($modules as $moduleName => $moduleDefinition) {
-            $dump = $this->erdGenerator->generateFromDefinitions($moduleDefinition, new PlantUmlErdDumper(), $descriptionsShort);
+            $fileName = $this->toFileName($moduleName);
+            $dump = $this->erdGenerator->generateFromDefinitions(
+                $moduleDefinition,
+                new PlantUmlErdDumper(),
+                $descriptionsShort
+            );
             file_put_contents(
-                $destPath . '/_puml/erd-' . $this->toFileName($moduleName) . '.puml',
+                $destPath . '/_puml/erd-' . $fileName . '.puml',
                 $dump
             );
 
-            $dump = $this->erdGenerator->generateFromDefinitions($moduleDefinition, new MarkdownErdDumper(
-                $descriptionsShort->get($moduleName),
-                $descriptionsLong->get($moduleName),
-                'dist/erd-' . $this->toFileName($moduleName) . '.png'
-            ), $descriptionsLong);
+            $dump = $this->erdGenerator->generateFromDefinitions(
+                $moduleDefinition,
+                new MarkdownErdDumper(
+                    $descriptionsShort->get($moduleName),
+                    $this->toHash($moduleName),
+                    $descriptionsLong->get($moduleName),
+                    'dist/erd-' . $fileName . '.png'
+                ),
+                $descriptionsLong
+            );
             file_put_contents(
-                $destPath . '/erd-' . $this->toFileName($moduleName) . '.md',
+                $destPath . '/erd-' . $fileName . '.md',
                 $dump
             );
         }
     }
 
-    private function toFileName($moduleName): string
+    private function toFileName(string $moduleName): string
     {
         return mb_strtolower(str_replace('\\', '-', $moduleName));
+    }
+
+    private function toHash(string $moduleName): string
+    {
+        $hash = mb_strtolower(str_replace('\\', '_', $moduleName));
+        $hash = str_replace(
+            ['shopware_core', 'shopware_storefront'],
+            ['internals_core_erd', 'internals_storefront_erd'],
+            $hash
+        );
+
+        return $hash;
     }
 
     /**

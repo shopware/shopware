@@ -10,7 +10,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidAggregationQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
-use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\BucketAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\DateHistogramAggregation;
@@ -54,11 +53,6 @@ class EntityAggregator implements EntityAggregatorInterface
      * @var Connection
      */
     private $connection;
-
-    /**
-     * @var EntityReaderInterface
-     */
-    private $reader;
 
     /**
      * @var SqlQueryParser
@@ -169,7 +163,11 @@ class EntityAggregator implements EntityAggregatorInterface
         $query = $this->buildQueryByCriteria($query, $definition, $clone, $context);
         $query->resetQueryPart('orderBy');
 
-        $this->addIdCondition($criteria, $definition, $query);
+        if ($criteria->getTitle()) {
+            $query->setTitle($criteria->getTitle() . '::aggregation::' . $aggregation->getName());
+        }
+
+        $this->helper->addIdCondition($criteria, $definition, $query);
 
         $table = $definition->getEntityName();
 
@@ -256,7 +254,9 @@ class EntityAggregator implements EntityAggregatorInterface
 
     private function parseFilterAggregation(FilterAggregation $aggregation, QueryBuilder $query, EntityDefinition $definition, Context $context): void
     {
-        $this->addFilter($definition, new MultiFilter(MultiFilter::CONNECTION_OR, $aggregation->getFilter()), $query, $context);
+        if (!empty($aggregation->getFilter())) {
+            $this->addFilter($definition, new MultiFilter(MultiFilter::CONNECTION_AND, $aggregation->getFilter()), $query, $context);
+        }
 
         $this->extendQuery($aggregation->getAggregation(), $query, $definition, $context);
     }
@@ -389,10 +389,18 @@ class EntityAggregator implements EntityAggregatorInterface
     {
         $accessor = $this->helper->getFieldAccessor($aggregation->getField(), $definition, $definition->getEntityName(), $context);
 
-        $query->addSelect(sprintf('MIN(%s) as `%s.min`', $accessor, $aggregation->getName()));
-        $query->addSelect(sprintf('MAX(%s) as `%s.max`', $accessor, $aggregation->getName()));
-        $query->addSelect(sprintf('AVG(%s) as `%s.avg`', $accessor, $aggregation->getName()));
-        $query->addSelect(sprintf('SUM(%s) as `%s.sum`', $accessor, $aggregation->getName()));
+        if ($aggregation->fetchAvg()) {
+            $query->addSelect(sprintf('AVG(%s) as `%s.avg`', $accessor, $aggregation->getName()));
+        }
+        if ($aggregation->fetchMin()) {
+            $query->addSelect(sprintf('MIN(%s) as `%s.min`', $accessor, $aggregation->getName()));
+        }
+        if ($aggregation->fetchMax()) {
+            $query->addSelect(sprintf('MAX(%s) as `%s.max`', $accessor, $aggregation->getName()));
+        }
+        if ($aggregation->fetchSum()) {
+            $query->addSelect(sprintf('SUM(%s) as `%s.sum`', $accessor, $aggregation->getName()));
+        }
     }
 
     private function parseEntityAggregation(EntityAggregation $aggregation, QueryBuilder $query, EntityDefinition $definition, Context $context): void
@@ -451,9 +459,12 @@ class EntityAggregator implements EntityAggregatorInterface
                     return new StatsResult($aggregation->getName(), 0, 0, 0.0, 0.0);
                 }
 
-                $row = $rows[0];
+                $min = $rows[0][$name . '.min'] ?? null;
+                $max = $rows[0][$name . '.max'] ?? null;
+                $avg = isset($rows[0][$name . '.avg']) ? (float) $rows[0][$name . '.avg'] : null;
+                $sum = isset($rows[0][$name . '.sum']) ? (float) $rows[0][$name . '.sum'] : null;
 
-                return new StatsResult($aggregation->getName(), $row[$name . '.min'], $row[$name . '.max'], (float) $row[$name . '.avg'], (float) $row[$name . '.sum']);
+                return new StatsResult($aggregation->getName(), $min, $max, $avg, $sum);
 
             case $aggregation instanceof EntityAggregation:
                 /* @var EntityAggregation $aggregation */

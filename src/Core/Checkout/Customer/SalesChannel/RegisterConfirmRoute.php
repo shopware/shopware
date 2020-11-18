@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use OpenApi\Annotations as OA;
+use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
 use Shopware\Core\Checkout\Customer\Event\GuestCustomerRegisterEvent;
 use Shopware\Core\Checkout\Customer\Exception\CustomerAlreadyConfirmedException;
@@ -13,9 +14,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
+use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\EqualTo;
@@ -41,14 +45,21 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
      */
     private $validator;
 
+    /**
+     * @var SalesChannelContextPersister
+     */
+    private $contextPersister;
+
     public function __construct(
         EntityRepositoryInterface $customerRepository,
         EventDispatcherInterface $eventDispatcher,
-        DataValidator $validator
+        DataValidator $validator,
+        SalesChannelContextPersister $contextPersister
     ) {
         $this->customerRepository = $customerRepository;
         $this->eventDispatcher = $eventDispatcher;
         $this->validator = $validator;
+        $this->contextPersister = $contextPersister;
     }
 
     public function getDecorated(): AbstractRegisterConfirmRoute
@@ -57,9 +68,10 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
     }
 
     /**
+     * @Since("6.2.0.0")
      * @OA\Post(
      *      path="/account/register-confirm",
-     *      description="Confirm double optin registration",
+     *      summary="Confirm double optin registration",
      *      operationId="registerConfirm",
      *      tags={"Store API", "Account"},
      *      @OA\Parameter(name="hash", description="Hash from Link in Mail", in="query", @OA\Schema(type="string")),
@@ -117,7 +129,27 @@ class RegisterConfirmRoute extends AbstractRegisterConfirmRoute
             $this->eventDispatcher->dispatch(new CustomerRegisterEvent($context, $customer));
         }
 
-        return new CustomerResponse($customer);
+        $response = new CustomerResponse($customer);
+
+        $newToken = $this->contextPersister->replace($context->getToken(), $context);
+
+        $this->contextPersister->save(
+            $newToken,
+            [
+                'customerId' => $customer->getId(),
+                'billingAddressId' => null,
+                'shippingAddressId' => null,
+            ],
+            $context->getSalesChannel()->getId(),
+            $customer->getId()
+        );
+
+        $event = new CustomerLoginEvent($context, $customer, $newToken);
+        $this->eventDispatcher->dispatch($event);
+
+        $response->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $newToken);
+
+        return $response;
     }
 
     private function getBeforeConfirmValidation(string $emHash): DataValidationDefinition

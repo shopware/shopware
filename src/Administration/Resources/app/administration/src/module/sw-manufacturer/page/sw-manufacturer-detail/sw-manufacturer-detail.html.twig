@@ -21,7 +21,7 @@
                         class="sw-manufacturer-detail__save-action"
                         :isLoading="isLoading"
                         v-model="isSaveSuccessful"
-                        :disabled="isLoading"
+                        :disabled="isLoading || !acl.can('product_manufacturer.editor')"
                         variant="primary"
                         v-tooltip.bottom="tooltipSave"
                         @click.prevent="onSave">
@@ -68,7 +68,8 @@
                                         validation="required"
                                         required
                                         :error="manufacturerNameError"
-                                        v-model="manufacturer.name">
+                                        v-model="manufacturer.name"
+                                        :disabled="!acl.can('product_manufacturer.editor')">
                                     </sw-field>
                                 {% endblock %}
 
@@ -77,7 +78,9 @@
                                     :label="$tc('sw-manufacturer.detail.labelLink')"
                                     :placeholder="$tc('sw-manufacturer.detail.placeholderLink')"
                                     name="link"
-                                    v-model="manufacturer.link">
+                                    v-model="manufacturer.link"
+                                    :disabled="!acl.can('product_manufacturer.editor')"
+                                >
                                 </sw-field>
                                 {% endblock %}
                             </div>
@@ -99,7 +102,8 @@
                                     @sw-media-upload-v2-media-upload-success="setMediaItem"
                                     @media-drop="onDropMedia"
                                     @media-upload-sidebar-open="openMediaSidebar"
-                                    @media-upload-remove-image="onUnlinkLogo">
+                                    @media-upload-remove-image="onUnlinkLogo"
+                                    :disabled="!acl.can('product_manufacturer.editor')">
                                 </sw-media-upload-v2>
                             {% endblock %}
                         </sw-container>
@@ -109,7 +113,8 @@
                                 :label="$tc('sw-manufacturer.detail.labelDescription')"
                                 :placeholder="placeholder(manufacturer, 'description', $tc('sw-manufacturer.detail.placeholderDescription'))"
                                 name="description"
-                                v-model="manufacturer.description">
+                                v-model="manufacturer.description"
+                                :disabled="!acl.can('product_manufacturer.editor')">
                             </sw-text-editor>
                         {% endblock %}
                     </template>
@@ -123,7 +128,8 @@
                     <sw-custom-field-set-renderer
                             v-if="manufacturer"
                             :entity="manufacturer"
-                            :sets="customFieldSets">
+                            :sets="customFieldSets"
+                            :disabled="!acl.can('product_manufacturer.editor')">
                     </sw-custom-field-set-renderer>
                 </sw-card>
             {% endblock %}
@@ -133,7 +139,7 @@
     {% block sw_manufacturer_detail_sidebar %}
         <template slot="sidebar">
             <sw-sidebar :propagateWidth="true">
-                <sw-sidebar-media-item ref="mediaSidebarItem">
+                <sw-sidebar-media-item :disabled="!acl.can('product_manufacturer.editor')" ref="mediaSidebarItem">
                     <template slot="context-menu-items" slot-scope="media">
                         <sw-context-menu-item @click="setMediaFromSidebar(media.mediaItem)">
                             {{ $tc('sw-manufacturer.detail.labelUseAsLogo') }}

@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\System\SalesChannel\Api;
 
+use Shopware\Core\Checkout\Cart\Error\Error;
+use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -65,6 +67,12 @@ class StructEncoder
             return $data;
         }
 
+        if ($struct instanceof ErrorCollection) {
+            return array_map(static function (Error $error) {
+                return $error->jsonSerialize();
+            }, $struct->getElements());
+        }
+
         if ($struct instanceof Collection) {
             foreach ($struct as $item) {
                 $data[] = $this->encodeStruct($item, $apiVersion, $fields);
@@ -93,7 +101,7 @@ class StructEncoder
                 continue;
             }
 
-            if (!$this->isAllowed($alias, $property, $apiVersion, $fields)) {
+            if (!$this->isAllowed($alias, $property, $apiVersion, $fields) && !$fields->hasNested($alias, $property)) {
                 unset($data[$property]);
 
                 continue;
@@ -203,7 +211,12 @@ class StructEncoder
                 continue;
             }
 
-            $value[$name] = $this->encode($struct->getExtension($name), $apiVersion, $fields);
+            $extension = $struct->getExtension($name);
+            if ($extension === null) {
+                continue;
+            }
+
+            $value[$name] = $this->encode($extension, $apiVersion, $fields);
         }
 
         return $value;

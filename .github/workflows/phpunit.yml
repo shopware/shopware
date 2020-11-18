@@ -11,11 +11,22 @@ jobs:
   build:
     strategy:
       matrix:
-        php: ['7.2', '7.3', '7.4']
+        php: ['7.4']
     runs-on: ubuntu-latest
     env:
-      DEVELOPMENT_BRANCH: 6.2
+      DEVELOPMENT_BRANCH: master
       TEST_SUITES: 'administration storefront checkout content framework profiling migration system elasticsearch docs'
+
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+            MYSQL_ROOT_PASSWORD: shopware
+            MYSQL_DATABASE: shopware
+      elasticsearch:
+        image: elastic/elasticsearch:7.1.1
+        env:
+          discovery.type: single-node
 
     steps:
     - name: Clone development

@@ -154,6 +154,7 @@ The following parameters can be defined for a config field item:
 | section      | Name of a section to organize the config options                                                 |
 | custom       | The defined data will not be processed but is available via API                                  |
 | scss         | If set to false, the config option will not be injected as a SCSS variable                       |
+| fullWidth    | If set to true, the administration component width will be displayed in full width               |
 
 ### Field types
 You can use different field types in your theme manager:

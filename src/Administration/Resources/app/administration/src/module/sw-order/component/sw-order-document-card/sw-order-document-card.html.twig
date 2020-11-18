@@ -14,11 +14,17 @@
 
                         <template #filter>
                             {% block sw_order_document_card_header_create_document_context_button %}
-                                <sw-context-button v-if="!attachView">
+                                <sw-context-button v-if="!attachView" :disabled="!acl.can('order.editor')">
 
                                     {% block sw_order_document_card_header_create_document_button %}
                                         <sw-button slot="button"
                                                    size="small"
+                                                   :disabled="!acl.can('order.editor')"
+                                                   v-tooltip="{
+                                                        message: $tc('sw-privileges.tooltip.warning'),
+                                                        disabled: acl.can('order.editor'),
+                                                        showOnDisabledElements: true
+                                                    }"
                                                    class="sw-order-document-grid-button">
 
                                             {% block sw_order_document_card_header_create_document_button_label %}

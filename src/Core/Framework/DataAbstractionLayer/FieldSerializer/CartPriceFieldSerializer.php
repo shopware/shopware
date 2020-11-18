@@ -64,7 +64,8 @@ class CartPriceFieldSerializer extends JsonFieldSerializer
             (float) $value['positionPrice'],
             new CalculatedTaxCollection($calculatedTaxes),
             new TaxRuleCollection($taxRules),
-            (string) $value['taxStatus']
+            (string) $value['taxStatus'],
+            isset($value['rawTotal']) ? (float) $value['rawTotal'] : (float) $value['totalPrice']
         );
     }
 }

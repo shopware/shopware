@@ -28,6 +28,8 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
 
     public const COUNTRY_STATE_ID = 'countryStateId';
 
+    public const VERSION_ID = 'version-id';
+
     public const PERMISSIONS = 'permissions';
 
     /**
@@ -62,12 +64,16 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
         $this->cartService = $cartService;
     }
 
-    public function get(string $salesChannelId, string $token, ?string $languageId = null): SalesChannelContext
+    public function get(string $salesChannelId, string $token, ?string $languageId = null, ?string $currencyId = null): SalesChannelContext
     {
-        $parameters = $this->contextPersister->load($token);
+        $parameters = $this->contextPersister->load($token, $salesChannelId);
 
         if ($languageId) {
             $parameters[self::LANGUAGE_ID] = $languageId;
+        }
+
+        if ($currencyId && !array_key_exists(self::CURRENCY_ID, $parameters)) {
+            $parameters[self::CURRENCY_ID] = $currencyId;
         }
 
         $context = $this->factory->create($token, $salesChannelId, $parameters);

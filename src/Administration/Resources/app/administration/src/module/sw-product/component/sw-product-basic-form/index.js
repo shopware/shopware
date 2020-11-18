@@ -1,7 +1,7 @@
 import template from './sw-product-basic-form.html.twig';
 import './sw-product-basic-form.scss';
 
-const { Component, Mixin, StateDeprecated } = Shopware;
+const { Component, Mixin } = Shopware;
 const { mapPropertyErrors, mapState } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-product-basic-form', {
@@ -11,10 +11,12 @@ Component.register('sw-product-basic-form', {
         Mixin.getByName('placeholder')
     ],
 
-    data() {
-        return {
-            isTitleRequired: true
-        };
+    props: {
+        allowEdit: {
+            type: Boolean,
+            required: false,
+            default: true
+        }
     },
 
     computed: {
@@ -24,30 +26,24 @@ Component.register('sw-product-basic-form', {
             'loading'
         ]),
 
-        ...mapPropertyErrors(
-            'product',
-            ['name', 'description', 'productNumber', 'manufacturerId', 'active', 'markAsTopseller']
-        ),
+        ...mapPropertyErrors('product', [
+            'name',
+            'description',
+            'productNumber',
+            'manufacturerId',
+            'active',
+            'markAsTopseller'
+        ]),
 
-        languageStore() {
-            return StateDeprecated.getStore('language');
-        }
-    },
-
-    watch: {
-        product: {
-            handler() {
-                this.updateIsTitleRequired();
-            },
-            immediate: true,
-            deep: true
+        isTitleRequired() {
+            return Shopware.State.getters['context/isSystemDefaultLanguage'];
         }
     },
 
     methods: {
         updateIsTitleRequired() {
             // TODO: Refactor when there is a possibility to check if the title field is inherited
-            this.isTitleRequired = this.languageStore.getCurrentLanguage().id === Shopware.Context.api.systemLanguageId;
+            this.isTitleRequired = Shopware.Context.api.languageId === Shopware.Context.api.systemLanguageId;
         },
 
         getInheritValue(firstKey, secondKey) {

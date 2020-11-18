@@ -3,16 +3,17 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Content\Newsletter\NewsletterSubscriptionService;
-use Shopware\Core\Content\Newsletter\NewsletterSubscriptionServiceInterface;
+use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterConfirmRoute;
+use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterSubscribeRoute;
+use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterUnsubscribeRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Captcha\Annotation\Captcha;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
-use Shopware\Storefront\Page\Newsletter\Register\NewsletterRegisterPageLoader;
 use Shopware\Storefront\Page\Newsletter\Subscribe\NewsletterSubscribePageLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -24,44 +25,52 @@ use Symfony\Component\Routing\Annotation\Route;
 class NewsletterController extends StorefrontController
 {
     /**
-     * @var NewsletterRegisterPageLoader
-     */
-    private $newsletterRegisterPageLoader;
-
-    /**
      * @var NewsletterSubscribePageLoader
      */
     private $newsletterConfirmRegisterPageLoader;
-
-    /**
-     * @var NewsletterSubscriptionServiceInterface
-     */
-    private $newsletterService;
 
     /**
      * @var EntityRepositoryInterface
      */
     private $customerRepository;
 
+    /**
+     * @var AbstractNewsletterSubscribeRoute
+     */
+    private $newsletterSubscribeRoute;
+
+    /**
+     * @var AbstractNewsletterConfirmRoute
+     */
+    private $newsletterConfirmRoute;
+
+    /**
+     * @var AbstractNewsletterUnsubscribeRoute
+     */
+    private $newsletterUnsubscribeRoute;
+
     public function __construct(
-        NewsletterRegisterPageLoader $newsletterRegisterPageLoader,
         NewsletterSubscribePageLoader $newsletterConfirmRegisterPageLoader,
-        NewsletterSubscriptionServiceInterface $newsletterService,
-        EntityRepositoryInterface $customerRepository
+        EntityRepositoryInterface $customerRepository,
+        AbstractNewsletterSubscribeRoute $newsletterSubscribeRoute,
+        AbstractNewsletterConfirmRoute $newsletterConfirmRoute,
+        AbstractNewsletterUnsubscribeRoute $newsletterUnsubscribeRoute
     ) {
-        $this->newsletterRegisterPageLoader = $newsletterRegisterPageLoader;
         $this->newsletterConfirmRegisterPageLoader = $newsletterConfirmRegisterPageLoader;
-        $this->newsletterService = $newsletterService;
         $this->customerRepository = $customerRepository;
+        $this->newsletterSubscribeRoute = $newsletterSubscribeRoute;
+        $this->newsletterConfirmRoute = $newsletterConfirmRoute;
+        $this->newsletterUnsubscribeRoute = $newsletterUnsubscribeRoute;
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/newsletter-subscribe", name="frontend.newsletter.subscribe", methods={"GET"})
      */
     public function subscribeMail(SalesChannelContext $context, Request $request, QueryDataBag $queryDataBag): Response
     {
         try {
-            $this->newsletterService->confirm($queryDataBag, $context);
+            $this->newsletterConfirmRoute->confirm($queryDataBag->toRequestDataBag(), $context);
         } catch (\Throwable $throwable) {
             $this->addFlash('danger', $this->trans('newsletter.subscriptionConfirmationFailed'));
 
@@ -74,6 +83,7 @@ class NewsletterController extends StorefrontController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/widgets/account/newsletter", name="frontend.account.newsletter", methods={"POST"}, defaults={"XmlHttpRequest"=true})
      * @Captcha
      */
@@ -81,7 +91,7 @@ class NewsletterController extends StorefrontController
     {
         $this->denyAccessUnlessLoggedIn();
 
-        $subscribed = ($request->get('option', false) === NewsletterSubscriptionService::STATUS_DIRECT);
+        $subscribed = $request->get('option', false) === 'direct';
 
         if (!$subscribed) {
             $dataBag->set('option', 'unsubscribe');
@@ -94,7 +104,11 @@ class NewsletterController extends StorefrontController
 
         if ($subscribed) {
             try {
-                $this->newsletterService->subscribe($this->hydrateFromCustomer($dataBag, $context->getCustomer()), $context);
+                $this->newsletterSubscribeRoute->subscribe(
+                    $this->hydrateFromCustomer($dataBag, $context->getCustomer()),
+                    $context,
+                    false
+                );
 
                 $this->setNewsletterFlag($context->getCustomer(), true, $context);
 
@@ -113,7 +127,10 @@ class NewsletterController extends StorefrontController
         }
 
         try {
-            $this->newsletterService->unsubscribe($this->hydrateFromCustomer($dataBag, $context->getCustomer()), $context);
+            $this->newsletterUnsubscribeRoute->unsubscribe(
+                $this->hydrateFromCustomer($dataBag, $context->getCustomer()),
+                $context
+            );
             $this->setNewsletterFlag($context->getCustomer(), false, $context);
 
             $success = true;

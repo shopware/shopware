@@ -69,9 +69,4 @@ class MediaDefaultFolderEntity extends Entity
     {
         $this->customFields = $customFields;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'media_default_folder';
-    }
 }

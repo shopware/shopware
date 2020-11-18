@@ -1,0 +1,28 @@
+/* mixin for multiline */
+@mixin truncate-multiline($line-height: 1.2em, $line-count: 1, $bg-color: white) {
+    overflow: hidden;
+    position: relative;
+    line-height: $line-height;
+    max-height: $line-height * $line-count;
+    text-align: justify;
+    margin-right: -1em;
+    padding-right: 1em;
+    max-width: 95%;
+
+    &::before {
+        content: '...';
+        position: absolute;
+        right: 0;
+        bottom: 0;
+    }
+
+    &::after {
+        content: '';
+        position: absolute;
+        right: 0;
+        width: 1em;
+        height: 1em;
+        margin-top: 0.2em;
+        background: $bg-color;
+    }
+}

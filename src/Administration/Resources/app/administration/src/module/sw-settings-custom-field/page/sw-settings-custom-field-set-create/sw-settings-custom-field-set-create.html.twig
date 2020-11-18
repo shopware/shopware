@@ -1,0 +1,14 @@
+{% block sw_settings_custom_field_set_detail_content_detail_custom_field_list %}
+    <sw-card class="sw-settings-set-create__option-list-empty-state__wrapper">
+
+        {% block sw_settings_custom_field_set_detail_content_detail_custom_field_list_empty_state %}
+            <sw-empty-state
+                :absolute="false"
+                class="sw-settings-set-create__option-list-empty-state__empty-state"
+                :title="$tc('sw-settings-custom-field.set.detail.messageCustomFieldsEmpty')">
+
+                <p>{{ $tc('sw-settings-custom-field.set.detail.emptyStateDescription') }}</p>
+            </sw-empty-state>
+        {% endblock %}
+    </sw-card>
+{% endblock %}

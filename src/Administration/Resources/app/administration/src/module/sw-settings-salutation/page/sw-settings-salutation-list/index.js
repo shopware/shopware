@@ -6,7 +6,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-settings-salutation-list', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -36,6 +36,14 @@ Component.register('sw-settings-salutation-list', {
 
         salutationRepository() {
             return this.repositoryFactory.create('salutation');
+        },
+
+        tooltipAdd() {
+            return {
+                message: this.$tc('sw-privileges.tooltip.warning'),
+                disabled: this.acl.can('salutation.creator'),
+                showOnDisabledElements: true
+            };
         }
     },
 
@@ -52,6 +60,7 @@ Component.register('sw-settings-salutation-list', {
             this.isLoading = true;
             const criteria = new Criteria(this.page, this.limit);
             criteria.setTerm(this.term);
+            criteria.addSorting(Criteria.sort('salutationKey', 'ASC', false));
 
             this.salutationRepository.search(criteria, Shopware.Context.api).then((searchResult) => {
                 this.total = searchResult.total;

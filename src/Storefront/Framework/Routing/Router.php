@@ -50,7 +50,7 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
         }
 
         $server = array_merge(
-            $_SERVER,
+            $request->server->all(),
             ['REQUEST_URI' => $request->attributes->get(RequestTransformer::SALES_CHANNEL_RESOLVED_URI)]
         );
 

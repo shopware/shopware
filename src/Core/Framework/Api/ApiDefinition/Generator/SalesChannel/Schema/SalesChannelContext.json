@@ -132,7 +132,8 @@
                 "type": "object",
                 "properties": {
                     "taxRate": {
-                        "type": "float"
+                      "type": "number",
+                      "format": "float"
                     },
                     "name": {
                         "type": "string"
@@ -310,10 +311,6 @@
                     "type": "string"
                 }
             }
-        },
-        "shippingLocation": {
-            "type": "object",
-            "properties": []
         },
         "context": {
             "type": "object",

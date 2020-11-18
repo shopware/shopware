@@ -38,6 +38,11 @@ Component.register('sw-select-rule-create', {
             required: false,
             default: null
         },
+        rules: {
+            type: Array,
+            required: false,
+            default: null
+        },
         ruleFilter: {
             type: Object,
             required: false,
@@ -50,9 +55,32 @@ Component.register('sw-select-rule-create', {
         }
     },
 
+    computed: {
+        collection: {
+            get() {
+                return this.rules;
+            },
+            set(collection) {
+                collection.forEach((item) => {
+                    if (!this.rules.has(item.id)) {
+                        this.rules.add(item);
+                    }
+                });
+                this.rules.forEach((item) => {
+                    if (!collection.has(item.id)) {
+                        this.rules.remove(item.id);
+                    }
+                });
+            }
+        }
+    },
+
     methods: {
-        onSaveRule(ruleId) {
-            this.$emit('save-rule', ruleId);
+        onSaveRule(ruleId, rule) {
+            if (this.rules) {
+                this.rules.add(rule);
+            }
+            this.$emit('save-rule', ruleId, rule);
         },
 
         onSelectRule(event) {

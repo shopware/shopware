@@ -6,21 +6,26 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Content\Product\Events\ProductListingCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductSearchCriteriaEvent;
+use Shopware\Core\Content\Product\SalesChannel\Exception\ProductSortingNotFoundException;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 
 class ProductListingFeaturesSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
+    use SalesChannelApiTestBehaviour;
 
     /**
      * @var EventDispatcher
@@ -32,12 +37,23 @@ class ProductListingFeaturesSubscriberTest extends TestCase
      */
     private $optionIds;
 
+    /**
+     * @var SystemConfigService
+     */
+    private $systemConfigService;
+
+    /**
+     * @var SalesChannelEntity
+     */
+    private $salesChannel;
+
     protected function setUp(): void
     {
         parent::setUp();
         $this->eventDispatcher = $this->getContainer()->get('event_dispatcher');
 
-        $repo = $this->getContainer()->get('property_group.repository');
+        $productSortingRepository = $this->getContainer()->get('product_sorting.repository');
+        $productGroupRepository = $this->getContainer()->get('property_group.repository');
 
         $this->optionIds = [
             'red' => Uuid::randomHex(),
@@ -48,8 +64,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
             'large' => Uuid::randomHex(),
         ];
 
-        /* @var EntityRepositoryInterface $repo */
-        $repo->create([
+        $productGroupRepository->create([
             [
                 'name' => 'color',
                 'options' => [
@@ -67,6 +82,36 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                 ],
             ],
         ], Context::createDefaultContext());
+
+        // provide some advanced product sorting cases
+        $productSortingRepository->create([
+            [
+                'key' => 'test-multiple-sortings',
+                'priority' => 0,
+                'active' => true,
+                'fields' => [
+                    ['field' => 'product.name', 'order' => 'asc', 'naturalSorting' => 0, 'priority' => 0],
+                    ['field' => 'product.listingPrices', 'order' => 'desc', 'naturalSorting' => 0, 'priority' => 0],
+                ],
+                'label' => 'test',
+            ],
+            [
+                'key' => 'test-inactive',
+                'priority' => 0,
+                'active' => false,
+                'fields' => [
+                    ['field' => 'product.listingPrices', 'order' => 'desc', 'naturalSorting' => 0, 'priority' => 0],
+                ],
+                'label' => 'test',
+            ],
+        ], Context::createDefaultContext());
+
+        $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+
+        $this->salesChannel = $this->getContainer()->get('sales_channel.repository')->search(
+            new Criteria([Defaults::SALES_CHANNEL]),
+            Context::createDefaultContext()
+        )->first();
     }
 
     /**
@@ -113,14 +158,15 @@ class ProductListingFeaturesSubscriberTest extends TestCase
         $event = new ProductListingCriteriaEvent($request, $criteria, Generator::createSalesChannelContext());
         $this->eventDispatcher->dispatch($event);
 
+        $filters = $this->getFiltersOfField($criteria->getPostFilters(), 'product.shippingFree');
         if ($expected === null) {
-            static::assertCount(0, $criteria->getPostFilters());
+            static::assertCount(0, $filters);
 
             return;
         }
 
-        static::assertCount(1, $criteria->getPostFilters());
-        $filter = $criteria->getPostFilters()[0];
+        static::assertCount(1, $filters, print_r($request, true));
+        $filter = array_shift($filters);
 
         static::assertInstanceOf(EqualsFilter::class, $filter);
         static::assertSame($expected, $filter->getValue());
@@ -146,6 +192,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
         $this->eventDispatcher->dispatch($event);
 
         $sortings = $criteria->getSorting();
+
         static::assertCount(count($expectedFields), $sortings);
 
         foreach ($sortings as $sorting) {
@@ -156,6 +203,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
 
     /**
      * @dataProvider searchSortingProvider
+     * @group slow
      */
     public function testSearchSorting(array $expectedFields, Request $request): void
     {
@@ -164,12 +212,39 @@ class ProductListingFeaturesSubscriberTest extends TestCase
         $this->eventDispatcher->dispatch($event);
 
         $sortings = $criteria->getSorting();
-        static::assertCount(count($expectedFields), $sortings, print_r($sortings, true));
+
+        static::assertCount(count($expectedFields), $sortings);
 
         foreach ($sortings as $sorting) {
             static::assertArrayHasKey($sorting->getField(), $expectedFields);
             static::assertSame($sorting->getDirection(), $expectedFields[$sorting->getField()]);
         }
+    }
+
+    /**
+     * @dataProvider unavailableListSortingProvider
+     */
+    public function testListSortingNotFound(Request $request): void
+    {
+        $criteria = new Criteria();
+        $event = new ProductListingCriteriaEvent($request, $criteria, Generator::createSalesChannelContext());
+
+        static::expectException(ProductSortingNotFoundException::class);
+
+        $this->eventDispatcher->dispatch($event);
+    }
+
+    /**
+     * @dataProvider unavailableSearchSortingProvider
+     */
+    public function testSearchSortingNotFound(Request $request): void
+    {
+        $criteria = new Criteria();
+        $event = new ProductSearchCriteriaEvent($request, $criteria, Generator::createSalesChannelContext());
+
+        static::expectException(ProductSortingNotFoundException::class);
+
+        $this->eventDispatcher->dispatch($event);
     }
 
     public function searchSortingProvider(): array
@@ -181,23 +256,30 @@ class ProductListingFeaturesSubscriberTest extends TestCase
             ],
             [
                 ['product.name' => FieldSorting::ASCENDING],
-                new Request(['sort' => 'name-asc']),
-            ],
-            [
-                ['_score' => FieldSorting::DESCENDING],
-                new Request(['sort' => 'unknown']),
+                new Request(['order' => 'name-asc']),
             ],
             [
                 ['product.name' => FieldSorting::DESCENDING],
-                new Request(['sort' => 'name-desc']),
+                new Request(['order' => 'name-desc']),
             ],
             [
                 ['product.listingPrices' => FieldSorting::ASCENDING],
-                new Request(['sort' => 'price-asc']),
+                new Request(['order' => 'price-asc']),
             ],
             [
                 ['product.listingPrices' => FieldSorting::DESCENDING],
-                new Request(['sort' => 'price-desc']),
+                new Request(['order' => 'price-desc']),
+            ],
+            [
+                [
+                    'product.name' => FieldSorting::ASCENDING,
+                    'product.listingPrices' => FieldSorting::DESCENDING,
+                ],
+                new Request(['order' => 'test-multiple-sortings']),
+            ],
+            [
+                ['product.listingPrices' => FieldSorting::DESCENDING],
+                new Request(['order' => 'price-desc'], ['availableSortings' => ['price-desc' => 1, 'price-asc' => 0]]),
             ],
         ];
     }
@@ -211,23 +293,54 @@ class ProductListingFeaturesSubscriberTest extends TestCase
             ],
             [
                 ['product.name' => FieldSorting::ASCENDING],
-                new Request(['sort' => 'name-asc']),
-            ],
-            [
-                ['product.name' => FieldSorting::ASCENDING],
-                new Request(['sort' => 'unknown']),
+                new Request(['order' => 'name-asc']),
             ],
             [
                 ['product.name' => FieldSorting::DESCENDING],
-                new Request(['sort' => 'name-desc']),
+                new Request(['order' => 'name-desc']),
             ],
             [
                 ['product.listingPrices' => FieldSorting::ASCENDING],
-                new Request(['sort' => 'price-asc']),
+                new Request(['order' => 'price-asc']),
             ],
             [
                 ['product.listingPrices' => FieldSorting::DESCENDING],
-                new Request(['sort' => 'price-desc']),
+                new Request(['order' => 'price-desc']),
+            ],
+            [
+                [
+                    'product.name' => FieldSorting::ASCENDING,
+                    'product.listingPrices' => FieldSorting::DESCENDING,
+                ],
+                new Request(['order' => 'test-multiple-sortings']),
+            ],
+            [
+                ['product.listingPrices' => FieldSorting::DESCENDING],
+                new Request(['order' => 'price-desc'], ['availableSortings' => ['price-desc' => 1, 'price-asc' => 0]]),
+            ],
+        ];
+    }
+
+    public function unavailableSearchSortingProvider(): array
+    {
+        return [
+            [
+                new Request(['order' => 'unknown']),
+                new Request(['order' => 'test-inactive']),
+                new Request(['order' => 'score', 'availableSortings' => ['price-desc' => 1, 'price-asc' => 0]]),
+                new Request(['order' => 'test-inactive', 'availableSortings' => ['price-desc' => 2, 'price-asc' => 1, 'test-inactive' => 0]]),
+            ],
+        ];
+    }
+
+    public function unavailableListSortingProvider(): array
+    {
+        return [
+            [
+                new Request(['order' => 'unknown']),
+                new Request(['order' => 'test-inactive']),
+                new Request(['order' => 'name-asc', 'availableSortings' => ['price-desc' => 1, 'price-asc' => 0]]),
+                new Request(['order' => 'test-inactive', 'availableSortings' => ['price-desc' => 2, 'price-asc' => 1, 'test-inactive' => 0]]),
             ],
         ];
     }
@@ -235,24 +348,119 @@ class ProductListingFeaturesSubscriberTest extends TestCase
     /**
      * @dataProvider paginationProvider
      */
-    public function testPagination(int $limit, int $offset, Request $request): void
+    public function testPagination(int $limit, int $offset, Request $request, ?int $systemConfigLimit = null): void
     {
+        if ($systemConfigLimit !== null) {
+            $this->systemConfigService->set('core.listing.productsPerPage', $systemConfigLimit);
+        } else {
+            $this->systemConfigService->delete('core.listing.productsPerPage');
+        }
+
         $criteria = new Criteria();
-        $event = new ProductListingCriteriaEvent($request, $criteria, Generator::createSalesChannelContext());
+        $event = new ProductListingCriteriaEvent(
+            $request,
+            $criteria,
+            Generator::createSalesChannelContext(null, null, null)
+        );
+
         $this->eventDispatcher->dispatch($event);
 
         static::assertSame($limit, $criteria->getLimit());
         static::assertSame($offset, $criteria->getOffset());
     }
 
+    /**
+     * @dataProvider paginationSalesChannelProvider
+     */
+    public function testPaginationSalesChannel(int $limit, int $offset, Request $request, int $limitChannel, int $offsetChannel, ?int $systemConfigLimit = null): void
+    {
+        $this->systemConfigService->set('core.listing.productsPerPage', 12);
+
+        if ($systemConfigLimit !== null) {
+            $this->systemConfigService->set('core.listing.productsPerPage', $systemConfigLimit, Defaults::SALES_CHANNEL);
+        } else {
+            $this->systemConfigService->delete('core.listing.productsPerPage', Defaults::SALES_CHANNEL);
+        }
+
+        $criteria = new Criteria();
+        $event = new ProductListingCriteriaEvent(
+            $request,
+            $criteria,
+            Generator::createSalesChannelContext(null, null, null)
+        );
+
+        $this->eventDispatcher->dispatch($event);
+
+        $criteriaChannel = new Criteria();
+        $eventChannel = new ProductListingCriteriaEvent(
+            $request,
+            $criteriaChannel,
+            Generator::createSalesChannelContext(null, null, null, $this->salesChannel)
+        );
+
+        $this->eventDispatcher->dispatch($eventChannel);
+
+        static::assertSame($limit, $criteria->getLimit());
+        static::assertSame($offset, $criteria->getOffset());
+        static::assertSame($limitChannel, $criteriaChannel->getLimit());
+        static::assertSame($offsetChannel, $criteriaChannel->getOffset());
+    }
+
     public function paginationProvider()
     {
         return [
             [24, 0, new Request()],
+            [12, 0, new Request(), 12],
+            [24, 0, new Request(), -5],
+
             [20, 80, new Request(['p' => 5, 'limit' => 20])],
-            [1, 0, new Request(['p' => 0, 'limit' => 1])],
+            [20, 80, new Request(['p' => 5, 'limit' => 20]), 12],
+            [20, 80, new Request(['p' => 5, 'limit' => 20]), -5],
+
             [24, 0, new Request(['p' => -5, 'limit' => -5])],
+            [24, 0, new Request(['p' => -5, 'limit' => -5]), -5],
+            [12, 0, new Request(['p' => -5, 'limit' => -5]), 12],
+
+            [1, 0, new Request(['p' => 0, 'limit' => 1])],
+            [1, 0, new Request(['p' => 0, 'limit' => 1]), 12],
+            [1, 0, new Request(['p' => 0, 'limit' => 1]), -5],
+
             [20, 80, new Request([], ['p' => 5, 'limit' => 20], [], [], [], ['REQUEST_METHOD' => Request::METHOD_POST])],
+            [20, 80, new Request([], ['p' => 5, 'limit' => 20], [], [], [], ['REQUEST_METHOD' => Request::METHOD_POST]), 12],
+            [20, 80, new Request([], ['p' => 5, 'limit' => 20], [], [], [], ['REQUEST_METHOD' => Request::METHOD_POST]), -5],
+
+            [24, 0, new Request([], ['p' => -5, 'limit' => -5], [], [], [], ['REQUEST_METHOD' => Request::METHOD_POST])],
+            [12, 0, new Request([], ['p' => -5, 'limit' => -5], [], [], [], ['REQUEST_METHOD' => Request::METHOD_POST]), 12],
+            [24, 0, new Request([], ['p' => -5, 'limit' => -5], [], [], [], ['REQUEST_METHOD' => Request::METHOD_POST]), -5],
+        ];
+    }
+
+    public function paginationSalesChannelProvider()
+    {
+        return [
+            [12, 0, new Request(), 12, 0],
+            [12, 0, new Request(), 4, 0, 4],
+            [12, 0, new Request(), 24, 0, -5],
+
+            [20, 80, new Request(['p' => 5, 'limit' => 20]), 20, 80],
+            [20, 80, new Request(['p' => 5, 'limit' => 20]), 20, 80, 4],
+            [20, 80, new Request(['p' => 5, 'limit' => 20]), 20, 80, -5],
+
+            [12, 0, new Request(['p' => -5, 'limit' => -5]), 12, 0],
+            [12, 0, new Request(['p' => -5, 'limit' => -5]), 24, 0, -5],
+            [12, 0, new Request(['p' => -5, 'limit' => -5]), 4, 0, 4],
+
+            [1, 0, new Request(['p' => 0, 'limit' => 1]), 1, 0],
+            [1, 0, new Request(['p' => 0, 'limit' => 1]), 1, 0, 4],
+            [1, 0, new Request(['p' => 0, 'limit' => 1]), 1, 0, -5],
+
+            [20, 80, new Request([], ['p' => 5, 'limit' => 20], [], [], [], ['REQUEST_METHOD' => Request::METHOD_POST]), 20, 80],
+            [20, 80, new Request([], ['p' => 5, 'limit' => 20], [], [], [], ['REQUEST_METHOD' => Request::METHOD_POST]), 20, 80, 4],
+            [20, 80, new Request([], ['p' => 5, 'limit' => 20], [], [], [], ['REQUEST_METHOD' => Request::METHOD_POST]), 20, 80, -5],
+
+            [12, 0, new Request([], ['p' => -5, 'limit' => -5], [], [], [], ['REQUEST_METHOD' => Request::METHOD_POST]), 12, 0],
+            [12, 0, new Request([], ['p' => -5, 'limit' => -5], [], [], [], ['REQUEST_METHOD' => Request::METHOD_POST]), 24, 0, -5],
+            [12, 0, new Request([], ['p' => -5, 'limit' => -5], [], [], [], ['REQUEST_METHOD' => Request::METHOD_POST]), 4, 0, 4],
         ];
     }
 
@@ -331,33 +539,18 @@ class ProductListingFeaturesSubscriberTest extends TestCase
 
         $filters = $criteria->getPostFilters();
 
-        static::assertCount(\count($properties), $filters, $message);
+        $filters = array_shift($filters);
 
-        $filtered = [];
+        if (count($properties) <= 0) {
+            static::assertNull($filters);
 
-        foreach ($filters as $filter) {
-            if (!$filter instanceof MultiFilter) {
-                continue;
-            }
-
-            foreach ($filter->getQueries() as $query) {
-                if (!$query instanceof EqualsAnyFilter) {
-                    continue;
-                }
-
-                if ($query->getField() !== 'product.optionIds') {
-                    continue;
-                }
-
-                foreach ($query->getValue() as $id) {
-                    $filtered[] = $id;
-                }
-            }
-        }
-
-        if (empty($properties)) {
             return;
         }
+
+        static::assertInstanceOf(MultiFilter::class, $filters);
+        static::assertCount(\count($properties), $filters->getQueries(), $message);
+
+        $filtered = $this->getFilteredValues($filters->getQueries());
 
         static::assertNotEmpty($filtered, $message);
 
@@ -366,5 +559,37 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                 static::assertContains($id, $filtered, $message);
             }
         }
+    }
+
+    private function getFilteredValues(array $filters): array
+    {
+        $filtered = [];
+        foreach ($filters as $filter) {
+            if ($filter instanceof EqualsAnyFilter && $filter->getField() === 'product.optionIds') {
+                $filtered = array_merge($filtered, $filter->getValue());
+            }
+
+            if ($filter instanceof MultiFilter) {
+                $filtered = array_merge($filtered, $this->getFilteredValues($filter->getQueries()));
+            }
+        }
+
+        return $filtered;
+    }
+
+    private function getFiltersOfField(array $filters, string $field)
+    {
+        $matches = [];
+        foreach ($filters as $filter) {
+            if ($filter->getField() === $field) {
+                $matches[] = $filter;
+            }
+
+            if ($filter instanceof MultiFilter) {
+                $matches = array_merge($matches, $this->getFiltersOfField($filter->getQueries(), $field));
+            }
+        }
+
+        return $matches;
     }
 }

@@ -1,0 +1,67 @@
+@import "~scss/variables";
+.sw-app-app-url-changed-modal {
+    font-size: $font-size-small;
+
+    b {
+        font-weight: $font-weight-semi-bold;
+    }
+
+    .sw-app-app-url-changed-modal__content-description {
+        margin-bottom: 16px;
+
+        .sw-app-app-url-changed-modal__content-description-change {
+            margin-bottom: 16px;
+
+            span b {
+                font-weight: $font-weight-semi-bold;
+            }
+        }
+    }
+
+    .sw-app-app-url-changed-modal__content-choices {
+        .sw-button__content {
+            grid-template-columns: 16px 1fr;
+            justify-items: start;
+            line-height:22px;
+            padding: 16px;
+
+            .sw-icon {
+                grid-column: 1;
+                grid-row: 1;
+            }
+
+            .sw-app-app-url-changed-modal__migration-button-center {
+                margin: 5px;
+                width: auto;
+                height: auto;
+            }
+
+            .sw-app-app-url-changed-modal__content-choices-label {
+                grid-column: 2;
+                grid-row: 1;
+                text-align: left;
+                font-size: $font-size-default;
+            }
+
+            .sw-app-app-url-changed-modal__content-choices-description {
+                grid-column: 2;
+                grid-row: 2;
+                white-space: normal;
+                text-align: left;
+                font-weight: $font-weight-regular;
+                font-size: $font-size-small;
+            }
+        }
+
+        .sw-app-app-url-changed-modal__content-migration-strategy--active {
+            background: $color-shopware-brand-50;
+            border-color: $color-shopware-brand-500;
+        }
+
+        .sw-app-app-url-changed-modal__content-migration-strategy {
+            margin-bottom: 16px;
+            padding: 0;
+        }
+    }
+}
+

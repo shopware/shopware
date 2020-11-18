@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Term;
 
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReadProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
@@ -34,7 +36,6 @@ class EntityScoreQueryBuilder
         $fields = $this->getQueryFields($definition, $context);
 
         $queries = [];
-        /** @var Field $field */
         foreach ($fields as $field) {
             /** @var SearchRanking|null $flag */
             $flag = $field->getFlag(SearchRanking::class);
@@ -42,6 +43,12 @@ class EntityScoreQueryBuilder
             $ranking = $multiplier;
             if ($flag) {
                 $ranking = $flag->getRanking() * $multiplier;
+            }
+
+            if ($field instanceof DateTimeField) {
+                if (!$this->validateDateFormat(Defaults::STORAGE_DATE_FORMAT, $term->getOriginal()->getTerm())) {
+                    continue;
+                }
             }
 
             $select = $root . '.' . $field->getPropertyName();
@@ -119,5 +126,12 @@ class EntityScoreQueryBuilder
         $field = $definition->getFields()->filterInstance(StringField::class);
 
         return $field;
+    }
+
+    private function validateDateFormat(string $format, string $date): bool
+    {
+        $dateTime = \DateTime::createFromFormat($format, $date);
+
+        return $dateTime && $dateTime->format($format) === $date;
     }
 }

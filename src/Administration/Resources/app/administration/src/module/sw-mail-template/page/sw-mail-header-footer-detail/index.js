@@ -1,7 +1,9 @@
 import template from './sw-mail-header-footer-detail.html.twig';
 
-const { Component, Mixin, StateDeprecated } = Shopware;
+const { Component, Mixin } = Shopware;
+const { Criteria } = Shopware.Data;
 const { warn } = Shopware.Utils.debug;
+const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-mail-header-footer-detail', {
     template,
@@ -11,13 +13,22 @@ Component.register('sw-mail-header-footer-detail', {
         Mixin.getByName('notification')
     ],
 
-    inject: ['entityMappingService'],
+    inject: ['entityMappingService', 'repositoryFactory', 'acl'],
+
+    shortcuts: {
+        'SYSTEMKEY+S': {
+            active() {
+                return this.allowSave;
+            },
+            method: 'onSave'
+        }
+    },
 
     data() {
         return {
-            mailHeaderFooter: false,
+            mailHeaderFooter: null,
             mailHeaderFooterId: null,
-            isLoading: false,
+            isLoading: true,
             isSaveSuccessful: false,
             editorConfig: {
                 enableBasicAutocompletion: true
@@ -32,20 +43,28 @@ Component.register('sw-mail-header-footer-detail', {
     },
 
     computed: {
+        ...mapPropertyErrors('mailHeaderFooter', [
+            'name'
+        ]),
+
         identifier() {
             return this.placeholder(this.mailHeaderFooter, 'name');
         },
 
-        mailHeaderFooterStore() {
-            return StateDeprecated.getStore('mail_header_footer');
+        mailHeaderFooterRepository() {
+            return this.repositoryFactory.create('mail_header_footer');
         },
 
-        salesChannelStore() {
-            return StateDeprecated.getStore('sales_channel');
+        mailHeaderFooterCriteria() {
+            const criteria = new Criteria();
+
+            criteria.addAssociation('salesChannels');
+
+            return criteria;
         },
 
-        salesChannelAssociationStore() {
-            return this.mailHeaderFooter.getAssociation('salesChannels');
+        salesChannelRepository() {
+            return this.repositoryFactory.create('sales_channel');
         },
 
         completerFunction() {
@@ -65,6 +84,29 @@ Component.register('sw-mail-header-footer-detail', {
                 }
                 return completerFunction;
             }(this.entityMappingService));
+        },
+
+        allowSave() {
+            return this.mailHeaderFooter && this.mailHeaderFooter.isNew()
+                ? this.acl.can('mail_templates.creator')
+                : this.acl.can('mail_templates.editor');
+        },
+
+        tooltipSave() {
+            if (!this.allowSave) {
+                return {
+                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    disabled: this.allowSave,
+                    showOnDisabledElements: true
+                };
+            }
+
+            const systemKey = this.$device.getSystemKey();
+
+            return {
+                message: `${systemKey} + S`,
+                appearance: 'light'
+            };
         }
     },
 
@@ -79,19 +121,29 @@ Component.register('sw-mail-header-footer-detail', {
     },
 
     methods: {
-        createdComponent() {
+        async createdComponent() {
             if (this.$route.params.id) {
                 this.mailHeaderFooterId = this.$route.params.id;
-                this.loadEntityData();
+                await this.loadEntityData();
             }
+
+            this.isLoading = false;
         },
 
-        loadEntityData() {
-            this.mailHeaderFooter = this.mailHeaderFooterStore.getById(this.mailHeaderFooterId);
+        async loadEntityData() {
+            this.isLoading = true;
+
+            this.mailHeaderFooter = await this.mailHeaderFooterRepository.get(
+                this.mailHeaderFooterId,
+                Shopware.Context.api,
+                this.mailHeaderFooterCriteria
+            );
+
+            this.isLoading = false;
         },
 
         abortOnLanguageChange() {
-            return this.mailHeaderFooter.hasChanges();
+            return this.this.mailHeaderFooterRepository.hasChanges(this.mailHeaderFooter);
         },
 
         saveOnLanguageChange() {
@@ -107,38 +159,29 @@ Component.register('sw-mail-header-footer-detail', {
         },
 
         onSave() {
-            const mailHeaderFooterName = this.mailHeaderFooter.name || this.placeholder(this.mailHeaderFooter, 'name');
-
-            const notificationError = {
-                title: this.$tc('global.default.error'),
-                message: this.$tc(
-                    'global.notification.notificationSaveErrorMessage', 0, { entityName: mailHeaderFooterName }
-                )
-            };
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            if (!this.mailHeaderFooter.salesChannels) {
-                this.mailHeaderFooter.salesChannels = [];
-            }
+            return this.mailHeaderFooterRepository.save(this.mailHeaderFooter, Shopware.Context.api)
+                .then(() => {
+                    return this.loadEntityData();
+                })
+                .then(() => {
+                    this.isSaveSuccessful = true;
+                })
+                .catch((error) => {
+                    const notificationError = {
+                        message: this.$tc(
+                            'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'
+                        )
+                    };
 
-            return this.mailHeaderFooter.save(false).then(() => {
-                this.salesChannelStore.forEach((salesChannel) => {
-                    if (this.mailHeaderFooter.salesChannels.findIndex(entry => entry === salesChannel.id) >= 0) {
-                        salesChannel.mailHeaderFooterId = this.mailHeaderFooter.id;
-                    } else if (salesChannel.mailHeaderFooterId === this.mailHeaderFooter.id) {
-                        salesChannel.mailHeaderFooterId = null;
-                    }
-                    return salesChannel.save(false);
+                    this.createNotificationError(notificationError);
+                    warn(error);
+                })
+                .finally(() => {
+                    this.isLoading = false;
                 });
-            }).then(() => {
-                this.isLoading = false;
-                this.isSaveSuccessful = true;
-            }).catch((exception) => {
-                this.isLoading = false;
-                this.createNotificationError(notificationError);
-                warn(this._name, exception.message, exception.response);
-            });
         }
     }
 });

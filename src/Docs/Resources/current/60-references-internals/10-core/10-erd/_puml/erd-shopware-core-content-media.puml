@@ -42,7 +42,7 @@ Table(ShopwareCoreContentMediaMediaDefinition, "media\n(Media / Files)") {
    customFields translated
    thumbnailsRo blob
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
    translated json
 }
 Table(ShopwareCoreContentMediaAggregateMediaDefaultFolderMediaDefaultFolderDefinition, "media_default_folder\n(Default folders)") {
@@ -51,7 +51,7 @@ Table(ShopwareCoreContentMediaAggregateMediaDefaultFolderMediaDefaultFolderDefin
    not_null(entity) string
    customFields customFields
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
 }
 Table(ShopwareCoreContentMediaAggregateMediaThumbnailMediaThumbnailDefinition, "media_thumbnail\n(Generated Thumbnail)") {
    primary_key(id) id
@@ -61,14 +61,14 @@ Table(ShopwareCoreContentMediaAggregateMediaThumbnailMediaThumbnailDefinition, "
    url string
    customFields customFields
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
 }
 TranslationTable(ShopwareCoreContentMediaAggregateMediaTranslationMediaTranslationDefinition, "media_translation\n((Translations))") {
    title string
    alt longText
    customFields customFields
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
    primary_key(mediaId) foreignKey
    primary_key(languageId) foreignKey
 }
@@ -82,7 +82,7 @@ Table(ShopwareCoreContentMediaAggregateMediaFolderMediaFolderDefinition, "media_
    not_null(name) string
    customFields customFields
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
 }
 Table(ShopwareCoreContentMediaAggregateMediaThumbnailSizeMediaThumbnailSizeDefinition, "media_thumbnail_size\n(Generated Thumbnails)") {
    primary_key(id) id
@@ -90,7 +90,7 @@ Table(ShopwareCoreContentMediaAggregateMediaThumbnailSizeMediaThumbnailSizeDefin
    not_null(height) int
    customFields customFields
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
 }
 Table(ShopwareCoreContentMediaAggregateMediaFolderConfigurationMediaFolderConfigurationDefinition, "media_folder_configuration\n(Configuration)") {
    primary_key(id) id
@@ -102,7 +102,7 @@ Table(ShopwareCoreContentMediaAggregateMediaFolderConfigurationMediaFolderConfig
    mediaThumbnailSizesRo blob
    customFields customFields
    not_null(createdAt) createdAt
-   not_null(updatedAt) updatedAt
+   updatedAt updatedAt
 }
 Table(ShopwareCoreContentMediaAggregateMediaFolderConfigurationMediaThumbnailSizeMediaFolderConfigurationMediaThumbnailSizeDefinition, "media_folder_configuration_media_thumbnail_size\n(M:N Mapping)") {
    primary_key(mediaFolderConfigurationId) foreignKey
@@ -146,7 +146,7 @@ ForeignTable(ShopwareStorefrontThemeThemeDefinition, "theme") {
 }
 ForeignTable(ShopwareStorefrontThemeAggregateThemeMediaDefinition, "theme_media") {
 }
-ForeignTable(ShopwareCoreFrameworkLanguageLanguageDefinition, "language") {
+ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
 }
 ForeignTable(ShopwareCoreSystemTagTagDefinition, "tag") {
 }
@@ -175,7 +175,7 @@ ShopwareCoreContentMediaMediaDefinition --> ShopwareCoreCheckoutDocumentDocument
 ShopwareCoreContentMediaMediaDefinition --> ShopwareStorefrontThemeThemeDefinition
 ShopwareCoreContentMediaMediaDefinition --> ShopwareStorefrontThemeAggregateThemeMediaDefinition
 ShopwareCoreContentMediaAggregateMediaFolderMediaFolderDefinition --> ShopwareCoreContentMediaAggregateMediaDefaultFolderMediaDefaultFolderDefinition
-ShopwareCoreContentMediaAggregateMediaTranslationMediaTranslationDefinition --> ShopwareCoreFrameworkLanguageLanguageDefinition
+ShopwareCoreContentMediaAggregateMediaTranslationMediaTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition
 ShopwareCoreContentMediaAggregateMediaFolderMediaFolderDefinition --> ShopwareCoreContentMediaAggregateMediaFolderMediaFolderDefinition
 ShopwareCoreContentMediaAggregateMediaFolderConfigurationMediaFolderConfigurationDefinition --> ShopwareCoreContentMediaAggregateMediaFolderMediaFolderDefinition
 ShopwareCoreContentMediaAggregateMediaFolderConfigurationMediaThumbnailSizeMediaFolderConfigurationMediaThumbnailSizeDefinition --> ShopwareCoreContentMediaAggregateMediaThumbnailSizeMediaThumbnailSizeDefinition

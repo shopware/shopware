@@ -6,7 +6,9 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -124,7 +126,7 @@ trait AdminApiTestBehaviour
      * @throws \RuntimeException
      * @throws DBALException
      */
-    public function authorizeBrowser(KernelBrowser $browser, array $scopes = []): void
+    public function authorizeBrowser(KernelBrowser $browser, array $scopes = [], ?array $aclPermissions = null): void
     {
         $username = Uuid::randomHex();
         $password = Uuid::randomHex();
@@ -133,18 +135,41 @@ trait AdminApiTestBehaviour
         $connection = $browser->getContainer()->get(Connection::class);
         $userId = Uuid::randomBytes();
 
-        $connection->insert('user', [
+        $user = [
             'id' => $userId,
             'first_name' => $username,
             'last_name' => '',
-            'email' => 'admin@example.com',
             'username' => $username,
             'password' => password_hash($password, PASSWORD_BCRYPT),
             'locale_id' => $this->getLocaleOfSystemLanguage($connection),
             'active' => 1,
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-            'admin' => 1,
-        ]);
+        ];
+
+        if ($aclPermissions !== null) {
+            $aclRoleId = Uuid::randomBytes();
+            $user['admin'] = 0;
+            $user['email'] = md5(json_encode($aclPermissions)) . '@example.com';
+            $aclRole = [
+                'id' => $aclRoleId,
+                'name' => 'testPermissions',
+                'privileges' => json_encode($aclPermissions),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ];
+            $connection->insert('acl_role', $aclRole);
+            $connection->insert('user', $user);
+            $connection->insert('acl_user_role', [
+                'user_id' => $userId,
+                'acl_role_id' => $aclRoleId,
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ]);
+        } else {
+            $user['admin'] = 1;
+            $user['email'] = 'admin@example.com';
+            if ($connection->fetchColumn('SELECT email FROM user WHERE email = "admin@example.com"', [], 0) !== 'admin@example.com') {
+                $connection->insert('user', $user);
+            }
+        }
 
         $this->apiUsernames[] = $username;
 
@@ -176,6 +201,7 @@ trait AdminApiTestBehaviour
         }
 
         $browser->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['access_token']));
+        $browser->setServerParameter(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, new Context(new AdminApiSource($userId)));
     }
 
     /**
@@ -183,11 +209,16 @@ trait AdminApiTestBehaviour
      * @throws \RuntimeException
      * @throws DBALException
      */
-    public function authorizeBrowserWithIntegration(KernelBrowser $browser): void
+    public function authorizeBrowserWithIntegration(KernelBrowser $browser, ?string $id = null): void
     {
         $accessKey = AccessKeyHelper::generateAccessKey('integration');
         $secretAccessKey = AccessKeyHelper::generateSecretAccessKey();
-        $id = Uuid::randomBytes();
+
+        if (!$id) {
+            $id = Uuid::randomBytes();
+        } else {
+            $id = Uuid::fromHexToBytes($id);
+        }
 
         /** @var Connection $connection */
         $connection = $browser->getContainer()->get(Connection::class);
@@ -220,6 +251,7 @@ trait AdminApiTestBehaviour
         }
 
         $browser->setServerParameter('HTTP_Authorization', sprintf('Bearer %s', $data['access_token']));
+        $browser->setServerParameter('_integration_id', $id);
     }
 
     abstract protected function getKernel(): KernelInterface;
@@ -238,7 +270,12 @@ trait AdminApiTestBehaviour
         );
     }
 
-    protected function getBrowserAuthenticatedWithIntegration(): KernelBrowser
+    protected function resetBrowser(): void
+    {
+        $this->kernelBrowser = null;
+    }
+
+    protected function getBrowserAuthenticatedWithIntegration(?string $id = null): KernelBrowser
     {
         if ($this->integrationBrowser) {
             return $this->integrationBrowser;
@@ -252,7 +289,7 @@ trait AdminApiTestBehaviour
             'HTTP_ACCEPT' => ['application/vnd.api+json,application/json'],
         ]);
 
-        $this->authorizeBrowserWithIntegration($apiBrowser);
+        $this->authorizeBrowserWithIntegration($apiBrowser, $id);
 
         return $this->integrationBrowser = $apiBrowser;
     }

@@ -14,12 +14,6 @@ describe('Product: Test variants', () => {
                 });
             })
             .then(() => {
-                return cy.createPropertyFixture({
-                    name: 'Size',
-                    options: [{ name: 'S' }, { name: 'M' }, { name: 'L' }]
-                });
-            })
-            .then(() => {
                 return cy.createProductFixture();
             })
             .then(() => {
@@ -30,15 +24,19 @@ describe('Product: Test variants', () => {
             });
     });
 
-    it('@base @catalogue: add variant to product', () => {
+    it('@catalogue: add variant with surcharge to product', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/v*/product/*',
+            url: `${Cypress.env('apiPath')}product/*`,
             method: 'patch'
         }).as('saveData');
+        cy.route({
+            url: `${Cypress.config('baseUrl')}/detail/**/switch?options=*`,
+            method: 'get'
+        }).as('changeVariant');
 
         // Navigate to variant generator listing and start
         cy.clickContextMenuItem(
@@ -65,17 +63,64 @@ describe('Product: Test variants', () => {
         cy.get('.sw-data-grid__body').contains('.2');
         cy.get('.sw-data-grid__body').contains('.3');
 
-        cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--name')
-            .first()
-            .should('be.visible');
-        cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--name')
-            .first()
-            .dblclick();
+        // Get green variant
+        cy.get('.sw-simple-search-field--form input').typeAndCheck('Green');
+        cy.get('.sw-data-grid-skeleton').should('not.exist');
+        cy.get('.sw-data-grid__row--1').should('not.exist');
+        cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--name').contains('Green');
+
+        // Set surcharge
+        cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--name').should('be.visible');
+        cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--name').dblclick({ force: true });
         cy.get('.is--inline-edit .sw-data-grid__cell--price-EUR .sw-inheritance-switch').should('be.visible');
         cy.get('.is--inline-edit .sw-data-grid__cell--price-EUR .sw-inheritance-switch').click();
         cy.get('.sw-data-grid__cell--price-EUR #sw-price-field-gross').should('be.visible');
-        cy.get('.is--inline-edit .sw-data-grid__cell--price-EUR .sw-inheritance-switch').click();
-        cy.pause();
-    });
+        cy.get('.sw-data-grid__cell--price-EUR #sw-price-field-gross').should('be.enabled');
+        cy.get('.sw-data-grid__cell--price-EUR #sw-price-field-gross').clearTypeAndCheck('100');
+        cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--price-EUR .icon--default-lock-open').click();
+        cy.get('.sw-data-grid__cell--price-EUR #sw-price-field-net')
+            .invoke('val')
+            .should('eq', '84.033613445378');
+        cy.get('.icon--custom-uninherited').should('be.visible');
+        cy.get('.sw-data-grid__inline-edit-save').click();
 
+        // Validate product
+        cy.wait('@productCall').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
+            cy.awaitAndCheckNotification('Product "Green" has been saved.');
+        });
+
+        // Validate in Storefront
+        cy.visit('/');
+        cy.get('.product-price').contains('€64.00 - €100.00*');
+        cy.get('.product-action > .btn').contains('Details').click();
+        cy.get('.product-detail-buy').should('be.visible');
+
+        // Ensure that variant "Green" is checked at the moment the test runs
+        cy.get('.product-detail-configurator-option-label[title="Green"]').then(($btn) => {
+            const inputId = $btn.attr('for');
+
+            cy.get(`#${inputId}`).then(($input) => {
+                if (!$input.attr('checked')) {
+                    cy.contains('Green').click();
+
+                    cy.wait('@changeVariant').then((xhr) => {
+                        expect(xhr).to.have.property('status', 200);
+                        cy.get('.product-detail-price').contains('100.00');
+                    });
+                } else {
+                    cy.log('Variant "Green" is already open.');
+                    cy.get('.product-detail-price').contains('100.00');
+                }
+            });
+        });
+
+        cy.contains('Red').click();
+
+        cy.wait('@changeVariant').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+
+            cy.get('.product-detail-price').contains('64.00');
+        });
+    });
 });

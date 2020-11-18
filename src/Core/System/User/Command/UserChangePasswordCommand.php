@@ -1,12 +1,10 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\System\User\Command;
 
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Symfony\Component\Console\Command\Command;
@@ -21,11 +19,11 @@ class UserChangePasswordCommand extends Command
     protected static $defaultName = 'user:change-password';
 
     /**
-     * @var EntityRepository
+     * @var EntityRepositoryInterface
      */
     private $userRepository;
 
-    public function __construct(EntityRepository $userRepository)
+    public function __construct(EntityRepositoryInterface $userRepository)
     {
         $this->userRepository = $userRepository;
         parent::__construct();
@@ -44,6 +42,15 @@ class UserChangePasswordCommand extends Command
         $context = Context::createDefaultContext();
 
         $username = $input->getArgument('username');
+        if ($username === null) {
+            $io->error('No user name given.');
+
+            return 1;
+        }
+        if (\is_array($username)) {
+            $username = implode(' ', $username);
+        }
+
         $password = $input->getOption('password');
 
         $userId = $this->getUserId($username, $context);

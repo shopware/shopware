@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\Plugin;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\PluginExtractor;
@@ -19,6 +20,9 @@ use Shopware\Development\Kernel;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
+/**
+ * @group slow
+ */
 class PluginManagementServiceTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -29,6 +33,7 @@ class PluginManagementServiceTest extends TestCase
     private const PLUGIN_ZIP_FIXTURE_PATH = self::FIXTURE_PATH . self::TEST_ZIP_NAME;
     private const PLUGINS_PATH = self::FIXTURE_PATH . 'plugins';
     private const PLUGIN_FASHION_THEME_PATH = self::PLUGINS_PATH . '/SwagFashionTheme';
+    private const PLUGIN_FASHION_THEME_BASE_CLASS_PATH = self::PLUGIN_FASHION_THEME_PATH . '/SwagFashionTheme.php';
 
     /**
      * @var Filesystem
@@ -55,16 +60,43 @@ class PluginManagementServiceTest extends TestCase
     protected function tearDown(): void
     {
         $this->filesystem->remove(self::PLUGIN_FASHION_THEME_PATH);
+        $this->filesystem->remove(self::PLUGIN_ZIP_FIXTURE_PATH);
         $this->filesystem->remove($this->cacheDir);
+
+        \Shopware\Core\Kernel::getConnection()->executeUpdate('DELETE FROM plugin');
     }
 
     public function testUploadPlugin(): void
     {
         $pluginFile = $this->createUploadedFile();
-        $this->getPluginManagementService()->uploadPlugin($pluginFile);
+        $this->getPluginManagementService()->uploadPlugin($pluginFile, Context::createDefaultContext());
 
         static::assertFileExists(self::PLUGIN_FASHION_THEME_PATH);
-        static::assertFileExists(self::PLUGIN_FASHION_THEME_PATH . '/SwagFashionTheme.php');
+        static::assertFileExists(self::PLUGIN_FASHION_THEME_BASE_CLASS_PATH);
+    }
+
+    public function testExtractPluginZip(): void
+    {
+        $this->getPluginManagementService()->extractPluginZip(self::PLUGIN_ZIP_FIXTURE_PATH);
+
+        $extractedPlugin = $this->filesystem->exists(self::PLUGIN_FASHION_THEME_PATH);
+        $extractedPluginBaseClass = $this->filesystem->exists(self::PLUGIN_FASHION_THEME_BASE_CLASS_PATH);
+        $pluginZipExists = $this->filesystem->exists(self::PLUGIN_ZIP_FIXTURE_PATH);
+        static::assertTrue($extractedPlugin);
+        static::assertTrue($extractedPluginBaseClass);
+        static::assertFalse($pluginZipExists);
+    }
+
+    public function testExtractPluginZipWithoutDeletion(): void
+    {
+        $this->getPluginManagementService()->extractPluginZip(self::PLUGIN_ZIP_FIXTURE_PATH, false);
+
+        $extractedPlugin = $this->filesystem->exists(self::PLUGIN_FASHION_THEME_PATH);
+        $extractedPluginBaseClass = $this->filesystem->exists(self::PLUGIN_FASHION_THEME_BASE_CLASS_PATH);
+        $pluginZipExists = $this->filesystem->exists(self::PLUGIN_ZIP_FIXTURE_PATH);
+        static::assertTrue($extractedPlugin);
+        static::assertTrue($extractedPluginBaseClass);
+        static::assertTrue($pluginZipExists);
     }
 
     private function createTestCacheDirectory(): string

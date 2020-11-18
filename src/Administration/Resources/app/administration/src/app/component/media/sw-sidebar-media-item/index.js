@@ -36,6 +36,11 @@ Component.register('sw-sidebar-media-item', {
             required: false,
             default: false
         },
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false
+        },
         additionalSearchCriteria: {
             type: Object,
             required: false,
@@ -107,6 +112,9 @@ Component.register('sw-sidebar-media-item', {
         },
 
         initializeContent() {
+            if (this.disabled) {
+                return;
+            }
             this.page = 1;
             this.term = '';
             this.mediaItems = [];

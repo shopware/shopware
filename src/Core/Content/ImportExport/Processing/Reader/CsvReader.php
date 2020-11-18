@@ -100,7 +100,10 @@ class CsvReader extends AbstractReader
         $this->seek($resource, $offset);
     }
 
-    private function readSingleRecord($resource, $offset): ?array
+    /**
+     * @param resource $resource
+     */
+    private function readSingleRecord($resource, int $offset): ?array
     {
         $this->seek($resource, $offset);
 
@@ -112,7 +115,7 @@ class CsvReader extends AbstractReader
             }
 
             // skip if it's an empty line
-            if (($record === false || (count($record) === 1 && $record[0] === null))) {
+            if ($record === false || (count($record) === 1 && $record[0] === null)) {
                 continue;
             }
 
@@ -129,7 +132,7 @@ class CsvReader extends AbstractReader
         return null;
     }
 
-    private function mapRecord($record): ?array
+    private function mapRecord(array $record): ?array
     {
         if (!$this->withHeader) {
             return $record;

@@ -1,4 +1,5 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
+import OrderPageObject from '../../../support/pages/module/sw-order.page-object';
 
 describe('Order: Create order', () => {
     beforeEach(() => {
@@ -17,20 +18,22 @@ describe('Order: Create order', () => {
             });
     });
 
-    it.skip('Select an existing customer, add one of each items (product, custom and credit), change the amount of one item and save the order', () => {
+    it('@base @order: create order with an existing customer', () => {
+        const page = new OrderPageObject();
+
         // start server
         cy.server();
 
         // network requests
         cy.route({
-            url: `${Cypress.env('apiPath')}/_proxy/sales-channel-api/**/v*/checkout/cart/product/*`,
+            url: `${Cypress.env('apiPath')}/_proxy/store-api/**/v*/checkout/cart/line-item`,
             method: 'post'
-        }).as('addProductCall');
+        }).as('addLineItem');
 
         cy.route({
-            url: `${Cypress.env('apiPath')}/_proxy/sales-channel-api/**/v*/checkout/order`,
+            url: `${Cypress.env('apiPath')}/_proxy/store-api/**/v*/checkout/order`,
             method: 'post'
-        }).as('saveOrderCall');
+        }).as('saveOrder');
 
         // navigate to order create page
         cy.contains('Add order')
@@ -61,11 +64,11 @@ describe('Order: Create order', () => {
             .click();
 
         // expect a new table row visible
-        cy.get('.sw-data-grid__row--0')
+        cy.get(`${page.elements.dataGridRow}--0`)
             .should('be.visible');
 
         // double click on item name cell
-        cy.get('.sw-data-grid__row--0 > .sw-data-grid__cell--label')
+        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--label`)
             .dblclick();
 
         // enter item name
@@ -73,41 +76,39 @@ describe('Order: Create order', () => {
             .typeSingleSelectAndCheck('Product name', '.sw-order-product-select__single-select');
 
         // enter item quantity
-        cy.get('.sw-data-grid__cell--quantity input')
+        cy.get(`${page.elements.dataGridColumn}--quantity input`)
             .clearTypeAndCheck('10');
 
         // save line item
-        cy.get('.sw-data-grid__inline-edit-save')
+        cy.get(`${page.elements.dataGridInlineEditSave}`)
             .click();
 
-        cy.wait('@addProductCall').then((xhr) => {
+        cy.wait('@addLineItem').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
-            expect(xhr.response.body.data).to.have.property('token');
         });
 
         // save order
         cy.contains('Save order')
             .click();
 
-        cy.wait('@saveOrderCall').then((xhr) => {
+        cy.wait('@saveOrder').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
-            assert.isNotNull(xhr.response.body.data);
         });
 
         // assert saving successful
         cy.get('.sw-order-detail')
             .should('be.visible');
-        cy.get('.sw-order-detail-base .sw-order-user-card__metadata')
-            .children()
+        cy.get(`.sw-order-detail-base ${page.elements.userMetadata}`)
             .contains('Pep Eroni');
-        cy.get('.sw-data-grid__row--0 > .sw-data-grid__cell--label > .sw-data-grid__cell-content')
-            .children()
+        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--label`)
             .contains('Product name');
-        cy.get('.sw-data-grid__row--0 > .sw-data-grid__cell--quantity > .sw-data-grid__cell-content')
+        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--quantity`)
             .contains('10');
     });
 
-    it.skip('Create a new customer, add an existing product, change the product price as well as the shipping costs and save the order', () => {
+    it('@base @order: create order with a new customer, update line item and shipping cost manually', () => {
+        const page = new OrderPageObject();
+
         // start server
         cy.server();
 
@@ -118,14 +119,14 @@ describe('Order: Create order', () => {
         }).as('createCustomerCall');
 
         cy.route({
-            url: `${Cypress.env('apiPath')}/_proxy/sales-channel-api/**/v*/checkout/cart/product/*`,
+            url: `${Cypress.env('apiPath')}/_proxy/store-api/**/v*/checkout/cart/line-item`,
             method: 'post'
-        }).as('addProductCall');
+        }).as('addLineItem');
 
         cy.route({
-            url: `${Cypress.env('apiPath')}/_proxy/sales-channel-api/**/v*/checkout/cart/line-item/*`,
+            url: `${Cypress.env('apiPath')}/_proxy/store-api/**/v*/checkout/cart/line-item`,
             method: 'patch'
-        }).as('updateProductCall');
+        }).as('updateLineItem');
 
         cy.route({
             url: `${Cypress.env('apiPath')}/_proxy/modify-shipping-costs`,
@@ -133,9 +134,9 @@ describe('Order: Create order', () => {
         }).as('modifyShippingCostsCall');
 
         cy.route({
-            url: `${Cypress.env('apiPath')}/_proxy/sales-channel-api/**/v*/checkout/order`,
+            url: `${Cypress.env('apiPath')}/_proxy/store-api/**/v*/checkout/order`,
             method: 'post'
-        }).as('saveOrderCall');
+        }).as('saveOrder');
 
         // navigate to order create page
         cy.contains('Add order')
@@ -326,11 +327,11 @@ describe('Order: Create order', () => {
             .click();
 
         // expect a new table row visible
-        cy.get('.sw-data-grid__row--0')
+        cy.get(`${page.elements.dataGridRow}--0`)
             .should('be.visible');
 
         // double click on item name cell
-        cy.get('.sw-data-grid__row--0 > .sw-data-grid__cell--label')
+        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--label`)
             .dblclick();
 
         // enter item name
@@ -338,31 +339,29 @@ describe('Order: Create order', () => {
             .typeSingleSelectAndCheck('Product name', '.sw-order-product-select__single-select');
 
         // enter item quantity
-        cy.get('.sw-data-grid__cell--quantity input')
+        cy.get(`${page.elements.dataGridColumn}--quantity input`)
             .clearTypeAndCheck('5');
 
         // save line item
-        cy.get('.sw-data-grid__inline-edit-save')
+        cy.get(`${page.elements.dataGridInlineEditSave}`)
             .click();
 
-        cy.wait('@addProductCall').then((xhr) => {
+        cy.wait('@addLineItem').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
-            expect(xhr.response.body.data).to.have.property('token');
         });
 
         // enter item price
-        cy.get('.sw-data-grid__row--0 > .sw-data-grid__cell--unitPrice')
+        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--unitPrice`)
             .dblclick();
-        cy.get('.sw-data-grid__cell--unitPrice input')
+        cy.get(`${page.elements.dataGridColumn}--unitPrice input`)
             .clearTypeAndCheck('10');
 
         // save line item
-        cy.get('.sw-data-grid__inline-edit-save')
+        cy.get(`${page.elements.dataGridInlineEditSave}`)
             .click();
 
-        cy.wait('@updateProductCall').then((xhr) => {
+        cy.wait('@updateLineItem').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
-            expect(xhr.response.body.data).to.have.property('token');
         });
 
         // enter shipping cost
@@ -377,28 +376,292 @@ describe('Order: Create order', () => {
 
         cy.wait('@modifyShippingCostsCall').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
-            expect(xhr.response.body.data).to.have.property('token');
         });
 
         // save order
         cy.contains('Save order')
             .click();
 
-        cy.wait('@saveOrderCall').then((xhr) => {
+        cy.wait('@saveOrder').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
-            assert.isNotNull(xhr.response.body.data);
+        });
+
+        // assert saving successful
+        cy.get('.sw-order-detail')
+            .should('be.visible');
+        cy.get(`.sw-order-detail-base ${page.elements.userMetadata}`)
+            .contains('Golden Stars');
+        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--label`)
+            .contains('Product name');
+        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--quantity`)
+            .contains('5');
+    });
+
+    it('@base @order: add promotion code', () => {
+        const page = new OrderPageObject();
+
+        cy.visit(`${Cypress.env('admin')}#/sw/promotion/index`);
+
+        cy.get('a[href="#/sw/promotion/create"]').click();
+
+        // Request we want to wait for later
+        cy.server();
+        cy.route({
+            url: `${Cypress.env('apiPath')}/promotion`,
+            method: 'post'
+        }).as('savePromotion');
+
+        cy.route({
+            url: `${Cypress.env('apiPath')}/search/promotion/**/discounts`,
+            method: 'post'
+        }).as('saveDiscount');
+
+        // Create promotion
+        cy.get('.sw-promotion-detail').should('be.visible');
+        cy.get('#sw-field--promotion-name').typeAndCheck('New year promotion');
+        cy.get('input[name="sw-field--promotion-active"]').click();
+        cy.get('.sw-promotion-sales-channel-select').typeMultiSelectAndCheck('Storefront');
+        cy.get('.sw-promotion-sales-channel-select .sw-select-selection-list__input')
+            .type('{esc}');
+
+        cy.get('input[name="sw-field--promotion-useCodes"]').check();
+        cy.get('#sw-field--promotion-code').typeAndCheck('DISCOUNT');
+        cy.get('.sw-promotion-detail__save-action').click();
+
+        cy.wait('@savePromotion').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
+        });
+
+        cy.get(page.elements.smartBarBack).click();
+        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--name`)
+            .contains('New year promotion');
+        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--name a`)
+            .click();
+
+        // Add discount
+        cy.get(page.elements.loader).should('not.exist');
+        cy.get('a[title="Discounts"]').click();
+        cy.get(page.elements.loader).should('not.exist');
+
+        cy.get('.sw-button--ghost').should('be.visible');
+        cy.contains('.sw-button--ghost', 'Add discount').click();
+        cy.wait('@filteredResultCall').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
+        cy.get(page.elements.loader).should('not.exist');
+
+        cy.get('.sw-promotion-discount-component').should('be.visible');
+        cy.get('.sw-promotion-discount-component__discount-value').should('be.visible');
+        cy.get('.sw-promotion-discount-component__discount-value input')
+            .clear()
+            .type('10');
+
+        cy.get('.sw-promotion-detail__save-action').click();
+        cy.wait('@saveDiscount').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
+
+        // Verify promotion in Administration
+        cy.get(page.elements.smartBarBack).click();
+        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--name`)
+            .contains('New year promotion');
+        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--active .is--active`)
+            .should('be.visible');
+
+        // Navigate to order list page
+        cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
+
+        // Create
+        // start server
+        cy.server();
+        cy.route({
+            url: `${Cypress.env('apiPath')}/_proxy/store-api/**/v*/checkout/cart/line-item`,
+            method: 'post'
+        }).as('addLineItem');
+
+        cy.route({
+            url: `${Cypress.env('apiPath')}/_proxy/store-api/**/v*/checkout/order`,
+            method: 'post'
+        }).as('saveOrder');
+
+        // navigate to order create page
+        cy.contains('Add order').click();
+
+        // select an existing customer
+        cy.get('.sw-order-create-details-header .sw-entity-single-select')
+            .typeSingleSelectAndCheck('Eroni', '.sw-order-create-details-header .sw-entity-single-select');
+
+        // expect customer data correctly
+        cy.get('.sw-order-create-details-body input[name="sw-field--email"]')
+            .should('have.value', 'test@example.com');
+
+        // continue adding a valid line item
+        cy.get('.sw-order-line-items-grid-sales-channel__actions-container .sw-button-group > button')
+            .click();
+
+        // double click on item name cell
+        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--label`)
+            .dblclick();
+
+        // enter item name
+        cy.get('.sw-order-product-select__single-select')
+            .typeSingleSelectAndCheck('Product name', '.sw-order-product-select__single-select');
+
+        // enter item quantity
+        cy.get(`${page.elements.dataGridColumn}--quantity input`)
+            .clearTypeAndCheck('10');
+
+        // save line item
+        cy.get(`${page.elements.dataGridInlineEditSave}`)
+            .click();
+
+        cy.wait('@addLineItem').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
+
+        cy.get('.sw-tagged-field__input').typeAndCheck('DISCOUNT').type('{enter}');
+
+        // assert adding promotion tag successfully
+        cy.get('.sw-tagged-field__tag-list .sw-label').should('be.visible');
+        cy.get('.sw-tagged-field__tag-list .sw-label').contains('DISCOUNT');
+        cy.get('.sw-tagged-field__tag-list .sw-label').should('not.have.class', 'sw-label--danger');
+
+        cy.get(`${page.elements.dataGridRow}--1 ${page.elements.dataGridColumn}--label`)
+            .contains('New year promotion');
+
+        cy.get(`${page.elements.dataGridRow}--1 ${page.elements.dataGridColumn}--quantity`)
+            .contains('1');
+
+        cy.get(`${page.elements.dataGridRow}--1 ${page.elements.dataGridColumn}--quantity`)
+            .contains('1');
+
+        // save order
+        cy.contains('Save order')
+            .click();
+
+        cy.wait('@saveOrder').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
+
+        // assert saving successful
+        cy.get('.sw-order-detail')
+            .should('be.visible');
+        cy.get(`.sw-order-detail-base ${page.elements.userMetadata}`)
+            .contains('Pep Eroni');
+
+        cy.get('tbody .sw-data-grid__row').should('have.length', 2);
+    });
+
+    it('@base @order: add invalid promotion code', () => {
+        const page = new OrderPageObject();
+
+        // start server
+        cy.server();
+
+        // network requests
+        cy.route({
+            url: `${Cypress.env('apiPath')}/_proxy/store-api/**/v*/checkout/cart/line-item`,
+            method: 'post'
+        }).as('addLineItem');
+
+        cy.route({
+            url: `${Cypress.env('apiPath')}/_proxy/store-api/**/v*/checkout/order`,
+            method: 'post'
+        }).as('saveOrder');
+
+        // navigate to order create page
+        cy.contains('Add order')
+            .click();
+
+        // expect create-order-page is visible
+        cy.get('h2')
+            .contains('New order');
+
+        // expect unabling to add any line items if there is no customer yet
+        cy.get('.sw-order-line-items-grid-sales-channel__actions-container .sw-button-group button')
+            .should('be.disabled');
+
+        // select an existing customer
+        cy.get('.sw-order-create-details-header .sw-entity-single-select')
+            .typeSingleSelectAndCheck('Eroni', '.sw-order-create-details-header .sw-entity-single-select');
+
+        // expect customer data correctly
+        cy.get('.sw-order-create-details-body input[name="sw-field--email"]')
+            .should('have.value', 'test@example.com');
+
+        // expect abling to add the line items if there is an available customer
+        cy.get('.sw-order-line-items-grid-sales-channel__actions-container .sw-button-group button')
+            .should('not.be.disabled');
+
+        // continue adding a valid line item
+        cy.get('.sw-order-line-items-grid-sales-channel__actions-container .sw-button-group > button')
+            .click();
+
+        // expect a new table row visible
+        cy.get(`${page.elements.dataGridRow}--0`)
+            .should('be.visible');
+
+        // double click on item name cell
+        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--label`)
+            .dblclick();
+
+        // enter item name
+        cy.get('.sw-order-product-select__single-select')
+            .typeSingleSelectAndCheck('Product name', '.sw-order-product-select__single-select');
+
+        // enter item quantity
+        cy.get(`${page.elements.dataGridColumn}--quantity input`)
+            .clearTypeAndCheck('10');
+
+        // save line item
+        cy.get(`${page.elements.dataGridInlineEditSave}`)
+            .click();
+
+        cy.wait('@addLineItem').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
+
+        cy.get('.sw-tagged-field__input').typeAndCheck('CODE').type('{enter}');
+
+        // Verify that notification is visible to user
+        cy.get('.sw-alert--error').should('be.visible');
+
+        // save order
+        cy.contains('Save order')
+            .click();
+
+        cy.get('.sw-modal__body').should('be.visible');
+
+        cy.get('.sw-modal__body')
+            .contains('CODE');
+
+        // assert adding promotion tag failed
+        cy.get('.sw-tagged-field__tag-list .sw-label').should('be.visible');
+        cy.get('.sw-tagged-field__tag-list .sw-label').contains('CODE');
+        cy.get('.sw-tagged-field__tag-list .sw-label').should('have.class', 'sw-label--danger');
+
+        // remove invalid code
+        cy.get(`${page.elements.modal}__footer button${page.elements.primaryButton}`).click();
+
+        // Verify that notification is visible to user
+        cy.get('.sw-alert--error').should('not.be.visible');
+
+        // save order
+        cy.contains('Save order')
+            .click();
+
+        cy.wait('@saveOrder').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
 
         // assert saving successful
         cy.get('.sw-order-detail')
             .should('be.visible');
         cy.get('.sw-order-detail-base .sw-order-user-card__metadata')
-            .children()
-            .contains('Golden Stars');
+            .contains('Pep Eroni');
         cy.get('.sw-data-grid__row--0 > .sw-data-grid__cell--label > .sw-data-grid__cell-content')
-            .children()
             .contains('Product name');
         cy.get('.sw-data-grid__row--0 > .sw-data-grid__cell--quantity > .sw-data-grid__cell-content')
-            .contains('5');
+            .contains('10');
     });
 });

@@ -4,21 +4,31 @@ namespace Shopware\Core\Checkout\Test\Cart\Price;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
-use Shopware\Core\Checkout\Cart\Price\PriceRounding;
+use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
+use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 class AmountCalculatorTest extends TestCase
 {
+    use KernelTestBehaviour;
+
     /**
      * @dataProvider calculateAmountWithGrossPricesProvider
      */
@@ -33,10 +43,15 @@ class AmountCalculatorTest extends TestCase
         $salesChannelContext->method('getSalesChannel')->willReturn($shop);
 
         $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
+        $salesChannelContext->method('getTaxCalculationType')->willReturn(SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL);
+        $salesChannelContext->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
+        $salesChannelContext->method('getTotalRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
 
         $calculator = new AmountCalculator(
             $detector,
-            new PriceRounding()
+            new CashRounding(),
+            new PercentageTaxRuleBuilder(),
+            new TaxCalculator()
         );
 
         $cartPrice = $calculator->calculate($prices, new PriceCollection(), $salesChannelContext);
@@ -58,10 +73,15 @@ class AmountCalculatorTest extends TestCase
         $salesChannelContext->method('getSalesChannel')->willReturn($shop);
 
         $salesChannelContext->method('getContext')->willReturn(Context::createDefaultContext());
+        $salesChannelContext->method('getTaxCalculationType')->willReturn(SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL);
+        $salesChannelContext->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
+        $salesChannelContext->method('getTotalRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
 
         $calculator = new AmountCalculator(
             $detector,
-            new PriceRounding()
+            new CashRounding(),
+            new PercentageTaxRuleBuilder(),
+            new TaxCalculator()
         );
 
         $cartPrice = $calculator->calculate($prices, new PriceCollection(), $salesChannelContext);
@@ -84,7 +104,9 @@ class AmountCalculatorTest extends TestCase
 
         $calculator = new AmountCalculator(
             $detector,
-            new PriceRounding()
+            new CashRounding(),
+            new PercentageTaxRuleBuilder(),
+            new TaxCalculator()
         );
 
         $cartPrice = $calculator->calculate($prices, new PriceCollection(), $context);
@@ -407,5 +429,76 @@ class AmountCalculatorTest extends TestCase
                 ]),
             ],
         ];
+    }
+
+    public function cashRoundingProvider()
+    {
+        return [
+            'Item and total rounding with different decimals' => [
+                new CashRoundingConfig(4, 0.01, true),
+                new CashRoundingConfig(2, 0.01, true),
+                new PriceCollection([
+                    self::price(55.111, 8.7811, 19),
+                ]),
+                new CartPrice(
+                    46.3299,
+                    55.11,
+                    55.111,
+                    new CalculatedTaxCollection([new CalculatedTax(8.7811, 19, 55.111)]),
+                    new TaxRuleCollection([new TaxRule(19)]),
+                    CartPrice::TAX_STATE_GROSS,
+                    55.111
+                ),
+            ],
+            'Item and total rounding with multiple prices and different decimals and interval' => [
+                new CashRoundingConfig(4, 0.01, true),
+                new CashRoundingConfig(2, 0.05, true),
+                new PriceCollection([
+                    self::price(55.111, 8.7811, 19),
+                    self::price(55.111, 8.7811, 19),
+                    self::price(55.111, 8.7811, 19),
+                    self::price(55.111, 8.7811, 19),
+                ]),
+                new CartPrice(
+                    185.3196,
+                    220.45,
+                    220.444,
+                    new CalculatedTaxCollection([new CalculatedTax(35.1244, 19, 220.444)]),
+                    new TaxRuleCollection([new TaxRule(19)]),
+                    CartPrice::TAX_STATE_GROSS,
+                    220.444
+                ),
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider cashRoundingProvider
+     */
+    public function testCashRounding(CashRoundingConfig $item, CashRoundingConfig $total, PriceCollection $prices, CartPrice $expected): void
+    {
+        $calculator = $this->getContainer()->get(AmountCalculator::class);
+
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+
+        $context->setItemRounding($item);
+        $context->setTotalRounding($total);
+
+        $amount = $calculator->calculate($prices, new PriceCollection(), $context);
+
+        static::assertEquals($expected, $amount);
+    }
+
+    private static function price(float $gross, float $tax, int $taxRate): CalculatedPrice
+    {
+        return new CalculatedPrice(
+            $gross,
+            $gross,
+            new CalculatedTaxCollection([
+                new CalculatedTax($tax, $taxRate, $gross),
+            ]),
+            new TaxRuleCollection([new TaxRule($taxRate)])
+        );
     }
 }

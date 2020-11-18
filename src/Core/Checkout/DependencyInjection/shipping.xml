@@ -27,12 +27,9 @@
 
         <service id="Shopware\Core\Checkout\Shipping\SalesChannel\ShippingMethodRoute" public="true">
             <argument type="service" id="sales_channel.shipping_method.repository"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
-            <argument type="service" id="Shopware\Core\Checkout\Shipping\SalesChannel\SalesChannelShippingMethodDefinition"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Shipping\DataAbstractionLayer\ShippingMethodPriceDeprecationUpdater">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Shipping\DataAbstractionLayer\ShippingMethodIndexer">
@@ -43,6 +40,11 @@
             <argument>%shopware.deployment.blue_green%</argument>
 
             <tag name="shopware.entity_indexer"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Shipping\Validator\ShippingMethodValidator">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <tag name="kernel.event_subscriber"/>
         </service>
     </services>
 </container>

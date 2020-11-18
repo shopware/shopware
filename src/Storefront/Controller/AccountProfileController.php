@@ -3,10 +3,14 @@
 namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
-use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
+use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangeCustomerProfileRoute;
+use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangeEmailRoute;
+use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangePasswordRoute;
+use Shopware\Core\Checkout\Customer\SalesChannel\AbstractDeleteCustomerRoute;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
@@ -33,21 +37,43 @@ class AccountProfileController extends StorefrontController
     private $profilePageLoader;
 
     /**
-     * @var AccountService
+     * @var AbstractChangeCustomerProfileRoute
      */
-    private $accountService;
+    private $changeCustomerProfileRoute;
+
+    /**
+     * @var AbstractChangePasswordRoute
+     */
+    private $changePasswordRoute;
+
+    /**
+     * @var AbstractChangeEmailRoute
+     */
+    private $changeEmailRoute;
+
+    /**
+     * @var AbstractDeleteCustomerRoute
+     */
+    private $deleteCustomerRoute;
 
     public function __construct(
         AccountOverviewPageLoader $overviewPageLoader,
         AccountProfilePageLoader $profilePageLoader,
-        AccountService $accountService
+        AbstractChangeCustomerProfileRoute $changeCustomerProfileRoute,
+        AbstractChangePasswordRoute $changePasswordRoute,
+        AbstractChangeEmailRoute $changeEmailRoute,
+        AbstractDeleteCustomerRoute $deleteCustomerRoute
     ) {
         $this->overviewPageLoader = $overviewPageLoader;
         $this->profilePageLoader = $profilePageLoader;
-        $this->accountService = $accountService;
+        $this->changeCustomerProfileRoute = $changeCustomerProfileRoute;
+        $this->changePasswordRoute = $changePasswordRoute;
+        $this->changeEmailRoute = $changeEmailRoute;
+        $this->deleteCustomerRoute = $deleteCustomerRoute;
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/account", name="frontend.account.home.page", methods={"GET"})
      *
      * @throws CustomerNotLoggedInException
@@ -65,6 +91,7 @@ class AccountProfileController extends StorefrontController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/account/profile", name="frontend.account.profile.page", methods={"GET"})
      *
      * @throws CustomerNotLoggedInException
@@ -86,6 +113,7 @@ class AccountProfileController extends StorefrontController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/account/profile", name="frontend.account.profile.save", methods={"POST"})
      *
      * @throws CustomerNotLoggedInException
@@ -95,7 +123,7 @@ class AccountProfileController extends StorefrontController
         $this->denyAccessUnlessLoggedIn();
 
         try {
-            $this->accountService->saveProfile($data, $context);
+            $this->changeCustomerProfileRoute->change($data, $context);
 
             $this->addFlash('success', $this->trans('account.profileUpdateSuccess'));
         } catch (ConstraintViolationException $formViolations) {
@@ -108,6 +136,7 @@ class AccountProfileController extends StorefrontController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/account/profile/email", name="frontend.account.profile.email.save", methods={"POST"})
      *
      * @throws CustomerNotLoggedInException
@@ -117,7 +146,7 @@ class AccountProfileController extends StorefrontController
         $this->denyAccessUnlessLoggedIn();
 
         try {
-            $this->accountService->saveEmail($data->get('email'), $context);
+            $this->changeEmailRoute->change($data->get('email')->toRequestDataBag(), $context);
 
             $this->addFlash('success', $this->trans('account.emailChangeSuccess'));
         } catch (ConstraintViolationException $formViolations) {
@@ -132,6 +161,7 @@ class AccountProfileController extends StorefrontController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @Route("/account/profile/password", name="frontend.account.profile.password.save", methods={"POST"})
      *
      * @throws CustomerNotLoggedInException
@@ -141,7 +171,7 @@ class AccountProfileController extends StorefrontController
         $this->denyAccessUnlessLoggedIn();
 
         try {
-            $this->accountService->savePassword($data->get('password'), $context);
+            $this->changePasswordRoute->change($data->get('password')->toRequestDataBag(), $context);
 
             $this->addFlash('success', $this->trans('account.passwordChangeSuccess'));
         } catch (ConstraintViolationException $formViolations) {
@@ -151,5 +181,29 @@ class AccountProfileController extends StorefrontController
         }
 
         return $this->redirectToRoute('frontend.account.profile.page');
+    }
+
+    /**
+     * @Since("6.3.3.0")
+     * @Route("/account/profile/delete", name="frontend.account.profile.delete", methods={"POST"})
+     *
+     * @throws CustomerNotLoggedInException
+     */
+    public function deleteProfile(Request $request, SalesChannelContext $context): Response
+    {
+        $this->denyAccessUnlessLoggedIn();
+
+        try {
+            $this->deleteCustomerRoute->delete($context);
+            $this->addFlash('success', $this->trans('account.profileDeleteSuccessAlert'));
+        } catch (\Exception $exception) {
+            $this->addFlash('danger', $this->trans('error.message-default'));
+        }
+
+        if ($request->get('redirectTo') || $request->get('forwardTo')) {
+            return $this->createActionResponse($request);
+        }
+
+        return $this->redirectToRoute('frontend.home.page');
     }
 }

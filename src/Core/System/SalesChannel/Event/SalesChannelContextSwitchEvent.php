@@ -4,10 +4,11 @@ namespace Shopware\Core\System\SalesChannel\Event;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-class SalesChannelContextSwitchEvent extends NestedEvent
+class SalesChannelContextSwitchEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
     /**
      * @var SalesChannelContext

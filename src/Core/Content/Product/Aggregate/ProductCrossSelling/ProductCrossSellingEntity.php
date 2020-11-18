@@ -213,9 +213,4 @@ class ProductCrossSellingEntity extends Entity
     {
         $this->assignedProducts = $assignedProducts;
     }
-
-    public function getApiAlias(): string
-    {
-        return 'product_cross_selling';
-    }
 }

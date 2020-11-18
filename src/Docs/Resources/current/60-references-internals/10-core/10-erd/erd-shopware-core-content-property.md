@@ -10,7 +10,8 @@ Contains the configuration options for product variants.
 
 ### Table `property_group`
 
-Is the basis for the product variant generation. A group can be assigned to a product to generate product variants according to the contained settings.
+Is the basis for the product variant generation.
+A group can be assigned to a product to generate product variants according to the contained settings.
 
 
 ### Table `property_group_option`

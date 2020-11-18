@@ -1,4 +1,5 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
+// merge 16.11.2020
 
 import MediaPageObject from '../../../support/pages/module/sw-media.page-object';
 
@@ -24,11 +25,11 @@ describe('Media: Test crud operations', () => {
         }).as('saveDataFileUpload');
 
         cy.route({
-            url: '/api/v*/_action/media/**/upload?extension=png&fileName=sw_logo_white',
+            url: `${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw_logo_white`,
             method: 'post'
         }).as('saveDataUrlUpload');
 
-        runOn('chrome', () => {
+        if (Cypress.isBrowser({ family: 'chromium' })) {
             page.uploadImageUsingFileUpload('img/sw-login-background.png', 'sw-login-background.png');
 
             cy.wait('@saveDataFileUpload').then((xhr) => {
@@ -37,8 +38,9 @@ describe('Media: Test crud operations', () => {
             });
             cy.get('.sw-media-base-item__name[title="sw-login-background.png"]')
                 .should('be.visible');
-        });
-        runOn('firefox', () => {
+        }
+
+        if (Cypress.isBrowser('firefox')) {
             // Upload medium
             cy.clickContextMenuItem(
                 '.sw-media-upload-v2__button-url-upload',
@@ -52,7 +54,7 @@ describe('Media: Test crud operations', () => {
             });
             cy.get('.sw-media-base-item__name[title="sw_logo_white.png"]')
                 .should('be.visible');
-        });
+        }
     });
 
     it('@base @media: update and read medium\'s meta data (uploaded via url)', () => {
@@ -98,14 +100,22 @@ describe('Media: Test crud operations', () => {
             url: `${Cypress.env('apiPath')}/media/*`,
             method: 'delete'
         }).as('deleteData');
+        cy.route({
+            url: `${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw-login-background`,
+            method: 'post'
+        }).as('saveDataFileUpload');
 
-        runOn('chrome', () => {
+        if (Cypress.isBrowser({family: 'chromium'})) {
             page.uploadImageUsingFileUpload('img/sw-login-background.png', 'sw-login-background.png');
 
-            cy.awaitAndCheckNotification('File has been saved.');
+            cy.wait('@saveDataFileUpload').then((xhr) => {
+                cy.awaitAndCheckNotification('File has been saved.');
+                expect(xhr).to.have.property('status', 204);
+            });
             page.deleteFile('sw-login-background.png');
-        });
-        runOn('firefox', () => {
+        }
+
+        if (Cypress.isBrowser('firefox')) {
             // Upload medium
             cy.clickContextMenuItem(
                 '.sw-media-upload-v2__button-url-upload',
@@ -113,8 +123,11 @@ describe('Media: Test crud operations', () => {
             );
             page.uploadImageUsingUrl('http://assets.shopware.com/sw_logo_white.png');
 
-            cy.awaitAndCheckNotification('File has been saved.');
+            cy.wait('@saveDataFileUpload').then((xhr) => {
+                cy.awaitAndCheckNotification('File has been saved.');
+                expect(xhr).to.have.property('status', 204);
+            });
             page.deleteFile('sw_logo_white.png');
-        });
+        }
     });
 });

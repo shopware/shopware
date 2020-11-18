@@ -111,6 +111,11 @@ class PaymentMethodEntity extends Entity
      */
     protected $formattedHandlerIdentifier;
 
+    /**
+     * @var string|null
+     */
+    protected $shortName;
+
     public function getPluginId(): ?string
     {
         return $this->pluginId;
@@ -291,11 +296,6 @@ class PaymentMethodEntity extends Entity
         $this->customFields = $customFields;
     }
 
-    public function getApiAlias(): string
-    {
-        return 'payment_method';
-    }
-
     public function getAfterOrderEnabled(): bool
     {
         return $this->afterOrderEnabled;
@@ -304,5 +304,15 @@ class PaymentMethodEntity extends Entity
     public function setAfterOrderEnabled(bool $afterOrderEnabled): void
     {
         $this->afterOrderEnabled = $afterOrderEnabled;
+    }
+
+    public function getShortName(): ?string
+    {
+        return $this->shortName;
+    }
+
+    public function setShortName(?string $shortName): void
+    {
+        $this->shortName = $shortName;
     }
 }

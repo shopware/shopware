@@ -1,5 +1,6 @@
+import './sw-customer-detail.scss';
 import template from './sw-customer-detail.html.twig';
-import errorConfig from './error-config.json';
+import errorConfig from '../../error-config.json';
 
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -8,7 +9,12 @@ const { mapPageErrors } = Shopware.Component.getComponentHelper();
 Component.register('sw-customer-detail', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [
+        'systemConfigApiService',
+        'repositoryFactory',
+        'customerGroupRegistrationService',
+        'acl'
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -81,7 +87,8 @@ Component.register('sw-customer-detail', {
                 .addAssociation('defaultShippingAddress.country')
                 .addAssociation('defaultShippingAddress.countryState')
                 .addAssociation('defaultShippingAddress.salutation')
-                .addAssociation('tags');
+                .addAssociation('tags')
+                .addAssociation('requestedGroup');
 
             return criteria;
         },
@@ -142,7 +149,7 @@ Component.register('sw-customer-detail', {
             this.editMode = false;
         },
 
-        onSave() {
+        async onSave() {
             if (!this.editMode) {
                 return false;
             }
@@ -154,13 +161,26 @@ Component.register('sw-customer-detail', {
                 this.customer.birthday = null;
             }
 
+            if (!await this.validPassword(this.customer)) {
+                this.isLoading = false;
+                return false;
+            }
+
+            if (this.customer.passwordNew) {
+                this.customer.password = this.customer.passwordNew;
+            }
+
             return this.customerRepository.save(this.customer, Shopware.Context.api).then(() => {
                 this.isLoading = false;
                 this.isSaveSuccessful = true;
                 this.createdComponent();
+                this.createNotificationSuccess({
+                    message: this.$tc('sw-customer.detail.messageSaveSuccess', 0, {
+                        name: `${this.customer.firstName} ${this.customer.lastName}`
+                    })
+                });
             }).catch((exception) => {
                 this.createNotificationError({
-                    title: this.$tc('sw-customer.detail.titleSaveError'),
                     message: this.$tc('sw-customer.detail.messageSaveError')
                 });
                 this.isLoading = false;
@@ -175,6 +195,63 @@ Component.register('sw-customer-detail', {
 
         onActivateCustomerEditMode() {
             this.editMode = true;
+        },
+
+        async validPassword(customer) {
+            const config = await this.systemConfigApiService.getValues('core.register');
+
+            const { passwordNew, passwordConfirm } = customer;
+            const passwordSet = (passwordNew || passwordConfirm);
+            const passwordNotEquals = (passwordNew !== passwordConfirm);
+            const invalidLength = (passwordNew && passwordNew.length < config['core.register.minPasswordLength']);
+
+            if (passwordSet) {
+                if (passwordNotEquals) {
+                    this.createNotificationError({
+                        message: this.$tc('sw-customer.detail.notificationPasswordErrorMessage')
+                    });
+
+                    return false;
+                }
+
+                if (invalidLength) {
+                    this.createNotificationError({
+                        message: this.$tc('sw-customer.detail.notificationPasswordLengthErrorMessage')
+                    });
+
+                    return false;
+                }
+            }
+
+            return true;
+        },
+
+        acceptCustomerGroupRegistration() {
+            this.customerGroupRegistrationService.accept(this.customer.id).then(() => {
+                this.createNotificationSuccess({
+                    message: this.$tc('sw-customer.customerGroupRegistration.acceptMessage')
+                });
+            }).catch(() => {
+                this.createNotificationError({
+                    message: this.$tc('sw-customer.customerGroupRegistration.errorMessage')
+                });
+            }).finally(() => {
+                this.createdComponent();
+            });
+        },
+
+        declineCustomerGroupRegistration() {
+            this.customerGroupRegistrationService.decline(this.customer.id).then(() => {
+                this.createNotificationSuccess({
+                    message: this.$tc('sw-customer.customerGroupRegistration.declineMessage')
+                });
+            }).catch(() => {
+                this.createNotificationError({
+                    message: this.$tc('sw-customer.customerGroupRegistration.errorMessage')
+                });
+            }).finally(() => {
+                this.createdComponent();
+            });
         }
     }
 });

@@ -5,10 +5,12 @@ namespace Shopware\Core\Checkout\Payment\Controller;
 use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentFinalizeException;
 use Shopware\Core\Checkout\Payment\Exception\CustomerCanceledAsyncPaymentException;
 use Shopware\Core\Checkout\Payment\Exception\InvalidTransactionException;
+use Shopware\Core\Checkout\Payment\Exception\PaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\TokenExpiredException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\PaymentService;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
+use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -30,6 +32,7 @@ class PaymentController extends AbstractController
     }
 
     /**
+     * @Since("6.0.0.0")
      * @RouteScope(scopes={"storefront"})
      * @Route("/payment/finalize-transaction", defaults={"auth_required"=false}, name="payment.finalize.transaction", methods={"GET", "POST"})
      *
@@ -43,17 +46,26 @@ class PaymentController extends AbstractController
     {
         $paymentToken = $request->get('_sw_payment_token');
 
-        $paymentTokenStruct = $this->paymentService->finalizeTransaction(
+        $result = $this->paymentService->finalizeTransaction(
             $paymentToken,
             $request,
             $salesChannelContext
         );
 
-        if ($paymentTokenStruct->getException() !== null) {
-            return new RedirectResponse($paymentTokenStruct->getErrorUrl());
+        $exception = $result->getException();
+
+        if ($exception !== null) {
+            $url = $result->getErrorUrl();
+
+            if ($exception instanceof PaymentProcessException) {
+                $url .= (parse_url((string) $url, PHP_URL_QUERY) ? '&' : '?') . 'error-code=' . $exception->getErrorCode();
+            }
+
+            return new RedirectResponse($url);
         }
-        if ($paymentTokenStruct->getFinishUrl()) {
-            return new RedirectResponse($paymentTokenStruct->getFinishUrl());
+
+        if ($result->getFinishUrl()) {
+            return new RedirectResponse($result->getFinishUrl());
         }
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);

@@ -1441,4 +1441,45 @@ describe('core/factory/component.factory.js', () => {
         expect(overriden).toThrowError();
         expect(registered).not.toThrowError();
     });
+
+    it('returns a component which has multiple overrides with array based properties', async () => {
+        const componentName = 'baseComponent';
+
+        ComponentFactory.register(componentName, {
+            template: '<div class="base-component">{% block overrides %}{% endblock %}</div>'
+        });
+
+        ComponentFactory.override(componentName, {
+            template: '{% block overrides %}{% parent %} {{logAnotherService}}{% endblock %}',
+
+            inject: ['someService', 'anotherService'],
+            mixins: [{
+                computed: { logSomeService() { return this.someService(); } }
+            }, {
+                computed: { logAnotherService() { return this.anotherService(); } }
+            }]
+        });
+
+        ComponentFactory.override(componentName, {
+            template: '{% block overrides %}{% parent %} {{logSomeService}}{% endblock %}',
+
+            inject: ['someService'],
+            mixins: [{
+                computed: { logSomeService() { return this.someService(); } }
+            }]
+        });
+
+        const buildConfig = ComponentFactory.build(componentName);
+
+        const wrapper = await shallowMount(buildConfig, {
+            provide: {
+                someService() { return 'foo'; },
+                anotherService() { return 'bar'; }
+            }
+        });
+
+        expect(wrapper.html()).toEqual('<div class="base-component"> bar foo</div>');
+
+        wrapper.destroy();
+    });
 });

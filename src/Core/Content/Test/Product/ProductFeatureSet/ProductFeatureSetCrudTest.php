@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -77,5 +78,20 @@ class ProductFeatureSetCrudTest extends TestCase
             );
 
         static::assertNull($foreignKey);
+    }
+
+    public function testNameIsRequired(): void
+    {
+        $ids = new TestDataCollection();
+
+        $data = [
+            'id' => $ids->create('feature-set'),
+        ];
+
+        $this->expectException(WriteException::class);
+        $this->expectExceptionMessage('This value should not be blank.');
+
+        $this->getContainer()->get('product_feature_set.repository')
+            ->create([$data], Context::createDefaultContext());
     }
 }

@@ -74,7 +74,7 @@ Component.register('sw-settings-product-feature-sets-detail', {
         },
 
         ...mapPropertyErrors(
-            'product_feature_set',
+            'productFeatureSet',
             ['name', 'description', 'features.id']
         )
     },

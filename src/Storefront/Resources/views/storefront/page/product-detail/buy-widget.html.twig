@@ -1,4 +1,3 @@
-
 {% block page_product_detail_buy_inner %}
     <div class="product-detail-buy js-magnifier-zoom-image-container">
         {% block page_product_detail_rich_snippets %}
@@ -173,6 +172,16 @@
                 {% endblock %}
             </div>
         {% endblock %}
+
+        {% if feature('FEATURE_NEXT_10549') and shopware.config.core.cart.wishlistEnabled %}
+            {% block page_product_detail_wishlist %}
+                {% sw_include '@Storefront/storefront/component/product/card/wishlist.html.twig' with {
+                    showText: true,
+                    size: 'md',
+                    productId: page.product.id
+                } %}
+            {% endblock %}
+        {% endif %}
 
         {% block page_product_detail_ordernumber_container %}
             {% if page.product.productNumber %}

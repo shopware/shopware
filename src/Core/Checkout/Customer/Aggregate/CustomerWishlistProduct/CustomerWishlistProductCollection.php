@@ -30,6 +30,11 @@ class CustomerWishlistProductCollection extends EntityCollection
         }));
     }
 
+    public function getByProductId(string $productId): ?CustomerWishlistProductEntity
+    {
+        return $this->filterByProperty('productId', $productId)->first();
+    }
+
     protected function getExpectedClass(): string
     {
         return CustomerWishlistProductEntity::class;

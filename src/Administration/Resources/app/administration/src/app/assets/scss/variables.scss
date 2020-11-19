@@ -226,6 +226,7 @@ $color-purple: $color-module-purple-900;
 $color-gradient-dark-gray-start: $color-menu-start;
 $color-gradient-dark-gray-end: $color-menu-end;
 $gradient-dark-gray: linear-gradient(to bottom, $color-gradient-dark-gray-start, $color-gradient-dark-gray-end);
+$gradient-action-button: linear-gradient(to bottom, #7793ae 0%, #6a849c 100%);
 
 /* ------------------------------------
  * 6. Typography

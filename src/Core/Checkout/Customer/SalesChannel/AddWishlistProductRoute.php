@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
-use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Exception\CustomerWishlistNotActivatedException;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Defaults;
@@ -93,7 +92,7 @@ class AddWishlistProductRoute extends AbstractAddWishlistProductRoute
         }
 
         $this->validateProduct($productId, $context);
-        $wishlistId = $this->getWishlistId($context, $customer);
+        $wishlistId = $this->getWishlistId($context, $customer->getId());
 
         $this->wishlistRepository->upsert([
             [
@@ -112,13 +111,13 @@ class AddWishlistProductRoute extends AbstractAddWishlistProductRoute
         return new SuccessResponse();
     }
 
-    private function getWishlistId(SalesChannelContext $context, CustomerEntity $customer): string
+    private function getWishlistId(SalesChannelContext $context, string $customerId): string
     {
         $criteria = new Criteria();
         $criteria->setLimit(1);
         $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND, [
-            new EqualsFilter('customerId', $customer->getId()),
-            new EqualsFilter('salesChannelId', $customer->getSalesChannelId()),
+            new EqualsFilter('customerId', $customerId),
+            new EqualsFilter('salesChannelId', $context->getSalesChannel()->getId()),
         ]));
 
         $wishlistIds = $this->wishlistRepository->searchIds($criteria, $context->getContext());

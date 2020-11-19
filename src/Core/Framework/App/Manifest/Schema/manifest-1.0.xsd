@@ -88,6 +88,13 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
+            <xs:element type="translatableString" name="privacyPolicyExtensions" maxOccurs="unbounded" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation xml:lang="en">
+                        Description of the changes the shop owner has to make to his privacy policy.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
         </xs:sequence>
     </xs:complexType>
     <xs:complexType name="setup">

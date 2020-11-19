@@ -18,7 +18,7 @@ class ShippingMethodValidator implements EventSubscriberInterface
 {
     public const VIOLATION_TAX_TYPE_INVALID = 'tax_type_invalid';
 
-    public const VIOLATION_TAX_ID_REQUIRED = 'tax_id_required';
+    public const VIOLATION_TAX_ID_REQUIRED = 'c1051bb4-d103-4f74-8988-acbcafc7fdc3';
 
     /**
      * @var Connection

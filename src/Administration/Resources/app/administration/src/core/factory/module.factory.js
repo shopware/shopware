@@ -129,7 +129,11 @@ function registerModule(moduleId, module) {
 
             // Support for children routes
             if (hasOwnProperty(route, 'children') && Object.keys(route.children).length) {
-                route = iterateChildRoutes(route, splitModuleId, routeKey);
+                if (Shopware.Feature.isActive('FEATURE_NEXT_7453')) {
+                    route = iterateChildRoutes(route);
+                } else {
+                    route = iterateChildRoutes(route, splitModuleId, routeKey);
+                }
                 moduleRoutes = registerChildRoutes(route, moduleRoutes);
             }
 
@@ -187,6 +191,14 @@ function registerModule(moduleId, module) {
                 return false;
             }
 
+            if (module.type === 'plugin' && !navigationEntry.parent) {
+                warn(
+                    'ModuleFactory',
+                    'Navigation entries from plugins are not allowed on the first level.',
+                    'The support for first level entries for plugins will be removed in 6.4.0'
+                );
+            }
+
             if (!navigationEntry.label || !navigationEntry.label.length) {
                 warn(
                     'ModuleFactory',
@@ -234,8 +246,8 @@ function registerChildRoutes(routeDefinition, moduleRoutes) {
  * Recursively iterates over the route children definitions and converts the format to the vue-router route definition.
  *
  * @param {Object} routeDefinition
- * @param {Array} moduleName
- * @param {String} parentKey
+ * @param {Array} moduleName @deprecated tag:v6.4.0.0
+ * @param {String} parentKey @deprecated tag:v6.4.0.0
  * @returns {Object}
  */
 function iterateChildRoutes(routeDefinition, moduleName, parentKey) {
@@ -248,11 +260,19 @@ function iterateChildRoutes(routeDefinition, moduleName, parentKey) {
             child.path = `${routeDefinition.path}/${child.path}`;
         }
 
-        child.name = `${moduleName.join('.')}.${parentKey}.${key}`;
+        if (Shopware.Feature.isActive('FEATURE_NEXT_7453')) {
+            child.name = `${routeDefinition.name}.${key}`;
+        } else {
+            child.name = `${moduleName.join('.')}.${parentKey}.${key}`;
+        }
         child.isChildren = true;
 
         if (hasOwnProperty(child, 'children') && Object.keys(child.children).length) {
-            child = iterateChildRoutes(child, moduleName, `${parentKey}.${key}`);
+            if (Shopware.Feature.isActive('FEATURE_NEXT_7453')) {
+                child = iterateChildRoutes(child);
+            } else {
+                child = iterateChildRoutes(child, moduleName, `${parentKey}.${key}`);
+            }
         }
 
         return child;

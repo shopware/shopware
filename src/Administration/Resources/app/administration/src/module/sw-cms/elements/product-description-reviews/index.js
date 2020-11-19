@@ -4,7 +4,7 @@ import './preview';
 
 const Criteria = Shopware.Data.Criteria;
 const criteria = new Criteria();
-criteria.addAssociation('options.group');
+criteria.addAssociation('properties');
 
 Shopware.Service('cmsService').registerCmsElement({
     name: 'product-description-reviews',
@@ -43,22 +43,27 @@ Shopware.Service('cmsService').registerCmsElement({
                 return;
             }
 
-            const entity = elem.config[configKey].entity;
+            const config = elem.config[configKey];
+            const configEntity = config.entity;
+            const configValue = config.value;
 
-            if (entity && elem.config[configKey].value) {
-                const entityKey = entity.name;
-                const entityData = {
-                    value: [elem.config[configKey].value],
-                    key: configKey,
-                    searchCriteria: entity.criteria ? entity.criteria : new Criteria(),
-                    ...entity
-                };
-
-                entityData.searchCriteria.setIds(entityData.value);
-                entityData.context = context;
-
-                criteriaList[`entity-${entityKey}`] = entityData;
+            if (!configEntity || !configValue) {
+                return;
             }
+
+
+            const entityKey = configEntity.name;
+            const entityData = {
+                value: [configValue],
+                key: configKey,
+                searchCriteria: configEntity.criteria ? configEntity.criteria : new Criteria(),
+                ...configEntity
+            };
+
+            entityData.searchCriteria.setIds(entityData.value);
+            entityData.context = context;
+
+            criteriaList[`entity-${entityKey}`] = entityData;
         });
 
         return criteriaList;

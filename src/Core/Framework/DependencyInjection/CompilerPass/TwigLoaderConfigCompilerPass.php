@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Exception\TableNotFoundException;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -37,7 +36,7 @@ class TwigLoaderConfigCompilerPass implements CompilerPassInterface
 
         try {
             $apps = $connection->fetchAll('SELECT `name`, `path` FROM `app` WHERE `active` = 1');
-        } catch (TableNotFoundException $e) {
+        } catch (\Doctrine\DBAL\DBALException $e) {
             // If DB is not yet set up correctly we don't need to add app paths
             return;
         }

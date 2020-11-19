@@ -51,6 +51,8 @@ class LoadWishlistRouteTest extends TestCase
 
     protected function setUp(): void
     {
+        Feature::skipTestIfInActive('FEATURE_NEXT_10549', $this);
+
         $this->context = Context::createDefaultContext();
         $this->ids = new TestDataCollection($this->context);
 
@@ -84,7 +86,6 @@ class LoadWishlistRouteTest extends TestCase
 
     public function testLoadShouldReturnSuccess(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10549', $this);
         $productId = $this->createProduct($this->context);
         $customerWishlistId = $this->createCustomerWishlist($this->context, $this->customerId, $productId);
 
@@ -189,7 +190,7 @@ class LoadWishlistRouteTest extends TestCase
             [
                 'id' => $customerWishlistId,
                 'customerId' => $customerId,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => $this->getSalesChannelApiSalesChannelId(),
                 'products' => [
                     [
                         'productId' => $productId,

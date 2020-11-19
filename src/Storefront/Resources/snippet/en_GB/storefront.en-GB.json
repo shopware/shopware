@@ -46,7 +46,8 @@
     "searchResults": "{1} 1 Result|]1,Inf[ %count% Results",
     "supportInfo": "<strong>Questions regarding your order?</strong><br /><strong><a href=\"tel:+4912345-123456789\">12345-123456789</a></strong> <small>Daily from 7:30 am to 10:00 pm</small>",
     "indexLinkService": "Service/help",
-    "searchNoResult": "No results found."
+    "searchNoResult": "No results found.",
+    "wishlist": "Wishlist"
   },
   "error": {
     "VIOLATION::IS_BLANK_ERROR": "%field% should not be empty.",
@@ -427,7 +428,10 @@
     "defaultProductSortingLabel": "Name, ascending",
     "disabledFilterTooltip": "This filter does not display any further results in combination with the selected filters.",
     "beforeListPrice": "",
-    "afterListPrice": ""
+    "afterListPrice": "",
+    "addToWishlist": "Add to wish list",
+    "addedToWishlist": "Added to wish list",
+    "toggleWishlist": "Toggle wishlist"
   },
   "newsletter": {
     "headline": "Subscribe to newsletter",
@@ -521,7 +525,7 @@
     "reviewAvgRateElements": "stars"
   },
   "wishlist": {
-    "headline": "Your wish list",
+    "headline": "Your wishlist",
     "itemDeleteSuccess": "You have successfully removed the product from the wishlist.",
     "currentlyNotAvailable": "Currently not available",
     "manufacturerDisplayName": "Manufacturer",
@@ -556,7 +560,9 @@
     "groupRequiredTimezone": "Timezone",
     "groupStatistical": "Statistics",
     "groupStatisticalDescription": "Cookies used for statistics and shop performance metrics.",
-    "groupStatisticalGoogleAnalytics": "Google Analytics"
+    "groupStatisticalGoogleAnalytics": "Google Analytics",
+    "groupComfortFeatures": "Comfort features",
+    "groupComfortFeaturesWishlist": "Wishlist"
   },
   "ellipsis": {
     "expandLabel": "show more",

@@ -90,7 +90,8 @@ class PluginFinder
     private function isPluginComposerValid(CompletePackageInterface $package): bool
     {
         return isset($package->getExtra()[self::SHOPWARE_PLUGIN_CLASS_EXTRA_IDENTIFIER])
-            && $package->getExtra()[self::SHOPWARE_PLUGIN_CLASS_EXTRA_IDENTIFIER] !== '';
+            && $package->getExtra()[self::SHOPWARE_PLUGIN_CLASS_EXTRA_IDENTIFIER] !== ''
+            && !empty($package->getExtra()['label']);
     }
 
     private function getPluginNameFromPackage(CompletePackageInterface $pluginPackage): string
@@ -147,7 +148,7 @@ class PluginFinder
             $pluginPath . '/composer.json',
             [
                 sprintf(
-                    'Plugin composer.json has invalid "type" (must be "%s"), or invalid "extra/%s" value',
+                    'Plugin composer.json has invalid "type" (must be "%s"), or invalid "extra/%s" value, or missing extra.label property',
                     self::COMPOSER_TYPE,
                     self::SHOPWARE_PLUGIN_CLASS_EXTRA_IDENTIFIER
                 ),

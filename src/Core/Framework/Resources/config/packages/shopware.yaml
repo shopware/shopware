@@ -1,5 +1,6 @@
 parameters:
     default_cdn_strategy: "id"
+    APP_URL: "%env(string:default:default_whitespace:APP_URL)%"
 
 shopware:
     filesystem:
@@ -69,3 +70,7 @@ shopware:
             - FEATURE_NEXT_6995
             - FEATURE_NEXT_10549
             - FEATURE_NEXT_10078
+            - FEATURE_NEXT_10559
+            - FEATURE_NEXT_11389
+            - FEATURE_NEXT_10536
+            - FEATURE_NEXT_7453

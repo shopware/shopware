@@ -73,6 +73,21 @@
                             </div>
                         {% endblock %}
 
+                        {% if feature('FEATURE_NEXT_10549') and shopware.config.core.cart.wishlistEnabled %}
+                            {% block layout_header_actions_wishlist %}
+                                <div class="col-auto">
+                                    <div class="header-wishlist">
+                                        <a class="btn header-wishlist-btn header-actions-btn"
+                                           href="{{ path('frontend.wishlist.page') }}"
+                                           title="{{ 'header.wishlist'|trans|striptags }}"
+                                           aria-label="{{ 'header.wishlist'|trans|striptags }}">
+                                            {% sw_include '@Storefront/storefront/layout/header/actions/wishlist-widget.html.twig' %}
+                                        </a>
+                                    </div>
+                                </div>
+                            {% endblock %}
+                        {% endif %}
+
                         {% block layout_header_actions_account %}
                             <div class="col-auto">
                                 <div class="account-menu">

@@ -681,7 +681,7 @@ To delete a media assignment, the ID of the `product_media` entity is required. 
 ```
 
 ### Setting the cover
-The `cover` of a product is controlled via `coverId` and the `cover` association. This contains a direct reference to a `media` entity. To set the cover of a product the following payload can be used:
+The `cover` of a product is controlled via `coverId` and the `cover` association. This contains a direct reference to a `product_media` entity. To set the cover of a product the following payload can be used:
 
 ``` 
 {

@@ -25,6 +25,8 @@ class IdleFeatureFlagTest extends TestCase
         'NEXT-1234',
         'NEXT-12345',
         'NEXT-10286',
+        'FEATURE_NEXT_101',
+        'FEATURE_NEXT_102',
     ];
 
     private static $featureAllValue;

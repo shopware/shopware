@@ -106,6 +106,15 @@ class AppLifecycleTest extends TestCase
             base64_encode(file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/icon.png')),
             $apps->first()->getIcon()
         );
+        // assert formatting with \n and \t is preserved
+        static::assertEquals(
+            'Following personal information will be processed on shopware AG\'s servers:
+
+- Name
+- Billing address
+- Order value',
+            $apps->first()->getPrivacyPolicyExtensions()
+        );
 
         static::assertEquals($appId, $apps->first()->getId());
         static::assertFalse($apps->first()->isConfigurable());

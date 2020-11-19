@@ -152,7 +152,6 @@ trait SalesChannelApiTestBehaviour
 
         if (!isset($salesChannelOverride['domains']) && $salesChannelIds->firstId() !== null) {
             $salesChannelRepository->delete([['id' => $salesChannelIds->firstId()]], Context::createDefaultContext());
-            echo $salesChannelIds->firstId();
         }
 
         $salesChannel = array_merge([

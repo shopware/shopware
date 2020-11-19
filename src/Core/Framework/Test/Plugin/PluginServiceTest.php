@@ -11,11 +11,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Plugin\Exception\ExceptionCollection;
 use Shopware\Core\Framework\Plugin\Exception\PluginChangelogInvalidException;
+use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
+use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use SwagTest\SwagTest;
@@ -72,6 +75,35 @@ class PluginServiceTest extends TestCase
         static::assertSame('https://www.test.com/', $plugin->getManufacturerLink());
         static::assertSame('https://www.test.com/support', $plugin->getSupportLink());
         static::assertSame($this->getValidEnglishChangelog(), $plugin->getChangelog());
+    }
+
+    public function testRefreshPluginWithoutExtraLabelProperty(): void
+    {
+        $errors = $this->pluginService->refreshPlugins($this->context, new NullIO());
+
+        static::assertInstanceOf(ExceptionCollection::class, $errors);
+        static::assertTrue($errors->count() > 0);
+
+        $composerJsonException = $errors->filter(function (ShopwareHttpException $error) {
+            return $error instanceof PluginComposerJsonInvalidException;
+        });
+
+        static::assertNotEmpty($composerJsonException);
+
+        $errorFound = false;
+        $errorString = 'Plugin composer.json has invalid "type" (must be "shopware-platform-plugin"), or invalid "extra/shopware-plugin-class" value, or missing extra.label property';
+
+        foreach ($composerJsonException->getIterator() as $exception) {
+            if (empty($exception->getParameters()['composerJsonPath']) || $exception->getParameters()['composerJsonPath'] !== __DIR__ . '/_fixture/plugins/SwagTestNoExtraLabelProperty/composer.json') {
+                continue;
+            }
+
+            if (!empty($exception->getParameters()['errorsString']) && $exception->getParameters()['errorsString'] === $errorString) {
+                $errorFound = true;
+            }
+        }
+
+        static::assertTrue($errorFound);
     }
 
     public function testRefreshPluginsWithNonStandardLanguage(): void
@@ -190,11 +222,17 @@ class PluginServiceTest extends TestCase
     public function testRefreshWithPluginErrors(): void
     {
         $errors = $this->pluginService->refreshPlugins($this->context, new NullIO());
-        static::assertCount(1, $errors);
+        static::assertNotEmpty($errors);
 
-        $changeLogError = $errors->first();
+        $changeLogErrors = $errors->filter(function ($error) {
+            return $error instanceof PluginChangelogInvalidException;
+        });
+
+        static::assertCount(1, $changeLogErrors);
+
+        $changeLogError = $changeLogErrors->first();
+
         static::assertNotNull($changeLogError);
-        static::assertInstanceOf(PluginChangelogInvalidException::class, $changeLogError);
         static::assertStringContainsString(
             'Framework/Test/Plugin/_fixture/plugins/SwagTestErrors/CHANGELOG.md" is invalid.',
             $changeLogError->getMessage()

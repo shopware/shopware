@@ -419,6 +419,8 @@ describe('core/factory/module.factory.js', () => {
      * @deprecated tag:v6.4.0
      */
     test('should trigger a deprecation warning when a plugin tries to add a menu entry on the first level', () => {
+        Shopware.Feature.isActive = () => false;
+
         const pluginModule = register('sw-foo', {
             type: 'plugin',
             routes: {
@@ -449,6 +451,8 @@ describe('core/factory/module.factory.js', () => {
     });
 
     test('should not allow plugin modules to create menu entries on first level', () => {
+        Shopware.Feature.isActive = () => true;
+
         const pluginModule = register('sw-foo', {
             type: 'plugin',
             routes: {
@@ -479,6 +483,8 @@ describe('core/factory/module.factory.js', () => {
     });
 
     test('should allow core modules to create menu entries on first level', () => {
+        Shopware.Feature.isActive = () => true;
+
         // Check a core module without a "parent" in the navigation object
         const coreModule = register('sw-foobar', {
             type: 'core',

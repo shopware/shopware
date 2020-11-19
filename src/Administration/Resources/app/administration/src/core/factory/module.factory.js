@@ -181,17 +181,7 @@ function registerModule(moduleId, module) {
         }
 
         module.navigation = module.navigation.filter((navigationEntry) => {
-            if (!navigationEntry.id && !navigationEntry.path && !navigationEntry.parent && !navigationEntry.link) {
-                warn(
-                    'ModuleFactory',
-                    'The navigation entry does not contains the necessary properties',
-                    'Abort registration of the navigation entry',
-                    navigationEntry
-                );
-                return false;
-            }
-
-            if (module.type === 'plugin' && !navigationEntry.parent) {
+            if (Shopware.Feature.isActive('FEATURE_NEXT_8172') && (module.type === 'plugin' && !navigationEntry.parent)) {
                 warn(
                     'ModuleFactory',
                     'Navigation entries from plugins are not allowed on the first level.',
@@ -200,12 +190,22 @@ function registerModule(moduleId, module) {
                 return false;
             }
 
-            if (module.type === 'plugin' && !navigationEntry.parent) {
+            if (!Shopware.Feature.isActive('FEATURE_NEXT_8172') && (module.type === 'plugin' && !navigationEntry.parent)) {
                 warn(
                     'ModuleFactory',
                     'Navigation entries from plugins are not allowed on the first level.',
                     'The support for first level entries for plugins will be removed in 6.4.0'
                 );
+            }
+
+            if (!navigationEntry.id && !navigationEntry.path && !navigationEntry.parent && !navigationEntry.link) {
+                warn(
+                    'ModuleFactory',
+                    'The navigation entry does not contains the necessary properties',
+                    'Abort registration of the navigation entry',
+                    navigationEntry
+                );
+                return false;
             }
 
             if (!navigationEntry.label || !navigationEntry.label.length) {

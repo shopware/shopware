@@ -17,6 +17,12 @@
         color: #e52427;
         display: inline-block;
     }
+
+    &.with-advanced-list-price {
+        color: #e52427;
+        font-size: $font-size-base;
+        display: inline-block;
+    }
 }
 
 .list-price-badge {
@@ -50,6 +56,20 @@
 
     .list-price-price {
         text-decoration: line-through;
+    }
+}
+
+
+.product-detail-advanced-list-price-wrapper {
+    color: $headings-color;
+    font-weight: $font-weight-normal;
+    font-size: 12px;
+    display: inline-block;
+    vertical-align: bottom;
+    text-decoration: line-through;
+
+    @include media-breakpoint-down(md) {
+        height: 22px;
     }
 }
 

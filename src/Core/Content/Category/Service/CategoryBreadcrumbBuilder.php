@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Category\Service;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Seo\MainCategory\MainCategoryEntity;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
@@ -48,13 +49,18 @@ class CategoryBreadcrumbBuilder
             return $categoryBreadcrumb;
         }
 
+        $context = Context::createDefaultContext();
         if ($salesChannel) {
-            $event = SalesChannelEntryPointsEvent::forSalesChannel($salesChannel);
+            $event = SalesChannelEntryPointsEvent::forSalesChannel(
+                $salesChannel,
+                $context
+            );
+
             if ($navigationCategoryId !== null) {
                 $event->addId('navigation-category-id', $navigationCategoryId);
             }
         } else {
-            $event = new SalesChannelEntryPointsEvent();
+            $event = new SalesChannelEntryPointsEvent($context);
         }
 
         $this->dispatcher->dispatch($event);
@@ -92,7 +98,7 @@ class CategoryBreadcrumbBuilder
             return $category;
         }
 
-        $event = SalesChannelEntryPointsEvent::forSalesChannel($context->getSalesChannel());
+        $event = SalesChannelEntryPointsEvent::forSalesChannelContext($context);
         $this->dispatcher->dispatch($event);
 
         $criteria = new Criteria();
@@ -117,7 +123,7 @@ class CategoryBreadcrumbBuilder
             return null;
         }
 
-        $event = SalesChannelEntryPointsEvent::forSalesChannel($context->getSalesChannel());
+        $event = SalesChannelEntryPointsEvent::forSalesChannelContext($context);
         $this->dispatcher->dispatch($event);
 
         $criteria = new Criteria();

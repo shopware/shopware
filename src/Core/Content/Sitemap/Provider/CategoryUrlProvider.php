@@ -96,7 +96,7 @@ class CategoryUrlProvider implements UrlProviderInterface
 
     private function getCategories(SalesChannelContext $salesChannelContext, int $limit, ?int $offset): CategoryCollection
     {
-        $event = SalesChannelEntryPointsEvent::forSalesChannel($salesChannelContext->getSalesChannel());
+        $event = SalesChannelEntryPointsEvent::forSalesChannelContext($salesChannelContext);
         $this->dispatcher->dispatch($event);
 
         $categoriesCriteria = new Criteria();

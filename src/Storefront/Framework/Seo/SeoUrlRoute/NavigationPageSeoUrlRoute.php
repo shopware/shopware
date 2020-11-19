@@ -9,6 +9,7 @@ use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlMapping;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -94,7 +95,7 @@ class NavigationPageSeoUrlRoute implements SeoUrlRouteInterface
         }
         $path = array_filter(explode('|', (string) $category->getPath()));
 
-        $event = SalesChannelEntryPointsEvent::forSalesChannel($salesChannel);
+        $event = SalesChannelEntryPointsEvent::forSalesChannel($salesChannel, Context::createDefaultContext());
         $this->dispatcher->dispatch($event);
 
         foreach ($event->getNavigationIds() as $navigationId) {

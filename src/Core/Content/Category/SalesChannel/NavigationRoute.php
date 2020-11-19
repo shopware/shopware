@@ -108,7 +108,7 @@ class NavigationRoute extends AbstractNavigationRoute
         $buildTree = $request->query->getBoolean('buildTree', $request->request->getBoolean('buildTree', true));
         $depth = $request->query->getInt('depth', $request->request->getInt('depth', 2));
 
-        $aliases = $this->findEntryPointIds($context->getSalesChannel());
+        $aliases = $this->findEntryPointIds($context);
 
         $activeId = $aliases[$requestActiveId] ?? $requestActiveId;
         $rootId = $aliases[$requestRootId] ?? $requestRootId;
@@ -278,7 +278,7 @@ class NavigationRoute extends AbstractNavigationRoute
 
     private function validate(string $activeId, ?string $path, SalesChannelContext $context): void
     {
-        $ids = $this->findEntryPointIds($context->getSalesChannel());
+        $ids = $this->findEntryPointIds($context);
 
         foreach ($ids as $id) {
             if ($this->isChildCategory($activeId, $path, $id)) {
@@ -306,9 +306,9 @@ class NavigationRoute extends AbstractNavigationRoute
         return false;
     }
 
-    private function findEntryPointIds(SalesChannelEntity $salesChannel): array
+    private function findEntryPointIds(SalesChannelContext $context): array
     {
-        $event = SalesChannelEntryPointsEvent::forSalesChannel($salesChannel);
+        $event = SalesChannelEntryPointsEvent::forSalesChannelContext($context);
         $this->dispatcher->dispatch($event);
 
         return $event->getNavigationIds();

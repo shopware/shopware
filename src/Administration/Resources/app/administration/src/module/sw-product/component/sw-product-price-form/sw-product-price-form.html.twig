@@ -41,15 +41,18 @@
                         label=" "
                         class="sw-product-price-form__purchase-prices"
                         :hasParent="!!parentProduct.id"
-                        :inheritedValue="parentProduct.purchasePrices">
+                        :inheritedValue="parentProduct.purchasePrices"
+                        :customRemoveInheritanceFunction="removePriceInheritation">
                         <template #content="{ currentValue, updateCurrentValue, isInherited }">
-                            <sw-purchase-price-field
-                                :price="currentValue"
-                                :taxRate="productTaxRate"
-                                :disabled="isInherited || !allowEdit"
-                                :error="productPurchasePricesError ? productPurchasePricesError[0] : null"
-                                :currency="defaultCurrency">
-                            </sw-purchase-price-field>
+                            <sw-price-field :price="currentValue"
+                                            :grossLabel="$tc('sw-product.priceForm.labelPurchasePriceGross')"
+                                            :netLabel="$tc('sw-product.priceForm.labelPurchasePriceNet')"
+                                            :taxRate="productTaxRate"
+                                            class="sw-purchase-price-field"
+                                            :error="productPurchasePricesError ? productPurchasePricesError[0] : null"
+                                            :disabled="isInherited || !allowEdit"
+                                            :currency="defaultCurrency">
+                            </sw-price-field>
                         </template>
                     </sw-inherit-wrapper>
                 {% endblock %}

@@ -49,6 +49,7 @@ class ProductPurchasePriceDeprecationUpdater
             $this->getSetPurchasePricesBaseQueryExpr() . '
             WHERE id IN (:productIds)
             AND purchase_prices IS NULL
+            AND parent_id IS NULL
             AND purchase_price IS NOT NULL',
             [
                 'productIds' => Uuid::fromHexToBytesList($productIds),

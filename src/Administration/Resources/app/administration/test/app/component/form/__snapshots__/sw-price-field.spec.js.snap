@@ -5,6 +5,7 @@ exports[`components/form/sw-price-field should renders correctly 1`] = `
   class="sw-price-field sw-price-field--label"
 >
   <sw-field-stub
+    class="sw-price-field-gross"
     digits="2"
     label="global.sw-price-field.labelPriceGross"
     min="0"
@@ -25,6 +26,7 @@ exports[`components/form/sw-price-field should renders correctly 1`] = `
   </button>
    
   <sw-field-stub
+    class="sw-price-field-net"
     digits="2"
     label="global.sw-price-field.labelPriceNet"
     min="0"

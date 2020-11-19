@@ -37,22 +37,32 @@
         {% block component_product_box_price %}
             {% set listPrice = product.priceRange or product.calculatedPrices.count > 0 ? null : product.calculatedPrice.listPrice %}
 
-            <p class="product-price{% if listPrice.percentage > 0 %} with-list-price{% endif %}">
-                {% if (product.priceRange and product.isGrouped) or product.calculatedPrices.count > 1 %}
-                    {{ fromPrice.unitPrice|currency }}
-                    -
-                    {{ listingPrice.to.unitPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
-                {% elseif product.calculatedPrices|length == 1 %}
-                    {{ product.calculatedPrices.first.unitPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
-                {% else %}
-                    {{ product.calculatedPrice.unitPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
-                    {% if listPrice.percentage > 0 %}
-                        <span class="list-price{% if "listing.beforeListPrice"|trans|length > 0 or "listing.afterListPrice"|trans|length > 0  %} list-price-no-line-through{% endif %}">
-                            {{"listing.beforeListPrice"|trans|trim}} {{ listPrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} {{"listing.afterListPrice"|trans|trim}}
-                        </span>
+            {% if product.calculatedPrices %}
+                {% block component_product_box__block_list_price_wrapper %}
+                    {% set cheapestPrice = product.calculatedPrices|last %}
+
+                    <span class="product-advanced-list-price-wrapper">
+                        {{ "listing.listingTextFrom"|trans|sw_sanitize }} <b>{{ cheapestPrice.unitPrice|currency }}{{ "general.star"|trans|sw_sanitize }}</b>
+                    </span>
+                {% endblock %}
+            {% else %}
+                <p class="product-price{% if listPrice.percentage > 0 %} with-list-price{% endif %}">
+                    {% if (product.priceRange and product.isGrouped) or product.calculatedPrices.count > 1 %}
+                        {{ fromPrice.unitPrice|currency }}
+                        -
+                        {{ listingPrice.to.unitPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
+                    {% elseif product.calculatedPrices|length == 1 %}
+                        {{ product.calculatedPrices.first.unitPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
+                    {% else %}
+                        {{ product.calculatedPrice.unitPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
+                            {% if listPrice.percentage > 0 %}
+                                <span class="list-price{% if "listing.beforeListPrice"|trans|length > 0 or "listing.afterListPrice"|trans|length > 0  %} list-price-no-line-through{% endif %}">
+                                {{"listing.beforeListPrice"|trans|trim}} {{ listPrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} {{"listing.afterListPrice"|trans|trim}}
+                            </span>
+                        {% endif %}
                     {% endif %}
-                {% endif %}
-            </p>
+                </p>
+            {% endif %}
         {% endblock %}
     </div>
 {% endblock %}

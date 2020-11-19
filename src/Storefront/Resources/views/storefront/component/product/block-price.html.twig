@@ -4,7 +4,7 @@
             {% if price %}
                 <p class="product-detail-price{% if price %} with-advanced-list-price{% endif %}">{{ price.unitPrice|currency }}{{ "general.star"|trans|sw_sanitize }}</p>
                 {% if price %}
-                    {% block page_product_detail_was_price_wrapper %}
+                    {% block page_product_detail__block_list_price_wrapper %}
                         <span class="product-detail-advanced-list-price-wrapper">
                             {{  price.unitPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
                         </span>

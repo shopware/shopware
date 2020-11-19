@@ -53,7 +53,10 @@ class AppDefinition extends EntityDefinition
 
     public function getDefaults(): array
     {
-        return ['active' => false];
+        return [
+            'active' => false,
+            'configurable' => false,
+        ];
     }
 
     public function since(): ?string
@@ -71,6 +74,7 @@ class AppDefinition extends EntityDefinition
             new StringField('copyright', 'copyright'),
             new StringField('license', 'license'),
             (new BoolField('active', 'active'))->addFlags(new Required()),
+            (new BoolField('configurable', 'configurable'))->addFlags(new Required()),
             new StringField('privacy', 'privacy'),
             (new StringField('version', 'version'))->addFlags(new Required()),
             (new BlobField('icon', 'iconRaw'))
@@ -87,6 +91,7 @@ class AppDefinition extends EntityDefinition
             ),
             new TranslatedField('label'),
             new TranslatedField('description'),
+            new TranslatedField('privacyPolicyExtensions'),
 
             (new FkField('integration_id', 'integrationId', IntegrationDefinition::class))->addFlags(new Required()),
             new OneToOneAssociationField('integration', 'integration_id', 'id', IntegrationDefinition::class),

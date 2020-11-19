@@ -84,7 +84,6 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\CartRuleLoader"/>
             <argument type="service" id="event_dispatcher"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_10058"/>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\SalesChannel\SalesChannelContextController" public="true">

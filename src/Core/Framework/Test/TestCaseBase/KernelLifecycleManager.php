@@ -7,6 +7,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Test\Filesystem\Adapter\MemoryAdapterFactory;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestBrowser;
+use Shopware\Core\Kernel;
 use Shopware\Core\Profiling\Doctrine\DebugStack;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -28,6 +29,11 @@ class KernelLifecycleManager
      * @var ClassLoader
      */
     protected static $classLoader;
+
+    /**
+     * @var Connection|null
+     */
+    protected static $connection;
 
     public static function prepare(ClassLoader $classLoader): void
     {
@@ -80,11 +86,11 @@ class KernelLifecycleManager
     /**
      * Boots the Kernel for this test.
      */
-    public static function bootKernel(): KernelInterface
+    public static function bootKernel(bool $reuseConnection = true, string $cacheId = 'h8f3f0ee9c61829627676afd6294bb029'): KernelInterface
     {
         self::ensureKernelShutdown();
 
-        static::$kernel = static::createKernel();
+        static::$kernel = static::createKernel(null, $reuseConnection, $cacheId);
         static::$kernel->boot();
         static::$kernel->getContainer()->get(Connection::class)->getConfiguration()->setSQLLogger(new DebugStack());
         MemoryAdapterFactory::resetInstances();
@@ -92,7 +98,7 @@ class KernelLifecycleManager
         return static::$kernel;
     }
 
-    public static function createKernel(?string $kernelClass = null): KernelInterface
+    public static function createKernel(?string $kernelClass = null, bool $reuseConnection = true, string $cacheId = 'h8f3f0ee9c61829627676afd6294bb029'): KernelInterface
     {
         if ($kernelClass === null) {
             if (static::$class === null) {
@@ -122,14 +128,17 @@ class KernelLifecycleManager
             throw new \InvalidArgumentException('No class loader set. Please call KernelLifecycleManager::prepare');
         }
 
-        $pluginLoader = new DbalKernelPluginLoader(self::$classLoader, null, $kernelClass::getConnection());
+        $existingConnection = null;
+        if ($reuseConnection) {
+            $existingConnection = self::$connection;
+        }
+        if ($existingConnection === null) {
+            $existingConnection = self::$connection = $kernelClass::getConnection();
+        }
 
-        // This hash MUST be constant as long as NEXT-5273 is not resolved.
-        // Otherwise tests using a dataprovider wither services (such as JsonSalesChannelEntityEncoderTest)
-        // will fail randomly
-        $cacheId = 'h8f3f0ee9c61829627676afd6294bb029';
+        $pluginLoader = new DbalKernelPluginLoader(self::$classLoader, null, $existingConnection);
 
-        return new $kernelClass($env, $debug, $pluginLoader, $cacheId);
+        return new $kernelClass($env, $debug, $pluginLoader, $cacheId, null, $existingConnection);
     }
 
     /**

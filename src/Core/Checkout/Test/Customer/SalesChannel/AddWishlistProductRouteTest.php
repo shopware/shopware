@@ -51,6 +51,8 @@ class AddWishlistProductRouteTest extends TestCase
 
     protected function setUp(): void
     {
+        Feature::skipTestIfInActive('FEATURE_NEXT_10549', $this);
+
         $this->context = Context::createDefaultContext();
         $this->ids = new TestDataCollection($this->context);
 
@@ -206,7 +208,7 @@ class AddWishlistProductRouteTest extends TestCase
             [
                 'id' => $customerWishlistId,
                 'customerId' => $customerId,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => $this->getSalesChannelApiSalesChannelId(),
                 'products' => [
                     [
                         'productId' => $productId,

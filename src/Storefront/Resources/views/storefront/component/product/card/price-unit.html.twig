@@ -46,10 +46,9 @@
                     {{ product.calculatedPrices.first.unitPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
                 {% else %}
                     {{ product.calculatedPrice.unitPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
-
                     {% if listPrice.percentage > 0 %}
-                        <span class="list-price">
-                            {{ listPrice.price|currency }}{{ "general.star"|trans|sw_sanitize }}
+                        <span class="list-price{% if "listing.beforeListPrice"|trans|length > 0 or "listing.afterListPrice"|trans|length > 0  %} list-price-no-line-through{% endif %}">
+                            {{"listing.beforeListPrice"|trans|trim}} {{ listPrice.price|currency }}{{ "general.star"|trans|sw_sanitize }} {{"listing.afterListPrice"|trans|trim}}
                         </span>
                     {% endif %}
                 {% endif %}

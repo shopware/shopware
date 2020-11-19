@@ -83,8 +83,7 @@
                                 {% endblock %}
 
                                 {% block sw_settings_shipping_list_grid_columns_tax_type %}
-                                    <template v-if="feature.isActive('FEATURE_NEXT_6995')"
-                                              #column-taxType="{ item, isInlineEdit }">
+                                    <template #column-taxType="{ item, isInlineEdit }">
                                         {% block sw_settings_shipping_list_grid_columns_tax_type_inline_edit %}
                                             <template v-if="isInlineEdit">
                                                 <sw-single-select

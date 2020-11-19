@@ -187,6 +187,14 @@ function registerModule(moduleId, module) {
                 return false;
             }
 
+            if (module.type === 'plugin' && !navigationEntry.parent) {
+                warn(
+                    'ModuleFactory',
+                    'Navigation entries from plugins are not allowed on the first level.',
+                    'The support for first level entries for plugins will be removed in 6.4.0'
+                );
+            }
+
             if (!navigationEntry.label || !navigationEntry.label.length) {
                 warn(
                     'ModuleFactory',

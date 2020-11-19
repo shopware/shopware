@@ -63,6 +63,7 @@
                             :allowInlineEdit="acl.can('customer.editor')"
                             :isLoading="isLoading"
                             identifier="sw-customer-list"
+                            @selection-change="updateSelection"
                             @inline-edit-save="onInlineEditSave">
 
                             {% block sw_customer_list_grid_columns %}
@@ -125,7 +126,7 @@
                             {% endblock %}
 
                             {% block sw_customer_list_grid_columns_boundSalesChannel %}
-                                <template v-if="feature.isActive('FEATURE_NEXT_10555')" #column-boundSalesChannelId="{ item }">
+                                <template #column-boundSalesChannelId="{ item }">
                                     {{ item.boundSalesChannelId ? item.salesChannel.translated.name : $tc('sw-customer.list.emptyBoundSalesChannel') }}
                                 </template>
                             {% endblock %}

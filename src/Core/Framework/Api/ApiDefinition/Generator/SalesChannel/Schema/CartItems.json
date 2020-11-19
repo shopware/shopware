@@ -22,10 +22,6 @@
                     "type": {
                         "type": "string"
                     },
-                    "priceDefinition": {
-                      "type": "object",
-                      "properties": []
-                    },
                     "good": {
                         "type": "boolean"
                     },

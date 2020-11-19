@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Exception\DeadlockException;
+use Doctrine\DBAL\DBALException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
@@ -90,7 +90,7 @@ class ProductCategoryDenormalizer
                 $queue->addInsert('product_category_tree', $insert);
             }
             $queue->execute();
-        } catch (DeadlockException $e) {
+        } catch (DBALException $e) {
             $query = new RetryableQuery(
                 $this->connection->prepare('
                     INSERT IGNORE INTO product_category_tree

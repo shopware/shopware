@@ -19,6 +19,7 @@ require('./pages/general.page-object');
 require('./pages/checkout.page-object');
 require('./pages/account.page-object');
 require('./service/fixture/rule-builder.fixture');
+require('./service/fixture/product-wishlist.fixture');
 
 // Custom storefront commands
 require('./commands/commands');
@@ -26,5 +27,7 @@ require('./commands/commands');
 beforeEach(() => {
     return cy.log('Cleaning, please wait a little bit.').then(() => {
         return cy.cleanUpPreviousState();
-    });
+    }).then(() => {
+        return cy.clearCacheAdminApi('DELETE', `api/${Cypress.env('apiVersion')}/_action/cache`);
+    })
 });

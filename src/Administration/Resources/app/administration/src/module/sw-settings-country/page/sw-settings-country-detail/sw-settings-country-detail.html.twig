@@ -134,6 +134,18 @@
                                               v-model="country.forceStateInRegistration">
                                     </sw-field>
                                 {% endblock %}
+
+                                <template v-if="feature.isActive('FEATURE_NEXT_10559')">
+                                    {% block sw_settings_country_detail_content_field_tax_free_companies %}
+                                        <sw-switch-field
+                                            v-model="country.companyTaxFree"
+                                            class="sw-settings-country-detail__field-tax-free-companies"
+                                            bordered
+                                            :disabled="!acl.can('country.editor')"
+                                            :label="$tc('sw-settings-country.detail.labelCompanyTaxFree')">
+                                        </sw-switch-field>
+                                    {% endblock %}
+                                </template>
                             </sw-container>
                         </sw-card>
                     {% endblock %}

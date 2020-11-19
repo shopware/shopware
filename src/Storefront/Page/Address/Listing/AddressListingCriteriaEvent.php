@@ -5,9 +5,10 @@ namespace Shopware\Storefront\Page\Address\Listing;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-class AddressListingCriteriaEvent extends NestedEvent
+class AddressListingCriteriaEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
     /**
      * @var Criteria

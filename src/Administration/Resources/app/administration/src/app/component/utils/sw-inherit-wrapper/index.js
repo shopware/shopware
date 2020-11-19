@@ -72,7 +72,7 @@ Component.register('sw-inherit-wrapper', {
         hasParent: {
             type: Boolean,
             required: false,
-            default: false
+            default: undefined
         },
 
         // custom inheritation check which returns true or false
@@ -127,8 +127,8 @@ Component.register('sw-inherit-wrapper', {
 
         isInheritField() {
             // manual check if parent exists
-            if (this.hasParent) {
-                return true;
+            if (this.hasParent !== undefined) {
+                return this.hasParent;
             }
 
             // automatic check if parent for inheritation exists

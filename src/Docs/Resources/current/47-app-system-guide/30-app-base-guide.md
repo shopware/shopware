@@ -218,7 +218,7 @@ In this case the `shopware-shop-signature` parameter contains an sha256 hmac of 
 
 ### Custom fields
 
-![custom-buttons](./img/custom-fields.png)
+![custom-fields](./img/custom-fields.png)
 
 By using `<custom-fields>` element, you can add custom fields to Shopware.
 And offer you the possibility to add your own fields extending data records. 
@@ -298,6 +298,20 @@ Below you can take a look on an extended example on how a full manifest file can
         <icon>icon.png</icon>
         <license>MIT</license>
         <privacy>https://test.com/privacy</privacy>
+        <privacyPolicyExtensions>
+Following personal information will be processed on shopware AG's servers:
+
+- Name
+- Billing address
+- Order value
+        </privacyPolicyExtensions>
+        <privacyPolicyExtensions lang="de-DE">
+Folgende Nutzerdaten werden auf Servern der shopware AG verarbeitet:
+
+- Name
+- Rechnungsadresse
+- Bestellwert
+        </privacyPolicyExtensions>
     </meta>
     <setup>
         <registrationUrl>https://example/</registrationUrl>

@@ -1,13 +1,11 @@
 {% block sw_cms_block_product_heading %}
     <div class="sw-cms-block-product-heading">
+        <slot name="left">
+            {% block sw_cms_block_product_heading_slot_left %}{% endblock %}
+        </slot>
 
-        {% block sw_cms_block_product_heading_slot_left %}
-            <slot name="left"></slot>
-        {% endblock %}
-
-        {% block sw_cms_block_product_heading_slot_right %}
-            <slot name="right"></slot>
-        {% endblock %}
-
+        <slot name="right">
+            {% block sw_cms_block_product_heading_slot_right %}{% endblock %}
+        </slot>
     </div>
 {% endblock %}

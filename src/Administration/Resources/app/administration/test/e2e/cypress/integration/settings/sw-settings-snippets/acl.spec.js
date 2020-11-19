@@ -94,7 +94,7 @@ describe('Snippets: Test acl privileges', () => {
         });
     });
 
-    it('@base @settings: Create snippets', () => {
+    it.skip('@base @settings: Create snippets', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'snippet',

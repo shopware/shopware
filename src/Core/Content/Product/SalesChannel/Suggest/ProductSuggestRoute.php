@@ -90,7 +90,7 @@ class ProductSuggestRoute extends AbstractProductSuggestRoute
      *      @OA\Response(
      *          response="200",
      *          description="Found products",
-     *          @OA\JsonContent(ref="#/definitions/ProductListingResult")
+     *          @OA\JsonContent(ref="#/components/schemas/ProductListingResult")
      *     )
      * )
      * @Route("/store-api/v{version}/search-suggest", name="store-api.search.suggest", methods={"POST"})

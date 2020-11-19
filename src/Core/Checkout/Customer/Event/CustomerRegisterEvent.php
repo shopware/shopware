@@ -10,10 +10,11 @@ use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\MailActionInterface;
 use Shopware\Core\Framework\Event\SalesChannelAware;
+use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class CustomerRegisterEvent extends Event implements MailActionInterface, SalesChannelAware
+class CustomerRegisterEvent extends Event implements MailActionInterface, SalesChannelAware, ShopwareSalesChannelEvent
 {
     public const EVENT_NAME = 'checkout.customer.register';
 

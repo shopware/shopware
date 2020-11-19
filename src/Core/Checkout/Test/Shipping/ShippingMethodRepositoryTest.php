@@ -144,6 +144,7 @@ class ShippingMethodRepositoryTest extends TestCase
                 'id' => $this->shippingMethodId,
                 'bindShippingfree' => false,
                 'name' => 'test',
+                'tax_type' => null,
                 'availabilityRule' => [
                     'id' => $this->ruleId,
                     'name' => 'asd',

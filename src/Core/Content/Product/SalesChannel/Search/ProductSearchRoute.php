@@ -90,7 +90,7 @@ class ProductSearchRoute extends AbstractProductSearchRoute
      *      @OA\Response(
      *          response="200",
      *          description="Found products",
-     *          @OA\JsonContent(ref="#/definitions/ProductListingResult")
+     *          @OA\JsonContent(ref="#/components/schemas/ProductListingResult")
      *     )
      * )
      * @Route("/store-api/v{version}/search", name="store-api.search", methods={"POST"})

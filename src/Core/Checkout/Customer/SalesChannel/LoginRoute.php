@@ -15,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -46,6 +45,8 @@ class LoginRoute extends AbstractLoginRoute
     private $customerRepository;
 
     /**
+     * @deprecated tag:v6.4.0 $contextPersister will no longer be used
+     *
      * @var SalesChannelContextPersister
      */
     private $contextPersister;
@@ -56,7 +57,7 @@ class LoginRoute extends AbstractLoginRoute
     private $legacyPasswordVerifier;
 
     /**
-     * @var SalesChannelContextRestorer|null
+     * @var SalesChannelContextRestorer
      */
     private $contextRestorer;
 
@@ -65,7 +66,7 @@ class LoginRoute extends AbstractLoginRoute
         SalesChannelContextPersister $contextPersister,
         EntityRepositoryInterface $customerRepository,
         LegacyPasswordVerifier $legacyPasswordVerifier,
-        ?SalesChannelContextRestorer $contextRestorer
+        SalesChannelContextRestorer $contextRestorer
     ) {
         $this->eventDispatcher = $eventDispatcher;
         $this->contextPersister = $contextPersister;
@@ -86,24 +87,17 @@ class LoginRoute extends AbstractLoginRoute
      *      summary="Login as customer using password",
      *      operationId="loginCustomer",
      *      tags={"Store API", "Account"},
-     *      @OA\Parameter(
-     *          parameter="username",
-     *          name="Email",
-     *          in="body",
-     *          description="Email",
-     *          @OA\Schema(type="string"),
-     *      ),
-     *      @OA\Parameter(
-     *          parameter="password",
-     *          name="Password",
-     *          in="body",
-     *          description="Password",
-     *          @OA\Schema(type="string"),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              @OA\Property(property="username", description="Email", type="string"),
+     *              @OA\Property(property="password", description="Password", type="string")
+     *          )
      *      ),
      *      @OA\Response(
      *          response="200",
      *          description="Context token",
-     *          @OA\JsonContent(ref="#/definitions/ContextTokenResponse")
+     *          @OA\JsonContent(ref="#/components/schemas/ContextTokenResponse")
      *     )
      * )
      * @Route(path="/store-api/v{version}/account/login", name="store-api.account.login", methods={"POST"})
@@ -133,21 +127,8 @@ class LoginRoute extends AbstractLoginRoute
             throw new InactiveCustomerException($customer->getId());
         }
 
-        if (Feature::isActive('FEATURE_NEXT_10058') && $this->contextRestorer) {
-            $context = $this->contextRestorer->restore($customer->getId(), $context);
-            $newToken = $context->getToken();
-        } else {
-            $newToken = $this->contextPersister->replace($context->getToken(), $context);
-
-            $this->contextPersister->save(
-                $newToken,
-                [
-                    'customerId' => $customer->getId(),
-                    'billingAddressId' => null,
-                    'shippingAddressId' => null,
-                ]
-            );
-        }
+        $context = $this->contextRestorer->restore($customer->getId(), $context);
+        $newToken = $context->getToken();
 
         $this->customerRepository->update([
             [
@@ -189,12 +170,10 @@ class LoginRoute extends AbstractLoginRoute
         $criteria->addFilter(new EqualsFilter('customer.email', $email));
         $criteria->addFilter(new EqualsFilter('customer.guest', 0));
 
-        if (Feature::isActive('FEATURE_NEXT_10555')) {
-            $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
-                new EqualsFilter('customer.boundSalesChannelId', null),
-                new EqualsFilter('customer.boundSalesChannelId', $context->getSalesChannel()->getId()),
-            ]));
-        }
+        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
+            new EqualsFilter('customer.boundSalesChannelId', null),
+            new EqualsFilter('customer.boundSalesChannelId', $context->getSalesChannel()->getId()),
+        ]));
 
         $result = $this->customerRepository->search($criteria, $context->getContext());
 

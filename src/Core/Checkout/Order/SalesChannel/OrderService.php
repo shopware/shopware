@@ -83,12 +83,10 @@ class OrderService
         $this->validateOrderData($data, $context);
 
         $cart = $this->cartService->getCart($context->getToken(), $context);
-        $this->addCustomerComment($cart, $data);
-        $this->addAffiliateTracking($cart, $data);
 
         $this->validateCart($cart, $context->getContext());
 
-        return $this->cartService->order($cart, $context);
+        return $this->cartService->order($cart, $context, $data->toRequestDataBag());
     }
 
     /**
@@ -229,26 +227,5 @@ class OrderService
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
 
         return $validation;
-    }
-
-    private function addCustomerComment(Cart $cart, DataBag $data): void
-    {
-        $customerComment = ltrim(rtrim((string) $data->get(self::CUSTOMER_COMMENT_KEY, '')));
-
-        if ($customerComment === '') {
-            return;
-        }
-
-        $cart->setCustomerComment($customerComment);
-    }
-
-    private function addAffiliateTracking(Cart $cart, DataBag $data): void
-    {
-        $affiliateCode = $data->get(self::AFFILIATE_CODE_KEY);
-        $campaignCode = $data->get(self::CAMPAIGN_CODE_KEY);
-        if ($affiliateCode !== null && $campaignCode !== null) {
-            $cart->setAffiliateCode($affiliateCode);
-            $cart->setCampaignCode($campaignCode);
-        }
     }
 }

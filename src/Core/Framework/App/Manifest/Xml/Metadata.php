@@ -7,12 +7,12 @@ class Metadata extends XmlElement
     /**
      * @var array
      */
-    protected $label;
+    protected $label = [];
 
     /**
      * @var array
      */
-    protected $description;
+    protected $description = [];
 
     /**
      * @var string
@@ -49,6 +49,11 @@ class Metadata extends XmlElement
      */
     protected $privacy;
 
+    /**
+     * @var array
+     */
+    protected $privacyPolicyExtensions = [];
+
     private function __construct(array $data)
     {
         foreach ($data as $property => $value) {
@@ -59,6 +64,16 @@ class Metadata extends XmlElement
     public static function fromXml(\DOMElement $element): self
     {
         return new self(self::parse($element));
+    }
+
+    public function toArray(string $defaultLocale): array
+    {
+        $data = parent::toArray($defaultLocale);
+
+        $data['label'] = $this->ensureTranslationForDefaultLanguageExist($data['label'], $defaultLocale);
+        $data['description'] = $this->ensureTranslationForDefaultLanguageExist($data['description'], $defaultLocale);
+
+        return $data;
     }
 
     public function getLabel(): array
@@ -106,6 +121,11 @@ class Metadata extends XmlElement
         return $this->privacy;
     }
 
+    public function getPrivacyPolicyExtensions(): array
+    {
+        return $this->privacyPolicyExtensions;
+    }
+
     private static function parse(\DOMElement $element): array
     {
         $values = [];
@@ -116,7 +136,7 @@ class Metadata extends XmlElement
             }
 
             // translated
-            if (in_array($child->tagName, ['label', 'description'], true)) {
+            if (in_array($child->tagName, ['label', 'description', 'privacyPolicyExtensions'], true)) {
                 $values = self::mapTranslatedTag($child, $values);
 
                 continue;

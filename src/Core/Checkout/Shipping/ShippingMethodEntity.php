@@ -98,8 +98,6 @@ class ShippingMethodEntity extends Entity
     protected $mediaId;
 
     /**
-     * @internal (flag:FEATURE_NEXT_6995)
-     *
      * @var string|null
      */
     protected $taxId;
@@ -115,15 +113,11 @@ class ShippingMethodEntity extends Entity
     protected $tags;
 
     /**
-     * @internal (flag:FEATURE_NEXT_6995)
-     *
-     * @var string|null
+     * @var string
      */
     protected $taxType;
 
     /**
-     * @internal (flag:FEATURE_NEXT_6995)
-     *
      * @var TaxEntity|null
      */
     protected $tax;
@@ -283,17 +277,11 @@ class ShippingMethodEntity extends Entity
         $this->mediaId = $mediaId;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_6995)
-     */
     public function getTaxId(): ?string
     {
         return $this->taxId;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_6995)
-     */
     public function setTaxId(?string $taxId): void
     {
         $this->taxId = $taxId;
@@ -319,33 +307,21 @@ class ShippingMethodEntity extends Entity
         $this->tags = $tags;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_6995)
-     */
-    public function getTaxType(): ?string
+    public function getTaxType(): string
     {
         return $this->taxType;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_6995)
-     */
-    public function setTaxType(?string $taxType): void
+    public function setTaxType(string $taxType): void
     {
         $this->taxType = $taxType;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_6995)
-     */
     public function getTax(): ?TaxEntity
     {
         return $this->tax;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_6995)
-     */
     public function setTax(TaxEntity $tax): void
     {
         $this->tax = $tax;

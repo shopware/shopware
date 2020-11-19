@@ -196,12 +196,11 @@
                     </table><br/>
                 {% endblock %}
             </div>
-
+        </div>
+        <div class="letter-body">
             <div class="document-title-container">
                 {% block document_headline %}{% endblock %}
             </div>
-        </div>
-        <div class="letter-body">
             {% if config.displayLineItems %}
                 {% for lineItemPage in lineItems|batch(itemsPerPage) %}
                     <div class="line-item-container">
@@ -415,6 +414,9 @@
                         {% endblock %}
                         {% block document_payment_shipping_additional %}
                             {{ 'document.paymentShippingInfo.additionalInfo'|trans|sw_sanitize }}<br>
+                        {% endblock %}
+                        {% block document_payment_shipping_service_date_notice %}
+                            {{ 'document.serviceDateNotice'|trans|sw_sanitize }}<br>
                         {% endblock %}
                     {% endblock %}
                 </div>

@@ -64,6 +64,7 @@
                         {% endif %}
                     {% endblock %}
 
+                    {# @deprecated tag:v6.4.0.0 this block will be removed/replaced with a new rating plugin #}
                     {% block component_filter_panel_item_rating %}
                         {% set rating = listing.aggregations.get('rating') %}
 

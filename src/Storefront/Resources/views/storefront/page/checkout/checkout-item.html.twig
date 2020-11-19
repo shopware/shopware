@@ -141,8 +141,19 @@
                                                         </div>
                                                     {% endif %}
                                                 {% endblock %}
+
+                                                {% if feature('FEATURE_NEXT_10549') and shopware.config.core.cart.wishlistEnabled and lineItem.type == 'product' %}
+                                                    {% block page_checkout_item_wishlist %}
+                                                        {% sw_include '@Storefront/storefront/component/product/card/wishlist.html.twig' with {
+                                                            showText: true,
+                                                            size: 'sm',
+                                                            productId: lineItem.referencedId
+                                                        } %}
+                                                    {% endblock %}
+                                                {% endif %}
                                             </div>
                                         {% endblock %}
+
                                     </div>
                                 {% endblock %}
                             </div>

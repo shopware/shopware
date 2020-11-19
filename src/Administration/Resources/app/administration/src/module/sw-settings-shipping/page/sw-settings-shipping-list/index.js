@@ -6,7 +6,7 @@ const { Component, Mixin, Data: { Criteria } } = Shopware;
 Component.register('sw-settings-shipping-list', {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'feature'],
+    inject: ['repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -36,7 +36,7 @@ Component.register('sw-settings-shipping-list', {
         },
 
         columns() {
-            let columns = [{
+            return [{
                 property: 'name',
                 label: 'sw-settings-shipping.list.columnName',
                 inlineEdit: 'string',
@@ -49,23 +49,17 @@ Component.register('sw-settings-shipping-list', {
                 inlineEdit: 'string',
                 allowResize: true
             }, {
+                property: 'taxType',
+                label: 'sw-settings-shipping.list.columnTaxType',
+                inlineEdit: 'string',
+                allowResize: true
+            }, {
                 property: 'active',
                 label: 'sw-settings-shipping.list.columnActive',
                 inlineEdit: 'boolean',
                 allowResize: true,
                 align: 'center'
             }];
-
-            if (this.feature.isActive('FEATURE_NEXT_6995')) {
-                columns = [...columns, {
-                    property: 'taxType',
-                    label: 'sw-settings-shipping.list.columnTaxType',
-                    inlineEdit: 'string',
-                    allowResize: true
-                }];
-            }
-
-            return columns;
         },
 
         listingCriteria() {

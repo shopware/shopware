@@ -41,6 +41,7 @@ class DeprecatedTagTest extends TestCase
             ->name('*.js')
             ->name('*.scss')
             ->name('*.html.twig')
+            ->name('*.xsd')
             ->contains('@deprecated');
 
         foreach ($this->whiteList as $path) {

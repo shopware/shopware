@@ -9,7 +9,7 @@ class ActionButton extends XmlElement
     /**
      * @var array
      */
-    protected $label;
+    protected $label = [];
 
     /**
      * @var string
@@ -46,6 +46,15 @@ class ActionButton extends XmlElement
     public static function fromXml(\DOMElement $element): self
     {
         return new self(self::parse($element));
+    }
+
+    public function toArray(string $defaultLocale): array
+    {
+        $data = parent::toArray($defaultLocale);
+
+        $data['label'] = $this->ensureTranslationForDefaultLanguageExist($data['label'], $defaultLocale);
+
+        return $data;
     }
 
     public function getLabel(): array

@@ -2231,11 +2231,6 @@ parameters:
 			path: src/Core/Content/Product/SalesChannel/Listing/ProductListingResult.php
 
 		-
-			message: "#^Parameter \\#1 \\$id of method Shopware\\\\Core\\\\Content\\\\ProductStream\\\\Service\\\\ProductStreamBuilderInterface\\:\\:buildFilters\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/Product/SalesChannel/Listing/ProductListingRoute.php
-
-		-
 			message: "#^Parameter \\#1 \\$taxId of method Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelContext\\:\\:buildTaxRules\\(\\) expects string, string\\|null given\\.$#"
 			count: 4
 			path: src/Core/Content/Product/SalesChannel/Price/ProductPriceDefinitionBuilder.php
@@ -2749,11 +2744,6 @@ parameters:
 			message: "#^Class Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\AppTemplateIterator implements generic interface IteratorAggregate but does not specify its types\\: TKey, TValue$#"
 			count: 1
 			path: src/Core/Framework/Adapter/Twig/AppTemplateIterator.php
-
-		-
-			message: "#^Cannot call method getName\\(\\) on Shopware\\\\Core\\\\Framework\\\\App\\\\AppEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Adapter/Twig/EntityTemplateLoader.php
 
 		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\Filter\\\\CurrencyFilter\\:\\:formatCurrency\\(\\) has no return typehint specified\\.$#"
@@ -7466,18 +7456,8 @@ parameters:
 			path: src/Storefront/Theme/ThemeLifecycleService.php
 
 		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeService.php
-
-		-
 			message: "#^Parameter \\#1 \\$name of method Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\StorefrontPluginConfigurationCollection\\:\\:getByTechnicalName\\(\\) expects string, string\\|null given\\.$#"
 			count: 2
-			path: src/Storefront/Theme/ThemeService.php
-
-		-
-			message: "#^Parameter \\#1 \\$themeName of class Shopware\\\\Storefront\\\\Theme\\\\Exception\\\\InvalidThemeException constructor expects string, string\\|null given\\.$#"
-			count: 1
 			path: src/Storefront/Theme/ThemeService.php
 
 		-
@@ -7526,16 +7506,6 @@ parameters:
 			path: src/Storefront/Theme/ThemeService.php
 
 		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeService\\:\\:translateLabels\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeService.php
-
-		-
-			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeService\\:\\:translateHelpTexts\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeService.php
-
-		-
 			message: "#^Parameter \\#1 \\$theme of method Shopware\\\\Storefront\\\\Theme\\\\Twig\\\\ThemeInheritanceBuilder\\:\\:getThemeInheritance\\(\\) expects string, int\\|string\\|null given\\.$#"
 			count: 1
 			path: src/Storefront/Theme/Twig/ThemeInheritanceBuilder.php
@@ -7559,4 +7529,19 @@ parameters:
 			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\AbstractChangePasswordRoute\\:\\:change\\(\\) has no return typehint specified\\.$#"
 			count: 1
 			path: src/Core/Checkout/Customer/SalesChannel/AbstractChangePasswordRoute.php
+
+		-
+			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\AccountService\\:\\:\\$contextPersister is never read\\, only written\\.$#"
+			count: 1
+			path: src/Core/Checkout/Customer/SalesChannel/AccountService.php
+
+		-
+			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Customer\\\\SalesChannel\\\\LoginRoute\\:\\:\\$contextPersister is never read\\, only written\\.$#"
+			count: 1
+			path: src/Core/Checkout/Customer/SalesChannel/LoginRoute.php
+
+		-
+			message: "#^Cannot call method fetchAll\\(\\) on Doctrine\\\\DBAL\\\\Driver\\\\Statement\\|int\\.$#"
+			count: 1
+			path: src/Core/Checkout/Customer/SalesChannel/MergeWishlistProductsRoute.php
 

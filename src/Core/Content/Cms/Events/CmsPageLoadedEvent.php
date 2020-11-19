@@ -5,10 +5,11 @@ namespace Shopware\Core\Content\Cms\Events;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\Event\NestedEvent;
+use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
-class CmsPageLoadedEvent extends NestedEvent
+class CmsPageLoadedEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
     /**
      * @var Request

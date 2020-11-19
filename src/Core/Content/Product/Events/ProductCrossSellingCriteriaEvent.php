@@ -5,11 +5,11 @@ namespace Shopware\Core\Content\Product\Events;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Event\ShopwareEvent;
+use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-abstract class ProductCrossSellingCriteriaEvent extends Event implements ShopwareEvent
+abstract class ProductCrossSellingCriteriaEvent extends Event implements ShopwareSalesChannelEvent
 {
     /**
      * @var ProductCrossSellingEntity

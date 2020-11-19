@@ -25,7 +25,8 @@ function createWrapper() {
             'sw-search-bar': true,
             'sw-notification-center': true,
             'sw-card': Shopware.Component.build('sw-card'),
-            'sw-loader': true
+            'sw-loader': true,
+            'sw-app-actions': true
         },
         mocks: {
             $tc: v => v,
@@ -65,7 +66,8 @@ describe('src/module/sw-settings-seo/page/sw-settings-seo', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should contain the settings card', () => {
+    it('should contain the settings card', async () => {
+        await wrapper.vm.$nextTick();
         expect(
             wrapper.find(`.${classes.root}`)
                 .find(`.${classes.cardView}`)

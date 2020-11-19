@@ -3,6 +3,29 @@ import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
 import 'src/module/sw-cms/component/sw-cms-sidebar';
 import Vuex from 'vuex';
 
+function getBlockData() {
+    return {
+        id: 'a322757550914445a0ec3c1b23255754',
+        slots: [
+            {
+                blockId: 'a322757550914445a0ec3c1b23255754',
+                id: '41d71c21cfb346149c066b4ebeeb0dbf',
+                config: {
+                    content: {
+                        source: 'static',
+                        value: '<p>plp<p>'
+                    }
+                },
+                data: null,
+                slot: 'content',
+                type: 'text'
+            }
+        ],
+        position: 0,
+        sectionPosition: 0
+    };
+}
+
 function createWrapper() {
     const localVue = createLocalVue();
     localVue.directive('draggable', {});
@@ -50,7 +73,14 @@ function createWrapper() {
             $store: Shopware.State._store
         },
         provide: {
-            repositoryFactory: {},
+            repositoryFactory: {
+                create: () => ({
+                    create: () => ({
+                        id: null,
+                        slots: []
+                    })
+                })
+            },
             cmsService: {
                 getCmsBlockRegistry: () => ({
                     'foo-bar': {}
@@ -101,5 +131,29 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         sidebarItems.wrappers.forEach(sidebarItem => {
             expect(sidebarItem.attributes().disabled).toBeUndefined();
         });
+    });
+
+    it('should keep the id when duplicating blocks', () => {
+        const wrapper = createWrapper();
+
+        const block = getBlockData();
+
+        const clonedBlock = wrapper.vm.cloneBlock(block, 'random_id');
+
+        expect(clonedBlock.id).toBe('a322757550914445a0ec3c1b23255754');
+    });
+
+    it('should keep the id when duplicating slots', () => {
+        const wrapper = createWrapper();
+
+        const block = getBlockData();
+
+        const newBlock = { id: 'random_id', slots: [] };
+
+        wrapper.vm.cloneSlotsInBlock(block, newBlock);
+
+        const [slot] = newBlock.slots;
+
+        expect(slot.id).toBe('41d71c21cfb346149c066b4ebeeb0dbf');
     });
 });

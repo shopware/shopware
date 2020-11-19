@@ -7,7 +7,6 @@ use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
@@ -73,18 +72,23 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
      *      summary="Update the context",
      *      operationId="updateContext",
      *      tags={"Store API","Context"},
-     *      @OA\Parameter(name="currencyId", description="Currency", @OA\Schema(type="string")),
-     *      @OA\Parameter(name="languageId", description="Language", @OA\Schema(type="string")),
-     *      @OA\Parameter(name="billingAddressId", description="Billing Address", @OA\Schema(type="string")),
-     *      @OA\Parameter(name="shippingAddressId", description="Shipping Address", @OA\Schema(type="string")),
-     *      @OA\Parameter(name="paymentMethodId", description="Payment Method", @OA\Schema(type="string")),
-     *      @OA\Parameter(name="shippingMethodId", description="Shipping Method", @OA\Schema(type="string")),
-     *      @OA\Parameter(name="countryId", description="Country", @OA\Schema(type="string")),
-     *      @OA\Parameter(name="countryStateId", description="Country State", @OA\Schema(type="string")),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              @OA\Property(property="currencyId", description="Currency", type="string", format="uuid"),
+     *              @OA\Property(property="languageId", description="Language", type="string", format="uuid"),
+     *              @OA\Property(property="billingAddressId", description="Billing Address", type="string", format="uuid"),
+     *              @OA\Property(property="shippingAddressId", description="Shipping Address", type="string", format="uuid"),
+     *              @OA\Property(property="paymentMethodId", description="Payment Method", type="string", format="uuid"),
+     *              @OA\Property(property="shippingMethodId", description="Shipping Method", type="string", format="uuid"),
+     *              @OA\Property(property="countryId", description="Country", type="string", format="uuid"),
+     *              @OA\Property(property="countryStateId", description="Country State", type="string", format="uuid")
+     *          )
+     *      ),
      *      @OA\Response(
      *          response="200",
      *          description="Context",
-     *          @OA\JsonContent(ref="#/definitions/ContextTokenResponse")
+     *          @OA\JsonContent(ref="#/components/schemas/ContextTokenResponse")
      *     )
      * )
      * @Route("/store-api/v{version}/context", name="store-api.switch-context", methods={"PATCH"})
@@ -151,12 +155,8 @@ class ContextSwitchRoute extends AbstractContextSwitchRoute
 
         $this->validator->validate($parameters, $definition);
 
-        if (Feature::isActive('FEATURE_NEXT_10058')) {
-            $customer = $context->getCustomer();
-            $this->contextPersister->save($context->getToken(), $parameters, $context->getSalesChannel()->getId(), $customer ? $customer->getId() : null);
-        } else {
-            $this->contextPersister->save($context->getToken(), $parameters);
-        }
+        $customer = $context->getCustomer();
+        $this->contextPersister->save($context->getToken(), $parameters, $context->getSalesChannel()->getId(), $customer ? $customer->getId() : null);
 
         $event = new SalesChannelContextSwitchEvent($context, $data);
         $this->eventDispatcher->dispatch($event);

@@ -30,6 +30,8 @@ Table(ShopwareCoreCheckoutShippingShippingMethodDefinition, "shipping_method\n(S
    not_null(availabilityRuleId) foreignKey
    mediaId foreignKey
    not_null(deliveryTimeId) foreignKey
+   not_null(taxType) string
+   taxId foreignKey
    description translated
    trackingUrl translated
    not_null(createdAt) createdAt
@@ -75,6 +77,8 @@ ForeignTable(ShopwareCoreSystemSalesChannelAggregateSalesChannelShippingMethodSa
 }
 ForeignTable(ShopwareCoreSystemSalesChannelSalesChannelDefinition, "sales_channel") {
 }
+ForeignTable(ShopwareCoreSystemTaxTaxDefinition, "tax") {
+}
 ForeignTable(ShopwareCoreSystemTagTagDefinition, "tag") {
 }
 ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
@@ -91,6 +95,7 @@ ShopwareCoreCheckoutShippingAggregateShippingMethodTagShippingMethodTagDefinitio
 ShopwareCoreCheckoutShippingShippingMethodDefinition --> ShopwareCoreCheckoutOrderAggregateOrderDeliveryOrderDeliveryDefinition
 ShopwareCoreCheckoutShippingShippingMethodDefinition --> ShopwareCoreSystemSalesChannelAggregateSalesChannelShippingMethodSalesChannelShippingMethodDefinition
 ShopwareCoreCheckoutShippingShippingMethodDefinition --> ShopwareCoreSystemSalesChannelSalesChannelDefinition
+ShopwareCoreCheckoutShippingShippingMethodDefinition --> ShopwareCoreSystemTaxTaxDefinition
 ShopwareCoreCheckoutShippingAggregateShippingMethodTagShippingMethodTagDefinition --> ShopwareCoreSystemTagTagDefinition
 ShopwareCoreCheckoutShippingAggregateShippingMethodPriceShippingMethodPriceDefinition --> ShopwareCoreContentRuleRuleDefinition
 ShopwareCoreCheckoutShippingAggregateShippingMethodTranslationShippingMethodTranslationDefinition --> ShopwareCoreSystemLanguageLanguageDefinition

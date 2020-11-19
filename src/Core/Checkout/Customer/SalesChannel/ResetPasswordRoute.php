@@ -89,29 +89,14 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
      *      summary="Resets password using recovery hash",
      *      operationId="recoveryPassword",
      *      tags={"Store API", "Account"},
-     *      @OA\Parameter(
-     *        name="hash",
-     *        in="body",
-     *        description="Hash from confirmation mail",
-     *        @OA\Schema(type="string"),
-     *      ),
-     *      @OA\Parameter(
-     *        name="newPassword",
-     *        in="body",
-     *        description="new password",
-     *        @OA\Schema(type="string"),
-     *      ),
-     *      @OA\Parameter(
-     *        name="newPasswordConfirm",
-     *        in="body",
-     *        description="new password",
-     *        @OA\Schema(type="string"),
-     *      ),
-     *      @OA\Parameter(
-     *        name="storefrontUrl",
-     *        in="body",
-     *        description="baseurl for the url in mail",
-     *        @OA\Schema(type="string"),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\JsonContent(
+     *              @OA\Property(property="hash", description="Hash from confirmation mail", type="string"),
+     *              @OA\Property(property="newPassword", description="New password", type="string"),
+     *              @OA\Property(property="newPasswordConfirm", description="New password confirm", type="string"),
+     *              @OA\Property(property="storefrontUrl", description="BaseUrl for the url in mail", type="string")
+     *          )
      *      ),
      *      @OA\Response(
      *          response="200",

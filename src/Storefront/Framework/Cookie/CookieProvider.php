@@ -2,9 +2,11 @@
 
 namespace Shopware\Storefront\Framework\Cookie;
 
+use Shopware\Core\Framework\Feature;
+
 class CookieProvider implements CookieProviderInterface
 {
-    private const requiredCookies = [
+    private const REQUIRED_COOKIES = [
         'isRequired' => true,
         'snippet_name' => 'cookie.groupRequired',
         'snippet_description' => 'cookie.groupRequiredDescription',
@@ -31,7 +33,7 @@ class CookieProvider implements CookieProviderInterface
         ],
     ];
 
-    private const statisticalCookies = [
+    private const STATISTICAL_COOKIES = [
         'snippet_name' => 'cookie.groupStatistical',
         'snippet_description' => 'cookie.groupStatisticalDescription',
         'entries' => [
@@ -39,6 +41,17 @@ class CookieProvider implements CookieProviderInterface
                 'snippet_name' => 'cookie.groupStatisticalGoogleAnalytics',
                 'cookie' => 'google-analytics-enabled',
                 'expiration' => '30',
+                'value' => '1',
+            ],
+        ],
+    ];
+
+    private const COMFORT_FEATURES_COOKIES = [
+        'snippet_name' => 'cookie.groupComfortFeatures',
+        'entries' => [
+            [
+                'snippet_name' => 'cookie.groupComfortFeaturesWishlist',
+                'cookie' => 'wishlist-enabled',
                 'value' => '1',
             ],
         ],
@@ -69,14 +82,18 @@ class CookieProvider implements CookieProviderInterface
      *          ]
      *      ]
      * ]
-     *
-     * @return array *
      */
     public function getCookieGroups(): array
     {
-        return [
-            self::requiredCookies,
-            self::statisticalCookies,
+        $cookieGroups = [
+            self::REQUIRED_COOKIES,
+            self::STATISTICAL_COOKIES,
         ];
+
+        if (Feature::isActive('FEATURE_NEXT_10549')) {
+            $cookieGroups[] = self::COMFORT_FEATURES_COOKIES;
+        }
+
+        return $cookieGroups;
     }
 }

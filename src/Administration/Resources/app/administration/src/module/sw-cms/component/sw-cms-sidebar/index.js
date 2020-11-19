@@ -88,6 +88,13 @@ Component.register('sw-cms-sidebar', {
             }
 
             return this.$tc('sw-cms.detail.sidebar.titleSectionSettings');
+        },
+
+        tooltipDisabled() {
+            return {
+                message: this.$tc('sw-cms.detail.tooltip.cannotSelectProductPageLayout'),
+                disabled: this.page.type !== 'product_detail'
+            };
         }
     },
 
@@ -185,7 +192,6 @@ Component.register('sw-cms-sidebar', {
             const newBlock = this.blockRepository.create();
 
             const blockClone = cloneDeep(block);
-            blockClone.id = newBlock.id;
             blockClone.position = block.position + 1;
             blockClone.sectionId = sectionId;
             blockClone.sectionPosition = block.sectionPosition;
@@ -199,8 +205,9 @@ Component.register('sw-cms-sidebar', {
         },
 
         cloneSlotsInBlock(block, newBlock) {
-            block.slots.forEach((slot) => {
+            block.slots.forEach(slot => {
                 const element = this.slotRepository.create();
+                element.id = slot.id;
                 element.blockId = newBlock.id;
                 element.slot = slot.slot;
                 element.type = slot.type;

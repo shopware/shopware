@@ -173,7 +173,10 @@ Component.register('sw-search-bar', {
             this.isActive = true;
             if (!this.searchTerm) {
                 this.showTypeContainer();
-            } else {
+            } else if (
+                this.currentSearchType !== this.initialSearchType ||
+                this.currentSearchType.length <= 0
+            ) {
                 this.showResultsContainer = true;
             }
         },

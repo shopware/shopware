@@ -44,6 +44,19 @@ class CanonicalRedirectServiceTest extends TestCase
         }
     }
 
+    public function testGetRedirectWithQueryParameters(): void
+    {
+        $request = self::getRequest([SalesChannelRequest::ATTRIBUTE_CANONICAL_LINK => '/lorem/ipsum/dolor-sit/amet']);
+        $request->server->set('QUERY_STRING', 'foo=bar');
+
+        $canonicalRedirectService = new CanonicalRedirectService($this->getSystemConfigService(true));
+
+        /** @var RedirectResponse|null $response */
+        $response = $canonicalRedirectService->getRedirect($request);
+
+        static::assertSame('/lorem/ipsum/dolor-sit/amet?foo=bar', $response->getTargetUrl());
+    }
+
     public static function requestDataProvider(): array
     {
         return [

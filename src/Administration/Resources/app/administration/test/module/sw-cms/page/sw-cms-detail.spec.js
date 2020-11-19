@@ -133,4 +133,31 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         const cmsSidebar = wrapper.find('sw-cms-sidebar-stub');
         expect(cmsSidebar.attributes().disabled).toBeUndefined();
     });
+
+    it('should have warning message if there are more than 1 product page element in product page layout', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
+        wrapper.vm.createNotificationError = jest.fn();
+
+        await wrapper.setData({
+            page: {
+                type: 'product_detail',
+                name: 'Product page',
+                sections: [{
+                    blocks: [{
+                        slots: [{ type: 'buy-box' }, { type: 'buy-box' }]
+                    }]
+                }]
+            }
+        });
+
+        const { foundProductPageElements } = wrapper.vm.getSlotValidations(wrapper.vm.page.sections);
+
+        const buyBoxElements = foundProductPageElements.buyBox;
+        const warningMessages = wrapper.vm.getRedundantElementsWarning(foundProductPageElements);
+
+        expect(buyBoxElements).toBe(2);
+        expect(warningMessages.length).toBe(1);
+    });
 });

@@ -30,6 +30,7 @@ Table(ShopwareCoreFrameworkAppAppDefinition, "app\n(Apps)") {
    copyright string
    license string
    not_null(active) bool
+   not_null(configurable) bool
    privacy string
    not_null(version) string
    iconRaw blob
@@ -38,6 +39,7 @@ Table(ShopwareCoreFrameworkAppAppDefinition, "app\n(Apps)") {
    modules list
    label translated
    description translated
+   privacyPolicyExtensions translated
    not_null(integrationId) foreignKey
    not_null(aclRoleId) foreignKey
    not_null(createdAt) createdAt
@@ -47,6 +49,7 @@ Table(ShopwareCoreFrameworkAppAppDefinition, "app\n(Apps)") {
 TranslationTable(ShopwareCoreFrameworkAppAggregateAppTranslationAppTranslationDefinition, "app_translation\n((Translations))") {
    not_null(label) string
    description longText
+   privacyPolicyExtensions longText
    not_null(createdAt) createdAt
    updatedAt updatedAt
    primary_key(appId) foreignKey

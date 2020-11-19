@@ -159,24 +159,11 @@
         text-align: center;
         text-decoration: none;
         color: #fff;
-        background: linear-gradient(to bottom, #7793ae 0%, #6a849c 100%);
+        background: $gradient-action-button;
         border-radius: 4px;
 
-        .sw-cms-el-product-box__buy-action {
-            display: block;
-            margin-top: 10px;
-            line-height: 40px;
-            font-size: 14px;
-            font-weight: bold;
-            text-align: center;
-            text-decoration: none;
-            color: #fff;
-            background: $color-gutenberg;
-            border-radius: 4px;
-
-            &:hover {
-                background: darken($color-gutenberg, 5%);
-            }
+        &:hover {
+            background: darken($color-gutenberg, 5%);
         }
     }
 }

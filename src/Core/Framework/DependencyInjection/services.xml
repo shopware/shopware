@@ -349,7 +349,8 @@ base-uri 'self';
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Twig\EntityTemplateLoader">
-            <argument type="service" id="app_template.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument>%kernel.environment%</argument>
 
             <tag name="twig.loader"/>
             <tag name="kernel.event_subscriber"/>

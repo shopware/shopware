@@ -120,7 +120,13 @@ export default class MediaPageObject {
     deleteFile(fileName) {
         cy.get(`${this.elements.mediaItem} ${this.elements.previewItem}`).should('be.visible');
         cy.get(`${this.elements.mediaItem} ${this.elements.previewItem}`).click({ force: true });
-        cy.get('li.quickaction--delete').should('be.visible');
+        cy.get('.sw-media-sidebar__headline').should('be.visible');
+        cy.get('.sw-media-sidebar__headline').contains(fileName);
+        cy.get('.sw-media-sidebar__quickinfo-scroll-container .sw-media-preview-v2__item')
+            .should('have.attr', 'src')
+            .and('match', new RegExp(fileName));
+
+        // Deletion
         cy.get('li.quickaction--delete').click();
         cy.get(`${this.elements.modal}__body`).contains(`Are you sure you want to delete "${fileName}"?`);
         cy.get('.sw-media-modal-delete__confirm').click();

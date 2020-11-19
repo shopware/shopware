@@ -1,0 +1,91 @@
+{% sw_extends '@Storefront/storefront/component/product/card/box-standard.html.twig' %}
+
+{% block component_product_box_content %}
+    <div class="card-body card-body-wishlist">
+        {{ block('component_product_box_badges') }}
+
+        {{ block('component_product_box_rich_snippets') }}
+
+        {{ block('component_product_box_image') }}
+
+        {% block component_product_box_wishlist_action %}{% endblock %}
+
+        {% block component_product_box_wishlist %}
+            <div class="product-wishlist product-wishlist-remove">
+                {% block component_product_wishlist_remove_form %}
+                    {% set size = size ?? 'md' %}
+
+                    <form action="{{ path('frontend.wishlist.product.delete', {'id': id}) }}"
+                          method="post"
+                          class="product-wishlist-form">
+
+                        {% block component_product_box_wishlist_remove_csrf %}
+                            {{ sw_csrf('frontend.wishlist.product.delete') }}
+                        {% endblock %}
+
+                        {% block component_product_wishlist_remove_redirect %}
+                            <input type="hidden"
+                                   name="redirectTo"
+                                   value="frontend.wishlist.page"/>
+                        {% endblock %}
+
+                        {% block component_product_wishlist_remove_submit %}
+                            <button type="submit" class="btn product-wishlist-btn product-wishlist-btn-remove">
+                                {% sw_icon 'x' style { 'class': 'icon-wishlist icon-wishlist-remove', 'size': size, 'pack': 'solid' } %}
+                            </button>
+                        {% endblock %}
+                    </form>
+                {% endblock %}
+            </div>
+        {% endblock %}
+
+        {% block component_product_box_info %}
+            <div class="product-info product-wishlist-info">
+                {{ block('component_product_box_rating') }}
+
+                {{ block('component_product_box_name') }}
+
+                {{ block('component_product_box_variant_characteristics') }}
+
+                {% block component_product_box_manufacturer %}
+                    <div class="product-wishlist-info-item product-wishlist-info-manufacturer">
+                        {% if product.manufacturer %}
+                            {{ "wishlist.manufacturerDisplayName"|trans|sw_sanitize }}:
+                            <span class="product-wishlist-info-text">{{ product.manufacturer.translated.name }}</span>
+                        {% endif %}
+                    </div>
+                {% endblock %}
+
+                {% block component_product_box_delivery_time %}
+                    <p class="product-wishlist-info-item product-wishlist-info-delivery-time">
+                        {% if product.availableStock >= product.minPurchase and product.deliveryTime %}
+                            <span class="delivery-status-indicator bg-success product-wishlist-info-status"></span>
+
+                            {{ "wishlist.deliveryTimeAvailable"|trans({
+                                '%name%': product.deliveryTime.translated.name
+                            })|sw_sanitize }}
+                        {% endif %}
+                    </p>
+                {% endblock %}
+
+                {% block component_product_box_currently_not_available %}
+                    {% set noLongerAvailable = product.isCloseout and product.availableStock < product.minPurchase %}
+
+                    <p class="product-wishlist-info-item product-wishlist-info-not-available">
+                        {% if not product.available or noLongerAvailable %}
+                            <span class="delivery-status-indicator bg-danger product-wishlist-info-status"></span>
+
+                            {{ "wishlist.currentlyNotAvailable"|trans|sw_sanitize }}
+                        {% endif %}
+                    </p>
+                {% endblock %}
+
+                {{ block('component_product_box_price') }}
+
+                {% block component_product_box_action %}
+                    {% sw_include '@Storefront/storefront/component/wishlist/card/action.html.twig' %}
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}

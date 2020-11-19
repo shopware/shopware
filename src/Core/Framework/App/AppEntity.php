@@ -89,6 +89,11 @@ class AppEntity extends Entity
     /**
      * @var string|null
      */
+    protected $privacyPolicyExtensions;
+
+    /**
+     * @var string|null
+     */
     protected $appSecret;
 
     /**
@@ -100,6 +105,11 @@ class AppEntity extends Entity
      * @var bool
      */
     protected $active;
+
+    /**
+     * @var bool
+     */
+    protected $configurable;
 
     /**
      * @var IntegrationEntity|null
@@ -379,6 +389,16 @@ class AppEntity extends Entity
         $this->active = $active;
     }
 
+    public function isConfigurable(): bool
+    {
+        return $this->configurable;
+    }
+
+    public function setConfigurable(bool $configurable): void
+    {
+        $this->configurable = $configurable;
+    }
+
     public function getActionButtons(): ?ActionButtonCollection
     {
         return $this->actionButtons;
@@ -407,5 +427,15 @@ class AppEntity extends Entity
     public function setTemplates(TemplateCollection $templates): void
     {
         $this->templates = $templates;
+    }
+
+    public function getPrivacyPolicyExtensions(): ?string
+    {
+        return $this->privacyPolicyExtensions;
+    }
+
+    public function setPrivacyPolicyExtensions(?string $privacyPolicyExtensions): void
+    {
+        $this->privacyPolicyExtensions = $privacyPolicyExtensions;
     }
 }

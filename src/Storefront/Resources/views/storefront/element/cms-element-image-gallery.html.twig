@@ -28,6 +28,10 @@
     {# @var mediaItems \Shopware\Core\Content\Media\MediaCollection #}
     {% set imageCount = mediaItems|length %}
 
+    {# too many underneath thumbs or slider dots make them hard to see #}
+    {% set maxItemsToShowMobileNav = 5 %}
+    {% set maxItemsToShowNav = 8 %}
+
     {% set magnifierOptions = [] %}
 
     {% if magnifierOverGallery %}
@@ -211,7 +215,7 @@
 
                                     {% block element_image_gallery_slider_dots %}
                                         {% if imageCount > 1 and navigationDots %}
-                                            <div class="base-slider-dots">
+                                            <div class="base-slider-dots {% if imageCount > maxItemsToShowNav %} hide-dots{% elseif imageCount > maxItemsToShowMobileNav %} hide-dots-mobile{% endif %}">
                                                 {% block element_image_gallery_slider_dots_buttons %}
                                                     {% for image in mediaItems %}
                                                         {% block element_image_gallery_slider_dots_button %}
@@ -231,7 +235,7 @@
                         {% block element_image_gallery_inner_thumbnails_col %}
                             {% if imageCount > 1 %}
                                 <div class="gallery-slider-thumbnails-col{% if galleryPosition == "left" %} col-0 col-md-auto order-2 order-md-1 is-left{% elseif galleryPosition == "underneath" %} col-12 order-2 is-underneath{% endif %}">
-                                    <div class="gallery-slider-thumbnails-container">
+                                    <div class="gallery-slider-thumbnails-container{% if imageCount > maxItemsToShowNav and galleryPosition == "underneath" %} hide-thumbs{% endif %}">
                                         {% block element_image_gallery_inner_thumbnails %}
                                             <div class="gallery-slider-thumbnails{% if galleryPosition == "underneath" %} is-underneath{% endif %}"
                                                  data-gallery-slider-thumbnails="true">

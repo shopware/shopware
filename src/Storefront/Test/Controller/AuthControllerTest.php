@@ -13,7 +13,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -112,13 +111,11 @@ class AuthControllerTest extends TestCase
 
         $session = $browser->getRequest()->getSession();
 
-        Feature::skipTestIfActive('FEATURE_NEXT_10058', $this);
-
         $newContextToken = $session->get('sw-context-token');
-        static::assertSame($contextToken, $newContextToken);
+        static::assertNotEquals($contextToken, $newContextToken);
 
         $newSessionId = $session->getId();
-        static::assertSame($sessionId, $newSessionId);
+        static::assertNotEquals($sessionId, $newSessionId);
     }
 
     public function testRedirectToAccountPageAfterLogin(): void
@@ -135,7 +132,6 @@ class AuthControllerTest extends TestCase
 
     public function testSessionIsMigratedOnLogOut(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10058', $this);
         $browser = $this->login();
 
         $session = $browser->getRequest()->getSession();
@@ -161,8 +157,6 @@ class AuthControllerTest extends TestCase
 
     public function testOneUserUseOneContextAcrossSessions(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10058', $this);
-
         $browser = $this->login();
 
         $systemConfig = $this->getContainer()->get(SystemConfigService::class);
@@ -200,7 +194,6 @@ class AuthControllerTest extends TestCase
 
     public function testMergedHintIsAdded(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10058', $this);
         $customer = $this->createCustomer();
         $contextToken = Uuid::randomHex();
         $productId = Uuid::randomHex();

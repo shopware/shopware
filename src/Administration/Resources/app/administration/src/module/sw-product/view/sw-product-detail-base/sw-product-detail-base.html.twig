@@ -106,6 +106,31 @@
             </sw-card>
         {% endblock %}
 
+        <template v-if="feature.isActive('FEATURE_NEXT_10078')">
+            {% block sw_product_detail_base_layout %}
+                <sw-card :title="$tc('sw-product.detailBase.cardTitleLayout')" :isLoading="loading.product">
+                    {% block sw_product_detail_base_layout_content %}
+                        <sw-product-layout-assignment
+                            :cmsPage="cmsPage"
+                            @modal-layout-open="openLayoutModal"
+                            @button-edit-click="openInPageBuilder"
+                            @button-delete-click="onLayoutReset">
+                        </sw-product-layout-assignment>
+                    {% endblock %}
+
+                    {% block sw_product_detail_base_layout_modal %}
+                        <sw-cms-layout-modal
+                            v-if="showLayoutModal"
+                            :headline="$tc('sw-product.layoutAssignment.subtitle')"
+                            :cmsPageTypes="['product_detail']"
+                            @modal-layout-select="onLayoutSelect"
+                            @modal-close="closeLayoutModal">
+                        </sw-cms-layout-modal>
+                    {% endblock %}
+                </sw-card>
+            {% endblock %}
+        </template>
+
         {% block sw_product_detail_base_settings_seo_settings %}
             {% block sw_product_detail_base_settings_seo_settings_general %}
                 <sw-card :title="$tc('sw-product.detailBase.cardTitleSeo')" :isLoading="loading.product">

@@ -710,3 +710,24 @@ POST /store-api/v3/customer/wishlist
     }
 }
 ```
+## Merge wishlist products from guest users into registered users
+To merge wishlist product from anonymous users into registered users you use the following route: `store-api.customer.wishlist.merge`
+The `productIds` parameter allows you to post an array of product ids.
+
+**Note** that you need the `sw-context-token` header for this route, which contains the context token of the login route response.
+
+```
+POST /store-api/v3/customer/wishlist/merge
+
+{
+    "productIds": [
+        "e05a128cd0a04806a236e8efa419a813",
+        ...
+    ]
+}
+
+{
+    "success": true,
+    "apiAlias": "array_struct"
+}
+```

@@ -72,26 +72,17 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
      *      summary="set payment for an order",
      *      operationId="orderSetPayment",
      *      tags={"Store API", "Account"},
-     *      @OA\Parameter(
-     *          name="paymentMethodId",
-     *          in="post",
+     *      @OA\RequestBody(
      *          required=true,
-     *          description="The id of the paymentMethod to be set",
-     *          @OA\Schema(
-     *              type="string"
-     *          )
-     *      ),
-     *      @OA\Parameter(
-     *          name="orderId",
-     *          in="post",
-     *          required=true,
-     *          description="The id of the order",
-     *          @OA\Schema(
-     *              type="string"
+     *          @OA\JsonContent(
+     *              @OA\Property(property="paymentMethodId", description="The id of the paymentMethod to be set", type="string"),
+     *              @OA\Property(property="orderId", description="The id of the order", type="string")
      *          )
      *      ),
      *      @OA\Response(
-     *          response="200"
+     *          response="200",
+     *          description="Successfully set a payment",
+     *          @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
      * @Route(path="/store-api/v{version}/order/payment", name="store-api.order.set-payment", methods={"POST"})

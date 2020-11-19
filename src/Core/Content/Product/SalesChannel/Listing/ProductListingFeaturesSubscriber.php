@@ -31,7 +31,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -493,18 +492,13 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
 
     private function getLimit(Request $request, SalesChannelContext $context): int
     {
-        $limit = $request->query->getInt('limit', 24);
-        if (Feature::isActive('FEATURE_NEXT_10554')) {
-            $limit = $request->query->getInt('limit', 0);
-        }
+        $limit = $request->query->getInt('limit', 0);
 
         if ($request->isMethod(Request::METHOD_POST)) {
             $limit = $request->request->getInt('limit', $limit);
         }
 
-        if (Feature::isActive('FEATURE_NEXT_10554')) {
-            $limit = $limit > 0 ? $limit : $this->systemConfigService->getInt('core.listing.productsPerPage', $context->getSalesChannel()->getId());
-        }
+        $limit = $limit > 0 ? $limit : $this->systemConfigService->getInt('core.listing.productsPerPage', $context->getSalesChannel()->getId());
 
         return $limit <= 0 ? 24 : $limit;
     }

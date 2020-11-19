@@ -338,7 +338,16 @@ export default function createLoginService(httpClient, context, bearerAuth = nul
      * @returns {CookieStorage}
      */
     function cookieStorageFactory() {
-        const domain = context.host;
+        let domain;
+
+        if (typeof window === 'object') {
+            domain = window.location.hostname;
+        } else {
+            // eslint-disable-next-line no-restricted-globals
+            const url = new URL(self.location.origin);
+            domain = url.hostname;
+        }
+
         const path = context.basePath + context.pathInfo;
 
         // Set default cookie values

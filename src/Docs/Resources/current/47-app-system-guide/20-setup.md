@@ -63,8 +63,8 @@ It provides all the information concerning your app, as seen in the minimal vers
         <author>Your Company Ltd.</author>
         <copyright>(c) by Your Company Ltd.</copyright>
         <version>1.0.0</version>
+        <license>MIT</license>
     </meta>
-    <permissions/>
 </manifest>
 ```
 
@@ -88,7 +88,7 @@ attribute
 * `icon`: Optional, you can set the path to an icon that should be shown for your app, the icon needs to a `png` file.
 * `license`
 * `privacy`: Optional, in this element you can link to your privacy policy
-
+* `privacyPolicyExtensions`: Optional, in this element you can describe the changes the shop owner needs to apply to his shops privacy policy, e.g. because you process personal information on an external server.
 ### Authorisation
 
 Because the app uses the api for all its interactions, it needs credentials to gain full API access to the shop.

@@ -28,5 +28,33 @@ class MetadataTest extends TestCase
             'en-GB' => 'Test for App System',
             'de-DE' => 'Test für das App System',
         ], $metaData->getDescription());
+        static::assertEquals([
+            'en-GB' => 'Following personal information will be processed on shopware AG\'s servers:
+
+- Name
+- Billing address
+- Order value',
+            'de-DE' => 'Folgende Nutzerdaten werden auf Servern der shopware AG verarbeitet:
+
+- Name
+- Rechnungsadresse
+- Bestellwert',
+        ], $metaData->getPrivacyPolicyExtensions());
+    }
+
+    public function testFromXmlWithoutDescription(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/manifestWithoutDescription.xml');
+
+        $metaData = $manifest->getMetadata();
+
+        static::assertEquals([
+            'en-GB' => 'Swag App Test',
+            'de-DE' => 'Swag App Test',
+        ], $metaData->getLabel());
+        static::assertEquals([], $metaData->getDescription());
+
+        $array = $metaData->toArray('en-GB');
+        static::assertEquals([], $array['description']);
     }
 }

@@ -14,6 +14,7 @@ abstract class AbstractLogoutRoute
 
     /**
      * @deprecated tag:v6.4.0 - Parameter $data will be mandatory in future implementation
+     * @deprecated tag:v6.4.0 - Return typehint will be set to ContextTokenResponse in v6.4.0
      */
     abstract public function logout(SalesChannelContext $context/*, ?RequestDataBag $data = null*/);
 }

@@ -234,7 +234,7 @@ Component.register('sw-settings-snippet-list', {
                 const snippet = result[item.id];
                 snippet.value = Sanitizer.sanitize(snippet.value);
 
-                if (!snippet.value || snippet.value.length === 0) {
+                if (!snippet.value && typeof snippet.value !== 'string') {
                     snippet.value = snippet.origin;
                 }
 

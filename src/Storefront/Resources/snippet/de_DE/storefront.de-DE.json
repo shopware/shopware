@@ -46,7 +46,8 @@
     "searchResults": "{1} 1 Ergebnis|]1,Inf[ %count% Ergebnisse",
     "supportInfo": "<strong>Fragen zu Ihrer Bestellung?</strong><br /><strong><a href=\"tel:+4912345-123456789\">12345-123456789</a></strong> <small>Täglich 7:30 bis 22:00 Uhr</small>",
     "indexLinkService": "Service/Hilfe",
-    "searchNoResult": "Keine Suchergebnisse gefunden."
+    "searchNoResult": "Keine Suchergebnisse gefunden.",
+    "wishlist": "Merkzettel"
   },
   "error": {
     "VIOLATION::IS_BLANK_ERROR": "%field% darf nicht leer sein.",
@@ -392,7 +393,8 @@
     "customerCommentHeader": "Zusätzliche Informationen",
     "customerCommentLabel": "Möchten Sie uns etwas über Ihre Bestellung mitteilen?",
     "customerCommentPlaceholder": "Kommentieren Sie hier ...",
-    "cart-merged-hint": "Der aktuelle Warenkorb enthält u.U. zusätzliche Produkte, die noch von einem früheren Besuch gespeichert waren."
+    "cart-merged-hint": "Der aktuelle Warenkorb enthält u.U. zusätzliche Produkte, die noch von einem früheren Besuch gespeichert waren.",
+    "product-not-found": "Das Produkt wurde nicht gefunden."
   },
   "listing": {
     "filterTitleText": "Filter",
@@ -420,7 +422,12 @@
     "filterRangeErrorMessage": "Der Mindestpreis darf nicht höher sein als der Höchstpreis.",
     "filterSubmitText": "Filter",
     "defaultProductSortingLabel": "Name A-Z",
-    "disabledFilterTooltip": "Dieser Filter zeigt in Kombination mit den ausgewählten Filtern keine weiteren Ergebnisse an."
+    "disabledFilterTooltip": "Dieser Filter zeigt in Kombination mit den ausgewählten Filtern keine weiteren Ergebnisse an.",
+    "beforeListPrice": "",
+    "afterListPrice": "",
+    "addToWishlist": "Zum Merkzettel hinzufügen",
+    "addedToWishlist": "Zum Merkzettel hinzugefügt",
+    "toggleWishlist": "Merkzettel ein-/ausschalten"
   },
   "newsletter": {
     "headline": "Newsletter abonnieren",
@@ -513,6 +520,14 @@
     "reviewAvgRate": "von",
     "reviewAvgRateElements": "Sternen"
   },
+  "wishlist": {
+    "headline": "Ihr Merkzettel",
+    "itemDeleteSuccess": "Sie haben das Produkt erfolgreich vom Merkzettel entfernt.",
+    "currentlyNotAvailable": "Derzeit nicht verfügbar",
+    "manufacturerDisplayName": "Hersteller",
+    "deliveryTimeAvailable": "Sofort verfügbar, Lieferzeit %name%",
+    "noLongerAvailableTooltip": "Das Produkt ist nicht mehr verfügbar."
+  },
   "footer": {
     "serviceHotlineHeadline": "Service-Hotline",
     "shopServiceHeadline": "Shop-Service",
@@ -541,7 +556,9 @@
     "groupRequiredTimezone": "Zeitzone",
     "groupStatistical": "Statistiken",
     "groupStatisticalDescription": "Für Statistiken und Shop-Performance-Metriken genutzte Cookies.",
-    "groupStatisticalGoogleAnalytics": "Google Analytics"
+    "groupStatisticalGoogleAnalytics": "Google Analytics",
+    "groupComfortFeatures": "Komfortfunktionen",
+    "groupComfortFeaturesWishlist": "Merkzettel"
   },
   "ellipsis": {
     "expandLabel": "mehr anzeigen",

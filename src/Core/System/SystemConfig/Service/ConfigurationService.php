@@ -2,10 +2,15 @@
 
 namespace Shopware\Core\System\SystemConfig\Service;
 
-use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
-use Shopware\Core\System\SystemConfig\Exception\BundleNotFoundException;
+use Shopware\Core\System\SystemConfig\Exception\ConfigurationNotFoundException;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 
@@ -22,21 +27,43 @@ class ConfigurationService
     private $configReader;
 
     /**
+     * @var AbstractAppLoader
+     */
+    private $appLoader;
+
+    /**
+     * @var EntityRepositoryInterface
+     */
+    private $appRepository;
+
+    /**
      * @param BundleInterface[] $bundles
      */
-    public function __construct(iterable $bundles, ConfigReader $configReader)
-    {
+    public function __construct(
+        iterable $bundles,
+        ConfigReader $configReader,
+        AbstractAppLoader $appLoader,
+        EntityRepositoryInterface $appRepository
+    ) {
         $this->bundles = $bundles;
         $this->configReader = $configReader;
+        $this->appLoader = $appLoader;
+        $this->appRepository = $appRepository;
     }
 
     /**
-     * @throws BundleNotFoundException
+     * @throws ConfigurationNotFoundException
      * @throws \InvalidArgumentException
      * @throws BundleConfigNotFoundException
+     *
+     * @deprecated tag:v6.4.0 $context param will be required
      */
-    public function getConfiguration(string $domain): array
+    public function getConfiguration(string $domain, ?Context $context = null): array
     {
+        if (!$context) {
+            $context = Context::createDefaultContext();
+        }
+
         $validDomain = preg_match('/^([\w-]+)\.?([\w-]*)$/', $domain, $match);
 
         if (!$validDomain) {
@@ -46,28 +73,27 @@ class ConfigurationService
         $scope = $match[1];
         $configName = $match[2] !== '' ? $match[2] : null;
 
-        $bundle = $this->getBundle($scope === 'core' ? 'System' : $scope);
-
-        if (!($bundle instanceof Bundle)) {
-            throw new BundleNotFoundException($scope);
+        $config = $this->fetchConfiguration($scope === 'core' ? 'System' : $scope, $configName, $context);
+        if (!$config) {
+            throw new ConfigurationNotFoundException($scope);
         }
-
-        $config = $this->configReader->getConfigFromBundle($bundle, $configName);
 
         $domain = rtrim($domain, '.') . '.';
 
         foreach ($config as $i => $card) {
+            if (\array_key_exists('flag', $card) && !Feature::isActive($card['flag'])) {
+                unset($config[$i]);
+
+                continue;
+            }
+
             foreach ($card['elements'] as $j => $field) {
                 $newField = ['name' => $domain . $field['name']];
 
-                if (\array_key_exists('flag', $field)) {
-                    try {
-                        if (!Feature::isActive($field['flag'])) {
-                            continue;
-                        }
-                    } catch (\RuntimeException $e) {
-                        continue;
-                    }
+                if (\array_key_exists('flag', $field) && !Feature::isActive($field['flag'])) {
+                    unset($card['elements'][$j]);
+
+                    continue;
                 }
 
                 if (array_key_exists('type', $field)) {
@@ -87,26 +113,45 @@ class ConfigurationService
         return $config;
     }
 
-    public function checkConfiguration(string $domain): bool
+    /**
+     * @deprecated tag:v6.4.0 $context param will be required
+     */
+    public function checkConfiguration(string $domain, ?Context $context = null): bool
     {
         try {
-            $this->getConfiguration($domain);
+            $this->getConfiguration($domain, $context);
 
             return true;
-        } catch (\InvalidArgumentException | BundleNotFoundException | BundleConfigNotFoundException $e) {
+        } catch (\InvalidArgumentException | ConfigurationNotFoundException | BundleConfigNotFoundException $e) {
             return false;
         }
     }
 
-    private function getBundle(string $bundleName): ?BundleInterface
+    private function fetchConfiguration(string $scope, ?string $configName, Context $context): ?array
     {
-        $class = array_slice(explode('\\', $bundleName), -1)[0];
+        $technicalName = array_slice(explode('\\', $scope), -1)[0];
         foreach ($this->bundles as $bundle) {
-            if ($bundle->getName() === $class) {
-                return $bundle;
+            if ($bundle->getName() === $technicalName) {
+                return $this->configReader->getConfigFromBundle($bundle, $configName);
             }
         }
 
+        $app = $this->getAppByName($technicalName, $context);
+        if ($app) {
+            return $this->appLoader->getConfiguration($app);
+        }
+
         return null;
+    }
+
+    private function getAppByName(string $name, Context $context): ?AppEntity
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('name', $name));
+
+        /** @var AppEntity|null $result */
+        $result = $this->appRepository->search($criteria, $context)->first();
+
+        return $result;
     }
 }

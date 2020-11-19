@@ -11,7 +11,6 @@ use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -95,15 +94,15 @@ class LogoutRouteTest extends TestCase
             ->request(
                 'POST',
                 '/store-api/v' . PlatformRequest::API_VERSION . '/account/logout',
-                [],
+                [
+                    'replace-token' => true,
+                ],
                 [],
                 [
                 ]
             );
 
-        Feature::skipTestIfActive('FEATURE_NEXT_10058', $this);
-
-        static::assertSame(204, $this->browser->getResponse()->getStatusCode());
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
 
         $this->browser
             ->request(
@@ -122,8 +121,6 @@ class LogoutRouteTest extends TestCase
 
     public function testLoggedOutUpdateCustomerContextWithReplaceTokenParameter(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10058', $this);
-
         $systemConfig = $this->getContainer()->get(SystemConfigService::class);
         $systemConfig->set('core.loginRegistration.invalidateSessionOnLogOut', false);
 
@@ -173,8 +170,6 @@ class LogoutRouteTest extends TestCase
 
     public function testLoggedOutKeepCustomerContextWithoutReplaceTokenParameter(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10058', $this);
-
         $systemConfig = $this->getContainer()->get(SystemConfigService::class);
         $systemConfig->set('core.loginRegistration.invalidateSessionOnLogOut', false);
 
@@ -217,8 +212,6 @@ class LogoutRouteTest extends TestCase
 
     public function testLogoutRouteReturnContextTokenResponse(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_10058', $this);
-
         $systemConfig = $this->getContainer()->get(SystemConfigService::class);
         $systemConfig->set('core.loginRegistration.invalidateSessionOnLogOut', false);
 

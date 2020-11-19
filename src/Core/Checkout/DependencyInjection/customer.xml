@@ -40,7 +40,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Password\LegacyPasswordVerifier"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\SwitchDefaultAddressRoute"/>
-            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer" on-invalid="null"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\SalesChannelCustomerController" public="true">
@@ -146,7 +146,7 @@
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
             <argument type="service" id="customer.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Password\LegacyPasswordVerifier"/>
-            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer" on-invalid="null"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute" public="true">
@@ -301,6 +301,15 @@
 
         <service id="Shopware\Core\Checkout\Customer\DataAbstractionLayer\CustomerWishlistProductExceptionHandler">
             <tag name="shopware.dal.exception_handler"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_10549"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\SalesChannel\MergeWishlistProductsRoute" public="true">
+            <argument type="service" id="customer_wishlist.repository"/>
+            <argument type="service" id="sales_channel.product.repository"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="shopware.feature" flag="FEATURE_NEXT_10549"/>
         </service>
     </services>

@@ -279,6 +279,7 @@ class Kernel extends HttpKernel
                 'kernel.supported_api_versions' => [2, 3],
                 'defaults_bool_true' => true,
                 'defaults_bool_false' => false,
+                'default_whitespace' => ' ',
             ]
         );
     }

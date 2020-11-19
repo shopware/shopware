@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\FeatureFlag;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\FeatureFlagExtension;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
@@ -14,6 +15,10 @@ class FeatureTest extends TestCase
     use KernelTestBehaviour;
 
     public static $featureAllValue;
+
+    public static $appEnvValue;
+
+    public static $customCacheId = 'beef3f0ee9c61829627676afd6294bb029';
 
     private $indicator;
 
@@ -25,21 +30,35 @@ class FeatureTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         self::$featureAllValue = $_SERVER['FEATURE_ALL'] ?? 'false';
+        self::$appEnvValue = $_ENV['APP_ENV'] ?? $_SERVER['APP_ENV'];
+        KernelLifecycleManager::bootKernel(true, self::$customCacheId);
     }
 
     public static function tearDownAfterClass(): void
     {
         $_ENV['FEATURE_ALL'] = $_SERVER['FEATURE_ALL'] = self::$featureAllValue;
+        $_ENV['APP_ENV'] = $_SERVER['APP_ENV'] = self::$appEnvValue;
+        KernelLifecycleManager::bootKernel(true, self::$customCacheId);
     }
 
     protected function setUp(): void
     {
         $_ENV['FEATURE_ALL'] = $_SERVER['FEATURE_ALL'] = 'false';
         $_SERVER['APP_ENV'] = 'test';
+
+        unset($_SERVER['FEATURE_NEXT_101']);
+        unset($_SERVER['FEATURE_NEXT_102']);
+
         Feature::setRegisteredFeatures(
             $this->getContainer()->getParameter('shopware.feature.flags'),
             $this->getContainer()->getParameter('kernel.cache_dir') . '/shopware_features.php'
         );
+    }
+
+    protected function tearDown(): void
+    {
+        $_ENV['APP_ENV'] = $_SERVER['APP_ENV'] = self::$appEnvValue;
+        KernelLifecycleManager::bootKernel(true, self::$customCacheId);
     }
 
     public function testABoolGetsReturned(): void
@@ -118,6 +137,9 @@ class FeatureTest extends TestCase
 
     public function testTwigFeatureFlagNotRegistered(): void
     {
+        $_ENV['APP_ENV'] = $_SERVER['APP_ENV'] = 'test';
+        KernelLifecycleManager::bootKernel(true, self::$customCacheId);
+
         $loader = new FilesystemLoader(__DIR__ . '/_fixture/');
         $twig = new Environment($loader, [
             'cache' => false,
@@ -125,12 +147,53 @@ class FeatureTest extends TestCase
         $twig->addExtension(new FeatureFlagExtension());
         $template = $twig->loadTemplate('featuretest_unregistered.html.twig');
 
-        if ($_SERVER['APP_ENV'] !== 'prod') {
-            $this->expectNoticeMessageMatches('/.*FEATURE_RANDOMFLAGTHATISNOTREGISTERDE_471112.*/');
-        } else {
-            static::assertTrue(true, 'No Notice in prod mode');
-        }
+        $this->expectNoticeMessageMatches('/.*FEATURE_RANDOMFLAGTHATISNOTREGISTERDE_471112.*/');
+
         $template->render([]);
+    }
+
+    public function testTwigFeatureFlagNotRegisteredInProd(): void
+    {
+        $_ENV['APP_ENV'] = $_SERVER['APP_ENV'] = 'prod';
+        KernelLifecycleManager::bootKernel(true, self::$customCacheId);
+
+        $loader = new FilesystemLoader(__DIR__ . '/_fixture/');
+        $twig = new Environment($loader, [
+            'cache' => false,
+        ]);
+        $twig->addExtension(new FeatureFlagExtension());
+        $template = $twig->loadTemplate('featuretest_unregistered.html.twig');
+
+        static::assertTrue(true, 'No Notice in prod mode');
+
+        $template->render([]);
+    }
+
+    public function featureAllDataProvider(): array
+    {
+        return [
+            ['dev', true],
+            ['dev', false],
+            ['test', true],
+            ['test', false],
+            ['prod', true],
+            ['prod', false],
+        ];
+    }
+
+    /**
+     * @dataProvider featureAllDataProvider
+     */
+    public function testFeatureAll(string $appEnv, bool $active): void
+    {
+        $_SERVER['FEATURE_NEXT_102'] = 'true';
+
+        $_ENV['APP_ENV'] = $_SERVER['APP_ENV'] = $appEnv;
+        $_ENV['FEATURE_ALL'] = $_SERVER['FEATURE_ALL'] = $active;
+
+        $this->setUpFixtures();
+        static::assertSame($active, Feature::isActive('FEATURE_NEXT_101'));
+        static::assertTrue(Feature::isActive('FEATURE_NEXT_102'));
     }
 
     private function setUpFixtures(): void

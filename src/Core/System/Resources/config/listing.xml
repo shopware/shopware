@@ -49,9 +49,9 @@
             <name>productsPerPage</name>
             <label>Number of products per page</label>
             <label lang="de-DE">Anzahl der Produkte pro Seite</label>
-            <helpText>The number of products displayed on a single page in the storefront.</helpText>
-            <helpText lang="de-DE">Die Anzahl der Produkte die auf einer Seite in der Storefront angezeigt werden.</helpText>
-            <flag>FEATURE_NEXT_10554</flag>
+            <helpText>The number of products displayed on a search page or in a product list per page in the storefront.</helpText>
+            <helpText lang="de-DE">Die Anzahl der Produkte die auf einer Suchseite oder in einer Produktliste je Seite in der Storefront angezeigt werden.</helpText>
+            <min>1</min>
         </input-field>
     </card>
 </config>

@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowEmptyString;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
@@ -26,7 +27,7 @@ class StringFieldSerializer extends AbstractFieldSerializer
             throw new InvalidSerializerFieldException(StringField::class, $field);
         }
 
-        if ($data->getValue() === '') {
+        if ($data->getValue() === '' && !$field->is(AllowEmptyString::class)) {
             $data->setValue(null);
         }
 
@@ -52,10 +53,15 @@ class StringFieldSerializer extends AbstractFieldSerializer
      */
     protected function getConstraints(Field $field): array
     {
-        return [
-            new NotBlank(),
+        $constraints = [
             new Type('string'),
             new Length(['max' => $field->getMaxLength()]),
         ];
+
+        if (!$field->is(AllowEmptyString::class)) {
+            $constraints[] = new NotBlank();
+        }
+
+        return $constraints;
     }
 }

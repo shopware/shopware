@@ -14,6 +14,13 @@ class Migration1600676671OrderLineItemCoverMedia extends MigrationStep
 
     public function update(Connection $connection): void
     {
+        $connection->executeUpdate(
+            'UPDATE order_line_item
+                LEFT JOIN media ON media.id = order_line_item.cover_id
+             SET cover_id = NULL
+             WHERE media.id IS NULL'
+        );
+
         $sql = <<<SQL
             ALTER TABLE `order_line_item`
             DROP FOREIGN KEY `fk.order_line_item.cover_id`

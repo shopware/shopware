@@ -45,7 +45,12 @@ class CartDeleteRoute extends AbstractCartDeleteRoute
      *      path="/checkout/cart",
      *      summary="Delete the cart",
      *      operationId="deleteCart",
-     *      tags={"Store API", "Cart"}
+     *      tags={"Store API", "Cart"},
+     *      @OA\Response(
+     *          response="204",
+     *          description="Successfully deleted the cart",
+     *          @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
+     *     )
      * )
      * @Route("/store-api/v{version}/checkout/cart", name="store-api.checkout.cart.delete", methods={"DELETE"})
      */

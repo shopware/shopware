@@ -22,6 +22,11 @@ class AppTranslationEntity extends Entity
     protected $description;
 
     /**
+     * @var string|null
+     */
+    protected $privacyPolicyExtensions;
+
+    /**
      * @var \DateTimeInterface
      */
     protected $createdAt;
@@ -69,6 +74,16 @@ class AppTranslationEntity extends Entity
     public function setDescription(?string $description): void
     {
         $this->description = $description;
+    }
+
+    public function getPrivacyPolicyExtensions(): ?string
+    {
+        return $this->privacyPolicyExtensions;
+    }
+
+    public function setPrivacyPolicyExtensions(?string $privacyPolicyExtensions): void
+    {
+        $this->privacyPolicyExtensions = $privacyPolicyExtensions;
     }
 
     public function getCreatedAt(): ?\DateTimeInterface

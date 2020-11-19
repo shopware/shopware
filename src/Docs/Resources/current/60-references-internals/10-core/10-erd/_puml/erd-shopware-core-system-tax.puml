@@ -58,6 +58,8 @@ TranslationTable(ShopwareCoreSystemTaxAggregateTaxRuleTypeTranslationTaxRuleType
 }
 ForeignTable(ShopwareCoreContentProductProductDefinition, "product") {
 }
+ForeignTable(ShopwareCoreCheckoutShippingShippingMethodDefinition, "shipping_method") {
+}
 ForeignTable(ShopwareCoreSystemCountryCountryDefinition, "country") {
 }
 ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
@@ -67,6 +69,7 @@ ForeignTable(ShopwareCoreSystemLanguageLanguageDefinition, "language") {
 
 ShopwareCoreSystemTaxTaxDefinition --> ShopwareCoreContentProductProductDefinition
 ShopwareCoreSystemTaxAggregateTaxRuleTaxRuleDefinition --> ShopwareCoreSystemTaxTaxDefinition
+ShopwareCoreSystemTaxTaxDefinition --> ShopwareCoreCheckoutShippingShippingMethodDefinition
 ShopwareCoreSystemTaxAggregateTaxRuleTypeTaxRuleTypeDefinition --> ShopwareCoreSystemTaxAggregateTaxRuleTaxRuleDefinition
 ShopwareCoreSystemTaxAggregateTaxRuleTaxRuleDefinition --> ShopwareCoreSystemCountryCountryDefinition
 ShopwareCoreSystemTaxAggregateTaxRuleTypeTranslationTaxRuleTypeTranslationDefinition --> ShopwareCoreSystemTaxAggregateTaxRuleTypeTaxRuleTypeDefinition

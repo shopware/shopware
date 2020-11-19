@@ -70,6 +70,7 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
      *      summary="",
      *      operationId="saveProductReview",
      *      tags={"Store API","Product"},
+     *      @OA\Parameter(name="productId", description="Product ID", @OA\Schema(type="string"), in="path", required=true),
      *      @OA\Response(
      *          response="200",
      *          description="Success",

@@ -106,6 +106,7 @@ Component.register('sw-order-product-select', {
                     ? newProduct.price[0].gross
                     : newProduct.price[0].net;
                 this.item.priceDefinition.type = this.lineItemPriceTypes.QUANTITY;
+                this.item.price.taxRules[0].taxRate = newProduct.tax.taxRate;
                 this.item.price.unitPrice = '...';
                 this.item.price.totalPrice = '...';
                 this.item.price.quantity = 1;

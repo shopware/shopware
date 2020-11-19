@@ -96,9 +96,22 @@ class CartStoreService extends ApiService {
         return `_proxy/store-api/${salesChannelId}/v${this.getApiVersion()}/checkout/cart/line-item`;
     }
 
+    shouldPriceUpdated(item, isNewProductItem) {
+        const isUnitPriceEdited = item.price.unitPrice !== item.priceDefinition.price;
+        const isTaxRateEdited = item.price.taxRules[0].taxRate !== item.priceDefinition.taxRules[0].taxRate;
+        const isCustomItem = item.type === this.getLineItemTypes().CUSTOM;
+
+        const isExistingProductAndUnitPriceIsEdited = !isNewProductItem && isUnitPriceEdited;
+
+        if ((isExistingProductAndUnitPriceIsEdited || isTaxRateEdited) || (isCustomItem && !isUnitPriceEdited)) {
+            return true;
+        }
+        return false;
+    }
+
     getPayloadForItem(item, salesChannelId, isNewProductItem, id) {
         let dummyPrice = null;
-        if (!isNewProductItem && item.price.unitPrice !== item.priceDefinition.price) {
+        if (this.shouldPriceUpdated(item, isNewProductItem)) {
             dummyPrice = deepCopyObject(item.priceDefinition);
             dummyPrice.taxRules = item.priceDefinition.taxRules;
             dummyPrice.quantity = item.quantity;

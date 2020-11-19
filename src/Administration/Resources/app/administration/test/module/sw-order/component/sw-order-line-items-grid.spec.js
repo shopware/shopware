@@ -391,4 +391,29 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         expect(columnVat.exists()).toBe(false);
         expect(columnTotalPrice.text()).toEqual('sw-order.detailBase.columnPriceTaxFree');
     });
+
+    it('should automatically set price definition quantity value of custom item when the user enters a change quantity value', async () => {
+        const wrapper = createWrapper({});
+
+        await wrapper.setProps({
+            order: {
+                ...wrapper.props().order,
+                lineItems: [...mockItems]
+            },
+            editable: true
+        });
+
+        const productItem = wrapper.vm.order.lineItems[0];
+        wrapper.vm.updateItemQuantity(productItem);
+
+        expect(productItem).toMatchObject(productItem);
+
+        const customItem = wrapper.vm.order.lineItems[1];
+
+        expect(customItem.priceDefinition).toMatchObject(customItem.priceDefinition);
+
+        wrapper.vm.updateItemQuantity(customItem);
+
+        expect(customItem.priceDefinition.quantity === customItem.quantity).toEqual(true);
+    });
 });

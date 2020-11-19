@@ -189,6 +189,7 @@ EOL;
     "app/storefront/dist/storefront/js/#snake-case#.js"
   ],
   "asset": [
+    "@Storefront",
     "app/storefront/src/assets"
   ]
 }

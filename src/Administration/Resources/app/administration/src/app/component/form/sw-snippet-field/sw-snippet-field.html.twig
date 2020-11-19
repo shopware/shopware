@@ -1,0 +1,29 @@
+{% block sw_snippet_field %}
+    <div class="sw-snippet-field">
+        <sw-field v-bind="$attrs"
+                  :value="textValue"
+                  :type="fieldType"
+                  disabled>
+        </sw-field>
+
+        <sw-loader v-if="isLoading" size="16px"></sw-loader>
+        <sw-icon v-else
+                 class="sw-snippet-field__icon"
+                 name="default-object-globe"
+                 small
+                 v-tooltip="{
+                    message: $tc('global.sw-snippet-field.tooltip'),
+                 }"
+                 @click="openEditModal">
+        </sw-icon>
+
+        <sw-snippet-field-edit-modal v-if="showEditModal"
+                                     :snippets="snippets"
+                                     :snippetSets="snippetSets"
+                                     :translationKey="snippet"
+                                     :fieldType="fieldType"
+                                     @modal-close="closeEditModal"
+                                     @save="onSave">
+        </sw-snippet-field-edit-modal>
+    </div>
+{% endblock %}

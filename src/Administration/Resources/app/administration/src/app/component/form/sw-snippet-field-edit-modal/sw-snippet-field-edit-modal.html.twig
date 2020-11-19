@@ -1,0 +1,49 @@
+{% block sw_snippet_field_edit_modal %}
+    <sw-modal class="sw-snippet-field-edit-modal"
+              :title="modalTitle"
+              :isLoading="isLoading"
+              @modal-close="closeModal">
+        {% block sw_snippet_field_edit_modal_body %}
+            {% block sw_snippet_field_edit_modal_name_field %}
+                <sw-field type="text"
+                          :value="translationKey"
+                          disabled
+                          :label="$tc('global.sw-snippet-field-edit-modal.labelName')">
+                </sw-field>
+            {% endblock %}
+            {% block sw_snippet_field_edit_modal_snippet_fields %}
+                <sw-field :type="fieldType"
+                          v-for="(snippet, index) in editableSnippets"
+                          v-model="snippet.value"
+                          :class="`sw-snippet-field-edit-modal__translation-field--${index}`"
+                          :key="snippet.setId"
+                          :disabled="!acl.can('snippet.editor')"
+                          v-tooltip.bottom="getNoPermissionsTooltip('snippet.editor')"
+                          :label="$tc('sw-settings-snippet.detail.labelContent', 0, { name: snippetSets.get(snippet.setId).name })"
+                          :placeholder="snippet.origin || $tc('sw-settings-snippet.general.placeholderValue')">
+                </sw-field>
+            {% endblock %}
+        {% endblock %}
+
+        <template #modal-footer>
+            {% block sw_snippet_field_edit_modal_footer %}
+                {% block sw_snippet_field_edit_modal_close_button %}
+                    <sw-button size="small"
+                               @click="closeModal">
+                        {{ $tc('global.sw-modal.labelClose') }}
+                    </sw-button>
+                {% endblock %}
+                {% block sw_snippet_field_edit_modal_footer %}
+                    <sw-button class="sw-snippet-field-edit-modal__save-action"
+                               size="small"
+                               variant="primary"
+                               v-tooltip="getNoPermissionsTooltip('snippet.editor')"
+                               :disabled="!acl.can('snippet.editor')"
+                               @click="onSave">
+                        {{ $tc('global.default.save') }}
+                    </sw-button>
+                {% endblock %}
+            {% endblock %}
+        </template>
+    </sw-modal>
+{% endblock %}

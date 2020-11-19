@@ -173,6 +173,13 @@
             "listItemAdd": "Add \"{term}\"",
             "placeholder": "Search tags..."
         },
+        "sw-snippet-field": {
+          "tooltip": "Edit and translate snippet"
+        },
+        "sw-snippet-field-edit-modal": {
+          "title": "Snippet",
+          "labelName": "Name"
+        },
         "sw-data-grid": {
             "tooltipListSettings": "List settings",
             "labelSettingsCompactMode": "Use compact view",

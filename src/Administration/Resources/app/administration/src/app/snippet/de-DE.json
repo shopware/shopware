@@ -173,6 +173,13 @@
       "listItemAdd": "\"{term}\" hinzufügen",
       "placeholder": "Tags durchsuchen ..."
     },
+    "sw-snippet-field": {
+      "tooltip": "Bearbeite und übersetze diesen Textbaustein"
+    },
+    "sw-snippet-field-edit-modal": {
+      "title": "Textbaustein",
+      "labelName": "Name"
+    },
     "sw-data-grid": {
       "tooltipListSettings": "Listeneinstellungen",
       "labelSettingsCompactMode": "Kompaktmodus verwenden",

@@ -364,7 +364,7 @@ describe('core/factory/http.factory.js', () => {
                         code: 'FRAMEWORK__DELETE_RESTRICTED',
                         title: 'Conflict',
                         detail: 'The delete request for tax was denied due to a conflict.' +
-                                'The entity is currently in use by: tax_rule (27)',
+                                'This entity is currently in use by: tax_rule (27)',
                         meta: {
                             parameters: {
                                 entity: 'tax',
@@ -388,7 +388,7 @@ describe('core/factory/http.factory.js', () => {
             expect(dispatchSpy).toHaveBeenCalledWith('notification/createNotification', {
                 variant: 'error',
                 title: 'global.default.error',
-                message: '\"Tax\" global.notification.messageDeleteFailed<br>tax_rule (27)'
+                message: 'global.notification.messageDeleteFailed<br>global.default.xTimesIn <b>global.entities.tax_rule</b>'
             });
         });
     });

@@ -10,6 +10,7 @@ use Shopware\Core\Content\Rule\RuleEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -77,10 +78,20 @@ class PaymentMethodRuleAccessibleTest extends TestCase
         static::assertCount(2, $searchedRule->getPaymentMethods());
     }
 
-    public function testIfRuleCanBeRemoved(): void
+    public function testIfRuleWithAssocCanNotBeRemoved(): void
     {
         $defaultContext = Context::createDefaultContext();
         $rule = $this->createSimpleRule();
+        $this->ruleRepository->create($rule, $defaultContext);
+
+        static::expectException(RestrictDeleteViolationException::class);
+        $this->ruleRepository->delete([['id' => $rule[0]['id']]], $defaultContext);
+    }
+
+    public function testIfRuleWithoutAssocCanBeRemoved(): void
+    {
+        $defaultContext = Context::createDefaultContext();
+        $rule = $this->createSimpleRuleWithoutAssoc();
         $this->ruleRepository->create($rule, $defaultContext);
 
         $this->ruleRepository->delete([['id' => $rule[0]['id']]], $defaultContext);
@@ -154,6 +165,17 @@ class PaymentMethodRuleAccessibleTest extends TestCase
                         'name' => 'test',
                     ],
                 ],
+            ],
+        ];
+    }
+
+    private function createSimpleRuleWithoutAssoc(): array
+    {
+        return [
+            [
+                'id' => Uuid::randomHex(),
+                'name' => 'asd',
+                'priority' => 2,
             ],
         ];
     }

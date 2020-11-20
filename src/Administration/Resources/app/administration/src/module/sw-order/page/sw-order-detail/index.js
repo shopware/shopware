@@ -25,7 +25,8 @@ Component.register('sw-order-detail', {
             identifier: '',
             isEditing: false,
             isLoading: true,
-            isSaveSuccessful: false
+            isSaveSuccessful: false,
+            createdById: ''
         };
     },
 
@@ -61,6 +62,10 @@ Component.register('sw-order-detail', {
 
         updateIdentifier(identifier) {
             this.identifier = identifier;
+        },
+
+        updateCreatedById(createdById) {
+            this.createdById = createdById;
         },
 
         onChangeLanguage() {

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Checkout\Cart\Rule;
 
-use Shopware\Core\Checkout\Cart\Exception\PayloadKeyNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Framework\Rule\Rule;
@@ -14,13 +13,19 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 class LineItemCustomFieldRule extends Rule
 {
-    /** @var string */
+    /**
+     * @var string
+     */
     protected $operator;
 
-    /** @var array */
+    /**
+     * @var array
+     */
     protected $renderedField;
 
-    /** @var mixed */
+    /**
+     * @var string|int|float|bool|null
+     */
     protected $renderedFieldValue;
 
     public function getName(): string
@@ -78,19 +83,14 @@ class LineItemCustomFieldRule extends Rule
      */
     private function isCustomFieldValid(LineItem $lineItem): bool
     {
-        try {
-            $customFields = $lineItem->getPayloadValue('customFields');
+        $customFields = $lineItem->getPayloadValue('customFields');
 
-            $actual = $this->getValue($customFields, $this->renderedField);
-
-            if ($actual === null) {
-                return false;
-            }
-
-            $expected = $this->getExpectedValue($this->renderedFieldValue, $this->renderedField);
-        } catch (PayloadKeyNotFoundException $e) {
+        $actual = $this->getValue($customFields, $this->renderedField);
+        if ($actual === null) {
             return false;
         }
+
+        $expected = $this->getExpectedValue($this->renderedFieldValue, $this->renderedField);
 
         switch ($this->operator) {
             case self::OPERATOR_NEQ:
@@ -133,7 +133,7 @@ class LineItemCustomFieldRule extends Rule
      */
     private function getValue(array $customFields, array $renderedField)
     {
-        if (in_array($renderedField['type'], [CustomFieldTypes::BOOL, CustomFieldTypes::SWITCH], true)) {
+        if (\in_array($renderedField['type'], [CustomFieldTypes::BOOL, CustomFieldTypes::SWITCH], true)) {
             if (!empty($customFields) && \array_key_exists($this->renderedField['name'], $customFields)) {
                 return $customFields[$renderedField['name']];
             }
@@ -155,7 +155,7 @@ class LineItemCustomFieldRule extends Rule
      */
     private function getExpectedValue($renderedFieldValue, array $renderedField)
     {
-        if (in_array($renderedField['type'], [CustomFieldTypes::BOOL, CustomFieldTypes::SWITCH], true)) {
+        if (\in_array($renderedField['type'], [CustomFieldTypes::BOOL, CustomFieldTypes::SWITCH], true)) {
             return $renderedFieldValue ?? false; // those fields are initialized with null in the rule builder
         }
 

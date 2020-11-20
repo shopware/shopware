@@ -53,7 +53,7 @@ class ProductFeatureSetDefinition extends EntityDefinition
             new TranslatedField('description'),
             new JsonField('features', 'features'),
             (new OneToManyAssociationField('products', ProductDefinition::class, 'product_feature_set_id', 'id'))->addFlags(new SetNullOnDelete(), new ReverseInherited('featureSet')),
-            (new TranslationsAssociationField(ProductFeatureSetTranslationDefinition::class, 'product_feature_set_id')),
+            (new TranslationsAssociationField(ProductFeatureSetTranslationDefinition::class, 'product_feature_set_id'))->addFlags(new Required()),
         ]);
     }
 }

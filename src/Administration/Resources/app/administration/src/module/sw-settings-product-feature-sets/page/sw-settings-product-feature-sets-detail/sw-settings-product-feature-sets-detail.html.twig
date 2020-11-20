@@ -47,7 +47,9 @@
                         {% block sw_settings_product_feature_set_detail_content_field_name %}
                             <sw-field type="text"
                                       class="sw-settings-product-feature-sets-detail__name"
+                                      validation="required"
                                       required
+                                      :error="productFeatureSetNameError"
                                       :disabled="!acl.can('product_feature_sets.editor')"
                                       :label="$tc('sw-settings-product-feature-sets.detail.labelName')"
                                       :placeholder="placeholder(productFeatureSet, 'name', $tc('sw-settings-product-feature-sets.detail.placeholderName'))"
@@ -59,6 +61,7 @@
                             <sw-field type="textarea"
                                       :label="$tc('sw-settings-product-feature-sets.detail.labelDescription')"
                                       class="sw-settings-product-feature-sets-detail__description"
+                                      :error="productFeatureSetDescriptionError"
                                       :disabled="!acl.can('product_feature_sets.editor')"
                                       :placeholder="placeholder(productFeatureSet, 'description', $tc('sw-settings-product-feature-sets.detail.placeholderDescription'))"
                                       v-model="productFeatureSet.description">

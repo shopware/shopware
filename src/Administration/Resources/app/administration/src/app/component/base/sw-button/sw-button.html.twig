@@ -36,7 +36,7 @@
                 :class="buttonClasses"
                 :disabled="disabled || isLoading"
                 v-bind="$attrs"
-                v-on="$listeners">
+                v-on="disabled ? null : $listeners">
             {% block sw_button_button_content %}
                 <sw-icon name="default-web-loading-circle"
                          class="sw-button__loader"

@@ -270,11 +270,9 @@ function build(componentName, skipTemplate = false) {
         const overrides = cloneDeep(overrideRegistry.get(componentName));
 
         convertOverrides(overrides).forEach((overrideComp) => {
-            const comp = Object.create(overrideComp);
-
-            comp.extends = Object.create(config);
-            comp._isOverride = true;
-            config = comp;
+            overrideComp.extends = config;
+            overrideComp._isOverride = true;
+            config = overrideComp;
         });
     }
 
@@ -331,7 +329,13 @@ function convertOverrides(overrides) {
                 // check if current property exists in previous override
                 if (previous.hasOwnProperty(prop)) {
                     // if it exists iterate over the methods
-                    // and hoist them if the don't exists in previous override
+                    // and hoist them if they don't exists in previous override
+
+
+                    // ignore array based properties
+                    if (Array.isArray(values)) {
+                        return;
+                    }
 
                     // check for methods in current property-object
                     if (typeof values === 'object') {

@@ -30,6 +30,13 @@ Component.register('sw-cms-el-config-product-description-reviews', {
             criteria.addAssociation('options.group');
 
             return criteria;
+        },
+
+        selectedProductCriteria() {
+            const criteria = new Criteria();
+            criteria.addAssociation('properties');
+
+            return criteria;
         }
     },
 
@@ -48,7 +55,7 @@ Component.register('sw-cms-el-config-product-description-reviews', {
                 this.$set(this.element.data, 'productId', null);
                 this.$set(this.element.data, 'product', null);
             } else {
-                this.productRepository.get(productId, this.productSelectContext, this.productCriteria).then((product) => {
+                this.productRepository.get(productId, this.productSelectContext, this.selectedProductCriteria).then((product) => {
                     this.element.config.product.value = productId;
                     this.$set(this.element.data, 'productId', productId);
                     this.$set(this.element.data, 'product', product);

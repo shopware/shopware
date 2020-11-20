@@ -43,7 +43,8 @@ Shopware.Service('privileges')
                     'payment_method:read',
                     'shipping_method:read',
                     'product_tag:read',
-                    'product_feature_set:read'
+                    'product_feature_set:read',
+                    'cms_page:read'
                 ],
                 dependencies: []
             },

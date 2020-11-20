@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import SettingsPageObject from '../../../support/pages/module/sw-settings.page-object';
 
@@ -30,6 +30,17 @@ describe('Country: Test crud operations', () => {
 
         // Create country
         cy.get('input[name=sw-field--country-name]').typeAndCheck('01.Niemandsland');
+
+        cy.window().then((win) => {
+            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_10559')) {
+                return;
+            }
+
+            // Check tax free companies field exists and clicks
+            cy.get('.sw-settings-country-detail__field-tax-free-companies input').should('be.visible');
+            cy.get('.sw-settings-country-detail__field-tax-free-companies input').click();
+        });
+
         cy.get(page.elements.countrySaveAction).click();
 
         // Verify creation

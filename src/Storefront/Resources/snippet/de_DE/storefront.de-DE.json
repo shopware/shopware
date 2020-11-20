@@ -46,7 +46,8 @@
     "searchResults": "{1} 1 Ergebnis|]1,Inf[ %count% Ergebnisse",
     "supportInfo": "<strong>Fragen zu Ihrer Bestellung?</strong><br /><strong><a href=\"tel:+4912345-123456789\">12345-123456789</a></strong> <small>Täglich 7:30 bis 22:00 Uhr</small>",
     "indexLinkService": "Service/Hilfe",
-    "searchNoResult": "Keine Suchergebnisse gefunden."
+    "searchNoResult": "Keine Suchergebnisse gefunden.",
+    "wishlist": "Merkzettel"
   },
   "error": {
     "VIOLATION::IS_BLANK_ERROR": "%field% darf nicht leer sein.",
@@ -427,7 +428,10 @@
     "defaultProductSortingLabel": "Name A-Z",
     "disabledFilterTooltip": "Dieser Filter zeigt in Kombination mit den ausgewählten Filtern keine weiteren Ergebnisse an.",
     "beforeListPrice": "",
-    "afterListPrice": ""
+    "afterListPrice": "",
+    "addToWishlist": "Zum Merkzettel hinzufügen",
+    "addedToWishlist": "Zum Merkzettel hinzugefügt",
+    "toggleWishlist": "Merkzettel ein-/ausschalten"
   },
   "newsletter": {
     "headline": "Newsletter abonnieren",
@@ -556,7 +560,9 @@
     "groupRequiredTimezone": "Zeitzone",
     "groupStatistical": "Statistiken",
     "groupStatisticalDescription": "Für Statistiken und Shop-Performance-Metriken genutzte Cookies.",
-    "groupStatisticalGoogleAnalytics": "Google Analytics"
+    "groupStatisticalGoogleAnalytics": "Google Analytics",
+    "groupComfortFeatures": "Komfortfunktionen",
+    "groupComfortFeaturesWishlist": "Merkzettel"
   },
   "ellipsis": {
     "expandLabel": "mehr anzeigen",

@@ -3,16 +3,20 @@ import template from './sw-sales-channel-create.html.twig';
 const { Component } = Shopware;
 const utils = Shopware.Utils;
 
+const insertIdIntoRoute = (to, from, next) => {
+    if (to.name.includes('sw.sales.channel.create') && !to.params.id) {
+        to.params.id = utils.createId();
+    }
+
+    next();
+};
+
 Component.extend('sw-sales-channel-create', 'sw-sales-channel-detail', {
     template,
 
-    beforeRouteEnter(to, from, next) {
-        if (to.name.includes('sw.sales.channel.create') && !to.params.id) {
-            to.params.id = utils.createId();
-        }
+    beforeRouteEnter: insertIdIntoRoute,
 
-        next();
-    },
+    beforeRouteUpdate: insertIdIntoRoute,
 
     computed: {
         allowSaving() {

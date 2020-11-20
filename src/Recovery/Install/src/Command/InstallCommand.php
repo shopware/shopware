@@ -11,6 +11,7 @@ use Shopware\Recovery\Common\Service\SystemConfigService;
 use Shopware\Recovery\Install\DatabaseFactory;
 use Shopware\Recovery\Install\DatabaseInteractor;
 use Shopware\Recovery\Install\Service\AdminService;
+use Shopware\Recovery\Install\Service\BlueGreenDeploymentService;
 use Shopware\Recovery\Install\Service\DatabaseService;
 use Shopware\Recovery\Install\Service\EnvConfigWriter;
 use Shopware\Recovery\Install\Service\ShopService;
@@ -94,6 +95,10 @@ class InstallCommand extends Command
 
         $connectionInfo->databaseName = $dbName;
         $databaseService->selectDatabase($connectionInfo->databaseName);
+
+        /** @var BlueGreenDeploymentService $blueGreenDeploymentService */
+        $blueGreenDeploymentService = $container->offsetGet('blue.green.deployment.service');
+        $blueGreenDeploymentService->setEnvironmentVariable();
 
         $skipImport = $databaseService->containsShopwareSchema()
             && $input->getOption('no-skip-import')
@@ -314,6 +319,7 @@ class InstallCommand extends Command
         );
         $question->setErrorMessage('Currency %s is invalid.');
         $shop->currency = $this->IOHelper->ask($question);
+        $shop->country = $this->IOHelper->ask(sprintf('Shop default country (%s): ', $shop->country), $shop->country);
 
         return $shop;
     }
@@ -572,7 +578,8 @@ class InstallCommand extends Command
                 'shop-country',
                 null,
                 InputOption::VALUE_REQUIRED,
-                'Expects an ISO-3166 three-letter country-code. This parameter sets the default country for the default sales-channel.'
+                'Expects an ISO-3166 three-letter country-code. This parameter sets the default country for the default sales-channel.',
+                'GBR'
             )
         ;
     }

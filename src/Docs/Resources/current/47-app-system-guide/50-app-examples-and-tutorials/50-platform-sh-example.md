@@ -82,6 +82,7 @@ Now you can install it with the command `./bin/console app:install SwagExampleAp
         <author>shopware AG</author>
         <copyright>(c) by shopware AG</copyright>
         <version>1.0.0</version>
+        <license>MIT</license>
     </meta>
     <setup>
         <registrationUrl>https://your-app.url.com/registration</registrationUrl>

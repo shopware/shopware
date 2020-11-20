@@ -51,6 +51,8 @@ class RemoveWishlistProductRouteTest extends TestCase
 
     protected function setUp(): void
     {
+        Feature::skipTestIfInActive('FEATURE_NEXT_10549', $this);
+
         $this->context = Context::createDefaultContext();
         $this->ids = new TestDataCollection($this->context);
 
@@ -93,7 +95,9 @@ class RemoveWishlistProductRouteTest extends TestCase
                 'DELETE',
                 '/store-api/v' . PlatformRequest::API_VERSION . '/customer/wishlist/delete/' . $productId
             );
+
         $response = json_decode($this->browser->getResponse()->getContent(), true);
+
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertTrue($response['success']);
     }
@@ -207,7 +211,7 @@ class RemoveWishlistProductRouteTest extends TestCase
             [
                 'id' => $customerWishlistId,
                 'customerId' => $customerId,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => $this->getSalesChannelApiSalesChannelId(),
                 'products' => [
                     [
                         'productId' => $productId,

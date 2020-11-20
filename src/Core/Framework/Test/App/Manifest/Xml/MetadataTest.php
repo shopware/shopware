@@ -28,6 +28,18 @@ class MetadataTest extends TestCase
             'en-GB' => 'Test for App System',
             'de-DE' => 'Test für das App System',
         ], $metaData->getDescription());
+        static::assertEquals([
+            'en-GB' => 'Following personal information will be processed on shopware AG\'s servers:
+
+- Name
+- Billing address
+- Order value',
+            'de-DE' => 'Folgende Nutzerdaten werden auf Servern der shopware AG verarbeitet:
+
+- Name
+- Rechnungsadresse
+- Bestellwert',
+        ], $metaData->getPrivacyPolicyExtensions());
     }
 
     public function testFromXmlWithoutDescription(): void

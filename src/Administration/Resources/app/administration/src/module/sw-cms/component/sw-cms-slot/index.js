@@ -56,6 +56,7 @@ Component.register('sw-cms-slot', {
             if (this.elementConfig.defaultConfig && !this.element.locked) {
                 return null;
             }
+
             return 'is--disabled';
         },
 
@@ -66,6 +67,7 @@ Component.register('sw-cms-slot', {
                     disabled: !!this.elementConfig.defaultConfig && !this.element.locked
                 };
             }
+
             return {
                 message: this.$tc('sw-cms.elements.general.config.tab.settings'),
                 disabled: true
@@ -78,6 +80,7 @@ Component.register('sw-cms-slot', {
             if (!this.elementConfig.defaultConfig || this.element.locked) {
                 return;
             }
+
             this.showElementSettings = true;
         },
 

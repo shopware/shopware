@@ -31,6 +31,7 @@
       "labelActive": "Aktiv",
       "labelShippingAvailable": "Versand verfügbar",
       "labelTaxFree": "Steuerfrei",
+      "labelCompanyTaxFree": "Steuerfrei für Unternehmen",
       "labelForceStateInRegistration": "Bundesland bei Registrierung erforderlich",
       "placeholderName": "Namen eingeben ...",
       "placeholderPosition": "1",

@@ -39,9 +39,10 @@ The header contains the shop logo, the search form and various actions like the 
     display: none;
 }
 
-.header-cart .header-cart-badge {
+.header-cart .header-cart-badge,
+.header-wishlist .header-wishlist-badge {
     position: absolute;
-    right: 0;
+    right: -0.25rem;
 }
 
 @include media-breakpoint-up(sm) {

@@ -17,6 +17,7 @@ use Shopware\Recovery\Install\DatabaseFactory;
 use Shopware\Recovery\Install\Requirements;
 use Shopware\Recovery\Install\RequirementsPath;
 use Shopware\Recovery\Install\Service\AdminService;
+use Shopware\Recovery\Install\Service\BlueGreenDeploymentService;
 use Shopware\Recovery\Install\Service\DatabaseService;
 use Shopware\Recovery\Install\Service\EnvConfigWriter;
 use Shopware\Recovery\Install\Service\ShopService;
@@ -315,6 +316,10 @@ $app->any('/database-configuration/', function (ServerRequestInterface $request,
 
     $_SESSION['databaseConnectionInfo'] = $connectionInfo;
 
+    /** @var BlueGreenDeploymentService $blueGreenDeploymentService */
+    $blueGreenDeploymentService = $container->offsetGet('blue.green.deployment.service');
+    $blueGreenDeploymentService->setEnvironmentVariable();
+
     /** @var DatabaseService $databaseService */
     $databaseService = $container->offsetGet('database.service');
 
@@ -344,6 +349,14 @@ $app->any('/database-import/', function (ServerRequestInterface $request, Respon
 
     if ($request->getMethod() === 'POST') {
         return $response->withRedirect($menuHelper->getNextUrl());
+    }
+
+    if (!isset($_SESSION[BlueGreenDeploymentService::ENV_NAME])) {
+        $menuHelper->setCurrent('database-configuration');
+
+        return $this->renderer->render($response, 'database-configuration.php', [
+            'error' => $translationService->t('database-configuration_error_required_fields'),
+        ]);
     }
 
     try {
@@ -422,6 +435,16 @@ $app->any('/configuration/', function (ServerRequestInterface $request, Response
         $systemConfigService = new SystemConfigService($db);
         $shopService = new ShopService($db, $systemConfigService);
         $adminService = new AdminService($db);
+
+        if (!isset($_SESSION[BlueGreenDeploymentService::ENV_NAME])) {
+            $menuHelper->setCurrent('database-configuration');
+
+            return $this->renderer->render($response, 'database-configuration.php', [
+                'error' => $translationService->t('database-configuration_error_required_fields'),
+            ]);
+        }
+
+        $_ENV[BlueGreenDeploymentService::ENV_NAME] = $_SESSION[BlueGreenDeploymentService::ENV_NAME];
 
         /** @var EnvConfigWriter $configWriter */
         $configWriter = $container->offsetGet('config.writer');
@@ -542,6 +565,14 @@ $app->any('/database-import/importDatabase', function (ServerRequestInterface $r
     $coreMigrations = $migrationCollectionLoader->collect('core');
 
     $resultMapper = new ResultMapper();
+
+    if (!isset($_SESSION[BlueGreenDeploymentService::ENV_NAME])) {
+        return $response
+            ->withStatus(500)
+            ->write(json_encode($resultMapper->toExtJs(new ErrorResult('Session expired, please go back to database configuration.'))));
+    }
+
+    $_ENV[BlueGreenDeploymentService::ENV_NAME] = $_SESSION[BlueGreenDeploymentService::ENV_NAME];
 
     $parameters = $request->getParsedBody();
 

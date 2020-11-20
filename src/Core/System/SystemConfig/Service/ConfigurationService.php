@@ -81,17 +81,19 @@ class ConfigurationService
         $domain = rtrim($domain, '.') . '.';
 
         foreach ($config as $i => $card) {
+            if (\array_key_exists('flag', $card) && !Feature::isActive($card['flag'])) {
+                unset($config[$i]);
+
+                continue;
+            }
+
             foreach ($card['elements'] as $j => $field) {
                 $newField = ['name' => $domain . $field['name']];
 
-                if (\array_key_exists('flag', $field)) {
-                    try {
-                        if (!Feature::isActive($field['flag'])) {
-                            continue;
-                        }
-                    } catch (\RuntimeException $e) {
-                        continue;
-                    }
+                if (\array_key_exists('flag', $field) && !Feature::isActive($field['flag'])) {
+                    unset($card['elements'][$j]);
+
+                    continue;
                 }
 
                 if (array_key_exists('type', $field)) {

@@ -20,7 +20,13 @@
         }
     }
 
+    .sw-entity-single-select__selection {
+        white-space: nowrap;
+    }
+
     .sw-entity-single-select__selection-text {
         vertical-align: middle;
+        padding-right: 16px;
+        width: 100%;
     }
 }

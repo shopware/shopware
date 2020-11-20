@@ -124,6 +124,14 @@ which is explained [here](./280-custom-component.md).
 
 ### Navigation
 
+<p class="alert is--warning">
+    Due to UX reasons, we're <b>not</b> supporting plugin modules to add new menu entries on the first level of the main menu. 
+    Please use the "parent" property inside your navigation object to define the category where you want your menu entry
+    will be appended to.<br>
+    If you're planning to publish your plugin to the <a href="https://store.shopware.com/" title="Shopware Store" target="_blank">Shopware Store</a>
+    keep in mind we're rejecting plugins which have created their own menu entry on the first level.
+</p>
+
 In order to create a navigation entry, you have to provide a navigation configuration using the `navigation` property in your module's configuration.
 It expects an array of navigation configuration objects.
 
@@ -154,7 +162,8 @@ navigation: [{
     label: 'Custom Module',
     color: '#62ff80',
     path: 'custom.module.overview',
-    icon: 'default-object-lab-flask'
+    icon: 'default-object-lab-flask',
+    parent: 'sw-catalogue'
 }]
 ```
 

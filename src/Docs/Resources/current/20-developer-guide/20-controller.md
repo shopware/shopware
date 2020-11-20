@@ -50,7 +50,7 @@ annotation in the
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://symfony.com/schema/routing http://symfony.com/schema/routing/routing-1.0.xsd">
 
-    <import resource="../../src/Controller" type="annotation" />
+    <import resource="../../Controller" type="annotation" />
 </routes>
 ```
 

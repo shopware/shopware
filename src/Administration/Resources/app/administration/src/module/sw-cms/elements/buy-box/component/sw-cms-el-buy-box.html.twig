@@ -1,0 +1,127 @@
+{% block sw_cms_el_buy_box %}
+    <div class="sw-cms-el-buy-box" :style="alignStyle">
+        <div v-if="product && !isProductPageType" class="sw-cms-el-buy-box__content">
+
+            {% block sw_cms_el_buy_box_product_info %}
+                {% block sw_cms_el_buy_box_product_price %}
+                    <div class="sw-cms-el-buy-box__price">
+                        {{ product.price[0].gross | currency('EUR') }}
+                    </div>
+                {% endblock %}
+
+                {% block sw_cms_el_buy_box_product_tax_info %}
+                    <div class="sw-cms-el-buy-box__tax-info">
+                        {{ $tc('sw-cms.elements.buyBox.component.label.taxInfo') }}
+                    </div>
+                {% endblock %}
+
+                {% block sw_cms_el_buy_box_product_shipping_info %}
+                    <ul class="sw-cms-el-buy-box__shipping-info">
+                        <li v-if="product.shippingFree">
+                            {{ $tc('sw-cms.elements.buyBox.component.label.deliveryShippingFree') }}
+                        </li>
+                        <li v-if="product.deliveryTime">
+                            {{ $tc('sw-cms.elements.buyBox.component.label.deliveryTime', 0, {
+                                name: placeholder(product, 'deliveryTime.name', product.deliveryTime.name)
+                            }) }}
+                        </li>
+                    </ul>
+                {% endblock %}
+
+                {% block sw_cms_el_buy_box_product_variants %}
+                    <template v-if="product.parentId || product.childCount > 0">
+                        <p class="sw-cms-el-buy-box__variant-title">
+                            {{ $tc('sw-cms.elements.buyBox.component.label.variants') }}
+                        </p>
+                        <div class="sw-cms-el-buy-box__variants">
+                            <div class="sw-cms-el-buy-box__variant"></div>
+                            <div class="sw-cms-el-buy-box__variant"></div>
+                            <div class="sw-cms-el-buy-box__variant"></div>
+                        </div>
+                    </template>
+                {% endblock %}
+
+                {% block sw_cms_el_buy_box_form %}
+                    <div class="sw-cms-el-buy-box__form">
+
+                        {% block sw_cms_element_buy_box_form_select_quantity %}
+                            <sw-block-field class="sw-cms-el-buy-box__quantity">
+                                <template #sw-field-input>
+                                    <select>
+                                        <option :value="product.minPurchase" selected>{{ product.minPurchase }}</option>
+                                    </select>
+                                    <div class="sw-cms-el-buy-box__icon">
+                                        <sw-icon name="small-arrow-small-up" small decorative></sw-icon>
+                                        <sw-icon name="small-arrow-small-down" small decorative></sw-icon>
+                                    </div>
+                                </template>
+                            </sw-block-field>
+                        {% endblock %}
+
+                        {% block sw_cms_element_buy_box_form_action %}
+                            <div class="sw-cms-el-buy-box__actions">
+                                <a href="#" class="sw-cms-el-buy-box__buy-action">
+                                    {{ $tc('sw-cms.elements.buyBox.component.label.actionBuy') }}
+                                </a>
+                            </div>
+                        {% endblock %}
+
+                    </div>
+                {% endblock %}
+
+                {% block sw_cms_element_buy_box_product_number %}
+                    <div class="sw-cms-el-buy-box__product-number">
+                        <span class="sw-cms-el-buy-box__product-number-title">
+                            {{ $tc('sw-cms.elements.buyBox.component.label.productNumber') }}
+                        </span>
+                        <span>{{ product.productNumber }}</span>
+                    </div>
+                {% endblock %}
+            {% endblock %}
+        </div>
+
+        <div v-else class="sw-cms-el-buy-box__skeleton">
+
+            {% block sw_cms_element_buybox_skeleton %}
+                {% block sw_cms_element_buybox_skeleton_info %}
+                    <div class="sw-cms-el-buy-box__placeholder"></div>
+                    <div class="sw-cms-el-buy-box__placeholder"></div>
+                    <div class="sw-cms-el-buy-box__placeholder"></div>
+                    <div class="sw-cms-el-buy-box__placeholder"></div>
+                {% endblock %}
+
+                {% block sw_cms_element_buybox_skeleton_form %}
+                    <div class="sw-cms-el-buy-box__form">
+
+                        {% block sw_cms_element_buybox_skeleton_quantity %}
+                            <sw-block-field class="sw-cms-el-buy-box__quantity">
+                                <template #sw-field-input>
+                                    <select>
+                                        <option value="1" selected>1</option>
+                                    </select>
+                                    <div class="sw-cms-el-buy-box__icon">
+                                        <sw-icon name="small-arrow-small-up" small decorative></sw-icon>
+                                        <sw-icon name="small-arrow-small-down" small decorative></sw-icon>
+                                    </div>
+                                </template>
+                            </sw-block-field>
+                        {% endblock %}
+
+                        {% block sw_cms_element_buy_box_skeleton_action %}
+                            <div class="sw-cms-el-buy-box__actions">
+                                <a href="#" class="sw-cms-el-buy-box__buy-action">
+                                    {{ $tc('sw-cms.elements.buyBox.component.label.actionBuy') }}
+                                </a>
+                            </div>
+                        {% endblock %}
+
+                    </div>
+                {% endblock %}
+
+                {% block sw_cms_element_buybox_skeleton_product_number %}
+                    <div class="sw-cms-el-buy-box__placeholder"></div>
+                {% endblock %}
+            {% endblock %}
+       </div>
+    </div>
+{% endblock %}

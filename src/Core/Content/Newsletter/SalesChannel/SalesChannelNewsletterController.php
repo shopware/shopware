@@ -49,7 +49,7 @@ class SalesChannelNewsletterController extends AbstractController
      */
     public function subscribe(Request $request, RequestDataBag $data, SalesChannelContext $context): JsonResponse
     {
-        $data->set('storefrontUrl', $request->attributes->get('sw-sales-channel-absolute-base-url'));
+        $data->set('storefrontUrl', $request->attributes->get('sw-sales-channel-absolute-base-url') . $request->attributes->get('sw-sales-channel-base-url'));
         $data->set('option', 'subscribe');
 
         $this->newsletterSubscribeRoute->subscribe($data, $context, false);

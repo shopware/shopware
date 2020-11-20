@@ -213,12 +213,13 @@ Component.register('sw-product-media-form', {
         },
 
         isCover(productMedia) {
-            const coverId = this.product.cover ? this.product.cover.mediaId : this.product.coverId;
+            const coverId = this.product.cover ? this.product.cover.id : this.product.coverId;
 
             if (this.product.media.length === 0 || productMedia.isPlaceholder) {
                 return false;
             }
-            return productMedia.mediaId === coverId;
+
+            return productMedia.id === coverId;
         },
 
         removeFile(productMedia) {

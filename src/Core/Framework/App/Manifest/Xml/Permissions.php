@@ -2,8 +2,17 @@
 
 namespace Shopware\Core\Framework\App\Manifest\Xml;
 
+use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
+
 class Permissions extends XmlElement
 {
+    private const PRIVILEGE_DEPENDENCE = [
+        AclRoleDefinition::PRIVILEGE_READ => [],
+        AclRoleDefinition::PRIVILEGE_CREATE => [AclRoleDefinition::PRIVILEGE_READ],
+        AclRoleDefinition::PRIVILEGE_UPDATE => [AclRoleDefinition::PRIVILEGE_READ],
+        AclRoleDefinition::PRIVILEGE_DELETE => [AclRoleDefinition::PRIVILEGE_READ],
+    ];
+
     /**
      * @var array
      */
@@ -32,6 +41,11 @@ class Permissions extends XmlElement
         return $this->permissions;
     }
 
+    public function asParsedPrivileges(): array
+    {
+        return $this->generatePrivileges();
+    }
+
     private static function parsePermissions(\DOMElement $element): array
     {
         $permissions = [];
@@ -45,5 +59,30 @@ class Permissions extends XmlElement
         }
 
         return $permissions;
+    }
+
+    private function generatePrivileges(): array
+    {
+        $grantedPrivileges = array_map(static function (array $privileges): array {
+            $grantedPrivileges = [];
+
+            foreach ($privileges as $privilege) {
+                $grantedPrivileges[] = $privilege;
+                $grantedPrivileges = array_merge($grantedPrivileges, self::PRIVILEGE_DEPENDENCE[$privilege]);
+            }
+
+            return array_unique($grantedPrivileges);
+        }, $this->permissions);
+
+        $privilegeValues = [];
+        foreach ($grantedPrivileges as $resource => $privileges) {
+            $newPrivileges = array_map(static function (string $privilege) use ($resource): string {
+                return $resource . ':' . $privilege;
+            }, $privileges);
+
+            $privilegeValues = array_merge($privilegeValues, $newPrivileges);
+        }
+
+        return $privilegeValues;
     }
 }

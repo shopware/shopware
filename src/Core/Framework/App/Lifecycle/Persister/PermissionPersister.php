@@ -3,19 +3,11 @@
 namespace Shopware\Core\Framework\App\Lifecycle\Persister;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\App\Manifest\Xml\Permissions;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 class PermissionPersister
 {
-    private const PRIVILEGE_DEPENDENCE = [
-        AclRoleDefinition::PRIVILEGE_READ => [],
-        AclRoleDefinition::PRIVILEGE_CREATE => [AclRoleDefinition::PRIVILEGE_READ],
-        AclRoleDefinition::PRIVILEGE_UPDATE => [AclRoleDefinition::PRIVILEGE_READ],
-        AclRoleDefinition::PRIVILEGE_DELETE => [AclRoleDefinition::PRIVILEGE_READ],
-    ];
-
     /**
      * @var Connection
      */
@@ -31,7 +23,7 @@ class PermissionPersister
      */
     public function updatePrivileges(?Permissions $permissions, string $roleId): void
     {
-        $privileges = $this->generatePrivileges($permissions ? $permissions->getPermissions() : []);
+        $privileges = $permissions ? $permissions->asParsedPrivileges() : [];
 
         $this->addPrivileges($privileges, $roleId);
     }
@@ -58,30 +50,5 @@ class PermissionPersister
                 'id' => Uuid::fromHexToBytes($roleId),
             ]
         );
-    }
-
-    private function generatePrivileges(array $permissions): array
-    {
-        $grantedPrivileges = array_map(static function (array $privileges): array {
-            $grantedPrivileges = [];
-
-            foreach ($privileges as $privilege) {
-                $grantedPrivileges[] = $privilege;
-                $grantedPrivileges = array_merge($grantedPrivileges, self::PRIVILEGE_DEPENDENCE[$privilege]);
-            }
-
-            return array_unique($grantedPrivileges);
-        }, $permissions);
-
-        $privilegeValues = [];
-        foreach ($grantedPrivileges as $resource => $privileges) {
-            $newPrivileges = array_map(static function (string $privilege) use ($resource): string {
-                return $resource . ':' . $privilege;
-            }, $privileges);
-
-            $privilegeValues = array_merge($privilegeValues, $newPrivileges);
-        }
-
-        return $privilegeValues;
     }
 }

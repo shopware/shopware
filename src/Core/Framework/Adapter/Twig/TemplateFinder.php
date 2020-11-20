@@ -68,7 +68,7 @@ class TemplateFinder implements TemplateFinderInterface
     {
         $templatePath = $this->getTemplateName($template);
         $sourcePath = $source ? $this->getTemplateName($source) : null;
-        $sourceBundleName = $sourcePath ? $this->getSourceBundleName($source) : null;
+        $sourceBundleName = $source ? $this->getSourceBundleName($source) : null;
         $originalTemplate = $source ? null : $template;
 
         $queue = $this->getNamespaceHierarchy();
@@ -117,7 +117,7 @@ class TemplateFinder implements TemplateFinderInterface
 
         $source = explode('/', $source);
         $source = array_shift($source);
-        $source = ltrim($source, '@');
+        $source = $source ? ltrim($source, '@') : null;
 
         return $source ?: null;
     }

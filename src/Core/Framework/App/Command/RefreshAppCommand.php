@@ -74,7 +74,7 @@ class RefreshAppCommand extends Command
             }
         }
 
-        $fails = $this->appService->refreshApps((bool) $input->getOption('activate'), $context);
+        $fails = $this->appService->doRefreshApps((bool) $input->getOption('activate'), $context);
 
         $this->appPrinter->printInstalledApps($io, $context);
         $this->appPrinter->printIncompleteInstallations($io, $fails);

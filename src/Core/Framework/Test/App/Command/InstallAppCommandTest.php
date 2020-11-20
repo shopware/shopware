@@ -112,6 +112,19 @@ class InstallAppCommandTest extends TestCase
         static::assertStringContainsString('[ERROR] No app with name "Test" found.', $commandTester->getDisplay());
     }
 
+    public function testInstallFailsIfAppIsAlreadyInstalled(): void
+    {
+        $commandTester = new CommandTester($this->createCommand(__DIR__ . '/_fixtures'));
+        $commandTester->setInputs(['yes']);
+
+        $commandTester->execute(['name' => 'withoutPermissions']);
+        static::assertEquals(0, $commandTester->getStatusCode());
+
+        $commandTester->execute(['name' => 'withoutPermissions']);
+        static::assertEquals(1, $commandTester->getStatusCode());
+        static::assertStringContainsString('[ERROR] App with name "SwagApp" is already installed.', $commandTester->getDisplay());
+    }
+
     private function createCommand(string $appFolder): InstallAppCommand
     {
         return new InstallAppCommand(

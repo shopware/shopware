@@ -220,9 +220,9 @@ class RefreshAppCommandTest extends TestCase
         $display = $commandTester->getDisplay();
 
         // header
-        static::assertRegExp('/.*Failed\s+\n.*/', $display);
+        static::assertRegExp('/.*Failed\s+Reason\s+\n.*/', $display);
         // content
-        static::assertRegExp('/.*SwagApp\s+\n.*/', $display);
+        static::assertRegExp('/.*SwagApp\s+The app provided a invalid response\s+\n.*/', $display);
 
         $registeredApps = $this->appRepository->search(new Criteria(), Context::createDefaultContext());
         static::assertEquals(0, $registeredApps->getTotal());

@@ -65,7 +65,7 @@ class AppServiceTest extends TestCase
 
     public function testRefreshInstallsNewApp(): void
     {
-        $this->appService->refreshApps(true, $this->context);
+        $this->appService->doRefreshApps(true, $this->context);
 
         /** @var AppCollection $apps */
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
@@ -105,7 +105,7 @@ class AppServiceTest extends TestCase
             ],
         ]], $this->context);
 
-        $this->appService->refreshApps(true, $this->context);
+        $this->appService->doRefreshApps(true, $this->context);
 
         /** @var AppCollection $apps */
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
@@ -137,7 +137,7 @@ class AppServiceTest extends TestCase
             ],
         ]], $this->context);
 
-        $this->appService->refreshApps(true, $this->context);
+        $this->appService->doRefreshApps(true, $this->context);
 
         /** @var AppCollection $apps */
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
@@ -178,7 +178,7 @@ class AppServiceTest extends TestCase
             ],
         ]], $this->context);
 
-        $this->appService->refreshApps(true, $this->context);
+        $this->appService->doRefreshApps(true, $this->context);
 
         $apps = $this->appRepository->searchIds(new Criteria([$appId]), $this->context)->getIds();
         static::assertCount(0, $apps);
@@ -279,7 +279,7 @@ class AppServiceTest extends TestCase
             ),
             $this->getContainer()->get(AppLifecycle::class)
         );
-        $fails = $appService->refreshApps(true, $this->context);
+        $fails = $appService->doRefreshApps(true, $this->context);
 
         $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
 

@@ -1891,11 +1891,6 @@ parameters:
 			path: src/Core/Content/Media/Thumbnail/ThumbnailService.php
 
 		-
-			message: "#^Parameter \\#1 \\$image of function imagecreatefromstring expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Core/Content/Media/Thumbnail/ThumbnailService.php
-
-		-
 			message: "#^Cannot access offset 'Orientation' on array\\|false\\.$#"
 			count: 3
 			path: src/Core/Content/Media/Thumbnail/ThumbnailService.php

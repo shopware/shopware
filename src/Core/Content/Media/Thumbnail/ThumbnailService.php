@@ -234,6 +234,7 @@ class ThumbnailService
     private function getImageResource(MediaEntity $media)
     {
         $filePath = $this->urlGenerator->getRelativeMediaUrl($media);
+        /** @var string $file */
         $file = $this->getFileSystem($media)->read($filePath);
         $image = @imagecreatefromstring($file);
         if (!$image) {
@@ -241,8 +242,16 @@ class ThumbnailService
         }
 
         if (function_exists('exif_read_data')) {
+            /** @var resource $stream */
+            $stream = fopen('php://memory', 'r+');
+
             try {
-                $exif = exif_read_data($filePath);
+                // use in-memory stream to read the EXIF-metadata,
+                // to avoid downloading the image twice from a remote filesystem
+                fwrite($stream, $file);
+                rewind($stream);
+
+                $exif = exif_read_data($stream);
 
                 if (!empty($exif['Orientation']) && $exif['Orientation'] === 8) {
                     $image = imagerotate($image, 90, 0);
@@ -253,6 +262,8 @@ class ThumbnailService
                 }
             } catch (\Exception $e) {
                 // Ignore.
+            } finally {
+                fclose($stream);
             }
         }
 

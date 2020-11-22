@@ -36,7 +36,10 @@ class LineItemQuantitySplitter
         $taxRules = $tmpItem->getPrice()->getTaxRules();
 
         // change the quantity to 1 single item
+        $isStackable = $tmpItem->isStackable();
+        $tmpItem->setStackable(true);
         $tmpItem->setQuantity($quantity);
+        $tmpItem->setStackable($isStackable);
 
         $quantityDefinition = new QuantityPriceDefinition(
             $unitPrice,

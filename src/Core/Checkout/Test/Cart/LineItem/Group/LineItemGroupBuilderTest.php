@@ -266,6 +266,24 @@ class LineItemGroupBuilderTest extends TestCase
     }
 
     /**
+     * This test verifies line items that are not stackable are still able to get extracted
+     *
+     * @group lineitemgroup
+     */
+    public function testShouldGroupAlthoughLineItemsAreNotStackable(): void
+    {
+        $cart = $this->buildCart(1);
+        $cart->getLineItems()->first()->setStackable(false);
+
+        $group = $this->buildGroup(self::KEY_PACKAGER_COUNT, 2, self::KEY_SORTER_PRICE_ASC, new RuleCollection());
+        $result = $this->unitTestBuilder->findGroupPackages([$group], $cart, $this->context);
+        /** @var LineItemQuantity[] $items */
+        $items = array_values($result->getGroupTotalResult($group));
+
+        static::assertCount(1, $items);
+    }
+
+    /**
      * This test verifies a bug fix in the "rest-of-cart" algorithm with this set of products.
      * We add 3 different products (10x quantity for all products).
      * Our group builder rule should only consider the first 2 products (20 items).

@@ -245,6 +245,10 @@
             <argument type="service" id="Symfony\Component\HttpFoundation\RequestStack"/>
         </service>
 
+        <service id="Shopware\Storefront\Controller\WellKnownController" public="true">
+            <argument type="service" id="router"/>
+        </service>
+
         <service id="Shopware\Storefront\Controller\WishlistController" public="true">
             <argument type="service" id="Shopware\Storefront\Page\Wishlist\WishlistPageLoader"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\LoadWishlistRoute"/>

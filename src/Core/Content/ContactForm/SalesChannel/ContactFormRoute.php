@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
@@ -142,6 +143,8 @@ class ContactFormRoute extends AbstractContactFormRoute
     private function validateContactForm(DataBag $data, SalesChannelContext $context): void
     {
         $definition = $this->contactFormValidationFactory->create($context);
+        $validationEvent = new BuildValidationEvent($definition, $context->getContext());
+        $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
         $violations = $this->validator->getViolations($data->all(), $definition);
 
         if ($violations->count() > 0) {

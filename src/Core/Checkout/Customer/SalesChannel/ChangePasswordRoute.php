@@ -117,9 +117,9 @@ class ChangePasswordRoute extends AbstractChangePasswordRoute
         return new ContextTokenResponse($context->getToken());
     }
 
-    private function dispatchValidationEvent(DataValidationDefinition $definition, Context $context): void
+    private function dispatchValidationEvent(DataValidationDefinition $definition, array $data, Context $context): void
     {
-        $validationEvent = new BuildValidationEvent($definition, $context);
+        $validationEvent = new BuildValidationEvent($definition, $context, $data);
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
     }
 
@@ -136,7 +136,7 @@ class ChangePasswordRoute extends AbstractChangePasswordRoute
             ->add('newPassword', new NotBlank(), new Length(['min' => $minPasswordLength]), new EqualTo(['propertyPath' => 'newPasswordConfirm']))
             ->add('password', new CustomerPasswordMatches(['context' => $context]));
 
-        $this->dispatchValidationEvent($definition, $context->getContext());
+        $this->dispatchValidationEvent($definition, $data->all(), $context->getContext());
 
         $this->validator->validate($data->all(), $definition);
 

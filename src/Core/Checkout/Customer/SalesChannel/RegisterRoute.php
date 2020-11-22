@@ -279,7 +279,7 @@ class RegisterRoute extends AbstractRegisterRoute
         $addressData->set('lastName', $data->get('lastName'));
         $addressData->set('salutationId', $data->get('salutationId'));
 
-        $definition = $this->getCustomerCreateValidationDefinition($isGuest, $context);
+        $definition = $this->getCustomerCreateValidationDefinition($isGuest, $data->all(), $context);
 
         if ($additionalValidations) {
             foreach ($additionalValidations->getProperties() as $key => $validation) {
@@ -293,10 +293,16 @@ class RegisterRoute extends AbstractRegisterRoute
         }
 
         $accountType = $data->get('accountType', CustomerEntity::ACCOUNT_TYPE_PRIVATE);
-        $definition->addSub('billingAddress', $this->getCreateAddressValidationDefinition($accountType, true, $context));
+        $definition->addSub(
+            'billingAddress',
+            $this->getCreateAddressValidationDefinition($accountType, true, (array) $data->get('billingAddress'), $context)
+        );
 
         if ($data->has('shippingAddress')) {
-            $definition->addSub('shippingAddress', $this->getCreateAddressValidationDefinition($accountType, false, $context));
+            $definition->addSub(
+                'shippingAddress',
+                $this->getCreateAddressValidationDefinition($accountType, false, (array) $data->get('shippingAddress'), $context)
+            );
         }
 
         $billingAddress = $addressData->all();
@@ -409,8 +415,12 @@ class RegisterRoute extends AbstractRegisterRoute
         return $customer;
     }
 
-    private function getCreateAddressValidationDefinition(string $accountType, bool $isBillingAddress, SalesChannelContext $context): DataValidationDefinition
-    {
+    private function getCreateAddressValidationDefinition(
+        string $accountType,
+        bool $isBillingAddress,
+        ?array $data,
+        SalesChannelContext $context
+    ): DataValidationDefinition {
         $validation = $this->addressValidationFactory->create($context);
 
         if ($isBillingAddress
@@ -419,13 +429,13 @@ class RegisterRoute extends AbstractRegisterRoute
             $validation->add('company', new NotBlank());
         }
 
-        $validationEvent = new BuildValidationEvent($validation, $context->getContext());
+        $validationEvent = new BuildValidationEvent($validation, $context->getContext(), $data);
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
 
         return $validation;
     }
 
-    private function getCustomerCreateValidationDefinition(bool $isGuest, SalesChannelContext $context): DataValidationDefinition
+    private function getCustomerCreateValidationDefinition(bool $isGuest, array $data, SalesChannelContext $context): DataValidationDefinition
     {
         $validation = $this->accountValidationFactory->create($context);
 
@@ -445,7 +455,7 @@ class RegisterRoute extends AbstractRegisterRoute
             $validation->add('email', new CustomerEmailUnique($options));
         }
 
-        $validationEvent = new BuildValidationEvent($validation, $context->getContext());
+        $validationEvent = new BuildValidationEvent($validation, $context->getContext(), $data);
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
 
         return $validation;

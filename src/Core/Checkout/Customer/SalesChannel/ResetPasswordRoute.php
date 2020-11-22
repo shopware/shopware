@@ -155,16 +155,16 @@ class ResetPasswordRoute extends AbstractResetPasswordRoute
 
         $definition->add('newPassword', new NotBlank(), new Length(['min' => $minPasswordLength]), new EqualTo(['propertyPath' => 'newPasswordConfirm']));
 
-        $this->dispatchValidationEvent($definition, $context->getContext());
+        $this->dispatchValidationEvent($definition, $data->all(), $context->getContext());
 
         $this->validator->validate($data->all(), $definition);
 
         $this->tryValidateEqualtoConstraint($data->all(), 'newPassword', $definition);
     }
 
-    private function dispatchValidationEvent(DataValidationDefinition $definition, Context $context): void
+    private function dispatchValidationEvent(DataValidationDefinition $definition, array $data, Context $context): void
     {
-        $validationEvent = new BuildValidationEvent($definition, $context);
+        $validationEvent = new BuildValidationEvent($definition, $context, $data);
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
     }
 

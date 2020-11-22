@@ -19,10 +19,16 @@ class BuildValidationEvent extends Event implements ShopwareEvent, GenericEvent
      */
     private $context;
 
-    public function __construct(DataValidationDefinition $definition, Context $context)
+    /**
+     * @var array|null
+     */
+    private $payload;
+
+    public function __construct(DataValidationDefinition $definition, Context $context, ?array $payload = null)
     {
         $this->definition = $definition;
         $this->context = $context;
+        $this->payload = $payload;
     }
 
     public function getName(): string
@@ -38,5 +44,10 @@ class BuildValidationEvent extends Event implements ShopwareEvent, GenericEvent
     public function getContext(): Context
     {
         return $this->context;
+    }
+
+    public function getPayload(): ?array
+    {
+        return $this->payload;
     }
 }

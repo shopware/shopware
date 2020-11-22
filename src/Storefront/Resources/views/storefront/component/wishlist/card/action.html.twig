@@ -1,7 +1,7 @@
 {% sw_extends '@Storefront/storefront/component/product/card/action.html.twig' %}
 
 {% block component_product_box_action_detail %}
-    {% set noLongerAvailable = product.isCloseout and product.availableStock < product.minPurchase %}
+    {% set noLongerAvailable = not product.available %}
 
     <span {% if noLongerAvailable %}data-toggle="tooltip"
         title="{{ "wishlist.noLongerAvailableTooltip"|trans|striptags }}"{% endif %}>

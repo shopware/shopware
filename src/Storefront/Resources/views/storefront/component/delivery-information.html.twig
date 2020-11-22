@@ -41,7 +41,7 @@
                     })|sw_sanitize }}
                 </p>
             {% endblock %}
-        {% elseif product.isCloseout and product.availableStock < product.minPurchase %}
+        {% elseif not product.available %}
             {% block component_delivery_information_soldout %}
                 <link itemprop="availability" href="http://schema.org/LimitedAvailability"/>
                 <p class="delivery-information delivery-soldout">

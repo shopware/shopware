@@ -69,7 +69,7 @@
                 {% endblock %}
 
                 {% block component_product_box_currently_not_available %}
-                    {% set noLongerAvailable = product.isCloseout and product.availableStock < product.minPurchase %}
+                    {% set noLongerAvailable = not product.available %}
 
                     <p class="product-wishlist-info-item product-wishlist-info-not-available">
                         {% if not product.available or noLongerAvailable %}

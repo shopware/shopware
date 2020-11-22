@@ -3,7 +3,7 @@
 
     {% if shopware.config.core.listing.allowBuyInListing %}
         <div class="product-action">
-            {% set isAvailable = not product.isCloseout or (product.availableStock >= product.minPurchase) %}
+            {% set isAvailable = product.available %}
 
             {% if isAvailable and not product.isGrouped and product.childCount <= 0 and product.calculatedPrices.count <= 1 %}
                 {% block component_product_box_action_buy %}

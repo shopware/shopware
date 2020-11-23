@@ -337,5 +337,42 @@
                 {% endblock %}
             </sw-sidebar-item>
         {% endblock %}
+
+        {% block sw_cms_sidebar_layout_assignment %}
+            <sw-sidebar-item
+                v-if="feature.isActive('FEATURE_NEXT_11389')"
+                class="sw-cms-sidebar__layout-assignment"
+                icon="default-action-share"
+                :title="$tc('sw-cms.detail.sidebar.titleLayoutAssignment')"
+                :disabled="page.locked || disabled"
+                ref="layoutAssignment">
+
+                {% block sw_cms_sidebar_layout_assignment_content %}
+                    <div class="sw-cms-sidebar__layout-assignment-content">
+                        {% block sw_cms_sidebar_layout_assignment_headline %}
+                            <h3 class="sw-cms-sidebar__layout-assignment-headline">
+                                {{ $tc('sw-cms.sidebar.layoutAssignment.headline') }}
+                            </h3>
+                        {% endblock %}
+
+                        {% block sw_cms_sidebar_layout_assignment_info_text %}
+                            <p class="sw-cms-sidebar__layout-assignment-info-text">
+                                {{ $tc('sw-cms.sidebar.layoutAssignment.infoText') }}
+                            </p>
+                        {% endblock %}
+
+                        {% block sw_cms_sidebar_layout_assignment_action_open %}
+                            <sw-button
+                                variant="ghost"
+                                size="small"
+                                class="sw-cms-sidebar__layout-assignment-open"
+                                @click="onOpenLayoutAssignment">
+                                {{ $tc('sw-cms.sidebar.layoutAssignment.actionAssignLayout') }}
+                            </sw-button>
+                        {% endblock %}
+                    </div>
+                {% endblock %}
+            </sw-sidebar-item>
+        {% endblock %}
     </sw-sidebar>
 {% endblock %}

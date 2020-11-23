@@ -97,7 +97,12 @@
         box-shadow: 0 0 4px 0 rgba($color-shopware-blue, 0.4);
     }
 
-    h1, h2, h3, h4, h5, h6 {
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
         font-size: 16px;
         line-height: 18px;
         margin: 0 0 6px 0;
@@ -125,4 +130,19 @@
     display: block;
     text-align: center;
     margin-bottom: 32px;
+}
+
+.sw-cms-sidebar__layout-assignment-content {
+    padding: 25px;
+}
+
+.sw-cms-sidebar__layout-assignment-headline {
+    color: $color-darkgray-200;
+    font-size: $font-size-small;
+}
+
+.sw-cms-sidebar__layout-assignment-info-text {
+    color: $color-darkgray-200;
+    font-size: $font-size-small;
+    margin-bottom: 20px;
 }

@@ -39,7 +39,8 @@ Shopware.Service('privileges')
                     Shopware.Service('privileges').getPrivileges('media.creator'),
                     'product_stream:read',
                     'currency:read',
-                    'product_manufacturer:read'
+                    'product_manufacturer:read',
+                    'category:update'
                 ],
                 dependencies: [
                     'cms.viewer'

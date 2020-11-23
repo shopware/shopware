@@ -1,0 +1,8 @@
+{
+  "name": "Wall of Text",
+  "type": "page",
+  "sections": [{
+    "type": "default",
+    "position": 0
+  }]
+}

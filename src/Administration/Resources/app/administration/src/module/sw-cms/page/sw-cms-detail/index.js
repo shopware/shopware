@@ -72,7 +72,9 @@ Component.register('sw-cms-detail', {
                         }
                     ]
                 }
-            ]
+            ],
+            showLayoutAssignmentModal: false,
+            previousRoute: ''
         };
     },
 
@@ -80,6 +82,12 @@ Component.register('sw-cms-detail', {
         return {
             title: this.$createTitle(this.identifier)
         };
+    },
+
+    beforeRouteEnter(to, from, next) {
+        next((vm) => {
+            vm.previousRoute = from.name;
+        });
     },
 
     computed: {
@@ -198,7 +206,9 @@ Component.register('sw-cms-detail', {
             const criteria = new Criteria(1, 1);
             const sortCriteria = Criteria.sort('position', 'ASC', true);
 
-            criteria.getAssociation('sections')
+            criteria
+                .addAssociation('categories')
+                .getAssociation('sections')
                 .addSorting(sortCriteria)
                 .addAssociation('backgroundMedia')
                 .getAssociation('blocks')
@@ -567,6 +577,12 @@ Component.register('sw-cms-detail', {
             }
             const sections = this.page.sections;
 
+            if (!this.page.categories.length && this.previousRoute === 'sw.cms.create') {
+                this.openLayoutAssignmentModal();
+
+                return Promise.reject();
+            }
+
             if (this.page.type === 'product_list') {
                 let foundListingBlock = false;
 
@@ -836,6 +852,22 @@ Component.register('sw-cms-detail', {
 
         isProductPageElement(slot) {
             return ['buy-box', 'product-description-reviews', 'cross-selling'].includes(slot.type);
+        },
+
+        onOpenLayoutAssignment() {
+            this.openLayoutAssignmentModal();
+        },
+
+        openLayoutAssignmentModal() {
+            this.showLayoutAssignmentModal = true;
+        },
+
+        closeLayoutAssignmentModal() {
+            this.showLayoutAssignmentModal = false;
+        },
+
+        onConfirmLayoutAssignment() {
+            this.previousRoute = '';
         }
     }
 });

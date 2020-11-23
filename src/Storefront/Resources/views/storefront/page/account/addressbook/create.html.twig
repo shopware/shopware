@@ -28,7 +28,8 @@
                             {% block page_account_address_form_create_personal %}
                                 {% sw_include '@Storefront/storefront/component/address/address-personal.html.twig' with {
                                     'data': data.get('address'),
-                                    'prefix': 'address'
+                                    'prefix': 'address',
+                                    'accountType': data.get('accountType')
                                 } %}
                             {% endblock %}
 

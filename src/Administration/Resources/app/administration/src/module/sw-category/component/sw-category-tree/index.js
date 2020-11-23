@@ -321,6 +321,13 @@ Component.register('sw-category-tree', {
                 }
             });
             return idsToDelete;
+        },
+
+        getCategoryUrl(category) {
+            return this.$router.resolve({
+                name: this.linkContext,
+                params: { id: category.id }
+            }).href;
         }
     }
 });

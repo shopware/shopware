@@ -19,6 +19,7 @@ use Shopware\Core\Framework\App\Lifecycle\Persister\TemplatePersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Manifest\Manifest;
+use Shopware\Core\Framework\App\Manifest\Xml\Cookies;
 use Shopware\Core\Framework\App\Manifest\Xml\Module;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -247,6 +248,8 @@ class AppLifecycle extends AbstractAppLifecycle
         $this->templatePersister->updateTemplates($manifest, $id, $context);
         $this->customFieldPersister->updateCustomFields($manifest, $id, $context);
 
+        $this->updateCookies($manifest, $id, $context);
+
         $config = $this->appLoader->getConfiguration($app);
         if ($config) {
             $this->verifyConfig($config);
@@ -330,6 +333,20 @@ class AppLifecycle extends AbstractAppLifecycle
                 },
                 []
             ),
+        ];
+
+        $this->appRepository->update([$payload], $context);
+    }
+
+    private function updateCookies(Manifest $manifest, string $id, Context $context): void
+    {
+        if (!($manifest->getCookies() instanceof Cookies)) {
+            return;
+        }
+
+        $payload = [
+            'id' => $id,
+            'cookies' => $manifest->getCookies()->getCookies(),
         ];
 
         $this->appRepository->update([$payload], $context);

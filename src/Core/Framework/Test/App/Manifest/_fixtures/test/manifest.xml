@@ -81,4 +81,26 @@ Folgende Nutzerdaten werden auf Servern der shopware AG verarbeitet:
         <webhook name="hook1" url="https://test.com/hook" event="checkout.customer.before.login"/>
         <webhook name="hook2" url="https://test.com/hook2" event="checkout.order.placed"/>
     </webhooks>
+    <cookies>
+        <cookie>
+            <snippet-name>Swoogle Analytics</snippet-name>
+            <cookie>swag.analytics</cookie>
+            <value></value>
+            <expiration>30</expiration>
+        </cookie>
+        <group>
+            <snippet-name>App Cookies</snippet-name>
+            <snippet-description>Cookies required for this app to work</snippet-description>
+            <entries>
+                <cookie>
+                    <snippet-name>Something</snippet-name>
+                    <cookie>swag.app.something</cookie>
+                </cookie>
+                <cookie>
+                    <snippet-name>Lorem ipsum</snippet-name>
+                    <cookie>swag.app.lorem-ipsum</cookie>
+                </cookie>
+            </entries>
+        </group>
+    </cookies>
 </manifest>

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\App\Manifest;
 
 use Shopware\Core\Framework\App\Manifest\Xml\Admin;
+use Shopware\Core\Framework\App\Manifest\Xml\Cookies;
 use Shopware\Core\Framework\App\Manifest\Xml\CustomFields;
 use Shopware\Core\Framework\App\Manifest\Xml\Metadata;
 use Shopware\Core\Framework\App\Manifest\Xml\Permissions;
@@ -50,6 +51,11 @@ class Manifest
      */
     private $webhooks;
 
+    /**
+     * @var Cookies|null
+     */
+    private $cookies;
+
     private function __construct(
         string $path,
         Metadata $metadata,
@@ -57,7 +63,8 @@ class Manifest
         ?Admin $admin,
         ?Permissions $permissions,
         ?CustomFields $customFields,
-        ?Webhooks $webhooks
+        ?Webhooks $webhooks,
+        ?Cookies $cookies
     ) {
         $this->path = $path;
         $this->metadata = $metadata;
@@ -66,6 +73,7 @@ class Manifest
         $this->permissions = $permissions;
         $this->customFields = $customFields;
         $this->webhooks = $webhooks;
+        $this->cookies = $cookies;
     }
 
     public static function createFromXmlFile(string $xmlFile): self
@@ -89,8 +97,10 @@ class Manifest
         $customFields = $customFields === null ? null : CustomFields::fromXml($customFields);
         $webhooks = $doc->getElementsByTagName('webhooks')->item(0);
         $webhooks = $webhooks === null ? null : Webhooks::fromXml($webhooks);
+        $cookies = $doc->getElementsByTagName('cookies')->item(0);
+        $cookies = $cookies === null ? null : Cookies::fromXml($cookies);
 
-        return new self(dirname($xmlFile), $metadata, $setup, $admin, $permissions, $customFields, $webhooks);
+        return new self(dirname($xmlFile), $metadata, $setup, $admin, $permissions, $customFields, $webhooks, $cookies);
     }
 
     public function getPath(): string
@@ -131,5 +141,10 @@ class Manifest
     public function getWebhooks(): ?Webhooks
     {
         return $this->webhooks;
+    }
+
+    public function getCookies(): ?Cookies
+    {
+        return $this->cookies;
     }
 }

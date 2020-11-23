@@ -385,6 +385,15 @@ Component.register('sw-users-permissions-user-detail', {
             this.$router.push({ name: 'sw.users.permissions.index' });
         },
 
+        setPassword(password) {
+            if (typeof password === 'string' && password.length <= 0) {
+                this.$delete(this.user, 'password');
+                return;
+            }
+
+            this.$set(this.user, 'password', password);
+        },
+
         /**
          * @deprecated tag:v6.4.0
          */

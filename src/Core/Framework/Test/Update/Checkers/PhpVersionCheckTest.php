@@ -7,10 +7,10 @@ use Shopware\Core\Framework\Update\Checkers\PhpVersionCheck;
 
 class PhpVersionCheckTest extends TestCase
 {
-    public function testPhp72(): void
+    public function testPhp74Min(): void
     {
         $validationResult = (new PhpVersionCheck())
-            ->check('7.2')
+            ->check('7.4')
             ->jsonSerialize();
 
         static::assertTrue($validationResult['result']);

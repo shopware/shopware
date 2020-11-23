@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Category\Service;
 
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Category\Event\SalesChannelEntryPointsEvent;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Seo\MainCategory\MainCategoryEntity;
 use Shopware\Core\Framework\Context;
@@ -11,7 +12,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Content\Category\Event\SalesChannelEntryPointsEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -60,7 +60,7 @@ class CategoryBreadcrumbBuilder
                 $event->addId('navigation-category-id', $navigationCategoryId);
             }
         } else {
-            $event = new SalesChannelEntryPointsEvent($context);
+            $event = new SalesChannelEntryPointsEvent($context, [$navigationCategoryId]);
         }
 
         $this->dispatcher->dispatch($event);

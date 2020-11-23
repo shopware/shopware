@@ -26,13 +26,13 @@ class SalesChannelEntryPointsEvent implements ShopwareEvent
 
     /**
      * @param Context
-     * @param array $navigationIds Array of UUIDs of valid navigation entry points
+     * @param array              $navigationIds      Array of UUIDs of valid navigation entry points
      * @param SalesChannelEntity $salesChannelEntity
      */
     public function __construct(
         Context $context,
         array $navigationIds = [],
-        SalesChannelEntity $salesChannelEntity = null
+        ?SalesChannelEntity $salesChannelEntity = null
     ) {
         $this->context = $context;
         $this->navigationIds = $navigationIds;

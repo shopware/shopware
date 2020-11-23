@@ -56,7 +56,6 @@ class AppDefinition extends EntityDefinition
         return [
             'active' => false,
             'configurable' => false,
-            'cookies' => [],
         ];
     }
 
@@ -86,7 +85,7 @@ class AppDefinition extends EntityDefinition
 
             new ListField('modules', 'modules', JsonField::class),
 
-            (new ListField('cookies', 'cookies', JsonField::class))->addFlags(new Required()),
+            new ListField('cookies', 'cookies', JsonField::class),
 
             (new TranslationsAssociationField(AppTranslationDefinition::class, 'app_id'))->addFlags(
                 new Required(),

@@ -63,7 +63,7 @@ class AppCookieProvider implements CookieProviderInterface
 
         /** @var AppEntity $app */
         foreach ($apps->getEntities() as $app) {
-            foreach ($app->getCookies() as $cookie) {
+            foreach ($app->getCookies() ?? [] as $cookie) {
                 // cookies that are not part of a group can simply be added to the cookies array
                 if (!array_key_exists('entries', $cookie)) {
                     $cookies[] = $cookie;

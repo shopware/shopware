@@ -39,7 +39,7 @@ describe('CMS: Check usage and editing of commerce elements', () => {
             });
     });
 
-    it.skip('@base @content: use simple product block', () => {
+    it('@base @content: use simple product block', () => {
         cy.server();
         cy.route({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
@@ -58,9 +58,7 @@ describe('CMS: Check usage and editing of commerce elements', () => {
         cy.get('.sw-cms-section__empty-stage').click();
         cy.get('#sw-field--currentBlockCategory').select('Commerce');
         cy.get('.sw-cms-preview-product-three-column').should('be.visible');
-        cy.get('.sw-cms-sidebar__block-preview')
-            .first()
-            .dragTo('.sw-cms-section__empty-stage');
+        cy.get('.sw-cms-preview-product-three-column').dragTo('.sw-cms-section__empty-stage');
         cy.get('.sw-cms-block__config-overlay').invoke('show');
         cy.get('.sw-cms-block__config-overlay').should('be.visible');
         cy.get('.sw-cms-block__config-overlay').click();
@@ -118,7 +116,7 @@ describe('CMS: Check usage and editing of commerce elements', () => {
         cy.get('.product-name[title="Third product"]').should('be.visible');
     });
 
-    it.skip('@base @content: use product slider block with dynamic product group', () => {
+    it('@base @content: use product slider block with dynamic product group', () => {
         cy.server();
         cy.route({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
@@ -137,9 +135,7 @@ describe('CMS: Check usage and editing of commerce elements', () => {
         cy.get('.sw-cms-section__empty-stage').click();
         cy.get('#sw-field--currentBlockCategory').select('Commerce');
         cy.get('.sw-cms-preview-product-slider').should('be.visible');
-        cy.get('.sw-cms-sidebar__block-preview')
-            .eq(1)
-            .dragTo('.sw-cms-section__empty-stage');
+        cy.get('.sw-cms-preview-product-slider').dragTo('.sw-cms-section__empty-stage');
 
         cy.get('.sw-cms-block__config-overlay').invoke('show');
         cy.get('.sw-cms-block__config-overlay').should('be.visible');

@@ -20,7 +20,7 @@ describe('CMS: Test crud operations of layouts', () => {
             });
     });
 
-    it.skip('@base @content: create, translate and read layout', () => {
+    it('@base @content: create, translate and read layout', () => {
         const page = new MediaPageObject();
 
         cy.server();
@@ -69,9 +69,22 @@ describe('CMS: Test crud operations of layouts', () => {
 
         // Save new page layout
         cy.get('.sw-cms-detail__save-action').click();
+
         cy.wait('@saveData').then((xhr) => {
-            cy.get(page.elements.successIcon).should('be.visible');
             expect(xhr).to.have.property('status', 204);
+        });
+
+        cy.window().then((win) => {
+            if (!win.Shopware.Feature.isActive('FEATURE_NEXT_11389')) {
+                return;
+            }
+
+            // Shows layout assignment modal the first time saving after the wizard
+            cy.get('.sw-cms-layout-assignment-modal').should('be.visible');
+
+            // Confirm without layout
+            cy.get('.sw-cms-layout-assignment-modal__action-confirm').click();
+            cy.get('.sw-cms-layout-assignment-modal').should('not.be.visible');
         });
 
         cy.wait('@reloadPage').then((xhr) => {
@@ -86,6 +99,19 @@ describe('CMS: Test crud operations of layouts', () => {
 
         cy.wait('@changeLang').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
+
+            cy.window().then((win) => {
+                if (!win.Shopware.Feature.isActive('FEATURE_NEXT_11389')) {
+                    return;
+                }
+
+                // Shows layout assignment modal the first time saving after the wizard
+                cy.get('.sw-modal').should('be.visible');
+
+                // Confirm without layout
+                cy.get('#sw-language-switch-save-changes-button').click();
+                cy.get('.sw-modal').should('not.exist');
+            });
         });
 
         cy.get('.sw-cms-block').should('be.visible');

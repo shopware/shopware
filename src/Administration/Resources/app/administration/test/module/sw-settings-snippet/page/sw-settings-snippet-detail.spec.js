@@ -118,9 +118,7 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
                         return privileges.includes(identifier);
                     }
                 },
-                userService: {
-                    getUser: () => Promise.resolve()
-                },
+                userService: {},
                 snippetSetService: {
                     getAuthors: () => {
                         return Promise.resolve();
@@ -164,6 +162,9 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-detail', () => {
         [undefined, 'snippet.viewer, snippet.editor, snippet.creator'],
         [undefined, 'snippet.viewer, snippet.editor, snippet.deleter']
     ])('should only have disabled inputs', async (state, role) => {
+        Shopware.State.get('session').currentUser = {
+            username: 'testUser'
+        };
         const roles = role.split(', ');
         const wrapper = createWrapper(roles);
 

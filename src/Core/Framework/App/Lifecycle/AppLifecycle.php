@@ -39,6 +39,7 @@ class AppLifecycle extends AbstractAppLifecycle
         'sw-entity-multi-id-select',
         'sw-media-field',
         'sw-text-editor',
+        'sw-snippet-field',
     ];
 
     /**

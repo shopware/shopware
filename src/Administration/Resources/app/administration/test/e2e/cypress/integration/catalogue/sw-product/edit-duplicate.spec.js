@@ -97,7 +97,7 @@ describe('Product: Duplicate product', () => {
         cy.get('.sw-data-grid__cell--name').contains('What remains of Edith Finch');
     });
 
-    it('@base @catalogue: duplicate duplicated product in product-detail', () => {
+    it('@catalogue: duplicate duplicated product in product-detail', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later

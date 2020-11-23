@@ -14,7 +14,7 @@ describe('Theme: Test ACL privileges', () => {
             });
     });
 
-    it('@base @content: has no access to theme module', () => {
+    it('@content: has no access to theme module', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product',
@@ -33,7 +33,7 @@ describe('Theme: Test ACL privileges', () => {
         cy.get('.sw-admin-menu__navigation-list-item.sw-theme-manager').should('not.exist');
     });
 
-    it('@base @content: can view theme', () => {
+    it('@content: can view theme', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'theme',
@@ -91,7 +91,7 @@ describe('Theme: Test ACL privileges', () => {
         cy.get('.smart-bar__actions .sw-button--primary').should('have.attr', 'disabled');
     });
 
-    it('@base @content: can edit theme', () => {
+    it('@content: can edit theme', () => {
         cy.server();
         cy.route({
             url: `${Cypress.env('apiPath')}/_action/theme/*`,
@@ -133,7 +133,7 @@ describe('Theme: Test ACL privileges', () => {
         });
     });
 
-    it('@base @content: can create theme via duplicate functionality', () => {
+    it('@content: can create theme via duplicate functionality', () => {
         cy.server();
         cy.route({
             url: `${Cypress.env('apiPath')}/theme`,
@@ -183,7 +183,7 @@ describe('Theme: Test ACL privileges', () => {
         });
     });
 
-    it('@base @content: can delete theme', () => {
+    it('@content: can delete theme', () => {
         cy.server();
         cy.route({
             url: `${Cypress.env('apiPath')}/theme/*`,

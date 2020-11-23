@@ -552,7 +552,7 @@ describe('Order: Create order', () => {
         cy.get('tbody .sw-data-grid__row').should('have.length', 2);
     });
 
-    it('@base @order: add invalid promotion code', () => {
+    it('@order: add invalid promotion code', () => {
         const page = new OrderPageObject();
 
         // start server

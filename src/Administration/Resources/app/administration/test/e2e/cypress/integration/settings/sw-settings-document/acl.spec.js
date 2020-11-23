@@ -10,7 +10,7 @@ describe('Settings Documents: Test crud operations with ACL', () => {
         });
     });
 
-    it('@base @general: read documents with ACL, but without rights', () => {
+    it('@general: read documents with ACL, but without rights', () => {
         cy.loginAsUserWithPermissions([]);
 
         cy.visit(`${Cypress.env('admin')}#/sw/settings/document/index`);
@@ -24,7 +24,7 @@ describe('Settings Documents: Test crud operations with ACL', () => {
         cy.location('hash').should('eq', '#/sw/privilege/error/index');
     });
 
-    it('@base @general: read document with ACL', () => {
+    it('@general: read document with ACL', () => {
         const page = new DocumentPageObject();
         cy.loginAsUserWithPermissions([{ key: 'document', role: 'viewer' }]);
 

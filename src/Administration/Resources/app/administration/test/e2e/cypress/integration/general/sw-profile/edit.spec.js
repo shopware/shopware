@@ -48,7 +48,7 @@ describe('Profile module', () => {
             });
     });
 
-    it('@base @general: profile raise a notification for invalid authentification', () => {
+    it('@general: profile raise a notification for invalid authentication', () => {
         cy.get('.sw-profile__save-action')
             .should('be.visible')
             .click();

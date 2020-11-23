@@ -86,7 +86,7 @@
         </component>
 
         <component name="sw-cms-page-select">
-            <name>404Page</name>
+            <name>http404Page</name>
             <entity>cms_page</entity>
             <pageType>page</pageType>
             <label>Layout for 404 pages</label>

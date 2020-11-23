@@ -26,13 +26,13 @@ describe('Basic Informaion: Edit assignments', () => {
         // Assign 404 layout to all sales channels
         cy.get('.sw-card.sw-system-config__card--1').should('be.visible');
         cy.get('.sw-card.sw-system-config__card--1 .sw-card__title').contains('Shop pages');
-        cy.get('.sw-cms-page-select[name="core.basicInformation.404Page"]').scrollIntoView();
-        cy.get('.sw-cms-page-select[name="core.basicInformation.404Page"]').should('be.visible');
+        cy.get('.sw-cms-page-select[name="core.basicInformation.http404Page"]').scrollIntoView();
+        cy.get('.sw-cms-page-select[name="core.basicInformation.http404Page"]').should('be.visible');
 
-        cy.get('.sw-cms-page-select[name="core.basicInformation.404Page"]')
+        cy.get('.sw-cms-page-select[name="core.basicInformation.http404Page"]')
             .typeSingleSelectAndCheck(
                 '404 Layout',
-                '.sw-cms-page-select[name="core.basicInformation.404Page"] .sw-entity-single-select'
+                '.sw-cms-page-select[name="core.basicInformation.http404Page"] .sw-entity-single-select'
             );
 
         cy.get('.smart-bar__content .sw-button--primary').click();
@@ -40,7 +40,7 @@ describe('Basic Informaion: Edit assignments', () => {
             expect(xhr).to.have.property('status', 204);
 
             cy.get(
-                '.sw-cms-page-select[name="core.basicInformation.404Page"] ' +
+                '.sw-cms-page-select[name="core.basicInformation.http404Page"] ' +
                         '.sw-entity-single-select__selection-text'
             ).contains('404 Layout');
         });

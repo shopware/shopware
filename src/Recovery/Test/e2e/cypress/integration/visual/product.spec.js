@@ -5,10 +5,11 @@ import ProductStreamObject from '../../support/pages/module/sw-product-stream.pa
 
 describe('Product: Visual tests', () => {
     beforeEach(() => {
-        cy.loginViaApi()
-            .then(() => {
-                cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
-            });
+        cy.setLocaleToEnGb().then(() => {
+            cy.loginViaApi();
+        }).then(() => {
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
+        });
     });
 
     it('@base @catalogue: create and read product', () => {
@@ -57,10 +58,7 @@ describe('Product: Visual tests', () => {
         cy.get('.sw-loader').should('not.exist');
         const save = Cypress.env('locale') === 'en-GB' ? 'Save' : 'Speichern';
         cy.get(page.elements.productSaveAction).contains(save);
-        cy.changeElementStyling(
-            '.sw-version__info',
-            'visibility: hidden'
-        );
+        cy.prepareAdminForScreenshot();
         cy.takeSnapshot('Product detail base', '.sw-product-detail-base');
 
         cy.get(page.elements.smartBarBack).click();
@@ -71,10 +69,7 @@ describe('Product: Visual tests', () => {
             .contains('Product with file upload image');
 
         cy.get('.sw-data-grid__skeleton').should('not.exist');
-        cy.changeElementStyling(
-            '.sw-version__info',
-            'visibility: hidden'
-        );
+        cy.prepareAdminForScreenshot();
         cy.takeSnapshot('Product listing');
     });
 });

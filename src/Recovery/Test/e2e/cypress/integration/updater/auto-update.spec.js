@@ -62,6 +62,7 @@ describe('Minimal auto update', () => {
         cy.get('.content--main h2').contains('Datenbank-Update durchführen');
 
         // Take snapshot for visual testing
+        cy.get('.navigation--entry.is--complete').contains('Systemvoraussetzungen');
         cy.takeSnapshot('Migration');
 
         cy.wait('@applyMigrations', { responseTimeout: 300000, timeout: 310000 })
@@ -71,6 +72,7 @@ describe('Minimal auto update', () => {
 
         cy.get('[name="cleanupForm"]', { timeout: 120000 }).should('be.visible');
         cy.get('.is--active > .navigation--link', { timeout: 1000 }).contains('Aufräumen');
+        cy.get('.navigation--entry.is--complete').contains('Datenbank-Migration');
         cy.get('.content--main h2').contains('Aufräumen');
 
         // Take snapshot for visual testing
@@ -86,6 +88,7 @@ describe('Minimal auto update', () => {
         cy.get('.alert-hero-title').contains('Das Update war erfolgreich!');
 
         // Take snapshot for visual testing
+        cy.get('.navigation--entry.is--complete').contains('Aufräumen');
         cy.takeSnapshot('Finish');
 
         cy.get('.btn.btn-primary').contains('Update abschließen').click();

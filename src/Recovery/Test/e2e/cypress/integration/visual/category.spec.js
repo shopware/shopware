@@ -3,7 +3,10 @@
 describe('Category: Visual tests', () => {
     beforeEach(() => {
         // Clean previous state and prepare Administration
-        cy.loginViaApi()
+        cy.setLocaleToEnGb()
+            .then(() => {
+                cy.loginViaApi();
+            })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/category/index`);
             });
@@ -28,12 +31,9 @@ describe('Category: Visual tests', () => {
         // Take snapshot for visual testing
         cy.changeElementStyling(
             '.sw-category-sales-channel-card__list',
-            'color: #fff'
-        );
-        cy.changeElementStyling(
-            '.sw-version__info',
             'visibility: hidden'
         );
+        cy.prepareAdminForScreenshot();
         cy.takeSnapshot('Category - detail', '.sw-category-detail-base');
     });
 });

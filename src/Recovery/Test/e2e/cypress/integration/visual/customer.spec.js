@@ -20,7 +20,10 @@ const newAddress = {
 
 describe('Customer:  Visual test', () => {
     beforeEach(() => {
-        cy.loginViaApi()
+        cy.setLocaleToEnGb()
+            .then(() => {
+                cy.loginViaApi();
+            })
             .then(() => {
                 return cy.fixture('customer');
             })
@@ -47,10 +50,7 @@ describe('Customer:  Visual test', () => {
         }).as('saveData');
 
         // Take snapshot for visual testing
-        cy.changeElementStyling(
-            '.sw-version__info',
-            'visibility: hidden'
-        );
+        cy.prepareAdminForScreenshot();
         cy.get('.sw-data-grid__skeleton').should('not.exist');
         cy.takeSnapshot('Customer listing', '.sw-customer-list-grid');
 
@@ -58,10 +58,7 @@ describe('Customer:  Visual test', () => {
         cy.get('a[href="#/sw/customer/create"]').click();
 
         // Take snapshot for visual testing
-        cy.changeElementStyling(
-            '.sw-version__info',
-            'visibility: hidden'
-        );
+        cy.prepareAdminForScreenshot();
         cy.takeSnapshot('Customer create', '.sw-customer-create');
 
         const salutation = Cypress.env('locale') === 'en-GB' ? 'Mr' : 'Herr';
@@ -99,10 +96,7 @@ describe('Customer:  Visual test', () => {
         });
 
         // Take snapshot for visual testing
-        cy.changeElementStyling(
-            '.sw-version__info',
-            'visibility: hidden'
-        );
+        cy.prepareAdminForScreenshot();
         cy.takeSnapshot('Customer detail', '.sw-customer-card');
     });
 });

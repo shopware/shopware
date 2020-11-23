@@ -106,7 +106,7 @@ class AccountOrderController extends StorefrontController
 
     /**
      * @Since("6.2.0.0")
-     * @LoginRequired()
+     * @LoginRequired(allowGuest=true)
      * @Route("/account/order/{deepLinkCode}", name="frontend.account.order.single.page", options={"seo"="false"}, methods={"GET"})
      *
      * @throws CustomerNotLoggedInException

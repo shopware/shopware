@@ -107,10 +107,11 @@ describe('components/base/sw-button', () => {
         });
 
         const button = wrapper.find('button');
+        expect(button.attributes('disabled')).toBe('disabled');
 
         button.element.removeAttribute('disabled');
 
-        expect(button.attributes('disbaled')).toBeFalsy();
+        expect(button.attributes('disabled')).toBeFalsy();
 
         await wrapper.trigger('click');
         expect(click).not.toBeCalled();

@@ -31,7 +31,7 @@ describe('Sales Channel: Test acl', () => {
         cy.get('#trackingId').should('be.visible');
     });
 
-    it('@base @general: edit sales channel', () => {
+    it('@general: edit sales channel', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'sales_channel',
@@ -51,7 +51,7 @@ describe('Sales Channel: Test acl', () => {
         cy.get('.sw-admin-menu__sales-channel-item--1').contains('Shopsite');
     });
 
-    it('@base @general: create sales channel', () => {
+    it('@general: create sales channel', () => {
         const page = new SalesChannelPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -97,7 +97,7 @@ describe('Sales Channel: Test acl', () => {
         cy.get(page.elements.salesChannelNameInput).should('have.value', '1st Epic Sales Channel');
     });
 
-    it('@base @general: delete sales channel', () => {
+    it('@general: delete sales channel', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'sales_channel',

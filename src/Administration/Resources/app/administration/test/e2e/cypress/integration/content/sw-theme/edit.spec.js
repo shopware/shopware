@@ -12,7 +12,7 @@ describe('Theme: Test common editing of theme', () => {
             });
     });
 
-    it('@base @media @content: change theme logo image', { browser: '!firefox' }, () => {
+    it('@base @media @content: change theme logo image', () => {
         cy.server();
         cy.route({
             url: `${Cypress.env('apiPath')}/_action/theme/*`,

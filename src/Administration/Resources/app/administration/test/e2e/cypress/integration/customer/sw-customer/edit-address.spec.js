@@ -98,7 +98,6 @@ describe('Customer: Edit customer\'s addresses', () => {
         cy.get(`${page.elements.dataGridRow}--1`).should('not.exist');
     });
 
-
     it('@customer: swap default billing and shipping address', () => {
         const page = new CustomerPageObject();
 

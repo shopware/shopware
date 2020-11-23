@@ -28,7 +28,7 @@ describe('Order: Test order state', () => {
             });
     });
 
-    it('@package @order: edit order state', () => {
+    it('@base @order: edit order state', () => {
         const page = new OrderPageObject();
 
         // Request we want to wait for later

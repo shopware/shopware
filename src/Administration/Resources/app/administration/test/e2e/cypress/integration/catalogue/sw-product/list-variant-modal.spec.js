@@ -51,7 +51,7 @@ describe('Product: Test variants', () => {
             });
     });
 
-    it('@catalogue @base: should edit variants in modal', () => {
+    it('@catalogue: should edit variants in modal', () => {
         cy.server();
         cy.route({
             url: '/api/v*/product/*',

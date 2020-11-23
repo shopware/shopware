@@ -122,7 +122,7 @@ describe('Customer: Test crud operations', () => {
         cy.get('.sw-data-grid__cell--firstName').contains('Ronald Weasley');
     });
 
-    it('@customer: delete customer', () => {
+    it('@base @customer: delete customer', () => {
         const page = new CustomerPageObject();
 
         // Request we want to wait for later

@@ -195,24 +195,6 @@ describe('Administration: Check module navigation in settings', () => {
         cy.get('.sw-settings-number-range-list-grid').should('be.visible');
     });
 
-    it('@navigation: navigate to logging module', () => {
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/_action/system-config/schema?domain=core.loginRegistration`,
-            method: 'get'
-        }).as('getData');
-
-        cy.clickMainMenuItem({
-            targetPath: '#/sw/settings/index',
-            mainMenuId: 'sw-settings'
-        });
-        cy.get('a[href="#/sw/settings/login/registration/index"]').click();
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
-        cy.get('.sw-card__title').contains('Login / registration');
-    });
-
     it('@navigation: navigate to listing setting module', () => {
         cy.server();
         cy.route({

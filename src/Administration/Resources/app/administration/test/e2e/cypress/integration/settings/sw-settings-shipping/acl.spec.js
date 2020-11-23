@@ -16,7 +16,7 @@ describe('Shipping: Test acl privileges', () => {
             });
     });
 
-    it('@base @settings: read shipping method', () => {
+    it('@settings: read shipping method', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'shipping',
@@ -34,7 +34,7 @@ describe('Shipping: Test acl privileges', () => {
         cy.get('.sw-settings-shipping-detail__top-rule').contains('Cart >= 0 (Payment)');
     });
 
-    it('@base @settings: edit shipping method', () => {
+    it('@settings: edit shipping method', () => {
         const page = new ShippingPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -76,7 +76,7 @@ describe('Shipping: Test acl privileges', () => {
         });
     });
 
-    it('@base @settings: create shipping method', () => {
+    it('@settings: create shipping method', () => {
         const page = new ShippingPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -118,7 +118,7 @@ describe('Shipping: Test acl privileges', () => {
             .contains('Automated test shipping');
     });
 
-    it('@base @settings: delete shipping method', () => {
+    it('@settings: delete shipping method', () => {
         const page = new ShippingPageObject();
 
         cy.loginAsUserWithPermissions([

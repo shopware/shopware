@@ -32,7 +32,7 @@ describe('Customer: Test ACL privileges', () => {
             });
     });
 
-    it('@customer: has no access to property module', () => {
+    it('@customer: has no access to customer module', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product',

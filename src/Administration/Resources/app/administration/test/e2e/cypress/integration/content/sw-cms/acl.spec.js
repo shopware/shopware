@@ -29,7 +29,7 @@ describe('Category: Test ACL privileges', () => {
             .contains('Vierte Wand');
     });
 
-    it('@base @catalogue: can view shopping experiences detail page', () => {
+    it('@catalogue: can view shopping experiences detail page', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'cms',
@@ -51,7 +51,7 @@ describe('Category: Test ACL privileges', () => {
             .contains('Vierte Wand');
     });
 
-    it('@base @catalogue: can edit shopping experiences detail page', () => {
+    it('@catalogue: can edit shopping experiences detail page', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'cms',
@@ -100,7 +100,7 @@ describe('Category: Test ACL privileges', () => {
         });
     });
 
-    it('@base @catalogue: can edit shopping experiences detail page', () => {
+    it('@catalogue: can edit shopping experiences detail page', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'cms',

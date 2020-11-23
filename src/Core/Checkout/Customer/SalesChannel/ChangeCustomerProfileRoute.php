@@ -3,7 +3,6 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use OpenApi\Annotations as OA;
-use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerEvents;
 use Shopware\Core\Framework\Context;
@@ -11,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Event\DataMappingEvent;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
+use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
@@ -89,14 +89,11 @@ class ChangeCustomerProfileRoute extends AbstractChangeCustomerProfileRoute
      *          @OA\JsonContent(ref="#/components/schemas/SuccessResponse")
      *     )
      * )
+     * @LoginRequired()
      * @Route(path="/store-api/v{version}/account/change-profile", name="store-api.account.change-profile", methods={"POST"})
      */
     public function change(RequestDataBag $data, SalesChannelContext $context): SuccessResponse
     {
-        if (!$context->getCustomer()) {
-            throw new CustomerNotLoggedInException();
-        }
-
         $validation = $this->customerProfileValidationFactory->update($context);
 
         if ($data->get('accountType') === CustomerEntity::ACCOUNT_TYPE_BUSINESS) {

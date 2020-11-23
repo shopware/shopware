@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\CannotDeleteDefaultAddressException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AddressService;
+use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
@@ -62,14 +63,13 @@ class AddressController extends StorefrontController
 
     /**
      * @Since("6.0.0.0")
+     * @LoginRequired()
      * @Route("/account/address", name="frontend.account.address.page", options={"seo"="false"}, methods={"GET"})
      *
      * @throws CustomerNotLoggedInException
      */
     public function accountAddressOverview(Request $request, SalesChannelContext $context): Response
     {
-        $this->denyAccessUnlessLoggedIn();
-
         $page = $this->addressListingPageLoader->load($request, $context);
 
         return $this->renderStorefront('@Storefront/storefront/page/account/addressbook/index.html.twig', ['page' => $page]);
@@ -77,14 +77,13 @@ class AddressController extends StorefrontController
 
     /**
      * @Since("6.0.0.0")
+     * @LoginRequired()
      * @Route("/account/address/create", name="frontend.account.address.create.page", options={"seo"="false"}, methods={"GET"})
      *
      * @throws CustomerNotLoggedInException
      */
     public function accountCreateAddress(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
-        $this->denyAccessUnlessLoggedIn();
-
         $page = $this->addressDetailPageLoader->load($request, $context);
 
         return $this->renderStorefront('@Storefront/storefront/page/account/addressbook/create.html.twig', [
@@ -95,14 +94,13 @@ class AddressController extends StorefrontController
 
     /**
      * @Since("6.0.0.0")
+     * @LoginRequired()
      * @Route("/account/address/{addressId}", name="frontend.account.address.edit.page", options={"seo"="false"}, methods={"GET"})
      *
      * @throws CustomerNotLoggedInException
      */
     public function accountEditAddress(Request $request, SalesChannelContext $context): Response
     {
-        $this->denyAccessUnlessLoggedIn();
-
         $page = $this->addressDetailPageLoader->load($request, $context);
 
         return $this->renderStorefront('@Storefront/storefront/page/account/addressbook/edit.html.twig', ['page' => $page]);
@@ -110,6 +108,7 @@ class AddressController extends StorefrontController
 
     /**
      * @Since("6.0.0.0")
+     * @LoginRequired()
      * @Route("/account/address/default-{type}/{addressId}", name="frontend.account.address.set-default-address", methods={"POST"})
      *
      * @throws CustomerNotLoggedInException
@@ -117,8 +116,6 @@ class AddressController extends StorefrontController
      */
     public function switchDefaultAddress(string $type, string $addressId, SalesChannelContext $context): RedirectResponse
     {
-        $this->denyAccessUnlessLoggedIn();
-
         if (!Uuid::isValid($addressId)) {
             throw new InvalidUuidException($addressId);
         }
@@ -144,14 +141,13 @@ class AddressController extends StorefrontController
 
     /**
      * @Since("6.0.0.0")
+     * @LoginRequired()
      * @Route("/account/address/delete/{addressId}", name="frontend.account.address.delete", options={"seo"="false"}, methods={"POST"})
      *
      * @throws CustomerNotLoggedInException
      */
     public function deleteAddress(string $addressId, SalesChannelContext $context): Response
     {
-        $this->denyAccessUnlessLoggedIn();
-
         $success = true;
 
         if (!$addressId) {
@@ -169,6 +165,7 @@ class AddressController extends StorefrontController
 
     /**
      * @Since("6.0.0.0")
+     * @LoginRequired()
      * @Route("/account/address/create", name="frontend.account.address.create", options={"seo"="false"}, methods={"POST"})
      * @Route("/account/address/{addressId}", name="frontend.account.address.edit.save", options={"seo"="false"}, methods={"POST"})
      *
@@ -176,8 +173,6 @@ class AddressController extends StorefrontController
      */
     public function saveAddress(RequestDataBag $data, SalesChannelContext $context): Response
     {
-        $this->denyAccessUnlessLoggedIn();
-
         /** @var RequestDataBag $address */
         $address = $data->get('address');
 
@@ -201,14 +196,11 @@ class AddressController extends StorefrontController
 
     /**
      * @Since("6.0.0.0")
+     * @LoginRequired()
      * @Route("/widgets/account/address-book", name="frontend.account.addressbook", options={"seo"=true}, methods={"POST"}, defaults={"XmlHttpRequest"=true})
      */
     public function addressBook(Request $request, RequestDataBag $dataBag, SalesChannelContext $context): Response
     {
-        if (!$context->getCustomer()) {
-            throw new CustomerNotLoggedInException();
-        }
-
         $viewData = [];
         $viewData = $this->handleChangeableAddresses($viewData, $dataBag, $context);
         $viewData = $this->handleAddressCreation($viewData, $dataBag, $context);

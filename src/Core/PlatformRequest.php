@@ -43,6 +43,7 @@ final class PlatformRequest
     public const ATTRIBUTE_SALES_CHANNEL_ID = 'sw-sales-channel-id';
     public const ATTRIBUTE_ROUTE_SCOPE = '_routeScope';
     public const ATTRIBUTE_CONTEXT_TOKEN_REQUIRED = '_contextTokenRequired';
+    public const ATTRIBUTE_LOGIN_REQUIRED = '_loginRequired';
 
     /**
      * CSP

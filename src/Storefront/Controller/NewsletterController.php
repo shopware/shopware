@@ -7,6 +7,7 @@ use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterConfirmRoute
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterSubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterUnsubscribeRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
@@ -84,13 +85,12 @@ class NewsletterController extends StorefrontController
 
     /**
      * @Since("6.0.0.0")
+     * @LoginRequired()
      * @Route("/widgets/account/newsletter", name="frontend.account.newsletter", methods={"POST"}, defaults={"XmlHttpRequest"=true})
      * @Captcha
      */
     public function subscribeCustomer(Request $request, RequestDataBag $dataBag, SalesChannelContext $context): Response
     {
-        $this->denyAccessUnlessLoggedIn();
-
         $subscribed = $request->get('option', false) === 'direct';
 
         if (!$subscribed) {

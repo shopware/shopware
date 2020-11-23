@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Content\Product\Exception\ReviewNotActiveExeption;
 use Shopware\Core\Content\Product\SalesChannel\ProductReviewService;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
+use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -135,13 +136,12 @@ class ProductController extends StorefrontController
 
     /**
      * @Since("6.0.0.0")
+     * @LoginRequired()
      * @Route("/product/{productId}/rating", name="frontend.detail.review.save", methods={"POST"}, defaults={"XmlHttpRequest"=true})
      */
     public function saveReview(string $productId, RequestDataBag $data, SalesChannelContext $context): Response
     {
         $this->checkReviewsActive($context);
-
-        $this->denyAccessUnlessLoggedIn();
 
         try {
             $this->productReviewService->save($productId, $data, $context);

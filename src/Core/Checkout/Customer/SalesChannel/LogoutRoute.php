@@ -4,10 +4,10 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Doctrine\DBAL\Connection;
 use OpenApi\Annotations as OA;
-use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Util\Random;
@@ -80,14 +80,11 @@ class LogoutRoute extends AbstractLogoutRoute
      *          description=""
      *     )
      * )
+     * @LoginRequired()
      * @Route(path="/store-api/v{version}/account/logout", name="store-api.account.logout", methods={"POST"})
      */
     public function logout(SalesChannelContext $context, ?RequestDataBag $data = null)
     {
-        if (!$context->getCustomer()) {
-            throw new CustomerNotLoggedInException();
-        }
-
         $salesChannelId = $context->getSalesChannel()->getId();
         if ($this->systemConfig->get('core.loginRegistration.invalidateSessionOnLogOut', $salesChannelId)) {
             $this->cartService->deleteCart($context);

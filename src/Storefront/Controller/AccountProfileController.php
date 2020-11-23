@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AbstractChangePasswordRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractDeleteCustomerRoute;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
@@ -74,6 +75,7 @@ class AccountProfileController extends StorefrontController
 
     /**
      * @Since("6.0.0.0")
+     * @LoginRequired()
      * @Route("/account", name="frontend.account.home.page", methods={"GET"})
      *
      * @throws CustomerNotLoggedInException
@@ -83,8 +85,6 @@ class AccountProfileController extends StorefrontController
      */
     public function index(Request $request, SalesChannelContext $context): Response
     {
-        $this->denyAccessUnlessLoggedIn();
-
         $page = $this->overviewPageLoader->load($request, $context);
 
         return $this->renderStorefront('@Storefront/storefront/page/account/index.html.twig', ['page' => $page]);
@@ -92,6 +92,7 @@ class AccountProfileController extends StorefrontController
 
     /**
      * @Since("6.0.0.0")
+     * @LoginRequired()
      * @Route("/account/profile", name="frontend.account.profile.page", methods={"GET"})
      *
      * @throws CustomerNotLoggedInException
@@ -101,8 +102,6 @@ class AccountProfileController extends StorefrontController
      */
     public function profileOverview(Request $request, SalesChannelContext $context): Response
     {
-        $this->denyAccessUnlessLoggedIn();
-
         $page = $this->profilePageLoader->load($request, $context);
 
         return $this->renderStorefront('@Storefront/storefront/page/account/profile/index.html.twig', [
@@ -114,14 +113,13 @@ class AccountProfileController extends StorefrontController
 
     /**
      * @Since("6.0.0.0")
+     * @LoginRequired()
      * @Route("/account/profile", name="frontend.account.profile.save", methods={"POST"})
      *
      * @throws CustomerNotLoggedInException
      */
     public function saveProfile(RequestDataBag $data, SalesChannelContext $context): Response
     {
-        $this->denyAccessUnlessLoggedIn();
-
         try {
             $this->changeCustomerProfileRoute->change($data, $context);
 
@@ -137,14 +135,13 @@ class AccountProfileController extends StorefrontController
 
     /**
      * @Since("6.0.0.0")
+     * @LoginRequired()
      * @Route("/account/profile/email", name="frontend.account.profile.email.save", methods={"POST"})
      *
      * @throws CustomerNotLoggedInException
      */
     public function saveEmail(RequestDataBag $data, SalesChannelContext $context): Response
     {
-        $this->denyAccessUnlessLoggedIn();
-
         try {
             $this->changeEmailRoute->change($data->get('email')->toRequestDataBag(), $context);
 
@@ -162,14 +159,13 @@ class AccountProfileController extends StorefrontController
 
     /**
      * @Since("6.0.0.0")
+     * @LoginRequired()
      * @Route("/account/profile/password", name="frontend.account.profile.password.save", methods={"POST"})
      *
      * @throws CustomerNotLoggedInException
      */
     public function savePassword(RequestDataBag $data, SalesChannelContext $context): Response
     {
-        $this->denyAccessUnlessLoggedIn();
-
         try {
             $this->changePasswordRoute->change($data->get('password')->toRequestDataBag(), $context);
 
@@ -185,14 +181,13 @@ class AccountProfileController extends StorefrontController
 
     /**
      * @Since("6.3.3.0")
+     * @LoginRequired()
      * @Route("/account/profile/delete", name="frontend.account.profile.delete", methods={"POST"})
      *
      * @throws CustomerNotLoggedInException
      */
     public function deleteProfile(Request $request, SalesChannelContext $context): Response
     {
-        $this->denyAccessUnlessLoggedIn();
-
         try {
             $this->deleteCustomerRoute->delete($context);
             $this->addFlash('success', $this->trans('account.profileDeleteSuccessAlert'));

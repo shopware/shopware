@@ -107,6 +107,8 @@ abstract class StorefrontController extends AbstractController
     }
 
     /**
+     * @deprecated tag:v6.4.0 - use annotation `LoginRequired` instead
+     *
      * @throws CustomerNotLoggedInException
      */
     protected function denyAccessUnlessLoggedIn(bool $allowGuest = false): void

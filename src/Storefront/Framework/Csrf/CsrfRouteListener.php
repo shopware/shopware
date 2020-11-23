@@ -68,7 +68,7 @@ class CsrfRouteListener implements EventSubscriberInterface
     {
         return [
             KernelEvents::CONTROLLER => [
-                ['csrfCheck', KernelListenerPriorities::KERNEL_CONTROLLER_EVENT_SCOPE_VALIDATE],
+                ['csrfCheck', KernelListenerPriorities::KERNEL_CONTROLLER_EVENT_CONTEXT_RESOLVE_PRE],
             ],
         ];
     }

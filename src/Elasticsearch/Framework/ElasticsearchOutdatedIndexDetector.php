@@ -2,6 +2,7 @@
 
 namespace Shopware\Elasticsearch\Framework;
 
+use Doctrine\DBAL\Connection;
 use Elasticsearch\Client;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
@@ -31,16 +32,23 @@ class ElasticsearchOutdatedIndexDetector
      */
     private $helper;
 
+    /**
+     * @var Connection
+     */
+    private $connection;
+
     public function __construct(
         Client $client,
         ElasticsearchRegistry $esRegistry,
         EntityRepositoryInterface $languageRepository,
-        ElasticsearchHelper $helper
+        ElasticsearchHelper $helper,
+        Connection $connection
     ) {
         $this->client = $client;
         $this->registry = $esRegistry;
         $this->languageRepository = $languageRepository;
         $this->helper = $helper;
+        $this->connection = $connection;
     }
 
     /**
@@ -48,6 +56,13 @@ class ElasticsearchOutdatedIndexDetector
      */
     public function get(): ?array
     {
+        $exportingIndices = array_map(
+            static function (array $col) {
+                return $col['index'] ?? '';
+            },
+            $this->connection->fetchAll('SELECT `index` FROM elasticsearch_index_task')
+        );
+
         $allIndices = $this->client->indices()->get(
             ['index' => implode(',', $this->getPrefixes())]
         );
@@ -58,11 +73,13 @@ class ElasticsearchOutdatedIndexDetector
 
         $indicesToBeDeleted = [];
         foreach ($allIndices as $index) {
-            if (count($index['aliases']) > 0) {
+            $name = $index['settings']['index']['provided_name'];
+
+            if (count($index['aliases']) > 0 || in_array($name, $exportingIndices, true)) {
                 continue;
             }
 
-            $indicesToBeDeleted[] = $index['settings']['index']['provided_name'];
+            $indicesToBeDeleted[] = $name;
         }
 
         return $indicesToBeDeleted;

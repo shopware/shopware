@@ -157,6 +157,7 @@ class AppLifecycleTest extends TestCase
 
         static::assertCount(1, $apps);
         static::assertEquals('SwagAppMinimal', $apps->first()->getName());
+        static::assertEquals([], $apps->first()->getCookies());
     }
 
     public function testInstallWithoutDescription(): void

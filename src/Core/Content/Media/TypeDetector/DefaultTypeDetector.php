@@ -19,7 +19,7 @@ class DefaultTypeDetector implements TypeDetectorInterface
 
         $mime = explode('/', $mediaFile->getMimeType());
 
-        if (\count($mime) < 1) {
+        if (empty($mime)) {
             return new BinaryType();
         }
 

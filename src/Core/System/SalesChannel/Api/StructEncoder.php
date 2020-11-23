@@ -86,6 +86,7 @@ class StructEncoder
 
     private function encodeStruct(Struct $struct, int $apiVersion, ResponseFields $fields)
     {
+        /** @var array<string, mixed> $data */
         $data = $this->serializer->normalize($struct);
 
         $alias = $struct->getApiAlias();

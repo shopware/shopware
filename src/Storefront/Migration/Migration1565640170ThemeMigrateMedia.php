@@ -65,7 +65,7 @@ class Migration1565640170ThemeMigrateMedia extends MigrationStep
                WHERE `media_default_folder`.`entity` = \'theme\';'
         )->fetchAll(FetchMode::COLUMN);
 
-        if (!$mediaIds || count($mediaIds) === 0) {
+        if (empty($mediaIds)) {
             return;
         }
 

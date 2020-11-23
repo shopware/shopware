@@ -344,7 +344,7 @@ class ThumbnailService
         $thumbnail = imagecreatetruecolor($thumbnailSize['width'], $thumbnailSize['height']);
 
         if (!$type->is(ImageType::TRANSPARENT)) {
-            $colorWhite = imagecolorallocate($thumbnail, 255, 255, 255);
+            $colorWhite = (int) imagecolorallocate($thumbnail, 255, 255, 255);
             imagefill($thumbnail, 0, 0, $colorWhite);
         } else {
             imagealphablending($thumbnail, false);

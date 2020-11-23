@@ -527,7 +527,8 @@
     "currentlyNotAvailable": "Derzeit nicht verfügbar",
     "manufacturerDisplayName": "Hersteller",
     "deliveryTimeAvailable": "Sofort verfügbar, Lieferzeit %name%",
-    "noLongerAvailableTooltip": "Das Produkt ist nicht mehr verfügbar."
+    "noLongerAvailableTooltip": "Das Produkt ist nicht mehr verfügbar.",
+    "wishlistMergeHint": "Dein Merkzettel kann Produkte enthalten, die bei einem vorhergehenden Besuch hinzugefügt und gespeichert wurden."
   },
   "footer": {
     "serviceHotlineHeadline": "Service-Hotline",

@@ -11,7 +11,8 @@ export default class AddToWishlistPlugin extends Plugin {
         this._getWishlistStorage();
 
         if (!this._wishlistStorage) {
-            throw new Error('No wishlist storage found');
+            this.el.style.display = 'none';
+            console.warn('No wishlist storage found');
         }
 
         this._registerEvents();
@@ -25,7 +26,6 @@ export default class AddToWishlistPlugin extends Plugin {
         const wishlistBasketElement = document.querySelector('#wishlist-basket');
 
         if (!wishlistBasketElement) {
-            this.el.style.display = 'none';
 
             return;
         }

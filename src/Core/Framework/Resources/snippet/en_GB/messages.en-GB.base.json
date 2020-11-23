@@ -6,7 +6,7 @@
         "stornoNumber": "Cancellation number %stornoNumber%",
         "deliveryNoteNumber": "Delivery note %deliveryNoteNumber%",
         "deliveryNoteHeadline": "Delivery note %deliveryNoteNumber% for order %orderNumber%",
-        "creditNoteNumber": "Credit note %deliveryNoteNumber%",
+        "creditNoteNumber": "Credit note %creditNoteNumber%",
         "creditNoteHeadline": "Credit note %creditNoteNumber% for invoice no. %invoiceNumber%",
         "customerNumber": "Customer %customerNumber%",
         "date": "Date: %date%",

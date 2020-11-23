@@ -32,6 +32,11 @@ class DocumentConfiguration extends Struct
     protected $documentNumber;
 
     /**
+     * @var string|null
+     */
+    protected $documentComment;
+
+    /**
      * @var string
      */
     protected $pageOrientation;
@@ -196,6 +201,16 @@ class DocumentConfiguration extends Struct
     public function setDocumentNumber(?string $documentNumber): void
     {
         $this->documentNumber = $documentNumber;
+    }
+
+    public function getDocumentComment(): ?string
+    {
+        return $this->documentComment;
+    }
+
+    public function setDocumentComment(?string $documentComment): void
+    {
+        $this->documentComment = $documentComment;
     }
 
     public function getPageOrientation(): ?string

@@ -1,6 +1,6 @@
 ---
 title: Add blocks to storefront address component
-issue: /
+issue: NEXT-11824
 author: Rune Laenen
 author_email: rune@laenen.nu 
 author_github: @runelaenen

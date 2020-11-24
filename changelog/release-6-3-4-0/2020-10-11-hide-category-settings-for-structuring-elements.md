@@ -1,6 +1,6 @@
 ---
 title:  Hide category settings for structuring elements
-issue:  NEXT-10538
+issue: NEXT-10538
 author: Niklas Limberg
 author_github: @NiklasLimberg
 ---

@@ -1,8 +1,8 @@
 ---
-title:              Added events in import/export
-issue:              NEXT-11387
-author:             Bjoern Herzke
-author_github:      @wrongspot
+title: Added events in import/export
+issue: NEXT-11387
+author: Bjoern Herzke
+author_github: @wrongspot
 ---
 # Core
 * Added new `\Shopware\Core\Content\ImportExport\Event\ImportExportBeforeImportRecordEvent` to observe a record before it is stored in database

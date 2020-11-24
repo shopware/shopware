@@ -169,6 +169,69 @@ class RegisterRouteTest extends TestCase
         static::assertSame('customer', $customer['apiAlias']);
     }
 
+    /**
+     * @dataProvider registerWithDomainAndLeadingSlashProvider
+     */
+    public function testRegistrationWithTrailingSlashUrl(array $domainUrlTest): void
+    {
+        $browser = $this->createCustomSalesChannelBrowser([
+            'id' => $this->ids->create('sales-channel-3'),
+            'domains' => [
+                [
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'currencyId' => Defaults::CURRENCY,
+                    'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                    'url' => $domainUrlTest['domain'],
+                ],
+            ],
+        ]);
+
+        $browser->request(
+            'POST',
+            '/store-api/v' . PlatformRequest::API_VERSION . '/account/register',
+            $this->getRegistrationData($domainUrlTest['expectDomain'])
+        );
+
+        $response = json_decode($browser->getResponse()->getContent(), true);
+
+        static::assertEquals(200, $browser->getResponse()->getStatusCode());
+
+        static::assertSame('customer', $response['apiAlias']);
+        static::assertArrayNotHasKey('errors', $response);
+        static::assertNotEmpty($browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+
+        $browser->request(
+            'POST',
+            '/store-api/v' . PlatformRequest::API_VERSION . '/account/login',
+            [
+                'email' => 'teg-reg@example.com',
+                'password' => '12345678',
+            ]
+        );
+
+        $response = json_decode($browser->getResponse()->getContent(), true);
+
+        static::assertArrayHasKey('contextToken', $response);
+    }
+
+    public function registerWithDomainAndLeadingSlashProvider()
+    {
+        return [
+            // test without leading slash
+            [
+                ['domain' => 'http://my-evil-page', 'expectDomain' => 'http://my-evil-page'],
+            ],
+            // test with leading slash
+            [
+                ['domain' => 'http://my-evil-page/', 'expectDomain' => 'http://my-evil-page'],
+            ],
+            // test with double leading slash
+            [
+                ['domain' => 'http://my-evil-page//', 'expectDomain' => 'http://my-evil-page'],
+            ],
+        ];
+    }
+
     public function testDoubleOptin(): void
     {
         $systemConfig = $this->getContainer()->get(SystemConfigService::class);

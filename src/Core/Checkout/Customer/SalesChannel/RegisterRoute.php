@@ -298,7 +298,7 @@ class RegisterRoute extends AbstractRegisterRoute
     private function getDomainUrls(SalesChannelContext $context): array
     {
         return array_map(static function (SalesChannelDomainEntity $domainEntity) {
-            return $domainEntity->getUrl();
+            return rtrim($domainEntity->getUrl(), '/');
         }, $context->getSalesChannel()->getDomains()->getElements());
     }
 

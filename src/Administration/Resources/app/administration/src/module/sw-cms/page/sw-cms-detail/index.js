@@ -577,7 +577,9 @@ Component.register('sw-cms-detail', {
             }
             const sections = this.page.sections;
 
-            if (!this.page.categories.length && this.previousRoute === 'sw.cms.create') {
+            if (this.feature.isActive('FEATURE_NEXT_11389') &&
+                !this.page.categories.length &&
+                this.previousRoute === 'sw.cms.create') {
                 this.openLayoutAssignmentModal();
 
                 return Promise.reject();

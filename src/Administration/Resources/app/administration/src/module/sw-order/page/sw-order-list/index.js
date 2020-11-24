@@ -63,6 +63,7 @@ Component.register('sw-order-list', {
             });
 
             criteria.addAssociation('addresses');
+            criteria.addAssociation('billingAddress');
             criteria.addAssociation('salesChannel');
             criteria.addAssociation('orderCustomer');
             criteria.addAssociation('currency');
@@ -156,11 +157,12 @@ Component.register('sw-order-list', {
                 allowResize: true
             }, {
                 property: 'orderCustomer.firstName',
-                dataIndex: 'orderCustomer.firstName,orderCustomer.lastName',
+                dataIndex: 'orderCustomer.lastName,orderCustomer.firstName',
                 label: 'sw-order.list.columnCustomerName',
                 allowResize: true
             }, {
                 property: 'billingAddressId',
+                dataIndex: 'billingAddress.street',
                 label: 'sw-order.list.columnBillingAddress',
                 allowResize: true
             }, {

@@ -1,6 +1,6 @@
 ---
 title: fix typo in swedish currency
-issue: 11721
+issue: NEXT-11721
 author: Johannes Rahe
 author_email: j.rahe@shopware.com 
 author_github: J.Rahe

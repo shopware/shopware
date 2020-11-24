@@ -3,8 +3,6 @@ title: Adjust configuration name for the 404 page to comply with new configurati
 issue: NEXT-12345
 author: Philip Gatzka
 ---
-# Core
-
 # Upgrade Information
 
 ## Upcoming config key change

@@ -1,6 +1,6 @@
 ---
 title: Reactivates foreign key checks after database import in CLI mode.  
-issue:  NEXT-11749
+issue: NEXT-11749
 author: Manuel Josef  
 author_email: manuel.josef89@gmail.com  
 author_github: @mjosef89  

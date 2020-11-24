@@ -1,6 +1,6 @@
 ---
-title:  Implement bind customer scope in the SaleChannel
-issue:  NEXT-10974   
+title: Implement bind customer scope in the SaleChannel
+issue: NEXT-10974   
 ---
 # Core
 * Added a new system config file: `src\Core\System\Resources\config\systemWideLoginRegistration.xml`.

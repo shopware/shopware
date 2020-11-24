@@ -251,7 +251,8 @@
         "label": "Product listing",
         "config": {
           "tab": {
-            "sorting": "Sorting"
+            "sorting": "Sorting",
+            "filter": "Filter"
           },
           "sorting": {
             "labelShowSorting": "Show product sorting",
@@ -270,6 +271,17 @@
             },
             "defaultSortingInUse": "This product sorting is already selected as default sorting.",
             "defaultSortingCantBeDisabled": "This sorting is the default sorting. It has to be active to cause no problems with your product listing."
+          },
+          "filter": {
+            "infoText": "Make sure that a filter block is added to your layout to see this setting in action.",
+            "labelFilterByManufacturer": "Filter by manufacturer",
+            "labelFilterByRating": "Filter by rating",
+            "labelFilterByPrice": "Filter by price",
+            "labelFilterForFreeShipping": "Filter for free shipping",
+            "labelUseFilterByProperties": "Use product properties as filters",
+            "descriptionTextUseFilterByProperties": "Properties that are set to not filterable are not displayed here. You can change this in the <a href=\"#/sw/property/index\" target=\"_blank\">properties</a> module.",
+            "gridHeaderStatus": "Status",
+            "gridHeaderName": "Name"
           }
         }
       },
@@ -331,7 +343,7 @@
       "sidebarFilter": {
         "label": "Product filter",
         "infoText": {
-          "filterElement": "This element's filter data is automatically loaded. The content just shows a sample preview."
+          "filterElement": "This element's filter data is automatically loaded. The displayed filters can be configured via the Listing Element."
         }
       },
       "text": {

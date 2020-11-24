@@ -251,7 +251,8 @@
         "label": "Produkt-Listing",
         "config": {
           "tab": {
-            "sorting": "Sortierungen"
+            "sorting": "Sortierungen",
+            "filter": "Filter"
           },
           "sorting": {
             "labelShowSorting": "Produkt-Sortierung anzeigen",
@@ -270,6 +271,17 @@
             },
             "defaultSortingInUse": "Diese Produkt-Sortierung ist bereits als Standardsortierung ausgewählt.",
             "defaultSortingCantBeDisabled": "Diese Product-Sortierung ist die Standardsortierung. Sie muss aktiviert bleiben, um keine Probleme mit Deinen Produkt-Listings zu verursachen."
+          },
+          "filter": {
+            "infoText": "Stelle sicher, dass ein Filter Block zu Deinem Layout hinzugefügt ist, um diese Einstellung in Aktion zu sehen.",
+            "labelFilterByManufacturer": "Nach Hersteller filtern",
+            "labelFilterByRating": "Nach Bewertung filtern",
+            "labelFilterByPrice": "Nach Preis filtern",
+            "labelFilterForFreeShipping": "Nach kostenlosem Versand filtern",
+            "labelUseFilterByProperties": "Produkteigenschaften als Filter nutzen",
+            "descriptionTextUseFilterByProperties": "Eigenschaften, die auf nicht filterbar eingestellt sind, werden hier nicht angezeigt. Du kannst dies im <a href=\"#/sw/property/index\" target=\"_blank\">Eigenschaftsmodul</a> ändern.",
+            "gridHeaderStatus": "Status",
+            "gridHeaderName": "Name"
           }
         }
       },
@@ -331,7 +343,7 @@
       "sidebarFilter": {
         "label": "Produkt-Filter",
         "infoText": {
-          "filterElement": "Die Filterdaten für dieses Element werden automatisiert befüllt. Der Inhalt zeigt nur eine ungefähre Vorschau."
+          "filterElement": "Die angezeigten Filter können über das Listingelement konfiguriert werden."
         }
       },
       "text": {

@@ -218,3 +218,11 @@ The user can either run a strategy with the `bin/console app:url-change:resolve`
     Because the new installation will get a new shopId, the installed apps will continue working on the old installation as before, but as a consequence the data on the apps side that was associated with the old shopId can not be accessed on the new installation.
     
 * **UninstallApps**: This strategy will simply uninstall all apps on the new installation, thus keeping the old installation working like before.
+
+## Server libraries
+
+There are backend server libraries in various languages to get started with a remote app.
+
+- [Go](https://github.com/shopwareLabs/GoAppserver)
+- [Node.js](https://www.npmjs.com/package/@shopware-ag/swag-app-system-package)
+- [PHP](https://github.com/shopwareLabs/AppTemplate)

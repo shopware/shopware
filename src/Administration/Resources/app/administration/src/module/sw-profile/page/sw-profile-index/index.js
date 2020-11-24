@@ -254,6 +254,7 @@ Component.register('sw-profile-index', {
         saveUser(authToken) {
             if (!this.acl.can('user:editor')) {
                 const changes = this.userRepository.getSyncChangeset([this.user]);
+                delete changes.changeset[0].changes.id;
 
                 this.userService.updateUser(changes.changeset[0].changes).then(() => {
                     this.isLoading = false;

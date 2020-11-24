@@ -231,4 +231,30 @@ class UserControllerTest extends TestCase
         static::assertEquals(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, json_decode($response->getContent(), true)['errors'][0]['code'], $response->getContent());
         static::assertEquals(['user:update'], json_decode(json_decode($response->getContent(), true)['errors'][0]['detail'], true)['missingPrivileges'], $response->getContent());
     }
+
+    public function testPreventChangeOfUSerWithoutPermission(): void
+    {
+        $ids = new IdsCollection();
+
+        $user = [
+            'id' => $ids->get('user'),
+            'email' => 'foo@bar.com',
+            'firstName' => 'Firstname',
+            'lastName' => 'Lastname',
+            'password' => 'password',
+            'username' => 'foobar',
+            'localeId' => $this->getContainer()->get(Connection::class)->fetchColumn('SELECT LOWER(HEX(id)) FROM locale LIMIT 1'),
+            'aclRoles' => [],
+        ];
+
+        $this->getContainer()->get('user.repository')
+            ->create([$user], Context::createDefaultContext());
+
+        $this->authorizeBrowser($this->getBrowser(), [UserVerifiedScope::IDENTIFIER], ['user_change_me']);
+
+        $this->getBrowser()->request('PATCH', '/api/v' . PlatformRequest::API_VERSION . '/_info/me', ['firstName' => 'newName', 'id' => $ids->get('user')]);
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode());
+    }
 }

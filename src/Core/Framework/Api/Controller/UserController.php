@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Api\Controller\Exception\ExpectedUserHttpException;
+use Shopware\Core\Framework\Api\Controller\Exception\PermissionDeniedException;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
@@ -109,7 +110,7 @@ class UserController extends AbstractController
             throw new ExpectedUserHttpException();
         }
 
-        $allowedChanges = ['id', 'firstName', 'lastName', 'username', 'localeId', 'email', 'avatarMedia', 'avatarId', 'password'];
+        $allowedChanges = ['firstName', 'lastName', 'username', 'localeId', 'email', 'avatarMedia', 'avatarId', 'password'];
 
         if (!empty(array_diff(array_keys($request->request->all()), $allowedChanges))) {
             throw new MissingPrivilegeException(['user:update']);
@@ -152,6 +153,16 @@ class UserController extends AbstractController
             throw new AccessDeniedHttpException(sprintf('This access token does not have the scope "%s" to process this Request', UserVerifiedScope::IDENTIFIER));
         }
 
+        /** @var AdminApiSource $source */
+        $source = $context->getSource();
+
+        if (
+            !$source->isAllowed('user:update')
+            && $source->getUserId() !== $userId
+        ) {
+            throw new PermissionDeniedException();
+        }
+
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($userId): void {
             $this->userRepository->delete([['id' => $userId]], $context);
         });
@@ -190,8 +201,19 @@ class UserController extends AbstractController
 
         $data = $request->request->all();
 
+        /** @var AdminApiSource $source */
+        $source = $context->getSource();
+
         if (!isset($data['id'])) {
-            $data['id'] = $userId ?? null;
+            $data['id'] = null;
+        }
+        $data['id'] = $userId ?: $data['id'];
+
+        if (
+            !$source->isAllowed('user:update')
+            && $source->getUserId() !== $data['id']
+        ) {
+            throw new PermissionDeniedException();
         }
 
         $events = $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($data) {

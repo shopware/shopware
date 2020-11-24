@@ -25,7 +25,8 @@
             "confirm": "Confirm",
             "view": "View",
             "ascending": "Ascending",
-            "descending": "Descending"
+            "descending": "Descending",
+            "xTimesIn": "{n} times in"
         },
         "notification": {
             "notificationSaveErrorMessage": "An error occurred while saving the entity \"{entityName}\".",
@@ -33,7 +34,7 @@
             "unspecifiedSaveErrorMessage": "An error occurred.",
             "notificationSaveSuccessMessage": "The entity \"{entityName}\" has been saved.",
             "messageDeleteSuccess": "\"{name}\" deleted.",
-            "messageDeleteFailed": "is still in use by: "
+            "messageDeleteFailed": "The entity \"{entityName}\" is still in use by the following modules: "
         },
         "notification-center": {
             "title": "Notifications",
@@ -654,10 +655,14 @@
             "product": "Product | Products",
             "product_manufacturer": "Manufacturer | Manufacturers",
             "product_media": "Product media",
+            "product_price": "Product price | Product prices",
             "product_stream": "Dynamic product group | Dynamic product groups",
             "product_variation": "variant | variants",
             "product_review": "Review | Reviews",
             "promotion": "Promotion | Promotions",
+            "promotion_order_rule": "Promotion qualified order | Promotion qualified orders",
+            "promotion_cart_rule": "Promotion qualified cart | Promotion qualified carts",
+            "promotion_persona_rule": "Promotion target group | Promotion target groups",
             "rule": "Rule | Rules",
             "rule_condition": "Condition | Conditions",
             "sales_channel": "Sales Channel | Sales Channels",
@@ -667,6 +672,7 @@
             "shipping_method": "Shipping method | Shipping methods",
             "snippet": "Snippet | Snippets",
             "tax": "Tax | Taxes",
+            "tax_rule": "Tax rule | Taxe rules",
             "theme": "Theme | Themes",
             "unit": "Unit | Units",
             "user": "User | Users",

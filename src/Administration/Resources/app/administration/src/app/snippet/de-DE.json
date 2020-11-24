@@ -25,7 +25,8 @@
       "confirm": "Bestätigen",
       "view": "Anzeigen",
       "ascending": "Aufsteigend",
-      "descending": "Absteigend"
+      "descending": "Absteigend",
+      "xTimesIn": "{n} mal in"
     },
     "notification": {
       "notificationSaveErrorMessage": "Beim Speichern der Entität \"{entityName}\" ist ein Fehler aufgetreten.",
@@ -33,7 +34,7 @@
       "unspecifiedSaveErrorMessage": "Ein Fehler ist aufgetreten.",
       "notificationSaveSuccessMessage": "Die Entität \"{entityName}\" wurde erfolgreich gespeichert.",
       "messageDeleteSuccess": "\"{name}\" gelöscht.",
-      "messageDeleteFailed": "wird verwendet von: "
+      "messageDeleteFailed": "Die Entität \"{entityName}\" wird in folgenden Modulen verwendet: "
     },
     "notification-center": {
       "title": "Mitteilungen",
@@ -654,19 +655,24 @@
       "product": "Produkt | Produkte",
       "product_manufacturer": "Hersteller",
       "product_media": "Produktmedium | Produktmedien",
+      "product_price": "Produktpreis | Produktpreise",
       "product_stream": "Produktgruppe | Produktgruppen",
       "product_review": "Bewertung | Bewertungen",
       "product_variation": "Variante | Varianten",
       "promotion": "Promotion | Promotions",
+      "promotion_order_rule": "Promotion qualifizierte Bestellung | Promotion qualifizierte Bestellungen",
+      "promotion_cart_rule": "Promotion qualifizierter Warenkorb | Promotion qualifizierte Warenkörbe",
+      "promotion_persona_rule": "Promotion Zielgruppe | Promotion Zielgruppen",
       "rule": "Regel | Regeln",
       "rule_condition": "Bedingung | Bedingungen",
-      "sales_channel": "Verkaufkanal | Verkaufskanäle",
+      "sales_channel": "Verkaufskanal | Verkaufskanäle",
       "sales_channel_type": "Verkaufskanaltyp | Verkaufskanaltypen",
       "salutation": "Anrede | Anreden",
       "seo_url": "SEO-URL | SEO-URLs",
       "shipping_method": "Versandart | Versandarten",
       "snippet": "Textbaustein | Textbausteine",
       "tax": "Steuern",
+      "tax_rule": "Steuerregel | Steuerregeln",
       "theme": "Theme | Themes",
       "unit": "Maßeinheit | Maßeinheiten",
       "user": "Benutzer",

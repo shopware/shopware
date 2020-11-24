@@ -72,6 +72,12 @@ Component.register('sw-single-select', {
                     return label.toLowerCase().includes(searchTerm.toLowerCase());
                 });
             }
+        },
+
+        disableSearchFunction: {
+            type: Boolean,
+            required: false,
+            default: false
         }
     },
 
@@ -208,6 +214,10 @@ Component.register('sw-single-select', {
 
         search() {
             this.$emit('search', this.searchTerm);
+
+            if (this.disableSearchFunction) {
+                return;
+            }
 
             this.results = this.searchFunction(
                 {

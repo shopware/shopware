@@ -32,10 +32,10 @@
     }
   },
   "sw-seo-url": {
-    "titleCard": "Canonical Urls",
+    "titleCard": "SEO Urls",
     "labelSalesChannelSelect": "Verkaufskanal",
     "labelSeoPathInfo": "SEO Pfad",
-    "textEmptySeoUrls": "Es sind noch keine Canonical Urls vorhanden.",
+    "textEmptySeoUrls": "Es sind noch keine SEO Urls vorhanden.",
     "textSeoUrlsDisallowedForHeadless": "Für headless Sales Channel ist die Angabe von SEO URLs nicht möglich.",
     "labelMainCategory": "Hauptkategorie",
     "placeholderMainCategory": "Hauptkategorie wählen..."

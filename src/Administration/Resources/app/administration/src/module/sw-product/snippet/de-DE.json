@@ -68,9 +68,12 @@
       "labelMetaTitle": "Meta-Titel",
       "labelMetaDescription": "Meta-Beschreibung",
       "labelKeywords": "Schlüsselwörter",
+      "labelCanonicalUrlMode": "Verwende dieselbe Canonical-URL für alle Varianten.",
       "placeholderMetaTitle": "Gib einen Meta-Titel ein ...",
+      "labelCanonicalProduct": "Variante für Canonical-URL",
       "placeholderMetaDescription": "Gib eine Meta-Beschreibung ein ...",
-      "placeholderKeywords": "Gib ein oder mehrere Schlüsselwörter ein ..."
+      "placeholderKeywords": "Gib ein oder mehrere Schlüsselwörter ein ...",
+      "placeholderCanonicalProduct": "Wähle eine Variante aus ..."
     },
     "settingsForm": {
       "labelCreatedAt": "Erstelldatum",
@@ -194,6 +197,7 @@
       "multipleVariantsDeleteModalSubline": "Dies kann eine kurze Zeit dauern.",
       "notificationVariantDeleteSuccess": "\"{variantName}\" wurde erfolgreich gelöscht. | Erfolgreich {amount} Varianten gelöscht.",
       "notificationVariantDeleteError": "Beim löschen von \"{variantName}\" ist etwas schiefgelaufen. | Beim löschen mehrerer Varianten ist etwas schiefgelaufen.",
+      "notificationVariantDeleteErrorCanonicalUrl": "\"{variantName}\" kann nicht gelöscht werden, weil es als Canonical-URL-Template verwendet wird. | Varianten konnten nicht gelöscht werden, da eine Variante als Canonical-URl-Template verwendet wird.",
       "notificationVariantSaveSuccess": "\"{variantName}\" wurde erfolgreich gespeichert.",
       "variantDeleteModalTitle": "Variante löschen",
       "variantDeleteModalText": "Bist du dir sicher ob du die Variante \"{variantName}\" löschen willst?",
@@ -281,6 +285,7 @@
       "generatedListDeleteModalButtonDelete": "Löschen",
       "generatedListMessageSaveSuccess": "Die Variante wurde gespeichert.",
       "generatedListMessageSaveError": "Die Variante konnte nicht gespeichert werden.",
+      "generatedListMessageDeleteErrorCanonicalUrl": "Die Variante konnte nicht gelöscht werden da sie als Canonical-URL Template dient.",
       "generatedListMessageDeleteSuccess": "Die Variante wurde gelöscht.",
       "overview": {
         "filterReset": "Zurücksetzen",

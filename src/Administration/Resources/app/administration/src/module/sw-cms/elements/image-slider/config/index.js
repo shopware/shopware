@@ -158,6 +158,11 @@ Component.register('sw-cms-el-config-image-slider', {
             this.$emit('element-update', this.element);
         },
 
+        onChangeAutoplayInterval(value) {
+            this.element.config.autoplayTimeout.value = parseInt(value, 10);
+            this.$emit('element-update', this.element);
+        },
+
         emitUpdateEl() {
             this.$emit('element-update', this.element);
         }

@@ -36,7 +36,15 @@ Shopware.Service('cmsService').registerCmsElement({
         verticalAlign: {
             source: 'static',
             value: null
-        }
+        },
+        autoplay: {
+           source: "static",
+            value: true,
+        },
+        autoplayTimeout: {
+            source: "static",
+            value: 5000,
+        },
     },
     enrich: function enrich(elem, data) {
         if (Object.keys(data).length < 1) {

@@ -136,6 +136,27 @@
                                     </div>
                                 {% endblock %}
 
+                                {% block sw_cms_element_image_gallery_config_settings_autoplay %}
+                                    <div class="sw-cms-el-config-image-slider__settings-autoplay sw-cms-el-config-image-slider__setting-option">
+
+                                        {% block sw_cms_element_image_gallery_config_settings_autoplay_switch %}
+                                          <sw-field type="switch"
+                                                :label="$tc('sw-cms.elements.imageSlider.config.label.autoplay')"
+                                                v-model="element.config.autoplay.value">
+                                          </sw-field>
+                                        {% endblock %}
+
+                                        {% block sw_cms_element_image_gallery_config_settings_autoplay_timeout %}
+                                            <sw-text-field :label="$tc('sw-cms.elements.imageSlider.config.label.autoplayTimeout')"
+                                                   :disabled="!element.config.autoplay.value"
+                                                   v-model="element.config.autoplayTimeout.value"
+                                                   @input="onChangeAutoplayTimeout">
+                                            </sw-text-field>
+                                        {% endblock %}
+
+                                    </div>
+                                {% endblock %}
+
                                 {% block sw_cms_element_image_slider_config_settings_links %}
                                     <div class="sw-cms-el-config-image-slider__settings-links sw-cms-el-config-image-slider__setting-option">
                                         <div class="sw-cms-el-config-image-slider__settings-link"

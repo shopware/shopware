@@ -6,6 +6,9 @@
             slider: {
                 navPosition: 'bottom',
                 speed: 500,
+                autoplayButtonOutput: false,
+                autoplay: sliderConfig.autoplay.value ? true : false,
+                autoplayTimeout: sliderConfig.autoplayTimeout.value,
                 nav: sliderConfig.navigationDots.value ? true : false,
                 controls: sliderConfig.navigationArrows.value ? true : false,
                 autoHeight: (sliderConfig.displayMode.value == "standard") ? true : false

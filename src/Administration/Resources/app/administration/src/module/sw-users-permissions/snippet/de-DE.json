@@ -149,7 +149,7 @@
           "saveSuccess": {
             "message": "Der Benutzer \"{name}\" wurde erfolgreich gespeichert."
           },
-          "invalidEmailErrorMessage": "Bitte gib eine valide E-Mail-Adresse ein.",
+          "invalidEmailErrorMessage": "Bitte gib eine gültige E-Mail-Adresse ein.",
           "duplicateEmailErrorMessage": "Deine E-Mail-Adresse wird bereits verwendet."
         }
       }

@@ -23,7 +23,7 @@
       "notificationPasswordErrorMessage": "Die eingegebenen Passwörter stimmen nicht überein.",
       "notificationOldPasswordErrorMessage": "Bitte gib Dein aktuelles Passwort korrekt ein.",
       "notificationNewPasswordIsSameAsOldErrorMessage": "Dein neues Passwort stimmt mit dem alten überein. Bitte überlege dir ein neues Passwort.",
-      "notificationInvalidEmailErrorMessage": "Bitte gib eine valide E-Mail Adresse ein.",
+      "notificationInvalidEmailErrorMessage": "Bitte gib eine gültige E-Mail-Adresse ein.",
       "notificationSaveSuccessMessage": "Deine Profilinformationen wurden erfolgreich gespeichert.",
       "notificationSaveErrorMessage": "Deine Profilinformationen konnten nicht gespeichert werden.",
       "labelUploadAvatar": "Lade ein Profilbild hoch",

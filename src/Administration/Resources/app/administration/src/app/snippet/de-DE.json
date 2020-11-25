@@ -4,10 +4,10 @@
       "FRAMEWORK__MISSING_PRIVILEGE_ERROR": "Fehlende Berechtigungen",
       "FRAMEWORK__DELETE_RESTRICTED": "Löschen fehlgeschlagen",
       "c1051bb4-d103-4f74-8988-acbcafc7fdc3": "Dieses Feld darf nicht leer sein",
-      "INVALID_MEDIA_URL": "Bitte gib eine valide URL ein, um eine Datei hochzuladen.",
+      "INVALID_MEDIA_URL": "Bitte gib eine gültige URL ein, um eine Datei hochzuladen.",
       "CONTENT__MISSING_RULE_TYPE_EXCEPTION": "Du musst einen Typ für diese Regel auswählen.",
-      "SHOPWARE_INVALID_IP": "Bitte gib eine valide IP-Adresse ein.",
-      "INVALID_URL": "Bitte gib eine valide URL ein."
+      "SHOPWARE_INVALID_IP": "Bitte gib eine gültige IP-Adresse ein.",
+      "INVALID_URL": "Bitte gib eine gültige URL ein."
     },
     "default": {
       "add": "Hinzufügen",
@@ -216,7 +216,7 @@
           "message": "Fehler beim Speichern des Ordners."
         },
         "errorInvalidItemName": {
-          "message": "Der Ordner konnte nicht gespeichert werden. Bitte gib einen validen Ordnernamen ein."
+          "message": "Der Ordner konnte nicht gespeichert werden. Bitte gib einen gültigen Ordnernamen ein."
         }
       }
     },
@@ -459,14 +459,14 @@
       "addData": "Eintrag hinzufügen"
     },
     "sw-multi-tag-ip-select": {
-      "enterValidIp": "Bitte gib eine valide IPv4- oder IPv6-Adresse ein",
+      "enterValidIp": "Bitte gib eine gültige IPv4- oder IPv6-Adresse ein",
       "addIpAdress": "IP-Adresse hinzufügen",
       "knownIps": {
         "you": "Du"
       }
     },
     "sw-multi-ip-select": {
-      "enterValidIp": "Bitte gib eine valide IPv4- oder IPv6-Adresse ein",
+      "enterValidIp": "Bitte gib eine gültige IPv4- oder IPv6-Adresse ein",
       "addIpAdress": "IP-Adresse hinzufügen"
     },
     "sw-entity-multi-select": {

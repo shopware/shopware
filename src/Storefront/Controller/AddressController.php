@@ -196,7 +196,7 @@ class AddressController extends StorefrontController
 
     /**
      * @Since("6.0.0.0")
-     * @LoginRequired()
+     * @LoginRequired(allowGuest=true)
      * @Route("/widgets/account/address-book", name="frontend.account.addressbook", options={"seo"=true}, methods={"POST"}, defaults={"XmlHttpRequest"=true})
      */
     public function addressBook(Request $request, RequestDataBag $dataBag, SalesChannelContext $context): Response
